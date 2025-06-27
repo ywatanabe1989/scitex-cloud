@@ -635,3 +635,4 @@ yarn-debug.log*
 yarn-error.log*
 package-lock.json
 media/users/
+coverage/
