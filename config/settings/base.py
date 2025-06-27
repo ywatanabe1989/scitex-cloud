@@ -94,6 +94,27 @@ DATABASES = {
     }
 }
 
+# Cache Configuration
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': os.getenv('REDIS_URL', 'redis://127.0.0.1:6379/1'),
+        'OPTIONS': {
+            'CONNECTION_POOL_KWARGS': {
+                'max_connections': 50,
+                'retry_on_timeout': True,
+            }
+        },
+        'KEY_PREFIX': 'scitex_cloud',
+        'TIMEOUT': 3600,  # 1 hour default timeout
+    }
+}
+
+# Session configuration to use Redis for better performance
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+SESSION_CACHE_ALIAS = 'default'
+SESSION_COOKIE_AGE = 86400  # 24 hours
+
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {

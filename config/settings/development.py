@@ -51,6 +51,36 @@ DATABASES = {
     }
 }
 
+# Development Cache Configuration - fallback to dummy cache if Redis not available
+import socket
+
+def test_redis_connection():
+    """Test if Redis is available"""
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(1)
+        result = sock.connect_ex(('127.0.0.1', 6379))
+        sock.close()
+        return result == 0
+    except:
+        return False
+
+# Override cache configuration for development if Redis is not available
+if not test_redis_connection():
+    print("Redis not available in development, using local memory cache")
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'scitex-cloud-dev',
+            'TIMEOUT': 3600,
+            'OPTIONS': {
+                'MAX_ENTRIES': 1000
+            }
+        }
+    }
+    # Use database sessions if Redis is not available
+    SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+
 # Development static files
 STATICFILES_DIRS = [
     BASE_DIR / "static",

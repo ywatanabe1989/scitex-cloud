@@ -8,9 +8,13 @@ from django.views.decorators.http import require_http_methods
 from django.utils import timezone
 from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 from django.db import transaction
+from django.core.cache import cache
+from django.views.decorators.cache import cache_page
+# from django.utils.cache import make_template_fragment_key  # Removed - not available in newer Django
 import json
 import csv
 import io
+import hashlib
 from datetime import datetime, timedelta
 
 from .models import (
@@ -41,10 +45,24 @@ def search_dashboard(request):
     search_type = request.GET.get('type', 'simple')
     page = request.GET.get('page', 1)
     
-    results = SearchIndex.objects.filter(status='active')
+    # Create cache key for search results
+    cache_key = None
+    if query:
+        filters_str = '|'.join([f"{k}:{v}" for k, v in sorted(request.GET.items()) if k not in ['page', 'csrfmiddlewaretoken']])
+        cache_key = f"scholar_search:{hashlib.md5(filters_str.encode()).hexdigest()}"
+        
+        # Try to get cached results
+        cached_results = cache.get(cache_key)
+        if cached_results and not request.user.is_authenticated:  # Only use cache for anonymous users
+            results = cached_results
+        else:
+            results = SearchIndex.objects.filter(status='active')
+    else:
+        results = SearchIndex.objects.filter(status='active')
+    
     search_query_obj = None
     
-    if query:
+    if query and not (cache_key and cached_results):
         # Track the search query
         if request.user.is_authenticated:
             search_query_obj = SearchQuery.objects.create(
@@ -85,14 +103,29 @@ def search_dashboard(request):
         if search_query_obj:
             search_query_obj.result_count = results.count()
             search_query_obj.save()
+            
+        # Cache search results for anonymous users (1 hour)
+        if cache_key and not request.user.is_authenticated:
+            cache.set(cache_key, results, 3600)
     
     # Get search suggestions
     suggestions = []
     if query and len(query) >= 3:
         suggestions = _get_search_suggestions(query)
     
-    # Pagination
-    paginator = Paginator(results.select_related('journal').prefetch_related('authors'), 20)
+    # Pagination with optimized queries
+    optimized_results = results.select_related('journal').prefetch_related(
+        'authors',
+        'topics', 
+        'citations_received__citing_paper__authors',
+        Prefetch('authors', queryset=Author.objects.only('id', 'first_name', 'last_name', 'orcid'))
+    ).only(
+        'id', 'title', 'abstract', 'publication_date', 'citation_count', 'doi', 
+        'is_open_access', 'view_count', 'external_url', 'pdf_url',
+        'journal__id', 'journal__name', 'journal__impact_factor'
+    )
+    
+    paginator = Paginator(optimized_results, 20)
     try:
         papers = paginator.page(page)
     except PageNotAnInteger:
@@ -718,11 +751,16 @@ def _get_trending_recommendations(user):
     """Get trending paper recommendations."""
     recommendations = []
     
-    # Get trending papers from last week
+    # Get trending papers from last week with optimized queries
     last_week = timezone.now() - timedelta(weeks=1)
     trending = SearchIndex.objects.filter(
         publication_date__gte=last_week,
         status='active'
+    ).select_related('journal').prefetch_related(
+        Prefetch('authors', queryset=Author.objects.only('id', 'first_name', 'last_name'))
+    ).only(
+        'id', 'title', 'abstract', 'publication_date', 'citation_count', 'view_count',
+        'journal__id', 'journal__name'
     ).order_by('-view_count', '-citation_count')[:20]
     
     for paper in trending:

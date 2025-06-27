@@ -997,6 +997,200 @@ def pricing(request):
     return render(request, 'scholar_app/pricing.html')
 
 
+# Citation Export Views
+
+@require_http_methods(["POST"])
+@login_required
+def export_bibtex(request):
+    """Export selected papers as BibTeX"""
+    try:
+        from .utils import CitationExporter
+        
+        data = json.loads(request.body)
+        paper_ids = data.get('paper_ids', [])
+        collection_name = data.get('collection_name', '')
+        
+        if not paper_ids:
+            return JsonResponse({'error': 'No papers selected for export'}, status=400)
+        
+        # Get papers with authors
+        papers = SearchIndex.objects.filter(
+            id__in=paper_ids
+        ).prefetch_related('authors', 'journal').order_by('publication_date')
+        
+        if not papers.exists():
+            return JsonResponse({'error': 'No valid papers found'}, status=404)
+        
+        # Generate BibTeX content
+        bibtex_content = CitationExporter.to_bibtex(list(papers))
+        
+        # Log the export
+        CitationExporter.log_export(
+            user=request.user,
+            export_format='bibtex',
+            papers=list(papers),
+            collection_name=collection_name,
+            filter_criteria={'paper_ids': paper_ids}
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'content': bibtex_content,
+            'filename': f'scitex_export_{collection_name}_{papers.count()}_papers.bib' if collection_name else f'scitex_export_{papers.count()}_papers.bib',
+            'count': papers.count()
+        })
+        
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON data'}, status=400)
+    except Exception as e:
+        logger.error(f"BibTeX export error: {str(e)}")
+        return JsonResponse({'error': 'Export failed'}, status=500)
+
+
+@require_http_methods(["POST"])
+@login_required
+def export_ris(request):
+    """Export selected papers as RIS"""
+    try:
+        from .utils import CitationExporter
+        
+        data = json.loads(request.body)
+        paper_ids = data.get('paper_ids', [])
+        collection_name = data.get('collection_name', '')
+        
+        if not paper_ids:
+            return JsonResponse({'error': 'No papers selected for export'}, status=400)
+        
+        # Get papers with authors
+        papers = SearchIndex.objects.filter(
+            id__in=paper_ids
+        ).prefetch_related('authors', 'journal').order_by('publication_date')
+        
+        if not papers.exists():
+            return JsonResponse({'error': 'No valid papers found'}, status=404)
+        
+        # Generate RIS content
+        ris_content = CitationExporter.to_ris(list(papers))
+        
+        # Log the export
+        CitationExporter.log_export(
+            user=request.user,
+            export_format='ris',
+            papers=list(papers),
+            collection_name=collection_name,
+            filter_criteria={'paper_ids': paper_ids}
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'content': ris_content,
+            'filename': f'scitex_export_{collection_name}_{papers.count()}_papers.ris' if collection_name else f'scitex_export_{papers.count()}_papers.ris',
+            'count': papers.count()
+        })
+        
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON data'}, status=400)
+    except Exception as e:
+        logger.error(f"RIS export error: {str(e)}")
+        return JsonResponse({'error': 'Export failed'}, status=500)
+
+
+@require_http_methods(["POST"])
+@login_required
+def export_endnote(request):
+    """Export selected papers as EndNote"""
+    try:
+        from .utils import CitationExporter
+        
+        data = json.loads(request.body)
+        paper_ids = data.get('paper_ids', [])
+        collection_name = data.get('collection_name', '')
+        
+        if not paper_ids:
+            return JsonResponse({'error': 'No papers selected for export'}, status=400)
+        
+        # Get papers with authors
+        papers = SearchIndex.objects.filter(
+            id__in=paper_ids
+        ).prefetch_related('authors', 'journal').order_by('publication_date')
+        
+        if not papers.exists():
+            return JsonResponse({'error': 'No valid papers found'}, status=404)
+        
+        # Generate EndNote content
+        endnote_content = CitationExporter.to_endnote(list(papers))
+        
+        # Log the export
+        CitationExporter.log_export(
+            user=request.user,
+            export_format='endnote',
+            papers=list(papers),
+            collection_name=collection_name,
+            filter_criteria={'paper_ids': paper_ids}
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'content': endnote_content,
+            'filename': f'scitex_export_{collection_name}_{papers.count()}_papers.enw' if collection_name else f'scitex_export_{papers.count()}_papers.enw',
+            'count': papers.count()
+        })
+        
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON data'}, status=400)
+    except Exception as e:
+        logger.error(f"EndNote export error: {str(e)}")
+        return JsonResponse({'error': 'Export failed'}, status=500)
+
+
+@require_http_methods(["POST"])
+@login_required
+def export_csv(request):
+    """Export selected papers as CSV"""
+    try:
+        from .utils import CitationExporter
+        
+        data = json.loads(request.body)
+        paper_ids = data.get('paper_ids', [])
+        collection_name = data.get('collection_name', '')
+        
+        if not paper_ids:
+            return JsonResponse({'error': 'No papers selected for export'}, status=400)
+        
+        # Get papers with authors
+        papers = SearchIndex.objects.filter(
+            id__in=paper_ids
+        ).prefetch_related('authors', 'journal').order_by('publication_date')
+        
+        if not papers.exists():
+            return JsonResponse({'error': 'No valid papers found'}, status=404)
+        
+        # Generate CSV content
+        csv_content = CitationExporter.to_csv(list(papers))
+        
+        # Log the export
+        CitationExporter.log_export(
+            user=request.user,
+            export_format='csv',
+            papers=list(papers),
+            collection_name=collection_name,
+            filter_criteria={'paper_ids': paper_ids}
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'content': csv_content,
+            'filename': f'scitex_export_{collection_name}_{papers.count()}_papers.csv' if collection_name else f'scitex_export_{papers.count()}_papers.csv',
+            'count': papers.count()
+        })
+        
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON data'}, status=400)
+    except Exception as e:
+        logger.error(f"CSV export error: {str(e)}")
+        return JsonResponse({'error': 'Export failed'}, status=500)
+
+
 @require_http_methods(["POST"])
 @login_required
 def save_paper(request):

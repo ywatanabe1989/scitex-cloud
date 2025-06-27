@@ -30,6 +30,12 @@ urlpatterns = [
     path('api/search/biorxiv/', simple_views.api_search_biorxiv, name='api_search_biorxiv'),
     path('api/search/plos/', simple_views.api_search_plos, name='api_search_plos'),
     
+    # Citation Export endpoints
+    path('api/export/bibtex/', simple_views.export_bibtex, name='export_bibtex'),
+    path('api/export/ris/', simple_views.export_ris, name='export_ris'),
+    path('api/export/endnote/', simple_views.export_endnote, name='export_endnote'),
+    path('api/export/csv/', simple_views.export_csv, name='export_csv'),
+    
     # Legacy mock endpoints
     path('api/mock/save-paper/', simple_views.mock_save_paper, name='mock_save_paper'),
     path('api/mock/get-citation/', simple_views.mock_get_citation, name='mock_get_citation'),
