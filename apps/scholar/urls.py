@@ -36,6 +36,10 @@ urlpatterns = [
     path('api/export/endnote/', simple_views.export_endnote, name='export_endnote'),
     path('api/export/csv/', simple_views.export_csv, name='export_csv'),
     
+    # Paper Similarity Recommendations endpoints
+    path('api/recommendations/paper/<uuid:paper_id>/', simple_views.paper_recommendations, name='paper_recommendations'),
+    path('api/recommendations/user/', simple_views.user_recommendations, name='user_recommendations'),
+    
     # Legacy mock endpoints
     path('api/mock/save-paper/', simple_views.mock_save_paper, name='mock_save_paper'),
     path('api/mock/get-citation/', simple_views.mock_get_citation, name='mock_get_citation'),

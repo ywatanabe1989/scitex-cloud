@@ -236,11 +236,9 @@ def paper_detail(request, paper_id):
     citations_made = paper.citations_made.select_related('cited_paper').order_by('cited_paper__publication_date')
     citations_received = paper.citations_received.select_related('citing_paper').order_by('-citing_paper__publication_date')
     
-    # Get related papers (based on topics and authors)
-    related_papers = SearchIndex.objects.filter(
-        Q(topics__in=paper.topics.all()) |
-        Q(authors__in=paper.authors.all())
-    ).exclude(id=paper.id).distinct().order_by('-relevance_score')[:10]
+    # Get similar papers using advanced similarity algorithm
+    similar_papers_with_scores = _calculate_paper_similarity(paper, limit=8)
+    related_papers = [sp[0] for sp in similar_papers_with_scores]  # Extract just the papers
     
     # Track view for recommendations
     if request.user.is_authenticated:
@@ -705,26 +703,220 @@ def _build_citation_network(paper, depth=2):
 
 
 def _get_similar_papers_recommendations(user, recent_views):
-    """Get recommendations based on similar papers."""
+    """Get recommendations based on similar papers using multiple similarity methods."""
     recommendations = []
     viewed_papers = [rv.source_paper for rv in recent_views if rv.source_paper]
     
+    if not viewed_papers:
+        return recommendations
+    
+    # Get similarity scores for recent papers
     for paper in viewed_papers[:5]:
-        similar = SearchIndex.objects.filter(
-            topics__in=paper.topics.all()
-        ).exclude(
-            id__in=[p.id for p in viewed_papers]
-        ).distinct().order_by('-relevance_score')[:3]
+        similar_papers = _calculate_paper_similarity(paper, exclude_ids=[p.id for p in viewed_papers])
         
-        for sim_paper in similar:
+        for sim_paper, score, reason in similar_papers[:3]:
             recommendations.append({
                 'paper': sim_paper,
                 'type': 'similar',
-                'score': 0.8,
-                'reason': f'Similar to "{paper.title[:50]}..."'
+                'score': score,
+                'reason': reason
             })
+            
+            # Log recommendation for analytics
+            RecommendationLog.objects.create(
+                user=user,
+                source_paper=paper,
+                recommended_paper=sim_paper,
+                recommendation_type='similar',
+                score=score
+            )
     
     return recommendations[:20]
+
+
+def _calculate_paper_similarity(source_paper, exclude_ids=None, limit=10):
+    """Calculate similarity between papers using multiple methods."""
+    if exclude_ids is None:
+        exclude_ids = []
+    
+    # Get candidate papers from the same domain/topics
+    candidates = SearchIndex.objects.filter(
+        status='active'
+    ).exclude(
+        id__in=exclude_ids + [source_paper.id]
+    ).select_related('journal').prefetch_related('authors', 'topics')
+    
+    # Apply intelligent filtering to reduce computation
+    candidate_pool = candidates.filter(
+        Q(topics__in=source_paper.topics.all()) |
+        Q(authors__in=source_paper.authors.all()) |
+        Q(journal=source_paper.journal)
+    ).distinct()
+    
+    # If pool is too small, expand to recent papers from related fields
+    if candidate_pool.count() < 50:
+        recent_papers = candidates.filter(
+            publication_date__gte=timezone.now() - timedelta(days=365*2)
+        )[:100]
+        # Combine querysets using distinct() instead of union() to avoid ORDER BY issues
+        candidate_pool = candidates.filter(
+            Q(topics__in=source_paper.topics.all()) |
+            Q(authors__in=source_paper.authors.all()) |
+            Q(journal=source_paper.journal) |
+            Q(publication_date__gte=timezone.now() - timedelta(days=365*2))
+        ).distinct()
+    
+    similarity_scores = []
+    
+    for paper in candidate_pool[:200]:  # Limit for performance
+        score, reason = _compute_similarity_score(source_paper, paper)
+        if score > 0.1:  # Only include meaningful similarities
+            similarity_scores.append((paper, score, reason))
+    
+    # Sort by similarity score and return top results
+    similarity_scores.sort(key=lambda x: x[1], reverse=True)
+    return similarity_scores[:limit]
+
+
+def _compute_similarity_score(paper1, paper2):
+    """Compute similarity score between two papers using multiple factors."""
+    total_score = 0.0
+    reasons = []
+    
+    # 1. Topic similarity (30% weight)
+    common_topics = set(paper1.topics.all()) & set(paper2.topics.all())
+    if common_topics:
+        topic_score = len(common_topics) / max(paper1.topics.count(), paper2.topics.count(), 1)
+        total_score += topic_score * 0.3
+        reasons.append(f"{len(common_topics)} shared topics")
+    
+    # 2. Author overlap (25% weight)
+    common_authors = set(paper1.authors.all()) & set(paper2.authors.all())
+    if common_authors:
+        author_score = len(common_authors) / max(paper1.authors.count(), paper2.authors.count(), 1)
+        total_score += author_score * 0.25
+        author_names = [f"{a.first_name} {a.last_name}" for a in common_authors]
+        reasons.append(f"Common authors: {', '.join(author_names[:2])}")
+    
+    # 3. Journal similarity (15% weight)
+    if paper1.journal and paper2.journal:
+        if paper1.journal == paper2.journal:
+            total_score += 0.15
+            reasons.append(f"Same journal: {paper1.journal.name}")
+        elif hasattr(paper1.journal, 'category') and hasattr(paper2.journal, 'category') and paper1.journal.category == paper2.journal.category:
+            total_score += 0.05
+            reasons.append("Related journal category")
+    
+    # 4. Citation relationship (20% weight)
+    if _papers_have_citation_relationship(paper1, paper2):
+        total_score += 0.20
+        reasons.append("Citation relationship")
+    
+    # 5. Text similarity (basic keyword overlap) (10% weight)
+    text_score = _calculate_text_similarity(paper1, paper2)
+    total_score += text_score * 0.1
+    if text_score > 0.3:
+        reasons.append("Similar content")
+    
+    # 6. Temporal proximity bonus
+    if paper1.publication_date and paper2.publication_date:
+        date_diff = abs((paper1.publication_date - paper2.publication_date).days)
+        if date_diff < 365:  # Same year
+            total_score += 0.05
+        elif date_diff < 365*2:  # Within 2 years
+            total_score += 0.02
+    
+    # 7. Citation count similarity (papers with similar impact)
+    cite_diff = abs((paper1.citation_count or 0) - (paper2.citation_count or 0))
+    if cite_diff < 10:
+        total_score += 0.05
+    
+    reason_text = "; ".join(reasons) if reasons else "General similarity"
+    return min(total_score, 1.0), reason_text
+
+
+def _papers_have_citation_relationship(paper1, paper2):
+    """Check if papers have direct or indirect citation relationships."""
+    # Direct citation
+    if Citation.objects.filter(citing_paper=paper1, cited_paper=paper2).exists():
+        return True
+    if Citation.objects.filter(citing_paper=paper2, cited_paper=paper1).exists():
+        return True
+    
+    # Shared citations (co-cited papers)
+    paper1_citations = set(Citation.objects.filter(citing_paper=paper1).values_list('cited_paper_id', flat=True))
+    paper2_citations = set(Citation.objects.filter(citing_paper=paper2).values_list('cited_paper_id', flat=True))
+    
+    if len(paper1_citations & paper2_citations) >= 2:  # At least 2 shared citations
+        return True
+    
+    return False
+
+
+def _calculate_text_similarity(paper1, paper2):
+    """Calculate text similarity using keyword overlap."""
+    try:
+        # Try to use scikit-learn if available
+        from sklearn.feature_extraction.text import TfidfVectorizer
+        from sklearn.metrics.pairwise import cosine_similarity
+        import numpy as np
+        
+        # Combine title and abstract for similarity
+        text1 = f"{paper1.title or ''} {paper1.abstract or ''}"
+        text2 = f"{paper2.title or ''} {paper2.abstract or ''}"
+        
+        if not text1.strip() or not text2.strip():
+            return 0.0
+        
+        # Use TF-IDF with cosine similarity
+        vectorizer = TfidfVectorizer(
+            stop_words='english',
+            max_features=1000,
+            ngram_range=(1, 2),
+            min_df=1
+        )
+        
+        tfidf_matrix = vectorizer.fit_transform([text1, text2])
+        similarity = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])[0][0]
+        
+        return float(similarity)
+        
+    except ImportError:
+        # Fallback to simple word overlap if scikit-learn not available
+        return _simple_text_similarity(paper1, paper2)
+
+
+def _simple_text_similarity(paper1, paper2):
+    """Simple text similarity using word overlap (fallback method)."""
+    import re
+    
+    def extract_keywords(text):
+        if not text:
+            return set()
+        # Convert to lowercase, remove punctuation, split into words
+        words = re.findall(r'\b[a-zA-Z]{3,}\b', text.lower())
+        # Remove common stopwords
+        stopwords = {'the', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 
+                    'by', 'from', 'up', 'about', 'into', 'through', 'during', 'before', 
+                    'after', 'above', 'below', 'between', 'among', 'this', 'that', 'these', 
+                    'those', 'was', 'were', 'been', 'have', 'has', 'had', 'will', 'would',
+                    'could', 'should', 'may', 'might', 'can', 'must', 'shall'}
+        return set(word for word in words if word not in stopwords and len(word) > 3)
+    
+    text1 = f"{paper1.title or ''} {paper1.abstract or ''}"
+    text2 = f"{paper2.title or ''} {paper2.abstract or ''}"
+    
+    keywords1 = extract_keywords(text1)
+    keywords2 = extract_keywords(text2)
+    
+    if not keywords1 or not keywords2:
+        return 0.0
+    
+    # Jaccard similarity
+    intersection = len(keywords1 & keywords2)
+    union = len(keywords1 | keywords2)
+    
+    return intersection / union if union > 0 else 0.0
 
 
 def _get_author_based_recommendations(user, recent_views):
