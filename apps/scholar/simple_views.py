@@ -6,13 +6,14 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django.core.cache import cache
+from django.db.models import Q
 import json
 import requests
 import urllib.parse
 import hashlib
 import logging
 from datetime import datetime
-from .models import SearchIndex, UserLibrary, Author, Journal
+from .models import SearchIndex, UserLibrary, Author, Journal, Collection, Topic, AuthorPaper, Citation
 
 # Set up logger for Scholar module
 logger = logging.getLogger(__name__)
@@ -1163,6 +1164,35 @@ def pricing(request):
     return render(request, 'scholar_app/pricing.html')
 
 
+@login_required
+def personal_library(request):
+    """Personal research library management interface."""
+    # Get user's library papers with related data
+    library_papers = UserLibrary.objects.filter(
+        user=request.user
+    ).select_related('paper', 'paper__journal').prefetch_related(
+        'paper__authors', 'collections'
+    ).order_by('-saved_at')
+    
+    # Get user's collections
+    collections = Collection.objects.filter(user=request.user).order_by('name')
+    
+    # Get reading status statistics
+    status_stats = {}
+    for status_code, status_name in UserLibrary.READING_STATUS_CHOICES:
+        count = library_papers.filter(reading_status=status_code).count()
+        status_stats[status_code] = {'name': status_name, 'count': count}
+    
+    context = {
+        'library_papers': library_papers,
+        'collections': collections,
+        'status_stats': status_stats,
+        'total_papers': library_papers.count(),
+    }
+    
+    return render(request, 'scholar_app/personal_library.html', context)
+
+
 # Citation Export Views
 
 @require_http_methods(["POST"])
@@ -2126,3 +2156,241 @@ def user_recommendations(request):
             'status': 'error',
             'message': 'Failed to generate personalized recommendations'
         }, status=500)
+
+
+# Personal Library API Views
+
+@login_required
+@require_http_methods(["GET"])
+def api_library_papers(request):
+    """Get user's library papers with filtering and pagination."""
+    try:
+        # Get filter parameters
+        collection_id = request.GET.get('collection')
+        status = request.GET.get('status')
+        search_query = request.GET.get('q', '').strip()
+        sort_by = request.GET.get('sort', '-saved_at')
+        
+        # Base queryset
+        papers = UserLibrary.objects.filter(
+            user=request.user
+        ).select_related('paper', 'paper__journal').prefetch_related(
+            'paper__authors', 'collections'
+        )
+        
+        # Apply filters
+        if collection_id:
+            papers = papers.filter(collections__id=collection_id)
+        
+        if status:
+            papers = papers.filter(reading_status=status)
+        
+        if search_query:
+            papers = papers.filter(
+                Q(paper__title__icontains=search_query) |
+                Q(personal_notes__icontains=search_query) |
+                Q(tags__icontains=search_query)
+            )
+        
+        # Apply sorting
+        valid_sorts = ['-saved_at', 'saved_at', '-updated_at', 'paper__title', '-importance_rating']
+        if sort_by in valid_sorts:
+            papers = papers.order_by(sort_by)
+        else:
+            papers = papers.order_by('-saved_at')
+        
+        # Format response
+        papers_data = []
+        for library_paper in papers:
+            paper = library_paper.paper
+            papers_data.append({
+                'id': str(library_paper.id),
+                'paper_id': str(paper.id),
+                'title': paper.title,
+                'authors': get_paper_authors(paper),
+                'journal': paper.journal.name if paper.journal else 'Unknown Journal',
+                'year': paper.publication_date.year if paper.publication_date else None,
+                'reading_status': library_paper.reading_status,
+                'reading_status_display': library_paper.get_reading_status_display(),
+                'importance_rating': library_paper.importance_rating,
+                'personal_notes': library_paper.personal_notes,
+                'tags': library_paper.get_tags_list(),
+                'collections': [{'id': str(c.id), 'name': c.name, 'color': c.color} for c in library_paper.collections.all()],
+                'saved_at': library_paper.saved_at.isoformat(),
+                'pdf_url': paper.pdf_url,
+                'personal_pdf': library_paper.personal_pdf.url if library_paper.personal_pdf else None,
+            })
+        
+        return JsonResponse({
+            'status': 'success',
+            'papers': papers_data,
+            'count': len(papers_data)
+        })
+        
+    except Exception as e:
+        logger.error(f"Error getting library papers: {e}")
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+
+@login_required
+@require_http_methods(["GET"])
+def api_library_collections(request):
+    """Get user's collections with paper counts."""
+    try:
+        collections = Collection.objects.filter(user=request.user).order_by('name')
+        
+        collections_data = []
+        for collection in collections:
+            collections_data.append({
+                'id': str(collection.id),
+                'name': collection.name,
+                'description': collection.description,
+                'color': collection.color,
+                'icon': collection.icon,
+                'paper_count': collection.paper_count(),
+                'created_at': collection.created_at.isoformat(),
+            })
+        
+        return JsonResponse({
+            'status': 'success',
+            'collections': collections_data,
+            'count': len(collections_data)
+        })
+        
+    except Exception as e:
+        logger.error(f"Error getting collections: {e}")
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+
+@login_required
+@require_http_methods(["POST"])
+def api_create_collection(request):
+    """Create a new collection."""
+    try:
+        data = json.loads(request.body)
+        name = data.get('name', '').strip()
+        description = data.get('description', '').strip()
+        color = data.get('color', '#1a2332')
+        icon = data.get('icon', 'fas fa-folder')
+        
+        if not name:
+            return JsonResponse({'status': 'error', 'message': 'Collection name is required'}, status=400)
+        
+        # Check if collection already exists
+        if Collection.objects.filter(user=request.user, name=name).exists():
+            return JsonResponse({'status': 'error', 'message': 'Collection with this name already exists'}, status=400)
+        
+        collection = Collection.objects.create(
+            user=request.user,
+            name=name,
+            description=description,
+            color=color,
+            icon=icon
+        )
+        
+        return JsonResponse({
+            'status': 'success',
+            'collection': {
+                'id': str(collection.id),
+                'name': collection.name,
+                'description': collection.description,
+                'color': collection.color,
+                'icon': collection.icon,
+                'paper_count': 0,
+                'created_at': collection.created_at.isoformat(),
+            }
+        })
+        
+    except json.JSONDecodeError:
+        return JsonResponse({'status': 'error', 'message': 'Invalid JSON data'}, status=400)
+    except Exception as e:
+        logger.error(f"Error creating collection: {e}")
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+
+@login_required
+@require_http_methods(["PUT", "PATCH"])
+def api_update_library_paper(request, paper_id):
+    """Update library paper metadata."""
+    try:
+        data = json.loads(request.body)
+        
+        # Get the library paper
+        library_paper = UserLibrary.objects.get(
+            user=request.user,
+            paper__id=paper_id
+        )
+        
+        # Update fields
+        if 'reading_status' in data:
+            library_paper.reading_status = data['reading_status']
+        
+        if 'importance_rating' in data:
+            rating = data['importance_rating']
+            if rating is not None and (rating < 1 or rating > 5):
+                return JsonResponse({'status': 'error', 'message': 'Rating must be between 1-5'}, status=400)
+            library_paper.importance_rating = rating
+        
+        if 'personal_notes' in data:
+            library_paper.personal_notes = data['personal_notes']
+        
+        if 'tags' in data:
+            if isinstance(data['tags'], list):
+                library_paper.tags = ', '.join(data['tags'])
+            else:
+                library_paper.tags = data['tags']
+        
+        library_paper.save()
+        
+        # Update collections if provided
+        if 'collection_ids' in data:
+            collection_ids = data['collection_ids']
+            collections = Collection.objects.filter(
+                user=request.user,
+                id__in=collection_ids
+            )
+            library_paper.collections.set(collections)
+        
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Paper updated successfully'
+        })
+        
+    except UserLibrary.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Paper not found in library'}, status=404)
+    except json.JSONDecodeError:
+        return JsonResponse({'status': 'error', 'message': 'Invalid JSON data'}, status=400)
+    except Exception as e:
+        logger.error(f"Error updating library paper: {e}")
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+
+@login_required
+@require_http_methods(["DELETE"])
+def api_remove_library_paper(request, paper_id):
+    """Remove a paper from user's library."""
+    try:
+        library_paper = UserLibrary.objects.get(
+            user=request.user,
+            paper__id=paper_id
+        )
+        
+        # Store paper title for response
+        paper_title = library_paper.paper.title
+        
+        # Remove the library entry
+        library_paper.delete()
+        
+        return JsonResponse({
+            'status': 'success',
+            'message': f'"{paper_title}" removed from your library'
+        })
+        
+    except UserLibrary.DoesNotExist:
+        return JsonResponse({
+            'status': 'error', 
+            'message': 'Paper not found in your library'
+        }, status=404)
+    except Exception as e:
+        logger.error(f"Error removing library paper: {e}")
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)

@@ -7,6 +7,7 @@ urlpatterns = [
     # MVP Simple Interface
     path('', simple_views.index, name='index'),
     path('search/', simple_views.simple_search, name='simple_search'),
+    path('library/', simple_views.personal_library, name='personal_library'),
     path('features/', simple_views.features, name='features'),
     path('pricing/', simple_views.pricing, name='pricing'),
     
@@ -35,6 +36,13 @@ urlpatterns = [
     path('api/export/ris/', simple_views.export_ris, name='export_ris'),
     path('api/export/endnote/', simple_views.export_endnote, name='export_endnote'),
     path('api/export/csv/', simple_views.export_csv, name='export_csv'),
+    
+    # Personal Library API endpoints
+    path('api/library/papers/', simple_views.api_library_papers, name='api_library_papers'),
+    path('api/library/collections/', simple_views.api_library_collections, name='api_library_collections'),
+    path('api/library/collections/create/', simple_views.api_create_collection, name='api_create_collection'),
+    path('api/library/papers/<uuid:paper_id>/update/', simple_views.api_update_library_paper, name='api_update_library_paper'),
+    path('api/library/papers/<uuid:paper_id>/remove/', simple_views.api_remove_library_paper, name='api_remove_library_paper'),
     
     # Paper Similarity Recommendations endpoints
     path('api/recommendations/paper/<uuid:paper_id>/', simple_views.paper_recommendations, name='paper_recommendations'),
