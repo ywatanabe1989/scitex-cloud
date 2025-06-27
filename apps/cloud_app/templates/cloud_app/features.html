@@ -1,0 +1,291 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}Features - SciTeX Cloud{% endblock %}
+
+{% block meta_description %}Discover the powerful features of SciTeX Cloud - the complete scientific research platform for researchers and academics{% endblock %}
+
+{% block extra_css %}
+<style>
+    .feature-section {
+        padding: 5rem 0;
+    }
+    
+    .feature-section:nth-child(even) {
+        background-color: var(--light-gray);
+    }
+    
+    .feature-heading {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+    
+    .feature-heading h2 {
+        font-size: 2.5rem;
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+    }
+    
+    .feature-heading p {
+        font-size: 1.25rem;
+        color: var(--text-light);
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .feature-card {
+        background-color: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow-sm);
+        padding: 2rem;
+        height: 100%;
+        transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--box-shadow-md);
+    }
+    
+    .feature-icon {
+        font-size: 2.5rem;
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+        display: inline-block;
+    }
+    
+    .feature-card h3 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        color: var(--primary-color);
+    }
+    
+    .feature-card p {
+        color: var(--text-color);
+        margin-bottom: 1.5rem;
+    }
+    
+    .feature-list {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .feature-list li {
+        position: relative;
+        padding-left: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .feature-list li::before {
+        content: "✓";
+        position: absolute;
+        left: 0;
+        color: var(--success-color);
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container text-center py-5">
+        <h1 class="display-4 mb-3">Powerful Features for Scientific Research</h1>
+        <p class="lead mb-4">SciTeX Cloud provides a comprehensive suite of tools designed to accelerate your research workflow</p>
+    </div>
+</section>
+
+<!-- Research Management Features -->
+<section class="feature-section">
+    <div class="container">
+        <div class="feature-heading">
+            <h2>Research Management</h2>
+            <p>Organize your entire research workflow in one place</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-folder-open"></i>
+                    </div>
+                    <h3>Document Organization</h3>
+                    <p>Keep all your research materials organized and accessible</p>
+                    <ul class="feature-list">
+                        <li>Hierarchical project structure</li>
+                        <li>Custom tagging system</li>
+                        <li>Full-text search capabilities</li>
+                        <li>Unified view of all research assets</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <h3>Research Planning</h3>
+                    <p>Plan and track your research activities with precision</p>
+                    <ul class="feature-list">
+                        <li>Experiment tracking</li>
+                        <li>Research milestones</li>
+                        <li>Task prioritization</li>
+                        <li>Timeline visualization</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Collaboration Tools</h3>
+                    <p>Work seamlessly with colleagues across institutions</p>
+                    <ul class="feature-list">
+                        <li>Real-time document editing</li>
+                        <li>Commenting and annotations</li>
+                        <li>Role-based permissions</li>
+                        <li>Activity tracking</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Data Analysis Features -->
+<section class="feature-section">
+    <div class="container">
+        <div class="feature-heading">
+            <h2>Data Analysis & Visualization</h2>
+            <p>Powerful tools to process and visualize your research data</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h3>Code Integration</h3>
+                    <p>Integrate code from multiple languages into your workflow</p>
+                    <ul class="feature-list">
+                        <li>Support for Python, R, and Julia</li>
+                        <li>Interactive notebooks</li>
+                        <li>Version-controlled code</li>
+                        <li>Reproducible environments</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <h3>Visualization Studio</h3>
+                    <p>Create publication-quality visualizations with ease</p>
+                    <ul class="feature-list">
+                        <li>Interactive plotting tools</li>
+                        <li>Journal-specific formatting</li>
+                        <li>Customizable templates</li>
+                        <li>Export in multiple formats</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3>AI-Powered Analysis</h3>
+                    <p>Leverage machine learning to accelerate your research</p>
+                    <ul class="feature-list">
+                        <li>Automated data preprocessing</li>
+                        <li>Pattern detection</li>
+                        <li>Predictive modeling</li>
+                        <li>Research insight generation</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Document Creation Features -->
+<section class="feature-section">
+    <div class="container">
+        <div class="feature-heading">
+            <h2>Document Creation</h2>
+            <p>Streamline the process of creating scientific documents</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <h3>LaTeX Integration</h3>
+                    <p>Seamlessly create and edit LaTeX documents</p>
+                    <ul class="feature-list">
+                        <li>WYSIWYG LaTeX editor</li>
+                        <li>Journal-specific templates</li>
+                        <li>Automatic bibliography management</li>
+                        <li>Real-time preview</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <h3>Reference Management</h3>
+                    <p>Organize and cite your references with precision</p>
+                    <ul class="feature-list">
+                        <li>Database of millions of papers</li>
+                        <li>Automatic citation formatting</li>
+                        <li>PDF annotation tools</li>
+                        <li>Import/export with popular formats</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-spell-check"></i>
+                    </div>
+                    <h3>Writing Assistant</h3>
+                    <p>AI-powered tools to improve your scientific writing</p>
+                    <ul class="feature-list">
+                        <li>Grammar and style checking</li>
+                        <li>Technical terminology suggestions</li>
+                        <li>Clarity improvements</li>
+                        <li>Language polishing</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section text-center py-5">
+    <div class="container">
+        <h2 class="mb-4">Ready to Transform Your Research Workflow?</h2>
+        <p class="lead mb-4">Join thousands of researchers who use SciTeX Cloud to accelerate their scientific discoveries</p>
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+            <a href="{% url 'cloud_app:signup' %}" class="btn btn-lg btn-primary">Get Started Free</a>
+            <a href="{% url 'cloud_app:demo' %}" class="btn btn-lg btn-outline-primary">Watch Demo</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

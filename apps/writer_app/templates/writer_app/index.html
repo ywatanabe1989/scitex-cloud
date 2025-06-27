@@ -1,0 +1,640 @@
+{% extends "writer_app/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'common/css/hero-gradients.css' %}">
+<style>
+  
+  /* Custom styling for Writer hero section */
+  .hero-writer .doc-editor-demo {
+    box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+  }
+  
+  .doc-editor-demo {
+    background-color: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow-md);
+    overflow: hidden;
+  }
+  
+  .doc-toolbar {
+    background-color: var(--light-gray);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-bottom: 1px solid var(--mid-gray);
+    display: flex;
+    gap: var(--spacing-sm);
+  }
+  
+  .toolbar-button {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border: none;
+    background: transparent;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: background-color var(--transition-normal);
+  }
+  
+  .toolbar-button:hover {
+    background-color: var(--light-color);
+  }
+  
+  .toolbar-separator {
+    width: 1px;
+    background-color: var(--mid-gray);
+    margin: 0 var(--spacing-xs);
+  }
+  
+  .doc-content {
+    display: flex;
+    height: 400px;
+  }
+  
+  .doc-source {
+    width: 50%;
+    padding: var(--spacing-md);
+    font-family: var(--mono-font-family);
+    overflow-y: auto;
+    border-right: 1px solid var(--light-gray);
+    font-size: 0.9rem;
+  }
+  
+  .doc-preview {
+    width: 50%;
+    padding: var(--spacing-md);
+    overflow-y: auto;
+    font-size: 0.9rem;
+  }
+  
+  .doc-preview h1, .doc-preview h2, .doc-preview h3 {
+    color: var(--primary-color);
+  }
+  
+  .doc-preview .abstract {
+    font-style: italic;
+    margin-bottom: var(--spacing-md);
+  }
+  
+  .doc-preview .section {
+    margin-bottom: var(--spacing-md);
+  }
+  
+  .doc-preview .equation {
+    text-align: center;
+    padding: var(--spacing-sm) 0;
+  }
+  
+  .doc-preview .reference {
+    padding-left: 2em;
+    text-indent: -2em;
+    font-size: 0.85rem;
+  }
+  
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-lg);
+    margin-top: var(--spacing-xl);
+  }
+  
+  .feature-card {
+    background-color: white;
+    border-radius: var(--border-radius);
+    padding: var(--spacing-lg);
+    box-shadow: var(--box-shadow-sm);
+  }
+  
+  .feature-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: rgba(var(--primary-color-rgb), 0.1);
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: var(--spacing-md);
+  }
+  
+  .location-info {
+    background: var(--scitex-color-07);
+    padding: var(--spacing-sm);
+    border-radius: var(--border-radius);
+    font-family: var(--mono-font-family);
+    margin-top: var(--spacing-md);
+  }
+</style>
+{% endblock %}
+
+{% block doc_content %}
+<div class="hero-section hero-silverish-ai-light hero-writer">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="text-center mb-4">
+                    <h1 class="hero-title">SciTeX Writer</h1>
+                    <p class="hero-subtitle">AI-Enhanced Scientific Writing & LaTeX Editor</p>
+                </div>
+                
+                <div class="text-center">
+                    <p class="mb-4" style="opacity: 0.8; font-size: 1.1rem;">Advanced LaTeX framework with intelligent templates, automated compilation, and seamless reference management for publication-ready manuscripts.</p>
+                    <div class="hero-cta mt-5">
+                        <a href="/writer/editor/" class="btn btn-dark btn-lg me-3">Start Writing</a>
+                        <a href="#features" class="btn btn-outline-dark">Explore Features</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Editor Demo Section -->
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+        <h2 class="text-center mb-5">Interactive LaTeX Editor</h2>
+        <div class="doc-editor-demo">
+          <div class="doc-toolbar">
+            <button class="toolbar-button"><i class="fas fa-save"></i></button>
+            <button class="toolbar-button"><i class="fas fa-undo"></i></button>
+            <button class="toolbar-button"><i class="fas fa-redo"></i></button>
+            <div class="toolbar-separator"></div>
+            <button class="toolbar-button"><i class="fas fa-bold"></i></button>
+            <button class="toolbar-button"><i class="fas fa-italic"></i></button>
+            <button class="toolbar-button"><i class="fas fa-superscript"></i></button>
+            <button class="toolbar-button"><i class="fas fa-subscript"></i></button>
+            <div class="toolbar-separator"></div>
+            <button class="toolbar-button"><i class="fas fa-quote-right"></i></button>
+            <button class="toolbar-button"><i class="fas fa-table"></i></button>
+            <button class="toolbar-button"><i class="fas fa-image"></i></button>
+            <button class="toolbar-button"><i class="fas fa-square-root-alt"></i></button>
+            <div class="toolbar-separator"></div>
+            <button class="toolbar-button"><i class="fas fa-brain"></i> AI Assist</button>
+            <div style="margin-left: auto">
+              <button class="toolbar-button" onclick="toggleLivePreview()"><i class="fas fa-eye"></i> Live Preview</button>
+              <button class="toolbar-button" onclick="downloadPDF()"><i class="fas fa-download"></i> Download PDF</button>
+              <button class="toolbar-button"><i class="fas fa-play"></i> Compile</button>
+            </div>
+          </div>
+          <div class="doc-content">
+            <div class="doc-source">
+<pre>\documentclass{article}
+\usepackage{amsmath}
+\usepackage{graphicx}
+
+\title{Quantum Entanglement and Its Applications in Quantum Computing}
+\author{Jane Smith\\University of Science}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This paper explores the phenomenon of quantum entanglement and its role in quantum computing. We discuss the fundamental principles of entanglement, review recent experimental advances, and analyze potential applications in quantum algorithms and information processing.
+\end{abstract}
+
+\section{Introduction}
+Quantum entanglement is a physical phenomenon that occurs when pairs or groups of particles interact in ways such that the quantum state of each particle cannot be described independently of the others. Instead, a quantum state must be described for the system as a whole.
+
+\section{Theoretical Framework}
+The mathematical formulation of entanglement relies on the tensor product structure of quantum mechanics. For a system of two qubits, the general state can be written as:
+
+\begin{equation}
+|\psi\rangle = \alpha|00\rangle + \beta|01\rangle + \gamma|10\rangle + \delta|11\rangle
+\end{equation}
+
+where $\alpha, \beta, \gamma, \delta$ are complex coefficients with $|\alpha|^2 + |\beta|^2 + |\gamma|^2 + |\delta|^2 = 1$.
+
+\section{Experimental Verification}
+Recent experiments have conclusively demonstrated the non-local nature of quantum entanglement, confirming Bell's inequality violations \cite{aspect1982}.
+
+\begin{thebibliography}{9}
+\bibitem{aspect1982}
+Aspect, A., Dalibard, J., \& Roger, G. (1982). 
+\textit{Experimental Test of Bell's Inequalities Using Time-Varying Analyzers}. 
+Physical Review Letters, 49(25), 1804-1807.
+\end{thebibliography}
+
+\end{document}</pre>
+            </div>
+            <div class="doc-preview">
+              <h1>Quantum Entanglement and Its Applications in Quantum Computing</h1>
+              <p>Jane Smith<br>University of Science<br>May 22, 2025</p>
+              
+              <div class="abstract">
+                <strong>Abstract:</strong> This paper explores the phenomenon of quantum entanglement and its role in quantum computing. We discuss the fundamental principles of entanglement, review recent experimental advances, and analyze potential applications in quantum algorithms and information processing.
+              </div>
+              
+              <div class="section">
+                <h2>1. Introduction</h2>
+                <p>Quantum entanglement is a physical phenomenon that occurs when pairs or groups of particles interact in ways such that the quantum state of each particle cannot be described independently of the others. Instead, a quantum state must be described for the system as a whole.</p>
+              </div>
+              
+              <div class="section">
+                <h2>2. Theoretical Framework</h2>
+                <p>The mathematical formulation of entanglement relies on the tensor product structure of quantum mechanics. For a system of two qubits, the general state can be written as:</p>
+                
+                <div class="equation">
+                  |ψ⟩ = α|00⟩ + β|01⟩ + γ|10⟩ + δ|11⟩
+                </div>
+                
+                <p>where α, β, γ, δ are complex coefficients with |α|² + |β|² + |γ|² + |δ|² = 1.</p>
+              </div>
+              
+              <div class="section">
+                <h2>3. Experimental Verification</h2>
+                <p>Recent experiments have conclusively demonstrated the non-local nature of quantum entanglement, confirming Bell's inequality violations [1].</p>
+              </div>
+              
+              <div class="section">
+                <h2>References</h2>
+                <p class="reference">[1] Aspect, A., Dalibard, J., & Roger, G. (1982). Experimental Test of Bell's Inequalities Using Time-Varying Analyzers. Physical Review Letters, 49(25), 1804-1807.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="features">
+  <div class="container">
+    <h2 class="text-center mb-5">Key Features</h2>
+    
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-brain"></i>
+        </div>
+        <h3>AI Writing Assistant</h3>
+        <p>Get intelligent suggestions for content, phrasing improvements, and tailored scientific language specific to your field.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-book"></i>
+        </div>
+        <h3>Smart Citations</h3>
+        <p>Automatically find and format citations from our vast database of scientific literature with contextual awareness.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-code"></i>
+        </div>
+        <h3>LaTeX Mastery</h3>
+        <p>Full LaTeX support with intelligent autocompletion, debugging, and simplified syntax for complex expressions.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-chalkboard"></i>
+        </div>
+        <h3>Interactive Equations</h3>
+        <p>Create and manipulate equations with an intuitive interface that generates perfect LaTeX output.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-images"></i>
+        </div>
+        <h3>Figure Enhancement</h3>
+        <p>Optimize and improve scientific figures with automatic formatting, caption generation, and journal-specific styles.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-file-pdf"></i>
+        </div>
+        <h3>Journal Templates</h3>
+        <p>Access hundreds of pre-configured templates for major scientific journals and conferences.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-6">
+        <img src="{% static 'images/doc-workflow.svg' %}" alt="SciTeX Doc workflow" class="img-fluid">
+      </div>
+      <div class="col-lg-6">
+        <h2>Seamless Scientific Writing</h2>
+        <p class="lead">SciTeX Doc integrates with the entire scientific publication workflow, from drafting to submission.</p>
+        <ul class="list-unstyled mt-4">
+          <li class="mb-3"><i class="fas fa-check text-light me-2"></i> Real-time collaboration with colleagues</li>
+          <li class="mb-3"><i class="fas fa-check text-light me-2"></i> Automatic compliance with journal guidelines</li>
+          <li class="mb-3"><i class="fas fa-check text-light me-2"></i> Integration with reference management systems</li>
+          <li class="mb-3"><i class="fas fa-check text-light me-2"></i> Version control and change tracking</li>
+          <li class="mb-3"><i class="fas fa-check text-light me-2"></i> Simplified submission to journals and preprint servers</li>
+        </ul>
+        <div class="mt-4">
+          <a href="#" class="btn btn-light">Learn More</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container text-center">
+    <h2>Ready to transform your scientific writing?</h2>
+    <p class="lead mb-5">Join thousands of researchers using SciTeX Doc to create beautiful scientific documents.</p>
+    <div>
+      <a href="/cloud/signup" class="btn btn-lg btn-primary">Get Started</a>
+      <a href="/doc/pricing" class="btn btn-lg btn-outline-primary ms-3">View Pricing</a>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Live Preview Toggle
+let livePreviewEnabled = true;
+
+function toggleLivePreview() {
+  livePreviewEnabled = !livePreviewEnabled;
+  const previewPane = document.querySelector('.doc-preview');
+  const button = event.target.closest('.toolbar-button');
+  
+  if (livePreviewEnabled) {
+    previewPane.style.display = 'block';
+    button.innerHTML = '<i class="fas fa-eye"></i> Live Preview';
+    button.classList.remove('btn-outline-secondary');
+    button.classList.add('btn-primary');
+  } else {
+    previewPane.style.display = 'none';
+    button.innerHTML = '<i class="fas fa-eye-slash"></i> Preview Off';
+    button.classList.remove('btn-primary');
+    button.classList.add('btn-outline-secondary');
+  }
+}
+
+// PDF Download Functionality
+function downloadPDF() {
+  const button = event.target.closest('.toolbar-button');
+  const originalHTML = button.innerHTML;
+  
+  // Show loading state
+  button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+  button.disabled = true;
+  
+  // Get LaTeX content
+  const latexContent = document.querySelector('.doc-source pre').textContent;
+  
+  // Simulate PDF generation (in real implementation, this would call a backend service)
+  setTimeout(() => {
+    // Create a mock PDF download
+    const blob = new Blob([latexContent], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'quantum-entanglement-paper.tex';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+    
+    // Reset button
+    button.innerHTML = originalHTML;
+    button.disabled = false;
+    
+    // Show success message
+    showNotification('LaTeX source downloaded successfully! PDF compilation available in full editor.', 'success');
+  }, 2000);
+}
+
+// Live compilation system
+let compilationInProgress = false;
+let autoCompileTimeout = null;
+let lastContent = '';
+
+// Real-time Preview Update with live compilation
+function updatePreview() {
+  if (!livePreviewEnabled) return;
+  
+  const sourceContent = document.querySelector('.doc-source pre').textContent;
+  
+  // Check if content actually changed
+  if (sourceContent === lastContent) return;
+  lastContent = sourceContent;
+  
+  // Clear existing timeout
+  if (autoCompileTimeout) {
+    clearTimeout(autoCompileTimeout);
+  }
+  
+  // Set new timeout for auto-compilation
+  autoCompileTimeout = setTimeout(() => {
+    if (!compilationInProgress) {
+      triggerLiveCompilation(sourceContent);
+    }
+  }, 2000); // Compile 2 seconds after user stops typing
+  
+  // Immediate preview update for title changes
+  const titleMatch = sourceContent.match(/\\title\{([^}]+)\}/);
+  if (titleMatch) {
+    const previewTitle = document.querySelector('.doc-preview h1');
+    if (previewTitle && previewTitle.textContent !== titleMatch[1]) {
+      previewTitle.textContent = titleMatch[1];
+    }
+  }
+}
+
+// Trigger live compilation
+function triggerLiveCompilation(content) {
+  if (compilationInProgress) return;
+  
+  compilationInProgress = true;
+  const compileButton = document.querySelector('.toolbar-button:last-child');
+  const originalHTML = compileButton.innerHTML;
+  
+  // Show compilation in progress
+  compileButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Live Compiling...';
+  compileButton.disabled = true;
+  
+  // Prepare compilation data
+  const compilationData = {
+    content: content,
+    title: extractTitle(content) || 'Live Document',
+    type: 'live'
+  };
+  
+  // Send to compilation endpoint
+  fetch('/writer/api/quick-compile/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCsrfToken()
+    },
+    body: JSON.stringify(compilationData)
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      // Poll for compilation status
+      pollCompilationStatus(data.job_id, compileButton, originalHTML);
+    } else {
+      showNotification('Live compilation failed: ' + (data.error || 'Unknown error'), 'error');
+      resetCompileButton(compileButton, originalHTML);
+    }
+  })
+  .catch(error => {
+    showNotification('Live compilation error: ' + error.message, 'error');
+    resetCompileButton(compileButton, originalHTML);
+  });
+}
+
+// Poll compilation status
+function pollCompilationStatus(jobId, button, originalHTML) {
+  const pollInterval = setInterval(() => {
+    fetch(`/writer/api/compilation-status/${jobId}/`)
+    .then(response => response.json())
+    .then(data => {
+      if (data.status === 'completed') {
+        clearInterval(pollInterval);
+        showNotification('Live compilation completed successfully!', 'success');
+        updatePreviewWithPdf(data.pdf_url);
+        resetCompileButton(button, originalHTML);
+      } else if (data.status === 'failed') {
+        clearInterval(pollInterval);
+        showNotification('Live compilation failed: ' + (data.error || 'Unknown error'), 'error');
+        resetCompileButton(button, originalHTML);
+      }
+      // Continue polling if status is 'queued' or 'running'
+    })
+    .catch(error => {
+      clearInterval(pollInterval);
+      showNotification('Status check failed: ' + error.message, 'error');
+      resetCompileButton(button, originalHTML);
+    });
+  }, 1000); // Check every second
+  
+  // Stop polling after 30 seconds
+  setTimeout(() => {
+    clearInterval(pollInterval);
+    if (compilationInProgress) {
+      showNotification('Live compilation timed out', 'warning');
+      resetCompileButton(button, originalHTML);
+    }
+  }, 30000);
+}
+
+// Reset compile button
+function resetCompileButton(button, originalHTML) {
+  compilationInProgress = false;
+  button.innerHTML = originalHTML;
+  button.disabled = false;
+}
+
+// Update preview with PDF
+function updatePreviewWithPdf(pdfUrl) {
+  if (pdfUrl) {
+    const previewPane = document.querySelector('.doc-preview');
+    previewPane.innerHTML = `
+      <div class="pdf-preview">
+        <h4>Live Preview</h4>
+        <iframe src="${pdfUrl}" width="100%" height="400px" style="border: 1px solid #ddd;"></iframe>
+        <div class="mt-2">
+          <a href="${pdfUrl}" target="_blank" class="btn btn-sm btn-primary">
+            <i class="fas fa-external-link-alt"></i> Open PDF
+          </a>
+        </div>
+      </div>
+    `;
+  }
+}
+
+// Extract title from LaTeX content
+function extractTitle(content) {
+  const match = content.match(/\\title\{([^}]+)\}/);
+  return match ? match[1] : null;
+}
+
+// Get CSRF token
+function getCsrfToken() {
+  const token = document.querySelector('[name=csrfmiddlewaretoken]');
+  return token ? token.value : '';
+}
+
+// Notification system
+function showNotification(message, type = 'info') {
+  const notification = document.createElement('div');
+  notification.className = `alert alert-${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'info'} alert-dismissible fade show`;
+  notification.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 1050; max-width: 300px;';
+  notification.innerHTML = `
+    ${message}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  `;
+  
+  document.body.appendChild(notification);
+  
+  // Auto-remove after 3 seconds
+  setTimeout(() => {
+    if (notification.parentNode) {
+      notification.remove();
+    }
+  }, 3000);
+}
+
+// Enhanced toolbar interactions
+document.addEventListener('DOMContentLoaded', function() {
+  // Add hover effects to toolbar buttons
+  const toolbarButtons = document.querySelectorAll('.toolbar-button');
+  toolbarButtons.forEach(button => {
+    button.addEventListener('mouseenter', function() {
+      this.style.transform = 'translateY(-2px)';
+      this.style.transition = 'transform 0.2s ease';
+    });
+    
+    button.addEventListener('mouseleave', function() {
+      this.style.transform = 'translateY(0)';
+    });
+  });
+  
+  // Simulate live preview updates when content changes
+  const sourceArea = document.querySelector('.doc-source pre');
+  if (sourceArea) {
+    // Convert to editable for demonstration
+    sourceArea.contentEditable = true;
+    sourceArea.style.outline = 'none';
+    
+    sourceArea.addEventListener('input', function() {
+      clearTimeout(this.updateTimer);
+      this.updateTimer = setTimeout(updatePreview, 500);
+    });
+    
+    // Enable auto-save
+    sourceArea.addEventListener('input', function() {
+      clearTimeout(this.autoSaveTimer);
+      this.autoSaveTimer = setTimeout(() => {
+        autoSaveContent(sourceContent);
+      }, 5000); // Auto-save after 5 seconds of inactivity
+    });
+  }
+  
+  // Add compile button functionality
+  const compileButton = document.querySelector('.toolbar-button:last-child');
+  if (compileButton && compileButton.textContent.includes('Compile')) {
+    compileButton.addEventListener('click', function() {
+      const originalHTML = this.innerHTML;
+      this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Compiling...';
+      this.disabled = true;
+      
+      setTimeout(() => {
+        this.innerHTML = originalHTML;
+        this.disabled = false;
+        showNotification('LaTeX compiled successfully! Check the preview panel.', 'success');
+        updatePreview();
+      }, 3000);
+    });
+  }
+});
+</script>
+{% endblock %}

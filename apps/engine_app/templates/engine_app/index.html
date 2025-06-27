@@ -1,0 +1,265 @@
+{% extends "engine_app/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+  .hero-engine {
+    background-color: var(--gray-200);
+    background-image: linear-gradient(135deg, var(--gray-100) 0%, var(--gray-300) 100%);
+    padding: var(--spacing-xxl) 0;
+  }
+  
+  .engine-demo {
+    background-color: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow-md);
+    overflow: hidden;
+  }
+  
+  .engine-header {
+    background-color: var(--primary-color);
+    color: white;
+    padding: var(--spacing-md);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .engine-content {
+    padding: var(--spacing-lg);
+  }
+  
+  .chat-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+  
+  .chat-message {
+    display: flex;
+    gap: var(--spacing-sm);
+  }
+  
+  .chat-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: var(--light-gray);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  
+  .chat-bubble {
+    background-color: var(--light-gray);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-sm) var(--spacing-md);
+    max-width: 80%;
+  }
+  
+  .chat-user .chat-avatar {
+    background-color: var(--primary-color);
+    color: white;
+  }
+  
+  .chat-assistant .chat-bubble {
+    background-color: var(--primary-light);
+    color: white;
+  }
+  
+  .capabilities-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-lg);
+    margin-top: var(--spacing-xxl);
+  }
+  
+  .capability-card {
+    background-color: white;
+    border-radius: var(--border-radius);
+    padding: var(--spacing-lg);
+    box-shadow: var(--box-shadow-sm);
+  }
+  
+  .capability-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: rgba(var(--primary-color-rgb), 0.1);
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: var(--spacing-md);
+  }
+</style>
+{% endblock %}
+
+{% block engine_content %}
+<section class="hero-engine">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-6">
+        <h1 class="display-4">SciTeX Engine</h1>
+        <p class="lead mb-4">AI-Powered Emacs Assistant for Scientific Research</p>
+        <p class="mb-4">Transform your Emacs environment into an intelligent research workstation. SciTeX Engine integrates Claude AI directly into Emacs, providing context-aware assistance for coding, writing, and scientific analysis.</p>
+        <p class="location-info"><strong>Project Location:</strong> <code>~/.emacs.d/lisp/emacs-claude-code</code></p>
+        <div class="mt-5">
+          <a href="#capabilities" class="btn btn-primary">Explore Features</a>
+          <a href="https://github.com/ywatanabe1989/emacs-claude-code" class="btn btn-outline-primary ms-2">View on GitHub</a>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="engine-demo">
+          <div class="engine-header">
+            <div>SciTeX Engine</div>
+            <div><i class="fas fa-expand"></i></div>
+          </div>
+          <div class="engine-content">
+            <pre style="background: #002b36; color: #93a1a1; padding: 1rem; font-family: 'Consolas', 'Monaco', monospace;">
+<span style="color: #859900">;; SciTeX Engine in action</span>
+<span style="color: #268bd2">M-x</span> <span style="color: #b58900">claude-ask</span>
+
+<span style="color: #586e75">;;; User:</span>
+Help me implement a function to analyze time-series neural data
+
+<span style="color: #586e75">;;; Claude:</span>
+I'll help you create a function for time-series neural data analysis.
+Here's a comprehensive implementation:
+
+<span style="color: #268bd2">(defun</span> <span style="color: #b58900">analyze-neural-timeseries</span> <span style="color: #2aa198">(data &optional params)</span>
+  <span style="color: #859900">"Analyze neural time-series DATA with optional PARAMS.</span>
+<span style="color: #859900">   Returns analysis results including power spectrum, phase, and statistics."</span>
+  <span style="color: #268bd2">(let*</span> <span style="color: #2aa198">((sampling-rate</span> <span style="color: #2aa198">(or (plist-get params :sampling-rate) 1000))</span>
+         <span style="color: #2aa198">(window-size</span> <span style="color: #2aa198">(or (plist-get params :window-size) 256))</span>
+         <span style="color: #2aa198">(overlap</span> <span style="color: #2aa198">(or (plist-get params :overlap) 0.5)))</span>
+    
+    <span style="color: #859900">;; Preprocessing</span>
+    <span style="color: #268bd2">(setq</span> data <span style="color: #2aa198">(detrend-signal data)</span>)
+    <span style="color: #268bd2">(setq</span> data <span style="color: #2aa198">(bandpass-filter data 1 100 sampling-rate)</span>)
+    
+    <span style="color: #859900">;; Compute power spectral density</span>
+    <span style="color: #268bd2">(let</span> <span style="color: #2aa198">((psd</span> <span style="color: #2aa198">(welch-psd data window-size overlap sampling-rate))</span>
+          <span style="color: #2aa198">(phase</span> <span style="color: #2aa198">(hilbert-phase data)))</span>
+      
+      <span style="color: #859900">;; Return analysis results</span>
+      <span style="color: #268bd2">`(:power-spectrum</span> ,psd
+        <span style="color: #268bd2">:phase</span> ,phase
+        <span style="color: #268bd2">:mean</span> ,<span style="color: #2aa198">(mean data)</span>
+        <span style="color: #268bd2">:std</span> ,<span style="color: #2aa198">(std-dev data)</span>
+        <span style="color: #268bd2">:peak-frequency</span> ,<span style="color: #2aa198">(find-peak-frequency psd)</span>))))</span>
+
+<span style="color: #586e75">;;; Would you like me to implement the helper functions or explain </span>
+<span style="color: #586e75">;;; specific signal processing techniques?</span>
+            </pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="capabilities">
+  <div class="container">
+    <h2 class="text-center mb-5">Capabilities</h2>
+    
+    <div class="capabilities-grid">
+      <div class="capability-card">
+        <div class="capability-icon">
+          <i class="fas fa-keyboard"></i>
+        </div>
+        <h3>Seamless Emacs Integration</h3>
+        <p>Access Claude AI directly from Emacs with keybindings, minibuffer commands, and region selection support. No context switching required.</p>
+      </div>
+      
+      <div class="capability-card">
+        <div class="capability-icon">
+          <i class="fas fa-code"></i>
+        </div>
+        <h3>Context-Aware Code Assistance</h3>
+        <p>Get intelligent code suggestions, refactoring help, and debugging assistance that understands your project context and coding style.</p>
+      </div>
+      
+      <div class="capability-card">
+        <div class="capability-icon">
+          <i class="fas fa-file-code"></i>
+        </div>
+        <h3>Multi-Language Support</h3>
+        <p>Works with Elisp, Python, R, Julia, C++, and any language you use in Emacs. Understands scientific computing libraries and frameworks.</p>
+      </div>
+      
+      <div class="capability-card">
+        <div class="capability-icon">
+          <i class="fas fa-flask"></i>
+        </div>
+        <h3>Scientific Writing in Org-mode</h3>
+        <p>Enhanced org-mode support for research notes, LaTeX equations, citations, and manuscript preparation with AI assistance.</p>
+      </div>
+      
+      <div class="capability-card">
+        <div class="capability-icon">
+          <i class="fas fa-sync"></i>
+        </div>
+        <h3>Buffer and Project Awareness</h3>
+        <p>Understands your current buffer, project structure, and can reference multiple files to provide comprehensive assistance.</p>
+      </div>
+      
+      <div class="capability-card">
+        <div class="capability-icon">
+          <i class="fas fa-terminal"></i>
+        </div>
+        <h3>Shell and REPL Integration</h3>
+        <p>Interact with shell commands, REPLs, and computational environments directly through the AI assistant.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="container">
+    <h2 class="text-center mb-5">Quick Start</h2>
+    <div class="row">
+      <div class="col-md-4 mb-4">
+        <h3><i class="fas fa-download text-primary me-2"></i> Install</h3>
+        <pre style="background: #f8f9fa; padding: 1rem; border-radius: 8px;"><code>;; Add to your init.el
+(add-to-list 'load-path
+  "~/.emacs.d/lisp/emacs-claude-code")
+(require 'claude-ai)</code></pre>
+      </div>
+      <div class="col-md-4 mb-4">
+        <h3><i class="fas fa-key text-primary me-2"></i> Configure</h3>
+        <pre style="background: #f8f9fa; padding: 1rem; border-radius: 8px;"><code>;; Set your API key
+(setq claude-api-key 
+  "your-api-key-here")
+  
+;; Optional customizations
+(setq claude-model "claude-3")</code></pre>
+      </div>
+      <div class="col-md-4 mb-4">
+        <h3><i class="fas fa-rocket text-primary me-2"></i> Use</h3>
+        <pre style="background: #f8f9fa; padding: 1rem; border-radius: 8px;"><code>;; Ask Claude anything
+M-x claude-ask
+
+;; Analyze selected region
+M-x claude-analyze-region
+
+;; Get help with current buffer
+M-x claude-help-buffer</code></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container text-center">
+    <h2>Ready to accelerate your research?</h2>
+    <p class="lead mb-5">Join thousands of researchers using SciTeX Engine to enhance their scientific workflow.</p>
+    <div>
+      <a href="/cloud/signup" class="btn btn-lg btn-primary">Get Started</a>
+      <a href="/engine/pricing" class="btn btn-lg btn-outline-primary ms-3">View Pricing</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block meta_description %}Interactive data visualization for scientific insights{% endblock %}
+
+{% block title %}Viz - Scientific Data Visualization{% endblock %}
+
+{% block extra_css %}
+<!-- Hero gradients CSS -->
+<link rel="stylesheet" href="{% static 'common/css/hero-gradients.css' %}">
+<!-- App-specific CSS -->
+<link rel="stylesheet" href="{% static 'css/viz_app/viz_app.css' %}">
+{% endblock %}
+
+{% block content %}
+    {% block viz_content %}{% endblock %}
+{% endblock %}

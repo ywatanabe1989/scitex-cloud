@@ -1,0 +1,167 @@
+{% extends "cloud_app/base.html" %}
+{% load static %}
+
+{% block title %}SciTeX-Viz - Interactive Scientific Visualization{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/products.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="product-detail">
+    <div class="container">
+        <div class="product-header">
+            <h1>SciTeX-Viz</h1>
+            <p class="tagline">Interactive Visualization for Scientific Insights</p>
+        </div>
+
+        <div class="product-overview">
+            <div class="overview-content">
+                <h2>Publication-Ready Scientific Visualizations</h2>
+                <p>
+                    SciTeX-Viz, powered by SigMacro, provides sophisticated visualization tools 
+                    specifically designed for scientific publications. Create stunning, interactive 
+                    figures that bring your research data to life while maintaining the precision 
+                    required for academic publishing.
+                </p>
+                <div class="location-info">
+                    <strong>Project Location:</strong> <code>~/proj/scitex/SigMacro</code>
+                </div>
+            </div>
+            <div class="overview-visual">
+                <div class="viz-showcase">
+                    <div class="viz-grid">
+                        <div class="viz-item">📊 Statistical Plots</div>
+                        <div class="viz-item">🧠 Neural Networks</div>
+                        <div class="viz-item">📈 Time Series</div>
+                        <div class="viz-item">🗺️ Spatial Data</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <h3>Scientific Accuracy</h3>
+                <ul>
+                    <li>Precise data representation</li>
+                    <li>Statistical annotations</li>
+                    <li>Error bar calculations</li>
+                    <li>Significance indicators</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <h3>Publication Standards</h3>
+                <ul>
+                    <li>Vector format exports (SVG, PDF)</li>
+                    <li>High-resolution raster outputs</li>
+                    <li>Journal-specific formatting</li>
+                    <li>Consistent styling system</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <h3>Interactive Features</h3>
+                <ul>
+                    <li>Zoom and pan controls</li>
+                    <li>Data point tooltips</li>
+                    <li>Dynamic filtering</li>
+                    <li>Real-time updates</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="visualization-types">
+            <h2>Visualization Capabilities</h2>
+            <div class="viz-types-grid">
+                <div class="viz-type">
+                    <h4>Statistical Analysis</h4>
+                    <p>Box plots, violin plots, scatter matrices, correlation heatmaps, and distribution analyses</p>
+                </div>
+                <div class="viz-type">
+                    <h4>Time Series Data</h4>
+                    <p>Multi-channel plots, spectrograms, phase diagrams, and temporal correlations</p>
+                </div>
+                <div class="viz-type">
+                    <h4>Network Visualizations</h4>
+                    <p>Graph layouts, connectivity matrices, hierarchical structures, and flow diagrams</p>
+                </div>
+                <div class="viz-type">
+                    <h4>3D Visualizations</h4>
+                    <p>Surface plots, volume rendering, point clouds, and interactive 3D models</p>
+                </div>
+                <div class="viz-type">
+                    <h4>Geospatial Data</h4>
+                    <p>Map overlays, geographic projections, spatial statistics, and location-based analyses</p>
+                </div>
+                <div class="viz-type">
+                    <h4>Multi-dimensional Data</h4>
+                    <p>Parallel coordinates, radar charts, dimensionality reduction, and clustering visualizations</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="requirements-section">
+            <h2>System Requirements</h2>
+            <div class="requirements-grid">
+                <div class="req-card">
+                    <h3><i class="fas fa-server"></i> Platform Compatibility</h3>
+                    <ul>
+                        <li><strong>Native Support:</strong> Windows 10/11</li>
+                        <li><strong>Linux/macOS:</strong> Via Apptainer container with Wine</li>
+                        <li><strong>Remote Option:</strong> Windows server for cloud processing</li>
+                    </ul>
+                </div>
+                <div class="req-card">
+                    <h3><i class="fas fa-cube"></i> Key Dependencies</h3>
+                    <ul>
+                        <li><strong>SigmaPlot:</strong> Version 14+ (license required)</li>
+                        <li><strong>Python:</strong> 3.8+ for scripting interface</li>
+                        <li><strong>Memory:</strong> 8GB RAM minimum, 16GB recommended</li>
+                        <li><strong>Storage:</strong> 2GB for software + data space</li>
+                    </ul>
+                </div>
+                <div class="req-card">
+                    <h3><i class="fas fa-box"></i> Container Availability</h3>
+                    <ul>
+                        <li><strong>Apptainer Image:</strong> <code>scitex/visualizer:latest</code></li>
+                        <li><strong>Includes:</strong> Wine, Python environment, automation scripts</li>
+                        <li><strong>Performance:</strong> ~90% of native Windows speed</li>
+                        <li><strong>Alternative:</strong> Remote Windows processing available</li>
+                    </ul>
+                </div>
+                <div class="req-card">
+                    <h3><i class="fas fa-certificate"></i> Licensing</h3>
+                    <ul>
+                        <li><strong>SciTeX-Viz Scripts:</strong> MIT License</li>
+                        <li><strong>SigmaPlot:</strong> Commercial license required</li>
+                        <li><strong>Academic Pricing:</strong> Available through Systat Software</li>
+                        <li><strong>Future:</strong> Open-source alternative in development</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="alert alert-info mt-3">
+                <strong>Note:</strong> SigmaPlot is currently required for full functionality. We are developing 
+                an open-source alternative to provide Linux-native visualization capabilities without proprietary dependencies.
+            </div>
+        </div>
+
+        <div class="integration-section">
+            <h2>Seamless Integration</h2>
+            <p>
+                SciTeX-Viz integrates perfectly with other SciTeX tools, automatically generating 
+                visualizations from your analysis code and embedding them directly into your 
+                manuscripts with proper formatting and captions.
+            </p>
+        </div>
+
+        <div class="cta-section">
+            <h2>Create Impactful Scientific Visualizations</h2>
+            <p>Transform your data into compelling visual narratives that enhance your research communication.</p>
+            <div class="cta-buttons">
+                <a href="https://github.com/ywatanabe1989/SigMacro" class="btn btn-primary">View on GitHub</a>
+                <a href="{% url 'cloud_app:demo' %}" class="btn btn-secondary">Interactive Demo</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

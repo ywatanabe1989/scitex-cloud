@@ -1,0 +1,73 @@
+%% SciTeX Manuscript Example - Scientific Paper
+\documentclass[preprint,12pt]{elsarticle}
+
+\usepackage{amsmath, amssymb}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{booktabs}
+
+\journal{Journal of Scientific Computing}
+
+\begin{document}
+
+\begin{frontmatter}
+\title{
+    \textcolor{blue}{SciTeX}: A Modular LaTeX Template\\for Scientific Manuscripts
+}
+
+\author[1,2]{Yusuke Watanabe\corref{cor1}}
+\author[3]{Claude Code}
+
+\corref{cor1}
+\address[1]{Institute for Advanced Cocreation, Osaka University}
+\address[2]{NeuroEngineering Lab, University of Melbourne}
+\address[3]{Anthropic, San Francisco, CA}
+
+\begin{abstract}
+  LaTeX manuscript preparation poses challenges for researchers. This paper introduces \textcolor{blue}{SciTeX}, a modular template system for scientific document preparation. \textcolor{blue}{SciTeX} organizes content into separate files with clear structure and provides automated tools for common tasks. Key features include modular organization, figure management, version control, and a standardized compilation pipeline.
+\end{abstract}
+
+\begin{keyword}
+LaTeX template \sep scientific writing \sep document automation
+\end{keyword}
+\end{frontmatter}
+
+\section{Introduction}
+\label{sec:introduction}
+
+Scientific writing in LaTeX presents challenges for researchers managing documents with multiple figures, tables, and citations \cite{Smith2020}. \textcolor{blue}{SciTeX} addresses these issues with a modular template designed for scientific manuscripts.
+
+Key features include:
+\begin{itemize}
+    \item Modular organization of content files
+    \item Structured figure management system
+    \item Automated compilation with version tracking
+\end{itemize}
+
+\section{Methods}
+\label{sec:methods}
+
+The template follows a hierarchical structure:
+\begin{enumerate}
+    \item \textbf{Main document entry point}
+    \item \textbf{Content sections} in separate files
+    \item \textbf{Style definitions} for formatting
+\end{enumerate}
+
+\begin{equation}
+D = f_{\text{compile}}(C \oplus S)
+\end{equation}
+
+\begin{table}[h!]
+\centering
+\caption{Components of the \textcolor{blue}{SciTeX} System}
+\begin{tabular}{lp{6cm}}
+\toprule
+\textbf{Component} & \textbf{Description} \\
+\midrule
+LaTeX Template & Modular document structure \\
+Python Scripts & Tools for text revision \\
+Shell Scripts & Automated compilation \\
+\bottomrule
+\end{tabular}
+\end{table}

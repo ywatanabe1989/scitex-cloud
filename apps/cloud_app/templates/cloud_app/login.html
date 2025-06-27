@@ -1,0 +1,191 @@
+{% extends "cloud_app/base.html" %}
+{% load static %}
+
+{% block title %}Log In - SciTeX{% endblock %}
+
+{% block meta_description %}Log in to your SciTeX account to access your research tools, documents, and settings.{% endblock %}
+
+{% block extra_css %}
+<style>
+  .login-header {
+    background-color: #eef2ff;
+    padding: 3rem 0;
+    margin-bottom: 3rem;
+    border-radius: 0 0 8px 8px;
+  }
+  
+  .login-container {
+    max-width: 500px;
+    margin: 0 auto;
+    padding-bottom: 4rem;
+  }
+  
+  .auth-form {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    padding: 2rem;
+    margin-bottom: 2rem;
+  }
+  
+  .form-message {
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    display: none;
+  }
+  
+  .form-message.success {
+    background-color: rgba(46, 204, 113, 0.1);
+    color: #27ae60;
+    border: 1px solid rgba(46, 204, 113, 0.3);
+  }
+  
+  .form-message.error {
+    background-color: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+    border: 1px solid rgba(231, 76, 60, 0.3);
+  }
+</style>
+{% endblock %}
+
+{% block cloud_content %}
+<div class="login-header">
+  <div class="container">
+    <h1 class="display-4 text-center">Log In to SciTeX</h1>
+    <p class="lead text-center">Access your research tools and documents</p>
+  </div>
+</div>
+
+<div class="container login-container">
+  <div class="auth-form">
+    <h2 class="mb-4">Log In</h2>
+    
+    <div class="form-message success">
+      <p><strong>Login successful!</strong> Redirecting to your dashboard...</p>
+    </div>
+    
+    <div class="form-message error">
+      <p><strong>Error:</strong> <span id="error-message">Invalid username or password.</span></p>
+    </div>
+    
+    <form id="login-form">
+      <div class="form-group mb-3">
+        <label for="username" class="form-label">Username or Email <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" id="username" name="username" required>
+      </div>
+      
+      <div class="form-group mb-3">
+        <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
+        <div class="input-group">
+          <input type="password" class="form-control" id="password" name="password" required>
+          <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+            <i class="fas fa-eye" id="togglePasswordIcon"></i>
+          </button>
+        </div>
+      </div>
+      
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="remember-me" name="remember-me">
+          <label class="form-check-label" for="remember-me">
+            Remember me
+          </label>
+        </div>
+        <a href="/forgot-password" class="text-decoration-none">Forgot password?</a>
+      </div>
+      
+      <button type="submit" class="btn btn-primary w-100">Log In</button>
+    </form>
+    
+    <div class="text-center mt-3">
+      <p>Don't have an account? <a href="{% url 'cloud_app:signup' %}">Sign Up</a></p>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('login-form');
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const successMessage = document.querySelector('.form-message.success');
+    const errorMessage = document.querySelector('.form-message.error');
+    const errorText = document.getElementById('error-message');
+    
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      // Hide previous messages
+      successMessage.style.display = 'none';
+      errorMessage.style.display = 'none';
+      
+      // Prepare data
+      const data = {
+        username: usernameInput.value,
+        password: passwordInput.value
+      };
+      
+      // Submit to API endpoint
+      fetch('/api/v1/auth/login/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Show success message
+          successMessage.style.display = 'block';
+          
+          // Store token if present
+          if (data.token) {
+            localStorage.setItem('scitex_token', data.token);
+          }
+          
+          // Redirect to dashboard after short delay
+          setTimeout(() => {
+            window.location.href = '/dashboard/';
+          }, 1500);
+        } else {
+          // Show error message
+          errorText.textContent = data.error || 'Invalid username or password.';
+          errorMessage.style.display = 'block';
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        errorText.textContent = 'An error occurred. Please try again.';
+        errorMessage.style.display = 'block';
+      });
+    });
+  });
+  
+  // Password visibility toggle - separate event listener
+  document.addEventListener('DOMContentLoaded', function() {
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+    const togglePasswordIcon = document.getElementById('togglePasswordIcon');
+    
+    if (togglePassword && passwordInput && togglePasswordIcon) {
+      togglePassword.addEventListener('click', function() {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        
+        // Toggle the eye icon
+        if (type === 'password') {
+          togglePasswordIcon.classList.remove('fa-eye-slash');
+          togglePasswordIcon.classList.add('fa-eye');
+        } else {
+          togglePasswordIcon.classList.remove('fa-eye');
+          togglePasswordIcon.classList.add('fa-eye-slash');
+        }
+      });
+    }
+  });
+</script>
+{% endblock %}

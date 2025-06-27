@@ -1,0 +1,590 @@
+{% extends "viz_app/base.html" %}
+{% load static %}
+
+{% block title %}Edit {{ visualization.title }} - SciTeX Viz{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/codemirror@5.65.12/lib/codemirror.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/codemirror@5.65.12/theme/material.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/plotly.js@2.18.0/dist/plotly.min.css" rel="stylesheet">
+<style>
+    .edit-sidebar {
+        background: #f8f9fa;
+        border-right: 1px solid #e9ecef;
+        min-height: calc(100vh - 200px);
+    }
+    .editor-section {
+        border-bottom: 1px solid #e9ecef;
+        padding: 1rem;
+    }
+    .editor-section:last-child {
+        border-bottom: none;
+    }
+    .chart-container {
+        min-height: 500px;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        background: white;
+    }
+    .control-group {
+        margin-bottom: 1rem;
+    }
+    .control-group label {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: #495057;
+    }
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+    .status-draft { background: #fff3cd; color: #856404; }
+    .status-published { background: #d4edda; color: #155724; }
+    .status-archived { background: #f8d7da; color: #721c24; }
+    .toolbar {
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    .data-table {
+        max-height: 300px;
+        overflow-y: auto;
+        border: 1px solid #e9ecef;
+        border-radius: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-3">
+    <!-- Header Toolbar -->
+    <div class="toolbar">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <div class="d-flex align-items-center">
+                    <a href="{% url 'viz_app:viz_dashboard' %}" class="btn btn-outline-secondary btn-sm me-3">
+                        <i class="fas fa-arrow-left"></i> Dashboard
+                    </a>
+                    <div>
+                        <h4 class="mb-0">{{ visualization.title }}</h4>
+                        <small class="text-muted">{{ visualization.visualization_type.display_name }}</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 text-end">
+                <span class="status-badge status-{{ visualization.status }}">
+                    {{ visualization.get_status_display }}
+                </span>
+                <div class="btn-group ms-3" role="group">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" id="save-btn">
+                        <i class="fas fa-save"></i> Save
+                    </button>
+                    <a href="{% url 'viz_app:view_visualization' visualization.pk %}" 
+                       class="btn btn-outline-primary btn-sm" target="_blank">
+                        <i class="fas fa-external-link-alt"></i> Preview
+                    </a>
+                    <button type="button" class="btn btn-outline-success btn-sm" id="publish-btn">
+                        <i class="fas fa-globe"></i> Publish
+                    </button>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" 
+                                data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'viz_app:share_visualization' visualization.pk %}">
+                                <i class="fas fa-share"></i> Share
+                            </a></li>
+                            <li><a class="dropdown-item" href="{% url 'viz_app:export_visualization' visualization.pk %}">
+                                <i class="fas fa-download"></i> Export
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="#" id="delete-btn">
+                                <i class="fas fa-trash"></i> Delete
+                            </a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Sidebar Controls -->
+        <div class="col-lg-3 edit-sidebar">
+            <!-- Basic Settings -->
+            <div class="editor-section">
+                <h6 class="mb-3"><i class="fas fa-info-circle"></i> Basic Information</h6>
+                
+                <div class="control-group">
+                    <label for="viz-title">Title</label>
+                    <input type="text" class="form-control form-control-sm" id="viz-title" 
+                           value="{{ visualization.title }}">
+                </div>
+                
+                <div class="control-group">
+                    <label for="viz-description">Description</label>
+                    <textarea class="form-control form-control-sm" id="viz-description" rows="3">{{ visualization.description }}</textarea>
+                </div>
+                
+                <div class="control-group">
+                    <label for="viz-tags">Tags</label>
+                    <input type="text" class="form-control form-control-sm" id="viz-tags" 
+                           value="{{ visualization.tags|join:', ' }}"
+                           placeholder="science, research, data">
+                </div>
+            </div>
+
+            <!-- Data Settings -->
+            <div class="editor-section">
+                <h6 class="mb-3"><i class="fas fa-database"></i> Data Source</h6>
+                
+                <div class="control-group">
+                    <label for="data-source">Source</label>
+                    <select class="form-select form-select-sm" id="data-source">
+                        <option value="">Embedded data</option>
+                        {% for source in data_sources %}
+                            <option value="{{ source.pk }}" {% if visualization.data_source_id == source.pk %}selected{% endif %}>
+                                {{ source.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label>Data Preview</label>
+                    <div class="data-table">
+                        {% if visualization.data %}
+                            <table class="table table-sm table-striped">
+                                <thead>
+                                    <tr>
+                                        {% for key in visualization.data.0.keys %}
+                                            <th>{{ key }}</th>
+                                        {% endfor %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for row in visualization.data|slice:":5" %}
+                                        <tr>
+                                            {% for value in row.values %}
+                                                <td>{{ value }}</td>
+                                            {% endfor %}
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        {% else %}
+                            <div class="text-center text-muted p-3">
+                                <i class="fas fa-database"></i><br>
+                                No data loaded
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <button class="btn btn-outline-primary btn-sm w-100" id="upload-data-btn">
+                    <i class="fas fa-upload"></i> Upload New Data
+                </button>
+            </div>
+
+            <!-- Chart Configuration -->
+            <div class="editor-section">
+                <h6 class="mb-3"><i class="fas fa-chart-line"></i> Chart Settings</h6>
+                
+                <div class="control-group">
+                    <label for="x-axis">X-Axis</label>
+                    <input type="text" class="form-control form-control-sm" id="x-axis" 
+                           value="{{ visualization.chart_config.x_axis_label|default:'' }}"
+                           placeholder="X-axis label">
+                </div>
+                
+                <div class="control-group">
+                    <label for="y-axis">Y-Axis</label>
+                    <input type="text" class="form-control form-control-sm" id="y-axis" 
+                           value="{{ visualization.chart_config.y_axis_label|default:'' }}"
+                           placeholder="Y-axis label">
+                </div>
+                
+                <div class="control-group">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="show-grid" 
+                               {% if visualization.chart_config.show_grid %}checked{% endif %}>
+                        <label class="form-check-label" for="show-grid">Show Grid</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="show-legend" 
+                               {% if visualization.chart_config.show_legend %}checked{% endif %}>
+                        <label class="form-check-label" for="show-legend">Show Legend</label>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="legend-position">Legend Position</label>
+                    <select class="form-select form-select-sm" id="legend-position">
+                        <option value="right" {% if visualization.chart_config.legend_position == 'right' %}selected{% endif %}>Right</option>
+                        <option value="top" {% if visualization.chart_config.legend_position == 'top' %}selected{% endif %}>Top</option>
+                        <option value="bottom" {% if visualization.chart_config.legend_position == 'bottom' %}selected{% endif %}>Bottom</option>
+                        <option value="left" {% if visualization.chart_config.legend_position == 'left' %}selected{% endif %}>Left</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Appearance -->
+            <div class="editor-section">
+                <h6 class="mb-3"><i class="fas fa-palette"></i> Appearance</h6>
+                
+                <div class="control-group">
+                    <label for="color-scheme">Color Scheme</label>
+                    <select class="form-select form-select-sm" id="color-scheme">
+                        <option value="">Default</option>
+                        {% for scheme in color_schemes %}
+                            <option value="{{ scheme.pk }}" {% if visualization.color_scheme_id == scheme.pk %}selected{% endif %}>
+                                {{ scheme.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="chart-theme">Theme</label>
+                    <select class="form-select form-select-sm" id="chart-theme">
+                        <option value="light">Light</option>
+                        <option value="dark">Dark</option>
+                        <option value="scientific">Scientific</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Publishing -->
+            <div class="editor-section">
+                <h6 class="mb-3"><i class="fas fa-share-alt"></i> Publishing</h6>
+                
+                <div class="control-group">
+                    <label for="status">Status</label>
+                    <select class="form-select form-select-sm" id="status">
+                        <option value="draft" {% if visualization.status == 'draft' %}selected{% endif %}>Draft</option>
+                        <option value="published" {% if visualization.status == 'published' %}selected{% endif %}>Published</option>
+                        <option value="archived" {% if visualization.status == 'archived' %}selected{% endif %}>Archived</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="is-public" 
+                               {% if visualization.is_public %}checked{% endif %}>
+                        <label class="form-check-label" for="is-public">Public Access</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="is-interactive" 
+                               {% if visualization.is_interactive %}checked{% endif %}>
+                        <label class="form-check-label" for="is-interactive">Interactive</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="allow-download" 
+                               {% if visualization.allow_download %}checked{% endif %}>
+                        <label class="form-check-label" for="allow-download">Allow Downloads</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Chart Area -->
+        <div class="col-lg-9">
+            <div class="chart-container" id="chart-container">
+                <div class="d-flex align-items-center justify-content-center h-100 text-muted">
+                    <div class="text-center">
+                        <i class="fas fa-chart-area fa-4x mb-3"></i>
+                        <h5>Interactive Chart Editor</h5>
+                        <p>Your visualization will appear here</p>
+                        <div class="spinner-border d-none" id="chart-loading" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Chart Statistics -->
+            <div class="row mt-3">
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body py-3">
+                            <h5 class="card-title mb-1">{{ visualization.view_count }}</h5>
+                            <p class="card-text small text-muted">Views</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body py-3">
+                            <h5 class="card-title mb-1">{{ visualization.updated_at|date:"M d" }}</h5>
+                            <p class="card-text small text-muted">Last Updated</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body py-3">
+                            <h5 class="card-title mb-1">{{ visualization.shares.count }}</h5>
+                            <p class="card-text small text-muted">Shares</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body py-3">
+                            <h5 class="card-title mb-1">{{ visualization.export_jobs.count }}</h5>
+                            <p class="card-text small text-muted">Exports</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Upload Data Modal -->
+<div class="modal fade" id="uploadModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Upload New Data</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="upload-form" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="new-data-file" class="form-label">Choose file</label>
+                        <input type="file" class="form-control" id="new-data-file" accept=".csv,.json">
+                        <div class="form-text">Supports CSV and JSON files up to 10MB</div>
+                    </div>
+                    <div id="upload-preview" class="d-none">
+                        <h6>Preview:</h6>
+                        <div class="border rounded p-3 bg-light" style="max-height: 200px; overflow-y: auto;">
+                            <div id="upload-preview-content"></div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="upload-confirm-btn" disabled>
+                    <i class="fas fa-upload"></i> Upload & Replace Data
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/plotly.js@2.18.0/dist/plotly.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const visualizationId = '{{ visualization.pk }}';
+    let currentData = {{ visualization.data|safe|default:"[]" }};
+    let hasUnsavedChanges = false;
+    
+    // Initialize chart
+    updateChart();
+    
+    // Track changes
+    document.querySelectorAll('input, select, textarea').forEach(element => {
+        element.addEventListener('change', function() {
+            hasUnsavedChanges = true;
+            updateChart();
+        });
+    });
+    
+    // Save functionality
+    document.getElementById('save-btn').addEventListener('click', saveVisualization);
+    document.getElementById('publish-btn').addEventListener('click', function() {
+        document.getElementById('status').value = 'published';
+        document.getElementById('is-public').checked = true;
+        saveVisualization();
+    });
+    
+    // Upload data functionality
+    document.getElementById('upload-data-btn').addEventListener('click', function() {
+        new bootstrap.Modal(document.getElementById('uploadModal')).show();
+    });
+    
+    document.getElementById('new-data-file').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    let data;
+                    if (file.name.endsWith('.json')) {
+                        data = JSON.parse(e.target.result);
+                    } else if (file.name.endsWith('.csv')) {
+                        data = parseCSV(e.target.result);
+                    }
+                    
+                    displayUploadPreview(data);
+                    document.getElementById('upload-confirm-btn').disabled = false;
+                    document.getElementById('upload-confirm-btn').onclick = function() {
+                        currentData = data;
+                        updateChart();
+                        hasUnsavedChanges = true;
+                        bootstrap.Modal.getInstance(document.getElementById('uploadModal')).hide();
+                    };
+                } catch (error) {
+                    alert('Error parsing file: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+    });
+    
+    function updateChart() {
+        const container = document.getElementById('chart-container');
+        const loading = document.getElementById('chart-loading');
+        
+        loading.classList.remove('d-none');
+        
+        // Simulate chart update
+        setTimeout(() => {
+            loading.classList.add('d-none');
+            
+            if (currentData && currentData.length > 0) {
+                // This would integrate with actual charting library
+                container.innerHTML = `
+                    <div class="p-4">
+                        <h5>${document.getElementById('viz-title').value}</h5>
+                        <div style="height: 400px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                                    border-radius: 8px; display: flex; align-items: center; justify-content: center; 
+                                    color: white; font-size: 1.2rem;">
+                            <div class="text-center">
+                                <i class="fas fa-chart-area fa-3x mb-3"></i><br>
+                                Live Chart Preview<br>
+                                <small>{{ visualization.visualization_type.display_name }}</small>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }, 500);
+    }
+    
+    function saveVisualization() {
+        const data = {
+            title: document.getElementById('viz-title').value,
+            description: document.getElementById('viz-description').value,
+            tags: document.getElementById('viz-tags').value,
+            data_source: document.getElementById('data-source').value,
+            x_axis_label: document.getElementById('x-axis').value,
+            y_axis_label: document.getElementById('y-axis').value,
+            show_grid: document.getElementById('show-grid').checked,
+            show_legend: document.getElementById('show-legend').checked,
+            legend_position: document.getElementById('legend-position').value,
+            color_scheme: document.getElementById('color-scheme').value,
+            status: document.getElementById('status').value,
+            is_public: document.getElementById('is-public').checked,
+            is_interactive: document.getElementById('is-interactive').checked,
+            allow_download: document.getElementById('allow-download').checked,
+        };
+        
+        // Send AJAX request
+        fetch(window.location.href, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                hasUnsavedChanges = false;
+                showNotification('Visualization saved successfully!', 'success');
+            } else {
+                showNotification('Error saving: ' + data.message, 'error');
+            }
+        })
+        .catch(error => {
+            showNotification('Error saving visualization', 'error');
+        });
+    }
+    
+    function parseCSV(text) {
+        const lines = text.split('\n').filter(line => line.trim());
+        const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+        const data = [];
+        
+        for (let i = 1; i < lines.length; i++) {
+            const values = lines[i].split(',').map(v => v.trim().replace(/"/g, ''));
+            const row = {};
+            headers.forEach((header, index) => {
+                row[header] = values[index] || '';
+            });
+            data.push(row);
+        }
+        
+        return data;
+    }
+    
+    function displayUploadPreview(data) {
+        const preview = document.getElementById('upload-preview');
+        const content = document.getElementById('upload-preview-content');
+        
+        let html = `<p class="small text-muted">${data.length} records</p>`;
+        html += '<table class="table table-sm table-striped">';
+        
+        if (data.length > 0) {
+            const keys = Object.keys(data[0]);
+            html += '<thead><tr>';
+            keys.forEach(key => html += `<th>${key}</th>`);
+            html += '</tr></thead><tbody>';
+            
+            data.slice(0, 3).forEach(row => {
+                html += '<tr>';
+                keys.forEach(key => html += `<td>${row[key]}</td>`);
+                html += '</tr>';
+            });
+            html += '</tbody></table>';
+            
+            if (data.length > 3) {
+                html += `<p class="small text-muted">... and ${data.length - 3} more rows</p>`;
+            }
+        }
+        
+        content.innerHTML = html;
+        preview.classList.remove('d-none');
+    }
+    
+    function showNotification(message, type) {
+        const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+        const alert = document.createElement('div');
+        alert.className = `alert ${alertClass} alert-dismissible fade show position-fixed`;
+        alert.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+        alert.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.body.appendChild(alert);
+        
+        setTimeout(() => {
+            if (alert.parentNode) {
+                alert.parentNode.removeChild(alert);
+            }
+        }, 5000);
+    }
+    
+    // Warn about unsaved changes
+    window.addEventListener('beforeunload', function(e) {
+        if (hasUnsavedChanges) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
+});
+</script>
+{% endblock %}

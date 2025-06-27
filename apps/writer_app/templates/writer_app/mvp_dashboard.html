@@ -1,0 +1,484 @@
+{% extends "writer_app/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+  .mvp-hero {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 3rem 0;
+    margin-bottom: 2rem;
+  }
+  
+  .mvp-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  
+  .stat-card {
+    background: white;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+  }
+  
+  .stat-card:hover {
+    transform: translateY(-2px);
+  }
+  
+  .stat-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #667eea;
+    margin-bottom: 0.5rem;
+  }
+  
+  .stat-label {
+    color: #6c757d;
+    font-weight: 500;
+  }
+  
+  .quick-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  
+  .action-card {
+    background: white;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+  }
+  
+  .action-card:hover {
+    transform: translateY(-2px);
+  }
+  
+  .action-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .btn-mvp {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    color: white;
+    font-weight: 500;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.375rem;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-block;
+  }
+  
+  .btn-mvp:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    color: white;
+    text-decoration: none;
+  }
+  
+  .recent-section {
+    background: white;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+  }
+  
+  .manuscript-item {
+    padding: 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    margin-bottom: 1rem;
+    transition: all 0.2s ease;
+  }
+  
+  .manuscript-item:hover {
+    background-color: #f8f9fa;
+    border-color: #667eea;
+  }
+  
+  .job-item {
+    padding: 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    margin-bottom: 1rem;
+    transition: all 0.2s ease;
+  }
+  
+  .job-item:hover {
+    background-color: #f8f9fa;
+  }
+  
+  .job-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: uppercase;
+  }
+  
+  .job-status.completed { background-color: #d1e7dd; color: #0f5132; }
+  .job-status.running { background-color: #d1ecf1; color: #055160; }
+  .job-status.failed { background-color: #f8d7da; color: #721c24; }
+  .job-status.queued { background-color: #fff3cd; color: #664d03; }
+  
+  .mvp-badge {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .progress-indicator {
+    height: 4px;
+    background-color: #e9ecef;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 0.5rem;
+  }
+  
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    transition: width 0.3s ease;
+  }
+  
+  @media (max-width: 768px) {
+    .mvp-stats {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .quick-actions {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block doc_content %}
+<!-- MVP Hero Section -->
+<div class="mvp-hero">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-8">
+        <div class="d-flex align-items-center mb-3">
+          <h1 class="mb-0 me-3">
+            <i class="fas fa-file-alt me-2"></i>SciTeX Writer
+          </h1>
+          <span class="mvp-badge">MVP</span>
+        </div>
+        <p class="lead mb-0">
+          Write, compile, and publish scientific documents with ease. 
+          Start creating professional LaTeX documents in minutes.
+        </p>
+      </div>
+      <div class="col-lg-4 text-end">
+        <a href="{% url 'writer:mvp-editor' %}" class="btn btn-light btn-lg">
+          <i class="fas fa-plus me-2"></i>Start Writing
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <!-- Statistics -->
+  <div class="mvp-stats">
+    <div class="stat-card">
+      <div class="stat-value">{{ metrics.manuscripts_count }}</div>
+      <div class="stat-label">Documents</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ metrics.successful_compilations }}</div>
+      <div class="stat-label">Successful PDFs</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ metrics.total_pages }}</div>
+      <div class="stat-label">Pages Generated</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ metrics.failed_compilations }}</div>
+      <div class="stat-label">Failed Builds</div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="quick-actions">
+    <div class="action-card">
+      <div class="action-icon">
+        <i class="fas fa-file-plus"></i>
+      </div>
+      <h5>New Document</h5>
+      <p class="text-muted mb-3">Start with a blank document or choose from our templates.</p>
+      <a href="{% url 'writer:mvp-editor' %}" class="btn-mvp">
+        <i class="fas fa-pen me-2"></i>Start Writing
+      </a>
+    </div>
+    
+    <div class="action-card">
+      <div class="action-icon">
+        <i class="fas fa-file-import"></i>
+      </div>
+      <h5>Import Document</h5>
+      <p class="text-muted mb-3">Upload existing LaTeX files or convert from Word documents.</p>
+      <button class="btn btn-outline-primary" onclick="document.getElementById('file-upload').click()">
+        <i class="fas fa-upload me-2"></i>Import File
+      </button>
+      <input type="file" id="file-upload" accept=".tex,.txt" style="display: none;">
+    </div>
+    
+    <div class="action-card">
+      <div class="action-icon">
+        <i class="fas fa-graduation-cap"></i>
+      </div>
+      <h5>LaTeX Tutorial</h5>
+      <p class="text-muted mb-3">New to LaTeX? Learn the basics with our interactive guide.</p>
+      <a href="#" class="btn btn-outline-primary">
+        <i class="fas fa-book me-2"></i>Learn LaTeX
+      </a>
+    </div>
+    
+    <div class="action-card">
+      <div class="action-icon">
+        <i class="fas fa-code"></i>
+      </div>
+      <h5>Advanced Editor</h5>
+      <p class="text-muted mb-3">Access the full-featured manuscript editor with collaboration tools.</p>
+      <a href="{% url 'writer:dashboard' %}" class="btn btn-outline-primary">
+        <i class="fas fa-cogs me-2"></i>Full Editor
+      </a>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- Recent Documents -->
+    <div class="col-lg-6">
+      <div class="recent-section">
+        <h5 class="mb-3">
+          <i class="fas fa-clock me-2"></i>Recent Documents
+        </h5>
+        
+        {% if manuscripts %}
+          {% for manuscript in manuscripts %}
+          <div class="manuscript-item">
+            <div class="d-flex justify-content-between align-items-start">
+              <div class="flex-grow-1">
+                <h6 class="mb-1">{{ manuscript.title }}</h6>
+                <small class="text-muted">
+                  Updated {{ manuscript.updated_at|timesince }} ago
+                </small>
+                <div class="mt-2">
+                  <span class="badge bg-secondary">{{ manuscript.get_status_display }}</span>
+                  {% if manuscript.target_journal %}
+                  <span class="badge bg-info">{{ manuscript.target_journal }}</span>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="text-end">
+                <a href="{% url 'writer:manuscript-edit' manuscript.slug %}" 
+                   class="btn btn-sm btn-outline-primary">
+                  <i class="fas fa-edit me-1"></i>Edit
+                </a>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+          
+          <div class="text-center mt-3">
+            <a href="{% url 'writer:manuscript-list' %}" class="btn btn-outline-primary">
+              <i class="fas fa-list me-2"></i>View All Documents
+            </a>
+          </div>
+        {% else %}
+          <div class="text-center py-4">
+            <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+            <p class="text-muted">No documents yet</p>
+            <a href="{% url 'writer:mvp-editor' %}" class="btn-mvp">
+              <i class="fas fa-plus me-2"></i>Create Your First Document
+            </a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Recent Compilations -->
+    <div class="col-lg-6">
+      <div class="recent-section">
+        <h5 class="mb-3">
+          <i class="fas fa-cogs me-2"></i>Recent Compilations
+        </h5>
+        
+        {% if recent_jobs %}
+          {% for job in recent_jobs %}
+          <div class="job-item">
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="flex-grow-1">
+                <div class="d-flex align-items-center mb-1">
+                  <span class="job-status {{ job.status }}">{{ job.get_status_display }}</span>
+                  <small class="text-muted ms-2">{{ job.created_at|timesince }} ago</small>
+                </div>
+                <h6 class="mb-1">{{ job.manuscript.title|truncatechars:40 }}</h6>
+                {% if job.execution_time %}
+                <small class="text-muted">
+                  <i class="fas fa-clock me-1"></i>{{ job.execution_time|floatformat:1 }}s
+                  {% if job.page_count %}
+                  • {{ job.page_count }} page{{ job.page_count|pluralize }}
+                  {% endif %}
+                </small>
+                {% endif %}
+                
+                {% if job.status == 'running' %}
+                <div class="progress-indicator">
+                  <div class="progress-fill" style="width: 50%;"></div>
+                </div>
+                {% endif %}
+              </div>
+              
+              <div class="text-end">
+                {% if job.status == 'completed' and job.output_pdf %}
+                <a href="{{ job.output_pdf.url }}" target="_blank" 
+                   class="btn btn-sm btn-outline-success">
+                  <i class="fas fa-file-pdf me-1"></i>PDF
+                </a>
+                {% elif job.status == 'failed' %}
+                <button class="btn btn-sm btn-outline-danger" 
+                        title="{{ job.error_message|truncatechars:50 }}">
+                  <i class="fas fa-exclamation-triangle me-1"></i>Error
+                </button>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+          
+          <div class="text-center mt-3">
+            <a href="#" class="btn btn-outline-primary">
+              <i class="fas fa-history me-2"></i>View All Jobs
+            </a>
+          </div>
+        {% else %}
+          <div class="text-center py-4">
+            <i class="fas fa-cogs fa-3x text-muted mb-3"></i>
+            <p class="text-muted">No compilations yet</p>
+            <a href="{% url 'writer:mvp-editor' %}" class="btn-mvp">
+              <i class="fas fa-play me-2"></i>Compile Your First Document
+            </a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- MVP Features -->
+  <div class="recent-section">
+    <h5 class="mb-3">
+      <i class="fas fa-rocket me-2"></i>MVP Features Available
+    </h5>
+    
+    <div class="row">
+      <div class="col-md-4 mb-3">
+        <div class="d-flex align-items-center">
+          <i class="fas fa-check-circle text-success me-2"></i>
+          <span>LaTeX Editor with Syntax Highlighting</span>
+        </div>
+      </div>
+      <div class="col-md-4 mb-3">
+        <div class="d-flex align-items-center">
+          <i class="fas fa-check-circle text-success me-2"></i>
+          <span>Real-time PDF Compilation</span>
+        </div>
+      </div>
+      <div class="col-md-4 mb-3">
+        <div class="d-flex align-items-center">
+          <i class="fas fa-check-circle text-success me-2"></i>
+          <span>Document Templates</span>
+        </div>
+      </div>
+      <div class="col-md-4 mb-3">
+        <div class="d-flex align-items-center">
+          <i class="fas fa-check-circle text-success me-2"></i>
+          <span>Auto-save Functionality</span>
+        </div>
+      </div>
+      <div class="col-md-4 mb-3">
+        <div class="d-flex align-items-center">
+          <i class="fas fa-check-circle text-success me-2"></i>
+          <span>Job Status Tracking</span>
+        </div>
+      </div>
+      <div class="col-md-4 mb-3">
+        <div class="d-flex align-items-center">
+          <i class="fas fa-check-circle text-success me-2"></i>
+          <span>PDF Download</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="mt-3 p-3 bg-light rounded">
+      <p class="mb-2"><strong>Coming Soon:</strong></p>
+      <div class="row">
+        <div class="col-md-4 mb-2">
+          <i class="fas fa-clock text-warning me-2"></i>
+          <span>Real-time Collaboration</span>
+        </div>
+        <div class="col-md-4 mb-2">
+          <i class="fas fa-clock text-warning me-2"></i>
+          <span>Version Control</span>
+        </div>
+        <div class="col-md-4 mb-2">
+          <i class="fas fa-clock text-warning me-2"></i>
+          <span>AI Writing Assistant</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // File upload handler
+  document.getElementById('file-upload').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        // For MVP, just redirect to editor with content
+        const content = e.target.result;
+        sessionStorage.setItem('imported_content', content);
+        window.location.href = '{% url "writer:mvp-editor" %}';
+      };
+      reader.readAsText(file);
+    }
+  });
+
+  // Auto-refresh running jobs
+  const runningJobs = document.querySelectorAll('.job-status.running');
+  if (runningJobs.length > 0) {
+    setTimeout(() => {
+      window.location.reload();
+    }, 5000);
+  }
+});
+</script>
+{% endblock %}

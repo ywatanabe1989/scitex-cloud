@@ -1,0 +1,375 @@
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.core.exceptions import PermissionDenied
+from django.utils import timezone
+from django.db import models
+from django.conf import settings
+import logging
+
+logger = logging.getLogger('scitex')
+
+
+def index(request):
+    """Cloud app index view."""
+    return render(request, 'cloud_app/landing.html')
+
+
+def features(request):
+    """Cloud features view."""
+    return render(request, 'cloud_app/features.html')
+
+
+def pricing(request):
+    """Cloud pricing view."""
+    from .models import SubscriptionPlan
+    
+    # Get active plans ordered by display_order
+    plans = SubscriptionPlan.objects.filter(is_active=True).order_by('display_order', 'price_monthly')
+    
+    context = {
+        'plans': plans,
+    }
+    return render(request, "cloud_app/pricing_enhanced.html", context)
+
+
+def concept(request):
+    """SciTeX concept explanation page."""
+    return render(request, 'cloud_app/pages/concept.html')
+
+
+def vision(request):
+    """SciTeX vision and values page."""
+    return render(request, 'cloud_app/pages/vision.html')
+
+
+def publications(request):
+    """Publications page."""
+    return render(request, 'cloud_app/pages/publications.html')
+
+
+def donate(request):
+    """Donate page view with payment processing."""
+    from .forms import DonationForm, EmailVerificationForm, VerifyCodeForm
+    from .models import Donation, DonationTier
+    from django.contrib import messages
+    import json
+    
+    # Get donation tiers
+    tiers = DonationTier.objects.filter(is_active=True) if DonationTier.objects.exists() else []
+    
+    if request.method == 'POST':
+        # Check if this is email verification request
+        if 'verify_email' in request.POST:
+            email_form = EmailVerificationForm(request.POST)
+            if email_form.is_valid():
+                if email_form.send_verification_email():
+                    messages.success(request, "Verification code sent to your email!")
+                    request.session['verification_email'] = email_form.cleaned_data['email']
+                    return redirect('cloud_app:verify-email')
+                else:
+                    messages.error(request, "Failed to send verification email. Please try again.")
+        
+        # Process donation
+        elif 'process_donation' in request.POST:
+            form = DonationForm(request.POST)
+            if form.is_valid():
+                donation = form.save(commit=False)
+                
+                # If user is authenticated, link to user
+                if request.user.is_authenticated:
+                    donation.user = request.user
+                
+                # Save donation as pending
+                donation.save()
+                
+                # Here you would integrate with payment processor
+                # For now, we'll simulate successful payment
+                if donation.payment_method == 'credit_card':
+                    # Simulate Stripe payment
+                    transaction_id = f"STRIPE_{donation.id}_{timezone.now().strftime('%Y%m%d%H%M%S')}"
+                    donation.complete_donation(transaction_id)
+                    messages.success(request, f"Thank you for your ${donation.amount} donation!")
+                    
+                    # Send confirmation email
+                    send_donation_confirmation(donation)
+                    
+                    return redirect('cloud_app:donation-success', donation_id=donation.id)
+                
+                elif donation.payment_method == 'paypal':
+                    # Redirect to PayPal
+                    messages.info(request, "Redirecting to PayPal...")
+                    return redirect('cloud_app:donate')  # Would redirect to PayPal in production
+                
+                elif donation.payment_method == 'github':
+                    # Redirect to GitHub Sponsors
+                    return redirect('https://github.com/sponsors/SciTex-AI')
+    
+    else:
+        form = DonationForm()
+    
+    # Get recent public donations
+    recent_donations = Donation.objects.filter(
+        is_public=True,
+        is_anonymous=False,
+        status='completed'
+    ).select_related('user')[:10] if Donation.objects.exists() else []
+    
+    # Calculate funding progress
+    current_year = timezone.now().year
+    year_donations = Donation.objects.filter(
+        status='completed',
+        created_at__year=current_year
+    ).aggregate(
+        total=models.Sum('amount')
+    )['total'] or 0 if Donation.objects.exists() else 0
+    
+    funding_goal = 75000  # $75,000 annual goal
+    funding_percentage = min(100, int((year_donations / funding_goal) * 100))
+    
+    context = {
+        'form': form,
+        'tiers': tiers,
+        'recent_donations': recent_donations,
+        'year_donations': year_donations,
+        'funding_goal': funding_goal,
+        'funding_percentage': funding_percentage,
+    }
+    
+    return render(request, 'cloud_app/pages/donate.html', context)
+
+
+def fundraising(request):
+    """Fundraising and sustainability page."""
+    return render(request, 'cloud_app/pages/fundraising.html')
+
+
+def contact(request):
+    """Contact page."""
+    return render(request, 'cloud_app/contact.html')
+
+
+def privacy_policy(request):
+    """Privacy policy page."""
+    return render(request, 'cloud_app/privacy_policy.html')
+
+
+def terms_of_use(request):
+    """Terms of use page."""
+    return render(request, 'cloud_app/terms_of_use.html')
+
+
+def cookie_policy(request):
+    """Cookie policy page."""
+    return render(request, 'cloud_app/cookie_policy.html')
+
+
+def signup(request):
+    """Signup page with user registration."""
+    from django.contrib.auth.models import User
+    from django.contrib.auth import login
+    from .forms import SignupForm
+    
+    if request.method == 'POST':
+        form = SignupForm(request.POST)
+        if form.is_valid():
+            # Create new user
+            user = User.objects.create_user(
+                username=form.cleaned_data['username'],
+                email=form.cleaned_data['email'],
+                password=form.cleaned_data['password']
+            )
+            
+            # Create user profile
+            from apps.core_app.models import UserProfile
+            UserProfile.objects.create(user=user)
+            
+            # Log the user in
+            login(request, user)
+            
+            messages.success(request, 'Welcome to SciTeX! Your account has been created successfully.')
+            return redirect('core_app:dashboard')
+    else:
+        form = SignupForm()
+    
+    context = {
+        'form': form,
+    }
+    return render(request, 'cloud_app/signup.html', context)
+
+
+def login_view(request):
+    """Login page with authentication."""
+    from django.contrib.auth import authenticate, login
+    from django.contrib.auth.models import User
+    from .forms import LoginForm
+    
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            
+            # Check if username is actually an email
+            if '@' in username:
+                try:
+                    user_obj = User.objects.get(email=username)
+                    username = user_obj.username
+                except User.DoesNotExist:
+                    pass
+            
+            # Authenticate user
+            user = authenticate(request, username=username, password=password)
+            
+            if user is not None:
+                login(request, user)
+                
+                # Handle remember me
+                if not form.cleaned_data.get('remember_me'):
+                    request.session.set_expiry(0)
+                
+                # Redirect to next page or dashboard
+                next_page = request.GET.get('next', '/core/dashboard/')
+                messages.success(request, f'Welcome back, {user.username}!')
+                return redirect(next_page)
+            else:
+                messages.error(request, 'Invalid username or password.')
+    else:
+        form = LoginForm()
+    
+    context = {
+        'form': form,
+    }
+    return render(request, 'cloud_app/login.html', context)
+
+
+def forgot_password(request):
+    """Forgot password page."""
+    return render(request, 'cloud_app/forgot_password.html')
+
+
+def logout_view(request):
+    """Logout page."""
+    from django.contrib.auth import logout
+    logout(request)
+    return render(request, 'cloud_app/logout.html')
+
+
+
+
+def design_system(request):
+    """Design system documentation page."""
+    return render(request, 'cloud_app/pages/design_system.html')
+
+
+def demo(request):
+    """Demo page."""
+    return render(request, 'cloud_app/demo.html')
+
+
+def verify_email(request):
+    """Email verification page for account signup."""
+    # This page is for OTP email verification during account signup
+    # The actual verification is handled by the JavaScript frontend
+    # which calls the API endpoints in apps.api.v1.auth.views
+    return render(request, 'cloud_app/email_verification.html')
+
+
+def donation_success(request, donation_id):
+    """Donation success page."""
+    from .models import Donation
+    
+    try:
+        donation = Donation.objects.get(id=donation_id)
+        if donation.donor_email != request.session.get('verified_email') and not request.user.is_authenticated:
+            raise PermissionDenied
+    except Donation.DoesNotExist:
+        messages.error(request, "Donation not found.")
+        return redirect('cloud_app:donate')
+    
+    context = {
+        'donation': donation,
+    }
+    
+    return render(request, 'cloud_app/donation_success.html', context)
+
+
+def send_donation_confirmation(donation):
+    """Send donation confirmation email."""
+    from django.core.mail import send_mail
+    from django.template.loader import render_to_string
+    
+    subject = 'Thank you for supporting SciTeX!'
+    
+    message = f"""
+Dear {donation.donor_name},
+
+Thank you for your generous ${donation.amount} donation to SciTeX!
+
+Your support helps us maintain and improve our open-source scientific research platform, 
+making advanced tools accessible to researchers worldwide.
+
+Transaction Details:
+- Amount: ${donation.amount} USD
+- Payment Method: {donation.get_payment_method_display()}
+- Transaction ID: {donation.transaction_id}
+- Date: {donation.completed_at.strftime('%B %d, %Y')}
+
+This email serves as your donation receipt for tax purposes.
+
+If you have any questions, please contact us at support@scitex.ai.
+
+With gratitude,
+The SciTeX Team
+"""
+    
+    try:
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [donation.donor_email],
+            fail_silently=False,
+        )
+    except Exception as e:
+        logger.error(f"Failed to send donation confirmation: {str(e)}")
+
+
+# Product page views
+def product_search(request):
+    """Display the SciTeX Search product page."""
+    return render(request, 'cloud_app/products/search.html')
+
+
+def product_engine(request):
+    """Display the SciTeX Engine product page."""
+    return render(request, 'cloud_app/products/engine.html')
+
+
+def product_code(request):
+    """Display the SciTeX Code product page."""
+    return render(request, 'cloud_app/products/code.html')
+
+
+def product_doc(request):
+    """Display the SciTeX Doc product page."""
+    return render(request, 'cloud_app/products/doc.html')
+
+
+def product_viz(request):
+    """Display the SciTeX Viz product page."""
+    return render(request, 'cloud_app/products/viz.html')
+
+
+def product_cloud(request):
+    """Display the SciTeX Cloud product page."""
+    return render(request, 'cloud_app/products/cloud.html')
+
+
+def product_local(request):
+    """Display the SciTeX Local product page."""
+    return render(request, 'cloud_app/products/local.html')
+
+
+def api_docs(request):
+    """Display the API documentation page."""
+    return render(request, 'cloud_app/pages/api_docs.html')

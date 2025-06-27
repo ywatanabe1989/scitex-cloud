@@ -1,0 +1,923 @@
+{% extends "writer_app/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'common/css/hero-gradients.css' %}">
+<style>
+:root {
+    --scitex-primary: #1a2332;
+    --scitex-secondary: #34495e;
+    --scitex-accent: #506b7a;
+    --scitex-light: #f8f9fa;
+    --scitex-white: #ffffff;
+    --border-radius: 8px;
+    --transition: all 0.2s ease;
+}
+
+.writer-container {
+    height: calc(100vh - 80px);
+    display: flex;
+    background: var(--scitex-light);
+}
+
+.writer-sidebar {
+    width: 320px;
+    background: var(--scitex-white);
+    border-right: 1px solid #dee2e6;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.sidebar-header {
+    padding: 1.5rem;
+    background: var(--scitex-primary);
+    color: var(--scitex-white);
+}
+
+.project-info {
+    margin-bottom: 1rem;
+}
+
+.project-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.manuscript-title {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.writing-stats {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    margin-top: 1rem;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.stat-item:last-child {
+    margin-bottom: 0;
+}
+
+.sidebar-content {
+    flex: 1;
+    padding: 1.5rem;
+    overflow-y: auto;
+}
+
+.section-list {
+    margin-bottom: 2rem;
+}
+
+.section-item {
+    padding: 1rem;
+    border: 1px solid #e9ecef;
+    border-radius: var(--border-radius);
+    margin-bottom: 0.75rem;
+    cursor: pointer;
+    transition: var(--transition);
+    background: var(--scitex-white);
+}
+
+.section-item:hover {
+    border-color: var(--scitex-accent);
+    transform: translateY(-1px);
+}
+
+.section-item.active {
+    border-color: var(--scitex-primary);
+    background: rgba(26, 35, 50, 0.05);
+}
+
+.section-name {
+    font-weight: 600;
+    color: var(--scitex-primary);
+    margin-bottom: 0.5rem;
+}
+
+.section-stats {
+    display: flex;
+    justify-content: between;
+    font-size: 0.8rem;
+    color: var(--scitex-accent);
+}
+
+.word-count {
+    margin-right: 1rem;
+}
+
+.completion-indicator {
+    width: 100%;
+    height: 4px;
+    background: #e9ecef;
+    border-radius: 2px;
+    margin-top: 0.5rem;
+    overflow: hidden;
+}
+
+.completion-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--scitex-primary), var(--scitex-accent));
+    transition: width 0.3s ease;
+}
+
+.writer-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.writer-toolbar {
+    background: var(--scitex-white);
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #dee2e6;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.editing-mode-toggle {
+    display: flex;
+    background: #f8f9fa;
+    border-radius: var(--border-radius);
+    padding: 0.25rem;
+}
+
+.mode-btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    background: transparent;
+    border-radius: calc(var(--border-radius) - 2px);
+    transition: var(--transition);
+    font-size: 0.9rem;
+}
+
+.mode-btn.active {
+    background: var(--scitex-primary);
+    color: var(--scitex-white);
+}
+
+.writer-editor {
+    flex: 1;
+    display: flex;
+    background: var(--scitex-white);
+}
+
+.text-editor {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+}
+
+.section-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--scitex-primary);
+    margin-bottom: 1rem;
+}
+
+.text-editor textarea {
+    flex: 1;
+    border: 1px solid #e9ecef;
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    font-family: 'Georgia', serif;
+    font-size: 1rem;
+    line-height: 1.6;
+    resize: none;
+    outline: none;
+    transition: var(--transition);
+}
+
+.text-editor textarea:focus {
+    border-color: var(--scitex-accent);
+    box-shadow: 0 0 0 3px rgba(80, 107, 122, 0.1);
+}
+
+.latex-editor {
+    flex: 1;
+    border: none;
+    font-family: 'Monaco', 'Menlo', monospace;
+    font-size: 14px;
+    padding: 1.5rem;
+    border: 1px solid #e9ecef;
+    border-radius: var(--border-radius);
+    margin: 2rem;
+    outline: none;
+    background: #f8f9fa;
+}
+
+.word-count-indicator {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: var(--scitex-primary);
+    color: var(--scitex-white);
+    padding: 0.75rem 1rem;
+    border-radius: var(--border-radius);
+    font-size: 0.9rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.btn-primary {
+    background: var(--scitex-primary);
+    border-color: var(--scitex-primary);
+}
+
+.btn-primary:hover {
+    background: var(--scitex-secondary);
+    border-color: var(--scitex-secondary);
+}
+
+.toast-container {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1050;
+}
+
+@media (max-width: 768px) {
+    .writer-container {
+        flex-direction: column;
+    }
+    
+    .writer-sidebar {
+        width: 100%;
+        height: 200px;
+    }
+    
+    .text-editor,
+    .latex-editor {
+        margin: 1rem;
+        padding: 1rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block doc_content %}
+<div class="writer-container">
+    <!-- Sidebar -->
+    <div class="writer-sidebar">
+        <div class="sidebar-header">
+            <div class="project-info">
+                <div class="project-name">
+                    <i class="fas fa-project-diagram me-2"></i>{{ project.name }}
+                </div>
+                <div class="manuscript-title">{{ manuscript.title }}</div>
+            </div>
+            
+            <div class="writing-stats">
+                <div class="stat-item">
+                    <span>Total Words:</span>
+                    <span id="total-words">{{ manuscript.word_count_total }}</span>
+                </div>
+                <div class="stat-item">
+                    <span>Citations:</span>
+                    <span id="citation-count">{{ manuscript.citation_count }}</span>
+                </div>
+                <div class="stat-item">
+                    <span>Sections:</span>
+                    <span id="sections-completed">0/5</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="sidebar-content">
+            <div class="section-list">
+                <h6 class="fw-bold mb-3">
+                    <i class="fas fa-list me-2"></i>Manuscript Sections
+                </h6>
+                
+                <div class="section-item active" data-section="abstract">
+                    <div class="section-name">Abstract</div>
+                    <div class="section-stats">
+                        <div class="word-count">
+                            <span id="words-abstract">{{ manuscript.word_count_abstract }}</span> words
+                        </div>
+                    </div>
+                    <div class="completion-indicator">
+                        <div class="completion-fill" style="width: {% if manuscript.word_count_abstract > 0 %}100{% else %}0{% endif %}%;"></div>
+                    </div>
+                </div>
+                
+                <div class="section-item" data-section="introduction">
+                    <div class="section-name">Introduction</div>
+                    <div class="section-stats">
+                        <div class="word-count">
+                            <span id="words-introduction">{{ manuscript.word_count_introduction }}</span> words
+                        </div>
+                    </div>
+                    <div class="completion-indicator">
+                        <div class="completion-fill" style="width: {% if manuscript.word_count_introduction > 0 %}100{% else %}0{% endif %}%;"></div>
+                    </div>
+                </div>
+                
+                <div class="section-item" data-section="methods">
+                    <div class="section-name">Methods</div>
+                    <div class="section-stats">
+                        <div class="word-count">
+                            <span id="words-methods">{{ manuscript.word_count_methods }}</span> words
+                        </div>
+                    </div>
+                    <div class="completion-indicator">
+                        <div class="completion-fill" style="width: {% if manuscript.word_count_methods > 0 %}100{% else %}0{% endif %}%;"></div>
+                    </div>
+                </div>
+                
+                <div class="section-item" data-section="results">
+                    <div class="section-name">Results</div>
+                    <div class="section-stats">
+                        <div class="word-count">
+                            <span id="words-results">{{ manuscript.word_count_results }}</span> words
+                        </div>
+                    </div>
+                    <div class="completion-indicator">
+                        <div class="completion-fill" style="width: {% if manuscript.word_count_results > 0 %}100{% else %}0{% endif %}%;"></div>
+                    </div>
+                </div>
+                
+                <div class="section-item" data-section="discussion">
+                    <div class="section-name">Discussion</div>
+                    <div class="section-stats">
+                        <div class="word-count">
+                            <span id="words-discussion">{{ manuscript.word_count_discussion }}</span> words
+                        </div>
+                    </div>
+                    <div class="completion-indicator">
+                        <div class="completion-fill" style="width: {% if manuscript.word_count_discussion > 0 %}100{% else %}0{% endif %}%;"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <button id="compile-btn" class="btn btn-primary">
+                    <i class="fas fa-file-pdf me-2"></i>Compile PDF
+                </button>
+                
+                <button id="live-compile-toggle" class="btn btn-outline-success active" title="Toggle Live Compilation">
+                    <i class="fas fa-magic me-2"></i>Live Compile
+                </button>
+                
+                <button id="export-btn" class="btn btn-outline-secondary">
+                    <i class="fas fa-download me-2"></i>Export
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Editor -->
+    <div class="writer-main">
+        <div class="writer-toolbar">
+            <div class="editing-mode-toggle">
+                <button class="mode-btn active" data-mode="text">
+                    <i class="fas fa-align-left me-2"></i>Text Mode
+                </button>
+                <button class="mode-btn" data-mode="latex">
+                    <i class="fas fa-code me-2"></i>LaTeX Mode
+                </button>
+            </div>
+            
+            <div class="ms-auto">
+                <span id="auto-save-status" class="text-muted">
+                    <i class="fas fa-check-circle text-success me-1"></i>Saved
+                </span>
+            </div>
+        </div>
+
+        <div class="writer-editor">
+            <!-- Text-based editor -->
+            <div id="text-editor" class="text-editor">
+                <h2 class="section-title" id="current-section-title">Abstract</h2>
+                <textarea id="section-content" placeholder="Start writing your abstract here. Focus on the main findings and significance of your research.">{{ sections.abstract|default:"" }}</textarea>
+            </div>
+            
+            <!-- LaTeX editor (hidden by default) -->
+            <textarea id="latex-editor" class="latex-editor" style="display: none;" placeholder="LaTeX code will appear here..."></textarea>
+        </div>
+    </div>
+</div>
+
+<!-- Word count indicator -->
+<div class="word-count-indicator">
+    <i class="fas fa-pencil-alt me-2"></i>
+    <span id="current-word-count">0</span> words
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const projectId = {{ project.id }};
+    let currentSection = 'abstract';
+    let editingMode = 'text';
+    let autoSaveTimeout;
+    let liveCompileTimeout;
+    let currentlyCompiling = false;
+    let liveCompilationEnabled = true; // Enable live compilation by default
+    
+    // Section data
+    const sectionsData = {
+        abstract: {{ sections.abstract|default:"''"|safe }},
+        introduction: {{ sections.introduction|default:"''"|safe }},
+        methods: {{ sections.methods|default:"''"|safe }},
+        results: {{ sections.results|default:"''"|safe }},
+        discussion: {{ sections.discussion|default:"''"|safe }}
+    };
+    
+    // Section titles
+    const sectionTitles = {
+        abstract: 'Abstract',
+        introduction: 'Introduction', 
+        methods: 'Methods',
+        results: 'Results',
+        discussion: 'Discussion'
+    };
+    
+    // Section placeholders
+    const sectionPlaceholders = {
+        abstract: 'Write a concise summary of your research objectives, methods, key findings, and conclusions. Typically 150-300 words.',
+        introduction: 'Provide background context, literature review, and clearly state your research question or hypothesis.',
+        methods: 'Describe your experimental design, data collection methods, and analytical approaches in sufficient detail for replication.',
+        results: 'Present your findings objectively with appropriate statistical analysis. Use figures and tables to support key results.',
+        discussion: 'Interpret your results, discuss limitations, compare with existing literature, and suggest future research directions.'
+    };
+    
+    // Elements
+    const sectionItems = document.querySelectorAll('.section-item');
+    const textEditor = document.getElementById('text-editor');
+    const latexEditor = document.getElementById('latex-editor');
+    const sectionContent = document.getElementById('section-content');
+    const currentSectionTitle = document.getElementById('current-section-title');
+    const modeButtons = document.querySelectorAll('.mode-btn');
+    const compileBtn = document.getElementById('compile-btn');
+    const liveCompileToggle = document.getElementById('live-compile-toggle');
+    const exportBtn = document.getElementById('export-btn');
+    const autoSaveStatus = document.getElementById('auto-save-status');
+    const currentWordCount = document.getElementById('current-word-count');
+    
+    // Initialize
+    loadSection(currentSection);
+    updateWordCount();
+    
+    // Section switching
+    sectionItems.forEach(item => {
+        item.addEventListener('click', function() {
+            const section = this.dataset.section;
+            if (section !== currentSection) {
+                saveCurrentSection();
+                switchToSection(section);
+            }
+        });
+    });
+    
+    // Mode switching
+    modeButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const mode = this.dataset.mode;
+            switchEditingMode(mode);
+        });
+    });
+    
+    // Auto-save on content change (text mode)
+    sectionContent.addEventListener('input', function() {
+        updateWordCount();
+        scheduleAutoSave();
+    });
+    
+    // Auto-save on content change (LaTeX mode)
+    latexEditor.addEventListener('input', function() {
+        // Convert LaTeX to text for word counting
+        const textContent = convertFromLatex(currentSection, this.value);
+        sectionsData[currentSection] = textContent;
+        updateWordCount();
+        scheduleAutoSaveLatex();
+    });
+    
+    // Compile manuscript
+    compileBtn.addEventListener('click', function() {
+        saveCurrentSection();
+        compileManuscript();
+    });
+    
+    // Live compilation toggle
+    liveCompileToggle.addEventListener('click', function() {
+        liveCompilationEnabled = !liveCompilationEnabled;
+        this.classList.toggle('active', liveCompilationEnabled);
+        this.classList.toggle('btn-outline-success', liveCompilationEnabled);
+        this.classList.toggle('btn-outline-secondary', !liveCompilationEnabled);
+        
+        if (liveCompilationEnabled) {
+            this.innerHTML = '<i class="fas fa-magic me-2"></i>Live Compile';
+            showToast('Live compilation enabled', 'success');
+        } else {
+            this.innerHTML = '<i class="fas fa-magic me-2"></i>Manual Only';
+            showToast('Live compilation disabled', 'info');
+            clearTimeout(liveCompileTimeout);
+        }
+    });
+    
+    // Export functionality
+    exportBtn.addEventListener('click', function() {
+        exportManuscript();
+    });
+    
+    function switchToSection(section) {
+        currentSection = section;
+        
+        // Update UI
+        sectionItems.forEach(item => {
+            item.classList.toggle('active', item.dataset.section === section);
+        });
+        
+        // Load section content
+        loadSection(section);
+    }
+    
+    function loadSection(section) {
+        currentSectionTitle.textContent = sectionTitles[section];
+        sectionContent.value = sectionsData[section] || '';
+        sectionContent.placeholder = sectionPlaceholders[section];
+        updateWordCount();
+    }
+    
+    function saveCurrentSection() {
+        const content = sectionContent.value;
+        sectionsData[currentSection] = content;
+        
+        // Save to server
+        fetch(`/writer/project/${projectId}/save-section/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken()
+            },
+            body: JSON.stringify({
+                section: currentSection,
+                content: content
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                updateSectionWordCount(currentSection, data.word_count);
+                updateTotalWordCount(data.total_words);
+                showSaveStatus('Saved', 'success');
+            } else {
+                showSaveStatus('Error saving', 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Save error:', error);
+            showSaveStatus('Save failed', 'danger');
+        });
+    }
+    
+    function scheduleAutoSave() {
+        showSaveStatus('Unsaved changes', 'warning');
+        clearTimeout(autoSaveTimeout);
+        autoSaveTimeout = setTimeout(() => {
+            saveCurrentSection();
+            // Schedule live compilation after save
+            if (liveCompilationEnabled) {
+                scheduleLiveCompilation();
+            }
+        }, 2000);
+    }
+    
+    function scheduleAutoSaveLatex() {
+        showSaveStatus('Unsaved changes (LaTeX)', 'warning');
+        clearTimeout(autoSaveTimeout);
+        autoSaveTimeout = setTimeout(() => {
+            saveCurrentSectionFromLatex();
+            // Schedule live compilation after save
+            if (liveCompilationEnabled) {
+                scheduleLiveCompilation();
+            }
+        }, 2000);
+    }
+    
+    function saveCurrentSectionFromLatex() {
+        const latexContent = latexEditor.value;
+        
+        // Save LaTeX content directly to file
+        fetch(`/writer/project/${projectId}/save-latex/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken()
+            },
+            body: JSON.stringify({
+                section: currentSection,
+                latex_content: latexContent
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                updateSectionWordCount(currentSection, data.word_count);
+                updateTotalWordCount(data.total_words);
+                showSaveStatus('Saved (LaTeX)', 'success');
+                
+                // Update text content for consistency
+                const textContent = convertFromLatex(currentSection, latexContent);
+                sectionsData[currentSection] = textContent;
+            } else {
+                showSaveStatus('Error saving (LaTeX)', 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Save error (LaTeX):', error);
+            showSaveStatus('Save failed (LaTeX)', 'danger');
+        });
+    }
+    
+    function loadActualLatexContent(section) {
+        fetch(`/writer/project/${projectId}/load-latex/?section=${section}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                latexEditor.value = data.latex_content;
+                
+                // Update text content for consistency
+                const textContent = convertFromLatex(section, data.latex_content);
+                sectionsData[section] = textContent;
+                updateWordCount();
+            } else {
+                console.error('Failed to load LaTeX content:', data.error);
+                // Fallback to generated LaTeX
+                const content = sectionsData[section] || '';
+                latexEditor.value = convertToLatex(section, content);
+            }
+        })
+        .catch(error => {
+            console.error('Load LaTeX error:', error);
+            // Fallback to generated LaTeX
+            const content = sectionsData[section] || '';
+            latexEditor.value = convertToLatex(section, content);
+        });
+    }
+    
+    function scheduleLiveCompilation() {
+        clearTimeout(liveCompileTimeout);
+        liveCompileTimeout = setTimeout(() => {
+            performLiveCompilation();
+        }, 5000); // Compile 5 seconds after last change
+    }
+    
+    function performLiveCompilation() {
+        if (currentlyCompiling) return;
+        
+        currentlyCompiling = true;
+        showSaveStatus('Auto-compiling...', 'info');
+        
+        fetch(`/writer/project/${projectId}/compile/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCsrfToken()
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showSaveStatus('Auto-compiled successfully', 'success');
+                checkCompilationStatus(data.job_id);
+            } else {
+                showSaveStatus('Auto-compile failed', 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Live compilation error:', error);
+            showSaveStatus('Auto-compile error', 'danger');
+        })
+        .finally(() => {
+            currentlyCompiling = false;
+        });
+    }
+    
+    function checkCompilationStatus(jobId) {
+        fetch(`/writer/api/status/${jobId}/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'completed') {
+                showSaveStatus('PDF ready', 'success');
+                // Could update a preview here
+            } else if (data.status === 'failed') {
+                showSaveStatus('Compilation failed', 'danger');
+            } else if (data.status === 'running') {
+                // Check again in 2 seconds
+                setTimeout(() => checkCompilationStatus(jobId), 2000);
+            }
+        })
+        .catch(error => {
+            console.error('Status check error:', error);
+        });
+    }
+    
+    function switchEditingMode(mode) {
+        // Save current content before switching
+        if (editingMode === 'text') {
+            sectionsData[currentSection] = sectionContent.value;
+        } else if (editingMode === 'latex') {
+            // Convert LaTeX back to text and save
+            const latexContent = latexEditor.value;
+            sectionsData[currentSection] = convertFromLatex(currentSection, latexContent);
+        }
+        
+        editingMode = mode;
+        
+        // Update buttons
+        modeButtons.forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.mode === mode);
+        });
+        
+        if (mode === 'text') {
+            textEditor.style.display = 'flex';
+            latexEditor.style.display = 'none';
+            // Load current content into text editor
+            sectionContent.value = sectionsData[currentSection] || '';
+        } else {
+            textEditor.style.display = 'none';
+            latexEditor.style.display = 'block';
+            
+            // Load actual LaTeX file content
+            loadActualLatexContent(currentSection);
+        }
+        
+        updateWordCount();
+    }
+    
+    function convertToLatex(section, content) {
+        if (section === 'abstract') {
+            return `% Abstract\n\\begin{abstract}\n${content}\n\\end{abstract}\n`;
+        } else {
+            return `% ${sectionTitles[section]}\n\\section{${sectionTitles[section]}}\n${content}\n`;
+        }
+    }
+    
+    function convertFromLatex(section, latexContent) {
+        let content = latexContent;
+        
+        // Remove LaTeX comments
+        content = content.replace(/^%.*$/gm, '');
+        
+        if (section === 'abstract') {
+            // Extract content from \begin{abstract}...\end{abstract}
+            const abstractMatch = content.match(/\\begin\{abstract\}([\s\S]*?)\\end\{abstract\}/);
+            if (abstractMatch) {
+                content = abstractMatch[1];
+            }
+        } else {
+            // Remove \section{...} command
+            content = content.replace(/\\section\{[^}]*\}\s*/g, '');
+        }
+        
+        // Remove common LaTeX commands while preserving text
+        content = content
+            // Remove simple commands like \textbf{}, \emph{}, \cite{}
+            .replace(/\\(?:textbf|emph|textit|texttt|cite)\{([^}]*)\}/g, '$1')
+            // Remove \label{} commands
+            .replace(/\\label\{[^}]*\}/g, '')
+            // Convert \\ to line breaks
+            .replace(/\\\\/g, '\n')
+            // Remove remaining single backslashes (but keep escaped characters)
+            .replace(/\\(?![\\{}])/g, '')
+            // Clean up extra whitespace
+            .replace(/\n\s*\n/g, '\n\n')
+            .trim();
+        
+        return content;
+    }
+    
+    function updateWordCount() {
+        const content = sectionContent.value;
+        const words = content.trim().split(/\s+/).filter(word => word.length > 0).length;
+        currentWordCount.textContent = words;
+    }
+    
+    function updateSectionWordCount(section, count) {
+        const wordElement = document.getElementById(`words-${section}`);
+        if (wordElement) {
+            wordElement.textContent = count;
+        }
+        
+        // Update completion indicator
+        const completionFill = document.querySelector(`[data-section="${section}"] .completion-fill`);
+        if (completionFill) {
+            completionFill.style.width = count > 0 ? '100%' : '0%';
+        }
+    }
+    
+    function updateTotalWordCount(total) {
+        document.getElementById('total-words').textContent = total;
+    }
+    
+    function compileManuscript() {
+        compileBtn.disabled = true;
+        compileBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Compiling...';
+        
+        fetch(`/writer/project/${projectId}/compile/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCsrfToken()
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Compilation started! Check your email for the PDF.', 'success');
+                // Could implement status checking here
+            } else {
+                showToast('Compilation failed: ' + data.error, 'danger');
+            }
+        })
+        .catch(error => {
+            showToast('Compilation error: ' + error.message, 'danger');
+        })
+        .finally(() => {
+            compileBtn.disabled = false;
+            compileBtn.innerHTML = '<i class="fas fa-file-pdf me-2"></i>Compile PDF';
+        });
+    }
+    
+    function exportManuscript() {
+        // Create export data
+        const exportData = {
+            project: '{{ project.name }}',
+            manuscript: '{{ manuscript.title }}',
+            sections: sectionsData,
+            stats: {
+                totalWords: document.getElementById('total-words').textContent,
+                citations: document.getElementById('citation-count').textContent
+            },
+            exported: new Date().toISOString()
+        };
+        
+        // Download as JSON
+        const blob = new Blob([JSON.stringify(exportData, null, 2)], {type: 'application/json'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${exportData.project.replace(/\s+/g, '_')}_manuscript.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        
+        showToast('Manuscript exported successfully!', 'success');
+    }
+    
+    function showSaveStatus(message, type) {
+        const icon = type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'times-circle';
+        const color = type === 'success' ? 'success' : type === 'warning' ? 'warning' : 'danger';
+        
+        autoSaveStatus.innerHTML = `<i class="fas fa-${icon} text-${color} me-1"></i>${message}`;
+    }
+    
+    function showToast(message, type) {
+        const toast = document.createElement('div');
+        toast.className = `alert alert-${type} alert-dismissible fade show`;
+        toast.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        let container = document.querySelector('.toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.className = 'toast-container';
+            document.body.appendChild(container);
+        }
+        
+        container.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.remove();
+        }, 5000);
+    }
+    
+    function getCsrfToken() {
+        return document.querySelector('[name=csrfmiddlewaretoken]').value;
+    }
+    
+    // Save on page unload
+    window.addEventListener('beforeunload', function() {
+        saveCurrentSection();
+    });
+});
+</script>
+
+{% csrf_token %}
+{% endblock %}

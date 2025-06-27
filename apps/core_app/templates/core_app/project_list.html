@@ -1,0 +1,433 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}My Projects - SciTeX Cloud{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/common/cards.css' %}">
+<link rel="stylesheet" href="{% static 'css/common/forms.css' %}">
+<style>
+.project-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.project-header {
+    display: flex;
+    justify-content: between;
+    align-items: center;
+    margin-bottom: 2rem;
+    gap: 1rem;
+}
+
+.project-controls {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.project-form {
+    background: var(--color-background-primary);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.project-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.stat-item {
+    background: var(--color-background-primary);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--color-primary);
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--color-text-primary);
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.form-group textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.project-item {
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    background: var(--color-background-primary);
+    transition: box-shadow 0.2s ease;
+}
+
+.project-item:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.project-item.overdue {
+    border-left: 4px solid var(--color-danger);
+    background: var(--color-danger-bg);
+}
+
+.project-item.deadline-soon {
+    border-left: 4px solid var(--color-warning);
+    background: var(--color-warning-bg);
+}
+
+.project-header {
+    display: flex;
+    justify-content: between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.project-title {
+    margin: 0;
+    color: var(--color-text-primary);
+    font-size: 1.25rem;
+}
+
+.project-status-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.project-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.status-planning {
+    background: var(--color-warning-bg);
+    color: var(--color-warning);
+}
+
+.status-active {
+    background: var(--color-success-bg);
+    color: var(--color-success);
+}
+
+.status-completed {
+    background: var(--color-info-bg);
+    color: var(--color-info);
+}
+
+.status-on_hold {
+    background: var(--color-danger-bg);
+    color: var(--color-danger);
+}
+
+.deadline-indicator {
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.deadline-indicator.overdue {
+    background: var(--color-danger);
+    color: white;
+}
+
+.deadline-indicator.warning {
+    background: var(--color-warning);
+    color: white;
+}
+
+.project-content {
+    margin-bottom: 1rem;
+}
+
+.project-description {
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+    margin-bottom: 0.5rem;
+}
+
+.project-deadline {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.project-meta {
+    display: flex;
+    justify-content: between;
+    align-items: center;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+}
+
+.project-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.collaborators-count {
+    background: var(--color-accent-primary);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: var(--color-text-secondary);
+}
+
+.status-message {
+    padding: 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    display: none;
+}
+
+.status-message.success {
+    background: var(--color-success-bg);
+    color: var(--color-success);
+    border: 1px solid var(--color-success);
+}
+
+.status-message.error {
+    background: var(--color-danger-bg);
+    color: var(--color-danger);
+    border: 1px solid var(--color-danger);
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.pagination-info {
+    color: var(--color-text-secondary);
+}
+
+#loading-indicator {
+    text-align: center;
+    padding: 2rem;
+    color: var(--color-text-secondary);
+}
+
+@media (max-width: 768px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .project-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .project-actions {
+        flex-direction: column;
+    }
+    
+    .project-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="project-container">
+    <div class="project-header">
+        <h1>My Projects</h1>
+        <div class="project-controls">
+            <select id="project-status-filter" class="form-control">
+                <option value="">All Statuses</option>
+                <option value="planning">Planning</option>
+                <option value="active">Active</option>
+                <option value="completed">Completed</option>
+                <option value="on_hold">On Hold</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Project Statistics -->
+    <div class="project-stats">
+        <div class="stat-item">
+            <div class="stat-number" id="planning-count">0</div>
+            <div class="stat-label">Planning</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number" id="active-count">0</div>
+            <div class="stat-label">Active</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number" id="completed-count">0</div>
+            <div class="stat-label">Completed</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number" id="on_hold-count">0</div>
+            <div class="stat-label">On Hold</div>
+        </div>
+    </div>
+
+    <div id="status-message" class="status-message"></div>
+    <div id="loading-indicator" style="display: none;">Loading...</div>
+
+    <!-- Example Projects Section -->
+    {% if not has_projects %}
+    <div class="example-projects-section">
+        <h2>Get Started with Example Projects</h2>
+        <p>New to SciTeX? Try one of our example projects to see how the SCITEX framework works:</p>
+        
+        <div class="example-projects-grid">
+            <div class="example-project-card" data-type="mnist">
+                <div class="example-icon">🧠</div>
+                <h3>MNIST Classification</h3>
+                <p>Machine learning project with SVM digit classification</p>
+                <ul class="example-features">
+                    <li>Data preprocessing</li>
+                    <li>Model training</li>
+                    <li>Evaluation metrics</li>
+                    <li>Visualization</li>
+                </ul>
+                <button class="btn btn-primary create-example-btn" data-type="mnist">Create Example</button>
+            </div>
+            
+            <div class="example-project-card" data-type="data_analysis">
+                <div class="example-icon">📊</div>
+                <h3>Data Analysis Template</h3>
+                <p>Statistical analysis and visualization workflow</p>
+                <ul class="example-features">
+                    <li>Data cleaning</li>
+                    <li>Statistical tests</li>
+                    <li>Charts and plots</li>
+                    <li>Report generation</li>
+                </ul>
+                <button class="btn btn-primary create-example-btn" data-type="data_analysis">Create Example</button>
+            </div>
+            
+            <div class="example-project-card" data-type="research_paper">
+                <div class="example-icon">📝</div>
+                <h3>Research Paper Project</h3>
+                <p>Complete academic research workflow template</p>
+                <ul class="example-features">
+                    <li>Literature review</li>
+                    <li>Methodology</li>
+                    <li>Results analysis</li>
+                    <li>Manuscript writing</li>
+                </ul>
+                <button class="btn btn-primary create-example-btn" data-type="research_paper">Create Example</button>
+            </div>
+        </div>
+        
+        <div class="example-or-divider">
+            <span>or create your own project</span>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Project Form -->
+    <div class="project-form" {% if not has_projects %}style="margin-top: 1rem;"{% endif %}>
+        <h2 id="form-title">{% if has_projects %}Create New Project{% else %}Create Custom Project{% endif %}</h2>
+        <form id="project-form">
+            {% csrf_token %}
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="name">Project Name</label>
+                    <input type="text" id="name" name="name" required placeholder="Enter project name">
+                </div>
+                <div class="form-group">
+                    <label for="status">Status</label>
+                    <select id="status" name="status">
+                        <option value="planning">Planning</option>
+                        <option value="active">Active</option>
+                        <option value="completed">Completed</option>
+                        <option value="on_hold">On Hold</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" name="description" required placeholder="Describe your project goals and objectives..."></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="hypotheses">Research Hypotheses</label>
+                <textarea id="hypotheses" name="hypotheses" placeholder="Define your research hypotheses (following SCITEX framework)..."></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="deadline">Deadline (Optional)</label>
+                <input type="datetime-local" id="deadline" name="deadline">
+                <small class="form-text text-muted">Set a deadline to track project progress</small>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Create Project</button>
+                <button type="button" class="btn btn-secondary" onclick="projectManager.resetForm()">Cancel</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Project List -->
+    <div id="project-list"></div>
+    
+    <!-- Pagination -->
+    <div id="pagination-container"></div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/project-manager.js' %}"></script>
+{% endblock %}

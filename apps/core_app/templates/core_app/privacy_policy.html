@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Privacy Policy - SciTeX{% endblock %}
+
+{% block content %}
+<div class="container legal-container">
+    <div class="legal-header">
+        <h1>Privacy Policy</h1>
+        <p class="last-updated">Last updated: January 23, 2025</p>
+    </div>
+
+    <div class="legal-content">
+        <section>
+            <h2>1. Introduction</h2>
+            <p>
+                SciTeX ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, 
+                use, disclose, and safeguard your information when you use our platform and services.
+            </p>
+        </section>
+
+        <section>
+            <h2>2. Information We Collect</h2>
+            <h3>2.1 Information You Provide</h3>
+            <ul>
+                <li>Account information (name, email, institution)</li>
+                <li>Profile data (research interests, ORCID, academic information)</li>
+                <li>Content you create (documents, projects, manuscripts)</li>
+                <li>Communications with us</li>
+            </ul>
+
+            <h3>2.2 Automatically Collected Information</h3>
+            <ul>
+                <li>Usage data and analytics</li>
+                <li>Device and browser information</li>
+                <li>IP address and location data</li>
+                <li>Cookies and similar technologies</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>3. How We Use Your Information</h2>
+            <p>We use your information to:</p>
+            <ul>
+                <li>Provide and maintain our services</li>
+                <li>Improve and personalize your experience</li>
+                <li>Communicate with you about updates and features</li>
+                <li>Ensure security and prevent fraud</li>
+                <li>Comply with legal obligations</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>4. Data Sharing and Disclosure</h2>
+            <p>We do not sell your personal information. We may share your information:</p>
+            <ul>
+                <li>With your consent</li>
+                <li>To comply with legal obligations</li>
+                <li>To protect our rights and safety</li>
+                <li>With service providers who assist our operations</li>
+                <li>In connection with a business transfer</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>5. Data Security</h2>
+            <p>
+                We implement appropriate technical and organizational measures to protect your information against unauthorized access, 
+                alteration, disclosure, or destruction. However, no method of transmission over the internet is 100% secure.
+            </p>
+        </section>
+
+        <section>
+            <h2>6. Your Rights and Choices</h2>
+            <p>You have the right to:</p>
+            <ul>
+                <li>Access and receive a copy of your data</li>
+                <li>Correct or update your information</li>
+                <li>Delete your account and data</li>
+                <li>Object to certain processing</li>
+                <li>Export your data</li>
+                <li>Opt-out of marketing communications</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>7. Data Retention</h2>
+            <p>
+                We retain your information for as long as necessary to provide our services and comply with legal obligations. 
+                When you delete your account, we will delete or anonymize your information within 30 days, unless required to 
+                retain it for legal purposes.
+            </p>
+        </section>
+
+        <section>
+            <h2>8. International Data Transfers</h2>
+            <p>
+                Your information may be transferred to and processed in countries other than your own. We ensure appropriate 
+                safeguards are in place to protect your information in accordance with applicable laws.
+            </p>
+        </section>
+
+        <section>
+            <h2>9. Children's Privacy</h2>
+            <p>
+                SciTeX is not intended for children under 13 years of age. We do not knowingly collect personal information 
+                from children under 13.
+            </p>
+        </section>
+
+        <section>
+            <h2>10. Changes to This Policy</h2>
+            <p>
+                We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new 
+                Privacy Policy on this page and updating the "Last updated" date.
+            </p>
+        </section>
+
+        <section>
+            <h2>11. Contact Us</h2>
+            <p>
+                If you have questions about this Privacy Policy or our privacy practices, please contact us at:
+            </p>
+            <div class="contact-info">
+                <p>Email: <a href="mailto:privacy@scitex.ai">privacy@scitex.ai</a></p>
+                <p>Address: SciTeX, Privacy Department</p>
+            </div>
+        </section>
+    </div>
+</div>
+
+<style>
+.legal-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.legal-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding: 2rem 0;
+    border-bottom: 2px solid var(--scitex-color-06);
+}
+
+.legal-header h1 {
+    color: var(--scitex-color-01);
+    margin-bottom: 0.5rem;
+}
+
+.last-updated {
+    color: var(--scitex-color-03);
+    font-style: italic;
+}
+
+.legal-content {
+    line-height: 1.8;
+}
+
+.legal-content section {
+    margin-bottom: 2.5rem;
+}
+
+.legal-content h2 {
+    color: var(--scitex-color-02);
+    margin-bottom: 1rem;
+    margin-top: 2rem;
+}
+
+.legal-content h3 {
+    color: var(--scitex-color-03);
+    margin-bottom: 0.75rem;
+    margin-top: 1.5rem;
+}
+
+.legal-content ul {
+    margin-left: 2rem;
+    margin-bottom: 1rem;
+}
+
+.legal-content li {
+    margin-bottom: 0.5rem;
+}
+
+.contact-info {
+    background: var(--scitex-color-07);
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-top: 1rem;
+}
+
+.contact-info p {
+    margin: 0.5rem 0;
+}
+</style>
+{% endblock %}

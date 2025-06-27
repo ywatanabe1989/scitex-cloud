@@ -1,0 +1,487 @@
+{% extends "cloud_app/base.html" %}
+{% load static %}
+
+{% block title %}Create an Account - SciTeX{% endblock %}
+
+{% block meta_description %}Join SciTeX - the open-source platform for scientific research. Create your free account to get started with managing, analyzing, and publishing your research.{% endblock %}
+
+{% block extra_css %}
+<style>
+  .signup-header {
+    background-color: #eef2ff;
+    padding: 3rem 0;
+    margin-bottom: 3rem;
+    border-radius: 0 0 8px 8px;
+  }
+  
+  .signup-container {
+    max-width: 650px;
+    margin: 0 auto;
+    padding-bottom: 4rem;
+  }
+  
+  .auth-form {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    padding: 2rem;
+    margin-bottom: 2rem;
+  }
+  
+  .form-message {
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    display: none;
+  }
+  
+  .form-message.success {
+    background-color: rgba(46, 204, 113, 0.1);
+    color: #27ae60;
+    border: 1px solid rgba(46, 204, 113, 0.3);
+  }
+  
+  .form-message.error {
+    background-color: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+    border: 1px solid rgba(231, 76, 60, 0.3);
+  }
+  
+  .benefits-list {
+    margin-top: 3rem;
+  }
+  
+  .benefit-item {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    align-items: flex-start;
+  }
+  
+  .benefit-icon {
+    font-size: 1.5rem;
+    color: #4a6baf;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(74, 107, 175, 0.1);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  
+  .password-rules {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+  }
+  
+  .password-rule {
+    margin-bottom: 0.25rem;
+    color: #6c757d;
+  }
+  
+  .password-rule.valid {
+    color: #28a745;
+  }
+  
+  .password-rule i {
+    margin-right: 0.5rem;
+  }
+</style>
+{% endblock %}
+
+{% block cloud_content %}
+<div class="signup-header">
+  <div class="container">
+    <h1 class="display-4 text-center">Create Your SciTeX Account</h1>
+    <p class="lead text-center">Join our open-source scientific research platform - completely free</p>
+  </div>
+</div>
+
+<div class="container signup-container">
+  <div class="row">
+    <div class="col-lg-7">
+      <div class="auth-form">
+        <h2 class="mb-4">Sign Up</h2>
+        
+        <div class="form-message success">
+          <p><strong>Account created successfully!</strong> You can now log in and start using SciTeX.</p>
+        </div>
+        
+        <div class="form-message error">
+          <p><strong>Error:</strong> <span id="error-message">Something went wrong. Please try again.</span></p>
+        </div>
+        
+        <form id="signup-form">
+          <div class="form-group mb-3">
+            <label for="username" class="form-label">Username <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="username" name="username" required>
+            <div class="form-text">Choose a unique username for your account.</div>
+          </div>
+          
+          <div class="form-group mb-3">
+            <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+            <input type="email" class="form-control" id="email" name="email" required>
+            <div class="form-text">We'll never share your email with anyone else.</div>
+            
+            <!-- Japanese Academic Benefits Alert -->
+            <div class="alert alert-info academic-benefits" style="display: none; margin-top: 0.75rem;">
+              <h6 class="alert-heading mb-2">
+                <i class="fas fa-graduation-cap me-2"></i>日本の学術機関の特典 (Japanese Academic Benefits)
+              </h6>
+              <div class="small">
+                <strong>Japanese academic email detected!</strong> You'll receive:
+                <ul class="mb-1 mt-1">
+                  <li>Priority support in Japanese (日本語サポート)</li>
+                  <li>Early access to new features</li>
+                  <li>Special academic collaboration features</li>
+                  <li>Enhanced storage limits</li>
+                </ul>
+                <em>Recognized domains: .ac.jp (academic), .go.jp (government research), .riken.jp, .jaxa.jp, and more</em>
+              </div>
+            </div>
+          </div>
+          
+          <div class="form-group mb-3">
+            <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
+            <div class="input-group">
+              <input type="password" class="form-control" id="password" name="password" required>
+              <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                <i class="fas fa-eye" id="togglePasswordIcon"></i>
+              </button>
+            </div>
+            <div class="password-rules">
+              <div class="password-rule" id="rule-length"><i class="fas fa-circle"></i> At least 8 characters</div>
+              <div class="password-rule" id="rule-lowercase"><i class="fas fa-circle"></i> At least one lowercase letter</div>
+              <div class="password-rule" id="rule-uppercase"><i class="fas fa-circle"></i> At least one uppercase letter</div>
+              <div class="password-rule" id="rule-number"><i class="fas fa-circle"></i> At least one number</div>
+              <div class="password-rule" id="rule-special"><i class="fas fa-circle"></i> At least one special character (!@#$%^&*)</div>
+            </div>
+          </div>
+          
+          <div class="form-group mb-3">
+            <label for="confirm-password" class="form-label">Confirm Password <span class="text-danger">*</span></label>
+            <div class="input-group">
+              <input type="password" class="form-control" id="confirm-password" name="confirm-password" required>
+              <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword">
+                <i class="fas fa-eye" id="toggleConfirmPasswordIcon"></i>
+              </button>
+            </div>
+          </div>
+          
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="first-name" class="form-label">First Name</label>
+              <input type="text" class="form-control" id="first-name" name="first-name">
+            </div>
+            
+            <div class="col-md-6 mb-3">
+              <label for="last-name" class="form-label">Last Name</label>
+              <input type="text" class="form-control" id="last-name" name="last-name">
+            </div>
+          </div>
+          
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="terms" required>
+            <label class="form-check-label" for="terms">
+              I agree to the <a href="{% url 'cloud_app:terms' %}" target="_blank">Terms of Use</a> and <a href="{% url 'cloud_app:privacy' %}" target="_blank">Privacy Policy</a>
+            </label>
+          </div>
+          
+          <button type="submit" class="btn btn-primary w-100">Create Account</button>
+        </form>
+        
+        <div class="text-center mt-3">
+          <p>Already have an account? <a href="{% url 'cloud_app:login' %}">Log In</a></p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-lg-5">
+      <h3>Why Join SciTeX?</h3>
+      <div class="benefits-list">
+        <div class="benefit-item">
+          <div class="benefit-icon"><i class="fas fa-infinity"></i></div>
+          <div>
+            <h4>100% Free & Open Source</h4>
+            <p>SciTeX is completely free to use and all our code is open source. No hidden fees or paid tiers.</p>
+          </div>
+        </div>
+        
+        <div class="benefit-item">
+          <div class="benefit-icon"><i class="fas fa-tools"></i></div>
+          <div>
+            <h4>Complete Research Toolkit</h4>
+            <p>Access our integrated suite of tools for document management, data analysis, and publishing.</p>
+          </div>
+        </div>
+        
+        <div class="benefit-item">
+          <div class="benefit-icon"><i class="fas fa-users"></i></div>
+          <div>
+            <h4>Join the Community</h4>
+            <p>Become part of a growing community of researchers sharing knowledge and collaborating.</p>
+          </div>
+        </div>
+        
+        <div class="benefit-item">
+          <div class="benefit-icon"><i class="fas fa-code-branch"></i></div>
+          <div>
+            <h4>Contribute & Customize</h4>
+            <p>Help shape the platform by contributing or customize it to fit your specific research needs.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('signup-form');
+    const passwordInput = document.getElementById('password');
+    const confirmPassword = document.getElementById('confirm-password');
+    const usernameInput = document.getElementById('username');
+    const emailInput = document.getElementById('email');
+    const successMessage = document.querySelector('.form-message.success');
+    const errorMessage = document.querySelector('.form-message.error');
+    const errorText = document.getElementById('error-message');
+    const academicBenefits = document.querySelector('.academic-benefits');
+    
+    // Japanese academic domains (synced with backend)
+    const japaneseAcademicDomains = [
+      // Japanese Academic (.ac.jp) - All academic institutions
+      '.ac.jp',
+      '.u-tokyo.ac.jp', '.kyoto-u.ac.jp', '.osaka-u.ac.jp',
+      '.tohoku.ac.jp', '.nagoya-u.ac.jp', '.kyushu-u.ac.jp',
+      '.hokudai.ac.jp', '.tsukuba.ac.jp', '.hiroshima-u.ac.jp',
+      '.kobe-u.ac.jp', '.waseda.jp', '.keio.ac.jp',
+      
+      // Government Research Institutions (.go.jp)
+      '.go.jp',  // Broader government research support
+      '.riken.jp', '.aist.go.jp', '.nict.go.jp', '.jaxa.jp',
+      '.jst.go.jp', '.nims.go.jp', '.nies.go.jp'
+    ];
+    
+    // Check if email is Japanese academic (synced with backend logic)
+    function isJapaneseAcademicEmail(email) {
+      if (!email || !email.includes('@')) return false;
+      const domain = email.toLowerCase().split('@')[1];
+      
+      // Check if domain matches exactly or ends with the academic domain
+      for (const acadDomain of japaneseAcademicDomains) {
+        const cleanDomain = acadDomain.replace(/^\./, '');
+        if (domain === cleanDomain || domain.endsWith(acadDomain)) {
+          return true;
+        }
+      }
+      return false;
+    }
+    
+    // Check email for Japanese academic domains
+    emailInput.addEventListener('input', function() {
+      const email = this.value;
+      if (isJapaneseAcademicEmail(email)) {
+        academicBenefits.style.display = 'block';
+        academicBenefits.classList.add('animate__animated', 'animate__slideInDown');
+      } else {
+        academicBenefits.style.display = 'none';
+      }
+    });
+    
+    // Password validation rules
+    const ruleLength = document.getElementById('rule-length');
+    const ruleLowercase = document.getElementById('rule-lowercase');
+    const ruleUppercase = document.getElementById('rule-uppercase');
+    const ruleNumber = document.getElementById('rule-number');
+    const ruleSpecial = document.getElementById('rule-special');
+    
+    // Check password strength
+    passwordInput.addEventListener('input', function() {
+      const password = this.value;
+      
+      // Check length
+      if (password.length >= 8) {
+        ruleLength.classList.add('valid');
+        ruleLength.querySelector('i').className = 'fas fa-check';
+      } else {
+        ruleLength.classList.remove('valid');
+        ruleLength.querySelector('i').className = 'fas fa-circle';
+      }
+      
+      // Check for lowercase letters
+      if (/[a-z]/.test(password)) {
+        ruleLowercase.classList.add('valid');
+        ruleLowercase.querySelector('i').className = 'fas fa-check';
+      } else {
+        ruleLowercase.classList.remove('valid');
+        ruleLowercase.querySelector('i').className = 'fas fa-circle';
+      }
+      
+      // Check for uppercase letters
+      if (/[A-Z]/.test(password)) {
+        ruleUppercase.classList.add('valid');
+        ruleUppercase.querySelector('i').className = 'fas fa-check';
+      } else {
+        ruleUppercase.classList.remove('valid');
+        ruleUppercase.querySelector('i').className = 'fas fa-circle';
+      }
+      
+      // Check for numbers
+      if (/\d/.test(password)) {
+        ruleNumber.classList.add('valid');
+        ruleNumber.querySelector('i').className = 'fas fa-check';
+      } else {
+        ruleNumber.classList.remove('valid');
+        ruleNumber.querySelector('i').className = 'fas fa-circle';
+      }
+      
+      // Check for special characters
+      if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+        ruleSpecial.classList.add('valid');
+        ruleSpecial.querySelector('i').className = 'fas fa-check';
+      } else {
+        ruleSpecial.classList.remove('valid');
+        ruleSpecial.querySelector('i').className = 'fas fa-circle';
+      }
+    });
+    
+    // Form submission
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      // Hide previous messages
+      successMessage.style.display = 'none';
+      errorMessage.style.display = 'none';
+      
+      // Password strength validation
+      const password = passwordInput.value;
+      const passwordErrors = [];
+      
+      if (password.length < 8) {
+        passwordErrors.push('at least 8 characters');
+      }
+      if (!/[a-z]/.test(password)) {
+        passwordErrors.push('at least one lowercase letter');
+      }
+      if (!/[A-Z]/.test(password)) {
+        passwordErrors.push('at least one uppercase letter');
+      }
+      if (!/\d/.test(password)) {
+        passwordErrors.push('at least one number');
+      }
+      if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+        passwordErrors.push('at least one special character');
+      }
+      
+      if (passwordErrors.length > 0) {
+        errorText.textContent = `Password must contain ${passwordErrors.join(', ')}.`;
+        errorMessage.style.display = 'block';
+        return;
+      }
+      
+      // Password match validation
+      if (password !== confirmPassword.value) {
+        errorText.textContent = 'Passwords do not match.';
+        errorMessage.style.display = 'block';
+        return;
+      }
+      
+      // Prepare data
+      const data = {
+        username: usernameInput.value,
+        email: emailInput.value,
+        password: passwordInput.value,
+        first_name: document.getElementById('first-name').value,
+        last_name: document.getElementById('last-name').value
+      };
+      
+      // Submit to API endpoint
+      fetch('/api/v1/auth/register/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Store email for verification
+          localStorage.setItem('pending-verification-email', data.email);
+          
+          // Show success message and redirect to verification
+          successMessage.innerHTML = '<p><strong>Account created!</strong> Please check your email for a verification code.</p>';
+          successMessage.style.display = 'block';
+          form.reset();
+          
+          // Redirect to email verification page
+          setTimeout(() => {
+            window.location.href = '/verify-email/?email=' + encodeURIComponent(data.email);
+          }, 2000);
+        } else {
+          // Show error message
+          errorText.textContent = data.error || 'An error occurred. Please try again.';
+          errorMessage.style.display = 'block';
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        errorText.textContent = 'An error occurred. Please try again.';
+        errorMessage.style.display = 'block';
+      });
+    });
+  });
+  
+  // Password visibility toggles - separate event listener
+  document.addEventListener('DOMContentLoaded', function() {
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+    const togglePasswordIcon = document.getElementById('togglePasswordIcon');
+    
+    const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+    const confirmPasswordInput = document.getElementById('confirm-password');
+    const toggleConfirmPasswordIcon = document.getElementById('toggleConfirmPasswordIcon');
+    
+    // Main password toggle
+    if (togglePassword && passwordInput && togglePasswordIcon) {
+      togglePassword.addEventListener('click', function() {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        
+        // Toggle the eye icon
+        if (type === 'password') {
+          togglePasswordIcon.classList.remove('fa-eye-slash');
+          togglePasswordIcon.classList.add('fa-eye');
+        } else {
+          togglePasswordIcon.classList.remove('fa-eye');
+          togglePasswordIcon.classList.add('fa-eye-slash');
+        }
+      });
+    }
+    
+    // Confirm password toggle
+    if (toggleConfirmPassword && confirmPasswordInput && toggleConfirmPasswordIcon) {
+      toggleConfirmPassword.addEventListener('click', function() {
+        const type = confirmPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        confirmPasswordInput.setAttribute('type', type);
+        
+        // Toggle the eye icon
+        if (type === 'password') {
+          toggleConfirmPasswordIcon.classList.remove('fa-eye-slash');
+          toggleConfirmPasswordIcon.classList.add('fa-eye');
+        } else {
+          toggleConfirmPasswordIcon.classList.remove('fa-eye');
+          toggleConfirmPasswordIcon.classList.add('fa-eye-slash');
+        }
+      });
+    }
+  });
+</script>
+{% endblock %}

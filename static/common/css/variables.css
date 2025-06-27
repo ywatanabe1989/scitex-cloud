@@ -1,0 +1,123 @@
+/* SciTeX Web - CSS Variables */
+
+:root {
+  /* Gray Color Theme - 10 Gradient Levels */
+  --gray-100: #f8f9fa;
+  --gray-200: #e9ecef;
+  --gray-300: #dee2e6;
+  --gray-400: #ced4da;
+  --gray-500: #adb5bd;
+  --gray-600: #6c757d;
+  --gray-700: #495057;
+  --gray-700-rgb: 73, 80, 87;
+  --gray-800: #343a40;
+  --gray-800-rgb: 52, 58, 64;
+  --gray-900: #212529;
+  --gray-900-rgb: 33, 37, 41;
+  --gray-950: #0a0c0d;
+  
+  /* Silver theme colors */
+  --silver-light: #ecf0f1;
+  
+  /* Base Theme Colors - Using Gray Values */
+  --primary-color: var(--gray-800);
+  --primary-color-rgb: 52, 58, 64;
+  --primary-light: var(--gray-700);
+  --primary-dark: var(--gray-900);
+  
+  /* Dark gray theme */
+  --darkgray-color: var(--gray-700);
+  --darkgray-light: var(--gray-600);
+  --darkgray-dark: var(--gray-800);
+  
+  --secondary-color: var(--gray-600);
+  --secondary-color-rgb: 108, 117, 125;
+  --secondary-light: var(--gray-500);
+  --secondary-dark: var(--gray-700);
+  
+  --accent-color: #dc3545;
+  --accent-color-rgb: 220, 53, 69;
+  --accent-light: #e35d6a;
+  --accent-dark: #bd2130;
+  
+  --success-color: #28a745;
+  --warning-color: #ffc107;
+  --error-color: #dc3545;
+  --info-color: #17a2b8;
+  
+  --text-color: var(--gray-800);
+  --text-light: var(--gray-600);
+  --text-dark: var(--gray-900);
+  
+  --light-color: var(--silver-light);
+  --light-color-rgb: 236, 240, 241;
+  --light-gray: var(--gray-100);
+  --light-gray-rgb: 248, 249, 250;
+  --mid-gray: var(--gray-400);
+  --mid-gray-rgb: 206, 212, 218;
+  --dark-gray: var(--gray-600);
+  --dark-gray-rgb: 108, 117, 125;
+  
+  /* Common UI Colors */
+  --white: #ffffff;
+  --white-rgb: 255, 255, 255;
+  --black: #000000;
+  --black-rgb: 0, 0, 0;
+  
+  /* Theme Specific Colors */
+  --header-bg: var(--primary-color);
+  --footer-bg: var(--primary-color);
+  --header-text: var(--white);
+  --footer-text: var(--white);
+  --card-bg: var(--light-gray);
+  --card-hover-bg: var(--white);
+  --card-border: var(--mid-gray);
+  
+  /* Typography */
+  --base-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --heading-font-family: var(--base-font-family);
+  --mono-font-family: Consolas, Monaco, 'Andale Mono', monospace;
+  
+  --base-font-size: 16px;
+  --small-font-size: 0.875rem;
+  --large-font-size: 1.125rem;
+  
+  --base-line-height: 1.6;
+  --heading-line-height: 1.2;
+  
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-xxl: 3rem;
+  
+  /* Layout */
+  --container-width: 90%;
+  --container-max-width: 1200px;
+  
+  /* Borders & Shadows */
+  --border-radius: 4px;
+  --border-radius-lg: 8px;
+  --border-width: 1px;
+  --border-color: var(--mid-gray);
+  
+  --box-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --box-shadow-md: 0 2px 5px rgba(0, 0, 0, 0.1);
+  --box-shadow-lg: 0 5px 15px rgba(0, 0, 0, 0.1);
+  
+  /* Transitions */
+  --transition-fast: 0.2s;
+  --transition-normal: 0.3s;
+  --transition-slow: 0.5s;
+  
+  /* Z-indices */
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+}

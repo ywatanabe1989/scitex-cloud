@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}Privacy Policy - SciTeX{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/landing.css' %}">
+
+<style>
+  .policy-section {
+    padding: var(--spacing-xxl) 0;
+  }
+
+  .policy-container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .policy-content {
+    background-color: white;
+    border-radius: var(--border-radius);
+    padding: var(--spacing-xl);
+    box-shadow: var(--box-shadow-sm);
+  }
+
+  .policy-content h2 {
+    color: var(--primary-color);
+    margin-top: var(--spacing-xl);
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-xs);
+    border-bottom: 1px solid var(--light-gray);
+  }
+
+  .policy-content h2:first-child {
+    margin-top: 0;
+  }
+
+  .policy-content h3 {
+    color: var(--primary-color);
+    margin-top: var(--spacing-lg);
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .policy-content p {
+    margin-bottom: var(--spacing-md);
+  }
+
+  .policy-content ul, 
+  .policy-content ol {
+    margin-bottom: var(--spacing-md);
+    padding-left: 2rem;
+  }
+
+  .policy-content li {
+    margin-bottom: var(--spacing-xs);
+  }
+
+  .policy-content a {
+    color: var(--secondary-color);
+    text-decoration: none;
+  }
+
+  .policy-content a:hover {
+    text-decoration: underline;
+  }
+
+  .policy-content .highlight {
+    background-color: rgba(52, 152, 219, 0.1);
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius);
+    margin: var(--spacing-lg) 0;
+  }
+
+  .policy-meta {
+    text-align: center;
+    margin-top: var(--spacing-lg);
+    color: var(--text-light);
+    font-size: 0.9rem;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+  <section class="hero">
+    <div class="container">
+      <div class="hero-content">
+        <h1 class="hero-title">Privacy Policy</h1>
+        <p class="hero-description">Learn how we collect, use, and protect your information</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="policy-section">
+    <div class="container policy-container">
+      <div class="policy-content">
+        <article>
+          <h2 id="introduction">Introduction</h2>
+          <p>At SciTeX, we take your privacy seriously. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our platform. Please read this privacy policy carefully. If you do not agree with the terms of this privacy policy, please do not access the site.</p>
+          
+          <p>We reserve the right to make changes to this Privacy Policy at any time and for any reason. We will alert you about any changes by updating the "Last Updated" date of this privacy policy. You are encouraged to periodically review this privacy policy to stay informed of updates.</p>
+          
+          <div class="highlight" role="note" aria-label="Important information about policy coverage">
+            <p>This Privacy Policy applies to the SciTeX platform and all related services, including but not limited to SciTeX Cloud, SciTeX Code, SciTeX Doc, SciTeX Engine, and SciTeX Viz.</p>
+          </div>
+          
+          <h2 id="information-collection">Collection of Your Information</h2>
+          <p>We may collect information about you in a variety of ways. The information we may collect via the SciTeX platform includes:</p>
+          
+          <h3 id="personal-data">Personal Data</h3>
+          <p>Personally identifiable information that you voluntarily provide to us when registering for an account, such as:</p>
+          <ul>
+            <li>Email address</li>
+            <li>First and last name</li>
+            <li>Institution or organization</li>
+            <li>Job title or academic position</li>
+            <li>Profile picture (optional)</li>
+            <li>Research interests (optional)</li>
+          </ul>
+          
+          <h3 id="derivative-data">Derivative Data</h3>
+          <p>Information our servers automatically collect when you access the platform, such as:</p>
+          <ul>
+            <li>Your IP address</li>
+            <li>Browser type</li>
+            <li>Operating system</li>
+            <li>Access times</li>
+            <li>Pages viewed</li>
+            <li>Links clicked</li>
+            <li>The page you visited before navigating to our platform</li>
+          </ul>
+          
+          <h3 id="research-data">Research Data</h3>
+          <p>When you use SciTeX for your research, we may process research data that you upload, create, or manage on the platform, including:</p>
+          <ul>
+            <li>Scientific documents and papers</li>
+            <li>Research notes and annotations</li>
+            <li>Data sets</li>
+            <li>Analysis code</li>
+            <li>Visualizations</li>
+          </ul>
+          
+          <h3 id="financial-data">Financial Data</h3>
+          <p>If you subscribe to our paid plans, we may collect financial information, such as:</p>
+          <ul>
+            <li>Credit card information (processed securely through our payment processors)</li>
+            <li>Billing address</li>
+            <li>Subscription details</li>
+          </ul>
+          <p>All financial information is stored by our payment processor, and you are encouraged to review their privacy policy and contact them directly for responses to your questions.</p>
+          
+          <h2 id="information-use">Use of Your Information</h2>
+          <p>Having accurate information about you permits us to provide you with a smooth, efficient, and customized experience. Specifically, we may use information collected about you via the platform to:</p>
+          <ul>
+            <li>Create and manage your account</li>
+            <li>Provide and maintain our services</li>
+            <li>Process payments and subscriptions</li>
+            <li>Send you service notifications and updates</li>
+            <li>Respond to customer service requests</li>
+            <li>Improve our platform and user experience</li>
+            <li>Monitor usage and analyze trends</li>
+            <li>Develop new features and services</li>
+            <li>Prevent fraudulent transactions and monitor against errors</li>
+            <li>Send you marketing and promotional communications (with opt-out options)</li>
+          </ul>
+          
+          <h2 id="information-disclosure">Disclosure of Your Information</h2>
+          <p>We may share information we have collected about you in certain situations. Your information may be disclosed as follows:</p>
+          
+          <h3 id="legal-disclosure">By Law or to Protect Rights</h3>
+          <p>If we believe the release of information about you is necessary to respond to legal process, to investigate or remedy potential violations of our policies, or to protect the rights, property, and safety of others, we may share your information as permitted or required by any applicable law, rule, or regulation.</p>
+          
+          <h3 id="third-party-providers">Third-Party Service Providers</h3>
+          <p>We may share your information with third parties that perform services for us or on our behalf, including:</p>
+          <ul>
+            <li>Payment processing</li>
+            <li>Data analysis</li>
+            <li>Email delivery</li>
+            <li>Hosting services</li>
+            <li>Customer service</li>
+            <li>Marketing assistance</li>
+          </ul>
+          
+          <h3 id="marketing">Marketing Communications</h3>
+          <p>With your consent, or with an opportunity for you to withdraw consent, we may share your information with third parties for marketing purposes.</p>
+          
+          <h3 id="user-interactions">Interactions with Other Users</h3>
+          <p>If you interact with other users of the platform, those users may see your profile, research interests, and activity related to the platform.</p>
+          
+          <h3 id="business-transfers">Business Transfers</h3>
+          <p>If we are involved in a merger, acquisition, or asset sale, your information may be transferred as part of that transaction. We will notify you before your information is transferred and becomes subject to a different Privacy Policy.</p>
+          
+          <h2 id="information-security">Security of Your Information</h2>
+          <p>We use administrative, technical, and physical security measures to help protect your personal information. While we have taken reasonable steps to secure the personal information you provide to us, please be aware that despite our efforts, no security measures are perfect or impenetrable, and no method of data transmission can be guaranteed against any interception or other type of misuse.</p>
+          
+          <h2 id="cookies">Cookies and Tracking Technologies</h2>
+          <p>We may use cookies, web beacons, tracking pixels, and other tracking technologies on the platform to help customize the platform and improve your experience. When you access the platform, your personal information is not collected through the use of tracking technology. Most browsers are set to accept cookies by default. You can remove or reject cookies, but be aware that such action could affect the availability and functionality of the platform.</p>
+          
+          <h2 id="data-rights">Your Data Protection Rights</h2>
+          <p>Depending on your location, you may have certain rights regarding your personal information, including:</p>
+          <ul>
+            <li><strong>Right to Access</strong> - You have the right to request copies of your personal information.</li>
+            <li><strong>Right to Rectification</strong> - You have the right to request that we correct any information you believe is inaccurate or complete information you believe is incomplete.</li>
+            <li><strong>Right to Erasure</strong> - You have the right to request that we erase your personal information, under certain conditions.</li>
+            <li><strong>Right to Restrict Processing</strong> - You have the right to request that we restrict the processing of your personal information, under certain conditions.</li>
+            <li><strong>Right to Object to Processing</strong> - You have the right to object to our processing of your personal information, under certain conditions.</li>
+            <li><strong>Right to Data Portability</strong> - You have the right to request that we transfer the data we have collected to another organization, or directly to you, under certain conditions.</li>
+          </ul>
+          
+          <p>If you make a request, we have one month to respond to you. If you would like to exercise any of these rights, please contact us using the contact information provided below.</p>
+          
+          <h2 id="childrens-info">Children's Information</h2>
+          <p>The SciTeX platform is not directed to children under the age of 13. We do not knowingly collect personal information from children under 13. If you become aware that a child has provided us with personal information without parental consent, please contact us, and we will take steps to remove such information and terminate the child's account.</p>
+          
+          <h2 id="contact">Contact Us</h2>
+          <p>If you have questions or comments about this Privacy Policy, please contact us at:</p>
+          <address>
+            SciTeX<br>
+            Attn: Privacy Officer<br>
+            123 Science Park<br>
+            San Francisco, CA 94107<br>
+            Email: <a href="mailto:privacy@scitex.ai" aria-label="Email our Privacy Officer at privacy@scitex.ai">privacy@scitex.ai</a>
+          </address>
+        </article>
+      </div>
+      
+      <div class="policy-meta">
+        <p><strong>Last Updated:</strong> <time datetime="2025-05-21">May 21, 2025</time></p>
+      </div>
+    </div>
+  </section>
+{% endblock %}

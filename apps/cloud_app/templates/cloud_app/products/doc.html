@@ -1,0 +1,224 @@
+{% extends "cloud_app/base.html" %}
+{% load static %}
+
+{% block title %}SciTeX-Doc - LLM-Friendly LaTeX Compilation System{% endblock %}
+
+{% block meta_description %}SciTeX-Doc - Advanced LaTeX compilation system designed for AI-assisted scientific document preparation with modular structure and intelligent processing.{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/products.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="product-detail">
+    <div class="container">
+        <div class="product-header">
+            <h1>SciTeX-Doc</h1>
+            <p class="tagline">LLM-friendly LaTeX compilation system for modern scientific writing</p>
+        </div>
+
+        <div class="product-overview">
+            <div class="overview-content">
+                <h2>Revolutionizing Scientific Document Preparation</h2>
+                <p>
+                    SciTeX-Doc makes LaTeX accessible to AI assistants and streamlines scientific writing. 
+                    This modular LaTeX compilation system breaks down complex documents into manageable 
+                    components, enabling AI-assisted writing, better organization, automated compilation, 
+                    and seamless integration with research workflows.
+                </p>
+                <div class="location-info">
+                    <strong>Project Location:</strong> <code>~/proj/scitex</code>
+                </div>
+            </div>
+            <div class="overview-visual">
+                <div class="code-demo">
+                    <pre><code class="language-bash"># Example: SciTeX-Doc structure
+~/proj/scitex/
+├── main.tex
+├── sections/
+│   ├── 01_introduction.tex
+│   ├── 02_methods.tex
+│   ├── 03_results.tex
+│   └── 04_discussion.tex
+├── figures/
+├── tables/
+└── compile.sh</code></pre>
+                </div>
+            </div>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <h3>Modular Structure</h3>
+                <ul>
+                    <li>Logical section separation</li>
+                    <li>Independent editing</li>
+                    <li>Seamless compilation</li>
+                    <li>Easy navigation</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <h3>AI-Friendly Format</h3>
+                <ul>
+                    <li>Structured for AI understanding</li>
+                    <li>Intelligent document generation</li>
+                    <li>Context preservation</li>
+                    <li>Smart suggestions</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <h3>Advanced Features</h3>
+                <ul>
+                    <li>Smart compilation</li>
+                    <li>Version control integration</li>
+                    <li>Journal templates</li>
+                    <li>Quality checks</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="requirements-section">
+            <h2>System Requirements</h2>
+            <div class="requirements-grid">
+                <div class="req-card">
+                    <h3><i class="fas fa-server"></i> Platform Compatibility</h3>
+                    <ul>
+                        <li><strong>Operating Systems:</strong> Linux, macOS, Windows</li>
+                        <li><strong>LaTeX Distribution:</strong> TeX Live 2020+ or MiKTeX</li>
+                        <li><strong>Shell:</strong> Bash 4.0+ (Git Bash on Windows)</li>
+                    </ul>
+                </div>
+                <div class="req-card">
+                    <h3><i class="fas fa-cube"></i> Key Dependencies</h3>
+                    <ul>
+                        <li><strong>LaTeX Packages:</strong> Standard scientific packages (auto-installed)</li>
+                        <li><strong>Build Tools:</strong> Make, latexmk (included in TeX distributions)</li>
+                        <li><strong>Version Control:</strong> Git 2.0+ (recommended)</li>
+                        <li><strong>Python:</strong> 3.8+ (for automation scripts)</li>
+                    </ul>
+                </div>
+                <div class="req-card">
+                    <h3><i class="fas fa-box"></i> Container Availability</h3>
+                    <ul>
+                        <li><strong>Docker:</strong> Complete LaTeX environment with all packages</li>
+                        <li><strong>Container Image:</strong> <code>scitex/writer:latest</code></li>
+                        <li><strong>Includes:</strong> TeX Live Full, Python, Git, VS Code Server</li>
+                        <li><strong>Size:</strong> ~4GB (includes all LaTeX packages)</li>
+                    </ul>
+                </div>
+                <div class="req-card">
+                    <h3><i class="fas fa-certificate"></i> Licensing</h3>
+                    <ul>
+                        <li><strong>SciTeX-Doc:</strong> MIT License</li>
+                        <li><strong>LaTeX:</strong> LPPL (LaTeX Project Public License)</li>
+                        <li><strong>TeX Live:</strong> Various open-source licenses</li>
+                        <li><strong>Templates:</strong> Journal-specific licenses apply</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="comparison-section">
+            <h2>Intelligent Document Organization</h2>
+            <div class="comparison-grid">
+                <div class="comparison-item">
+                    <h4>Traditional LaTeX</h4>
+                    <ul>
+                        <li>Monolithic main.tex file</li>
+                        <li>Difficult for AI to parse</li>
+                        <li>Merge conflicts in collaboration</li>
+                        <li>Hard to navigate large documents</li>
+                        <li>Complex dependency management</li>
+                    </ul>
+                </div>
+                <div class="comparison-item">
+                    <h4>SciTeX-Doc Approach</h4>
+                    <ul>
+                        <li>Modular section files</li>
+                        <li>AI can edit specific sections</li>
+                        <li>Clean version control history</li>
+                        <li>Easy navigation and organization</li>
+                        <li>Automated dependency resolution</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="workflow-section">
+            <h2>Streamlined Writing Workflow</h2>
+            <div class="workflow-grid">
+                <div class="workflow-card">
+                    <h4>1. Structure Your Document</h4>
+                    <p>Use SciTeX-Doc templates to create a well-organized document structure with separate files for each section.</p>
+                    <pre><code>scitex init --template nature
+scitex add-section methods
+scitex add-figure fig1</code></pre>
+                </div>
+                <div class="workflow-card">
+                    <h4>2. Write with AI Assistance</h4>
+                    <p>AI can understand and edit individual sections without processing the entire document.</p>
+                    <pre><code># AI edits methods.tex
+scitex ai-edit methods \
+  "Add statistical analysis section"</code></pre>
+                </div>
+                <div class="workflow-card">
+                    <h4>3. Compile and Review</h4>
+                    <p>Smart compilation catches errors early and provides helpful suggestions for fixes.</p>
+                    <pre><code>scitex compile
+# Output: main.pdf
+# Warnings: 2 undefined references</code></pre>
+                </div>
+                <div class="workflow-card">
+                    <h4>4. Collaborate and Revise</h4>
+                    <p>Track changes at the section level and manage reviewer comments efficiently.</p>
+                    <pre><code>scitex diff --revision 1
+scitex add-response reviewer1.txt</code></pre>
+                </div>
+            </div>
+        </div>
+
+        <div class="integration-section">
+            <h2>Seamless Integration</h2>
+            <p>
+                SciTeX-Doc works perfectly with the entire SciTeX ecosystem. Get AI assistance 
+                for writing with SciTeX-Engine, automatically include generated figures with 
+                SciTeX-Viz, import citations from SciTeX Scholar, and include code snippets 
+                from SciTeX-PyTools with automatic formatting.
+            </p>
+        </div>
+
+        <div class="benefits-section">
+            <h2>Why Researchers Love SciTeX-Doc</h2>
+            <div class="benefits-grid">
+                <div class="benefit-item">
+                    <strong>Faster Writing:</strong> AI assistance speeds up document creation
+                </div>
+                <div class="benefit-item">
+                    <strong>Better Organization:</strong> Modular structure keeps documents manageable
+                </div>
+                <div class="benefit-item">
+                    <strong>Fewer Errors:</strong> Automated checks catch issues early
+                </div>
+                <div class="benefit-item">
+                    <strong>Easy Collaboration:</strong> Clean version control for team projects
+                </div>
+                <div class="benefit-item">
+                    <strong>Journal Ready:</strong> Templates ensure proper formatting
+                </div>
+                <div class="benefit-item">
+                    <strong>Cross-Platform:</strong> Works on Linux, macOS, and Windows
+                </div>
+            </div>
+        </div>
+
+        <div class="cta-section">
+            <h2>Transform Your Scientific Writing</h2>
+            <p>Join researchers who are writing papers faster and better with SciTeX-Doc.</p>
+            <div class="cta-buttons">
+                <a href="https://github.com/ywatanabe1989/scitex" class="btn btn-primary">View on GitHub</a>
+                <a href="{% url 'cloud_app:signup' %}" class="btn btn-secondary">Get Started</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

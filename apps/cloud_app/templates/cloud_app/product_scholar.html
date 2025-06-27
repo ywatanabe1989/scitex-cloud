@@ -1,0 +1,124 @@
+{% extends "cloud_app/base.html" %}
+{% load static %}
+
+{% block title %}SciTeX Scholar - Literature Search{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'common/css/hero-gradients.css' %}">
+{% endblock %}
+
+{% block cloud_content %}
+<!-- Simple Hero with Search -->
+<div class="hero-section hero-silverish-ai">
+    <div class="container text-center">
+        <h1 class="hero-title">SciTeX Scholar</h1>
+        <p class="hero-subtitle">AI-Powered Scientific Literature Discovery</p>
+        
+        <!-- Simple Search Box -->
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="search-box" style="background: white; border-radius: 8px; padding: 1.5rem;">
+                    <form action="/scholar/" method="get">
+                        <div class="input-group">
+                            <input type="text" name="q" class="form-control search-input" 
+                                   placeholder="neural mechanisms of visual attention" 
+                                   style="border: 1px solid var(--mid-gray); padding: 0.75rem;"
+                                   autofocus>
+                            <button class="btn" type="submit" 
+                                    style="background: var(--primary-color); color: white; border: 1px solid var(--primary-color);">
+                                Search
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-4 text-center mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Semantic Understanding</h5>
+                    <p class="card-text text-muted">Beyond keyword matching</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 text-center mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Save & Organize</h5>
+                    <p class="card-text text-muted">Build your research library</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 text-center mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Cross-Field Discovery</h5>
+                    <p class="card-text text-muted">Find related work across domains</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Call to Action -->
+<div style="background: var(--darkgray-100); padding: 3rem 0;">
+    <div class="container text-center">
+        {% if user.is_authenticated %}
+            <h3>Ready to search?</h3>
+            <a href="/scholar/" class="btn btn-primary">Go to Scholar</a>
+        {% else %}
+            <h3>Get started with Scholar</h3>
+            <a href="{% url 'cloud_app:signup' %}" class="btn btn-primary me-3">Sign Up</a>
+            <a href="/scholar/" class="btn btn-outline-primary">Try Search</a>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.search-input {
+    border: 1px solid var(--mid-gray) !important;
+}
+
+.search-input:focus {
+    border-color: var(--primary-color) !important;
+    box-shadow: none !important;
+}
+
+.search-box {
+    cursor: text;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.querySelector('.search-input');
+    if (searchInput) {
+        // Focus on page load
+        setTimeout(() => searchInput.focus(), 100);
+        
+        // Focus when clicking search box
+        const searchBox = document.querySelector('.search-box');
+        if (searchBox) {
+            searchBox.addEventListener('click', () => searchInput.focus());
+        }
+        
+        // Form validation
+        const form = searchInput.closest('form');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                if (!searchInput.value.trim()) {
+                    e.preventDefault();
+                    searchInput.focus();
+                }
+            });
+        }
+    }
+});
+</script>
+{% endblock %}

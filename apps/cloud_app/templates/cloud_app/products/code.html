@@ -1,0 +1,159 @@
+{% extends "cloud_app/base.html" %}
+{% load static %}
+
+{% block title %}SciTeX-PyTools - Scientific Python Toolkit{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/products.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="product-detail">
+    <div class="container">
+        <div class="product-header">
+            <h1>SciTeX-PyTools</h1>
+            <p class="tagline">Comprehensive Python Framework for Scientific Computing</p>
+        </div>
+
+        <div class="product-overview">
+            <div class="overview-content">
+                <h2>Advanced Scientific Computing with MNGS</h2>
+                <p>
+                    SciTeX-PyTools is built on the MNGS (Monkeys) Python package, providing a comprehensive 
+                    framework for neuroscience research and scientific computing. It offers powerful tools 
+                    for data analysis, signal processing, and machine learning workflows.
+                </p>
+                <div class="location-info">
+                    <strong>Project Location:</strong> <code>~/proj/mngs_repo</code>
+                </div>
+            </div>
+            <div class="overview-visual">
+                <div class="code-demo">
+                    <pre><code class="language-python">import mngs
+
+# Load and preprocess neural data
+data = mngs.io.load('neural_recording.h5')
+filtered = mngs.dsp.bandpass(data, low=1, high=100)
+
+# Apply machine learning pipeline
+features = mngs.ml.extract_features(filtered)
+results = mngs.ml.classify(features, model='svm')
+
+# Visualize results
+mngs.plt.plot_results(results, save_path='analysis.pdf')</code></pre>
+                </div>
+            </div>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <h3>Data Processing</h3>
+                <ul>
+                    <li>Signal processing and filtering</li>
+                    <li>Time-frequency analysis</li>
+                    <li>Statistical analysis tools</li>
+                    <li>Batch processing capabilities</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <h3>Machine Learning</h3>
+                <ul>
+                    <li>Integrated ML pipelines</li>
+                    <li>Feature extraction tools</li>
+                    <li>Model evaluation utilities</li>
+                    <li>Cross-validation frameworks</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <h3>Visualization</h3>
+                <ul>
+                    <li>Publication-ready plots</li>
+                    <li>Interactive visualizations</li>
+                    <li>3D rendering capabilities</li>
+                    <li>Customizable themes</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="usage-section">
+            <h2>Core Modules</h2>
+            <div class="modules-grid">
+                <div class="module">
+                    <h4>mngs.io</h4>
+                    <p>Efficient data loading and saving for various scientific formats</p>
+                </div>
+                <div class="module">
+                    <h4>mngs.dsp</h4>
+                    <p>Digital signal processing tools for time-series analysis</p>
+                </div>
+                <div class="module">
+                    <h4>mngs.ml</h4>
+                    <p>Machine learning utilities tailored for scientific data</p>
+                </div>
+                <div class="module">
+                    <h4>mngs.plt</h4>
+                    <p>Advanced plotting functions for scientific visualization</p>
+                </div>
+                <div class="module">
+                    <h4>mngs.stats</h4>
+                    <p>Statistical analysis and hypothesis testing tools</p>
+                </div>
+                <div class="module">
+                    <h4>mngs.utils</h4>
+                    <p>General utilities for scientific computing workflows</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="requirements-section">
+            <h2>System Requirements</h2>
+            <div class="requirements-grid">
+                <div class="req-card">
+                    <h3><i class="fas fa-server"></i> Platform Compatibility</h3>
+                    <ul>
+                        <li><strong>Operating Systems:</strong> Linux (native), macOS, Windows</li>
+                        <li><strong>Python Version:</strong> 3.8 or higher</li>
+                        <li><strong>Architecture:</strong> x86_64, ARM64 (M1/M2 Macs supported)</li>
+                    </ul>
+                </div>
+                <div class="req-card">
+                    <h3><i class="fas fa-cube"></i> Key Dependencies</h3>
+                    <ul>
+                        <li><strong>Scientific Stack:</strong> NumPy, SciPy, Pandas</li>
+                        <li><strong>ML Libraries:</strong> scikit-learn, TensorFlow/PyTorch (optional)</li>
+                        <li><strong>Visualization:</strong> Matplotlib, Seaborn, Plotly</li>
+                        <li><strong>Installation:</strong> <code>pip install mngs</code></li>
+                    </ul>
+                </div>
+                <div class="req-card">
+                    <h3><i class="fas fa-box"></i> Container Availability</h3>
+                    <ul>
+                        <li><strong>Docker/Apptainer:</strong> Pre-configured scientific environment</li>
+                        <li><strong>Container Image:</strong> <code>scitex/coder:latest</code></li>
+                        <li><strong>Includes:</strong> Full scientific Python stack, Jupyter Lab</li>
+                        <li><strong>GPU Support:</strong> CUDA-enabled containers available</li>
+                    </ul>
+                </div>
+                <div class="req-card">
+                    <h3><i class="fas fa-certificate"></i> Licensing</h3>
+                    <ul>
+                        <li><strong>MNGS Package:</strong> MIT License (fully open source)</li>
+                        <li><strong>PyPI:</strong> Available at <a href="https://pypi.org/project/mngs/">pypi.org/project/mngs</a></li>
+                        <li><strong>Commercial Use:</strong> Yes, permitted under MIT</li>
+                        <li><strong>Dependencies:</strong> All open source licenses</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="cta-section">
+            <h2>Start Your Scientific Computing Journey</h2>
+            <p>Join researchers worldwide using MNGS for cutting-edge scientific analysis.</p>
+            <div class="cta-buttons">
+                <a href="https://github.com/ywatanabe1989/mngs" class="btn btn-primary">View on GitHub</a>
+                <a href="{% url 'cloud_app:demo' %}" class="btn btn-secondary">Try Demo</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

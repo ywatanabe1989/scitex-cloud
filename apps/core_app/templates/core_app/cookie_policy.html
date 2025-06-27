@@ -1,0 +1,244 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Cookie Policy - SciTeX{% endblock %}
+
+{% block content %}
+<div class="container legal-container">
+    <div class="legal-header">
+        <h1>Cookie Policy</h1>
+        <p class="last-updated">Last updated: January 23, 2025</p>
+    </div>
+
+    <div class="legal-content">
+        <section>
+            <h2>1. What Are Cookies</h2>
+            <p>
+                Cookies are small text files that are placed on your device when you visit our website. They help us provide 
+                you with a better experience by remembering your preferences and understanding how you use our services.
+            </p>
+        </section>
+
+        <section>
+            <h2>2. How We Use Cookies</h2>
+            <p>SciTeX uses cookies for the following purposes:</p>
+            
+            <h3>2.1 Essential Cookies</h3>
+            <p>
+                These cookies are necessary for the website to function properly. They enable basic functions like page navigation 
+                and access to secure areas of the website.
+            </p>
+
+            <h3>2.2 Functional Cookies</h3>
+            <p>
+                These cookies enable the website to provide enhanced functionality and personalization, such as remembering your 
+                login details and preferences.
+            </p>
+
+            <h3>2.3 Analytics Cookies</h3>
+            <p>
+                We use these cookies to understand how visitors interact with our website, helping us improve our services and 
+                user experience.
+            </p>
+        </section>
+
+        <section>
+            <h2>3. Types of Cookies We Use</h2>
+            <table class="cookie-table">
+                <thead>
+                    <tr>
+                        <th>Cookie Name</th>
+                        <th>Purpose</th>
+                        <th>Duration</th>
+                        <th>Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>sessionid</td>
+                        <td>User authentication and session management</td>
+                        <td>Session</td>
+                        <td>Essential</td>
+                    </tr>
+                    <tr>
+                        <td>csrftoken</td>
+                        <td>Security - prevents cross-site request forgery</td>
+                        <td>1 year</td>
+                        <td>Essential</td>
+                    </tr>
+                    <tr>
+                        <td>theme</td>
+                        <td>Remembers your preferred color theme (light/dark)</td>
+                        <td>1 year</td>
+                        <td>Functional</td>
+                    </tr>
+                    <tr>
+                        <td>_ga</td>
+                        <td>Google Analytics - tracks unique visitors</td>
+                        <td>2 years</td>
+                        <td>Analytics</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>4. Third-Party Cookies</h2>
+            <p>
+                Some cookies may be placed by third-party services that appear on our pages. We do not control these cookies 
+                and encourage you to check the third-party websites for more information about their cookies.
+            </p>
+        </section>
+
+        <section>
+            <h2>5. Managing Cookies</h2>
+            <p>
+                You can control and manage cookies in various ways. Please note that removing or blocking cookies may impact 
+                your user experience and parts of our website may no longer be fully accessible.
+            </p>
+
+            <h3>5.1 Browser Controls</h3>
+            <p>
+                Most browsers allow you to control cookies through their settings. Here are links to cookie management 
+                information for popular browsers:
+            </p>
+            <ul>
+                <li><a href="https://support.google.com/chrome/answer/95647" target="_blank">Chrome</a></li>
+                <li><a href="https://support.mozilla.org/en-US/kb/enable-and-disable-cookies-website-preferences" target="_blank">Firefox</a></li>
+                <li><a href="https://support.apple.com/guide/safari/manage-cookies-and-website-data-sfri11471/mac" target="_blank">Safari</a></li>
+                <li><a href="https://support.microsoft.com/en-us/help/4027947/microsoft-edge-delete-cookies" target="_blank">Edge</a></li>
+            </ul>
+
+            <h3>5.2 Opt-Out Options</h3>
+            <p>
+                You can opt out of analytics cookies by using the following tools:
+            </p>
+            <ul>
+                <li><a href="https://tools.google.com/dlpage/gaoptout" target="_blank">Google Analytics Opt-out Browser Add-on</a></li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>6. Changes to This Policy</h2>
+            <p>
+                We may update this Cookie Policy from time to time to reflect changes in our practices or for other operational, 
+                legal, or regulatory reasons. We will notify you of any significant changes by posting the new Cookie Policy on 
+                this page.
+            </p>
+        </section>
+
+        <section>
+            <h2>7. Contact Us</h2>
+            <p>
+                If you have questions about our use of cookies, please contact us at:
+            </p>
+            <div class="contact-info">
+                <p>Email: <a href="mailto:privacy@scitex.ai">privacy@scitex.ai</a></p>
+                <p>Subject: Cookie Policy Inquiry</p>
+            </div>
+        </section>
+    </div>
+</div>
+
+<style>
+.legal-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.legal-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding: 2rem 0;
+    border-bottom: 2px solid var(--scitex-color-06);
+}
+
+.legal-header h1 {
+    color: var(--scitex-color-01);
+    margin-bottom: 0.5rem;
+}
+
+.last-updated {
+    color: var(--scitex-color-03);
+    font-style: italic;
+}
+
+.legal-content {
+    line-height: 1.8;
+}
+
+.legal-content section {
+    margin-bottom: 2.5rem;
+}
+
+.legal-content h2 {
+    color: var(--scitex-color-02);
+    margin-bottom: 1rem;
+    margin-top: 2rem;
+}
+
+.legal-content h3 {
+    color: var(--scitex-color-03);
+    margin-bottom: 0.75rem;
+    margin-top: 1.5rem;
+}
+
+.legal-content ul {
+    margin-left: 2rem;
+    margin-bottom: 1rem;
+}
+
+.legal-content li {
+    margin-bottom: 0.5rem;
+}
+
+.cookie-table {
+    width: 100%;
+    margin: 1rem 0;
+    border-collapse: collapse;
+    background: var(--scitex-color-07);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.cookie-table th {
+    background: var(--scitex-color-06);
+    color: var(--scitex-color-01);
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+}
+
+.cookie-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--scitex-color-06);
+}
+
+.cookie-table tr:last-child td {
+    border-bottom: none;
+}
+
+.contact-info {
+    background: var(--scitex-color-07);
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-top: 1rem;
+}
+
+.contact-info p {
+    margin: 0.5rem 0;
+}
+
+@media (max-width: 768px) {
+    .cookie-table {
+        font-size: 0.875rem;
+    }
+    
+    .cookie-table th,
+    .cookie-table td {
+        padding: 0.5rem;
+    }
+}
+</style>
+{% endblock %}

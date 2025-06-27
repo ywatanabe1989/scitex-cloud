@@ -1,0 +1,354 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}SciTeX Demo - Scientific Research Platform{% endblock %}
+
+{% block meta_description %}Watch a demonstration of SciTeX's features and see how our integrated platform can streamline your scientific research workflow.{% endblock %}
+
+{% block extra_css %}
+<style>
+  .demo-header {
+    background-color: #eef2ff;
+    padding: 3rem 0;
+    margin-bottom: 3rem;
+    border-radius: 0 0 8px 8px;
+  }
+  
+  .demo-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 0 4rem;
+  }
+  
+  .main-video-container {
+    margin-bottom: 3rem;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    overflow: hidden;
+  }
+  
+  .main-video {
+    width: 100%;
+    aspect-ratio: 16/9;
+    background-color: black;
+  }
+  
+  .video-info {
+    padding: 1.5rem;
+  }
+  
+  .video-size-notice {
+    background-color: #fff3cd;
+    color: #856404;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+  }
+  
+  .video-size-notice i {
+    margin-right: 0.5rem;
+  }
+  
+  .video-size {
+    font-size: 0.875rem;
+    color: #666;
+    margin-top: 0.5rem;
+  }
+  
+  .video-title {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: #2c3e50;
+  }
+  
+  .video-meta {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    color: #666;
+    font-size: 0.9rem;
+  }
+  
+  .video-meta span {
+    display: flex;
+    align-items: center;
+    margin-right: 1.5rem;
+  }
+  
+  .video-meta i {
+    margin-right: 0.5rem;
+  }
+  
+  .video-description {
+    margin-bottom: 1.5rem;
+  }
+  
+  .timestamps {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .timestamps h3 {
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    color: #2c3e50;
+  }
+  
+  .timestamps-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+  }
+  
+  .timestamps-list li {
+    position: relative;
+    padding-left: 1.5rem;
+  }
+  
+  .timestamps-list li::before {
+    content: "▶";
+    position: absolute;
+    left: 0;
+    color: #4a6baf;
+    font-size: 0.8rem;
+    top: 0.2rem;
+  }
+  
+  .timestamp {
+    font-weight: bold;
+    color: #4a6baf;
+    margin-right: 0.5rem;
+    cursor: pointer;
+  }
+  
+  .timestamp:hover {
+    text-decoration: underline;
+  }
+  
+  .demo-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  
+  .demo-features {
+    margin-top: 3rem;
+  }
+  
+  .demo-features h2 {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #2c3e50;
+  }
+  
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+  }
+  
+  .feature-card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+    padding: 1.5rem;
+    transition: transform 0.3s ease;
+  }
+  
+  .feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+  }
+  
+  .feature-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: #4a6baf;
+  }
+  
+  .cta-section {
+    text-align: center;
+    margin-top: 4rem;
+    padding: 3rem;
+    background-color: #eef2ff;
+    border-radius: 8px;
+  }
+  
+  .cta-section h2 {
+    margin-bottom: 1rem;
+    color: #2c3e50;
+  }
+  
+  .cta-section p {
+    margin-bottom: 2rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .cta-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+  }
+  
+  @media (max-width: 768px) {
+    .timestamps-list {
+      grid-template-columns: 1fr;
+    }
+    
+    .cta-buttons {
+      flex-direction: column;
+      max-width: 300px;
+      margin: 0 auto;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="demo-header">
+  <div class="container">
+    <h1 class="display-4 text-center">SciTeX Demo</h1>
+    <p class="lead text-center">See how SciTeX can transform your research workflow</p>
+  </div>
+</div>
+
+<div class="container demo-container">
+  <div class="main-video-container">
+    <video controls class="main-video" id="demo-video" poster="/static/images/video-thumbnail.jpg" width="1280" height="720" preload="none">
+      <source src="{% static 'videos/SciTeX-Demo-v01.mp4' %}" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+    <div class="video-size-notice">
+      <p><i class="fas fa-exclamation-circle"></i> Note: This video is approximately 65MB in size. Please be aware of data usage when on mobile connections.</p>
+    </div>
+    
+    <div class="video-info">
+      <h2 class="video-title">SciTeX Platform Demonstration</h2>
+      
+      <div class="video-meta">
+        <span><i class="fas fa-clock"></i> Duration: 5 minutes (8x speed)</span>
+        <span><i class="fas fa-calendar"></i> Updated: May 2025</span>
+        <span><i class="fas fa-code-branch"></i> Version: v1.0</span>
+      </div>
+      
+      <div class="video-description">
+        <p>This demonstration showcases the integrated workflow between different SciTeX components. Watch how researchers can manage documents, analyze data, compile LaTeX, and collaborate - all within a single platform.</p>
+        <p>Note: This video is running at 8x speed to provide a comprehensive overview in just 5 minutes.</p>
+      </div>
+      
+      <div class="timestamps">
+        <h3>Video Chapters</h3>
+        <ul class="timestamps-list" id="timestamps">
+          <li><span class="timestamp" data-time="0">0:00</span> Introduction to SciTeX Cloud</li>
+          <li><span class="timestamp" data-time="30">0:30</span> Document Management</li>
+          <li><span class="timestamp" data-time="60">1:00</span> Data Analysis with SciTeX Code</li>
+          <li><span class="timestamp" data-time="90">1:30</span> LaTeX Compilation</li>
+          <li><span class="timestamp" data-time="120">2:00</span> Scientific Figure Creation</li>
+          <li><span class="timestamp" data-time="150">2:30</span> Literature Search</li>
+          <li><span class="timestamp" data-time="180">3:00</span> Collaboration Features</li>
+          <li><span class="timestamp" data-time="210">3:30</span> AI-Assisted Writing</li>
+          <li><span class="timestamp" data-time="240">4:00</span> Publication Workflow</li>
+          <li><span class="timestamp" data-time="270">4:30</span> Summary & Next Steps</li>
+        </ul>
+      </div>
+      
+      <div class="demo-actions">
+        <a href="{% url 'cloud_app:concept' %}" class="btn btn-outline-primary"><i class="fas fa-info-circle"></i> Learn More About SciTeX</a>
+        <a href="{% url 'cloud_app:repositories' %}" class="btn btn-outline-secondary"><i class="fab fa-github"></i> View on GitHub</a>
+      </div>
+    </div>
+  </div>
+  
+  <div class="demo-features">
+    <h2>Key Features Demonstrated</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-file-alt"></i></div>
+        <h3>Document Management</h3>
+        <p>Organize research papers, notes, and datasets in a structured and searchable format.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-code"></i></div>
+        <h3>Data Analysis</h3>
+        <p>Standardize analysis with reproducible workflows and integrated code execution.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-book"></i></div>
+        <h3>LaTeX Support</h3>
+        <p>Write and compile scientific documents with built-in LaTeX support and templates.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
+        <h3>Visualization</h3>
+        <p>Create publication-ready figures and interactive visualizations for your research.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-search"></i></div>
+        <h3>Literature Search</h3>
+        <p>Find relevant papers and automatically extract citations for your research.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-users"></i></div>
+        <h3>Collaboration</h3>
+        <p>Work seamlessly with colleagues on shared projects and documents.</p>
+      </div>
+    </div>
+  </div>
+  
+  <div class="cta-section">
+    <h2>Ready to Transform Your Research?</h2>
+    <p>SciTeX is an open-source platform designed to help researchers streamline their workflow and focus on what matters most - their science.</p>
+    <div class="cta-buttons">
+      <a href="{% url 'cloud_app:signup' %}" class="btn btn-lg btn-primary">Get Started Free</a>
+      <a href="{% url 'cloud_app:repositories' %}" class="btn btn-lg btn-outline-primary">Explore GitHub</a>
+      <a href="{% url 'cloud_app:contact' %}" class="btn btn-lg btn-outline-secondary">Contact Us</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const video = document.getElementById('demo-video');
+    const timestamps = document.querySelectorAll('.timestamp');
+    
+    // Add click events to timestamps
+    timestamps.forEach(timestamp => {
+      timestamp.addEventListener('click', function() {
+        const timeInSeconds = parseInt(this.getAttribute('data-time'));
+        video.currentTime = timeInSeconds;
+        video.play();
+      });
+    });
+    
+    // Update active timestamp based on video playback position
+    video.addEventListener('timeupdate', function() {
+      const currentTime = Math.floor(video.currentTime);
+      
+      timestamps.forEach(timestamp => {
+        const timestampTime = parseInt(timestamp.getAttribute('data-time'));
+        
+        // Check if we're within 15 seconds of this timestamp
+        if (currentTime >= timestampTime && currentTime < timestampTime + 30) {
+          timestamp.parentElement.classList.add('active');
+        } else {
+          timestamp.parentElement.classList.remove('active');
+        }
+      });
+    });
+  });
+</script>
+{% endblock %}

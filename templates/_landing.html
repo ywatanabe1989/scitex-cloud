@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}SciTeX - Scientific Research Platform{% endblock %}
+
+{% block meta_description %}SciTeX - The complete scientific research platform for researchers and academics{% endblock %}
+
+{% block content %}
+<section class="hero-landing">
+  <div class="container">
+    <div class="hero-content">
+      <h1 class="hero-title">Accelerate Your Scientific Research</h1>
+      <p class="hero-subtitle">SciTeX provides integrated tools and workflows to streamline research, enhance collaboration, and boost productivity.</p>
+      <div class="hero-buttons">
+        <a href="/signup" class="btn btn-primary btn-lg">Get Started</a>
+        <a href="/features" class="btn btn-outline-secondary btn-lg">Learn More</a>
+      </div>
+    </div>
+    <div class="hero-image">
+      <img src="{% static 'images/hero-illustration.svg' %}" alt="SciTeX Platform Illustration" width="500" height="400">
+    </div>
+  </div>
+</section>
+
+<section class="hero-brands">
+  <div class="container">
+    <p>Trusted by researchers from leading institutions</p>
+    <div class="brand-logos">
+      <span>Stanford University</span>
+      <span>MIT</span>
+      <span>UC Berkeley</span>
+      <span>Harvard</span>
+      <span>Max Planck Institute</span>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="products">
+  <div class="container">
+    <div class="section-heading">
+      <h2>SciTeX Ecosystem</h2>
+      <p>A complete suite of tools for modern scientific research</p>
+    </div>
+    <div class="products-grid">
+
+      <!-- Cloud -->                  
+      <div class="product-card">
+        <div class="product-icon">
+          <img src="{% static 'images/scitex-cloud-icon.svg' %}" alt="SciTeX Cloud" width="64" height="64">
+        </div>
+        <h3>SciTeX Cloud</h3>
+        <p>Integrated platform for seamless research collaboration</p>
+        <a href="/products/cloud" class="btn btn-text">Learn more →</a>
+      </div>
+      
+      <!-- Engine -->
+      <div class="product-card">
+        <div class="product-icon">
+          <img src="{% static 'images/scitex-engine-icon.svg' %}" alt="SciTeX Engine" width="64" height="64">
+        </div>
+        <h3>SciTeX Engine</h3>
+        <p>AI research assistant that orchestrates your workflow</p>
+        <a href="/products/engine" class="btn btn-text">Learn more →</a>
+      </div>
+
+      <!-- Doc -->                  
+      <div class="product-card">
+        <div class="product-icon">
+          <img src="{% static 'images/scitex-doc-icon.svg' %}" alt="SciTeX Doc" width="64" height="64">
+        </div>
+        <h3>SciTeX Doc</h3>
+        <p>LLM-friendly LaTeX compilation system</p>
+        <a href="/products/doc" class="btn btn-text">Learn more →</a>
+      </div>
+
+      <!-- Search -->      
+      <div class="product-card">
+        <div class="product-icon">
+          <img src="{% static 'images/scitex-search-icon.svg' %}" alt="SciTeX Search" width="64" height="64">
+        </div>
+        <h3>SciTeX Search</h3>
+        <p>Advanced semantic search for scientific literature</p>
+        <a href="/products/search" class="btn btn-text">Learn more →</a>
+      </div>
+
+      <!-- Code -->            
+      <div class="product-card">
+        <div class="product-icon">
+          <img src="{% static 'images/scitex-code-icon.svg' %}" alt="SciTeX Code" width="64" height="64">
+        </div>
+        <h3>SciTeX Code</h3>
+        <p>Smart editor for scientific code and data analysis</p>
+        <a href="/products/code" class="btn btn-text">Learn more →</a>
+      </div>
+
+      <!-- Viz -->                        
+      <div class="product-card">
+        <div class="product-icon">
+          <img src="{% static 'images/scitex-viz-icon.svg' %}" alt="SciTeX Viz" width="64" height="64">
+        </div>
+        <h3>SciTeX Viz</h3>
+        <p>Interactive data visualization for scientific insights</p>
+        <a href="/products/viz" class="btn btn-text">Learn more →</a>
+      </div>
+
+    </div>    
+  </div>
+</section>
+
+<!-- Additional sections would go here -->
+
+{% endblock %}

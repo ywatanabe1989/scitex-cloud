@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}About Us - SciTeX{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'common/css/hero-gradients.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section hero-silverish-ai">
+  <div class="container">
+    <div class="hero-wrapper">
+      <div class="hero-content">
+        <h1 class="hero-title">About SciTeX</h1>
+        <p class="hero-subtitle">Empowering Scientific Research Through Open-Source Innovation</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="container page-container">
+
+    <div class="content-section">
+        <h2>Our Mission</h2>
+        <p>
+            SciTeX is dedicated to accelerating scientific discovery by providing researchers with powerful, 
+            open-source tools that streamline their workflows and enhance collaboration. We believe that 
+            the best scientific breakthroughs happen when researchers can focus on their ideas rather than 
+            wrestling with technical infrastructure.
+        </p>
+    </div>
+
+    <div class="content-section">
+        <h2>What We Do</h2>
+        <p>
+            We develop and maintain a comprehensive ecosystem of tools designed specifically for the needs 
+            of modern scientific research:
+        </p>
+        <ul>
+            <li><strong>SciTeX Engine</strong> - AI-powered research assistant integrated with Emacs</li>
+            <li><strong>SciTeX Doc</strong> - Advanced LaTeX document preparation system</li>
+            <li><strong>SciTeX Code</strong> - Research-oriented programming framework</li>
+            <li><strong>SciTeX Viz</strong> - Scientific visualization tools</li>
+            <li><strong>SciTeX Search</strong> - Intelligent literature search and discovery</li>
+            <li><strong>SciTeX Cloud</strong> - Collaborative research platform</li>
+        </ul>
+    </div>
+
+    <div class="content-section">
+        <h2>Our Values</h2>
+        <div class="values-grid">
+            <div class="value-card">
+                <h3>🌐 Open Source</h3>
+                <p>All our tools are freely available and open for contribution</p>
+            </div>
+            <div class="value-card">
+                <h3>🤝 Collaboration</h3>
+                <p>We foster a community where researchers help each other succeed</p>
+            </div>
+            <div class="value-card">
+                <h3>⚡ Efficiency</h3>
+                <p>We eliminate friction so researchers can focus on what matters</p>
+            </div>
+            <div class="value-card">
+                <h3>🎯 Research-First</h3>
+                <p>Every feature is designed with the researcher's needs in mind</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-section">
+        <h2>Get Involved</h2>
+        <p>
+            SciTeX is a community-driven project, and we welcome contributions from researchers, developers, 
+            and anyone passionate about advancing scientific research. Whether you're fixing bugs, adding 
+            features, or improving documentation, your contribution matters.
+        </p>
+        <div class="cta-buttons">
+            <a href="https://github.com/SciTeX-AI" class="btn btn-primary" target="_blank">
+                <i class="fab fa-github"></i> View on GitHub
+            </a>
+            <a href="{% url 'cloud_app:donate' %}" class="btn btn-success">
+                <i class="fas fa-heart"></i> Support Our Mission
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+.page-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding: 2rem 0;
+}
+
+.page-header h1 {
+    color: var(--scitex-color-01);
+    margin-bottom: 1rem;
+}
+
+.content-section {
+    margin-bottom: 3rem;
+}
+
+.content-section h2 {
+    color: var(--scitex-color-02);
+    margin-bottom: 1rem;
+}
+
+.values-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.value-card {
+    background: var(--scitex-color-07);
+    padding: 1.5rem;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.value-card h3 {
+    color: var(--scitex-color-03);
+    margin-bottom: 0.5rem;
+}
+
+.cta-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+@media (max-width: 768px) {
+    .cta-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .cta-buttons .btn {
+        width: 100%;
+        max-width: 300px;
+    }
+}
+</style>
+{% endblock %}

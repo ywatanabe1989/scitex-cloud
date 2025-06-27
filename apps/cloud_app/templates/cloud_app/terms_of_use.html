@@ -1,0 +1,213 @@
+{% extends "cloud_app/base.html" %}
+
+{% block title %}Terms of Use - SciTeX{% endblock %}
+
+{% block extra_css %}
+<style>
+  .policy-section {
+    padding: var(--spacing-xxl) 0;
+  }
+
+  .policy-container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .policy-content {
+    background-color: white;
+    border-radius: var(--border-radius);
+    padding: var(--spacing-xl);
+    box-shadow: var(--box-shadow-sm);
+  }
+
+  .policy-content h2 {
+    color: var(--primary-color);
+    margin-top: var(--spacing-xl);
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-xs);
+    border-bottom: 1px solid var(--light-gray);
+  }
+
+  .policy-content h2:first-child {
+    margin-top: 0;
+  }
+
+  .policy-content h3 {
+    color: var(--primary-color);
+    margin-top: var(--spacing-lg);
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .policy-content p {
+    margin-bottom: var(--spacing-md);
+  }
+
+  .policy-content ul, 
+  .policy-content ol {
+    margin-bottom: var(--spacing-md);
+    padding-left: 2rem;
+  }
+
+  .policy-content li {
+    margin-bottom: var(--spacing-xs);
+  }
+
+  .policy-content a {
+    color: var(--secondary-color);
+    text-decoration: none;
+  }
+
+  .policy-content a:hover {
+    text-decoration: underline;
+  }
+
+  .policy-content .highlight {
+    background-color: rgba(52, 152, 219, 0.1);
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius);
+    margin: var(--spacing-lg) 0;
+  }
+
+  .policy-meta {
+    text-align: center;
+    margin-top: var(--spacing-lg);
+    color: var(--text-light);
+    font-size: 0.9rem;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+  <section class="hero">
+    <div class="container">
+      <div class="hero-content">
+        <h1 class="hero-title">Terms of Use</h1>
+        <p class="hero-description">Please read these terms carefully before using our platform</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="policy-section">
+    <div class="container policy-container">
+      <div class="policy-content">
+        <article>
+          <h2 id="agreement">Agreement to Terms</h2>
+          <p>These Terms of Use constitute a legally binding agreement made between you, whether personally or on behalf of an entity ("you") and SciTeX ("we," "us," or "our"), concerning your access to and use of the SciTeX platform and all associated services.</p>
+          
+          <p>By accessing or using the SciTeX platform, you agree to be bound by these Terms of Use. If you disagree with any part of the terms, then you may not access the platform.</p>
+          
+          <div class="highlight" role="note" aria-label="Important information about terms changes">
+            <p>We reserve the right to change these Terms of Use at any time. We will notify you of any changes by posting the new Terms of Use on this page and updating the "Last Updated" date. Your continued use of the platform following the posting of revised Terms of Use means that you accept and agree to the changes.</p>
+          </div>
+          
+          <h2 id="intellectual-property">Intellectual Property Rights</h2>
+          <p>Unless otherwise indicated, the SciTeX platform is our proprietary property and all source code, databases, functionality, software, website designs, audio, video, text, photographs, and graphics on the platform (collectively, the "Content") and the trademarks, service marks, and logos contained therein (the "Marks") are owned or controlled by us or licensed to us, and are protected by copyright and trademark laws and various other intellectual property rights.</p>
+          
+          <div class="highlight" role="note" aria-label="Important information about open source availability">
+            <p>SciTeX codebase is fully open and available at no cost as long as customers can utilize it independently. Our code is open-source and can be freely used, modified, and distributed according to the terms of our license. For users who prefer not to manage their own installations, we offer a web interface as a service for a fee.</p>
+          </div>
+          
+          <p>Provided that you are eligible to use the platform, you are granted a limited license to access and use the platform and to download or print a copy of any portion of the Content to which you have properly gained access solely for your personal, non-commercial use. We reserve all rights not expressly granted to you in and to the platform, the Content, and the Marks.</p>
+          
+          <h2 id="user-representations">User Representations</h2>
+          <p>By using the SciTeX platform, you represent and warrant that:</p>
+          <ol>
+            <li>You have the legal capacity and you agree to comply with these Terms of Use.</li>
+            <li>You are not a minor in the jurisdiction in which you reside, or if a minor, you have received parental permission to use the platform.</li>
+            <li>You will not access the platform through automated or non-human means, whether through a bot, script, or otherwise.</li>
+            <li>You will not use the platform for any illegal or unauthorized purpose.</li>
+            <li>Your use of the platform will not violate any applicable law or regulation.</li>
+          </ol>
+          
+          <p>If you provide any information that is untrue, inaccurate, not current, or incomplete, we have the right to suspend or terminate your account and refuse any and all current or future use of the platform (or any portion thereof).</p>
+          
+          <h2 id="user-registration">User Registration</h2>
+          <p>You may be required to register with the platform. You agree to keep your password confidential and will be responsible for all use of your account and password. We reserve the right to remove, reclaim, or change a username you select if we determine, in our sole discretion, that such username is inappropriate, obscene, or otherwise objectionable.</p>
+          
+          <h2 id="user-content">User Content</h2>
+          <h3 id="content-ownership">Content Ownership</h3>
+          <p>You retain all rights to your research data, documents, code, and other content that you upload, post, or otherwise make available on the platform ("User Content"). By uploading User Content, you grant us a non-exclusive, royalty-free, worldwide license to use, copy, modify, and display your User Content in connection with the operation of the SciTeX platform and providing services to you.</p>
+          
+          <h3 id="content-responsibility">Content Responsibility</h3>
+          <p>You are solely responsible for your User Content. You represent and warrant that:</p>
+          <ol>
+            <li>You own the User Content or have the right to use it and grant us the rights and license as provided in these Terms of Use.</li>
+            <li>The User Content does not violate the privacy rights, publicity rights, copyrights, contract rights, or any other rights of any person.</li>
+            <li>The User Content does not contain any material that solicits personal information from anyone under the age of 18 or exploit people under the age of 18 in a sexual or violent manner.</li>
+            <li>The User Content does not violate any applicable law, regulation, or rule.</li>
+          </ol>
+          
+          <h3 id="content-review">Content Review</h3>
+          <p>We do not review all User Content before it is posted on the platform, and cannot ensure prompt removal of objectionable User Content after it has been posted. Accordingly, we assume no liability for any action or inaction regarding User Content.</p>
+          
+          <h2 id="prohibited-activities">Prohibited Activities</h2>
+          <p>You may not access or use the platform for any purpose other than that for which we make the platform available. The platform may not be used in connection with any commercial endeavors except those that are specifically endorsed or approved by us.</p>
+          
+          <p>As a user of the platform, you agree not to:</p>
+          <ol>
+            <li>Systematically retrieve data or other content from the platform to create or compile, directly or indirectly, a collection, compilation, database, or directory without written permission from us.</li>
+            <li>Make any unauthorized use of the platform, including collecting usernames and/or email addresses of users by electronic or other means for the purpose of sending unsolicited email, or creating user accounts by automated means or under false pretenses.</li>
+            <li>Use the platform in a manner inconsistent with any applicable laws or regulations.</li>
+            <li>Trick, defraud, or mislead us and other users, especially in any attempt to learn sensitive account information such as user passwords.</li>
+            <li>Engage in any automated use of the system, such as using scripts to send messages or upload content.</li>
+            <li>Attempt to impersonate another user or person or use the username of another user.</li>
+            <li>Upload or transmit (or attempt to upload or to transmit) viruses, Trojan horses, or other malicious code that interferes with the platform's operation.</li>
+            <li>Upload or transmit (or attempt to upload or to transmit) any material that acts as a passive or active information collection or transmission mechanism without proper authorization.</li>
+            <li>Use any automated system, including scripts, bots, or scrapers to access the platform, except as explicitly permitted.</li>
+          </ol>
+          
+          <h2 id="subscription-terms">Subscription Terms</h2>
+          <h3 id="payment">Payment</h3>
+          <p>We accept the following forms of payment:</p>
+          <ul>
+            <li>Visa</li>
+            <li>Mastercard</li>
+            <li>American Express</li>
+            <li>Discover</li>
+          </ul>
+          
+          <p>You agree to provide current, complete, and accurate purchase and account information for all purchases made via the platform. You further agree to promptly update account and payment information, including email address, payment method, and payment card expiration date, so that we can complete your transactions and contact you as needed.</p>
+          
+          <h3 id="free-trial">Free Trial</h3>
+          <p>We may, at our sole discretion, offer a subscription with a free trial for a limited period of time. At the end of the free trial period, you will be automatically charged the applicable subscription fee unless you cancel your subscription.</p>
+          
+          <h3 id="cancellation">Cancellation</h3>
+          <p>You can cancel your subscription at any time by logging into your account. Your cancellation will take effect at the end of the current paid term. If you are unsatisfied with our services, please email us at <a href="mailto:support@scitex.ai" aria-label="Email support at support@scitex.ai">support@scitex.ai</a>.</p>
+          
+          <h2 id="termination">Termination</h2>
+          <p>We may terminate or suspend your account and bar access to the platform immediately, without prior notice or liability, under our sole discretion, for any reason whatsoever and without limitation, including but not limited to a breach of the Terms.</p>
+          
+          <p>If you wish to terminate your account, you may simply discontinue using the platform, or contact us at <a href="mailto:support@scitex.ai" aria-label="Email support at support@scitex.ai">support@scitex.ai</a>.</p>
+          
+          <p>All provisions of the Terms which by their nature should survive termination shall survive termination, including, without limitation, ownership provisions, warranty disclaimers, indemnity, and limitations of liability.</p>
+          
+          <h2 id="limitation-of-liability">Limitation of Liability</h2>
+          <p>In no event will we or our directors, employees, or agents be liable to you or any third party for any direct, indirect, consequential, exemplary, incidental, special, or punitive damages, including lost profit, lost revenue, loss of data, or other damages arising from your use of the platform, even if we have been advised of the possibility of such damages.</p>
+          
+          <h2 id="indemnification">Indemnification</h2>
+          <p>You agree to defend, indemnify, and hold us harmless, including our subsidiaries, affiliates, and all of our respective officers, agents, partners, and employees, from and against any loss, damage, liability, claim, or demand, including reasonable attorneys' fees and expenses, made by any third party due to or arising out of: (1) your use of the platform; (2) breach of these Terms of Use; (3) any breach of your representations and warranties set forth in these Terms of Use; (4) your violation of the rights of a third party, including but not limited to intellectual property rights; or (5) any overt harmful act toward any other user of the platform with whom you connected via the platform.</p>
+          
+          <h2 id="governing-law">Governing Law</h2>
+          <p>These Terms of Use and your use of the platform are governed by and construed in accordance with the laws of the State of California applicable to agreements made and to be entirely performed within the State of California, without regard to its conflict of law principles.</p>
+          
+          <h2 id="dispute-resolution">Dispute Resolution</h2>
+          <p>Any legal action of whatever nature brought by either you or us shall be commenced or prosecuted in the state and federal courts located in San Francisco, California, and you hereby consent to, and waive all defenses of lack of personal jurisdiction and forum non conveniens with respect to venue and jurisdiction in such state and federal courts.</p>
+          
+          <h2 id="contact-us">Contact Us</h2>
+          <p>In order to resolve a complaint regarding the platform or to receive further information regarding use of the platform, please contact us at:</p>
+          <address>
+            SciTeX<br>
+            Attn: Legal Department<br>
+            123 Science Park<br>
+            San Francisco, CA 94107<br>
+            Email: <a href="mailto:legal@scitex.ai" aria-label="Email our Legal Department at legal@scitex.ai">legal@scitex.ai</a>
+          </address>
+        </article>
+      </div>
+      
+      <div class="policy-meta">
+        <p><strong>Last Updated:</strong> <time datetime="2025-05-21">May 21, 2025</time></p>
+      </div>
+    </div>
+  </section>
+{% endblock %}

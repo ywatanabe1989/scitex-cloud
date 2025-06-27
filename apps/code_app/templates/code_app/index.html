@@ -1,0 +1,21 @@
+{% extends "code_app/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'common/css/hero-gradients.css' %}">
+{% endblock %}
+
+{% block code_content %}
+<section class="hero-section hero-silverish-ai">
+  <div class="container">
+    <div class="text-center">
+      <h1 class="hero-title">SciTeX Code</h1>
+      <p class="hero-subtitle">Reproducible, standardized scientific code organization using python scitex package</p>
+      <div class="hero-cta">
+        <span class="badge bg-warning text-dark fs-6 px-4 py-2">Coming Soon</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

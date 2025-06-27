@@ -1,0 +1,18 @@
+[uwsgi]
+
+chdir           = /home/ywatanabe/proj/airight
+module          = config.wsgi
+home            = /home/ywatanabe/proj/airight/.env
+
+master          = true
+processes       = 6
+socket          = /home/ywatanabe/proj/airight/uwsgi.sock
+# socket          = /run/uwsgi/airight.sock
+chmod-socket    = 666
+vacuum          = true
+enable-threads  = true
+logto           = /home/ywatanabe/proj/airight/uwsgi.log
+# logto           = /var/log/uwsgi/airight.log
+
+http-auto-chunked = true
+add-header = X-Accel-Buffering: no

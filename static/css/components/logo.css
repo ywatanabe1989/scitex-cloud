@@ -1,0 +1,66 @@
+/* SciTeX Logo Styles */
+
+.site-logo {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    padding: 8px 12px;
+    border-radius: 12px;
+    background-color: rgba(255, 255, 255, 0.95); /* Nearly white with slight transparency */
+    border: 1px solid rgba(212, 225, 232, 0.5); /* Subtle border using SciTeX-07 */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.site-logo .logo-img {
+    height: 36px;
+    width: auto;
+    display: block;
+}
+
+.site-logo:hover {
+    background-color: rgba(255, 255, 255, 0.95); /* Keep same background */
+    transform: scale(1.05); /* Slightly enlarge on hover */
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+    border-color: rgba(212, 225, 232, 0.5); /* Keep same border */
+}
+
+/* Add subtle drop shadow on hover */
+.site-logo:hover .logo-img {
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.15));
+}
+
+/* Ensure logo is crisp on high-DPI displays */
+.site-logo .logo-img {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+    .site-logo .logo-img {
+        height: 32px;
+    }
+    
+    .site-logo {
+        padding: 2px;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .site-logo .logo-img {
+        filter: brightness(1.1);
+    }
+}
+
+/* Professional logo styling */
+.site-header .site-logo {
+    padding: 8px 12px;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+}
+
+.site-header .site-logo:hover {
+    transform: scale(1.05);
+}

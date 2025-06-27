@@ -1,0 +1,40 @@
+#!/bin/bash
+# SciTeX Cloud Environment Variables
+# Template for: /home/ywatanabe/.bash.d/secrets/000_ENV_SCITEX.src
+# 
+# Copy this file to your secrets directory and update with actual values:
+# cp docs/examples/000_ENV_SCITEX.src.example ~/.bash.d/secrets/000_ENV_SCITEX.src
+# chmod 600 ~/.bash.d/secrets/000_ENV_SCITEX.src
+
+# Django Settings
+export DJANGO_SETTINGS_MODULE="config.settings.production"
+export SCITEX_DJANGO_SECRET_KEY="your-secret-key-here-change-in-production"
+
+# Database Configuration (PostgreSQL)
+# Leave DB_PASSWORD empty or set to placeholder to use SQLite fallback
+export DB_NAME="scitex_cloud"
+export DB_USER="admin"
+export DB_PASSWORD=""  # Set real password to use PostgreSQL
+export DB_HOST="localhost"
+export DB_PORT="5432"
+
+# Email Configuration
+export SCITEX_EMAIL_ADMIN="admin@scitex.ai"
+export SCITEX_EMAIL_PASSWORD="your-email-password-here"
+export SCITEX_SENDER_EMAIL="admin@scitex.ai"
+export SCITEX_SENDER_EMAIL_PASSWORD="your-sender-email-password-here"
+
+# SSL Configuration (set to 'true' only if HTTPS is properly configured)
+export ENABLE_SSL_REDIRECT="false"
+
+# Other Email Addresses (optional)
+# export SCITEX_EMAIL_AGENT="agent@scitex.ai"
+# export SCITEX_EMAIL_SUPPORT="support@scitex.ai"
+# export SCITEX_EMAIL_YWATANABE="ywatanabe@scitex.ai"
+# export SCITEX_EMAIL_YUSUKEWATANABE="YusukeWatanabe@scitex.ai"
+
+# API Keys (for future use)
+# export SCITEX_OPENAI_API_KEY=""
+# export SCITEX_ANTHROPIC_API_KEY=""
+
+echo "✅ SciTeX environment variables loaded"

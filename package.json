@@ -1,0 +1,28 @@
+{
+  "name": "scitex-web",
+  "version": "0.1.0",
+  "description": "SciTeX Cloud web interface for researchers",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "test": "jest"
+  },
+  "keywords": [
+    "scitex",
+    "research",
+    "science",
+    "web",
+    "django"
+  ],
+  "author": "ywatanabe",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "nodemon": "^2.0.22"
+  }
+}

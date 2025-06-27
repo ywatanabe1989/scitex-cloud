@@ -1,0 +1,323 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Dashboard - SciTeX Cloud{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/common/cards.css' %}">
+<style>
+.dashboard-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.dashboard-header {
+    margin-bottom: 2rem;
+}
+
+.dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: var(--color-background-primary);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--color-primary);
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    color: var(--color-text-secondary);
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.quick-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.quick-action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: var(--color-accent-primary);
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+}
+
+.quick-action-btn:hover {
+    background: var(--color-accent-hover);
+    color: white;
+    text-decoration: none;
+}
+
+.dashboard-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.dashboard-section {
+    background: var(--color-background-primary);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 1.5rem;
+}
+
+.section-header {
+    display: flex;
+    justify-content: between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.section-title {
+    margin: 0;
+    color: var(--color-text-primary);
+}
+
+.item-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.item-list li {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--color-border-light);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.item-list li:hover {
+    background: var(--color-background-hover);
+    border-radius: 4px;
+    margin: 0 -0.5rem;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+}
+
+.item-list li:last-child {
+    border-bottom: none;
+}
+
+.item-title {
+    font-weight: 500;
+    color: var(--color-text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.item-meta {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+}
+
+.empty-state {
+    text-align: center;
+    color: var(--color-text-secondary);
+    padding: 2rem;
+}
+
+.status-indicator {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+}
+
+.status-planning { background: var(--color-warning); }
+.status-active { background: var(--color-success); }
+.status-completed { background: var(--color-info); }
+.status-on_hold { background: var(--color-danger); }
+
+.document-type-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin-right: 0.5rem;
+}
+
+.type-note { background: var(--color-info-bg); color: var(--color-info); }
+.type-paper { background: var(--color-primary-bg); color: var(--color-primary); }
+.type-project { background: var(--color-accent-bg); color: var(--color-accent-primary); }
+.type-draft { background: var(--color-warning-bg); color: var(--color-warning); }
+
+@media (max-width: 768px) {
+    .dashboard-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .quick-actions {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1>Welcome back, {{ user.first_name|default:user.username }}!</h1>
+        <p class="text-secondary">Here's what's happening with your research today.</p>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+        <a href="{% url 'core_app:document_list' %}" class="quick-action-btn">
+            <span>📝</span> New Document
+        </a>
+        <a href="{% url 'core_app:project_list' %}" class="quick-action-btn">
+            <span>🚀</span> New Project
+        </a>
+        <a href="/search/" class="quick-action-btn">
+            <span>🔍</span> Search Papers
+        </a>
+        <a href="/viz/" class="quick-action-btn">
+            <span>📊</span> Create Visualization
+        </a>
+        <a href="{% url 'core_app:monitoring' %}" class="quick-action-btn">
+            <span>📈</span> System Monitoring
+        </a>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="dashboard-stats">
+        <div class="stat-card" id="documents-stat">
+            <div class="stat-number" id="total-documents">{{ stats.total_documents }}</div>
+            <div class="stat-label">Total Documents</div>
+        </div>
+        <div class="stat-card" id="projects-stat">
+            <div class="stat-number" id="total-projects">{{ stats.total_projects }}</div>
+            <div class="stat-label">Active Projects</div>
+        </div>
+        <div class="stat-card" id="public-stat">
+            <div class="stat-number" id="public-documents">{{ stats.public_documents }}</div>
+            <div class="stat-label">Public Documents</div>
+        </div>
+        <div class="stat-card" id="activity-stat">
+            <div class="stat-number" id="recent-activity">{{ stats.recent_documents }}</div>
+            <div class="stat-label">Recent Activity</div>
+        </div>
+    </div>
+
+    <!-- Dashboard Content -->
+    <div class="dashboard-content">
+        <!-- Recent Documents -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h2 class="section-title">Recent Documents</h2>
+                <a href="{% url 'core_app:document_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            
+            <div id="recent-documents-list">
+                {% if documents %}
+                    <ul class="item-list">
+                        {% for document in documents %}
+                        <li onclick="location.href='{% url 'core_app:document_list' %}'">
+                            <div class="item-title">
+                                <span class="document-type-badge type-{{ document.document_type }}">
+                                    {{ document.document_type|title }}
+                                </span>
+                                {{ document.title }}
+                            </div>
+                            <div class="item-meta">
+                                Updated {{ document.updated_at|timesince }} ago
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="empty-state">
+                        <p>No documents yet. <a href="{% url 'core_app:document_list' %}">Create your first document!</a></p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Recent Projects -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h2 class="section-title">Active Projects</h2>
+                <a href="{% url 'core_app:project_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            
+            <div id="recent-projects-list">
+                {% if projects %}
+                    <ul class="item-list">
+                        {% for project in projects %}
+                        <li onclick="location.href='{% url 'core_app:project_list' %}'">
+                            <div class="item-title">
+                                <span class="status-indicator status-{{ project.status }}"></span>
+                                {{ project.name }}
+                            </div>
+                            <div class="item-meta">
+                                {{ project.status|title }} • 
+                                Updated {{ project.updated_at|timesince }} ago
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="empty-state">
+                        <p>No projects yet. <a href="{% url 'core_app:project_list' %}">Start your first project!</a></p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Real-time stats update -->
+<script>
+// Auto-refresh dashboard stats every 30 seconds
+setInterval(async () => {
+    try {
+        const response = await fetch('/core/api/v1/stats/', {
+            credentials: 'same-origin'
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            document.getElementById('total-documents').textContent = data.stats.documents.total;
+            document.getElementById('total-projects').textContent = data.stats.projects.total;
+            document.getElementById('public-documents').textContent = data.stats.documents.public;
+        }
+    } catch (error) {
+        console.log('Stats update failed:', error);
+    }
+}, 30000);
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/dashboard.js' %}"></script>
+{% endblock %}

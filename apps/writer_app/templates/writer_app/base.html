@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block meta_description %}LaTeX system enhanced with language model capabilities{% endblock %}
+
+{% block title %}Writer - Enhanced Scientific Document Creation{% endblock %}
+
+{% block extra_css %}
+<!-- Hero gradients CSS -->
+<link rel="stylesheet" href="{% static 'common/css/hero-gradients.css' %}">
+{% endblock %}
+
+{% block content %}
+    {% block doc_content %}{% endblock %}
+{% endblock %}

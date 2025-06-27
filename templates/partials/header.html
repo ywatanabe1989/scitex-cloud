@@ -1,0 +1,78 @@
+{% load static %}
+<header class="site-header">
+  <div class="container">
+    <div class="site-branding">
+      <a href="{% url 'cloud_app:index' %}" class="site-logo">
+        <img src="{% static 'images/scitex-logo.png' %}" alt="SciTeX" class="logo-img">
+      </a>
+    </div>
+    <nav class="site-navigation" aria-label="Main Navigation">
+      <ul>
+        <li class="dropdown">
+          <a href="{% url 'core_app:about' %}">About Us</a>
+        </li>
+                    
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" aria-expanded="false" aria-haspopup="true">Tools</a>
+          <div class="dropdown-menu">
+            <a href="/scholar/" class="dropdown-item">🔍 Scholar</a>
+            <a href="/code/" class="dropdown-item">💻 Code <span class="coming-soon-badge">Coming Soon</span></a>
+            <a href="/viz/" class="dropdown-item">📊 Viz <span class="coming-soon-badge">Coming Soon</span></a>
+            <a href="/writer/" class="dropdown-item">📝 Writer</a>
+            <div class="dropdown-divider"></div>
+            <a href="{% url 'cloud_app:product-cloud' %}" class="dropdown-item">ℹ️ About Cloud</a>
+          </div>
+        </li>
+
+        <li class="dropdown">
+          <a href="{% url 'cloud_app:publications' %}" {% if request.path == '/publications/' %}class="active" aria-current="page"{% endif %}>Publications</a>
+        </li>
+        
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" aria-expanded="false" aria-haspopup="true">For developers</a>
+          <div class="dropdown-menu">
+            <a href="{% url 'cloud_app:api-docs' %}" class="dropdown-item">API Documentation</a>
+            <a href="{% url 'cloud_app:design' %}" class="dropdown-item">Design System</a>
+          </div>
+        </li>
+      </ul>
+    </nav>
+    <div class="header-actions">
+      <!-- Always show donate and GitHub -->
+      <a href="{% url 'cloud_app:donate' %}" class="btn btn-sm btn-success"><i class="fas fa-heart"></i> Donate</a>
+      <a href="https://github.com/SciTeX-AI" class="btn btn-sm btn-dark" target="_blank"><i class="fab fa-github"></i> GitHub</a>
+      
+      {% if user.is_authenticated %}
+      <!-- User is logged in -->
+      <div class="dropdown">
+        <a href="#" class="dropdown-toggle user-menu" data-bs-toggle="dropdown" aria-expanded="false">
+          <i class="fas fa-user-circle me-2"></i>{{ user.username }}
+        </a>
+        <div class="dropdown-menu dropdown-menu-end">
+          <a href="/core/dashboard/" class="dropdown-item">
+            <i class="fas fa-dashboard me-2"></i>Dashboard
+          </a>
+          <a href="/core/documents/" class="dropdown-item">
+            <i class="fas fa-file-text me-2"></i>My Documents
+          </a>
+          <a href="/core/projects/" class="dropdown-item">
+            <i class="fas fa-project-diagram me-2"></i>My Projects
+          </a>
+          <a href="/core/profile/" class="dropdown-item">
+            <i class="fas fa-user me-2"></i>Profile
+          </a>
+          <div class="dropdown-divider"></div>
+          <a href="{% url 'cloud_app:logout' %}" class="dropdown-item">
+            <i class="fas fa-sign-out-alt me-2"></i>Logout
+          </a>
+        </div>
+      </div>
+      {% else %}
+      <!-- User is not logged in -->
+      <a href="{% url 'cloud_app:login' %}" class="btn btn-sm btn-outline-primary">Log In</a>
+      <a href="{% url 'cloud_app:signup' %}" class="btn btn-sm btn-secondary">Sign Up</a>
+      {% endif %}
+    </div>
+    <button class="mobile-menu-toggle" aria-label="Toggle menu">☰</button>
+  </div>
+</header>

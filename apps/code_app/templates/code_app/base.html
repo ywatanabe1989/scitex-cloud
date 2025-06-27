@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block meta_description %}Smart editor for scientific code and data analysis{% endblock %}
+
+{% block title %}Code - Scientific Code Editor{% endblock %}
+
+{% block extra_css %}
+<!-- Hero gradients CSS -->
+<link rel="stylesheet" href="{% static 'common/css/hero-gradients.css' %}">
+<!-- App-specific CSS -->
+<link rel="stylesheet" href="{% static 'css/code_app/code_app.css' %}">
+{% endblock %}
+
+{% block content %}
+    {% block code_content %}{% endblock %}
+{% endblock %}

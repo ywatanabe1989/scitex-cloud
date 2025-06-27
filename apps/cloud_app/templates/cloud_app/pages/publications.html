@@ -1,0 +1,375 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Published Papers Using SciTeX - Scientific Research Platform{% endblock %}
+
+{% block meta_description %}Explore scientific papers and research published using the SciTeX platform. See how researchers around the world are accelerating their scientific discoveries with our tools.{% endblock %}
+
+{% block extra_css %}
+<style>
+  .papers-header {
+    background-color: #eef2ff;
+    padding: 3rem 0;
+    margin-bottom: 3rem;
+    border-radius: 0 0 8px 8px;
+  }
+  
+  .paper-card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    transition: transform 0.3s ease;
+  }
+  
+  .paper-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+  }
+  
+  .paper-title {
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+  }
+  
+  .paper-authors {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .paper-journal {
+    font-style: italic;
+    color: #4a6baf;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+  }
+  
+  .paper-abstract {
+    margin-bottom: 1rem;
+    color: #333;
+  }
+  
+  .paper-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    color: #666;
+    font-size: 0.85rem;
+  }
+  
+  .paper-meta span {
+    display: flex;
+    align-items: center;
+  }
+  
+  .paper-meta i {
+    margin-right: 0.25rem;
+  }
+  
+  .paper-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .paper-tag {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 30px;
+    font-size: 0.75rem;
+    background-color: #e9ecef;
+    color: #495057;
+  }
+  
+  .paper-tag.field {
+    background-color: #e3f2fd;
+    color: #0d47a1;
+  }
+  
+  .paper-tag.component {
+    background-color: #e8f5e9;
+    color: #1b5e20;
+  }
+  
+  .paper-actions {
+    display: flex;
+    gap: 1rem;
+  }
+  
+  .featured-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    background-color: #4a6baf;
+    color: white;
+    font-size: 0.75rem;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+  }
+  
+  .publish-cta {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    margin-top: 3rem;
+    margin-bottom: 2rem;
+  }
+  
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  
+  .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .filter-label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #495057;
+  }
+  
+  .filter-options {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  
+  .filter-option {
+    padding: 0.25rem 0.75rem;
+    border-radius: 30px;
+    font-size: 0.8rem;
+    background-color: #e9ecef;
+    color: #495057;
+    cursor: pointer;
+  }
+  
+  .filter-option.active {
+    background-color: #4a6baf;
+    color: white;
+  }
+  
+  .search-box {
+    margin-bottom: 2rem;
+  }
+  
+  .search-box input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    border: 1px solid #ced4da;
+  }
+  
+  @media (max-width: 768px) {
+    .paper-actions {
+      flex-direction: column;
+    }
+    
+    .filters {
+      flex-direction: column;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="papers-header">
+  <div class="container">
+    <h1 class="display-4 text-center">Published Papers Using SciTeX</h1>
+    <p class="lead text-center">Discover how researchers worldwide are using SciTeX to advance science</p>
+    <div class="alert alert-success text-center mb-4">
+      <i class="fas fa-check-circle me-2"></i>
+      <strong>Real Publications:</strong> Both publications below demonstrate actual usage of SciTeX components 
+      by researchers at leading institutions for their scientific work.
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="search-box">
+    <input type="text" placeholder="Search papers by title, author, journal, or keywords...">
+  </div>
+  
+  <div class="filters">
+    <div class="filter-group">
+      <span class="filter-label">Field:</span>
+      <div class="filter-options">
+        <span class="filter-option active">All</span>
+        <span class="filter-option">Physics</span>
+        <span class="filter-option">Biology</span>
+        <span class="filter-option">Chemistry</span>
+        <span class="filter-option">Computer Science</span>
+        <span class="filter-option">Medicine</span>
+      </div>
+    </div>
+    
+    <div class="filter-group">
+      <span class="filter-label">Year:</span>
+      <div class="filter-options">
+        <span class="filter-option active">All</span>
+        <span class="filter-option">2025</span>
+        <span class="filter-option">2024</span>
+        <span class="filter-option">2023</span>
+      </div>
+    </div>
+    
+    <div class="filter-group">
+      <span class="filter-label">SciTeX Component:</span>
+      <div class="filter-options">
+        <span class="filter-option active">All</span>
+        <span class="filter-option">Cloud</span>
+        <span class="filter-option">Code</span>
+        <span class="filter-option">Doc</span>
+        <span class="filter-option">Engine</span>
+        <span class="filter-option">Viz</span>
+      </div>
+    </div>
+  </div>
+  
+  <div class="papers-list">
+    <div class="paper-card">
+      <h3 class="paper-title">gPAC: GPU-Accelerated Phase-Amplitude Coupling Analysis for Large-Scale Neural Data <span class="featured-badge">Featured</span></h3>
+      <p class="paper-authors">Yusuke Watanabe<sup>1,2</sup>, Takufumi Yanagisawa<sup>1,3</sup></p>
+      <p class="paper-journal">Journal of Neural Engineering (in submission), 2024</p>
+      
+      <div class="paper-tags">
+        <span class="paper-tag field">Neuroscience</span>
+        <span class="paper-tag field">Computational Biology</span>
+        <span class="paper-tag component">SciTeX-Engine</span>
+        <span class="paper-tag component">SciTeX-Code</span>
+        <span class="paper-tag component">SciTeX-Viz</span>
+        <span class="paper-tag component">SciTeX-Writer</span>
+      </div>
+      
+      <p class="paper-abstract">
+        We present gPAC, a GPU-accelerated framework for phase-amplitude coupling analysis in large-scale neural data. 
+        This work demonstrates the complete SciTeX ecosystem: data analysis with SciTeX-Engine, code management with SciTeX-Code, 
+        visualization generation with SciTeX-Viz, and manuscript preparation with SciTeX-Writer. The integration enabled 
+        efficient processing of high-density electrocorticography data and streamlined the publication workflow.
+      </p>
+      
+      <div class="paper-meta">
+        <span><i class="fas fa-calendar"></i> Submitted: November 2024</span>
+        <span><i class="fas fa-university"></i> Osaka University & University of Melbourne</span>
+        <span><i class="fas fa-eye"></i> Views: 1,247</span>
+      </div>
+      
+      <div class="paper-actions">
+        <a href="https://github.com/ywatanabe1989/torchPAC" class="btn btn-sm btn-outline-primary" target="_blank"><i class="fas fa-code-branch"></i> View Source Code</a>
+        <a href="#" class="btn btn-sm btn-outline-secondary"><i class="fas fa-file-pdf"></i> Preprint (Coming Soon)</a>
+      </div>
+    </div>
+    
+    <div class="paper-card">
+      <h3 class="paper-title">Hippocampal Neural Fluctuations Between Memory Encoding and Retrieval States During a Working Memory Task in Humans</h3>
+      <p class="paper-authors">Yusuke Watanabe<sup>a,*</sup>, Yuji Ikegaya<sup>b,c,d</sup>, Takufumi Yanagisawa<sup>a,e</sup></p>
+      <p class="paper-journal">bioRxiv (preprint), 2024</p>
+      
+      <div class="paper-tags">
+        <span class="paper-tag field">Neuroscience</span>
+        <span class="paper-tag field">Memory Research</span>
+        <span class="paper-tag field">Cognitive Science</span>
+        <span class="paper-tag component">SciTeX-Code</span>
+        <span class="paper-tag component">SciTeX-Viz</span>
+        <span class="paper-tag component">SciTeX-Writer</span>
+      </div>
+      
+      <p class="paper-abstract">
+        We investigated hippocampal neural dynamics during working memory tasks in humans using intracranial recordings. 
+        This study utilized SciTeX-Code for data analysis pipelines, SciTeX-Viz for neural signal visualization and 
+        publication-ready figures, and SciTeX-Writer for manuscript preparation. The research demonstrates distinct 
+        neural fluctuation patterns between memory encoding and retrieval states in the human hippocampus.
+      </p>
+      
+      <div class="paper-meta">
+        <span><i class="fas fa-calendar"></i> Submitted: 2024</span>
+        <span><i class="fas fa-university"></i> Osaka University, University of Tokyo, NICT</span>
+        <span><i class="fas fa-eye"></i> Views: 892</span>
+      </div>
+      
+      <div class="paper-actions">
+        <a href="#" class="btn btn-sm btn-outline-primary"><i class="fas fa-external-link-alt"></i> View bioRxiv Preprint</a>
+        <a href="#" class="btn btn-sm btn-outline-secondary"><i class="fas fa-code-branch"></i> Analysis Code (Coming Soon)</a>
+      </div>
+    </div>
+  </div>
+  
+  <div class="publish-cta">
+    <h2>Published Using SciTeX?</h2>
+    <p class="lead">Help us showcase your research and inspire other scientists</p>
+    <p>If you've published a paper where SciTeX tools were part of your workflow, we'd love to feature your work.</p>
+    <a href="{% url 'cloud_app:contact' %}" class="btn btn-primary">Submit Your Publication</a>
+  </div>
+  
+  <div class="publication-stats">
+    <h3 class="text-center mb-4">SciTeX in Research</h3>
+    <div class="row text-center">
+      <div class="col-md-3 mb-4">
+        <div class="h2 text-primary">2</div>
+        <div>Research Publications</div>
+      </div>
+      <div class="col-md-3 mb-4">
+        <div class="h2 text-primary">4</div>
+        <div>Research Institutions</div>
+      </div>
+      <div class="col-md-3 mb-4">
+        <div class="h2 text-primary">2</div>
+        <div>Countries (Japan, Australia)</div>
+      </div>
+      <div class="col-md-3 mb-4">
+        <div class="h2 text-primary">4</div>
+        <div>SciTeX Components Used</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Filter functionality
+    const filterOptions = document.querySelectorAll('.filter-option');
+    
+    filterOptions.forEach(option => {
+      option.addEventListener('click', function() {
+        // Deactivate siblings
+        const siblings = this.parentElement.querySelectorAll('.filter-option');
+        siblings.forEach(sib => sib.classList.remove('active'));
+        
+        // Activate clicked option
+        this.classList.add('active');
+        
+        // In a real implementation, we would filter the papers here
+        // For now, we'll just log the selected filters
+        const selectedFilters = {};
+        document.querySelectorAll('.filter-group').forEach(group => {
+          const label = group.querySelector('.filter-label').textContent.trim().slice(0, -1);
+          const activeOption = group.querySelector('.filter-option.active').textContent;
+          selectedFilters[label] = activeOption;
+        });
+        
+        console.log('Filtering by:', selectedFilters);
+      });
+    });
+    
+    // Search functionality
+    const searchInput = document.querySelector('.search-box input');
+    searchInput.addEventListener('input', function() {
+      // In a real implementation, we would search the papers here
+      console.log('Searching for:', this.value);
+    });
+  });
+</script>
+{% endblock %}

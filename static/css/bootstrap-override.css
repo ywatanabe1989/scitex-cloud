@@ -1,0 +1,88 @@
+/* Bootstrap Override - Ensure our container width is respected */
+
+/* Override Bootstrap's default text color to use SciTeX 800 */
+body {
+  color: var(--text-color) !important; /* SciTeX 800 */
+}
+
+/* Override Bootstrap's container max-width at all breakpoints */
+@media (min-width: 576px) {
+  .container {
+    max-width: var(--container-max-width) !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .container {
+    max-width: var(--container-max-width) !important;
+  }
+}
+
+@media (min-width: 992px) {
+  .container {
+    max-width: var(--container-max-width) !important;
+  }
+}
+
+@media (min-width: 1200px) {
+  .container {
+    max-width: var(--container-max-width) !important;
+  }
+}
+
+@media (min-width: 1400px) {
+  .container {
+    max-width: var(--container-max-width) !important;
+  }
+}
+
+/* Ensure all containers use our max-width */
+.container,
+.container-sm,
+.container-md,
+.container-lg,
+.container-xl,
+.container-xxl {
+  max-width: var(--container-max-width) !important;
+}
+
+/* Override Bootstrap text colors to use SciTeX colors */
+.text-primary {
+  color: var(--primary-color) !important;
+}
+
+.text-secondary {
+  color: var(--secondary-color) !important;
+}
+
+.text-muted {
+  color: var(--text-light) !important;
+}
+
+.text-dark {
+  color: var(--text-color) !important; /* SciTeX 800 */
+}
+
+/* Override Bootstrap button colors to ensure text uses SciTeX 800 where appropriate */
+.btn-outline-primary,
+.btn-outline-secondary,
+.btn-outline-dark {
+  color: var(--text-color) !important;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-secondary:hover,
+.btn-outline-dark:hover {
+  color: var(--white) !important;
+}
+
+/* Ensure form controls use SciTeX 800 for text */
+.form-control,
+.form-select {
+  color: var(--text-color) !important;
+}
+
+/* Override Bootstrap card text */
+.card {
+  color: var(--text-color) !important;
+}

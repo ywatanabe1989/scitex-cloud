@@ -1,0 +1,223 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Contact Us - SciTeX{% endblock %}
+
+{% block content %}
+<div class="container page-container">
+    <div class="page-header">
+        <h1>Contact Us</h1>
+        <p class="lead">Get in touch with the SciTeX team</p>
+    </div>
+
+    <div class="contact-grid">
+        <div class="contact-info">
+            <h2>Reach Out</h2>
+            <p>We'd love to hear from you! Whether you have questions, suggestions, or want to contribute, we're here to help.</p>
+            
+            <div class="contact-methods">
+                <div class="contact-method">
+                    <i class="fas fa-envelope"></i>
+                    <div>
+                        <h3>Email</h3>
+                        <a href="mailto:support@scitex.ai">support@scitex.ai</a>
+                    </div>
+                </div>
+                
+                <div class="contact-method">
+                    <i class="fab fa-github"></i>
+                    <div>
+                        <h3>GitHub</h3>
+                        <a href="https://github.com/SciTeX-AI" target="_blank">@SciTeX-AI</a>
+                    </div>
+                </div>
+                
+                <div class="contact-method">
+                    <i class="fab fa-slack"></i>
+                    <div>
+                        <h3>Slack Community</h3>
+                        <a href="https://scitexworkspace.slack.com" target="_blank">Join our workspace</a>
+                    </div>
+                </div>
+                
+                <div class="contact-method">
+                    <i class="fab fa-twitter"></i>
+                    <div>
+                        <h3>X (Twitter)</h3>
+                        <a href="https://twitter.com/scitex_ai" target="_blank">@scitex_ai</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="contact-form-section">
+            <h2>Send a Message</h2>
+            <form class="contact-form" action="{% url 'cloud_app:contact' %}" method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" name="name" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="subject">Subject</label>
+                    <select id="subject" name="subject" class="form-control" required>
+                        <option value="">Select a topic</option>
+                        <option value="general">General Inquiry</option>
+                        <option value="bug">Bug Report</option>
+                        <option value="feature">Feature Request</option>
+                        <option value="contribution">Contributing</option>
+                        <option value="support">Technical Support</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="message">Message</label>
+                    <textarea id="message" name="message" class="form-control" rows="6" required></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Send Message</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="faq-section">
+        <h2>Frequently Asked Questions</h2>
+        <div class="faq-grid">
+            <div class="faq-item">
+                <h3>How can I contribute to SciTeX?</h3>
+                <p>Visit our <a href="https://github.com/SciTeX-AI" target="_blank">GitHub repositories</a> to find contribution guidelines and open issues.</p>
+            </div>
+            <div class="faq-item">
+                <h3>Is SciTeX really free?</h3>
+                <p>Yes! All SciTeX tools are open-source and free to use. We rely on donations to keep the project running.</p>
+            </div>
+            <div class="faq-item">
+                <h3>Can I use SciTeX for commercial research?</h3>
+                <p>Absolutely! Our open-source license allows both academic and commercial use.</p>
+            </div>
+            <div class="faq-item">
+                <h3>How do I report a bug?</h3>
+                <p>You can report bugs through our GitHub issues or using the contact form above.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.page-container {
+    max-width: 1000px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding: 2rem 0;
+}
+
+.page-header h1 {
+    color: var(--scitex-color-01);
+    margin-bottom: 1rem;
+}
+
+.contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    margin-bottom: 4rem;
+}
+
+.contact-methods {
+    margin-top: 2rem;
+}
+
+.contact-method {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.contact-method i {
+    font-size: 2rem;
+    color: var(--scitex-color-05);
+    width: 40px;
+}
+
+.contact-method h3 {
+    font-size: 1rem;
+    margin: 0;
+    color: var(--scitex-color-02);
+}
+
+.contact-form {
+    background: var(--scitex-color-07);
+    padding: 2rem;
+    border-radius: 8px;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--scitex-color-02);
+    font-weight: 500;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--scitex-color-06);
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--scitex-color-05);
+}
+
+.faq-section {
+    margin-top: 4rem;
+}
+
+.faq-section h2 {
+    text-align: center;
+    color: var(--scitex-color-02);
+    margin-bottom: 2rem;
+}
+
+.faq-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
+.faq-item {
+    background: var(--scitex-color-07);
+    padding: 1.5rem;
+    border-radius: 8px;
+}
+
+.faq-item h3 {
+    color: var(--scitex-color-03);
+    margin-bottom: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .contact-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}

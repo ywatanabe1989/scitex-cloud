@@ -1,0 +1,217 @@
+/* 
+ * SciTeX Dark Mode Styles
+ *
+ * This stylesheet contains all dark mode styles for the SciTeX website.
+ * It uses SciTeX color variables for consistent theming.
+ */
+
+/* Dark Mode Toggle Button */
+.dark-mode-toggle {
+    background: transparent;
+    border: none;
+    color: var(--text-color);
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 0.5rem;
+    margin-right: 0.5rem;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.dark-mode-toggle:hover {
+    background-color: rgba(var(--scitex-color-01-rgb), 0.1);
+}
+
+/* Dark Mode Color Variables using SciTeX Colors */
+:root {
+    /* Light Mode (default) - Using SciTeX Colors */
+    --bg-primary: var(--white);
+    --bg-secondary: var(--scitex-color-07);
+    --bg-tertiary: var(--scitex-color-06);
+    --text-primary: var(--text-color);
+    --text-secondary: var(--text-light);
+    --text-muted: var(--scitex-color-04);
+    --border-color: var(--scitex-color-05);
+    --primary-color: var(--scitex-color-01);
+    --primary-light: var(--scitex-color-02);
+    --secondary-color: var(--scitex-color-03);
+    --accent-color: var(--scitex-color-01);
+    --card-bg: var(--white);
+    --card-shadow: 0 3px 10px rgba(var(--scitex-color-01-rgb), 0.08);
+    --code-bg: var(--scitex-color-07);
+    --code-color: var(--text-color);
+    --highlight-bg: rgba(var(--scitex-color-01-rgb), 0.1);
+    --highlight-border: var(--scitex-color-01);
+    --header-bg: var(--scitex-color-02);
+    --footer-bg: var(--scitex-color-01-light);
+    --input-bg: var(--white);
+    --input-border: var(--scitex-color-04);
+    --button-bg: var(--scitex-color-01);
+    --button-hover-bg: var(--scitex-color-01-light);
+}
+
+/* Dark Mode Styles using SciTeX Colors */
+[data-theme="dark"] {
+    --bg-primary: var(--scitex-color-01-dark);
+    --bg-secondary: var(--scitex-color-01);
+    --bg-tertiary: var(--scitex-color-02);
+    --text-primary: var(--scitex-color-06);
+    --text-secondary: var(--scitex-color-05);
+    --text-muted: var(--scitex-color-04);
+    --border-color: var(--scitex-color-03);
+    --primary-color: var(--scitex-color-04);
+    --primary-light: var(--scitex-color-02);
+    --secondary-color: var(--scitex-color-05);
+    --accent-color: var(--scitex-color-04);
+    --card-bg: var(--scitex-color-01);
+    --card-shadow: 0 3px 10px rgba(var(--black-rgb), 0.5);
+    --code-bg: var(--scitex-color-01-dark);
+    --code-color: var(--scitex-color-06);
+    --highlight-bg: rgba(var(--scitex-color-04-rgb), 0.2);
+    --highlight-border: var(--scitex-color-04);
+    --header-bg: var(--scitex-color-01);
+    --footer-bg: var(--scitex-color-01-dark);
+    --input-bg: var(--scitex-color-02);
+    --input-border: var(--scitex-color-03);
+    --button-bg: var(--scitex-color-04);
+    --button-hover-bg: var(--scitex-color-03);
+}
+
+/* Apply Dark Mode Styles */
+body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.card {
+    background-color: var(--card-bg);
+    box-shadow: var(--card-shadow);
+    border-color: var(--border-color);
+}
+
+.header, .footer {
+    background-color: var(--header-bg);
+    color: var(--text-primary);
+}
+
+.btn-primary {
+    background-color: var(--button-bg);
+    border-color: var(--button-bg);
+}
+
+.btn-primary:hover {
+    background-color: var(--button-hover-bg);
+    border-color: var(--button-hover-bg);
+}
+
+/* Code blocks */
+pre, code {
+    background-color: var(--code-bg);
+    color: var(--code-color);
+    border: 1px solid var(--border-color);
+}
+
+/* Form inputs */
+input, textarea, select {
+    background-color: var(--input-bg);
+    border-color: var(--input-border);
+    color: var(--text-primary);
+}
+
+input:focus, textarea:focus, select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(var(--scitex-color-01-rgb), 0.25);
+}
+
+/* Links */
+a {
+    color: var(--primary-color);
+}
+
+a:hover {
+    color: var(--primary-light);
+}
+
+/* Borders */
+.border, .border-top, .border-bottom, .border-left, .border-right {
+    border-color: var(--border-color) !important;
+}
+
+/* Text colors */
+.text-muted {
+    color: var(--text-muted) !important;
+}
+
+.text-secondary {
+    color: var(--text-secondary) !important;
+}
+
+/* Background colors */
+.bg-light {
+    background-color: var(--bg-secondary) !important;
+}
+
+.bg-white {
+    background-color: var(--bg-primary) !important;
+}
+
+/* Tables */
+.table {
+    color: var(--text-primary);
+}
+
+.table th,
+.table td {
+    border-color: var(--border-color);
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: var(--bg-secondary);
+}
+
+/* Navigation */
+.navbar {
+    background-color: var(--header-bg) !important;
+}
+
+.navbar-light .navbar-nav .nav-link {
+    color: var(--text-primary);
+}
+
+.navbar-light .navbar-nav .nav-link:hover {
+    color: var(--primary-color);
+}
+
+/* Footer */
+footer {
+    background-color: var(--footer-bg);
+    color: var(--text-primary);
+}
+
+/* Dark mode toggle icon animation */
+.dark-mode-toggle {
+    position: relative;
+    overflow: hidden;
+}
+
+.dark-mode-toggle::before {
+    content: "☀️";
+    position: absolute;
+    transition: transform 0.3s ease;
+}
+
+[data-theme="dark"] .dark-mode-toggle::before {
+    content: "🌙";
+    transform: rotate(180deg);
+}
+
+/* Smooth transitions for all elements */
+*, *::before, *::after {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}

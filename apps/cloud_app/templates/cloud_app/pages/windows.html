@@ -1,0 +1,363 @@
+{% extends "cloud_app/base.html" %}
+
+{% block title %}Windows Compatibility - SciTeX Cloud {% endblock %}
+
+{% block meta_description %}Learn how to access and use SciTeX Web on Windows systems. Complete guide to setting up WSL, running the development server, and accessing it from Chrome on Windows.{% endblock %}
+
+{% block extra_css %}
+<style>
+  .windows-header {
+    background-color: #eef2ff;
+    padding: 3rem 0;
+    margin-bottom: 3rem;
+    border-radius: 0 0 8px 8px;
+  }
+  .windows-section {
+    margin-bottom: 3rem;
+  }
+  .step-card {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-left: 5px solid #4a6baf;
+  }
+  .step-number {
+    display: inline-block;
+    width: 2rem;
+    height: 2rem;
+    line-height: 2rem;
+    text-align: center;
+    background-color: #4a6baf;
+    color: white;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+    font-weight: bold;
+  }
+  .code-block {
+    background-color: #282c34;
+    color: #abb2bf;
+    padding: 1rem;
+    border-radius: 5px;
+    font-family: monospace;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+  .highlight {
+    background-color: rgba(74, 107, 175, 0.1);
+    border-left: 3px solid #4a6baf;
+    padding: 1rem;
+    margin: 1rem 0;
+  }
+  .warning {
+    background-color: rgba(220, 53, 69, 0.1);
+    border-left: 3px solid #dc3545;
+    padding: 1rem;
+    margin: 1rem 0;
+  }
+  .tooltip-icon {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    line-height: 1rem;
+    text-align: center;
+    background-color: #6c757d;
+    color: white;
+    border-radius: 50%;
+    font-size: 0.7rem;
+    cursor: help;
+  }
+  .screenshot {
+    max-width: 100%;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    margin: 1rem 0;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+  }
+  .troubleshooting-item {
+    margin-bottom: 2rem;
+  }
+  .tab-content {
+    padding: 1.5rem;
+    border: 1px solid #dee2e6;
+    border-top: none;
+    border-radius: 0 0 5px 5px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="windows-header">
+  <div class="container">
+    <h1 class="display-4 text-center">Windows Compatibility</h1>
+    <p class="lead text-center">Access and develop SciTeX Cloud on Windows systems</p>
+  </div>
+</div>
+
+<div class="container">
+  <!-- Introduction -->
+  <section class="windows-section">
+    <p class="lead">
+      SciTeX Cloud is built using Django and runs best in a Linux environment, but we've made it fully compatible with Windows systems through Windows Subsystem for Linux (WSL).
+    </p>
+    <p>
+      This guide explains how to set up SciTeX Cloud for development on Windows and how to access the development server from your Windows browsers.
+    </p>
+    
+    <div class="highlight">
+      <h4><i class="fas fa-info-circle"></i> Quick Start</h4>
+      <p>If you already have WSL set up with Ubuntu and the SciTeX Cloud repository cloned, simply run:</p>
+      <pre class="code-block">./start_dev_windows.sh</pre>
+      <p>Then open the displayed URL in your Windows Chrome browser.</p>
+    </div>
+  </section>
+
+  <!-- Prerequisites -->
+  <section class="windows-section">
+    <h2>Prerequisites</h2>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="step-card">
+          <h3><span class="step-number">1</span> Windows 10 or 11</h3>
+          <p>You need Windows 10 version 2004 or higher (Build 19041 or higher) or Windows 11.</p>
+          <p class="mb-0">To check your Windows version:</p>
+          <ol>
+            <li>Press <kbd>Win</kbd> + <kbd>R</kbd>, type <code>winver</code>, and press Enter</li>
+            <li>Check your Windows version and build number</li>
+          </ol>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="step-card">
+          <h3><span class="step-number">2</span> Windows Subsystem for Linux</h3>
+          <p>WSL 2 is required to run SciTeX Cloud on Windows. If you don't have it installed, follow Microsoft's <a href="https://docs.microsoft.com/en-us/windows/wsl/install" target="_blank">official guide</a>.</p>
+          <p>Quick install command in PowerShell (as Administrator):</p>
+          <pre class="code-block">wsl --install</pre>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="step-card">
+          <h3><span class="step-number">3</span> Ubuntu on WSL</h3>
+          <p>We recommend using Ubuntu 20.04 LTS or newer on WSL. You can install it from the Microsoft Store or with:</p>
+          <pre class="code-block">wsl --install -d Ubuntu</pre>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="step-card">
+          <h3><span class="step-number">4</span> Git and Python</h3>
+          <p>Ensure you have Git and Python 3.8+ installed in your WSL Ubuntu environment:</p>
+          <pre class="code-block">sudo apt update
+sudo apt install git python3 python3-pip python3-venv</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Setting Up SciTeX Cloud -->
+  <section class="windows-section">
+    <h2>Setting Up SciTeX Cloud on WSL</h2>
+    
+    <div class="step-card">
+      <h3><span class="step-number">1</span> Clone the Repository</h3>
+      <p>Open your WSL terminal and clone the SciTeX Cloud repository:</p>
+      <pre class="code-block">git clone https://github.com/SciTex-AI/SciTeX-Cloud.git
+cd SciTeX-Cloud</pre>
+    </div>
+    
+    <div class="step-card">
+      <h3><span class="step-number">2</span> Run the Windows-Compatible Setup Script</h3>
+      <p>We've created a special script that handles Windows compatibility issues automatically:</p>
+      <pre class="code-block">chmod +x start_dev_windows.sh
+./start_dev_windows.sh</pre>
+      <p>This script will:</p>
+      <ul>
+        <li>Set up a Python virtual environment</li>
+        <li>Install all dependencies</li>
+        <li>Run database migrations</li>
+        <li>Start the development server in a Windows-compatible mode</li>
+        <li>Display a URL you can access from Windows Chrome</li>
+      </ul>
+      <div class="highlight">
+        <p><strong>Important:</strong> Look for the "WINDOWS ACCESS URL" in the output. It will look something like:<br>
+        <code>http://172.20.83.123:8000</code></p>
+      </div>
+    </div>
+    
+    <div class="step-card">
+      <h3><span class="step-number">3</span> Access in Windows Chrome</h3>
+      <p>Copy the URL from the terminal output and paste it into Chrome on Windows. You should see the SciTeX Cloud application running.</p>
+      <p>The development server features hot reloading, so any changes you make to the files in WSL will automatically update in your Windows browser.</p>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="windows-section">
+    <h2>How It Works</h2>
+    <p>
+      The Windows compatibility solution works by binding the Django development server to all network interfaces (0.0.0.0) instead of just localhost. This makes it accessible from the Windows host system via the WSL network interface.
+    </p>
+    <div class="row">
+      <div class="col-md-6">
+        <h4>Technical Details</h4>
+        <ul>
+          <li>WSL runs a Linux kernel alongside Windows</li>
+          <li>The Linux environment gets its own IP address on your network</li>
+          <li>The Django server listens on all interfaces (0.0.0.0)</li>
+          <li>Windows can access this server via the WSL IP address</li>
+          <li>The IP address is detected dynamically when starting the server</li>
+        </ul>
+      </div>
+      <div class="col-md-6">
+        <h4>Diagram</h4>
+        <pre class="code-block">
+Windows Host                  WSL (Ubuntu)
++----------------+            +----------------+
+|                |            |                |
+|  Chrome        |            |  Django Server |
+|  Browser       |  HTTP      |  (0.0.0.0:8000)|
+|                +----------->+                |
+|                |            |                |
++----------------+            +----------------+
+         |                             |
+         |                             |
+         +-----------------------------+
+             WSL Network Interface
+        </pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- Troubleshooting -->
+  <section class="windows-section">
+    <h2>Troubleshooting</h2>
+    
+    <div class="troubleshooting-item">
+      <h4><i class="fas fa-exclamation-triangle text-warning"></i> Cannot Access the Site from Windows</h4>
+      <div class="accordion" id="troubleshootingAccordion">
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingOne">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+              Windows Firewall Issues
+            </button>
+          </h2>
+          <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#troubleshootingAccordion">
+            <div class="accordion-body">
+              <p>Windows Firewall might be blocking connections to WSL:</p>
+              <ol>
+                <li>Open Windows Defender Firewall with Advanced Security</li>
+                <li>Click on "Inbound Rules" on the left panel</li>
+                <li>Click "New Rule..." on the right panel</li>
+                <li>Select "Port" and click "Next"</li>
+                <li>Select "TCP" and specify port "8000" (or whatever port your server is using)</li>
+                <li>Select "Allow the connection" and click "Next"</li>
+                <li>Check all profiles (Domain, Private, Public) and click "Next"</li>
+                <li>Name the rule (e.g., "SciTeX Cloud Development Server") and click "Finish"</li>
+              </ol>
+              <p>Alternatively, you can temporarily disable the firewall for testing purposes (not recommended for extended use).</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingTwo">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+              WSL Network Reset
+            </button>
+          </h2>
+          <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#troubleshootingAccordion">
+            <div class="accordion-body">
+              <p>Sometimes the WSL network configuration can get into a bad state. Resetting WSL can fix this:</p>
+              <ol>
+                <li>Open PowerShell as Administrator in Windows</li>
+                <li>Run the following command to shut down WSL:</li>
+              </ol>
+              <pre class="code-block">wsl --shutdown</pre>
+              <ol start="3">
+                <li>Restart your WSL terminal and run the development server again</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+        
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingThree">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+              Alternative: Port Forwarding
+            </button>
+          </h2>
+          <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#troubleshootingAccordion">
+            <div class="accordion-body">
+              <p>If direct access doesn't work, you can set up port forwarding in Windows:</p>
+              <ol>
+                <li>Open PowerShell as Administrator</li>
+                <li>Run the following command to get your WSL IP address:</li>
+              </ol>
+              <pre class="code-block">wsl hostname -I</pre>
+              <ol start="3">
+                <li>Set up port forwarding with the obtained IP address:</li>
+              </ol>
+              <pre class="code-block">netsh interface portproxy add v4tov4 listenport=8000 listenaddress=0.0.0.0 connectport=8000 connectaddress=(wsl hostname -I)</pre>
+              <ol start="4">
+                <li>Access the server via <code>http://localhost:8000</code> in Windows Chrome</li>
+              </ol>
+              <p>To remove the port forwarding when you're done:</p>
+              <pre class="code-block">netsh interface portproxy delete v4tov4 listenport=8000 listenaddress=0.0.0.0</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Best Practices -->
+  <section class="windows-section">
+    <h2>Best Practices for Windows Development</h2>
+    
+    <div class="row">
+      <div class="col-md-6">
+        <div class="step-card">
+          <h3>Using VS Code with WSL</h3>
+          <p>Visual Studio Code has excellent WSL integration:</p>
+          <ol>
+            <li>Install <a href="https://code.visualstudio.com/" target="_blank">VS Code</a> on Windows</li>
+            <li>Install the <a href="https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-wsl" target="_blank">Remote - WSL extension</a></li>
+            <li>In your WSL terminal, navigate to the SciTeX Cloud directory and run:</li>
+          </ol>
+          <pre class="code-block">code .</pre>
+          <p>This opens VS Code with direct access to the WSL file system, giving you the best of both worlds — Windows UI with Linux development capabilities.</p>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="step-card">
+          <h3>File System Performance</h3>
+          <p>For best performance, keep your files in the WSL file system:</p>
+          <ul>
+            <li>Avoid accessing files from Windows drives mounted in WSL (e.g., /mnt/c/) for development</li>
+            <li>Clone repositories directly within the WSL file system</li>
+            <li>If you need to share files between Windows and WSL, use the WSL command to open Windows Explorer:</li>
+          </ul>
+          <pre class="code-block">explorer.exe .</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Call to Action -->
+  <section class="windows-section text-center py-5">
+    <h2>Ready to Develop on Windows?</h2>
+    <p class="lead">Start building with SciTeX Cloud on your Windows machine today</p>
+    <div class="mt-4">
+      <a href="https://github.com/SciTex-AI/SciTeX-Cloud" class="btn btn-primary btn-lg mx-2" target="_blank">
+        <i class="fab fa-github"></i> Clone Repository
+      </a>
+      <a href="{% url 'repositories' %}" class="btn btn-outline-secondary btn-lg mx-2">View All Repositories</a>
+    </div>
+  </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+{% endblock %}

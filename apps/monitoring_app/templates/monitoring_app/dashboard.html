@@ -1,0 +1,414 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}System Monitoring Dashboard - SciTeX{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js">
+<style>
+:root {
+    --scitex-color-01: #1a2332;
+    --scitex-color-02: #34495e;
+    --scitex-color-03: #506b7a;
+    --scitex-color-04: #7b8fa3;
+    --scitex-color-05: #a3b3c4;
+    --scitex-color-06: #c8d6e5;
+    --scitex-color-07: #f0f4f8;
+}
+
+.monitoring-dashboard {
+    background: linear-gradient(135deg, var(--scitex-color-07) 0%, #fafbfc 50%, var(--scitex-color-07) 100%);
+    min-height: 100vh;
+    padding: 2rem 0;
+}
+
+.dashboard-header {
+    background: linear-gradient(135deg, var(--scitex-color-01) 0%, var(--scitex-color-02) 100%);
+    color: white;
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+    border-radius: 0 0 20px 20px;
+}
+
+.metric-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(26, 35, 50, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-left: 4px solid var(--scitex-color-02);
+}
+
+.metric-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(26, 35, 50, 0.15);
+}
+
+.metric-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--scitex-color-01);
+    margin: 0;
+}
+
+.metric-label {
+    color: var(--scitex-color-03);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 0.5rem;
+}
+
+.chart-container {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(26, 35, 50, 0.1);
+    margin-bottom: 2rem;
+}
+
+.health-status {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+}
+
+.health-healthy { background: #d4edda; color: #155724; }
+.health-warning { background: #fff3cd; color: #856404; }
+.health-critical { background: #f8d7da; color: #721c24; }
+
+.time-selector {
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 10px rgba(26, 35, 50, 0.1);
+}
+
+.refresh-indicator {
+    display: none;
+    color: var(--scitex-color-03);
+    font-size: 0.9rem;
+}
+
+.refresh-indicator.active {
+    display: inline-block;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="monitoring-dashboard">
+    <div class="dashboard-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="mb-0">System Monitoring Dashboard</h1>
+                    <p class="mb-0 opacity-75">Real-time performance and health metrics</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div id="health-status" class="health-status health-healthy">Loading...</div>
+                    <div class="refresh-indicator mt-2" id="refresh-indicator">
+                        <i class="fas fa-sync-alt fa-spin"></i> Refreshing...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Time Range Selector -->
+        <div class="time-selector">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h5 class="mb-0">Time Range</h5>
+                </div>
+                <div class="col-md-6">
+                    <select id="time-range" class="form-select">
+                        <option value="1">Last Hour</option>
+                        <option value="6">Last 6 Hours</option>
+                        <option value="24" selected>Last 24 Hours</option>
+                        <option value="72">Last 3 Days</option>
+                        <option value="168">Last Week</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Metrics -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="metric-card">
+                    <div class="metric-value" id="total-requests">{{ total_requests }}</div>
+                    <div class="metric-label">Total Requests</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="metric-card">
+                    <div class="metric-value" id="avg-response-time">{{ avg_response_time|floatformat:0 }}ms</div>
+                    <div class="metric-label">Avg Response Time</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="metric-card">
+                    <div class="metric-value" id="error-count">{{ error_count }}</div>
+                    <div class="metric-label">Errors</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="metric-card">
+                    <div class="metric-value" id="active-users">{{ active_users }}</div>
+                    <div class="metric-label">Active Users</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 1 -->
+        <div class="row mb-4">
+            <div class="col-lg-8">
+                <div class="chart-container">
+                    <h5>Response Time Trend</h5>
+                    <canvas id="response-time-chart"></canvas>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="chart-container">
+                    <h5>Status Code Distribution</h5>
+                    <canvas id="status-code-chart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 2 -->
+        <div class="row mb-4">
+            <div class="col-lg-6">
+                <div class="chart-container">
+                    <h5>User Activity</h5>
+                    <canvas id="user-activity-chart"></canvas>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="chart-container">
+                    <h5>Top Endpoints</h5>
+                    <div id="top-endpoints-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Logs -->
+        <div class="chart-container">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0">Recent Errors</h5>
+                <a href="{% url 'monitoring_app:error_logs' %}" class="btn btn-outline-primary btn-sm">View All</a>
+            </div>
+            <div id="recent-errors"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+let responseTimeChart, statusCodeChart, userActivityChart;
+
+// Initialize dashboard
+document.addEventListener('DOMContentLoaded', function() {
+    initializeCharts();
+    loadData();
+    updateHealthStatus();
+    
+    // Auto-refresh every 30 seconds
+    setInterval(() => {
+        loadData();
+        updateHealthStatus();
+    }, 30000);
+    
+    // Time range selector
+    document.getElementById('time-range').addEventListener('change', function() {
+        loadData();
+    });
+});
+
+function initializeCharts() {
+    // Response Time Chart
+    const rtCtx = document.getElementById('response-time-chart').getContext('2d');
+    responseTimeChart = new Chart(rtCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Avg Response Time (ms)',
+                data: [],
+                borderColor: '#34495e',
+                backgroundColor: 'rgba(52, 73, 94, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Response Time (ms)'
+                    }
+                }
+            }
+        }
+    });
+
+    // Status Code Chart
+    const scCtx = document.getElementById('status-code-chart').getContext('2d');
+    statusCodeChart = new Chart(scCtx, {
+        type: 'doughnut',
+        data: {
+            labels: [],
+            datasets: [{
+                data: [],
+                backgroundColor: ['#27ae60', '#f39c12', '#e74c3c', '#9b59b6']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+
+    // User Activity Chart
+    const uaCtx = document.getElementById('user-activity-chart').getContext('2d');
+    userActivityChart = new Chart(uaCtx, {
+        type: 'bar',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Activity Count',
+                data: [],
+                backgroundColor: '#34495e'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+function loadData() {
+    const hours = document.getElementById('time-range').value;
+    showRefreshIndicator(true);
+    
+    // Load performance data
+    fetch(`/monitoring/api/performance/?hours=${hours}`)
+        .then(response => response.json())
+        .then(data => {
+            updateResponseTimeChart(data.response_times);
+            updateStatusCodeChart(data.status_codes);
+            updateTopEndpoints(data.top_endpoints);
+            updateMetrics(data);
+        })
+        .catch(error => console.error('Error loading performance data:', error));
+    
+    // Load user activity data
+    fetch(`/monitoring/api/user-activity/?hours=${hours}`)
+        .then(response => response.json())
+        .then(data => {
+            updateUserActivityChart(data.hourly_activity);
+        })
+        .catch(error => console.error('Error loading user activity data:', error))
+        .finally(() => showRefreshIndicator(false));
+}
+
+function updateHealthStatus() {
+    fetch('/monitoring/api/health/')
+        .then(response => response.json())
+        .then(data => {
+            const statusElement = document.getElementById('health-status');
+            statusElement.className = `health-status health-${data.health_status}`;
+            statusElement.textContent = data.health_status.toUpperCase();
+            
+            // Update key metrics if available
+            if (data.avg_response_time !== undefined) {
+                document.getElementById('avg-response-time').textContent = Math.round(data.avg_response_time) + 'ms';
+            }
+        })
+        .catch(error => console.error('Error loading health status:', error));
+}
+
+function updateResponseTimeChart(data) {
+    responseTimeChart.data.labels = data.map(item => item.time);
+    responseTimeChart.data.datasets[0].data = data.map(item => item.avg_response_time);
+    responseTimeChart.update();
+}
+
+function updateStatusCodeChart(data) {
+    statusCodeChart.data.labels = data.map(item => `${item.status_code}`);
+    statusCodeChart.data.datasets[0].data = data.map(item => item.count);
+    statusCodeChart.update();
+}
+
+function updateUserActivityChart(data) {
+    userActivityChart.data.labels = data.map(item => item.time);
+    userActivityChart.data.datasets[0].data = data.map(item => item.activity_count);
+    userActivityChart.update();
+}
+
+function updateTopEndpoints(data) {
+    const container = document.getElementById('top-endpoints-list');
+    container.innerHTML = '';
+    
+    data.slice(0, 10).forEach(endpoint => {
+        const item = document.createElement('div');
+        item.className = 'border-bottom py-2';
+        item.innerHTML = `
+            <div class="d-flex justify-content-between">
+                <span class="text-truncate">${endpoint.endpoint}</span>
+                <span class="text-muted">${endpoint.count} requests</span>
+            </div>
+            <small class="text-muted">${Math.round(endpoint.avg_time)}ms avg</small>
+        `;
+        container.appendChild(item);
+    });
+}
+
+function updateMetrics(data) {
+    // Update metrics will be handled by separate API calls
+    // This is a placeholder for future real-time metric updates
+}
+
+function showRefreshIndicator(show) {
+    const indicator = document.getElementById('refresh-indicator');
+    if (show) {
+        indicator.classList.add('active');
+    } else {
+        indicator.classList.remove('active');
+    }
+}
+</script>
+{% endblock %}

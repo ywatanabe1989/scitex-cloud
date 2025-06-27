@@ -1,0 +1,634 @@
+{% extends "scholar_app/base.html" %}
+{% load static %}
+
+{% block title %}{{ paper.title }} - SciTeX Scholar{% endblock %}
+
+{% block extra_css %}
+<style>
+    .paper-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+    }
+    .paper-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        line-height: 1.3;
+        margin-bottom: 1rem;
+    }
+    .paper-metadata {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+    .metadata-item {
+        border-bottom: 1px solid #f0f0f0;
+        padding: 0.75rem 0;
+    }
+    .metadata-item:last-child {
+        border-bottom: none;
+    }
+    .metadata-label {
+        font-weight: 600;
+        color: #495057;
+        font-size: 0.9rem;
+    }
+    .metadata-value {
+        color: #212529;
+        margin-top: 0.25rem;
+    }
+    .abstract-section {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+    .citation-card {
+        border-left: 4px solid #667eea;
+        background: white;
+        padding: 1rem;
+        margin-bottom: 0.5rem;
+        border-radius: 0 8px 8px 0;
+    }
+    .citation-title {
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 0.95rem;
+        margin-bottom: 0.5rem;
+    }
+    .citation-meta {
+        font-size: 0.85rem;
+        color: #7f8c8d;
+    }
+    .network-viz {
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 12px;
+        height: 400px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .metric-card {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-bottom: 1rem;
+    }
+    .metric-number {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #667eea;
+    }
+    .metric-label {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+    }
+    .related-paper {
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+    }
+    .related-paper:hover {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        transform: translateY(-1px);
+    }
+    .action-button {
+        border-radius: 20px;
+        padding: 0.5rem 1.5rem;
+        font-weight: 600;
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+    .timeline-item {
+        border-left: 2px solid #667eea;
+        padding-left: 1rem;
+        margin-bottom: 1rem;
+        position: relative;
+    }
+    .timeline-item::before {
+        content: '';
+        width: 10px;
+        height: 10px;
+        background: #667eea;
+        border-radius: 50%;
+        position: absolute;
+        left: -6px;
+        top: 0.5rem;
+    }
+    .keyword-tag {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.85rem;
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+        display: inline-block;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Paper Header -->
+<div class="paper-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="d-flex align-items-center mb-3">
+                    <a href="{% url 'search:search_dashboard' %}" class="btn btn-light btn-sm me-3">
+                        <i class="fas fa-arrow-left"></i> Back to Search
+                    </a>
+                    <span class="badge bg-light text-dark">{{ paper.get_document_type_display }}</span>
+                    {% if paper.is_open_access %}
+                        <span class="badge bg-success ms-2">Open Access</span>
+                    {% endif %}
+                </div>
+                <h1 class="paper-title">{{ paper.title }}</h1>
+                <div class="d-flex flex-wrap align-items-center">
+                    {% for author in paper.authors.all %}
+                        <a href="{% url 'search:author_profile' author.pk %}" 
+                           class="text-white text-decoration-none me-3 mb-2">
+                            <i class="fas fa-user"></i> {{ author.full_name }}
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="mb-3">
+                    {% if paper.pdf_url or paper.pdf_file %}
+                        <a href="{{ paper.pdf_url|default:paper.pdf_file.url }}" 
+                           class="btn btn-light action-button" target="_blank">
+                            <i class="fas fa-file-pdf"></i> View PDF
+                        </a>
+                    {% endif %}
+                    {% if paper.doi %}
+                        <a href="https://doi.org/{{ paper.doi }}" 
+                           class="btn btn-outline-light action-button" target="_blank">
+                            <i class="fas fa-external-link-alt"></i> DOI
+                        </a>
+                    {% endif %}
+                </div>
+                <div>
+                    <button class="btn btn-outline-light action-button" id="cite-btn">
+                        <i class="fas fa-quote-left"></i> Cite
+                    </button>
+                    <button class="btn btn-outline-light action-button" id="save-btn">
+                        <i class="fas fa-bookmark"></i> Save
+                    </button>
+                    <button class="btn btn-outline-light action-button" id="share-btn">
+                        <i class="fas fa-share"></i> Share
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Abstract -->
+            {% if paper.abstract %}
+                <div class="abstract-section">
+                    <h5 class="mb-3"><i class="fas fa-file-alt"></i> Abstract</h5>
+                    <p class="lead">{{ paper.abstract }}</p>
+                </div>
+            {% endif %}
+
+            <!-- Keywords -->
+            {% if paper.topics.exists %}
+                <div class="mb-4">
+                    <h5 class="mb-3"><i class="fas fa-tags"></i> Keywords & Topics</h5>
+                    {% for topic in paper.topics.all %}
+                        <span class="keyword-tag">{{ topic.name }}</span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- Citation Network -->
+            <div class="mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0"><i class="fas fa-project-diagram"></i> Citation Network</h5>
+                    <a href="{% url 'search:citation_network' paper.pk %}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-expand"></i> Full Network View
+                    </a>
+                </div>
+                <div class="network-viz">
+                    <div class="text-center text-muted">
+                        <i class="fas fa-project-diagram fa-4x mb-3"></i>
+                        <h6>Interactive Citation Network</h6>
+                        <p>Explore how this paper connects to others</p>
+                        <a href="{% url 'search:citation_network' paper.pk %}" class="btn btn-primary">
+                            View Network
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Citations Made -->
+            {% if citations_made %}
+                <div class="mb-4">
+                    <h5 class="mb-3">
+                        <i class="fas fa-arrow-right"></i> References ({{ citations_made.count }})
+                    </h5>
+                    {% for citation in citations_made|slice:":10" %}
+                        <div class="citation-card">
+                            <div class="citation-title">
+                                <a href="{% url 'search:paper_detail' citation.cited_paper.pk %}" 
+                                   class="text-decoration-none">
+                                    {{ citation.cited_paper.title }}
+                                </a>
+                            </div>
+                            <div class="citation-meta">
+                                {% for author in citation.cited_paper.authors.all|slice:":3" %}
+                                    {{ author.full_name }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                                {% if citation.cited_paper.journal %}
+                                    • {{ citation.cited_paper.journal.name }}
+                                {% endif %}
+                                {% if citation.cited_paper.publication_date %}
+                                    • {{ citation.cited_paper.publication_date.year }}
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                    {% if citations_made.count > 10 %}
+                        <div class="text-center">
+                            <button class="btn btn-outline-secondary btn-sm" id="load-more-refs">
+                                Load {{ citations_made.count|add:"-10" }} more references
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            <!-- Cited By -->
+            {% if citations_received %}
+                <div class="mb-4">
+                    <h5 class="mb-3">
+                        <i class="fas fa-arrow-left"></i> Cited By ({{ citations_received.count }})
+                    </h5>
+                    {% for citation in citations_received|slice:":10" %}
+                        <div class="citation-card">
+                            <div class="citation-title">
+                                <a href="{% url 'search:paper_detail' citation.citing_paper.pk %}" 
+                                   class="text-decoration-none">
+                                    {{ citation.citing_paper.title }}
+                                </a>
+                            </div>
+                            <div class="citation-meta">
+                                {% for author in citation.citing_paper.authors.all|slice:":3" %}
+                                    {{ author.full_name }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                                {% if citation.citing_paper.journal %}
+                                    • {{ citation.citing_paper.journal.name }}
+                                {% endif %}
+                                {% if citation.citing_paper.publication_date %}
+                                    • {{ citation.citing_paper.publication_date.year }}
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                    {% if citations_received.count > 10 %}
+                        <div class="text-center">
+                            <button class="btn btn-outline-secondary btn-sm" id="load-more-citations">
+                                Load {{ citations_received.count|add:"-10" }} more citations
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Metrics -->
+            <div class="row">
+                <div class="col-6">
+                    <div class="metric-card">
+                        <div class="metric-number">{{ paper.citation_count }}</div>
+                        <div class="metric-label">Citations</div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="metric-card">
+                        <div class="metric-number">{{ paper.view_count }}</div>
+                        <div class="metric-label">Views</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Paper Metadata -->
+            <div class="paper-metadata">
+                <h6 class="mb-3"><i class="fas fa-info-circle"></i> Paper Details</h6>
+                
+                {% if paper.journal %}
+                    <div class="metadata-item">
+                        <div class="metadata-label">Journal</div>
+                        <div class="metadata-value">{{ paper.journal.name }}</div>
+                    </div>
+                {% endif %}
+                
+                {% if paper.publication_date %}
+                    <div class="metadata-item">
+                        <div class="metadata-label">Published</div>
+                        <div class="metadata-value">{{ paper.publication_date|date:"F d, Y" }}</div>
+                    </div>
+                {% endif %}
+                
+                {% if paper.doi %}
+                    <div class="metadata-item">
+                        <div class="metadata-label">DOI</div>
+                        <div class="metadata-value">
+                            <a href="https://doi.org/{{ paper.doi }}" target="_blank">{{ paper.doi }}</a>
+                        </div>
+                    </div>
+                {% endif %}
+                
+                {% if paper.pmid %}
+                    <div class="metadata-item">
+                        <div class="metadata-label">PubMed ID</div>
+                        <div class="metadata-value">
+                            <a href="https://pubmed.ncbi.nlm.nih.gov/{{ paper.pmid }}" target="_blank">{{ paper.pmid }}</a>
+                        </div>
+                    </div>
+                {% endif %}
+                
+                {% if paper.arxiv_id %}
+                    <div class="metadata-item">
+                        <div class="metadata-label">arXiv ID</div>
+                        <div class="metadata-value">
+                            <a href="https://arxiv.org/abs/{{ paper.arxiv_id }}" target="_blank">{{ paper.arxiv_id }}</a>
+                        </div>
+                    </div>
+                {% endif %}
+                
+                <div class="metadata-item">
+                    <div class="metadata-label">Document Type</div>
+                    <div class="metadata-value">{{ paper.get_document_type_display }}</div>
+                </div>
+                
+                <div class="metadata-item">
+                    <div class="metadata-label">Added to SciTeX</div>
+                    <div class="metadata-value">{{ paper.created_at|date:"M d, Y" }}</div>
+                </div>
+            </div>
+
+            <!-- Related Papers -->
+            {% if related_papers %}
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0"><i class="fas fa-lightbulb"></i> Related Papers</h6>
+                    </div>
+                    <div class="card-body">
+                        {% for related in related_papers|slice:":5" %}
+                            <div class="related-paper">
+                                <h6 class="mb-1">
+                                    <a href="{% url 'search:paper_detail' related.pk %}" 
+                                       class="text-decoration-none">
+                                        {{ related.title|truncatechars:80 }}
+                                    </a>
+                                </h6>
+                                <small class="text-muted">
+                                    {% for author in related.authors.all|slice:":2" %}
+                                        {{ author.last_name }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                    {% if related.publication_date %} • {{ related.publication_date.year }}{% endif %}
+                                </small>
+                                <div class="mt-1">
+                                    <span class="badge bg-light text-dark">{{ related.citation_count }} citations</span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Quick Actions -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-tools"></i> Tools</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary btn-sm" id="export-citation-btn">
+                            <i class="fas fa-download"></i> Export Citation
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" id="find-similar-btn">
+                            <i class="fas fa-search"></i> Find Similar Papers
+                        </button>
+                        <button class="btn btn-outline-info btn-sm" id="analyze-impact-btn">
+                            <i class="fas fa-chart-line"></i> Analyze Impact
+                        </button>
+                        <button class="btn btn-outline-success btn-sm" id="track-citations-btn">
+                            <i class="fas fa-bell"></i> Track Citations
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Citation Modal -->
+<div class="modal fade" id="citationModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cite This Paper</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <ul class="nav nav-tabs" id="citation-tabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="apa-tab" data-bs-toggle="tab" data-bs-target="#apa">APA</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="mla-tab" data-bs-toggle="tab" data-bs-target="#mla">MLA</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="chicago-tab" data-bs-toggle="tab" data-bs-target="#chicago">Chicago</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="bibtex-tab" data-bs-toggle="tab" data-bs-target="#bibtex">BibTeX</button>
+                    </li>
+                </ul>
+                <div class="tab-content mt-3" id="citation-content">
+                    <div class="tab-pane fade show active" id="apa">
+                        <div class="border rounded p-3 bg-light">
+                            <div id="apa-citation">Loading APA citation...</div>
+                        </div>
+                        <button class="btn btn-outline-secondary btn-sm mt-2" onclick="copyToClipboard('#apa-citation')">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    </div>
+                    <div class="tab-pane fade" id="mla">
+                        <div class="border rounded p-3 bg-light">
+                            <div id="mla-citation">Loading MLA citation...</div>
+                        </div>
+                        <button class="btn btn-outline-secondary btn-sm mt-2" onclick="copyToClipboard('#mla-citation')">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    </div>
+                    <div class="tab-pane fade" id="chicago">
+                        <div class="border rounded p-3 bg-light">
+                            <div id="chicago-citation">Loading Chicago citation...</div>
+                        </div>
+                        <button class="btn btn-outline-secondary btn-sm mt-2" onclick="copyToClipboard('#chicago-citation')">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    </div>
+                    <div class="tab-pane fade" id="bibtex">
+                        <div class="border rounded p-3 bg-light">
+                            <pre id="bibtex-citation">Loading BibTeX citation...</pre>
+                        </div>
+                        <button class="btn btn-outline-secondary btn-sm mt-2" onclick="copyToClipboard('#bibtex-citation')">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const paperId = '{{ paper.pk }}';
+    
+    // Citation functionality
+    document.getElementById('cite-btn').addEventListener('click', function() {
+        generateCitations();
+        new bootstrap.Modal(document.getElementById('citationModal')).show();
+    });
+    
+    // Save paper
+    document.getElementById('save-btn').addEventListener('click', function() {
+        const isLoggedIn = {% if user.is_authenticated %}true{% else %}false{% endif %};
+        
+        if (!isLoggedIn) {
+            alert('Please log in to save papers');
+            return;
+        }
+        
+        this.innerHTML = '<i class="fas fa-check"></i> Saved';
+        this.classList.remove('btn-outline-light');
+        this.classList.add('btn-success');
+    });
+    
+    // Share functionality
+    document.getElementById('share-btn').addEventListener('click', function() {
+        if (navigator.share) {
+            navigator.share({
+                title: '{{ paper.title|escapejs }}',
+                text: 'Check out this research paper',
+                url: window.location.href
+            });
+        } else {
+            // Fallback: copy to clipboard
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                this.innerHTML = '<i class="fas fa-check"></i> Link Copied';
+                setTimeout(() => {
+                    this.innerHTML = '<i class="fas fa-share"></i> Share';
+                }, 2000);
+            });
+        }
+    });
+    
+    // Export citation
+    document.getElementById('export-citation-btn').addEventListener('click', function() {
+        document.getElementById('cite-btn').click();
+    });
+    
+    // Find similar papers
+    document.getElementById('find-similar-btn').addEventListener('click', function() {
+        // Build search query based on paper topics and authors
+        const query = '{{ paper.topics.all.0.name|default:"related research" }}';
+        window.open(`{% url 'search:search_dashboard' %}?q=${encodeURIComponent(query)}`, '_blank');
+    });
+    
+    function generateCitations() {
+        // Generate different citation formats
+        const authors = [{% for author in paper.authors.all %}'{{ author.full_name|escapejs }}'{% if not forloop.last %}, {% endif %}{% endfor %}];
+        const title = '{{ paper.title|escapejs }}';
+        const journal = '{{ paper.journal.name|default:""|escapejs }}';
+        const year = '{{ paper.publication_date.year|default:"n.d." }}';
+        const doi = '{{ paper.doi|default:""|escapejs }}';
+        
+        // APA Citation
+        let apaAuthors = authors.length > 0 ? authors.join(', ') : 'Author';
+        document.getElementById('apa-citation').textContent = 
+            `${apaAuthors} (${year}). ${title}. ${journal}. ${doi ? 'https://doi.org/' + doi : ''}`;
+        
+        // MLA Citation
+        document.getElementById('mla-citation').textContent = 
+            `${apaAuthors}. "${title}" ${journal}, ${year}. ${doi ? 'doi:' + doi : ''}`;
+        
+        // Chicago Citation
+        document.getElementById('chicago-citation').textContent = 
+            `${apaAuthors}. "${title}" ${journal} (${year}). ${doi ? 'https://doi.org/' + doi : ''}`;
+        
+        // BibTeX Citation
+        const citationKey = authors.length > 0 ? authors[0].split(' ').pop() + year : 'Unknown' + year;
+        document.getElementById('bibtex-citation').textContent = 
+            `@article{${citationKey},\n  title={${title}},\n  author={${authors.join(' and ')}},\n  journal={${journal}},\n  year={${year}},\n  ${doi ? 'doi={' + doi + '}' : ''}\n}`;
+    }
+    
+    function copyToClipboard(selector) {
+        const text = document.querySelector(selector).textContent;
+        navigator.clipboard.writeText(text).then(() => {
+            // Show feedback
+            const btn = event.target.closest('button');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+            }, 2000);
+        });
+    }
+    
+    // Load more citations/references
+    document.getElementById('load-more-citations')?.addEventListener('click', function() {
+        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+        // Implement AJAX loading for more citations
+        setTimeout(() => {
+            this.style.display = 'none';
+        }, 1000);
+    });
+    
+    document.getElementById('load-more-refs')?.addEventListener('click', function() {
+        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+        // Implement AJAX loading for more references
+        setTimeout(() => {
+            this.style.display = 'none';
+        }, 1000);
+    });
+});
+
+// Global function for copying citations
+function copyToClipboard(selector) {
+    const text = document.querySelector(selector).textContent;
+    navigator.clipboard.writeText(text).then(() => {
+        const btn = event.target.closest('button');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+        }, 2000);
+    });
+}
+</script>
+{% endblock %}
