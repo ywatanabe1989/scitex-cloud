@@ -24,7 +24,7 @@ class AuthAPITests(TestCase):
         user_data = {
             'username': 'newuser',
             'email': 'newuser@example.com',
-            'password': 'testpassword123',
+            'password': 'TestPassword123!',
             'first_name': 'Test',
             'last_name': 'User'
         }
@@ -40,11 +40,13 @@ class AuthAPITests(TestCase):
         # Parse response
         data = json.loads(response.content)
         
-        # Check response structure
+        # Check response structure for email verification flow
         self.assertTrue(data['success'])
-        self.assertIn('user', data)
-        self.assertEqual(data['user']['username'], 'newuser')
-        self.assertEqual(data['user']['email'], 'newuser@example.com')
+        self.assertIn('message', data)
+        self.assertIn('email', data)
+        self.assertIn('verification_required', data)
+        self.assertEqual(data['email'], 'newuser@example.com')
+        self.assertTrue(data['verification_required'])
     
     def test_login_with_valid_credentials(self):
         """Test login with valid credentials"""
@@ -52,12 +54,12 @@ class AuthAPITests(TestCase):
         User.objects.create_user(
             username='testuser',
             email='test@example.com',
-            password='testpassword123'
+            password='TestPassword123!'
         )
         
         login_data = {
             'username': 'testuser',
-            'password': 'testpassword123'
+            'password': 'TestPassword123!'
         }
         
         response = self.client.post(

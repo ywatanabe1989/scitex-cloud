@@ -23,7 +23,7 @@ DEBUG = True
 if not SECRET_KEY:
     SECRET_KEY = "django-insecure-dev-key-for-testing-only-do-not-use-in-production"
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "0.0.0.0", "172.19.33.56", "[::1]"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "0.0.0.0", "172.19.33.56", "[::1]", "testserver"]
 
 # Development-specific apps
 DEVELOPMENT_APPS = [
