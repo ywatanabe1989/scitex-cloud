@@ -137,8 +137,13 @@ def search_dashboard(request):
     if search_query_obj and request.user.is_authenticated:
         _track_search_results(search_query_obj, papers.object_list)
     
-    # Get trending topics
-    trending_topics = Topic.objects.order_by('-paper_count')[:10]
+    # Get trending topics with caching
+    trending_topics = cache.get('scholar_trending_topics')
+    if not trending_topics:
+        trending_topics = list(Topic.objects.select_related().only(
+            'id', 'name', 'paper_count', 'description'
+        ).order_by('-paper_count')[:10])
+        cache.set('scholar_trending_topics', trending_topics, 1800)  # 30 minutes
     
     context = {
         'query': query,
@@ -261,24 +266,54 @@ def paper_detail(request, paper_id):
 
 def author_profile(request, author_id):
     """Author profile with publications and metrics."""
-    author = get_object_or_404(Author, id=author_id)
+    # Try to get cached author data
+    cache_key = f'author_profile_{author_id}'
+    cached_data = cache.get(cache_key)
     
-    # Get all papers by this author
-    papers = SearchIndex.objects.filter(
-        authors=author,
-        status='active'
-    ).order_by('-publication_date').select_related('journal')
+    if cached_data:
+        author = cached_data['author']
+        papers = cached_data['papers']
+        total_citations = cached_data['total_citations']
+        avg_citations = cached_data['avg_citations']
+        co_authors = cached_data['co_authors']
+    else:
+        author = get_object_or_404(Author.objects.select_related().only(
+            'id', 'first_name', 'last_name', 'email', 'orcid', 'affiliation', 'h_index'
+        ), id=author_id)
     
-    # Calculate metrics
-    total_citations = papers.aggregate(total=Count('citations_received'))['total'] or 0
-    avg_citations = papers.aggregate(avg=Avg('citation_count'))['avg'] or 0
+        # Get all papers by this author with optimized queries
+        papers = SearchIndex.objects.filter(
+            authors=author,
+            status='active'
+        ).select_related('journal').prefetch_related(
+            Prefetch('authors', queryset=Author.objects.only('id', 'first_name', 'last_name'))
+        ).only(
+            'id', 'title', 'abstract', 'publication_date', 'citation_count', 'doi',
+            'journal__id', 'journal__name'
+        ).order_by('-publication_date')
     
-    # Get co-authors
-    co_authors = Author.objects.filter(
-        authorpaper__paper__in=papers
-    ).exclude(id=author.id).annotate(
-        collaboration_count=Count('authorpaper')
-    ).order_by('-collaboration_count')[:20]
+        # Calculate metrics
+        total_citations = papers.aggregate(total=Count('citations_received'))['total'] or 0
+        avg_citations = papers.aggregate(avg=Avg('citation_count'))['avg'] or 0
+        
+        # Get co-authors with optimized query
+        co_authors = Author.objects.filter(
+            authorpaper__paper__in=papers
+        ).exclude(id=author.id).annotate(
+            collaboration_count=Count('authorpaper')
+        ).only(
+            'id', 'first_name', 'last_name', 'affiliation'
+        ).order_by('-collaboration_count')[:20]
+        
+        # Cache author data for 1 hour
+        cache_data = {
+            'author': author,
+            'papers': list(papers),
+            'total_citations': total_citations,
+            'avg_citations': avg_citations,
+            'co_authors': list(co_authors)
+        }
+        cache.set(cache_key, cache_data, 3600)
     
     # Get publication timeline
     publication_years = papers.dates('publication_date', 'year', order='DESC')
