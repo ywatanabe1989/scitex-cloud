@@ -1,0 +1,258 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ project.name }} - SciTeX Cloud{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/common/buttons.css' %}">
+<style>
+.project-header {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.project-title {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.project-meta {
+    color: #666;
+    margin-bottom: 1rem;
+}
+
+.project-status {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.project-actions {
+    margin-top: 1.5rem;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.module-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.module-card {
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    padding: 1.5rem;
+    background: white;
+    text-align: center;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.module-card:hover {
+    border-color: #007acc;
+    transform: translateY(-2px);
+}
+
+.module-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.module-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.module-description {
+    color: #666;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+}
+
+.breadcrumb {
+    margin-bottom: 1.5rem;
+}
+
+.breadcrumb a {
+    color: #007acc;
+    text-decoration: none;
+}
+
+.breadcrumb a:hover {
+    text-decoration: underline;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+        <a href="{% url 'project_app:list' %}">Projects</a> / {{ project.name }}
+    </nav>
+
+    <!-- Project Header -->
+    <div class="project-header">
+        <div class="project-title">{{ project.name }}</div>
+        <div class="project-meta">
+            <span class="project-status">{{ project.get_status_display }}</span>
+            <span style="margin-left: 1rem;">Created: {{ project.created_at|date:"M j, Y" }}</span>
+            <span style="margin-left: 1rem;">Updated: {{ project.updated_at|date:"M j, Y" }}</span>
+        </div>
+        <div class="project-description">
+            {{ project.description }}
+        </div>
+        <div class="project-actions">
+            <a href="{% url 'project_app:files' project.slug %}" class="btn btn-primary">
+                📁 File Manager
+            </a>
+            <a href="{% url 'project_app:edit' project.slug %}" class="btn btn-secondary">
+                ✏️ Edit Project
+            </a>
+            <a href="{% url 'project_app:members' project.slug %}" class="btn btn-outline-secondary">
+                👥 Manage Members
+            </a>
+            <a href="{% url 'project_app:github' project.slug %}" class="btn btn-outline-secondary">
+                🔗 GitHub Integration
+            </a>
+        </div>
+    </div>
+
+    <!-- SciTeX Modules -->
+    <h3>SciTeX Modules</h3>
+    <div class="module-grid">
+        <div class="module-card">
+            <div class="module-icon">🔍</div>
+            <div class="module-title">Scholar</div>
+            <div class="module-description">
+                Literature search, paper discovery, and reference management
+            </div>
+            <div style="display: flex; gap: 0.5rem; justify-content: center; margin-top: 1rem;">
+                <a href="{% url 'scholar_app:project_search' project.pk %}" class="btn btn-primary">🔍 Search</a>
+                <a href="{% url 'scholar_app:project_library' project.pk %}" class="btn btn-secondary">📚 Library</a>
+            </div>
+        </div>
+
+        <div class="module-card">
+            <div class="module-icon">💻</div>
+            <div class="module-title">Code</div>
+            <div class="module-description">
+                Code development, analysis, and Jupyter notebook integration
+            </div>
+            <a href="/code/?project={{ project.pk }}" class="btn btn-primary">Open Code</a>
+        </div>
+
+        <div class="module-card">
+            <div class="module-icon">📊</div>
+            <div class="module-title">Viz</div>
+            <div class="module-description">
+                Data visualization and interactive plotting tools
+            </div>
+            <a href="/viz/?project={{ project.pk }}" class="btn btn-primary">Open Viz</a>
+        </div>
+
+        <div class="module-card">
+            <div class="module-icon">✍️</div>
+            <div class="module-title">Writer</div>
+            <div class="module-description">
+                Manuscript writing, LaTeX generation, and collaborative editing
+            </div>
+            <div style="display: flex; gap: 0.5rem; justify-content: center; margin-top: 1rem;">
+                <a href="{% url 'writer:project-writer' project.pk %}" class="btn btn-primary">✍️ Write</a>
+                <a href="{% url 'writer:manuscript-list' %}?project={{ project.pk }}" class="btn btn-secondary">📄 Drafts</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Project Information -->
+    <div class="row">
+        <div class="col-md-8">
+            <h4>Project Details</h4>
+            <table class="table">
+                <tr>
+                    <td><strong>Owner:</strong></td>
+                    <td>{{ project.owner.get_full_name|default:project.owner.username }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Status:</strong></td>
+                    <td>{{ project.get_status_display }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Progress:</strong></td>
+                    <td>{{ project.progress }}%</td>
+                </tr>
+                {% if project.deadline %}
+                <tr>
+                    <td><strong>Deadline:</strong></td>
+                    <td>{{ project.deadline|date:"M j, Y" }}</td>
+                </tr>
+                {% endif %}
+                {% if project.source_code_url %}
+                <tr>
+                    <td><strong>Repository:</strong></td>
+                    <td><a href="{{ project.source_code_url }}" target="_blank">{{ project.source_code_url }}</a></td>
+                </tr>
+                {% endif %}
+            </table>
+        </div>
+        <div class="col-md-4">
+            <h4>Project Activity</h4>
+            
+            <!-- Recent Manuscripts -->
+            {% if project_manuscripts %}
+            <div class="mb-3">
+                <h6>📝 Recent Manuscripts</h6>
+                {% for manuscript in project_manuscripts %}
+                <div class="list-group-item list-group-item-action" style="border: 1px solid #e5e5e5; margin-bottom: 0.5rem; border-radius: 4px;">
+                    <div style="font-weight: 500;">{{ manuscript.title }}</div>
+                    <small class="text-muted">Updated {{ manuscript.updated_at|timesince }} ago</small>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <!-- Recent Papers -->
+            {% if saved_papers %}
+            <div class="mb-3">
+                <h6>📚 Recent Papers</h6>
+                {% for paper in saved_papers %}
+                <div class="list-group-item list-group-item-action" style="border: 1px solid #e5e5e5; margin-bottom: 0.5rem; border-radius: 4px;">
+                    <div style="font-weight: 500;">{{ paper.paper.title|truncatechars:50 }}</div>
+                    <small class="text-muted">Saved {{ paper.saved_at|timesince }} ago</small>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <h6>⚡ Quick Actions</h6>
+            <div class="list-group">
+                <a href="{% url 'project_app:sync' project.slug %}" class="list-group-item list-group-item-action">
+                    🔄 Sync Project
+                </a>
+                <a href="#" class="list-group-item list-group-item-action">
+                    📈 View Analytics
+                </a>
+                <a href="#" class="list-group-item list-group-item-action">
+                    📋 Export Data
+                </a>
+                <a href="{% url 'project_app:delete' project.slug %}" class="list-group-item list-group-item-action text-danger">
+                    🗑️ Delete Project
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

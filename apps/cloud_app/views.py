@@ -1,269 +1,490 @@
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from django.core.exceptions import PermissionDenied
-from django.utils import timezone
-from django.db import models
-from django.conf import settings
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# Timestamp: "2025-06-29 19:40:12 (ywatanabe)"
+# File: /ssh:scitex:/home/ywatanabe/proj/scitex-cloud/apps/cloud_app/views.py
+# ----------------------------------------
+import os
+__FILE__ = (
+    "./apps/cloud_app/views.py"
+)
+__DIR__ = os.path.dirname(__FILE__)
+# ----------------------------------------
+
 import logging
 
-logger = logging.getLogger('scitex')
+from django.conf import settings
+from django.contrib import messages
+from django.core.exceptions import PermissionDenied
+from django.db import models
+from django.shortcuts import redirect, render
+from django.utils import timezone
+
+logger = logging.getLogger("scitex")
 
 
 def index(request):
     """Cloud app index view."""
-    return render(request, 'cloud_app/landing.html')
+    return render(request, "cloud_app/landing.html")
 
 
-def features(request):
-    """Cloud features view."""
-    return render(request, 'cloud_app/features.html')
+def premium_subscription(request):
+    """Premium subscription and pricing details view."""
 
+    # Define the comprehensive pricing structure based on the premium strategy
+    individual_plans = [
+        {
+            "name": "Free",
+            "price": 0,
+            "gpu_hours": "5/month",
+            "literature_searches": "50/month",
+            "figure_generation": "25/month",
+            "storage": "500MB",
+            "scientific_validation": "Basic methodology checks",
+            "agent_prompts": "Basic templates",
+            "collaboration": "None",
+            "language_support": "English",
+            "support_level": "Community",
+            "key_features": [
+                "Basic LaTeX compilation",
+                "Git integration",
+                "Methodology validation",
+                "File organization & project structure",
+                "Simple data visualization",
+            ],
+            "cta_text": "Get Started Free",
+            "cta_url": "/signup/",
+            "popular": False,
+        },
+        {
+            "name": "Standard",
+            "price": 29,
+            "gpu_hours": "50/month",
+            "literature_searches": "500/month",
+            "figure_generation": "200/month",
+            "storage": "5GB",
+            "scientific_validation": "Statistical rigor checking",
+            "agent_prompts": "Standard library",
+            "collaboration": "Basic sharing",
+            "language_support": "English",
+            "support_level": "Email",
+            "key_features": [
+                "AI literature reviews",
+                "Grant templates (NSF/NIH)",
+                "Peer review basics",
+                "Advanced bibliography management",
+                "Statistical validation tools",
+            ],
+            "cta_text": "Start Free Trial",
+            "cta_url": "/signup/?plan=standard",
+            "popular": False,
+        },
+        {
+            "name": "Professional",
+            "price": 99,
+            "gpu_hours": "200/month",
+            "literature_searches": "Unlimited",
+            "figure_generation": "1000/month",
+            "storage": "25GB",
+            "scientific_validation": "Advanced validation",
+            "agent_prompts": "Full library",
+            "collaboration": "Project workspaces",
+            "language_support": "English + Japanese",
+            "support_level": "Priority",
+            "key_features": [
+                "Full scientific writing suite",
+                "SigmaPlot integration",
+                "Agent orchestration",
+                "JST/MEXT grant optimization",
+                "Advanced statistical analysis",
+            ],
+            "cta_text": "Start Free Trial",
+            "cta_url": "/signup/?plan=professional",
+            "popular": True,
+        },
+        {
+            "name": "Researcher Plus",
+            "price": 199,
+            "gpu_hours": "500/month",
+            "literature_searches": "Unlimited",
+            "figure_generation": "Unlimited",
+            "storage": "100GB",
+            "scientific_validation": "Expert validation",
+            "agent_prompts": "Custom prompts",
+            "collaboration": "Advanced collaboration",
+            "language_support": "English + Japanese",
+            "support_level": "Dedicated + Monthly consult",
+            "key_features": [
+                "Co-authorship validation",
+                "Grant optimization",
+                "Peer review assistant",
+                "Expert consultation included",
+                "Custom prompt development",
+            ],
+            "cta_text": "Contact Sales",
+            "cta_url": "/contact/",
+            "popular": False,
+        },
+    ]
 
-def pricing(request):
-    """Cloud pricing view."""
-    from .models import SubscriptionPlan
-    
-    # Get active plans ordered by display_order
-    plans = SubscriptionPlan.objects.filter(is_active=True).order_by('display_order', 'price_monthly')
-    
+    institutional_plans = [
+        {
+            "name": "Lab License",
+            "price": 299,
+            "users": "5-10 users",
+            "gpu_hours": "1000 shared",
+            "storage": "500GB",
+            "features": [
+                "Admin dashboard",
+                "Quarterly training",
+                "Role-based permissions",
+                "Advanced validation",
+                "Priority support",
+            ],
+        },
+        {
+            "name": "Department",
+            "price": 999,
+            "users": "25-50 users",
+            "gpu_hours": "3000 shared",
+            "storage": "2TB",
+            "features": [
+                "Custom prompts",
+                "Monthly training",
+                "Enterprise collaboration",
+                "Expert validation",
+                "Dedicated support",
+            ],
+        },
+        {
+            "name": "University Enterprise",
+            "price": "Custom",
+            "users": "Unlimited",
+            "gpu_hours": "Unlimited",
+            "storage": "Unlimited",
+            "features": [
+                "On-premise deployment",
+                "Unlimited users",
+                "Dedicated support manager",
+                "Co-authorship eligible",
+                "Fully customized",
+            ],
+        },
+    ]
+
+    japanese_specials = [
+        {
+            "name": "Pilot Program",
+            "price": "Free (6 months)",
+            "description": "Professional tier features for up to 10 researchers",
+            "features": [
+                "Success tracking",
+                "Japanese language focus",
+                "Priority support",
+                "Full library access",
+            ],
+        },
+        {
+            "name": "MEXT Partnership",
+            "price": "50% off all plans",
+            "description": "For government-funded research institutions",
+            "features": [
+                "Compliance certification",
+                "Custom JST/MEXT templates",
+                "Enterprise collaboration",
+                "Dedicated support",
+            ],
+        },
+    ]
+
+    add_on_services = [
+        {
+            "name": "Custom Prompt Development",
+            "price": "$2,000/project",
+            "description": "Tailored AI prompts for specific research domains",
+            "available_for": "Professional+",
+        },
+        {
+            "name": "On-Premise Setup",
+            "price": "$10,000 + $2,000/month",
+            "description": "Local deployment with maintenance",
+            "available_for": "Enterprise only",
+        },
+        {
+            "name": "Training Workshop",
+            "price": "$5,000/session",
+            "description": "Emacs + SciTeX training for teams",
+            "available_for": "All institutional",
+        },
+        {
+            "name": "Scientific Validation Consultation",
+            "price": "$200/hour",
+            "description": "Expert consultation on research quality",
+            "available_for": "Standard+",
+        },
+        {
+            "name": "Co-authorship Review",
+            "price": "$500/paper",
+            "description": "Publication-ready validation with co-author eligibility",
+            "available_for": "Professional+",
+        },
+    ]
+
     context = {
-        'plans': plans,
+        "individual_plans": individual_plans,
+        "institutional_plans": institutional_plans,
+        "japanese_specials": japanese_specials,
+        "add_on_services": add_on_services,
     }
-    return render(request, "cloud_app/pricing_enhanced.html", context)
 
-
-def concept(request):
-    """SciTeX concept explanation page."""
-    return render(request, 'cloud_app/pages/concept.html')
+    return render(request, "cloud_app/premium_subscription.html", context)
 
 
 def vision(request):
     """SciTeX vision and values page."""
-    return render(request, 'cloud_app/pages/vision.html')
+    return render(request, "cloud_app/pages/vision.html")
 
 
 def publications(request):
     """Publications page."""
-    return render(request, 'cloud_app/pages/publications.html')
+    return render(request, "cloud_app/pages/publications.html")
 
 
 def donate(request):
     """Donate page view with payment processing."""
+    import json
+
+    from django.contrib import messages
+
     from .forms import DonationForm, EmailVerificationForm, VerifyCodeForm
     from .models import Donation, DonationTier
-    from django.contrib import messages
-    import json
-    
+
     # Get donation tiers
-    tiers = DonationTier.objects.filter(is_active=True) if DonationTier.objects.exists() else []
-    
-    if request.method == 'POST':
+    tiers = (
+        DonationTier.objects.filter(is_active=True)
+        if DonationTier.objects.exists()
+        else []
+    )
+
+    if request.method == "POST":
         # Check if this is email verification request
-        if 'verify_email' in request.POST:
+        if "verify_email" in request.POST:
             email_form = EmailVerificationForm(request.POST)
             if email_form.is_valid():
                 if email_form.send_verification_email():
-                    messages.success(request, "Verification code sent to your email!")
-                    request.session['verification_email'] = email_form.cleaned_data['email']
-                    return redirect('cloud_app:verify-email')
+                    messages.success(
+                        request, "Verification code sent to your email!"
+                    )
+                    request.session["verification_email"] = (
+                        email_form.cleaned_data["email"]
+                    )
+                    return redirect("cloud_app:verify-email")
                 else:
-                    messages.error(request, "Failed to send verification email. Please try again.")
-        
+                    messages.error(
+                        request,
+                        "Failed to send verification email. Please try again.",
+                    )
+
         # Process donation
-        elif 'process_donation' in request.POST:
+        elif "process_donation" in request.POST:
             form = DonationForm(request.POST)
             if form.is_valid():
                 donation = form.save(commit=False)
-                
+
                 # If user is authenticated, link to user
                 if request.user.is_authenticated:
                     donation.user = request.user
-                
+
                 # Save donation as pending
                 donation.save()
-                
+
                 # Here you would integrate with payment processor
                 # For now, we'll simulate successful payment
-                if donation.payment_method == 'credit_card':
+                if donation.payment_method == "credit_card":
                     # Simulate Stripe payment
                     transaction_id = f"STRIPE_{donation.id}_{timezone.now().strftime('%Y%m%d%H%M%S')}"
                     donation.complete_donation(transaction_id)
-                    messages.success(request, f"Thank you for your ${donation.amount} donation!")
-                    
+                    messages.success(
+                        request,
+                        f"Thank you for your ${donation.amount} donation!",
+                    )
+
                     # Send confirmation email
                     send_donation_confirmation(donation)
-                    
-                    return redirect('cloud_app:donation-success', donation_id=donation.id)
-                
-                elif donation.payment_method == 'paypal':
+
+                    return redirect(
+                        "cloud_app:donation-success", donation_id=donation.id
+                    )
+
+                elif donation.payment_method == "paypal":
                     # Redirect to PayPal
                     messages.info(request, "Redirecting to PayPal...")
-                    return redirect('cloud_app:donate')  # Would redirect to PayPal in production
-                
-                elif donation.payment_method == 'github':
+                    return redirect(
+                        "cloud_app:donate"
+                    )  # Would redirect to PayPal in production
+
+                elif donation.payment_method == "github":
                     # Redirect to GitHub Sponsors
-                    return redirect('https://github.com/sponsors/SciTex-AI')
-    
+                    return redirect("https://github.com/sponsors/SciTex-AI")
+
     else:
         form = DonationForm()
-    
+
     # Get recent public donations
-    recent_donations = Donation.objects.filter(
-        is_public=True,
-        is_anonymous=False,
-        status='completed'
-    ).select_related('user')[:10] if Donation.objects.exists() else []
-    
+    recent_donations = (
+        Donation.objects.filter(
+            is_public=True, is_anonymous=False, status="completed"
+        ).select_related("user")[:10]
+        if Donation.objects.exists()
+        else []
+    )
+
     # Calculate funding progress
     current_year = timezone.now().year
-    year_donations = Donation.objects.filter(
-        status='completed',
-        created_at__year=current_year
-    ).aggregate(
-        total=models.Sum('amount')
-    )['total'] or 0 if Donation.objects.exists() else 0
-    
+    year_donations = (
+        Donation.objects.filter(
+            status="completed", created_at__year=current_year
+        ).aggregate(total=models.Sum("amount"))["total"]
+        or 0
+        if Donation.objects.exists()
+        else 0
+    )
+
     funding_goal = 75000  # $75,000 annual goal
     funding_percentage = min(100, int((year_donations / funding_goal) * 100))
-    
+
     context = {
-        'form': form,
-        'tiers': tiers,
-        'recent_donations': recent_donations,
-        'year_donations': year_donations,
-        'funding_goal': funding_goal,
-        'funding_percentage': funding_percentage,
+        "form": form,
+        "tiers": tiers,
+        "recent_donations": recent_donations,
+        "year_donations": year_donations,
+        "funding_goal": funding_goal,
+        "funding_percentage": funding_percentage,
     }
-    
-    return render(request, 'cloud_app/pages/donate.html', context)
+
+    return render(request, "cloud_app/pages/donate.html", context)
 
 
 def fundraising(request):
     """Fundraising and sustainability page."""
-    return render(request, 'cloud_app/pages/fundraising.html')
+    return render(request, "cloud_app/pages/fundraising.html")
 
 
 def contact(request):
     """Contact page."""
-    return render(request, 'cloud_app/contact.html')
+    return render(request, "cloud_app/contact.html")
 
 
 def privacy_policy(request):
     """Privacy policy page."""
-    return render(request, 'cloud_app/privacy_policy.html')
+    return render(request, "cloud_app/privacy_policy.html")
 
 
 def terms_of_use(request):
     """Terms of use page."""
-    return render(request, 'cloud_app/terms_of_use.html')
+    return render(request, "cloud_app/terms_of_use.html")
 
 
 def cookie_policy(request):
     """Cookie policy page."""
-    return render(request, 'cloud_app/cookie_policy.html')
+    return render(request, "cloud_app/cookie_policy.html")
 
 
 def signup(request):
     """Signup page with user registration."""
-    from django.contrib.auth.models import User
     from django.contrib.auth import login
+    from django.contrib.auth.models import User
+
     from .forms import SignupForm
-    
-    if request.method == 'POST':
+
+    if request.method == "POST":
         form = SignupForm(request.POST)
         if form.is_valid():
             # Create new user
             user = User.objects.create_user(
-                username=form.cleaned_data['username'],
-                email=form.cleaned_data['email'],
-                password=form.cleaned_data['password']
+                username=form.cleaned_data["username"],
+                email=form.cleaned_data["email"],
+                password=form.cleaned_data["password"],
             )
-            
+
             # Create user profile
-            from apps.core_app.models import UserProfile
+            from apps.auth_app.models import UserProfile
+
             UserProfile.objects.create(user=user)
-            
+
             # Log the user in
             login(request, user)
-            
-            messages.success(request, 'Welcome to SciTeX! Your account has been created successfully.')
-            return redirect('core_app:dashboard')
+
+            messages.success(
+                request,
+                "Welcome to SciTeX! Your account has been created successfully.",
+            )
+            return redirect("core_app:dashboard")
     else:
         form = SignupForm()
-    
+
     context = {
-        'form': form,
+        "form": form,
     }
-    return render(request, 'cloud_app/signup.html', context)
+    return render(request, "cloud_app/signup.html", context)
 
 
 def login_view(request):
     """Login page with authentication."""
     from django.contrib.auth import authenticate, login
     from django.contrib.auth.models import User
+
     from .forms import LoginForm
-    
-    if request.method == 'POST':
+
+    if request.method == "POST":
         form = LoginForm(request.POST)
         if form.is_valid():
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
-            
+            username = form.cleaned_data["username"]
+            password = form.cleaned_data["password"]
+
             # Check if username is actually an email
-            if '@' in username:
+            if "@" in username:
                 try:
                     user_obj = User.objects.get(email=username)
                     username = user_obj.username
                 except User.DoesNotExist:
                     pass
-            
+
             # Authenticate user
             user = authenticate(request, username=username, password=password)
-            
+
             if user is not None:
                 login(request, user)
-                
+
                 # Handle remember me
-                if not form.cleaned_data.get('remember_me'):
+                if not form.cleaned_data.get("remember_me"):
                     request.session.set_expiry(0)
-                
-                # Redirect to next page or dashboard
-                next_page = request.GET.get('next', '/core/dashboard/')
-                messages.success(request, f'Welcome back, {user.username}!')
+
+                # Redirect to next page or projects
+                next_page = request.GET.get("next", "/projects/")
+                messages.success(request, f"Welcome back, {user.username}!")
                 return redirect(next_page)
             else:
-                messages.error(request, 'Invalid username or password.')
+                messages.error(request, "Invalid username or password.")
     else:
         form = LoginForm()
-    
+
     context = {
-        'form': form,
+        "form": form,
     }
-    return render(request, 'cloud_app/login.html', context)
+    return render(request, "cloud_app/login.html", context)
 
 
 def forgot_password(request):
     """Forgot password page."""
-    return render(request, 'cloud_app/forgot_password.html')
+    return render(request, "cloud_app/forgot_password.html")
 
 
 def logout_view(request):
     """Logout page."""
     from django.contrib.auth import logout
+
     logout(request)
-    return render(request, 'cloud_app/logout.html')
-
-
-
-
-def design_system(request):
-    """Design system documentation page."""
-    return render(request, 'cloud_app/pages/design_system.html')
-
-
-def demo(request):
-    """Demo page."""
-    return render(request, 'cloud_app/demo.html')
+    return render(request, "cloud_app/logout.html")
 
 
 def verify_email(request):
@@ -271,41 +492,44 @@ def verify_email(request):
     # This page is for OTP email verification during account signup
     # The actual verification is handled by the JavaScript frontend
     # which calls the API endpoints in apps.api.v1.auth.views
-    return render(request, 'cloud_app/email_verification.html')
+    return render(request, "cloud_app/email_verification.html")
 
 
 def donation_success(request, donation_id):
     """Donation success page."""
     from .models import Donation
-    
+
     try:
         donation = Donation.objects.get(id=donation_id)
-        if donation.donor_email != request.session.get('verified_email') and not request.user.is_authenticated:
+        if (
+            donation.donor_email != request.session.get("verified_email")
+            and not request.user.is_authenticated
+        ):
             raise PermissionDenied
     except Donation.DoesNotExist:
         messages.error(request, "Donation not found.")
-        return redirect('cloud_app:donate')
-    
+        return redirect("cloud_app:donate")
+
     context = {
-        'donation': donation,
+        "donation": donation,
     }
-    
-    return render(request, 'cloud_app/donation_success.html', context)
+
+    return render(request, "cloud_app/donation_success.html", context)
 
 
 def send_donation_confirmation(donation):
     """Send donation confirmation email."""
     from django.core.mail import send_mail
     from django.template.loader import render_to_string
-    
-    subject = 'Thank you for supporting SciTeX!'
-    
+
+    subject = "Thank you for supporting SciTeX!"
+
     message = f"""
 Dear {donation.donor_name},
 
 Thank you for your generous ${donation.amount} donation to SciTeX!
 
-Your support helps us maintain and improve our open-source scientific research platform, 
+Your support helps us maintain and improve our open-source scientific research platform,
 making advanced tools accessible to researchers worldwide.
 
 Transaction Details:
@@ -321,7 +545,7 @@ If you have any questions, please contact us at support@scitex.ai.
 With gratitude,
 The SciTeX Team
 """
-    
+
     try:
         send_mail(
             subject,
@@ -334,42 +558,26 @@ The SciTeX Team
         logger.error(f"Failed to send donation confirmation: {str(e)}")
 
 
-# Product page views
-def product_search(request):
-    """Display the SciTeX Search product page."""
-    return render(request, 'cloud_app/products/search.html')
+## For Developers
+def design_system(request):
+    """Design system documentation page."""
+    return render(request, "cloud_app/pages/design_system.html")
 
 
-def product_engine(request):
-    """Display the SciTeX Engine product page."""
-    return render(request, 'cloud_app/products/engine.html')
+def design_system_v01(request):
+    """Design system v01 documentation page."""
+    return render(request, "cloud_app/pages/design_system_v01.html")
 
 
-def product_code(request):
-    """Display the SciTeX Code product page."""
-    return render(request, 'cloud_app/products/code.html')
-
-
-def product_doc(request):
-    """Display the SciTeX Doc product page."""
-    return render(request, 'cloud_app/products/doc.html')
-
-
-def product_viz(request):
-    """Display the SciTeX Viz product page."""
-    return render(request, 'cloud_app/products/viz.html')
-
-
-def product_cloud(request):
-    """Display the SciTeX Cloud product page."""
-    return render(request, 'cloud_app/products/cloud.html')
-
-
-def product_local(request):
-    """Display the SciTeX Local product page."""
-    return render(request, 'cloud_app/products/local.html')
+def design_system_v03(request):
+    """Design system v03 combined documentation page."""
+    return render(request, "cloud_app/pages/design_system_v03.html")
 
 
 def api_docs(request):
     """Display the API documentation page."""
-    return render(request, 'cloud_app/pages/api_docs.html')
+    return render(request, "cloud_app/pages/api_docs.html")
+
+
+
+# EOF

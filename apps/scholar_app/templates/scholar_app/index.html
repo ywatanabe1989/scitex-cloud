@@ -1,0 +1,669 @@
+{% extends "scholar_app/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+  .hero-search {
+    background-color: var(--gray-100);
+    padding: var(--spacing-xxl) 0;
+  }
+  
+  .hero-search .lead {
+    color: #34495e;
+    opacity: 1.0;
+  }
+  
+  .hero-search p {
+    color: var(--text-dark);
+    opacity: 0.8;
+  }
+  
+  .search-box {
+    background-color: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow-md);
+    padding: var(--spacing-lg);
+    margin-top: var(--spacing-lg);
+  }
+  
+  .search-input-container {
+    display: flex;
+    gap: var(--spacing-sm);
+  }
+  
+  .search-input {
+    flex-grow: 1;
+    padding: var(--spacing-md);
+    border: 1px solid var(--mid-gray);
+    border-radius: var(--border-radius);
+    font-size: 1.1rem;
+  }
+  
+  .search-input::placeholder {
+    color: #9ca3af;
+    opacity: 0.5;
+  }
+  
+  .search-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    padding: 0 var(--spacing-lg);
+    cursor: pointer;
+    transition: background-color var(--transition-normal);
+  }
+  
+  .search-btn:hover {
+    background-color: var(--primary-dark);
+  }
+  
+  .help-btn {
+    background-color: var(--secondary-color);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    padding: 0 var(--spacing-md);
+    cursor: pointer;
+    transition: background-color var(--transition-normal);
+  }
+  
+  .help-btn:hover {
+    background-color: #3a82f6;
+  }
+  
+  .help-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+  }
+  
+  .help-modal-content {
+    background-color: white;
+    margin: 5% auto;
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    width: 80%;
+    max-width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+  
+  .help-close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  
+  .help-close:hover {
+    color: black;
+  }
+  
+  .help-section {
+    margin-bottom: var(--spacing-lg);
+  }
+  
+  .help-example {
+    background-color: var(--light-gray);
+    padding: var(--spacing-sm);
+    border-radius: var(--border-radius);
+    font-family: monospace;
+    margin: var(--spacing-xs) 0;
+  }
+  
+  .tooltip {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .tooltip .tooltiptext {
+    visibility: hidden;
+    width: 200px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -100px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-size: 0.8rem;
+  }
+  
+  .tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+  }
+  
+  .search-options {
+    display: flex;
+    margin-top: var(--spacing-md);
+    gap: var(--spacing-lg);
+  }
+  
+  .search-options label {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    cursor: pointer;
+  }
+  
+  .results-preview {
+    margin-top: var(--spacing-xl);
+  }
+  
+  .result-card {
+    background-color: white;
+    border-radius: var(--border-radius);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+    box-shadow: var(--box-shadow-sm);
+    transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+  }
+  
+  .result-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--box-shadow-md);
+  }
+  
+  .result-title {
+    color: var(--primary-color);
+    margin-bottom: var(--spacing-xs);
+  }
+  
+  .result-authors {
+    color: var(--text-light);
+    font-size: 0.9rem;
+    margin-bottom: var(--spacing-xs);
+  }
+  
+  .result-journal {
+    color: var(--text-light);
+    font-style: italic;
+    font-size: 0.9rem;
+    margin-bottom: var(--spacing-sm);
+  }
+  
+  .result-abstract {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: var(--spacing-sm);
+  }
+  
+  .highlight {
+    background-color: rgba(var(--primary-color-rgb), 0.1);
+    padding: 0 2px;
+  }
+  
+  .result-meta {
+    display: flex;
+    gap: var(--spacing-lg);
+    font-size: 0.9rem;
+    color: var(--text-light);
+  }
+  
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-lg);
+    margin-top: var(--spacing-xl);
+  }
+  
+  .feature-card {
+    background-color: white;
+    border-radius: var(--border-radius);
+    padding: var(--spacing-lg);
+    box-shadow: var(--box-shadow-sm);
+  }
+  
+  .feature-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: rgba(var(--primary-color-rgb), 0.1);
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: var(--spacing-md);
+  }
+</style>
+{% endblock %}
+
+{% block search_content %}
+<section class="hero-section hero-silverish-ai-light">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8 text-center">
+        <h1 class="hero-title">SciTeX Scholar</h1>
+        <p class="hero-subtitle">Advanced semantic search for scientific literature</p>
+      </div>
+    </div>
+    
+    <div class="search-box">
+      <form action="#" method="get">
+        <div class="search-input-container">
+          <input type="text" class="search-input" placeholder="Search scientific papers..." value="Protein folding prediction using deep learning" data-help="Enter keywords, authors, or topics to search across 7 academic databases">
+          <button type="submit" class="search-btn" data-help="Click to search or press Enter">
+            <i class="fas fa-search"></i>
+          </button>
+          <button type="button" class="help-btn" onclick="showHelpModal()" data-help="Get help with search tips and examples">
+            <i class="fas fa-question-circle"></i>
+          </button>
+        </div>
+        <div class="search-options">
+          <label>
+            <input type="checkbox" checked> Full text
+          </label>
+          <label>
+            <input type="checkbox" checked> Include abstracts
+          </label>
+          <label>
+            <input type="checkbox"> Open access only
+          </label>
+          <label>
+            <input type="checkbox"> Subscripted papers <span class="coming-soon-text">Coming Soon</span>
+          </label>
+          <div style="margin-left: auto">
+            <label for="years">Year range:</label>
+            <select id="years">
+              <option>All time</option>
+              <option selected>Last 5 years</option>
+              <option>Last 10 years</option>
+              <option>Custom...</option>
+            </select>
+          </div>
+        </div>
+      </form>
+    </div>
+    
+    <div class="results-preview">
+      <h3>Example Results</h3>
+      
+      <div class="result-card">
+        <h4 class="result-title">AlphaFold2: Highly accurate protein structure prediction with deep learning</h4>
+        <div class="result-authors">Jumper J, Evans R, Pritzel A, Green T, Figurnov M, et al.</div>
+        <div class="result-journal">Nature, 2021; 596(7873): 583-589</div>
+        <div class="result-abstract">
+          We developed an AI system, AlphaFold, which can accurately predict <span class="highlight">protein</span> structures based solely on their amino acid sequence. This system was used in the 14th Critical Assessment of <span class="highlight">Protein</span> Structure <span class="highlight">Prediction</span> (CASP14), where it achieved a median score of 92.4 GDT_TS across all targets, showing a median error of just 0.96 Å. This high accuracy enables <span class="highlight">prediction</span> of <span class="highlight">protein</span> structures to tackle problems that were previously inaccessible to computational structure <span class="highlight">prediction</span>.
+        </div>
+        <div class="result-meta">
+          <div><i class="fas fa-file-pdf"></i> PDF available</div>
+          <div><i class="fas fa-quote-right"></i> Citations: 2,876</div>
+          <div><i class="fas fa-star"></i> Relevance: 98%</div>
+        </div>
+      </div>
+      
+      <div class="result-card">
+        <h4 class="result-title">Improved protein structure prediction using potentials from deep learning</h4>
+        <div class="result-authors">Senior AW, Evans R, Jumper J, Kirkpatrick J, Sifre L, et al.</div>
+        <div class="result-journal">Nature, 2020; 577(7792): 706-710</div>
+        <div class="result-abstract">
+          <span class="highlight">Protein</span> structure <span class="highlight">prediction</span> can be used to determine the three-dimensional shape of a <span class="highlight">protein</span> from its amino acid sequence. This problem is of fundamental importance as the structure of a <span class="highlight">protein</span> largely determines its function; however, <span class="highlight">protein</span> structures can be difficult to determine experimentally. Here we develop a <span class="highlight">deep</span> <span class="highlight">learning</span> approach to <span class="highlight">protein</span> structure <span class="highlight">prediction</span> that builds on AlphaFold, achieving high accuracy, even for sequences with few homologous sequences.
+        </div>
+        <div class="result-meta">
+          <div><i class="fas fa-file-pdf"></i> PDF available</div>
+          <div><i class="fas fa-quote-right"></i> Citations: 1,562</div>
+          <div><i class="fas fa-star"></i> Relevance: 95%</div>
+        </div>
+      </div>
+      
+      <div class="result-card">
+        <h4 class="result-title">Highly accurate protein structure prediction with AlphaFold</h4>
+        <div class="result-authors">Alphafold Team</div>
+        <div class="result-journal">Nature, 2021; 596(7873): 583-589</div>
+        <div class="result-abstract">
+          <span class="highlight">Protein</span> structure <span class="highlight">prediction</span> has been a grand challenge in computational biology for decades. Here we present AlphaFold, a <span class="highlight">deep</span> <span class="highlight">learning</span>-based system that predicts <span class="highlight">protein</span> structures with atomic accuracy, even in the absence of similar structures. This AI system has been shown to achieve accuracy competitive with experimental methods in blind structure <span class="highlight">prediction</span> challenges.
+        </div>
+        <div class="result-meta">
+          <div><i class="fas fa-file-pdf"></i> PDF available</div>
+          <div><i class="fas fa-quote-right"></i> Citations: 2,118</div>
+          <div><i class="fas fa-star"></i> Relevance: 93%</div>
+        </div>
+      </div>
+      
+      <div class="text-center mt-4">
+        <a href="#" class="btn btn-outline-primary">Show More Results</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <h2 class="text-center mb-5">Powerful Search Features</h2>
+    
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-brain"></i>
+        </div>
+        <h3>Semantic Search</h3>
+        <p>Find papers based on meaning rather than just keywords, using advanced AI models that understand scientific concepts.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-fingerprint"></i>
+        </div>
+        <h3>Research Fingerprinting</h3>
+        <p>Create a semantic fingerprint of your research interests for personalized recommendations and alerts.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-project-diagram"></i>
+        </div>
+        <h3>Citation Network Analysis</h3>
+        <p>Visualize and explore citation networks to find seminal papers and emerging research fronts.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-search-plus"></i>
+        </div>
+        <h3>Full-Text Search</h3>
+        <p>Search beyond abstracts into the full text of papers, including methods, results, and discussions.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-file-alt"></i>
+        </div>
+        <h3>Personalized Summaries</h3>
+        <p>Get AI-generated summaries of papers tailored to your specific research questions and background.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-bell"></i>
+        </div>
+        <h3>Research Alerts</h3>
+        <p>Stay updated with automatic alerts when new papers relevant to your research interests are published.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-6">
+        <h2>Comprehensive Coverage</h2>
+        <p class="lead">SciTeX Search indexes millions of scientific papers from multiple sources.</p>
+        <ul class="list-unstyled mt-4">
+          <li class="mb-3"><i class="fas fa-check text-light me-2"></i> 150+ million papers indexed</li>
+          <li class="mb-3"><i class="fas fa-check text-light me-2"></i> Coverage across all scientific disciplines</li>
+          <li class="mb-3"><i class="fas fa-check text-light me-2"></i> Integration with major publishers and preprint servers</li>
+          <li class="mb-3"><i class="fas fa-check text-light me-2"></i> Historical archives dating back to 1900</li>
+          <li class="mb-3"><i class="fas fa-check text-light me-2"></i> Daily updates with new publications</li>
+        </ul>
+        <div class="mt-4">
+          <a href="#" class="btn btn-light">Learn More</a>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <img src="{% static 'images/search-coverage.svg' %}" alt="SciTeX Search database coverage" class="img-fluid">
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container text-center">
+    <h2>Ready to enhance your literature search?</h2>
+    <p class="lead mb-5">Join thousands of researchers using SciTeX Search to discover the most relevant papers for their work.</p>
+    <div>
+      <a href="/cloud/signup" class="btn btn-lg btn-primary">Get Started</a>
+      <a href="/search/pricing" class="btn btn-lg btn-outline-primary ms-3">View Pricing</a>
+    </div>
+  </div>
+</section>
+
+<!-- Help Modal -->
+<div id="helpModal" class="help-modal">
+  <div class="help-modal-content">
+    <span class="help-close" onclick="closeHelpModal()">&times;</span>
+    <h2><i class="fas fa-graduation-cap"></i> SciTeX Scholar Help Guide</h2>
+    
+    <div class="help-section">
+      <h3><i class="fas fa-search"></i> Search Tips</h3>
+      <p>Get the most out of SciTeX Scholar with these search strategies:</p>
+      <ul>
+        <li><strong>Keywords:</strong> Use specific scientific terms for better results</li>
+        <li><strong>Authors:</strong> Search by author name: "Einstein" or "Smith A"</li>
+        <li><strong>Phrases:</strong> Use quotes for exact phrases: "machine learning"</li>
+        <li><strong>Boolean:</strong> Combine terms with AND, OR, NOT</li>
+      </ul>
+    </div>
+    
+    <div class="help-section">
+      <h3><i class="fas fa-lightbulb"></i> Search Examples</h3>
+      <div class="help-example">COVID-19 AND vaccine</div>
+      <div class="help-example">"deep learning" neural networks</div>
+      <div class="help-example">author:"Smith" climate change</div>
+      <div class="help-example">quantum computing NOT cryptography</div>
+    </div>
+    
+    <div class="help-section">
+      <h3><i class="fas fa-database"></i> Data Sources</h3>
+      <p>We search across 7 major academic databases:</p>
+      <ul>
+        <li><strong>arXiv:</strong> Preprints in physics, mathematics, computer science</li>
+        <li><strong>PubMed Central:</strong> Biomedical and life sciences literature</li>
+        <li><strong>Semantic Scholar:</strong> AI-powered academic search across disciplines</li>
+        <li><strong>DOAJ:</strong> Open access journals from all research areas</li>
+        <li><strong>bioRxiv:</strong> Biology preprints</li>
+        <li><strong>PLOS:</strong> Open access scientific publications</li>
+        <li><strong>PubMed:</strong> Biomedical literature database</li>
+      </ul>
+    </div>
+    
+    <div class="help-section">
+      <h3><i class="fas fa-filter"></i> Search Options</h3>
+      <ul>
+        <li><strong>Full text:</strong> Search within the complete text of papers</li>
+        <li><strong>Include abstracts:</strong> Search abstracts for better relevance</li>
+        <li><strong>Open access only:</strong> Limit to freely available papers</li>
+        <li><strong>Year range:</strong> Filter by publication date</li>
+      </ul>
+    </div>
+    
+    <div class="help-section">
+      <h3><i class="fas fa-magic"></i> Advanced Features</h3>
+      <ul>
+        <li><strong>Progressive Loading:</strong> Results appear as they're found from different sources</li>
+        <li><strong>Relevance Ranking:</strong> Papers sorted by relevance to your query</li>
+        <li><strong>Citation Information:</strong> See citation counts and journal details</li>
+        <li><strong>PDF Access:</strong> Direct links to full papers when available</li>
+      </ul>
+    </div>
+    
+    <div class="help-section">
+      <h3><i class="fas fa-question-circle"></i> Need More Help?</h3>
+      <p>For additional support:</p>
+      <ul>
+        <li>Visit our <a href="/contact">Contact Page</a></li>
+        <li>Check out <a href="/publications">example searches</a></li>
+        <li>Email us at support@scitex.ai</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+{% block extra_js %}
+<script>
+// Help Modal Functions
+function showHelpModal() {
+    document.getElementById('helpModal').style.display = 'block';
+}
+
+function closeHelpModal() {
+    document.getElementById('helpModal').style.display = 'none';
+}
+
+// Close modal when clicking outside of it
+window.onclick = function(event) {
+    const modal = document.getElementById('helpModal');
+    if (event.target == modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// Enhanced Tooltip System
+document.addEventListener('DOMContentLoaded', function() {
+    // Add tooltips to elements with data-help attribute
+    const helpElements = document.querySelectorAll('[data-help]');
+    
+    helpElements.forEach(element => {
+        // Create tooltip
+        const tooltip = document.createElement('div');
+        tooltip.className = 'tooltiptext';
+        tooltip.textContent = element.getAttribute('data-help');
+        
+        // Wrap element in tooltip container
+        const wrapper = document.createElement('div');
+        wrapper.className = 'tooltip';
+        element.parentNode.insertBefore(wrapper, element);
+        wrapper.appendChild(element);
+        wrapper.appendChild(tooltip);
+    });
+    
+    // Add help tour for first-time users
+    if (!localStorage.getItem('scholar_tour_completed')) {
+        setTimeout(showFirstTimeHelp, 2000);
+    }
+    
+    // Add keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        // Show help modal with F1 or Ctrl+H
+        if (e.key === 'F1' || (e.ctrlKey && e.key === 'h')) {
+            e.preventDefault();
+            showHelpModal();
+        }
+        
+        // Close help modal with Escape
+        if (e.key === 'Escape') {
+            closeHelpModal();
+        }
+    });
+});
+
+// First-time user help tour
+function showFirstTimeHelp() {
+    if (confirm('Welcome to SciTeX Scholar! Would you like a quick tour of the search features?')) {
+        showHelpModal();
+        localStorage.setItem('scholar_tour_completed', 'true');
+    }
+}
+
+// Enhanced search functionality with help integration
+function enhanceSearchExperience() {
+    const searchInput = document.querySelector('.search-input');
+    const searchForm = searchInput.closest('form');
+    
+    // Add search suggestions and validation
+    searchInput.addEventListener('input', function() {
+        const query = this.value.trim();
+        
+        // Show search tips for short queries
+        if (query.length > 0 && query.length < 3) {
+            showSearchTip('Try using at least 3 characters for better results');
+        }
+        
+        // Suggest boolean operators for multiple words
+        if (query.includes(' ') && !query.includes(' AND ') && !query.includes(' OR ')) {
+            showSearchTip('Tip: Use "AND" or "OR" to combine search terms');
+        }
+    });
+    
+    // Enhanced form submission with help integration
+    searchForm.addEventListener('submit', function(e) {
+        const query = searchInput.value.trim();
+        
+        if (!query) {
+            e.preventDefault();
+            showSearchTip('Please enter a search query');
+            searchInput.focus();
+            return;
+        }
+        
+        // Track search patterns for help improvements
+        trackSearchQuery(query);
+    });
+}
+
+// Show contextual search tips
+function showSearchTip(message) {
+    // Create or update tip element
+    let tipElement = document.querySelector('.search-tip');
+    
+    if (!tipElement) {
+        tipElement = document.createElement('div');
+        tipElement.className = 'search-tip';
+        tipElement.style.cssText = `
+            position: absolute;
+            background: #333;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            z-index: 100;
+            margin-top: 5px;
+            max-width: 300px;
+        `;
+        document.querySelector('.search-input-container').appendChild(tipElement);
+    }
+    
+    tipElement.textContent = message;
+    tipElement.style.display = 'block';
+    
+    // Hide tip after 3 seconds
+    setTimeout(() => {
+        tipElement.style.display = 'none';
+    }, 3000);
+}
+
+// Track search patterns for analytics and help improvements
+function trackSearchQuery(query) {
+    // Simple analytics for help system optimization
+    const searchData = {
+        query: query,
+        timestamp: new Date().toISOString(),
+        hasBoolean: query.includes(' AND ') || query.includes(' OR ') || query.includes(' NOT '),
+        hasQuotes: query.includes('"'),
+        hasAuthor: query.toLowerCase().includes('author:'),
+        wordCount: query.split(' ').length
+    };
+    
+    // Store in local storage for help system improvements
+    const searches = JSON.parse(localStorage.getItem('scholar_searches') || '[]');
+    searches.push(searchData);
+    
+    // Keep only last 10 searches
+    if (searches.length > 10) {
+        searches.splice(0, searches.length - 10);
+    }
+    
+    localStorage.setItem('scholar_searches', JSON.stringify(searches));
+}
+
+// Initialize enhanced search experience
+document.addEventListener('DOMContentLoaded', enhanceSearchExperience);
+
+// Help system keyboard shortcuts info
+console.log('SciTeX Scholar Help: Press F1 or Ctrl+H for help, Escape to close');
+</script>
+{% endblock %}

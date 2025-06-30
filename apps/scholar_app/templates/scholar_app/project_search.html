@@ -1,0 +1,213 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ page_title|default:"Scholar Search" }} - SciTeX Cloud{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/common/buttons.css' %}">
+<style>
+.project-header {
+    background: linear-gradient(135deg, #1a2332 0%, #2c3e50 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+}
+
+.project-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.project-meta {
+    opacity: 0.9;
+    font-size: 0.95rem;
+}
+
+.search-section {
+    background: white;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.project-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+}
+
+.btn-project {
+    background: #34495e;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.btn-project:hover {
+    background: #2c3e50;
+    color: white;
+}
+
+.search-form {
+    max-width: 800px;
+}
+
+.search-input-group {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.search-input {
+    flex: 1;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.search-btn {
+    background: #1a2332;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.search-btn:hover {
+    background: #34495e;
+}
+
+.breadcrumb {
+    margin-bottom: 1.5rem;
+}
+
+.breadcrumb a {
+    color: #007acc;
+    text-decoration: none;
+}
+
+.breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.results-section {
+    margin-top: 2rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+        <a href="{% url 'project_app:list' %}">Projects</a> / 
+        <a href="{% url 'project_app:detail' project.pk %}">{{ project.name }}</a> / 
+        Scholar Search
+    </nav>
+
+    <!-- Project Header -->
+    <div class="project-header">
+        <div class="project-title">
+            🔍 Scholar Search - {{ project.name }}
+        </div>
+        <div class="project-meta">
+            Search academic papers and save them directly to your project
+        </div>
+        <div class="project-actions">
+            <a href="{% url 'project_app:detail' project.pk %}" class="btn-project">← Back to Project</a>
+            <a href="{% url 'scholar_app:project_library' project.pk %}" class="btn-project">📚 Project Library</a>
+            <a href="{% url 'scholar_app:index' %}" class="btn-project">🌐 Global Search</a>
+        </div>
+    </div>
+
+    <!-- Search Interface -->
+    <div class="search-section">
+        <h3>Search Academic Papers</h3>
+        <form method="get" class="search-form">
+            <div class="search-input-group">
+                <input 
+                    type="text" 
+                    name="q" 
+                    value="{{ request.GET.q }}" 
+                    placeholder="{{ search_placeholder|default:'Search for research papers...' }}" 
+                    class="search-input"
+                    required
+                >
+                <button type="submit" class="search-btn">Search</button>
+            </div>
+            
+            <!-- Source Selection (simplified for project mode) -->
+            <div class="source-selection">
+                <label><input type="checkbox" name="source_arxiv" checked> arXiv</label>
+                <label><input type="checkbox" name="source_pubmed" checked> PubMed</label>
+                <label><input type="checkbox" name="source_semantic" checked> Semantic Scholar</label>
+                <label><input type="checkbox" name="source_google_scholar" checked> Google Scholar</label>
+            </div>
+        </form>
+    </div>
+
+    <!-- Search Results -->
+    {% if request.GET.q %}
+    <div class="results-section">
+        <h3>Search Results for "{{ request.GET.q }}"</h3>
+        
+        {% if results %}
+            <div class="search-results">
+                {% for result in results %}
+                <div class="result-item" style="border: 1px solid #e5e5e5; padding: 1.5rem; margin-bottom: 1rem; border-radius: 6px;">
+                    <h4 style="margin-bottom: 0.5rem;">
+                        <a href="{{ result.external_url }}" target="_blank" style="color: #1a2332;">
+                            {{ result.title }}
+                        </a>
+                    </h4>
+                    <div style="color: #666; margin-bottom: 0.5rem;">
+                        {{ result.authors }} | {{ result.year }} | {{ result.journal }}
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        {{ result.abstract|truncatechars:200 }}
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <button onclick="saveToProject({{ project.pk }}, '{{ result.title }}')" class="btn btn-sm btn-primary">
+                            💾 Save to Project
+                        </button>
+                        <span style="color: #888; font-size: 0.85rem;">
+                            {{ result.citations }} citations | {{ result.source|upper }}
+                        </span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div style="text-align: center; padding: 3rem; color: #666;">
+                <h4>No results found</h4>
+                <p>Try different keywords or check your source selections.</p>
+            </div>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function saveToProject(projectId, paperTitle) {
+    // In a real implementation, this would save the paper via AJAX
+    alert(`Paper "${paperTitle}" will be saved to project library!`);
+    
+    // Example AJAX call:
+    // fetch('/scholar/api/save-paper/', {
+    //     method: 'POST',
+    //     headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+    //     body: JSON.stringify({ paper_id: paperId, project_id: projectId })
+    // });
+}
+</script>
+{% endblock %}

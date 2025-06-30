@@ -1,39 +1,50 @@
 """
 SciTeX Cloud - User Directory Management System
 
-This module handles user-specific directory trees where everything is organized
-under projects to enable project-level management of files, documents, and code.
+This module handles user-specific directory trees with scientific workflow pattern
+supporting both legacy and new structures for backward compatibility.
 
-Directory Structure:
+Scientific Workflow Directory Structure:
 /media/users/{user_id}/
-├── projects/
-│   ├── {project_slug}/
-│   │   ├── README.md
-│   │   ├── documents/
-│   │   │   ├── manuscripts/
-│   │   │   ├── notes/
-│   │   │   └── references/
-│   │   ├── data/
-│   │   │   ├── raw/
-│   │   │   ├── processed/
-│   │   │   └── results/
-│   │   ├── code/
-│   │   │   ├── scripts/
-│   │   │   ├── notebooks/
-│   │   │   └── analysis/
-│   │   ├── figures/
-│   │   │   ├── plots/
-│   │   │   ├── charts/
-│   │   │   └── diagrams/
-│   │   └── exports/
-│   │       ├── pdf/
-│   │       ├── latex/
-│   │       └── bibtex/
-│   └── shared/
-│       ├── templates/
-│       ├── libraries/
-│       └── resources/
-└── temp/
+├── proj/                           # New scientific workflow structure
+│   └── {username}/                 # User's HOME directory
+│       ├── proj/                   # Projects directory
+│       │   └── {project_name}/     # Individual project
+│       │       ├── scripts/        # Analysis scripts
+│       │       │   ├── analysis/   # Data analysis scripts
+│       │       │   ├── preprocessing/ # Data preprocessing
+│       │       │   ├── modeling/   # Machine learning models
+│       │       │   ├── visualization/ # Plotting and figures
+│       │       │   └── utils/      # Utility functions
+│       │       ├── data/           # Data management
+│       │       │   ├── raw/        # Original datasets
+│       │       │   ├── processed/  # Cleaned data
+│       │       │   ├── figures/    # Generated plots
+│       │       │   └── models/     # Trained models
+│       │       ├── docs/           # Documentation
+│       │       │   ├── manuscripts/
+│       │       │   ├── notes/
+│       │       │   └── references/
+│       │       ├── results/        # Analysis results
+│       │       │   ├── outputs/
+│       │       │   ├── reports/
+│       │       │   └── analysis/
+│       │       ├── config/         # Configuration files
+│       │       └── temp/           # Temporary files
+│       │           ├── cache/
+│       │           ├── logs/
+│       │           └── tmp/
+│       ├── scripts/                # User-level scripts
+│       ├── data/                   # User-level data
+│       ├── docs/                   # User-level documentation
+│       ├── configs/                # User configurations
+│       └── externals/              # External tools and modules
+├── projects/                       # Legacy structure (symlinked)
+├── shared/                         # Shared resources
+│   ├── templates/
+│   ├── libraries/
+│   └── resources/
+└── temp/                          # Temporary workspace
     ├── uploads/
     ├── cache/
     └── processing/
@@ -54,7 +65,8 @@ from datetime import datetime
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.utils.text import slugify
-from .models import Project, Document
+from .models import Project
+from apps.document_app.models import Document
 
 
 class UserDirectoryManager:
@@ -83,6 +95,10 @@ class UserDirectoryManager:
         """Get the base directory path for the user."""
         return Path(settings.MEDIA_ROOT) / 'users' / str(self.user.id)
     
+    def get_scientific_home_path(self) -> Path:
+        """Get the scientific workflow HOME path for the user."""
+        return self.base_path / 'proj' / self.user.username
+    
     def _ensure_directory(self, path: Path) -> bool:
         """Ensure a directory exists, create if it doesn't."""
         try:
@@ -93,13 +109,18 @@ class UserDirectoryManager:
             return False
     
     def initialize_user_workspace(self) -> bool:
-        """Initialize the complete user workspace structure."""
+        """Initialize the complete user workspace structure with scientific workflow pattern."""
         try:
             # Create base user directory
             if not self._ensure_directory(self.base_path):
                 return False
             
-            # Create main directories
+            # Create scientific workflow HOME structure: ./proj/username/proj/
+            proj_base = self.base_path / 'proj' / self.user.username / 'proj'
+            if not self._ensure_directory(proj_base):
+                return False
+            
+            # Create main directories (keeping backward compatibility)
             main_dirs = ['projects', 'shared', 'temp']
             for dir_name in main_dirs:
                 if not self._ensure_directory(self.base_path / dir_name):
@@ -117,8 +138,18 @@ class UserDirectoryManager:
                 if not self._ensure_directory(self.base_path / 'temp' / dir_name):
                     return False
             
+            # Create scientific workflow directories in proj structure
+            # This mirrors the externals tools workflow pattern
+            home_dirs = ['scripts', 'configs', 'data', 'docs', 'externals']
+            for dir_name in home_dirs:
+                if not self._ensure_directory(self.base_path / 'proj' / self.user.username / dir_name):
+                    return False
+            
             # Create user workspace info file
             self._create_workspace_info()
+            
+            # Create scientific workflow HOME setup files
+            self._create_home_setup_files()
             
             return True
         except Exception as e:
@@ -126,24 +157,49 @@ class UserDirectoryManager:
             return False
     
     def create_project_directory(self, project: Project) -> Tuple[bool, Optional[Path]]:
-        """Create directory structure for a new project."""
+        """Create directory structure for a new project using scientific workflow pattern."""
         try:
             project_slug = slugify(project.name)
-            project_path = self.base_path / 'projects' / project_slug
             
-            # Ensure projects directory exists
+            # Create project in scientific workflow structure: ./proj/username/proj/project-name/
+            project_path = self.base_path / 'proj' / self.user.username / 'proj' / project_slug
+            
+            # Also create in legacy projects directory for backward compatibility
+            legacy_project_path = self.base_path / 'projects' / project_slug
+            
+            # Ensure project directories exist
+            if not self._ensure_directory(project_path.parent):
+                return False, None
             if not self._ensure_directory(self.base_path / 'projects'):
                 return False, None
             
-            # Create project root directory
+            # Try to copy from SciTeX-Example-Research-Project template first
+            if self._copy_from_example_template(project_path, project):
+                # Create legacy symbolic link for backward compatibility
+                self._create_legacy_symlink(project_path, legacy_project_path)
+                
+                # Update project with directory info (use new scientific workflow path)
+                project.data_location = str(project_path.relative_to(self.base_path))
+                project.directory_created = True
+                project.save()
+                return True, project_path
+            
+            # Fallback: Create project root directory
             if not self._ensure_directory(project_path):
                 return False, None
             
-            # Create project subdirectories with nested structure
+            # Create project subdirectories with scientific workflow structure
             for main_dir, sub_structure in self.PROJECT_STRUCTURE.items():
                 main_path = project_path / main_dir
                 if not self._ensure_directory(main_path):
                     return False, None
+                
+                # Create additional subdirectories under scripts for scientific workflow
+                if main_dir == 'scripts':
+                    script_subdirs = ['analysis', 'preprocessing', 'modeling', 'visualization', 'utils']
+                    for subdir in script_subdirs:
+                        if not self._ensure_directory(main_path / subdir):
+                            return False, None
                 
                 if isinstance(sub_structure, dict):
                     # Handle nested structure (like data directory)
@@ -160,6 +216,9 @@ class UserDirectoryManager:
                     for sub_dir in sub_structure:
                         if not self._ensure_directory(main_path / sub_dir):
                             return False, None
+            
+            # Create legacy symbolic link for backward compatibility
+            self._create_legacy_symlink(project_path, legacy_project_path)
             
             # Create project README
             self._create_project_readme(project, project_path)
@@ -187,11 +246,16 @@ class UserDirectoryManager:
         if project.data_location:
             return self.base_path / project.data_location
         else:
-            # Try to find by project slug
+            # Try to find by project slug in new scientific workflow structure first
             project_slug = slugify(project.name)
-            project_path = self.base_path / 'projects' / project_slug
-            if project_path.exists():
-                return project_path
+            scientific_project_path = self.base_path / 'proj' / self.user.username / 'proj' / project_slug
+            if scientific_project_path.exists():
+                return scientific_project_path
+            
+            # Fallback to legacy structure
+            legacy_project_path = self.base_path / 'projects' / project_slug
+            if legacy_project_path.exists():
+                return legacy_project_path
         return None
     
     def store_document(self, document: Document, content: str, 
@@ -323,6 +387,234 @@ class UserDirectoryManager:
         except Exception as e:
             print(f"Error deleting project directory: {e}")
             return False
+    
+    def _copy_from_example_template(self, project_path: Path, project) -> bool:
+        """Copy structure from SciTeX-Example-Research-Project template if available."""
+        from django.conf import settings
+        import shutil
+        
+        try:
+            template_path = Path(settings.SCITEX_EXAMPLE_PROJECT_PATH)
+            if not template_path.exists():
+                print(f"SciTeX-Example-Research-Project template not found at {template_path}")
+                return False
+            
+            # Create project directory
+            project_path.mkdir(parents=True, exist_ok=True)
+            
+            # Copy entire template structure
+            for item in template_path.iterdir():
+                if item.name.startswith('.git'):
+                    continue  # Skip git directories
+                
+                src_path = item
+                dst_path = project_path / item.name
+                
+                if src_path.is_file():
+                    shutil.copy2(src_path, dst_path)
+                    print(f"Copied file: {item.name}")
+                elif src_path.is_dir():
+                    if dst_path.exists():
+                        shutil.rmtree(dst_path)
+                    shutil.copytree(src_path, dst_path)
+                    print(f"Copied directory: {item.name}")
+            
+            # Customize copied template for this project
+            self._customize_template_for_project(project_path, project)
+            
+            print(f"Successfully copied SciTeX-Example-Research-Project template to {project_path}")
+            return True
+            
+        except Exception as e:
+            print(f"Error copying SciTeX-Example-Research-Project template: {e}")
+            return False
+    
+    def _customize_template_for_project(self, project_path: Path, project):
+        """Customize the copied template with project-specific information."""
+        try:
+            # Update README.md with project info
+            readme_path = project_path / 'README.md'
+            if readme_path.exists():
+                readme_content = readme_path.read_text()
+                # Replace template placeholders with actual project info
+                readme_content = readme_content.replace(
+                    '# SciTeX Example Research Project',
+                    f'# {project.name}'
+                )
+                readme_content = readme_content.replace(
+                    'This is an example research project',
+                    f'{project.description or "Research project created with SciTeX Cloud"}'
+                )
+                readme_path.write_text(readme_content)
+            
+            # Update paper title in LaTeX files if they exist
+            paper_dir = project_path / 'paper'
+            if paper_dir.exists():
+                # Update manuscript title
+                title_file = paper_dir / 'manuscript' / 'src' / 'title.tex'
+                if title_file.exists():
+                    title_file.write_text(f'\\title{{{project.name}}}')
+                
+                # Update author
+                author_file = paper_dir / 'manuscript' / 'src' / 'authors.tex'
+                if author_file.exists() and project.owner:
+                    author_name = project.owner.get_full_name() or project.owner.username
+                    author_file.write_text(f'\\author{{{author_name}}}')
+            
+            print(f"Customized template for project: {project.name}")
+            
+        except Exception as e:
+            print(f"Error customizing template: {e}")
+    
+    def _create_home_setup_files(self):
+        """Create scientific workflow HOME setup files."""
+        try:
+            home_path = self.base_path / 'proj' / self.user.username
+            
+            # Create bashrc extension for SciTeX environment
+            bashrc_ext_path = home_path / '.scitex_bashrc'
+            bashrc_content = f"""# SciTeX Cloud Environment Setup
+# Generated for user: {self.user.username}
+# Timestamp: {datetime.now().isoformat()}
+
+# SciTeX paths
+export SCITEX_HOME="{home_path}"
+export SCITEX_PROJECTS="{home_path}/proj"
+export SCITEX_SCRIPTS="{home_path}/scripts"
+export SCITEX_DATA="{home_path}/data"
+export SCITEX_DOCS="{home_path}/docs"
+export SCITEX_CONFIGS="{home_path}/configs"
+export SCITEX_EXTERNALS="{home_path}/externals"
+
+# Add SciTeX tools to PATH
+export PATH="$SCITEX_SCRIPTS:$SCITEX_EXTERNALS:$PATH"
+
+# Python path for SciTeX modules
+export PYTHONPATH="$SCITEX_EXTERNALS:$PYTHONPATH"
+
+# Scientific workflow aliases
+alias cdproj='cd $SCITEX_PROJECTS'
+alias cdscripts='cd $SCITEX_SCRIPTS'
+alias cddata='cd $SCITEX_DATA'
+alias cddocs='cd $SCITEX_DOCS'
+alias cdconfigs='cd $SCITEX_CONFIGS'
+
+# Quick project creation
+scitex_new_project() {{
+    if [ -z "$1" ]; then
+        echo "Usage: scitex_new_project <project_name>"
+        return 1
+    fi
+    mkdir -p "$SCITEX_PROJECTS/$1/{{scripts,data,docs,results,config}}"
+    echo "Created project: $1"
+}}
+
+# Load SciTeX modules
+if [ -f "$SCITEX_EXTERNALS/scitex_init.sh" ]; then
+    source "$SCITEX_EXTERNALS/scitex_init.sh"
+fi
+"""
+            bashrc_ext_path.write_text(bashrc_content)
+            
+            # Create project template configuration
+            project_template_config = home_path / 'configs' / 'project_template.yaml'
+            if HAS_YAML:
+                template_config = {
+                    'default_structure': {
+                        'scripts': ['analysis', 'preprocessing', 'modeling', 'visualization', 'utils'],
+                        'data': ['raw', 'processed', 'figures', 'models'],
+                        'docs': ['manuscripts', 'notes', 'references'],
+                        'results': ['outputs', 'reports', 'analysis'],
+                        'config': []
+                    },
+                    'default_files': {
+                        'README.md': True,
+                        'requirements.txt': True,
+                        'project.yaml': True,
+                        '.gitignore': True
+                    },
+                    'user_preferences': {
+                        'python_version': '3.8+',
+                        'default_env': 'conda',
+                        'version_control': 'git'
+                    }
+                }
+                with open(project_template_config, 'w') as f:
+                    yaml.dump(template_config, f, default_flow_style=False)
+            
+            # Create user-specific gitignore template
+            gitignore_template = home_path / 'configs' / 'gitignore_template'
+            gitignore_content = """# SciTeX Scientific Workflow .gitignore template
+# Data files
+*.csv
+*.tsv
+*.h5
+*.hdf5
+*.pkl
+*.pickle
+*.npz
+*.mat
+
+# Results and outputs
+results/
+outputs/
+*.log
+*.out
+
+# Temporary files
+temp/
+cache/
+*.tmp
+*.cache
+
+# Environment files
+.env
+.env.local
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+"""
+            gitignore_template.write_text(gitignore_content)
+            
+            # Only print in debug mode, not during tests
+            import sys
+            if 'test' not in sys.argv:
+                print(f"Created HOME setup files for {self.user.username}")
+            
+        except Exception as e:
+            print(f"Error creating HOME setup files: {e}")
+    
+    def _create_legacy_symlink(self, source_path: Path, link_path: Path):
+        """Create symbolic link for backward compatibility with legacy project structure."""
+        try:
+            # Remove existing link/directory if it exists
+            if link_path.exists() or link_path.is_symlink():
+                if link_path.is_symlink():
+                    link_path.unlink()
+                else:
+                    shutil.rmtree(link_path)
+            
+            # Create symbolic link
+            link_path.symlink_to(source_path)
+            # Only print in debug mode, not during tests
+            import sys
+            if 'test' not in sys.argv:
+                print(f"Created legacy symlink: {link_path} -> {source_path}")
+            
+        except Exception as e:
+            print(f"Error creating legacy symlink: {e}")
     
     def get_storage_usage(self) -> Dict:
         """Get storage usage statistics for the user."""

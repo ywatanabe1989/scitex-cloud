@@ -1,0 +1,218 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ profile_user.username }}'s Projects - SciTeX Cloud{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/common/buttons.css' %}">
+<style>
+.project-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.project-card {
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    padding: 1.5rem;
+    background: white;
+    transition: border-color 0.2s ease;
+}
+
+.project-card:hover {
+    border-color: #007acc;
+}
+
+.project-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1a2332;
+    margin-bottom: 0.5rem;
+}
+
+.project-description {
+    color: #666;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+.project-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.875rem;
+    color: #888;
+}
+
+.user-profile-header {
+    background: linear-gradient(135deg, #1a2332 0%, #2c3e50 50%, #34495e 100%);
+    color: white;
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.user-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.user-details h1 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 600;
+}
+
+.user-stats {
+    display: flex;
+    gap: 2rem;
+    margin-top: 1rem;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    display: block;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    opacity: 0.8;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: #666;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="user-profile-header">
+    <div class="container">
+        <div class="user-info">
+            <div class="user-avatar">
+                {{ profile_user.first_name|first|default:profile_user.username|first }}
+            </div>
+            <div class="user-details">
+                <h1>{{ profile_user.get_full_name|default:profile_user.username }}</h1>
+                <p>@{{ profile_user.username }}</p>
+                {% if profile_user.userprofile.institution %}
+                    <p><i class="fas fa-university"></i> {{ profile_user.userprofile.institution }}</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="user-stats">
+            <div class="stat-item">
+                <span class="stat-value">{{ projects.paginator.count }}</span>
+                <span class="stat-label">Projects</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value">{{ profile_user.date_joined|date:"Y" }}</span>
+                <span class="stat-label">Joined</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Public Projects</h2>
+        {% if user.is_authenticated and user == profile_user %}
+            <a href="{% url 'project_app:list' %}" class="btn btn-primary">
+                <i class="fas fa-cog"></i> Manage Projects
+            </a>
+        {% endif %}
+    </div>
+
+    {% if projects %}
+        <div class="project-grid">
+            {% for project in projects %}
+                <div class="project-card">
+                    <div class="project-title">
+                        <a href="{{ project.get_absolute_url }}" style="text-decoration: none; color: inherit;">
+                            {{ project.name }}
+                        </a>
+                    </div>
+                    <div class="project-description">
+                        {{ project.description|truncatewords:20 }}
+                    </div>
+                    <div class="project-meta">
+                        <span>{{ project.status|capfirst }}</span>
+                        <span>Updated {{ project.updated_at|timesince }} ago</span>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if projects.has_other_pages %}
+            <nav aria-label="Projects pagination" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if projects.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1">&laquo; First</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ projects.previous_page_number }}">Previous</a>
+                        </li>
+                    {% endif %}
+
+                    <li class="page-item active">
+                        <span class="page-link">
+                            Page {{ projects.number }} of {{ projects.paginator.num_pages }}
+                        </span>
+                    </li>
+
+                    {% if projects.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ projects.next_page_number }}">Next</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ projects.paginator.num_pages }}">Last &raquo;</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
+    {% else %}
+        <div class="empty-state">
+            <i class="fas fa-folder-open"></i>
+            <h3>No Public Projects</h3>
+            <p>{{ profile_user.get_full_name|default:profile_user.username }} hasn't made any projects public yet.</p>
+            {% if user.is_authenticated and user == profile_user %}
+                <a href="{% url 'project_app:create' %}" class="btn btn-primary mt-3">
+                    <i class="fas fa-plus"></i> Create Your First Project
+                </a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

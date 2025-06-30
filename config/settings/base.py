@@ -37,18 +37,31 @@ THIRD_PARTY_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
+    "channels",
 ]
 
 LOCAL_APPS = [
     "apps.cloud_app",
     "apps.code_app",
     "apps.core_app",
+    "apps.auth_app",  # Dedicated authentication and user management
+    "apps.project_app",  # Dedicated project management app
+    "apps.document_app",  # Dedicated document management
     "apps.writer_app",
     "apps.engine_app",
-    "apps.scholar",
     "apps.viz_app",
+    "apps.scholar_app",
+    # "apps.billing_app",  # Disabled - needs stripe dependency
     "apps.monitoring_app",
     "apps.api",
+    "apps.orcid_app",
+    "apps.reference_sync_app",
+    "apps.mendeley_app",
+    "apps.github_app",
+    "apps.collaboration_app",
+    "apps.ai_assistant_app",  # Priority 3.3: AI Research Assistant - COMPLETED AND OPERATIONAL
+    "apps.onboarding_app",  # Priority 1: User Onboarding & Growth - NEW IMPLEMENTATION
+    # "apps.integrations",  # Disabled - redundant with orcid_app
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -95,24 +108,33 @@ DATABASES = {
 }
 
 # Cache Configuration
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': os.getenv('REDIS_URL', 'redis://127.0.0.1:6379/1'),
-        'OPTIONS': {
-            'CONNECTION_POOL_KWARGS': {
-                'max_connections': 50,
-                'retry_on_timeout': True,
-            }
-        },
-        'KEY_PREFIX': 'scitex_cloud',
-        'TIMEOUT': 3600,  # 1 hour default timeout
+# Cache Configuration - fallback to database if Redis not available
+REDIS_URL = os.getenv('REDIS_URL', 'redis://127.0.0.1:6379/1')
+try:
+    import redis
+    # Test Redis connection
+    r = redis.from_url(REDIS_URL)
+    r.ping()
+    # Redis is available
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+            'LOCATION': REDIS_URL,
+            'KEY_PREFIX': 'scitex_cloud',
+            'TIMEOUT': 3600,  # 1 hour default timeout
+        }
     }
-}
-
-# Session configuration to use Redis for better performance
-SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
-SESSION_CACHE_ALIAS = 'default'
+    SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+    SESSION_CACHE_ALIAS = 'default'
+except (ImportError, redis.exceptions.ConnectionError, redis.exceptions.RedisError):
+    # Redis not available, use database cache
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+            'LOCATION': 'cache_table',
+        }
+    }
+    SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_COOKIE_AGE = 86400  # 24 hours
 
 # Password validation
@@ -158,8 +180,53 @@ STATICFILES_DIRS = [
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
+# SciTeX External Components
+SCITEX_EXTERNALS_PATH = str(BASE_DIR / 'externals')
+SCITEX_WRITER_TEMPLATE_PATH = str(BASE_DIR / 'externals' / 'SciTeX-Writer')
+SCITEX_CODE_PATH = str(BASE_DIR / 'externals' / 'SciTeX-Code')
+SCITEX_VIZ_PATH = str(BASE_DIR / 'externals' / 'SciTeX-Viz')
+SCITEX_SCHOLAR_PATH = str(BASE_DIR / 'externals' / 'SciTeX-Scholar')
+SCITEX_ENGINE_PATH = str(BASE_DIR / 'externals' / 'SciTeX-Engine')
+SCITEX_EXAMPLE_PROJECT_PATH = str(BASE_DIR / 'externals' / 'SciTeX-Example-Research-Project')
+
+# SciTeX Component Integration Status
+SCITEX_COMPONENTS = {
+    'writer': {'path': SCITEX_WRITER_TEMPLATE_PATH, 'status': 'active'},
+    'code': {'path': SCITEX_CODE_PATH, 'status': 'ready'},
+    'viz': {'path': SCITEX_VIZ_PATH, 'status': 'ready'},
+    'engine': {'path': SCITEX_ENGINE_PATH, 'status': 'planned'},
+    'example': {'path': SCITEX_EXAMPLE_PROJECT_PATH, 'status': 'template'},
+}
+
 # Default primary key field type
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# ASGI Configuration for Channels
+ASGI_APPLICATION = "config.asgi.application"
+
+# Channel Layers Configuration (fallback to in-memory if Redis unavailable)
+try:
+    import redis
+    # Test Redis connection for channels
+    redis_url = os.getenv('REDIS_URL', 'redis://127.0.0.1:6379/2')
+    r = redis.from_url(redis_url)
+    r.ping()
+    # Redis is available for channels
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels_redis.core.RedisChannelLayer",
+            "CONFIG": {
+                "hosts": [redis_url],
+            },
+        },
+    }
+except (ImportError, redis.exceptions.ConnectionError, redis.exceptions.RedisError):
+    # Fallback to in-memory channel layer
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels.layers.InMemoryChannelLayer"
+        },
+    }
 
 # Base logging configuration (shared between environments)
 # More specific configurations in development.py and production.py
@@ -241,7 +308,7 @@ LOGGING = {
 
 # Authentication settings
 LOGIN_URL = '/login/'
-LOGIN_REDIRECT_URL = '/core/dashboard/'
+LOGIN_REDIRECT_URL = '/projects/'
 LOGOUT_REDIRECT_URL = '/'
 
 # REST Framework configuration

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-05-22 05:11:00 (ywatanabe)"
-# File: /home/ywatanabe/proj/SciTeX-Cloud/config/urls.py
+# Timestamp: "2025-06-29 20:10:04 (ywatanabe)"
+# File: /ssh:scitex:/home/ywatanabe/proj/scitex-cloud/config/urls.py
 # ----------------------------------------
 import os
 __FILE__ = (
@@ -25,9 +25,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.urls import include, path
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_http_methods
-from django.views.generic import RedirectView
+from django.views.generic import RedirectView, TemplateView
 
 
 # API Auth functions
@@ -176,7 +174,7 @@ def api_forgot_password(request):
         # 1. Generate a password reset token
         # 2. Send an email with reset link
         # 3. Store the token with expiry
-        
+
         # For now, we'll just return success
         return JsonResponse(
             {
@@ -202,12 +200,12 @@ def api_logout(request):
         JSON response with logout status
     """
     from django.contrib.auth import logout
+
     logout(request)
-    
-    return JsonResponse({
-        "success": True,
-        "message": "Successfully logged out"
-    })
+
+    return JsonResponse(
+        {"success": True, "message": "Successfully logged out"}
+    )
 
 
 # # Create view functions to redirect to appropriate app views
@@ -273,20 +271,61 @@ def api_logout(request):
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("engine/", include("apps.engine_app.urls")),
-    path("scholar/", include("apps.scholar.urls")),
+    path("scholar/", include("apps.scholar_app.urls")),
     path("code/", include("apps.code_app.urls")),
     path("writer/", include("apps.writer_app.urls")),
     path("viz/", include("apps.viz_app.urls")),
     path("core/", include("apps.core_app.urls")),
+    path("projects/", include("apps.project_app.urls")),
     path("monitoring/", include("apps.monitoring_app.urls")),
-    # Direct dashboard access via core app
-    path("dashboard/", RedirectView.as_view(url="/core/dashboard/", permanent=False)),
+    path("orcid/", include("apps.orcid_app.urls", namespace="orcid_app")),
+    path(
+        "mendeley/",
+        include("apps.mendeley_app.urls", namespace="mendeley_app"),
+    ),
+    path(
+        "reference-sync/",
+        include("apps.reference_sync_app.urls", namespace="reference_sync"),
+    ),
+    path("github/", include("apps.github_app.urls", namespace="github_app")),
+    path(
+        "collaboration/",
+        include("apps.collaboration_app.urls", namespace="collaboration"),
+    ),
+    # path("ai-assistant/", include("apps.ai_assistant_app.urls", namespace="ai_assistant")),
+    path(
+        "onboarding/",
+        include("apps.onboarding_app.urls", namespace="onboarding"),
+    ),
+    # Direct dashboard access redirects to projects
+    path(
+        "dashboard/",
+        RedirectView.as_view(url="/projects/", permanent=False),
+    ),
+    # Design system documentation
+    path(
+        "design/",
+        TemplateView.as_view(template_name="design_system.html"),
+        name="design_system",
+    ),
     # Favicon redirect to prevent 404 errors
-    path("favicon.ico", RedirectView.as_view(url="/static/images/favicon.svg", permanent=True)),
+    path(
+        "favicon.ico",
+        RedirectView.as_view(url="/static/images/favicon.svg", permanent=True),
+    ),
     # SciTeX API v1
     path("api/", include("apps.api.urls")),
+    path(
+        "api/reference-sync/",
+        include(
+            "apps.reference_sync_app.api_urls", namespace="reference_sync_api"
+        ),
+    ),
     # Cloud app URLs (includes landing page and auth)
     path("", include("apps.cloud_app.urls", namespace="cloud_app")),
+    
+    # GitHub-style username/project URLs (MUST be last to avoid conflicts)
+    path("<str:username>/", include("apps.project_app.user_urls")),
 ]
 
 # Serve static and media files during development

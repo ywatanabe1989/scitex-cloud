@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Delete {{ project.name }} - SciTeX Cloud{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/common/buttons.css' %}">
+<style>
+.delete-form {
+    background: white;
+    border: 1px solid #dc3545;
+    border-radius: 8px;
+    padding: 2rem;
+    max-width: 600px;
+}
+
+.warning-box {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 6px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.warning-icon {
+    color: #856404;
+    font-size: 1.25rem;
+    margin-right: 0.5rem;
+}
+
+.breadcrumb {
+    margin-bottom: 1.5rem;
+}
+
+.breadcrumb a {
+    color: #007acc;
+    text-decoration: none;
+}
+
+.breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.project-info {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+        <a href="{% url 'project_app:list' %}">Projects</a> / 
+        <a href="{% url 'project_app:detail' project.pk %}">{{ project.name }}</a> / 
+        Delete
+    </nav>
+
+    <h1>Delete Project</h1>
+
+    <div class="delete-form">
+        <div class="warning-box">
+            <span class="warning-icon">⚠️</span>
+            <strong>Warning:</strong> This action cannot be undone. Deleting this project will permanently remove all associated files, data, and configurations.
+        </div>
+
+        <div class="project-info">
+            <h4>Project to be deleted:</h4>
+            <p><strong>Name:</strong> {{ project.name }}</p>
+            <p><strong>Description:</strong> {{ project.description }}</p>
+            <p><strong>Created:</strong> {{ project.created_at|date:"M j, Y" }}</p>
+            <p><strong>Last Updated:</strong> {{ project.updated_at|date:"M j, Y" }}</p>
+        </div>
+
+        <p>Are you absolutely sure you want to delete this project? This will:</p>
+        <ul>
+            <li>Permanently delete all project files and documents</li>
+            <li>Remove all project configurations and settings</li>
+            <li>Delete any associated data and analysis results</li>
+            <li>Remove collaboration access for all team members</li>
+        </ul>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-actions">
+                <button type="submit" class="btn btn-danger">Yes, Delete Project</button>
+                <a href="{% url 'project_app:detail' project.pk %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

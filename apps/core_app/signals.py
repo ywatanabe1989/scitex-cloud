@@ -8,7 +8,8 @@ and project directory structures when models are created or updated.
 from django.db.models.signals import post_save, post_delete, pre_save
 from django.dispatch import receiver
 from django.contrib.auth.models import User
-from .models import Project, Document, UserProfile
+from .models import Project, UserProfile
+from apps.document_app.models import Document
 from .directory_manager import get_user_directory_manager, ensure_project_directory
 import logging
 

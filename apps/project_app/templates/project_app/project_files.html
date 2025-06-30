@@ -1,0 +1,246 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ project.name }} - Files - SciTeX Cloud{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/common/buttons.css' %}">
+<style>
+.file-manager {
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    background: white;
+    min-height: 600px;
+}
+
+.file-manager-header {
+    padding: 1rem;
+    border-bottom: 1px solid #e5e5e5;
+    background: #f8f9fa;
+    border-radius: 8px 8px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.file-manager-toolbar {
+    padding: 1rem;
+    border-bottom: 1px solid #e5e5e5;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.file-manager-content {
+    padding: 1rem;
+}
+
+.file-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.file-item {
+    border: 1px solid #e5e5e5;
+    border-radius: 6px;
+    padding: 1rem;
+    text-align: center;
+    transition: border-color 0.2s ease;
+    cursor: pointer;
+}
+
+.file-item:hover {
+    border-color: #007acc;
+}
+
+.file-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.file-name {
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+    word-break: break-word;
+}
+
+.file-meta {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.breadcrumb {
+    margin-bottom: 1.5rem;
+}
+
+.breadcrumb a {
+    color: #007acc;
+    text-decoration: none;
+}
+
+.breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.upload-zone {
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    margin-bottom: 2rem;
+    background: #fafafa;
+}
+
+.upload-zone.dragover {
+    border-color: #007acc;
+    background: #f0f8ff;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: #666;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+        <a href="{% url 'project_app:list' %}">Projects</a> / 
+        <a href="{% url 'project_app:detail' project.pk %}">{{ project.name }}</a> / 
+        Files
+    </nav>
+
+    <!-- File Manager -->
+    <div class="file-manager">
+        <div class="file-manager-header">
+            <h3>📁 {{ project.name }} - File Manager</h3>
+            <div>
+                <a href="{% url 'project_app:detail' project.pk %}" class="btn btn-secondary">← Back to Project</a>
+            </div>
+        </div>
+
+        <div class="file-manager-toolbar">
+            <button class="btn btn-primary" onclick="document.getElementById('file-upload').click()">
+                📤 Upload Files
+            </button>
+            <button class="btn btn-secondary" onclick="createFolder()">
+                📁 New Folder
+            </button>
+            <button class="btn btn-outline-secondary" onclick="refreshFiles()">
+                🔄 Refresh
+            </button>
+            <div style="margin-left: auto;">
+                <span class="text-muted">Path: /{{ project.get_filesystem_safe_name }}/</span>
+            </div>
+        </div>
+
+        <div class="file-manager-content">
+            <!-- File Upload Zone -->
+            <div class="upload-zone" id="upload-zone">
+                <div class="upload-icon">📤</div>
+                <p><strong>Drag and drop files here</strong> or click "Upload Files" button</p>
+                <p class="text-muted">Supports documents, images, code files, and data files</p>
+            </div>
+
+            <!-- Hidden file input -->
+            <input type="file" id="file-upload" multiple style="display: none;" onchange="handleFileUpload(event)">
+
+            <!-- File Grid -->
+            <div id="file-grid" class="file-grid">
+                <!-- Sample files for demonstration -->
+                <div class="file-item" onclick="openFile('README.md')">
+                    <div class="file-icon">📄</div>
+                    <div class="file-name">README.md</div>
+                    <div class="file-meta">2 KB • Today</div>
+                </div>
+
+                <div class="file-item" onclick="openFile('data/')">
+                    <div class="file-icon">📁</div>
+                    <div class="file-name">data</div>
+                    <div class="file-meta">Folder • 5 items</div>
+                </div>
+
+                <div class="file-item" onclick="openFile('analysis.ipynb')">
+                    <div class="file-icon">📊</div>
+                    <div class="file-name">analysis.ipynb</div>
+                    <div class="file-meta">45 KB • Yesterday</div>
+                </div>
+
+                <div class="file-item" onclick="openFile('manuscript.tex')">
+                    <div class="file-icon">📝</div>
+                    <div class="file-name">manuscript.tex</div>
+                    <div class="file-meta">12 KB • 2 days ago</div>
+                </div>
+            </div>
+
+            <!-- Empty State (hidden by default) -->
+            <div class="empty-state" id="empty-state" style="display: none;">
+                <h4>No Files Yet</h4>
+                <p>Upload files to get started with your project.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// File manager functionality
+function handleFileUpload(event) {
+    const files = event.target.files;
+    if (files.length > 0) {
+        // In a real implementation, this would upload files via AJAX
+        alert(`Selected ${files.length} file(s) for upload. Upload functionality to be implemented.`);
+    }
+}
+
+function createFolder() {
+    const folderName = prompt('Enter folder name:');
+    if (folderName && folderName.trim()) {
+        // In a real implementation, this would create a folder via AJAX
+        alert(`Creating folder: ${folderName}`);
+    }
+}
+
+function refreshFiles() {
+    // In a real implementation, this would refresh the file list via AJAX
+    location.reload();
+}
+
+function openFile(fileName) {
+    // In a real implementation, this would open or download the file
+    alert(`Opening: ${fileName}`);
+}
+
+// Drag and drop functionality
+const uploadZone = document.getElementById('upload-zone');
+
+uploadZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadZone.classList.add('dragover');
+});
+
+uploadZone.addEventListener('dragleave', (e) => {
+    e.preventDefault();
+    uploadZone.classList.remove('dragover');
+});
+
+uploadZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadZone.classList.remove('dragover');
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        // In a real implementation, this would upload files via AJAX
+        alert(`Dropped ${files.length} file(s). Upload functionality to be implemented.`);
+    }
+});
+
+uploadZone.addEventListener('click', () => {
+    document.getElementById('file-upload').click();
+});
+</script>
+{% endblock %}
