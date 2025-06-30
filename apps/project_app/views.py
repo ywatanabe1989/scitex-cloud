@@ -9,22 +9,14 @@ from django.contrib.auth.models import User
 import json
 
 
-@login_required
 def project_list(request):
-    """List current user's projects with file manager interface"""
-    user_projects = Project.objects.filter(owner=request.user).order_by('-updated_at')
-    
-    # Add pagination
-    paginator = Paginator(user_projects, 12)
-    page_number = request.GET.get('page')
-    projects = paginator.get_page(page_number)
-    
-    context = {
-        'projects': projects,
-        'user': request.user,
-        'is_own_projects': True,
-    }
-    return render(request, 'project_app/project_list.html', context)
+    """Redirect logged-in users to their personal project page, show login for anonymous users"""
+    if request.user.is_authenticated:
+        # Redirect logged-in users to their personal GitHub-style URL
+        return redirect('project_app:user_projects', username=request.user.username)
+    else:
+        # For anonymous users, show a landing page or redirect to login
+        return redirect('cloud_app:login')
 
 
 def user_project_list(request, username):
@@ -34,9 +26,8 @@ def user_project_list(request, username):
     # For now, show all projects. Later we can add privacy settings
     user_projects = Project.objects.filter(owner=user).order_by('-updated_at')
     
-    # If this is the current user viewing their own projects, redirect to /projects/
-    if request.user.is_authenticated and request.user == user:
-        return redirect('project_app:list')
+    # Check if this is the current user viewing their own projects
+    is_own_projects = request.user.is_authenticated and request.user == user
     
     # Add pagination
     paginator = Paginator(user_projects, 12)
@@ -46,7 +37,7 @@ def user_project_list(request, username):
     context = {
         'projects': projects,
         'user': user,
-        'is_own_projects': False,
+        'is_own_projects': is_own_projects,
         'profile_user': user,
     }
     return render(request, 'project_app/user_project_list.html', context)
