@@ -14,17 +14,19 @@ class VizModelTestCase(TestCase):
         )
         
         # Create visualization type first
-        self.viz_type = VisualizationType.objects.create(
+        self.viz_type, _ = VisualizationType.objects.get_or_create(
             name='line',
-            display_name='Line Chart',
-            category='basic',
-            description='Basic line chart visualization',
-            default_config={
-                'type': 'object',
-                'properties': {
-                    'title': {'type': 'string'},
-                    'x_axis': {'type': 'string'},
-                    'y_axis': {'type': 'string'}
+            defaults={
+                'display_name': 'Line Chart',
+                'category': 'basic',
+                'description': 'Basic line chart visualization',
+                'default_config': {
+                    'type': 'object',
+                    'properties': {
+                        'title': {'type': 'string'},
+                        'x_axis': {'type': 'string'},
+                        'y_axis': {'type': 'string'}
+                    }
                 }
             }
         )
@@ -100,18 +102,22 @@ class VizViewTestCase(TestCase):
         )
         
         # Create visualization types
-        self.line_viz_type = VisualizationType.objects.create(
+        self.line_viz_type, _ = VisualizationType.objects.get_or_create(
             name='line',
-            display_name='Line Chart',
-            category='basic',
-            description='Basic line chart visualization'
+            defaults={
+                'display_name': 'Line Chart',
+                'category': 'basic',
+                'description': 'Basic line chart visualization'
+            }
         )
         
-        self.bar_viz_type = VisualizationType.objects.create(
+        self.bar_viz_type, _ = VisualizationType.objects.get_or_create(
             name='bar',
-            display_name='Bar Chart',
-            category='basic',
-            description='Basic bar chart visualization'
+            defaults={
+                'display_name': 'Bar Chart',
+                'category': 'basic',
+                'description': 'Basic bar chart visualization'
+            }
         )
         
         # Create templates

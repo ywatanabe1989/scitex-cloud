@@ -1,0 +1,279 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Create Team - SciTeX Collaboration{% endblock %}
+
+{% block extra_css %}
+<style>
+    .create-hero {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-bottom: 1px solid #dee2e6;
+        padding: 3rem 0;
+    }
+    
+    .form-container {
+        max-width: 600px;
+        margin: 0 auto;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        padding: 2rem;
+    }
+    
+    .form-section {
+        margin-bottom: 2rem;
+    }
+    
+    .form-section:last-child {
+        margin-bottom: 0;
+    }
+    
+    .section-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #212529;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #e9ecef;
+    }
+    
+    .form-check-label {
+        margin-left: 0.5rem;
+    }
+    
+    .help-text {
+        font-size: 0.875rem;
+        color: #6c757d;
+        margin-top: 0.25rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="create-hero">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="hero-title mb-3">
+                    <i class="fas fa-plus-circle text-primary me-2"></i>
+                    Create New Team
+                </h1>
+                <p class="hero-subtitle mb-0">
+                    Start a new research collaboration and invite team members
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <a href="{% url 'collaboration:team_list' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-2"></i>
+                    Back to Teams
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Main Content -->
+<div class="container my-5">
+    <div class="form-container">
+        <form method="post" class="needs-validation" novalidate>
+            {% csrf_token %}
+            
+            <!-- Basic Information -->
+            <div class="form-section">
+                <h5 class="section-title">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Basic Information
+                </h5>
+                
+                <div class="mb-3">
+                    <label for="name" class="form-label">Team Name <span class="text-danger">*</span></label>
+                    <input type="text" 
+                           class="form-control" 
+                           id="name" 
+                           name="name" 
+                           placeholder="Enter your team name"
+                           required
+                           maxlength="200">
+                    <div class="help-text">Choose a descriptive name for your research team</div>
+                    <div class="invalid-feedback">Please provide a team name.</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea class="form-control" 
+                              id="description" 
+                              name="description" 
+                              rows="4"
+                              placeholder="Describe your team's purpose, research focus, and objectives..."></textarea>
+                    <div class="help-text">Provide a clear description to help others understand your team's purpose</div>
+                </div>
+            </div>
+            
+            <!-- Team Settings -->
+            <div class="form-section">
+                <h5 class="section-title">
+                    <i class="fas fa-cog me-2"></i>
+                    Team Settings
+                </h5>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="team_type" class="form-label">Team Type</label>
+                            <select class="form-select" id="team_type" name="team_type">
+                                <option value="research">Research Team</option>
+                                <option value="project">Project Team</option>
+                                <option value="department">Department Team</option>
+                                <option value="lab">Laboratory Team</option>
+                                <option value="collaboration">Collaboration Team</option>
+                            </select>
+                            <div class="help-text">Select the type that best describes your team</div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="visibility" class="form-label">Visibility</label>
+                            <select class="form-select" id="visibility" name="visibility">
+                                <option value="private">Private - Only invited members</option>
+                                <option value="institution">Institution - Same institution members can find</option>
+                                <option value="public">Public - Anyone can find and request to join</option>
+                            </select>
+                            <div class="help-text">Control who can discover and join your team</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="max_members" class="form-label">Maximum Members</label>
+                    <input type="number" 
+                           class="form-control" 
+                           id="max_members" 
+                           name="max_members" 
+                           value="50"
+                           min="1"
+                           max="500">
+                    <div class="help-text">Set the maximum number of team members (1-500)</div>
+                </div>
+            </div>
+            
+            <!-- Member Management -->
+            <div class="form-section">
+                <h5 class="section-title">
+                    <i class="fas fa-users me-2"></i>
+                    Member Management
+                </h5>
+                
+                <div class="form-check mb-3">
+                    <input class="form-check-input" 
+                           type="checkbox" 
+                           id="allow_member_invites" 
+                           name="allow_member_invites">
+                    <label class="form-check-label" for="allow_member_invites">
+                        Allow members to invite others
+                    </label>
+                    <div class="help-text">When enabled, team members can invite new people to join</div>
+                </div>
+                
+                <div class="form-check mb-3">
+                    <input class="form-check-input" 
+                           type="checkbox" 
+                           id="require_approval" 
+                           name="require_approval"
+                           checked>
+                    <label class="form-check-label" for="require_approval">
+                        Require approval for new members
+                    </label>
+                    <div class="help-text">When enabled, new member requests must be approved by team admins</div>
+                </div>
+            </div>
+            
+            <!-- Form Actions -->
+            <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                <a href="{% url 'collaboration:team_list' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-times me-2"></i>
+                    Cancel
+                </a>
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-plus me-2"></i>
+                    Create Team
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Form validation
+(function() {
+    'use strict';
+    window.addEventListener('load', function() {
+        var forms = document.getElementsByClassName('needs-validation');
+        var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    }, false);
+})();
+
+// Character counter for team name
+document.getElementById('name').addEventListener('input', function() {
+    const maxLength = 200;
+    const currentLength = this.value.length;
+    const helpText = this.nextElementSibling;
+    
+    if (currentLength > maxLength * 0.8) {
+        helpText.innerHTML = `Choose a descriptive name for your research team (${currentLength}/${maxLength} characters)`;
+        if (currentLength >= maxLength) {
+            helpText.classList.add('text-danger');
+        } else {
+            helpText.classList.remove('text-danger');
+            helpText.classList.add('text-warning');
+        }
+    } else {
+        helpText.innerHTML = 'Choose a descriptive name for your research team';
+        helpText.classList.remove('text-danger', 'text-warning');
+    }
+});
+
+// Dynamic help text for visibility
+document.getElementById('visibility').addEventListener('change', function() {
+    const helpText = this.nextElementSibling;
+    const value = this.value;
+    
+    switch(value) {
+        case 'private':
+            helpText.innerHTML = 'Only people you invite can see and join this team';
+            break;
+        case 'institution':
+            helpText.innerHTML = 'Members from your institution can discover and request to join';
+            break;
+        case 'public':
+            helpText.innerHTML = 'Anyone can discover this team and request to join';
+            break;
+    }
+});
+
+// Member limit warning
+document.getElementById('max_members').addEventListener('change', function() {
+    const value = parseInt(this.value);
+    const helpText = this.nextElementSibling;
+    
+    if (value > 100) {
+        helpText.innerHTML = 'Large teams may be harder to manage effectively (1-500)';
+        helpText.classList.add('text-warning');
+    } else {
+        helpText.innerHTML = 'Set the maximum number of team members (1-500)';
+        helpText.classList.remove('text-warning');
+    }
+});
+</script>
+{% endblock %}

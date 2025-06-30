@@ -1,0 +1,294 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}AI Research Assistant - SciTeX{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/common/cards.css' %}">
+<link rel="stylesheet" href="{% static 'css/common/hero-gradients.css' %}">
+<style>
+.ai-assistant-hero {
+    background: linear-gradient(135deg, #1a2332 0%, #2c3e50 50%, #34495e 100%);
+    color: white;
+    padding: 3rem 0;
+    margin-bottom: 2rem;
+}
+
+.ai-card {
+    transition: all 0.3s ease;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.ai-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.ai-metric {
+    text-align: center;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.ai-metric h3 {
+    color: #1a2332;
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.ai-suggestion {
+    border-left: 4px solid #007bff;
+    background: #f8f9ff;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 0 8px 8px 0;
+}
+
+.ai-session {
+    background: #fff8e1;
+    border: 1px solid #ffecb3;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+}
+
+.priority-high { border-left-color: #dc3545; }
+.priority-medium { border-left-color: #ffc107; }
+.priority-low { border-left-color: #28a745; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ai-assistant-hero">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="display-4 fw-bold mb-3">
+                    <i class="fas fa-brain me-3"></i>AI Research Assistant
+                </h1>
+                <p class="lead mb-4">
+                    Intelligent research guidance powered by advanced AI models
+                </p>
+            </div>
+            <div class="col-lg-4 text-end">
+                <a href="{% url 'ai_assistant:start_session' %}" class="btn btn-light btn-lg">
+                    <i class="fas fa-plus me-2"></i>Start AI Session
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Usage Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="ai-metric">
+                <h3>{{ active_sessions|length }}</h3>
+                <p class="mb-0 text-muted">Active Sessions</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="ai-metric">
+                <h3>{{ recent_suggestions|length }}</h3>
+                <p class="mb-0 text-muted">Pending Suggestions</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="ai-metric">
+                <h3>{{ recent_projects|length }}</h3>
+                <p class="mb-0 text-muted">Research Projects</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="ai-metric">
+                <h3>{% if today_stats %}{{ today_stats.total_interactions }}{% else %}0{% endif %}</h3>
+                <p class="mb-0 text-muted">Today's Interactions</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Left Column -->
+        <div class="col-lg-8">
+            <!-- Recent Projects -->
+            <div class="ai-card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-project-diagram me-2"></i>Recent Research Projects
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_projects %}
+                        {% for project in recent_projects %}
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <h6 class="mb-1">
+                                    <a href="{% url 'ai_assistant:project_detail' project.pk %}" class="text-decoration-none">
+                                        {{ project.title }}
+                                    </a>
+                                </h6>
+                                <small class="text-muted">{{ project.get_research_field_display }} • {{ project.get_status_display }}</small>
+                            </div>
+                            <span class="badge bg-secondary">{{ project.ai_sessions_count }} sessions</span>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted mb-0">No research projects yet. <a href="{% url 'ai_assistant:project_create' %}">Create your first project</a></p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Active AI Sessions -->
+            <div class="ai-card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-comments me-2"></i>Active AI Sessions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if active_sessions %}
+                        {% for session in active_sessions %}
+                        <div class="ai-session">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1">
+                                        <a href="{% url 'ai_assistant:session_detail' session.pk %}" class="text-decoration-none">
+                                            {{ session.title }}
+                                        </a>
+                                    </h6>
+                                    <p class="mb-1 small">{{ session.get_session_type_display }}</p>
+                                    <small class="text-muted">{{ session.total_interactions }} interactions • Last activity: {{ session.last_activity|timesince }} ago</small>
+                                </div>
+                                <a href="{% url 'ai_assistant:chat_interface' session.id %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-comment me-1"></i>Continue
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted mb-0">No active sessions. <a href="{% url 'ai_assistant:start_session' %}">Start a new AI session</a></p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="col-lg-4">
+            <!-- Pending Suggestions -->
+            <div class="ai-card mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-lightbulb me-2"></i>AI Suggestions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_suggestions %}
+                        {% for suggestion in recent_suggestions %}
+                        <div class="ai-suggestion priority-{{ suggestion.confidence_level }}">
+                            <h6 class="mb-1">{{ suggestion.title }}</h6>
+                            <p class="mb-2 small">{{ suggestion.content|truncatechars:100 }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">{{ suggestion.get_suggestion_type_display }}</small>
+                                <a href="{% url 'ai_assistant:suggestion_detail' suggestion.id %}" class="btn btn-sm btn-outline-primary">Review</a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        <div class="text-center mt-3">
+                            <a href="{% url 'ai_assistant:research_suggestions' %}" class="btn btn-outline-primary btn-sm">View All Suggestions</a>
+                        </div>
+                    {% else %}
+                        <p class="text-muted mb-0">No pending suggestions.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Personalized Recommendations -->
+            <div class="ai-card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-star me-2"></i>For You
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if recommendations %}
+                        {% for rec in recommendations %}
+                        <div class="mb-3">
+                            <h6 class="mb-1">{{ rec.title }}</h6>
+                            <p class="mb-2 small">{{ rec.description|truncatechars:80 }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">{{ rec.get_recommendation_type_display }}</small>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-success btn-sm" onclick="handleRecommendation('{{ rec.id }}', 'save')">
+                                        <i class="fas fa-save"></i>
+                                    </button>
+                                    <button class="btn btn-outline-secondary btn-sm" onclick="handleRecommendation('{{ rec.id }}', 'dismiss')">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted mb-0">No new recommendations.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="ai-card">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bolt me-2"></i>Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'ai_assistant:literature_analysis' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-search me-2"></i>Literature Analysis
+                        </a>
+                        <a href="{% url 'ai_assistant:writing_assistance' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-pen me-2"></i>Writing Help
+                        </a>
+                        <a href="{% url 'ai_assistant:methodology_recommendations' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-cogs me-2"></i>Methodology Advice
+                        </a>
+                        <a href="{% url 'ai_assistant:statistical_guidance' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-chart-bar me-2"></i>Statistical Guidance
+                        </a>
+                        <a href="{% url 'ai_assistant:trend_analysis' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-trending-up me-2"></i>Trend Analysis
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function handleRecommendation(recommendationId, action) {
+    fetch(`/ai-assistant/recommendations/${recommendationId}/action/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: `action=${action}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Remove the recommendation from the UI
+            event.target.closest('.mb-3').remove();
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+</script>
+{% endblock %}

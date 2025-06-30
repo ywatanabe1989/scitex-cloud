@@ -1,0 +1,512 @@
+/**
+ * SciTeX-Viz Interface Styles
+ * Professional scientific visualization interface
+ */
+
+.viz-interface {
+    height: calc(100vh - 120px);
+    background: #f8f9fa;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+/* Toolbar */
+.viz-toolbar {
+    display: flex;
+    align-items: center;
+    background: #1a2332;
+    color: white;
+    padding: 12px 20px;
+    border-bottom: 1px solid #34495e;
+}
+
+.toolbar-section {
+    display: flex;
+    align-items: center;
+    margin-right: 20px;
+}
+
+.toolbar-section.ml-auto {
+    margin-left: auto;
+    margin-right: 0;
+}
+
+.viz-status {
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Main interface layout */
+.viz-main {
+    display: flex;
+    height: calc(100% - 60px);
+}
+
+/* Left sidebar */
+.viz-sidebar {
+    width: 280px;
+    background: white;
+    border-right: 1px solid #dee2e6;
+    overflow-y: auto;
+    flex-shrink: 0;
+}
+
+.sidebar-section {
+    padding: 20px;
+    border-bottom: 1px solid #f1f3f4;
+}
+
+.sidebar-section h6 {
+    color: #1a2332;
+    font-weight: 600;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Chart types grid */
+.chart-types-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.chart-type-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px 8px;
+    border: 2px solid #e9ecef;
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    color: #495057;
+    font-size: 0.85rem;
+}
+
+.chart-type-btn:hover {
+    border-color: #5a67d8;
+    background: #f7fafc;
+    color: #5a67d8;
+    transform: translateY(-1px);
+}
+
+.chart-type-btn.active {
+    border-color: #1a2332;
+    background: #1a2332;
+    color: white;
+}
+
+.chart-type-btn i {
+    font-size: 1.2rem;
+    margin-bottom: 4px;
+}
+
+/* Data preview */
+.data-preview {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    background: #fafbfc;
+}
+
+.data-preview .table {
+    font-size: 0.8rem;
+    margin-bottom: 0;
+}
+
+.data-preview .table th {
+    background: #f8f9fa;
+    border-top: none;
+    font-weight: 600;
+    color: #495057;
+    padding: 8px;
+}
+
+.data-preview .table td {
+    padding: 6px 8px;
+    border-color: #f1f3f4;
+}
+
+.data-info {
+    padding: 8px 12px;
+    background: #e9ecef;
+    border-bottom: 1px solid #dee2e6;
+}
+
+/* Chart controls */
+.chart-controls .form-group {
+    margin-bottom: 15px;
+}
+
+.chart-controls label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #495057;
+    margin-bottom: 5px;
+}
+
+.chart-controls .form-control-sm {
+    font-size: 0.8rem;
+}
+
+.chart-controls .form-check {
+    margin-bottom: 10px;
+}
+
+.chart-controls .form-check-label {
+    font-size: 0.85rem;
+}
+
+/* Plot area */
+.viz-plot-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: white;
+}
+
+.plot-tabs {
+    border-bottom: 1px solid #dee2e6;
+    background: #f8f9fa;
+}
+
+.plot-tabs .nav-tabs {
+    border-bottom: none;
+    padding: 0 20px;
+}
+
+.plot-tabs .nav-link {
+    border: none;
+    border-bottom: 3px solid transparent;
+    background: none;
+    color: #6c757d;
+    font-size: 0.9rem;
+    padding: 12px 16px;
+    position: relative;
+}
+
+.plot-tabs .nav-link.active {
+    color: #1a2332;
+    border-bottom-color: #1a2332;
+    background: white;
+}
+
+.plot-tabs .nav-link:hover {
+    color: #1a2332;
+    border-color: transparent;
+}
+
+.plot-tabs .btn-close {
+    font-size: 0.7rem;
+    margin-left: 6px;
+}
+
+.tab-content {
+    flex: 1;
+    overflow: hidden;
+}
+
+.tab-pane {
+    height: 100%;
+}
+
+.plot-container {
+    height: 100%;
+    padding: 20px;
+}
+
+.plot-welcome {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    color: #6c757d;
+}
+
+.plot-welcome i {
+    opacity: 0.5;
+}
+
+.plot-welcome h4 {
+    margin-bottom: 10px;
+    color: #495057;
+}
+
+/* Right sidebar */
+.viz-config-panel {
+    width: 300px;
+    background: white;
+    border-left: 1px solid #dee2e6;
+    overflow-y: auto;
+    flex-shrink: 0;
+}
+
+.config-section {
+    padding: 20px;
+    border-bottom: 1px solid #f1f3f4;
+}
+
+.config-section h6 {
+    color: #1a2332;
+    font-weight: 600;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.chart-config .form-group {
+    margin-bottom: 15px;
+}
+
+.chart-config label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #495057;
+    margin-bottom: 5px;
+}
+
+.chart-config .form-control-sm {
+    font-size: 0.85rem;
+    height: 32px;
+}
+
+.chart-config .form-check {
+    margin-bottom: 12px;
+}
+
+.chart-config .form-check-label {
+    font-size: 0.85rem;
+    color: #495057;
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+    .viz-sidebar {
+        width: 250px;
+    }
+    
+    .viz-config-panel {
+        width: 270px;
+    }
+}
+
+@media (max-width: 992px) {
+    .viz-main {
+        flex-direction: column;
+    }
+    
+    .viz-sidebar,
+    .viz-config-panel {
+        width: 100%;
+        height: 300px;
+        border: none;
+        border-top: 1px solid #dee2e6;
+    }
+    
+    .viz-plot-area {
+        height: calc(100vh - 500px);
+        min-height: 400px;
+    }
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.chart-type-btn,
+.plot-container,
+.config-section {
+    animation: fadeIn 0.3s ease;
+}
+
+/* Custom scrollbars */
+.viz-sidebar::-webkit-scrollbar,
+.viz-config-panel::-webkit-scrollbar,
+.data-preview::-webkit-scrollbar {
+    width: 6px;
+}
+
+.viz-sidebar::-webkit-scrollbar-track,
+.viz-config-panel::-webkit-scrollbar-track,
+.data-preview::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.viz-sidebar::-webkit-scrollbar-thumb,
+.viz-config-panel::-webkit-scrollbar-thumb,
+.data-preview::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.viz-sidebar::-webkit-scrollbar-thumb:hover,
+.viz-config-panel::-webkit-scrollbar-thumb:hover,
+.data-preview::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Loading states */
+.loading {
+    position: relative;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #1a2332;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Modal improvements */
+.modal-lg {
+    max-width: 900px;
+}
+
+.modal-body pre {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    padding: 15px;
+    max-height: 400px;
+    overflow-y: auto;
+    font-size: 0.85rem;
+}
+
+/* Button improvements */
+.btn-group-vertical .btn {
+    margin-bottom: 5px;
+}
+
+.btn-group-vertical .btn:last-child {
+    margin-bottom: 0;
+}
+
+/* Toast positioning */
+.toast {
+    z-index: 9999;
+}
+
+/* Form range styling */
+.form-control-range {
+    width: 100%;
+    margin: 8px 0;
+}
+
+/* Plotly container styling */
+.js-plotly-plot .plotly {
+    border-radius: 4px;
+}
+
+/* Professional color scheme */
+.bg-scitex {
+    background-color: #1a2332 !important;
+}
+
+.text-scitex {
+    color: #1a2332 !important;
+}
+
+.border-scitex {
+    border-color: #1a2332 !important;
+}
+
+/* Chart configuration enhancements */
+.chart-config .btn-block {
+    width: 100%;
+}
+
+.chart-config .btn-sm {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+}
+
+/* Sidebar enhancements */
+.sidebar-section:last-child {
+    border-bottom: none;
+}
+
+/* Enhanced form controls */
+.form-control:focus,
+.form-control-sm:focus {
+    border-color: #5a67d8;
+    box-shadow: 0 0 0 0.2rem rgba(90, 103, 216, 0.25);
+}
+
+/* Enhanced buttons */
+.btn-primary {
+    background-color: #1a2332;
+    border-color: #1a2332;
+}
+
+.btn-primary:hover {
+    background-color: #0f1419;
+    border-color: #0f1419;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+}
+
+/* Enhanced table styling */
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(26, 35, 50, 0.05);
+}
+
+/* Enhanced card styling */
+.card {
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+/* Enhanced navigation */
+.nav-tabs .nav-link {
+    font-weight: 500;
+}
+
+.nav-tabs .nav-link.active {
+    font-weight: 600;
+}
+
+/* Enhanced spacing */
+.mb-4 {
+    margin-bottom: 1.5rem !important;
+}
+
+.pb-4 {
+    padding-bottom: 1.5rem !important;
+}

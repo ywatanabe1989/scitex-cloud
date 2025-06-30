@@ -1,0 +1,283 @@
+{% load static %}
+
+<!-- Project Collaboration Widget -->
+<div class="collaboration-widget card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="mb-0">
+            <i class="fas fa-users me-2"></i>
+            Team Collaboration
+        </h6>
+        {% if project.can_manage_collaborators %}
+            <button class="btn btn-sm btn-outline-primary" 
+                    data-bs-toggle="modal" 
+                    data-bs-target="#shareProjectModal">
+                <i class="fas fa-share me-1"></i>
+                Share Project
+            </button>
+        {% endif %}
+    </div>
+    <div class="card-body">
+        <!-- Shared Teams -->
+        {% if shared_teams %}
+            <div class="shared-teams mb-3">
+                <h6 class="small text-muted mb-2">Shared with Teams:</h6>
+                {% for shared_project in shared_teams %}
+                    <div class="shared-team-item d-flex justify-content-between align-items-center py-1">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-users text-primary me-2"></i>
+                            <span class="fw-medium">{{ shared_project.team.name }}</span>
+                            <span class="badge bg-secondary ms-2">{{ shared_project.get_sharing_type_display }}</span>
+                        </div>
+                        <small class="text-muted">{{ shared_project.shared_at|timesince }} ago</small>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Recent Collaborators -->
+        {% if recent_collaborators %}
+            <div class="recent-collaborators mb-3">
+                <h6 class="small text-muted mb-2">Recent Collaborators:</h6>
+                <div class="d-flex flex-wrap gap-1">
+                    {% for collaborator in recent_collaborators %}
+                        <span class="badge bg-light text-dark" title="{{ collaborator.get_full_name|default:collaborator.username }}">
+                            <i class="fas fa-user me-1"></i>
+                            {{ collaborator.first_name|default:collaborator.username|truncatechars:15 }}
+                        </span>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Recent Comments -->
+        {% if recent_comments %}
+            <div class="recent-comments">
+                <h6 class="small text-muted mb-2">Recent Comments:</h6>
+                {% for comment in recent_comments %}
+                    <div class="comment-item border-start border-primary ps-2 mb-2">
+                        <div class="small">
+                            <strong>{{ comment.author.get_full_name|default:comment.author.username }}</strong>
+                            <span class="text-muted">{{ comment.created_at|timesince }} ago</span>
+                        </div>
+                        <div class="small text-muted">{{ comment.content|truncatechars:80 }}</div>
+                    </div>
+                {% endfor %}
+                <a href="{% url 'collaboration:object_comments' 'project' project.id %}" 
+                   class="btn btn-sm btn-outline-secondary">
+                    View All Comments
+                </a>
+            </div>
+        {% else %}
+            <div class="text-center py-3">
+                <i class="fas fa-comments fa-2x text-muted mb-2"></i>
+                <p class="text-muted small mb-0">No collaboration activity yet</p>
+                {% if project.can_manage_collaborators %}
+                    <small class="text-muted">Share this project with teams to start collaborating</small>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Share Project Modal -->
+{% if project.can_manage_collaborators %}
+<div class="modal fade" id="shareProjectModal" tabindex="-1" aria-labelledby="shareProjectModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="shareProjectModalLabel">Share Project with Teams</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="shareProjectForm">
+                <div class="modal-body">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="teamSelect" class="form-label">Select Team</label>
+                        <select class="form-select" id="teamSelect" name="team_id" required>
+                            <option value="">Choose a team...</option>
+                            <!-- Teams will be populated via AJAX -->
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="sharingType" class="form-label">Access Level</label>
+                        <select class="form-select" id="sharingType" name="sharing_type" required>
+                            <option value="view">View Only - Team members can view the project</option>
+                            <option value="comment">Comment Only - Team members can view and comment</option>
+                            <option value="edit">Edit Access - Team members can make changes</option>
+                            <option value="collaborate">Full Collaboration - Complete access</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="expiresAt" class="form-label">Expiration (Optional)</label>
+                        <input type="datetime-local" class="form-control" id="expiresAt" name="expires_at">
+                        <div class="form-text">Leave empty for permanent access</div>
+                    </div>
+                    
+                    <div id="shareMessage" class="alert d-none"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Share Project</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Quick Comment Form -->
+<div class="quick-comment-form mt-3">
+    <form id="quickCommentForm" class="d-none">
+        {% csrf_token %}
+        <input type="hidden" name="content_type_id" value="{{ content_type_id }}">
+        <input type="hidden" name="object_id" value="{{ project.id }}">
+        <div class="mb-2">
+            <textarea name="content" class="form-control" rows="2" placeholder="Add a quick comment..."></textarea>
+        </div>
+        <div class="d-flex justify-content-between align-items-center">
+            <select name="comment_type" class="form-select form-select-sm" style="width: auto;">
+                <option value="general">General</option>
+                <option value="suggestion">Suggestion</option>
+                <option value="question">Question</option>
+            </select>
+            <div>
+                <button type="button" class="btn btn-sm btn-secondary" onclick="hideCommentForm()">Cancel</button>
+                <button type="submit" class="btn btn-sm btn-primary">Post Comment</button>
+            </div>
+        </div>
+    </form>
+    <button class="btn btn-sm btn-outline-primary" onclick="showCommentForm()" id="showCommentBtn">
+        <i class="fas fa-comment me-1"></i>
+        Add Comment
+    </button>
+</div>
+
+<style>
+.collaboration-widget .shared-team-item {
+    border-bottom: 1px solid #f8f9fa;
+    padding: 0.5rem 0;
+}
+
+.collaboration-widget .shared-team-item:last-child {
+    border-bottom: none;
+}
+
+.collaboration-widget .comment-item {
+    background: #f8f9fa;
+    border-radius: 4px;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.collaboration-widget .badge {
+    font-size: 0.7rem;
+}
+</style>
+
+<script>
+// Load user teams when modal opens
+document.getElementById('shareProjectModal')?.addEventListener('show.bs.modal', function () {
+    loadUserTeams();
+});
+
+function loadUserTeams() {
+    fetch('/collaboration/api/teams/')
+        .then(response => response.json())
+        .then(data => {
+            const select = document.getElementById('teamSelect');
+            select.innerHTML = '<option value="">Choose a team...</option>';
+            
+            data.teams.forEach(team => {
+                const option = document.createElement('option');
+                option.value = team.id;
+                option.textContent = `${team.name} (${team.team_type})`;
+                select.appendChild(option);
+            });
+        })
+        .catch(error => {
+            console.error('Error loading teams:', error);
+            showMessage('Error loading teams', 'danger');
+        });
+}
+
+// Handle project sharing
+document.getElementById('shareProjectForm')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    formData.append('project_id', '{{ project.id }}');
+    
+    fetch('/collaboration/api/projects/share/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showMessage('Project shared successfully!', 'success');
+            setTimeout(() => {
+                location.reload();
+            }, 1500);
+        } else {
+            showMessage(data.error || 'Failed to share project', 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error sharing project:', error);
+        showMessage('An error occurred while sharing the project', 'danger');
+    });
+});
+
+// Handle quick comments
+document.getElementById('quickCommentForm')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    fetch('/collaboration/api/comments/create/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            this.reset();
+            hideCommentForm();
+            // Refresh the collaboration widget or add the comment dynamically
+            location.reload();
+        } else {
+            alert(data.error || 'Failed to add comment');
+        }
+    })
+    .catch(error => {
+        console.error('Error adding comment:', error);
+        alert('An error occurred while adding the comment');
+    });
+});
+
+function showCommentForm() {
+    document.getElementById('quickCommentForm').classList.remove('d-none');
+    document.getElementById('showCommentBtn').classList.add('d-none');
+    document.querySelector('#quickCommentForm textarea').focus();
+}
+
+function hideCommentForm() {
+    document.getElementById('quickCommentForm').classList.add('d-none');
+    document.getElementById('showCommentBtn').classList.remove('d-none');
+}
+
+function showMessage(message, type) {
+    const messageDiv = document.getElementById('shareMessage');
+    messageDiv.className = `alert alert-${type}`;
+    messageDiv.textContent = message;
+    messageDiv.classList.remove('d-none');
+}
+</script>

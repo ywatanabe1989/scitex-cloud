@@ -21,6 +21,12 @@
     text-shadow: 0 0 10px rgba(255,255,255,0.3);
 }
 
+.hero-silverish-ai .hero-subtitle {
+    color: #1a2332;
+    text-shadow: 0 1px 3px rgba(255,255,255,0.8);
+    font-weight: 600;
+}
+
 /* Silverish AI Light - Lighter Tones, Better Text Visibility */
 .hero-silverish-ai-light {
     background: linear-gradient(135deg, #506b7a 0%, #6c8ba0 30%, #8fa4b0 60%, #b5c7d1 100%);
@@ -28,11 +34,23 @@
     text-shadow: 0 1px 2px rgba(255,255,255,0.5);
 }
 
+.hero-silverish-ai-light .hero-subtitle {
+    color: #1a2332;
+    text-shadow: 0 1px 3px rgba(255,255,255,0.9);
+    font-weight: 600;
+}
+
 /* Silverish AI Dark - Darker for High Contrast */
 .hero-silverish-ai-dark {
     background: linear-gradient(135deg, #0f1419 0%, #1a2332 40%, #34495e 80%, #506b7a 100%);
     color: #d4e1e8;
     text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.hero-silverish-ai-dark .hero-subtitle {
+    color: #f8f9fa;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+    font-weight: 500;
 }
 
 /* === DIRECTIONAL VARIANTS === */
@@ -95,6 +113,12 @@
     background: linear-gradient(135deg, #6c8ba0 0%, #8fa4b0 35%, #b5c7d1 65%, #d4e1e8 100%);
     color: #1a2332;
     text-shadow: 0 1px 2px rgba(255,255,255,0.6);
+}
+
+.hero-silverish-ai-soft .hero-subtitle {
+    color: #1a2332;
+    text-shadow: 0 1px 3px rgba(255,255,255,1.0);
+    font-weight: 600;
 }
 
 /* === OVERLAY ENHANCED VARIANTS === */
@@ -251,10 +275,12 @@
 .hero-subtitle {
     font-size: 1.25rem;
     margin-bottom: 2rem;
-    color: #34495e;
+    color: #2c3e50;
     opacity: 1.0;
     position: relative;
     z-index: 2;
+    font-weight: 500;
+    text-shadow: 0 1px 2px rgba(255,255,255,0.8);
 }
 
 .hero-cta {

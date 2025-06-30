@@ -170,6 +170,14 @@
   <div class="editor-main">
     <!-- Toolbar -->
     <div class="editor-toolbar">
+      <div class="me-3">
+        <a href="{% url 'code:templates' %}" class="btn btn-sm btn-outline-secondary me-2">
+          <i class="fas fa-file-code me-1"></i>Templates
+        </a>
+        <a href="{% url 'code:analysis' %}" class="btn btn-sm btn-outline-secondary">
+          <i class="fas fa-chart-bar me-1"></i>Analysis
+        </a>
+      </div>
       <button id="run-btn" class="btn btn-success">
         <i class="fas fa-play me-1"></i>Run Code
       </button>
@@ -238,6 +246,14 @@ document.addEventListener('DOMContentLoaded', function() {
     indentWithTabs: false,
     lineWrapping: true
   });
+
+  // Load template code if coming from templates page
+  const templateCode = localStorage.getItem('templateCode');
+  if (templateCode) {
+    editor.setValue(templateCode);
+    localStorage.removeItem('templateCode');
+    statusText.textContent = 'Template loaded successfully';
+  }
 
   const runBtn = document.getElementById('run-btn');
   const stopBtn = document.getElementById('stop-btn');
@@ -316,7 +332,7 @@ document.addEventListener('DOMContentLoaded', function() {
     statusCheckInterval = setInterval(function() {
       if (!currentJobId) return;
 
-      fetch(`{% url "code:job_status" job_id="__JOB_ID__" %}`.replace('__JOB_ID__', currentJobId))
+      fetch(`/code/jobs/${currentJobId}/status/`)
         .then(response => response.json())
         .then(data => {
           updateJobStatus(data);
@@ -371,7 +387,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Load job code
   window.loadJobCode = function(jobId) {
-    fetch(`{% url "code:job_status" job_id="__JOB_ID__" %}`.replace('__JOB_ID__', jobId))
+    fetch(`/code/jobs/${jobId}/status/`)
       .then(response => response.json())
       .then(data => {
         if (data.source_code) {

@@ -8,6 +8,7 @@ app_name = 'core_app'
 urlpatterns = [
     path('', views.landing, name='landing'),
     path('dashboard/', views.index, name='index'),
+    path('dashboard/file-manager/', views.dashboard_react_tree, name='dashboard_react_tree'),
     path('documents/', views.document_list, name='document_list'),
     path('projects/', views.project_list, name='project_list'),
     path('profile/', views.profile_view, name='profile'),
@@ -48,6 +49,13 @@ api_urlpatterns = [
     path("api/v1/github/projects/<int:project_id>/commit/", github_views.github_commit_files, name="api-github-commit"),
     path("api/v1/github/projects/<int:project_id>/push/", github_views.github_push_changes, name="api-github-push"),
     path("api/v1/github/repositories/", github_views.github_list_repositories, name="api-github-repos"),
+    
+    # File System APIs for React Complex Tree Dashboard
+    path("api/v1/filesystem/tree/", api_views.file_tree_api_wrapper, name="api-file-tree"),
+    path("api/v1/filesystem/content/<str:file_id>/", api_views.file_content_api_wrapper, name="api-file-content"),
+    
+    # Debug endpoint
+    path("api/v1/debug/projects/", api_views.debug_user_projects, name="api-debug-projects"),
 ]
 
 # Directory management URLs

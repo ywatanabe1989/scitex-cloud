@@ -1,0 +1,16 @@
+{
+  "environments": [
+    {
+      "env_id": "10e39787-f7c7-451e-8be7-92b25ab21489",
+      "name": "test-analysis-env",
+      "python_version": "3.11",
+      "requirements": [
+        "numpy==1.24.3",
+        "pandas==2.0.3"
+      ],
+      "created_at": "2025-06-27T21:11:07.966160+00:00",
+      "last_used": "2025-06-27T21:11:07.966176+00:00"
+    }
+  ],
+  "updated_at": "2025-06-27T21:11:07.966221+00:00"
+}

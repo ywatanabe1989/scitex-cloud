@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+{% if form.instance.pk %}Edit Project{% else %}Create Project{% endif %} - AI Assistant
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.project-form-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.form-header {
+    background: linear-gradient(135deg, #1a2332 0%, #34495e 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.form-section {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.form-section h4 {
+    color: #1a2332;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.form-control:focus {
+    border-color: #1a2332;
+    box-shadow: 0 0 0 0.2rem rgba(26, 35, 50, 0.25);
+}
+
+.btn-primary {
+    background-color: #1a2332;
+    border-color: #1a2332;
+}
+
+.btn-primary:hover {
+    background-color: #34495e;
+    border-color: #34495e;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 2rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="project-form-container">
+    <div class="form-header">
+        <h1>
+            <i class="fas fa-brain me-2"></i>
+            {% if form.instance.pk %}Edit Research Project{% else %}Create New Research Project{% endif %}
+        </h1>
+        <p class="mb-0">Define your research project for AI-powered assistance</p>
+    </div>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <!-- Basic Information -->
+        <div class="form-section">
+            <h4><i class="fas fa-info-circle me-2"></i>Basic Information</h4>
+            
+            <div class="mb-3">
+                <label for="{{ form.title.id_for_label }}" class="form-label">Project Title</label>
+                {{ form.title }}
+                {% if form.title.help_text %}
+                    <div class="form-text">{{ form.title.help_text }}</div>
+                {% endif %}
+                {% if form.title.errors %}
+                    <div class="text-danger">
+                        {% for error in form.title.errors %}
+                            <small>{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="mb-3">
+                <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                {{ form.description }}
+                {% if form.description.help_text %}
+                    <div class="form-text">{{ form.description.help_text }}</div>
+                {% endif %}
+                {% if form.description.errors %}
+                    <div class="text-danger">
+                        {% for error in form.description.errors %}
+                            <small>{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Research Details -->
+        <div class="form-section">
+            <h4><i class="fas fa-microscope me-2"></i>Research Details</h4>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="{{ form.research_field.id_for_label }}" class="form-label">Research Field</label>
+                        {{ form.research_field }}
+                        {% if form.research_field.help_text %}
+                            <div class="form-text">{{ form.research_field.help_text }}</div>
+                        {% endif %}
+                        {% if form.research_field.errors %}
+                            <div class="text-danger">
+                                {% for error in form.research_field.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="{{ form.status.id_for_label }}" class="form-label">Project Status</label>
+                        {{ form.status }}
+                        {% if form.status.help_text %}
+                            <div class="form-text">{{ form.status.help_text }}</div>
+                        {% endif %}
+                        {% if form.status.errors %}
+                            <div class="text-danger">
+                                {% for error in form.status.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label for="{{ form.research_questions.id_for_label }}" class="form-label">Research Questions</label>
+                {{ form.research_questions }}
+                {% if form.research_questions.help_text %}
+                    <div class="form-text">{{ form.research_questions.help_text }}</div>
+                {% endif %}
+                {% if form.research_questions.errors %}
+                    <div class="text-danger">
+                        {% for error in form.research_questions.errors %}
+                            <small>{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Project Goals -->
+        <div class="form-section">
+            <h4><i class="fas fa-target me-2"></i>Project Goals</h4>
+            
+            <div class="mb-3">
+                <label for="{{ form.objectives.id_for_label }}" class="form-label">Objectives</label>
+                {{ form.objectives }}
+                {% if form.objectives.help_text %}
+                    <div class="form-text">{{ form.objectives.help_text }}</div>
+                {% endif %}
+                {% if form.objectives.errors %}
+                    <div class="text-danger">
+                        {% for error in form.objectives.errors %}
+                            <small>{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+            <a href="{% url 'ai_assistant:project_list' %}" class="btn btn-secondary">
+                <i class="fas fa-times me-2"></i>Cancel
+            </a>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save me-2"></i>
+                {% if form.instance.pk %}Update Project{% else %}Create Project{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add Bootstrap classes to form fields
+    const formControls = document.querySelectorAll('input[type="text"], input[type="email"], textarea, select');
+    formControls.forEach(function(control) {
+        control.classList.add('form-control');
+    });
+    
+    // Auto-resize textareas
+    const textareas = document.querySelectorAll('textarea');
+    textareas.forEach(function(textarea) {
+        textarea.style.minHeight = '100px';
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+        });
+    });
+});
+</script>
+{% endblock %}

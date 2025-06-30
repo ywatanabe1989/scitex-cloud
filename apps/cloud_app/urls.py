@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-05-22 03:07:09 (ywatanabe)"
-# File: /home/ywatanabe/proj/SciTeX-Cloud/apps/cloud_app/urls.py
+# Timestamp: "2025-06-29 19:51:04 (ywatanabe)"
+# File: /ssh:scitex:/home/ywatanabe/proj/scitex-cloud/apps/cloud_app/urls.py
 # ----------------------------------------
 import os
 __FILE__ = (
@@ -9,8 +9,9 @@ __FILE__ = (
 )
 __DIR__ = os.path.dirname(__FILE__)
 # ----------------------------------------
-from django.urls import path
+
 from django.shortcuts import redirect
+from django.urls import path
 
 from . import views
 
@@ -18,18 +19,20 @@ app_name = "cloud_app"
 
 urlpatterns = [
     path("", views.index, name="index"),
-    path("cloud/", lambda request: redirect('cloud_app:index'), name="cloud"),
-    path("features/", views.features, name="features"),
-    path("pricing/", views.pricing, name="pricing"),
+    path("cloud/", lambda request: redirect("cloud_app:index"), name="cloud"),
+    path("premium/", views.premium_subscription, name="premium"),
     # Concept and vision pages
-    path("concept/", views.concept, name="concept"),
     path("vision/", views.vision, name="vision"),
     path("publications/", views.publications, name="publications"),
     # Support pages
-    path('donate/', views.donate, name='donate'),
-    path('fundraising/', views.fundraising, name='fundraising'),
-    path('verify-email/', views.verify_email, name='verify-email'),
-    path('donation-success/<int:donation_id>/', views.donation_success, name='donation-success'),
+    path("donate/", views.donate, name="donate"),
+    path("fundraising/", views.fundraising, name="fundraising"),
+    path("verify-email/", views.verify_email, name="verify-email"),
+    path(
+        "donation-success/<int:donation_id>/",
+        views.donation_success,
+        name="donation-success",
+    ),
     # Legal and contact pages
     path("contact/", views.contact, name="contact"),
     path("privacy/", views.privacy_policy, name="privacy"),
@@ -40,34 +43,15 @@ urlpatterns = [
     path("login/", views.login_view, name="login"),
     path("logout/", views.logout_view, name="logout"),
     path("forgot-password/", views.forgot_password, name="forgot-password"),
-    
-    # Design System
-    path('design/', views.design_system, name='design'),
-    
-    # Demo page
-    path('demo/', views.demo, name='demo'),
-    
-    # Product pages (new naming scheme)
-    path('products/scholar/', views.product_search, name='product-scholar'),
-    path('products/engine/', views.product_engine, name='product-engine'),
-    path('products/code/', views.product_code, name='product-code'),
-    path('products/writer/', views.product_doc, name='product-writer'),
-    path('products/viz/', views.product_viz, name='product-viz'),
-    path('products/cloud/', views.product_cloud, name='product-cloud'),
-    path('products/local/', views.product_local, name='product-local'),
-    
-    # API Documentation
-    path('api-docs/', views.api_docs, name='api-docs'),
-    
-    # Legacy redirects
-    path('products/search/', lambda request: redirect('cloud_app:product-scholar'), name='product-search'),
-    path('products/doc/', lambda request: redirect('cloud_app:product-writer'), name='product-doc'),
-    path('products/pytools/', lambda request: redirect('cloud_app:product-code'), name='product-pytools'),
-    path('products/compute/', lambda request: redirect('cloud_app:product-code'), name='product-compute'),
-    path('products/visualizer/', lambda request: redirect('cloud_app:product-viz'), name='product-visualizer'),
-    # Redirects for previous naming attempts
-    path('products/studio/', lambda request: redirect('cloud_app:product-engine'), name='product-studio'),
-    path('products/explorer/', lambda request: redirect('cloud_app:product-scholar'), name='product-explorer'),
-    path('products/analyzer/', lambda request: redirect('cloud_app:product-code'), name='product-analyzer'),
-    path('products/coder/', lambda request: redirect('cloud_app:product-code'), name='product-coder'),
+    # For Developers
+    path("design/", views.design_system, name="design"),
+    path("design/v01/", views.design_system_v01, name="design-v01"),
+    path("design/v03/", views.design_system_v03, name="design-v03"),
+    # Redirect common variations
+    path("design/01/", lambda request: redirect("cloud_app:design-v01"), name="design-01-redirect"),
+    path("design/02/", lambda request: redirect("cloud_app:design"), name="design-02-redirect"),
+    path("design/03/", lambda request: redirect("cloud_app:design-v03"), name="design-03-redirect"),
+    path("api-docs/", views.api_docs, name="api-docs"),
 ]
+
+# EOF

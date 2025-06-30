@@ -1,0 +1,230 @@
+{% extends 'cloud_app/base.html' %}
+{% load static %}
+
+{% block title %}GitHub Profile Settings - SciTeX Cloud{% endblock %}
+
+{% block extra_css %}
+<style>
+    .github-color { color: #24292f; }
+    .github-accent { color: #0969da; }
+    .settings-section {
+        border: 1px solid #dee2e6;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        background-color: #fff;
+    }
+    .form-check {
+        margin-bottom: 1rem;
+    }
+    .form-check-label {
+        margin-left: 0.5rem;
+    }
+    .help-text {
+        font-size: 0.875rem;
+        color: #6c757d;
+        margin-top: 0.25rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0">
+                        <i class="fab fa-github github-color me-2"></i>
+                        GitHub Profile Settings
+                    </h1>
+                    <p class="text-muted mb-0">Configure your GitHub integration preferences</p>
+                </div>
+                <div>
+                    <a href="{% url 'github_app:dashboard' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <form method="post">
+                {% csrf_token %}
+                
+                <!-- Synchronization Settings -->
+                <div class="settings-section">
+                    <h5 class="mb-3">
+                        <i class="fas fa-sync-alt github-accent me-2"></i>
+                        Synchronization Settings
+                    </h5>
+                    
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="sync_repositories" 
+                               name="sync_repositories" {% if profile.sync_repositories %}checked{% endif %}>
+                        <label class="form-check-label" for="sync_repositories">
+                            <strong>Auto-sync repositories</strong>
+                        </label>
+                        <div class="help-text">
+                            Automatically synchronize your GitHub repositories with SciTeX.
+                        </div>
+                    </div>
+                    
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="auto_sync_enabled" 
+                               name="auto_sync_enabled" {% if profile.auto_sync_enabled %}checked{% endif %}>
+                        <label class="form-check-label" for="auto_sync_enabled">
+                            <strong>Enable automatic periodic sync</strong>
+                        </label>
+                        <div class="help-text">
+                            Periodically sync your GitHub data in the background (recommended).
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Privacy Settings -->
+                <div class="settings-section">
+                    <h5 class="mb-3">
+                        <i class="fas fa-shield-alt github-accent me-2"></i>
+                        Privacy Settings
+                    </h5>
+                    
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="public_profile" 
+                               name="public_profile" {% if profile.public_profile %}checked{% endif %}>
+                        <label class="form-check-label" for="public_profile">
+                            <strong>Make GitHub profile visible to other users</strong>
+                        </label>
+                        <div class="help-text">
+                            Allow other SciTeX users to see your GitHub profile information.
+                        </div>
+                    </div>
+                    
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="show_repositories" 
+                               name="show_repositories" {% if profile.show_repositories %}checked{% endif %}>
+                        <label class="form-check-label" for="show_repositories">
+                            <strong>Show repositories in Code module</strong>
+                        </label>
+                        <div class="help-text">
+                            Display your GitHub repositories in the SciTeX Code module for collaboration.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Save Button -->
+                <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save Settings
+                    </button>
+                    <a href="{% url 'github_app:dashboard' %}" class="btn btn-outline-secondary">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Profile Information -->
+        <div class="col-lg-4">
+            <div class="settings-section">
+                <h5 class="mb-3">
+                    <i class="fas fa-user github-accent me-2"></i>
+                    Profile Information
+                </h5>
+                
+                <div class="d-flex align-items-center mb-3">
+                    <i class="fab fa-github fa-3x github-color me-3"></i>
+                    <div>
+                        <h6 class="mb-0">{{ profile.get_display_name }}</h6>
+                        <small class="text-muted">@{{ profile.github_username }}</small>
+                    </div>
+                </div>
+                
+                {% if profile.bio %}
+                    <p class="text-muted mb-3">{{ profile.bio }}</p>
+                {% endif %}
+                
+                <dl class="row">
+                    {% if profile.company %}
+                        <dt class="col-4">Company:</dt>
+                        <dd class="col-8">{{ profile.company }}</dd>
+                    {% endif %}
+                    
+                    {% if profile.location %}
+                        <dt class="col-4">Location:</dt>
+                        <dd class="col-8">{{ profile.location }}</dd>
+                    {% endif %}
+                    
+                    {% if profile.blog %}
+                        <dt class="col-4">Website:</dt>
+                        <dd class="col-8">
+                            <a href="{{ profile.blog }}" target="_blank" class="text-decoration-none">
+                                {{ profile.blog|truncatechars:30 }}
+                            </a>
+                        </dd>
+                    {% endif %}
+                    
+                    <dt class="col-4">Repositories:</dt>
+                    <dd class="col-8">{{ profile.public_repos }}</dd>
+                    
+                    <dt class="col-4">Followers:</dt>
+                    <dd class="col-8">{{ profile.followers }}</dd>
+                    
+                    <dt class="col-4">Following:</dt>
+                    <dd class="col-8">{{ profile.following }}</dd>
+                </dl>
+                
+                <div class="mt-3">
+                    <a href="{{ profile.get_github_url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                        <i class="fab fa-github"></i> View on GitHub
+                    </a>
+                    <a href="{% url 'github_app:sync_profile' %}" class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-sync-alt"></i> Sync Profile
+                    </a>
+                </div>
+                
+                {% if profile.last_sync_at %}
+                    <div class="mt-3">
+                        <small class="text-muted">
+                            <i class="fas fa-clock"></i>
+                            Last synced: {{ profile.last_sync_at|date:"M d, Y H:i" }}
+                        </small>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- Integration Status -->
+            <div class="settings-section">
+                <h6 class="mb-3">
+                    <i class="fas fa-info-circle github-accent me-2"></i>
+                    Integration Status
+                </h6>
+                
+                <div class="row text-center">
+                    <div class="col-6">
+                        <div class="border-end">
+                            <div class="h5 mb-0 github-accent">{{ profile.get_repository_count }}</div>
+                            <small class="text-muted">Synced Repos</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="h5 mb-0 github-accent">
+                            {{ profile.github_repositories.filter|default:0 }}
+                        </div>
+                        <small class="text-muted">Connected</small>
+                    </div>
+                </div>
+                
+                {% if profile.needs_sync %}
+                    <div class="alert alert-warning mt-3 mb-0" role="alert">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <small>Profile sync recommended</small>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

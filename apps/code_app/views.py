@@ -12,7 +12,7 @@ import threading
 
 
 def index(request):
-    """Code app index view."""
+    """Code app index view - show coming soon page."""
     return render(request, 'code_app/index.html')
 
 
@@ -183,6 +183,11 @@ def analysis(request):
     return render(request, 'code_app/analysis.html', context)
 
 
+def templates(request):
+    """SCITEX framework templates page."""
+    return render(request, 'code_app/templates.html')
+
+
 @login_required
 @require_http_methods(["POST"])
 def run_analysis(request):
@@ -242,3 +247,485 @@ def get_job_progress(status):
         'cancelled': 0
     }
     return progress_map.get(status, 0)
+
+
+# Environment Management Views
+@login_required
+def environments(request):
+    """List user's execution environments."""
+    from .environment_manager import EnvironmentManager
+    
+    env_manager = EnvironmentManager(request.user)
+    environments = env_manager.list_environments()
+    
+    context = {
+        'environments': environments,
+        'total_environments': len(environments)
+    }
+    return render(request, 'code_app/environments.html', context)
+
+
+@login_required
+@require_http_methods(["POST"])
+def create_environment(request):
+    """Create a new execution environment."""
+    try:
+        from .environment_manager import EnvironmentManager
+        
+        data = json.loads(request.body)
+        name = data.get('name', '').strip()
+        requirements = data.get('requirements', [])
+        
+        if not name:
+            return JsonResponse({'error': 'Environment name is required'}, status=400)
+        
+        env_manager = EnvironmentManager(request.user)
+        environment = env_manager.create_environment(name, requirements)
+        
+        return JsonResponse({
+            'success': True,
+            'environment': {
+                'id': environment.env_id,
+                'name': environment.name,
+                'requirements': [str(req) for req in environment.requirements],
+                'created_at': environment.created_at.isoformat()
+            }
+        })
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@login_required
+@require_http_methods(["POST"])
+def setup_environment(request, env_id):
+    """Set up an environment with packages."""
+    try:
+        from .environment_manager import EnvironmentManager
+        
+        env_manager = EnvironmentManager(request.user)
+        success, message = env_manager.setup_environment(env_id)
+        
+        if success:
+            return JsonResponse({
+                'success': True,
+                'message': message
+            })
+        else:
+            return JsonResponse({
+                'success': False,
+                'error': message
+            }, status=400)
+            
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@login_required
+def environment_detail(request, env_id):
+    """View environment details."""
+    from .environment_manager import EnvironmentManager
+    
+    env_manager = EnvironmentManager(request.user)
+    env_info = env_manager.get_environment_info(env_id)
+    
+    if not env_info:
+        messages.error(request, 'Environment not found.')
+        return redirect('code:environments')
+    
+    context = {
+        'environment': env_info
+    }
+    return render(request, 'code_app/environment_detail.html', context)
+
+
+@login_required
+@require_http_methods(["POST"])
+def execute_in_environment(request, env_id):
+    """Execute code in a specific environment."""
+    try:
+        from .environment_manager import EnvironmentManager
+        
+        data = json.loads(request.body)
+        code = data.get('code', '').strip()
+        timeout = min(int(data.get('timeout', 300)), 600)
+        
+        if not code:
+            return JsonResponse({'error': 'Code is required'}, status=400)
+        
+        env_manager = EnvironmentManager(request.user)
+        success, result = env_manager.execute_in_environment(env_id, code, timeout)
+        
+        if success:
+            # Create execution job record
+            job = CodeExecutionJob.objects.create(
+                user=request.user,
+                execution_type='script',
+                source_code=code,
+                status='completed',
+                output=result.get('stdout', ''),
+                error_output=result.get('stderr', ''),
+                return_code=result.get('return_code', 0),
+                execution_time=result.get('execution_time', 0),
+                timeout_seconds=timeout
+            )
+            
+            return JsonResponse({
+                'success': True,
+                'job_id': str(job.job_id),
+                'result': result
+            })
+        else:
+            return JsonResponse({
+                'success': False,
+                'error': result.get('error', 'Unknown error')
+            }, status=400)
+            
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+# Workflow Management Views
+@login_required
+def workflows(request):
+    """List user's research workflows."""
+    from .environment_manager import WorkflowManager
+    import os
+    from pathlib import Path
+    
+    workflows_dir = Path(settings.MEDIA_ROOT) / 'workflows' / str(request.user.id)
+    
+    workflows = []
+    if workflows_dir.exists():
+        for workflow_file in workflows_dir.glob('*.json'):
+            try:
+                with open(workflow_file) as f:
+                    workflow_data = json.load(f)
+                    workflows.append(workflow_data)
+            except Exception as e:
+                continue
+    
+    # Sort by creation date
+    workflows.sort(key=lambda x: x.get('created_at', ''), reverse=True)
+    
+    context = {
+        'workflows': workflows
+    }
+    return render(request, 'code_app/workflows.html', context)
+
+
+@login_required
+@require_http_methods(["POST"])
+def create_workflow(request):
+    """Create a new research workflow."""
+    try:
+        from .environment_manager import WorkflowManager
+        
+        data = json.loads(request.body)
+        name = data.get('name', '').strip()
+        description = data.get('description', '')
+        steps = data.get('steps', [])
+        
+        if not name:
+            return JsonResponse({'error': 'Workflow name is required'}, status=400)
+        
+        if not steps:
+            return JsonResponse({'error': 'At least one step is required'}, status=400)
+        
+        workflow_manager = WorkflowManager(request.user)
+        workflow = workflow_manager.create_workflow(name, description, steps)
+        
+        return JsonResponse({
+            'success': True,
+            'workflow': workflow
+        })
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@login_required
+@require_http_methods(["POST"])
+def execute_workflow(request, workflow_id):
+    """Execute a research workflow."""
+    try:
+        from .environment_manager import WorkflowManager
+        
+        workflow_manager = WorkflowManager(request.user)
+        success, results = workflow_manager.execute_workflow(workflow_id)
+        
+        return JsonResponse({
+            'success': success,
+            'results': results
+        })
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@login_required
+def workflow_detail(request, workflow_id):
+    """View workflow details."""
+    from pathlib import Path
+    
+    workflows_dir = Path(settings.MEDIA_ROOT) / 'workflows' / str(request.user.id)
+    workflow_file = workflows_dir / f"{workflow_id}.json"
+    
+    if not workflow_file.exists():
+        messages.error(request, 'Workflow not found.')
+        return redirect('code:workflows')
+    
+    try:
+        with open(workflow_file) as f:
+            workflow = json.load(f)
+    except Exception as e:
+        messages.error(request, f'Error loading workflow: {e}')
+        return redirect('code:workflows')
+    
+    context = {
+        'workflow': workflow
+    }
+    return render(request, 'code_app/workflow_detail.html', context)
+
+
+# Notebook Enhanced Views with Environment Support
+@login_required
+@require_http_methods(["POST"])
+def create_notebook(request):
+    """Create a new notebook."""
+    try:
+        from .jupyter_utils import NotebookManager, NotebookTemplates
+        
+        data = json.loads(request.body)
+        title = data.get('title', '').strip()
+        description = data.get('description', '')
+        template_type = data.get('template', 'basic')
+        
+        if not title:
+            return JsonResponse({'error': 'Notebook title is required'}, status=400)
+        
+        notebook_manager = NotebookManager(request.user)
+        
+        if template_type == 'data_analysis':
+            content = NotebookTemplates.get_data_analysis_template()
+        elif template_type == 'machine_learning':
+            content = NotebookTemplates.get_machine_learning_template()
+        elif template_type == 'visualization':
+            content = NotebookTemplates.get_visualization_template()
+        else:
+            # Create basic notebook
+            notebook = notebook_manager.create_notebook(title, description)
+            return JsonResponse({
+                'success': True,
+                'notebook_id': str(notebook.notebook_id),
+                'redirect_url': f'/code/notebooks/{notebook.notebook_id}/'
+            })
+        
+        # Create notebook with template
+        from .models import Notebook
+        notebook = Notebook.objects.create(
+            user=request.user,
+            title=title,
+            description=description,
+            content=content,
+            status='draft'
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'notebook_id': str(notebook.notebook_id),
+            'redirect_url': f'/code/notebooks/{notebook.notebook_id}/'
+        })
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@login_required
+@require_http_methods(["POST"])
+def execute_notebook(request, notebook_id):
+    """Execute a Jupyter notebook."""
+    try:
+        from .jupyter_utils import NotebookManager, NotebookExecutor
+        
+        notebook = get_object_or_404(Notebook, notebook_id=notebook_id, user=request.user)
+        
+        # Create execution job
+        job = CodeExecutionJob.objects.create(
+            user=request.user,
+            execution_type='notebook',
+            source_code=json.dumps(notebook.content),
+            timeout_seconds=600,
+            max_memory_mb=1024
+        )
+        
+        # Execute notebook in background
+        def run_notebook_execution():
+            executor = NotebookExecutor(timeout=600)
+            success, result = executor.execute_notebook(notebook, job)
+            
+            if success:
+                job.status = 'completed'
+                job.output = json.dumps(result, indent=2)
+            else:
+                job.status = 'failed'
+                job.error_output = result.get('error', 'Unknown error')
+            
+            job.completed_at = timezone.now()
+            job.save()
+        
+        execution_thread = threading.Thread(target=run_notebook_execution)
+        execution_thread.daemon = True
+        execution_thread.start()
+        
+        return JsonResponse({
+            'success': True,
+            'job_id': str(job.job_id),
+            'message': 'Notebook execution started'
+        })
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+# Data Visualization Pipeline Views
+@login_required
+def visualizations(request):
+    """List user's generated visualizations."""
+    from pathlib import Path
+    
+    viz_dir = Path(settings.MEDIA_ROOT) / 'visualizations' / str(request.user.id)
+    visualizations = []
+    
+    if viz_dir.exists():
+        for viz_file in viz_dir.glob('*.png'):
+            try:
+                stat = viz_file.stat()
+                visualizations.append({
+                    'filename': viz_file.name,
+                    'size': stat.st_size,
+                    'created': timezone.datetime.fromtimestamp(stat.st_ctime),
+                    'path': f'visualizations/{request.user.id}/{viz_file.name}'
+                })
+            except Exception:
+                continue
+    
+    # Sort by creation time
+    visualizations.sort(key=lambda x: x['created'], reverse=True)
+    
+    context = {
+        'visualizations': visualizations
+    }
+    return render(request, 'code_app/visualizations.html', context)
+
+
+@login_required
+@require_http_methods(["POST"])
+def generate_visualization(request):
+    """Generate a visualization from data."""
+    try:
+        from .visualization_pipeline import VisualizationGenerator
+        
+        data = json.loads(request.body)
+        plot_type = data.get('type', 'line')
+        plot_data = data.get('data', {})
+        options = data.get('options', {})
+        
+        generator = VisualizationGenerator(request.user)
+        success, result = generator.generate_plot(plot_type, plot_data, options)
+        
+        if success:
+            # Create a job record for tracking
+            job = CodeExecutionJob.objects.create(
+                user=request.user,
+                execution_type='visualization',
+                source_code=f"# Generated {plot_type} plot\n# Data points: {result.get('data_points', 'N/A')}",
+                status='completed',
+                output=json.dumps(result, indent=2)
+            )
+            
+            return JsonResponse({
+                'success': True,
+                'job_id': str(job.job_id),
+                'result': result
+            })
+        else:
+            return JsonResponse({
+                'success': False,
+                'error': result.get('error', 'Unknown error')
+            }, status=400)
+            
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@login_required
+@require_http_methods(["POST"])
+def process_data_visualization(request):
+    """Process data file and generate multiple visualizations."""
+    try:
+        from .visualization_pipeline import VisualizationPipeline
+        
+        data = json.loads(request.body)
+        data_source = data.get('data_source', '')
+        visualization_specs = data.get('visualizations', [])
+        
+        if not data_source:
+            return JsonResponse({'error': 'Data source is required'}, status=400)
+        
+        if not visualization_specs:
+            return JsonResponse({'error': 'At least one visualization specification is required'}, status=400)
+        
+        pipeline = VisualizationPipeline(request.user)
+        result = pipeline.process_data_and_visualize(data_source, visualization_specs)
+        
+        if result.get('success'):
+            # Create job record
+            job = CodeExecutionJob.objects.create(
+                user=request.user,
+                execution_type='analysis',
+                source_code=f"# Data visualization pipeline\n# Data shape: {result.get('data_shape', 'N/A')}\n# Visualizations: {len(visualization_specs)}",
+                status='completed',
+                output=json.dumps(result, indent=2)
+            )
+            
+            return JsonResponse({
+                'success': True,
+                'job_id': str(job.job_id),
+                'result': result
+            })
+        else:
+            return JsonResponse({
+                'success': False,
+                'error': result.get('error', 'Unknown error')
+            }, status=400)
+            
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@login_required
+@require_http_methods(["POST"])
+def create_research_report(request):
+    """Create a research report with visualizations."""
+    try:
+        from .visualization_pipeline import VisualizationPipeline
+        
+        data = json.loads(request.body)
+        title = data.get('title', 'Research Report')
+        sections = data.get('sections', [])
+        
+        if not sections:
+            return JsonResponse({'error': 'At least one section is required'}, status=400)
+        
+        pipeline = VisualizationPipeline(request.user)
+        report_path = pipeline.create_research_report(title, sections)
+        
+        return JsonResponse({
+            'success': True,
+            'report_path': report_path,
+            'message': 'Research report created successfully'
+        })
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)

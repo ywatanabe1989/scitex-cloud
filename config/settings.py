@@ -42,7 +42,9 @@ DJANGO_APPS = [
 ]
 
 THIRD_PARTY_APPS = [
-    # Third party apps would go here
+    "rest_framework",
+    "corsheaders",
+    "widget_tweaks",
 ]
 
 LOCAL_APPS = [
@@ -53,16 +55,28 @@ LOCAL_APPS = [
     "apps.writer_app.apps.WriterAppConfig",
     "apps.viz_app.apps.VizAppConfig",
     "apps.cloud_app.apps.CloudAppConfig",
+    "apps.billing_app.apps.BillingAppConfig",
+    "apps.monitoring_app.apps.MonitoringAppConfig",
+    "apps.orcid_app.apps.OrcidAppConfig",
+    "apps.mendeley_app.apps.MendeleyAppConfig",
+    "apps.reference_sync_app.apps.ReferenceSyncAppConfig",
+    "apps.github_app.apps.GithubAppConfig",
+    "apps.collaboration_app.apps.CollaborationAppConfig",
+    "apps.ai_assistant_app.apps.AiAssistantAppConfig",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "apps.billing_app.middleware.FeatureAccessMiddleware",
+    "apps.billing_app.middleware.SubscriptionStatusMiddleware",
+    "apps.billing_app.middleware.UsageTrackingMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -210,5 +224,79 @@ LOGGING = {
         },
     },
 }
+
+# ORCID Integration Settings
+ORCID_CLIENT_ID = os.environ.get('ORCID_CLIENT_ID', 'your-orcid-client-id')
+ORCID_CLIENT_SECRET = os.environ.get('ORCID_CLIENT_SECRET', 'your-orcid-client-secret')
+ORCID_SANDBOX = os.environ.get('ORCID_SANDBOX', 'true').lower() == 'true'
+
+# Reference Manager Integration Settings
+MENDELEY_CLIENT_ID = os.environ.get('MENDELEY_CLIENT_ID', '')
+MENDELEY_CLIENT_SECRET = os.environ.get('MENDELEY_CLIENT_SECRET', '')
+ZOTERO_CLIENT_ID = os.environ.get('ZOTERO_CLIENT_ID', '')
+ZOTERO_CLIENT_SECRET = os.environ.get('ZOTERO_CLIENT_SECRET', '')
+
+# REST Framework Configuration
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20,
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ],
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.FormParser',
+        'rest_framework.parsers.MultiPartParser',
+    ],
+}
+
+# CORS Configuration
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+# Media files
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+# GitHub Integration Settings
+GITHUB_CLIENT_ID = os.environ.get('GITHUB_CLIENT_ID', 'your-github-client-id')
+GITHUB_CLIENT_SECRET = os.environ.get('GITHUB_CLIENT_SECRET', 'your-github-client-secret')
+GITHUB_REDIRECT_URI = os.environ.get('GITHUB_REDIRECT_URI', 'http://localhost:8000/github/callback/')
+GITHUB_WEBHOOK_SECRET = os.environ.get('GITHUB_WEBHOOK_SECRET', 'your-webhook-secret')
+
+# Stripe Payment Processing Settings
+STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY', '')
+STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY', '')
+STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET', '')
+
+# Billing and Monetization Settings
+BILLING_ENABLED = os.environ.get('BILLING_ENABLED', 'true').lower() == 'true'
+FREE_TIER_LIMITS = {
+    'max_projects': 1,
+    'storage_gb': 1,
+    'compute_hours_monthly': 5,
+    'gpu_hours_monthly': 1,
+    'api_calls_monthly': 100,
+}
+
+# Email settings for billing notifications
+if BILLING_ENABLED:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
+    EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587'))
+    EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'true').lower() == 'true'
+    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+    DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'billing@scitex.ai')
 
 # EOF

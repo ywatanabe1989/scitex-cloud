@@ -20,10 +20,11 @@ from django.utils import timezone
 from datetime import timedelta
 import random
 
-from apps.core_app.models import (
-    Document, UserProfile, Project, Organization, 
-    OrganizationMembership, ProjectPermission, Manuscript
-)
+from apps.document_app.models import Document
+from apps.auth_app.models import UserProfile
+from apps.project_app.models import Project
+from apps.core_app.models import Organization, OrganizationMembership, ProjectPermission
+from apps.writer_app.models import Manuscript
 
 
 class Command(BaseCommand):

@@ -1,0 +1,357 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{% block page_title %}Onboarding - SciTeX Cloud{% endblock %}{% endblock %}
+
+{% block content %}
+<div class="onboarding-container">
+    <!-- Progress Header -->
+    <div class="progress-header bg-white border-bottom py-3 mb-4">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item">
+                                <a href="{% url 'core_app:dashboard' %}" class="text-decoration-none">
+                                    <i class="fas fa-home me-1"></i>Dashboard
+                                </a>
+                            </li>
+                            <li class="breadcrumb-item active" aria-current="page">Getting Started</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="onboarding-progress">
+                        <span class="text-muted small">Progress: </span>
+                        <div class="progress d-inline-block" style="width: 100px; height: 8px;">
+                            <div class="progress-bar" role="progressbar" 
+                                 style="width: {{ progress_percentage|default:0 }}%"></div>
+                        </div>
+                        <span class="text-muted small ms-2">{{ completed_steps|default:0 }}/5</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="onboarding-content">
+            {% block step_content %}
+            <!-- Step-specific content goes here -->
+            {% endblock %}
+        </div>
+
+        <!-- Navigation Footer -->
+        <div class="onboarding-footer mt-5 py-4 border-top">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <div class="help-links">
+                        <small class="text-muted">
+                            Need help? 
+                            <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#helpModal">
+                                Contact Support
+                            </a>
+                            or 
+                            <a href="{% url 'core_app:dashboard' %}" class="text-decoration-none">
+                                Skip to Dashboard
+                            </a>
+                        </small>
+                    </div>
+                </div>
+                <div class="col-md-6 text-end">
+                    <div class="step-navigation">
+                        {% if prev_step %}
+                        <a href="{% url 'onboarding:step' step=prev_step %}" class="btn btn-outline-secondary me-2">
+                            <i class="fas fa-arrow-left me-1"></i>Previous
+                        </a>
+                        {% endif %}
+                        
+                        {% if next_step %}
+                        <a href="{% url 'onboarding:step' step=next_step %}" class="btn btn-primary" id="nextStepBtn">
+                            Next<i class="fas fa-arrow-right ms-1"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Help Modal -->
+<div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="helpModalLabel">
+                    <i class="fas fa-question-circle me-2"></i>Need Help?
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>We're here to help you get started with SciTeX Cloud!</p>
+                <div class="help-options">
+                    <div class="mb-3">
+                        <h6><i class="fas fa-book me-2 text-primary"></i>Documentation</h6>
+                        <p class="small text-muted">Check our comprehensive guides and tutorials</p>
+                        <a href="#" class="btn btn-outline-primary btn-sm">View Docs</a>
+                    </div>
+                    <div class="mb-3">
+                        <h6><i class="fas fa-envelope me-2 text-success"></i>Email Support</h6>
+                        <p class="small text-muted">Get personalized help from our team</p>
+                        <a href="mailto:support@scitex.cloud" class="btn btn-outline-success btn-sm">
+                            support@scitex.cloud
+                        </a>
+                    </div>
+                    <div class="mb-3">
+                        <h6><i class="fas fa-video me-2 text-info"></i>Video Tutorials</h6>
+                        <p class="small text-muted">Watch step-by-step guides</p>
+                        <a href="#" class="btn btn-outline-info btn-sm">Watch Videos</a>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Onboarding JavaScript -->
+<script>
+// Global onboarding functions available to all step templates
+function completeStep(stepName) {
+    // Mark step as completed
+    fetch(`/onboarding/complete-step/${stepName}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value || getCookie('csrftoken'),
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            step: stepName,
+            completed: true
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update progress
+            updateProgress(data.progress);
+            
+            // Navigate to next step or dashboard
+            if (data.next_step) {
+                window.location.href = `/onboarding/step/${data.next_step}/`;
+            } else {
+                // All steps completed
+                showCompletionMessage();
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error completing step:', error);
+    });
+}
+
+function skipStep(stepName) {
+    if (confirm('Are you sure you want to skip this step? You can always come back later.')) {
+        fetch(`/onboarding/skip-step/${stepName}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value || getCookie('csrftoken'),
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                step: stepName,
+                skipped: true
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                updateProgress(data.progress);
+                
+                if (data.next_step) {
+                    window.location.href = `/onboarding/step/${data.next_step}/`;
+                } else {
+                    window.location.href = '/core/dashboard/';
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error skipping step:', error);
+        });
+    }
+}
+
+function updateProgress(progressData) {
+    if (progressData) {
+        const progressBar = document.querySelector('.progress-bar');
+        const progressText = document.querySelector('.onboarding-progress span:last-child');
+        
+        if (progressBar) {
+            progressBar.style.width = `${progressData.percentage}%`;
+        }
+        
+        if (progressText) {
+            progressText.textContent = `${progressData.completed}/${progressData.total}`;
+        }
+    }
+}
+
+function showCompletionMessage() {
+    // Show celebration message
+    const celebrationHtml = `
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <h4 class="alert-heading">
+                <i class="fas fa-trophy me-2"></i>Congratulations!
+            </h4>
+            <p>You've completed the SciTeX Cloud onboarding! You're all set to start your research journey.</p>
+            <hr>
+            <p class="mb-0">
+                <a href="/core/dashboard/" class="btn btn-success me-2">Go to Dashboard</a>
+                <a href="/core/projects/" class="btn btn-outline-primary">View Projects</a>
+            </p>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    `;
+    
+    const container = document.querySelector('.onboarding-content');
+    if (container) {
+        container.innerHTML = celebrationHtml;
+    }
+    
+    // Auto-redirect after 5 seconds
+    setTimeout(() => {
+        window.location.href = '/core/dashboard/';
+    }, 5000);
+}
+
+// Utility function to get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Auto-save progress periodically
+setInterval(() => {
+    // Optional: Auto-save any form data or progress
+}, 30000); // Every 30 seconds
+</script>
+
+<style>
+.onboarding-container {
+    min-height: calc(100vh - 80px);
+    background: #f8f9fa;
+}
+
+.progress-header {
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.onboarding-content {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.onboarding-footer {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.step-indicator .badge {
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+}
+
+.breadcrumb {
+    background: none;
+    padding: 0;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    content: var(--bs-breadcrumb-divider, ">");
+    color: #6c757d;
+}
+
+.progress {
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    transition: width 0.3s ease;
+}
+
+.help-links a:hover {
+    text-decoration: underline !important;
+}
+
+.feature-item {
+    transition: all 0.2s ease;
+}
+
+.feature-item:hover {
+    transform: translateY(-2px);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .onboarding-content {
+        padding: 1rem;
+    }
+    
+    .step-navigation {
+        text-align: center !important;
+        margin-top: 1rem;
+    }
+    
+    .help-links {
+        text-align: center;
+    }
+    
+    .progress-header .row {
+        text-align: center;
+    }
+    
+    .progress-header .col-md-4 {
+        margin-top: 1rem;
+    }
+}
+
+/* Animation for step transitions */
+.onboarding-content {
+    animation: fadeInUp 0.3s ease;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
+{% endblock %}

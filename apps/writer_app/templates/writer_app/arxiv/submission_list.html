@@ -1,0 +1,505 @@
+{% extends "writer_app/base.html" %}
+{% load static %}
+
+{% block title %}My arXiv Submissions - SciTeX Writer{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'writer_app/css/arxiv.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h2">My arXiv Submissions</h1>
+                <div class="btn-group" role="group">
+                    <a href="{% url 'writer:arxiv-dashboard' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Dashboard
+                    </a>
+                    <a href="{% url 'writer:manuscript-list' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> New Submission
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    {% if stats %}
+    <div class="row mb-4">
+        <div class="col-md-2">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-primary">{{ stats.total }}</h3>
+                    <p class="mb-0 small">Total</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-secondary">{{ stats.draft }}</h3>
+                    <p class="mb-0 small">Drafts</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-info">{{ stats.submitted }}</h3>
+                    <p class="mb-0 small">Submitted</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-success">{{ stats.published }}</h3>
+                    <p class="mb-0 small">Published</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-danger">{{ stats.rejected }}</h3>
+                    <p class="mb-0 small">Rejected</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card text-center">
+                <div class="card-body">
+                    <button class="btn btn-outline-primary btn-sm" onclick="refreshAll()">
+                        <i class="fas fa-sync"></i>
+                    </button>
+                    <p class="mb-0 small mt-1">Refresh</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Filters and Search -->
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                <input type="text" class="form-control" id="searchInput" placeholder="Search submissions...">
+            </div>
+        </div>
+        <div class="col-md-3">
+            <select class="form-select" id="statusFilter">
+                <option value="">All Statuses</option>
+                <option value="draft">Draft</option>
+                <option value="submitted">Submitted</option>
+                <option value="under_review">Under Review</option>
+                <option value="approved">Approved</option>
+                <option value="published">Published</option>
+                <option value="rejected">Rejected</option>
+                <option value="withdrawn">Withdrawn</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select class="form-select" id="categoryFilter">
+                <option value="">All Categories</option>
+                <!-- Categories will be populated by JavaScript -->
+            </select>
+        </div>
+    </div>
+
+    <!-- Submissions Table -->
+    {% if submissions %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="submissionsTable">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>arXiv ID</th>
+                                    <th>Status</th>
+                                    <th>Category</th>
+                                    <th>Version</th>
+                                    <th>Created</th>
+                                    <th>Submitted</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for submission in submissions %}
+                                <tr data-status="{{ submission.status }}" 
+                                    data-category="{{ submission.primary_category.code }}"
+                                    data-title="{{ submission.title|lower }}">
+                                    <td>
+                                        <a href="{% url 'writer:arxiv-submission-detail' submission.submission_id %}" 
+                                           class="text-decoration-none">
+                                            <strong>{{ submission.title|truncatechars:60 }}</strong>
+                                        </a>
+                                        <br>
+                                        <small class="text-muted">
+                                            {{ submission.manuscript.title|truncatechars:40 }}
+                                        </small>
+                                    </td>
+                                    <td>
+                                        {% if submission.arxiv_id %}
+                                            <a href="{{ submission.arxiv_url }}" 
+                                               target="_blank" 
+                                               class="text-decoration-none">
+                                                {{ submission.arxiv_id }}
+                                                <i class="fas fa-external-link-alt fa-xs"></i>
+                                            </a>
+                                        {% else %}
+                                            <span class="text-muted">—</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{% if submission.status == 'published' %}success{% elif submission.status == 'draft' %}secondary{% elif submission.status == 'submitted' %}primary{% elif submission.status == 'under_review' %}info{% elif submission.status == 'approved' %}warning{% elif submission.status == 'rejected' %}danger{% else %}dark{% endif %}">
+                                            {{ submission.get_status_display }}
+                                        </span>
+                                        {% if submission.status in 'submitted,under_review,approved' %}
+                                        <br>
+                                        <button class="btn btn-xs btn-outline-secondary mt-1" 
+                                                onclick="checkSubmissionStatus('{{ submission.submission_id }}')">
+                                            <i class="fas fa-sync fa-xs"></i>
+                                        </button>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-dark">{{ submission.primary_category.code }}</span>
+                                        {% if submission.secondary_categories.exists %}
+                                        <br>
+                                        <small class="text-muted">
+                                            +{{ submission.secondary_categories.count }} more
+                                        </small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        v{{ submission.version }}
+                                        {% if submission.replaces_submission %}
+                                        <br>
+                                        <small class="text-muted">
+                                            <i class="fas fa-arrow-up"></i> Replacement
+                                        </small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <small>{{ submission.created_at|date:"M d, Y" }}</small>
+                                        <br>
+                                        <small class="text-muted">{{ submission.created_at|date:"H:i" }}</small>
+                                    </td>
+                                    <td>
+                                        {% if submission.submitted_at %}
+                                        <small>{{ submission.submitted_at|date:"M d, Y" }}</small>
+                                        <br>
+                                        <small class="text-muted">{{ submission.submitted_at|date:"H:i" }}</small>
+                                        {% else %}
+                                        <span class="text-muted">—</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group-vertical btn-group-sm" role="group">
+                                            <a href="{% url 'writer:arxiv-submission-detail' submission.submission_id %}" 
+                                               class="btn btn-outline-primary btn-sm">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            
+                                            {% if submission.status == 'draft' %}
+                                            <button class="btn btn-outline-success btn-sm" 
+                                                    onclick="quickValidate('{{ submission.submission_id }}')">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                            {% elif submission.status == 'published' and submission.can_be_replaced %}
+                                            <a href="{% url 'writer:arxiv-create-replacement' submission.submission_id %}" 
+                                               class="btn btn-outline-warning btn-sm">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    {% if is_paginated %}
+                    <nav aria-label="Submissions pagination">
+                        <ul class="pagination justify-content-center">
+                            {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1">&laquo; First</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                            </li>
+                            {% endif %}
+
+                            {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                            </li>
+                            {% endif %}
+                            {% endfor %}
+
+                            {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+    <!-- Empty State -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-file-alt fa-4x text-muted mb-4"></i>
+                    <h4>No Submissions Yet</h4>
+                    <p class="text-muted">You haven't submitted any manuscripts to arXiv yet.</p>
+                    <div class="mt-4">
+                        <a href="{% url 'writer:manuscript-list' %}" class="btn btn-primary me-2">
+                            <i class="fas fa-plus"></i> Create First Submission
+                        </a>
+                        <a href="{% url 'writer:arxiv-dashboard' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Loading Modal -->
+<div class="modal fade" id="loadingModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2 mb-0" id="loadingMessage">Processing...</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize filters
+    initializeFilters();
+    
+    // Load categories for filter
+    loadCategories();
+});
+
+function initializeFilters() {
+    const searchInput = document.getElementById('searchInput');
+    const statusFilter = document.getElementById('statusFilter');
+    const categoryFilter = document.getElementById('categoryFilter');
+    
+    // Search functionality
+    searchInput.addEventListener('input', function() {
+        filterTable();
+    });
+    
+    // Status filter
+    statusFilter.addEventListener('change', function() {
+        filterTable();
+    });
+    
+    // Category filter
+    categoryFilter.addEventListener('change', function() {
+        filterTable();
+    });
+}
+
+function filterTable() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const statusFilter = document.getElementById('statusFilter').value;
+    const categoryFilter = document.getElementById('categoryFilter').value;
+    
+    const rows = document.querySelectorAll('#submissionsTable tbody tr');
+    
+    rows.forEach(row => {
+        const title = row.dataset.title;
+        const status = row.dataset.status;
+        const category = row.dataset.category;
+        
+        let visible = true;
+        
+        // Search filter
+        if (searchTerm && !title.includes(searchTerm)) {
+            visible = false;
+        }
+        
+        // Status filter
+        if (statusFilter && status !== statusFilter) {
+            visible = false;
+        }
+        
+        // Category filter
+        if (categoryFilter && !category.startsWith(categoryFilter)) {
+            visible = false;
+        }
+        
+        row.style.display = visible ? '' : 'none';
+    });
+}
+
+function loadCategories() {
+    fetch('/writer/arxiv/api/categories/?group_by_field=true')
+        .then(response => response.json())
+        .then(data => {
+            const categoryFilter = document.getElementById('categoryFilter');
+            
+            Object.keys(data.categories).forEach(field => {
+                const option = document.createElement('option');
+                option.value = field;
+                option.textContent = field.toUpperCase();
+                categoryFilter.appendChild(option);
+            });
+        })
+        .catch(error => {
+            console.error('Error loading categories:', error);
+        });
+}
+
+function checkSubmissionStatus(submissionId) {
+    showLoading('Checking status...');
+    
+    fetch(`/writer/arxiv/submission/${submissionId}/check-status/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCsrfToken(),
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        hideLoading();
+        if (data.success) {
+            showSuccess('Status updated successfully!');
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showError(data.error || 'Status check failed');
+        }
+    })
+    .catch(error => {
+        hideLoading();
+        showError('Error checking status: ' + error.message);
+    });
+}
+
+function quickValidate(submissionId) {
+    showLoading('Validating submission...');
+    
+    fetch(`/writer/arxiv/submission/${submissionId}/validate/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCsrfToken(),
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        hideLoading();
+        if (data.success) {
+            if (data.ready_for_submission) {
+                showSuccess('Validation passed! Ready for submission.');
+            } else {
+                showWarning('Validation completed with issues. Check submission details.');
+            }
+        } else {
+            showError(data.error || 'Validation failed');
+        }
+    })
+    .catch(error => {
+        hideLoading();
+        showError('Error during validation: ' + error.message);
+    });
+}
+
+function refreshAll() {
+    showLoading('Refreshing submission statuses...');
+    
+    const submissionIds = Array.from(document.querySelectorAll('#submissionsTable tbody tr'))
+        .map(row => row.querySelector('[onclick*="checkSubmissionStatus"]'))
+        .filter(btn => btn)
+        .map(btn => btn.getAttribute('onclick').match(/'([^']+)'/)[1]);
+    
+    Promise.all(submissionIds.map(id => 
+        fetch(`/writer/arxiv/submission/${id}/check-status/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCsrfToken(),
+                'Content-Type': 'application/json'
+            }
+        })
+    ))
+    .then(() => {
+        hideLoading();
+        showSuccess('All statuses updated!');
+        setTimeout(() => location.reload(), 1000);
+    })
+    .catch(error => {
+        hideLoading();
+        showError('Error refreshing statuses: ' + error.message);
+    });
+}
+
+// Utility functions
+function getCsrfToken() {
+    return document.querySelector('[name=csrfmiddlewaretoken]').value;
+}
+
+function showLoading(message) {
+    document.getElementById('loadingMessage').textContent = message;
+    const modal = new bootstrap.Modal(document.getElementById('loadingModal'));
+    modal.show();
+}
+
+function hideLoading() {
+    const modal = bootstrap.Modal.getInstance(document.getElementById('loadingModal'));
+    if (modal) modal.hide();
+}
+
+function showSuccess(message) {
+    // Implementation for success toast/alert
+    alert('Success: ' + message);
+}
+
+function showWarning(message) {
+    // Implementation for warning toast/alert
+    alert('Warning: ' + message);
+}
+
+function showError(message) {
+    // Implementation for error toast/alert
+    alert('Error: ' + message);
+}
+</script>
+{% endblock %}

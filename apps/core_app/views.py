@@ -1,12 +1,68 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.contrib.auth import get_user_model
 from datetime import datetime, timedelta
 import random
 import json
-from .models import Document, UserProfile, Project
+from apps.document_app.models import Document
+from apps.auth_app.models import UserProfile
+from apps.project_app.models import Project
 from .directory_manager import get_user_directory_manager
+
+
+def generate_smart_recommendations(user):
+    """Generate personalized recommendations based on user activity."""
+    recommendations = []
+    
+    # Get user's project count
+    project_count = Project.objects.filter(owner=user).count()
+    
+    # Get user's registration date
+    days_since_registration = (datetime.now().date() - user.date_joined.date()).days
+    
+    # Smart recommendations based on user state
+    if project_count == 0:
+        recommendations.append({
+            'type': 'action',
+            'title': 'Create Your First Project',
+            'description': 'Start organizing your research with a dedicated project workspace',
+            'action_url': '/core/project-list/',
+            'icon': 'fas fa-plus-circle',
+            'priority': 'high'
+        })
+    
+    if days_since_registration <= 7:
+        recommendations.append({
+            'type': 'explore',
+            'title': 'Discover SciTeX Scholar',
+            'description': 'Search through millions of scientific papers with our advanced semantic search',
+            'action_url': '/scholar/',
+            'icon': 'fas fa-search',
+            'priority': 'medium'
+        })
+        
+        recommendations.append({
+            'type': 'learn',
+            'title': 'Try LaTeX Writing',
+            'description': 'Write and compile scientific documents with our integrated LaTeX editor',
+            'action_url': '/writer/',
+            'icon': 'fas fa-edit',
+            'priority': 'medium'
+        })
+    
+    # Add productivity tips for active users
+    if project_count > 0:
+        recommendations.append({
+            'type': 'tip',
+            'title': 'Pro Tip: Use Keywords',
+            'description': 'Add keywords to your projects for better organization and search',
+            'action_url': None,
+            'icon': 'fas fa-lightbulb',
+            'priority': 'low'
+        })
+    
+    return recommendations[:3]  # Limit to 3 recommendations
 
 
 def landing(request):
@@ -16,86 +72,21 @@ def landing(request):
 
 @login_required
 def index(request):
-    """Dashboard/index view."""
+    """Dashboard/index view - Redirect to Projects."""
+    # Dashboard is just the projects/file manager - redirect directly to GitHub-style URLs
+    return redirect('/projects/')
+
+
+@login_required
+def dashboard_react_tree(request):
+    """File Manager Dashboard - Single page with file browser only."""
     user = request.user
-    
-    # Get user's documents
-    documents = Document.objects.filter(owner=user).order_by('-updated_at')[:5]
-    
-    # Get user's projects
-    projects = Project.objects.filter(owner=user).order_by('-updated_at')[:5]
-    
-    # Update storage usage for each project
-    for project in projects:
-        if project.directory_created:
-            project.update_storage_usage()
-    
-    # Get or create user profile
-    profile, created = UserProfile.objects.get_or_create(user=user)
-    
-    # Calculate project-focused statistics
-    total_storage_bytes = sum(project.storage_used for project in projects)
-    total_storage_mb = round(total_storage_bytes / (1024 * 1024), 2)
-    
-    # Count repositories connected
-    repositories_connected = Project.objects.filter(
-        owner=user, 
-        source_code_url__isnull=False
-    ).exclude(source_code_url='').count()
-    
-    stats = {
-        'total_projects': Project.objects.filter(owner=user).count(),
-        'total_documents': Document.objects.filter(owner=user).count(),
-        'public_documents': Document.objects.filter(owner=user, is_public=True).count(),
-        'active_projects': Project.objects.filter(owner=user, status='active').count(),
-        'total_storage_mb': total_storage_mb,
-        'repositories_connected': repositories_connected,
-        'recent_activity': Project.objects.filter(
-            owner=user, 
-            last_activity__gte=datetime.now() - timedelta(days=7)
-        ).count(),
-    }
-    
-    # Get user's subscription plan
-    from apps.cloud_app.models import Subscription, SubscriptionPlan
-    try:
-        subscription = Subscription.objects.get(user=user, status='active')
-        user_plan = subscription.plan
-    except Subscription.DoesNotExist:
-        # Default to free plan
-        user_plan = SubscriptionPlan.objects.filter(plan_type='free').first()
-    
-    # Calculate resource usage
-    resource_usage = {
-        'storage_used': 0.5,  # TODO: Calculate actual storage
-        'storage_percent': 10,
-        'projects_used': stats['total_projects'],
-        'projects_percent': (stats['total_projects'] / user_plan.max_projects * 100) if user_plan else 0,
-        'cpu_hours': 2.5,  # TODO: Track actual CPU usage
-        'cpu_percent': 25,
-    }
-    
-    # Recent activities
-    recent_activities = []
-    for doc in documents[:3]:
-        recent_activities.append({
-            'icon': 'fas fa-file-alt',
-            'title': f'Updated document: {doc.title}',
-            'time_ago': f'{doc.updated_at.strftime("%b %d at %I:%M %p")}',
-        })
     
     context = {
         'user': user,
-        'profile': profile,
-        'documents': documents,
-        'projects': projects,
-        'stats': stats,
-        'user_plan': user_plan,
-        'resource_usage': resource_usage,
-        'recent_activities': recent_activities,
     }
     
-    return render(request, 'core_app/dashboard.html', context)
+    return render(request, 'core_app/dashboard_react_tree.html', context)
 
 
 def about(request):

@@ -15,7 +15,7 @@ from django.utils.safestring import mark_safe
 from .models import (
     UserProfile, Organization, OrganizationMembership,
     ResearchGroup, ResearchGroupMembership,
-    Project, ProjectMembership, Document, GitFileStatus
+    Project, ProjectMembership, GitFileStatus
 )
 
 
@@ -310,45 +310,6 @@ class ProjectMembershipAdmin(admin.ModelAdmin):
         
         return ', '.join(perms) if perms else 'No permissions'
     permissions_summary.short_description = 'Key Permissions'
-
-
-# Document admin
-@admin.register(Document)
-class DocumentAdmin(admin.ModelAdmin):
-    list_display = ('title', 'document_type', 'owner', 'project', 'file_size_mb', 'has_file_display', 'updated_at')
-    list_filter = ('document_type', 'is_public', 'created_at')
-    search_fields = ('title', 'content', 'owner__username', 'project__name', 'tags')
-    
-    fieldsets = (
-        ('Document Information', {
-            'fields': ('title', 'document_type', 'content', 'tags')
-        }),
-        ('Ownership', {
-            'fields': ('owner', 'project', 'is_public')
-        }),
-        ('File Management', {
-            'fields': ('file_location', 'file_size', 'file_hash'),
-            'classes': ('collapse',)
-        }),
-        ('Timestamps', {
-            'fields': ('created_at', 'updated_at'),
-            'classes': ('collapse',)
-        }),
-    )
-    readonly_fields = ('created_at', 'updated_at', 'file_size', 'file_hash')
-    
-    def file_size_mb(self, obj):
-        if obj.file_size:
-            return f"{obj.file_size / (1024*1024):.2f} MB"
-        return "No file"
-    file_size_mb.short_description = 'File Size'
-    
-    def has_file_display(self, obj):
-        if obj.has_file():
-            return format_html('<span style="color: green;"></span>')
-        return format_html('<span style="color: red;"></span>')
-    has_file_display.short_description = 'Has File'
-    has_file_display.boolean = True
 
 
 # Git File Status admin

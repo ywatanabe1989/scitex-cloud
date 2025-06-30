@@ -12,4 +12,5 @@ urlpatterns = [
     path('viz/', include('apps.api.viz_urls')),
     path('search/', include('apps.api.search_urls')),
     path('cloud/', include('apps.api.cloud_urls')),
+    path('orcid/', include('apps.api.orcid_urls')),
 ]

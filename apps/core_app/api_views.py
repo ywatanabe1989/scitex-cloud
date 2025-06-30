@@ -26,7 +26,15 @@ from django.views.decorators.http import require_http_methods
 from django.core.paginator import Paginator
 from django.db import transaction
 
-from .models import Document, Project, UserProfile
+from .models import Project, UserProfile
+from apps.document_app.models import Document
+import logging
+import re
+import subprocess
+import shutil
+from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 
 class BaseAPIView(View):
@@ -316,23 +324,50 @@ class ProjectAPIView(BaseAPIView):
             if not name:
                 return self.error_response("Project name is required")
             
+            # Validate and ensure unique project name
+            original_name = name
+            if not Project.validate_name_uniqueness(name, request.user):
+                # Auto-generate unique name or return error based on preference
+                auto_fix = data.get('auto_fix_name', True)
+                if auto_fix:
+                    name = Project.generate_unique_name(name, request.user)
+                    logger.info(f"Auto-generated unique project name: {original_name} -> {name}")
+                else:
+                    return self.error_response(
+                        f"Project name '{name}' already exists. Please choose a different name.",
+                        status=409  # Conflict status code
+                    )
+            
+            # Make description and hypotheses optional with defaults
             if not description:
-                return self.error_response("Project description is required")
+                description = f"Research project: {name}"
             
             if not hypotheses:
-                return self.error_response("Research hypotheses are required")
+                hypotheses = "Research hypotheses to be defined"
+            
+            # Check if this is a GitHub clone request
+            source_code_url = data.get('source_code_url', '').strip()
+            is_clone_request = bool(source_code_url)
             
             # Create project with enhanced fields
             with transaction.atomic():
-                project = Project.objects.create(
-                    name=name,
-                    description=description,
-                    hypotheses=hypotheses,
-                    source_code_url=data.get('source_code_url', '').strip(),
-                    status=data.get('status', 'planning'),
-                    progress=data.get('progress', 0),
-                    owner=request.user
-                )
+                try:
+                    project = Project.objects.create(
+                        name=name,
+                        description=description,
+                        hypotheses=hypotheses,
+                        source_code_url=source_code_url,
+                        status=data.get('status', 'planning'),
+                        progress=data.get('progress', 0),
+                        owner=request.user
+                    )
+                except Exception as e:
+                    if 'unique_together' in str(e).lower() or 'unique constraint' in str(e).lower():
+                        return self.error_response(
+                            f"Project name '{name}' already exists. Please choose a different name.",
+                            status=409
+                        )
+                    raise  # Re-raise other exceptions
                 
                 # Add deadline if provided
                 deadline = data.get('deadline')
@@ -341,18 +376,45 @@ class ProjectAPIView(BaseAPIView):
                     project.deadline = parse_datetime(deadline)
                     project.save()
                 
-                # Create default directory structure if requested
-                create_default_structure = data.get('create_default_structure', True)
-                if create_default_structure:
-                    success = project.ensure_directory()
-                    if success:
-                        # Create the standard research directory structure
+                # Handle GitHub clone or create default structure
+                if is_clone_request:
+                    success = self._clone_from_github(project, source_code_url, request.user)
+                    if not success:
+                        # If clone fails, create default structure as fallback
+                        project.ensure_directory()
                         self._create_default_directories(project)
+                        return self.error_response("Failed to clone repository, created empty project instead")
+                else:
+                    # Create default directory structure if requested
+                    create_default_structure = data.get('create_default_structure', True)
+                    if create_default_structure:
+                        success = project.ensure_directory()
+                        if success:
+                            # Create the standard research directory structure
+                            self._create_default_directories(project)
             
-            return self.success_response({
+            # Determine success message based on creation type
+            if is_clone_request:
+                message = f'Project cloned successfully from {source_code_url}'
+            else:
+                message = 'Project created successfully with default directory structure'
+            
+            # Add name change notification if name was auto-generated
+            if name != original_name:
+                message += f" (Name changed from '{original_name}' to '{name}' to ensure uniqueness)"
+            
+            response_data = {
                 'project': self._serialize_project(project),
-                'message': 'Project created successfully with default directory structure'
-            }, status=201)
+                'message': message
+            }
+            
+            # Include name change information for frontend handling
+            if name != original_name:
+                response_data['name_changed'] = True
+                response_data['original_name'] = original_name
+                response_data['final_name'] = name
+            
+            return self.success_response(response_data, status=201)
             
         except Exception as e:
             return self.error_response(f"Error creating project: {str(e)}", 500)
@@ -420,6 +482,125 @@ class ProjectAPIView(BaseAPIView):
         }
         
         return readme_contents.get(directory, f'# {directory.title()}\n\nDirectory for {directory} files.\n')
+    
+    def _clone_from_github(self, project, repo_url, user):
+        """Clone repository from GitHub/Git URL using SSH or HTTPS"""
+        try:
+            import subprocess
+            import re
+            import shutil
+            from pathlib import Path
+            
+            # Normalize URL formats
+            normalized_url = self._normalize_git_url(repo_url)
+            if not normalized_url:
+                logger.error(f"Invalid Git URL format: {repo_url}")
+                return False
+            
+            # Check if this is an SSH URL and user has SSH keys
+            is_ssh_url = normalized_url.startswith('git@')
+            ssh_manager = None
+            
+            if is_ssh_url:
+                from apps.api.v1.auth.ssh_key_manager import SSHKeyManager
+                ssh_manager = SSHKeyManager(user)
+                
+                if not ssh_manager.has_ssh_key():
+                    logger.warning(f"SSH URL provided but user {user.username} has no SSH key")
+                    return False
+            
+            # Ensure project directory exists
+            project.ensure_directory()
+            project_path = project.get_directory_path()
+            
+            if not project_path:
+                logger.error("Failed to create project directory")
+                return False
+            
+            # Clear directory if it exists (keep it clean for cloning)
+            if project_path.exists():
+                import shutil
+                shutil.rmtree(project_path)
+                project_path.mkdir(parents=True, exist_ok=True)
+            
+            # Prepare environment and command
+            env = {}
+            if is_ssh_url and ssh_manager:
+                env = ssh_manager.get_git_env()
+            
+            clone_cmd = ['git', 'clone', normalized_url, str(project_path)]
+            
+            logger.info(f"Cloning repository: {normalized_url} to {project_path}")
+            
+            result = subprocess.run(
+                clone_cmd,
+                capture_output=True,
+                text=True,
+                timeout=300,  # 5 minute timeout
+                env={**os.environ, **env}
+            )
+            
+            if result.returncode == 0:
+                logger.info(f"Successfully cloned repository to {project_path}")
+                
+                # Create additional SciTeX directories if they don't exist
+                self._ensure_scitex_directories(project_path)
+                
+                return True
+            else:
+                logger.error(f"Git clone failed: {result.stderr}")
+                return False
+                
+        except subprocess.TimeoutExpired:
+            logger.error("Git clone operation timed out")
+            return False
+        except Exception as e:
+            logger.error(f"Error cloning repository: {str(e)}")
+            return False
+    
+    def _normalize_git_url(self, url):
+        """Normalize Git URL to proper format"""
+        url = url.strip()
+        
+        # Handle SSH format: git@github.com:user/repo.git
+        ssh_pattern = r'^git@([^:]+):([^/]+)/(.+?)(?:\.git)?/?$'
+        ssh_match = re.match(ssh_pattern, url)
+        if ssh_match:
+            host, user, repo = ssh_match.groups()
+            return f"git@{host}:{user}/{repo}.git"
+        
+        # Handle HTTPS format: https://github.com/user/repo
+        https_pattern = r'^https://([^/]+)/([^/]+)/(.+?)(?:\.git)?/?$'
+        https_match = re.match(https_pattern, url)
+        if https_match:
+            host, user, repo = https_match.groups()
+            return f"https://{host}/{user}/{repo}.git"
+        
+        # If it already looks like a proper git URL, return as-is
+        if url.endswith('.git'):
+            return url
+        
+        return None
+    
+    def _ensure_scitex_directories(self, project_path):
+        """Ensure SciTeX research directories exist alongside cloned content"""
+        scitex_dirs = [
+            'data/raw', 'data/processed', 'data/figures', 'data/models',
+            'results/outputs', 'results/reports', 'results/analysis',
+            'docs/manuscripts', 'docs/notes', 'docs/references',
+            'temp/cache', 'temp/logs', 'temp/tmp'
+        ]
+        
+        for directory in scitex_dirs:
+            dir_path = project_path / directory
+            if not dir_path.exists():
+                dir_path.mkdir(parents=True, exist_ok=True)
+                
+                # Add README if it doesn't exist
+                readme_path = dir_path / 'README.md'
+                if not readme_path.exists():
+                    readme_content = self._get_readme_content(directory)
+                    readme_path.write_text(readme_content)
     
     def put(self, request, project_id):
         """Update existing project"""
@@ -767,5 +948,354 @@ def user_profile_api(request):
     """User profile API endpoint wrapper"""
     view = UserProfileAPIView()
     return view.dispatch(request)
+
+# File System API Views for React Complex Tree Dashboard
+
+@login_required
+@require_http_methods(["GET"])
+def file_tree_api(request):
+    """
+    API endpoint for React Complex Tree - returns real file system structure for current user.
+    Scans actual project directories and returns real files and folders.
+    """
+    try:
+        import os
+        from pathlib import Path
+        from django.conf import settings
+        
+        user = request.user
+        file_tree = {}
+        
+        # Root node
+        file_tree["root"] = {
+            "id": "root",
+            "name": f"{user.username}",
+            "type": "folder",
+            "children": ["projects"],
+            "isExpanded": True,
+            "canRename": False,
+            "canMove": False
+        }
+        
+        # Projects root
+        file_tree["projects"] = {
+            "id": "projects",
+            "name": "projects", 
+            "type": "folder",
+            "children": [],
+            "isExpanded": True,
+            "canRename": False,
+            "canMove": False
+        }
+        
+        # Get user's actual projects (all active statuses)
+        user_projects = Project.objects.filter(
+            owner=user, 
+            status__in=['active', 'planning']
+        ).order_by('name')
+        
+        project_children = []
+        
+        for project in user_projects:
+            project_id = f"project_{project.id}"
+            project_children.append(project_id)
+            
+            # Get actual project directory
+            project_path = project.get_directory_path()
+            
+            if project_path and project_path.exists():
+                # Scan real directory structure
+                children = []
+                project_items = _scan_directory(project_path, project_id, project.id, file_tree)
+                children.extend(project_items)
+                
+                file_tree[project_id] = {
+                    "id": project_id,
+                    "name": project.name,
+                    "type": "folder",
+                    "children": children,
+                    "isExpanded": False,
+                    "projectId": project.id,
+                    "description": project.description or "",
+                    "created": project.created_at.isoformat(),
+                    "modified": project.updated_at.isoformat(),
+                    "path": str(project_path)
+                }
+            else:
+                # Project directory doesn't exist, show empty
+                file_tree[project_id] = {
+                    "id": project_id,
+                    "name": f"{project.name} (not created)",
+                    "type": "folder",
+                    "children": [],
+                    "isExpanded": False,
+                    "projectId": project.id,
+                    "description": "Project directory not created yet",
+                    "created": project.created_at.isoformat(),
+                    "modified": project.updated_at.isoformat()
+                }
+        
+        # Update projects children list
+        file_tree["projects"]["children"] = project_children
+        
+        return JsonResponse({
+            "success": True,
+            "fileTree": file_tree,
+            "rootId": "root",
+            "expandedItems": ["root", "projects"],
+            "selectedItems": [],
+            "focusedItem": None
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            "success": False,
+            "error": str(e)
+        }, status=500)
+
+
+def _scan_directory(directory_path, parent_id, project_id, file_tree):
+    """
+    Recursively scan directory and populate file_tree with real files and folders.
+    Returns list of child IDs.
+    """
+    try:
+        from pathlib import Path
+        import mimetypes
+        
+        children = []
+        
+        # Sort entries: directories first, then files
+        entries = sorted(directory_path.iterdir(), key=lambda x: (x.is_file(), x.name.lower()))
+        
+        for entry in entries:
+            # Skip hidden files and system files
+            if entry.name.startswith('.'):
+                continue
+                
+            # Generate unique ID
+            entry_id = f"{parent_id}_{entry.name}".replace(' ', '_').replace('.', '_dot_')
+            children.append(entry_id)
+            
+            if entry.is_dir():
+                # Recursively scan subdirectory
+                subchildren = _scan_directory(entry, entry_id, project_id, file_tree)
+                
+                file_tree[entry_id] = {
+                    "id": entry_id,
+                    "name": entry.name,
+                    "type": "folder",
+                    "children": subchildren,
+                    "isExpanded": False,
+                    "projectId": project_id,
+                    "path": str(entry),
+                    "modified": entry.stat().st_mtime
+                }
+            else:
+                # File entry
+                stat_info = entry.stat()
+                
+                # Determine file type
+                file_type = _get_file_type(entry.name, entry.suffix)
+                
+                file_tree[entry_id] = {
+                    "id": entry_id,
+                    "name": entry.name,
+                    "type": file_type,
+                    "size": stat_info.st_size,
+                    "modified": stat_info.st_mtime,
+                    "projectId": project_id,
+                    "path": str(entry)
+                }
+        
+        return children
+        
+    except Exception as e:
+        print(f"Error scanning directory {directory_path}: {e}")
+        return []
+
+
+def _get_file_type(filename, suffix):
+    """Determine file type based on extension"""
+    suffix = suffix.lower()
+    
+    type_map = {
+        '.py': 'python',
+        '.js': 'javascript', 
+        '.json': 'json',
+        '.md': 'markdown',
+        '.txt': 'text',
+        '.csv': 'text',
+        '.html': 'text',
+        '.css': 'text',
+        '.xml': 'text',
+        '.yml': 'text',
+        '.yaml': 'text',
+        '.png': 'image',
+        '.jpg': 'image',
+        '.jpeg': 'image',
+        '.gif': 'image',
+        '.svg': 'image',
+        '.pdf': 'pdf',
+        '.doc': 'word',
+        '.docx': 'word',
+        '.xls': 'excel',
+        '.xlsx': 'excel',
+        '.ppt': 'powerpoint',
+        '.pptx': 'powerpoint',
+        '.zip': 'archive',
+        '.tar': 'archive',
+        '.gz': 'archive',
+        '.r': 'text',
+        '.R': 'text',
+        '.ipynb': 'json',
+        '.tex': 'text',
+        '.bib': 'text'
+    }
+    
+    return type_map.get(suffix, 'text')
+
+
+@login_required
+@require_http_methods(["GET"])
+def file_content_api(request, file_id):
+    """
+    API endpoint to get real file content for preview/editing.
+    """
+    try:
+        from pathlib import Path
+        
+        # First, get the file tree to find the file path
+        user = request.user
+        user_projects = Project.objects.filter(
+            owner=user, 
+            status__in=['active', 'planning']
+        )
+        
+        file_path = None
+        file_name = ""
+        
+        # Search through all projects to find the file
+        for project in user_projects:
+            project_path = project.get_directory_path()
+            if project_path and project_path.exists():
+                # Recursively search for the file
+                file_path, file_name = _find_file_by_id(project_path, file_id)
+                if file_path:
+                    break
+        
+        if not file_path or not Path(file_path).exists():
+            return JsonResponse({
+                "success": False,
+                "error": "File not found"
+            }, status=404)
+        
+        # Read file content
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+        except UnicodeDecodeError:
+            # Try with different encoding or treat as binary
+            try:
+                with open(file_path, 'r', encoding='latin-1') as f:
+                    content = f.read()
+            except:
+                content = f"[Binary file - {file_name}]\nUnable to display binary content."
+        
+        return JsonResponse({
+            "success": True,
+            "content": content,
+            "fileId": file_id,
+            "fileName": file_name,
+            "filePath": str(file_path)
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            "success": False,
+            "error": str(e)
+        }, status=500)
+
+
+def _find_file_by_id(directory_path, target_file_id):
+    """
+    Recursively search for a file with the given ID in the directory tree.
+    Returns (file_path, file_name) if found, (None, "") if not found.
+    """
+    try:
+        for entry in directory_path.iterdir():
+            if entry.name.startswith('.'):
+                continue
+                
+            # Generate the same ID format as in _scan_directory
+            entry_id = f"{target_file_id.split('_')[0]}_{target_file_id.split('_')[1]}_{entry.name}".replace(' ', '_').replace('.', '_dot_')
+            
+            if entry.is_file():
+                # Check if this matches our target ID
+                if entry_id == target_file_id:
+                    return str(entry), entry.name
+            elif entry.is_dir():
+                # Recursively search subdirectories
+                result_path, result_name = _find_file_by_id(entry, target_file_id)
+                if result_path:
+                    return result_path, result_name
+                    
+        return None, ""
+        
+    except Exception as e:
+        print(f"Error searching for file {target_file_id} in {directory_path}: {e}")
+        return None, ""
+
+
+@csrf_exempt
+@login_required 
+def file_tree_api_wrapper(request):
+    """File tree API endpoint wrapper"""
+    return file_tree_api(request)
+
+
+@csrf_exempt
+@login_required
+def file_content_api_wrapper(request, file_id):
+    """File content API endpoint wrapper"""
+    return file_content_api(request, file_id)
+
+
+@login_required
+@require_http_methods(["GET"])
+def debug_user_projects(request):
+    """Debug endpoint to show current user's projects"""
+    try:
+        from django.http import JsonResponse
+        
+        user = request.user
+        projects = Project.objects.filter(owner=user).order_by('-created_at')
+        
+        project_data = []
+        for project in projects:
+            project_data.append({
+                'id': project.id,
+                'name': project.name,
+                'status': project.status,
+                'created_at': project.created_at.isoformat(),
+                'directory_exists': project.get_directory_path().exists() if project.get_directory_path() else False
+            })
+        
+        return JsonResponse({
+            'success': True,
+            'user': {
+                'id': user.id,
+                'username': user.username,
+                'email': user.email
+            },
+            'projects_count': len(project_data),
+            'projects': project_data
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
 
 # EOF

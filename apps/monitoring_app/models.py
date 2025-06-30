@@ -1,6 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey
+import uuid
+import json
 
 
 class SystemMetric(models.Model):
@@ -262,3 +266,449 @@ class FeatureUsage(models.Model):
     
     def __str__(self):
         return f"{self.module}.{self.feature_name} - {self.usage_count} uses"
+
+
+class ABTest(models.Model):
+    """A/B Testing framework for feature experimentation"""
+    
+    STATUS_CHOICES = [
+        ('draft', 'Draft'),
+        ('active', 'Active'),
+        ('paused', 'Paused'),
+        ('completed', 'Completed'),
+        ('archived', 'Archived'),
+    ]
+    
+    name = models.CharField(max_length=100, unique=True)
+    description = models.TextField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
+    
+    # Test configuration
+    feature_flag = models.CharField(max_length=50)  # Feature flag name
+    traffic_allocation = models.FloatField(default=50.0)  # Percentage for variant A
+    target_metric = models.CharField(max_length=50)  # Primary metric to measure
+    
+    # Test variants
+    control_name = models.CharField(max_length=50, default='control')
+    variant_name = models.CharField(max_length=50, default='variant')
+    control_config = models.JSONField(default=dict)  # Configuration for control
+    variant_config = models.JSONField(default=dict)  # Configuration for variant
+    
+    # Targeting
+    target_users = models.JSONField(default=dict)  # User targeting criteria
+    exclusion_criteria = models.JSONField(default=dict)  # Users to exclude
+    
+    # Timeline
+    start_date = models.DateTimeField(null=True, blank=True)
+    end_date = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    # Results tracking
+    total_participants = models.IntegerField(default=0)
+    control_participants = models.IntegerField(default=0)
+    variant_participants = models.IntegerField(default=0)
+    
+    # Statistical significance
+    confidence_level = models.FloatField(default=95.0)
+    statistical_significance = models.BooleanField(default=False)
+    p_value = models.FloatField(null=True, blank=True)
+    
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_tests')
+    
+    class Meta:
+        indexes = [
+            models.Index(fields=['status', 'start_date']),
+            models.Index(fields=['feature_flag']),
+            models.Index(fields=['created_at']),
+        ]
+    
+    def __str__(self):
+        return f"{self.name} ({self.status})"
+    
+    def is_active(self):
+        """Check if test is currently active"""
+        now = timezone.now()
+        return (
+            self.status == 'active' and
+            (self.start_date is None or self.start_date <= now) and
+            (self.end_date is None or self.end_date >= now)
+        )
+    
+    def get_user_variant(self, user):
+        """Determine which variant a user should see"""
+        if not self.is_active():
+            return None
+        
+        # Use user ID for consistent assignment
+        import hashlib
+        hash_input = f"{self.id}:{user.id if user.is_authenticated else 'anonymous'}"
+        hash_value = int(hashlib.md5(hash_input.encode()).hexdigest(), 16)
+        percentage = (hash_value % 100) + 1
+        
+        if percentage <= self.traffic_allocation:
+            return 'variant'
+        else:
+            return 'control'
+
+
+class ABTestParticipant(models.Model):
+    """Track users participating in A/B tests"""
+    
+    test = models.ForeignKey(ABTest, on_delete=models.CASCADE, related_name='participants')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    session_id = models.CharField(max_length=40, null=True, blank=True)  # For anonymous users
+    variant = models.CharField(max_length=20)  # 'control' or 'variant'
+    
+    # Participant metadata
+    user_agent = models.CharField(max_length=500, null=True, blank=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    device_type = models.CharField(max_length=50, null=True, blank=True)
+    
+    # Participation tracking
+    first_exposure = models.DateTimeField(auto_now_add=True)
+    last_activity = models.DateTimeField(auto_now=True)
+    conversion_achieved = models.BooleanField(default=False)
+    conversion_date = models.DateTimeField(null=True, blank=True)
+    
+    # Custom metrics
+    metrics_data = models.JSONField(default=dict)  # Store custom metrics
+    
+    class Meta:
+        unique_together = ['test', 'user', 'session_id']
+        indexes = [
+            models.Index(fields=['test', 'variant']),
+            models.Index(fields=['first_exposure']),
+            models.Index(fields=['conversion_achieved']),
+        ]
+    
+    def __str__(self):
+        user_id = self.user.username if self.user else f"session:{self.session_id}"
+        return f"{self.test.name} - {user_id} ({self.variant})"
+
+
+class ConversionFunnel(models.Model):
+    """Define conversion funnels for analysis"""
+    
+    name = models.CharField(max_length=100, unique=True)
+    description = models.TextField()
+    
+    # Funnel configuration
+    steps = models.JSONField()  # List of funnel steps with conditions
+    time_window = models.IntegerField(default=86400)  # Seconds (default: 24 hours)
+    
+    # Targeting
+    target_users = models.JSONField(default=dict)  # User criteria
+    
+    # Settings
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        indexes = [
+            models.Index(fields=['is_active', 'created_at']),
+        ]
+    
+    def __str__(self):
+        return self.name
+
+
+class ConversionEvent(models.Model):
+    """Track individual conversion events"""
+    
+    funnel = models.ForeignKey(ConversionFunnel, on_delete=models.CASCADE, related_name='events')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    session_id = models.CharField(max_length=40, null=True, blank=True)
+    
+    step_index = models.IntegerField()  # Which step in the funnel (0-based)
+    step_name = models.CharField(max_length=100)
+    
+    # Event metadata
+    properties = models.JSONField(default=dict)  # Event-specific data
+    timestamp = models.DateTimeField(auto_now_add=True)
+    
+    # Context
+    page_url = models.URLField(null=True, blank=True)
+    referrer = models.URLField(null=True, blank=True)
+    user_agent = models.CharField(max_length=500, null=True, blank=True)
+    
+    class Meta:
+        indexes = [
+            models.Index(fields=['funnel', 'user', 'timestamp']),
+            models.Index(fields=['funnel', 'step_index', 'timestamp']),
+            models.Index(fields=['session_id', 'timestamp']),
+        ]
+    
+    def __str__(self):
+        user_id = self.user.username if self.user else f"session:{self.session_id}"
+        return f"{self.funnel.name} - {user_id} - Step {self.step_index}"
+
+
+class UserJourney(models.Model):
+    """Track complete user journeys and touchpoints"""
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='journeys')
+    session_id = models.CharField(max_length=40)
+    journey_id = models.UUIDField(default=uuid.uuid4, unique=True)
+    
+    # Journey metadata
+    start_time = models.DateTimeField(auto_now_add=True)
+    end_time = models.DateTimeField(null=True, blank=True)
+    total_duration = models.IntegerField(null=True, blank=True)  # Seconds
+    
+    # Entry and exit points
+    entry_point = models.CharField(max_length=200)  # First page/action
+    exit_point = models.CharField(max_length=200, null=True, blank=True)  # Last page/action
+    entry_referrer = models.URLField(null=True, blank=True)
+    
+    # Journey characteristics
+    total_pages_viewed = models.IntegerField(default=0)
+    total_actions = models.IntegerField(default=0)
+    goal_achieved = models.BooleanField(default=False)
+    goal_type = models.CharField(max_length=50, null=True, blank=True)
+    
+    # Technical context
+    device_type = models.CharField(max_length=50, null=True, blank=True)
+    browser = models.CharField(max_length=50, null=True, blank=True)
+    platform = models.CharField(max_length=50, null=True, blank=True)
+    
+    # Journey path (simplified)
+    path_summary = models.JSONField(default=list)  # List of key touchpoints
+    
+    class Meta:
+        indexes = [
+            models.Index(fields=['user', 'start_time']),
+            models.Index(fields=['session_id']),
+            models.Index(fields=['goal_achieved', 'goal_type']),
+            models.Index(fields=['start_time']),
+        ]
+    
+    def __str__(self):
+        return f"{self.user.username} - Journey {self.journey_id.hex[:8]}"
+
+
+class UserCohort(models.Model):
+    """Define and track user cohorts for analysis"""
+    
+    name = models.CharField(max_length=100, unique=True)
+    description = models.TextField()
+    
+    # Cohort definition
+    criteria = models.JSONField()  # Conditions for cohort membership
+    time_period = models.CharField(max_length=50)  # 'weekly', 'monthly', etc.
+    
+    # Cohort metadata
+    start_date = models.DateField()
+    end_date = models.DateField(null=True, blank=True)
+    
+    # Members
+    users = models.ManyToManyField(User, through='CohortMembership')
+    
+    # Analytics
+    initial_size = models.IntegerField(default=0)
+    current_size = models.IntegerField(default=0)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        indexes = [
+            models.Index(fields=['start_date', 'time_period']),
+            models.Index(fields=['created_at']),
+        ]
+    
+    def __str__(self):
+        return f"{self.name} ({self.start_date})"
+
+
+class CohortMembership(models.Model):
+    """Track user membership in cohorts"""
+    
+    cohort = models.ForeignKey(UserCohort, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    
+    # Membership details
+    joined_date = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)
+    
+    # Cohort-specific metrics
+    metrics = models.JSONField(default=dict)
+    
+    class Meta:
+        unique_together = ['cohort', 'user']
+    
+    def __str__(self):
+        return f"{self.user.username} in {self.cohort.name}"
+
+
+class DataExportRequest(models.Model):
+    """Track data export requests for analytics"""
+    
+    EXPORT_TYPES = [
+        ('csv', 'CSV'),
+        ('json', 'JSON'),
+        ('excel', 'Excel'),
+        ('pdf', 'PDF Report'),
+    ]
+    
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('processing', 'Processing'),
+        ('completed', 'Completed'),
+        ('failed', 'Failed'),
+        ('expired', 'Expired'),
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='export_requests')
+    
+    # Export configuration
+    export_type = models.CharField(max_length=20, choices=EXPORT_TYPES)
+    data_source = models.CharField(max_length=50)  # 'user_activity', 'feature_usage', etc.
+    filters = models.JSONField(default=dict)  # Date range, user filters, etc.
+    
+    # Request metadata
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    
+    # File information
+    file_path = models.CharField(max_length=500, null=True, blank=True)
+    file_size = models.IntegerField(null=True, blank=True)  # Bytes
+    download_count = models.IntegerField(default=0)
+    expires_at = models.DateTimeField(null=True, blank=True)
+    
+    # Error handling
+    error_message = models.TextField(null=True, blank=True)
+    
+    class Meta:
+        indexes = [
+            models.Index(fields=['user', 'status']),
+            models.Index(fields=['created_at']),
+            models.Index(fields=['expires_at']),
+        ]
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.data_source} ({self.export_type})"
+
+
+class AlertRule(models.Model):
+    """Define automated alert rules for monitoring"""
+    
+    SEVERITY_LEVELS = [
+        ('info', 'Info'),
+        ('warning', 'Warning'),
+        ('error', 'Error'),
+        ('critical', 'Critical'),
+    ]
+    
+    CONDITION_TYPES = [
+        ('threshold', 'Threshold'),
+        ('percentage', 'Percentage'),
+        ('trend', 'Trend'),
+        ('anomaly', 'Anomaly'),
+    ]
+    
+    name = models.CharField(max_length=100, unique=True)
+    description = models.TextField()
+    
+    # Rule configuration
+    metric_name = models.CharField(max_length=50)  # What to monitor
+    condition_type = models.CharField(max_length=20, choices=CONDITION_TYPES)
+    threshold_value = models.FloatField()
+    time_window = models.IntegerField(default=300)  # Seconds
+    
+    # Alert settings
+    severity = models.CharField(max_length=10, choices=SEVERITY_LEVELS, default='warning')
+    is_active = models.BooleanField(default=True)
+    
+    # Notification settings
+    notification_emails = models.JSONField(default=list)
+    notification_slack = models.CharField(max_length=200, null=True, blank=True)
+    
+    # Rate limiting
+    cooldown_period = models.IntegerField(default=900)  # Seconds between alerts
+    last_triggered = models.DateTimeField(null=True, blank=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        indexes = [
+            models.Index(fields=['is_active', 'metric_name']),
+            models.Index(fields=['last_triggered']),
+        ]
+    
+    def __str__(self):
+        return f"{self.name} ({self.severity})"
+
+
+class AlertInstance(models.Model):
+    """Track triggered alerts"""
+    
+    rule = models.ForeignKey(AlertRule, on_delete=models.CASCADE, related_name='instances')
+    
+    # Alert details
+    triggered_at = models.DateTimeField(auto_now_add=True)
+    metric_value = models.FloatField()
+    threshold_value = models.FloatField()
+    
+    # Context
+    context_data = models.JSONField(default=dict)
+    message = models.TextField()
+    
+    # Resolution
+    resolved_at = models.DateTimeField(null=True, blank=True)
+    resolved_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    resolution_notes = models.TextField(null=True, blank=True)
+    
+    # Notification status
+    email_sent = models.BooleanField(default=False)
+    slack_sent = models.BooleanField(default=False)
+    
+    class Meta:
+        indexes = [
+            models.Index(fields=['rule', 'triggered_at']),
+            models.Index(fields=['resolved_at']),
+        ]
+    
+    def __str__(self):
+        return f"{self.rule.name} - {self.triggered_at.strftime('%Y-%m-%d %H:%M')}"
+
+
+class PrivacyConsent(models.Model):
+    """Track user privacy consent for GDPR compliance"""
+    
+    CONSENT_TYPES = [
+        ('analytics', 'Analytics & Performance'),
+        ('marketing', 'Marketing & Communications'),
+        ('functional', 'Functional Cookies'),
+        ('personalization', 'Personalization'),
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='privacy_consents')
+    consent_type = models.CharField(max_length=20, choices=CONSENT_TYPES)
+    
+    # Consent details
+    granted = models.BooleanField()
+    granted_at = models.DateTimeField(auto_now_add=True)
+    withdrawn_at = models.DateTimeField(null=True, blank=True)
+    
+    # Context
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.CharField(max_length=500, null=True, blank=True)
+    
+    # Legal basis
+    legal_basis = models.CharField(max_length=100, null=True, blank=True)
+    purpose = models.TextField(null=True, blank=True)
+    
+    class Meta:
+        unique_together = ['user', 'consent_type']
+        indexes = [
+            models.Index(fields=['user', 'granted']),
+            models.Index(fields=['granted_at']),
+        ]
+    
+    def __str__(self):
+        status = 'granted' if self.granted else 'withdrawn'
+        return f"{self.user.username} - {self.consent_type} ({status})"

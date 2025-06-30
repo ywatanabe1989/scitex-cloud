@@ -69,7 +69,8 @@
       <p><strong>Error:</strong> <span id="error-message">Invalid username or password.</span></p>
     </div>
     
-    <form id="login-form">
+    <form id="login-form" method="post" action="{% url 'cloud_app:login' %}">
+      {% csrf_token %}
       <div class="form-group mb-3">
         <label for="username" class="form-label">Username or Email <span class="text-danger">*</span></label>
         <input type="text" class="form-control" id="username" name="username" required>
@@ -115,54 +116,11 @@
     const errorMessage = document.querySelector('.form-message.error');
     const errorText = document.getElementById('error-message');
     
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      // Hide previous messages
-      successMessage.style.display = 'none';
-      errorMessage.style.display = 'none';
-      
-      // Prepare data
-      const data = {
-        username: usernameInput.value,
-        password: passwordInput.value
-      };
-      
-      // Submit to API endpoint
-      fetch('/api/v1/auth/login/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data)
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          // Show success message
-          successMessage.style.display = 'block';
-          
-          // Store token if present
-          if (data.token) {
-            localStorage.setItem('scitex_token', data.token);
-          }
-          
-          // Redirect to dashboard after short delay
-          setTimeout(() => {
-            window.location.href = '/dashboard/';
-          }, 1500);
-        } else {
-          // Show error message
-          errorText.textContent = data.error || 'Invalid username or password.';
-          errorMessage.style.display = 'block';
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        errorText.textContent = 'An error occurred. Please try again.';
-        errorMessage.style.display = 'block';
-      });
-    });
+    // Use standard Django form submission instead of problematic API endpoint
+    // The form will now submit normally to the Django login view
+    
+    // Optional: Handle form submission feedback with Django messages
+    // (form now submits normally via POST to Django view)
   });
   
   // Password visibility toggle - separate event listener

@@ -1,0 +1,687 @@
+{% extends "base.html" %}
+
+{% block title %}SciTeX Design System - Combined Options{% endblock %}
+
+{% block meta_description %}Design system for the SciTeX platform, showcasing components, styles, and patterns to ensure consistent design across all interfaces. Combined version with options from v01 and v02.{% endblock %}
+
+{% block extra_css %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'common/css/hero-gradients.css' %}">
+<style>
+  /* Version selector styling */
+  .version-selector {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    background: white;
+    border: 2px solid var(--primary-color);
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    z-index: 1000;
+    max-width: 200px;
+  }
+  
+  .version-selector h4 {
+    margin: 0 0 0.5rem 0;
+    color: var(--primary-color);
+    font-size: 0.9rem;
+  }
+  
+  .version-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .version-links a {
+    padding: 0.5rem;
+    background: #f8f9fa;
+    border-radius: 4px;
+    text-decoration: none;
+    color: var(--primary-color);
+    font-size: 0.85rem;
+    text-align: center;
+    transition: all 0.2s ease;
+  }
+  
+  .version-links a:hover {
+    background: var(--primary-color);
+    color: white;
+  }
+  
+  .version-links a.current {
+    background: var(--primary-color);
+    color: white;
+    font-weight: 600;
+  }
+
+  /* Base hero section styles */
+  .hero-section {
+    padding: 4rem 2rem;
+    text-align: center;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  /* Force the silverish AI light hero gradient */
+  .hero-silverish-ai-light {
+    background: linear-gradient(135deg, #506b7a 0%, #6c8ba0 30%, #8fa4b0 60%, #b5c7d1 100%) !important;
+    color: #1a2332 !important;
+    text-shadow: 0 1px 2px rgba(255,255,255,0.5);
+    padding: 4rem 2rem !important;
+    text-align: center;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+    min-height: 300px;
+  }
+  
+  .hero-silverish-ai-light .hero-subtitle {
+    color: #1a2332 !important;
+    text-shadow: 0 1px 3px rgba(255,255,255,0.9);
+    font-weight: 600;
+  }
+  
+  .hero-silverish-ai-light h1,
+  .hero-silverish-ai-light .display-3 {
+    color: #1a2332 !important;
+    text-shadow: 0 1px 2px rgba(255,255,255,0.5);
+  }
+
+  .design-section {
+    margin-bottom: 4rem;
+  }
+  
+  .design-section h2 {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .demo-box {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+  }
+  
+  .color-palette {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1rem;
+  }
+  
+  .color-swatch {
+    height: 100px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 0.5rem;
+    color: white;
+    font-weight: 500;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  
+  .typography-demo {
+    margin-bottom: 2rem;
+  }
+  
+  .typography-demo .type-sample {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+  }
+  
+  .typography-demo .type-info {
+    font-size: 14px;
+    color: #666;
+  }
+  
+  .component-example {
+    margin-bottom: 3rem;
+  }
+  
+  .component-example h3 {
+    margin-bottom: 1rem;
+  }
+  
+  .component-example .example-display {
+    padding: 2rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+  }
+  
+  .component-example .example-code {
+    background-color: var(--darkgray-900);
+    border-radius: 8px;
+    padding: 1rem;
+    color: #f8f8f2;
+    font-family: monospace;
+    overflow-x: auto;
+  }
+  
+  .spacing-demo {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+  }
+  
+  .spacing-demo .spacing-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .spacing-demo .spacing-example {
+    background-color: var(--darkgray-700);
+    width: 100px;
+  }
+  
+  .spacing-demo .spacing-label {
+    margin-top: 0.5rem;
+    font-size: 14px;
+    color: #666;
+  }
+
+  /* Option comparison styling */
+  .option-comparison {
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+  }
+  
+  .option-header {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    color: white;
+    padding: 1rem 1.5rem;
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .option-versions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+  
+  .option-version {
+    padding: 1.5rem;
+    border-right: 1px solid #e9ecef;
+  }
+  
+  .option-version:last-child {
+    border-right: none;
+  }
+  
+  .version-label {
+    background: var(--accent-color);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    display: inline-block;
+  }
+  
+  .version-v01 {
+    background: #2563eb;
+  }
+  
+  .version-v02 {
+    background: #dc2626;
+  }
+  
+  .recommendation {
+    background: #ecfdf5;
+    border: 1px solid #059669;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 1rem;
+  }
+  
+  .recommendation-label {
+    color: #059669;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .recommendation-text {
+    color: #065f46;
+    font-size: 0.85rem;
+    margin: 0;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Version Selector -->
+<div class="version-selector">
+  <h4>Design Versions</h4>
+  <div class="version-links">
+    <a href="/design/v01/">v01 (Simple)</a>
+    <a href="/design/">v02 (Enhanced)</a>
+    <a href="/design/v03/" class="current">v03 (Combined)</a>
+  </div>
+</div>
+
+<!-- Hero Section using SciTeX Silverish AI Light gradient -->
+<section class="hero-section hero-silverish-ai-light hero-landing">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-8">
+        <h1 class="display-3 mb-4 fw-bold">SciTeX Design System v03</h1>
+        <p class="lead mb-4">Combined design options from v01 and v02 - Choose the best elements for your implementation</p>
+        <div class="d-flex flex-wrap gap-3 mb-4">
+          <span class="badge bg-light text-dark px-3 py-2">🔍 Compare Options</span>
+          <span class="badge bg-light text-dark px-3 py-2">⚖️ Choose Best</span>
+          <span class="badge bg-light text-dark px-3 py-2">🎨 Implement</span>
+          <span class="badge bg-light text-dark px-3 py-2">📋 Document</span>
+        </div>
+        <p class="mb-0 opacity-75">Version Comparison • v01 (Simple) + v02 (Enhanced) = v03 (Your Choice)</p>
+      </div>
+      <div class="col-lg-4 text-center">
+        <div class="hero-logo">
+          <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="60" cy="60" r="50" fill="white" opacity="0.2"/>
+            <path d="M40 40h40v40H40z" fill="white" opacity="0.8"/>
+            <circle cx="60" cy="60" r="15" fill="white"/>
+          </svg>
+        </div>
+        <p class="text-dark mt-3 small opacity-75">Design system comparison</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="container py-5">
+
+  <!-- Hero Section Options -->
+  <div class="option-comparison">
+    <div class="option-header">
+      <span>🎨 Hero Section Styles</span>
+      <span>Choose your preferred approach</span>
+    </div>
+    <div class="option-versions">
+      <div class="option-version">
+        <div class="version-label version-v01">v01 - Simple</div>
+        <h4>Container-Based Hero</h4>
+        <div class="example-display">
+          <div class="container py-5">
+            <h1 class="display-4 mb-4">SciTeX Design System</h1>
+            <p class="lead mb-5">Simple, clean approach with container and standard Bootstrap classes.</p>
+          </div>
+        </div>
+        <p><strong>Pros:</strong> Simple, lightweight, fast to implement</p>
+        <p><strong>Cons:</strong> Less visual impact, no gradient branding</p>
+      </div>
+      <div class="option-version">
+        <div class="version-label version-v02">v02 - Enhanced</div>
+        <h4>Gradient Hero with Branding</h4>
+        <div class="example-display" style="padding: 0;">
+          <div style="background: linear-gradient(135deg, #506b7a 0%, #6c8ba0 30%, #8fa4b0 60%, #b5c7d1 100%); 
+                      color: #1a2332; padding: 3rem 2rem; text-align: center; text-shadow: 0 1px 2px rgba(255,255,255,0.5);">
+            <h1 style="font-size: 2.5rem; margin-bottom: 1rem; font-weight: 700;">SciTeX Design System</h1>
+            <p style="font-size: 1.25rem; margin-bottom: 0; color: #1a2332;">Enhanced hero with SciTeX silverish gradient and professional branding</p>
+          </div>
+        </div>
+        <p><strong>Pros:</strong> Strong branding, visual impact, professional appearance</p>
+        <p><strong>Cons:</strong> More complex CSS, requires gradient maintenance</p>
+      </div>
+    </div>
+    <div class="recommendation">
+      <div class="recommendation-label">💡 Recommendation</div>
+      <p class="recommendation-text">Use v02 Enhanced for main pages (landing, design system) and v01 Simple for utility/admin pages. Provides brand consistency where it matters most while keeping development simple for internal tools.</p>
+    </div>
+  </div>
+
+  <!-- Module Icons Options -->
+  <div class="option-comparison">
+    <div class="option-header">
+      <span>🔧 Module Icons System</span>
+      <span>Professional vs Quick Implementation</span>
+    </div>
+    <div class="option-versions">
+      <div class="option-version">
+        <div class="version-label version-v01">v01 - Not Available</div>
+        <h4>Basic Implementation</h4>
+        <p>v01 did not include module icons documentation.</p>
+        <div class="example-display">
+          <p class="text-muted">No dedicated icon system - would rely on generic icons or FontAwesome</p>
+        </div>
+        <p><strong>Pros:</strong> Simple, no additional assets</p>
+        <p><strong>Cons:</strong> Inconsistent branding, no visual identity</p>
+      </div>
+      <div class="option-version">
+        <div class="version-label version-v02">v02 - Enhanced</div>
+        <h4>Comprehensive Icon System</h4>
+        <div class="example-display">
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; text-align: center;">
+            <div style="padding: 1rem; background: white; border-radius: 8px; border: 1px solid #e9ecef;">
+              <img src="{% static 'images/scitex-scholar-icon.svg' %}" alt="Scholar" width="32" height="32" style="margin-bottom: 0.5rem;">
+              <div style="font-size: 0.9rem; font-weight: 600;">Scholar</div>
+              <div style="font-size: 0.75rem; color: #666;">🔍 Search</div>
+            </div>
+            <div style="padding: 1rem; background: white; border-radius: 8px; border: 1px solid #e9ecef;">
+              <img src="{% static 'images/scitex-writer-icon.svg' %}" alt="Writer" width="32" height="32" style="margin-bottom: 0.5rem;">
+              <div style="font-size: 0.9rem; font-weight: 600;">Writer</div>
+              <div style="font-size: 0.75rem; color: #666;">✍️ Document</div>
+            </div>
+            <div style="padding: 1rem; background: white; border-radius: 8px; border: 1px solid #e9ecef;">
+              <img src="{% static 'images/scitex-viz-icon.svg' %}" alt="Viz" width="32" height="32" style="margin-bottom: 0.5rem;">
+              <div style="font-size: 0.9rem; font-weight: 600;">Viz</div>
+              <div style="font-size: 0.75rem; color: #666;">📊 Charts</div>
+            </div>
+          </div>
+        </div>
+        <p><strong>Pros:</strong> Professional SVG icons + emoji alternatives, accessibility, brand consistency</p>
+        <p><strong>Cons:</strong> More assets to manage, requires documentation</p>
+      </div>
+    </div>
+    <div class="recommendation">
+      <div class="recommendation-label">💡 Recommendation</div>
+      <p class="recommendation-text">Use v02 Enhanced icon system. The comprehensive documentation and dual approach (SVG + emoji) provides flexibility for different contexts while maintaining brand consistency across the ecosystem.</p>
+    </div>
+  </div>
+
+  <!-- Colors Options -->
+  <div class="option-comparison">
+    <div class="option-header">
+      <span>🎨 Color Palette</span>
+      <span>v01 has important colors vs v02 better organization</span>
+    </div>
+    <div class="option-versions">
+      <div class="option-version">
+        <div class="version-label version-v01">v01 - Important Colors</div>
+        <h4>Essential SciTeX Colors</h4>
+        <div class="color-palette" style="grid-template-columns: repeat(3, 1fr); gap: 0.5rem;">
+          <div class="color-swatch" style="background-color: #1a2332; height: 60px;">
+            <small style="font-size: 0.7rem;">Primary<br>#1a2332</small>
+          </div>
+          <div class="color-swatch" style="background-color: #34495e; height: 60px;">
+            <small style="font-size: 0.7rem;">Secondary<br>#34495e</small>
+          </div>
+          <div class="color-swatch" style="background-color: #506b7a; height: 60px;">
+            <small style="font-size: 0.7rem;">Accent<br>#506b7a</small>
+          </div>
+        </div>
+        <p><strong>Pros:</strong> Focus on essential colors, less overwhelming, core SciTeX palette</p>
+        <p><strong>Cons:</strong> Less detailed documentation, missing status colors</p>
+      </div>
+      <div class="option-version">
+        <div class="version-label version-v02">v02 - Well Organized</div>
+        <h4>Comprehensive Color System</h4>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div>
+            <strong style="font-size: 0.9rem;">Primary Colors</strong>
+            <div class="color-palette" style="grid-template-columns: repeat(2, 1fr); gap: 0.25rem; margin: 0.5rem 0;">
+              <div class="color-swatch" style="background-color: #1a2332; height: 40px;">
+                <small style="font-size: 0.6rem;">#1a2332</small>
+              </div>
+              <div class="color-swatch" style="background-color: #34495e; height: 40px;">
+                <small style="font-size: 0.6rem;">#34495e</small>
+              </div>
+            </div>
+          </div>
+          <div>
+            <strong style="font-size: 0.9rem;">Status Colors</strong>
+            <div class="color-palette" style="grid-template-columns: repeat(2, 1fr); gap: 0.25rem; margin: 0.5rem 0;">
+              <div class="color-swatch" style="background-color: #4a9b7e; height: 40px;">
+                <small style="font-size: 0.6rem;">Success</small>
+              </div>
+              <div class="color-swatch" style="background-color: #a67373; height: 40px;">
+                <small style="font-size: 0.6rem;">Error</small>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p><strong>Pros:</strong> Well categorized, complete system, status colors included</p>
+        <p><strong>Cons:</strong> More complex, might be overwhelming for quick reference</p>
+      </div>
+    </div>
+    <div class="recommendation">
+      <div class="recommendation-label">💡 Recommendation</div>
+      <p class="recommendation-text">Use v01 important colors for quick reference and core development, v02 organization for comprehensive documentation. Consider combining: v01's focus with v02's categorization.</p>
+    </div>
+  </div>
+
+  <!-- Typography Options -->
+  <div class="option-comparison">
+    <div class="option-header">
+      <span>📝 Typography System</span>
+      <span>Enhanced vs Standard approach</span>
+    </div>
+    <div class="option-versions">
+      <div class="option-version">
+        <div class="version-label version-v01">v01 - Standard</div>
+        <h4>Basic Typography Documentation</h4>
+        <div class="typography-demo">
+          <div class="type-sample">
+            <h3 style="margin: 0;">Heading Example</h3>
+          </div>
+          <div class="type-info">
+            Font: var(--font-heading), Font-size: 1.75rem, Font-weight: 600
+          </div>
+        </div>
+        <p><strong>Coverage:</strong> Standard headings, body text, code text</p>
+        <p><strong>Examples:</strong> Basic font specifications with technical details</p>
+      </div>
+      <div class="option-version">
+        <div class="version-label version-v02">v02 - Enhanced</div>
+        <h4>Enhanced Typography with Recommendations</h4>
+        <div class="typography-demo">
+          <div class="type-sample">
+            <h3 style="margin: 0;">Heading Example</h3>
+          </div>
+          <div class="type-info">
+            Font: var(--font-heading), Font-size: 1.75rem, Font-weight: 600
+          </div>
+        </div>
+        <div style="background: #fff3cd; padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+          <strong style="color: #856404;">💡 v02 Addition:</strong>
+          <p style="margin: 0.5rem 0 0 0; color: #856404; font-size: 0.9rem;">Includes recommendations for "text-h5-style" class instead of lead paragraphs, with better weight and contrast.</p>
+        </div>
+        <p><strong>Coverage:</strong> Standard system + usage recommendations and alternatives</p>
+      </div>
+    </div>
+    <div class="recommendation">
+      <div class="recommendation-label">💡 Recommendation</div>
+      <p class="recommendation-text">Use v02 Enhanced. The additional usage recommendations and "text-h5-style" alternative to lead paragraphs provides better practical guidance for developers.</p>
+    </div>
+  </div>
+
+  <!-- Components Options -->
+  <div class="option-comparison">
+    <div class="option-header">
+      <span>🧩 Component System</span>
+      <span>Basic vs Enhanced Components</span>
+    </div>
+    <div class="option-versions">
+      <div class="option-version">
+        <div class="version-label version-v01">v01 - Basic</div>
+        <h4>Bootstrap Components Only</h4>
+        <div class="example-display">
+          <button class="btn btn-primary">Primary Button</button>
+          <button class="btn btn-secondary">Secondary Button</button>
+          <div class="form-check mt-3">
+            <input class="form-check-input" type="checkbox" id="basicCheck">
+            <label class="form-check-label" for="basicCheck">Standard checkbox</label>
+          </div>
+        </div>
+        <p><strong>Components:</strong> Standard Bootstrap buttons, cards, forms, alerts, badges, checkboxes</p>
+        <p><strong>Pros:</strong> Simple, standard, widely known</p>
+        <p><strong>Cons:</strong> No custom SciTeX branding</p>
+      </div>
+      <div class="option-version">
+        <div class="version-label version-v02">v02 - Enhanced</div>
+        <h4>Bootstrap + Custom SciTeX Components</h4>
+        <div class="example-display">
+          <style>
+          .scitex-btn-primary-demo {
+            background: #1a2332;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-right: 0.5rem;
+          }
+          .scitex-btn-secondary-demo {
+            background: transparent;
+            color: #1a2332;
+            border: 2px solid #1a2332;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+          }
+          .scitex-checkbox-demo {
+            display: none;
+          }
+          .scitex-checkbox-label-demo {
+            padding: 0.5rem 1rem;
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            margin-top: 1rem;
+            display: inline-block;
+          }
+          .scitex-checkbox-demo:checked + .scitex-checkbox-label-demo {
+            background: #1a2332;
+            color: white;
+            border-color: #1a2332;
+          }
+          </style>
+          <button class="scitex-btn-primary-demo">SciTeX Primary</button>
+          <button class="scitex-btn-secondary-demo">SciTeX Secondary</button>
+          <div>
+            <input type="checkbox" class="scitex-checkbox-demo" id="scitexCheck">
+            <label class="scitex-checkbox-label-demo" for="scitexCheck">SciTeX Checkbox</label>
+          </div>
+        </div>
+        <p><strong>Components:</strong> Bootstrap + custom SciTeX buttons, stylized checkboxes with SciTeX branding</p>
+        <p><strong>Pros:</strong> Brand consistency, professional appearance, custom components</p>
+        <p><strong>Cons:</strong> Additional CSS to maintain</p>
+      </div>
+    </div>
+    <div class="recommendation">
+      <div class="recommendation-label">💡 Recommendation</div>
+      <p class="recommendation-text">Use v02 Enhanced for customer-facing components, v01 Basic for admin/internal tools. Note: v02 uses custom checkbox styling instead of radio buttons for better form usability.</p>
+    </div>
+  </div>
+
+  <!-- Implementation Guide Options -->
+  <div class="option-comparison">
+    <div class="option-header">
+      <span>🛠️ Implementation Guidance</span>
+      <span>Basic vs Comprehensive</span>
+    </div>
+    <div class="option-versions">
+      <div class="option-version">
+        <div class="version-label version-v01">v01 - Basic</div>
+        <h4>Essential Guidelines Only</h4>
+        <div class="example-display">
+          <h5>Do:</h5>
+          <ul style="margin: 0;">
+            <li>Use consistent spacing variables</li>
+            <li>Follow established color palette</li>
+            <li>Use component system for UI elements</li>
+          </ul>
+        </div>
+        <p><strong>Coverage:</strong> Basic do/don't lists, simple guidelines</p>
+      </div>
+      <div class="option-version">
+        <div class="version-label version-v02">v02 - Comprehensive</div>
+        <h4>Complete Implementation Guide</h4>
+        <div class="example-display">
+          <h5>🛠️ Implementation Guide</h5>
+          <p style="margin: 0.5rem 0;"><strong>1. Include Required CSS Files</strong></p>
+          <p style="margin: 0.5rem 0;"><strong>2. Use CSS Custom Properties</strong></p>
+          <p style="margin: 0.5rem 0;"><strong>3. Replace Bootstrap with SciTeX Components</strong></p>
+          <p style="margin: 0.5rem 0;"><strong>4. File Structure Guidelines</strong></p>
+        </div>
+        <p><strong>Coverage:</strong> Step-by-step implementation, code examples, file structure, design principles</p>
+      </div>
+    </div>
+    <div class="recommendation">
+      <div class="recommendation-label">💡 Recommendation</div>
+      <p class="recommendation-text">Use v02 Comprehensive. The detailed implementation guide with code examples and file structure guidance is essential for maintaining consistency across team members and future development.</p>
+    </div>
+  </div>
+
+  <!-- Final Recommendations -->
+  <section class="design-section">
+    <h2>🎯 Final Recommendations for v03 Implementation</h2>
+    
+    <div class="demo-box">
+      <h3>🏆 Recommended Approach</h3>
+      <div class="row">
+        <div class="col-md-6">
+          <h4>Use v02 Enhanced For:</h4>
+          <ul>
+            <li>✅ Hero sections with branding</li>
+            <li>✅ Module icons system (SVG + emoji)</li>
+            <li>✅ Custom SciTeX components (buttons, checkboxes)</li>
+            <li>✅ Implementation guide</li>
+            <li>✅ Customer-facing interfaces</li>
+            <li>✅ Well-organized color categories</li>
+          </ul>
+        </div>
+        <div class="col-md-6">
+          <h4>Use v01 Simple For:</h4>
+          <ul>
+            <li>⚡ Admin/internal tools</li>
+            <li>⚡ Quick prototyping</li>
+            <li>⚡ Simple utility pages</li>
+            <li>⚡ Core color reference (important colors)</li>
+            <li>⚡ Minimal interfaces</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-box">
+      <h3>📋 Implementation Strategy</h3>
+      <div class="row">
+        <div class="col-md-4">
+          <h4>🎨 Visual Identity</h4>
+          <p>Use v02 enhanced hero sections and module icons for all public-facing pages to maintain strong brand consistency.</p>
+        </div>
+        <div class="col-md-4">
+          <h4>🧩 Component Library</h4>
+          <p>Implement v02 custom SciTeX components for user interfaces, fall back to v01 Bootstrap for admin tools.</p>
+        </div>
+        <div class="col-md-4">
+          <h4>📚 Documentation</h4>
+          <p>Follow v02 comprehensive implementation guide for team consistency and maintainability.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-box">
+      <h3>🚀 Next Steps</h3>
+      <ol>
+        <li><strong>Audit Current Pages:</strong> Identify which pages need v02 enhanced treatment vs v01 simple approach</li>
+        <li><strong>Prioritize Implementation:</strong> Start with high-traffic user-facing pages for maximum impact</li>
+        <li><strong>Create Component Library:</strong> Build reusable SciTeX components following v02 patterns</li>
+        <li><strong>Document Standards:</strong> Create internal guidelines for when to use each approach</li>
+        <li><strong>Team Training:</strong> Ensure all developers understand the dual approach strategy</li>
+      </ol>
+    </div>
+  </section>
+
+</div>
+
+{% endblock %}

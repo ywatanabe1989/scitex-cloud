@@ -112,21 +112,49 @@
           <p><strong>Account created successfully!</strong> You can now log in and start using SciTeX.</p>
         </div>
         
-        <div class="form-message error">
+        {% if form.errors %}
+        <div class="form-message error" style="display: block;">
+          <p><strong>Error:</strong></p>
+          <ul class="mb-0">
+            {% for field, errors in form.errors.items %}
+              {% for error in errors %}
+                <li>{{ error }}</li>
+              {% endfor %}
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+        
+        {% if messages %}
+          {% for message in messages %}
+            <div class="form-message {% if message.tags == 'error' %}error{% else %}success{% endif %}" style="display: block;">
+              <p>{{ message }}</p>
+            </div>
+          {% endfor %}
+        {% endif %}
+        
+        <div class="form-message error" id="js-error-message">
           <p><strong>Error:</strong> <span id="error-message">Something went wrong. Please try again.</span></p>
         </div>
         
-        <form id="signup-form">
+        <form id="signup-form" method="post" action="{% url 'cloud_app:signup' %}">
+          {% csrf_token %}
           <div class="form-group mb-3">
-            <label for="username" class="form-label">Username <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="username" name="username" required>
+            <label for="{{ form.username.id_for_label }}" class="form-label">Username <span class="text-danger">*</span></label>
+            {{ form.username }}
             <div class="form-text">Choose a unique username for your account.</div>
+            {% if form.username.errors %}
+              <div class="text-danger small">{{ form.username.errors.0 }}</div>
+            {% endif %}
           </div>
           
           <div class="form-group mb-3">
-            <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
-            <input type="email" class="form-control" id="email" name="email" required>
+            <label for="{{ form.email.id_for_label }}" class="form-label">Email <span class="text-danger">*</span></label>
+            {{ form.email }}
             <div class="form-text">We'll never share your email with anyone else.</div>
+            {% if form.email.errors %}
+              <div class="text-danger small">{{ form.email.errors.0 }}</div>
+            {% endif %}
             
             <!-- Japanese Academic Benefits Alert -->
             <div class="alert alert-info academic-benefits" style="display: none; margin-top: 0.75rem;">
@@ -147,13 +175,16 @@
           </div>
           
           <div class="form-group mb-3">
-            <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
+            <label for="{{ form.password.id_for_label }}" class="form-label">Password <span class="text-danger">*</span></label>
             <div class="input-group">
-              <input type="password" class="form-control" id="password" name="password" required>
+              {{ form.password }}
               <button class="btn btn-outline-secondary" type="button" id="togglePassword">
                 <i class="fas fa-eye" id="togglePasswordIcon"></i>
               </button>
             </div>
+            {% if form.password.errors %}
+              <div class="text-danger small">{{ form.password.errors.0 }}</div>
+            {% endif %}
             <div class="password-rules">
               <div class="password-rule" id="rule-length"><i class="fas fa-circle"></i> At least 8 characters</div>
               <div class="password-rule" id="rule-lowercase"><i class="fas fa-circle"></i> At least one lowercase letter</div>
@@ -164,13 +195,16 @@
           </div>
           
           <div class="form-group mb-3">
-            <label for="confirm-password" class="form-label">Confirm Password <span class="text-danger">*</span></label>
+            <label for="{{ form.password2.id_for_label }}" class="form-label">Confirm Password <span class="text-danger">*</span></label>
             <div class="input-group">
-              <input type="password" class="form-control" id="confirm-password" name="confirm-password" required>
+              {{ form.password2 }}
               <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword">
                 <i class="fas fa-eye" id="toggleConfirmPasswordIcon"></i>
               </button>
             </div>
+            {% if form.password2.errors %}
+              <div class="text-danger small">{{ form.password2.errors.0 }}</div>
+            {% endif %}
           </div>
           
           <div class="row">
@@ -186,10 +220,13 @@
           </div>
           
           <div class="form-check mb-3">
-            <input class="form-check-input" type="checkbox" id="terms" required>
-            <label class="form-check-label" for="terms">
+            {{ form.agree_terms }}
+            <label class="form-check-label" for="{{ form.agree_terms.id_for_label }}">
               I agree to the <a href="{% url 'cloud_app:terms' %}" target="_blank">Terms of Use</a> and <a href="{% url 'cloud_app:privacy' %}" target="_blank">Privacy Policy</a>
             </label>
+            {% if form.agree_terms.errors %}
+              <div class="text-danger small">{{ form.agree_terms.errors.0 }}</div>
+            {% endif %}
           </div>
           
           <button type="submit" class="btn btn-primary w-100">Create Account</button>
@@ -245,12 +282,12 @@
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('signup-form');
-    const passwordInput = document.getElementById('password');
-    const confirmPassword = document.getElementById('confirm-password');
-    const usernameInput = document.getElementById('username');
-    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('id_password');
+    const confirmPassword = document.getElementById('id_password2');
+    const usernameInput = document.getElementById('id_username');
+    const emailInput = document.getElementById('id_email');
     const successMessage = document.querySelector('.form-message.success');
-    const errorMessage = document.querySelector('.form-message.error');
+    const errorMessage = document.getElementById('js-error-message');
     const errorText = document.getElementById('error-message');
     const academicBenefits = document.querySelector('.academic-benefits');
     
@@ -352,10 +389,8 @@
       }
     });
     
-    // Form submission
+    // Form submission validation
     form.addEventListener('submit', function(e) {
-      e.preventDefault();
-      
       // Hide previous messages
       successMessage.style.display = 'none';
       errorMessage.style.display = 'none';
@@ -381,6 +416,7 @@
       }
       
       if (passwordErrors.length > 0) {
+        e.preventDefault();
         errorText.textContent = `Password must contain ${passwordErrors.join(', ')}.`;
         errorMessage.style.display = 'block';
         return;
@@ -388,65 +424,24 @@
       
       // Password match validation
       if (password !== confirmPassword.value) {
+        e.preventDefault();
         errorText.textContent = 'Passwords do not match.';
         errorMessage.style.display = 'block';
         return;
       }
       
-      // Prepare data
-      const data = {
-        username: usernameInput.value,
-        email: emailInput.value,
-        password: passwordInput.value,
-        first_name: document.getElementById('first-name').value,
-        last_name: document.getElementById('last-name').value
-      };
-      
-      // Submit to API endpoint
-      fetch('/api/v1/auth/register/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data)
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          // Store email for verification
-          localStorage.setItem('pending-verification-email', data.email);
-          
-          // Show success message and redirect to verification
-          successMessage.innerHTML = '<p><strong>Account created!</strong> Please check your email for a verification code.</p>';
-          successMessage.style.display = 'block';
-          form.reset();
-          
-          // Redirect to email verification page
-          setTimeout(() => {
-            window.location.href = '/verify-email/?email=' + encodeURIComponent(data.email);
-          }, 2000);
-        } else {
-          // Show error message
-          errorText.textContent = data.error || 'An error occurred. Please try again.';
-          errorMessage.style.display = 'block';
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        errorText.textContent = 'An error occurred. Please try again.';
-        errorMessage.style.display = 'block';
-      });
+      // If validation passes, allow form to submit normally to Django
     });
   });
   
   // Password visibility toggles - separate event listener
   document.addEventListener('DOMContentLoaded', function() {
     const togglePassword = document.getElementById('togglePassword');
-    const passwordInput = document.getElementById('password');
+    const passwordInput = document.getElementById('id_password');
     const togglePasswordIcon = document.getElementById('togglePasswordIcon');
     
     const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
-    const confirmPasswordInput = document.getElementById('confirm-password');
+    const confirmPasswordInput = document.getElementById('id_password2');
     const toggleConfirmPasswordIcon = document.getElementById('toggleConfirmPasswordIcon');
     
     // Main password toggle

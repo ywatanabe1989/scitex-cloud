@@ -27,7 +27,7 @@ from .models import (
 
 
 def index(request):
-    """Viz app index view."""
+    """Viz app index view - show coming soon page."""
     return render(request, 'viz_app/index.html')
 
 
@@ -511,7 +511,31 @@ def data_source_management(request):
                     data_source.refresh_interval = int(request.POST.get('refresh_interval', 3600))
                     data_source.save()
                 
-                messages.success(request, f"Data source '{name}' created successfully!")
+                elif source_type == 'code_execution':
+                    # Handle code execution data source creation
+                    code_job_id = request.POST.get('code_job_id')
+                    if code_job_id:
+                        from apps.code_app.models import CodeExecutionJob
+                        from .code_integration import CodeVizBridge
+                        
+                        try:
+                            code_job = CodeExecutionJob.objects.get(
+                                job_id=code_job_id,
+                                user=request.user,
+                                status='completed'
+                            )
+                            bridge = CodeVizBridge()
+                            data_source = bridge.create_data_source_from_code_job(code_job)
+                            if data_source:
+                                messages.success(request, f"Code execution data source '{data_source.name}' created successfully!")
+                            else:
+                                messages.error(request, "Failed to create data source from code execution")
+                        except CodeExecutionJob.DoesNotExist:
+                            messages.error(request, "Code execution job not found or not completed")
+                    else:
+                        messages.error(request, "Code job ID is required for code execution data source")
+                else:
+                    messages.success(request, f"Data source '{name}' created successfully!")
                 
             except Exception as e:
                 messages.error(request, f"Error creating data source: {str(e)}")

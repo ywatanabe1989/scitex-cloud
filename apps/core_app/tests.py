@@ -3,7 +3,8 @@ from django.urls import reverse
 from django.contrib.auth.models import User
 from django.utils import timezone
 from datetime import timedelta
-from .models import UserProfile, Document, Project
+from .models import UserProfile, Project
+from apps.document_app.models import Document
 from apps.cloud_app.models import SubscriptionPlan, Subscription
 
 
@@ -144,11 +145,11 @@ class CoreViewsTestCase(TestCase):
         self.assertEqual(response.status_code, 302)  # Redirect to login
     
     def test_dashboard_authenticated(self):
-        """Test dashboard with authenticated user"""
+        """Test dashboard with authenticated user - should redirect to projects"""
         self.client.login(username='testuser', password='testpass123')
         response = self.client.get(reverse('core_app:index'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Welcome back')
+        self.assertEqual(response.status_code, 302)  # Redirect to projects
+        self.assertEqual(response.url, '/projects/')
     
     def test_monitoring_requires_login(self):
         """Test monitoring page requires authentication"""
@@ -290,35 +291,10 @@ class DashboardMetricsTestCase(TestCase):
             current_period_end=now + timedelta(days=30)
         )
     
-    def test_dashboard_shows_correct_metrics(self):
-        """Test dashboard displays correct user metrics"""
+    def test_dashboard_redirects_to_projects(self):
+        """Test dashboard redirects to projects page"""
         self.client.login(username='testuser', password='testpass123')
         
-        # Create test data
-        for i in range(5):
-            Document.objects.create(
-                owner=self.user,
-                title=f'Document {i}',
-                is_public=(i % 2 == 0)  # Make every other document public
-            )
-        
-        for i in range(3):
-            Project.objects.create(
-                owner=self.user,
-                name=f'Project {i}',
-                status='active',
-                description=f'Project {i} description',
-                hypotheses=f'Project {i} hypothesis'
-            )
-        
         response = self.client.get(reverse('core_app:index'))
-        self.assertEqual(response.status_code, 200)
-        
-        # Check metrics in response context
-        self.assertEqual(response.context['stats']['total_documents'], 5)
-        self.assertEqual(response.context['stats']['total_projects'], 3)
-        self.assertEqual(response.context['stats']['public_documents'], 3)
-        self.assertEqual(response.context['stats']['active_projects'], 3)
-        
-        # Check subscription info
-        self.assertEqual(response.context['user_plan'].name, 'Premium')
+        self.assertEqual(response.status_code, 302)  # Redirect to projects
+        self.assertEqual(response.url, '/projects/')

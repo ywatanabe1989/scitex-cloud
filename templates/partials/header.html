@@ -8,26 +8,41 @@
     </div>
     <nav class="site-navigation" aria-label="Main Navigation">
       <ul>
-        <li class="dropdown">
-          <a href="{% url 'core_app:about' %}">About Us</a>
-        </li>
-                    
-        <li class="dropdown">
-          <a href="#" class="dropdown-toggle" aria-expanded="false" aria-haspopup="true">Tools</a>
-          <div class="dropdown-menu">
-            <a href="/scholar/" class="dropdown-item">🔍 Scholar</a>
-            <a href="/code/" class="dropdown-item">💻 Code <span class="coming-soon-badge">Coming Soon</span></a>
-            <a href="/viz/" class="dropdown-item">📊 Viz <span class="coming-soon-badge">Coming Soon</span></a>
-            <a href="/writer/" class="dropdown-item">📝 Writer</a>
-            <div class="dropdown-divider"></div>
-            <a href="{% url 'cloud_app:product-cloud' %}" class="dropdown-item">ℹ️ About Cloud</a>
-          </div>
-        </li>
-
-        <li class="dropdown">
-          <a href="{% url 'cloud_app:publications' %}" {% if request.path == '/publications/' %}class="active" aria-current="page"{% endif %}>Publications</a>
+        <li class="nav-button-item">
+          <a href="/scholar/" class="btn btn-sm btn-outline-primary nav-btn {% if request.path == '/scholar/' %}active{% endif %}" aria-current="{% if request.path == '/scholar/' %}page{% endif %}">
+            <img src="{% static 'images/scitex-search-icon.svg' %}" alt="" width="20" height="20" class="nav-icon">
+            Scholar
+          </a>
         </li>
         
+        <li class="nav-button-item">
+          <a href="/code/" class="btn btn-sm btn-outline-primary nav-btn {% if request.path == '/code/' %}active{% endif %}" aria-current="{% if request.path == '/code/' %}page{% endif %}">
+            <img src="{% static 'images/scitex-code-icon.svg' %}" alt="" width="20" height="20" class="nav-icon">
+            Code
+          </a>
+        </li>
+        
+        <li class="nav-button-item">
+          <a href="/viz/" class="btn btn-sm btn-outline-primary nav-btn {% if request.path == '/viz/' %}active{% endif %}" aria-current="{% if request.path == '/viz/' %}page{% endif %}">
+            <img src="{% static 'images/scitex-viz-icon.svg' %}" alt="" width="20" height="20" class="nav-icon">
+            Viz
+          </a>
+        </li>
+        
+        <li class="nav-button-item">
+          <a href="/writer/" class="btn btn-sm btn-outline-primary nav-btn {% if request.path == '/writer/' %}active{% endif %}" aria-current="{% if request.path == '/writer/' %}page{% endif %}">
+            <img src="{% static 'images/scitex-doc-icon.svg' %}" alt="" width="20" height="20" class="nav-icon">
+            Writer
+          </a>
+        </li>
+
+        <li class="nav-button-item">
+          <a href="{% url 'cloud_app:publications' %}" class="btn btn-sm btn-outline-primary nav-btn {% if request.path == '/publications/' %}active{% endif %}" aria-current="{% if request.path == '/publications/' %}page{% endif %}">
+            <img src="{% static 'images/scitex-search-icon.svg' %}" alt="" width="20" height="20" class="nav-icon">
+            Publications
+          </a>
+        </li>
+
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" aria-expanded="false" aria-haspopup="true">For developers</a>
           <div class="dropdown-menu">
@@ -35,7 +50,9 @@
             <a href="{% url 'cloud_app:design' %}" class="dropdown-item">Design System</a>
           </div>
         </li>
+        
       </ul>
+      
     </nav>
     <div class="header-actions">
       <!-- Always show donate and GitHub -->
@@ -49,8 +66,11 @@
           <i class="fas fa-user-circle me-2"></i>{{ user.username }}
         </a>
         <div class="dropdown-menu dropdown-menu-end">
-          <a href="/core/dashboard/" class="dropdown-item">
-            <i class="fas fa-dashboard me-2"></i>Dashboard
+          <a href="/core/projects/" class="dropdown-item">
+            <i class="fas fa-folder me-2"></i>Projects
+          </a>
+          <a href="/collaboration/" class="dropdown-item">
+            <i class="fas fa-users me-2"></i>Teams & Collaboration
           </a>
           <a href="/core/documents/" class="dropdown-item">
             <i class="fas fa-file-text me-2"></i>My Documents

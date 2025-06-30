@@ -62,10 +62,10 @@ echo_info "🔍 Running system checks..."
 python manage.py check
 
 echo_info "🗄️ Applying migrations..."
-python manage.py migrate
+python manage.py migrate --verbosity=1
 
 echo_info "📁 Collecting static files..."
-python manage.py collectstatic --noinput
+python manage.py collectstatic --noinput --verbosity=0
 
 # Start server
 case $MODE in
@@ -84,7 +84,39 @@ case $MODE in
         echo_success "✅ Starting production server..."
         echo_info "🌐 Available at: https://scitex.ai"
         if command -v uwsgi &> /dev/null; then
-            uwsgi --ini /home/ywatanabe/proj/SciTeX-Cloud/config/uwsgi_simple.ini
+            # Start uWSGI in background
+            uwsgi --ini /home/ywatanabe/proj/SciTeX-Cloud/config/uwsgi_simple.ini &
+            UWSGI_PID=$!
+            
+            # Wait a moment for server to start
+            sleep 2
+            
+            # Setup log files
+            LOG_DIR="/home/ywatanabe/proj/SciTeX-Cloud/logs"
+            mkdir -p "$LOG_DIR"
+            
+            # Function to cleanup on exit
+            cleanup() {
+                echo_info "🛑 Stopping production server..."
+                kill $UWSGI_PID 2>/dev/null
+                exit 0
+            }
+            trap cleanup SIGINT SIGTERM
+            
+            echo_success "🚀 Production server started successfully!"
+            echo_info "📊 Monitoring essential logs only (Ctrl+C to stop)..."
+            echo_info "📄 Full logs available in: $LOG_DIR"
+            
+            # Monitor only error logs and recent entries
+            if [ -f "$LOG_DIR/error.log" ]; then
+                tail -f "$LOG_DIR/error.log" 2>/dev/null | grep -E "(ERROR|CRITICAL|Exception)" --line-buffered
+            else
+                echo_info "⏳ Waiting for error logs..."
+                while [ ! -f "$LOG_DIR/error.log" ]; do
+                    sleep 1
+                done
+                tail -f "$LOG_DIR/error.log" 2>/dev/null | grep -E "(ERROR|CRITICAL|Exception)" --line-buffered
+            fi
         else
             echo_error "❌ uWSGI not found!"
             exit 1

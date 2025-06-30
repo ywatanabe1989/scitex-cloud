@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
-from apps.core_app.models import UserProfile
+from apps.auth_app.models import UserProfile
 import re
 
 User = get_user_model()

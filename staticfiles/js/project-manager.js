@@ -118,6 +118,11 @@ class ProjectManager {
                 return;
             }
             
+            if (!data.hypotheses?.trim()) {
+                this.showError('Research hypotheses are required for all scientific projects');
+                return;
+            }
+            
             // Validate deadline if provided
             if (data.deadline && !this.validateDeadline(data.deadline)) {
                 return;
@@ -410,6 +415,7 @@ class ProjectManager {
         
         form.name.value = project.name;
         form.description.value = project.description;
+        form.hypotheses.value = project.hypotheses || '';
         form.status.value = project.status;
         
         if (form.deadline && project.deadline) {
@@ -482,6 +488,12 @@ class ProjectManager {
                             <h6>Description:</h6>
                             <p>${this.escapeHtml(project.description).replace(/\n/g, '<br>')}</p>
                         </div>
+                        ${project.hypotheses ? `
+                            <div class="project-hypotheses">
+                                <h6>Research Hypotheses:</h6>
+                                <p>${this.escapeHtml(project.hypotheses).replace(/\n/g, '<br>')}</p>
+                            </div>
+                        ` : ''}
                         ${project.collaborators && project.collaborators.length > 0 ? `
                             <div class="project-collaborators">
                                 <h6>Collaborators:</h6>

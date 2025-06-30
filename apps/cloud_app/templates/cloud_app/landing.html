@@ -22,7 +22,7 @@
     <div class="hero-wrapper">
       <div class="hero-content">
         <h1 class="hero-title">Accelerate your research</h1>
-        <p class="hero-subtitle">From literature discovery to final publication - community driven, fully open-sourced tools for complete research workflows. Modules are designed to work together or independently.</p>
+        <p class="hero-subtitle">From literature discovery to final publication</p>
       </div>
       <!-- Hero Image -->
       <div class="hero-image">
@@ -55,7 +55,7 @@
           <!-- Engine at the top -->
           <div class="engine-top-level">
             <div class="module-card-simple">
-              <a href="{% url 'cloud_app:product-engine' %}" class="module-card-link">
+              <a href="{% url 'engine:index' %}" class="module-card-link">
                 <div class="module-icon">
                   <img src="{% static 'images/scitex-engine-icon.svg' %}" alt="SciTeX Engine" width="56" height="56">
                 </div>
@@ -144,7 +144,18 @@
                 <p class="module-tagline">AI-enhanced scientific writing</p>
               </a>
             </div>
-          </div>
+
+          <!--   <\!-- AI Assistant -\->                  
+           !--   <div class="module-card-simple">
+           !--     <a href="/ai-assistant/" class="module-card-link">
+           !--       <div class="module-icon">
+           !--         <i class="fas fa-brain" style="font-size: 48px; color: #1a2332;"></i>
+           !--       </div>
+           !--       <h3>AI Assistant <span class="badge bg-success">New</span></h3>
+           !--       <p class="module-tagline">Intelligent research guidance</p>
+           !--     </a>
+           !--   </div>
+           !-- </div> -->
           
         </div>
 
@@ -152,11 +163,11 @@
         <div class="ecosystem-deployment-simple">
           <p class="deployment-intro">Deploy on your terms:</p>
           <div class="deployment-options-simple">
-            <a href="{% url 'cloud_app:product-local' %}" class="deployment-option-link">
+            <a href="https://github.com/ywatanabe1989/SciTeX-Cloud" class="deployment-option-link" target="_blank">
               <i class="fas fa-server"></i> Run Locally
             </a>
             <span class="deployment-separator">or</span>
-            <a href="{% url 'cloud_app:pricing' %}" class="deployment-option-link">
+            <a href="{% url 'cloud_app:premium' %}" class="deployment-option-link">
               <i class="fas fa-cloud"></i> Use Cloud
             </a>
           </div>

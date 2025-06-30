@@ -39,84 +39,7 @@ def is_japanese_academic_email(email):
         return False
 
 
-class Document(models.Model):
-    """Model for user documents"""
-    
-    DOCUMENT_TYPES = [
-        ('hypothesis', 'Hypothesis'),
-        ('literature_review', 'Literature Review'),
-        ('methodology', 'Methodology'),
-        ('results', 'Results'),
-        ('manuscript', 'Manuscript'),
-        ('revision', 'Revision'),
-        ('note', 'General Note'),
-        ('draft', 'Draft'),
-    ]
-    
-    title = models.CharField(max_length=200)
-    content = models.TextField()
-    document_type = models.CharField(max_length=20, choices=DOCUMENT_TYPES, default='note')
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='documents')
-    project = models.ForeignKey('Project', on_delete=models.SET_NULL, null=True, blank=True, related_name='documents')
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    is_public = models.BooleanField(default=False)
-    tags = models.CharField(max_length=200, blank=True, help_text="Comma-separated tags")
-    
-    # Directory management fields
-    file_location = models.CharField(max_length=500, blank=True, help_text="Relative path to file in user directory")
-    file_size = models.BigIntegerField(default=0, help_text="File size in bytes")
-    file_hash = models.CharField(max_length=64, blank=True, help_text="SHA-256 hash for file integrity")
-    
-    class Meta:
-        ordering = ['-updated_at']
-        
-    def __str__(self):
-        return self.title
-    
-    def get_tags_list(self):
-        """Return tags as a list"""
-        if self.tags:
-            return [tag.strip() for tag in self.tags.split(',') if tag.strip()]
-        return []
-    
-    def get_file_path(self):
-        """Get the full file path for this document"""
-        if self.file_location:
-            from .directory_manager import get_user_directory_manager
-            manager = get_user_directory_manager(self.owner)
-            return manager.base_path / self.file_location
-        return None
-    
-    def has_file(self):
-        """Check if document has an associated file"""
-        return bool(self.file_location)
-    
-    def get_file_extension(self):
-        """Get file extension based on document type"""
-        extensions = {
-            'note': '.md',
-            'manuscript': '.tex',
-            'literature_review': '.md',
-            'methodology': '.md',
-            'results': '.md',
-            'revision': '.tex',
-            'draft': '.md',
-            'hypothesis': '.md'
-        }
-        return extensions.get(self.document_type, '.txt')
-    
-    def save_to_directory(self):
-        """Save document content to the directory structure"""
-        from .directory_manager import get_user_directory_manager
-        manager = get_user_directory_manager(self.owner)
-        
-        if self.project:
-            # Determine document category for directory placement
-            category = 'manuscripts' if self.document_type in ['manuscript', 'draft', 'revision'] else 'notes'
-            success, file_path = manager.store_document(self, self.content, category)
-            return success
-        return False
+# Document model moved to apps.document_app.models
 
 
 class UserProfile(models.Model):
@@ -180,6 +103,11 @@ class UserProfile(models.Model):
         if self.user.first_name and self.user.last_name:
             return f"{self.user.first_name} {self.user.last_name}"
         return self.user.username
+    
+    def get_ssh_manager(self):
+        """Get SSH key manager for this user"""
+        from apps.api.v1.auth.ssh_key_manager import SSHKeyManager
+        return SSHKeyManager(self.user)
     
     def get_full_title(self):
         """Get full academic title and name"""
@@ -505,7 +433,7 @@ class Project(models.Model):
     hypotheses = models.TextField(help_text="Research hypotheses (required)")
     source_code_url = models.URLField(blank=True, help_text="GitHub/GitLab repository URL")
     data_location = models.CharField(max_length=500, blank=True, help_text="Relative path to project directory")
-    manuscript_draft = models.ForeignKey('Document', on_delete=models.SET_NULL, null=True, blank=True, 
+    manuscript_draft = models.ForeignKey('document_app.Document', on_delete=models.SET_NULL, null=True, blank=True, 
                                        related_name='project_manuscripts', 
                                        help_text="Associated manuscript document")
     
@@ -532,9 +460,52 @@ class Project(models.Model):
     
     class Meta:
         ordering = ['-updated_at']
+        unique_together = ('name', 'owner')  # Ensure unique project names per user
         
     def __str__(self):
         return self.name
+    
+    @classmethod
+    def generate_unique_name(cls, base_name, owner):
+        """Generate a unique project name for the given owner"""
+        # First try the base name
+        if not cls.objects.filter(name=base_name, owner=owner).exists():
+            return base_name
+        
+        # If base name exists, try with numbers
+        counter = 1
+        while True:
+            unique_name = f"{base_name}_{counter}"
+            if not cls.objects.filter(name=unique_name, owner=owner).exists():
+                return unique_name
+            counter += 1
+    
+    @classmethod
+    def validate_name_uniqueness(cls, name, owner, exclude_id=None):
+        """Validate that project name is unique for the user"""
+        queryset = cls.objects.filter(name=name, owner=owner)
+        if exclude_id:
+            queryset = queryset.exclude(id=exclude_id)
+        return not queryset.exists()
+    
+    def get_github_safe_name(self):
+        """Get a GitHub-safe repository name"""
+        import re
+        # GitHub repo names: alphanumeric, hyphens, underscores, periods
+        # Cannot start/end with special chars, max 100 chars
+        safe_name = re.sub(r'[^a-zA-Z0-9._-]', '_', self.name.lower())
+        safe_name = re.sub(r'^[._-]+|[._-]+$', '', safe_name)
+        safe_name = safe_name[:100]  # GitHub limit
+        return safe_name or 'scitex_project'
+    
+    def get_filesystem_safe_name(self):
+        """Get a filesystem-safe directory name"""
+        import re
+        # Remove/replace characters that are problematic for filesystems
+        safe_name = re.sub(r'[<>:"/\\|?*]', '_', self.name)
+        safe_name = re.sub(r'\s+', '_', safe_name)  # Replace spaces with underscores
+        safe_name = safe_name.strip('.')  # Remove leading/trailing dots
+        return safe_name or 'scitex_project'
     
     def get_progress_percentage(self):
         """Return progress as percentage"""
@@ -890,100 +861,4 @@ class Manuscript(models.Model):
         return ''.join(diff)
 
 
-class EmailVerification(models.Model):
-    """Model for email verification with 6-digit OTP"""
-    
-    VERIFICATION_TYPES = [
-        ('signup', 'Signup Verification'),
-        ('password_reset', 'Password Reset'),
-        ('email_change', 'Email Change'),
-    ]
-    
-    email = models.EmailField()
-    otp_code = models.CharField(max_length=6)
-    verification_type = models.CharField(max_length=20, choices=VERIFICATION_TYPES, default='signup')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='email_verifications')
-    created_at = models.DateTimeField(auto_now_add=True)
-    expires_at = models.DateTimeField()
-    is_verified = models.BooleanField(default=False)
-    attempts = models.IntegerField(default=0)
-    max_attempts = models.IntegerField(default=3)
-    
-    class Meta:
-        ordering = ['-created_at']
-        indexes = [
-            models.Index(fields=['email', 'otp_code']),
-            models.Index(fields=['expires_at']),
-        ]
-    
-    def __str__(self):
-        return f"OTP for {self.email} - {self.otp_code}"
-    
-    def save(self, *args, **kwargs):
-        """Auto-generate OTP and expiration if not set"""
-        if not self.otp_code:
-            self.otp_code = self.generate_otp()
-        if not self.expires_at:
-            self.expires_at = timezone.now() + timedelta(minutes=10)  # 10 minutes expiry
-        super().save(*args, **kwargs)
-    
-    @staticmethod
-    def generate_otp():
-        """Generate a 6-digit OTP"""
-        return ''.join(random.choices(string.digits, k=6))
-    
-    def is_expired(self):
-        """Check if OTP has expired"""
-        return timezone.now() > self.expires_at
-    
-    def is_valid(self):
-        """Check if OTP is valid (not expired, not exceeded attempts, not verified)"""
-        return (
-            not self.is_expired() and 
-            self.attempts < self.max_attempts and 
-            not self.is_verified
-        )
-    
-    def verify(self, provided_otp):
-        """Verify the provided OTP against this record"""
-        self.attempts += 1
-        
-        if not self.is_valid():
-            self.save()
-            return False, "OTP has expired or maximum attempts exceeded"
-        
-        if self.otp_code == provided_otp:
-            self.is_verified = True
-            self.save()
-            return True, "Email verified successfully"
-        
-        self.save()
-        remaining_attempts = self.max_attempts - self.attempts
-        if remaining_attempts > 0:
-            return False, f"Invalid OTP. {remaining_attempts} attempts remaining"
-        else:
-            return False, "Maximum verification attempts exceeded"
-    
-    @classmethod
-    def create_verification(cls, email, verification_type='signup', user=None):
-        """Create a new email verification OTP"""
-        # Invalidate any existing verifications for this email
-        cls.objects.filter(
-            email=email, 
-            verification_type=verification_type,
-            is_verified=False
-        ).update(is_verified=True)  # Mark old ones as used
-        
-        # Create new verification
-        verification = cls.objects.create(
-            email=email,
-            verification_type=verification_type,
-            user=user
-        )
-        return verification
-    
-    @classmethod
-    def cleanup_expired(cls):
-        """Clean up expired OTP records (should be run periodically)"""
-        expired_count = cls.objects.filter(expires_at__lt=timezone.now()).delete()
-        return expired_count
+# EmailVerification model moved to apps.auth_app.models

@@ -1,0 +1,254 @@
+{% extends 'cloud_app/base.html' %}
+{% load static %}
+
+{% block title %}GitHub Repositories - SciTeX Cloud{% endblock %}
+
+{% block extra_css %}
+<style>
+    .github-color { color: #24292f; }
+    .github-accent { color: #0969da; }
+    .repository-card {
+        transition: transform 0.2s ease-in-out;
+        border-left: 4px solid transparent;
+    }
+    .repository-card:hover {
+        transform: translateY(-2px);
+        border-left-color: #0969da;
+    }
+    .repo-language {
+        font-size: 0.8rem;
+        padding: 0.2rem 0.5rem;
+        border-radius: 0.25rem;
+        background-color: #f8f9fa;
+        color: #495057;
+    }
+    .repo-stats {
+        font-size: 0.875rem;
+        color: #6c757d;
+    }
+    .filter-section {
+        background-color: #f8f9fa;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    .repo-icon {
+        color: #586069;
+        font-size: 1.1rem;
+    }
+    .connection-status {
+        font-size: 0.8rem;
+        padding: 0.2rem 0.5rem;
+        border-radius: 0.25rem;
+    }
+    .connected { background-color: #d4edda; color: #155724; }
+    .not-connected { background-color: #f8d7da; color: #721c24; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0">
+                        <i class="fab fa-github github-color me-2"></i>
+                        GitHub Repositories
+                    </h1>
+                    <p class="text-muted mb-0">Manage your synchronized GitHub repositories</p>
+                </div>
+                <div>
+                    <a href="{% url 'github_app:sync_repositories' %}" class="btn btn-outline-primary me-2">
+                        <i class="fas fa-sync-alt"></i> Sync Repositories
+                    </a>
+                    <a href="{% url 'github_app:dashboard' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="row">
+        <div class="col-12">
+            <div class="filter-section">
+                <form method="get" class="row g-3">
+                    <div class="col-md-4">
+                        <label for="search" class="form-label">Search Repositories</label>
+                        <input type="text" class="form-control" id="search" name="search" 
+                               value="{{ search_query }}" placeholder="Search by name or description...">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="visibility" class="form-label">Visibility</label>
+                        <select class="form-select" id="visibility" name="visibility">
+                            <option value="">All Repositories</option>
+                            <option value="public" {% if selected_visibility == 'public' %}selected{% endif %}>Public</option>
+                            <option value="private" {% if selected_visibility == 'private' %}selected{% endif %}>Private</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="language" class="form-label">Language</label>
+                        <select class="form-select" id="language" name="language">
+                            <option value="">All Languages</option>
+                            {% for lang in languages %}
+                                <option value="{{ lang }}" {% if selected_language == lang %}selected{% endif %}>{{ lang }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">&nbsp;</label>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-filter"></i> Filter
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Repository List -->
+    <div class="row">
+        <div class="col-12">
+            {% if repositories %}
+                <div class="row">
+                    {% for repo in repositories %}
+                        <div class="col-lg-6 col-xl-4 mb-4">
+                            <div class="card repository-card h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <div class="flex-grow-1">
+                                            <h5 class="card-title mb-1">
+                                                <i class="fas fa-code-branch repo-icon me-2"></i>
+                                                <a href="{% url 'github_app:repository_detail' repo.id %}" 
+                                                   class="text-decoration-none">{{ repo.name }}</a>
+                                            </h5>
+                                            <h6 class="card-subtitle mb-2 text-muted">{{ repo.full_name }}</h6>
+                                        </div>
+                                        <div class="text-end">
+                                            {% if repo.is_private %}
+                                                <i class="fas fa-lock text-warning" title="Private repository"></i>
+                                            {% else %}
+                                                <i class="fas fa-globe text-success" title="Public repository"></i>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    {% if repo.description %}
+                                        <p class="card-text text-muted small mb-3">{{ repo.description|truncatechars:120 }}</p>
+                                    {% endif %}
+
+                                    <div class="mb-3">
+                                        {% if repo.is_connected %}
+                                            <span class="connection-status connected">
+                                                <i class="fas fa-link"></i> Connected to Code
+                                            </span>
+                                        {% else %}
+                                            <span class="connection-status not-connected">
+                                                <i class="fas fa-unlink"></i> Not Connected
+                                            </span>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        {% if repo.language %}
+                                            <span class="repo-language">{{ repo.language }}</span>
+                                        {% else %}
+                                            <span></span>
+                                        {% endif %}
+                                        
+                                        <div class="repo-stats">
+                                            <span class="me-2">
+                                                <i class="fas fa-star"></i> {{ repo.stargazers_count }}
+                                            </span>
+                                            <span>
+                                                <i class="fas fa-code-branch"></i> {{ repo.forks_count }}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div class="text-muted small mb-3">
+                                        <i class="fas fa-clock"></i> 
+                                        Updated {{ repo.github_updated_at|timesince }} ago
+                                        {% if repo.github_pushed_at %}
+                                            · Pushed {{ repo.github_pushed_at|timesince }} ago
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="d-flex justify-content-between">
+                                        <a href="{{ repo.get_github_url }}" target="_blank" 
+                                           class="btn btn-sm btn-outline-secondary">
+                                            <i class="fab fa-github"></i> GitHub
+                                        </a>
+                                        <a href="{% url 'github_app:repository_detail' repo.id %}" 
+                                           class="btn btn-sm btn-primary">
+                                            <i class="fas fa-info-circle"></i> Details
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Pagination -->
+                {% if page_obj.has_other_pages %}
+                    <nav aria-label="Repository pagination">
+                        <ul class="pagination justify-content-center">
+                            {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_visibility %}&visibility={{ selected_visibility }}{% endif %}{% if selected_language %}&language={{ selected_language }}{% endif %}">&laquo; First</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_visibility %}&visibility={{ selected_visibility }}{% endif %}{% if selected_language %}&language={{ selected_language }}{% endif %}">Previous</a>
+                                </li>
+                            {% endif %}
+
+                            <li class="page-item active">
+                                <span class="page-link">
+                                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                                </span>
+                            </li>
+
+                            {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_visibility %}&visibility={{ selected_visibility }}{% endif %}{% if selected_language %}&language={{ selected_language }}{% endif %}">Next</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_visibility %}&visibility={{ selected_visibility }}{% endif %}{% if selected_language %}&language={{ selected_language }}{% endif %}">Last &raquo;</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+
+            {% else %}
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-code-branch fa-4x text-muted mb-4"></i>
+                        <h4 class="text-muted mb-3">No Repositories Found</h4>
+                        {% if search_query or selected_visibility or selected_language %}
+                            <p class="text-muted mb-3">
+                                No repositories match your current filters. Try adjusting your search criteria.
+                            </p>
+                            <a href="{% url 'github_app:repositories' %}" class="btn btn-outline-primary">
+                                <i class="fas fa-times"></i> Clear Filters
+                            </a>
+                        {% else %}
+                            <p class="text-muted mb-3">
+                                You haven't synchronized any repositories yet.
+                            </p>
+                            <a href="{% url 'github_app:sync_repositories' %}" class="btn btn-primary">
+                                <i class="fas fa-sync-alt"></i> Sync Repositories
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

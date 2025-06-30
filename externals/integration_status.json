@@ -1,0 +1,30 @@
+{
+  "timestamp": "2025-06-29T20:15:52+09:00",
+  "components": {
+    "SciTeX-Writer": {
+      "status": "active",
+      "integration": "template_system",
+      "description": "LaTeX template system for cloud compilation"
+    },
+    "SciTeX-Code": {
+      "status": "ready", 
+      "integration": "planned",
+      "description": "Python framework for scientific computation"
+    },
+    "SciTeX-Viz": {
+      "status": "ready",
+      "integration": "planned", 
+      "description": "SigmaPlot visualization wrapper"
+    },
+    "SciTeX-Scholar": {
+      "status": "ready",
+      "integration": "planned",
+      "description": "Literature search and analysis"
+    },
+    "SciTeX-Engine": {
+      "status": "planned",
+      "integration": "external",
+      "description": "Emacs-based LLM agent system"
+    }
+  }
+}

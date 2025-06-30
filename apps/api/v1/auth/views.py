@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth import get_user_model
-from apps.core_app.models import UserProfile, EmailVerification
+from apps.auth_app.models import UserProfile, EmailVerification
 from apps.core_app.services import EmailService
 from .serializers import (
     UserSerializer, UserProfileSerializer, 
@@ -288,7 +288,7 @@ def delete_account(request):
     
     try:
         # Get or create user profile
-        from apps.core_app.models import UserProfile
+        from apps.auth_app.models import UserProfile
         profile, created = UserProfile.objects.get_or_create(user=user)
         
         # Schedule deletion for 28 days from now
@@ -342,4 +342,135 @@ def cancel_account_deletion(request):
         return Response({
             'success': False,
             'error': f'Failed to cancel account deletion: {str(e)}'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+# SSH Key Management Views
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def ssh_key_info(request):
+    """Get SSH key information for the user"""
+    try:
+        from .ssh_key_manager import SSHKeyManager
+        
+        ssh_manager = SSHKeyManager(request.user)
+        key_info = ssh_manager.get_ssh_key_info()
+        
+        return Response({
+            'success': True,
+            'ssh_key': key_info
+        }, status=status.HTTP_200_OK)
+        
+    except Exception as e:
+        return Response({
+            'success': False,
+            'error': f'Failed to get SSH key info: {str(e)}'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def generate_ssh_key(request):
+    """Generate SSH key for the user"""
+    try:
+        from .ssh_key_manager import SSHKeyManager
+        
+        ssh_manager = SSHKeyManager(request.user)
+        
+        # Get key type from request or use default
+        key_type = request.data.get('key_type', 'ed25519')
+        if key_type not in ['ed25519', 'rsa', 'ecdsa']:
+            return Response({
+                'success': False,
+                'error': 'Invalid key type. Use ed25519, rsa, or ecdsa'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Generate SSH key
+        success = ssh_manager.generate_ssh_key(key_type=key_type)
+        
+        if success:
+            # Create SSH config
+            ssh_manager.create_ssh_config()
+            
+            # Get key info
+            key_info = ssh_manager.get_ssh_key_info()
+            
+            return Response({
+                'success': True,
+                'message': 'SSH key generated successfully',
+                'ssh_key': key_info
+            }, status=status.HTTP_201_CREATED)
+        else:
+            return Response({
+                'success': False,
+                'error': 'Failed to generate SSH key'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+    except Exception as e:
+        return Response({
+            'success': False,
+            'error': f'Failed to generate SSH key: {str(e)}'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_ssh_key(request):
+    """Delete SSH key for the user"""
+    try:
+        from .ssh_key_manager import SSHKeyManager
+        
+        ssh_manager = SSHKeyManager(request.user)
+        success = ssh_manager.delete_ssh_key()
+        
+        if success:
+            return Response({
+                'success': True,
+                'message': 'SSH key deleted successfully'
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({
+                'success': False,
+                'error': 'No SSH key found to delete'
+            }, status=status.HTTP_404_NOT_FOUND)
+            
+    except Exception as e:
+        return Response({
+            'success': False,
+            'error': f'Failed to delete SSH key: {str(e)}'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def test_ssh_connection(request):
+    """Test SSH connection to Git host"""
+    try:
+        from .ssh_key_manager import SSHKeyManager
+        
+        ssh_manager = SSHKeyManager(request.user)
+        
+        # Get host from request or use default
+        host = request.data.get('host', 'github.com')
+        if host not in ['github.com', 'gitlab.com', 'bitbucket.org']:
+            return Response({
+                'success': False,
+                'error': 'Invalid host. Use github.com, gitlab.com, or bitbucket.org'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Test connection
+        success = ssh_manager.test_ssh_connection(host)
+        
+        return Response({
+            'success': True,
+            'connection_success': success,
+            'host': host,
+            'message': f'SSH connection to {host} {"successful" if success else "failed"}'
+        }, status=status.HTTP_200_OK)
+        
+    except Exception as e:
+        return Response({
+            'success': False,
+            'error': f'Failed to test SSH connection: {str(e)}'
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -355,7 +355,9 @@
 .hero-subtitle {
   font-size: 1.25rem;
   margin-bottom: var(--spacing-lg);
-  color: var(--text-light);
+  color: var(--text-color);
+  opacity: 0.9;
+  font-weight: 500;
 }
 
 .hero-description {

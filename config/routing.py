@@ -1,0 +1,23 @@
+"""
+WebSocket routing configuration for SciTeX Cloud.
+"""
+from channels.auth import AuthMiddlewareStack
+from channels.routing import ProtocolTypeRouter, URLRouter
+from channels.security.websocket import AllowedHostsOriginValidator
+from django.core.asgi import get_asgi_application
+
+import apps.writer_app.routing
+
+application = ProtocolTypeRouter({
+    # HTTP protocol
+    "http": get_asgi_application(),
+    
+    # WebSocket protocol 
+    "websocket": AllowedHostsOriginValidator(
+        AuthMiddlewareStack(
+            URLRouter([
+                *apps.writer_app.routing.websocket_urlpatterns,
+            ])
+        )
+    ),
+})

@@ -4,7 +4,9 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
 
-from apps.core_app.models import Document, Project, UserProfile
+from apps.document_app.models import Document
+from apps.project_app.models import Project
+from apps.auth_app.models import UserProfile
 from .serializers import DocumentSerializer, ProjectSerializer, UserProfileSerializer
 
 

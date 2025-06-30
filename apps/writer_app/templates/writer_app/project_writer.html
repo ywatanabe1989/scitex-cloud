@@ -300,70 +300,28 @@
         </div>
         
         <div class="sidebar-content">
+            <!-- Document Type Selector -->
+            <div class="document-type-selector mb-4">
+                <h6 class="fw-bold mb-3">
+                    <i class="fas fa-file-alt me-2"></i>Document Type
+                </h6>
+                <div class="btn-group w-100" role="group">
+                    <input type="radio" class="btn-check" name="doctype" id="doctype-manuscript" autocomplete="off" checked>
+                    <label class="btn btn-outline-primary btn-sm" for="doctype-manuscript">Manuscript</label>
+                    
+                    <input type="radio" class="btn-check" name="doctype" id="doctype-revision" autocomplete="off">
+                    <label class="btn btn-outline-primary btn-sm" for="doctype-revision">Revision</label>
+                    
+                    <input type="radio" class="btn-check" name="doctype" id="doctype-supplementary" autocomplete="off">
+                    <label class="btn btn-outline-primary btn-sm" for="doctype-supplementary">Supplementary</label>
+                </div>
+            </div>
+            
             <div class="section-list">
                 <h6 class="fw-bold mb-3">
-                    <i class="fas fa-list me-2"></i>Manuscript Sections
+                    <i class="fas fa-list me-2"></i><span id="sections-title">Manuscript Sections</span>
                 </h6>
-                
-                <div class="section-item active" data-section="abstract">
-                    <div class="section-name">Abstract</div>
-                    <div class="section-stats">
-                        <div class="word-count">
-                            <span id="words-abstract">{{ manuscript.word_count_abstract }}</span> words
-                        </div>
-                    </div>
-                    <div class="completion-indicator">
-                        <div class="completion-fill" style="width: {% if manuscript.word_count_abstract > 0 %}100{% else %}0{% endif %}%;"></div>
-                    </div>
-                </div>
-                
-                <div class="section-item" data-section="introduction">
-                    <div class="section-name">Introduction</div>
-                    <div class="section-stats">
-                        <div class="word-count">
-                            <span id="words-introduction">{{ manuscript.word_count_introduction }}</span> words
-                        </div>
-                    </div>
-                    <div class="completion-indicator">
-                        <div class="completion-fill" style="width: {% if manuscript.word_count_introduction > 0 %}100{% else %}0{% endif %}%;"></div>
-                    </div>
-                </div>
-                
-                <div class="section-item" data-section="methods">
-                    <div class="section-name">Methods</div>
-                    <div class="section-stats">
-                        <div class="word-count">
-                            <span id="words-methods">{{ manuscript.word_count_methods }}</span> words
-                        </div>
-                    </div>
-                    <div class="completion-indicator">
-                        <div class="completion-fill" style="width: {% if manuscript.word_count_methods > 0 %}100{% else %}0{% endif %}%;"></div>
-                    </div>
-                </div>
-                
-                <div class="section-item" data-section="results">
-                    <div class="section-name">Results</div>
-                    <div class="section-stats">
-                        <div class="word-count">
-                            <span id="words-results">{{ manuscript.word_count_results }}</span> words
-                        </div>
-                    </div>
-                    <div class="completion-indicator">
-                        <div class="completion-fill" style="width: {% if manuscript.word_count_results > 0 %}100{% else %}0{% endif %}%;"></div>
-                    </div>
-                </div>
-                
-                <div class="section-item" data-section="discussion">
-                    <div class="section-name">Discussion</div>
-                    <div class="section-stats">
-                        <div class="word-count">
-                            <span id="words-discussion">{{ manuscript.word_count_discussion }}</span> words
-                        </div>
-                    </div>
-                    <div class="completion-indicator">
-                        <div class="completion-fill" style="width: {% if manuscript.word_count_discussion > 0 %}100{% else %}0{% endif %}%;"></div>
-                    </div>
-                </div>
+                <!-- Sections will be dynamically generated -->
             </div>
             
             <div class="action-buttons">
@@ -424,37 +382,80 @@
 document.addEventListener('DOMContentLoaded', function() {
     const projectId = {{ project.id }};
     let currentSection = 'abstract';
+    let currentDocType = 'manuscript';
     let editingMode = 'text';
     let autoSaveTimeout;
     let liveCompileTimeout;
     let currentlyCompiling = false;
     let liveCompilationEnabled = true; // Enable live compilation by default
     
-    // Section data
+    // Section data by document type
     const sectionsData = {
-        abstract: {{ sections.abstract|default:"''"|safe }},
-        introduction: {{ sections.introduction|default:"''"|safe }},
-        methods: {{ sections.methods|default:"''"|safe }},
-        results: {{ sections.results|default:"''"|safe }},
-        discussion: {{ sections.discussion|default:"''"|safe }}
+        manuscript: {
+            abstract: {{ sections.abstract|default:"''"|safe }},
+            highlights: {{ sections.highlights|default:"''"|safe }},
+            introduction: {{ sections.introduction|default:"''"|safe }},
+            methods: {{ sections.methods|default:"''"|safe }},
+            results: {{ sections.results|default:"''"|safe }},
+            discussion: {{ sections.discussion|default:"''"|safe }}
+        },
+        revision: {
+            introduction: '',
+            commands: '',
+            conclusion: '',
+            references: ''
+        },
+        supplementary: {
+            methods: '',
+            results: '',
+            references: ''
+        }
     };
     
-    // Section titles
+    // Section titles by document type
     const sectionTitles = {
-        abstract: 'Abstract',
-        introduction: 'Introduction', 
-        methods: 'Methods',
-        results: 'Results',
-        discussion: 'Discussion'
+        manuscript: {
+            abstract: 'Abstract',
+            highlights: 'Highlights',
+            introduction: 'Introduction', 
+            methods: 'Methods',
+            results: 'Results',
+            discussion: 'Discussion'
+        },
+        revision: {
+            introduction: 'Revision Introduction',
+            commands: 'Revision Commands',
+            conclusion: 'Revision Conclusion',
+            references: 'References'
+        },
+        supplementary: {
+            methods: 'Supplementary Methods',
+            results: 'Supplementary Results',
+            references: 'Supplementary References'
+        }
     };
     
-    // Section placeholders
+    // Section placeholders by document type
     const sectionPlaceholders = {
-        abstract: 'Write a concise summary of your research objectives, methods, key findings, and conclusions. Typically 150-300 words.',
-        introduction: 'Provide background context, literature review, and clearly state your research question or hypothesis.',
-        methods: 'Describe your experimental design, data collection methods, and analytical approaches in sufficient detail for replication.',
-        results: 'Present your findings objectively with appropriate statistical analysis. Use figures and tables to support key results.',
-        discussion: 'Interpret your results, discuss limitations, compare with existing literature, and suggest future research directions.'
+        manuscript: {
+            abstract: 'Write a concise summary of your research objectives, methods, key findings, and conclusions. Typically 150-300 words.',
+            highlights: 'List 3-5 key bullet points highlighting the main contributions and novel findings of your research.',
+            introduction: 'Provide background context, literature review, and clearly state your research question or hypothesis.',
+            methods: 'Describe your experimental design, data collection methods, and analytical approaches in sufficient detail for replication.',
+            results: 'Present your findings objectively with appropriate statistical analysis. Use figures and tables to support key results.',
+            discussion: 'Interpret your results, discuss limitations, compare with existing literature, and suggest future research directions.'
+        },
+        revision: {
+            introduction: 'Introduce the changes made in response to reviewer comments.',
+            commands: 'LaTeX commands for revision tracking (\\textcolor, \\st, etc.).',
+            conclusion: 'Summarize the revisions and improvements made.',
+            references: 'Additional references added during revision.'
+        },
+        supplementary: {
+            methods: 'Additional methodological details not included in the main manuscript.',
+            results: 'Extended results, additional figures, and supporting data.',
+            references: 'Complete bibliography for supplementary material.'
+        }
     };
     
     // Elements
@@ -469,20 +470,35 @@ document.addEventListener('DOMContentLoaded', function() {
     const exportBtn = document.getElementById('export-btn');
     const autoSaveStatus = document.getElementById('auto-save-status');
     const currentWordCount = document.getElementById('current-word-count');
+    const doctypeButtons = document.querySelectorAll('input[name="doctype"]');
+    const sectionsTitle = document.getElementById('sections-title');
+    const sectionList = document.querySelector('.section-list');
     
     // Initialize
+    renderSections(currentDocType);
     loadSection(currentSection);
     updateWordCount();
     
-    // Section switching
-    sectionItems.forEach(item => {
-        item.addEventListener('click', function() {
-            const section = this.dataset.section;
+    // Document type switching
+    doctypeButtons.forEach(btn => {
+        btn.addEventListener('change', function() {
+            if (this.checked) {
+                const newDocType = this.id.replace('doctype-', '');
+                switchDocumentType(newDocType);
+            }
+        });
+    });
+    
+    // Section switching (delegated event listener)
+    sectionList.addEventListener('click', function(e) {
+        const sectionItem = e.target.closest('.section-item');
+        if (sectionItem) {
+            const section = sectionItem.dataset.section;
             if (section !== currentSection) {
                 saveCurrentSection();
                 switchToSection(section);
             }
-        });
+        }
     });
     
     // Mode switching
@@ -549,15 +565,66 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function loadSection(section) {
-        currentSectionTitle.textContent = sectionTitles[section];
-        sectionContent.value = sectionsData[section] || '';
-        sectionContent.placeholder = sectionPlaceholders[section];
+        currentSectionTitle.textContent = sectionTitles[currentDocType][section];
+        sectionContent.value = sectionsData[currentDocType][section] || '';
+        sectionContent.placeholder = sectionPlaceholders[currentDocType][section];
         updateWordCount();
+    }
+    
+    function switchDocumentType(docType) {
+        // Save current section before switching
+        saveCurrentSection();
+        
+        currentDocType = docType;
+        sectionsTitle.textContent = `${docType.charAt(0).toUpperCase() + docType.slice(1)} Sections`;
+        
+        // Render new sections
+        renderSections(docType);
+        
+        // Switch to first section of new document type
+        const firstSection = Object.keys(sectionsData[docType])[0];
+        currentSection = firstSection;
+        loadSection(firstSection);
+    }
+    
+    function renderSections(docType) {
+        const sectionsContainer = sectionList.querySelector('.section-items') || 
+                                 document.createElement('div');
+        sectionsContainer.className = 'section-items';
+        
+        // Clear existing sections
+        sectionsContainer.innerHTML = '';
+        
+        // Render sections for current document type
+        Object.keys(sectionsData[docType]).forEach((section, index) => {
+            const sectionDiv = document.createElement('div');
+            sectionDiv.className = `section-item ${index === 0 ? 'active' : ''}`;
+            sectionDiv.dataset.section = section;
+            
+            sectionDiv.innerHTML = `
+                <div class="section-name">${sectionTitles[docType][section]}</div>
+                <div class="section-stats">
+                    <div class="word-count">
+                        <span id="words-${section}">0</span> words
+                    </div>
+                </div>
+                <div class="completion-indicator">
+                    <div class="completion-fill" style="width: 0%;"></div>
+                </div>
+            `;
+            
+            sectionsContainer.appendChild(sectionDiv);
+        });
+        
+        // Append to section list if not already there
+        if (!sectionList.contains(sectionsContainer)) {
+            sectionList.appendChild(sectionsContainer);
+        }
     }
     
     function saveCurrentSection() {
         const content = sectionContent.value;
-        sectionsData[currentSection] = content;
+        sectionsData[currentDocType][currentSection] = content;
         
         // Save to server
         fetch(`/writer/project/${projectId}/save-section/`, {
@@ -731,11 +798,11 @@ document.addEventListener('DOMContentLoaded', function() {
     function switchEditingMode(mode) {
         // Save current content before switching
         if (editingMode === 'text') {
-            sectionsData[currentSection] = sectionContent.value;
+            sectionsData[currentDocType][currentSection] = sectionContent.value;
         } else if (editingMode === 'latex') {
             // Convert LaTeX back to text and save
             const latexContent = latexEditor.value;
-            sectionsData[currentSection] = convertFromLatex(currentSection, latexContent);
+            sectionsData[currentDocType][currentSection] = convertFromLatex(currentSection, latexContent);
         }
         
         editingMode = mode;
@@ -749,13 +816,18 @@ document.addEventListener('DOMContentLoaded', function() {
             textEditor.style.display = 'flex';
             latexEditor.style.display = 'none';
             // Load current content into text editor
-            sectionContent.value = sectionsData[currentSection] || '';
+            sectionContent.value = sectionsData[currentDocType][currentSection] || '';
         } else {
             textEditor.style.display = 'none';
             latexEditor.style.display = 'block';
             
-            // Load actual LaTeX file content
-            loadActualLatexContent(currentSection);
+            // Load actual LaTeX file content or convert current text to LaTeX
+            const currentContent = sectionsData[currentDocType][currentSection] || '';
+            if (currentContent) {
+                latexEditor.value = convertToLatex(currentSection, currentContent);
+            } else {
+                loadActualLatexContent(currentSection);
+            }
         }
         
         updateWordCount();

@@ -1,0 +1,353 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/billing.css' %}">
+<style>
+/* SciTeX Billing Styles */
+.billing-dashboard {
+    background: linear-gradient(135deg, var(--scitex-color-primary-light), var(--scitex-color-accent-light));
+    min-height: 100vh;
+    padding: 2rem 0;
+}
+
+.billing-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(26, 35, 50, 0.1);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border: 1px solid var(--scitex-color-primary-light);
+}
+
+.tier-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(26, 35, 50, 0.1);
+    padding: 2.5rem;
+    margin-bottom: 2rem;
+    position: relative;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.tier-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(26, 35, 50, 0.15);
+    border-color: var(--scitex-color-accent);
+}
+
+.tier-card.featured {
+    border-color: var(--scitex-color-accent);
+    background: linear-gradient(145deg, #ffffff, #f8faff);
+}
+
+.tier-card.featured::before {
+    content: "Most Popular";
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--scitex-color-accent);
+    color: white;
+    padding: 0.5rem 1.5rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.tier-price {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--scitex-color-primary);
+    margin: 1rem 0;
+}
+
+.tier-price-small {
+    font-size: 1rem;
+    color: var(--scitex-color-secondary);
+    font-weight: 400;
+}
+
+.feature-list {
+    list-style: none;
+    padding: 0;
+    margin: 1.5rem 0;
+}
+
+.feature-list li {
+    padding: 0.5rem 0;
+    color: var(--scitex-color-text);
+    display: flex;
+    align-items: center;
+}
+
+.feature-list li::before {
+    content: "✓";
+    color: var(--scitex-color-success);
+    font-weight: bold;
+    margin-right: 0.75rem;
+    font-size: 1.2rem;
+}
+
+.quota-progress {
+    background: var(--scitex-color-light);
+    border-radius: 8px;
+    height: 12px;
+    overflow: hidden;
+    margin: 0.5rem 0;
+}
+
+.quota-progress-bar {
+    height: 100%;
+    transition: width 0.3s ease;
+    border-radius: 8px;
+}
+
+.quota-normal { background: var(--scitex-color-success); }
+.quota-warning { background: var(--scitex-color-warning); }
+.quota-exceeded { background: var(--scitex-color-error); }
+
+.usage-card {
+    background: linear-gradient(135deg, #f8faff, #ffffff);
+    border: 1px solid var(--scitex-color-primary-light);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.usage-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(26, 35, 50, 0.1);
+}
+
+.btn-upgrade {
+    background: linear-gradient(135deg, var(--scitex-color-accent), var(--scitex-color-secondary));
+    border: none;
+    color: white;
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-upgrade:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(74, 107, 175, 0.3);
+    color: white;
+}
+
+.billing-hero {
+    background: linear-gradient(135deg, var(--scitex-color-primary), var(--scitex-color-secondary));
+    color: white;
+    padding: 3rem 0;
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.billing-hero h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.billing-hero p {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.payment-method-card {
+    background: white;
+    border: 2px solid var(--scitex-color-light);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.payment-method-card.default {
+    border-color: var(--scitex-color-accent);
+    background: linear-gradient(145deg, #ffffff, #f8faff);
+}
+
+.payment-method-card:hover {
+    border-color: var(--scitex-color-secondary);
+    transform: translateY(-2px);
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.status-active { background: #d4edda; color: #155724; }
+.status-trialing { background: #fff3cd; color: #856404; }
+.status-canceled { background: #f8d7da; color: #721c24; }
+.status-expired { background: #e2e3e5; color: #383d41; }
+
+.analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.metric-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 16px rgba(26, 35, 50, 0.08);
+    border-left: 4px solid var(--scitex-color-accent);
+}
+
+.metric-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--scitex-color-primary);
+    margin-bottom: 0.5rem;
+}
+
+.metric-label {
+    color: var(--scitex-color-secondary);
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+// Initialize Stripe
+const stripe = Stripe('{{ stripe_publishable_key|default:"" }}');
+
+// Billing-specific JavaScript
+class BillingManager {
+    constructor() {
+        this.initEventListeners();
+    }
+    
+    initEventListeners() {
+        // Subscription actions
+        document.addEventListener('click', (e) => {
+            if (e.target.matches('[data-action="subscribe"]')) {
+                this.handleSubscribe(e);
+            } else if (e.target.matches('[data-action="upgrade"]')) {
+                this.handleUpgrade(e);
+            } else if (e.target.matches('[data-action="cancel"]')) {
+                this.handleCancel(e);
+            }
+        });
+    }
+    
+    async handleSubscribe(e) {
+        e.preventDefault();
+        const tierId = e.target.dataset.tierId;
+        const billingCycle = document.querySelector('input[name="billing_cycle"]:checked')?.value || 'monthly';
+        
+        try {
+            const response = await fetch('{% url "billing:subscribe" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: new URLSearchParams({
+                    tier_id: tierId,
+                    billing_cycle: billingCycle
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                window.location.href = data.redirect_url;
+            } else {
+                alert(data.error);
+            }
+        } catch (error) {
+            console.error('Subscription error:', error);
+            alert('An error occurred. Please try again.');
+        }
+    }
+    
+    async handleUpgrade(e) {
+        e.preventDefault();
+        const tierId = e.target.dataset.tierId;
+        
+        if (!confirm('Are you sure you want to upgrade your subscription?')) return;
+        
+        try {
+            const response = await fetch('{% url "billing:upgrade" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: new URLSearchParams({
+                    tier_id: tierId
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                alert(data.message);
+                location.reload();
+            } else {
+                alert(data.error);
+            }
+        } catch (error) {
+            console.error('Upgrade error:', error);
+            alert('An error occurred. Please try again.');
+        }
+    }
+    
+    async handleCancel(e) {
+        e.preventDefault();
+        
+        if (!confirm('Are you sure you want to cancel your subscription?')) return;
+        
+        try {
+            const response = await fetch('{% url "billing:cancel" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: new URLSearchParams({
+                    reason: 'User requested cancellation'
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                alert(data.message);
+                location.reload();
+            } else {
+                alert(data.error);
+            }
+        } catch (error) {
+            console.error('Cancel error:', error);
+            alert('An error occurred. Please try again.');
+        }
+    }
+}
+
+// Initialize billing manager
+document.addEventListener('DOMContentLoaded', () => {
+    new BillingManager();
+});
+</script>
+{% endblock %}

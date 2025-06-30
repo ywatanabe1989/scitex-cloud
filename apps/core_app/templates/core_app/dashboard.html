@@ -86,6 +86,7 @@ body {
 
 
 
+
 .file-manager-content {
     position: absolute;
     top: 50%;
@@ -1093,9 +1094,14 @@ body {
                 <h1 class="h5 mb-0">Dashboard</h1>
                 <small class="text-muted">Welcome back, {{ user.get_full_name|default:user.username }}!</small>
             </div>
-            <button class="btn btn-primary btn-sm" onclick="console.log('Button clicked'); createNewProject();">
-                <i class="fas fa-plus me-1"></i>New Project
-            </button>
+            <div class="d-flex gap-2">
+                <a href="{% url 'core_app:dashboard_react_tree' %}" class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-folder-tree me-1"></i>File Manager
+                </a>
+                <button class="btn btn-primary btn-sm" onclick="console.log('Button clicked'); createNewProject();">
+                    <i class="fas fa-plus me-1"></i>New Project
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -1223,14 +1229,35 @@ body {
             </div>
         </div>
         {% else %}
-        <!-- Empty State -->
+        <!-- Simple Empty State -->
         <div class="empty-state">
-            <i class="fas fa-folder-plus fa-3x text-muted mb-3"></i>
+            <i class="fas fa-folder-open fa-3x text-primary mb-4"></i>
             <h3>No projects yet</h3>
-            <p class="text-muted mb-4">Create your first research project to get started</p>
-            <button class="btn btn-primary" onclick="console.log('Empty state button clicked'); createNewProject();">
-                <i class="fas fa-plus me-2"></i>Create Project
-            </button>
+            <p class="text-muted mb-4">Create your first project to get started</p>
+            
+            <!-- Primary Action -->
+            <div class="mb-4">
+                <button class="btn btn-primary btn-lg" onclick="createNewProject();">
+                    <i class="fas fa-plus me-2"></i>Create New Project
+                </button>
+            </div>
+            
+            <!-- Quick Links -->
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="d-flex justify-content-center gap-3 text-muted small">
+                        <a href="#" onclick="showOnboardingVideo()" class="text-decoration-none">
+                            <i class="fas fa-video me-1"></i>Watch Demo
+                        </a>
+                        <a href="#" onclick="openDocumentation()" class="text-decoration-none">
+                            <i class="fas fa-book me-1"></i>Documentation
+                        </a>
+                        <a href="#" onclick="showExampleProjects()" class="text-decoration-none">
+                            <i class="fas fa-eye me-1"></i>View Examples
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
         {% endif %}
     </div>
@@ -1330,8 +1357,8 @@ body {
     </div>
 </div>
 
-<!-- File Manager Modal -->
-<div id="fileManagerModal" class="file-manager-modal">
+<!-- File Manager Modal - REMOVED -->
+<div id="fileManagerModal" class="file-manager-modal" style="display: none !important;">
     <div class="file-manager-content">
         <div class="file-manager-header">
             <h3 class="file-manager-title">
@@ -1398,15 +1425,39 @@ body {
 
 <script>
 function createNewProject() {
-    console.log('createNewProject() called');
-    const modal = document.getElementById('createProjectModal');
-    console.log('Modal element:', modal);
-    if (modal) {
-        modal.style.display = 'block';
-        console.log('Modal displayed');
-    } else {
-        console.error('createProjectModal not found');
+    // Create project directly without modal
+    const projectName = prompt('Enter project name:');
+    if (projectName && projectName.trim()) {
+        const formData = new FormData();
+        formData.append('name', projectName.trim());
+        formData.append('description', '');
+        formData.append('research_field', 'general');
+        
+        fetch('/core/api/v1/projects/', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': getCsrfToken()
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload(); // Reload to show new project
+            } else {
+                alert('Error creating project: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error creating project');
+        });
     }
+}
+
+function getCsrfToken() {
+    return document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
+           document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
 }
 
 function closeCreateProjectModal() {
@@ -3479,6 +3530,223 @@ function addRemote(projectId) {
         console.error('Error:', error);
         showNotification('Error adding GitHub remote', 'error');
     });
+}
+
+// Onboarding System Functions
+function startTutorial() {
+    showNotification('🎓 Welcome to the SciTeX Tutorial!', 'info');
+    
+    // Start interactive tutorial
+    const steps = [
+        {
+            title: 'Welcome to SciTeX!',
+            content: 'Let\'s take a quick tour of the SciTeX platform. This tutorial will show you the key features.',
+            target: null,
+            position: 'center'
+        },
+        {
+            title: 'Create Your First Project',
+            content: 'Click here to create a new research project. Projects help organize your work.',
+            target: '.btn-primary',
+            position: 'bottom'
+        },
+        {
+            title: 'File Management',
+            content: 'Use the file manager to organize your research files, data, and manuscripts.',
+            target: '.btn-outline-primary',
+            position: 'bottom'
+        }
+    ];
+    
+    runTutorialSteps(steps, 0);
+}
+
+function runTutorialSteps(steps, currentStep) {
+    if (currentStep >= steps.length) {
+        showNotification('🎉 Tutorial complete! You\'re ready to start your research.', 'success');
+        return;
+    }
+    
+    const step = steps[currentStep];
+    const modalHtml = `
+        <div id="tutorialModal" class="modal fade show" style="display: block; background: rgba(0,0,0,0.7);">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title">${step.title}</h5>
+                        <button type="button" class="btn-close btn-close-white" onclick="closeTutorial()"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>${step.content}</p>
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <span class="text-muted">Step ${currentStep + 1} of ${steps.length}</span>
+                            <div>
+                                ${currentStep > 0 ? '<button class="btn btn-outline-secondary me-2" onclick="previousTutorialStep()">Previous</button>' : ''}
+                                <button class="btn btn-primary" onclick="nextTutorialStep()">${currentStep === steps.length - 1 ? 'Finish' : 'Next'}</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Remove existing tutorial modal
+    const existingModal = document.getElementById('tutorialModal');
+    if (existingModal) existingModal.remove();
+    
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    
+    // Store tutorial state
+    window.tutorialState = { steps, currentStep };
+}
+
+function nextTutorialStep() {
+    if (window.tutorialState) {
+        runTutorialSteps(window.tutorialState.steps, window.tutorialState.currentStep + 1);
+    }
+}
+
+function previousTutorialStep() {
+    if (window.tutorialState && window.tutorialState.currentStep > 0) {
+        runTutorialSteps(window.tutorialState.steps, window.tutorialState.currentStep - 1);
+    }
+}
+
+function closeTutorial() {
+    const modal = document.getElementById('tutorialModal');
+    if (modal) modal.remove();
+    window.tutorialState = null;
+}
+
+function showTemplateSelector() {
+    // No popup - just create a simple project
+    createNewProject();
+}
+
+function closeTemplateSelector() {
+    const modal = document.getElementById('templateModal');
+    if (modal) modal.remove();
+}
+
+function selectTemplate(templateType) {
+    closeTemplateSelector();
+    showNotification(`Creating project from ${templateType} template...`, 'info');
+    createProjectFromTemplate(templateType);
+}
+
+function showOnboardingVideo() {
+    const modalHtml = `
+        <div id="videoModal" class="modal fade show" style="display: block; background: rgba(0,0,0,0.7);">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title"><i class="fas fa-video me-2"></i>SciTeX Demo</h5>
+                        <button type="button" class="btn-close" onclick="closeVideoModal()"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <div style="padding: 2rem;">
+                            <i class="fas fa-play-circle fa-4x text-primary mb-3"></i>
+                            <h5>Demo Video Coming Soon</h5>
+                            <p class="text-muted">We're preparing an interactive demo video to showcase SciTeX features.</p>
+                            <div class="mt-4">
+                                <button class="btn btn-primary me-2" onclick="startTutorial(); closeVideoModal();">Take Interactive Tour Instead</button>
+                                <button class="btn btn-outline-secondary" onclick="closeVideoModal();">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+
+function closeVideoModal() {
+    const modal = document.getElementById('videoModal');
+    if (modal) modal.remove();
+}
+
+function openDocumentation() {
+    showNotification('📚 Opening SciTeX documentation...', 'info');
+    window.open('/api-docs/', '_blank');
+}
+
+function showExampleProjects() {
+    const examples = [
+        {
+            name: 'MNIST Classification',
+            description: 'Machine learning project with SVM classification',
+            icon: 'fas fa-brain',
+            files: ['Python scripts', 'Configuration files', 'Data processing']
+        },
+        {
+            name: 'Research Paper Template',
+            description: 'Academic paper with LaTeX structure',
+            icon: 'fas fa-file-alt',
+            files: ['LaTeX templates', 'Bibliography', 'Figure placeholders']
+        },
+        {
+            name: 'Data Analysis Pipeline',
+            description: 'Complete data science workflow',
+            icon: 'fas fa-chart-line',
+            files: ['Jupyter notebooks', 'Data cleaning', 'Visualization']
+        }
+    ];
+    
+    const modalHtml = `
+        <div id="examplesModal" class="modal fade show" style="display: block; background: rgba(0,0,0,0.5);">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title"><i class="fas fa-eye me-2"></i>Example Projects</h5>
+                        <button type="button" class="btn-close" onclick="closeExamplesModal()"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            ${examples.map((example, index) => `
+                                <div class="col-md-6">
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            <div class="d-flex align-items-center mb-3">
+                                                <i class="${example.icon} fa-2x text-primary me-3"></i>
+                                                <h6 class="card-title mb-0">${example.name}</h6>
+                                            </div>
+                                            <p class="card-text text-muted small">${example.description}</p>
+                                            <div class="mb-3">
+                                                <small class="text-muted">Includes:</small>
+                                                ${example.files.map(file => `<span class="badge bg-light text-dark ms-1">${file}</span>`).join('')}
+                                            </div>
+                                            <button class="btn btn-outline-primary btn-sm" onclick="createExampleProject(${index})">
+                                                Create This Example
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+
+function closeExamplesModal() {
+    const modal = document.getElementById('examplesModal');
+    if (modal) modal.remove();
+}
+
+function createExampleProject(exampleIndex) {
+    const examples = ['mnist', 'research_paper', 'data_analysis'];
+    const templateType = examples[exampleIndex];
+    
+    closeExamplesModal();
+    showNotification('Creating example project...', 'info');
+    createProjectFromTemplate(templateType);
 }
 </script>
 {% endblock %}

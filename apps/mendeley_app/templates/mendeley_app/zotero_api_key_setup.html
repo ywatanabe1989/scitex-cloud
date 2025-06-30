@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Zotero API Key Setup - SciTeX{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Zotero API Key Setup</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <h5>How to get your Zotero API Key:</h5>
+                        <ol>
+                            <li>Go to <a href="{{ zotero_api_url }}" target="_blank">Zotero API Keys page</a></li>
+                            <li>Log in to your Zotero account</li>
+                            <li>Create a new API key with the following permissions:
+                                <ul>
+                                    <li>Allow library access</li>
+                                    <li>Allow write access (if you want to sync changes back)</li>
+                                    <li>Allow group access (if you want to sync group libraries)</li>
+                                </ul>
+                            </li>
+                            <li>Copy the generated API key</li>
+                            <li>Paste it in the form below</li>
+                        </ol>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="api_key">Zotero API Key</label>
+                            <input type="text" class="form-control" id="api_key" name="api_key" 
+                                   placeholder="Enter your Zotero API key" required>
+                            <small class="form-text text-muted">
+                                This key will be securely stored and used to access your Zotero library.
+                            </small>
+                        </div>
+
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">Connect to Zotero</button>
+                            <a href="{% url 'mendeley_app:dashboard' %}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+
+                    <hr>
+
+                    <div class="alert alert-warning">
+                        <h6>Security Note:</h6>
+                        <p>Your API key is stored securely and only used to sync your Zotero library. 
+                           You can revoke this access at any time from your Zotero account settings.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

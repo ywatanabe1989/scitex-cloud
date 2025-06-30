@@ -64,6 +64,7 @@ class DataSource(models.Model):
         ('api', 'API Endpoint'),
         ('realtime', 'Real-time Stream'),
         ('computed', 'Computed/Derived'),
+        ('code_execution', 'Code Execution Results'),
     ]
     
     STATUS_CHOICES = [

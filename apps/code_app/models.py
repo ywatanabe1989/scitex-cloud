@@ -78,6 +78,61 @@ class CodeExecutionJob(models.Model):
         if self.started_at and self.completed_at:
             return (self.completed_at - self.started_at).total_seconds()
         return None
+    
+    def save(self, *args, **kwargs):
+        """Override save to trigger integrations on completion."""
+        is_newly_completed = (
+            self.pk and 
+            self.status == 'completed' and 
+            CodeExecutionJob.objects.filter(pk=self.pk, status='completed').count() == 0
+        )
+        
+        super().save(*args, **kwargs)
+        
+        # Trigger integrations for newly completed jobs
+        if is_newly_completed:
+            if self.plot_files or self.output_files:
+                self._sync_to_viz_module()
+            
+            # Trigger repository sync if enabled
+            self._sync_to_repository()
+    
+    def _sync_to_viz_module(self):
+        """Sync completed job to Viz module."""
+        try:
+            from apps.viz_app.code_integration import auto_sync_code_completion
+            result = auto_sync_code_completion(self)
+            
+            # Update job with sync results
+            if result.get('data_source_created'):
+                self.output += f"\n\nViz Integration: Created data source and {result.get('visualizations_created', 0)} visualizations"
+                super().save(update_fields=['output'])
+                
+        except Exception as e:
+            # Log error but don't fail the job
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Failed to sync code job {self.job_id} to Viz module: {e}")
+    
+    def _sync_to_repository(self):
+        """Sync completed job to data repository."""
+        try:
+            from .repository_integration import auto_sync_code_completion
+            result = auto_sync_code_completion(self)
+            
+            # Update job with sync results
+            if result.get('auto_sync'):
+                sync_info = f"\n\nRepository Sync: Created dataset '{result.get('dataset_title')}' in {result.get('repository_name')}"
+                sync_info += f"\nFiles synced: {result.get('files_synced', 0)}"
+                sync_info += f"\nTotal size: {result.get('total_size', 0)} bytes"
+                self.output += sync_info
+                super().save(update_fields=['output'])
+                
+        except Exception as e:
+            # Log error but don't fail the job
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Failed to sync code job {self.job_id} to repository: {e}")
 
 
 class DataAnalysisJob(models.Model):

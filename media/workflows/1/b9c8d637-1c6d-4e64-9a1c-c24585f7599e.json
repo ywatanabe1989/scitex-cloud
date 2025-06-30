@@ -1,0 +1,22 @@
+{
+  "id": "b9c8d637-1c6d-4e64-9a1c-c24585f7599e",
+  "name": "Test Reproducible Workflow",
+  "description": "A test workflow for reproducible research",
+  "created_by": "ywatanabe",
+  "created_at": "2025-06-27T21:11:07.966725+00:00",
+  "steps": [
+    {
+      "type": "code",
+      "code": "print(\"Hello from reproducible workflow\\!\")",
+      "timeout": 60,
+      "critical": true
+    },
+    {
+      "type": "code",
+      "code": "import sys\nprint(f\"Python version: {sys.version}\")",
+      "timeout": 30,
+      "critical": false
+    }
+  ],
+  "status": "draft"
+}

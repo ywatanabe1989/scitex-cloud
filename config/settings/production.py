@@ -31,7 +31,7 @@ if not SECRET_KEY:
     # Fallback secret key for development/testing purposes
     SECRET_KEY = 'WlLHhph63BKuRP7W?Z3TszWTltaObIzC-fallback-production-key-change-in-real-deployment'
 
-ALLOWED_HOSTS = ["scitex.ai", "www.scitex.ai", "162.43.35.139", "localhost", "scitex"]
+ALLOWED_HOSTS = ["scitex.ai", "www.scitex.ai", "sciwriter.app", "www.sciwriter.app", "162.43.35.139", "localhost", "scitex", "airight.app"]
 
 # Security settings for production - only enable SSL redirects if HTTPS is properly configured
 SECURE_BROWSER_XSS_FILTER = True
@@ -48,8 +48,9 @@ X_FRAME_OPTIONS = 'DENY'  # Prevent clickjacking
 SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
 
 # Cookie security settings
-SESSION_COOKIE_SECURE = True  # Only send session cookies over HTTPS
-CSRF_COOKIE_SECURE = True     # Only send CSRF cookies over HTTPS
+# Temporarily allow HTTP for testing - should be True in production with HTTPS
+SESSION_COOKIE_SECURE = os.environ.get('FORCE_HTTPS_COOKIES', 'false').lower() == 'true'
+CSRF_COOKIE_SECURE = os.environ.get('FORCE_HTTPS_COOKIES', 'false').lower() == 'true'
 SESSION_COOKIE_HTTPONLY = True  # Prevent JavaScript access to session cookies
 CSRF_COOKIE_HTTPONLY = True     # Prevent JavaScript access to CSRF cookies
 

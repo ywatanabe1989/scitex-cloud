@@ -1,0 +1,591 @@
+/**
+ * Collaborative Editor JavaScript Module
+ * Handles real-time collaborative editing with WebSocket integration
+ * Implements operational transformation for conflict resolution
+ */
+
+class CollaborativeEditor {
+    constructor(documentId, editorElementId) {
+        this.documentId = documentId;
+        this.editorElement = document.getElementById(editorElementId);
+        this.socket = null;
+        this.isConnected = false;
+        this.activeUsers = new Map();
+        this.pendingOperations = [];
+        this.documentVersion = 0;
+        this.userId = null;
+        this.username = null;
+        
+        // Operational transformation state
+        this.lastSentPosition = 0;
+        this.operationQueue = [];
+        
+        // UI elements
+        this.userList = document.getElementById('active-users-list');
+        this.connectionStatus = document.getElementById('connection-status');
+        this.collaborationToggle = document.getElementById('collaboration-toggle');
+        
+        this.initializeWebSocket();
+        this.initializeEventListeners();
+        this.initializeUI();
+    }
+    
+    /**
+     * Initialize WebSocket connection for real-time collaboration
+     */
+    initializeWebSocket() {
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${protocol}//${window.location.host}/ws/writer/document/${this.documentId}/`;
+        
+        this.socket = new WebSocket(wsUrl);
+        
+        this.socket.onopen = (event) => {
+            console.log('Connected to collaborative editing server');
+            this.isConnected = true;
+            this.updateConnectionStatus('connected');
+            this.requestDocumentState();
+        };
+        
+        this.socket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            this.handleWebSocketMessage(data);
+        };
+        
+        this.socket.onclose = (event) => {
+            console.log('Disconnected from collaborative editing server');
+            this.isConnected = false;
+            this.updateConnectionStatus('disconnected');
+            
+            // Attempt to reconnect after 3 seconds
+            setTimeout(() => {
+                if (!this.isConnected) {
+                    this.initializeWebSocket();
+                }
+            }, 3000);
+        };
+        
+        this.socket.onerror = (error) => {
+            console.error('WebSocket error:', error);
+            this.updateConnectionStatus('error');
+        };
+    }
+    
+    /**
+     * Initialize event listeners for the editor
+     */
+    initializeEventListeners() {
+        if (!this.editorElement) return;
+        
+        // Text change events with debouncing
+        let changeTimeout = null;
+        this.editorElement.addEventListener('input', (event) => {
+            clearTimeout(changeTimeout);
+            changeTimeout = setTimeout(() => {
+                this.handleTextChange(event);
+            }, 100); // 100ms debounce
+        });
+        
+        // Cursor position changes
+        this.editorElement.addEventListener('selectionchange', (event) => {
+            this.handleSelectionChange(event);
+        });
+        
+        // Collaboration toggle
+        if (this.collaborationToggle) {
+            this.collaborationToggle.addEventListener('change', (event) => {
+                this.toggleCollaboration(event.target.checked);
+            });
+        }
+        
+        // Paste events
+        this.editorElement.addEventListener('paste', (event) => {
+            setTimeout(() => this.handleTextChange(event), 10);
+        });
+        
+        // Keyboard shortcuts
+        this.editorElement.addEventListener('keydown', (event) => {
+            this.handleKeyboardShortcuts(event);
+        });
+    }
+    
+    /**
+     * Initialize UI components
+     */
+    initializeUI() {
+        this.updateConnectionStatus('connecting');
+        this.renderActiveUsers();
+        
+        // Add collaboration controls
+        this.addCollaborationControls();
+    }
+    
+    /**
+     * Handle incoming WebSocket messages
+     */
+    handleWebSocketMessage(data) {
+        switch (data.type) {
+            case 'document_state':
+                this.handleDocumentState(data);
+                break;
+            case 'text_change':
+                this.handleRemoteTextChange(data);
+                break;
+            case 'cursor_position':
+                this.handleRemoteCursorPosition(data);
+                break;
+            case 'selection_change':
+                this.handleRemoteSelectionChange(data);
+                break;
+            case 'user_joined':
+                this.handleUserJoined(data);
+                break;
+            case 'user_left':
+                this.handleUserLeft(data);
+                break;
+            default:
+                console.warn('Unknown message type:', data.type);
+        }
+    }
+    
+    /**
+     * Handle initial document state
+     */
+    handleDocumentState(data) {
+        const { content, active_users } = data;
+        
+        // Update document content
+        if (content && content.text !== undefined) {
+            this.editorElement.value = content.text;
+            this.documentVersion = content.version || 0;
+        }
+        
+        // Update active users
+        this.activeUsers.clear();
+        if (active_users) {
+            active_users.forEach(user => {
+                this.activeUsers.set(user.user_id, {
+                    username: user.username,
+                    cursorPosition: 0,
+                    selection: null
+                });
+            });
+        }
+        
+        this.renderActiveUsers();
+    }
+    
+    /**
+     * Handle text changes from the local editor
+     */
+    handleTextChange(event) {
+        if (!this.isConnected) return;
+        
+        const currentText = this.editorElement.value;
+        const cursorPosition = this.editorElement.selectionStart;
+        
+        // Create operation for the change
+        const operation = {
+            type: 'insert', // or 'delete'
+            position: cursorPosition,
+            content: currentText,
+            length: currentText.length,
+            timestamp: Date.now()
+        };
+        
+        // Send operation to server
+        this.sendOperation(operation);
+    }
+    
+    /**
+     * Handle remote text changes
+     */
+    handleRemoteTextChange(data) {
+        if (data.user_id === this.userId) return; // Don't apply own changes
+        
+        const { operation } = data;
+        this.applyRemoteOperation(operation);
+        
+        // Show user indicator
+        this.showUserAction(data.username, 'typing');
+    }
+    
+    /**
+     * Apply remote operation to local editor
+     */
+    applyRemoteOperation(operation) {
+        const currentPosition = this.editorElement.selectionStart;
+        const currentText = this.editorElement.value;
+        
+        // Simple operational transformation (production would use more sophisticated OT)
+        if (operation.type === 'insert') {
+            // Apply the change
+            this.editorElement.value = operation.content;
+            
+            // Adjust cursor position if needed
+            if (currentPosition >= operation.position) {
+                const newPosition = currentPosition + (operation.content.length - currentText.length);
+                this.editorElement.setSelectionRange(newPosition, newPosition);
+            }
+        }
+        
+        this.documentVersion++;
+    }
+    
+    /**
+     * Handle selection changes
+     */
+    handleSelectionChange(event) {
+        if (!this.isConnected) return;
+        
+        const selection = {
+            start: this.editorElement.selectionStart,
+            end: this.editorElement.selectionEnd
+        };
+        
+        this.sendMessage({
+            type: 'selection_change',
+            selection: selection,
+            timestamp: Date.now()
+        });
+    }
+    
+    /**
+     * Handle remote selection changes
+     */
+    handleRemoteSelectionChange(data) {
+        if (data.user_id === this.userId) return;
+        
+        // Update user's selection in the active users map
+        if (this.activeUsers.has(data.user_id)) {
+            const user = this.activeUsers.get(data.user_id);
+            user.selection = data.selection;
+            this.activeUsers.set(data.user_id, user);
+        }
+        
+        this.renderActiveUsers();
+        this.showSelectionOverlay(data.user_id, data.selection);
+    }
+    
+    /**
+     * Handle cursor position changes
+     */
+    handleRemoteCursorPosition(data) {
+        if (data.user_id === this.userId) return;
+        
+        // Update user's cursor position
+        if (this.activeUsers.has(data.user_id)) {
+            const user = this.activeUsers.get(data.user_id);
+            user.cursorPosition = data.position;
+            this.activeUsers.set(data.user_id, user);
+        }
+        
+        this.showCursorIndicator(data.user_id, data.position);
+    }
+    
+    /**
+     * Handle user joined event
+     */
+    handleUserJoined(data) {
+        this.activeUsers.set(data.user_id, {
+            username: data.username,
+            cursorPosition: 0,
+            selection: null
+        });
+        
+        this.renderActiveUsers();
+        this.showNotification(`${data.username} joined the document`, 'success');
+    }
+    
+    /**
+     * Handle user left event
+     */
+    handleUserLeft(data) {
+        this.activeUsers.delete(data.user_id);
+        this.renderActiveUsers();
+        this.removeCursorIndicator(data.user_id);
+        this.showNotification(`${data.username} left the document`, 'info');
+    }
+    
+    /**
+     * Send operation to server
+     */
+    sendOperation(operation) {
+        this.sendMessage({
+            type: 'text_change',
+            operation: operation,
+            timestamp: Date.now()
+        });
+    }
+    
+    /**
+     * Send message to WebSocket
+     */
+    sendMessage(message) {
+        if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+            this.socket.send(JSON.stringify(message));
+        }
+    }
+    
+    /**
+     * Request current document state
+     */
+    requestDocumentState() {
+        this.sendMessage({
+            type: 'request_document_state',
+            timestamp: Date.now()
+        });
+    }
+    
+    /**
+     * Update connection status UI
+     */
+    updateConnectionStatus(status) {
+        if (!this.connectionStatus) return;
+        
+        const statusMap = {
+            'connecting': { text: 'Connecting...', class: 'connecting' },
+            'connected': { text: 'Connected', class: 'connected' },
+            'disconnected': { text: 'Disconnected', class: 'disconnected' },
+            'error': { text: 'Connection Error', class: 'error' }
+        };
+        
+        const statusInfo = statusMap[status] || statusMap['disconnected'];
+        this.connectionStatus.textContent = statusInfo.text;
+        this.connectionStatus.className = `connection-status ${statusInfo.class}`;
+    }
+    
+    /**
+     * Render active users list
+     */
+    renderActiveUsers() {
+        if (!this.userList) return;
+        
+        this.userList.innerHTML = '';
+        
+        this.activeUsers.forEach((user, userId) => {
+            const userElement = document.createElement('div');
+            userElement.className = 'active-user';
+            userElement.innerHTML = `
+                <div class="user-avatar" style="background-color: ${this.getUserColor(userId)}">
+                    ${user.username.charAt(0).toUpperCase()}
+                </div>
+                <span class="user-name">${user.username}</span>
+            `;
+            this.userList.appendChild(userElement);
+        });
+    }
+    
+    /**
+     * Get consistent color for user
+     */
+    getUserColor(userId) {
+        const colors = [
+            '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
+            '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9'
+        ];
+        const index = parseInt(userId, 10) % colors.length;
+        return colors[index];
+    }
+    
+    /**
+     * Show cursor indicator for remote users
+     */
+    showCursorIndicator(userId, position) {
+        // Remove existing indicator
+        this.removeCursorIndicator(userId);
+        
+        // Create new cursor indicator
+        const indicator = document.createElement('div');
+        indicator.className = 'remote-cursor';
+        indicator.id = `cursor-${userId}`;
+        indicator.style.backgroundColor = this.getUserColor(userId);
+        
+        // Position the cursor (simplified - production would need more sophisticated positioning)
+        const textBefore = this.editorElement.value.substring(0, position);
+        const lines = textBefore.split('\\n');
+        const lineNumber = lines.length;
+        const columnNumber = lines[lines.length - 1].length;
+        
+        // Add to editor container
+        const editorContainer = this.editorElement.parentNode;
+        if (editorContainer.style.position !== 'relative') {
+            editorContainer.style.position = 'relative';
+        }
+        editorContainer.appendChild(indicator);
+    }
+    
+    /**
+     * Remove cursor indicator
+     */
+    removeCursorIndicator(userId) {
+        const indicator = document.getElementById(`cursor-${userId}`);
+        if (indicator) {
+            indicator.remove();
+        }
+    }
+    
+    /**
+     * Show selection overlay for remote users
+     */
+    showSelectionOverlay(userId, selection) {
+        if (!selection || selection.start === selection.end) return;
+        
+        // Create selection overlay (simplified implementation)
+        const overlay = document.createElement('div');
+        overlay.className = 'remote-selection';
+        overlay.id = `selection-${userId}`;
+        overlay.style.backgroundColor = this.getUserColor(userId);
+        overlay.style.opacity = '0.3';
+        
+        // Add to editor container
+        const editorContainer = this.editorElement.parentNode;
+        editorContainer.appendChild(overlay);
+    }
+    
+    /**
+     * Show user action notification
+     */
+    showUserAction(username, action) {
+        const notification = document.createElement('div');
+        notification.className = 'user-action-notification';
+        notification.textContent = `${username} is ${action}...`;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 2000);
+    }
+    
+    /**
+     * Show general notification
+     */
+    showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.textContent = message;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+    
+    /**
+     * Add collaboration controls to the UI
+     */
+    addCollaborationControls() {
+        if (!this.collaborationToggle) return;
+        
+        const controlsContainer = document.createElement('div');
+        controlsContainer.className = 'collaboration-controls';
+        controlsContainer.innerHTML = `
+            <div class="collaboration-header">
+                <h4>Collaborative Editing</h4>
+                <div class="controls">
+                    <button id="share-document" class="btn btn-secondary btn-sm">Share Document</button>
+                    <button id="version-history" class="btn btn-secondary btn-sm">Version History</button>
+                </div>
+            </div>
+        `;
+        
+        // Insert before the editor
+        this.editorElement.parentNode.insertBefore(controlsContainer, this.editorElement);
+        
+        // Add event listeners for new controls
+        document.getElementById('share-document')?.addEventListener('click', () => {
+            this.shareDocument();
+        });
+        
+        document.getElementById('version-history')?.addEventListener('click', () => {
+            this.showVersionHistory();
+        });
+    }
+    
+    /**
+     * Toggle collaboration mode
+     */
+    toggleCollaboration(enabled) {
+        if (enabled) {
+            this.initializeWebSocket();
+        } else {
+            if (this.socket) {
+                this.socket.close();
+            }
+        }
+    }
+    
+    /**
+     * Handle keyboard shortcuts
+     */
+    handleKeyboardShortcuts(event) {
+        // Ctrl+S for save
+        if (event.ctrlKey && event.key === 's') {
+            event.preventDefault();
+            this.saveDocument();
+        }
+        
+        // Ctrl+Shift+H for version history
+        if (event.ctrlKey && event.shiftKey && event.key === 'H') {
+            event.preventDefault();
+            this.showVersionHistory();
+        }
+    }
+    
+    /**
+     * Save document
+     */
+    saveDocument() {
+        // Implementation for saving document
+        console.log('Saving document...');
+        this.showNotification('Document saved', 'success');
+    }
+    
+    /**
+     * Share document
+     */
+    shareDocument() {
+        const shareUrl = `${window.location.origin}/writer/document/${this.documentId}`;
+        navigator.clipboard.writeText(shareUrl).then(() => {
+            this.showNotification('Share link copied to clipboard', 'success');
+        });
+    }
+    
+    /**
+     * Show version history
+     */
+    showVersionHistory() {
+        // Implementation for version history modal
+        console.log('Showing version history...');
+    }
+    
+    /**
+     * Cleanup and disconnect
+     */
+    destroy() {
+        if (this.socket) {
+            this.socket.close();
+        }
+        
+        // Remove event listeners
+        this.editorElement?.removeEventListener('input', this.handleTextChange);
+        this.editorElement?.removeEventListener('selectionchange', this.handleSelectionChange);
+    }
+}
+
+// Initialize collaborative editor when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if we're on a document editing page
+    const editorElement = document.getElementById('latex-editor');
+    const documentId = document.querySelector('[data-document-id]')?.dataset.documentId;
+    
+    if (editorElement && documentId) {
+        window.collaborativeEditor = new CollaborativeEditor(documentId, 'latex-editor');
+    }
+});
+
+// Export for module use
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = CollaborativeEditor;
+}

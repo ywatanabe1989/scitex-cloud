@@ -36,6 +36,20 @@
     margin-bottom: 2rem;
 }
 
+.required {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+.form-text {
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.text-muted {
+    color: #6c757d !important;
+}
+
 .project-stats {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -403,8 +417,9 @@
             </div>
             
             <div class="form-group">
-                <label for="hypotheses">Research Hypotheses</label>
-                <textarea id="hypotheses" name="hypotheses" placeholder="Define your research hypotheses (following SCITEX framework)..."></textarea>
+                <label for="hypotheses">Research Hypotheses <span class="required">*</span></label>
+                <textarea id="hypotheses" name="hypotheses" required placeholder="Define your research hypotheses (following SCITEX framework)..."></textarea>
+                <small class="form-text text-muted">Research hypotheses are required for all scientific projects in the SCITEX framework</small>
             </div>
             
             <div class="form-group">

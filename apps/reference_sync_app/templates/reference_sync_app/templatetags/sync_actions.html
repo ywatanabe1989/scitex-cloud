@@ -1,0 +1,95 @@
+{% load reference_sync_tags %}
+
+{% if show_actions %}
+<div class="sync-actions">
+    {% if actions.is_synced %}
+        <div class="btn-group btn-group-sm" role="group">
+            <a href="{{ sync_dashboard_url }}" class="btn btn-outline-primary btn-sm" 
+               title="View sync status">
+                <i class="fas fa-sync-alt"></i>
+                Sync Status
+            </a>
+            <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle dropdown-toggle-split" 
+                    data-bs-toggle="dropdown">
+                <span class="visually-hidden">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu">
+                <li><h6 class="dropdown-header">Synced with:</h6></li>
+                {% for service in actions.synced_services %}
+                    <li><span class="dropdown-item-text">
+                        <i class="{{ service|sync_service_icon }}"></i>
+                        {{ service|title }}
+                    </span></li>
+                {% endfor %}
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{{ sync_dashboard_url }}">
+                    <i class="fas fa-cog"></i> Manage Sync
+                </a></li>
+            </ul>
+        </div>
+    {% else %}
+        <div class="btn-group btn-group-sm" role="group">
+            {% if actions.available_actions %}
+                <div class="dropdown">
+                    <button class="btn btn-outline-success btn-sm dropdown-toggle" type="button" 
+                            data-bs-toggle="dropdown">
+                        <i class="fas fa-plus"></i>
+                        Sync to
+                    </button>
+                    <ul class="dropdown-menu">
+                        {% for action in actions.available_actions %}
+                            <li>
+                                <button class="dropdown-item" 
+                                        onclick="syncPaper('{{ action.profile_id }}', '{{ paper.id }}')">
+                                    <i class="{{ action.service|sync_service_icon }}"></i>
+                                    {{ action.account_name }}
+                                </button>
+                            </li>
+                        {% endfor %}
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{% url 'reference_sync:profile_create' %}">
+                            <i class="fas fa-cog"></i> Setup Sync
+                        </a></li>
+                    </ul>
+                </div>
+            {% else %}
+                <a href="{% url 'reference_sync:profile_create' %}" class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-cog"></i>
+                    Setup Sync
+                </a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+
+<script>
+function syncPaper(profileId, paperId) {
+    if (!confirm('Sync this paper to your reference manager?')) {
+        return;
+    }
+    
+    // This would need to be implemented based on your sync API
+    fetch(`/reference-sync/profiles/${profileId}/sync/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            paper_ids: [paperId]
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert('Sync failed: ' + data.error);
+        }
+    })
+    .catch(error => {
+        alert('Sync failed: ' + error);
+    });
+}
+</script>
+{% endif %}

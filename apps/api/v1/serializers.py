@@ -1,5 +1,7 @@
 from rest_framework import serializers
-from apps.core_app.models import Document, Project, UserProfile
+from apps.document_app.models import Document
+from apps.project_app.models import Project
+from apps.auth_app.models import UserProfile
 
 
 class DocumentSerializer(serializers.ModelSerializer):

@@ -33,7 +33,13 @@ def compile_latex_document(compilation_job):
     try:
         # Generate LaTeX content
         manuscript = compilation_job.manuscript
-        latex_content = manuscript.generate_latex()
+        
+        # Check if manuscript has generate_latex method, otherwise use simple template
+        if hasattr(manuscript, 'generate_latex') and callable(getattr(manuscript, 'generate_latex')):
+            latex_content = manuscript.generate_latex()
+        else:
+            # Fallback to simple LaTeX template
+            latex_content = generate_simple_latex_template(manuscript)
         
         # Create temporary directory for compilation
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -286,3 +292,101 @@ def install_latex_packages():
         return False, f"Package installation failed: {e}"
     except Exception as e:
         return False, f"Installation error: {e}"
+
+
+def generate_simple_latex_template(manuscript):
+    """
+    Generate a simple LaTeX document template for manuscripts without complex formatting.
+    
+    Args:
+        manuscript: Manuscript instance
+        
+    Returns:
+        str: LaTeX document content
+    """
+    content = getattr(manuscript, 'content', '') or ''
+    title = getattr(manuscript, 'title', 'Untitled Document')
+    
+    # Simple LaTeX template
+    latex_template = rf"""
+\documentclass{{article}}
+\usepackage{{inputenc}}
+\usepackage{{amsmath}}
+\usepackage{{amsfonts}}
+\usepackage{{amssymb}}
+\usepackage{{graphicx}}
+\usepackage{{geometry}}
+\geometry{{a4paper, margin=1in}}
+
+\title{{{title}}}
+\author{{SciTeX Writer}}
+\date{{\today}}
+
+\begin{{document}}
+
+\maketitle
+
+{content}
+
+\end{{document}}
+"""
+    
+    return latex_template.strip()
+
+
+def test_pdf_compilation():
+    """
+    Test PDF compilation with a simple document.
+    Returns success status and any error messages.
+    """
+    try:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            
+            # Create a simple test document
+            test_latex = r"""
+\documentclass{article}
+\begin{document}
+\title{Test Document}
+\author{SciTeX Writer}
+\maketitle
+
+This is a test document to verify PDF compilation.
+
+\section{Introduction}
+This section tests basic LaTeX functionality.
+
+\subsection{Math Example}
+Here is a simple equation: $E = mc^2$
+
+\end{document}
+"""
+            
+            # Write test file
+            tex_file = temp_path / "test.tex"
+            with open(tex_file, 'w', encoding='utf-8') as f:
+                f.write(test_latex)
+            
+            # Run compilation
+            success, log_output, error_output = run_latex_compilation(
+                tex_file, temp_path, 'quick'
+            )
+            
+            # Check if PDF was created
+            pdf_file = temp_path / "test.pdf"
+            pdf_exists = pdf_file.exists()
+            
+            return {
+                'success': success and pdf_exists,
+                'pdf_created': pdf_exists,
+                'log_output': log_output,
+                'error_output': error_output,
+                'pdf_size': pdf_file.stat().st_size if pdf_exists else 0
+            }
+            
+    except Exception as e:
+        return {
+            'success': False,
+            'error': str(e),
+            'pdf_created': False
+        }

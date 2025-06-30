@@ -1,0 +1,480 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Collaboration Dashboard - SciTeX{% endblock %}
+
+{% block extra_css %}
+<style>
+    .collaboration-hero {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-bottom: 1px solid #dee2e6;
+        padding: 3rem 0;
+    }
+    
+    .stats-card {
+        background: #fff;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+        transition: all 0.2s ease;
+    }
+    
+    .stats-card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+    }
+    
+    .stats-number {
+        font-size: 2rem;
+        font-weight: 600;
+        color: var(--scitex-color-primary);
+        margin-bottom: 0.5rem;
+    }
+    
+    .stats-label {
+        color: #6c757d;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .activity-item {
+        padding: 1rem;
+        border-bottom: 1px solid #f8f9fa;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+    
+    .activity-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        flex-shrink: 0;
+    }
+    
+    .activity-content {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .activity-title {
+        font-weight: 500;
+        color: #212529;
+        margin-bottom: 0.25rem;
+    }
+    
+    .activity-meta {
+        font-size: 0.75rem;
+        color: #6c757d;
+    }
+    
+    .notification-badge {
+        position: relative;
+    }
+    
+    .notification-badge .badge {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background: #dc3545;
+        color: white;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        font-size: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .quick-action-card {
+        background: #fff;
+        border: 2px dashed #dee2e6;
+        border-radius: 8px;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+    
+    .quick-action-card:hover {
+        border-color: var(--scitex-color-primary);
+        background: #f8f9ff;
+    }
+    
+    .team-card {
+        background: #fff;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        transition: all 0.2s ease;
+    }
+    
+    .team-card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        transform: translateY(-1px);
+    }
+    
+    .team-name {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #212529;
+        margin-bottom: 0.5rem;
+    }
+    
+    .team-meta {
+        color: #6c757d;
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="collaboration-hero">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="hero-title mb-3">
+                    <i class="fas fa-users text-primary me-2"></i>
+                    Collaboration Dashboard
+                </h1>
+                <p class="hero-subtitle mb-0">
+                    Manage your research teams, track project activities, and collaborate seamlessly
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <div class="notification-badge">
+                    <i class="fas fa-bell fa-2x text-muted"></i>
+                    {% if unread_count > 0 %}
+                        <span class="badge">{{ unread_count }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Main Content -->
+<div class="container my-5">
+    <!-- Statistics Row -->
+    <div class="row mb-5">
+        <div class="col-md-3">
+            <div class="stats-card text-center">
+                <div class="stats-number">{{ stats.total_teams|default:0 }}</div>
+                <div class="stats-label">Active Teams</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card text-center">
+                <div class="stats-number">{{ stats.unread_notifications|default:0 }}</div>
+                <div class="stats-label">Notifications</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card text-center">
+                <div class="stats-number">{{ stats.pending_reviews|default:0 }}</div>
+                <div class="stats-label">Pending Reviews</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card text-center">
+                <div class="stats-number">{{ stats.pending_invitations|default:0 }}</div>
+                <div class="stats-label">Invitations</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h3 class="mb-4">Quick Actions</h3>
+        </div>
+        <div class="col-md-4">
+            <div class="quick-action-card" onclick="location.href='{% url 'collaboration:team_create' %}'">
+                <i class="fas fa-plus-circle fa-3x text-primary mb-3"></i>
+                <h5>Create New Team</h5>
+                <p class="text-muted">Start a new research collaboration</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="quick-action-card" onclick="location.href='{% url 'collaboration:team_list' %}'">
+                <i class="fas fa-search fa-3x text-primary mb-3"></i>
+                <h5>Find Teams</h5>
+                <p class="text-muted">Discover and join research teams</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="quick-action-card" onclick="location.href='{% url 'collaboration:invitation_list' %}'">
+                <i class="fas fa-envelope fa-3x text-primary mb-3"></i>
+                <h5>View Invitations</h5>
+                <p class="text-muted">Review pending team invitations</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard Content -->
+    <div class="row">
+        <!-- User Teams -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-users me-2"></i>
+                        Your Teams
+                    </h5>
+                    <a href="{% url 'collaboration:team_list' %}" class="btn btn-sm btn-outline-primary">
+                        View All
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if user_teams %}
+                        {% for team in user_teams %}
+                            <div class="team-card">
+                                <div class="team-name">
+                                    <a href="{% url 'collaboration:team_detail' team.id %}" class="text-decoration-none">
+                                        {{ team.name }}
+                                    </a>
+                                </div>
+                                <div class="team-meta">
+                                    <span>
+                                        <i class="fas fa-tag me-1"></i>
+                                        {{ team.get_team_type_display }}
+                                    </span>
+                                    <span>
+                                        <i class="fas fa-users me-1"></i>
+                                        {{ team.get_member_count }} members
+                                    </span>
+                                    <span>
+                                        <i class="fas fa-clock me-1"></i>
+                                        {{ team.updated_at|timesince }} ago
+                                    </span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                            <h6 class="text-muted">No teams yet</h6>
+                            <p class="text-muted">Create or join a team to start collaborating</p>
+                            <a href="{% url 'collaboration:team_create' %}" class="btn btn-primary">
+                                Create Your First Team
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Feed -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-stream me-2"></i>
+                        Recent Activity
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    {% if recent_activities %}
+                        {% for activity in recent_activities %}
+                            <div class="activity-item">
+                                <div class="activity-icon bg-primary text-white">
+                                    {% if activity.activity_type == 'team_created' %}
+                                        <i class="fas fa-plus"></i>
+                                    {% elif activity.activity_type == 'member_joined' %}
+                                        <i class="fas fa-user-plus"></i>
+                                    {% elif activity.activity_type == 'project_shared' %}
+                                        <i class="fas fa-share"></i>
+                                    {% elif activity.activity_type == 'comment_added' %}
+                                        <i class="fas fa-comment"></i>
+                                    {% elif activity.activity_type == 'review_requested' %}
+                                        <i class="fas fa-clipboard-check"></i>
+                                    {% else %}
+                                        <i class="fas fa-bell"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="activity-content">
+                                    <div class="activity-title">{{ activity.description }}</div>
+                                    <div class="activity-meta">
+                                        by {{ activity.actor.get_full_name|default:activity.actor.username }}
+                                        {% if activity.team %}in {{ activity.team.name }}{% endif %}
+                                        • {{ activity.created_at|timesince }} ago
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-stream fa-3x text-muted mb-3"></i>
+                            <h6 class="text-muted">No recent activity</h6>
+                            <p class="text-muted">Join teams to see collaboration activity</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending Invitations -->
+    {% if pending_invitations %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-envelope me-2"></i>
+                        Pending Invitations ({{ pending_invitations.count }})
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% for invitation in pending_invitations %}
+                        <div class="d-flex justify-content-between align-items-center py-2 {% if not forloop.last %}border-bottom{% endif %}">
+                            <div>
+                                <strong>{{ invitation.team.name }}</strong>
+                                <div class="text-muted small">
+                                    Invited by {{ invitation.invited_by.get_full_name|default:invitation.invited_by.username }}
+                                    as {{ invitation.get_role_display }}
+                                    • {{ invitation.created_at|timesince }} ago
+                                </div>
+                                {% if invitation.message %}
+                                    <div class="text-muted small mt-1">
+                                        <em>"{{ invitation.message }}"</em>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="btn-group">
+                                <a href="{% url 'collaboration:accept_invitation' invitation.id %}" 
+                                   class="btn btn-sm btn-success">
+                                    Accept
+                                </a>
+                                <a href="{% url 'collaboration:reject_invitation' invitation.id %}" 
+                                   class="btn btn-sm btn-outline-secondary">
+                                    Decline
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Unread Notifications -->
+    {% if notifications %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bell me-2"></i>
+                        Recent Notifications
+                    </h5>
+                    <button class="btn btn-sm btn-outline-primary" onclick="markAllNotificationsRead()">
+                        Mark All Read
+                    </button>
+                </div>
+                <div class="card-body">
+                    {% for notification in notifications %}
+                        <div class="d-flex justify-content-between align-items-start py-2 {% if not forloop.last %}border-bottom{% endif %}">
+                            <div class="flex-grow-1">
+                                <div class="fw-semibold">{{ notification.title }}</div>
+                                <div class="text-muted">{{ notification.message }}</div>
+                                <div class="text-muted small">{{ notification.created_at|timesince }} ago</div>
+                            </div>
+                            <div class="flex-shrink-0">
+                                {% if notification.priority == 'high' %}
+                                    <span class="badge bg-danger">High</span>
+                                {% elif notification.priority == 'urgent' %}
+                                    <span class="badge bg-warning">Urgent</span>
+                                {% endif %}
+                                <button class="btn btn-sm btn-outline-secondary ms-2" 
+                                        onclick="markNotificationRead({{ notification.id }})">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function markNotificationRead(notificationId) {
+    fetch(`/collaboration/api/notifications/${notificationId}/read/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+function markAllNotificationsRead() {
+    fetch('/collaboration/api/notifications/mark-all-read/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+// Real-time notifications (basic polling)
+setInterval(() => {
+    fetch('/collaboration/api/notifications/')
+        .then(response => response.json())
+        .then(data => {
+            const badge = document.querySelector('.notification-badge .badge');
+            if (data.notifications.length > 0) {
+                if (!badge) {
+                    const bellIcon = document.querySelector('.notification-badge i');
+                    const newBadge = document.createElement('span');
+                    newBadge.className = 'badge';
+                    newBadge.textContent = data.notifications.length;
+                    bellIcon.parentNode.appendChild(newBadge);
+                } else {
+                    badge.textContent = data.notifications.length;
+                }
+            } else if (badge) {
+                badge.remove();
+            }
+        })
+        .catch(error => console.error('Error checking notifications:', error));
+}, 30000); // Check every 30 seconds
+</script>
+{% endblock %}

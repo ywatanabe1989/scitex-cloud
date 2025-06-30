@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ platform_name }} Documents - SciTeX{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>{{ platform_name }} Documents</h1>
+                <div>
+                    <a href="{% url 'mendeley_app:dashboard' %}" class="btn btn-outline-secondary">Back to Dashboard</a>
+                    <a href="{% url 'mendeley_app:sync_documents' %}" class="btn btn-success">Sync Documents</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if profile %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-4">
+                            <label for="search" class="form-label">Search</label>
+                            <input type="text" class="form-control" id="search" name="search" 
+                                   value="{{ search_query }}" placeholder="Search documents...">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="type" class="form-label">Document Type</label>
+                            <select class="form-control" id="type" name="type">
+                                <option value="">All Types</option>
+                                {% for value, label in document_types %}
+                                    <option value="{{ value }}" {% if value == selected_type %}selected{% endif %}>
+                                        {{ label }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">&nbsp;</label>
+                            <div>
+                                <button type="submit" class="btn btn-primary">Filter</button>
+                                <a href="{% url 'mendeley_app:documents' %}" class="btn btn-outline-secondary">Clear</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if page_obj %}
+    <div class="row mb-3">
+        <div class="col-12">
+            <form method="post" action="{% url 'mendeley_app:bulk_import_to_scholar' %}" id="bulk-import-form">
+                {% csrf_token %}
+                <div class="d-flex justify-content-between align-items-center">
+                    <p class="mb-0">
+                        Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ page_obj.paginator.count }} documents
+                    </p>
+                    <button type="submit" class="btn btn-outline-success" id="bulk-import-btn" disabled>
+                        Import Selected to Scholar
+                    </button>
+                </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            {% for document in documents %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-1">
+                            <div class="form-check">
+                                <input class="form-check-input document-checkbox" type="checkbox" 
+                                       name="document_ids" value="{{ document.id }}" 
+                                       {% if document.is_imported %}disabled{% endif %}>
+                            </div>
+                        </div>
+                        <div class="col-md-11">
+                            <div class="d-flex justify-content-between">
+                                <h5 class="card-title">
+                                    <a href="{% url 'mendeley_app:document_detail' document.id %}">
+                                        {{ document.title }}
+                                    </a>
+                                </h5>
+                                <div>
+                                    {% if document.is_imported %}
+                                        <span class="badge badge-success">Imported to Scholar</span>
+                                    {% else %}
+                                        {% if document.can_import_to_scholar %}
+                                            <span class="badge badge-secondary">Ready to Import</span>
+                                        {% else %}
+                                            <span class="badge badge-warning">Import Not Available</span>
+                                        {% endif %}
+                                    {% endif %}
+                                    <span class="badge badge-primary">{{ document.get_document_type_display }}</span>
+                                </div>
+                            </div>
+                            
+                            <p class="card-text">
+                                <strong>Authors:</strong> {{ document.get_authors_display }}<br>
+                                {% if document.source %}
+                                    <strong>Source:</strong> {{ document.source }}<br>
+                                {% endif %}
+                                <strong>Year:</strong> {{ document.year|default:"Unknown" }}
+                                {% if document.doi %}
+                                    <br><strong>DOI:</strong> {{ document.doi }}
+                                {% endif %}
+                            </p>
+                            
+                            {% if document.abstract %}
+                            <p class="card-text">
+                                <small class="text-muted">{{ document.abstract|truncatechars:200 }}</small>
+                            </p>
+                            {% endif %}
+                            
+                            {% if document.tags %}
+                            <div class="mb-2">
+                                {% for tag in document.tags %}
+                                    <span class="badge badge-light">{{ tag }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center py-5">
+                <h4>No documents found</h4>
+                <p class="text-muted">Try adjusting your search criteria or sync your {{ platform_name }} library.</p>
+                <a href="{% url 'mendeley_app:sync_documents' %}" class="btn btn-primary">Sync Documents</a>
+            </div>
+            {% endfor %}
+            </form>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="Documents pagination">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}">
+                                First
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}">
+                                Previous
+                            </a>
+                        </li>
+                    {% endif %}
+                    
+                    <li class="page-item active">
+                        <span class="page-link">
+                            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                        </span>
+                    </li>
+                    
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}">
+                                Next
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}">
+                                Last
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+
+    {% endif %}
+
+    {% else %}
+    <div class="row">
+        <div class="col-12">
+            <div class="alert alert-warning">
+                <h4>{{ platform_name }} Profile Not Found</h4>
+                <p>Please connect your {{ platform_name }} account first.</p>
+                <a href="{% url 'mendeley_app:dashboard' %}" class="btn btn-primary">Go to Dashboard</a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const checkboxes = document.querySelectorAll('.document-checkbox');
+    const bulkImportBtn = document.getElementById('bulk-import-btn');
+    
+    function updateBulkImportButton() {
+        const checkedBoxes = document.querySelectorAll('.document-checkbox:checked');
+        bulkImportBtn.disabled = checkedBoxes.length === 0;
+    }
+    
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateBulkImportButton);
+    });
+    
+    // Select All functionality
+    const selectAllBtn = document.createElement('button');
+    selectAllBtn.type = 'button';
+    selectAllBtn.className = 'btn btn-outline-secondary btn-sm me-2';
+    selectAllBtn.textContent = 'Select All';
+    selectAllBtn.onclick = function() {
+        checkboxes.forEach(cb => {
+            if (!cb.disabled) cb.checked = true;
+        });
+        updateBulkImportButton();
+    };
+    
+    const clearAllBtn = document.createElement('button');
+    clearAllBtn.type = 'button';
+    clearAllBtn.className = 'btn btn-outline-secondary btn-sm';
+    clearAllBtn.textContent = 'Clear All';
+    clearAllBtn.onclick = function() {
+        checkboxes.forEach(cb => cb.checked = false);
+        updateBulkImportButton();
+    };
+    
+    if (bulkImportBtn && checkboxes.length > 0) {
+        bulkImportBtn.parentNode.insertBefore(selectAllBtn, bulkImportBtn);
+        bulkImportBtn.parentNode.insertBefore(clearAllBtn, bulkImportBtn);
+    }
+});
+</script>
+{% endblock %}

@@ -57,6 +57,9 @@ def execute_code_safely(job):
             with open(code_file, 'w', encoding='utf-8') as f:
                 f.write(job.source_code)
             
+            # Copy project files if available (requirements.txt, .env, etc.)
+            copy_project_files(job.user, workspace)
+            
             # Create wrapper script with security restrictions
             wrapper_script = create_wrapper_script(
                 code_file, workspace, job.timeout_seconds, job.max_memory_mb
@@ -178,6 +181,32 @@ try:
     stdout_capture = io.StringIO()
     stderr_capture = io.StringIO()
     
+    # Check for project-specific requirements
+    requirements_file = os.path.join(r"{workspace}", "requirements.txt")
+    if os.path.exists(requirements_file):
+        print("Found project requirements.txt, installing dependencies...")
+        import subprocess
+        import sys
+        try:
+            subprocess.check_call([
+                sys.executable, "-m", "pip", "install", "-r", requirements_file,
+                "--user", "--quiet"
+            ])
+            print("Dependencies installed successfully")
+        except subprocess.CalledProcessError as e:
+            print(f"Warning: Failed to install requirements: {{e}}")
+    
+    # Load project-specific environment variables
+    env_file = os.path.join(r"{workspace}", ".env")
+    if os.path.exists(env_file):
+        print("Loading project environment variables...")
+        with open(env_file, 'r') as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith('#') and '=' in line:
+                    key, value = line.split('=', 1)
+                    os.environ[key.strip()] = value.strip()
+    
     # Import common scientific libraries safely
     try:
         import numpy as np
@@ -190,10 +219,11 @@ try:
         try:
             import mngs
         except ImportError:
-            print("Warning: MNGS library not available")
+            print("Info: MNGS library not available (install with: pip install mngs)")
         
     except ImportError as e:
-        print(f"Warning: Some libraries not available: {{e}}")
+        print(f"Info: Some libraries not available: {{e}}")
+        print("Tip: Add missing libraries to requirements.txt in your project")
     
     # Execute user code
     with contextlib.redirect_stdout(stdout_capture), \\
@@ -279,6 +309,53 @@ def run_sandboxed_code(wrapper_script, workspace, timeout_seconds):
     
     except Exception as e:
         return False, "", f"Execution error: {str(e)}", {'cpu_time': 0, 'memory_peak': 0}
+
+
+def copy_project_files(user, workspace):
+    """
+    Copy project-specific files (requirements.txt, .env, etc.) to workspace.
+    
+    Args:
+        user: User instance
+        workspace: Path to workspace directory
+    """
+    try:
+        from apps.core_app.models import Project
+        
+        # Get user's most recent active project
+        project = Project.objects.filter(
+            owner=user, 
+            status__in=['active', 'planning']
+        ).order_by('-updated_at').first()
+        
+        if not project or not project.data_location:
+            return
+        
+        # Construct project directory path
+        project_dir = Path(settings.BASE_DIR) / project.data_location.strip('/')
+        
+        if not project_dir.exists():
+            return
+        
+        # Copy specific project files
+        project_files = ['requirements.txt', '.env', 'setup.py', 'pyproject.toml']
+        
+        for filename in project_files:
+            source_file = project_dir / filename
+            if source_file.exists():
+                dest_file = workspace / filename
+                shutil.copy2(source_file, dest_file)
+                print(f"Copied {filename} to workspace")
+        
+        # Copy any Python modules from project
+        for py_file in project_dir.glob('*.py'):
+            if py_file.name not in ['manage.py', 'wsgi.py', 'asgi.py']:
+                dest_file = workspace / py_file.name
+                shutil.copy2(py_file, dest_file)
+                
+    except Exception as e:
+        # Don't fail execution if project files can't be copied
+        print(f"Warning: Could not copy project files: {e}")
 
 
 def update_user_resource_usage(job):

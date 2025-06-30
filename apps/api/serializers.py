@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from apps.core_app.models import Project, Document, UserProfile
+from apps.document_app.models import Document
+from apps.project_app.models import Project
+from apps.auth_app.models import UserProfile
 from apps.cloud_app.models import Subscription, CloudResource, APIKey, ServiceIntegration
 from apps.writer_app.models import DocumentTemplate, Manuscript, ManuscriptSection, Figure, Table, Citation
 from apps.engine_app.models import EngineConfiguration, EngineSession, EngineRequest

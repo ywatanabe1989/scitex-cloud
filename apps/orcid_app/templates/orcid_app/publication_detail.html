@@ -1,0 +1,448 @@
+{% extends 'cloud_app/base.html' %}
+{% load static %}
+
+{% block title %}{{ publication.title|truncatewords:10 }} - ORCID Publications{% endblock %}
+
+{% block extra_css %}
+<style>
+    .orcid-color { color: #a6ce39; }
+    .publication-header {
+        border-left: 4px solid #a6ce39;
+        padding-left: 1.5rem;
+    }
+    .metadata-item {
+        display: flex;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #f8f9fa;
+    }
+    .metadata-item:last-child {
+        border-bottom: none;
+    }
+    .metadata-label {
+        font-weight: 600;
+        color: #495057;
+        min-width: 120px;
+        margin-right: 1rem;
+    }
+    .metadata-value {
+        flex: 1;
+    }
+    .author-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    .author-item {
+        padding: 0.25rem 0;
+        display: flex;
+        align-items: center;
+    }
+    .author-item .orcid-link {
+        margin-left: 0.5rem;
+        font-size: 0.875rem;
+    }
+    .raw-data {
+        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        font-size: 0.875rem;
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+        padding: 1rem;
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    .citation-box {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+        padding: 1rem;
+        font-family: 'Times New Roman', serif;
+        line-height: 1.6;
+    }
+    .copy-button {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <a href="{% url 'orcid_app:publications' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Back to Publications
+                </a>
+                <div class="btn-group">
+                    {% if not publication.is_imported and publication.can_import_to_scholar %}
+                    <form method="post" action="{% url 'orcid_app:import_to_scholar' publication.id %}" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-download me-1"></i> Import to Scholar
+                        </button>
+                    </form>
+                    {% elif publication.is_imported and publication.scholar_paper %}
+                    <a href="/scholar/paper/{{ publication.scholar_paper.id }}/" class="btn btn-outline-success">
+                        <i class="fas fa-external-link-alt me-1"></i> View in Scholar
+                    </a>
+                    {% endif %}
+                    
+                    {% if publication.doi %}
+                    <a href="https://doi.org/{{ publication.doi }}" target="_blank" class="btn btn-outline-primary">
+                        <i class="fas fa-external-link-alt me-1"></i> View DOI
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="publication-header">
+                <h1 class="h3 mb-2">{{ publication.title }}</h1>
+                <p class="text-muted mb-0">
+                    <i class="fab fa-orcid orcid-color me-1"></i>
+                    ORCID Publication Details
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Publication Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Publication Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="metadata-item">
+                        <div class="metadata-label">Title:</div>
+                        <div class="metadata-value">{{ publication.title }}</div>
+                    </div>
+                    
+                    <div class="metadata-item">
+                        <div class="metadata-label">Type:</div>
+                        <div class="metadata-value">
+                            <span class="badge bg-secondary">{{ publication.get_publication_type_display }}</span>
+                        </div>
+                    </div>
+                    
+                    {% if publication.journal %}
+                    <div class="metadata-item">
+                        <div class="metadata-label">Journal:</div>
+                        <div class="metadata-value">{{ publication.journal }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if publication.publication_year %}
+                    <div class="metadata-item">
+                        <div class="metadata-label">Year:</div>
+                        <div class="metadata-value">{{ publication.publication_year }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if publication.publication_date %}
+                    <div class="metadata-item">
+                        <div class="metadata-label">Date:</div>
+                        <div class="metadata-value">{{ publication.publication_date|date:"F j, Y" }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if publication.volume or publication.issue or publication.pages %}
+                    <div class="metadata-item">
+                        <div class="metadata-label">Details:</div>
+                        <div class="metadata-value">
+                            {% if publication.volume %}Vol. {{ publication.volume }}{% endif %}
+                            {% if publication.issue %}, No. {{ publication.issue }}{% endif %}
+                            {% if publication.pages %}, pp. {{ publication.pages }}{% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if publication.doi %}
+                    <div class="metadata-item">
+                        <div class="metadata-label">DOI:</div>
+                        <div class="metadata-value">
+                            <a href="https://doi.org/{{ publication.doi }}" target="_blank" class="text-decoration-none">
+                                {{ publication.doi }}
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if publication.pmid %}
+                    <div class="metadata-item">
+                        <div class="metadata-label">PubMed ID:</div>
+                        <div class="metadata-value">
+                            <a href="https://pubmed.ncbi.nlm.nih.gov/{{ publication.pmid }}/" target="_blank" class="text-decoration-none">
+                                {{ publication.pmid }}
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if publication.url %}
+                    <div class="metadata-item">
+                        <div class="metadata-label">URL:</div>
+                        <div class="metadata-value">
+                            <a href="{{ publication.url }}" target="_blank" class="text-decoration-none">
+                                {{ publication.url|truncatechars:60 }}
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Authors -->
+            {% if publication.authors %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-users me-2"></i>
+                        Authors
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <ul class="author-list">
+                        {% for author in publication.authors %}
+                        <li class="author-item">
+                            <div>
+                                {% if author.credit-name %}
+                                    <strong>{{ author.credit-name }}</strong>
+                                {% elif author.given-names or author.family-name %}
+                                    <strong>{{ author.given-names }} {{ author.family-name }}</strong>
+                                {% else %}
+                                    <strong>{{ author }}</strong>
+                                {% endif %}
+                                
+                                {% if author.orcid %}
+                                <a href="https://orcid.org/{{ author.orcid }}" target="_blank" class="orcid-link text-decoration-none">
+                                    <i class="fab fa-orcid orcid-color"></i> {{ author.orcid }}
+                                </a>
+                                {% endif %}
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Abstract -->
+            {% if publication.abstract %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-align-left me-2"></i>
+                        Abstract
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p>{{ publication.abstract|linebreaks }}</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Citation -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-quote-right me-2"></i>
+                        Citation
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="position-relative">
+                        <div class="citation-box">
+                            {{ publication.get_citation_format }}
+                        </div>
+                        <button class="btn btn-sm btn-outline-secondary copy-button" onclick="copyCitation()">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Status -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-check-circle me-2"></i>
+                        Status
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span>ORCID Import:</span>
+                        <span class="badge bg-success">
+                            <i class="fas fa-check me-1"></i> Imported
+                        </span>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span>Scholar Integration:</span>
+                        {% if publication.is_imported %}
+                        <span class="badge bg-success">
+                            <i class="fas fa-check me-1"></i> Imported
+                        </span>
+                        {% else %}
+                        <span class="badge bg-warning text-dark">
+                            <i class="fas fa-clock me-1"></i> Not Imported
+                        </span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>Last Updated:</span>
+                        <small class="text-muted">{{ publication.updated_at|timesince }} ago</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ORCID Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fab fa-orcid orcid-color me-2"></i>
+                        ORCID Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span>Put Code:</span>
+                        <code>{{ publication.orcid_put_code }}</code>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span>Profile:</span>
+                        <a href="{{ publication.profile.get_orcid_url }}" target="_blank" class="text-decoration-none">
+                            {{ publication.profile.orcid_id }}
+                        </a>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>Synced:</span>
+                        <small class="text-muted">{{ publication.created_at|timesince }} ago</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-cogs me-2"></i>
+                        Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        {% if not publication.is_imported and publication.can_import_to_scholar %}
+                        <form method="post" action="{% url 'orcid_app:import_to_scholar' publication.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="fas fa-download me-1"></i> Import to Scholar
+                            </button>
+                        </form>
+                        {% elif publication.is_imported and publication.scholar_paper %}
+                        <a href="/scholar/paper/{{ publication.scholar_paper.id }}/" class="btn btn-outline-success w-100">
+                            <i class="fas fa-external-link-alt me-1"></i> View in Scholar
+                        </a>
+                        {% endif %}
+                        
+                        {% if publication.doi %}
+                        <a href="https://doi.org/{{ publication.doi }}" target="_blank" class="btn btn-outline-primary w-100">
+                            <i class="fas fa-external-link-alt me-1"></i> View Publication
+                        </a>
+                        {% endif %}
+                        
+                        <button class="btn btn-outline-secondary w-100" data-bs-toggle="collapse" data-bs-target="#rawDataCollapse">
+                            <i class="fas fa-code me-1"></i> View Raw Data
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Raw Data (Collapsible) -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="collapse" id="rawDataCollapse">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-code me-2"></i>
+                            Raw ORCID Data
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="position-relative">
+                            <pre class="raw-data">{{ publication.orcid_raw_data|pprint }}</pre>
+                            <button class="btn btn-sm btn-outline-secondary copy-button" onclick="copyRawData()">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function copyCitation() {
+    const citationText = document.querySelector('.citation-box').textContent;
+    navigator.clipboard.writeText(citationText).then(function() {
+        // Show success feedback
+        const button = event.target.closest('button');
+        const originalContent = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-check"></i>';
+        button.classList.add('btn-success');
+        button.classList.remove('btn-outline-secondary');
+        
+        setTimeout(function() {
+            button.innerHTML = originalContent;
+            button.classList.remove('btn-success');
+            button.classList.add('btn-outline-secondary');
+        }, 2000);
+    }).catch(function(err) {
+        console.error('Could not copy text: ', err);
+        alert('Failed to copy citation. Please select and copy manually.');
+    });
+}
+
+function copyRawData() {
+    const rawDataText = document.querySelector('.raw-data').textContent;
+    navigator.clipboard.writeText(rawDataText).then(function() {
+        // Show success feedback
+        const button = event.target.closest('button');
+        const originalContent = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-check"></i>';
+        button.classList.add('btn-success');
+        button.classList.remove('btn-outline-secondary');
+        
+        setTimeout(function() {
+            button.innerHTML = originalContent;
+            button.classList.remove('btn-success');
+            button.classList.add('btn-outline-secondary');
+        }, 2000);
+    }).catch(function(err) {
+        console.error('Could not copy text: ', err);
+        alert('Failed to copy raw data. Please select and copy manually.');
+    });
+}
+</script>
+{% endblock %}

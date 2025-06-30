@@ -1,0 +1,357 @@
+{% extends 'reference_sync_app/base.html' %}
+
+{% load static %}
+
+{% block sync_content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Reference Sync Dashboard</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{% url 'reference_sync:profile_create' %}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-plus"></i> New Profile
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Overview Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title">{{ active_accounts }}</h5>
+                        <p class="card-text">Connected Accounts</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-user-circle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <a href="{% url 'reference_sync:accounts' %}" class="text-white text-decoration-none">
+                    View all <i class="fas fa-arrow-circle-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title">{{ profiles.count }}</h5>
+                        <p class="card-text">Sync Profiles</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-cog fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <a href="{% url 'reference_sync:profiles' %}" class="text-white text-decoration-none">
+                    View all <i class="fas fa-arrow-circle-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card text-white bg-info">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title">{{ total_mappings }}</h5>
+                        <p class="card-text">Synced References</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-sync-alt fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <a href="{% url 'reference_sync:sessions' %}" class="text-white text-decoration-none">
+                    View history <i class="fas fa-arrow-circle-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card text-white bg-warning">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title">{{ pending_conflicts }}</h5>
+                        <p class="card-text">Pending Conflicts</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-exclamation-triangle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <a href="{% url 'reference_sync:conflicts' %}" class="text-white text-decoration-none">
+                    Resolve <i class="fas fa-arrow-circle-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Connected Accounts -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Connected Accounts</h5>
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-plus"></i> Connect
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'reference_sync:connect_account' service='mendeley' %}">
+                            <i class="fab fa-mendeley text-success"></i> Mendeley
+                        </a></li>
+                        <li><a class="dropdown-item" href="{% url 'reference_sync:connect_account' service='zotero' %}">
+                            <i class="fas fa-book text-primary"></i> Zotero
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if accounts %}
+                    <div class="list-group list-group-flush">
+                        {% for account in accounts %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="d-flex align-items-center">
+                                        {% if account.service == 'mendeley' %}
+                                            <i class="fab fa-mendeley text-success me-2"></i>
+                                        {% elif account.service == 'zotero' %}
+                                            <i class="fas fa-book text-primary me-2"></i>
+                                        {% endif %}
+                                        <div>
+                                            <h6 class="mb-0">{{ account.account_name }}</h6>
+                                            <small class="text-muted">{{ account.service|title }}</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="badge bg-{% if account.is_active %}success{% else %}secondary{% endif %}">
+                                        {% if account.is_active %}Active{% else %}Inactive{% endif %}
+                                    </span>
+                                    <a href="{% url 'reference_sync:account_detail' pk=account.pk %}" class="btn btn-sm btn-outline-primary ms-2">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-3">
+                        <i class="fas fa-plug fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No accounts connected yet.</p>
+                        <p class="text-muted">Connect your Mendeley or Zotero account to start syncing.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Sync Profiles -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Sync Profiles</h5>
+                <a href="{% url 'reference_sync:profile_create' %}" class="btn btn-sm btn-outline-primary">
+                    <i class="fas fa-plus"></i> Create
+                </a>
+            </div>
+            <div class="card-body">
+                {% if profiles %}
+                    <div class="list-group list-group-flush">
+                        {% for profile in profiles %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-0">{{ profile.name }}</h6>
+                                    <small class="text-muted">
+                                        {{ profile.sync_direction|title }} • {{ profile.sync_frequency|title }}
+                                        {% if profile.auto_sync %}
+                                            <span class="badge bg-success">Auto</span>
+                                        {% endif %}
+                                    </small>
+                                </div>
+                                <div>
+                                    <a href="{% url 'reference_sync:profile_detail' pk=profile.pk %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    {% if profile.is_active %}
+                                        <button class="btn btn-sm btn-success ms-1" onclick="startSync('{{ profile.pk }}')">
+                                            <i class="fas fa-sync-alt"></i>
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-3">
+                        <i class="fas fa-cog fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No sync profiles created yet.</p>
+                        <p class="text-muted">Create a profile to configure how your references sync.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Recent Sync Activity</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_sessions %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Profile</th>
+                                    <th>Status</th>
+                                    <th>Items</th>
+                                    <th>Conflicts</th>
+                                    <th>Started</th>
+                                    <th>Duration</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for session in recent_sessions %}
+                                    <tr>
+                                        <td>{{ session.profile.name }}</td>
+                                        <td>
+                                            <span class="badge bg-{% if session.status == 'completed' %}success{% elif session.status == 'failed' %}danger{% elif session.status == 'running' %}warning{% else %}secondary{% endif %}">
+                                                {{ session.status|title }}
+                                            </span>
+                                        </td>
+                                        <td>{{ session.items_processed }}</td>
+                                        <td>
+                                            {% if session.conflicts_found > 0 %}
+                                                <span class="text-warning">{{ session.conflicts_found }}</span>
+                                            {% else %}
+                                                0
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ session.started_at|date:"M d, H:i" }}</td>
+                                        <td>
+                                            {% if session.completed_at %}
+                                                {{ session.duration }}
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'reference_sync:session_detail' pk=session.pk %}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-3">
+                        <i class="fas fa-history fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No sync activity yet.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics -->
+{% if stats %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Last 30 Days Statistics</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <h4 class="text-primary">{{ stats.sync_sessions }}</h4>
+                            <p class="text-muted">Sync Sessions</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <h4 class="text-success">{{ stats.items_synced }}</h4>
+                            <p class="text-muted">Items Synced</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <h4 class="text-info">{{ stats.conflicts_resolved }}</h4>
+                            <p class="text-muted">Conflicts Resolved</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <h4 class="text-warning">{{ stats.api_calls_made }}</h4>
+                            <p class="text-muted">API Calls</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<script>
+function startSync(profileId) {
+    if (!confirm('Start synchronization for this profile?')) {
+        return;
+    }
+    
+    const button = event.target.closest('button');
+    const originalHtml = button.innerHTML;
+    
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    button.disabled = true;
+    
+    fetch(`/reference-sync/profiles/${profileId}/sync/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.href = `/reference-sync/sessions/${data.session_id}/`;
+        } else {
+            alert('Error: ' + data.error);
+            button.innerHTML = originalHtml;
+            button.disabled = false;
+        }
+    })
+    .catch(error => {
+        alert('Error starting sync: ' + error);
+        button.innerHTML = originalHtml;
+        button.disabled = false;
+    });
+}
+</script>
+{% endblock %}

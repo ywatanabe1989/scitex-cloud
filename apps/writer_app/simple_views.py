@@ -4,6 +4,11 @@ from django.views.decorators.http import require_http_methods
 
 
 def index(request):
+    """Writer app main page with hero section."""
+    return render(request, 'writer_app/index.html')
+
+
+def simple_editor(request):
     """Writer app - direct LaTeX editor interface."""
     return render(request, 'writer_app/simple_editor.html')
 

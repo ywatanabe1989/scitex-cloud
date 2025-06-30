@@ -1,7 +1,7 @@
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth.models import User
-from .models import DocumentTemplate, Manuscript, CompilationJob, AIAssistanceLog
+from .models import DocumentTemplate, Manuscript, CompilationJob
 import json
 
 
@@ -49,20 +49,6 @@ class DocModelTestCase(TestCase):
         self.assertEqual(job.status, 'completed')
         self.assertIsNotNone(job.created_at)
     
-    def test_ai_assistance_log_creation(self):
-        """Test AI assistance log creation"""
-        ai_log = AIAssistanceLog.objects.create(
-            user=self.user,
-            manuscript=self.manuscript,
-            assistance_type='grammar',
-            original_text='This are a test.',
-            suggested_text='This is a test.',
-            tokens_used=50
-        )
-        
-        self.assertEqual(ai_log.user, self.user)
-        self.assertEqual(ai_log.assistance_type, 'grammar')
-        self.assertEqual(ai_log.tokens_used, 50)
 
 
 class DocViewTestCase(TestCase):

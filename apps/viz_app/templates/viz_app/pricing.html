@@ -1,0 +1,202 @@
+{% extends "viz_app/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'common/css/hero-gradients.css' %}">
+<style>
+  .pricing-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-xl);
+    margin: var(--spacing-md) 0;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+  }
+  
+  .pricing-card:hover {
+    transform: translateY(-5px);
+  }
+  
+  .pricing-card.featured {
+    border: 2px solid var(--primary-color);
+    transform: scale(1.05);
+  }
+  
+  .pricing-header {
+    text-align: center;
+    margin-bottom: var(--spacing-lg);
+  }
+  
+  .pricing-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: var(--spacing-sm);
+  }
+  
+  .pricing-amount {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: var(--spacing-xs);
+  }
+  
+  .pricing-period {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+  
+  .pricing-features {
+    list-style: none;
+    padding: 0;
+    margin: var(--spacing-lg) 0;
+  }
+  
+  .pricing-features li {
+    padding: var(--spacing-sm) 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    position: relative;
+    padding-left: var(--spacing-lg);
+  }
+  
+  .pricing-features li:before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: var(--success-color);
+    font-weight: bold;
+  }
+  
+  .pricing-cta {
+    text-align: center;
+    margin-top: var(--spacing-lg);
+  }
+  
+  .coming-soon-banner {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-xl);
+    margin: var(--spacing-lg) 0;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+</style>
+{% endblock %}
+
+{% block viz_content %}
+<!-- Hero Section -->
+<section class="hero-section hero-silverish-ai-light">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h1 class="hero-title">SciTeX Viz Pricing</h1>
+                <p class="hero-subtitle">Choose the perfect plan for your scientific visualization needs</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Pricing Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="coming-soon-banner">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 text-center">
+                    <i class="fas fa-chart-line fa-3x text-primary mb-3"></i>
+                    <h3>Viz Pricing Coming Soon</h3>
+                    <p>SciTeX Viz is currently in development. Pricing plans will be available when the visualization module launches.</p>
+                    <p class="text-muted">
+                        <i class="fas fa-info-circle"></i> 
+                        For now, enjoy the full SciTeX ecosystem with our 
+                        <a href="{% url 'cloud_app:premium' %}" class="text-primary">main pricing plans</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Preview of Future Plans -->
+        <div class="row mt-5">
+            <div class="col-12 text-center mb-4">
+                <h2>Expected Pricing Structure</h2>
+                <p class="text-muted">Subject to change during development</p>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <h3 class="pricing-title">Viz Starter</h3>
+                        <div class="pricing-amount">$19</div>
+                        <div class="pricing-period">per month</div>
+                    </div>
+                    <ul class="pricing-features">
+                        <li>Basic chart types</li>
+                        <li>Export to PNG/PDF</li>
+                        <li>10 visualizations/month</li>
+                        <li>Standard templates</li>
+                        <li>Community support</li>
+                    </ul>
+                    <div class="pricing-cta">
+                        <button class="btn btn-outline-primary" disabled>Coming Soon</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="pricing-card featured">
+                    <div class="pricing-header">
+                        <h3 class="pricing-title">Viz Professional</h3>
+                        <div class="pricing-amount">$49</div>
+                        <div class="pricing-period">per month</div>
+                    </div>
+                    <ul class="pricing-features">
+                        <li>Advanced chart types</li>
+                        <li>Interactive visualizations</li>
+                        <li>Unlimited visualizations</li>
+                        <li>Custom styling</li>
+                        <li>Priority support</li>
+                        <li>API access</li>
+                    </ul>
+                    <div class="pricing-cta">
+                        <button class="btn btn-primary" disabled>Coming Soon</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-12">
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <h3 class="pricing-title">Viz Enterprise</h3>
+                        <div class="pricing-amount">Custom</div>
+                        <div class="pricing-period">contact sales</div>
+                    </div>
+                    <ul class="pricing-features">
+                        <li>Everything in Professional</li>
+                        <li>White-label solutions</li>
+                        <li>On-premise deployment</li>
+                        <li>Dedicated support</li>
+                        <li>Custom integrations</li>
+                        <li>SLA guarantees</li>
+                    </ul>
+                    <div class="pricing-cta">
+                        <button class="btn btn-outline-primary" disabled>Contact Us</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Integration Notice -->
+        <div class="row mt-5">
+            <div class="col-12 text-center">
+                <div class="alert alert-info">
+                    <i class="fas fa-lightbulb"></i>
+                    <strong>Integration Notice:</strong> SciTeX Viz will be integrated with the main SciTeX platform. 
+                    Current subscribers will receive early access and special pricing.
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

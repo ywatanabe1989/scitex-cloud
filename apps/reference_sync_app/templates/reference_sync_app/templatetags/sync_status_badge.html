@@ -1,0 +1,22 @@
+{% load reference_sync_tags %}
+
+{% if show_badge %}
+<div class="sync-status-badge">
+    {% if has_conflicts %}
+        <span class="badge bg-warning" title="Sync conflicts found">
+            <i class="fas fa-exclamation-triangle"></i>
+            Conflicts
+        </span>
+    {% elif sync_status.synced %}
+        <div class="d-flex align-items-center">
+            {% for service in sync_status.services %}
+                <span class="badge bg-{{ service.status|sync_status_class }} me-1" 
+                      title="Synced with {{ service.service|title }} ({{ service.account_name }})">
+                    <i class="{{ service.service|sync_service_icon }}"></i>
+                    {{ service.service|title }}
+                </span>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endif %}

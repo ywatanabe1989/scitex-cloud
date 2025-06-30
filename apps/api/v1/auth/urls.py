@@ -25,4 +25,10 @@ urlpatterns = [
     # Account management endpoints
     path('delete-account/', views.delete_account, name='api-delete-account'),
     path('cancel-deletion/', views.cancel_account_deletion, name='api-cancel-deletion'),
+    
+    # SSH Key management endpoints
+    path('ssh/info/', views.ssh_key_info, name='api-ssh-key-info'),
+    path('ssh/generate/', views.generate_ssh_key, name='api-ssh-key-generate'),
+    path('ssh/delete/', views.delete_ssh_key, name='api-ssh-key-delete'),
+    path('ssh/test/', views.test_ssh_connection, name='api-ssh-test-connection'),
 ]

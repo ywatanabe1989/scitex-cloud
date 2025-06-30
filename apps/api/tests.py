@@ -4,7 +4,9 @@ from django.contrib.auth.models import User
 from rest_framework.test import APIClient
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
-from apps.core_app.models import Document, Project, UserProfile
+from apps.document_app.models import Document
+from apps.project_app.models import Project
+from apps.auth_app.models import UserProfile
 from apps.cloud_app.models import SubscriptionPlan, Subscription
 import json
 

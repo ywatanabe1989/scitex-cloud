@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views
+from . import views, api_views
 
 app_name = 'viz_app'
 
@@ -7,7 +7,6 @@ urlpatterns = [
     # Basic pages
     path('', views.index, name='index'),
     path('features/', views.features, name='features'),
-    path('pricing/', views.pricing, name='pricing'),
     
     # Main dashboard and visualization management
     path('dashboard/', views.viz_dashboard, name='viz_dashboard'),
@@ -34,4 +33,18 @@ urlpatterns = [
     # AJAX endpoints
     path('api/update-data/<uuid:pk>/', views.update_visualization_data, name='update_visualization_data'),
     path('api/add-comment/<uuid:pk>/', views.add_comment, name='add_comment'),
+    
+    # New API endpoints for interactive viz interface
+    path('api/visualizations/', api_views.VisualizationListAPI.as_view(), name='api_visualizations'),
+    path('api/visualizations/<uuid:viz_id>/', api_views.VisualizationDetailAPI.as_view(), name='api_visualization_detail'),
+    path('api/data-sources/', api_views.DataSourceAPI.as_view(), name='api_data_sources'),
+    path('api/visualization-types/', api_views.VisualizationTypesAPI.as_view(), name='api_visualization_types'),
+    path('api/color-schemes/', api_views.ColorSchemesAPI.as_view(), name='api_color_schemes'),
+    path('api/export/<uuid:viz_id>/', api_views.ExportAPI.as_view(), name='api_export'),
+    path('api/upload-data/', api_views.upload_data, name='api_upload_data'),
+    path('api/export-status/<uuid:job_id>/', api_views.export_job_status, name='api_export_status'),
+    path('api/sample-data/', api_views.generate_sample_data, name='api_sample_data'),
+    
+    # Code integration endpoint
+    path('api/code-sources/', api_views.CodeDataSourceAPI.as_view(), name='api_code_data_sources'),
 ]

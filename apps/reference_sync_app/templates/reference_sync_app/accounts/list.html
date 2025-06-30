@@ -1,0 +1,187 @@
+{% extends 'reference_sync_app/base.html' %}
+
+{% load static %}
+
+{% block sync_content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Connected Accounts</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <div class="dropdown">
+                <button class="btn btn-sm btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <i class="fas fa-plus"></i> Connect Account
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="{% url 'reference_sync:connect_account' service='mendeley' %}">
+                        <i class="fab fa-mendeley text-success"></i> Mendeley
+                    </a></li>
+                    <li><a class="dropdown-item" href="{% url 'reference_sync:connect_account' service='zotero' %}">
+                        <i class="fas fa-book text-primary"></i> Zotero
+                    </a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if accounts %}
+    <div class="row">
+        {% for account in accounts %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            {% if account.service == 'mendeley' %}
+                                <i class="fab fa-mendeley text-success me-2 fa-lg"></i>
+                            {% elif account.service == 'zotero' %}
+                                <i class="fas fa-book text-primary me-2 fa-lg"></i>
+                            {% endif %}
+                            <span class="fw-bold">{{ account.service|title }}</span>
+                        </div>
+                        <span class="badge bg-{% if account.is_active %}success{% else %}secondary{% endif %}">
+                            {% if account.is_active %}Active{% else %}Inactive{% endif %}
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">{{ account.account_name }}</h5>
+                        {% if account.account_email %}
+                            <p class="card-text text-muted">
+                                <i class="fas fa-envelope me-1"></i>
+                                {{ account.account_email }}
+                            </p>
+                        {% endif %}
+                        
+                        <div class="row text-center mt-3">
+                            <div class="col-6">
+                                <div class="border-end">
+                                    <h6 class="text-primary">{{ account.sync_count }}</h6>
+                                    <small class="text-muted">Syncs</small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <h6 class="text-info">{{ account.mappings.count }}</h6>
+                                <small class="text-muted">References</small>
+                            </div>
+                        </div>
+                        
+                        {% if account.last_sync %}
+                            <p class="card-text mt-3">
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>
+                                    Last sync: {{ account.last_sync|date:"M d, Y H:i" }}
+                                </small>
+                            </p>
+                        {% endif %}
+                        
+                        <div class="mt-3">
+                            <div class="progress" style="height: 5px;">
+                                <div class="progress-bar bg-{% if account.can_make_api_call %}success{% else %}danger{% endif %}" 
+                                     style="width: {% widthratio account.api_calls_today 100 100 %}%"></div>
+                            </div>
+                            <small class="text-muted">
+                                API Usage: {{ account.api_calls_today }}/100 today
+                            </small>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'reference_sync:account_detail' pk=account.pk %}" 
+                               class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-eye"></i> Details
+                            </a>
+                            {% if account.is_active %}
+                                <form method="post" action="{% url 'reference_sync:disconnect_account' pk=account.pk %}" 
+                                      onsubmit="return confirm('Are you sure you want to disconnect this account?')">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        <i class="fas fa-unlink"></i> Disconnect
+                                    </button>
+                                </form>
+                            {% else %}
+                                <a href="{% url 'reference_sync:connect_account' service=account.service %}" 
+                                   class="btn btn-sm btn-outline-success">
+                                    <i class="fas fa-link"></i> Reconnect
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+        <nav aria-label="Accounts pagination">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1">First</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                    </li>
+                {% endif %}
+
+                <li class="page-item active">
+                    <span class="page-link">
+                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                    </span>
+                </li>
+
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% endif %}
+
+{% else %}
+    <!-- Empty state -->
+    <div class="text-center py-5">
+        <i class="fas fa-plug fa-4x text-muted mb-4"></i>
+        <h3 class="text-muted">No Accounts Connected</h3>
+        <p class="text-muted mb-4">Connect your reference manager accounts to start syncing your library.</p>
+        
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{% url 'reference_sync:connect_account' service='mendeley' %}" 
+               class="btn btn-success">
+                <i class="fab fa-mendeley"></i> Connect Mendeley
+            </a>
+            <a href="{% url 'reference_sync:connect_account' service='zotero' %}" 
+               class="btn btn-primary">
+                <i class="fas fa-book"></i> Connect Zotero
+            </a>
+        </div>
+        
+        <div class="mt-4">
+            <h5>Supported Reference Managers</h5>
+            <div class="row justify-content-center mt-3">
+                <div class="col-md-3">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <i class="fab fa-mendeley fa-3x text-success mb-2"></i>
+                            <h6>Mendeley</h6>
+                            <p class="text-muted small">Sync your Mendeley library and groups</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <i class="fas fa-book fa-3x text-primary mb-2"></i>
+                            <h6>Zotero</h6>
+                            <p class="text-muted small">Sync your Zotero personal and group libraries</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}
