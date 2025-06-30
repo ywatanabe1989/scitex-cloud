@@ -636,3 +636,39 @@ yarn-error.log*
 package-lock.json
 media/users/
 coverage/
+
+### Django Security ###
+# Environment variables and secrets
+.env.local
+.env.production
+*.key
+*.pem
+*.crt
+secret_key.txt
+
+# Django database files
+*.sqlite3
+*.db
+*.db.backup*
+*.db.broken
+db.sqlite3*
+*.db-journal
+*.db-shm  
+*.db-wal
+
+# Django media uploads (user content)
+media/
+uploads/
+
+# Django static files in production
+staticfiles/
+collected-static/
+
+# Django session files
+django_session_*
+
+# Configuration files that may contain secrets
+local_settings.py
+production_settings.py
+*_local.py
+settings_production.py
