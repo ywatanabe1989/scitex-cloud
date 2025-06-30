@@ -135,6 +135,7 @@ except (ImportError, redis.exceptions.ConnectionError, redis.exceptions.RedisErr
         }
     }
     SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+    
 SESSION_COOKIE_AGE = 86400  # 24 hours
 
 # Password validation
