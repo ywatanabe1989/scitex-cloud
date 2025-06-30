@@ -672,3 +672,7 @@ local_settings.py
 production_settings.py
 *_local.py
 settings_production.py
+
+# Sensitive documentation files
+docs/*.md
+docs/**/*.md
