@@ -276,8 +276,8 @@ urlpatterns = [
     path("writer/", include("apps.writer_app.urls")),
     path("viz/", include("apps.viz_app.urls")),
     path("core/", include("apps.core_app.urls")),
-    # Commented out apps not in INSTALLED_APPS to fix import errors
-    # path("projects/", include("apps.project_app.urls")),
+    # Projects (now enabled)
+    path("projects/", include("apps.project_app.urls")),
     # path("monitoring/", include("apps.monitoring_app.urls")),
     # path("orcid/", include("apps.orcid_app.urls", namespace="orcid_app")),
     # path(
@@ -293,7 +293,7 @@ urlpatterns = [
     #     "collaboration/",
     #     include("apps.collaboration_app.urls", namespace="collaboration"),
     # ),
-    # path("ai-assistant/", include("apps.ai_assistant_app.urls", namespace="ai_assistant")),
+    path("ai-assistant/", include("apps.ai_assistant_app.urls", namespace="ai_assistant")),
     # path(
     #     "onboarding/",
     #     include("apps.onboarding_app.urls", namespace="onboarding"),
@@ -326,9 +326,8 @@ urlpatterns = [
     # Cloud app URLs (includes landing page and auth)
     path("", include("apps.cloud_app.urls", namespace="cloud_app")),
     
-    # Commented out - project_app not in INSTALLED_APPS
     # GitHub-style username/project URLs (MUST be last to avoid conflicts)
-    # path("<str:username>/", include("apps.project_app.user_urls")),
+    path("<str:username>/", include("apps.project_app.user_urls")),
 ]
 
 # Serve static and media files during development
