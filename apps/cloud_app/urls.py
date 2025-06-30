@@ -50,10 +50,6 @@ urlpatterns = [
     # Demo page  
     path('demo/', views.demo, name='demo'),
     
-    # Missing view functions - add required by URLs
-    path('features/', views.features, name='features'),
-    path('pricing/', views.pricing, name='pricing'),
-    path('concept/', views.concept, name='concept'),
     
     # API Documentation
     path('api-docs/', views.api_docs, name='api-docs'),

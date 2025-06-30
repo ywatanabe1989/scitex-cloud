@@ -580,21 +580,6 @@ def api_docs(request):
 
 
 # Missing view functions - added during cleanup to fix URL import errors
-def features(request):
-    """Features page."""
-    return render(request, "cloud_app/features.html")
-
-
-def pricing(request):
-    """Pricing page - redirect to premium."""
-    return redirect("cloud_app:premium_subscription")
-
-
-def concept(request):
-    """Concept page."""
-    return render(request, "cloud_app/pages/concept.html")
-
-
 def demo(request):
     """Demo page."""
     return render(request, "cloud_app/demo.html")
