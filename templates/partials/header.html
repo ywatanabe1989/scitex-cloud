@@ -9,6 +9,13 @@
     <nav class="site-navigation" aria-label="Main Navigation">
       <ul>
         <li class="nav-button-item">
+          <a href="/projects/" class="btn btn-sm btn-outline-primary nav-btn {% if '/projects/' in request.path or request.path|slice:':2' == '/' and request.path|slice:'2:' and request.path|slice:'2:' != 'projects/' %}active{% endif %}" aria-current="{% if '/projects/' in request.path %}page{% endif %}">
+            <img src="{% static 'images/scitex-project-icon.svg' %}" alt="" width="20" height="20" class="nav-icon">
+            Projects
+          </a>
+        </li>
+        
+        <li class="nav-button-item">
           <a href="/scholar/" class="btn btn-sm btn-outline-primary nav-btn {% if request.path == '/scholar/' %}active{% endif %}" aria-current="{% if request.path == '/scholar/' %}page{% endif %}">
             <img src="{% static 'images/scitex-search-icon.svg' %}" alt="" width="20" height="20" class="nav-icon">
             Scholar
@@ -56,8 +63,8 @@
     </nav>
     <div class="header-actions">
       <!-- Always show donate and GitHub -->
-      <a href="{% url 'cloud_app:donate' %}" class="btn btn-sm btn-success"><i class="fas fa-heart"></i> Donate</a>
-      <a href="https://github.com/SciTeX-AI" class="btn btn-sm btn-dark" target="_blank"><i class="fab fa-github"></i> GitHub</a>
+      <a href="{% url 'cloud_app:donate' %}" class="btn btn-sm btn-success nav-btn"><i class="fas fa-heart"></i> Donate</a>
+      <a href="https://github.com/SciTeX-AI" class="btn btn-sm btn-dark nav-btn" target="_blank"><i class="fab fa-github"></i> GitHub</a>
       
       {% if user.is_authenticated %}
       <!-- User is logged in -->
@@ -89,8 +96,8 @@
       </div>
       {% else %}
       <!-- User is not logged in -->
-      <a href="{% url 'cloud_app:login' %}" class="btn btn-sm btn-outline-primary">Log In</a>
-      <a href="{% url 'cloud_app:signup' %}" class="btn btn-sm btn-secondary">Sign Up</a>
+      <a href="{% url 'cloud_app:login' %}" class="btn btn-sm btn-outline-primary nav-btn">Log In</a>
+      <a href="{% url 'cloud_app:signup' %}" class="btn btn-sm btn-secondary nav-btn">Sign Up</a>
       {% endif %}
     </div>
     <button class="mobile-menu-toggle" aria-label="Toggle menu">☰</button>
