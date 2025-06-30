@@ -43,15 +43,20 @@ urlpatterns = [
     path("login/", views.login_view, name="login"),
     path("logout/", views.logout_view, name="logout"),
     path("forgot-password/", views.forgot_password, name="forgot-password"),
-    # For Developers
-    path("design/", views.design_system, name="design"),
-    path("design/v01/", views.design_system_v01, name="design-v01"),
-    path("design/v03/", views.design_system_v03, name="design-v03"),
-    # Redirect common variations
-    path("design/01/", lambda request: redirect("cloud_app:design-v01"), name="design-01-redirect"),
-    path("design/02/", lambda request: redirect("cloud_app:design"), name="design-02-redirect"),
-    path("design/03/", lambda request: redirect("cloud_app:design-v03"), name="design-03-redirect"),
-    path("api-docs/", views.api_docs, name="api-docs"),
+    
+    # Design System
+    path('design/', views.design_system, name='design'),
+    
+    # Demo page  
+    path('demo/', views.demo, name='demo'),
+    
+    # Missing view functions - add required by URLs
+    path('features/', views.features, name='features'),
+    path('pricing/', views.pricing, name='pricing'),
+    path('concept/', views.concept, name='concept'),
+    
+    # API Documentation
+    path('api-docs/', views.api_docs, name='api-docs'),
 ]
 
 # EOF
