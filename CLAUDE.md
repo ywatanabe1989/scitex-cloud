@@ -35,7 +35,15 @@ When error raised, show them as alert on the website. Fake operations will raise
 Use `./apps/XXX_app/` format
 
 Do not place any files under project root directory
-Instead, place under `./docs`, `./apps`, `./project_management`, `./tests`, `./tmp`
+Instead, place under `./docs`, `./apps`, `./project_management`, `./tests`, `./tmp`, `./data`
+
+## Directory Structure
+- `./docs` - Documentation and guidelines
+- `./apps` - Django applications
+- `./project_management` - Deployment and server management scripts
+- `./tests` - Test files
+- `./tmp` - Temporary files (logs, cache, etc.)
+- `./data` - Persistent data (databases, user data)
 
 ## Design Theme of the website
 See /design/
