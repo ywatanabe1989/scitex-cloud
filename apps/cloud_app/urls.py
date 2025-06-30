@@ -47,27 +47,6 @@ urlpatterns = [
     # Demo page
     path('demo/', views.demo, name='demo'),
     
-    # Product pages (new naming scheme)
-    path('products/scholar/', views.product_search, name='product-scholar'),
-    path('products/engine/', views.product_engine, name='product-engine'),
-    path('products/code/', views.product_code, name='product-code'),
-    path('products/writer/', views.product_doc, name='product-writer'),
-    path('products/viz/', views.product_viz, name='product-viz'),
-    path('products/cloud/', views.product_cloud, name='product-cloud'),
-    path('products/local/', views.product_local, name='product-local'),
-    
     # API Documentation
     path('api-docs/', views.api_docs, name='api-docs'),
-    
-    # Legacy redirects
-    path('products/search/', lambda request: redirect('cloud_app:product-scholar'), name='product-search'),
-    path('products/doc/', lambda request: redirect('cloud_app:product-writer'), name='product-doc'),
-    path('products/pytools/', lambda request: redirect('cloud_app:product-code'), name='product-pytools'),
-    path('products/compute/', lambda request: redirect('cloud_app:product-code'), name='product-compute'),
-    path('products/visualizer/', lambda request: redirect('cloud_app:product-viz'), name='product-visualizer'),
-    # Redirects for previous naming attempts
-    path('products/studio/', lambda request: redirect('cloud_app:product-engine'), name='product-studio'),
-    path('products/explorer/', lambda request: redirect('cloud_app:product-scholar'), name='product-explorer'),
-    path('products/analyzer/', lambda request: redirect('cloud_app:product-code'), name='product-analyzer'),
-    path('products/coder/', lambda request: redirect('cloud_app:product-code'), name='product-coder'),
 ]

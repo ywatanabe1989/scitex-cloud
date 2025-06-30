@@ -276,31 +276,32 @@ urlpatterns = [
     path("writer/", include("apps.writer_app.urls")),
     path("viz/", include("apps.viz_app.urls")),
     path("core/", include("apps.core_app.urls")),
-    path("projects/", include("apps.project_app.urls")),
-    path("monitoring/", include("apps.monitoring_app.urls")),
-    path("orcid/", include("apps.orcid_app.urls", namespace="orcid_app")),
-    path(
-        "mendeley/",
-        include("apps.mendeley_app.urls", namespace="mendeley_app"),
-    ),
-    path(
-        "reference-sync/",
-        include("apps.reference_sync_app.urls", namespace="reference_sync"),
-    ),
-    path("github/", include("apps.github_app.urls", namespace="github_app")),
-    path(
-        "collaboration/",
-        include("apps.collaboration_app.urls", namespace="collaboration"),
-    ),
+    # Commented out apps not in INSTALLED_APPS to fix import errors
+    # path("projects/", include("apps.project_app.urls")),
+    # path("monitoring/", include("apps.monitoring_app.urls")),
+    # path("orcid/", include("apps.orcid_app.urls", namespace="orcid_app")),
+    # path(
+    #     "mendeley/",
+    #     include("apps.mendeley_app.urls", namespace="mendeley_app"),
+    # ),
+    # path(
+    #     "reference-sync/",
+    #     include("apps.reference_sync_app.urls", namespace="reference_sync"),
+    # ),
+    # path("github/", include("apps.github_app.urls", namespace="github_app")),
+    # path(
+    #     "collaboration/",
+    #     include("apps.collaboration_app.urls", namespace="collaboration"),
+    # ),
     # path("ai-assistant/", include("apps.ai_assistant_app.urls", namespace="ai_assistant")),
-    path(
-        "onboarding/",
-        include("apps.onboarding_app.urls", namespace="onboarding"),
-    ),
-    # Direct dashboard access redirects to projects
+    # path(
+    #     "onboarding/",
+    #     include("apps.onboarding_app.urls", namespace="onboarding"),
+    # ),
+    # Direct dashboard access redirects to core (projects app not in INSTALLED_APPS)
     path(
         "dashboard/",
-        RedirectView.as_view(url="/projects/", permanent=False),
+        RedirectView.as_view(url="/core/", permanent=False),
     ),
     # Design system documentation
     path(
@@ -315,17 +316,19 @@ urlpatterns = [
     ),
     # SciTeX API v1
     path("api/", include("apps.api.urls")),
-    path(
-        "api/reference-sync/",
-        include(
-            "apps.reference_sync_app.api_urls", namespace="reference_sync_api"
-        ),
-    ),
+    # Commented out - reference_sync_app not in INSTALLED_APPS
+    # path(
+    #     "api/reference-sync/",
+    #     include(
+    #         "apps.reference_sync_app.api_urls", namespace="reference_sync_api"
+    #     ),
+    # ),
     # Cloud app URLs (includes landing page and auth)
     path("", include("apps.cloud_app.urls", namespace="cloud_app")),
     
+    # Commented out - project_app not in INSTALLED_APPS
     # GitHub-style username/project URLs (MUST be last to avoid conflicts)
-    path("<str:username>/", include("apps.project_app.user_urls")),
+    # path("<str:username>/", include("apps.project_app.user_urls")),
 ]
 
 # Serve static and media files during development
