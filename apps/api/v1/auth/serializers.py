@@ -64,11 +64,14 @@ class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = (
-            'user', 'academic_title', 'institution', 'department',
-            'research_interests', 'orcid_id', 'google_scholar_id',
-            'subscription_tier', 'subscription_status', 'subscription_expires'
+            'user', 'profession', 'research_field', 'institution', 'bio',
+            'is_academic_verified', 'email_notifications', 'weekly_digest',
+            'profile_completed', 'profile_completion_date', 'last_login_at',
+            'total_login_count', 'created_at', 'updated_at'
         )
-        read_only_fields = ('subscription_status', 'subscription_expires')
+        read_only_fields = ('is_academic_verified', 'profile_completed', 
+                          'profile_completion_date', 'last_login_at', 
+                          'total_login_count', 'created_at', 'updated_at')
 
 
 class LoginSerializer(serializers.Serializer):

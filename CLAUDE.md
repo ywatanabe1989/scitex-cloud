@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-06-30 05:19:22
+!-- Timestamp: 2025-07-01 07:29:22
 !-- Author: ywatanabe
 !-- File: /ssh:scitex:/home/ywatanabe/proj/scitex-cloud/CLAUDE.md
 !-- --- -->
@@ -33,6 +33,9 @@ When error raised, show them as alert on the website. Fake operations will raise
 
 ## Django Directory Structure
 Use `./apps/XXX_app/` format
+
+Do not place any files under project root directory
+Instead, place under `./docs`, `./apps`, `./project_management`, `./tests`, `./tmp`
 
 ## Design Theme of the website
 See /design/

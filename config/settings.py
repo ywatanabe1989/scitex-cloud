@@ -107,7 +107,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "scitex_cloud.db",
+        "NAME": BASE_DIR / "tmp" / "scitex_cloud.db",
     }
 }
 

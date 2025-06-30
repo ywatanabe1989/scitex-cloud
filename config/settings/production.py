@@ -73,7 +73,7 @@ else:
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "scitex_cloud_prod.db",
+            "NAME": BASE_DIR / "tmp" / "scitex_cloud_prod.db",
         }
     }
 
