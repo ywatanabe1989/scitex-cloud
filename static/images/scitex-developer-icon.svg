@@ -1,18 +1,21 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Wrench handle -->
-  <rect x="18" y="38" width="8" height="20" rx="2" fill="#4a6baf" stroke="#4a6baf" stroke-width="2"/>
+  <!-- Screwdriver handle (grip) -->
+  <rect x="26" y="38" width="12" height="18" rx="2" fill="#4a6baf"/>
 
-  <!-- Wrench head (open end) -->
-  <path d="M14 32 L14 38 L30 38 L30 32 L26 32 L26 28 L18 28 L18 32 Z" fill="#4a6baf" stroke="#4a6baf" stroke-width="2"/>
+  <!-- Handle detail lines -->
+  <line x1="28" y1="42" x2="36" y2="42" stroke="white" stroke-width="1" opacity="0.3"/>
+  <line x1="28" y1="46" x2="36" y2="46" stroke="white" stroke-width="1" opacity="0.3"/>
+  <line x1="28" y1="50" x2="36" y2="50" stroke="white" stroke-width="1" opacity="0.3"/>
 
-  <!-- Wrench opening gap -->
-  <rect x="18" y="28" width="8" height="4" fill="#f0f5ff"/>
+  <!-- Screwdriver shaft -->
+  <rect x="28" y="18" width="8" height="20" fill="#90b1e2"/>
 
-  <!-- Tool highlight/shine -->
-  <rect x="20" y="40" width="2" height="14" rx="1" fill="white" fill-opacity="0.3"/>
+  <!-- Screwdriver tip (flat head) -->
+  <polygon points="30,14 34,14 32,8" fill="#506b7a"/>
+  <rect x="30" y="14" width="4" height="4" fill="#506b7a"/>
 
-  <!-- Bolt/nut being worked on (subtle background element) -->
-  <circle cx="42" cy="20" r="8" fill="none" stroke="#90b1e2" stroke-width="2" opacity="0.4"/>
-  <path d="M42 12 L42 28 M34 20 L50 20" stroke="#90b1e2" stroke-width="2" opacity="0.4"/>
+  <!-- Subtle screw/bolt in background -->
+  <circle cx="44" cy="22" r="4" fill="none" stroke="#b5c7d1" stroke-width="1.5" opacity="0.4"/>
+  <line x1="44" y1="20" x2="44" y2="24" stroke="#b5c7d1" stroke-width="1" opacity="0.4"/>
 </svg>
