@@ -1,25 +1,30 @@
 {% load static %}
 
 <style>
-.github-link-btn {
+  .github-link-btn {
   transition: all 0.3s ease;
   padding: 0.5rem 1.5rem;
-}
+  }
 
-.github-link-btn:hover {
+  .github-link-btn:hover {
   transform: scale(1.1);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
+  }
 </style>
 
 <!-- Demo Video Section -->
 <div class="container">
   <section class="section integrated-ecosystem-section">
     <div class="container">
-      <h2 style="text-align: center; margin-bottom: 1rem; font-size: 2.5rem;">Demonstrations</h2>
 
       <!-- Scholar Demo Video -->
       <div style="max-width: 1200px; margin: 0 auto 3rem;">
+        <h2 style="color: #1e293b; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+          <img src="{% static 'images/scitex-scholar-icon.svg' %}" alt="" width="32" height="32">
+          <span>SciTeX Scholar</span>
+          <img src="{% static 'images/scitex-scholar-icon.svg' %}" alt="" width="32" height="32">
+        </h2>
+
         <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: center;">
           <div style="background: transparent; border-radius: 12px; padding: 1rem;">
             <div style="position: relative; width: 100%; padding-bottom: 56.25%; overflow: hidden; border-radius: 8px;">
@@ -29,16 +34,11 @@
               </video>
             </div>
             <div style="text-align: center; margin-top: 1rem;">
-              <h4 style="color: #1e293b; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
-                <img src="{% static 'images/scitex-scholar-icon.svg' %}" alt="" width="24" height="24">
-                <span>SciTeX Scholar Demo</span>
-                <img src="{% static 'images/scitex-scholar-icon.svg' %}" alt="" width="24" height="24">
-              </h4>
-              <a href="{% url 'docs:scholar' %}" class="btn btn-primary github-link-btn" style="margin-top: 0.5rem; margin-right: 0.5rem; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease;">
+              <a href="{% url 'docs:scholar' %}" class="btn btn-primary github-link-btn" style="margin-top: 0.5rem; margin-right: 0.5rem; display: inline-flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-book-open"></i> Documentation
               </a>
-              <a href="https://github.com/ywatanabe1989/SciTeX-Code/tree/main/src/scitex/scholar" target="_blank" class="btn btn-dark github-link-btn" style="margin-top: 0.5rem; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease;">
-                <i class="fab fa-github"></i> view on GitHub
+              <a href="https://github.com/ywatanabe1989/SciTeX-Code/tree/main/src/scitex/scholar" target="_blank" class="btn btn-dark github-link-btn" style="margin-top: 0.5rem; display: inline-flex; align-items: center; gap: 0.5rem;">
+                <i class="fab fa-github"></i> View on GitHub
               </a>
             </div>
           </div>
@@ -65,7 +65,13 @@
       </div>
 
       <!-- Writer Demo Video -->
-      <div style="max-width: 1200px; margin: 0 auto;">
+      <div style="max-width: 1200px; margin: 3rem auto;">
+        <h2 style="color: #1e293b; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+          <img src="{% static 'images/scitex-writer-icon.svg' %}" alt="" width="32" height="32">
+          <span>SciTeX Writer</span>
+          <img src="{% static 'images/scitex-writer-icon.svg' %}" alt="" width="32" height="32">
+        </h2>
+
         <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 2rem; align-items: center;">
           <div style="padding: 1rem;">
             <ul style="color: #64748b; line-height: 2; list-style: none; padding: 0; font-size: 1rem;">
@@ -94,16 +100,11 @@
               </video>
             </div>
             <div style="text-align: center; margin-top: 1rem;">
-              <h4 style="color: #1e293b; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
-                <img src="{% static 'images/scitex-writer-icon.svg' %}" alt="" width="24" height="24">
-                <span>SciTeX Writer Demo</span>
-                <img src="{% static 'images/scitex-writer-icon.svg' %}" alt="" width="24" height="24">
-              </h4>
-              <a href="{% url 'docs:writer' %}" class="btn btn-primary github-link-btn" style="margin-top: 0.5rem; margin-right: 0.5rem; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease;">
+              <a href="{% url 'docs:writer' %}" class="btn btn-primary github-link-btn" style="margin-top: 0.5rem; margin-right: 0.5rem; display: inline-flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-book-open"></i> Documentation
               </a>
-              <a href="https://github.com/ywatanabe1989/SciTeX-Writer" target="_blank" class="btn btn-dark github-link-btn" style="margin-top: 0.5rem; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease;">
-                <i class="fab fa-github"></i> view on GitHub
+              <a href="https://github.com/ywatanabe1989/SciTeX-Writer" target="_blank" class="btn btn-dark github-link-btn" style="margin-top: 0.5rem; display: inline-flex; align-items: center; gap: 0.5rem;">
+                <i class="fab fa-github"></i> View on GitHub
               </a>
             </div>
           </div>
@@ -111,7 +112,13 @@
       </div>
 
       <!-- Code Demo Video -->
-      <div style="max-width: 1200px; margin: 3rem auto 0;">
+      <div style="max-width: 1200px; margin: 3rem auto;">
+        <h2 style="color: #1e293b; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+          <img src="{% static 'images/scitex-code-icon.svg' %}" alt="" width="32" height="32">
+          <span>SciTeX Code</span>
+          <img src="{% static 'images/scitex-code-icon.svg' %}" alt="" width="32" height="32">
+        </h2>
+
         <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: center;">
           <div style="background: transparent; border-radius: 12px; padding: 1rem;">
             <div style="position: relative; width: 100%; padding-bottom: 56.25%; overflow: hidden; border-radius: 8px;">
@@ -121,16 +128,11 @@
               </video>
             </div>
             <div style="text-align: center; margin-top: 1rem;">
-              <h4 style="color: #1e293b; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
-                <img src="{% static 'images/scitex-code-icon.svg' %}" alt="" width="24" height="24">
-                <span>SciTeX Code Demo</span>
-                <img src="{% static 'images/scitex-code-icon.svg' %}" alt="" width="24" height="24">
-              </h4>
-              <a href="{% url 'docs:code' %}" class="btn btn-primary github-link-btn" style="margin-top: 0.5rem; margin-right: 0.5rem; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease;">
+              <a href="{% url 'docs:code' %}" class="btn btn-primary github-link-btn" style="margin-top: 0.5rem; margin-right: 0.5rem; display: inline-flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-book-open"></i> Documentation
               </a>
-              <a href="https://github.com/ywatanabe1989/SciTeX-Code" target="_blank" class="btn btn-dark github-link-btn" style="margin-top: 0.5rem; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease;">
-                <i class="fab fa-github"></i> view on GitHub
+              <a href="https://github.com/ywatanabe1989/SciTeX-Code" target="_blank" class="btn btn-dark github-link-btn" style="margin-top: 0.5rem; display: inline-flex; align-items: center; gap: 0.5rem;">
+                <i class="fab fa-github"></i> View on GitHub
               </a>
             </div>
           </div>
@@ -157,7 +159,13 @@
       </div>
 
       <!-- Viz Demo Video -->
-      <div style="max-width: 1200px; margin: 3rem auto 0;">
+      <div style="max-width: 1200px; margin: 3rem auto;">
+        <h2 style="color: #1e293b; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+          <img src="{% static 'images/scitex-viz-icon.svg' %}" alt="" width="32" height="32">
+          <span>SciTeX Viz</span>
+          <img src="{% static 'images/scitex-viz-icon.svg' %}" alt="" width="32" height="32">
+        </h2>
+
         <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 2rem; align-items: center;">
           <div style="padding: 1rem;">
             <ul style="color: #64748b; line-height: 2; list-style: none; padding: 0; font-size: 1rem;">
@@ -180,16 +188,11 @@
               </video>
             </div>
             <div style="text-align: center; margin-top: 1rem;">
-              <h4 style="color: #1e293b; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
-                <img src="{% static 'images/scitex-viz-icon.svg' %}" alt="" width="24" height="24">
-                <span>SciTeX Viz Demo</span>
-                <img src="{% static 'images/scitex-viz-icon.svg' %}" alt="" width="24" height="24">
-              </h4>
-              <a href="{% url 'docs:viz' %}" class="btn btn-primary github-link-btn" style="margin-top: 0.5rem; margin-right: 0.5rem; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease;">
+              <a href="{% url 'docs:viz' %}" class="btn btn-primary github-link-btn" style="margin-top: 0.5rem; margin-right: 0.5rem; display: inline-flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-book-open"></i> Documentation
               </a>
-              <a href="https://github.com/ywatanabe1989/SciTeX-Viz" target="_blank" class="btn btn-dark github-link-btn" style="margin-top: 0.5rem; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease;">
-                <i class="fab fa-github"></i> view on GitHub
+              <a href="https://github.com/ywatanabe1989/SciTeX-Viz" target="_blank" class="btn btn-dark github-link-btn" style="margin-top: 0.5rem; display: inline-flex; align-items: center; gap: 0.5rem;">
+                <i class="fab fa-github"></i> View on GitHub
               </a>
               <p style="font-size: 0.75rem; color: #94a3b8; margin-top: 0.5rem;">Also available: PySigMacro, SigMacro templates</p>
             </div>

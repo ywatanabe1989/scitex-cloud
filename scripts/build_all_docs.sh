@@ -41,7 +41,7 @@ fi
 # Viz module
 echo ""
 echo "📊 Building Viz documentation..."
-cd "$HOME/win/documents/SciTeX-Viz"
+cd "$HOME/proj/SciTeX-Viz"
 if [ -f "docs/conf.py" ]; then
     sphinx-build -b html docs docs/_build/html 2>&1 | grep -E "build succeeded|warning|error" | tail -5
     if [ -f "docs/_build/html/index.html" ]; then
