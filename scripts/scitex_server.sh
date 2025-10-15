@@ -6,8 +6,14 @@
 # SciTeX Cloud Server Management Script
 # Following AIRight's best practices for server management
 
-# Script directory
-SCRIPT_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
+# Script directory - resolve symlinks to get actual location
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do
+  SCRIPT_DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
+  SOURCE="$(readlink "$SOURCE")"
+  [[ $SOURCE != /* ]] && SOURCE="$SCRIPT_DIR/$SOURCE"
+done
+SCRIPT_DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 LOG_DIR="$PROJECT_ROOT/logs"
 PID_DIR="$PROJECT_ROOT/run"
@@ -124,15 +130,25 @@ done
 
 # Activate virtual environment
 activate_venv() {
-    if [ -d "$PROJECT_ROOT/env" ]; then
-        log_info "Activating virtual environment..."
+    # Check if already in a virtual environment
+    if [ -n "$VIRTUAL_ENV" ]; then
+        log_info "Using active virtual environment: $VIRTUAL_ENV"
+        return 0
+    fi
+
+    # Try to find and activate virtual environment
+    if [ -d "$PROJECT_ROOT/.env" ]; then
+        log_info "Activating virtual environment (.env)..."
+        source "$PROJECT_ROOT/.env/bin/activate"
+    elif [ -d "$PROJECT_ROOT/env" ]; then
+        log_info "Activating virtual environment (env)..."
         source "$PROJECT_ROOT/env/bin/activate"
     elif [ -d "$PROJECT_ROOT/.env-3.11" ]; then
         log_info "Activating Python 3.11 environment..."
         source "$PROJECT_ROOT/.env-3.11/bin/activate"
     else
         log_error "No virtual environment found!"
-        log_info "Create one with: python3 -m venv env"
+        log_info "Create one with: python3 -m venv .env"
         exit 1
     fi
 }

@@ -239,6 +239,50 @@
     font-size: 1.5rem;
     margin-bottom: var(--spacing-md);
   }
+
+  .demo-section {
+    background-color: #f8f9fa;
+    padding: var(--spacing-xxl) 0;
+  }
+
+  .demo-video-container {
+    max-width: 900px;
+    margin: 0 auto;
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow-lg);
+    overflow: hidden;
+  }
+
+  .demo-video-container video {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .demo-description {
+    padding: var(--spacing-lg);
+    text-align: center;
+  }
+
+  .demo-features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-md);
+    padding: 0 var(--spacing-lg);
+  }
+
+  .demo-feature-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-size: 0.95rem;
+  }
+
+  .demo-feature-item i {
+    color: var(--primary-color);
+  }
 </style>
 {% endblock %}
 
@@ -336,6 +380,45 @@
       
       <div class="text-center mt-4">
         <a href="#" class="btn btn-outline-primary">Show More Results</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Demo Video Section -->
+<section class="demo-section">
+  <div class="container">
+    <h2 class="text-center mb-4">See SciTeX Scholar in Action</h2>
+    <p class="text-center lead mb-5">Watch how our CLI tool discovers, downloads, and organizes scientific literature with automatic authentication and impact factor retrieval</p>
+
+    <div class="demo-video-container">
+      <video controls preload="metadata">
+        <source src="{% static 'videos/scholar-demo.mp4' %}" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+
+      <div class="demo-description">
+        <h4>Automated Literature Management</h4>
+        <p>This demo shows the complete workflow from DOI/title input to organized library with PDFs</p>
+
+        <div class="demo-features">
+          <div class="demo-feature-item">
+            <i class="fas fa-check-circle"></i>
+            <span>Automated authentication</span>
+          </div>
+          <div class="demo-feature-item">
+            <i class="fas fa-check-circle"></i>
+            <span>Impact factor retrieval</span>
+          </div>
+          <div class="demo-feature-item">
+            <i class="fas fa-check-circle"></i>
+            <span>Citation count tracking</span>
+          </div>
+          <div class="demo-feature-item">
+            <i class="fas fa-check-circle"></i>
+            <span>Smart file organization</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>

@@ -1,1 +1,0 @@
-scripts/start_dev_windows.sh

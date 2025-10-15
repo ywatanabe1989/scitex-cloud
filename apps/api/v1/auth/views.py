@@ -448,9 +448,9 @@ def test_ssh_connection(request):
     """Test SSH connection to Git host"""
     try:
         from .ssh_key_manager import SSHKeyManager
-        
+
         ssh_manager = SSHKeyManager(request.user)
-        
+
         # Get host from request or use default
         host = request.data.get('host', 'github.com')
         if host not in ['github.com', 'gitlab.com', 'bitbucket.org']:
@@ -458,19 +458,140 @@ def test_ssh_connection(request):
                 'success': False,
                 'error': 'Invalid host. Use github.com, gitlab.com, or bitbucket.org'
             }, status=status.HTTP_400_BAD_REQUEST)
-        
+
         # Test connection
         success = ssh_manager.test_ssh_connection(host)
-        
+
         return Response({
             'success': True,
             'connection_success': success,
             'host': host,
             'message': f'SSH connection to {host} {"successful" if success else "failed"}'
         }, status=status.HTTP_200_OK)
-        
+
     except Exception as e:
         return Response({
             'success': False,
             'error': f'Failed to test SSH connection: {str(e)}'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def reset_password(request):
+    """Reset password with token"""
+    from django.contrib.auth.tokens import default_token_generator
+    from django.utils.http import urlsafe_base64_decode
+    from django.utils.encoding import force_str
+
+    uidb64 = request.data.get('uidb64')
+    token = request.data.get('token')
+    password = request.data.get('password')
+
+    if not all([uidb64, token, password]):
+        return Response({
+            'success': False,
+            'error': 'UID, token, and password are required'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        # Decode user ID
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+
+        # Validate token
+        if not default_token_generator.check_token(user, token):
+            return Response({
+                'success': False,
+                'error': 'Invalid or expired reset link'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # Set new password
+        user.set_password(password)
+        user.save()
+
+        return Response({
+            'success': True,
+            'message': 'Password reset successfully'
+        }, status=status.HTTP_200_OK)
+
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        return Response({
+            'success': False,
+            'error': 'Invalid reset link'
+        }, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        return Response({
+            'success': False,
+            'error': f'Failed to reset password: {str(e)}'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def forgot_password(request):
+    """Send password reset email"""
+    from django.contrib.auth.tokens import default_token_generator
+    from django.utils.http import urlsafe_base64_encode
+    from django.utils.encoding import force_bytes
+    from django.template.loader import render_to_string
+    from django.core.mail import send_mail
+    from django.conf import settings
+
+    email = request.data.get('email')
+
+    if not email:
+        return Response({
+            'success': False,
+            'error': 'Email is required'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        # Find user by email
+        user = User.objects.filter(email=email).first()
+
+        if user:
+            # Generate password reset token
+            token = default_token_generator.make_token(user)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+
+            # Create reset link
+            reset_link = f"{request.scheme}://{request.get_host()}/reset-password/{uid}/{token}/"
+
+            # Send password reset email
+            subject = 'Password Reset Request - SciTeX'
+            message = f"""
+Hello {user.username},
+
+You requested a password reset for your SciTeX account.
+
+Click the link below to reset your password:
+{reset_link}
+
+This link will expire in 24 hours.
+
+If you didn't request this, please ignore this email.
+
+Best regards,
+The SciTeX Team
+"""
+
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                [email],
+                fail_silently=False,
+            )
+
+        # Always return success (security: don't reveal if email exists)
+        return Response({
+            'success': True,
+            'message': 'If an account exists with this email, you will receive password reset instructions.'
+        }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({
+            'success': False,
+            'error': f'Failed to process password reset: {str(e)}'
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

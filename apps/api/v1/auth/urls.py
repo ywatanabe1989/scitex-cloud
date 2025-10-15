@@ -21,7 +21,11 @@ urlpatterns = [
     # Email verification endpoints
     path('verify-email/', views.verify_email, name='api-verify-email'),
     path('resend-otp/', views.resend_otp, name='api-resend-otp'),
-    
+
+    # Password reset endpoints
+    path('forgot-password/', views.forgot_password, name='api-forgot-password'),
+    path('reset-password/', views.reset_password, name='api-reset-password'),
+
     # Account management endpoints
     path('delete-account/', views.delete_account, name='api-delete-account'),
     path('cancel-deletion/', views.cancel_account_deletion, name='api-cancel-deletion'),

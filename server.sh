@@ -1,0 +1,1 @@
+scripts/scitex_server.sh

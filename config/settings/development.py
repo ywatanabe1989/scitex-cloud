@@ -81,31 +81,15 @@ if not test_redis_connection():
     # Use database sessions if Redis is not available
     SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
-# Development static files
+# Development static files - unified with production
 STATICFILES_DIRS = [
     BASE_DIR / "static",
-    BASE_DIR / "public" / "css",
-    BASE_DIR / "public" / "js",
 ]
 
 # Email settings for development
-# Use console backend by default, but allow SMTP for testing with TEST_EMAIL_SMTP=true
-if os.environ.get('TEST_EMAIL_SMTP', '').lower() == 'true':
-    # Use real SMTP for testing
-    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = 'mail1030.onamae.ne.jp'
-    EMAIL_PORT = 465
-    EMAIL_USE_SSL = True
-    EMAIL_USE_TLS = False
-    EMAIL_HOST_USER = os.environ.get('SCITEX_EMAIL_ADMIN', 'admin@scitex.ai')
-    EMAIL_HOST_PASSWORD = os.environ.get('SCITEX_EMAIL_PASSWORD', '')
-    DEFAULT_FROM_EMAIL = os.environ.get('SCITEX_EMAIL_ADMIN', 'admin@scitex.ai')
-    SERVER_EMAIL = os.environ.get('SCITEX_EMAIL_ADMIN', 'admin@scitex.ai')
-else:
-    # Use console backend for normal development
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-    DEFAULT_FROM_EMAIL = 'admin@scitex.ai'
-    SERVER_EMAIL = 'admin@scitex.ai'
+# Inherit SMTP settings from base.py
+# base.py uses Gmail SMTP with SCITEX_SENDER_GMAIL credentials
+# No override needed - emails will be sent for real in development too
 
 # Development logging - extends the base logging config
 import os
@@ -155,7 +139,7 @@ LOGGING.update({
     'loggers': {
         # Update existing loggers from base settings
         **LOGGING.get('loggers', {}),
-        
+
         # Add development-specific loggers
         'django': {
             'handlers': ['console', 'file_django'],
@@ -164,8 +148,13 @@ LOGGING.update({
         },
         'django.request': {
             'handlers': ['file_requests'],
-            'level': 'DEBUG',
+            'level': 'ERROR',  # Only log errors, not 404s for __reload__
             'propagate': True,
+        },
+        'django.server': {
+            'handlers': ['file_django'],
+            'level': 'ERROR',  # Suppress __reload__ 404 warnings
+            'propagate': False,
         },
         'django.db.backends': {
             'handlers': ['console_debug'],

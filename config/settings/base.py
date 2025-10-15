@@ -161,12 +161,13 @@ USE_I18N = True
 USE_TZ = True
 
 # Email Configuration
+# Use scitex.ai domain email via mail1030.onamae.ne.jp
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'mail1030.onamae.ne.jp'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.environ.get('SCITEX_SENDER_EMAIL', 'admin@scitex.ai')
-EMAIL_HOST_PASSWORD = os.environ.get('SCITEX_SENDER_EMAIL_PASSWORD', '')
+EMAIL_HOST_USER = os.environ.get('SCITEX_SCHOLAR_FROM_EMAIL_ADDRESS', 'agent@scitex.ai')
+EMAIL_HOST_PASSWORD = os.environ.get('SCITEX_SCHOLAR_FROM_EMAIL_PASSWORD', '')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 SERVER_EMAIL = EMAIL_HOST_USER
 

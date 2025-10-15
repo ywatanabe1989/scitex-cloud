@@ -22,8 +22,10 @@ def main():
     sys.path.insert(0, os.path.join(BASE_DIR, "config"))  # Add config directory
     # No need to add src directory anymore as it's been replaced by apps
 
+    # Use new auto-detection settings module
+    # Set SCITEX_ENV=production for production, defaults to development
     os.environ.setdefault(
-        "DJANGO_SETTINGS_MODULE", "config.settings.development"
+        "DJANGO_SETTINGS_MODULE", "config.settings"
     )
     try:
         from django.core.management import execute_from_command_line

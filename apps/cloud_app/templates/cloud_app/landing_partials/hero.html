@@ -1,0 +1,40 @@
+{% load static %}
+
+<!-- Hero Section -->
+<section class="hero-section hero-silverish-ai hero-landing">
+  <div class="container">
+    <div class="hero-wrapper">
+      <div class="hero-content">
+        <h1 class="hero-title">Accelerate Our Research</h1>
+        <p class="hero-subtitle" style="font-size: 1.3rem; margin-bottom: 1rem;">• 100% open-sourced research tools</p>
+        <p class="hero-subtitle" style="font-size: 1.3rem; margin-bottom: 1rem;">• Customizable to your workflow</p>
+        <p class="hero-subtitle" style="font-size: 1.3rem; margin-bottom: 1rem;">• Deploy locally, in the cloud, or self-hosted</p>
+        <p class="hero-subtitle" style="font-size: 1.3rem; margin-bottom: 1rem;">• Built by researchers, for researchers</p>
+        <div class="hero-badges" style="margin-top: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;">
+          <span class="badge" style="background: #28a745; color: white; padding: 0.5rem 1rem; border-radius: 4px; font-size: 0.9rem;">
+            <i class="fab fa-github"></i> 100% Open Source
+          </span>
+          <span class="badge" style="background: #0366d6; color: white; padding: 0.5rem 1rem; border-radius: 4px; font-size: 0.9rem;">
+            <i class="fas fa-code"></i> MIT License
+          </span>
+          <span class="badge" style="background: #34495e; color: white; padding: 0.5rem 1rem; border-radius: 4px; font-size: 0.9rem;">
+            <i class="fas fa-lock-open"></i> No Vendor Lock-in
+          </span>
+        </div>
+      </div>
+      <!-- Hero Image -->
+      <div class="hero-image">
+        <div class="manuscript-preview">
+          <a href="{% static 'images/manuscript/compiled.pdf' %}#page=2" target="_blank" class="manuscript-link">
+            <div class="manuscript-display">
+              <img src="{% static 'images/manuscript/page2-02.jpg' %}" alt="SciTeX Manuscript Preview" class="manuscript-img">
+              <div class="manuscript-overlay">
+                <span class="view-pdf-text">View Full PDF</span>
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

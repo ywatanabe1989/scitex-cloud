@@ -1,0 +1,128 @@
+/* SciTeX Cloud App - Landing Page Styles */
+
+/* Import the main landing CSS */
+@import '../landing.css';
+@import '../header-override.css';
+
+/* Silver background style from the old landing page */
+.hero-landing {
+    background-color: var(--silver-light);
+    background-image: linear-gradient(135deg, var(--silver-light) 0%, var(--light-color) 100%);
+}
+
+/* Section background styling */
+.integrated-ecosystem-section {
+    padding: 4rem 0;
+    background: #f8fafc;
+    margin-top: 3rem;
+}
+
+.product-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.product-icon img {
+    width: 64px;
+    height: 64px;
+}
+
+.emoji-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+    font-size: 3rem;
+    width: 64px;
+    height: 64px;
+    background-color: rgba(74, 107, 175, 0.1);
+    border-radius: 50%;
+}
+
+/* Manuscript preview styling */
+.manuscript-preview {
+    max-width: 100%;
+    height: 400px;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.manuscript-link {
+    display: block;
+    width: 100%;
+    height: 100%;
+    text-decoration: none;
+    color: inherit;
+}
+
+.manuscript-display {
+    width: 450px;
+    max-width: 100%;
+    height: 400px;
+    position: relative;
+    margin: 0 auto;
+    overflow: hidden;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.manuscript-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 8px;
+    /* Ensure no animations or transformations apply */
+    transform: none;
+    animation: none;
+    transition: none;
+}
+
+.manuscript-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.7));
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.manuscript-link:hover .manuscript-overlay {
+    opacity: 1;
+}
+
+.view-pdf-text {
+    color: white;
+    background: var(--primary-color);
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+@media (max-width: 767px) {
+    .product-icon img {
+        width: 56px;
+        height: 56px;
+    }
+    
+    .emoji-icon {
+        font-size: 2.5rem;
+        width: 56px;
+        height: 56px;
+    }
+    
+    .manuscript-preview pre {
+        font-size: 0.6rem !important;
+        padding: 1rem;
+    }
+}

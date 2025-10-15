@@ -1,0 +1,86 @@
+{% load static %}
+
+<!-- Demo Video Section -->
+<div class="container">
+  <section class="section integrated-ecosystem-section">
+    <div class="container">
+      <h2 style="text-align: center; margin-bottom: 1rem; font-size: 2.5rem;">Demonstrations</h2>
+
+      <!-- Scholar Demo Video -->
+      <div style="max-width: 1200px; margin: 0 auto 3rem;">
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: center;">
+          <div style="background: transparent; border-radius: 12px; padding: 1rem;">
+            <div style="position: relative; width: 100%; padding-bottom: 56.25%; overflow: hidden; border-radius: 8px;">
+              <video autoplay loop muted playsinline controls style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 8px;" poster="{% static 'videos/thumbnails/scholar-demo.jpg' %}">
+                <source src="{% static 'videos/scholar-demo.mp4' %}" type="video/mp4">
+                Your browser does not support the video tag.
+              </video>
+            </div>
+            <div style="text-align: center; margin-top: 1rem;">
+              <h4 style="color: #1e293b; margin-bottom: 0.5rem;">
+                <i class="fas fa-search"></i> SciTeX Scholar Demo
+              </h4>
+            </div>
+          </div>
+          <div style="padding: 1rem;">
+            <ul style="color: #64748b; line-height: 2; list-style: none; padding: 0; font-size: 1rem;">
+              <li style="margin-bottom: 0.8rem;"><strong style="color: #1e293b;">Multi-Source Search</strong><br>
+                <span style="font-size: 0.9rem;">Concurrent search across CrossRef, PubMed, OpenAlex, Semantic Scholar, and arXiv</span>
+              </li>
+              <li style="margin-bottom: 0.8rem;"><strong style="color: #1e293b;">Metadata Enrichment</strong><br>
+                <span style="font-size: 0.9rem;">Automatic retrieval of abstract, citation counts, and journal impact factor</span>
+              </li>
+              <li style="margin-bottom: 0.8rem;"><strong style="color: #1e293b;">PDF Downloads</strong><br>
+                <span style="font-size: 0.9rem;">PDF download with institutional authentication support. Extraction of text, tables, and figures</span>
+              </li>
+              <li style="margin-bottom: 0.8rem;"><strong style="color: #1e293b;">Local Library</strong><br>
+                <span style="font-size: 0.9rem;">Manage and search your local PDF collection. Compatible with Zotero.</span>
+              </li>
+              <li style="margin-bottom: 0.8rem;"><strong style="color: #1e293b;">Exporting Formats</strong><br>
+                <span style="font-size: 0.9rem;">Export to BibTeX, RIS, JSON, and Markdown formats</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Writer Demo Video -->
+      <div style="max-width: 1200px; margin: 0 auto;">
+        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 2rem; align-items: center;">
+          <div style="padding: 1rem;">
+            <ul style="color: #64748b; line-height: 2; list-style: none; padding: 0; font-size: 1rem;">
+              <li style="margin-bottom: 0.8rem;"><strong style="color: #1e293b;">LaTeX Integration</strong><br>
+                <span style="font-size: 0.9rem;">LaTeX compilation with reference management, style changes, and words counts</span>
+              </li>
+              <li style="margin-bottom: 0.8rem;"><strong style="color: #1e293b;">Manuscript Types</strong><br>
+                <span style="font-size: 0.9rem;">Templates ready for manuscripts, supplementary materials, and revision letters</span>
+              </li>
+              <li style="margin-bottom: 0.8rem;"><strong style="color: #1e293b;">AI Applicability</strong><br>
+                <span style="font-size: 0.9rem;">Optimized structure for LLM assistants. Automatic differences with visual markup</span>
+              </li>
+              <li style="margin-bottom: 0.8rem;"><strong style="color: #1e293b;">Bibliography Management</strong><br>
+                <span style="font-size: 0.9rem;">Fact-based reference insertion with Scholar module</span>
+              </li>
+              <li style="margin-bottom: 0.8rem;"><strong style="color: #1e293b;">Version Control</strong><br>
+                <span style="font-size: 0.9rem;">Git-based workflow with manuscript versioning</span>
+              </li>
+            </ul>
+          </div>
+          <div style="background: transparent; border-radius: 12px; padding: 1rem;">
+            <div style="position: relative; width: 100%; padding-bottom: 56.25%; overflow: hidden; border-radius: 8px;">
+              <video autoplay loop muted playsinline controls style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 8px; object-fit: cover;" poster="{% static 'videos/thumbnails/writer-demo.jpg' %}">
+                <source src="{% static 'videos/writer-demo.mp4' %}" type="video/mp4">
+                Your browser does not support the video tag.
+              </video>
+            </div>
+            <div style="text-align: center; margin-top: 1rem;">
+              <h4 style="color: #1e293b; margin-bottom: 0.5rem;">
+                <i class="fas fa-rocket"></i> SciTeX Writer Demo
+              </h4>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

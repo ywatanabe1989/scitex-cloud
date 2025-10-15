@@ -654,6 +654,65 @@ static/
         </div>
     </div>
 
+    <!-- Module Icons Section -->
+    <div class="design-section" id="module-icons">
+        <h2 class="mb-4">🎯 SciTeX Module Icons</h2>
+        <p class="text-muted mb-4">Consistent iconography across all SciTeX modules with standardized sizes and usage patterns</p>
+
+        <h5>SVG Icons (Professional)</h5>
+        <p class="small text-muted mb-3">Professional SVG icons for official use across the platform</p>
+        <div class="row mb-4">
+            <div class="col-md-2 text-center">
+                <img src="{% static 'images/scitex-engine-icon.svg' %}" alt="Engine" width="56" height="56" class="mb-2">
+                <h6>Engine</h6>
+                <code class="small">scitex-engine-icon.svg</code>
+            </div>
+            <div class="col-md-2 text-center">
+                <img src="{% static 'images/scitex-scholar-icon.svg' %}" alt="Scholar" width="56" height="56" class="mb-2">
+                <h6>Scholar</h6>
+                <code class="small">scitex-scholar-icon.svg</code>
+            </div>
+            <div class="col-md-2 text-center">
+                <img src="{% static 'images/scitex-writer-icon.svg' %}" alt="Writer" width="56" height="56" class="mb-2">
+                <h6>Writer</h6>
+                <code class="small">scitex-writer-icon.svg</code>
+            </div>
+            <div class="col-md-2 text-center">
+                <img src="{% static 'images/scitex-code-icon.svg' %}" alt="Code" width="56" height="56" class="mb-2">
+                <h6>Code</h6>
+                <code class="small">scitex-code-icon.svg</code>
+            </div>
+            <div class="col-md-2 text-center">
+                <img src="{% static 'images/scitex-viz-icon.svg' %}" alt="Viz" width="56" height="56" class="mb-2">
+                <h6>Viz</h6>
+                <code class="small">scitex-viz-icon.svg</code>
+            </div>
+            <div class="col-md-2 text-center">
+                <img src="{% static 'images/scitex-cloud-icon.svg' %}" alt="Cloud" width="56" height="56" class="mb-2">
+                <h6>Cloud</h6>
+                <code class="small">scitex-cloud-icon.svg</code>
+            </div>
+        </div>
+
+        <h5>Icon Size Standards</h5>
+        <div class="code-block">
+/* Standardized Icon Sizes */
+Hero Section: 64px
+Module Cards: 48-56px
+List Items: 32px
+Inline Text: 24px
+
+/* File Location */
+/static/images/scitex-[module]-icon.svg
+
+/* Usage Example */
+&lt;img src="{% templatetag openvariable %} static 'images/scitex-scholar-icon.svg' {% templatetag closevariable %}"
+     alt="SciTeX Scholar"
+     width="48"
+     height="48"&gt;
+        </div>
+    </div>
+
     <!-- Footer -->
     <div class="text-center text-muted py-4">
         <p class="mb-0">SciTeX Design System • <a href="https://scitex.ai" class="scitex-text-primary">scitex.ai</a></p>

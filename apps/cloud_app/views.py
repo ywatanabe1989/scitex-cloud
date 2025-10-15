@@ -23,7 +23,12 @@ logger = logging.getLogger("scitex")
 
 
 def index(request):
-    """Cloud app index view."""
+    """Cloud app index view - redirect logged-in users to projects."""
+    # If user is authenticated, redirect to their projects
+    if request.user.is_authenticated:
+        return redirect(settings.LOGIN_REDIRECT_URL)
+
+    # Otherwise show landing page for anonymous users
     return render(request, "cloud_app/landing.html")
 
 
@@ -460,7 +465,7 @@ def login_view(request):
                     request.session.set_expiry(0)
 
                 # Redirect to next page or projects
-                next_page = request.GET.get("next", "/projects/")
+                next_page = request.GET.get("next", settings.LOGIN_REDIRECT_URL)
                 messages.success(request, f"Welcome back, {user.username}!")
                 return redirect(next_page)
             else:
@@ -477,6 +482,36 @@ def login_view(request):
 def forgot_password(request):
     """Forgot password page."""
     return render(request, "cloud_app/forgot_password.html")
+
+
+def reset_password(request, uidb64, token):
+    """Password reset confirmation page."""
+    from django.contrib.auth.tokens import default_token_generator
+    from django.utils.http import urlsafe_base64_decode
+    from django.utils.encoding import force_str
+    from django.contrib.auth.models import User
+
+    context = {
+        'uidb64': uidb64,
+        'token': token,
+        'valid_link': False,
+        'user': None,
+    }
+
+    try:
+        # Decode user ID
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+
+        # Validate token
+        if default_token_generator.check_token(user, token):
+            context['valid_link'] = True
+            context['user'] = user
+
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        pass
+
+    return render(request, "cloud_app/reset_password.html", context)
 
 
 def logout_view(request):
