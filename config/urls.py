@@ -268,37 +268,45 @@ def api_logout(request):
 #     return render(request, "cloud_app/products/search.html")
 
 
+# Automatically discover and register URL patterns for apps
+def discover_app_urls():
+    """Discover and register URLs for all apps in ./apps/."""
+    from pathlib import Path
+    import importlib
+
+    patterns = []
+    apps_dir = Path(settings.BASE_DIR) / 'apps'
+
+    if apps_dir.exists():
+        for app_dir in sorted(apps_dir.iterdir()):
+            if app_dir.is_dir() and not app_dir.name.startswith('_'):
+                urls_file = app_dir / 'urls.py'
+                if urls_file.exists():
+                    app_name = app_dir.name
+                    # Extract URL prefix from app name (remove _app suffix if present)
+                    url_prefix = app_name.replace('_app', '')
+
+                    try:
+                        # Try to import the urls module and check if it has urlpatterns
+                        urls_module = importlib.import_module(f'apps.{app_name}.urls')
+                        if hasattr(urls_module, 'urlpatterns') and urls_module.urlpatterns:
+                            patterns.append(
+                                path(f"{url_prefix}/", include(f"apps.{app_name}.urls"))
+                            )
+                        else:
+                            print(f"Info: {app_name}/urls.py has no urlpatterns, skipping")
+                    except Exception as e:
+                        print(f"Warning: Could not register URLs for {app_name}: {e}")
+
+    return patterns
+
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("engine/", include("apps.engine_app.urls")),
-    path("scholar/", include("apps.scholar_app.urls")),
-    path("code/", include("apps.code_app.urls")),
-    path("writer/", include("apps.writer_app.urls")),
-    path("viz/", include("apps.viz_app.urls")),
-    path("core/", include("apps.core_app.urls")),
-    # Projects (now enabled)
-    path("projects/", include("apps.project_app.urls")),
-    # path("monitoring/", include("apps.monitoring_app.urls")),
-    # path("orcid/", include("apps.orcid_app.urls", namespace="orcid_app")),
-    # path(
-    #     "mendeley/",
-    #     include("apps.mendeley_app.urls", namespace="mendeley_app"),
-    # ),
-    # path(
-    #     "reference-sync/",
-    #     include("apps.reference_sync_app.urls", namespace="reference_sync"),
-    # ),
-    # path("github/", include("apps.github_app.urls", namespace="github_app")),
-    # path(
-    #     "collaboration/",
-    #     include("apps.collaboration_app.urls", namespace="collaboration"),
-    # ),
-    path("ai-assistant/", include("apps.ai_assistant_app.urls", namespace="ai_assistant")),
-    # path(
-    #     "onboarding/",
-    #     include("apps.onboarding_app.urls", namespace="onboarding"),
-    # ),
-    # Direct dashboard access redirects to core (projects app not in INSTALLED_APPS)
+] + discover_app_urls()
+
+urlpatterns += [
+    # Additional URL patterns
+    # Direct dashboard access redirects to core
     path(
         "dashboard/",
         RedirectView.as_view(url="/core/", permanent=False),
@@ -315,7 +323,7 @@ urlpatterns = [
         RedirectView.as_view(url="/static/images/favicon.svg", permanent=True),
     ),
     # SciTeX API v1
-    path("api/", include("apps.api.urls")),
+    # path("api/", include("apps.api.urls")),  # API app removed
     # Commented out - reference_sync_app not in INSTALLED_APPS
     # path(
     #     "api/reference-sync/",

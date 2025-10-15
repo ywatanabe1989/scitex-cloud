@@ -1,1 +1,0 @@
-# Management commands for AI Assistant app

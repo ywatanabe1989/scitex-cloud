@@ -9,7 +9,7 @@ from django.db.models.signals import post_save, post_delete, pre_save
 from django.dispatch import receiver
 from django.contrib.auth.models import User
 from .models import Project, UserProfile
-from apps.document_app.models import Document
+# from apps.document_app.models import Document  # Removed - document_app not installed
 from .directory_manager import get_user_directory_manager, ensure_project_directory
 import logging
 
@@ -62,20 +62,20 @@ def handle_project_directory(sender, instance, created, **kwargs):
         logger.error(f"Error handling project directory for {instance.name}: {e}")
 
 
-@receiver(post_save, sender=Document)
-def handle_document_storage(sender, instance, created, **kwargs):
-    """Handle document file storage in project directories."""
-    try:
-        # Only save to directory if document has a project and content
-        if instance.project and instance.content and not instance.file_location:
-            success = instance.save_to_directory()
-            if success:
-                logger.info(f"Document saved to directory: {instance.title}")
-            else:
-                logger.warning(f"Failed to save document to directory: {instance.title}")
-                
-    except Exception as e:
-        logger.error(f"Error handling document storage for {instance.title}: {e}")
+# @receiver(post_save, sender=Document)
+# def handle_document_storage(sender, instance, created, **kwargs):
+#     """Handle document file storage in project directories."""
+#     try:
+#         # Only save to directory if document has a project and content
+#         if instance.project and instance.content and not instance.file_location:
+#             success = instance.save_to_directory()
+#             if success:
+#                 logger.info(f"Document saved to directory: {instance.title}")
+#             else:
+#                 logger.warning(f"Failed to save document to directory: {instance.title}")
+#
+#     except Exception as e:
+#         logger.error(f"Error handling document storage for {instance.title}: {e}")
 
 
 @receiver(post_delete, sender=Project)
@@ -94,39 +94,39 @@ def cleanup_project_directory(sender, instance, **kwargs):
         logger.error(f"Error deleting project directory for {instance.name}: {e}")
 
 
-@receiver(post_delete, sender=Document)
-def cleanup_document_file(sender, instance, **kwargs):
-    """Clean up document file when document is deleted."""
-    try:
-        if instance.file_location:
-            file_path = instance.get_file_path()
-            if file_path and file_path.exists():
-                file_path.unlink()
-                logger.info(f"Document file deleted: {instance.title}")
-                
-                # Update project storage usage if applicable
-                if instance.project:
-                    instance.project.update_storage_usage()
-                    
-    except Exception as e:
-        logger.error(f"Error deleting document file for {instance.title}: {e}")
+# @receiver(post_delete, sender=Document)
+# def cleanup_document_file(sender, instance, **kwargs):
+#     """Clean up document file when document is deleted."""
+#     try:
+#         if instance.file_location:
+#             file_path = instance.get_file_path()
+#             if file_path and file_path.exists():
+#                 file_path.unlink()
+#                 logger.info(f"Document file deleted: {instance.title}")
+#
+#                 # Update project storage usage if applicable
+#                 if instance.project:
+#                     instance.project.update_storage_usage()
+#
+#     except Exception as e:
+#         logger.error(f"Error deleting document file for {instance.title}: {e}")
 
 
-@receiver(pre_save, sender=Document)
-def update_document_metadata(sender, instance, **kwargs):
-    """Update document metadata before saving."""
-    try:
-        # Calculate file size if content changed
-        if instance.content:
-            instance.file_size = len(instance.content.encode('utf-8'))
-            
-        # Generate file hash for integrity checking
-        if instance.content:
-            import hashlib
-            instance.file_hash = hashlib.sha256(instance.content.encode('utf-8')).hexdigest()
-            
-    except Exception as e:
-        logger.error(f"Error updating document metadata for {instance.title}: {e}")
+# @receiver(pre_save, sender=Document)
+# def update_document_metadata(sender, instance, **kwargs):
+#     """Update document metadata before saving."""
+#     try:
+#         # Calculate file size if content changed
+#         if instance.content:
+#             instance.file_size = len(instance.content.encode('utf-8'))
+#
+#         # Generate file hash for integrity checking
+#         if instance.content:
+#             import hashlib
+#             instance.file_hash = hashlib.sha256(instance.content.encode('utf-8')).hexdigest()
+#
+#     except Exception as e:
+#         logger.error(f"Error updating document metadata for {instance.title}: {e}")
 
 
 @receiver(post_save, sender=UserProfile)

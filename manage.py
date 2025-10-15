@@ -23,7 +23,7 @@ def main():
     # No need to add src directory anymore as it's been replaced by apps
 
     # Use new auto-detection settings module
-    # Set SCITEX_ENV=production for production, defaults to development
+    # Set SCITEX_CLOUD_ENV=production for production, defaults to development
     os.environ.setdefault(
         "DJANGO_SETTINGS_MODULE", "config.settings"
     )

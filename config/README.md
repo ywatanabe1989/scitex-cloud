@@ -31,11 +31,11 @@ config/
 
 ```bash
 # Development (default)
-export SCITEX_ENV=development
+export SCITEX_CLOUD_ENV=development
 python manage.py runserver
 
 # Production
-export SCITEX_ENV=production
+export SCITEX_CLOUD_ENV=production
 gunicorn config.wsgi:application
 ```
 
@@ -65,7 +65,7 @@ export DJANGO_SETTINGS_MODULE=config.settings.production
 
 ```bash
 # Set environment
-export SCITEX_ENV=production
+export SCITEX_CLOUD_ENV=production
 
 # Start production server
 ./scripts/scitex_server.sh start -m prod -d
@@ -100,7 +100,7 @@ export SCITEX_ENV=production
 
 The `settings/__init__.py` automatically loads the appropriate settings based on:
 
-1. `SCITEX_ENV` environment variable (recommended)
+1. `SCITEX_CLOUD_ENV` environment variable (recommended)
 2. Falls back to development if not set
 
 ## Migration from Old Structure

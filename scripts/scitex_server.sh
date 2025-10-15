@@ -206,7 +206,7 @@ collect_static() {
 
 # Start development server
 start_dev() {
-    export DJANGO_SETTINGS_MODULE=config.settings.development
+    export SCITEX_CLOUD_ENV=development
     export SCITEX_DJANGO_SECRET_KEY="${SCITEX_DJANGO_SECRET_KEY:-dev-secret-key-123}"
     
     cd "$PROJECT_ROOT"
@@ -233,7 +233,7 @@ start_dev() {
 
 # Start production server
 start_prod() {
-    export DJANGO_SETTINGS_MODULE=config.settings.production
+    export SCITEX_CLOUD_ENV=production
     
     if [ -z "$SCITEX_DJANGO_SECRET_KEY" ]; then
         log_error "SCITEX_DJANGO_SECRET_KEY not set for production!"

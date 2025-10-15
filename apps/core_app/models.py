@@ -433,9 +433,9 @@ class Project(models.Model):
     hypotheses = models.TextField(help_text="Research hypotheses (required)")
     source_code_url = models.URLField(blank=True, help_text="GitHub/GitLab repository URL")
     data_location = models.CharField(max_length=500, blank=True, help_text="Relative path to project directory")
-    manuscript_draft = models.ForeignKey('document_app.Document', on_delete=models.SET_NULL, null=True, blank=True, 
-                                       related_name='project_manuscripts', 
-                                       help_text="Associated manuscript document")
+    # manuscript_draft = models.ForeignKey('document_app.Document', on_delete=models.SET_NULL, null=True, blank=True,  # Removed - document_app not installed
+    #                                    related_name='project_manuscripts',
+    #                                    help_text="Associated manuscript document")
     
     # Enhanced GitHub Integration fields
     github_token = models.CharField(max_length=255, blank=True, help_text="GitHub OAuth token")

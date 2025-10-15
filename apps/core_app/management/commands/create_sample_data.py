@@ -20,7 +20,7 @@ from django.utils import timezone
 from datetime import timedelta
 import random
 
-from apps.document_app.models import Document
+# from apps.document_app  # Removed - document_app not installed.models import Document
 from apps.auth_app.models import UserProfile
 from apps.project_app.models import Project
 from apps.core_app.models import Organization, OrganizationMembership, ProjectPermission

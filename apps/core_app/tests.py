@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from datetime import timedelta
 from .models import UserProfile, Project
-from apps.document_app.models import Document
+# from apps.document_app  # Removed - document_app not installed.models import Document
 from apps.cloud_app.models import SubscriptionPlan, Subscription
 
 

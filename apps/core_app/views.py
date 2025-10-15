@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 from datetime import datetime, timedelta
 import random
 import json
-from apps.document_app.models import Document
+# from apps.document_app  # Removed - document_app not installed.models import Document
 from apps.auth_app.models import UserProfile
 from apps.project_app.models import Project
 from .directory_manager import get_user_directory_manager

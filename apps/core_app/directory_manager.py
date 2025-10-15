@@ -66,7 +66,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.utils.text import slugify
 from .models import Project
-from apps.document_app.models import Document
+# from apps.document_app  # Removed - document_app not installed.models import Document
 
 
 class UserDirectoryManager:
@@ -258,7 +258,7 @@ class UserDirectoryManager:
                 return legacy_project_path
         return None
     
-    def store_document(self, document: Document, content: str, 
+    def store_document(self, document, content: str,
                       doc_type: str = 'manuscripts') -> Tuple[bool, Optional[Path]]:
         """Store a document in the appropriate project directory."""
         try:
