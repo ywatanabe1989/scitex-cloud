@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-06-29 20:10:04 (ywatanabe)"
-# File: /ssh:scitex:/home/ywatanabe/proj/scitex-cloud/config/urls.py
+# Timestamp: "2025-10-16 02:05:02 (ywatanabe)"
+# File: /home/ywatanabe/proj/scitex-cloud/config/urls.py
 # ----------------------------------------
+from __future__ import annotations
 import os
 __FILE__ = (
     "./config/urls.py"
@@ -25,7 +26,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.urls import include, path
-from django.views.generic import RedirectView, TemplateView
+from django.views.generic import RedirectView
 
 
 # API Auth functions
@@ -271,34 +272,47 @@ def api_logout(request):
 # Automatically discover and register URL patterns for apps
 def discover_app_urls():
     """Discover and register URLs for all apps in ./apps/."""
-    from pathlib import Path
     import importlib
+    from pathlib import Path
 
     patterns = []
-    apps_dir = Path(settings.BASE_DIR) / 'apps'
+    apps_dir = Path(settings.BASE_DIR) / "apps"
 
     if apps_dir.exists():
         for app_dir in sorted(apps_dir.iterdir()):
-            if app_dir.is_dir() and not app_dir.name.startswith('_'):
-                urls_file = app_dir / 'urls.py'
+            if app_dir.is_dir() and not app_dir.name.startswith("_"):
+                urls_file = app_dir / "urls.py"
                 if urls_file.exists():
                     app_name = app_dir.name
                     # Extract URL prefix from app name (remove _app suffix if present)
-                    url_prefix = app_name.replace('_app', '')
+                    url_prefix = app_name.replace("_app", "")
 
                     try:
                         # Try to import the urls module and check if it has urlpatterns
-                        urls_module = importlib.import_module(f'apps.{app_name}.urls')
-                        if hasattr(urls_module, 'urlpatterns') and urls_module.urlpatterns:
+                        urls_module = importlib.import_module(
+                            f"apps.{app_name}.urls"
+                        )
+                        if (
+                            hasattr(urls_module, "urlpatterns")
+                            and urls_module.urlpatterns
+                        ):
                             patterns.append(
-                                path(f"{url_prefix}/", include(f"apps.{app_name}.urls"))
+                                path(
+                                    f"{url_prefix}/",
+                                    include(f"apps.{app_name}.urls"),
+                                )
                             )
                         else:
-                            print(f"Info: {app_name}/urls.py has no urlpatterns, skipping")
+                            print(
+                                f"Info: {app_name}/urls.py has no urlpatterns, skipping"
+                            )
                     except Exception as e:
-                        print(f"Warning: Could not register URLs for {app_name}: {e}")
+                        print(
+                            f"Warning: Could not register URLs for {app_name}: {e}"
+                        )
 
     return patterns
+
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -311,29 +325,13 @@ urlpatterns += [
         "dashboard/",
         RedirectView.as_view(url="/core/", permanent=False),
     ),
-    # Design system documentation
-    path(
-        "design/",
-        TemplateView.as_view(template_name="design_system.html"),
-        name="design_system",
-    ),
     # Favicon redirect to prevent 404 errors
     path(
         "favicon.ico",
         RedirectView.as_view(url="/static/images/favicon.svg", permanent=True),
     ),
-    # SciTeX API v1
-    # path("api/", include("apps.api.urls")),  # API app removed
-    # Commented out - reference_sync_app not in INSTALLED_APPS
-    # path(
-    #     "api/reference-sync/",
-    #     include(
-    #         "apps.reference_sync_app.api_urls", namespace="reference_sync_api"
-    #     ),
-    # ),
     # Cloud app URLs (includes landing page and auth)
     path("", include("apps.cloud_app.urls", namespace="cloud_app")),
-    
     # GitHub-style username/project URLs (MUST be last to avoid conflicts)
     path("<str:username>/", include("apps.project_app.user_urls")),
 ]

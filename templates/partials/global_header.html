@@ -54,7 +54,7 @@
           <a href="#" class="dropdown-toggle" aria-expanded="false" aria-haspopup="true">For developers</a>
           <div class="dropdown-menu">
             <a href="{% url 'cloud_app:api-docs' %}" class="dropdown-item">API Documentation</a>
-            <a href="{% url 'cloud_app:design' %}" class="dropdown-item">Design System</a>
+            <a href="{% url 'dev_app:design' %}" class="dropdown-item">Design System</a>
           </div>
         </li>
         
@@ -96,8 +96,8 @@
       </div>
       {% else %}
       <!-- User is not logged in -->
-      <a href="{% url 'cloud_app:login' %}" class="btn btn-sm btn-outline-primary nav-btn">Log In</a>
-      <a href="{% url 'cloud_app:signup' %}" class="btn btn-sm btn-secondary nav-btn">Sign Up</a>
+      <a href="{% url 'auth_app:login' %}" class="btn btn-sm btn-outline-primary nav-btn">Log In</a>
+      <a href="{% url 'auth_app:signup' %}" class="btn btn-sm btn-secondary nav-btn">Sign Up</a>
       {% endif %}
     </div>
     <button class="mobile-menu-toggle" aria-label="Toggle menu">☰</button>

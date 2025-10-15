@@ -6,47 +6,49 @@
     <div class="container">
       <div class="section-heading">
       <h2 style="text-align: center; margin-bottom: 1rem; font-size: 2.5rem;">SciTeX Ecosystem</h2>
-        <p style="text-align: center; color: #64748b; margin-bottom: 3rem; max-width: 700px; margin-left: auto; margin-right: auto;">
-          — From literature management to final publication —
-        </p>
+        <!-- <p style="text-align: center; color: #64748b; margin-bottom: 3rem; max-width: 700px; margin-left: auto; margin-right: auto;">
+         !--   — From literature management to final publication —
+         !-- </p> -->
+
+      <p></p>
 
         <!-- Hierarchical Ecosystem Layout -->
-        <div class="ecosystem-hierarchy">
+        <!-- <div class="ecosystem-hierarchy"> -->
 
           <!-- Engine at the top -->
           <!-- <div class="engine-top-level">
-            <div class="module-card-simple">
-              <a href="" class="module-card-link">
-                <div class="module-icon">
-                  <img src="{% static 'images/scitex-engine-icon.svg' %}" alt="SciTeX Engine" width="56" height="56">
-                </div>
-                <h3>SciTeX Engine</h3>
-                <p class="module-tagline">Emacs environment with Claude Code agent</p>
-              </a>
-            </div>
-          </div> -->
+           !--   <div class="module-card-simple">
+           !--     <a href="" class="module-card-link">
+           !--       <div class="module-icon">
+           !--         <img src="{% static 'images/scitex-engine-icon.svg' %}" alt="SciTeX Engine" width="56" height="56">
+           !--       </div>
+           !--       <h3>SciTeX Engine</h3>
+           !--       <p class="module-tagline">Emacs environment with Claude Code agent</p>
+           !--     </a>
+           !--   </div>
+           !-- </div> -->
 
           <!-- SVG Connection lines -->
           <svg class="ecosystem-connections" viewBox="0 0 900 200" xmlns="http://www.w3.org/2000/svg">
             <!-- Central vertical line from Engine -->
             <line x1="450" y1="0" x2="450" y2="60" stroke="#94a3b8" stroke-width="3"/>
-
+          
             <!-- Horizontal distribution line -->
             <line x1="112" y1="60" x2="788" y2="60" stroke="#94a3b8" stroke-width="3"/>
-
+          
             <!-- Branch lines to each module -->
             <line x1="112" y1="60" x2="112" y2="100" stroke="#94a3b8" stroke-width="3"/>
             <line x1="337" y1="60" x2="337" y2="100" stroke="#94a3b8" stroke-width="3"/>
             <line x1="562" y1="60" x2="562" y2="100" stroke="#94a3b8" stroke-width="3"/>
             <line x1="788" y1="60" x2="788" y2="100" stroke="#94a3b8" stroke-width="3"/>
-
+          
             <!-- Arrow heads -->
             <defs>
               <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
                 <polygon points="0 0, 10 3.5, 0 7" fill="#94a3b8"/>
               </marker>
             </defs>
-
+          
             <!-- Apply arrow heads to branch lines -->
             <line x1="112" y1="95" x2="112" y2="100" stroke="#94a3b8" stroke-width="3" marker-end="url(#arrowhead)"/>
             <line x1="337" y1="95" x2="337" y2="100" stroke="#94a3b8" stroke-width="3" marker-end="url(#arrowhead)"/>
@@ -111,7 +113,7 @@
               <i class="fas fa-server"></i> Run Locally
             </a>
             <span class="deployment-separator">or</span>
-            <a href="{% url 'cloud_app:premium' %}" class="deployment-option-link">
+            <a href="#" class="deployment-option-link">
               <i class="fas fa-cloud"></i> Use Cloud
             </a>
           </div>

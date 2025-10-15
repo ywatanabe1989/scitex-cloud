@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-06-29 19:40:12 (ywatanabe)"
-# File: /ssh:scitex:/home/ywatanabe/proj/scitex-cloud/apps/cloud_app/views.py
+# Timestamp: "2025-10-16 01:48:34 (ywatanabe)"
+# File: /home/ywatanabe/proj/scitex-cloud/apps/cloud_app/views.py
 # ----------------------------------------
+from __future__ import annotations
 import os
 __FILE__ = (
     "./apps/cloud_app/views.py"
@@ -465,7 +466,9 @@ def login_view(request):
                     request.session.set_expiry(0)
 
                 # Redirect to next page or projects
-                next_page = request.GET.get("next", settings.LOGIN_REDIRECT_URL)
+                next_page = request.GET.get(
+                    "next", settings.LOGIN_REDIRECT_URL
+                )
                 messages.success(request, f"Welcome back, {user.username}!")
                 return redirect(next_page)
             else:
@@ -486,16 +489,16 @@ def forgot_password(request):
 
 def reset_password(request, uidb64, token):
     """Password reset confirmation page."""
-    from django.contrib.auth.tokens import default_token_generator
-    from django.utils.http import urlsafe_base64_decode
-    from django.utils.encoding import force_str
     from django.contrib.auth.models import User
+    from django.contrib.auth.tokens import default_token_generator
+    from django.utils.encoding import force_str
+    from django.utils.http import urlsafe_base64_decode
 
     context = {
-        'uidb64': uidb64,
-        'token': token,
-        'valid_link': False,
-        'user': None,
+        "uidb64": uidb64,
+        "token": token,
+        "valid_link": False,
+        "user": None,
     }
 
     try:
@@ -505,8 +508,8 @@ def reset_password(request, uidb64, token):
 
         # Validate token
         if default_token_generator.check_token(user, token):
-            context['valid_link'] = True
-            context['user'] = user
+            context["valid_link"] = True
+            context["user"] = user
 
     except (TypeError, ValueError, OverflowError, User.DoesNotExist):
         pass
@@ -593,22 +596,6 @@ The SciTeX Team
         logger.error(f"Failed to send donation confirmation: {str(e)}")
 
 
-## For Developers
-def design_system(request):
-    """Design system documentation page."""
-    return render(request, "cloud_app/pages/design_system.html")
-
-
-def design_system_v01(request):
-    """Design system v01 documentation page."""
-    return render(request, "cloud_app/pages/design_system_v01.html")
-
-
-def design_system_v03(request):
-    """Design system v03 combined documentation page."""
-    return render(request, "cloud_app/pages/design_system_v03.html")
-
-
 def api_docs(request):
     """Display the API documentation page."""
     return render(request, "cloud_app/pages/api_docs.html")
@@ -618,6 +605,5 @@ def api_docs(request):
 def demo(request):
     """Demo page."""
     return render(request, "cloud_app/demo.html")
-
 
 # EOF

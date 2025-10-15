@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-06-29 19:51:04 (ywatanabe)"
-# File: /ssh:scitex:/home/ywatanabe/proj/scitex-cloud/apps/cloud_app/urls.py
+# Timestamp: "2025-10-16 02:00:47 (ywatanabe)"
+# File: /home/ywatanabe/proj/scitex-cloud/apps/cloud_app/urls.py
 # ----------------------------------------
+from __future__ import annotations
 import os
 __FILE__ = (
     "./apps/cloud_app/urls.py"
@@ -20,40 +21,20 @@ app_name = "cloud_app"
 urlpatterns = [
     path("", views.index, name="index"),
     path("cloud/", lambda request: redirect("cloud_app:index"), name="cloud"),
-    path("premium/", views.premium_subscription, name="premium"),
     # Concept and vision pages
     path("vision/", views.vision, name="vision"),
     path("publications/", views.publications, name="publications"),
     # Support pages
     path("donate/", views.donate, name="donate"),
-    path("fundraising/", views.fundraising, name="fundraising"),
-    path("verify-email/", views.verify_email, name="verify-email"),
-    path(
-        "donation-success/<int:donation_id>/",
-        views.donation_success,
-        name="donation-success",
-    ),
     # Legal and contact pages
     path("contact/", views.contact, name="contact"),
     path("privacy/", views.privacy_policy, name="privacy"),
     path("terms/", views.terms_of_use, name="terms"),
     path("cookies/", views.cookie_policy, name="cookies"),
-    # Authentication pages
-    path("signup/", views.signup, name="signup"),
-    path("login/", views.login_view, name="login"),
-    path("logout/", views.logout_view, name="logout"),
-    path("forgot-password/", views.forgot_password, name="forgot-password"),
-    path("reset-password/<str:uidb64>/<str:token>/", views.reset_password, name="reset-password"),
-    
-    # Design System
-    path('design/', views.design_system, name='design'),
-    
-    # Demo page  
-    path('demo/', views.demo, name='demo'),
-    
-    
+    # Demo page
+    path("demo/", views.demo, name="demo"),
     # API Documentation
-    path('api-docs/', views.api_docs, name='api-docs'),
+    path("api-docs/", views.api_docs, name="api-docs"),
 ]
 
 # EOF

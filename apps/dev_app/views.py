@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-10-16 01:54:49 (ywatanabe)"
+# Timestamp: "2025-10-16 01:56:11 (ywatanabe)"
 # File: /home/ywatanabe/proj/scitex-cloud/apps/dev_app/views.py
 # ----------------------------------------
 from __future__ import annotations
@@ -18,7 +18,7 @@ from django.views import View
 class DesignSystemView(View):
     """Display the SciTeX design system documentation."""
 
-    template_name = "dev_app/pages/design.html"
+    template_name = "dev_app/design.html"
 
     def get(self, request):
         """Render the design system page."""
