@@ -1,52 +1,61 @@
 {% load static %}
 <footer class="site-footer">
-    <div class="container">
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>SciTeX</h3>
-                <p>Accelerating scientific research through integrated tools and workflows.</p>
-                <div class="footer-social">
-                    <a href="https://github.com/SciTeX-AI" aria-label="GitHub - SciTeX organization"><i class="fab fa-github" aria-hidden="true"></i></a>
-                    <a href="https://scitexworkspace.slack.com" aria-label="Slack workspace - Join our community"><i class="fab fa-slack" aria-hidden="true"></i></a>
-                    <a href="https://twitter.com/scitex_ai" aria-label="X (Twitter) - Follow SciTeX"><i class="fab fa-twitter" aria-hidden="true"></i></a>
-                    <a href="https://linkedin.com/company/scitex-ai" aria-label="LinkedIn - Connect with SciTeX"><i class="fab fa-linkedin" aria-hidden="true"></i></a>
-                </div>
-            </div>
-
-            <div class="footer-section">
-                <h3>Tools</h3>
-                <ul class="footer-links">
-                    <li><a href="/scholar/">🔍 Scholar</a></li>
-                    <li><a href="/code/">💻 Code</a></li>
-                    <li><a href="/viz/">📊 Viz</a></li>
-                    <li><a href="/writer/">📝 Writer</a></li>
-                    <!-- <li><a href="/engine/">⚙️ Engine</a></li> -->
-                    <li><a href="/">☁️ Cloud</a></li>              
-                </ul>
-            </div>
-
-            <div class="footer-section">
-                <h3>Community</h3>
-                <ul class="footer-links">
-                    <li><a href="{% url 'core_app:about' %}">About Us</a></li>
-                    <!-- <li><a href="{% url 'cloud_app:vision' %}">Our Vision</a></li> -->
-                    <li><a href="{% url 'cloud_app:publications' %}">Publications</a></li>
-                    <li><a href="{% url 'cloud_app:donate' %}" class="text-success"><i class="fas fa-heart"></i> Donate</a></li>
-                </ul>
-            </div>
-            <div class="footer-section">
-                <h3>Legal</h3>
-                <ul class="footer-links">
-                    <li><a href="{% url 'cloud_app:terms' %}">Terms of Use</a></li>
-                    <li><a href="{% url 'cloud_app:privacy' %}">Privacy Policy</a></li>
-                    <li><a href="{% url 'cloud_app:cookies' %}">Cookie Policy</a></li>
-                </ul>
-            </div>
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h3>SciTeX</h3>
+        <p>Accelerating scientific research through integrated tools and workflows.</p>
+        <div class="footer-social">
+          <a href="https://github.com/SciTeX-AI" aria-label="GitHub - SciTeX organization"><i class="fab fa-github" aria-hidden="true"></i></a>
+          <a href="https://scitexworkspace.slack.com" aria-label="Slack workspace - Join our community"><i class="fab fa-slack" aria-hidden="true"></i></a>
+          <a href="https://twitter.com/scitex_ai" aria-label="X (Twitter) - Follow SciTeX"><i class="fab fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://linkedin.com/company/scitex-ai" aria-label="LinkedIn - Connect with SciTeX"><i class="fab fa-linkedin" aria-hidden="true"></i></a>
         </div>
-        <div class="footer-bottom">
-            <p>&copy; 2025 SciTeX. All rights reserved.  |  <a href="mailto:support@scitex.ai" aria-label="Email support at support@scitex.ai"><i class="far fa-envelope" aria-hidden="true"></i> support@scitex.ai <i class="far fa-envelope" aria-hidden="true"></i></a>
-                </p>
-</p>
-        </div>
+      </div>
+
+      <div class="footer-section">
+        <h3>Tools</h3>
+        <ul class="footer-links">
+          <li><a href="/scholar/">🔍 Scholar</a></li>
+          <li><a href="/code/">💻 Code</a></li>
+          <li><a href="/viz/">📊 Viz</a></li>
+          <li><a href="/writer/">📝 Writer</a></li>
+          <!-- <li><a href="/engine/">⚙️ Engine</a></li> -->
+          <li><a href="/">☁️ Cloud</a></li>              
+        </ul>
+      </div>
+
+      <div class="footer-section">
+        <h3>Community</h3>
+        <ul class="footer-links">
+          <li><a href="{% url 'core_app:about' %}">About Us</a></li>
+          <!-- <li><a href="{% url 'cloud_app:vision' %}">Our Vision</a></li> -->
+          <li><a href="{% url 'cloud_app:publications' %}">Publications</a></li>
+          <li><a href="{% url 'cloud_app:donate' %}" class="text-success"><i class="fas fa-heart"></i> Donate</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h3>Legal</h3>
+        <ul class="footer-links">
+          <li><a href="{% url 'cloud_app:terms' %}">Terms of Use</a></li>
+          <li><a href="{% url 'cloud_app:privacy' %}">Privacy Policy</a></li>
+          <li><a href="{% url 'cloud_app:cookies' %}">Cookie Policy</a></li>
+        </ul>
+      </div>
     </div>
+    <div class="footer-bottom">
+      <p>&copy; 2025 SciTeX. All rights reserved.  |  <a href="mailto:support@scitex.ai" class="email-link" aria-label="Email support at support@scitex.ai"><i class="far fa-envelope" aria-hidden="true"></i> support@scitex.ai <i class="far fa-envelope" aria-hidden="true"></i></a></p>
+    </div>
+  </div>
+  <style>
+    .footer-bottom .email-link {
+    color: inherit;
+    text-decoration: none;
+    }
+
+    .footer-bottom .email-link:hover {
+    color: #007bff;
+    text-decoration: underline;
+    }  
+  </style>
 </footer>
