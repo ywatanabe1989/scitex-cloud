@@ -1,58 +1,70 @@
 #!/bin/bash
-# Build all SciTeX module documentation
+# Build Sphinx documentation for all SciTeX modules
+# Each module has its own .env that auto-activates on cd
 
 set -e
 
-echo "=== Building SciTeX Documentation ==="
+echo "========================================"
+echo "Building SciTeX Documentation"
+echo "========================================"
+
+# Code module (includes Scholar)
 echo ""
-
-# Colors
-GREEN='\033[0;32m'
-RED='\033[0;31m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
-
-# Function to build docs
-build_docs() {
-    local name=$1
-    local path=$2
-
-    echo -e "${BLUE}Building $name documentation...${NC}"
-
-    if [ ! -d "$path" ]; then
-        echo -e "${RED}✗ Directory not found: $path${NC}"
-        return 1
-    fi
-
-    cd "$path"
-
-    if [ ! -f "conf.py" ]; then
-        echo -e "${RED}✗ No conf.py found in $path${NC}"
-        cd - > /dev/null
-        return 1
-    fi
-
-    # Build with sphinx
-    if sphinx-build -b html . _build/html > /dev/null 2>&1; then
-        echo -e "${GREEN}✓ $name documentation built successfully${NC}"
-        echo "  Output: $path/_build/html/index.html"
+echo "📚 Building Code documentation..."
+cd "$HOME/proj/scitex_repo/"
+if [ -f "docs/conf.py" ]; then
+    sphinx-build -b html docs docs/_build/html 2>&1 | grep -E "build succeeded|warning|error" | tail -5
+    if [ -f "docs/_build/html/index.html" ]; then
+        echo "  ✓ Code docs built successfully"
     else
-        echo -e "${RED}✗ Failed to build $name documentation${NC}"
-        # Try showing the error
-        sphinx-build -b html . _build/html 2>&1 | tail -10
+        echo "  ✗ Code docs build failed"
     fi
+else
+    echo "  ! No Sphinx config found at docs/conf.py"
+fi
 
-    cd - > /dev/null
-    echo ""
-}
-
-# Build each module
-build_docs "Code/Scholar" "$HOME/proj/scitex_repo/docs"
-build_docs "Viz" "$HOME/win/documents/SciTeX-Viz/docs"
-build_docs "Writer" "$HOME/proj/neurovista/paper/docs"
-
-echo -e "${GREEN}=== Documentation build complete ===${NC}"
+# Writer module
 echo ""
-echo "To view documentation:"
-echo "  - Start Django: python manage.py runserver"
-echo "  - Visit: http://localhost:8000/docs/"
+echo "📝 Building Writer documentation..."
+cd "$HOME/proj/neurovista/paper"
+if [ -f "docs/conf.py" ]; then
+    sphinx-build -b html docs docs/_build/html 2>&1 | grep -E "build succeeded|warning|error" | tail -5
+    if [ -f "docs/_build/html/index.html" ]; then
+        echo "  ✓ Writer docs built successfully"
+    else
+        echo "  ✗ Writer docs build failed"
+    fi
+else
+    echo "  ! No Sphinx config found"
+fi
+
+# Viz module
+echo ""
+echo "📊 Building Viz documentation..."
+cd "$HOME/win/documents/SciTeX-Viz"
+if [ -f "docs/conf.py" ]; then
+    sphinx-build -b html docs docs/_build/html 2>&1 | grep -E "build succeeded|warning|error" | tail -5
+    if [ -f "docs/_build/html/index.html" ]; then
+        echo "  ✓ Viz docs built successfully"
+    else
+        echo "  ✗ Viz docs build failed"
+    fi
+else
+    echo "  ! No Sphinx config found - using README.md as docs"
+fi
+
+# Return to cloud project
+cd "$HOME/proj/scitex-cloud"
+
+echo ""
+echo "========================================"
+echo "Documentation Build Summary"
+echo "========================================"
+echo "Access documentation at:"
+echo "  - Code:   http://scitex.ai/docs/code/"
+echo "  - Scholar: http://scitex.ai/docs/scholar/"
+echo "  - Writer: http://scitex.ai/docs/writer/"
+echo "  - Viz:    http://scitex.ai/docs/viz/"
+echo ""
+echo "If docs not built, buttons fallback to GitHub READMEs"
+echo "========================================"
