@@ -1,5 +1,17 @@
 {% load static %}
 
+<style>
+.github-link-btn {
+  transition: all 0.3s ease;
+  padding: 0.5rem 1.5rem;
+}
+
+.github-link-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+</style>
+
 <!-- Demo Video Section -->
 <div class="container">
   <section class="section integrated-ecosystem-section">
@@ -17,11 +29,12 @@
               </video>
             </div>
             <div style="text-align: center; margin-top: 1rem;">
-              <h4 style="color: #1e293b; margin-bottom: 0.5rem;">
-                <img src="{% static 'images/scitex-scholar-icon.svg' %}" alt="" width="24" height="24" style="vertical-align: middle; margin-right: 0.5rem;">
-                SciTeX Scholar Demo
+              <h4 style="color: #1e293b; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                <img src="{% static 'images/scitex-scholar-icon.svg' %}" alt="" width="24" height="24">
+                <span>SciTeX Scholar Demo</span>
+                <img src="{% static 'images/scitex-scholar-icon.svg' %}" alt="" width="24" height="24">
               </h4>
-              <a href="https://github.com/ywatanabe1989/SciTeX-Code/tree/main/src/scitex/scholar" target="_blank" class="btn btn-sm btn-outline-dark" style="margin-top: 0.5rem;">
+              <a href="https://github.com/ywatanabe1989/SciTeX-Code/tree/main/src/scitex/scholar" target="_blank" class="btn btn-dark github-link-btn" style="margin-top: 0.5rem; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease;">
                 <i class="fab fa-github"></i> View in GitHub
               </a>
             </div>
@@ -78,11 +91,12 @@
               </video>
             </div>
             <div style="text-align: center; margin-top: 1rem;">
-              <h4 style="color: #1e293b; margin-bottom: 0.5rem;">
-                <img src="{% static 'images/scitex-writer-icon.svg' %}" alt="" width="24" height="24" style="vertical-align: middle; margin-right: 0.5rem;">
-                SciTeX Writer Demo
+              <h4 style="color: #1e293b; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                <img src="{% static 'images/scitex-writer-icon.svg' %}" alt="" width="24" height="24">
+                <span>SciTeX Writer Demo</span>
+                <img src="{% static 'images/scitex-writer-icon.svg' %}" alt="" width="24" height="24">
               </h4>
-              <a href="https://github.com/ywatanabe1989/SciTeX-Writer" target="_blank" class="btn btn-sm btn-outline-dark" style="margin-top: 0.5rem;">
+              <a href="https://github.com/ywatanabe1989/SciTeX-Writer" target="_blank" class="btn btn-dark github-link-btn" style="margin-top: 0.5rem; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease;">
                 <i class="fab fa-github"></i> View in GitHub
               </a>
             </div>
