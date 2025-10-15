@@ -126,26 +126,23 @@
             </div>
           </div>
           <div style="padding: 1rem;">
-            <div style="margin-bottom: 1rem;">
-              <p style="font-size: 0.85rem; color: #64748b; line-height: 1.8; margin-bottom: 0.5rem;">
-                <strong style="color: #1e293b;">🔧 Core:</strong> session • io • path • logging
-              </p>
-              <p style="font-size: 0.85rem; color: #64748b; line-height: 1.8; margin-bottom: 0.5rem;">
-                <strong style="color: #1e293b;">📊 Data & Stats:</strong> stats (23 tests) • plt • pd
-              </p>
-              <p style="font-size: 0.85rem; color: #64748b; line-height: 1.8; margin-bottom: 0.5rem;">
-                <strong style="color: #1e293b;">🧠 ML & AI:</strong> ai • torch • nn • genai (7 providers)
-              </p>
-              <p style="font-size: 0.85rem; color: #64748b; line-height: 1.8; margin-bottom: 0.5rem;">
-                <strong style="color: #1e293b;">🌊 Signal:</strong> dsp (filtering, spectral, wavelets)
-              </p>
-              <p style="font-size: 0.85rem; color: #64748b; line-height: 1.8; margin-bottom: 0.5rem;">
-                <strong style="color: #1e293b;">📚 Research:</strong> scholar • browser • tex
-              </p>
-              <p style="font-size: 0.85rem; color: #64748b; line-height: 1.8;">
-                <strong style="color: #1e293b;">🛠️ Utils:</strong> decorators • rng • resource • dict • str
-              </p>
-            </div>
+            <ul style="color: #64748b; line-height: 2; list-style: none; padding: 0; font-size: 1rem;">
+              <li style="margin-bottom: 0.8rem;"><strong style="color: #1e293b;">Session Management</strong><br>
+                <span style="font-size: 0.9rem;">Auto-organized outputs with RUNNING/FINISHED_SUCCESS/ERROR structure</span>
+              </li>
+              <li style="margin-bottom: 0.8rem;"><strong style="color: #1e293b;">Universal I/O</strong><br>
+                <span style="font-size: 0.9rem;">30+ formats supported: CSV, JSON, HDF5, Zarr, pickle, Excel with auto-detection</span>
+              </li>
+              <li style="margin-bottom: 0.8rem;"><strong style="color: #1e293b;">Statistical Testing</strong><br>
+                <span style="font-size: 0.9rem;">23 parametric/non-parametric tests, effect sizes, power analysis, 9 export formats</span>
+              </li>
+              <li style="margin-bottom: 0.8rem;"><strong style="color: #1e293b;">ML & AI Unified</strong><br>
+                <span style="font-size: 0.9rem;">PyTorch training utilities, GenAI (7 providers), cost tracking, classification tools</span>
+              </li>
+              <li style="margin-bottom: 0.8rem;"><strong style="color: #1e293b;">40+ Research Modules</strong><br>
+                <span style="font-size: 0.9rem;">DSP, plots, scholar, browser, decorators, logging, and more</span>
+              </li>
+            </ul>
           </div>
         </div>
       </div>
@@ -167,11 +164,11 @@
             </ul>
           </div>
           <div style="background: transparent; border-radius: 12px; padding: 1rem;">
-            <div style="position: relative; width: 100%; padding-bottom: 56.25%; overflow: hidden; border-radius: 8px; background: #f8f9fa; display: flex; align-items: center; justify-content: center;">
-              <div style="position: absolute; text-align: center; color: #64748b;">
-                <i class="fas fa-video" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;"></i>
-                <p>Demo video coming soon</p>
-              </div>
+            <div style="position: relative; width: 100%; padding-bottom: 56.25%; overflow: hidden; border-radius: 8px;">
+              <video autoplay loop muted playsinline controls style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 8px;">
+                <source src="{% static 'videos/viz-demo.mp4' %}" type="video/mp4">
+                Your browser does not support the video tag.
+              </video>
             </div>
             <div style="text-align: center; margin-top: 1rem;">
               <h4 style="color: #1e293b; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
