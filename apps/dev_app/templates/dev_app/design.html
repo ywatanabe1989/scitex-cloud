@@ -112,6 +112,24 @@
   <h1 class="display-4 mb-4">SciTeX Design System</h1>
   <p class="lead mb-5">This design system provides guidelines, components, and patterns to ensure consistency across the SciTeX platform.</p>
 
+  <!-- Quick Navigation with Filter -->
+  <div class="alert alert-info" style="position: sticky; top: 80px; z-index: 100; background: white; border: 2px solid #0366d6; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+      <h5 style="margin: 0;"><i class="fas fa-compass"></i> Quick Navigation</h5>
+      <button id="show-all-btn" class="btn btn-sm btn-secondary" onclick="showAllSections()">Show All</button>
+    </div>
+    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+      <button onclick="showSection('colors')" class="btn btn-sm btn-outline-primary section-btn">Colors</button>
+      <button onclick="showSection('typography')" class="btn btn-sm btn-outline-primary section-btn">Typography</button>
+      <button onclick="showSection('components')" class="btn btn-sm btn-outline-primary section-btn">Components</button>
+      <button onclick="showSection('spacing')" class="btn btn-sm btn-outline-primary section-btn">Spacing</button>
+      <button onclick="showSection('css-variables')" class="btn btn-sm btn-outline-primary section-btn">CSS Variables</button>
+      <button onclick="showSection('guidelines')" class="btn btn-sm btn-outline-primary section-btn">Guidelines</button>
+      <button onclick="showSection('module-icons')" class="btn btn-sm btn-primary section-btn"><i class="fas fa-icons"></i> Module Icons</button>
+      <button onclick="showSection('hero-designs')" class="btn btn-sm btn-outline-primary section-btn">Hero Designs</button>
+    </div>
+  </div>
+
   <!-- Colors -->
   <section class="design-section" id="colors">
     <h2>Color Palette</h2>
