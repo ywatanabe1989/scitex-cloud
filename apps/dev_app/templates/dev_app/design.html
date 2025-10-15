@@ -1177,3 +1177,60 @@
 </style>
 
 {% endblock %}
+
+{% block extra_js %}
+<script>
+// Section filtering for design system
+function showSection(sectionId) {
+  // Hide all sections
+  document.querySelectorAll('.design-section').forEach(section => {
+    section.style.display = 'none';
+  });
+
+  // Show selected section
+  const targetSection = document.getElementById(sectionId);
+  if (targetSection) {
+    targetSection.style.display = 'block';
+    targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // Update button states
+  document.querySelectorAll('.section-btn').forEach(btn => {
+    btn.classList.remove('btn-primary', 'btn-success');
+    btn.classList.add('btn-outline-primary');
+  });
+  event.target.classList.remove('btn-outline-primary');
+  event.target.classList.add('btn-success');
+
+  // Update show all button
+  document.getElementById('show-all-btn').textContent = 'Show All';
+}
+
+function showAllSections() {
+  // Show all sections
+  document.querySelectorAll('.design-section').forEach(section => {
+    section.style.display = 'block';
+  });
+
+  // Reset button states
+  document.querySelectorAll('.section-btn').forEach(btn => {
+    btn.classList.remove('btn-success');
+    btn.classList.add('btn-outline-primary');
+  });
+
+  // Update show all button
+  document.getElementById('show-all-btn').textContent = '✓ Showing All';
+
+  // Scroll to top
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// On page load, show only Colors section by default
+document.addEventListener('DOMContentLoaded', function() {
+  showSection('colors');
+  // Manually set the colors button as active
+  document.querySelector('[onclick*="colors"]').classList.remove('btn-outline-primary');
+  document.querySelector('[onclick*="colors"]').classList.add('btn-success');
+});
+</script>
+{% endblock %}
