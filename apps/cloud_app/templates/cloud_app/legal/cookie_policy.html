@@ -1,0 +1,291 @@
+{% extends "global_base.html" %}
+
+{% load static %}
+
+{% block title %}Cookie Policy - SciTeX{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/landing.css' %}">
+
+<style>
+  .policy-section {
+    padding: var(--spacing-xxl) 0;
+  }
+
+  .policy-container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .policy-content {
+    background-color: white;
+    border-radius: var(--border-radius);
+    padding: var(--spacing-xl);
+    box-shadow: var(--box-shadow-sm);
+  }
+
+  .policy-content h2 {
+    color: var(--primary-color);
+    margin-top: var(--spacing-xl);
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-xs);
+    border-bottom: 1px solid var(--light-gray);
+  }
+
+  .policy-content h2:first-child {
+    margin-top: 0;
+  }
+
+  .policy-content h3 {
+    color: var(--primary-color);
+    margin-top: var(--spacing-lg);
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .policy-content p {
+    margin-bottom: var(--spacing-md);
+  }
+
+  .policy-content ul,
+  .policy-content ol {
+    margin-bottom: var(--spacing-md);
+    padding-left: 2rem;
+  }
+
+  .policy-content li {
+    margin-bottom: var(--spacing-xs);
+  }
+
+  .policy-content a {
+    color: var(--secondary-color);
+    text-decoration: none;
+  }
+
+  .policy-content a:hover {
+    text-decoration: underline;
+  }
+
+  .policy-content .highlight {
+    background-color: rgba(52, 152, 219, 0.1);
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius);
+    margin: var(--spacing-lg) 0;
+  }
+
+  .policy-meta {
+    text-align: center;
+    margin-top: var(--spacing-lg);
+    color: var(--text-light);
+    font-size: 0.9rem;
+  }
+
+  .cookie-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: var(--spacing-lg) 0;
+  }
+
+  .cookie-table th,
+  .cookie-table td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #dee2e6;
+  }
+
+  .cookie-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: var(--primary-color);
+  }
+
+  .cookie-table tr:hover {
+    background-color: #f8f9fa;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+  <section class="hero">
+    <div class="container">
+      <div class="hero-content">
+        <h1 class="hero-title">Cookie Policy</h1>
+        <p class="hero-description">Understanding how we use cookies to improve your experience</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="policy-section">
+    <div class="container policy-container">
+      <div class="policy-content">
+        <article>
+          <h2 id="introduction">About This Cookie Policy</h2>
+          <p>This Cookie Policy explains how SciTeX ("we", "us", and "our") uses cookies and similar technologies to recognize you when you visit our website at <a href="https://scitex.ai">https://scitex.ai</a>. It explains what these technologies are and why we use them, as well as your rights to control our use of them.</p>
+
+          <div class="highlight" role="note" aria-label="Important information about cookie policy coverage">
+            <p>This Cookie Policy applies to the SciTeX platform and all related services, including SciTeX Cloud, SciTeX Code, SciTeX Scholar, SciTeX Writer, and SciTeX Viz.</p>
+          </div>
+
+          <h2 id="what-are-cookies">What Are Cookies?</h2>
+          <p>Cookies are small data files that are placed on your computer or mobile device when you visit a website. Cookies are widely used by website owners to make their websites work efficiently and provide reporting information.</p>
+
+          <p>Cookies set by the website owner (in this case, SciTeX) are called "first-party cookies." Cookies set by parties other than the website owner are called "third-party cookies." Third-party cookies enable third-party features or functionality to be provided on or through the website.</p>
+
+          <h2 id="types-of-cookies">Types of Cookies We Use</h2>
+          <ul>
+            <li><strong>Essential Cookies:</strong> These cookies are necessary for the website to function and cannot be switched off in our systems. They are usually only set in response to actions made by you which amount to a request for services, such as setting your privacy preferences, logging in, or filling in forms.</li>
+            <li><strong>Performance Cookies:</strong> These cookies allow us to count visits and traffic sources so we can measure and improve the performance of our site. They help us to know which pages are the most and least popular and see how visitors move around the site.</li>
+            <li><strong>Functionality Cookies:</strong> These cookies enable the website to provide enhanced functionality and personalization. They may be set by us or by third-party providers whose services we have added to our pages.</li>
+            <li><strong>Targeting Cookies:</strong> These cookies may be set through our site by our advertising partners. They may be used by those companies to build a profile of your interests and show you relevant advertisements on other sites.</li>
+          </ul>
+
+          <h2 id="cookies-we-use">Cookies We Use</h2>
+          <p>The specific cookies we use on the SciTeX platform include:</p>
+
+          <table class="cookie-table">
+            <thead>
+              <tr>
+                <th>Cookie Name</th>
+                <th>Type</th>
+                <th>Purpose</th>
+                <th>Duration</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>sessionid</td>
+                <td>Essential</td>
+                <td>Used to identify your session and maintain login status</td>
+                <td>Session</td>
+              </tr>
+              <tr>
+                <td>csrftoken</td>
+                <td>Essential</td>
+                <td>Helps protect against Cross-Site Request Forgery attacks</td>
+                <td>Session</td>
+              </tr>
+              <tr>
+                <td>preferences</td>
+                <td>Functionality</td>
+                <td>Stores your site preferences and settings</td>
+                <td>1 year</td>
+              </tr>
+              <tr>
+                <td>_ga</td>
+                <td>Performance</td>
+                <td>Google Analytics cookie used to distinguish users</td>
+                <td>2 years</td>
+              </tr>
+              <tr>
+                <td>_gid</td>
+                <td>Performance</td>
+                <td>Google Analytics cookie used to distinguish users</td>
+                <td>24 hours</td>
+              </tr>
+              <tr>
+                <td>_gat</td>
+                <td>Performance</td>
+                <td>Google Analytics cookie used to throttle request rate</td>
+                <td>1 minute</td>
+              </tr>
+              <tr>
+                <td>remember_login</td>
+                <td>Functionality</td>
+                <td>Remembers if you checked "Remember me" at login</td>
+                <td>30 days</td>
+              </tr>
+              <tr>
+                <td>recently_viewed</td>
+                <td>Functionality</td>
+                <td>Tracks recently viewed research papers and content</td>
+                <td>30 days</td>
+              </tr>
+              <tr>
+                <td>cookie_consent</td>
+                <td>Essential</td>
+                <td>Records your cookie consent preferences</td>
+                <td>1 year</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h2 id="how-we-use-cookies">How We Use Cookies</h2>
+          <p>We use cookies for the following purposes:</p>
+
+          <h3>Authentication and Security</h3>
+          <p>We use cookies to identify you when you visit our website and as you navigate our platform, and to help us determine if you are logged in. This assists us in providing you with a better experience and improving the security of our services.</p>
+
+          <h3>Personalization</h3>
+          <p>We use cookies to store information about your preferences and to personalize the platform for you, including remembering your preferred dark/light mode, language preferences, and custom dashboard layouts.</p>
+
+          <h3>Analytics and Research</h3>
+          <p>Cookies help us understand how visitors interact with our platform. We can use this information to analyze and measure how visitors use our services so we can improve them and develop new features.</p>
+
+          <h3>Research Functionality</h3>
+          <p>We use cookies to enhance your research experience, including tracking your reading history, saving your search queries, and providing appropriate research recommendations based on your interests.</p>
+
+          <h2 id="cookie-controls">Your Cookie Choices and Control</h2>
+          <p>You have the right to decide whether to accept or reject cookies. You can exercise your cookie preferences by using the controls in your web browser.</p>
+
+          <h3>Browser Controls</h3>
+          <p>Most browsers allow you to control cookies through their settings preferences. However, if you limit the ability of websites to set cookies, you may impact your overall user experience. Below you can find instructions on how to manage cookies in popular browsers:</p>
+
+          <h4>Google Chrome</h4>
+          <ol>
+            <li>Click the menu icon (3 dots) in the browser's top-right corner</li>
+            <li>Select "Settings"</li>
+            <li>Click "Privacy and security" in the left sidebar</li>
+            <li>Click "Cookies and other site data"</li>
+            <li>Adjust your cookie settings as needed</li>
+          </ol>
+
+          <h4>Mozilla Firefox</h4>
+          <ol>
+            <li>Click the menu button (3 lines) in the top-right corner</li>
+            <li>Select "Options" (Windows) or "Preferences" (Mac)</li>
+            <li>Select "Privacy & Security" from the left menu</li>
+            <li>Scroll to the "Cookies and Site Data" section</li>
+            <li>Adjust your cookie settings as needed</li>
+          </ol>
+
+          <h4>Safari</h4>
+          <ol>
+            <li>Click "Safari" in the top menu bar</li>
+            <li>Select "Preferences"</li>
+            <li>Click the "Privacy" tab</li>
+            <li>Adjust your cookie settings under "Cookies and website data"</li>
+          </ol>
+
+          <h4>Microsoft Edge</h4>
+          <ol>
+            <li>Click the menu button (3 dots) in the top-right corner</li>
+            <li>Select "Settings"</li>
+            <li>Click "Cookies and site permissions"</li>
+            <li>Click "Manage and delete cookies and site data"</li>
+            <li>Adjust your cookie settings as needed</li>
+          </ol>
+
+          <h2 id="changes">Changes to This Cookie Policy</h2>
+          <p>We may update this Cookie Policy from time to time to reflect changes in technology, regulation, or our business practices. Any changes will be posted on this page with an updated revision date. If we make significant changes, we will notify you either through email or by a prominent notice on our platform prior to the change becoming effective.</p>
+
+          <h2 id="contact">Contact Us</h2>
+          <p>If you have any questions about our use of cookies or this Cookie Policy, please contact us at:</p>
+          <address>
+            SciTeX<br>
+            Attn: Privacy Officer<br>
+            123 Science Park<br>
+            San Francisco, CA 94107<br>
+            Email: <a href="mailto:privacy@scitex.ai" aria-label="Email our Privacy Officer at privacy@scitex.ai">privacy@scitex.ai</a>
+          </address>
+
+          <div class="highlight" role="note" style="margin-top: var(--spacing-lg);">
+            <p>For more information about our data handling practices, please read our <a href="{% url 'cloud_app:privacy' %}">Privacy Policy</a> and <a href="{% url 'cloud_app:terms' %}">Terms of Use</a>.</p>
+          </div>
+        </article>
+      </div>
+
+      <div class="policy-meta">
+        <p><strong>Last Updated:</strong> <time datetime="2025-05-21">May 21, 2025</time></p>
+      </div>
+    </div>
+  </section>
+{% endblock %}

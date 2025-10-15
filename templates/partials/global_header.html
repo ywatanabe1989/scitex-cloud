@@ -16,28 +16,28 @@
         </li>
         
         <li class="nav-button-item">
-          <a href="/scholar/" class="btn btn-sm btn-outline-primary nav-btn {% if request.path == '/scholar/' %}active{% endif %}" aria-current="{% if request.path == '/scholar/' %}page{% endif %}">
+          <a href="{% if request.path == '/' %}#ecosystem{% else %}/scholar/{% endif %}" class="btn btn-sm btn-outline-primary nav-btn {% if request.path == '/scholar/' %}active{% endif %}" aria-current="{% if request.path == '/scholar/' %}page{% endif %}">
             <img src="{% static 'images/scitex-search-icon.svg' %}" alt="" width="20" height="20" class="nav-icon">
             Scholar
           </a>
         </li>
         
         <li class="nav-button-item">
-          <a href="/code/" class="btn btn-sm btn-outline-primary nav-btn {% if request.path == '/code/' %}active{% endif %}" aria-current="{% if request.path == '/code/' %}page{% endif %}">
+          <a href="{% if request.path == '/' %}#ecosystem{% else %}/code/{% endif %}" class="btn btn-sm btn-outline-primary nav-btn {% if request.path == '/code/' %}active{% endif %}" aria-current="{% if request.path == '/code/' %}page{% endif %}">
             <img src="{% static 'images/scitex-code-icon.svg' %}" alt="" width="20" height="20" class="nav-icon">
             Code
           </a>
         </li>
         
         <li class="nav-button-item">
-          <a href="/viz/" class="btn btn-sm btn-outline-primary nav-btn {% if request.path == '/viz/' %}active{% endif %}" aria-current="{% if request.path == '/viz/' %}page{% endif %}">
+          <a href="{% if request.path == '/' %}#ecosystem{% else %}/viz/{% endif %}" class="btn btn-sm btn-outline-primary nav-btn {% if request.path == '/viz/' %}active{% endif %}" aria-current="{% if request.path == '/viz/' %}page{% endif %}">
             <img src="{% static 'images/scitex-viz-icon.svg' %}" alt="" width="20" height="20" class="nav-icon">
             Viz
           </a>
         </li>
         
         <li class="nav-button-item">
-          <a href="/writer/" class="btn btn-sm btn-outline-primary nav-btn {% if request.path == '/writer/' %}active{% endif %}" aria-current="{% if request.path == '/writer/' %}page{% endif %}">
+          <a href="{% if request.path == '/' %}#ecosystem{% else %}/writer/{% endif %}" class="btn btn-sm btn-outline-primary nav-btn {% if request.path == '/writer/' %}active{% endif %}" aria-current="{% if request.path == '/writer/' %}page{% endif %}">
             <img src="{% static 'images/scitex-doc-icon.svg' %}" alt="" width="20" height="20" class="nav-icon">
             Writer
           </a>
@@ -51,7 +51,7 @@
         </li>
 
         <li class="dropdown">
-          <a href="#" class="dropdown-toggle" aria-expanded="false" aria-haspopup="true">For developers</a>
+          <a href="#" class="dropdown-toggle" aria-expanded="false" aria-haspopup="true">For Contributors</a>
           <div class="dropdown-menu">
             <a href="{% url 'cloud_app:api-docs' %}" class="dropdown-item">API Documentation</a>
             <a href="{% url 'dev_app:design' %}" class="dropdown-item">Design System</a>
