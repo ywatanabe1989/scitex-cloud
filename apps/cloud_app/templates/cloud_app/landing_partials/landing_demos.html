@@ -108,11 +108,11 @@
       <div style="max-width: 1200px; margin: 3rem auto 0;">
         <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: center;">
           <div style="background: transparent; border-radius: 12px; padding: 1rem;">
-            <div style="position: relative; width: 100%; padding-bottom: 56.25%; overflow: hidden; border-radius: 8px; background: #f8f9fa; display: flex; align-items: center; justify-content: center;">
-              <div style="position: absolute; text-align: center; color: #64748b;">
-                <i class="fas fa-video" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;"></i>
-                <p>Demo video coming soon</p>
-              </div>
+            <div style="position: relative; width: 100%; padding-bottom: 56.25%; overflow: hidden; border-radius: 8px;">
+              <video autoplay loop muted playsinline controls style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 8px;">
+                <source src="{% static 'videos/code-demo.mp4' %}" type="video/mp4">
+                Your browser does not support the video tag.
+              </video>
             </div>
             <div style="text-align: center; margin-top: 1rem;">
               <h4 style="color: #1e293b; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
