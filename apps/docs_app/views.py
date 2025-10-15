@@ -99,6 +99,16 @@ def _serve_module_docs(request, module, page="index.html"):
     doc_base = Path(settings.BASE_DIR) / DOC_PATHS[module]
     doc_file = doc_base / page
 
+    # If docs not built, redirect to GitHub README
+    if not doc_base.exists() or not doc_file.exists():
+        github_urls = {
+            "scholar": "https://github.com/ywatanabe1989/SciTeX-Code/tree/main/src/scitex/scholar#readme",
+            "code": "https://github.com/ywatanabe1989/SciTeX-Code#readme",
+            "viz": "https://github.com/ywatanabe1989/SciTeX-Viz#readme",
+            "writer": "https://github.com/ywatanabe1989/SciTeX-Writer#readme",
+        }
+        return redirect(github_urls.get(module, "https://github.com/SciTeX-AI"))
+
     # Security: ensure the path is within the documentation directory
     try:
         doc_file = doc_file.resolve()
@@ -107,10 +117,6 @@ def _serve_module_docs(request, module, page="index.html"):
             raise Http404("Invalid documentation path")
     except (ValueError, OSError):
         raise Http404("Invalid documentation path")
-
-    # Check if file exists
-    if not doc_file.exists():
-        raise Http404(f"Documentation page not found: {page}")
 
     # Read and serve the file
     if doc_file.suffix == ".html":
