@@ -1,0 +1,112 @@
+{% extends 'cloud_app/cloud_base.html' %}
+
+{% load static %}
+
+{% block title %}{{ module_name }} Documentation - SciTeX{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Documentation container styles */
+.docs-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.docs-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+}
+
+.docs-content {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Sphinx documentation styles */
+.docs-content .document {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+}
+
+.docs-content h1,
+.docs-content h2,
+.docs-content h3,
+.docs-content h4 {
+    color: #1e293b;
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+}
+
+.docs-content code {
+    background: #f8f9fa;
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    font-size: 0.9em;
+}
+
+.docs-content pre {
+    background: #1e293b;
+    color: #e2e8f0;
+    padding: 1rem;
+    border-radius: 6px;
+    overflow-x: auto;
+}
+
+.docs-content a {
+    color: #667eea;
+    text-decoration: none;
+}
+
+.docs-content a:hover {
+    text-decoration: underline;
+}
+
+.docs-breadcrumb {
+    background: transparent;
+    padding: 0;
+    margin-bottom: 1rem;
+}
+
+.docs-breadcrumb a {
+    color: #64748b;
+}
+
+.docs-breadcrumb a:hover {
+    color: #1e293b;
+}
+</style>
+{% endblock %}
+
+{% block cloud_content %}
+<div class="docs-container">
+    <!-- Header -->
+    <div class="docs-header">
+        <nav aria-label="breadcrumb" class="docs-breadcrumb">
+            <ol class="breadcrumb text-white-50">
+                <li class="breadcrumb-item"><a href="{% url 'docs:index' %}" class="text-white">Documentation</a></li>
+                <li class="breadcrumb-item active text-white" aria-current="page">{{ module_name }}</li>
+            </ol>
+        </nav>
+        <h1 class="display-5 mb-0">SciTeX {{ module_name }}</h1>
+    </div>
+
+    <!-- Documentation Content -->
+    <div class="docs-content">
+        {{ doc_content|safe }}
+    </div>
+
+    <!-- Back to Top -->
+    <div class="text-center mt-4">
+        <a href="#top" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-up me-2"></i>Back to Top
+        </a>
+    </div>
+</div>
+{% endblock %}
