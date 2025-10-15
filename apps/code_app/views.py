@@ -6,7 +6,7 @@ from django.core.paginator import Paginator
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 from .models import CodeExecutionJob, DataAnalysisJob, Notebook, ResourceUsage
-from apps.api.utils import execute_code_safely, generate_analysis_code
+# from apps.api  # Removed - api app not installed.utils import execute_code_safely, generate_analysis_code
 import json
 import threading
 
