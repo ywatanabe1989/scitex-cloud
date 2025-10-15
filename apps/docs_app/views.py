@@ -10,11 +10,12 @@ import os
 
 
 # Documentation paths for each module
+# Note: code/scholar are in scitex_repo at repo root level, not in src/scitex
 DOC_PATHS = {
-    "scholar": "externals/SciTeX-Scholar/docs/_build/html",
-    "code": "externals/SciTeX-Code/docs/_build/html",
-    "viz": "externals/SciTeX-Viz/docs/_build/html",
-    "writer": "externals/SciTeX-Writer/docs/_build/html",
+    "scholar": "../scitex_repo/docs/_build/html",  # scholar docs in main scitex repo
+    "code": "../scitex_repo/docs/_build/html",      # code docs in main scitex repo
+    "viz": "../win/documents/SciTeX-Viz/docs/_build/html",
+    "writer": "../neurovista/paper/docs/_build/html",
 }
 
 

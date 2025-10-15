@@ -169,6 +169,18 @@ Documentation links have been added to the landing page demo section:
 
 Location: `apps/cloud_app/templates/cloud_app/landing_partials/landing_demos.html`
 
+## Template Structure
+
+The docs_app uses `global_base.html` as the base template, which provides:
+- Global header with navigation
+- Global footer
+- Meta tags and SEO
+- Bootstrap and FontAwesome integration
+
+Templates:
+- `docs_app/docs_index.html` - Documentation landing page (extends `global_base.html`)
+- `docs_app/docs_page.html` - Documentation content wrapper (extends `global_base.html`)
+
 ## Troubleshooting
 
 ### Documentation not found

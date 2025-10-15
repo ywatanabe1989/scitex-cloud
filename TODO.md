@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-15 20:38:56
+!-- Timestamp: 2025-10-16 03:36:05
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/TODO.md
 !-- --- -->
@@ -14,6 +14,7 @@
 
 ```
 SCITEX_SCHOLAR="$HOME/proj/scitex_repo/src/scitex/scholar"
+# https://github.com/ywatanabe1989/scitex
 SCITEX_WRITER="$HOME/proj/neurovista/paper"
 SCITEX_CODE="$HOME/proj/scitex_repo/src/scitex"
 SCITEX_VIZ="$HOME/win/documents/SciTeX-Viz"
