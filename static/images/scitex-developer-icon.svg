@@ -1,27 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Developer terminal window -->
-  <rect x="8" y="12" width="48" height="40" rx="4" stroke="#4a6baf" stroke-width="2.5" fill="#1a2332" fill-opacity="0.9"/>
+  <!-- Wrench handle -->
+  <rect x="18" y="38" width="8" height="20" rx="2" fill="#4a6baf" stroke="#4a6baf" stroke-width="2"/>
 
-  <!-- Terminal header bar -->
-  <rect x="8" y="12" width="48" height="7" rx="4" fill="#34495e"/>
+  <!-- Wrench head (open end) -->
+  <path d="M14 32 L14 38 L30 38 L30 32 L26 32 L26 28 L18 28 L18 32 Z" fill="#4a6baf" stroke="#4a6baf" stroke-width="2"/>
 
-  <!-- Window control dots -->
-  <circle cx="13" cy="15.5" r="1.2" fill="#ff6b6b"/>
-  <circle cx="18" cy="15.5" r="1.2" fill="#ffd93d"/>
-  <circle cx="23" cy="15.5" r="1.2" fill="#6bcf7f"/>
+  <!-- Wrench opening gap -->
+  <rect x="18" y="28" width="8" height="4" fill="#f0f5ff"/>
 
-  <!-- Terminal prompt symbol ">" -->
-  <path d="M14 26L20 30L14 34" stroke="#6bcf7f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Tool highlight/shine -->
+  <rect x="20" y="40" width="2" height="14" rx="1" fill="white" fill-opacity="0.3"/>
 
-  <!-- Code cursor/underscore -->
-  <rect x="24" y="32" width="8" height="2" rx="1" fill="#6bcf7f"/>
-
-  <!-- Code lines (subtle) -->
-  <rect x="14" y="40" width="18" height="1.5" rx="0.75" fill="#8fa4b0" fill-opacity="0.4"/>
-  <rect x="14" y="44" width="24" height="1.5" rx="0.75" fill="#8fa4b0" fill-opacity="0.4"/>
-
-  <!-- Developer symbol - angled brackets with code -->
-  <path d="M36 24L42 30L36 36" stroke="#6bcf7f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/>
-  <path d="M48 24L42 30L48 36" stroke="#6bcf7f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/>
+  <!-- Bolt/nut being worked on (subtle background element) -->
+  <circle cx="42" cy="20" r="8" fill="none" stroke="#90b1e2" stroke-width="2" opacity="0.4"/>
+  <path d="M42 12 L42 28 M34 20 L50 20" stroke="#90b1e2" stroke-width="2" opacity="0.4"/>
 </svg>
