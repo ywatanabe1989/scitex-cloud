@@ -1,0 +1,410 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ file_name }} - {{ project.name }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/common/buttons.css' %}">
+<style>
+/* GitHub-style file viewer with dark mode support */
+.repo-header {
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--color-border-default);
+}
+
+.repo-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-accent-fg);
+    text-decoration: none;
+}
+
+.file-header {
+    background: var(--color-canvas-subtle);
+    border: none;
+    padding: 0.75rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.file-info {
+    font-size: 0.875rem;
+    color: var(--color-fg-muted);
+}
+
+.file-container {
+    border: none;
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+.file-content {
+    background: var(--color-canvas-default);
+    padding: 0;
+    overflow-x: auto;
+    border: none;
+}
+
+.file-content pre {
+    margin: 0;
+    padding: 0;
+    background: none;
+    font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--color-fg-default);
+}
+
+.file-content code {
+    background: none;
+    padding: 0;
+    color: var(--color-fg-default);
+}
+
+/* Markdown rendering */
+.markdown-body {
+    padding: 2rem;
+    line-height: 1.6;
+    color: var(--color-fg-default);
+}
+
+.markdown-body h1 {
+    font-size: 2em;
+    border-bottom: 1px solid var(--color-border-default);
+    padding-bottom: 0.3em;
+    margin-bottom: 1em;
+    color: var(--color-fg-default);
+}
+
+.markdown-body h2 {
+    font-size: 1.5em;
+    border-bottom: 1px solid var(--color-border-default);
+    padding-bottom: 0.3em;
+    margin-top: 1.5em;
+    margin-bottom: 1em;
+    color: var(--color-fg-default);
+}
+
+.markdown-body code {
+    background: var(--color-canvas-subtle);
+    padding: 0.2em 0.4em;
+    border-radius: 6px;
+    font-family: ui-monospace, monospace;
+    font-size: 85%;
+    color: var(--color-fg-default);
+}
+
+.markdown-body pre {
+    background: var(--color-canvas-subtle);
+    padding: 1rem;
+    border-radius: 6px;
+    overflow-x: auto;
+}
+
+.markdown-body pre code {
+    background: none;
+    padding: 0;
+}
+
+/* Syntax highlighting (Pygments) - Light mode */
+.highlight {
+    font-size: 13px;
+    background: var(--color-canvas-default);
+    border: none;
+}
+
+.highlight table {
+    border-spacing: 0;
+    width: 100%;
+    border: none;
+}
+
+.highlight .linenos {
+    background: var(--color-canvas-subtle);
+    color: var(--color-fg-muted);
+    padding: 0 1rem;
+    text-align: right;
+    user-select: none;
+    border-right: 1px solid var(--color-border-default);
+    vertical-align: top;
+}
+
+.highlight .code {
+    padding-left: 1rem;
+    width: 100%;
+}
+
+.highlight pre {
+    margin: 0;
+    padding: 0;
+}
+
+/* Pygments syntax colors - Light mode */
+:root {
+    --syntax-bg: var(--color-canvas-default);
+    --syntax-comment: #6a737d;
+    --syntax-error: #f97583;
+    --syntax-keyword: #d73a49;
+    --syntax-text: #24292e;
+    --syntax-number: #005cc5;
+    --syntax-string: #032f62;
+    --syntax-class: #6f42c1;
+    --syntax-function: #6f42c1;
+    --syntax-tag: #22863a;
+    --syntax-variable: #e36209;
+}
+
+/* Dark mode syntax colors */
+[data-theme="dark"] {
+    --syntax-bg: var(--color-canvas-default);
+    --syntax-comment: #8b949e;
+    --syntax-error: #ff7b72;
+    --syntax-keyword: #ff7b72;
+    --syntax-text: #c9d1d9;
+    --syntax-number: #79c0ff;
+    --syntax-string: #a5d6ff;
+    --syntax-class: #d2a8ff;
+    --syntax-function: #d2a8ff;
+    --syntax-tag: #7ee787;
+    --syntax-variable: #ffa657;
+}
+
+.highlight { background: var(--syntax-bg); }
+.highlight .hll { background-color: rgba(255, 255, 204, 0.3) }
+.highlight .c { color: var(--syntax-comment); font-style: italic } /* Comment */
+.highlight .err { color: var(--syntax-error) } /* Error */
+.highlight .k { color: var(--syntax-keyword); font-weight: bold } /* Keyword */
+.highlight .o { color: var(--syntax-text) } /* Operator */
+.highlight .p { color: var(--syntax-text) } /* Punctuation */
+.highlight .cm { color: var(--syntax-comment); font-style: italic } /* Comment.Multiline */
+.highlight .cp { color: var(--syntax-comment); font-style: italic } /* Comment.Preproc */
+.highlight .c1 { color: var(--syntax-comment); font-style: italic } /* Comment.Single */
+.highlight .cs { color: var(--syntax-comment); font-style: italic } /* Comment.Special */
+.highlight .kc { color: var(--syntax-number) } /* Keyword.Constant */
+.highlight .kd { color: var(--syntax-keyword) } /* Keyword.Declaration */
+.highlight .kn { color: var(--syntax-keyword) } /* Keyword.Namespace */
+.highlight .kp { color: var(--syntax-keyword) } /* Keyword.Pseudo */
+.highlight .kr { color: var(--syntax-keyword) } /* Keyword.Reserved */
+.highlight .kt { color: var(--syntax-keyword) } /* Keyword.Type */
+.highlight .m { color: var(--syntax-number) } /* Literal.Number */
+.highlight .s { color: var(--syntax-string) } /* Literal.String */
+.highlight .na { color: var(--syntax-text) } /* Name.Attribute */
+.highlight .nb { color: var(--syntax-number) } /* Name.Builtin */
+.highlight .nc { color: var(--syntax-class) } /* Name.Class */
+.highlight .no { color: var(--syntax-number) } /* Name.Constant */
+.highlight .nd { color: var(--syntax-class) } /* Name.Decorator */
+.highlight .ni { color: var(--syntax-text) } /* Name.Entity */
+.highlight .ne { color: var(--syntax-class) } /* Name.Exception */
+.highlight .nf { color: var(--syntax-function) } /* Name.Function */
+.highlight .nl { color: var(--syntax-text) } /* Name.Label */
+.highlight .nn { color: var(--syntax-text) } /* Name.Namespace */
+.highlight .nt { color: var(--syntax-tag) } /* Name.Tag */
+.highlight .nv { color: var(--syntax-variable) } /* Name.Variable */
+.highlight .ow { color: var(--syntax-keyword) } /* Operator.Word */
+.highlight .mb { color: var(--syntax-number) } /* Literal.Number.Bin */
+.highlight .mf { color: var(--syntax-number) } /* Literal.Number.Float */
+.highlight .mh { color: var(--syntax-number) } /* Literal.Number.Hex */
+.highlight .mi { color: var(--syntax-number) } /* Literal.Number.Integer */
+.highlight .mo { color: var(--syntax-number) } /* Literal.Number.Oct */
+.highlight .sb { color: var(--syntax-string) } /* Literal.String.Backtick */
+.highlight .sc { color: var(--syntax-string) } /* Literal.String.Char */
+.highlight .sd { color: var(--syntax-string) } /* Literal.String.Doc */
+.highlight .s2 { color: var(--syntax-string) } /* Literal.String.Double */
+.highlight .se { color: var(--syntax-string) } /* Literal.String.Escape */
+.highlight .sh { color: var(--syntax-string) } /* Literal.String.Heredoc */
+.highlight .si { color: var(--syntax-string) } /* Literal.String.Interpol */
+.highlight .sx { color: var(--syntax-string) } /* Literal.String.Other */
+.highlight .sr { color: var(--syntax-string) } /* Literal.String.Regex */
+.highlight .s1 { color: var(--syntax-string) } /* Literal.String.Single */
+.highlight .ss { color: var(--syntax-string) } /* Literal.String.Symbol */
+
+/* Plain text with line numbers */
+.line-numbers {
+    display: table;
+    width: 100%;
+}
+
+.line-numbers .line {
+    display: table-row;
+}
+
+.line-numbers .line-number {
+    display: table-cell;
+    background: var(--color-canvas-subtle);
+    color: var(--color-fg-muted);
+    padding: 0 1rem;
+    text-align: right;
+    user-select: none;
+    width: 1%;
+    border-right: 1px solid var(--color-border-default);
+}
+
+.line-numbers .line-content {
+    display: table-cell;
+    padding: 0 1rem;
+    white-space: pre;
+    color: var(--color-fg-default);
+}
+
+.btn-group .active {
+    background-color: var(--color-btn-primary-bg);
+    color: var(--color-btn-primary-text);
+    border-color: var(--color-btn-primary-border);
+}
+
+/* Force remove all borders from content areas */
+.file-content,
+.file-content *,
+.highlight,
+.highlight *,
+.file-container,
+.file-container * {
+    border-color: transparent !important;
+}
+
+/* Keep only the line number separator */
+.highlight .linenos,
+.line-numbers .line-number {
+    border-right: 1px solid var(--color-border-default) !important;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="max-width: 1280px;">
+    <!-- Repository Header with Breadcrumb -->
+    <div class="repo-header">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <a href="/{{ project.owner.username }}/" style="color: var(--color-accent-fg); text-decoration: none; font-weight: 400;">
+                {{ project.owner.username }}
+            </a>
+            <span style="color: var(--color-fg-muted);">/</span>
+            <a href="/{{ project.owner.username }}/{{ project.slug }}/" class="repo-title">
+                {{ project.name }}
+            </a>
+            {% for breadcrumb in breadcrumbs %}
+                {% if breadcrumb.name != project.name %}
+                    <span style="color: var(--color-fg-muted);">/</span>
+                    {% if breadcrumb.url %}
+                        <a href="{{ breadcrumb.url }}" style="color: var(--color-accent-fg); text-decoration: none;">
+                            {{ breadcrumb.name }}
+                        </a>
+                    {% else %}
+                        <span style="font-weight: 600; color: var(--color-fg-default);">{{ breadcrumb.name }}</span>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- File Header -->
+    <div class="file-header" style="margin-top: 1.5rem;">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <span style="font-weight: 600; color: var(--color-fg-default);">{{ file_name }} <span style="color: var(--color-fg-muted); font-weight: 400; font-size: 0.875rem;">{{ file_size|filesizeformat }}</span></span>
+            {% if render_type == 'markdown' %}
+            <div class="btn-group btn-group-sm" role="group">
+                <button type="button" class="btn btn-outline-secondary active" id="previewBtn" onclick="showPreview()">
+                    👁️ Preview
+                </button>
+                <button type="button" class="btn btn-outline-secondary" id="codeBtn" onclick="showCode()">
+                    📝 Code
+                </button>
+            </div>
+            {% endif %}
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+            <a href="/{{ project.owner.username }}/{{ project.slug }}/blob/{{ file_path }}?mode=raw" class="btn btn-sm btn-outline-secondary" download>
+                📥 Download
+            </a>
+            <button onclick="copyToClipboard()" class="btn btn-sm btn-outline-secondary">
+                📋 Copy
+            </button>
+            <a href="/{{ project.owner.username }}/{{ project.slug }}/blob/{{ file_path }}?mode=raw" class="btn btn-sm btn-outline-secondary" target="_blank">
+                🔗 Raw
+            </a>
+            {% if can_edit %}
+            <a href="/{{ project.owner.username }}/{{ project.slug }}/blob/{{ file_path }}?mode=edit" class="btn btn-sm btn-primary">
+                ✏️ Edit
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- File Content -->
+    <div class="file-container" style="border: none;">
+        {% if render_type == 'markdown' %}
+            <div id="markdownPreview" class="markdown-body">
+                {{ file_html|safe }}
+            </div>
+            <div id="markdownCode" class="file-content" style="display: none;">
+                <div class="line-numbers">
+                    {% for line in file_content.splitlines %}
+                    <div class="line">
+                        <div class="line-number">{{ forloop.counter }}</div>
+                        <div class="line-content">{{ line }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% elif render_type == 'code' %}
+            <div class="file-content">
+                {{ file_html|safe }}
+            </div>
+        {% elif render_type == 'text' %}
+            <div class="file-content">
+                <div class="line-numbers">
+                    {% for line in file_content.splitlines %}
+                    <div class="line">
+                        <div class="line-number">{{ forloop.counter }}</div>
+                        <div class="line-content">{{ line }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% elif render_type == 'image' %}
+            <div class="file-content" style="text-align: center; padding: 2rem;">
+                <img src="/media/{{ file_path }}" alt="{{ file_name }}" style="max-width: 100%; height: auto;">
+            </div>
+        {% elif render_type == 'binary' %}
+            <div class="file-content" style="text-align: center; padding: 2rem; color: var(--color-fg-muted);">
+                <i class="fas fa-file-archive fa-3x mb-3"></i>
+                <p>Binary file ({{ file_size|filesizeformat }})</p>
+                <a href="/{{ project.owner.username }}/{{ project.slug }}/raw/{{ file_path }}" class="btn btn-sm btn-primary">
+                    Download
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function copyToClipboard() {
+    const content = document.querySelector('.file-content')?.innerText ||
+                   document.querySelector('.markdown-body')?.innerText || '';
+
+    navigator.clipboard.writeText(content).then(() => {
+        const btn = event.target;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '✓ Copied!';
+        setTimeout(() => { btn.innerHTML = originalText; }, 2000);
+    }).catch(err => {
+        alert('Failed to copy: ' + err);
+    });
+}
+
+function showCode() {
+    document.getElementById('markdownPreview').style.display = 'none';
+    document.getElementById('markdownCode').style.display = 'block';
+    document.getElementById('codeBtn').classList.add('active');
+    document.getElementById('previewBtn').classList.remove('active');
+}
+
+function showPreview() {
+    document.getElementById('markdownPreview').style.display = 'block';
+    document.getElementById('markdownCode').style.display = 'none';
+    document.getElementById('codeBtn').classList.remove('active');
+    document.getElementById('previewBtn').classList.add('active');
+}
+</script>
+{% endblock %}
