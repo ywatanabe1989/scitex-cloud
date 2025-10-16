@@ -63,17 +63,29 @@ body {
   color: var(--text-color) !important; /* SciTeX 800 */
 }
 
-/* Override Bootstrap button colors to ensure text uses SciTeX 800 where appropriate */
+/* Override Bootstrap button colors - Theme-aware */
 .btn-outline-primary,
 .btn-outline-secondary,
 .btn-outline-dark {
-  color: var(--text-color) !important;
+  color: var(--scitex-color-02) !important;  /* Medium bluish gray for good contrast */
+  border-color: var(--scitex-color-03) !important;  /* Darker border for visibility */
+  background: transparent !important;
 }
 
 .btn-outline-primary:hover,
 .btn-outline-secondary:hover,
 .btn-outline-dark:hover {
   color: var(--white) !important;
+  background: var(--scitex-color-02) !important;
+  border-color: var(--scitex-color-02) !important;
+}
+
+[data-theme="dark"] .btn-outline-primary,
+[data-theme="dark"] .btn-outline-secondary,
+[data-theme="dark"] .btn-outline-dark {
+  color: var(--scitex-color-06) !important;  /* Light bluish for dark mode */
+  border-color: var(--scitex-color-04) !important;  /* Medium border for visibility */
+  background: transparent !important;
 }
 
 /* Ensure form controls use SciTeX 800 for text */
