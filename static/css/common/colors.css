@@ -1,0 +1,207 @@
+/* SciTeX Color System - Bluish Dark Gray Brand Colors */
+
+:root {
+  /* SciTeX Bluish Dark Gray Theme - Primary Brand Colors */
+  --scitex-900: #0a0f1a; /* Darkest - Near Black */
+  --scitex-800: #0f1419; /* Very Dark Bluish Gray */
+  --scitex-color-01: #1a2332; /* Dark Bluish Gray (Primary) */
+  --scitex-color-01-rgb: 26, 35, 50;
+  --scitex-color-01-light: #2d3748;
+  --scitex-color-01-dark: #0f1419;
+
+  --scitex-color-02: #34495e; /* Medium Bluish Gray */
+  --scitex-color-02-rgb: 52, 73, 94;
+  --scitex-color-02-light: #4a6074;
+  --scitex-color-02-dark: #243342;
+
+  --scitex-color-03: #506b7a; /* Light Bluish Gray */
+  --scitex-color-03-rgb: 80, 107, 122;
+  --scitex-color-03-light: #627d8a;
+  --scitex-color-03-dark: #3e5560;
+
+  --scitex-color-04: #6c8ba0; /* Lighter Bluish Gray */
+  --scitex-color-04-rgb: 108, 139, 160;
+  --scitex-color-04-light: #7f9bb0;
+  --scitex-color-04-dark: #5a7588;
+
+  --scitex-color-05: #8fa4b0; /* Very Light Bluish Gray */
+  --scitex-color-05-rgb: 143, 164, 176;
+  --scitex-color-05-light: #a1b6c0;
+  --scitex-color-05-dark: #7b8f9a;
+
+  --scitex-color-06: #b5c7d1; /* Pale Bluish Gray */
+  --scitex-color-06-rgb: 181, 199, 209;
+  --scitex-color-06-light: #c5d5dd;
+  --scitex-color-06-dark: #a1b3bd;
+
+  --scitex-color-07: #d4e1e8; /* Very Pale Bluish Gray */
+  --scitex-color-07-rgb: 212, 225, 232;
+  --scitex-color-07-light: #e0ebf0;
+  --scitex-color-07-dark: #c2d1da;
+
+  /* Status Colors with Gray Elements (SciTeX-harmonized) */
+  --success-color: #4a9b7e; /* Grayish Green - harmonized with SciTeX palette */
+  --warning-color: #b8956a; /* Grayish Orange - muted with gray undertones */
+  --error-color: #a67373;   /* Grayish Red - softened with gray elements */
+  --info-color: #6b8fb3;     /* Grayish Blue - blends with SciTeX bluish theme */
+
+  /* Essential Colors */
+  --white: #ffffff;
+  --white-rgb: 255, 255, 255;
+  --black: #1a1a1a;
+  --black-rgb: 26, 26, 26;
+
+  /* Text Colors (using scitex colors) */
+  --text-color: var(--scitex-color-01); /* SciTeX 800 - Darkest bluish gray */
+  --text-light: var(--scitex-color-03);
+  --text-dark: var(--scitex-color-01-dark);
+
+  /* Body colors */
+  --body-color: var(--scitex-color-01); /* SciTeX 800 - Base text color */
+  --body-bg: var(--white); /* White background */
+  --bg-color: var(--white); /* General background color */
+
+  /* Bluish Dark Gray Scale (SciTeX Colors) */
+  --darkgray-100: var(--scitex-color-07); /* #d4e1e8 */
+  --darkgray-200: var(--scitex-color-06); /* #b5c7d1 */
+  --darkgray-300: var(--scitex-color-05); /* #8fa4b0 */
+  --darkgray-400: var(--scitex-color-04); /* #6c8ba0 */
+  --darkgray-500: var(--scitex-color-03); /* #506b7a */
+  --darkgray-600: var(--scitex-color-02); /* #34495e */
+  --darkgray-700: var(--scitex-color-01-light); /* #2d3748 */
+  --darkgray-800: var(--scitex-color-01); /* #1a2332 */
+  --darkgray-900: var(--scitex-color-01-dark); /* #0f1419 */
+
+  /* Semantic Color Mapping (using SciTeX bluish dark gray theme) */
+  --primary-color: var(--scitex-color-01);
+  --primary-color-rgb: var(--scitex-color-01-rgb);
+  --primary-light: var(--scitex-color-01-light);
+  --primary-dark: var(--scitex-color-01-dark);
+
+  --secondary-color: var(--scitex-color-02);
+  --secondary-color-rgb: var(--scitex-color-02-rgb);
+  --secondary-light: var(--scitex-color-02-light);
+  --secondary-dark: var(--scitex-color-02-dark);
+
+  --accent-color: var(--scitex-color-03);
+  --accent-color-rgb: var(--scitex-color-03-rgb);
+  --accent-light: var(--scitex-color-03-light);
+  --accent-dark: var(--scitex-color-03-dark);
+
+  /* Background and surface colors */
+  --light-color: var(--scitex-color-07);
+  --light-color-rgb: var(--scitex-color-07-rgb);
+  --light-gray: var(--scitex-color-06);
+  --light-gray-rgb: var(--scitex-color-06-rgb);
+  --mid-gray: var(--scitex-color-04);
+  --mid-gray-rgb: var(--scitex-color-04-rgb);
+  --dark-gray: var(--scitex-color-02);
+  --dark-gray-rgb: var(--scitex-color-02-rgb);
+
+  /* Gray scale using SciTeX colors */
+  --gray-100: var(--scitex-color-07);
+  --gray-200: var(--scitex-color-06);
+  --gray-300: var(--scitex-color-05);
+  --gray-400: var(--scitex-color-04);
+  --gray-500: var(--scitex-color-03);
+  --gray-600: var(--scitex-color-02);
+  --gray-700: var(--scitex-color-01-light);
+  --gray-800: var(--scitex-color-01);
+  --gray-900: var(--scitex-color-01-dark);
+
+  /* Theme Specific Colors */
+  --header-bg: var(--scitex-color-01);
+  --footer-bg: var(--scitex-color-01-light);
+  --header-text: var(--white);
+  --footer-text: var(--white);
+  --card-bg: var(--white);
+  --card-hover-bg: var(--gray-100);
+  --card-border: var(--gray-300);
+
+  /* GitHub-style theme variables for light mode */
+  --color-canvas-default: var(--white);
+  --color-canvas-subtle: var(--scitex-color-07);
+  --color-canvas-inset: #f6f8fa;
+  --color-border-default: var(--scitex-color-06);
+  --color-border-muted: var(--scitex-color-05);
+
+  --color-fg-default: var(--scitex-color-01);
+  --color-fg-muted: var(--scitex-color-03);
+  --color-fg-subtle: var(--scitex-color-04);
+  --color-fg-on-emphasis: var(--white);
+
+  --color-accent-fg: var(--scitex-color-02);
+  --color-accent-emphasis: var(--scitex-color-01);
+  --color-accent-subtle: var(--scitex-color-07);
+
+  --color-success-fg: var(--success-color);
+  --color-success-emphasis: #3d8169;
+  --color-success-subtle: #e8f5f0;
+
+  --color-danger-fg: var(--error-color);
+  --color-danger-emphasis: #8f5c5c;
+  --color-danger-subtle: #f5e8e8;
+
+  --color-btn-text: var(--scitex-color-01);
+  --color-btn-bg: var(--scitex-color-07);
+  --color-btn-border: var(--scitex-color-05);
+  --color-btn-hover-bg: var(--scitex-color-06);
+  --color-btn-hover-border: var(--scitex-color-04);
+
+  --color-btn-primary-text: var(--white);
+  --color-btn-primary-bg: var(--scitex-color-02);
+  --color-btn-primary-border: var(--scitex-color-03);
+  --color-btn-primary-hover-bg: var(--scitex-color-01);
+  --color-btn-primary-hover-border: var(--scitex-color-02);
+
+  --header-search-bg: var(--scitex-color-01-dark);
+  --header-search-border: var(--scitex-color-02);
+  --tab-active-border: var(--scitex-color-04);
+}
+
+/* Dark Mode Theme */
+[data-theme="dark"] {
+  --color-canvas-default: var(--scitex-color-01-dark);
+  --color-canvas-subtle: var(--scitex-color-01);
+  --color-canvas-inset: #0a0e12;
+  --color-border-default: var(--scitex-color-02);
+  --color-border-muted: var(--scitex-color-01-light);
+
+  --color-fg-default: var(--scitex-color-07);
+  --color-fg-muted: var(--scitex-color-05);
+  --color-fg-subtle: var(--scitex-color-04);
+  --color-fg-on-emphasis: var(--scitex-color-07);
+
+  --color-accent-fg: var(--scitex-color-06);
+  --color-accent-emphasis: var(--scitex-color-02);
+  --color-accent-subtle: var(--scitex-color-01-light);
+
+  --color-success-fg: #5fb98c;
+  --color-success-emphasis: var(--success-color);
+  --color-success-subtle: #1f3a2e;
+
+  --color-danger-fg: #c99090;
+  --color-danger-emphasis: var(--error-color);
+  --color-danger-subtle: #3a2020;
+
+  --color-btn-text: var(--darkgray-100);
+  --color-btn-bg: var(--scitex-color-01-light);
+  --color-btn-border: var(--darkgray-100);
+  --color-btn-hover-bg: var(--scitex-color-02);
+  --color-btn-hover-border: var(--scitex-color-03);
+
+  --color-btn-primary-text: var(--darkgray-100);
+  --color-btn-primary-bg: var(--scitex-color-03);
+  --color-btn-primary-border: var(--darkgray-100);
+  --color-btn-primary-hover-bg: var(--scitex-color-04);
+  --color-btn-primary-hover-border: var(--scitex-color-05);
+
+  --header-bg: var(--scitex-color-01);
+  /* --header-text: var(--scitex-color-07);
+   * --header-text-muted: var(--scitex-color-05); */
+  --header-text: var(--darkgray-100);
+  --header-text-muted: var(--darkgray-100);
+  --header-search-bg: var(--scitex-color-01-dark);
+  --header-search-border: var(--scitex-color-02);
+  --tab-active-border: var(--scitex-color-05);
+}
