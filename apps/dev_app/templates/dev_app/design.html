@@ -7,29 +7,40 @@
 {% block extra_css %}
 {% load static %}
 <style>
+  /* Design System Page Styles - Theme-aware */
   .design-section {
     margin-bottom: 4rem;
   }
-  
+
   .design-section h2 {
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--color-border-default);
     padding-bottom: 0.5rem;
     margin-bottom: 1.5rem;
+    color: var(--color-fg-default);
   }
-  
+
+  .design-section h3, .design-section h4 {
+    color: var(--color-fg-default);
+  }
+
+  .design-section p {
+    color: var(--color-fg-default);
+  }
+
   .demo-box {
-    background-color: #f8f9fa;
+    background-color: var(--color-canvas-subtle);
+    border: 1px solid var(--color-border-default);
     border-radius: 8px;
     padding: 2rem;
     margin-bottom: 2rem;
   }
-  
+
   .color-palette {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 1rem;
   }
-  
+
   .color-swatch {
     height: 100px;
     border-radius: 8px;
@@ -41,68 +52,274 @@
     font-weight: 500;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   }
-  
+
   .typography-demo {
     margin-bottom: 2rem;
   }
-  
+
   .typography-demo .type-sample {
     margin-bottom: 1rem;
     padding: 1rem;
-    background-color: #f8f9fa;
+    background-color: var(--color-canvas-default);
+    border: 1px solid var(--color-border-default);
     border-radius: 8px;
+    color: var(--color-fg-default);
   }
-  
+
   .typography-demo .type-info {
     font-size: 14px;
-    color: #666;
+    color: var(--color-fg-muted);
   }
-  
+
   .component-example {
     margin-bottom: 3rem;
   }
-  
+
   .component-example h3 {
     margin-bottom: 1rem;
   }
-  
+
   .component-example .example-display {
     padding: 2rem;
-    background-color: #f8f9fa;
+    background-color: var(--color-canvas-subtle);
+    border: 1px solid var(--color-border-default);
     border-radius: 8px;
     margin-bottom: 1rem;
   }
-  
+
   .component-example .example-code {
-    background-color: var(--darkgray-900);
+    background-color: var(--scitex-color-01);
     border-radius: 8px;
     padding: 1rem;
-    color: #f8f8f2;
+    color: var(--scitex-color-07);
     font-family: monospace;
     overflow-x: auto;
   }
-  
+
   .spacing-demo {
     display: flex;
     flex-wrap: wrap;
     gap: 2rem;
   }
-  
+
   .spacing-demo .spacing-box {
     display: flex;
     flex-direction: column;
     align-items: center;
   }
-  
+
   .spacing-demo .spacing-example {
-    background-color: var(--darkgray-700);
+    background-color: var(--scitex-color-03);
     width: 100px;
   }
-  
+
   .spacing-demo .spacing-label {
     margin-top: 0.5rem;
     font-size: 14px;
-    color: #666;
+    color: var(--color-fg-muted);
+  }
+
+  /* Theme-responsive buttons for navigation */
+  .section-btn.btn-outline-primary {
+    color: var(--scitex-color-02) !important;
+    border-color: var(--scitex-color-05) !important;
+    background: var(--color-canvas-default) !important;
+  }
+
+  .section-btn.btn-outline-primary:hover {
+    color: #ffffff !important;
+    background: var(--scitex-color-03) !important;
+    border-color: var(--scitex-color-03) !important;
+  }
+
+  .section-btn.btn-success {
+    color: #ffffff !important;
+    background: var(--scitex-success) !important;
+    border-color: var(--scitex-success) !important;
+  }
+
+  .btn-secondary {
+    color: var(--color-fg-default) !important;
+    background: var(--scitex-color-05) !important;
+    border-color: var(--scitex-color-05) !important;
+  }
+
+  .btn-secondary:hover {
+    background: var(--scitex-color-04) !important;
+    border-color: var(--scitex-color-04) !important;
+  }
+
+  [data-theme="dark"] .section-btn.btn-outline-primary {
+    color: var(--scitex-color-06) !important;  /* Light bluish */
+    border-color: var(--scitex-color-04) !important;
+  }
+
+  [data-theme="dark"] .section-btn.btn-outline-primary:hover {
+    color: #ffffff !important;
+    background: var(--scitex-color-04) !important;
+  }
+
+  [data-theme="dark"] .btn-secondary {
+    color: var(--scitex-color-01) !important;  /* Dark text */
+    background: var(--scitex-color-05) !important;
+  }
+
+  [data-theme="dark"] .btn-secondary:hover {
+    background: var(--scitex-color-06) !important;
+  }
+
+  /* Component example buttons - theme responsive */
+  .example-display .btn-outline-primary,
+  .example-display .btn-outline-secondary {
+    color: var(--scitex-color-01) !important;
+    border-color: var(--scitex-color-04) !important;
+  }
+
+  [data-theme="dark"] .example-display .btn-outline-primary,
+  [data-theme="dark"] .example-display .btn-outline-secondary {
+    color: var(--scitex-color-07) !important;  /* Light text */
+    border-color: var(--scitex-color-05) !important;
+  }
+
+  .example-display .btn-outline-primary:hover,
+  .example-display .btn-outline-secondary:hover {
+    background: var(--scitex-color-02) !important;
+    color: #ffffff !important;
+  }
+
+  /* Other outline buttons - Light mode defaults */
+  .example-display .btn-outline-success {
+    color: var(--scitex-success) !important;
+    border-color: var(--scitex-success) !important;
+    background: transparent !important;
+  }
+
+  .example-display .btn-outline-danger {
+    color: var(--scitex-error) !important;
+    border-color: var(--scitex-error) !important;
+    background: transparent !important;
+  }
+
+  .example-display .btn-outline-warning {
+    color: var(--scitex-warning) !important;
+    border-color: var(--scitex-warning) !important;
+    background: transparent !important;
+  }
+
+  .example-display .btn-outline-info {
+    color: var(--scitex-info) !important;
+    border-color: var(--scitex-info) !important;
+    background: transparent !important;
+  }
+
+  .example-display .btn-outline-light {
+    color: var(--scitex-color-03) !important;
+    border-color: var(--scitex-color-05) !important;
+    background: transparent !important;
+  }
+
+  .example-display .btn-outline-dark {
+    color: var(--scitex-color-01) !important;
+    border-color: var(--scitex-color-02) !important;
+    background: transparent !important;
+  }
+
+  /* Dark mode outline buttons - brighter, more visible */
+  [data-theme="dark"] .example-display .btn-outline-success {
+    color: #5fb98c !important;  /* Brighter green */
+    border-color: #5fb98c !important;
+  }
+
+  [data-theme="dark"] .example-display .btn-outline-danger {
+    color: #c99090 !important;  /* Brighter red */
+    border-color: #c99090 !important;
+  }
+
+  [data-theme="dark"] .example-display .btn-outline-warning {
+    color: #d4a876 !important;  /* Brighter orange */
+    border-color: #d4a876 !important;
+  }
+
+  [data-theme="dark"] .example-display .btn-outline-info {
+    color: #89a8c9 !important;  /* Brighter blue */
+    border-color: #89a8c9 !important;
+  }
+
+  [data-theme="dark"] .example-display .btn-outline-light {
+    color: var(--scitex-color-07) !important;  /* Very light */
+    border-color: var(--scitex-color-06) !important;
+  }
+
+  [data-theme="dark"] .example-display .btn-outline-dark {
+    color: var(--scitex-color-06) !important;  /* Light for "dark" button */
+    border-color: var(--scitex-color-05) !important;
+  }
+
+  /* Hover states for all outline buttons */
+  .example-display .btn-outline-success:hover {
+    background: var(--scitex-success) !important;
+    color: #ffffff !important;
+  }
+
+  .example-display .btn-outline-danger:hover {
+    background: var(--scitex-error) !important;
+    color: #ffffff !important;
+  }
+
+  .example-display .btn-outline-warning:hover {
+    background: var(--scitex-warning) !important;
+    color: #ffffff !important;
+  }
+
+  .example-display .btn-outline-info:hover {
+    background: var(--scitex-info) !important;
+    color: #ffffff !important;
+  }
+
+  /* Hero gradient examples - ensure they're visible in dark mode */
+  .component-example .example-display {
+    border: 1px solid var(--color-border-default);
+  }
+
+  /* Dark mode: Make hero backgrounds darker but keep text lighter */
+  [data-theme="dark"] #hero-designs .example-display > div {
+    background-blend-mode: darken;
+    filter: brightness(0.5) contrast(1.2) !important;  /* Darken bg, boost text contrast */
+  }
+
+  [data-theme="dark"] #hero-designs .example-display h1,
+  [data-theme="dark"] #hero-designs .example-display p {
+    filter: brightness(2.0) !important;  /* Much brighter text - 2x brightness */
+  }
+
+  [data-theme="dark"] .component-example .example-display {
+    background: var(--scitex-color-01-dark) !important;  /* Very dark backdrop */
+    border-color: var(--scitex-color-02) !important;
+  }
+
+  /* Table header styling for dark mode */
+  [data-theme="dark"] .table-light {
+    background-color: var(--scitex-color-01-light) !important;  /* Darker than default */
+    color: var(--scitex-color-07) !important;
+  }
+
+  [data-theme="dark"] .table-light th {
+    background-color: var(--scitex-color-01-light) !important;
+    color: var(--scitex-color-07) !important;
+    border-color: var(--scitex-color-02) !important;
+  }
+
+  [data-theme="dark"] .table {
+    color: var(--color-fg-default);
+  }
+
+  [data-theme="dark"] .table-bordered {
+    border-color: var(--scitex-color-02) !important;
+  }
+
+  [data-theme="dark"] .table-bordered td,
+  [data-theme="dark"] .table-bordered th {
+    border-color: var(--scitex-color-02) !important;
   }
 </style>
 {% endblock %}
@@ -113,31 +330,35 @@
   <p class="lead mb-5">This design system provides guidelines, components, and patterns to ensure consistency across the SciTeX platform.</p>
 
   <!-- Quick Navigation with Filter -->
-  <div class="alert alert-info" style="position: sticky; top: 80px; z-index: 100; background: white; border: 2px solid #0366d6; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
+  <div class="alert alert-info" style="position: sticky; top: 80px; z-index: 100; background: var(--color-canvas-default); border: 2px solid var(--scitex-color-04); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); color: var(--color-fg-default);">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-      <h5 style="margin: 0;"><i class="fas fa-compass"></i> Quick Navigation</h5>
+      <h5 style="margin: 0; color: var(--color-fg-default);"><i class="fas fa-compass"></i> Quick Navigation</h5>
       <button id="show-all-btn" class="btn btn-sm btn-secondary" onclick="showAllSections()">Show All</button>
     </div>
     <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
-      <button onclick="showSection('colors')" class="btn btn-sm btn-outline-primary section-btn">Colors</button>
-      <button onclick="showSection('typography')" class="btn btn-sm btn-outline-primary section-btn">Typography</button>
-      <button onclick="showSection('components')" class="btn btn-sm btn-outline-primary section-btn">Components</button>
-      <button onclick="showSection('spacing')" class="btn btn-sm btn-outline-primary section-btn">Spacing</button>
-      <button onclick="showSection('css-variables')" class="btn btn-sm btn-outline-primary section-btn">CSS Variables</button>
-      <button onclick="showSection('guidelines')" class="btn btn-sm btn-outline-primary section-btn">Guidelines</button>
-      <button onclick="showSection('module-icons')" class="btn btn-sm btn-primary section-btn"><i class="fas fa-icons"></i> Module Icons</button>
-      <button onclick="showSection('hero-designs')" class="btn btn-sm btn-outline-primary section-btn">Hero Designs</button>
+      <button onclick="showSection('colors')" class="btn btn-sm btn-outline-primary section-btn">🎨 Colors</button>
+      <button onclick="showSection('theme')" class="btn btn-sm btn-outline-primary section-btn">🌓 Theme</button>
+      <button onclick="showSection('typography')" class="btn btn-sm btn-outline-primary section-btn">✏️ Typography</button>
+      <button onclick="showSection('components')" class="btn btn-sm btn-outline-primary section-btn">🧩 UI Components</button>
+      <button onclick="showSection('spacing')" class="btn btn-sm btn-outline-primary section-btn">📏 Spacing</button>
+      <button onclick="showSection('hero-designs')" class="btn btn-sm btn-outline-primary section-btn">🎭 Hero Designs</button>
+      <button onclick="showSection('module-icons')" class="btn btn-sm btn-outline-primary section-btn">🎯 Module Icons</button>
+      <button onclick="showSection('guidelines')" class="btn btn-sm btn-outline-primary section-btn">📋 Guidelines</button>
     </div>
   </div>
 
   <!-- Colors -->
   <section class="design-section" id="colors">
-    <h2>Color Palette</h2>
+    <h2>Color Palette <span class="badge bg-primary">📁 /static/css/common/colors.css</span></h2>
     <p>Our color system is built with accessibility and consistency in mind. The dark gray color scheme provides a sophisticated, professional appearance that reflects the scientific and technical nature of the SciTeX platform.</p>
-    
+
     <div class="demo-box">
       <h3 class="mb-4">SciTeX Bluish Dark Gray Theme</h3>
       <p>The SciTeX bluish dark gray theme is our primary color scheme, providing a sophisticated, scientific aesthetic with subtle blue undertones that's easy on the eyes during long research sessions. This cohesive palette ensures visual consistency across the entire platform.</p>
+
+      <div class="alert alert-info" style="margin-top: 1rem;">
+        <strong><i class="fas fa-file-code"></i> Source File:</strong> <code>/home/ywatanabe/proj/scitex-cloud/static/css/common/colors.css</code>
+      </div>
       
       <div class="row mb-4">
         <div class="col-lg-6">
@@ -350,8 +571,12 @@
 
   <!-- Typography -->
   <section class="design-section" id="typography">
-    <h2>Typography</h2>
+    <h2>Typography <span class="badge bg-primary">📁 /static/css/common/typography-vars.css</span></h2>
     <p>Our typography system uses a clean, modern sans-serif font stack that works well for both technical content and user interfaces.</p>
+
+    <div class="alert alert-info">
+      <strong><i class="fas fa-file-code"></i> Source File:</strong> <code>/home/ywatanabe/proj/scitex-cloud/static/css/common/typography-vars.css</code>
+    </div>
     
     <div class="typography-demo">
       <div class="type-sample">
@@ -426,10 +651,18 @@
     </div>
   </section>
 
-  <!-- Components -->
+  <!-- UI Components -->
   <section class="design-section" id="components">
-    <h2>Components</h2>
+    <h2>UI Components <span class="badge bg-primary">📁 /static/css/common/</span></h2>
     <p>SciTeX uses a component-based approach to UI design, with reusable elements that maintain consistent appearance and behavior.</p>
+
+    <div class="alert alert-info">
+      <strong><i class="fas fa-file-code"></i> Component Styles:</strong>
+      <code>buttons.css</code>,
+      <code>cards.css</code>,
+      <code>forms.css</code>,
+      <code>components.css</code>
+    </div>
     
     <!-- Buttons -->
     <div class="component-example">
@@ -584,8 +817,12 @@
 
   <!-- Spacing -->
   <section class="design-section" id="spacing">
-    <h2>Spacing System</h2>
+    <h2>Spacing System <span class="badge bg-primary">📁 /static/css/common/spacing.css</span></h2>
     <p>Our spacing system uses a consistent scale to maintain visual harmony throughout the interface.</p>
+
+    <div class="alert alert-info">
+      <strong><i class="fas fa-file-code"></i> Source File:</strong> <code>/home/ywatanabe/proj/scitex-cloud/static/css/common/spacing.css</code>
+    </div>
     
     <div class="spacing-demo">
       <div class="spacing-box">
@@ -615,13 +852,66 @@
     </div>
   </section>
 
-  <!-- CSS Variables Reference -->
-  <section class="design-section" id="css-variables">
-    <h2>CSS Variables Reference</h2>
-    <p>The following CSS variables are defined in <code>/static/common/css/variables.css</code> and are available throughout the application.</p>
-    
+  <!-- Theme (CSS Variables) -->
+  <section class="design-section" id="theme">
+    <h2>Theme System <span class="badge bg-primary">📁 /static/css/theme.css</span></h2>
+    <p>SciTeX uses a modular CSS variable system with light/dark theme support. The main theme file is <code>/static/css/theme.css</code> with support files in <code>/static/css/common/</code>.</p>
+
+    <div class="alert alert-info">
+      <h4><i class="fas fa-info-circle"></i> Modular CSS Structure</h4>
+      <p style="margin-bottom: 0.5rem;"><strong>Main Theme:</strong> <code>/static/css/theme.css</code> (Light & Dark mode with <code>data-theme</code> attribute)</p>
+      <p style="margin-bottom: 0.5rem;"><strong>Variables Entry Point:</strong> <code>/static/css/common/variables.css</code></p>
+      <p style="margin-bottom: 0.5rem;">Variables are split into focused files:</p>
+      <ul style="margin-bottom: 0;">
+        <li><code>colors.css</code> - All color definitions (brand, status, semantic)</li>
+        <li><code>typography-vars.css</code> - Font families, sizes, line heights</li>
+        <li><code>spacing.css</code> - Spacing scale and layout widths</li>
+        <li><code>effects.css</code> - Borders, shadows, transitions</li>
+        <li><code>z-index.css</code> - Z-index scale</li>
+      </ul>
+    </div>
+
     <div class="demo-box">
-      <h3 class="mb-3">Color Variables</h3>
+      <h3 class="mb-3">Light & Dark Mode Support</h3>
+      <p>SciTeX supports light and dark themes using the <code>data-theme</code> attribute on the <code>&lt;html&gt;</code> tag.</p>
+
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <h4>Light Mode (Default)</h4>
+          <pre style="background-color: #fff; border: 1px solid #dee2e6; padding: 1rem; border-radius: 8px;">
+&lt;html lang="en" data-theme="light"&gt;
+  &lt;!-- Light mode active --&gt;
+&lt;/html&gt;
+          </pre>
+          <div style="background: #ffffff; border: 2px solid var(--scitex-color-06); padding: 1.5rem; border-radius: 8px; margin-top: 1rem;">
+            <p style="color: var(--scitex-color-01); margin-bottom: 0.5rem;"><strong>Text:</strong> Dark bluish gray (#1a2332)</p>
+            <p style="color: var(--scitex-color-03); margin-bottom: 0.5rem;"><strong>Muted:</strong> Light bluish gray (#506b7a)</p>
+            <p style="background: var(--scitex-color-07); padding: 0.5rem; border-radius: 4px; margin: 0;"><strong>Background:</strong> Very pale (#d4e1e8)</p>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <h4>Dark Mode</h4>
+          <pre style="background-color: #0f1419; color: #d4e1e8; border: 1px solid #34495e; padding: 1rem; border-radius: 8px;">
+&lt;html lang="en" data-theme="dark"&gt;
+  &lt;!-- Dark mode active --&gt;
+&lt;/html&gt;
+          </pre>
+          <div style="background: #0f1419; border: 2px solid #34495e; padding: 1.5rem; border-radius: 8px; margin-top: 1rem;">
+            <p style="color: #d4e1e8; margin-bottom: 0.5rem;"><strong>Text:</strong> Light bluish gray (#d4e1e8)</p>
+            <p style="color: #8fa4b0; margin-bottom: 0.5rem;"><strong>Muted:</strong> Mid bluish gray (#8fa4b0)</p>
+            <p style="background: #1a2332; padding: 0.5rem; border-radius: 4px; margin: 0; color: #d4e1e8;"><strong>Background:</strong> Dark bluish (#1a2332)</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert alert-warning">
+        <strong><i class="fas fa-exclamation-triangle"></i> Important:</strong> Always use theme variables (<code>var(--color-fg-default)</code>) instead of hardcoded colors to ensure proper contrast in both modes.
+      </div>
+    </div>
+
+    <div class="demo-box">
+      <h3 class="mb-3">Color Variables <span class="badge bg-secondary">📁 /static/css/common/colors.css</span></h3>
       <pre style="background-color: #f8f9fa; padding: 1rem; border-radius: 8px; max-height: 400px; overflow-y: auto;">
 /* SciTeX Color System - Bluish Dark Gray Theme */
 --scitex-color-01: #1a2332; /* Dark Bluish Gray (Primary) */
@@ -660,56 +950,66 @@
     </div>
 
     <div class="demo-box mt-4">
-      <h3 class="mb-3">UI Component Variables</h3>
+      <h3 class="mb-3">Typography Variables <span class="badge bg-secondary">📁 /static/css/common/typography-vars.css</span></h3>
       <pre style="background-color: #f8f9fa; padding: 1rem; border-radius: 8px; max-height: 400px; overflow-y: auto;">
-/* Theme Specific Colors */
---header-bg: var(--primary-color);
---footer-bg: var(--primary-color);
---header-text: var(--white);
---footer-text: var(--white);
---card-bg: var(--light-gray);
---card-hover-bg: var(--white);
---card-border: var(--mid-gray);
-  
 /* Typography */
 --base-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 --heading-font-family: var(--base-font-family);
 --mono-font-family: Consolas, Monaco, 'Andale Mono', monospace;
-  
+
 --base-font-size: 16px;
 --small-font-size: 0.875rem;
 --large-font-size: 1.125rem;
-  
+
 --base-line-height: 1.6;
 --heading-line-height: 1.2;
-  
-/* Spacing */
---spacing-xs: 0.25rem;
---spacing-sm: 0.5rem;
---spacing-md: 1rem;
---spacing-lg: 1.5rem;
---spacing-xl: 2rem;
---spacing-xxl: 3rem;
-  
+</pre>
+    </div>
+
+    <div class="demo-box mt-4">
+      <h3 class="mb-3">Spacing & Layout <span class="badge bg-secondary">📁 /static/css/common/spacing.css</span></h3>
+      <pre style="background-color: #f8f9fa; padding: 1rem; border-radius: 8px; max-height: 400px; overflow-y: auto;">
+/* Spacing Scale */
+--spacing-xs: 0.25rem;   /* 4px */
+--spacing-sm: 0.5rem;    /* 8px */
+--spacing-md: 1rem;      /* 16px */
+--spacing-lg: 1.5rem;    /* 24px */
+--spacing-xl: 2rem;      /* 32px */
+--spacing-xxl: 3rem;     /* 48px */
+
 /* Layout */
 --container-width: 90%;
---container-max-width: 1200px;
-  
-/* Borders & Shadows */
+--container-max-width: 1400px;
+</pre>
+    </div>
+
+    <div class="demo-box mt-4">
+      <h3 class="mb-3">Effects & Transitions <span class="badge bg-secondary">📁 /static/css/common/effects.css</span></h3>
+      <pre style="background-color: #f8f9fa; padding: 1rem; border-radius: 8px; max-height: 400px; overflow-y: auto;">
+/* Borders & Radius */
 --border-radius: 4px;
 --border-radius-lg: 8px;
+--border-radius-xl: 12px;
+--border-radius-pill: 50rem;
 --border-width: 1px;
---border-color: var(--mid-gray);
-  
+--border-color: var(--gray-300);
+
+/* Box Shadows */
 --box-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
---box-shadow-md: 0 2px 5px rgba(0, 0, 0, 0.1);
---box-shadow-lg: 0 5px 15px rgba(0, 0, 0, 0.1);
-  
+--box-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+--box-shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+--box-shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1);
+
 /* Transitions */
 --transition-fast: 0.2s;
 --transition-normal: 0.3s;
 --transition-slow: 0.5s;
-  
+</pre>
+    </div>
+
+    <div class="demo-box mt-4">
+      <h3 class="mb-3">Z-Index Scale <span class="badge bg-secondary">📁 /static/css/common/z-index.css</span></h3>
+      <pre style="background-color: #f8f9fa; padding: 1rem; border-radius: 8px; max-height: 400px; overflow-y: auto;">
 /* Z-indices */
 --z-dropdown: 1000;
 --z-sticky: 1020;
@@ -1007,8 +1307,12 @@
 
   <!-- Hero Designs Section -->
   <section class="design-section" id="hero-designs">
-    <h2>Hero Section Gradient Variants</h2>
+    <h2>Hero Section Gradient Variants <span class="badge bg-primary">📁 /static/css/components/hero.css</span></h2>
     <p>SciTeX offers a comprehensive collection of gradient variants using our bluish dark gray color palette. Each variant is designed for specific use cases while maintaining brand consistency.</p>
+
+    <div class="alert alert-info">
+      <strong><i class="fas fa-file-code"></i> Source File:</strong> <code>/home/ywatanabe/proj/scitex-cloud/static/css/components/hero.css</code>
+    </div>
     
     <!-- Light Variant -->
     <div class="component-example">
@@ -1098,7 +1402,7 @@
           <h4>Implementation:</h4>
           <div class="mb-3">
             <strong>CSS File:</strong><br>
-            <code>/static/common/css/hero-gradients.css</code>
+            <code>/static/css/components/hero.css</code>
           </div>
           <div class="mb-3">
             <strong>Basic Usage:</strong><br>

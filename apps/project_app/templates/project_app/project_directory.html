@@ -1,252 +1,251 @@
-{% extends "project_app/project_detail.html" %}
+{% extends "base.html" %}
 {% load static %}
 
 {% block title %}{{ breadcrumb_path }} - {{ project.name }}{% endblock %}
 
-{% block project_content %}
-<div class="project-directory">
-    <!-- Breadcrumb Navigation -->
-    <nav class="breadcrumb-nav">
-        <ol class="breadcrumb">
-            {% for breadcrumb in breadcrumbs %}
-                {% if forloop.last %}
-                    <li class="breadcrumb-item active">{{ breadcrumb.name }}</li>
-                {% else %}
-                    <li class="breadcrumb-item">
-                        <a href="{{ breadcrumb.url }}">{{ breadcrumb.name }}</a>
-                    </li>
-                {% endif %}
-            {% endfor %}
-        </ol>
-    </nav>
-
-    <!-- Directory Header -->
-    <div class="directory-header">
-        <h2>
-            <i class="fas fa-folder"></i>
-            {{ directory }}{% if subpath %}/{{ subpath }}{% endif %}
-        </h2>
-        {% if can_edit %}
-            <div class="directory-actions">
-                <button class="btn btn-sm btn-primary" onclick="uploadFile()">
-                    <i class="fas fa-upload"></i> Upload
-                </button>
-                <button class="btn btn-sm btn-success" onclick="createFolder()">
-                    <i class="fas fa-folder-plus"></i> New Folder
-                </button>
-            </div>
-        {% endif %}
-    </div>
-
-    <!-- Directory Contents -->
-    <div class="directory-contents">
-        {% if contents %}
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Type</th>
-                        <th>Size</th>
-                        <th>Modified</th>
-                        {% if can_edit %}
-                            <th>Actions</th>
-                        {% endif %}
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in contents %}
-                        <tr>
-                            <td>
-                                {% if item.type == 'directory' %}
-                                    <a href="{{ project.get_absolute_url }}{{ item.path }}/" class="directory-link">
-                                        <i class="fas fa-folder text-warning"></i>
-                                        {{ item.name }}
-                                    </a>
-                                {% else %}
-                                    <span class="file-link">
-                                        <i class="fas fa-file text-muted"></i>
-                                        {{ item.name }}
-                                    </span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if item.type == 'directory' %}
-                                    <span class="badge badge-info">Directory</span>
-                                {% else %}
-                                    <span class="badge badge-secondary">File</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if item.type == 'file' %}
-                                    {{ item.size|filesizeformat }}
-                                {% else %}
-                                    —
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if item.modified %}
-                                    {{ item.modified|date:"M j, Y H:i" }}
-                                {% else %}
-                                    —
-                                {% endif %}
-                            </td>
-                            {% if can_edit %}
-                                <td>
-                                    <div class="btn-group" role="group">
-                                        {% if item.type == 'file' %}
-                                            <button class="btn btn-sm btn-outline-primary" onclick="downloadFile('{{ item.path }}')">
-                                                <i class="fas fa-download"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-secondary" onclick="editFile('{{ item.path }}')">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                        {% endif %}
-                                        <button class="btn btn-sm btn-outline-danger" onclick="deleteItem('{{ item.path }}', '{{ item.type }}')">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            {% endif %}
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% else %}
-            <div class="empty-directory">
-                <div class="text-center py-5">
-                    <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
-                    <h4>Empty Directory</h4>
-                    <p class="text-muted">This directory doesn't contain any files or folders yet.</p>
-                    {% if can_edit %}
-                        <button class="btn btn-primary" onclick="uploadFile()">
-                            <i class="fas fa-upload"></i> Upload First File
-                        </button>
-                    {% endif %}
-                </div>
-            </div>
-        {% endif %}
-    </div>
-</div>
-
-<!-- File Upload Modal (if needed) -->
-{% if can_edit %}
-<div class="modal fade" id="uploadModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Upload Files</h5>
-                <button type="button" class="close" data-dismiss="modal">
-                    <span>&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form id="uploadForm" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <div class="form-group">
-                        <label for="fileInput">Select Files</label>
-                        <input type="file" class="form-control-file" id="fileInput" name="files" multiple>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" onclick="doUpload()">Upload</button>
-            </div>
-        </div>
-    </div>
-</div>
-{% endif %}
-
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/common/buttons.css' %}">
 <style>
-.project-directory {
-    padding: 1rem;
+/* GitHub-style repository header */
+.repo-header {
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--color-border-default);
 }
 
+.repo-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-accent-fg);
+    text-decoration: none;
+}
+
+.repo-title:hover {
+    text-decoration: underline;
+}
+
+/* GitHub-style tab navigation */
+.repo-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--color-border-default);
+    margin-bottom: 1.5rem;
+    overflow-x: auto;
+}
+
+.repo-tab {
+    padding: 0.5rem 1rem;
+    color: var(--color-fg-muted);
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+}
+
+.repo-tab:hover {
+    color: var(--color-fg-default);
+    border-bottom-color: var(--color-border-default);
+}
+
+.repo-tab.active {
+    color: var(--color-fg-default);
+    border-bottom-color: var(--tab-active-border);
+    font-weight: 600;
+}
+
+/* Breadcrumb */
 .breadcrumb-nav {
     margin-bottom: 1rem;
 }
 
-.directory-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid #e9ecef;
-}
-
-.directory-header h2 {
+.breadcrumb {
+    background: none;
+    padding: 0;
     margin: 0;
-    color: #495057;
 }
 
-.directory-actions .btn {
-    margin-left: 0.5rem;
-}
-
-.directory-link {
+.breadcrumb-item a {
+    color: var(--color-accent-fg);
     text-decoration: none;
-    color: #007bff;
 }
 
-.directory-link:hover {
+.breadcrumb-item a:hover {
     text-decoration: underline;
 }
 
-.file-link {
-    color: #495057;
+/* File browser table */
+.file-browser {
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.file-browser table {
+    width: 100%;
+    margin: 0;
+    border-collapse: collapse;
+}
+
+.file-browser th {
+    background: var(--color-canvas-subtle);
+    padding: 0.5rem 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: var(--color-fg-default);
+    border-bottom: 1px solid var(--color-border-default);
+}
+
+.file-browser td {
+    padding: 0.5rem 1rem;
+    border-top: 1px solid var(--color-border-default);
+}
+
+.file-browser tr:hover {
+    background: var(--color-canvas-subtle);
+}
+
+.file-name {
+    color: var(--color-accent-fg);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.file-name:hover {
+    text-decoration: underline;
 }
 
 .empty-directory {
-    background: #f8f9fa;
-    border-radius: 8px;
-    margin: 2rem 0;
-}
-
-.table th {
-    border-top: none;
-    background-color: #f8f9fa;
-}
-
-.btn-group .btn {
-    margin-right: 0.25rem;
+    text-align: center;
+    padding: 3rem;
+    color: var(--color-fg-muted);
 }
 </style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="max-width: 1280px;">
+    <!-- Repository Header with Breadcrumb -->
+    <div class="repo-header">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <a href="/{{ project.owner.username }}/" style="color: var(--color-accent-fg); text-decoration: none; font-weight: 400;">
+                {{ project.owner.username }}
+            </a>
+            <span style="color: var(--color-fg-muted);">/</span>
+            <a href="/{{ project.owner.username }}/{{ project.slug }}/" class="repo-title">
+                {{ project.name }}
+            </a>
+            {% for breadcrumb in breadcrumbs %}
+                {% if breadcrumb.name != project.name %}
+                    <span style="color: var(--color-fg-muted);">/</span>
+                    {% if forloop.last %}
+                        <span style="font-weight: 600; color: var(--color-fg-default);">{{ breadcrumb.name }}</span>
+                    {% else %}
+                        <a href="{{ breadcrumb.url }}" style="color: var(--color-accent-fg); text-decoration: none;">
+                            {{ breadcrumb.name }}
+                        </a>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="repo-tabs" style="justify-content: space-between;">
+        <div style="display: flex;">
+            <a href="/{{ project.owner.username }}/{{ project.slug }}/" class="repo-tab">
+                📄 Code
+            </a>
+            <a href="/{{ project.owner.username }}/{{ project.slug }}?mode=scholar" class="repo-tab">
+            📚 Scholar
+        </a>
+        <a href="/{{ project.owner.username }}/{{ project.slug }}?mode=code" class="repo-tab">
+            💻 Code
+        </a>
+        <a href="/{{ project.owner.username }}/{{ project.slug }}?mode=viz" class="repo-tab">
+            📊 Viz
+        </a>
+        <a href="/{{ project.owner.username }}/{{ project.slug }}?mode=writer" class="repo-tab">
+            ✍️ Writer
+        </a>
+        <a href="/{{ project.owner.username }}/{{ project.slug }}/settings/" class="repo-tab">
+            ⚙️ Settings
+        </a>
+        </div>
+        <button onclick="copyDirToClipboard()" class="btn btn-sm btn-outline-primary" style="margin: 0.25rem;">
+            📋 Copy All Files
+        </button>
+    </div>
+
+    <!-- Directory Contents -->
+    {% if contents %}
+    <div class="file-browser">
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th style="width: 200px;">Last modified</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in contents %}
+                <tr>
+                    <td>
+                        {% if item.type == 'directory' %}
+                            <a href="/{{ project.owner.username }}/{{ project.slug }}/{{ item.path }}/" class="file-name">
+                                📁 {{ item.name }}
+                            </a>
+                        {% else %}
+                            <a href="/{{ project.owner.username }}/{{ project.slug }}/blob/{{ item.path }}" class="file-name">
+                                📄 {{ item.name }}
+                            </a>
+                        {% endif %}
+                    </td>
+                    <td class="text-muted">
+                        {% if item.modified %}
+                            {{ item.modified|date:"M j, Y" }}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-directory">
+        <i class="fas fa-folder-open fa-3x mb-3" style="opacity: 0.3;"></i>
+        <h4>Empty Directory</h4>
+        <p>This directory doesn't contain any files or folders yet.</p>
+    </div>
+    {% endif %}
+</div>
 
 <script>
-function uploadFile() {
-    $('#uploadModal').modal('show');
-}
+async function copyDirToClipboard() {
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '⏳ Loading...';
+    btn.disabled = true;
 
-function createFolder() {
-    const folderName = prompt('Enter folder name:');
-    if (folderName) {
-        // TODO: Implement folder creation
-        alert('Folder creation coming soon!');
+    try {
+        // Call API to get concatenated content
+        const response = await fetch('/{{ project.owner.username }}/{{ project.slug }}/api/concatenate/{{ breadcrumb_path }}');
+        const data = await response.json();
+
+        if (data.success) {
+            await navigator.clipboard.writeText(data.content);
+            btn.innerHTML = `✓ Copied ${data.file_count} files!`;
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }, 3000);
+        } else {
+            alert('Error: ' + data.error);
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    } catch (err) {
+        alert('Failed to copy: ' + err);
+        btn.innerHTML = originalText;
+        btn.disabled = false;
     }
-}
-
-function downloadFile(filePath) {
-    // TODO: Implement file download
-    alert('File download coming soon!');
-}
-
-function editFile(filePath) {
-    // TODO: Implement file editing
-    alert('File editing coming soon!');
-}
-
-function deleteItem(itemPath, itemType) {
-    if (confirm(`Are you sure you want to delete this ${itemType}?`)) {
-        // TODO: Implement item deletion
-        alert('Deletion coming soon!');
-    }
-}
-
-function doUpload() {
-    // TODO: Implement file upload
-    alert('Upload functionality coming soon!');
-    $('#uploadModal').modal('hide');
 }
 </script>
 {% endblock %}
