@@ -421,13 +421,17 @@
                 ⚙️ Settings
             </a>
         </div>
-        <div style="display: flex; gap: 8px;">
-            <button onclick="copyProjectToClipboard()" class="btn btn-sm btn-outline-primary" style="margin: 0.25rem;" id="copy-project-btn">
+        <div class="btn-group" style="margin: 0.25rem;">
+            <button onclick="copyProjectToClipboard()" class="btn btn-sm btn-outline-primary" id="copy-project-btn">
                 📋 Copy All Files
             </button>
-            <button onclick="downloadProjectAsFile()" class="btn btn-sm btn-outline-secondary" style="margin: 0.25rem;" id="download-project-btn">
-                💾 Download All Files
+            <button class="btn btn-sm btn-outline-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                <span class="visually-hidden">Toggle Dropdown</span>
             </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#" onclick="copyProjectToClipboard(); return false;">📋 Copy to Clipboard</a></li>
+                <li><a class="dropdown-item" href="#" onclick="downloadProjectAsFile(); return false;">💾 Download as File</a></li>
+            </ul>
         </div>
     </div>
 
