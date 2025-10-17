@@ -103,7 +103,6 @@ def user_bio_page(request, username):
     return render(request, 'project_app/user_bio.html', context)
 
 
-@login_required
 @project_access_required
 def project_detail(request, username, slug):
     """
@@ -648,7 +647,6 @@ def project_detail_redirect(request, pk=None, slug=None):
         return redirect('project_app:list')
 
 
-@login_required
 def project_directory_dynamic(request, username, slug, directory_path):
     """
     Dynamic directory browser - handles ANY directory path.
@@ -764,7 +762,6 @@ def project_directory_dynamic(request, username, slug, directory_path):
     return render(request, 'project_app/project_directory.html', context)
 
 
-@login_required
 def project_file_view(request, username, slug, file_path):
     """
     View/Edit file contents (GitHub-style /blob/).
@@ -988,7 +985,6 @@ def project_file_view(request, username, slug, file_path):
     return render(request, 'project_app/project_file_view.html', context)
 
 
-@login_required
 def project_directory(request, username, slug, directory, subpath=None):
     """
     Browse scientific workflow directories within a project.
