@@ -44,7 +44,7 @@ def project_access_required(view_func):
     Decorator to check if user has access to a specific project.
 
     Expects username and slug in kwargs.
-    Checks if user is owner or collaborator.
+    Checks visibility (public/private) and user permissions.
 
     Usage:
         @login_required
@@ -61,16 +61,38 @@ def project_access_required(view_func):
         user = get_object_or_404(User, username=username)
         project = get_object_or_404(Project, slug=slug, owner=user)
 
-        # Check access
-        has_access = (
-            project.owner == request.user or
-            project.collaborators.filter(id=request.user.id).exists() or
-            request.user.is_staff
-        )
+        # Check access based on visibility
+        if hasattr(project, 'visibility'):
+            # If public, anyone can view
+            if project.visibility == 'public':
+                has_access = True
+            # If private, only owner, collaborators, or staff
+            elif project.visibility == 'private':
+                has_access = (
+                    request.user.is_authenticated and (
+                        project.owner == request.user or
+                        project.collaborators.filter(id=request.user.id).exists() or
+                        request.user.is_staff
+                    )
+                )
+            else:
+                has_access = False
+        else:
+            # Fallback for projects without visibility field (legacy)
+            has_access = (
+                project.owner == request.user or
+                project.collaborators.filter(id=request.user.id).exists() or
+                request.user.is_staff
+            )
 
         if not has_access:
-            messages.error(request, "You don't have permission to access this project.")
-            return redirect('project_app:user_projects', username=request.user.username)
+            if not request.user.is_authenticated:
+                messages.error(request, "This repository is private. Please log in to access it.")
+                from django.contrib.auth.views import redirect_to_login
+                return redirect_to_login(request.get_full_path())
+            else:
+                messages.error(request, "This repository is private. You don't have permission to access it.")
+                return redirect('user_projects:user_profile', username=username)
 
         # Attach project to request for convenience
         request.project = project
