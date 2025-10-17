@@ -669,31 +669,19 @@
             <!-- Compilation Panel (hidden by default) -->
             <div id="compilation-panel" class="split-editor" style="display: none; flex-direction: column; padding: 2rem;">
                 <!-- Horizontal: Compile Button & Log -->
-                <div style="display: grid; grid-template-columns: 250px 1fr; gap: 1rem; margin-bottom: 1.5rem;">
-                    <!-- Left: Compile Button and Progress -->
-                    <div>
+                <div style="display: grid; grid-template-columns: 250px 1fr; gap: 1rem; margin-bottom: 1.5rem; height: 150px;">
+                    <!-- Left: Compile/Stop Button -->
+                    <div style="display: flex; flex-direction: column; justify-content: flex-start;">
                         <button id="compile-btn-panel" class="btn btn-primary w-100 btn-lg mb-2">
                             <i class="fas fa-file-pdf me-2"></i>Compile PDF
                         </button>
-                        <div id="compilation-progress-panel" style="display: none;">
-                            <div class="progress" style="height: 25px;">
-                                <div id="progress-bar-panel" class="progress-bar progress-bar-striped progress-bar-animated"
-                                     role="progressbar" style="width: 0%; font-size: 0.9rem;">0%</div>
-                            </div>
-                        </div>
+                        <button id="stop-compile-btn" class="btn btn-danger w-100" style="display: none;">
+                            <i class="fas fa-stop me-2"></i>Stop
+                        </button>
                     </div>
 
-                    <!-- Right: Log Viewer -->
-                    <div style="display: flex; flex-direction: column;">
-                        <div style="display: flex; justify-content: flex-end; margin-bottom: 0.25rem;">
-                            <button id="toggle-log-panel" class="btn btn-sm btn-outline-secondary">
-                                <i class="fas fa-expand-alt"></i>
-                            </button>
-                        </div>
-                        <div id="compilation-log-panel" style="flex: 1; padding: 0.75rem; background: #0a0f1a; color: #00ff00; border-radius: 4px; font-size: 0.7rem; max-height: 120px; overflow-y: auto; font-family: 'Courier New', monospace; white-space: pre-wrap; line-height: 1.3;">
-                            Click "Compile PDF" to start compilation...
-                        </div>
-                    </div>
+                    <!-- Right: Log Viewer (fills available space) -->
+                    <div id="compilation-log-panel" style="padding: 0.75rem; background: #0a0f1a; color: #00ff00; border-radius: 4px; font-size: 0.7rem; overflow-y: auto; font-family: 'Courier New', monospace; white-space: pre-wrap; line-height: 1.3;">Click "Compile PDF" to start compilation...</div>
                 </div>
 
                 <!-- Side-by-Side PDFs with Outlines -->
@@ -937,13 +925,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const diffPdfContainer = document.getElementById('diff-pdf-container');
     const showMainPdfBtn = document.getElementById('show-main-pdf');
     const showDiffPdfBtn = document.getElementById('show-diff-pdf');
-    const toggleLogSizeBtn = document.getElementById('toggle-log-size');
 
     let hasUnsavedChanges = false;
     let logExpanded = false;
     let hasDiffPdf = false;
     let mainPdfDoc = null;
     let diffPdfDoc = null;
+    let compilationStartTime = null;
+    let timerInterval = null;
 
     // Load state from localStorage
     function loadState() {
@@ -1133,27 +1122,59 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Compile button in panel
             const compileBtnPanel = document.getElementById('compile-btn-panel');
+            console.log('Looking for compile-btn-panel:', !!compileBtnPanel);
+
             if (compileBtnPanel) {
+                console.log('✓ Compile button in panel found');
                 compileBtnPanel.addEventListener('click', function() {
-                    compileManuscriptPanel();
+                    console.log('✓ Compile button clicked in panel');
+
+                    // Inline compilation start
+                    const stopBtn = document.getElementById('stop-compile-btn');
+                    const logPanel = document.getElementById('compilation-log-panel');
+
+                    this.disabled = true;
+                    this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Compiling...';
+                    if (stopBtn) stopBtn.style.display = 'block';
+                    logPanel.textContent = 'Starting compilation...\n';
+
+                    fetch(`/writer/project/${projectId}/compile/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': getCsrfToken()
+                        }
+                    })
+                    .then(response => {
+                        console.log('[COMPILE] Response status:', response.status);
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('[COMPILE] Response data:', data);
+                        if (data.success) {
+                            localStorage.setItem(`last_compile_job_${projectId}`, data.job_id);
+                            logPanel.textContent += `Email notification sent.\nJob ID: ${data.job_id}\nMonitoring progress...\n`;
+                            showToast('Compilation started! Email notification sent.', 'success');
+                            pollCompilationStatusPanel(data.job_id);
+                        } else {
+                            logPanel.textContent += `\nError: ${data.error}`;
+                            showToast('Compilation failed: ' + (data.error || 'Unknown error'), 'danger');
+                            this.disabled = false;
+                            this.innerHTML = '<i class="fas fa-file-pdf me-2"></i>Compile PDF';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('[COMPILE] Fetch error:', error);
+                        logPanel.textContent += `\nFetch error: ${error.message}`;
+                        this.disabled = false;
+                        this.innerHTML = '<i class="fas fa-file-pdf me-2"></i>Compile PDF';
+                    });
                 });
+            } else {
+                console.error('✗ Compile button panel NOT FOUND');
             }
 
-            // Toggle log size in panel
-            const toggleLogPanel = document.getElementById('toggle-log-panel');
-            if (toggleLogPanel) {
-                toggleLogPanel.addEventListener('click', function() {
-                    const logPanel = document.getElementById('compilation-log-panel');
-                    const currentHeight = logPanel.style.maxHeight;
-                    if (currentHeight === '250px') {
-                        logPanel.style.maxHeight = '500px';
-                        this.innerHTML = '<i class="fas fa-compress-alt"></i>';
-                    } else {
-                        logPanel.style.maxHeight = '250px';
-                        this.innerHTML = '<i class="fas fa-expand-alt"></i>';
-                    }
-                });
-            }
+            // Removed: Toggle log size (no longer needed)
+
         } else {
             console.error('✗ Compilation panel elements not found:', {
                 toggleCompilationBtn: !!toggleCompilationBtn,
@@ -2206,16 +2227,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function compileManuscriptPanel() {
         const compileBtnPanel = document.getElementById('compile-btn-panel');
+        const stopBtn = document.getElementById('stop-compile-btn');
         const progressPanel = document.getElementById('compilation-progress-panel');
         const progressBarPanel = document.getElementById('progress-bar-panel');
         const logPanel = document.getElementById('compilation-log-panel');
+        const timerDisplay = document.getElementById('compilation-timer');
 
         compileBtnPanel.disabled = true;
-        compileBtnPanel.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Compiling...';
+        compileBtnPanel.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Compiling... (0:00)';
+        stopBtn.style.display = 'block';
         progressPanel.style.display = 'block';
         progressBarPanel.style.width = '10%';
         progressBarPanel.textContent = '10%';
         logPanel.textContent = 'Starting compilation...\n';
+
+        // Start timer (updates button text)
+        compilationStartTime = Date.now();
+        startTimerInButton();
 
         fetch(`/writer/project/${projectId}/compile/`, {
             method: 'POST',
@@ -2223,11 +2251,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 'X-CSRFToken': getCsrfToken()
             }
         })
-        .then(response => response.json())
+        .then(response => {
+            console.log('[COMPILE] Response status:', response.status);
+            return response.json();
+        })
         .then(data => {
+            console.log('[COMPILE] Response data:', data);
             if (data.success) {
                 localStorage.setItem(`last_compile_job_${projectId}`, data.job_id);
-                logPanel.textContent += 'Email notification sent.\nMonitoring progress...\n';
+                logPanel.textContent += `Email notification sent.\nJob ID: ${data.job_id}\nMonitoring progress...\n`;
                 showToast('Compilation started! Email notification sent.', 'success');
                 pollCompilationStatusPanel(data.job_id);
             } else {
@@ -2236,35 +2268,43 @@ document.addEventListener('DOMContentLoaded', function() {
                 compileBtnPanel.disabled = false;
                 compileBtnPanel.innerHTML = '<i class="fas fa-file-pdf me-2"></i>Compile PDF';
             }
+        })
+        .catch(error => {
+            console.error('[COMPILE] Fetch error:', error);
+            logPanel.textContent += `\nFetch error: ${error.message}`;
+            compileBtnPanel.disabled = false;
+            compileBtnPanel.innerHTML = '<i class="fas fa-file-pdf me-2"></i>Compile PDF';
         });
     }
 
     function pollCompilationStatusPanel(jobId, attempts = 0) {
+        console.log(`[POLL] Attempt ${attempts}, Job ID: ${jobId}`);
+
         if (attempts > 90) {
             document.getElementById('compilation-log-panel').textContent += '\nTimeout';
             return;
         }
 
-        const progressBarPanel = document.getElementById('progress-bar-panel');
         const logPanel = document.getElementById('compilation-log-panel');
         const compileBtnPanel = document.getElementById('compile-btn-panel');
 
         fetch(`/writer/api/status/${jobId}/`)
         .then(response => response.json())
         .then(data => {
-            const progress = data.progress || 50;
-            progressBarPanel.style.width = `${progress}%`;
-            progressBarPanel.textContent = `${progress}%`;
+            console.log(`[POLL] Status: ${data.status}, Has log: ${!!data.log}`);
 
+            // Update log immediately if available
             if (data.log) {
                 logPanel.textContent = data.log;
                 logPanel.scrollTop = logPanel.scrollHeight;
+                console.log(`[POLL] Updated log, length: ${data.log.length}`);
+            } else {
+                console.log('[POLL] No log in response');
             }
 
             if (data.status === 'completed') {
-                progressBarPanel.style.width = '100%';
-                progressBarPanel.textContent = '100%';
-                progressBarPanel.classList.add('bg-success');
+                const stopBtn = document.getElementById('stop-compile-btn');
+                if (stopBtn) stopBtn.style.display = 'none';
                 compileBtnPanel.innerHTML = '<i class="fas fa-check me-2"></i>Compiled!';
 
                 // Load the PDFs
@@ -2277,7 +2317,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     compileBtnPanel.innerHTML = '<i class="fas fa-file-pdf me-2"></i>Compile PDF';
                 }, 3000);
             } else if (data.status === 'failed') {
-                progressBarPanel.classList.add('bg-danger');
                 logPanel.textContent = `ERROR: ${data.error}\n\n${data.log || ''}`;
                 compileBtnPanel.disabled = false;
                 compileBtnPanel.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>Failed';
@@ -2287,8 +2326,44 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    function startTimerInButton() {
+        const compileBtnPanel = document.getElementById('compile-btn-panel');
+        if (timerInterval) clearInterval(timerInterval);
+
+        timerInterval = setInterval(function() {
+            if (compilationStartTime) {
+                const elapsed = Math.floor((Date.now() - compilationStartTime) / 1000);
+                const minutes = Math.floor(elapsed / 60);
+                const seconds = elapsed % 60;
+                const timeStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                compileBtnPanel.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Compiling... (${timeStr})`;
+            }
+        }, 1000);
+    }
+
+    function stopTimer() {
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+    }
+
     function getCsrfToken() {
         return document.querySelector('[name=csrfmiddlewaretoken]').value;
+    }
+
+    // Stop button handler
+    const stopCompileBtn = document.getElementById('stop-compile-btn');
+    if (stopCompileBtn) {
+        stopCompileBtn.addEventListener('click', function() {
+            if (confirm('Stop monitoring compilation? (Process will continue in background)')) {
+                stopTimer();
+                this.style.display = 'none';
+                document.getElementById('compile-btn-panel').disabled = false;
+                document.getElementById('compile-btn-panel').innerHTML = '<i class="fas fa-file-pdf me-2"></i>Compile PDF';
+                showToast('Stopped monitoring. Check back later for results.', 'info');
+            }
+        });
     }
 
     // Warn before leaving if there are unsaved changes

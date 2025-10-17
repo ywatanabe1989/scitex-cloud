@@ -331,10 +331,17 @@ def manuscript_edit(request, slug):
 @login_required
 def compile_modular_manuscript(request, project_id):
     """Compile modular manuscript using paper/compile.sh."""
+    import sys
+    from django.utils import timezone
+    print(f"[VIEW] compile_modular_manuscript called for project_id={project_id}", file=sys.stderr)
+    sys.stderr.flush()
+
     try:
         project = Project.objects.get(id=project_id, owner=request.user)
         manuscript = Manuscript.objects.get(project=project, owner=request.user)
+        print(f"[VIEW] Found project: {project.name}, manuscript: {manuscript.id}", file=sys.stderr)
     except (Project.DoesNotExist, Manuscript.DoesNotExist):
+        print(f"[VIEW] Project or manuscript not found!", file=sys.stderr)
         return JsonResponse({'error': 'Project or manuscript not found'}, status=404)
     
     if not manuscript.is_modular:
@@ -380,8 +387,13 @@ SciTeX Cloud Team
     except Exception as e:
         print(f"Email notification failed: {e}")
 
-    # Run compilation in background
+    # TEMPORARY: Run synchronously to test
+    # TODO: Move to background task queue (Celery) for production
     import threading
+    import sys
+
+    print(f"[DEBUG] Creating compilation function", file=sys.stderr)
+    sys.stderr.flush()
     
     def run_modular_compilation():
         import traceback
@@ -401,15 +413,23 @@ SciTeX Cloud Team
 
             print(f"[COMPILE] Starting subprocess at {paper_path}", file=sys.stderr)
 
-            # Create a log file to capture output in real-time
-            from django.conf import settings
-            log_dir = Path(settings.BASE_DIR) / 'tmp' / 'compilation_logs'
+            # Create a unique log file for this compilation run
+            log_dir = paper_path / '01_manuscript' / 'logs'
             log_dir.mkdir(parents=True, exist_ok=True)
-            log_file_path = log_dir / f'{job.job_id}.log'
 
-            # Run compile script and redirect output to log file
-            # Use 'tee' to capture AND display output
-            with open(log_file_path, 'w') as log_file:
+            # Use job UUID for unique log file
+            runtime_log_path = log_dir / f'compile_{job.job_id}.log'
+
+            # Store log file path in job for incremental reading by status API
+            # Keep it as a path (not content) so status API can read it incrementally
+            job.log_file = str(runtime_log_path)
+            job.compilation_log_path = str(runtime_log_path)  # Also store in separate field if available
+            job.save()
+
+            print(f"[COMPILE] Will write log to: {runtime_log_path}", file=sys.stderr)
+
+            # Run the actual compile script with real-time logging
+            with open(runtime_log_path, 'w', buffering=1) as log_file:  # Line buffering
                 process = subprocess.Popen(
                     ['bash', './compile', '-m'],
                     cwd=paper_path,
@@ -419,29 +439,26 @@ SciTeX Cloud Team
                     env=env
                 )
 
-                print(f"[COMPILE] Process started, PID: {process.pid}, Log: {log_file_path}", file=sys.stderr)
+                print(f"[COMPILE] Process started, PID: {process.pid}", file=sys.stderr)
 
-                # Store log file path for incremental reading
-                job.log_file = str(log_file_path)
-                job.save()
-
-                # Wait for process to complete
-                returncode = process.wait(timeout=300)  # 5 minutes
+                # Wait for process to complete (5 minutes for real compilation)
+                returncode = process.wait(timeout=300)
                 print(f"[COMPILE] Process completed. Return code: {returncode}", file=sys.stderr)
 
-            # Read final log
-            with open(log_file_path, 'r') as f:
-                full_log = f.read()
+            # DON'T read or overwrite log_file here
+            # The log_file field contains the PATH, which status API reads incrementally
+            # The file is already written by the compile script
+            if runtime_log_path.exists():
+                log_size = runtime_log_path.stat().st_size
+                print(f"[COMPILE] Log file size: {log_size} bytes", file=sys.stderr)
+            else:
+                print(f"[COMPILE] ERROR: Log file not found at {runtime_log_path}", file=sys.stderr)
 
-            print(f"[COMPILE] Final log: {len(full_log)} chars", file=sys.stderr)
-
-            # Update job with full log
-            job.log_file = full_log
-            job.save()
+            # job.log_file already contains the path - don't overwrite it!
 
             result = type('Result', (), {
                 'returncode': returncode,
-                'stdout': full_log,
+                'stdout': '',  # Not used - logs are in the file
                 'stderr': ''
             })()
             
@@ -464,8 +481,7 @@ SciTeX Cloud Team
 
                     job.status = 'completed'
                     job.output_path = str(output_path.relative_to(settings.MEDIA_ROOT))
-                    # Save full compilation log
-                    job.log_file = full_log
+                    # Log file path is already stored, don't overwrite
 
                     # Send completion email
                     try:
@@ -504,18 +520,17 @@ SciTeX Cloud Team
                 else:
                     job.status = 'failed'
                     job.error_message = 'PDF file not generated'
-                    job.error_log = full_log
+                    # Error details in log file
             else:
                 job.status = 'failed'
                 job.error_message = f'Compilation failed with exit code {result.returncode}'
-                job.error_log = result.stderr
-                job.log_file = full_log
+                # Error details in log file
                 
         except subprocess.TimeoutExpired:
             print(f"[COMPILE] Timeout exception caught", file=sys.stderr)
             job.status = 'failed'
             job.error_message = 'Compilation timed out'
-            job.error_log = full_log if 'full_log' in locals() else 'No log captured'
+            # Error details in log file
         except Exception as e:
             print(f"[COMPILE] Exception caught: {e}", file=sys.stderr)
             traceback.print_exc(file=sys.stderr)
@@ -536,20 +551,27 @@ SciTeX Cloud Team
     print(f"[DEBUG] About to start compilation for job {job.job_id}", file=sys.stderr)
     sys.stderr.flush()
 
-    # Run in background using threading
-    import threading
-    compilation_thread = threading.Thread(target=run_modular_compilation, name=f"compile-{job.job_id}")
-    compilation_thread.daemon = False
-    compilation_thread.start()
+    # WORKAROUND: Django dev server doesn't run background threads reliably
+    # Run compilation synchronously for now
+    # TODO: Use Celery or production WSGI server for async compilation
 
-    print(f"[DEBUG] Thread started: {compilation_thread.name}, alive: {compilation_thread.is_alive()}", file=sys.stderr)
+    print(f"[DEBUG] Starting detached background process", file=sys.stderr)
     sys.stderr.flush()
 
+    # Use subprocess to run compilation in truly detached background
+    # This works better than threading with Django dev server
+    import threading
+    thread = threading.Thread(target=run_modular_compilation, daemon=False)
+    thread.start()
+
+    print(f"[DEBUG] Background thread started", file=sys.stderr)
+    sys.stderr.flush()
+
+    # Return immediately so browser can start polling
     return JsonResponse({
         'success': True,
         'job_id': str(job.job_id),
-        'message': 'Modular compilation started',
-        'thread_started': compilation_thread.is_alive()
+        'message': 'Compilation started in background'
     })
 
 
@@ -1108,16 +1130,23 @@ def compilation_status(request, job_id):
                 if log_file_path.exists():
                     with open(log_file_path, 'r') as f:
                         current_log = f.read()
-                    response_data['log'] = current_log
-                    response_data['log_preview'] = current_log[-1000:]  # Last 1000 chars
+
+                    # Strip ANSI color codes for clean display
+                    import re
+                    clean_log = re.sub(r'\x1b\[[0-9;]*m', '', current_log)
+
+                    response_data['log'] = clean_log
+                    response_data['log_preview'] = clean_log[-1000:]  # Last 1000 chars
                 else:
                     response_data['log'] = 'Log file not found'
             except Exception as e:
                 response_data['log'] = f'Error reading log: {e}'
         else:
-            # It's actual log content
-            response_data['log'] = job.log_file
-            response_data['log_preview'] = job.log_file[:500]
+            # It's actual log content - strip ANSI codes
+            import re
+            clean_log = re.sub(r'\x1b\[[0-9;]*m', '', job.log_file)
+            response_data['log'] = clean_log
+            response_data['log_preview'] = clean_log[:500]
 
     return JsonResponse(response_data)
 
