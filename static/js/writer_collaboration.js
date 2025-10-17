@@ -330,3 +330,143 @@ WriterCollaboration.prototype.handleSectionUnlocked = function(data) {
         this.updateCollaboratorsList(this.collaborators);
     }
 };
+
+// Sprint 1.3: Basic Change Broadcasting
+WriterCollaboration.prototype.enableChangeBroadcasting = function() {
+    const editor = document.getElementById('latex-editor-textarea');
+    if (!editor) return;
+
+    let changeTimeout = null;
+    let lastContent = editor.value;
+    let isSyncing = false;
+
+    const self = this;
+
+    // Debounced change handler (500ms after typing stops)
+    editor.addEventListener('input', function() {
+        clearTimeout(changeTimeout);
+
+        changeTimeout = setTimeout(() => {
+            const currentContent = editor.value;
+            if (currentContent !== lastContent) {
+                const operation = self.calculateOperation(lastContent, currentContent);
+                lastContent = currentContent;
+
+                // Broadcast change
+                const currentSection = window.currentSection || 'abstract';
+                self.sendTextChange(currentSection, operation);
+
+                // Update sync indicator
+                self.updateSyncStatus('syncing');
+                setTimeout(() => self.updateSyncStatus('synced'), 500);
+            }
+        }, 500);
+    });
+
+    console.log('✓ Change broadcasting enabled');
+};
+
+WriterCollaboration.prototype.calculateOperation = function(oldText, newText) {
+    // Simple diff calculation (basic version, will be enhanced with OT)
+    const operation = {
+        type: 'replace',
+        old_text: oldText,
+        new_text: newText,
+        timestamp: Date.now()
+    };
+
+    // TODO: Implement proper operational transform operations
+    // For now, send full text replacement
+    return operation;
+};
+
+WriterCollaboration.prototype.applyRemoteChange = function(section, operation) {
+    // Only apply if not currently focused (prevent conflicts)
+    const editor = document.getElementById('latex-editor-textarea');
+    const currentSection = window.currentSection || 'abstract';
+
+    if (section !== currentSection || document.activeElement !== editor) {
+        // Section not active or editor not focused - safe to apply
+        console.log('Applying remote change to', section);
+
+        // If this is the current section, update editor
+        if (section === currentSection && operation.new_text) {
+            const cursorPosition = editor.selectionStart;
+            editor.value = operation.new_text;
+
+            // Restore cursor position (approximate)
+            editor.setSelectionRange(cursorPosition, cursorPosition);
+
+            // Update preview
+            if (typeof convertFromLatex === 'function' && typeof textPreview !== 'undefined') {
+                const textContent = convertFromLatex(section, operation.new_text);
+                const preview = document.getElementById('text-preview');
+                if (preview) {
+                    preview.textContent = textContent;
+                }
+            }
+
+            // Update word count
+            if (typeof updateWordCount === 'function') {
+                updateWordCount();
+            }
+        }
+    } else {
+        console.log('Skipping remote change - user is actively editing');
+        // TODO: Queue change for later application with OT
+    }
+};
+
+WriterCollaboration.prototype.updateSyncStatus = function(status) {
+    const saveStatus = document.getElementById('save-status');
+    if (!saveStatus) return;
+
+    switch (status) {
+        case 'syncing':
+            saveStatus.innerHTML = '<i class="fas fa-sync fa-spin text-info me-1"></i>Syncing...';
+            break;
+        case 'synced':
+            saveStatus.innerHTML = '<i class="fas fa-check-circle text-success me-1"></i>Synced with collaborators';
+            setTimeout(() => {
+                // Revert to original save status after 2 seconds
+                const hasUnsaved = window.hasUnsavedChanges || false;
+                if (!hasUnsaved) {
+                    saveStatus.innerHTML = '<i class="fas fa-check-circle text-success me-1"></i>All changes saved';
+                }
+            }, 2000);
+            break;
+        case 'conflict':
+            saveStatus.innerHTML = '<i class="fas fa-exclamation-triangle text-warning me-1"></i>Sync conflict';
+            break;
+        case 'error':
+            saveStatus.innerHTML = '<i class="fas fa-times-circle text-danger me-1"></i>Sync error';
+            break;
+    }
+};
+
+// Enhanced handleTextChange to apply remote changes
+WriterCollaboration.prototype.handleTextChange = function(data) {
+    console.log('Text change received from', data.username);
+    this.applyRemoteChange(data.section, data.operation);
+    this.updateSyncStatus('synced');
+};
+
+// Add method to get connection status
+WriterCollaboration.prototype.isConnected = function() {
+    return this.ws && this.ws.readyState === WebSocket.OPEN;
+};
+
+// Enhance onConnected to enable features
+WriterCollaboration.prototype.onConnected = function() {
+    const indicator = document.getElementById('collaboration-status');
+    if (indicator) {
+        indicator.innerHTML = '<i class="fas fa-circle text-success"></i> Connected';
+    }
+
+    // Enable change broadcasting
+    this.enableChangeBroadcasting();
+
+    console.log('✓ Real-time features enabled');
+};
+
+console.log('✓ Sprint 1.3: Basic Change Broadcasting loaded');

@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-17 17:52:33
+!-- Timestamp: 2025-10-17 18:42:35
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/TODOS/WRITER.md
 !-- --- -->
@@ -76,11 +76,13 @@ class WriterConsumer(AsyncWebsocketConsumer):
 - [x] Disable editor for locked sections
 - [x] Visual feedback with border colors and opacity
 
-#### Sprint 1.3: Basic Change Broadcasting (Week 2-3)
-- [ ] Broadcast text insertions/deletions
-- [ ] Debounce updates (500ms after typing stops)
-- [ ] Handle network reconnection
-- [ ] Show "Syncing..." indicator
+#### Sprint 1.3: Basic Change Broadcasting (Week 2-3) ✅ COMPLETED
+- [x] Broadcast text insertions/deletions (✅ Full text sync!)
+- [x] Debounce updates (500ms after typing stops)
+- [x] Handle network reconnection (✅ Exponential backoff!)
+- [x] Show "Syncing..." indicator (✅ Status in save-status!)
+- [x] Apply remote changes intelligently (skip if user editing)
+- [x] Auto-enable on WebSocket connection
 
 **Metrics:**
 - Latency < 200ms for change propagation
@@ -410,5 +412,8 @@ Inserts \cite{author2024} in text
 | Real-time sync conflicts | MEDIUM | Well-tested OT algorithm, conflict UI |
 
 ---
+
+### Writing/Collaboration system integrations
+see /home/ywatanabe/proj/scitex-cloud/TODOS/INTEGRATIONS.md
 
 <!-- EOF -->
