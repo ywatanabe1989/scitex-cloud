@@ -2847,3 +2847,171 @@ def unlock_section(request, section_id):
         
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+# ============================================
+# AI Writing Assistant API (Phase 4)
+# ============================================
+
+@login_required
+@require_http_methods(["POST"])
+def ai_improve_text(request):
+    """Get AI suggestions for improving text."""
+    try:
+        data = json.loads(request.body)
+        content = data.get('content', '')
+        section_type = data.get('section_type', 'general')
+        target = data.get('target', 'clarity')  # clarity, conciseness, academic_style
+        manuscript_id = data.get('manuscript_id')
+
+        if not content:
+            return JsonResponse({'error': 'No content provided'}, status=400)
+
+        # Get manuscript for context
+        manuscript = None
+        if manuscript_id:
+            manuscript = get_object_or_404(Manuscript, id=manuscript_id, owner=request.user)
+
+        # Get AI assistant
+        from .ai_assistant import get_ai_assistant
+        ai = get_ai_assistant()
+
+        # Build context from other sections if available
+        context = {}
+        if manuscript:
+            context['title'] = manuscript.title
+            context['abstract'] = manuscript.abstract
+
+        # Get suggestion
+        result = ai.get_suggestion(content, section_type, target, context)
+
+        if result.get('error'):
+            return JsonResponse({'error': result['error']}, status=500)
+
+        # Log AI assistance
+        if manuscript:
+            AIAssistanceLog.objects.create(
+                manuscript=manuscript,
+                user=request.user,
+                assistance_type='revision',
+                section_type=section_type,
+                original_text=content,
+                suggested_text=result.get('text', ''),
+                tokens_used=result.get('tokens_used', 0)
+            )
+
+        return JsonResponse({
+            'success': True,
+            'suggested_text': result.get('text', ''),
+            'tokens_used': result.get('tokens_used', 0),
+            'model': result.get('model', '')
+        })
+
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@login_required
+@require_http_methods(["POST"])
+def ai_generate_section(request):
+    """Generate content for a section using AI."""
+    try:
+        data = json.loads(request.body)
+        section_type = data.get('section_type', 'abstract')
+        target_words = data.get('target_words', 200)
+        manuscript_id = data.get('manuscript_id')
+
+        # Get manuscript
+        manuscript = get_object_or_404(Manuscript, id=manuscript_id, owner=request.user)
+
+        # Build context from existing sections
+        from .ai_assistant import get_ai_assistant
+        ai = get_ai_assistant()
+
+        # Get other sections for context
+        context = {
+            'title': manuscript.title,
+            'abstract': manuscript.abstract
+        }
+
+        # TODO: Fetch section contents from files
+        paper_path = manuscript.get_project_paper_path()
+        if paper_path:
+            # Read existing sections for context
+            sections = ['introduction', 'methods', 'results']
+            for sec in sections:
+                sec_file = paper_path / f'01_manuscript/contents/{sec}.tex'
+                if sec_file.exists():
+                    context[sec] = sec_file.read_text()
+
+        # Generate content
+        result = ai.generate_content(section_type, target_words, context)
+
+        if result.get('error'):
+            return JsonResponse({'error': result['error']}, status=500)
+
+        # Log generation
+        AIAssistanceLog.objects.create(
+            manuscript=manuscript,
+            user=request.user,
+            assistance_type='generate_section',
+            section_type=section_type,
+            target_section=section_type,
+            word_count_target=target_words,
+            generated_text=result.get('text', ''),
+            tokens_used=result.get('tokens_used', 0)
+        )
+
+        return JsonResponse({
+            'success': True,
+            'generated_text': result.get('text', ''),
+            'word_count': len(result.get('text', '').split()),
+            'tokens_used': result.get('tokens_used', 0),
+            'model': result.get('model', '')
+        })
+
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@login_required
+@require_http_methods(["POST"])
+def ai_suggest_citations(request):
+    """Get AI suggestions for where citations are needed."""
+    try:
+        data = json.loads(request.body)
+        content = data.get('content', '')
+        section_type = data.get('section_type', 'general')
+        manuscript_id = data.get('manuscript_id')
+
+        if not content:
+            return JsonResponse({'error': 'No content provided'}, status=400)
+
+        manuscript = None
+        if manuscript_id:
+            manuscript = get_object_or_404(Manuscript, id=manuscript_id, owner=request.user)
+
+        # Get AI assistant
+        from .ai_assistant import get_ai_assistant
+        ai = get_ai_assistant()
+
+        # Get citation suggestions
+        suggestions = ai.suggest_citations(content, section_type)
+
+        # Log assistance
+        if manuscript:
+            AIAssistanceLog.objects.create(
+                manuscript=manuscript,
+                user=request.user,
+                assistance_type='citation',
+                section_type=section_type,
+                original_text=content,
+                suggested_text=json.dumps(suggestions)
+            )
+
+        return JsonResponse({
+            'success': True,
+            'suggestions': suggestions
+        })
+
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
