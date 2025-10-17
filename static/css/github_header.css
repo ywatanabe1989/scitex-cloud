@@ -209,14 +209,58 @@
 }
 
 .header-btn-primary {
-    background: var(--scitex-success);  /* #4a9b7e - SciTeX harmonized green */
-    border-color: rgba(212, 225, 232, 0.1);
+    background: var(--success-color);  /* #4a9b7e - SciTeX harmonized green */
+    border-color: var(--success-color);
     color: #ffffff;
 }
 
 .header-btn-primary:hover {
     background: #5fb98c;  /* Brighter green on hover */
+    border-color: #5fb98c;
     color: #ffffff;
+}
+
+[data-theme="dark"] .header-btn-primary {
+    background: var(--success-color);
+    border-color: rgba(212, 225, 232, 0.1);
+    color: #ffffff;
+}
+
+[data-theme="dark"] .header-btn-primary:hover {
+    background: #5fb98c;
+    border-color: #5fb98c;
+    color: #ffffff;
+}
+
+/* Theme Toggle Button */
+.theme-toggle {
+    background: transparent;
+    border: none;
+    color: var(--scitex-color-03);
+    cursor: pointer;
+    font-size: 18px;
+    padding: 6px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.theme-toggle:hover {
+    background: var(--scitex-color-07);
+    color: var(--scitex-color-01);
+}
+
+[data-theme="dark"] .theme-toggle {
+    color: var(--scitex-color-06);
+}
+
+[data-theme="dark"] .theme-toggle:hover {
+    background: var(--scitex-color-01-light);
+    color: var(--scitex-color-07);
 }
 
 /* Icon Buttons */

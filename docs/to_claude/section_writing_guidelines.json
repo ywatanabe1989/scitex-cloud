@@ -1,0 +1,209 @@
+{
+  "abstract": {
+    "title": "Abstract Writing Guide",
+    "wordCount": "150-300 words",
+    "structure": [
+      {
+        "title": "Basic Introduction",
+        "description": "1-2 sentences providing a basic introduction to the field, comprehensible to scientists in any discipline."
+      },
+      {
+        "title": "Detailed Background",
+        "description": "2-3 sentences of more detailed background, comprehensible to scientists in related disciplines."
+      },
+      {
+        "title": "General Problem",
+        "description": "1 sentence clearly stating the general problem being addressed by this study."
+      },
+      {
+        "title": "Main Result",
+        "description": "1 sentence summarizing the main result using 'here we show' or equivalent."
+      },
+      {
+        "title": "Results with Comparisons",
+        "description": "2-3 sentences explaining what the main result reveals compared to previous knowledge. Include specific quantitative results."
+      },
+      {
+        "title": "General Context",
+        "description": "1-2 sentences placing your results in a broader context."
+      },
+      {
+        "title": "Broader Perspective",
+        "description": "2-3 sentences (optional) providing broader perspective on implications and future impact."
+      }
+    ],
+    "tips": [
+      "Write as coherent, cohesive sentences without line breaks",
+      "Use present tense for general facts",
+      "Use past tense for specific prior research and your results",
+      "Include quantitative measurements precisely",
+      "Explicitly indicate species with sample sizes"
+    ]
+  },
+  "introduction": {
+    "title": "Introduction Writing Guide",
+    "wordCount": "1000-2000 words (4-8 paragraphs)",
+    "structure": [
+      {
+        "title": "Problem Statement",
+        "description": "Introduce the broad research area, establish importance, provide context with statistics."
+      },
+      {
+        "title": "Current Knowledge",
+        "description": "Summarize what is known, discuss existing approaches and achievements."
+      },
+      {
+        "title": "Gaps and Limitations",
+        "description": "Identify specific limitations and explain why they matter."
+      },
+      {
+        "title": "Your Approach",
+        "description": "Introduce your method and explain its unique advantages."
+      },
+      {
+        "title": "Objectives and Hypotheses",
+        "description": "Clearly state research hypotheses and specific objectives."
+      },
+      {
+        "title": "Preview of Findings",
+        "description": "Optional: Briefly preview main results and significance."
+      }
+    ],
+    "tips": [
+      "Cite foundational references systematically",
+      "Connect paragraphs with clear transitions",
+      "Be specific about gaps in knowledge",
+      "State hypotheses clearly and testably"
+    ]
+  },
+  "methods": {
+    "title": "Methods Writing Guide",
+    "wordCount": "Sufficient detail for replication",
+    "structure": [
+      {
+        "title": "Ethics/IRB Approval",
+        "description": "Describe ethical approval, informed consent, and compliance."
+      },
+      {
+        "title": "Dataset and Study Design",
+        "description": "Describe dataset, participants, sample size, inclusion/exclusion criteria."
+      },
+      {
+        "title": "Data Acquisition",
+        "description": "Detail how data were collected, instruments used, sampling rates."
+      },
+      {
+        "title": "Data Processing",
+        "description": "Describe preprocessing, filtering, normalization steps."
+      },
+      {
+        "title": "Feature Extraction",
+        "description": "If applicable, describe features and include mathematical formulations."
+      },
+      {
+        "title": "Statistical Analysis",
+        "description": "Describe tests, significance thresholds, corrections for multiple comparisons."
+      },
+      {
+        "title": "Software and Reproducibility",
+        "description": "List software, versions, and reproducibility measures."
+      }
+    ],
+    "tips": [
+      "Provide sufficient detail for replication",
+      "Be specific about parameters and settings",
+      "Include version numbers for software",
+      "Describe randomization and blinding procedures"
+    ]
+  },
+  "results": {
+    "title": "Results Writing Guide",
+    "wordCount": "Variable based on findings",
+    "structure": [
+      {
+        "title": "Overview",
+        "description": "Brief overview of main findings."
+      },
+      {
+        "title": "Primary Results",
+        "description": "Present primary findings with statistical support."
+      },
+      {
+        "title": "Secondary Results",
+        "description": "Present supporting or exploratory findings."
+      },
+      {
+        "title": "Figures and Tables",
+        "description": "Reference and explain all figures and tables."
+      }
+    ],
+    "tips": [
+      "Present findings objectively without interpretation",
+      "Include all relevant statistical measures",
+      "Use figures and tables to support key results",
+      "Report negative and positive findings"
+    ]
+  },
+  "discussion": {
+    "title": "Discussion Writing Guide",
+    "wordCount": "800-1500 words",
+    "structure": [
+      {
+        "title": "Summary of Findings",
+        "description": "Brief restatement of main results."
+      },
+      {
+        "title": "Interpretation",
+        "description": "Explain what the results mean in context of your hypotheses."
+      },
+      {
+        "title": "Comparison with Literature",
+        "description": "Compare findings with existing research."
+      },
+      {
+        "title": "Mechanisms and Implications",
+        "description": "Discuss potential mechanisms and broader implications."
+      },
+      {
+        "title": "Limitations",
+        "description": "Acknowledge study limitations honestly."
+      },
+      {
+        "title": "Future Directions",
+        "description": "Suggest future research directions."
+      }
+    ],
+    "tips": [
+      "Avoid overstating conclusions",
+      "Acknowledge alternative interpretations",
+      "Be honest about limitations",
+      "Connect findings to broader context"
+    ]
+  },
+  "highlights": {
+    "title": "Highlights Writing Guide",
+    "wordCount": "3-5 bullet points (85 characters each max)",
+    "structure": [
+      {
+        "title": "Key Findings",
+        "description": "List 3-5 main contributions as concise bullet points."
+      }
+    ],
+    "tips": [
+      "Keep each highlight under 85 characters",
+      "Focus on novel contributions",
+      "Be specific and quantitative",
+      "Make each point self-contained"
+    ]
+  },
+  "keywords": {
+    "title": "Keywords Guide",
+    "wordCount": "3-7 keywords",
+    "tips": [
+      "Choose terms not in the title",
+      "Use standard terminology from your field",
+      "Include both general and specific terms",
+      "Separate with commas or semicolons"
+    ]
+  }
+}

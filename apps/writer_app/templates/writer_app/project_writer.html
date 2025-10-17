@@ -3,6 +3,14 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/components/hero.css' %}">
+<!-- CodeMirror for LaTeX syntax highlighting -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/zenburn.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/eclipse.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/monokai.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/solarized.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/neat.min.css">
 <style>
 :root {
     --scitex-primary: var(--color-accent-emphasis);
@@ -327,22 +335,200 @@
     box-shadow: 0 0 0 3px rgba(80, 107, 122, 0.1);
 }
 
-.latex-editor-textarea {
+/* CodeMirror container styling */
+.CodeMirror {
     flex: 1;
+    height: 100%;
     border: 1px solid var(--color-border-default);
     border-radius: var(--border-radius);
-    font-family: 'Monaco', 'Menlo', monospace;
+    font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
     font-size: 14px;
-    padding: 1.5rem;
-    outline: none;
-    background: var(--color-canvas-subtle);
-    color: var(--color-fg-default);
-    resize: none;
 }
 
-.latex-editor-textarea:focus {
+.CodeMirror-focused {
     border-color: var(--scitex-accent);
     box-shadow: 0 0 0 3px rgba(80, 107, 122, 0.1);
+}
+
+/* Custom SciTeX theme for CodeMirror - Light Mode (Default) */
+.cm-s-scitex.CodeMirror {
+    background: #ffffff;
+    color: #1a2332;
+}
+
+.cm-s-scitex .CodeMirror-gutters {
+    background: #f6f8fa;
+    border-right: 1px solid #d4e1e8;
+}
+
+.cm-s-scitex .CodeMirror-linenumber {
+    color: #506b7a;
+}
+
+.cm-s-scitex .CodeMirror-cursor {
+    border-left: 2px solid #34495e;
+}
+
+.cm-s-scitex .CodeMirror-selected {
+    background: #d4e1e8;
+}
+
+.cm-s-scitex .CodeMirror-activeline-background {
+    background: rgba(212, 225, 232, 0.3);
+}
+
+/* LaTeX syntax highlighting with SciTeX colors - Light Mode */
+.cm-s-scitex span.cm-comment {
+    color: #506b7a;
+    font-style: italic;
+}
+
+.cm-s-scitex span.cm-keyword {
+    color: #34495e;
+    font-weight: bold;
+}
+
+.cm-s-scitex span.cm-tag {
+    color: #34495e;
+}
+
+.cm-s-scitex span.cm-bracket {
+    color: #506b7a;
+}
+
+.cm-s-scitex span.cm-string {
+    color: #506b7a;
+}
+
+.cm-s-scitex span.cm-number {
+    color: #34495e;
+}
+
+.cm-s-scitex span.cm-variable {
+    color: #1a2332;
+}
+
+.cm-s-scitex span.cm-def {
+    color: #34495e;
+}
+
+.cm-s-scitex span.cm-operator {
+    color: #506b7a;
+}
+
+.cm-s-scitex span.cm-builtin {
+    color: #34495e;
+}
+
+.cm-s-scitex span.cm-attribute {
+    color: #506b7a;
+}
+
+.cm-s-scitex span.cm-header {
+    color: #34495e;
+    font-weight: bold;
+}
+
+.cm-s-scitex span.cm-quote {
+    color: #506b7a;
+    font-style: italic;
+}
+
+.cm-s-scitex span.cm-link {
+    color: #34495e;
+    text-decoration: underline;
+}
+
+.cm-s-scitex span.cm-error {
+    color: #d73a49;
+    background: rgba(215, 58, 73, 0.1);
+}
+
+/* Dark Mode variant (if theme toggle is added later) */
+[data-theme="dark"] .cm-s-scitex.CodeMirror {
+    background: #1a2332;
+    color: #d4e1e8;
+}
+
+[data-theme="dark"] .cm-s-scitex .CodeMirror-gutters {
+    background: #1a2332;
+    border-right: 1px solid #34495e;
+}
+
+[data-theme="dark"] .cm-s-scitex .CodeMirror-linenumber {
+    color: #6c8ba0;
+}
+
+[data-theme="dark"] .cm-s-scitex .CodeMirror-cursor {
+    border-left: 2px solid #b5c7d1;
+}
+
+[data-theme="dark"] .cm-s-scitex .CodeMirror-selected {
+    background: #34495e;
+}
+
+[data-theme="dark"] .cm-s-scitex .CodeMirror-activeline-background {
+    background: rgba(52, 73, 94, 0.3);
+}
+
+[data-theme="dark"] .cm-s-scitex span.cm-comment {
+    color: #8fa4b0;
+}
+
+[data-theme="dark"] .cm-s-scitex span.cm-keyword {
+    color: #6c8ba0;
+}
+
+[data-theme="dark"] .cm-s-scitex span.cm-tag {
+    color: #6c8ba0;
+}
+
+[data-theme="dark"] .cm-s-scitex span.cm-bracket {
+    color: #b5c7d1;
+}
+
+[data-theme="dark"] .cm-s-scitex span.cm-string {
+    color: #8fa4b0;
+}
+
+[data-theme="dark"] .cm-s-scitex span.cm-number {
+    color: #6c8ba0;
+}
+
+[data-theme="dark"] .cm-s-scitex span.cm-variable {
+    color: #d4e1e8;
+}
+
+[data-theme="dark"] .cm-s-scitex span.cm-def {
+    color: #b5c7d1;
+}
+
+[data-theme="dark"] .cm-s-scitex span.cm-operator {
+    color: #b5c7d1;
+}
+
+[data-theme="dark"] .cm-s-scitex span.cm-builtin {
+    color: #6c8ba0;
+}
+
+[data-theme="dark"] .cm-s-scitex span.cm-attribute {
+    color: #8fa4b0;
+}
+
+[data-theme="dark"] .cm-s-scitex span.cm-header {
+    color: #6c8ba0;
+}
+
+[data-theme="dark"] .cm-s-scitex span.cm-quote {
+    color: #8fa4b0;
+}
+
+[data-theme="dark"] .cm-s-scitex span.cm-link {
+    color: #6c8ba0;
+}
+
+[data-theme="dark"] .cm-s-scitex span.cm-error {
+    color: #ff6b6b;
 }
 
 .text-preview {
@@ -653,8 +839,23 @@
             <!-- Split LaTeX editor with preview -->
             <div id="split-editor" class="split-editor">
                 <div class="latex-panel">
-                    <div class="panel-header">
-                        <i class="fas fa-code me-1"></i><span id="section-title-latex">LaTeX Source</span>
+                    <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <span><i class="fas fa-code me-1"></i><span id="section-title-latex">LaTeX Source</span></span>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 0.75rem; color: var(--color-fg-muted);">Color:</span>
+                            <select id="theme-selector" class="form-select form-select-sm" style="width: auto; font-size: 0.75rem; padding: 0.25rem 0.5rem;">
+                                <optgroup label="Dark Themes">
+                                    <option value="zenburn">Zenburn</option>
+                                    <option value="monokai">Monokai</option>
+                                    <option value="dracula">Dracula</option>
+                                </optgroup>
+                                <optgroup label="Light Themes">
+                                    <option value="eclipse">Eclipse (Default)</option>
+                                    <option value="neat">Neat</option>
+                                    <option value="solarized light">Solarized Light</option>
+                                </optgroup>
+                            </select>
+                        </div>
                     </div>
                     <textarea id="latex-editor-textarea" class="latex-editor-textarea" placeholder="LaTeX code..."></textarea>
                 </div>
@@ -763,6 +964,10 @@
     <i class="fas fa-pencil-alt me-2"></i>
     <span id="current-word-count">0</span> words
 </div>
+
+<!-- CodeMirror -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/stex/stex.min.js"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -894,9 +1099,31 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
     
-    // Elements
+    // Initialize CodeMirror editor
+    let codeMirrorEditor = null;
     const latexEditorTextarea = document.getElementById('latex-editor-textarea');
     const textPreview = document.getElementById('text-preview');
+
+    // Load saved theme preferences for each mode
+    const savedDarkTheme = localStorage.getItem(`codemirror_theme_dark_${projectId}`) || 'zenburn';
+    const savedLightTheme = localStorage.getItem(`codemirror_theme_light_${projectId}`) || 'eclipse';
+
+    // Determine current site theme
+    const currentSiteTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    const initialTheme = currentSiteTheme === 'dark' ? savedDarkTheme : savedLightTheme;
+
+    // Create CodeMirror instance
+    codeMirrorEditor = CodeMirror.fromTextArea(latexEditorTextarea, {
+        mode: 'stex',
+        theme: initialTheme,
+        lineNumbers: true,
+        lineWrapping: true,
+        indentUnit: 2,
+        tabSize: 2,
+        indentWithTabs: false,
+        autofocus: true,
+        styleActiveLine: true
+    });
     const saveBtn = document.getElementById('save-btn');
     const compileBtn = document.getElementById('compile-btn');
     const liveCompileToggle = document.getElementById('live-compile-toggle');
@@ -904,6 +1131,76 @@ document.addEventListener('DOMContentLoaded', function() {
     const saveStatus = document.getElementById('save-status');
     const currentWordCount = document.getElementById('current-word-count');
     const doctypeSelector = document.getElementById('doctype-selector');
+    const themeSelector = document.getElementById('theme-selector');
+
+    // Set theme selector to current theme
+    if (themeSelector) {
+        themeSelector.value = initialTheme;
+    }
+
+    // Theme switcher - save preference per light/dark mode
+    themeSelector.addEventListener('change', function() {
+        const newTheme = this.value;
+        const currentSiteTheme = document.documentElement.getAttribute('data-theme') || 'light';
+
+        codeMirrorEditor.setOption('theme', newTheme);
+
+        // Save theme preference for current mode (light or dark)
+        if (currentSiteTheme === 'dark') {
+            localStorage.setItem(`codemirror_theme_dark_${projectId}`, newTheme);
+        } else {
+            localStorage.setItem(`codemirror_theme_light_${projectId}`, newTheme);
+        }
+    });
+
+    // Update theme selector options based on current mode
+    function updateThemeSelectorOptions() {
+        const currentSiteTheme = document.documentElement.getAttribute('data-theme') || 'light';
+        const isDarkMode = currentSiteTheme === 'dark';
+
+        // Show/hide optgroups based on mode
+        const darkGroup = themeSelector.querySelector('optgroup[label="Dark Themes"]');
+        const lightGroup = themeSelector.querySelector('optgroup[label="Light Themes"]');
+
+        if (isDarkMode) {
+            darkGroup.style.display = '';
+            lightGroup.style.display = 'none';
+        } else {
+            darkGroup.style.display = 'none';
+            lightGroup.style.display = '';
+        }
+    }
+
+    // Initial update
+    updateThemeSelectorOptions();
+
+    // Listen for site theme changes and switch CodeMirror theme accordingly
+    const themeObserver = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.attributeName === 'data-theme') {
+                const newSiteTheme = document.documentElement.getAttribute('data-theme') || 'light';
+
+                // Get current saved preference for this mode
+                const preferredTheme = newSiteTheme === 'dark'
+                    ? localStorage.getItem(`codemirror_theme_dark_${projectId}`) || 'zenburn'
+                    : localStorage.getItem(`codemirror_theme_light_${projectId}`) || 'eclipse';
+
+                codeMirrorEditor.setOption('theme', preferredTheme);
+                themeSelector.value = preferredTheme;
+
+                // Update dropdown options
+                updateThemeSelectorOptions();
+
+                console.log(`Site theme changed to ${newSiteTheme}, CodeMirror theme: ${preferredTheme}`);
+            }
+        });
+    });
+
+    // Observe data-theme attribute changes on <html>
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['data-theme']
+    });
     const sectionsTitle = document.getElementById('sections-title');
     const sectionList = document.querySelector('.section-list');
     const manageSectionsBtn = document.getElementById('manage-sections-btn');
@@ -1031,10 +1328,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Update preview and mark as unsaved on LaTeX content change
-    latexEditorTextarea.addEventListener('input', function() {
+    // Update preview and mark as unsaved on CodeMirror change
+    codeMirrorEditor.on('change', function(editor) {
         // Update preview in real-time
-        const textContent = convertFromLatex(currentSection, this.value);
+        const latexContent = editor.getValue();
+        const textContent = convertFromLatex(currentSection, latexContent);
         textPreview.textContent = textContent;
 
         // Update word count
@@ -1216,7 +1514,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                latexEditorTextarea.value = data.latex_content;
+                codeMirrorEditor.setValue(data.latex_content);
 
                 // Update preview
                 const textContent = convertFromLatex(section, data.latex_content);
@@ -1229,17 +1527,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 markAsSaved();
             } else {
                 console.error('Failed to load LaTeX content:', data.error);
-                // Fallback to empty with placeholder
-                const placeholder = sectionPlaceholders[currentDocType][section] || '';
-                latexEditorTextarea.value = `% ${sectionTitles[currentDocType][section]}\n\n`;
-                latexEditorTextarea.placeholder = placeholder;
+                codeMirrorEditor.setValue(`% ${sectionTitles[currentDocType][section]}\n\n`);
                 textPreview.textContent = '';
                 markAsSaved();
             }
         })
         .catch(error => {
             console.error('Load LaTeX error:', error);
-            latexEditorTextarea.value = `% ${sectionTitles[currentDocType][section]}\n\n`;
+            codeMirrorEditor.setValue(`% ${sectionTitles[currentDocType][section]}\n\n`);
             textPreview.textContent = '';
             markAsSaved();
         });
@@ -1576,7 +1871,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function saveCurrentSectionManually() {
-        const latexContent = latexEditorTextarea.value;
+        const latexContent = codeMirrorEditor.getValue();
         const sectionToSave = currentSection;  // Capture current section
 
         saveBtn.disabled = true;
@@ -1720,7 +2015,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function updateWordCount() {
         // Convert LaTeX to plain text for word counting
-        const content = convertFromLatex(currentSection, latexEditorTextarea.value);
+        const latexContent = codeMirrorEditor.getValue();
+        const content = convertFromLatex(currentSection, latexContent);
         const words = content.trim().split(/\s+/).filter(word => word.length > 0).length;
         currentWordCount.textContent = words;
 

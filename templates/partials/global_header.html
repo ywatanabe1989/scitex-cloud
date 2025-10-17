@@ -59,8 +59,8 @@
     <!-- Right: Actions + User Menu -->
     <div class="header-right">
       <!-- Theme Toggle (always visible) -->
-      <button id="theme-toggle" class="theme-toggle" title="Theme: System">
-        💻
+      <button id="theme-toggle" class="theme-toggle" title="Toggle theme">
+        ☀️
       </button>
 
       {% if user.is_authenticated %}
@@ -199,5 +199,7 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   }
+
+  // Note: Theme toggle functionality is handled by /static/js/theme-switcher.js
 });
 </script>

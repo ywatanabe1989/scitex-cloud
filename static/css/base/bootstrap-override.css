@@ -88,10 +88,27 @@ body {
   background: transparent !important;
 }
 
-/* Ensure form controls use SciTeX 800 for text */
+/* Ensure form controls use appropriate text color per theme */
 .form-control,
 .form-select {
   color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select {
+  color: var(--scitex-color-07) !important;
+  background-color: var(--scitex-color-01-light) !important;
+  border-color: var(--scitex-color-02) !important;
+}
+
+[data-theme="dark"] .form-select option {
+  background-color: var(--scitex-color-01-light) !important;
+  color: var(--scitex-color-07) !important;
+}
+
+[data-theme="dark"] .form-select optgroup {
+  background-color: var(--scitex-color-01) !important;
+  color: var(--scitex-color-06) !important;
 }
 
 /* Override Bootstrap card text */

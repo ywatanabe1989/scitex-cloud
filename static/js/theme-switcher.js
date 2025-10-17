@@ -15,6 +15,14 @@
      */
     function getThemePreference() {
         const stored = localStorage.getItem(STORAGE_KEY);
+
+        // Migration: Clean up old 'auto' or 'system' values from previous implementation
+        if (stored && !['light', 'dark'].includes(stored)) {
+            console.log(`Migrating invalid theme value: "${stored}" → "light"`);
+            localStorage.setItem(STORAGE_KEY, THEME_LIGHT);
+            return THEME_LIGHT;
+        }
+
         if (stored && [THEME_LIGHT, THEME_DARK].includes(stored)) {
             return stored;
         }
@@ -29,7 +37,7 @@
             document.documentElement.setAttribute('data-theme', 'dark');
             document.documentElement.setAttribute('data-color-mode', 'dark');
         } else {
-            document.documentElement.removeAttribute('data-theme');
+            document.documentElement.setAttribute('data-theme', 'light');
             document.documentElement.setAttribute('data-color-mode', 'light');
         }
 
@@ -51,6 +59,7 @@
     function toggleTheme() {
         const current = getThemePreference();
         const next = current === THEME_LIGHT ? THEME_DARK : THEME_LIGHT;
+        console.log(`Theme toggle: ${current} → ${next}`);
         setThemePreference(next);
     }
 
@@ -82,6 +91,23 @@
     }
 
     /**
+     * Set up toggle button (call when DOM is ready)
+     */
+    function setupToggleButton() {
+        const toggleBtn = document.getElementById('theme-toggle');
+        if (toggleBtn) {
+            console.log('✓ Theme toggle button found, attaching click handler');
+            toggleBtn.addEventListener('click', function(e) {
+                console.log('✓ Theme toggle clicked');
+                toggleTheme();
+            });
+            updateToggleButton();
+        } else {
+            console.warn('✗ Theme toggle button NOT found');
+        }
+    }
+
+    /**
      * Initialize theme on page load
      */
     function initTheme() {
@@ -89,14 +115,13 @@
         const theme = getThemePreference();
         applyTheme(theme);
 
-        // Set up toggle button when DOM is ready
-        document.addEventListener('DOMContentLoaded', function() {
-            const toggleBtn = document.getElementById('theme-toggle');
-            if (toggleBtn) {
-                toggleBtn.addEventListener('click', toggleTheme);
-                updateToggleButton();
-            }
-        });
+        // Set up toggle button - handle both pre-loaded and post-loaded states
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', setupToggleButton);
+        } else {
+            // DOM already loaded
+            setupToggleButton();
+        }
     }
 
     // Initialize immediately (before DOM loads to prevent flash)

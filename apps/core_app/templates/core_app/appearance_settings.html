@@ -237,26 +237,20 @@
             <div class="theme-options">
                 <h2 class="theme-section-title">Theme mode</h2>
                 <p style="color: #8b949e; font-size: 14px; margin-bottom: 16px;">
-                    Choose how SciTeX looks to you. Select a single theme, or sync with your system and automatically switch between light and dark themes.
+                    Choose how SciTeX looks to you. Select between light and dark themes.
                 </p>
 
                 <div class="theme-modes">
                     <div class="theme-mode-card" id="mode-light" onclick="window.SciTeX.theme.set('light')">
                         <div class="theme-mode-icon">☀️</div>
                         <div class="theme-mode-title">Light</div>
-                        <div class="theme-mode-desc">Always use light theme</div>
+                        <div class="theme-mode-desc">Use light theme</div>
                     </div>
 
                     <div class="theme-mode-card" id="mode-dark" onclick="window.SciTeX.theme.set('dark')">
                         <div class="theme-mode-icon">🌙</div>
                         <div class="theme-mode-title">Dark</div>
-                        <div class="theme-mode-desc">Always use dark theme</div>
-                    </div>
-
-                    <div class="theme-mode-card active" id="mode-system" onclick="window.SciTeX.theme.set('system')">
-                        <div class="theme-mode-icon">💻</div>
-                        <div class="theme-mode-title">System</div>
-                        <div class="theme-mode-desc">Sync with system settings</div>
+                        <div class="theme-mode-desc">Use dark theme</div>
                     </div>
                 </div>
 
@@ -277,7 +271,7 @@
 // Update active card based on current preference
 document.addEventListener('DOMContentLoaded', function() {
     function updateActiveCard() {
-        const preference = window.SciTeX.theme.getPreference();
+        const preference = window.SciTeX.theme.get();
 
         // Remove active from all cards
         document.querySelectorAll('.theme-mode-card').forEach(card => {

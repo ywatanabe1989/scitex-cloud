@@ -1,6 +1,7 @@
 /* SciTeX Color System - Bluish Dark Gray Brand Colors */
 
-:root {
+:root,
+[data-theme="light"] {
   /* SciTeX Bluish Dark Gray Theme - Primary Brand Colors */
   --scitex-900: #0a0f1a; /* Darkest - Near Black */
   --scitex-800: #0f1419; /* Very Dark Bluish Gray */
