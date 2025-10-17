@@ -1,14 +1,14 @@
 <!-- ---
-!-- Timestamp: 2025-10-16 04:24:24
+!-- Timestamp: 2025-10-16 21:00:24
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/TODO.md
 !-- --- -->
 
 ## TODO
 
-### Landing Page ./apps/cloud_app/templates/cloud_app/landing.html
-- [ ] Should landing page separated from main contents?
-  - [ ] For example, if user is already logged in, they would need to work on projects page (an entry point). Or, should we leave it to users, expecting bookmarking on their useful page.
+#### Writer
+
+
 
 ## Code references
 
