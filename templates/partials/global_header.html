@@ -26,32 +26,61 @@
         </a>
         {% endif %}
         {% comment %}
-        Module links - behavior depends on context:
-        - If on project page: use ?mode= to stay on project
-        - If logged in but not on project: redirect to login with message
+        Module links - Project-centric behavior:
+        - If in project context: use ?mode= to switch modules within project
+        - If logged in but no project: redirect to repositories page
         - If not logged in: redirect to module landing page
         {% endcomment %}
         {% if user.is_authenticated %}
-        <a href="{% url 'scholar_app:user_default_workspace' %}"
-           class="header-nav-item {% if 'scholar' in request.path or request.GET.mode == 'scholar' %}active{% endif %}">
-          <i class="fas fa-graduation-cap"></i>
-          <span class="nav-label">Scholar</span>
-        </a>
-        <a href="{% url 'code:user_default_workspace' %}"
-           class="header-nav-item {% if 'code' in request.path or request.GET.mode == 'code' %}active{% endif %}">
-          <i class="fas fa-code"></i>
-          <span class="nav-label">Code</span>
-        </a>
-        <a href="{% url 'viz_app:user_default_workspace' %}"
-           class="header-nav-item {% if 'viz' in request.path or request.GET.mode == 'viz' %}active{% endif %}">
-          <i class="fas fa-chart-bar"></i>
-          <span class="nav-label">Viz</span>
-        </a>
-        <a href="{% url 'writer:user_default_workspace' %}"
-           class="header-nav-item {% if 'writer' in request.path or request.GET.mode == 'writer' %}active{% endif %}">
-          <i class="fas fa-pen-nib"></i>
-          <span class="nav-label">Writer</span>
-        </a>
+          {% if current_project %}
+            {# User is in a project - switch modes within project #}
+            <a href="/{{ current_project.owner.username }}/{{ current_project.slug }}/?mode=scholar"
+               class="header-nav-item {% if request.GET.mode == 'scholar' %}active{% endif %}">
+              <i class="fas fa-graduation-cap"></i>
+              <span class="nav-label">Scholar</span>
+            </a>
+            <a href="/{{ current_project.owner.username }}/{{ current_project.slug }}/?mode=code"
+               class="header-nav-item {% if request.GET.mode == 'code' %}active{% endif %}">
+              <i class="fas fa-code"></i>
+              <span class="nav-label">Code</span>
+            </a>
+            <a href="/{{ current_project.owner.username }}/{{ current_project.slug }}/?mode=viz"
+               class="header-nav-item {% if request.GET.mode == 'viz' %}active{% endif %}">
+              <i class="fas fa-chart-bar"></i>
+              <span class="nav-label">Viz</span>
+            </a>
+            <a href="/{{ current_project.owner.username }}/{{ current_project.slug }}/?mode=writer"
+               class="header-nav-item {% if request.GET.mode == 'writer' %}active{% endif %}">
+              <i class="fas fa-pen-nib"></i>
+              <span class="nav-label">Writer</span>
+            </a>
+          {% else %}
+            {# No project context - redirect to repositories #}
+            <a href="/{{ user.username }}/?tab=repositories"
+               class="header-nav-item"
+               title="Select a project to use Scholar">
+              <i class="fas fa-graduation-cap"></i>
+              <span class="nav-label">Scholar</span>
+            </a>
+            <a href="/{{ user.username }}/?tab=repositories"
+               class="header-nav-item"
+               title="Select a project to use Code">
+              <i class="fas fa-code"></i>
+              <span class="nav-label">Code</span>
+            </a>
+            <a href="/{{ user.username }}/?tab=repositories"
+               class="header-nav-item"
+               title="Select a project to use Viz">
+              <i class="fas fa-chart-bar"></i>
+              <span class="nav-label">Viz</span>
+            </a>
+            <a href="/{{ user.username }}/?tab=repositories"
+               class="header-nav-item"
+               title="Select a project to use Writer">
+              <i class="fas fa-pen-nib"></i>
+              <span class="nav-label">Writer</span>
+            </a>
+          {% endif %}
         {% else %}
         <a href="/scholar/"
            class="header-nav-item {% if 'scholar' in request.path %}active{% endif %}">
