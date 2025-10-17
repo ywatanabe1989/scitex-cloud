@@ -421,9 +421,14 @@
                 ⚙️ Settings
             </a>
         </div>
-        <button onclick="copyProjectToClipboard()" class="btn btn-sm btn-outline-primary" style="margin: 0.25rem;">
-            📋 Copy All Files
-        </button>
+        <div style="display: flex; gap: 8px;">
+            <button onclick="copyProjectToClipboard()" class="btn btn-sm btn-outline-primary" style="margin: 0.25rem;" id="copy-project-btn">
+                📋 Copy All Files
+            </button>
+            <button onclick="downloadProjectAsFile()" class="btn btn-sm btn-outline-secondary" style="margin: 0.25rem;" id="download-project-btn">
+                💾 Download All Files
+            </button>
+        </div>
     </div>
 
     <!-- Main Content Area with Sidebar -->
@@ -657,6 +662,46 @@ async function copyProjectToClipboard() {
         }
     } catch (err) {
         alert('Failed to copy: ' + err);
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+}
+
+async function downloadProjectAsFile() {
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '⏳ Preparing download...';
+    btn.disabled = true;
+
+    try {
+        const response = await fetch('/{{ project.owner.username }}/{{ project.slug }}/api/concatenate/');
+        const data = await response.json();
+
+        if (data.success) {
+            // Create a blob and download it
+            const blob = new Blob([data.content], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `{{ project.slug }}_all_files.txt`;
+
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+
+            btn.innerHTML = `✓ Downloaded ${data.file_count} files!`;
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }, 3000);
+        } else {
+            alert('Error: ' + data.error);
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    } catch (err) {
+        alert('Failed to download: ' + err);
         btn.innerHTML = originalText;
         btn.disabled = false;
     }
