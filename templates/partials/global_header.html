@@ -257,19 +257,105 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Global search functionality (basic)
+  // Global search functionality with autocomplete
   const globalSearch = document.getElementById('global-search');
   if (globalSearch) {
+    // Submit on Enter
     globalSearch.addEventListener('keypress', function(e) {
       if (e.key === 'Enter') {
         const query = this.value.trim();
         if (query) {
-          // Redirect to search page (to be implemented)
           window.location.href = `/search/?q=${encodeURIComponent(query)}`;
         }
       }
     });
+
+    // Autocomplete (debounced)
+    let autocompleteTimeout;
+    globalSearch.addEventListener('input', function(e) {
+      clearTimeout(autocompleteTimeout);
+      const query = this.value.trim();
+
+      if (query.length < 2) {
+        hideAutocomplete();
+        return;
+      }
+
+      autocompleteTimeout = setTimeout(async () => {
+        try {
+          const response = await fetch(`/search/api/autocomplete/?q=${encodeURIComponent(query)}`);
+          const data = await response.json();
+          showAutocomplete(data.suggestions);
+        } catch (err) {
+          console.error('Autocomplete error:', err);
+        }
+      }, 300); // 300ms debounce
+    });
   }
+
+  // Autocomplete UI helpers
+  function showAutocomplete(suggestions) {
+    let dropdown = document.getElementById('search-autocomplete');
+    if (!dropdown) {
+      dropdown = document.createElement('div');
+      dropdown.id = 'search-autocomplete';
+      dropdown.style.cssText = `
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--color-canvas-default);
+        border: 1px solid var(--color-border-default);
+        border-radius: 6px;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        max-height: 400px;
+        overflow-y: auto;
+        z-index: 1000;
+        margin-top: 4px;
+      `;
+      document.querySelector('.header-search').appendChild(dropdown);
+    }
+
+    if (suggestions.length === 0) {
+      hideAutocomplete();
+      return;
+    }
+
+    dropdown.innerHTML = suggestions.map(s => `
+      <a href="${s.url}" style="
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        color: var(--color-fg-default);
+        text-decoration: none;
+        border-bottom: 1px solid var(--color-border-muted);
+      " onmouseover="this.style.background='var(--color-canvas-subtle)'"
+         onmouseout="this.style.background='transparent'">
+        <span style="font-size: 20px;">${s.icon}</span>
+        <div style="flex: 1;">
+          <div style="font-weight: 500;">${s.title}</div>
+          <div style="font-size: 12px; color: var(--color-fg-muted);">${s.subtitle}</div>
+        </div>
+      </a>
+    `).join('');
+
+    dropdown.style.display = 'block';
+  }
+
+  function hideAutocomplete() {
+    const dropdown = document.getElementById('search-autocomplete');
+    if (dropdown) {
+      dropdown.style.display = 'none';
+    }
+  }
+
+  // Close autocomplete on click outside
+  document.addEventListener('click', function(e) {
+    if (!document.querySelector('.header-search')?.contains(e.target)) {
+      hideAutocomplete();
+    }
+  });
 
   // Note: Theme toggle functionality is handled by /static/js/theme-switcher.js
 });
