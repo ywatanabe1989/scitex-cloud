@@ -68,10 +68,19 @@ def user_project_list(request, username):
     page_number = request.GET.get('page')
     projects = paginator.get_page(page_number)
 
+    # Get social stats
+    from apps.social_app.models import UserFollow, RepositoryStar
+    followers_count = UserFollow.get_followers_count(user)
+    following_count = UserFollow.get_following_count(user)
+    is_following = UserFollow.is_following(request.user, user) if request.user.is_authenticated else False
+
     context = {
         'projects': projects,
         'profile_user': user,  # The user whose profile we're viewing
         'is_own_projects': is_own_projects,
+        'followers_count': followers_count,
+        'following_count': following_count,
+        'is_following': is_following,
         # Note: 'user' is automatically available as request.user in templates
         # Don't override it here - it should always be the logged-in user
     }

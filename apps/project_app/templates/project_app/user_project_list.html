@@ -398,6 +398,16 @@ body {
                 <i class="fas fa-cog"></i>
                 Edit profile
             </a>
+            {% elif user.is_authenticated %}
+            <button id="follow-btn" class="btn-edit-profile" onclick="toggleFollow()">
+                {% if is_following %}
+                    <i class="fas fa-user-check"></i>
+                    Following
+                {% else %}
+                    <i class="fas fa-user-plus"></i>
+                    Follow
+                {% endif %}
+            </button>
             {% endif %}
 
             {% if profile_user.profile.bio %}
@@ -428,6 +438,15 @@ body {
             </div>
 
             <div class="profile-stats">
+                <div class="profile-stat">
+                    <strong>{{ followers_count }}</strong> <a href="#" style="color: var(--color-fg-muted); text-decoration: none;">followers</a>
+                </div>
+                <div class="profile-stat">
+                    <strong>{{ following_count }}</strong> <a href="#" style="color: var(--color-fg-muted); text-decoration: none;">following</a>
+                </div>
+            </div>
+
+            <div class="profile-stats" style="margin-top: 8px;">
                 <div class="profile-stat">
                     <strong>{{ projects.paginator.count }}</strong> repositories
                 </div>
@@ -477,17 +496,24 @@ body {
             <div class="repo-list">
                 {% for project in projects %}
                 <article class="repo-item">
-                    <div class="repo-header">
-                        <a href="{{ project.get_absolute_url }}" class="repo-name">
-                            {{ project.name }}
-                        </a>
-                        <span class="repo-visibility">
-                            {% if project.visibility == 'private' %}
-                                🔒 Private
-                            {% else %}
-                                🌐 Public
-                            {% endif %}
-                        </span>
+                    <div class="repo-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <a href="{{ project.get_absolute_url }}" class="repo-name">
+                                {{ project.name }}
+                            </a>
+                            <span class="repo-visibility">
+                                {% if project.visibility == 'private' %}
+                                    🔒 Private
+                                {% else %}
+                                    🌐 Public
+                                {% endif %}
+                            </span>
+                        </div>
+                        {% if user.is_authenticated %}
+                        <button class="star-btn" data-username="{{ project.owner.username }}" data-slug="{{ project.slug }}" onclick="toggleStar(this)" style="background: transparent; border: 1px solid var(--color-border-default); color: var(--color-fg-default); padding: 4px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: all 0.2s;">
+                            ⭐ Star
+                        </button>
+                        {% endif %}
                     </div>
 
                     {% if project.description %}
@@ -568,5 +594,93 @@ document.getElementById('repo-search')?.addEventListener('input', function(e) {
         }
     });
 });
+
+// Follow/Unfollow functionality
+async function toggleFollow() {
+    const btn = document.getElementById('follow-btn');
+    const isFollowing = btn.innerHTML.includes('Following');
+    const username = '{{ profile_user.username }}';
+
+    const endpoint = isFollowing
+        ? `/social/api/unfollow/${username}/`
+        : `/social/api/follow/${username}/`;
+
+    try {
+        const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json',
+            }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Toggle button state
+            if (isFollowing) {
+                btn.innerHTML = '<i class="fas fa-user-plus"></i> Follow';
+            } else {
+                btn.innerHTML = '<i class="fas fa-user-check"></i> Following';
+            }
+
+            // Update follower count
+            const followerCount = document.querySelector('.profile-stat strong');
+            if (followerCount) {
+                followerCount.textContent = data.followers_count;
+            }
+        } else {
+            alert(data.error || 'Failed to update follow status');
+        }
+    } catch (err) {
+        console.error('Follow error:', err);
+        alert('Failed to update follow status');
+    }
+}
+
+// Star/Unstar repository functionality
+async function toggleStar(btn) {
+    const isStarred = btn.innerHTML.includes('Unstar');
+    const username = btn.dataset.username;
+    const slug = btn.dataset.slug;
+
+    const endpoint = isStarred
+        ? `/social/api/unstar/${username}/${slug}/`
+        : `/social/api/star/${username}/${slug}/`;
+
+    const originalHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '⏳ ...';
+
+    try {
+        const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json',
+            }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Toggle button state
+            if (isStarred) {
+                btn.innerHTML = '⭐ Star';
+            } else {
+                btn.innerHTML = '⭐ Unstar';
+            }
+        } else {
+            alert(data.error || 'Failed to update star status');
+            btn.innerHTML = originalHTML;
+        }
+    } catch (err) {
+        console.error('Star error:', err);
+        alert('Failed to update star status');
+        btn.innerHTML = originalHTML;
+    } finally {
+        btn.disabled = false;
+    }
+}
 </script>
 {% endblock %}
