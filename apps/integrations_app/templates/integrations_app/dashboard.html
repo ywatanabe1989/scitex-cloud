@@ -3,23 +3,25 @@
 {% block title %}Integrations - SciTeX{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-6">Integrations</h1>
+<div class="container py-4">
+    <h1 class="mb-4">Integrations</h1>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="row g-4">
         <!-- ORCID Integration -->
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <div class="flex items-center mb-4">
-                <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-2">
-                    <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
-                    </svg>
-                </div>
-                <div>
-                    <h3 class="text-lg font-semibold">ORCID</h3>
-                    <p class="text-sm text-gray-600">Researcher Identity</p>
-                </div>
-            </div>
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div style="width: 32px; height: 32px; background-color: #d1fae5; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+                            <svg style="width: 16px; height: 16px; color: #059669;" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h5 class="card-title mb-1">ORCID</h5>
+                            <p class="card-subtitle text-muted small mb-0">Researcher Identity</p>
+                        </div>
+                    </div>
 
             {% if orcid_connected %}
                 <div class="mb-4">
