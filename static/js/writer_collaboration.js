@@ -217,3 +217,116 @@ class WriterCollaboration {
 }
 
 window.WriterCollaboration = WriterCollaboration;
+
+// Enhanced integration for Writer UI
+WriterCollaboration.prototype.integrateWithWriter = function() {
+    // Store reference to original switchToSection
+    const originalSwitchToSection = window.switchToSection;
+    const self = this;
+
+    // Override switchToSection to handle locks
+    window.switchToSection = function(section) {
+        // Release lock on current section
+        if (window.currentSection && self.lockedSections.has(window.currentSection)) {
+            self.releaseSectionLock(window.currentSection);
+        }
+
+        // Call original function
+        if (originalSwitchToSection) {
+            originalSwitchToSection(section);
+        }
+
+        // Request lock on new section
+        setTimeout(() => {
+            self.requestSectionLock(section);
+        }, 100);
+    };
+
+    // Disable editor for locked sections
+    const editor = document.getElementById('latex-editor-textarea');
+    if (editor) {
+        const checkLockStatus = () => {
+            const currentSection = window.currentSection || 'abstract';
+            const isLockedByOther = self.isLockedByOther(currentSection);
+
+            if (isLockedByOther) {
+                editor.disabled = true;
+                editor.placeholder = 'This section is locked by another user...';
+                editor.style.background = 'var(--color-danger-subtle)';
+            } else {
+                editor.disabled = false;
+                editor.placeholder = 'LaTeX code...';
+                editor.style.background = 'var(--color-canvas-subtle)';
+            }
+        };
+
+        // Check lock status periodically
+        setInterval(checkLockStatus, 1000);
+    }
+};
+
+WriterCollaboration.prototype.isLockedByOther = function(section) {
+    // Check if section is locked by someone other than current user
+    const collaborator = this.collaborators.find(c => 
+        c.locked_sections && c.locked_sections.includes(section)
+    );
+    return collaborator && collaborator.user_id !== this.userId;
+};
+
+WriterCollaboration.prototype.updateSectionLockIndicator = function(section, locked, username) {
+    const sectionCard = document.querySelector(`[data-section="${section}"]`);
+    if (sectionCard) {
+        if (locked && username !== this.username) {
+            sectionCard.classList.add('section-locked');
+            sectionCard.setAttribute('title', `Locked by ${username}`);
+
+            // Add lock indicator
+            let lockIcon = sectionCard.querySelector('.lock-indicator');
+            if (!lockIcon) {
+                lockIcon = document.createElement('span');
+                lockIcon.className = 'lock-indicator';
+                lockIcon.style.cssText = 'position: absolute; right: 2rem; top: 50%; transform: translateY(-50%); font-size: 1rem;';
+                lockIcon.innerHTML = '🔒';
+                sectionCard.style.position = 'relative';
+                sectionCard.appendChild(lockIcon);
+            }
+        } else {
+            sectionCard.classList.remove('section-locked');
+            sectionCard.removeAttribute('title');
+
+            // Remove lock indicator
+            const lockIcon = sectionCard.querySelector('.lock-indicator');
+            if (lockIcon) {
+                lockIcon.remove();
+            }
+        }
+    }
+};
+
+// Update the original handleSectionLocked to use new UI method
+WriterCollaboration.prototype.handleSectionLocked = function(data) {
+    this.lockedSections.add(data.section);
+    this.updateSectionLockIndicator(data.section, true, data.username);
+
+    // Update collaborator's locked sections
+    const collab = this.collaborators.find(c => c.user_id === data.user_id);
+    if (collab) {
+        if (!collab.locked_sections) collab.locked_sections = [];
+        if (!collab.locked_sections.includes(data.section)) {
+            collab.locked_sections.push(data.section);
+        }
+        this.updateCollaboratorsList(this.collaborators);
+    }
+};
+
+WriterCollaboration.prototype.handleSectionUnlocked = function(data) {
+    this.lockedSections.delete(data.section);
+    this.updateSectionLockIndicator(data.section, false);
+
+    // Update collaborator's locked sections
+    const collab = this.collaborators.find(c => c.user_id === data.user_id);
+    if (collab && collab.locked_sections) {
+        collab.locked_sections = collab.locked_sections.filter(s => s !== data.section);
+        this.updateCollaboratorsList(this.collaborators);
+    }
+};

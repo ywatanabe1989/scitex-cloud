@@ -140,6 +140,27 @@
     opacity: 0.9;
 }
 
+.section-item.section-locked {
+    opacity: 0.6;
+    cursor: not-allowed;
+    border-color: var(--color-danger-emphasis);
+    background: var(--color-danger-subtle);
+    position: relative;
+}
+
+.section-item.section-locked::after {
+    content: '🔒';
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1rem;
+}
+
+.section-item.section-locked:hover {
+    transform: none;
+}
+
 .section-name {
     font-weight: 600;
     font-size: 0.85rem;
@@ -2706,7 +2727,11 @@ document.addEventListener('DOMContentLoaded', function() {
         '{{ user.username|escapejs }}'
     );
     window.collaboration = collaboration;
-    console.log('✓ Real-time collaboration initialized');
+    
+    // Integrate with Writer UI
+    collaboration.integrateWithWriter();
+    
+    console.log('✓ Real-time collaboration initialized with section locking');
     {% endif %}
 });
 </script>
