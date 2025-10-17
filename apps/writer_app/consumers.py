@@ -7,6 +7,8 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 import json
 from datetime import datetime
 from .models import Manuscript, CollaborativeSession, DocumentChange
+from .ot_coordinator import OTCoordinator
+from .undo_redo import CollaborativeUndoRedoCoordinator
 
 
 class WriterConsumer(AsyncWebsocketConsumer):
@@ -45,6 +47,10 @@ class WriterConsumer(AsyncWebsocketConsumer):
         if not has_access:
             await self.close()
             return
+
+        # Initialize OT coordinator and undo/redo coordinator for this manuscript
+        self.ot_coordinator = OTCoordinator(self.manuscript_id)
+        self.undo_redo_coordinator = CollaborativeUndoRedoCoordinator(self.manuscript_id)
 
         # Join room group
         await self.channel_layer.group_add(
@@ -112,6 +118,16 @@ class WriterConsumer(AsyncWebsocketConsumer):
                 await self.handle_section_lock(data)
             elif message_type == 'section_unlock':
                 await self.handle_section_unlock(data)
+            elif message_type == 'operation_ack':
+                await self.handle_operation_ack(data)
+            elif message_type == 'queue_status':
+                await self.handle_queue_status(data)
+            elif message_type == 'undo':
+                await self.handle_undo(data)
+            elif message_type == 'redo':
+                await self.handle_redo(data)
+            elif message_type == 'undo_status':
+                await self.handle_undo_status(data)
             else:
                 await self.send(text_data=json.dumps({
                     'type': 'error',
@@ -195,26 +211,55 @@ class WriterConsumer(AsyncWebsocketConsumer):
     # Action handlers
 
     async def handle_text_change(self, data):
-        """Handle text change from client."""
-        section = data.get('section')
+        """Handle text change from client using OT coordinator."""
+        section_id = data.get('section_id')
         operation = data.get('operation')
+        version = data.get('version', 0)
 
-        # Log change to database (Django 5.2 async save)
-        await self.log_change(section, operation)
-
-        # Broadcast to all users in room
-        await self.channel_layer.group_send(
-            self.room_group_name,
-            {
-                'type': 'text_change',
-                'section': section,
-                'operation': operation,
-                'user_id': self.user.id,
-                'username': self.user.username,
-                'timestamp': datetime.now().isoformat(),
-                'sender_channel': self.channel_name
-            }
+        # Submit operation to OT coordinator
+        result = await self.ot_coordinator.submit_operation(
+            user_id=self.user.id,
+            username=self.user.username,
+            session_id=self.session.session_id,
+            section_id=section_id,
+            operation=operation,
+            version=version
         )
+
+        # Send acknowledgment to sender
+        await self.send(text_data=json.dumps({
+            'type': 'operation_submitted',
+            'operation_id': result.get('operation_id'),
+            'status': result.get('status'),
+            'queue_length': result.get('queue_length', 0),
+            'current_version': result.get('current_version', version)
+        }))
+
+        # Broadcast processed operations to all users
+        if result.get('processed'):
+            for processed_op in result['processed']:
+                await self.channel_layer.group_send(
+                    self.room_group_name,
+                    {
+                        'type': 'text_change',
+                        'section_id': section_id,
+                        'operation': operation,
+                        'operation_id': processed_op['operation_id'],
+                        'user_id': processed_op['user_id'],
+                        'version': processed_op['version'],
+                        'timestamp': datetime.now().isoformat(),
+                        'sender_channel': self.channel_name
+                    }
+                )
+
+        # Handle errors
+        if result.get('errors'):
+            for error in result['errors']:
+                await self.send(text_data=json.dumps({
+                    'type': 'operation_error',
+                    'operation_id': error['operation_id'],
+                    'error': error['error']
+                }))
 
     async def handle_cursor_position(self, data):
         """Handle cursor position update from client."""
@@ -284,6 +329,162 @@ class WriterConsumer(AsyncWebsocketConsumer):
                 'timestamp': datetime.now().isoformat()
             }
         )
+
+    async def handle_operation_ack(self, data):
+        """Handle operation acknowledgment from client."""
+        operation_id = data.get('operation_id')
+        section_id = data.get('section_id')
+
+        result = await self.ot_coordinator.acknowledge_operation(
+            operation_id=operation_id,
+            section_id=section_id
+        )
+
+        await self.send(text_data=json.dumps({
+            'type': 'ack_received',
+            **result
+        }))
+
+    async def handle_queue_status(self, data):
+        """Handle queue status request from client."""
+        section_id = data.get('section_id')
+
+        status = await self.ot_coordinator.get_queue_status(section_id)
+
+        await self.send(text_data=json.dumps({
+            'type': 'queue_status',
+            **status
+        }))
+
+    async def handle_undo(self, data):
+        """Handle undo request from client."""
+        section_id = data.get('section_id')
+        current_version = data.get('version', 0)
+
+        # Get undo/redo manager for this user and section
+        manager = self.undo_redo_coordinator.get_manager(self.user.id, section_id)
+
+        # Perform undo
+        undo_result = await manager.undo(current_version)
+
+        if undo_result:
+            # Submit the inverse operation through OT coordinator
+            result = await self.ot_coordinator.submit_operation(
+                user_id=self.user.id,
+                username=self.user.username,
+                session_id=self.session.session_id,
+                section_id=section_id,
+                operation=undo_result['operation'],
+                version=current_version
+            )
+
+            await self.send(text_data=json.dumps({
+                'type': 'undo_result',
+                'success': True,
+                'operation_id': result.get('operation_id'),
+                **undo_result
+            }))
+
+            # Broadcast undo to other users
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'user_undone',
+                    'user_id': self.user.id,
+                    'username': self.user.username,
+                    'section_id': section_id,
+                    'timestamp': datetime.now().isoformat()
+                }
+            )
+        else:
+            await self.send(text_data=json.dumps({
+                'type': 'undo_result',
+                'success': False,
+                'message': 'Nothing to undo'
+            }))
+
+    async def handle_redo(self, data):
+        """Handle redo request from client."""
+        section_id = data.get('section_id')
+        current_version = data.get('version', 0)
+
+        # Get undo/redo manager for this user and section
+        manager = self.undo_redo_coordinator.get_manager(self.user.id, section_id)
+
+        # Perform redo
+        redo_result = await manager.redo(current_version)
+
+        if redo_result:
+            # Submit the operation through OT coordinator
+            result = await self.ot_coordinator.submit_operation(
+                user_id=self.user.id,
+                username=self.user.username,
+                session_id=self.session.session_id,
+                section_id=section_id,
+                operation=redo_result['operation'],
+                version=current_version
+            )
+
+            await self.send(text_data=json.dumps({
+                'type': 'redo_result',
+                'success': True,
+                'operation_id': result.get('operation_id'),
+                **redo_result
+            }))
+
+            # Broadcast redo to other users
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'user_redone',
+                    'user_id': self.user.id,
+                    'username': self.user.username,
+                    'section_id': section_id,
+                    'timestamp': datetime.now().isoformat()
+                }
+            )
+        else:
+            await self.send(text_data=json.dumps({
+                'type': 'redo_result',
+                'success': False,
+                'message': 'Nothing to redo'
+            }))
+
+    async def handle_undo_status(self, data):
+        """Handle undo/redo status request from client."""
+        section_id = data.get('section_id')
+
+        # Get undo/redo manager for this user and section
+        manager = self.undo_redo_coordinator.get_manager(self.user.id, section_id)
+
+        # Get status
+        status = await manager.get_status()
+
+        await self.send(text_data=json.dumps({
+            'type': 'undo_status',
+            'section_id': section_id,
+            **status
+        }))
+
+    async def user_undone(self, event):
+        """Broadcast user undo action to all clients."""
+        await self.send(text_data=json.dumps({
+            'type': 'user_undone',
+            'user_id': event['user_id'],
+            'username': event['username'],
+            'section_id': event['section_id'],
+            'timestamp': event['timestamp']
+        }))
+
+    async def user_redone(self, event):
+        """Broadcast user redo action to all clients."""
+        await self.send(text_data=json.dumps({
+            'type': 'user_redone',
+            'user_id': event['user_id'],
+            'username': event['username'],
+            'section_id': event['section_id'],
+            'timestamp': event['timestamp']
+        }))
 
     # Database operations (Django 5.2 async ORM)
 

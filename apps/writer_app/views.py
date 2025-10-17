@@ -180,11 +180,15 @@ def project_writer(request, project_id):
     # Update word counts
     manuscript.update_word_counts()
 
+    # Get all user projects for repository switcher
+    user_projects = Project.objects.filter(owner=request.user).order_by('name')
+
     context = {
         'project': project,
         'manuscript': manuscript,
         'sections': sections_data,
-        'is_modular': manuscript.is_modular
+        'is_modular': manuscript.is_modular,
+        'user_projects': user_projects
     }
 
     return render(request, 'writer_app/project_writer.html', context)
@@ -343,23 +347,30 @@ def compile_modular_manuscript(request, project_id):
     except (Project.DoesNotExist, Manuscript.DoesNotExist):
         print(f"[VIEW] Project or manuscript not found!", file=sys.stderr)
         return JsonResponse({'error': 'Project or manuscript not found'}, status=404)
-    
+
     if not manuscript.is_modular:
         return JsonResponse({'error': 'Manuscript is not modular'}, status=400)
-    
+
     paper_path = manuscript.get_project_paper_path()
     if not paper_path or not paper_path.exists():
         return JsonResponse({'error': 'Paper directory not found'}, status=404)
-    
-    compile_script = paper_path / 'compile.sh'
+
+    # Check for compile script (try both 'compile' and 'compile.sh')
+    compile_script = paper_path / 'compile'
+    if not compile_script.exists():
+        compile_script = paper_path / 'compile.sh'
     if not compile_script.exists():
         return JsonResponse({'error': 'Compile script not found'}, status=404)
-    
+
+    # Get quick compile option from request
+    quick_mode = request.POST.get('quick', 'false').lower() == 'true'
+    compilation_type = 'quick' if quick_mode else 'full'
+
     # Create compilation job
     job = CompilationJob.objects.create(
         manuscript=manuscript,
         status='queued',
-        compilation_type='modular'
+        compilation_type=compilation_type
     )
 
     # Send email notification
@@ -392,14 +403,14 @@ SciTeX Cloud Team
     import threading
     import sys
 
-    print(f"[DEBUG] Creating compilation function", file=sys.stderr)
+    print(f"[DEBUG] Creating compilation function (quick_mode={quick_mode})", file=sys.stderr)
     sys.stderr.flush()
-    
+
     def run_modular_compilation():
         import traceback
         import sys
         try:
-            print(f"[COMPILE] Thread started for job {job.job_id}", file=sys.stderr)
+            print(f"[COMPILE] Thread started for job {job.job_id} (quick={quick_mode})", file=sys.stderr)
             job.status = 'running'
             job.started_at = timezone.now()
             job.save()
@@ -428,10 +439,20 @@ SciTeX Cloud Team
 
             print(f"[COMPILE] Will write log to: {runtime_log_path}", file=sys.stderr)
 
+            # Build compile command with appropriate flags
+            compile_cmd = ['bash', './compile', '-m']
+            if quick_mode:
+                compile_cmd.append('--quick')    # Quick mode: skip word count, diff, archiving
+                compile_cmd.append('--no_figs')  # Skip figure processing
+                compile_cmd.append('--quiet')    # Less verbose output
+                print(f"[COMPILE] Quick mode enabled: {' '.join(compile_cmd)}", file=sys.stderr)
+            else:
+                print(f"[COMPILE] Full compilation: {' '.join(compile_cmd)}", file=sys.stderr)
+
             # Run the actual compile script with real-time logging
             with open(runtime_log_path, 'w', buffering=1) as log_file:  # Line buffering
                 process = subprocess.Popen(
-                    ['bash', './compile', '-m'],
+                    compile_cmd,
                     cwd=paper_path,
                     stdout=log_file,
                     stderr=subprocess.STDOUT,  # Merge stderr into stdout for combined log
@@ -441,8 +462,11 @@ SciTeX Cloud Team
 
                 print(f"[COMPILE] Process started, PID: {process.pid}", file=sys.stderr)
 
-                # Wait for process to complete (5 minutes for real compilation)
-                returncode = process.wait(timeout=300)
+                # Wait for process to complete
+                # Quick mode: 2 minutes (no figure processing)
+                # Full mode: 5 minutes (includes figure processing)
+                timeout = 120 if quick_mode else 300
+                returncode = process.wait(timeout=timeout)
                 print(f"[COMPILE] Process completed. Return code: {returncode}", file=sys.stderr)
 
             # DON'T read or overwrite log_file here

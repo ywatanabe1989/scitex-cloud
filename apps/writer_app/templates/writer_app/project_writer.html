@@ -266,11 +266,9 @@
 
 .writer-toolbar {
     background: var(--color-canvas-default);
-    padding: 1rem 1.5rem;
-    border-bottom: 1px solid var(--color-border-default);
-    display: flex;
-    align-items: center;
-    gap: 1rem;
+    padding: 0;
+    border-bottom: none;
+    display: none; /* Hide empty toolbar */
 }
 
 .editing-mode-toggle {
@@ -362,7 +360,7 @@
     height: 100%;
     border: 1px solid var(--color-border-default);
     border-radius: var(--border-radius);
-    font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', 'Menlo', 'Courier New', monospace;
     font-size: 14px;
 }
 
@@ -765,51 +763,26 @@
 <div class="writer-container">
     <!-- Sidebar -->
     <div class="writer-sidebar">
-        <div class="sidebar-header">
-            <div class="project-info">
-                <div class="project-name">
-                    <i class="fas fa-project-diagram me-2"></i>{{ project.name }}
-                </div>
-            </div>
-
-            <div class="writing-stats">
-                <div class="stat-item">
-                    <span>Total Words:</span>
-                    <span id="total-words">{{ manuscript.word_count_total }}</span>
-                </div>
-                <div class="stat-item">
-                    <span>Citations:</span>
-                    <span id="citation-count">{{ manuscript.citation_count }}</span>
-                </div>
-                <div class="stat-item">
-                    <span>Sections:</span>
-                    <span id="sections-completed">0/5</span>
-                </div>
-                <div class="stat-item">
-                    <span id="collaboration-status">
-                        <i class="fas fa-circle text-muted"></i> Connecting...
-                    </span>
-                    <span id="collaborators-count">0</span>
-                </div>
-            </div>
-
-            <!-- Collaborators Section -->
-            <div style="margin-top: 1rem; padding: 1rem; background: rgba(255, 255, 255, 0.05); border-radius: var(--border-radius);">
-                <h6 style="font-size: 0.85rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
-                    <i class="fas fa-users"></i>
-                    <span>Active Collaborators</span>
-                </h6>
-                <div id="collaborators-list">
-                    <small style="color: var(--color-fg-muted);">Connecting...</small>
-                </div>
-            </div>
-        </div>
-        
         <div class="sidebar-content">
+            <!-- Repository Selector -->
+            <div class="repository-selector mb-4">
+                <h6 class="fw-bold mb-3">
+                    <i class="fas fa-folder-open me-2"></i>Repository:
+                </h6>
+                <select id="repository-selector" class="form-select">
+                    <option value="{{ project.id }}" selected>{{ project.name }}</option>
+                    {% for proj in user_projects %}
+                        {% if proj.id != project.id %}
+                            <option value="{{ proj.id }}">{{ proj.name }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+
             <!-- Document Type Selector -->
             <div class="document-type-selector mb-4">
                 <h6 class="fw-bold mb-3">
-                    <i class="fas fa-file-alt me-2"></i>Document Type
+                    <i class="fas fa-file-alt me-2"></i>Document Type:
                 </h6>
                 <select id="doctype-selector" class="form-select">
                     <option value="shared">0 - Shared</option>
@@ -857,20 +830,7 @@
     <!-- Main Editor -->
     <div class="writer-main" id="editor-main">
         <div class="writer-toolbar">
-            <div>
-                <h5 style="margin: 0; color: var(--color-fg-default);">
-                    <i class="fas fa-code me-2"></i>LaTeX Editor
-                </h5>
-            </div>
-
-            <div class="ms-auto" style="display: flex; align-items: center; gap: 1rem;">
-                <button id="save-btn" class="btn btn-sm btn-primary">
-                    <i class="fas fa-save me-1"></i>Save
-                </button>
-                <span id="save-status" class="text-muted">
-                    <i class="fas fa-check-circle text-success me-1"></i>All changes saved
-                </span>
-            </div>
+            <!-- Toolbar is now minimal - save buttons moved to section cards -->
         </div>
 
         <div class="writer-editor">
@@ -880,7 +840,13 @@
                     <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
                         <span><i class="fas fa-code me-1"></i><span id="section-title-latex">LaTeX Source</span></span>
                         <div style="display: flex; align-items: center; gap: 0.5rem;">
-                            <span style="font-size: 0.75rem; color: var(--color-fg-muted);">Color:</span>
+                            <button id="undo-btn" class="btn btn-sm btn-secondary" title="Undo (Ctrl+Z)" style="font-size: 0.7rem; padding: 0.15rem 0.5rem;">
+                                <i class="fas fa-undo"></i>
+                            </button>
+                            <button id="redo-btn" class="btn btn-sm btn-secondary" title="Redo (Ctrl+Y)" style="font-size: 0.7rem; padding: 0.15rem 0.5rem;">
+                                <i class="fas fa-redo"></i>
+                            </button>
+                            <span style="font-size: 0.75rem; color: var(--color-fg-muted); margin-left: 0.5rem;">Color:</span>
                             <select id="theme-selector" class="form-select form-select-sm" style="width: auto; font-size: 0.75rem; padding: 0.25rem 0.5rem;">
                                 <optgroup label="Dark Themes">
                                     <option value="zenburn">Zenburn</option>
@@ -888,7 +854,7 @@
                                     <option value="dracula">Dracula</option>
                                 </optgroup>
                                 <optgroup label="Light Themes">
-                                    <option value="eclipse">Eclipse (Default)</option>
+                                    <option value="eclipse">Eclipse</option>
                                     <option value="neat">Neat</option>
                                     <option value="solarized light">Solarized Light</option>
                                 </optgroup>
@@ -913,6 +879,9 @@
                     <div style="display: flex; flex-direction: column; justify-content: flex-start;">
                         <button id="compile-btn-panel" class="btn btn-primary w-100 btn-lg mb-2">
                             <i class="fas fa-file-pdf me-2"></i>Compile PDF
+                        </button>
+                        <button id="quick-compile-btn-panel" class="btn btn-outline-primary w-100 mb-2">
+                            <i class="fas fa-bolt me-2"></i>Quick Compile (text only)
                         </button>
                         <button id="stop-compile-btn" class="btn btn-danger w-100" style="display: none;">
                             <i class="fas fa-stop me-2"></i>Stop
@@ -1015,6 +984,146 @@ document.addEventListener('DOMContentLoaded', function() {
     let liveCompileTimeout;
     let currentlyCompiling = false;
     let liveCompilationEnabled = true; // Enable live compilation by default
+
+    // Server-provided word counts (from database)
+    const serverWordCounts = {
+        manuscript: {
+            abstract: {{ manuscript.word_count_abstract|default:0 }},
+            introduction: {{ manuscript.word_count_introduction|default:0 }},
+            methods: {{ manuscript.word_count_methods|default:0 }},
+            results: {{ manuscript.word_count_results|default:0 }},
+            discussion: {{ manuscript.word_count_discussion|default:0 }}
+        }
+    };
+
+    // Undo/Redo History - Store last 30 save points per section
+    const MAX_HISTORY = 30;
+    let undoHistory = {}; // { section: [{content, timestamp, wordCount}] }
+    let currentHistoryIndex = {}; // { section: index }
+
+    function initializeHistory(section) {
+        if (!undoHistory[section]) {
+            undoHistory[section] = [];
+            currentHistoryIndex[section] = -1;
+        }
+    }
+
+    function addToHistory(section, content, wordCount) {
+        initializeHistory(section);
+
+        // Remove any "future" history if we're in the middle of undo stack
+        if (currentHistoryIndex[section] < undoHistory[section].length - 1) {
+            undoHistory[section] = undoHistory[section].slice(0, currentHistoryIndex[section] + 1);
+        }
+
+        // Add new save point
+        undoHistory[section].push({
+            content: content,
+            timestamp: new Date().toISOString(),
+            wordCount: wordCount
+        });
+
+        // Keep only last 30 save points
+        if (undoHistory[section].length > MAX_HISTORY) {
+            undoHistory[section].shift();
+        } else {
+            currentHistoryIndex[section]++;
+        }
+
+        // Persist to localStorage
+        saveHistoryToLocalStorage();
+        updateUndoRedoButtons();
+    }
+
+    function undo() {
+        const section = currentSection;
+        initializeHistory(section);
+
+        if (currentHistoryIndex[section] > 0) {
+            currentHistoryIndex[section]--;
+            const historyPoint = undoHistory[section][currentHistoryIndex[section]];
+
+            // Temporarily disable change tracking to avoid triggering markAsUnsaved
+            const tempContent = historyPoint.content;
+            codeMirrorEditor.setValue(tempContent);
+
+            // Update preview and word count
+            const textContent = convertFromLatex(section, tempContent);
+            textPreview.textContent = textContent;
+            updateWordCount();
+
+            // Mark as saved since we're restoring a saved state
+            markAsSaved(section);
+
+            updateUndoRedoButtons();
+            showToast(`Restored to ${new Date(historyPoint.timestamp).toLocaleTimeString()}`, 'info');
+        }
+    }
+
+    function redo() {
+        const section = currentSection;
+        initializeHistory(section);
+
+        if (currentHistoryIndex[section] < undoHistory[section].length - 1) {
+            currentHistoryIndex[section]++;
+            const historyPoint = undoHistory[section][currentHistoryIndex[section]];
+
+            // Temporarily disable change tracking to avoid triggering markAsUnsaved
+            const tempContent = historyPoint.content;
+            codeMirrorEditor.setValue(tempContent);
+
+            // Update preview and word count
+            const textContent = convertFromLatex(section, tempContent);
+            textPreview.textContent = textContent;
+            updateWordCount();
+
+            // Mark as saved since we're restoring a saved state
+            markAsSaved(section);
+
+            updateUndoRedoButtons();
+            showToast(`Restored to ${new Date(historyPoint.timestamp).toLocaleTimeString()}`, 'info');
+        }
+    }
+
+    function updateUndoRedoButtons() {
+        const section = currentSection;
+        initializeHistory(section);
+
+        const undoBtn = document.getElementById('undo-btn');
+        const redoBtn = document.getElementById('redo-btn');
+
+        if (undoBtn) {
+            undoBtn.disabled = currentHistoryIndex[section] <= 0;
+        }
+        if (redoBtn) {
+            redoBtn.disabled = currentHistoryIndex[section] >= undoHistory[section].length - 1;
+        }
+    }
+
+    function saveHistoryToLocalStorage() {
+        try {
+            localStorage.setItem(`history_${projectId}`, JSON.stringify({
+                undoHistory: undoHistory,
+                currentHistoryIndex: currentHistoryIndex
+            }));
+        } catch (e) {
+            console.warn('Failed to save history to localStorage:', e);
+        }
+    }
+
+    function loadHistoryFromLocalStorage() {
+        try {
+            const saved = localStorage.getItem(`history_${projectId}`);
+            if (saved) {
+                const data = JSON.parse(saved);
+                undoHistory = data.undoHistory || {};
+                currentHistoryIndex = data.currentHistoryIndex || {};
+                updateUndoRedoButtons();
+            }
+        } catch (e) {
+            console.warn('Failed to load history from localStorage:', e);
+        }
+    }
 
     // All available sections by document type (pool)
     const allAvailableSections = {
@@ -1143,8 +1252,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const textPreview = document.getElementById('text-preview');
 
     // Load saved theme preferences for each mode
-    const savedDarkTheme = localStorage.getItem(`codemirror_theme_dark_${projectId}`) || 'zenburn';
-    const savedLightTheme = localStorage.getItem(`codemirror_theme_light_${projectId}`) || 'eclipse';
+    const savedDarkTheme = localStorage.getItem(`codemirror_theme_dark_${projectId}`) || 'dracula';
+    const savedLightTheme = localStorage.getItem(`codemirror_theme_light_${projectId}`) || 'neat';
 
     // Determine current site theme
     const currentSiteTheme = document.documentElement.getAttribute('data-theme') || 'light';
@@ -1306,11 +1415,37 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize
     loadState();
     renderSections(currentDocType);
+    loadAllWordCountsFromLocalStorage(); // Load cached word counts from localStorage
+    loadHistoryFromLocalStorage(); // Load undo/redo history
     loadLatexSection(currentSection);
     updateWordCount();
 
     // Setup compilation panel toggle (after DOM is ready)
     setupCompilationPanelToggle();
+
+    // Undo/Redo button event listeners
+    document.getElementById('undo-btn').addEventListener('click', undo);
+    document.getElementById('redo-btn').addEventListener('click', redo);
+
+    // Keyboard shortcuts for undo/redo
+    document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+            e.preventDefault();
+            undo();
+        } else if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+            e.preventDefault();
+            redo();
+        }
+    });
+
+    // Repository switching (dropdown)
+    const repositorySelector = document.getElementById('repository-selector');
+    repositorySelector.addEventListener('change', function() {
+        const newProjectId = this.value;
+        const currentUsername = '{{ request.user.username }}';
+        // Redirect to the new project's writer page
+        window.location.href = `/${currentUsername}/${newProjectId}/?mode=writer`;
+    });
 
     // Document type switching (dropdown)
     doctypeSelector.addEventListener('change', function() {
@@ -1509,6 +1644,61 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error('✗ Compile button panel NOT FOUND');
             }
 
+            // Quick Compile button in panel
+            const quickCompileBtnPanel = document.getElementById('quick-compile-btn-panel');
+            if (quickCompileBtnPanel) {
+                console.log('✓ Quick compile button in panel found');
+                quickCompileBtnPanel.addEventListener('click', function() {
+                    console.log('✓ Quick compile button clicked in panel');
+
+                    const stopBtn = document.getElementById('stop-compile-btn');
+                    const logPanel = document.getElementById('compilation-log-panel');
+
+                    this.disabled = true;
+                    this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Quick compiling...';
+                    compileBtnPanel.disabled = true;  // Disable regular compile too
+                    if (stopBtn) stopBtn.style.display = 'block';
+                    logPanel.textContent = 'Starting quick compilation (text only, no figures)...\n';
+
+                    fetch(`/writer/project/${projectId}/compile/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': getCsrfToken(),
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: 'quick=true'
+                    })
+                    .then(response => {
+                        console.log('[QUICK-COMPILE] Response status:', response.status);
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('[QUICK-COMPILE] Response data:', data);
+                        if (data.success) {
+                            localStorage.setItem(`last_compile_job_${projectId}`, data.job_id);
+                            logPanel.textContent += `Email notification sent.\nJob ID: ${data.job_id}\nMonitoring progress...\n`;
+                            showToast('Quick compilation started!', 'success');
+                            pollCompilationStatusPanel(data.job_id);
+                        } else {
+                            logPanel.textContent += `\nError: ${data.error}`;
+                            showToast('Quick compilation failed: ' + (data.error || 'Unknown error'), 'danger');
+                            this.disabled = false;
+                            compileBtnPanel.disabled = false;
+                            this.innerHTML = '<i class="fas fa-bolt me-2"></i>Quick Compile (text only)';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('[QUICK-COMPILE] Fetch error:', error);
+                        logPanel.textContent += `\nFetch error: ${error.message}`;
+                        this.disabled = false;
+                        compileBtnPanel.disabled = false;
+                        this.innerHTML = '<i class="fas fa-bolt me-2"></i>Quick Compile (text only)';
+                    });
+                });
+            } else {
+                console.error('✗ Quick compile button panel NOT FOUND');
+            }
+
             // Removed: Toggle log size (no longer needed)
 
         } else {
@@ -1638,6 +1828,14 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <span id="words-${section}">0</span> words
                             </div>
                         </div>
+                        <div class="section-actions mt-1" style="display: flex; align-items: center; gap: 0.5rem;">
+                            <button class="btn btn-sm btn-primary section-save-btn" data-section="${section}" style="font-size: 0.7rem; padding: 0.15rem 0.5rem;">
+                                <i class="fas fa-save me-1"></i>Save
+                            </button>
+                            <span class="section-save-status text-muted" id="save-status-${section}" style="font-size: 0.7rem;">
+                                <i class="fas fa-check-circle text-success me-1"></i>Saved
+                            </span>
+                        </div>
                     </div>
                     <button class="section-remove-btn" data-section="${section}" title="Move to pool">
                         <i class="fas fa-minus-circle"></i>
@@ -1664,6 +1862,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 e.stopPropagation();
                 const section = this.dataset.section;
                 removeSection(section);
+            });
+        });
+
+        // Add event listeners to section save buttons
+        sectionsContainer.querySelectorAll('.section-save-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const section = this.dataset.section;
+                // If this is the current section, save it
+                if (section === currentSection) {
+                    saveCurrentSectionManually();
+                } else {
+                    // Switch to that section first, then save
+                    switchToSection(section);
+                    setTimeout(() => saveCurrentSectionManually(), 100);
+                }
             });
         });
     }
@@ -1892,20 +2106,40 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    function markAsUnsaved() {
+    function markAsUnsaved(section = currentSection) {
         hasUnsavedChanges = true;
-        saveBtn.classList.add('btn-warning');
-        saveBtn.classList.remove('btn-primary');
-        saveBtn.innerHTML = '<i class="fas fa-save me-1"></i>Save *';
-        saveStatus.innerHTML = '<i class="fas fa-exclamation-circle text-warning me-1"></i>Unsaved changes';
+
+        // Update section-specific save button and status
+        const sectionSaveBtn = document.querySelector(`.section-save-btn[data-section="${section}"]`);
+        const sectionStatus = document.getElementById(`save-status-${section}`);
+
+        if (sectionSaveBtn) {
+            sectionSaveBtn.classList.add('btn-warning');
+            sectionSaveBtn.classList.remove('btn-primary');
+            sectionSaveBtn.innerHTML = '<i class="fas fa-save me-1"></i>Save *';
+        }
+
+        if (sectionStatus) {
+            sectionStatus.innerHTML = '<i class="fas fa-exclamation-circle text-warning me-1"></i>Unsaved';
+        }
     }
 
-    function markAsSaved() {
+    function markAsSaved(section = currentSection) {
         hasUnsavedChanges = false;
-        saveBtn.classList.remove('btn-warning');
-        saveBtn.classList.add('btn-primary');
-        saveBtn.innerHTML = '<i class="fas fa-save me-1"></i>Save';
-        saveStatus.innerHTML = '<i class="fas fa-check-circle text-success me-1"></i>All changes saved';
+
+        // Update section-specific save button and status
+        const sectionSaveBtn = document.querySelector(`.section-save-btn[data-section="${section}"]`);
+        const sectionStatus = document.getElementById(`save-status-${section}`);
+
+        if (sectionSaveBtn) {
+            sectionSaveBtn.classList.remove('btn-warning');
+            sectionSaveBtn.classList.add('btn-primary');
+            sectionSaveBtn.innerHTML = '<i class="fas fa-save me-1"></i>Save';
+        }
+
+        if (sectionStatus) {
+            sectionStatus.innerHTML = '<i class="fas fa-check-circle text-success me-1"></i>Saved';
+        }
     }
 
     function saveCurrentSectionManually() {
@@ -1935,6 +2169,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 updateSectionWordCount(sectionToSave, data.word_count);
                 updateTotalWordCount(data.total_words);
                 markAsSaved();
+
+                // Add to undo/redo history
+                addToHistory(sectionToSave, latexContent, data.word_count);
+
                 showToast(`${sectionTitles[currentDocType][sectionToSave]} saved successfully`, 'success');
             } else {
                 saveStatus.innerHTML = '<i class="fas fa-times-circle text-danger me-1"></i>Error saving';
@@ -2060,19 +2298,55 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Also update the section card's word count in real-time
         updateSectionWordCount(currentSection, words);
+
+        // Save to localStorage for persistence
+        saveWordCountToLocalStorage(currentSection, currentDocType, words);
     }
-    
+
     function updateSectionWordCount(section, count) {
         const wordElement = document.getElementById(`words-${section}`);
         if (wordElement) {
             wordElement.textContent = count;
         }
-        
+
         // Update completion indicator
         const completionFill = document.querySelector(`[data-section="${section}"] .completion-fill`);
         if (completionFill) {
             completionFill.style.width = count > 0 ? '100%' : '0%';
         }
+    }
+
+    function saveWordCountToLocalStorage(section, docType, count) {
+        const key = `wordcount_${projectId}_${docType}_${section}`;
+        localStorage.setItem(key, count);
+    }
+
+    function loadWordCountFromLocalStorage(section, docType) {
+        const key = `wordcount_${projectId}_${docType}_${section}`;
+        const count = localStorage.getItem(key);
+
+        if (count !== null) {
+            return parseInt(count, 10);
+        }
+
+        // Fallback to server data if localStorage is empty (e.g., after hard refresh)
+        if (serverWordCounts[docType] && serverWordCounts[docType][section] !== undefined) {
+            return serverWordCounts[docType][section];
+        }
+
+        return 0;
+    }
+
+    function loadAllWordCountsFromLocalStorage() {
+        // Load word counts for all sections from localStorage
+        Object.keys(sectionTitles).forEach(docType => {
+            Object.keys(sectionTitles[docType]).forEach(section => {
+                const count = loadWordCountFromLocalStorage(section, docType);
+                if (count > 0) {
+                    updateSectionWordCount(section, count);
+                }
+            });
+        });
     }
     
     function updateTotalWordCount(total) {
@@ -2649,11 +2923,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 setTimeout(() => {
                     compileBtnPanel.disabled = false;
                     compileBtnPanel.innerHTML = '<i class="fas fa-file-pdf me-2"></i>Compile PDF';
+                    const quickCompileBtnPanel = document.getElementById('quick-compile-btn-panel');
+                    if (quickCompileBtnPanel) {
+                        quickCompileBtnPanel.disabled = false;
+                        quickCompileBtnPanel.innerHTML = '<i class="fas fa-bolt me-2"></i>Quick Compile (text only)';
+                    }
                 }, 3000);
             } else if (data.status === 'failed') {
                 logPanel.textContent = `ERROR: ${data.error}\n\n${data.log || ''}`;
                 compileBtnPanel.disabled = false;
                 compileBtnPanel.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>Failed';
+                const quickCompileBtnPanel = document.getElementById('quick-compile-btn-panel');
+                if (quickCompileBtnPanel) {
+                    quickCompileBtnPanel.disabled = false;
+                    quickCompileBtnPanel.innerHTML = '<i class="fas fa-bolt me-2"></i>Quick Compile (text only)';
+                }
             } else {
                 setTimeout(() => pollCompilationStatusPanel(jobId, attempts + 1), 2000);
             }
