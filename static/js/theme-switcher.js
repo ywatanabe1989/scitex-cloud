@@ -1,6 +1,6 @@
 /**
  * SciTeX Theme Switcher
- * Handles Light/Dark/System mode switching with localStorage persistence
+ * Handles Light/Dark mode switching with localStorage persistence
  */
 
 (function() {
@@ -9,45 +9,23 @@
     const STORAGE_KEY = 'scitex-theme-preference';
     const THEME_LIGHT = 'light';
     const THEME_DARK = 'dark';
-    const THEME_SYSTEM = 'system';
-
-    /**
-     * Get system theme preference
-     */
-    function getSystemTheme() {
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            return THEME_DARK;
-        }
-        return THEME_LIGHT;
-    }
 
     /**
      * Get the current theme preference from localStorage
      */
     function getThemePreference() {
         const stored = localStorage.getItem(STORAGE_KEY);
-        if (stored && [THEME_LIGHT, THEME_DARK, THEME_SYSTEM].includes(stored)) {
+        if (stored && [THEME_LIGHT, THEME_DARK].includes(stored)) {
             return stored;
         }
-        return THEME_SYSTEM; // Default to system preference
-    }
-
-    /**
-     * Get the effective theme to apply (resolves 'system' to actual theme)
-     */
-    function getEffectiveTheme() {
-        const preference = getThemePreference();
-        if (preference === THEME_SYSTEM) {
-            return getSystemTheme();
-        }
-        return preference;
+        return THEME_LIGHT; // Default to light theme
     }
 
     /**
      * Apply theme to the document
      */
-    function applyTheme(effectiveTheme) {
-        if (effectiveTheme === THEME_DARK) {
+    function applyTheme(theme) {
+        if (theme === THEME_DARK) {
             document.documentElement.setAttribute('data-theme', 'dark');
             document.documentElement.setAttribute('data-color-mode', 'dark');
         } else {
@@ -64,25 +42,15 @@
      */
     function setThemePreference(preference) {
         localStorage.setItem(STORAGE_KEY, preference);
-        const effectiveTheme = getEffectiveTheme();
-        applyTheme(effectiveTheme);
+        applyTheme(preference);
     }
 
     /**
-     * Cycle through themes: light -> dark -> system -> light...
+     * Toggle between themes: light <-> dark
      */
-    function cycleTheme() {
+    function toggleTheme() {
         const current = getThemePreference();
-        let next;
-
-        if (current === THEME_LIGHT) {
-            next = THEME_DARK;
-        } else if (current === THEME_DARK) {
-            next = THEME_SYSTEM;
-        } else {
-            next = THEME_LIGHT;
-        }
-
+        const next = current === THEME_LIGHT ? THEME_DARK : THEME_LIGHT;
         setThemePreference(next);
     }
 
@@ -93,27 +61,24 @@
         const toggleBtn = document.getElementById('theme-toggle');
         if (!toggleBtn) return;
 
-        const preference = getThemePreference();
-        const effectiveTheme = getEffectiveTheme();
+        const theme = getThemePreference();
 
-        // Update title/aria-label with all three options
+        // Update title/aria-label
         const labels = {
             [THEME_LIGHT]: '☀️ Light',
-            [THEME_DARK]: '🌙 Dark',
-            [THEME_SYSTEM]: '💻 System'
+            [THEME_DARK]: '🌙 Dark'
         };
 
-        toggleBtn.setAttribute('title', `Theme: ${labels[preference]}\nClick to cycle: Light → Dark → System`);
-        toggleBtn.setAttribute('aria-label', `Current theme: ${labels[preference]}`);
+        toggleBtn.setAttribute('title', `Theme: ${labels[theme]}\nClick to toggle theme`);
+        toggleBtn.setAttribute('aria-label', `Current theme: ${labels[theme]}`);
 
         // Update button content
         const icons = {
             [THEME_LIGHT]: '☀️',
-            [THEME_DARK]: '🌙',
-            [THEME_SYSTEM]: '💻'
+            [THEME_DARK]: '🌙'
         };
 
-        toggleBtn.innerHTML = icons[preference];
+        toggleBtn.innerHTML = icons[theme];
     }
 
     /**
@@ -121,28 +86,17 @@
      */
     function initTheme() {
         // Apply theme immediately to prevent flash
-        const effectiveTheme = getEffectiveTheme();
-        applyTheme(effectiveTheme);
+        const theme = getThemePreference();
+        applyTheme(theme);
 
         // Set up toggle button when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
             const toggleBtn = document.getElementById('theme-toggle');
             if (toggleBtn) {
-                toggleBtn.addEventListener('click', cycleTheme);
+                toggleBtn.addEventListener('click', toggleTheme);
                 updateToggleButton();
             }
         });
-
-        // Listen for system theme changes (only if using system preference)
-        if (window.matchMedia) {
-            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
-                // Only auto-switch if user is using system preference
-                if (getThemePreference() === THEME_SYSTEM) {
-                    const newEffectiveTheme = e.matches ? THEME_DARK : THEME_LIGHT;
-                    applyTheme(newEffectiveTheme);
-                }
-            });
-        }
     }
 
     // Initialize immediately (before DOM loads to prevent flash)
@@ -151,13 +105,11 @@
     // Expose API for manual control and settings page
     window.SciTeX = window.SciTeX || {};
     window.SciTeX.theme = {
-        cycle: cycleTheme,
+        toggle: toggleTheme,
         set: setThemePreference,
-        getPreference: getThemePreference,
-        getEffective: getEffectiveTheme,
+        get: getThemePreference,
         LIGHT: THEME_LIGHT,
-        DARK: THEME_DARK,
-        SYSTEM: THEME_SYSTEM
+        DARK: THEME_DARK
     };
 
 })();
