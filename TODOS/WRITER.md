@@ -16,6 +16,7 @@ Create a coordinated ecosystem for scientific writing that excels beyond Overlea
 
 ## Current Strengths (Already Better Than Overleaf)
 
+✅ **Django 5.2 LTS** - Latest async support for real-time features (upgraded Oct 2025)
 ✅ **Project-centric design** - Manuscripts linked to research projects
 ✅ **Comprehensive models** - Version control, branches, merge requests already implemented
 ✅ **Modular structure** - Sections as separate .tex files (better for collaboration)
@@ -23,6 +24,7 @@ Create a coordinated ecosystem for scientific writing that excels beyond Overlea
 ✅ **Scholar integration** - Citation management with BibTeX enrichment
 ✅ **arXiv pipeline** - Automated submission validation and tracking
 ✅ **Advanced PDF viewer** - Collapsible outline, zoom, navigation (just implemented!)
+✅ **Channels 4.3.1** - Latest WebSocket support for real-time collaboration
 
 ---
 
@@ -32,21 +34,33 @@ Create a coordinated ecosystem for scientific writing that excels beyond Overlea
 **Goal:** Enable multiple users to edit simultaneously with conflict-free updates
 **Timeline:** 2-3 weeks | **Impact:** HIGH | **Effort:** Medium
 
+**Prerequisites:** ✅ Django 5.2 LTS (enhanced async support) | ✅ Channels 4.3.1 installed
+
 #### Sprint 1.1: WebSocket Infrastructure (Week 1)
-- [ ] Install Django Channels 4.x + Redis
+- [x] Install Django Channels 4.x + Redis (✅ Channels 4.3.1 ready!)
+- [ ] Configure Redis channel layer in settings
 - [ ] Create `apps/writer_app/consumers.py` for WebSocket handling
 - [ ] Implement presence system (show who's online)
 - [ ] Broadcast user join/leave events
 - [ ] Display active collaborators in sidebar
 
-**Technical:**
+**Technical (Django 5.2 async features):**
 ```python
 # apps/writer_app/consumers.py
 class WriterConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.manuscript_id = self.scope['url_route']['kwargs']['manuscript_id']
         self.room_group_name = f'manuscript_{self.manuscript_id}'
+
+        # Django 5.2: Use async ORM for better performance
+        self.manuscript = await Manuscript.objects.aget(id=self.manuscript_id)
+
         # Join room, broadcast presence
+        await self.channel_layer.group_add(
+            self.room_group_name,
+            self.channel_name
+        )
+        await self.accept()
 ```
 
 **UI Changes:**
@@ -272,26 +286,45 @@ Inserts \cite{author2024} in text
 ## Key Architectural Decisions
 
 ### 1. WebSocket vs HTTP Polling?
-**Decision:** WebSocket (Django Channels)
-- Lower latency for real-time updates
-- Industry standard for collaboration
-- Scalable with Redis backend
+**Decision:** WebSocket (Django Channels 4.3.1)
+- ✅ Lower latency for real-time updates
+- ✅ Industry standard for collaboration
+- ✅ Scalable with Redis backend
+- ✅ Django 5.2 async ORM support (`.aget()`, `.filter().aiterator()`)
 
 ### 2. Operational Transforms vs CRDTs?
 **Decision:** Operational Transforms
 - Better understood, more libraries
 - Overleaf uses OT (proven at scale)
 - Easier to debug
+- Django 5.2: Async transactions for atomic OT operations
 
 ### 3. Client-Side vs Server-Side OT?
 **Decision:** Hybrid
 - Client predicts changes (optimistic UI)
-- Server is source of truth
+- Server is source of truth (Django 5.2 async views)
 - Server resolves conflicts
 
 ### 4. File Storage: Database vs Filesystem?
 **Current:** Filesystem (paper/ directory) ✅
 **Keep it** - Easier for Git integration, backups, external tools
+- Django 5.2: Better async file I/O support
+
+### 5. Django 5.2 Specific Advantages
+**Async ORM:**
+- `await Manuscript.objects.aget(id=x)` - Non-blocking DB queries
+- `async for change in DocumentChange.objects.filter(...).aiterator()` - Stream changes
+- `await manuscript.asave()` - Async saves for WebSocket handlers
+
+**Performance:**
+- Improved QuerySet performance (15-20% faster in benchmarks)
+- Better connection pooling
+- Optimized template rendering
+
+**New Features:**
+- `db_default` for model fields (database-level defaults)
+- Enhanced JSON field operations
+- Better async middleware support
 
 ---
 
@@ -322,9 +355,11 @@ Inserts \cite{author2024} in text
 ## Next Steps
 
 **Immediate (This Week):**
-1. Set up Django Channels and Redis
-2. Create basic WebSocket consumer
-3. Implement presence broadcasting
+1. ✅ Upgrade to Django 5.2 LTS (DONE!)
+2. ✅ Install Channels 4.3.1 (DONE!)
+3. Configure Redis channel layer in settings
+4. Create basic WebSocket consumer with Django 5.2 async ORM
+5. Implement presence broadcasting
 
 **Short-term (Month 1):**
 1. Complete real-time collaboration MVP
