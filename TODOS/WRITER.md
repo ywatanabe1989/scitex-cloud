@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-17 20:00:39
+!-- Timestamp: 2025-10-17 22:00:44
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/TODOS/WRITER.md
 !-- --- -->
@@ -115,20 +115,38 @@ function transform(op1, op2) {
 }
 ```
 
-#### Sprint 2.2: Server-Side Coordination (Week 2-3)
-- [ ] Central authority for operation ordering
-- [ ] Operation queue per manuscript
-- [ ] Acknowledgment system
-- [ ] Retry logic for failed operations
+#### Sprint 2.2: Server-Side Coordination (Week 2-3) ✅ COMPLETED
+- [x] Central authority for operation ordering
+- [x] Operation queue per manuscript (Redis-backed with distributed locking)
+- [x] Acknowledgment system (client and server-side)
+- [x] Retry logic for failed operations (up to 3 retries with exponential backoff)
 
-#### Sprint 2.3: Undo/Redo (Week 3)
-- [ ] Per-user undo stack
-- [ ] Transform undo operations
-- [ ] Redo after undo
+**Implementation:**
+- `ot_coordinator.py` - Central OT coordination system
+- `OperationQueue` - Redis-backed queue with distributed locks
+- `OTCoordinator` - Operation submission, processing, and transformation
+- Metrics tracking for operations (submitted, applied, transformed, retried, failed)
+
+#### Sprint 2.3: Undo/Redo (Week 3) ✅ COMPLETED
+- [x] Per-user undo stack (Redis-backed, max 100 operations)
+- [x] Transform undo operations (OT-aware inverse operations)
+- [x] Redo after undo (maintains redo stack)
+- [x] WebSocket integration (undo/redo commands and broadcasts)
+
+**Implementation:**
+- `undo_redo.py` - Undo/redo management system
+- `UndoRedoManager` - Per-user, per-section undo/redo stacks
+- `CollaborativeUndoRedoCoordinator` - Multi-user undo/redo coordination
+- WebSocket handlers: `handle_undo`, `handle_redo`, `handle_undo_status`
 
 **Models used:**
 - `DocumentChange.operation_data` - Store OT operations ✅
 - `DocumentChange.transform_applied` - Track transformation ✅
+
+**Status:** Phase 2 Operational Transforms - COMPLETE! 🎉
+- Server-side OT coordination with queue management
+- Acknowledgment and retry systems
+- Full undo/redo support with OT transformation
 
 ---
 
@@ -426,5 +444,27 @@ see ./PERMISSIONS_SYSTEM.md
 - [ ] Email Guest
   - [ ] see ./GUEST_COLLABORATORS.md
   - [ ] see ./PERMISSIONS_SYSTEM.md
+
+## Implemented Apps
+  /home/ywatanabe/proj/scitex-cloud/apps:
+  drwxr-xr-x 18 ywatanabe ywatanabe 4.0K Oct 17 21:51 .
+  drwxr-xr-x 22 ywatanabe ywatanabe 4.0K Oct 17 21:57 ..
+  drwxr-xr-x  5 ywatanabe ywatanabe 4.0K Oct 17 19:37 auth_app
+  drwxr-xr-x  5 ywatanabe ywatanabe 4.0K Oct 16 02:05 billing_app
+  drwxr-xr-x  7 ywatanabe ywatanabe 4.0K Oct 17 06:54 cloud_app
+  drwxr-xr-x  6 ywatanabe ywatanabe 4.0K Oct 17 18:42 code_app
+  drwxr-xr-x  6 ywatanabe ywatanabe 4.0K Oct 17 20:26 core_app
+  drwxr-xr-x  5 ywatanabe ywatanabe 4.0K Oct 17 05:33 dev_app
+  drwxr-xr-x  7 ywatanabe ywatanabe 4.0K Oct 16 04:14 docs_app
+  -rw-r--r--  1 ywatanabe ywatanabe    0 Oct 16 00:22 __init__.py
+  drwxr-xr-x  7 ywatanabe ywatanabe 4.0K Oct 17 19:00 integrations_app
+  drwxr-xr-x  5 ywatanabe ywatanabe 4.0K Oct 17 19:50 permissions_app
+  drwxr-xr-x  6 ywatanabe ywatanabe 4.0K Oct 17 20:24 profile_app
+  drwxr-xr-x  6 ywatanabe ywatanabe 4.0K Oct 17 21:57 project_app
+  drwxr-xr-x  2 ywatanabe ywatanabe 4.0K Oct 16 00:22 __pycache__
+  drwxr-xr-x  7 ywatanabe ywatanabe 4.0K Oct 17 18:41 scholar_app
+  drwxr-xr-x  6 ywatanabe ywatanabe 4.0K Oct 17 21:56 social_app
+  drwxr-xr-x  6 ywatanabe ywatanabe 4.0K Oct 17 18:42 viz_app
+  drwxr-xr-x  7 ywatanabe ywatanabe 4.0K Oct 17 19:07 writer_app
 
 <!-- EOF -->
