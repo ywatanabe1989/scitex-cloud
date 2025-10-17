@@ -333,6 +333,48 @@ urlpatterns += [
 # Add these BEFORE the username pattern to prevent conflicts
 from apps.project_app.views import project_create
 
+def get_reserved_paths():
+    """
+    Dynamically generate list of reserved URL prefixes.
+    Returns list of paths that cannot be used as usernames.
+    """
+    from pathlib import Path
+
+    reserved = set()
+
+    # 1. Auto-discover app URL prefixes
+    apps_dir = Path(settings.BASE_DIR) / "apps"
+    if apps_dir.exists():
+        for app_dir in sorted(apps_dir.iterdir()):
+            if app_dir.is_dir() and not app_dir.name.startswith("_"):
+                urls_file = app_dir / "urls.py"
+                if urls_file.exists():
+                    # Extract URL prefix (remove _app suffix)
+                    url_prefix = app_dir.name.replace("_app", "")
+                    reserved.add(url_prefix)
+
+    # 2. Static system paths
+    reserved.update([
+        'admin', 'api', 'new', 'static', 'media',
+        'favicon.ico', 'robots.txt', 'sitemap.xml',
+    ])
+
+    # 3. Common reserved words (user-facing pages)
+    reserved.update([
+        'about', 'help', 'support', 'contact', 'terms', 'privacy',
+        'settings', 'dashboard', 'profile', 'account',
+        'login', 'logout', 'signup', 'register', 'reset', 'verify', 'confirm',
+    ])
+
+    # 4. Development/debug paths
+    if settings.DEBUG:
+        reserved.update(['__reload__', '__debug__'])
+
+    return sorted(list(reserved))
+
+# Generate reserved paths dynamically
+RESERVED_PATHS = get_reserved_paths()
+
 urlpatterns += [
     # /new - Create new project (GitHub-style)
     path("new/", project_create, name="project_create"),

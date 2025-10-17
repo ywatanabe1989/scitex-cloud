@@ -1,0 +1,105 @@
+{% extends "core_app/core_base.html" %}
+
+{% block title %}Configure Slack - SciTeX{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-2xl">
+    <h1 class="text-3xl font-bold mb-6">Configure Slack Notifications</h1>
+
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="mb-6">
+                <label for="webhook_url" class="block text-sm font-medium text-gray-700 mb-2">
+                    Webhook URL *
+                </label>
+                <input
+                    type="url"
+                    name="webhook_url"
+                    id="webhook_url"
+                    required
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="https://hooks.slack.com/services/..."
+                >
+                <p class="mt-1 text-sm text-gray-500">
+                    Get your webhook URL from Slack:
+                    <a href="https://api.slack.com/messaging/webhooks" target="_blank" class="text-blue-600 hover:underline">
+                        Create Incoming Webhook
+                    </a>
+                </p>
+            </div>
+
+            <div class="mb-6">
+                <label for="channel" class="block text-sm font-medium text-gray-700 mb-2">
+                    Channel (optional)
+                </label>
+                <input
+                    type="text"
+                    name="channel"
+                    id="channel"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="#general"
+                >
+                <p class="mt-1 text-sm text-gray-500">
+                    Override default channel (leave empty to use webhook default)
+                </p>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Notification Events *
+                </label>
+                <div class="space-y-2">
+                    {% for value, label in available_events %}
+                    <label class="flex items-center">
+                        <input
+                            type="checkbox"
+                            name="enabled_events"
+                            value="{{ value }}"
+                            {% if value == 'project_created' or value == 'manuscript_updated' or value == 'analysis_completed' %}checked{% endif %}
+                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        >
+                        <span class="ml-2 text-sm text-gray-700">{{ label }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="flex space-x-4">
+                <button
+                    type="submit"
+                    class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                    Save Configuration
+                </button>
+                <a
+                    href="{% url 'integrations_app:dashboard' %}"
+                    class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 text-center"
+                >
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <div class="mt-6 bg-blue-50 border-l-4 border-blue-400 p-4">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                </svg>
+            </div>
+            <div class="ml-3">
+                <p class="text-sm text-blue-700">
+                    <strong>How to get a Slack webhook URL:</strong><br>
+                    1. Go to <a href="https://api.slack.com/messaging/webhooks" target="_blank" class="underline">Slack's Incoming Webhooks page</a><br>
+                    2. Click "Create New App" and choose your workspace<br>
+                    3. Enable Incoming Webhooks and add a new webhook<br>
+                    4. Copy the webhook URL and paste it above
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

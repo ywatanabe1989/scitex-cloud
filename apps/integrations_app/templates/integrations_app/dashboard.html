@@ -1,0 +1,157 @@
+{% extends "core_app/core_base.html" %}
+
+{% block title %}Integrations - SciTeX{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6">Integrations</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- ORCID Integration -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center mb-4">
+                <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mr-2">
+                    <svg class="w-3 h-3 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold">ORCID</h3>
+                    <p class="text-sm text-gray-600">Researcher Identity</p>
+                </div>
+            </div>
+
+            {% if orcid_connected %}
+                <div class="mb-4">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                        <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        Connected
+                    </span>
+                </div>
+                <div class="space-y-2">
+                    <a href="{% url 'integrations_app:orcid_sync' %}" class="block text-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                        Sync Profile
+                    </a>
+                    <a href="{% url 'integrations_app:orcid_disconnect' %}" class="block text-center px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">
+                        Disconnect
+                    </a>
+                </div>
+            {% else %}
+                <p class="text-sm text-gray-600 mb-4">Connect your ORCID account to auto-populate author information.</p>
+                <a href="{% url 'integrations_app:orcid_connect' %}" class="block text-center px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                    Connect ORCID
+                </a>
+            {% endif %}
+        </div>
+
+        <!-- Slack Integration -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center mb-4">
+                <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center mr-2">
+                    <svg class="w-3 h-3 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z"/>
+                        <path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold">Slack</h3>
+                    <p class="text-sm text-gray-600">Team Notifications</p>
+                </div>
+            </div>
+
+            {% if slack_connected %}
+                <div class="mb-4">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                        <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        Configured
+                    </span>
+                </div>
+                <a href="{% url 'integrations_app:slack_configure' %}" class="block text-center px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700">
+                    Manage Webhooks
+                </a>
+            {% else %}
+                <p class="text-sm text-gray-600 mb-4">Receive notifications about your projects in Slack.</p>
+                <a href="{% url 'integrations_app:slack_configure' %}" class="block text-center px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700">
+                    Configure Slack
+                </a>
+            {% endif %}
+        </div>
+
+        <!-- BibTeX Export -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center mb-4">
+                <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mr-2">
+                    <svg class="w-3 h-3 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9 2a2 2 0 00-2 2v8a2 2 0 002 2h6a2 2 0 002-2V6.414A2 2 0 0016.414 5L14 2.586A2 2 0 0012.586 2H9z"/>
+                        <path d="M3 8a2 2 0 012-2v10h8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold">BibTeX Export</h3>
+                    <p class="text-sm text-gray-600">Bibliography Files</p>
+                </div>
+            </div>
+
+            <p class="text-sm text-gray-600 mb-4">Export your project bibliographies as .bib files.</p>
+            <p class="text-xs text-gray-500">Available from project pages</p>
+        </div>
+    </div>
+
+    <!-- Integration Logs (if admin) -->
+    {% if user.is_staff %}
+    <div class="mt-8">
+        <h2 class="text-2xl font-bold mb-4">Recent Activity</h2>
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Service</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for conn in connections %}
+                        {% for log in conn.logs.all|slice:":5" %}
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                {{ conn.get_service_display }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ log.get_action_display }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {% if log.success %}
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                    Success
+                                </span>
+                                {% else %}
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                    Failed
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ log.created_at|date:"M d, Y H:i" }}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">
+                                No activity yet
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

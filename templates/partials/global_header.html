@@ -55,30 +55,30 @@
               <span class="nav-label">Writer</span>
             </a>
           {% else %}
-            {# No project context - use last active project if available #}
-            {% if user.profile.last_active_project %}
-              <a href="/{{ user.profile.last_active_project.owner.username }}/{{ user.profile.last_active_project.slug }}/?mode=scholar"
+            {# No repository context - use last active repository if available #}
+            {% if user.profile.last_active_repository %}
+              <a href="/{{ user.profile.last_active_repository.owner.username }}/{{ user.profile.last_active_repository.slug }}/?mode=scholar"
                  class="header-nav-item">
                 <i class="fas fa-graduation-cap"></i>
                 <span class="nav-label">Scholar</span>
               </a>
-              <a href="/{{ user.profile.last_active_project.owner.username }}/{{ user.profile.last_active_project.slug }}/?mode=code"
+              <a href="/{{ user.profile.last_active_repository.owner.username }}/{{ user.profile.last_active_repository.slug }}/?mode=code"
                  class="header-nav-item">
                 <i class="fas fa-code"></i>
                 <span class="nav-label">Code</span>
               </a>
-              <a href="/{{ user.profile.last_active_project.owner.username }}/{{ user.profile.last_active_project.slug }}/?mode=viz"
+              <a href="/{{ user.profile.last_active_repository.owner.username }}/{{ user.profile.last_active_repository.slug }}/?mode=viz"
                  class="header-nav-item">
                 <i class="fas fa-chart-bar"></i>
                 <span class="nav-label">Viz</span>
               </a>
-              <a href="/{{ user.profile.last_active_project.owner.username }}/{{ user.profile.last_active_project.slug }}/?mode=writer"
+              <a href="/{{ user.profile.last_active_repository.owner.username }}/{{ user.profile.last_active_repository.slug }}/?mode=writer"
                  class="header-nav-item">
                 <i class="fas fa-pen-nib"></i>
                 <span class="nav-label">Writer</span>
               </a>
             {% else %}
-              {# No last active project - redirect to repositories #}
+              {# No last active repository - redirect to repositories #}
               <a href="/{{ user.username }}/?tab=repositories"
                  class="header-nav-item"
                  title="Select a project to use Scholar">
