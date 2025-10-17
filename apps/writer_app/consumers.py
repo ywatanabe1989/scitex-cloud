@@ -1,433 +1,371 @@
 """
-WebSocket consumers for real-time collaborative editing in SciTeX Writer.
-Implements operational transforms, user presence, and live cursors.
+WebSocket consumers for SciTeX Writer real-time collaboration.
+Uses Django 5.2 async ORM for optimal performance.
 """
-import json
-import uuid
-from datetime import datetime, timedelta
+
 from channels.generic.websocket import AsyncWebsocketConsumer
-from channels.db import database_sync_to_async
-from django.contrib.auth.models import User
-from django.utils import timezone
-from .models import Manuscript, ManuscriptSection, CollaborativeSession
-from .operational_transforms import OperationalTransform
+import json
+from datetime import datetime
+from .models import Manuscript, CollaborativeSession, DocumentChange
 
 
-class DocumentCollaborationConsumer(AsyncWebsocketConsumer):
-    """WebSocket consumer for real-time document collaboration."""
-    
+class WriterConsumer(AsyncWebsocketConsumer):
+    """
+    WebSocket consumer for real-time collaborative editing.
+
+    Handles:
+    - User presence (join/leave notifications)
+    - Section locking
+    - Real-time text changes
+    - Cursor position broadcasting
+    """
+
     async def connect(self):
-        """Handle WebSocket connection."""
+        """Handle new WebSocket connection."""
         self.manuscript_id = self.scope['url_route']['kwargs']['manuscript_id']
+        self.room_group_name = f'manuscript_{self.manuscript_id}'
         self.user = self.scope['user']
-        
-        # Check if user is authenticated and has permission
+
+        # Reject anonymous users
         if not self.user.is_authenticated:
             await self.close()
             return
-            
-        # Verify user has access to this manuscript
-        has_access = await self.check_manuscript_access()
+
+        # Django 5.2 async ORM: Check manuscript access
+        try:
+            self.manuscript = await Manuscript.objects.select_related('owner', 'project').aget(
+                id=self.manuscript_id
+            )
+        except Manuscript.DoesNotExist:
+            await self.close()
+            return
+
+        # Check permissions
+        has_access = await self.check_access()
         if not has_access:
             await self.close()
             return
-            
-        # Create unique room group name
-        self.room_group_name = f'manuscript_{self.manuscript_id}'
-        
-        # Generate unique user session ID
-        self.user_session_id = str(uuid.uuid4())
-        
+
         # Join room group
         await self.channel_layer.group_add(
             self.room_group_name,
             self.channel_name
         )
-        
-        # Create/update collaborative session
-        await self.create_collaborative_session()
-        
+
         await self.accept()
-        
-        # Announce user joined
+
+        # Create or update collaborative session
+        self.session = await self.create_session()
+
+        # Broadcast user joined
         await self.channel_layer.group_send(
             self.room_group_name,
             {
                 'type': 'user_joined',
                 'user_id': self.user.id,
                 'username': self.user.username,
-                'session_id': self.user_session_id,
-                'timestamp': timezone.now().isoformat()
+                'timestamp': datetime.now().isoformat()
             }
         )
-        
-        # Send current active users to the new user
-        await self.send_active_users()
+
+        # Send current collaborators list to new user
+        collaborators = await self.get_active_collaborators()
+        await self.send(text_data=json.dumps({
+            'type': 'collaborators_list',
+            'collaborators': collaborators
+        }))
 
     async def disconnect(self, close_code):
-        """Handle WebSocket disconnection."""
-        # Leave room group
-        await self.channel_layer.group_discard(
-            self.room_group_name,
-            self.channel_name
-        )
-        
-        # Update collaborative session
-        await self.end_collaborative_session()
-        
-        # Announce user left
+        """Handle WebSocket disconnect."""
+        # End session
+        if hasattr(self, 'session'):
+            await self.end_session()
+
+        # Broadcast user left
         await self.channel_layer.group_send(
             self.room_group_name,
             {
                 'type': 'user_left',
                 'user_id': self.user.id,
                 'username': self.user.username,
-                'session_id': self.user_session_id,
-                'timestamp': timezone.now().isoformat()
+                'timestamp': datetime.now().isoformat()
             }
         )
 
+        # Leave room group
+        await self.channel_layer.group_discard(
+            self.room_group_name,
+            self.channel_name
+        )
+
     async def receive(self, text_data):
-        """Handle received WebSocket messages."""
+        """Handle incoming WebSocket messages."""
         try:
             data = json.loads(text_data)
             message_type = data.get('type')
-            
-            if message_type == 'document_change':
-                await self.handle_document_change(data)
+
+            if message_type == 'text_change':
+                await self.handle_text_change(data)
             elif message_type == 'cursor_position':
                 await self.handle_cursor_position(data)
-            elif message_type == 'selection_change':
-                await self.handle_selection_change(data)
             elif message_type == 'section_lock':
                 await self.handle_section_lock(data)
             elif message_type == 'section_unlock':
                 await self.handle_section_unlock(data)
-            elif message_type == 'typing_indicator':
-                await self.handle_typing_indicator(data)
-                
+            else:
+                await self.send(text_data=json.dumps({
+                    'type': 'error',
+                    'message': f'Unknown message type: {message_type}'
+                }))
+
         except json.JSONDecodeError:
             await self.send(text_data=json.dumps({
                 'type': 'error',
-                'message': 'Invalid JSON data'
+                'message': 'Invalid JSON'
+            }))
+        except Exception as e:
+            await self.send(text_data=json.dumps({
+                'type': 'error',
+                'message': str(e)
             }))
 
-    async def handle_document_change(self, data):
-        """Handle document text changes with operational transforms."""
-        section_id = data.get('section_id')
+    # Message type handlers
+
+    async def user_joined(self, event):
+        """Broadcast user joined to all clients."""
+        await self.send(text_data=json.dumps({
+            'type': 'user_joined',
+            'user_id': event['user_id'],
+            'username': event['username'],
+            'timestamp': event['timestamp']
+        }))
+
+    async def user_left(self, event):
+        """Broadcast user left to all clients."""
+        await self.send(text_data=json.dumps({
+            'type': 'user_left',
+            'user_id': event['user_id'],
+            'username': event['username'],
+            'timestamp': event['timestamp']
+        }))
+
+    async def text_change(self, event):
+        """Broadcast text change to all clients except sender."""
+        if event.get('sender_channel') != self.channel_name:
+            await self.send(text_data=json.dumps({
+                'type': 'text_change',
+                'section': event['section'],
+                'operation': event['operation'],
+                'user_id': event['user_id'],
+                'username': event['username'],
+                'timestamp': event['timestamp']
+            }))
+
+    async def cursor_update(self, event):
+        """Broadcast cursor position to all clients except sender."""
+        if event.get('sender_channel') != self.channel_name:
+            await self.send(text_data=json.dumps({
+                'type': 'cursor_update',
+                'section': event['section'],
+                'position': event['position'],
+                'user_id': event['user_id'],
+                'username': event['username']
+            }))
+
+    async def section_locked(self, event):
+        """Broadcast section lock to all clients."""
+        await self.send(text_data=json.dumps({
+            'type': 'section_locked',
+            'section': event['section'],
+            'user_id': event['user_id'],
+            'username': event['username'],
+            'timestamp': event['timestamp']
+        }))
+
+    async def section_unlocked(self, event):
+        """Broadcast section unlock to all clients."""
+        await self.send(text_data=json.dumps({
+            'type': 'section_unlocked',
+            'section': event['section'],
+            'user_id': event['user_id'],
+            'username': event['username'],
+            'timestamp': event['timestamp']
+        }))
+
+    # Action handlers
+
+    async def handle_text_change(self, data):
+        """Handle text change from client."""
+        section = data.get('section')
         operation = data.get('operation')
-        
-        # Apply operational transform
-        ot = OperationalTransform()
-        transformed_operation = await self.apply_operational_transform(
-            section_id, operation
-        )
-        
-        # Save change to database
-        await self.save_document_change(section_id, transformed_operation)
-        
-        # Broadcast change to all other users
+
+        # Log change to database (Django 5.2 async save)
+        await self.log_change(section, operation)
+
+        # Broadcast to all users in room
         await self.channel_layer.group_send(
             self.room_group_name,
             {
-                'type': 'document_changed',
-                'section_id': section_id,
-                'operation': transformed_operation,
+                'type': 'text_change',
+                'section': section,
+                'operation': operation,
                 'user_id': self.user.id,
                 'username': self.user.username,
-                'session_id': self.user_session_id,
-                'timestamp': timezone.now().isoformat()
+                'timestamp': datetime.now().isoformat(),
+                'sender_channel': self.channel_name
             }
         )
 
     async def handle_cursor_position(self, data):
-        """Handle cursor position updates."""
-        await self.channel_layer.group_send(
-            self.room_group_name,
-            {
-                'type': 'cursor_moved',
-                'section_id': data.get('section_id'),
-                'position': data.get('position'),
-                'user_id': self.user.id,
-                'username': self.user.username,
-                'session_id': self.user_session_id,
-                'user_color': await self.get_user_color(),
-                'timestamp': timezone.now().isoformat()
-            }
-        )
+        """Handle cursor position update from client."""
+        section = data.get('section')
+        position = data.get('position')
 
-    async def handle_selection_change(self, data):
-        """Handle text selection changes."""
+        # Update session cursor position
+        await self.update_cursor_position(section, position)
+
+        # Broadcast to all users in room
         await self.channel_layer.group_send(
             self.room_group_name,
             {
-                'type': 'selection_changed',
-                'section_id': data.get('section_id'),
-                'start': data.get('start'),
-                'end': data.get('end'),
+                'type': 'cursor_update',
+                'section': section,
+                'position': position,
                 'user_id': self.user.id,
                 'username': self.user.username,
-                'session_id': self.user_session_id,
-                'user_color': await self.get_user_color(),
-                'timestamp': timezone.now().isoformat()
+                'sender_channel': self.channel_name
             }
         )
 
     async def handle_section_lock(self, data):
-        """Handle section locking for exclusive editing."""
-        section_id = data.get('section_id')
-        
+        """Handle section lock request from client."""
+        section = data.get('section')
+
         # Check if section is already locked
-        is_locked = await self.is_section_locked(section_id)
+        is_locked = await self.is_section_locked(section)
         if is_locked:
             await self.send(text_data=json.dumps({
-                'type': 'section_lock_failed',
-                'section_id': section_id,
+                'type': 'lock_failed',
+                'section': section,
                 'message': 'Section is already locked by another user'
             }))
             return
-        
-        # Lock the section
-        await self.lock_section(section_id)
-        
+
+        # Lock section
+        await self.lock_section(section)
+
         # Broadcast lock to all users
         await self.channel_layer.group_send(
             self.room_group_name,
             {
                 'type': 'section_locked',
-                'section_id': section_id,
+                'section': section,
                 'user_id': self.user.id,
                 'username': self.user.username,
-                'session_id': self.user_session_id,
-                'timestamp': timezone.now().isoformat()
+                'timestamp': datetime.now().isoformat()
             }
         )
 
     async def handle_section_unlock(self, data):
-        """Handle section unlocking."""
-        section_id = data.get('section_id')
-        
-        # Unlock the section
-        await self.unlock_section(section_id)
-        
+        """Handle section unlock request from client."""
+        section = data.get('section')
+
+        # Unlock section
+        await self.unlock_section(section)
+
         # Broadcast unlock to all users
         await self.channel_layer.group_send(
             self.room_group_name,
             {
                 'type': 'section_unlocked',
-                'section_id': section_id,
+                'section': section,
                 'user_id': self.user.id,
                 'username': self.user.username,
-                'session_id': self.user_session_id,
-                'timestamp': timezone.now().isoformat()
+                'timestamp': datetime.now().isoformat()
             }
         )
 
-    async def handle_typing_indicator(self, data):
-        """Handle typing indicators."""
-        await self.channel_layer.group_send(
-            self.room_group_name,
-            {
-                'type': 'user_typing',
-                'section_id': data.get('section_id'),
-                'is_typing': data.get('is_typing', False),
-                'user_id': self.user.id,
-                'username': self.user.username,
-                'session_id': self.user_session_id,
-                'timestamp': timezone.now().isoformat()
-            }
-        )
+    # Database operations (Django 5.2 async ORM)
 
-    # Group message handlers
-    async def user_joined(self, event):
-        """Send user joined message to WebSocket."""
-        if event['session_id'] != self.user_session_id:
-            await self.send(text_data=json.dumps(event))
+    async def check_access(self):
+        """Check if user has access to manuscript."""
+        if self.manuscript.owner_id == self.user.id:
+            return True
+        is_collaborator = await self.manuscript.collaborators.filter(id=self.user.id).aexists()
+        return is_collaborator
 
-    async def user_left(self, event):
-        """Send user left message to WebSocket."""
-        if event['session_id'] != self.user_session_id:
-            await self.send(text_data=json.dumps(event))
-
-    async def document_changed(self, event):
-        """Send document change to WebSocket."""
-        if event['session_id'] != self.user_session_id:
-            await self.send(text_data=json.dumps(event))
-
-    async def cursor_moved(self, event):
-        """Send cursor position to WebSocket."""
-        if event['session_id'] != self.user_session_id:
-            await self.send(text_data=json.dumps(event))
-
-    async def selection_changed(self, event):
-        """Send selection change to WebSocket."""
-        if event['session_id'] != self.user_session_id:
-            await self.send(text_data=json.dumps(event))
-
-    async def section_locked(self, event):
-        """Send section lock notification to WebSocket."""
-        await self.send(text_data=json.dumps(event))
-
-    async def section_unlocked(self, event):
-        """Send section unlock notification to WebSocket."""
-        await self.send(text_data=json.dumps(event))
-
-    async def user_typing(self, event):
-        """Send typing indicator to WebSocket."""
-        if event['session_id'] != self.user_session_id:
-            await self.send(text_data=json.dumps(event))
-
-    # Database operations
-    @database_sync_to_async
-    def check_manuscript_access(self):
-        """Check if user has access to the manuscript."""
-        try:
-            manuscript = Manuscript.objects.get(id=self.manuscript_id)
-            return (manuscript.owner == self.user or 
-                   self.user in manuscript.collaborators.all())
-        except Manuscript.DoesNotExist:
-            return False
-
-    @database_sync_to_async
-    def create_collaborative_session(self):
+    async def create_session(self):
         """Create or update collaborative session."""
-        session, created = CollaborativeSession.objects.get_or_create(
-            manuscript_id=self.manuscript_id,
+        session, created = await CollaborativeSession.objects.aupdate_or_create(
+            manuscript=self.manuscript,
             user=self.user,
-            defaults={
-                'session_id': self.user_session_id,
-                'started_at': timezone.now(),
-                'last_activity': timezone.now(),
-                'is_active': True
-            }
+            session_id=self.channel_name,
+            defaults={'is_active': True, 'locked_sections': []}
         )
-        if not created:
-            session.session_id = self.user_session_id
-            session.last_activity = timezone.now()
-            session.is_active = True
-            session.save()
         return session
 
-    @database_sync_to_async
-    def end_collaborative_session(self):
+    async def end_session(self):
         """End collaborative session."""
+        if hasattr(self, 'session'):
+            self.session.is_active = False
+            await self.session.asave()
+
+    async def get_active_collaborators(self):
+        """Get list of currently active collaborators."""
+        collaborators = []
+        async for session in CollaborativeSession.objects.filter(
+            manuscript=self.manuscript,
+            is_active=True
+        ).select_related('user'):
+            if session.is_session_active():
+                collaborators.append({
+                    'user_id': session.user.id,
+                    'username': session.user.username,
+                    'locked_sections': session.locked_sections
+                })
+        return collaborators
+
+    async def log_change(self, section, operation):
+        """Log document change to database."""
+        from .models import ManuscriptSection
         try:
-            session = CollaborativeSession.objects.get(
-                manuscript_id=self.manuscript_id,
-                user=self.user,
-                session_id=self.user_session_id
+            section_obj = await ManuscriptSection.objects.aget(
+                manuscript=self.manuscript,
+                section_type=section
             )
-            session.is_active = False
-            session.ended_at = timezone.now()
-            session.save()
-        except CollaborativeSession.DoesNotExist:
-            pass
-
-    @database_sync_to_async
-    def apply_operational_transform(self, section_id, operation):
-        """Apply operational transform to resolve conflicts."""
-        # Implementation of operational transform algorithm
-        # This is a simplified version - production would need more sophisticated OT
-        return operation
-
-    @database_sync_to_async
-    def save_document_change(self, section_id, operation):
-        """Save document change to database."""
-        try:
-            section = ManuscriptSection.objects.get(id=section_id)
-            # Apply the operation to the section content
-            if operation['type'] == 'insert':
-                pos = operation['position']
-                text = operation['text']
-                section.content = (section.content[:pos] + 
-                                 text + 
-                                 section.content[pos:])
-            elif operation['type'] == 'delete':
-                start = operation['start']
-                end = operation['end']
-                section.content = (section.content[:start] + 
-                                 section.content[end:])
-            elif operation['type'] == 'replace':
-                start = operation['start']
-                end = operation['end']
-                text = operation['text']
-                section.content = (section.content[:start] + 
-                                 text + 
-                                 section.content[end:])
-            section.save()
+            await DocumentChange.objects.acreate(
+                manuscript=self.manuscript,
+                section=section_obj,
+                user=self.user,
+                session=self.session,
+                change_type=operation.get('type', 'insert'),
+                operation_data=operation
+            )
         except ManuscriptSection.DoesNotExist:
             pass
 
-    @database_sync_to_async
-    def get_user_color(self):
-        """Get user's assigned color for cursor/selection display."""
-        # Generate consistent color based on user ID
-        colors = [
-            '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', 
-            '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F'
-        ]
-        return colors[self.user.id % len(colors)]
+    async def update_cursor_position(self, section, position):
+        """Update cursor position in session."""
+        if hasattr(self, 'session'):
+            self.session.cursor_position = {'section': section, 'position': position}
+            await self.session.asave(update_fields=['cursor_position', 'last_activity'])
 
-    @database_sync_to_async
-    def is_section_locked(self, section_id):
+    async def is_section_locked(self, section):
         """Check if section is locked by another user."""
-        return CollaborativeSession.objects.filter(
-            manuscript_id=self.manuscript_id,
-            locked_sections__contains=[section_id],
-            is_active=True
-        ).exclude(user=self.user).exists()
-
-    @database_sync_to_async
-    def lock_section(self, section_id):
-        """Lock section for exclusive editing."""
-        session = CollaborativeSession.objects.get(
-            manuscript_id=self.manuscript_id,
-            user=self.user,
-            session_id=self.user_session_id
-        )
-        if not session.locked_sections:
-            session.locked_sections = []
-        if section_id not in session.locked_sections:
-            session.locked_sections.append(section_id)
-            session.save()
-
-    @database_sync_to_async
-    def unlock_section(self, section_id):
-        """Unlock section."""
-        try:
-            session = CollaborativeSession.objects.get(
-                manuscript_id=self.manuscript_id,
-                user=self.user,
-                session_id=self.user_session_id
-            )
-            if session.locked_sections and section_id in session.locked_sections:
-                session.locked_sections.remove(section_id)
-                session.save()
-        except CollaborativeSession.DoesNotExist:
-            pass
-
-    async def send_active_users(self):
-        """Send list of currently active users to the connecting user."""
-        active_sessions = await self.get_active_sessions()
-        await self.send(text_data=json.dumps({
-            'type': 'active_users',
-            'users': active_sessions,
-            'timestamp': timezone.now().isoformat()
-        }))
-
-    @database_sync_to_async
-    def get_active_sessions(self):
-        """Get list of active collaborative sessions."""
-        sessions = CollaborativeSession.objects.filter(
-            manuscript_id=self.manuscript_id,
+        return await CollaborativeSession.objects.filter(
+            manuscript=self.manuscript,
             is_active=True,
-            last_activity__gte=timezone.now() - timedelta(minutes=5)
-        ).select_related('user')
-        
-        return [{
-            'user_id': session.user.id,
-            'username': session.user.username,
-            'session_id': session.session_id,
-            'started_at': session.started_at.isoformat(),
-            'locked_sections': session.locked_sections or []
-        } for session in sessions]
+            locked_sections__contains=[section]
+        ).exclude(user=self.user).aexists()
+
+    async def lock_section(self, section):
+        """Lock a section for current user."""
+        if hasattr(self, 'session') and section not in self.session.locked_sections:
+            self.session.locked_sections.append(section)
+            await self.session.asave(update_fields=['locked_sections'])
+
+    async def unlock_section(self, section):
+        """Unlock a section for current user."""
+        if hasattr(self, 'session') and section in self.session.locked_sections:
+            self.session.locked_sections.remove(section)
+            await self.session.asave(update_fields=['locked_sections'])
