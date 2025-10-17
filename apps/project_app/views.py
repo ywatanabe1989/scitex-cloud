@@ -109,6 +109,12 @@ def project_detail(request, username, slug):
     mode = request.GET.get('mode', 'overview')
     view = request.GET.get('view', 'default')
 
+    # Track last active project for this user
+    if request.user.is_authenticated and hasattr(request.user, 'profile'):
+        if request.user.profile.last_active_project != project:
+            request.user.profile.last_active_project = project
+            request.user.profile.save(update_fields=['last_active_project'])
+
     # Handle concatenated view
     if view == 'concatenated':
         return api_concatenate_directory(request, username, slug, '')

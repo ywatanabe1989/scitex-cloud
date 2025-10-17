@@ -32,54 +32,78 @@
         - If not logged in: redirect to module landing page
         {% endcomment %}
         {% if user.is_authenticated %}
-          {% if current_project %}
+          {% if project %}
             {# User is in a project - switch modes within project #}
-            <a href="/{{ current_project.owner.username }}/{{ current_project.slug }}/?mode=scholar"
+            <a href="/{{ project.owner.username }}/{{ project.slug }}/?mode=scholar"
                class="header-nav-item {% if request.GET.mode == 'scholar' %}active{% endif %}">
               <i class="fas fa-graduation-cap"></i>
               <span class="nav-label">Scholar</span>
             </a>
-            <a href="/{{ current_project.owner.username }}/{{ current_project.slug }}/?mode=code"
+            <a href="/{{ project.owner.username }}/{{ project.slug }}/?mode=code"
                class="header-nav-item {% if request.GET.mode == 'code' %}active{% endif %}">
               <i class="fas fa-code"></i>
               <span class="nav-label">Code</span>
             </a>
-            <a href="/{{ current_project.owner.username }}/{{ current_project.slug }}/?mode=viz"
+            <a href="/{{ project.owner.username }}/{{ project.slug }}/?mode=viz"
                class="header-nav-item {% if request.GET.mode == 'viz' %}active{% endif %}">
               <i class="fas fa-chart-bar"></i>
               <span class="nav-label">Viz</span>
             </a>
-            <a href="/{{ current_project.owner.username }}/{{ current_project.slug }}/?mode=writer"
+            <a href="/{{ project.owner.username }}/{{ project.slug }}/?mode=writer"
                class="header-nav-item {% if request.GET.mode == 'writer' %}active{% endif %}">
               <i class="fas fa-pen-nib"></i>
               <span class="nav-label">Writer</span>
             </a>
           {% else %}
-            {# No project context - redirect to repositories #}
-            <a href="/{{ user.username }}/?tab=repositories"
-               class="header-nav-item"
-               title="Select a project to use Scholar">
-              <i class="fas fa-graduation-cap"></i>
-              <span class="nav-label">Scholar</span>
-            </a>
-            <a href="/{{ user.username }}/?tab=repositories"
-               class="header-nav-item"
-               title="Select a project to use Code">
-              <i class="fas fa-code"></i>
-              <span class="nav-label">Code</span>
-            </a>
-            <a href="/{{ user.username }}/?tab=repositories"
-               class="header-nav-item"
-               title="Select a project to use Viz">
-              <i class="fas fa-chart-bar"></i>
-              <span class="nav-label">Viz</span>
-            </a>
-            <a href="/{{ user.username }}/?tab=repositories"
-               class="header-nav-item"
-               title="Select a project to use Writer">
-              <i class="fas fa-pen-nib"></i>
-              <span class="nav-label">Writer</span>
-            </a>
+            {# No project context - use last active project if available #}
+            {% if user.profile.last_active_project %}
+              <a href="/{{ user.profile.last_active_project.owner.username }}/{{ user.profile.last_active_project.slug }}/?mode=scholar"
+                 class="header-nav-item">
+                <i class="fas fa-graduation-cap"></i>
+                <span class="nav-label">Scholar</span>
+              </a>
+              <a href="/{{ user.profile.last_active_project.owner.username }}/{{ user.profile.last_active_project.slug }}/?mode=code"
+                 class="header-nav-item">
+                <i class="fas fa-code"></i>
+                <span class="nav-label">Code</span>
+              </a>
+              <a href="/{{ user.profile.last_active_project.owner.username }}/{{ user.profile.last_active_project.slug }}/?mode=viz"
+                 class="header-nav-item">
+                <i class="fas fa-chart-bar"></i>
+                <span class="nav-label">Viz</span>
+              </a>
+              <a href="/{{ user.profile.last_active_project.owner.username }}/{{ user.profile.last_active_project.slug }}/?mode=writer"
+                 class="header-nav-item">
+                <i class="fas fa-pen-nib"></i>
+                <span class="nav-label">Writer</span>
+              </a>
+            {% else %}
+              {# No last active project - redirect to repositories #}
+              <a href="/{{ user.username }}/?tab=repositories"
+                 class="header-nav-item"
+                 title="Select a project to use Scholar">
+                <i class="fas fa-graduation-cap"></i>
+                <span class="nav-label">Scholar</span>
+              </a>
+              <a href="/{{ user.username }}/?tab=repositories"
+                 class="header-nav-item"
+                 title="Select a project to use Code">
+                <i class="fas fa-code"></i>
+                <span class="nav-label">Code</span>
+              </a>
+              <a href="/{{ user.username }}/?tab=repositories"
+                 class="header-nav-item"
+                 title="Select a project to use Viz">
+                <i class="fas fa-chart-bar"></i>
+                <span class="nav-label">Viz</span>
+              </a>
+              <a href="/{{ user.username }}/?tab=repositories"
+                 class="header-nav-item"
+                 title="Select a project to use Writer">
+                <i class="fas fa-pen-nib"></i>
+                <span class="nav-label">Writer</span>
+              </a>
+            {% endif %}
           {% endif %}
         {% else %}
         <a href="/scholar/"

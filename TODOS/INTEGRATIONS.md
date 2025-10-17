@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-17 18:29:30
+!-- Timestamp: 2025-10-17 18:56:14
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/TODOS/INTEGRATIONS.md
 !-- --- -->
@@ -56,22 +56,6 @@ We are planning to reduce the barrier for tool switching bidirectionally
   - [ ] Export: Analysis notebooks, competition kernels
   - [ ] Link: Dataset versioning, leaderboard integration
 
-### Storage & Data Management
-- [ ] OSF (Open Science Framework)
-  - [ ] Import: Project structure, files, registrations, preprints
-  - [ ] Export: Complete research projects, data files, preregistrations
-  - [ ] Link: DOI minting, version control, contributor management
-
-- [ ] Figshare
-  - [ ] Import: Published datasets, figures, presentations
-  - [ ] Export: Research outputs with DOIs, visualization galleries
-  - [ ] Link: Automatic archiving, citation tracking
-
-- [ ] Zenodo
-  - [ ] Import: Archived datasets, code repositories
-  - [ ] Export: Research artifacts, data publications
-  - [ ] Link: GitHub integration, DOI generation, versioning
-
 ### Cloud Storage
 - [ ] Google Drive
   - [ ] Import: Documents, spreadsheets, data files
@@ -92,26 +76,6 @@ We are planning to reduce the barrier for tool switching bidirectionally
   - [ ] Export: Research updates, collaboration notifications
   - [ ] Link: Bot integration, channel-project mapping
 
-### Plotting & Visualization
-- [ ] Plotly Chart Studio
-  - [ ] Import: Interactive visualizations, chart configurations
-  - [ ] Export: SciTeX-Viz outputs as Plotly charts
-  - [ ] Link: Collaborative chart editing, embedding
-
-- [ ] Observable
-  - [ ] Import: D3.js notebooks, reactive visualizations
-  - [ ] Export: Interactive figures for publications
-  - [ ] Link: Notebook synchronization, live preview
-
-### Preprint Servers
-- [ ] arXiv
-  - [ ] Export: Submission-ready manuscripts with LaTeX source
-  - [ ] Link: Automatic submission, version updates
-
-- [ ] bioRxiv/medRxiv
-  - [ ] Export: Life sciences preprints with supplementary materials
-  - [ ] Link: Direct submission, metadata sync
-
 ### ORCID & Academic Identity
 - [ ] ORCID
   - [ ] Import: Publication list, affiliations, funding information
@@ -127,5 +91,76 @@ We are planning to reduce the barrier for tool switching bidirectionally
   - [ ] Import: Project boards, task lists
   - [ ] Export: Research workflow cards
   - [ ] Link: Task synchronization, status updates
+
+
+## EASY WIN
+----------------------------------------
+● Looking at these integrations from an "easy win" perspective, here are my recommendations:
+
+  Top Easy Wins:
+
+  1. ORCID (Easiest)
+
+  Why:
+  - Simple OAuth flow
+  - Read-only API for most use cases
+  - Just need to fetch user profile data (name, affiliation, ORCID ID)
+  - Auto-populate author fields in SciTeX-Writer
+  - High perceived value for minimal effort
+  - No complex data transformations needed
+
+  2. Slack/Discord Webhooks (Very Easy)
+
+  Why:
+  - Just POST requests to webhook URLs
+  - No OAuth complexity
+  - One-way communication (export only)
+  - Can implement basic notifications in a day:
+    - "Project created"
+    - "Manuscript updated"
+    - "Analysis completed"
+
+  3. GitHub/GitLab Import (Medium-Easy)
+
+  Why:
+  - Well-documented REST APIs
+  - OAuth is standard
+  - For MVP: just clone repo → create project structure
+  - Don't need to handle PRs/issues initially
+  - GitHub has excellent Python libraries (PyGithub)
+  - Can start with public repos (no auth needed for testing)
+
+  4. Export .bib file from Zotero (Easy)
+
+  Why:
+  - If your project already stores references, just format as BibTeX
+  - No API needed - just file generation
+  - Standard format, lots of Python libraries (bibtexparser)
+
+  5. Import/Export .ipynb (Easy)
+
+  Why:
+  - Standard JSON format
+  - No API calls needed
+  - Just file format conversion
+  - Can leverage existing libraries (nbformat)
+  - Works for both Jupyter and Colab
+
+  My Recommendation for First Implementation:
+
+  Start with: ORCID + Export .bib + Slack Webhooks
+
+  This combo gives you:
+  1. ORCID: Professional researcher identity (looks impressive)
+  2. .bib export: Immediate practical value for academics
+  3. Slack webhooks: Modern dev/team workflow integration
+
+  All three are:
+  - Low complexity
+  - High perceived value
+  - No bidirectional sync complexity
+  - Can be implemented in 1-2 weeks total
+
+  Would you like me to start implementing any of these?
 
 <!-- EOF -->

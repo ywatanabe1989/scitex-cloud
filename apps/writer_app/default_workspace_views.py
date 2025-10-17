@@ -27,17 +27,17 @@ def guest_session_view(request, username):
     return render(request, 'writer_app/default_workspace.html', context)
 
 
-def user_default_workspace(request, username):
+def user_default_workspace(request):
     """
     Default workspace for logged-in users without a specific project.
 
-    URL: /<username>/default/writer/
+    URL: /writer/workspace/
 
     Temporary workspace until user creates a project.
     """
     context = {
         'is_guest_session': False,
         'workspace_type': 'default',
-        'username': username,
+        'username': request.user.username if request.user.is_authenticated else None,
     }
     return render(request, 'writer_app/default_workspace.html', context)

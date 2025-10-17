@@ -1,9 +1,12 @@
 from django.urls import path
-from . import views, simple_views, arxiv_views
+from . import views, simple_views, arxiv_views, default_workspace_views
 
 app_name = 'writer'
 
 urlpatterns = [
+    # Default workspace for logged-in users without project
+    path('workspace/', default_workspace_views.user_default_workspace, name='user_default_workspace'),
+
     # Project-linked Writer (Primary Interface)
     path('project/<int:project_id>/', views.project_writer, name='project-writer'),
     path('project/<int:project_id>/save-section/', views.save_section, name='save-section'),

@@ -300,6 +300,43 @@
     box-shadow: 0 0 0 2px rgba(26, 35, 50, 0.1);
 }
 
+/* Dark mode form controls */
+[data-theme="dark"] .scitex-input,
+[data-theme="dark"] .scitex-select,
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select {
+    background-color: var(--scitex-color-01-light);
+    border-color: var(--scitex-color-02);
+    color: var(--scitex-color-07);
+}
+
+[data-theme="dark"] .scitex-select,
+[data-theme="dark"] .form-select {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="%23d4e1e8"><path d="M8 10.5l-4-4h8l-4 4z"/></svg>');
+}
+
+[data-theme="dark"] .scitex-input:focus,
+[data-theme="dark"] .scitex-select:focus,
+[data-theme="dark"] .form-control:focus,
+[data-theme="dark"] .form-select:focus {
+    border-color: var(--scitex-color-04);
+    box-shadow: 0 0 0 2px rgba(108, 139, 160, 0.2);
+}
+
+/* Dark mode dropdown options */
+[data-theme="dark"] .scitex-select option,
+[data-theme="dark"] .form-select option {
+    background-color: var(--scitex-color-01-light);
+    color: var(--scitex-color-07);
+}
+
+[data-theme="dark"] .scitex-select optgroup,
+[data-theme="dark"] .form-select optgroup {
+    background-color: var(--scitex-color-01);
+    color: var(--scitex-color-06);
+    font-weight: 600;
+}
+
 /* =========================
    Utility Classes
    ========================= */

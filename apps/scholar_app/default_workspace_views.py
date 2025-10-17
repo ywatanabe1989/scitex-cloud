@@ -13,11 +13,11 @@ def guest_session_view(request, username):
     return render(request, 'scholar_app/default_workspace.html', context)
 
 
-def user_default_workspace(request, username):
-    """Default workspace for logged-in users."""
+def user_default_workspace(request):
+    """Default workspace for logged-in users without a specific project."""
     context = {
         'is_guest_session': False,
-        'username': username,
+        'username': request.user.username if request.user.is_authenticated else None,
         'module_name': 'Scholar',
         'module_icon': 'fa-search',
     }

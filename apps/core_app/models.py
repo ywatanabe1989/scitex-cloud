@@ -84,10 +84,20 @@ class UserProfile(models.Model):
     
     # Academic institution recognition
     is_academic_ja = models.BooleanField(
-        default=False, 
+        default=False,
         help_text="Automatically detected: User belongs to Japanese academic institution"
     )
-    
+
+    # Last active repository tracking
+    last_active_repository = models.ForeignKey(
+        'project_app.Project',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='last_active_for_users',
+        help_text="Last repository the user was working on"
+    )
+
     # Account deletion
     deletion_scheduled_at = models.DateTimeField(null=True, blank=True, help_text="When account deletion was scheduled")
     

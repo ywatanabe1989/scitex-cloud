@@ -1,9 +1,12 @@
 from django.urls import path
-from . import views, api_views
+from . import views, api_views, default_workspace_views
 
 app_name = 'code'
 
 urlpatterns = [
+    # Default workspace for logged-in users without project
+    path('workspace/', default_workspace_views.user_default_workspace, name='user_default_workspace'),
+
     # Landing pages
     path('', views.index, name='index'),
     path('features/', views.features, name='features'),

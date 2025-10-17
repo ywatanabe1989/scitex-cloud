@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from . import views, simple_views, repository_views, api_views, bibtex_views
+from . import views, simple_views, repository_views, api_views, bibtex_views, default_workspace_views
 
 app_name = 'scholar_app'
 
@@ -11,6 +11,9 @@ router.register(r'connections', repository_views.RepositoryConnectionViewSet, ba
 router.register(r'datasets', repository_views.DatasetViewSet, basename='datasets')
 
 urlpatterns = [
+    # Default workspace for logged-in users without project
+    path('workspace/', default_workspace_views.user_default_workspace, name='user_default_workspace'),
+
     # MVP Simple Interface
     path('', simple_views.index, name='index'),
     path('search/', simple_views.simple_search, name='simple_search'),
