@@ -4,6 +4,7 @@ from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_http_methods
 from django.contrib import messages
 from django.core.paginator import Paginator
+from django.db import models
 from .models import Project, ProjectMembership, Organization, ResearchGroup
 from .decorators import project_required, project_access_required
 from django.contrib.auth.models import User
@@ -42,8 +43,22 @@ def user_project_list(request, username):
     """List a specific user's projects (called from user_profile with tab=repositories)"""
     user = get_object_or_404(User, username=username)
 
-    # For now, show all projects. Later we can add privacy settings
-    user_projects = Project.objects.filter(owner=user).order_by('-updated_at')
+    # Filter projects based on visibility and access
+    user_projects = Project.objects.filter(owner=user)
+
+    # If not the owner, only show public projects or projects where user is a collaborator
+    if not (request.user.is_authenticated and request.user == user):
+        if request.user.is_authenticated:
+            # Show public projects + projects where user is a collaborator
+            user_projects = user_projects.filter(
+                models.Q(visibility='public') |
+                models.Q(memberships__user=request.user)
+            ).distinct()
+        else:
+            # Anonymous users only see public projects
+            user_projects = user_projects.filter(visibility='public')
+
+    user_projects = user_projects.order_by('-updated_at')
 
     # Check if this is the current user viewing their own projects
     is_own_projects = request.user.is_authenticated and request.user == user
@@ -285,22 +300,68 @@ def project_edit(request, username, slug):
 
 
 @login_required
+def project_settings(request, username, slug):
+    """GitHub-style repository settings page"""
+    user = get_object_or_404(User, username=username)
+    project = get_object_or_404(Project, slug=slug, owner=user)
+
+    # Only project owner can access settings
+    if project.owner != request.user:
+        messages.error(request, "You don't have permission to access settings.")
+        return redirect('user_projects:detail', username=username, slug=slug)
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+
+        if action == 'update_general':
+            # Update basic project info
+            project.name = request.POST.get('name', '').strip()
+            project.description = request.POST.get('description', '').strip()
+            project.hypotheses = request.POST.get('hypotheses', '').strip()
+            project.save()
+            messages.success(request, 'General settings updated successfully')
+
+        elif action == 'update_visibility':
+            # Update visibility
+            new_visibility = request.POST.get('visibility')
+            if new_visibility in ['public', 'private']:
+                old_visibility = project.visibility
+                project.visibility = new_visibility
+                project.save()
+                messages.success(request, f'Repository visibility changed from {old_visibility} to {new_visibility}')
+
+        elif action == 'delete_repository':
+            # Delete repository
+            project_name = project.name
+            project.delete()
+            messages.success(request, f'Repository "{project_name}" has been deleted')
+            return redirect(f'/{request.user.username}/')
+
+        return redirect('user_projects:settings', username=username, slug=slug)
+
+    context = {
+        'project': project,
+    }
+    return render(request, 'project_app/project_settings.html', context)
+
+
+@login_required
 def project_delete(request, username, slug):
     """Delete project"""
     user = get_object_or_404(User, username=username)
     project = get_object_or_404(Project, slug=slug, owner=user)
-    
+
     # Only project owner can delete
     if project.owner != request.user:
         messages.error(request, "You don't have permission to delete this project.")
         return redirect('project_app:detail', username=username, slug=slug)
-    
+
     if request.method == 'POST':
         project_name = project.name
         project.delete()
         messages.success(request, f'Project "{project_name}" deleted successfully')
         return redirect('project_app:list')
-    
+
     context = {'project': project}
     return render(request, 'project_app/project_delete.html', context)
 

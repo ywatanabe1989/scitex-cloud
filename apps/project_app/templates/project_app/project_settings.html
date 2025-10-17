@@ -1,0 +1,413 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Settings - {{ project.name }} - SciTeX{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/common/buttons.css' %}">
+<style>
+/* GitHub-style repository settings */
+.settings-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 24px 16px;
+}
+
+.settings-layout {
+    display: grid;
+    grid-template-columns: 296px 1fr;
+    gap: 24px;
+}
+
+/* Left navigation */
+.settings-nav {
+    position: sticky;
+    top: 80px;
+    align-self: start;
+}
+
+.settings-nav-section {
+    margin-bottom: 24px;
+}
+
+.settings-nav-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-fg-muted);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    padding: 0 8px;
+}
+
+.settings-nav-item {
+    display: block;
+    padding: 8px;
+    color: var(--color-fg-default);
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+.settings-nav-item:hover {
+    background: var(--color-canvas-subtle);
+    text-decoration: none;
+}
+
+.settings-nav-item.active {
+    background: var(--color-canvas-subtle);
+    font-weight: 600;
+}
+
+/* Main content */
+.settings-main {
+    min-width: 0;
+}
+
+.settings-section {
+    background: var(--color-canvas-default);
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    padding: 24px;
+    margin-bottom: 24px;
+}
+
+.settings-section-header {
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--color-border-default);
+}
+
+.settings-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-fg-default);
+    margin-bottom: 4px;
+}
+
+.settings-description {
+    font-size: 14px;
+    color: var(--color-fg-muted);
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-fg-default);
+    margin-bottom: 8px;
+}
+
+.form-group input[type="text"],
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    background: var(--color-canvas-inset);
+    border: 1px solid var(--color-border-muted);
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: var(--color-fg-default);
+    font-size: 14px;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--color-accent-fg);
+}
+
+.form-help {
+    font-size: 12px;
+    color: var(--color-fg-muted);
+    margin-top: 4px;
+}
+
+/* Radio group styling */
+.radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.radio-option {
+    display: flex;
+    align-items: start;
+    gap: 12px;
+    padding: 16px;
+    border: 2px solid var(--color-border-default);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.radio-option:hover {
+    border-color: var(--color-accent-fg);
+    background: var(--color-canvas-subtle);
+}
+
+.radio-option input[type="radio"] {
+    margin-top: 2px;
+}
+
+.radio-option.selected {
+    border-color: var(--color-accent-fg);
+    background: var(--color-accent-subtle);
+}
+
+.radio-label {
+    flex: 1;
+}
+
+.radio-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-fg-default);
+    margin-bottom: 4px;
+}
+
+.radio-desc {
+    font-size: 12px;
+    color: var(--color-fg-muted);
+}
+
+/* Danger zone */
+.danger-zone {
+    background: var(--color-danger-subtle);
+    border: 1px solid var(--color-danger-emphasis);
+}
+
+.danger-zone .settings-title {
+    color: var(--color-danger-fg);
+}
+
+/* Buttons */
+.btn-save {
+    background: var(--color-btn-primary-bg);
+    color: var(--color-btn-primary-text);
+    border: 1px solid var(--color-btn-primary-border);
+    padding: 8px 20px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.btn-save:hover {
+    background: var(--color-btn-primary-hover-bg);
+}
+
+.btn-danger {
+    background: var(--color-danger-emphasis);
+    color: white;
+    border: 1px solid var(--color-danger-fg);
+    padding: 8px 20px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.btn-danger:hover {
+    background: var(--color-danger-fg);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="settings-container">
+    <!-- Breadcrumb -->
+    <div style="margin-bottom: 24px;">
+        <a href="/{{ project.owner.username }}/" style="color: var(--color-accent-fg);">{{ project.owner.username }}</a>
+        <span style="color: var(--color-fg-muted);"> / </span>
+        <a href="{{ project.get_absolute_url }}" style="color: var(--color-accent-fg);">{{ project.name }}</a>
+        <span style="color: var(--color-fg-muted);"> / </span>
+        <span style="color: var(--color-fg-default); font-weight: 600;">Settings</span>
+    </div>
+
+    <div class="settings-layout">
+        <!-- Left Navigation -->
+        <nav class="settings-nav">
+            <div class="settings-nav-section">
+                <div class="settings-nav-title">General</div>
+                <a href="#general" class="settings-nav-item active">General</a>
+                <a href="#access" class="settings-nav-item">Access</a>
+                <a href="#collaborators" class="settings-nav-item">Collaborators</a>
+            </div>
+
+            <div class="settings-nav-section">
+                <div class="settings-nav-title">Integrations</div>
+                <a href="#github" class="settings-nav-item">GitHub</a>
+                <a href="#webhooks" class="settings-nav-item">Webhooks</a>
+            </div>
+
+            <div class="settings-nav-section">
+                <div class="settings-nav-title">Advanced</div>
+                <a href="#danger" class="settings-nav-item">Danger Zone</a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="settings-main">
+            <form method="post">
+                {% csrf_token %}
+
+                <!-- General Settings -->
+                <div class="settings-section" id="general">
+                    <div class="settings-section-header">
+                        <h2 class="settings-title">General</h2>
+                        <p class="settings-description">Basic repository information and settings</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="name">Repository name</label>
+                        <input type="text" id="name" name="name" value="{{ project.name }}" required>
+                        <p class="form-help">Used in URLs: /{{ project.owner.username }}/{{ project.slug }}/</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <textarea id="description" name="description" rows="3">{{ project.description }}</textarea>
+                        <p class="form-help">Brief description of your research project</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hypotheses">Research Hypotheses</label>
+                        <textarea id="hypotheses" name="hypotheses" rows="5">{{ project.hypotheses }}</textarea>
+                        <p class="form-help">Your research questions and hypotheses</p>
+                    </div>
+
+                    <button type="submit" name="action" value="update_general" class="btn-save">
+                        Save changes
+                    </button>
+                </div>
+
+                <!-- Access & Visibility -->
+                <div class="settings-section" id="access">
+                    <div class="settings-section-header">
+                        <h2 class="settings-title">Repository visibility</h2>
+                        <p class="settings-description">Control who can see this repository</p>
+                    </div>
+
+                    <div class="radio-group">
+                        <label class="radio-option {% if project.visibility == 'public' %}selected{% endif %}">
+                            <input type="radio" name="visibility" value="public" {% if project.visibility == 'public' %}checked{% endif %}>
+                            <div class="radio-label">
+                                <div class="radio-title">🌐 Public</div>
+                                <div class="radio-desc">Anyone on the internet can see this repository. You choose who can commit.</div>
+                            </div>
+                        </label>
+
+                        <label class="radio-option {% if project.visibility == 'private' %}selected{% endif %}">
+                            <input type="radio" name="visibility" value="private" {% if project.visibility == 'private' %}checked{% endif %}>
+                            <div class="radio-label">
+                                <div class="radio-title">🔒 Private</div>
+                                <div class="radio-desc">You choose who can see and commit to this repository.</div>
+                            </div>
+                        </label>
+                    </div>
+
+                    <button type="submit" name="action" value="update_visibility" class="btn-save" style="margin-top: 16px;">
+                        Update visibility
+                    </button>
+                </div>
+
+                <!-- Collaborators (placeholder) -->
+                <div class="settings-section" id="collaborators">
+                    <div class="settings-section-header">
+                        <h2 class="settings-title">Manage access</h2>
+                        <p class="settings-description">Control who has access to this repository</p>
+                    </div>
+
+                    <p style="color: var(--color-fg-muted);">
+                        {{ project.memberships.count }} collaborator(s)
+                    </p>
+
+                    <div style="margin-top: 16px;">
+                        <a href="#" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-user-plus"></i> Add collaborator
+                        </a>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Danger Zone -->
+            <div class="settings-section danger-zone" id="danger">
+                <div class="settings-section-header">
+                    <h2 class="settings-title">Danger Zone</h2>
+                    <p class="settings-description">Irreversible, destructive actions</p>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px; background: var(--color-canvas-default); border: 1px solid var(--color-danger-emphasis); border-radius: 6px; margin-bottom: 16px;">
+                    <div>
+                        <div style="font-weight: 600; color: var(--color-fg-default); margin-bottom: 4px;">
+                            Change repository visibility
+                        </div>
+                        <div style="font-size: 12px; color: var(--color-fg-muted);">
+                            Change whether this repository is public or private
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="document.getElementById('access').scrollIntoView({behavior: 'smooth'})">
+                        Change visibility
+                    </button>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px; background: var(--color-canvas-default); border: 1px solid var(--color-danger-emphasis); border-radius: 6px;">
+                    <div>
+                        <div style="font-weight: 600; color: var(--color-fg-default); margin-bottom: 4px;">
+                            Delete this repository
+                        </div>
+                        <div style="font-size: 12px; color: var(--color-fg-muted);">
+                            Once you delete a repository, there is no going back. Please be certain.
+                        </div>
+                    </div>
+                    <button type="button" class="btn-danger" onclick="confirmDelete()">
+                        Delete repository
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+// Radio button selection visual feedback
+document.querySelectorAll('.radio-option input[type="radio"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        document.querySelectorAll('.radio-option').forEach(opt => opt.classList.remove('selected'));
+        this.closest('.radio-option').classList.add('selected');
+    });
+});
+
+// Delete confirmation
+function confirmDelete() {
+    if (confirm('Are you absolutely sure you want to delete this repository?\n\nThis will permanently delete:\n- All files and directories\n- All commit history\n- All issues and pull requests\n- All collaborator access\n\nThis action CANNOT be undone!')) {
+        if (confirm('Please type the repository name "{{ project.name }}" to confirm.\n\n(This is a safety measure - actual implementation would require typing)')) {
+            // Submit delete form
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = window.location.href;
+
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            csrfInput.value = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            const actionInput = document.createElement('input');
+            actionInput.type = 'hidden';
+            actionInput.name = 'action';
+            actionInput.value = 'delete_repository';
+
+            form.appendChild(csrfInput);
+            form.appendChild(actionInput);
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+}
+</script>
+{% endblock %}

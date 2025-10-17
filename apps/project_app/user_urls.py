@@ -19,6 +19,9 @@ def project_edit_wrapper(request, username, slug):
 def project_create_from_template_wrapper(request, username, slug):
     return views.project_create_from_template(request, username, slug)
 
+def project_settings_wrapper(request, username, slug):
+    return views.project_settings(request, username, slug)
+
 def project_delete_wrapper(request, username, slug):
     return views.project_delete(request, username, slug)
 
@@ -46,7 +49,7 @@ urlpatterns = [
     path('<slug:slug>/create-from-template/', project_create_from_template_wrapper, name='create_from_template'),
 
     # Settings/Management URLs (GitHub-style /settings/ pattern)
-    path('<slug:slug>/settings/', project_edit_wrapper, name='settings'),
+    path('<slug:slug>/settings/', project_settings_wrapper, name='settings'),
     path('<slug:slug>/settings/collaboration/', project_collaborate_wrapper, name='collaborate'),
     path('<slug:slug>/settings/members/', project_members_wrapper, name='members'),
     path('<slug:slug>/settings/integrations/', github_integration_wrapper, name='github'),
