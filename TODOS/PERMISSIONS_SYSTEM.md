@@ -1,3 +1,9 @@
+<!-- ---
+!-- Timestamp: 2025-10-17 20:01:09
+!-- Author: ywatanabe
+!-- File: /home/ywatanabe/proj/scitex-cloud/TODOS/PERMISSIONS_SYSTEM.md
+!-- --- -->
+
 # GitLab-Style Permissions System for SciTeX
 
 ## Vision
@@ -16,13 +22,13 @@ Fine-grained access control across all modules (Scholar, Code, Viz, Writer) with
 ## GitLab Permission Levels
 
 ### Repository/Project Roles
-| Role | Can Read | Can Write | Can Delete | Can Manage | Can Admin |
-|------|----------|-----------|------------|------------|-----------|
-| **Guest** | ✓ | ✗ | ✗ | ✗ | ✗ |
-| **Reporter** | ✓ | ✗ | ✗ | ✗ | ✗ |
-| **Developer** | ✓ | ✓ | ✗ | ✗ | ✗ |
-| **Maintainer** | ✓ | ✓ | ✓ | ✓ | ✗ |
-| **Owner** | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Role           | Can Read | Can Write | Can Delete | Can Manage | Can Admin |
+|----------------|----------|-----------|------------|------------|-----------|
+| **Guest**      | ✓        | ✗         | ✗          | ✗          | ✗         |
+| **Reporter**   | ✓        | ✗         | ✗          | ✗          | ✗         |
+| **Developer**  | ✓        | ✓         | ✗          | ✗          | ✗         |
+| **Maintainer** | ✓        | ✓         | ✓          | ✓          | ✗         |
+| **Owner**      | ✓        | ✓         | ✓          | ✓          | ✓         |
 
 ---
 
@@ -371,3 +377,4 @@ This gives you GitLab-level access control with reasonable effort!
 
 Want me to implement Phase 1 (Basic Roles)?
 
+<!-- EOF -->

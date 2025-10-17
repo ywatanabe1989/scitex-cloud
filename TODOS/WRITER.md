@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-17 19:58:50
+!-- Timestamp: 2025-10-17 20:00:39
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/TODOS/WRITER.md
 !-- --- -->
@@ -98,11 +98,13 @@ class WriterConsumer(AsyncWebsocketConsumer):
 **Goal:** Conflict-free concurrent editing
 **Timeline:** 2-3 weeks | **Impact:** HIGH | **Effort:** High
 
-#### Sprint 2.1: OT Implementation (Week 1-2)
-- [ ] Research OT algorithms (ShareJS, OT.js)
-- [ ] Implement text operation types (insert, delete, retain)
-- [ ] Vector clock for causality tracking
-- [ ] Transform function for concurrent operations
+#### Sprint 2.1: OT Implementation (Week 1-2) ✅ COMPLETED
+- [x] Research OT algorithms (ShareJS, OT.js)
+- [x] Implement text operation types (insert, delete, retain)
+- [x] Transform function for concurrent operations
+- [x] Test basic operations (all tests pass!)
+- [x] Text diff to operation conversion
+- [x] JSON serialization for network transmission
 
 **Algorithm:**
 ```javascript
