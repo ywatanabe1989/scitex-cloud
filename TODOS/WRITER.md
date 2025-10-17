@@ -36,13 +36,13 @@ Create a coordinated ecosystem for scientific writing that excels beyond Overlea
 
 **Prerequisites:** ✅ Django 5.2 LTS (enhanced async support) | ✅ Channels 4.3.1 installed
 
-#### Sprint 1.1: WebSocket Infrastructure (Week 1)
+#### Sprint 1.1: WebSocket Infrastructure (Week 1) ✅ COMPLETED
 - [x] Install Django Channels 4.x + Redis (✅ Channels 4.3.1 ready!)
-- [ ] Configure Redis channel layer in settings
-- [ ] Create `apps/writer_app/consumers.py` for WebSocket handling
-- [ ] Implement presence system (show who's online)
-- [ ] Broadcast user join/leave events
-- [ ] Display active collaborators in sidebar
+- [x] Configure Redis channel layer in settings (✅ Already configured!)
+- [x] Create `apps/writer_app/consumers.py` for WebSocket handling (✅ Implemented!)
+- [x] Implement presence system (show who's online) (✅ Complete!)
+- [x] Broadcast user join/leave events (✅ Working!)
+- [x] Display active collaborators in sidebar (✅ UI added!)
 
 **Technical (Django 5.2 async features):**
 ```python
