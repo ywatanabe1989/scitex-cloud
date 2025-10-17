@@ -14,6 +14,7 @@ urlpatterns = [
     path('project/<int:project_id>/toggle-mode/', views.toggle_editing_mode, name='toggle-mode'),
     path('project/<int:project_id>/cloud-compile/', views.cloud_compile_sections, name='cloud-compile-sections'),
     path('project/<int:project_id>/download-paper/', views.download_paper_zip, name='download-paper-zip'),
+    path('project/<int:project_id>/pdf/', views.download_compiled_pdf, name='compiled-pdf'),
     
     # Modular Editor Interface (Standalone)
     path('', simple_views.index, name='index'),  # Main writer page with hero section at /writer/

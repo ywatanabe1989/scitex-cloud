@@ -6,6 +6,11 @@ from django.core.paginator import Paginator
 from django.contrib import messages
 from django.db import models
 from django.utils.text import slugify
+from . import default_workspace_views as workspace_views
+
+# Expose default workspace views
+guest_session_view = workspace_views.guest_session_view
+user_default_workspace = workspace_views.user_default_workspace
 from .models import (
     DocumentTemplate, Manuscript, ManuscriptSection,
     Figure, Table, Citation, CompilationJob, AIAssistanceLog,
@@ -127,7 +132,12 @@ def project_writer(request, project_id):
     except Project.DoesNotExist:
         messages.error(request, 'Project not found or access denied.')
         return redirect('core:dashboard')
-    
+
+    # Check if compilation view is requested
+    view_mode = request.GET.get('view', 'editor')
+    if view_mode == 'compilation':
+        return project_writer_compilation(request, project_id)
+
     # Get or create manuscript for this project
     manuscript, created = Manuscript.objects.get_or_create(
         project=project,
@@ -138,44 +148,62 @@ def project_writer(request, project_id):
             'is_modular': True
         }
     )
-    
+
     if created:
         # Create modular structure for new manuscript
         manuscript.create_modular_structure()
-    
+
     # Get sections if modular
     sections_data = {}
     if manuscript.is_modular:
         paper_path = manuscript.get_project_paper_path()
         if paper_path:
+            # Use actual SciTeX-Writer directory structure: 01_manuscript/contents/
             section_files = {
-                'abstract': 'manuscript/src/abstract.tex',
-                'introduction': 'manuscript/src/introduction.tex', 
-                'methods': 'manuscript/src/methods.tex',
-                'results': 'manuscript/src/results.tex',
-                'discussion': 'manuscript/src/discussion.tex',
-                'conclusion': 'manuscript/src/conclusion.tex'
+                'abstract': '01_manuscript/contents/abstract.tex',
+                'highlights': '01_manuscript/contents/highlights.tex',
+                'introduction': '01_manuscript/contents/introduction.tex',
+                'methods': '01_manuscript/contents/methods.tex',
+                'results': '01_manuscript/contents/results.tex',
+                'discussion': '01_manuscript/contents/discussion.tex',
+                'conclusion': '01_manuscript/contents/conclusion.tex'
             }
-            
+
             for section, file_path in section_files.items():
                 full_path = paper_path / file_path
                 if full_path.exists():
-                    with open(full_path, 'r') as f:
+                    with open(full_path, 'r', encoding='utf-8') as f:
                         sections_data[section] = f.read()
                 else:
                     sections_data[section] = ''
-    
+
     # Update word counts
     manuscript.update_word_counts()
-    
+
     context = {
         'project': project,
         'manuscript': manuscript,
         'sections': sections_data,
         'is_modular': manuscript.is_modular
     }
-    
+
     return render(request, 'writer_app/project_writer.html', context)
+
+
+@login_required
+def project_writer_compilation(request, project_id):
+    """Compilation view for project writer."""
+    try:
+        project = Project.objects.get(id=project_id, owner=request.user)
+    except Project.DoesNotExist:
+        messages.error(request, 'Project not found or access denied.')
+        return redirect('core:dashboard')
+
+    context = {
+        'project': project,
+    }
+
+    return render(request, 'writer_app/compilation_view.html', context)
 
 
 @login_required
@@ -326,29 +354,97 @@ def compile_modular_manuscript(request, project_id):
         status='queued',
         compilation_type='modular'
     )
-    
+
+    # Send email notification
+    from django.core.mail import send_mail
+    from django.conf import settings
+    try:
+        send_mail(
+            subject=f'SciTeX: Compilation Started - {project.name}',
+            message=f'''Hi {request.user.get_full_name() or request.user.username},
+
+Your manuscript compilation has started for project "{project.name}".
+
+Job ID: {job.job_id}
+Started: {job.created_at.strftime("%Y-%m-%d %H:%M:%S")}
+
+You'll receive another email when the PDF is ready.
+
+Best regards,
+SciTeX Cloud Team
+''',
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[request.user.email],
+            fail_silently=True,
+        )
+    except Exception as e:
+        print(f"Email notification failed: {e}")
+
     # Run compilation in background
     import threading
     
     def run_modular_compilation():
+        import traceback
+        import sys
         try:
+            print(f"[COMPILE] Thread started for job {job.job_id}", file=sys.stderr)
             job.status = 'running'
             job.started_at = timezone.now()
             job.save()
-            
-            # Run compile.sh script
-            result = subprocess.run(
-                ['bash', 'compile.sh'],
+            print(f"[COMPILE] Job status set to running", file=sys.stderr)
+
+            # Use existing TeXLive container
+            # Set environment to point to pre-downloaded containers
+            env = os.environ.copy()
+            env['SCITEX_CONTAINER_CACHE'] = os.path.expanduser('~/.scitex/writer/cache/containers')
+            env['SCITEX_USE_CONTAINER'] = '1'  # Use existing containers
+
+            print(f"[COMPILE] Starting subprocess at {paper_path}", file=sys.stderr)
+
+            # Run the compile script with -m flag and capture output
+            process = subprocess.Popen(
+                ['bash', './compile', '-m'],
                 cwd=paper_path,
-                capture_output=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
                 text=True,
-                timeout=120
+                env=env
             )
+
+            print(f"[COMPILE] Process started, PID: {process.pid}", file=sys.stderr)
+
+            # Capture output
+            try:
+                stdout, stderr = process.communicate(timeout=300)  # 5 minutes for compilation
+                print(f"[COMPILE] Process completed. Return code: {process.returncode}", file=sys.stderr)
+                print(f"[COMPILE] Stdout: {len(stdout)} chars, Stderr: {len(stderr)} chars", file=sys.stderr)
+
+                # Combine stdout and stderr (compile script outputs to both)
+                full_log = stdout + '\n\n=== STDERR ===\n' + stderr
+                job.log_file = full_log
+                job.save()
+                print(f"[COMPILE] Log saved: {len(full_log)} chars", file=sys.stderr)
+
+                result = type('Result', (), {
+                    'returncode': process.returncode,
+                    'stdout': stdout,
+                    'stderr': stderr
+                })()
+
+            except subprocess.TimeoutExpired:
+                print(f"[COMPILE] Process timed out!", file=sys.stderr)
+                process.kill()
+                stdout, stderr = process.communicate()
+                full_log = (stdout or '') + '\n' + (stderr or '')
+                raise
             
             if result.returncode == 0:
-                # Check if PDF was created
-                pdf_path = paper_path / 'manuscript' / 'main.pdf'
+                # Check if PDF was created (compile script outputs to 01_manuscript/manuscript.pdf)
+                pdf_path = paper_path / '01_manuscript' / 'manuscript.pdf'
+                print(f"[COMPILE] Checking for PDF at {pdf_path}", file=sys.stderr)
+
                 if pdf_path.exists():
+                    print(f"[COMPILE] PDF found! Size: {pdf_path.stat().st_size} bytes", file=sys.stderr)
                     # Copy PDF to media directory for serving
                     import shutil
                     from django.conf import settings
@@ -358,10 +454,37 @@ def compile_modular_manuscript(request, project_id):
                     output_path = pdf_dir / f'{job.job_id}.pdf'
                     
                     shutil.copy2(pdf_path, output_path)
-                    
+
                     job.status = 'completed'
                     job.output_path = str(output_path.relative_to(settings.MEDIA_ROOT))
-                    job.log_file = result.stdout
+                    # Save full compilation log
+                    job.log_file = full_log
+
+                    # Send completion email
+                    try:
+                        from django.core.mail import send_mail
+                        send_mail(
+                            subject=f'SciTeX: PDF Ready - {project.name}',
+                            message=f'''Hi {request.user.get_full_name() or request.user.username},
+
+Your manuscript has been compiled successfully!
+
+Project: {project.name}
+Job ID: {job.job_id}
+Completed: {timezone.now().strftime("%Y-%m-%d %H:%M:%S")}
+Pages: {job.page_count or 'Unknown'}
+
+View your PDF at: {settings.SITE_URL}/writer/project/{project.id}/pdf/
+
+Best regards,
+SciTeX Cloud Team
+''',
+                            from_email=settings.DEFAULT_FROM_EMAIL,
+                            recipient_list=[request.user.email],
+                            fail_silently=True,
+                        )
+                    except Exception as email_error:
+                        print(f"Completion email failed: {email_error}")
                     
                     # Count pages in PDF
                     try:
@@ -374,33 +497,52 @@ def compile_modular_manuscript(request, project_id):
                 else:
                     job.status = 'failed'
                     job.error_message = 'PDF file not generated'
-                    job.error_log = result.stdout + '\n' + result.stderr
+                    job.error_log = full_log
             else:
                 job.status = 'failed'
                 job.error_message = f'Compilation failed with exit code {result.returncode}'
                 job.error_log = result.stderr
-                job.log_file = result.stdout
+                job.log_file = full_log
                 
         except subprocess.TimeoutExpired:
+            print(f"[COMPILE] Timeout exception caught", file=sys.stderr)
             job.status = 'failed'
             job.error_message = 'Compilation timed out'
+            job.error_log = full_log if 'full_log' in locals() else 'No log captured'
         except Exception as e:
+            print(f"[COMPILE] Exception caught: {e}", file=sys.stderr)
+            traceback.print_exc(file=sys.stderr)
             job.status = 'failed'
             job.error_message = str(e)
+            job.error_log = traceback.format_exc()
         finally:
+            print(f"[COMPILE] Finally block - setting completion time", file=sys.stderr)
             job.completed_at = timezone.now()
             if job.started_at:
                 job.compilation_time = (job.completed_at - job.started_at).total_seconds()
             job.save()
+            print(f"[COMPILE] Job final status: {job.status}", file=sys.stderr)
     
-    compilation_thread = threading.Thread(target=run_modular_compilation)
-    compilation_thread.daemon = True
+    # Test: Run synchronously first to see if it works
+    # TODO: Move back to background thread once working
+    import sys
+    print(f"[DEBUG] About to start compilation for job {job.job_id}", file=sys.stderr)
+    sys.stderr.flush()
+
+    # Run in background using threading
+    import threading
+    compilation_thread = threading.Thread(target=run_modular_compilation, name=f"compile-{job.job_id}")
+    compilation_thread.daemon = False
     compilation_thread.start()
-    
+
+    print(f"[DEBUG] Thread started: {compilation_thread.name}, alive: {compilation_thread.is_alive()}", file=sys.stderr)
+    sys.stderr.flush()
+
     return JsonResponse({
         'success': True,
         'job_id': str(job.job_id),
-        'message': 'Modular compilation started'
+        'message': 'Modular compilation started',
+        'thread_started': compilation_thread.is_alive()
     })
 
 
@@ -470,7 +612,7 @@ def load_latex_section(request, project_id):
     section_mapping = {
         'manuscript': {
             'abstract': 'abstract.tex',
-            'highlights': 'highlights.tex', 
+            'highlights': 'highlights.tex',
             'introduction': 'introduction.tex',
             'methods': 'methods.tex',
             'results': 'results.tex',
@@ -481,7 +623,7 @@ def load_latex_section(request, project_id):
         },
         'revision': {
             'introduction': 'introduction.tex',
-            'commands': 'commands.tex', 
+            'commands': 'commands.tex',
             'conclusion': 'conclusion.tex',
             'references': 'references.tex'
         },
@@ -489,6 +631,13 @@ def load_latex_section(request, project_id):
             'methods': 'methods.tex',
             'results': 'results.tex',
             'references': 'references.tex'
+        },
+        'shared': {
+            'title': 'title.tex',
+            'authors': 'authors.tex',
+            'keywords': 'keywords.tex',
+            'journal_name': 'journal_name.tex',
+            'affiliations': 'affiliations.tex'
         }
     }
     
@@ -500,12 +649,19 @@ def load_latex_section(request, project_id):
         return JsonResponse({'error': 'Paper directory not found'}, status=404)
     
     # Determine the correct path based on document type
+    # Use 01_manuscript/contents structure (actual SciTeX-Writer format)
     if doc_type == 'manuscript':
-        section_file = paper_path / 'manuscript' / 'src' / section_mapping[doc_type][section]
+        section_file = paper_path / '01_manuscript' / 'contents' / section_mapping[doc_type][section]
     elif doc_type == 'revision':
-        section_file = paper_path / 'revision' / 'src' / section_mapping[doc_type][section]
+        # Handle reviewer directories specially
+        if section in ['editor', 'reviewer1', 'reviewer2']:
+            section_file = paper_path / '03_revision' / 'contents' / section_mapping[doc_type][section]
+        else:
+            section_file = paper_path / '03_revision' / 'contents' / section_mapping[doc_type][section]
     elif doc_type == 'supplementary':
-        section_file = paper_path / 'supplementary' / 'src' / section_mapping[doc_type][section]
+        section_file = paper_path / '02_supplementary' / 'contents' / section_mapping[doc_type][section]
+    elif doc_type == 'shared':
+        section_file = paper_path / 'shared' / section_mapping[doc_type][section]
     else:
         return JsonResponse({'error': 'Invalid document type'}, status=400)
     
@@ -531,24 +687,28 @@ def _get_scitex_writer_template(section, doc_type):
     """Get template content from SciTeX-Writer externals."""
     from django.conf import settings
     from pathlib import Path
-    
+
     try:
         template_path = Path(settings.SCITEX_WRITER_TEMPLATE_PATH)
-        
+
         # Try to read template from externals/SciTeX-Writer
         if doc_type == 'manuscript':
             template_file = template_path / 'manuscript' / 'src' / f'{section}.tex'
         elif doc_type == 'revision':
-            template_file = template_path / 'revision' / 'src' / f'{section}.tex'  
+            template_file = template_path / 'revision' / 'src' / f'{section}.tex'
         elif doc_type == 'supplementary':
             template_file = template_path / 'supplementary' / 'src' / f'{section}.tex'
-        
-        if template_file.exists():
+        elif doc_type == 'shared':
+            template_file = template_path / 'shared' / f'{section}.tex'
+        else:
+            template_file = None
+
+        if template_file and template_file.exists():
             with open(template_file, 'r', encoding='utf-8') as f:
                 return f.read()
     except Exception as e:
         print(f"Error loading SciTeX-Writer template: {e}")
-    
+
     # Fallback templates
     fallback_templates = {
         'abstract': '% Abstract\n% Write a concise summary of your research\n\n',
@@ -558,10 +718,12 @@ def _get_scitex_writer_template(section, doc_type):
         'results': '% Results\n% Present your findings\n\n',
         'discussion': '% Discussion\n% Interpret your results\n\n',
         'title': '% Title\n\\title{Your Research Title}\n',
-        'authors': '% Authors\n\\author{Your Name}\n',
-        'keywords': '% Keywords\nKeyword1, Keyword2, Keyword3\n'
+        'authors': '% Authors\n\\author{First Author\\inst{1}, Second Author\\inst{2}}\n',
+        'keywords': '% Keywords\nKeyword1, Keyword2, Keyword3, Keyword4, Keyword5\n',
+        'journal_name': '% Target Journal\nNature Neuroscience\n',
+        'affiliations': '% Affiliations\n\\institute{\\inst{1} Department, Institution, City, Country \\\\\n\\inst{2} Department, Institution, City, Country}\n'
     }
-    
+
     return fallback_templates.get(section, f'% {section.title()}\n\n')
 
 
@@ -599,13 +761,20 @@ def save_latex_section(request, project_id):
             'revision': {
                 'introduction': 'introduction.tex',
                 'commands': 'commands.tex',
-                'conclusion': 'conclusion.tex', 
+                'conclusion': 'conclusion.tex',
                 'references': 'references.tex'
             },
             'supplementary': {
                 'methods': 'methods.tex',
                 'results': 'results.tex',
                 'references': 'references.tex'
+            },
+            'shared': {
+                'title': 'title.tex',
+                'authors': 'authors.tex',
+                'keywords': 'keywords.tex',
+                'journal_name': 'journal_name.tex',
+                'affiliations': 'affiliations.tex'
             }
         }
         
@@ -617,13 +786,22 @@ def save_latex_section(request, project_id):
             return JsonResponse({'error': 'Paper directory not found'}, status=404)
         
         # Determine correct file path
+        # Use 01_manuscript/contents structure (actual SciTeX-Writer format)
         if doc_type == 'manuscript':
-            section_file = paper_path / 'manuscript' / 'src' / section_mapping[doc_type][section]
+            section_file = paper_path / '01_manuscript' / 'contents' / section_mapping[doc_type][section]
         elif doc_type == 'revision':
-            section_file = paper_path / 'revision' / 'src' / section_mapping[doc_type][section]
+            # Handle reviewer directories specially
+            if section in ['editor', 'reviewer1', 'reviewer2']:
+                section_file = paper_path / '03_revision' / 'contents' / section_mapping[doc_type][section]
+            else:
+                section_file = paper_path / '03_revision' / 'contents' / section_mapping[doc_type][section]
         elif doc_type == 'supplementary':
-            section_file = paper_path / 'supplementary' / 'src' / section_mapping[doc_type][section]
-        
+            section_file = paper_path / '02_supplementary' / 'contents' / section_mapping[doc_type][section]
+        elif doc_type == 'shared':
+            section_file = paper_path / 'shared' / section_mapping[doc_type][section]
+        else:
+            return JsonResponse({'error': 'Invalid document type'}, status=400)
+
         # Save directly to SciTeX-Writer file structure
         section_file.parent.mkdir(parents=True, exist_ok=True)
         with open(section_file, 'w', encoding='utf-8') as f:
@@ -912,12 +1090,57 @@ def compilation_status(request, job_id):
     if job.status == 'failed':
         response_data['error'] = job.error_message
         response_data['error_details'] = job.error_log[:1000] if job.error_log else None  # Limit error log size
-    
-    # Add log information for debugging
-    if job.log_file and request.user.is_staff:
-        response_data['log'] = job.log_file[:1000]  # Only for staff users
-    
+
+    # Add log information - show to all users for transparency
+    if job.log_file:
+        response_data['log'] = job.log_file  # Full log for user visibility
+        response_data['log_preview'] = job.log_file[:500]  # First 500 chars for preview
+
     return JsonResponse(response_data)
+
+
+@login_required
+def download_compiled_pdf(request, project_id):
+    """Download or view the compiled PDF (main or diff)."""
+    try:
+        project = Project.objects.get(id=project_id, owner=request.user)
+        manuscript = Manuscript.objects.get(project=project, owner=request.user)
+    except (Project.DoesNotExist, Manuscript.DoesNotExist):
+        return JsonResponse({'error': 'Project or manuscript not found'}, status=404)
+
+    paper_path = manuscript.get_project_paper_path()
+    if not paper_path:
+        return JsonResponse({'error': 'Paper directory not found'}, status=404)
+
+    # Check which PDF to serve (main or diff)
+    pdf_type = request.GET.get('type', 'main')  # 'main' or 'diff'
+
+    if pdf_type == 'diff':
+        # Serve diff PDF
+        pdf_path = paper_path / '01_manuscript' / 'manuscript_diff.pdf'
+        filename = f'{project.name}_manuscript_diff.pdf'
+    else:
+        # Serve main PDF
+        pdf_path = paper_path / '01_manuscript' / 'manuscript.pdf'
+        filename = f'{project.name}_manuscript.pdf'
+
+    if not pdf_path.exists():
+        return JsonResponse({'error': f'{pdf_type.title()} PDF not found. Please compile first.'}, status=404)
+
+    # Serve PDF file
+    from django.http import FileResponse
+    response = FileResponse(
+        open(pdf_path, 'rb'),
+        content_type='application/pdf'
+    )
+    # Set to inline to show in browser, or attachment to force download
+    mode = request.GET.get('mode', 'inline')  # inline or download
+    if mode == 'download':
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    else:
+        response['Content-Disposition'] = f'inline; filename="{filename}"'
+
+    return response
 
 
 @login_required

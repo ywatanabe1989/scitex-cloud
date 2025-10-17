@@ -4,7 +4,7 @@
 {% block title %}SciTeX Scholar - Literature Search{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'common/css/hero-gradients.css' %}">
+<link rel="stylesheet" href="{% static 'css/components/hero.css' %}">
 <link rel="stylesheet" href="{% static 'css/common/scitex-components.css' %}">
 <style>
     .search-hero {
@@ -194,10 +194,10 @@
                     <p class="hero-subtitle">AI-Powered Literature Discovery & Analysis</p>
                     {% if user.is_authenticated %}
                     <!-- <div class="mt-3">
-                     !--     <a href="{% url 'scholar:personal_library' %}" class="btn btn-outline-light btn-sm me-2">
+                     !--     <a href="{% url 'scholar_app:personal_library' %}" class="btn btn-outline-light btn-sm me-2">
                      !--         <i class="fas fa-book"></i> My Library
                      !--     </a>
-                     !--     <a href="{% url 'scholar:research_trends' %}" class="btn btn-outline-light btn-sm me-2">
+                     !--     <a href="{% url 'scholar_app:research_trends' %}" class="btn btn-outline-light btn-sm me-2">
                      !--         <i class="fas fa-chart-line"></i> Research Trends
                      !--     </a>
                      !--     <br>
@@ -411,6 +411,19 @@
                             </div>
                         </div>
                     </form>
+
+                    <!-- BibTeX Enrichment Feature Link -->
+                    <div style="text-align: center; margin-top: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px;">
+                        <h3 style="color: white; margin-bottom: 0.5rem; font-size: 1.2rem;">
+                            <i class="fas fa-file-code"></i> Enrich Your BibTeX Files
+                        </h3>
+                        <p style="color: rgba(255,255,255,0.9); margin-bottom: 1rem; font-size: 0.9rem;">
+                            Upload your .bib file and get it enriched with citation counts, impact factors, and PDFs
+                        </p>
+                        <a href="{% url 'scholar_app:bibtex_enrichment' %}" class="btn" style="background: white; color: #667eea; padding: 0.75rem 2rem; border-radius: 6px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.5rem; transition: transform 0.2s;">
+                            <i class="fas fa-magic"></i> Enrich BibTeX File
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -456,7 +469,7 @@
                             <small>Missing API keys for: <strong>{{ missing_api_keys|join:", "|title }}</strong>. 
                             Add them for higher rate limits and more comprehensive results.</small>
                         </div>
-                        <a href="{% url 'scholar:api_keys' %}" class="btn btn-warning btn-sm ms-2">
+                        <a href="{% url 'scholar_app:api_keys' %}" class="btn btn-warning btn-sm ms-2">
                             <i class="fas fa-plus"></i> Add API Keys
                         </a>
                     </div>
@@ -596,7 +609,7 @@
                             ⭐ Add to Library
                         </a>
                         {% if user.is_authenticated %}
-                        <a href="{% url 'scholar:paper_annotations' result.id %}" class="btn btn-outline-success btn-sm me-2">
+                        <a href="{% url 'scholar_app:paper_annotations' result.id %}" class="btn btn-outline-success btn-sm me-2">
                             💬 Annotate
                         </a>
                         {% endif %}

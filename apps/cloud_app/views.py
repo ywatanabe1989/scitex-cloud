@@ -24,10 +24,10 @@ logger = logging.getLogger("scitex")
 
 
 def index(request):
-    """Cloud app index view - redirect logged-in users to projects."""
-    # If user is authenticated, redirect to their projects
+    """Cloud app index view - redirect logged-in users to their profile (GitHub-style)."""
+    # If user is authenticated, redirect to their profile page (GitHub-style: /username/)
     if request.user.is_authenticated:
-        return redirect(settings.LOGIN_REDIRECT_URL)
+        return redirect(f'/{request.user.username}/')
 
     # Module features for landing page demos
     scholar_features = [
@@ -724,5 +724,31 @@ def api_docs(request):
 def demo(request):
     """Demo page."""
     return render(request, "cloud_app/demo.html")
+
+
+def contributors(request):
+    """Contributors page - show SciTeX team and contributors."""
+    # Define core team and contributors
+    core_team = [
+        {
+            "name": "Yusuke Watanabe",
+            "username": "ywatanabe1989",
+            "role": "Creator & Lead Developer",
+            "avatar_url": None,
+            "github_url": "https://github.com/ywatanabe1989",
+            "contributions": "Architecture, Core Development, Research",
+        },
+    ]
+
+    contributors = [
+        # Add contributors here as they join
+    ]
+
+    context = {
+        "core_team": core_team,
+        "contributors": contributors,
+    }
+
+    return render(request, "cloud_app/pages/contributors.html", context)
 
 # EOF

@@ -1,0 +1,393 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Compilation - {{ project.name }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/common/buttons.css' %}">
+<style>
+.compilation-container {
+    max-width: 1400px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.compilation-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    background: var(--color-canvas-subtle);
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+}
+
+.compilation-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.compilation-section {
+    background: var(--color-canvas-default);
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    padding: 1.5rem;
+}
+
+.section-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--color-fg-default);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.log-viewer {
+    background: #0a0f1a;
+    color: #00ff00;
+    padding: 1rem;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.8rem;
+    max-height: 400px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    line-height: 1.4;
+}
+
+.pdf-viewer-full {
+    width: 100%;
+    height: 600px;
+    border: 1px solid var(--color-border-default);
+    border-radius: 4px;
+}
+
+.pdf-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.pdf-tab {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--color-border-default);
+    border-radius: 4px;
+    background: var(--color-canvas-default);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.pdf-tab.active {
+    background: var(--color-accent-fg);
+    color: white;
+    border-color: var(--color-accent-fg);
+}
+
+.pdf-tab:hover:not(.active) {
+    background: var(--color-canvas-subtle);
+}
+
+@media (max-width: 1024px) {
+    .compilation-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="compilation-container">
+    <!-- Header -->
+    <div class="compilation-header">
+        <div>
+            <h2 style="margin: 0; color: var(--color-fg-default);">
+                <i class="fas fa-cogs me-2"></i>PDF Compilation
+            </h2>
+            <p style="margin: 0.5rem 0 0 0; color: var(--color-fg-muted);">
+                {{ project.name }}
+            </p>
+        </div>
+        <div>
+            <button id="compile-btn-main" class="btn btn-primary">
+                <i class="fas fa-file-pdf me-2"></i>Compile PDF
+            </button>
+            <a href="/{{ project.owner.username }}/{{ project.slug }}/?mode=writer" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Editor
+            </a>
+        </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div id="compilation-progress" style="display: none; margin-bottom: 1.5rem;">
+        <div class="progress" style="height: 30px;">
+            <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated"
+                 role="progressbar" style="width: 0%; font-size: 0.9rem; font-weight: 600;">0%</div>
+        </div>
+    </div>
+
+    <!-- Compilation Log (Full Width) -->
+    <div class="compilation-section" style="margin-bottom: 1.5rem;">
+        <div class="section-title">
+            <i class="fas fa-terminal"></i>
+            Compilation Log
+            <button id="toggle-log-size" class="btn btn-sm btn-outline-secondary ms-auto">
+                <i class="fas fa-expand-alt"></i>
+            </button>
+        </div>
+        <div id="compilation-log" class="log-viewer" style="max-height: 300px;">
+            Waiting for compilation...
+        </div>
+    </div>
+
+    <!-- Side-by-Side PDF Viewers -->
+    <div class="compilation-grid">
+        <!-- Manuscript PDF (Left) -->
+        <div class="compilation-section">
+            <div class="section-title">
+                <i class="fas fa-file-pdf text-danger"></i>
+                Manuscript PDF
+                <div class="ms-auto">
+                    <a id="pdf-view-link" href="#" target="_blank" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-external-link-alt"></i>
+                    </a>
+                    <a id="pdf-download-link" href="#" download class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-download"></i>
+                    </a>
+                </div>
+            </div>
+            <iframe id="pdf-viewer" class="pdf-viewer-full"></iframe>
+        </div>
+
+        <!-- Diff PDF (Right) -->
+        <div class="compilation-section">
+            <div class="section-title">
+                <i class="fas fa-code-branch text-info"></i>
+                Diff PDF (Changes Tracked)
+                <div class="ms-auto">
+                    <a id="diff-pdf-view-link" href="#" target="_blank" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-external-link-alt"></i>
+                    </a>
+                    <a id="diff-pdf-download-link" href="#" download class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-download"></i>
+                    </a>
+                </div>
+            </div>
+            <div id="diff-pdf-status" style="padding: 2rem; text-align: center; color: var(--color-fg-muted); background: var(--color-canvas-subtle); border-radius: 4px; min-height: 600px; display: flex; align-items: center; justify-content: center;">
+                <div>
+                    <i class="fas fa-info-circle fa-2x mb-3"></i>
+                    <p>Diff PDF will appear here after compilation</p>
+                    <small>Shows tracked changes from previous version</small>
+                </div>
+            </div>
+            <iframe id="diff-pdf-viewer" class="pdf-viewer-full" style="display: none;"></iframe>
+        </div>
+    </div>
+
+    <!-- Change Attribution -->
+    <div class="compilation-section" id="change-attribution" style="display: none; margin-top: 1.5rem;">
+        <div class="section-title">
+            <i class="fas fa-users"></i>
+            Recent Changes
+        </div>
+        <div id="changes-list" style="font-size: 0.9rem;">
+            <!-- Changes will be loaded here -->
+        </div>
+    </div>
+</div>
+
+<script>
+const projectId = {{ project.id }};
+let logExpanded = false;
+
+// Elements
+const compileBtnMain = document.getElementById('compile-btn-main');
+const compilationProgress = document.getElementById('compilation-progress');
+const progressBar = document.getElementById('progress-bar');
+const compilationLog = document.getElementById('compilation-log');
+const pdfViewer = document.getElementById('pdf-viewer');
+const pdfViewLink = document.getElementById('pdf-view-link');
+const pdfDownloadLink = document.getElementById('pdf-download-link');
+const diffPdfViewer = document.getElementById('diff-pdf-viewer');
+const diffPdfViewLink = document.getElementById('diff-pdf-view-link');
+const diffPdfDownloadLink = document.getElementById('diff-pdf-download-link');
+const mainPdfView = document.getElementById('main-pdf-view');
+const diffPdfView = document.getElementById('diff-pdf-view');
+const mainPdfTab = document.getElementById('main-pdf-tab');
+const diffPdfTab = document.getElementById('diff-pdf-tab');
+const toggleLogSizeBtn = document.getElementById('toggle-log-size');
+
+// Initialize
+checkForExistingPDFs();
+checkForRunningCompilation();
+
+// Compile button
+compileBtnMain.addEventListener('click', function() {
+    compileManuscript();
+});
+
+// Toggle log size
+toggleLogSizeBtn.addEventListener('click', function() {
+    logExpanded = !logExpanded;
+    const logViewer = document.getElementById('compilation-log');
+    if (logExpanded) {
+        logViewer.style.maxHeight = '800px';
+        this.innerHTML = '<i class="fas fa-compress-alt"></i>';
+    } else {
+        logViewer.style.maxHeight = '400px';
+        this.innerHTML = '<i class="fas fa-expand-alt"></i>';
+    }
+});
+
+function switchPDFView(type) {
+    if (type === 'main') {
+        mainPdfView.style.display = 'block';
+        diffPdfView.style.display = 'none';
+        mainPdfTab.classList.add('active');
+        diffPdfTab.classList.remove('active');
+    } else {
+        mainPdfView.style.display = 'none';
+        diffPdfView.style.display = 'block';
+        mainPdfTab.classList.remove('active');
+        diffPdfTab.classList.add('active');
+    }
+}
+
+function checkForExistingPDFs() {
+    // Check main PDF
+    fetch(`/writer/project/${projectId}/pdf/`)
+    .then(response => {
+        if (response.ok) {
+            const pdfUrl = `/writer/project/${projectId}/pdf/`;
+            pdfViewer.src = pdfUrl;
+            pdfViewLink.href = pdfUrl;
+            pdfDownloadLink.href = `${pdfUrl}?mode=download`;
+        }
+    });
+
+    // Check diff PDF
+    const diffStatus = document.getElementById('diff-pdf-status');
+    const diffViewer = document.getElementById('diff-pdf-viewer');
+
+    fetch(`/writer/project/${projectId}/pdf/?type=diff`)
+    .then(response => {
+        if (response.ok) {
+            const diffPdfUrl = `/writer/project/${projectId}/pdf/?type=diff`;
+            diffPdfViewer.src = diffPdfUrl;
+            diffPdfViewLink.href = diffPdfUrl;
+            diffPdfDownloadLink.href = `${diffPdfUrl}&mode=download`;
+
+            // Show the iframe, hide the status message
+            diffStatus.style.display = 'none';
+            diffViewer.style.display = 'block';
+        } else {
+            // Keep showing the status message
+            diffStatus.style.display = 'flex';
+            diffViewer.style.display = 'none';
+        }
+    });
+}
+
+function checkForRunningCompilation() {
+    const lastJobId = localStorage.getItem(`last_compile_job_${projectId}`);
+    if (lastJobId) {
+        fetch(`/writer/api/status/${lastJobId}/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'running' || data.status === 'queued') {
+                compilationProgress.style.display = 'block';
+                pollCompilationStatus(lastJobId);
+            } else if (data.status === 'completed' && data.log) {
+                compilationProgress.style.display = 'block';
+                progressBar.style.width = '100%';
+                progressBar.textContent = '100%';
+                progressBar.classList.add('bg-success');
+                compilationLog.textContent = data.log;
+            }
+        });
+    }
+}
+
+function compileManuscript() {
+    compileBtnMain.disabled = true;
+    compileBtnMain.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Compiling...';
+    compilationProgress.style.display = 'block';
+    progressBar.style.width = '10%';
+    progressBar.textContent = '10%';
+    compilationLog.textContent = 'Starting compilation...\n';
+
+    fetch(`/writer/project/${projectId}/compile/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCsrfToken()
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            localStorage.setItem(`last_compile_job_${projectId}`, data.job_id);
+            compilationLog.textContent += 'Email notification sent.\nMonitoring progress...\n';
+            pollCompilationStatus(data.job_id);
+        } else {
+            compilationLog.textContent += `\nError: ${data.error}`;
+            compileBtnMain.disabled = false;
+            compileBtnMain.innerHTML = '<i class="fas fa-file-pdf me-2"></i>Compile PDF';
+        }
+    });
+}
+
+function pollCompilationStatus(jobId, attempts = 0) {
+    if (attempts > 90) {  // 3 minutes max
+        compilationLog.textContent += '\nTimeout - please refresh';
+        compileBtnMain.disabled = false;
+        compileBtnMain.innerHTML = '<i class="fas fa-file-pdf me-2"></i>Compile PDF';
+        return;
+    }
+
+    fetch(`/writer/api/status/${jobId}/`)
+    .then(response => response.json())
+    .then(data => {
+        const progress = data.progress || 50;
+        progressBar.style.width = `${progress}%`;
+        progressBar.textContent = `${progress}%`;
+
+        if (data.log) {
+            compilationLog.textContent = data.log;
+            compilationLog.scrollTop = compilationLog.scrollHeight;
+        }
+
+        if (data.status === 'completed') {
+            progressBar.style.width = '100%';
+            progressBar.textContent = '100%';
+            progressBar.classList.remove('progress-bar-animated');
+            progressBar.classList.add('bg-success');
+            compileBtnMain.innerHTML = '<i class="fas fa-check me-2"></i>Compiled!';
+
+            // Load PDFs
+            checkForExistingPDFs();
+
+            setTimeout(() => {
+                compileBtnMain.disabled = false;
+                compileBtnMain.innerHTML = '<i class="fas fa-file-pdf me-2"></i>Compile PDF';
+            }, 3000);
+        } else if (data.status === 'failed') {
+            progressBar.classList.add('bg-danger');
+            compilationLog.textContent = `ERROR: ${data.error}\n\n${data.error_details || data.log || ''}`;
+            compileBtnMain.disabled = false;
+            compileBtnMain.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>Failed';
+        } else {
+            setTimeout(() => pollCompilationStatus(jobId, attempts + 1), 2000);
+        }
+    });
+}
+
+function getCsrfToken() {
+    return document.querySelector('[name=csrfmiddlewaretoken]').value;
+}
+</script>
+
+{% csrf_token %}
+{% endblock %}

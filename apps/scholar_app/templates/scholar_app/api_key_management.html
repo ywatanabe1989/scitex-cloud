@@ -278,7 +278,7 @@ async function testApiKey(source) {
     button.disabled = true;
     
     try {
-        const response = await fetch('{% url "scholar:test_api_key" %}', {
+        const response = await fetch('{% url "scholar_app:test_api_key" %}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

@@ -2,15 +2,20 @@
 
 {% load static %}
 
-{% block meta_description %}LaTeX system enhanced with language model capabilities{% endblock %}
+{% block meta_description %}SciTeX Writer - LaTeX manuscript preparation and compilation for scientific writing{% endblock %}
 
-{% block title %}Writer - Enhanced Scientific Document Creation{% endblock %}
+{% block title %}SciTeX Writer - Scientific Manuscript Editor{% endblock %}
 
 {% block extra_css %}
-<!-- Hero gradients CSS -->
-<link rel="stylesheet" href="{% static 'common/css/hero-gradients.css' %}">
+<!-- Writer App-specific CSS -->
+<link rel="stylesheet" href="{% static 'css/writer_app/writer.css' %}">
 {% endblock %}
 
 {% block content %}
-    {% block doc_content %}{% endblock %}
+    {% block writer_content %}{% endblock %}
+{% endblock %}
+
+{% block extra_js %}
+<!-- Writer App-specific JavaScript -->
+<script src="{% static 'js/writer_app/writer.js' %}"></script>
 {% endblock %}

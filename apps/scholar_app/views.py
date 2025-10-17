@@ -22,11 +22,22 @@ from .models import (
     SearchQuery, SearchResult, SavedSearch, RecommendationLog,
     AuthorPaper, SearchFilter
 )
+from . import default_workspace_views
+from . import project_views
+
+# Expose default workspace views
+guest_session_view = default_workspace_views.guest_session_view
+user_default_workspace = default_workspace_views.user_default_workspace
+
+# Expose project views
+project_search = project_views.project_search
 
 
+@login_required
 def index(request):
-    """Search app index view."""
-    return render(request, 'scholar_app/index.html')
+    """Scholar app - redirect to user's projects."""
+    messages.info(request, 'Please select or create a project to use Scholar.')
+    return redirect('user_projects:user_projects', username=request.user.username)
 
 
 def features(request):

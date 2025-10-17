@@ -1,11 +1,15 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
+from django.contrib.auth.decorators import login_required
 
 
+@login_required
 def index(request):
-    """Writer app main page with hero section."""
-    return render(request, 'writer_app/index.html')
+    """Writer app - redirect to user's projects."""
+    from django.contrib import messages
+    messages.info(request, 'Please select or create a project to use Writer.')
+    return redirect('user_projects:user_projects', username=request.user.username)
 
 
 def simple_editor(request):

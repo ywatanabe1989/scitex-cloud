@@ -331,8 +331,21 @@
           </div>
         </div>
       </form>
+
+      <!-- BibTeX Enrichment Feature Link -->
+      <div style="text-align: center; margin-top: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px;">
+        <h3 style="color: white; margin-bottom: 0.5rem; font-size: 1.3rem;">
+          <i class="fas fa-file-code"></i> Enrich Your BibTeX Files
+        </h3>
+        <p style="color: rgba(255,255,255,0.9); margin-bottom: 1rem; font-size: 0.95rem;">
+          Upload your .bib file and get it enriched with citation counts, impact factors, and PDFs
+        </p>
+        <a href="{% url 'scholar_app:bibtex_enrichment' %}" class="btn" style="background: white; color: #667eea; padding: 0.75rem 2rem; border-radius: 6px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.5rem; transition: transform 0.2s;">
+          <i class="fas fa-magic"></i> Enrich BibTeX File
+        </a>
+      </div>
     </div>
-    
+
     <div class="results-preview">
       <h3>Example Results</h3>
       

@@ -1,0 +1,218 @@
+{% extends 'scholar_app/scholar_base.html' %}
+
+{% load static %}
+
+{% block title %}BibTeX Enrichment - SciTeX Scholar{% endblock %}
+
+{% block search_content %}
+<div class="container" style="max-width: 1000px; margin: 3rem auto; padding: 2rem;">
+
+  <!-- Header -->
+  <div style="text-align: center; margin-bottom: 3rem;">
+    <h1 style="color: #667eea; font-size: 2.5rem; margin-bottom: 1rem;">
+      <i class="fas fa-file-code"></i> BibTeX Enrichment
+    </h1>
+    <p style="color: #64748b; font-size: 1.1rem; max-width: 700px; margin: 0 auto;">
+      Upload your BibTeX file and get it enriched with citation counts, impact factors, PDFs, and more
+    </p>
+  </div>
+
+  <!-- Upload Form -->
+  <div style="background: white; border-radius: 12px; padding: 2.5rem; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 3rem;">
+    <h2 style="color: #1e293b; margin-bottom: 1.5rem; font-size: 1.5rem;">
+      <i class="fas fa-upload"></i> Upload BibTeX File
+    </h2>
+
+    <form method="post" action="{% url 'scholar_app:bibtex_upload' %}" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <!-- File Upload -->
+      <div style="margin-bottom: 1.5rem;">
+        <label for="bibtex_file" style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #1e293b;">
+          Select BibTeX File (.bib)
+        </label>
+        <input
+          type="file"
+          name="bibtex_file"
+          id="bibtex_file"
+          accept=".bib"
+          required
+          style="display: block; width: 100%; padding: 0.75rem; border: 2px dashed #cbd5e0; border-radius: 8px; background: #f8f9fa;"
+        >
+        <small style="color: #64748b; display: block; margin-top: 0.5rem;">
+          <i class="fas fa-info-circle"></i> Supported format: .bib files
+        </small>
+      </div>
+
+      <!-- Project Name (Optional) -->
+      <div style="margin-bottom: 1.5rem;">
+        <label for="project_name" style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #1e293b;">
+          Project Name (Optional)
+        </label>
+        <input
+          type="text"
+          name="project_name"
+          id="project_name"
+          placeholder="e.g., my_research_project"
+          style="display: block; width: 100%; padding: 0.75rem; border: 1px solid #cbd5e0; border-radius: 6px;"
+        >
+        <small style="color: #64748b; display: block; margin-top: 0.5rem;">
+          <i class="fas fa-info-circle"></i> For organizing papers by project
+        </small>
+      </div>
+
+      <!-- Advanced Options -->
+      <details style="margin-bottom: 1.5rem; padding: 1rem; background: #f8f9fa; border-radius: 6px;">
+        <summary style="cursor: pointer; font-weight: 600; color: #1e293b;">
+          <i class="fas fa-cog"></i> Advanced Options
+        </summary>
+
+        <div style="margin-top: 1rem;">
+          <!-- Number of Workers -->
+          <div style="margin-bottom: 1rem;">
+            <label for="num_workers" style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #1e293b;">
+              Parallel Workers
+            </label>
+            <select
+              name="num_workers"
+              id="num_workers"
+              style="display: block; width: 100%; padding: 0.75rem; border: 1px solid #cbd5e0; border-radius: 6px;"
+            >
+              <option value="2">2 workers (slower, lighter)</option>
+              <option value="4" selected>4 workers (balanced)</option>
+              <option value="8">8 workers (faster, requires more resources)</option>
+            </select>
+          </div>
+
+          <!-- Browser Mode -->
+          <div style="margin-bottom: 1rem;">
+            <label for="browser_mode" style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #1e293b;">
+              Browser Mode
+            </label>
+            <select
+              name="browser_mode"
+              id="browser_mode"
+              style="display: block; width: 100%; padding: 0.75rem; border: 1px solid #cbd5e0; border-radius: 6px;"
+            >
+              <option value="stealth" selected>Stealth (recommended)</option>
+              <option value="interactive">Interactive</option>
+            </select>
+          </div>
+        </div>
+      </details>
+
+      <!-- Submit Button -->
+      <button
+        type="submit"
+        style="width: 100%; padding: 1rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: transform 0.2s;"
+        onmouseover="this.style.transform='translateY(-2px)'"
+        onmouseout="this.style.transform='translateY(0)'"
+      >
+        <i class="fas fa-magic"></i> Enrich BibTeX File
+      </button>
+    </form>
+  </div>
+
+  <!-- What Gets Enriched -->
+  <div style="background: #f8f9fa; border-radius: 12px; padding: 2.5rem; margin-bottom: 3rem;">
+    <h2 style="color: #1e293b; margin-bottom: 1.5rem; font-size: 1.5rem; text-align: center;">
+      <i class="fas fa-sparkles"></i> What Gets Enriched
+    </h2>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+      <div style="text-align: center;">
+        <div style="font-size: 2.5rem; color: #667eea; margin-bottom: 0.5rem;">
+          <i class="fas fa-quote-right"></i>
+        </div>
+        <h3 style="color: #1e293b; font-size: 1.1rem; margin-bottom: 0.5rem;">Citation Counts</h3>
+        <p style="color: #64748b; font-size: 0.9rem;">From CrossRef, Semantic Scholar, and more</p>
+      </div>
+
+      <div style="text-align: center;">
+        <div style="font-size: 2.5rem; color: #667eea; margin-bottom: 0.5rem;">
+          <i class="fas fa-chart-line"></i>
+        </div>
+        <h3 style="color: #1e293b; font-size: 1.1rem; margin-bottom: 0.5rem;">Impact Factors</h3>
+        <p style="color: #64748b; font-size: 0.9rem;">Journal metrics and rankings</p>
+      </div>
+
+      <div style="text-align: center;">
+        <div style="font-size: 2.5rem; color: #667eea; margin-bottom: 0.5rem;">
+          <i class="fas fa-file-pdf"></i>
+        </div>
+        <h3 style="color: #1e293b; font-size: 1.1rem; margin-bottom: 0.5rem;">PDF Downloads</h3>
+        <p style="color: #64748b; font-size: 0.9rem;">Automatic PDF acquisition</p>
+      </div>
+
+      <div style="text-align: center;">
+        <div style="font-size: 2.5rem; color: #667eea; margin-bottom: 0.5rem;">
+          <i class="fas fa-database"></i>
+        </div>
+        <h3 style="color: #1e293b; font-size: 1.1rem; margin-bottom: 0.5rem;">Metadata</h3>
+        <p style="color: #64748b; font-size: 0.9rem;">Abstract, keywords, and more</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Jobs -->
+  {% if recent_jobs %}
+  <div style="background: white; border-radius: 12px; padding: 2.5rem; box-shadow: 0 2px 12px rgba(0,0,0,0.08);">
+    <h2 style="color: #1e293b; margin-bottom: 1.5rem; font-size: 1.5rem;">
+      <i class="fas fa-history"></i> Recent Enrichment Jobs
+    </h2>
+
+    <div style="overflow-x: auto;">
+      <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr style="background: #f8f9fa; border-bottom: 2px solid #e2e8f0;">
+            <th style="padding: 1rem; text-align: left; font-weight: 600; color: #1e293b;">File</th>
+            <th style="padding: 1rem; text-align: left; font-weight: 600; color: #1e293b;">Status</th>
+            <th style="padding: 1rem; text-align: left; font-weight: 600; color: #1e293b;">Progress</th>
+            <th style="padding: 1rem; text-align: left; font-weight: 600; color: #1e293b;">Created</th>
+            <th style="padding: 1rem; text-align: left; font-weight: 600; color: #1e293b;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for job in recent_jobs %}
+          <tr style="border-bottom: 1px solid #e2e8f0;">
+            <td style="padding: 1rem;">
+              <strong>{{ job.input_file.name|slice:"-50:" }}</strong>
+              {% if job.project_name %}
+              <br><small style="color: #64748b;">Project: {{ job.project_name }}</small>
+              {% endif %}
+            </td>
+            <td style="padding: 1rem;">
+              {% if job.status == 'completed' %}
+              <span style="color: #10b981; font-weight: 600;"><i class="fas fa-check-circle"></i> Completed</span>
+              {% elif job.status == 'processing' %}
+              <span style="color: #3b82f6; font-weight: 600;"><i class="fas fa-spinner fa-spin"></i> Processing</span>
+              {% elif job.status == 'failed' %}
+              <span style="color: #ef4444; font-weight: 600;"><i class="fas fa-times-circle"></i> Failed</span>
+              {% else %}
+              <span style="color: #64748b; font-weight: 600;"><i class="fas fa-clock"></i> Pending</span>
+              {% endif %}
+            </td>
+            <td style="padding: 1rem;">
+              <div style="background: #e2e8f0; border-radius: 4px; height: 8px; overflow: hidden;">
+                <div style="background: #667eea; height: 100%; width: {{ job.get_progress_percentage }}%;"></div>
+              </div>
+              <small style="color: #64748b;">{{ job.processed_papers }}/{{ job.total_papers }} papers</small>
+            </td>
+            <td style="padding: 1rem; color: #64748b;">
+              {{ job.created_at|date:"M d, Y H:i" }}
+            </td>
+            <td style="padding: 1rem;">
+              <a href="{% url 'scholar_app:bibtex_job_detail' job.id %}" style="color: #667eea; text-decoration: none; font-weight: 600;">
+                <i class="fas fa-eye"></i> View
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

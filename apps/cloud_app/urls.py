@@ -24,6 +24,7 @@ urlpatterns = [
     # Concept and vision pages
     path("vision/", views.vision, name="vision"),
     path("publications/", views.publications, name="publications"),
+    path("contributors/", views.contributors, name="contributors"),
     # Support pages
     path("donate/", views.donate, name="donate"),
     # Legal and contact pages

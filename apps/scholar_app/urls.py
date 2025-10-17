@@ -1,8 +1,8 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from . import views, simple_views, repository_views, api_views
+from . import views, simple_views, repository_views, api_views, bibtex_views
 
-app_name = 'scholar'
+app_name = 'scholar_app'
 
 # Repository API Router
 router = DefaultRouter()
@@ -85,6 +85,13 @@ urlpatterns = [
     path('api/recommendations/paper/<uuid:paper_id>/', simple_views.paper_recommendations, name='paper_recommendations'),
     path('api/recommendations/user/', simple_views.user_recommendations, name='user_recommendations'),
     
+    # BibTeX Enrichment
+    path('bibtex/enrichment/', bibtex_views.bibtex_enrichment, name='bibtex_enrichment'),
+    path('bibtex/upload/', bibtex_views.bibtex_upload, name='bibtex_upload'),
+    path('bibtex/job/<uuid:job_id>/', bibtex_views.bibtex_job_detail, name='bibtex_job_detail'),
+    path('bibtex/job/<uuid:job_id>/download/', bibtex_views.bibtex_download_enriched, name='bibtex_download_enriched'),
+    path('api/bibtex/job/<uuid:job_id>/status/', bibtex_views.bibtex_job_status, name='bibtex_job_status'),
+
     # Legacy mock endpoints
     path('api/mock/save-paper/', simple_views.mock_save_paper, name='mock_save_paper'),
     path('api/mock/get-citation/', simple_views.mock_get_citation, name='mock_get_citation'),

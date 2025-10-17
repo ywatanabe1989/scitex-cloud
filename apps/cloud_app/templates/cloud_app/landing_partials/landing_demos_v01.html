@@ -1,0 +1,202 @@
+{% load static %}
+
+<style>
+  .github-link-btn {
+  transition: all 0.3s ease;
+  padding: 0.5rem 1.5rem;
+  }
+
+  .github-link-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+</style>
+
+<!-- Demo Video Section -->
+<div class="container">
+  <section class="section integrated-ecosystem-section">
+    <div class="container">
+
+      <!-- Scholar Demo Video -->
+      <div style="max-width: 1200px; margin: 0 auto 3rem;">
+        <h2 style="color: #1e293b; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+          <img src="{% static 'images/scitex-scholar-icon.svg' %}" alt="" width="32" height="32">
+          <span>SciTeX Scholar</span>
+          <img src="{% static 'images/scitex-scholar-icon.svg' %}" alt="" width="32" height="32">
+        </h2>
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: center;">
+          <div style="background: transparent; border-radius: 12px; padding: 1rem;">
+            <div style="position: relative; width: 100%; padding-bottom: 56.25%; overflow: hidden; border-radius: 8px;">
+              <video autoplay loop muted playsinline controls style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 8px;" poster="{% static 'videos/thumbnails/scholar-demo.jpg' %}">
+                <source src="{% static 'videos/scholar-demo.mp4' %}" type="video/mp4">
+                Your browser does not support the video tag.
+              </video>
+            </div>
+            <div style="text-align: center; margin-top: 1rem;">
+              <a href="{% url 'docs:scholar' %}" class="btn btn-primary github-link-btn" style="margin-top: 0.5rem; margin-right: 0.5rem; display: inline-flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-book-open"></i> Documentation
+              </a>
+              <a href="https://github.com/ywatanabe1989/SciTeX-Code/tree/main/src/scitex/scholar" target="_blank" class="btn btn-dark github-link-btn" style="margin-top: 0.5rem; display: inline-flex; align-items: center; gap: 0.5rem;">
+                <i class="fab fa-github"></i> View on GitHub
+              </a>
+            </div>
+          </div>
+          <div style="padding: 1rem;">
+            <ul style="color: #64748b; line-height: 2; list-style: none; padding: 0; font-size: 1rem;">
+              <li style="margin-bottom: 0.8rem;"><strong style="color: #1e293b;">Multi-Source Search</strong><br>
+                <span style="font-size: 0.9rem;">Concurrent search across CrossRef, PubMed, OpenAlex, Semantic Scholar, and arXiv</span>
+              </li>
+              <li style="margin-bottom: 0.8rem;"><strong style="color: #1e293b;">Metadata Enrichment</strong><br>
+                <span style="font-size: 0.9rem;">Automatic retrieval of abstract, citation counts, and journal impact factor</span>
+              </li>
+              <li style="margin-bottom: 0.8rem;"><strong style="color: #1e293b;">PDF Downloads</strong><br>
+                <span style="font-size: 0.9rem;">PDF download with institutional authentication support. Extraction of text, tables, and figures</span>
+              </li>
+              <li style="margin-bottom: 0.8rem;"><strong style="color: #1e293b;">Local Library</strong><br>
+                <span style="font-size: 0.9rem;">Manage and search your local PDF collection. Compatible with Zotero.</span>
+              </li>
+              <li style="margin-bottom: 0.8rem;"><strong style="color: #1e293b;">Exporting Formats</strong><br>
+                <span style="font-size: 0.9rem;">Export to BibTeX, RIS, JSON, and Markdown formats</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Writer Demo Video -->
+      <div style="max-width: 1200px; margin: 3rem auto;">
+        <h2 style="color: #1e293b; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+          <img src="{% static 'images/scitex-writer-icon.svg' %}" alt="" width="32" height="32">
+          <span>SciTeX Writer</span>
+          <img src="{% static 'images/scitex-writer-icon.svg' %}" alt="" width="32" height="32">
+        </h2>
+        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 2rem; align-items: center;">
+          <div style="padding: 1rem;">
+            <ul style="color: #64748b; line-height: 2; list-style: none; padding: 0; font-size: 1rem;">
+              <li style="margin-bottom: 0.8rem;"><strong style="color: #1e293b;">LaTeX Integration</strong><br>
+                <span style="font-size: 0.9rem;">LaTeX compilation with reference management, style changes, and words counts</span>
+              </li>
+              <li style="margin-bottom: 0.8rem;"><strong style="color: #1e293b;">Manuscript Types</strong><br>
+                <span style="font-size: 0.9rem;">Templates ready for manuscripts, supplementary materials, and revision letters</span>
+              </li>
+              <li style="margin-bottom: 0.8rem;"><strong style="color: #1e293b;">AI Applicability</strong><br>
+                <span style="font-size: 0.9rem;">Optimized structure for LLM assistants. Automatic differences with visual markup</span>
+              </li>
+              <li style="margin-bottom: 0.8rem;"><strong style="color: #1e293b;">Bibliography Management</strong><br>
+                <span style="font-size: 0.9rem;">Fact-based reference insertion with Scholar module</span>
+              </li>
+              <li style="margin-bottom: 0.8rem;"><strong style="color: #1e293b;">Version Control</strong><br>
+                <span style="font-size: 0.9rem;">Git-based workflow with manuscript versioning</span>
+              </li>
+            </ul>
+          </div>
+          <div style="background: transparent; border-radius: 12px; padding: 1rem;">
+            <div style="position: relative; width: 100%; padding-bottom: 56.25%; overflow: hidden; border-radius: 8px;">
+              <video autoplay loop muted playsinline controls style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 8px; object-fit: cover;" poster="{% static 'videos/thumbnails/writer-demo.jpg' %}">
+                <source src="{% static 'videos/writer-demo.mp4' %}" type="video/mp4">
+                Your browser does not support the video tag.
+              </video>
+            </div>
+            <div style="text-align: center; margin-top: 1rem;">
+              <a href="{% url 'docs:writer' %}" class="btn btn-primary github-link-btn" style="margin-top: 0.5rem; margin-right: 0.5rem; display: inline-flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-book-open"></i> Documentation
+              </a>
+              <a href="https://github.com/ywatanabe1989/SciTeX-Writer" target="_blank" class="btn btn-dark github-link-btn" style="margin-top: 0.5rem; display: inline-flex; align-items: center; gap: 0.5rem;">
+                <i class="fab fa-github"></i> View on GitHub
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Code Demo Video -->
+      <div style="max-width: 1200px; margin: 3rem auto;">
+        <h2 style="color: #1e293b; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+          <img src="{% static 'images/scitex-code-icon.svg' %}" alt="" width="32" height="32">
+          <span>SciTeX Code</span>
+          <img src="{% static 'images/scitex-code-icon.svg' %}" alt="" width="32" height="32">
+        </h2>
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: center;">
+          <div style="background: transparent; border-radius: 12px; padding: 1rem;">
+            <div style="position: relative; width: 100%; padding-bottom: 56.25%; overflow: hidden; border-radius: 8px;">
+              <video autoplay loop muted playsinline controls style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 8px;">
+                <source src="{% static 'videos/code-demo.mp4' %}" type="video/mp4">
+                Your browser does not support the video tag.
+              </video>
+            </div>
+            <div style="text-align: center; margin-top: 1rem;">
+              <a href="{% url 'docs:code' %}" class="btn btn-primary github-link-btn" style="margin-top: 0.5rem; margin-right: 0.5rem; display: inline-flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-book-open"></i> Documentation
+              </a>
+              <a href="https://github.com/ywatanabe1989/SciTeX-Code" target="_blank" class="btn btn-dark github-link-btn" style="margin-top: 0.5rem; display: inline-flex; align-items: center; gap: 0.5rem;">
+                <i class="fab fa-github"></i> View on GitHub
+              </a>
+            </div>
+          </div>
+          <div style="padding: 1rem;">
+            <ul style="color: #64748b; line-height: 2; list-style: none; padding: 0; font-size: 1rem;">
+              <li style="margin-bottom: 0.8rem;"><strong style="color: #1e293b;">Session Management</strong><br>
+                <span style="font-size: 0.9rem;">Auto-organized outputs with RUNNING/FINISHED_SUCCESS/ERROR structure</span>
+              </li>
+              <li style="margin-bottom: 0.8rem;"><strong style="color: #1e293b;">Universal I/O</strong><br>
+                <span style="font-size: 0.9rem;">30+ formats supported: CSV, JSON, HDF5, Zarr, pickle, Excel with auto-detection</span>
+              </li>
+              <li style="margin-bottom: 0.8rem;"><strong style="color: #1e293b;">Statistical Testing</strong><br>
+                <span style="font-size: 0.9rem;">23 parametric/non-parametric tests, effect sizes, power analysis, 9 export formats</span>
+              </li>
+              <li style="margin-bottom: 0.8rem;"><strong style="color: #1e293b;">ML & AI Unified</strong><br>
+                <span style="font-size: 0.9rem;">PyTorch training utilities, GenAI (7 providers), cost tracking, classification tools</span>
+              </li>
+              <li style="margin-bottom: 0.8rem;"><strong style="color: #1e293b;">40+ Research Modules</strong><br>
+                <span style="font-size: 0.9rem;">DSP, plots, scholar, browser, decorators, logging, and more</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Viz Demo Video -->
+      <div style="max-width: 1200px; margin: 3rem auto;">
+        <h2 style="color: #1e293b; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+          <img src="{% static 'images/scitex-viz-icon.svg' %}" alt="" width="32" height="32">
+          <span>SciTeX Viz</span>
+          <img src="{% static 'images/scitex-viz-icon.svg' %}" alt="" width="32" height="32">
+        </h2>
+
+        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 2rem; align-items: center;">
+          <div style="padding: 1rem;">
+            <ul style="color: #64748b; line-height: 2; list-style: none; padding: 0; font-size: 1rem;">
+              <li style="margin-bottom: 0.8rem;"><strong style="color: #1e293b;">Publication Quality</strong><br>
+                <span style="font-size: 0.9rem;">Python Wrapper for SigmaPlot to produce publication-ready figures</span>
+              </li>
+              <li style="margin-bottom: 0.8rem;"><strong style="color: #1e293b;">Style Consistency</strong><br>
+                <span style="font-size: 0.9rem;">Unified/customizable color schemes and typography across all figures</span>
+              </li>
+              <li style="margin-bottom: 0.8rem;"><strong style="color: #1e293b;">Multi-Format Export</strong><br>
+                <span style="font-size: 0.9rem;">Export to PDF, SVG, PNG, and interactive HTML formats</span>
+              </li>
+            </ul>
+          </div>
+          <div style="background: transparent; border-radius: 12px; padding: 1rem;">
+            <div style="position: relative; width: 100%; padding-bottom: 56.25%; overflow: hidden; border-radius: 8px;">
+              <video autoplay loop muted playsinline controls style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 8px;">
+                <source src="{% static 'videos/viz-demo.mp4' %}" type="video/mp4">
+                Your browser does not support the video tag.
+              </video>
+            </div>
+            <div style="text-align: center; margin-top: 1rem;">
+              <a href="{% url 'docs:viz' %}" class="btn btn-primary github-link-btn" style="margin-top: 0.5rem; margin-right: 0.5rem; display: inline-flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-book-open"></i> Documentation
+              </a>
+              <a href="https://github.com/ywatanabe1989/SciTeX-Viz" target="_blank" class="btn btn-dark github-link-btn" style="margin-top: 0.5rem; display: inline-flex; align-items: center; gap: 0.5rem;">
+                <i class="fab fa-github"></i> View on GitHub
+              </a>
+              <p style="font-size: 0.75rem; color: #94a3b8; margin-top: 0.5rem;">Also available: PySigMacro, SigMacro templates</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div>

@@ -10,9 +10,9 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-8 text-center">
-                <img src="{% static 'images/scitex-scholar-icon.svg' %}" alt="Scholar" width="80" height="80" class="mb-4">
-                <h1 class="hero-title">{{ project.name }} - Scholar</h1>
-                <p class="hero-subtitle">Literature Search & Reference Management</p>
+                <img src="{% static 'images/scitex-viz-icon.svg' %}" alt="Viz" width="80" height="80" class="mb-4">
+                <h1 class="hero-title">{{ project.name }} - Viz</h1>
+                <p class="hero-subtitle">Data Visualization & Plotting</p>
             </div>
         </div>
     </div>
@@ -21,12 +21,12 @@
 <section class="py-5">
     <div class="container">
         <div class="alert alert-info">
-            <h5><i class="fas fa-info-circle me-2"></i>Scholar Module</h5>
-            <p class="mb-0">Search papers and build your research library for {{ project.name }}.</p>
+            <h5><i class="fas fa-info-circle me-2"></i>Viz Module</h5>
+            <p class="mb-0">Create visualizations and interactive plots for {{ project.name }}.</p>
         </div>
 
         <div class="text-center mt-5">
-            <p class="text-muted">Scholar interface coming soon...</p>
+            <p class="text-muted">Viz interface coming soon...</p>
             <a href="/{{ project.owner.username }}/{{ project.slug }}/" class="btn btn-secondary">
                 <i class="fas fa-arrow-left me-2"></i>Back to Project
             </a>

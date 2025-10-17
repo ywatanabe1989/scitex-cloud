@@ -9,11 +9,22 @@ from .models import CodeExecutionJob, DataAnalysisJob, Notebook, ResourceUsage
 # from apps.api  # Removed - api app not installed.utils import execute_code_safely, generate_analysis_code
 import json
 import threading
+from . import default_workspace_views
+from . import project_views
+
+# Expose default workspace views
+guest_session_view = default_workspace_views.guest_session_view
+user_default_workspace = default_workspace_views.user_default_workspace
+
+# Expose project views
+project_code = project_views.project_code
 
 
+@login_required
 def index(request):
-    """Code app index view - show coming soon page."""
-    return render(request, 'code_app/index.html')
+    """Code app - redirect to user's projects."""
+    messages.info(request, 'Please select or create a project to use Code.')
+    return redirect('user_projects:user_projects', username=request.user.username)
 
 
 def features(request):
