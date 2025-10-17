@@ -28,6 +28,7 @@ urlpatterns = [
         name="reset-password",
     ),
     path("verify-email/", views.verify_email, name="verify-email"),
+    path("delete-account/", views.delete_account, name="delete-account"),
 ]
 
 # EOF

@@ -1,0 +1,96 @@
+{% extends 'global_base.html' %}
+
+{% load static %}
+
+{% block meta_description %}SciTeX Authentication - Secure login and registration for scientific research platform{% endblock %}
+
+{% block title %}SciTeX Authentication{% endblock %}
+
+{% block extra_css %}
+<!-- Auth-specific CSS -->
+<style>
+  .auth-header {
+    background: linear-gradient(135deg, #506b7a 0%, #6c8ba0 30%, #8fa4b0 60%, #b5c7d1 100%);
+    color: #1a2332;
+    padding: 3rem 0;
+    margin-bottom: 3rem;
+    border-radius: 0 0 8px 8px;
+    text-shadow: 0 1px 2px rgba(255,255,255,0.5);
+  }
+
+  .auth-header h1 {
+    color: #1a2332;
+    font-weight: 700;
+  }
+
+  .auth-header .lead {
+    color: #1a2332;
+    opacity: 0.9;
+  }
+
+  .auth-container {
+    max-width: 500px;
+    margin: 0 auto;
+    padding-bottom: 4rem;
+  }
+
+  .auth-form {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    padding: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .form-message {
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+  }
+
+  .form-message.success {
+    background-color: rgba(46, 204, 113, 0.1);
+    color: #27ae60;
+    border: 1px solid rgba(46, 204, 113, 0.3);
+  }
+
+  .form-message.error {
+    background-color: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+    border: 1px solid rgba(231, 76, 60, 0.3);
+  }
+
+  .form-message.info {
+    background-color: rgba(52, 152, 219, 0.1);
+    color: #3498db;
+    border: 1px solid rgba(52, 152, 219, 0.3);
+  }
+
+  /* Django messages integration */
+  .django-messages {
+    margin-bottom: 1.5rem;
+  }
+</style>
+{% block auth_extra_css %}{% endblock %}
+{% endblock %}
+
+{% block content %}
+  <div class="container">
+    <!-- Django messages -->
+    {% if messages %}
+    <div class="django-messages">
+      {% for message in messages %}
+      <div class="form-message {{ message.tags }}">
+        {{ message }}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% block auth_content %}{% endblock %}
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+{% block auth_extra_js %}{% endblock %}
+{% endblock %}

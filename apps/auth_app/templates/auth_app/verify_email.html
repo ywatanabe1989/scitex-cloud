@@ -1,4 +1,4 @@
-{% extends "cloud_app/base.html" %}
+{% extends "auth_app/auth_base.html" %}
 {% load static %}
 
 {% block title %}Verify Your Email - SciTeX{% endblock %}
@@ -112,7 +112,7 @@
     </form>
     
     <div class="resend-link">
-      <p>Didn't receive the code? <a href="{% url 'cloud_app:donate' %}">Send a new code</a></p>
+      <p>Didn't receive the code? <a href="#" onclick="resendVerificationCode(); return false;">Send a new code</a></p>
     </div>
   </div>
 </div>

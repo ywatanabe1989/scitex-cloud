@@ -1,9 +1,9 @@
-{% extends "global_base.html" %}
+{% extends "auth_app/auth_base.html" %}
 {% load static %}
 
 {% block title %}Logout - SciTeX{% endblock %}
 
-{% block extra_css %}
+{% block auth_extra_css %}
 <link rel="stylesheet" href="{% static 'css/common/forms.css' %}">
 <style>
 .logout-container {
@@ -58,7 +58,7 @@
 </style>
 {% endblock %}
 
-{% block content %}
+{% block auth_content %}
 <div class="logout-container">
     <div class="logout-card">
         <div class="logout-icon">
@@ -72,10 +72,10 @@
         </p>
         
         <div class="logout-actions">
-            <a href="{% url 'cloud_app:login' %}" class="btn btn-primary">
+            <a href="{% url 'auth_app:login' %}" class="btn btn-primary">
                 <i class="fas fa-sign-in-alt"></i> Log In Again
             </a>
-            <a href="{% url 'cloud_app:index' %}" class="btn btn-outline-secondary">
+            <a href="/" class="btn btn-outline-secondary">
                 <i class="fas fa-home"></i> Go to Homepage
             </a>
         </div>
@@ -85,7 +85,7 @@
 <script>
 // Auto-redirect after 5 seconds
 setTimeout(() => {
-    window.location.href = '{% url "cloud_app:index" %}';
+    window.location.href = '/';
 }, 5000);
 </script>
 {% endblock %}

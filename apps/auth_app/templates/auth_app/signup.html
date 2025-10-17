@@ -1,52 +1,12 @@
-{% extends "cloud_app/base.html" %}
+{% extends "auth_app/auth_base.html" %}
 {% load static %}
 
 {% block title %}Create an Account - SciTeX{% endblock %}
 
 {% block meta_description %}Join SciTeX - the open-source platform for scientific research. Create your free account to get started with managing, analyzing, and publishing your research.{% endblock %}
 
-{% block extra_css %}
+{% block auth_extra_css %}
 <style>
-  .signup-header {
-    background-color: #eef2ff;
-    padding: 3rem 0;
-    margin-bottom: 3rem;
-    border-radius: 0 0 8px 8px;
-  }
-  
-  .signup-container {
-    max-width: 650px;
-    margin: 0 auto;
-    padding-bottom: 4rem;
-  }
-  
-  .auth-form {
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    padding: 2rem;
-    margin-bottom: 2rem;
-  }
-  
-  .form-message {
-    padding: 1rem;
-    border-radius: 8px;
-    margin-bottom: 1.5rem;
-    display: none;
-  }
-  
-  .form-message.success {
-    background-color: rgba(46, 204, 113, 0.1);
-    color: #27ae60;
-    border: 1px solid rgba(46, 204, 113, 0.3);
-  }
-  
-  .form-message.error {
-    background-color: rgba(231, 76, 60, 0.1);
-    color: #e74c3c;
-    border: 1px solid rgba(231, 76, 60, 0.3);
-  }
-  
   .benefits-list {
     margin-top: 3rem;
   }
@@ -94,15 +54,15 @@
 </style>
 {% endblock %}
 
-{% block cloud_content %}
-<div class="signup-header">
+{% block auth_content %}
+<div class="auth-header">
   <div class="container">
     <h1 class="display-4 text-center">Create Your SciTeX Account</h1>
     <p class="lead text-center">Join our open-source scientific research platform - completely free</p>
   </div>
 </div>
 
-<div class="container signup-container">
+<div class="container auth-container" style="max-width: 900px;">
   <div class="row">
     <div class="col-lg-7">
       <div class="auth-form">
@@ -137,12 +97,15 @@
           <p><strong>Error:</strong> <span id="error-message">Something went wrong. Please try again.</span></p>
         </div>
         
-        <form id="signup-form" method="post" action="{% url 'cloud_app:signup' %}">
+        <form id="signup-form" method="post" action="{% url 'auth_app:signup' %}">
           {% csrf_token %}
           <div class="form-group mb-3">
             <label for="{{ form.username.id_for_label }}" class="form-label">Username <span class="text-danger">*</span></label>
             {{ form.username }}
-            <div class="form-text">Choose a unique username for your account.</div>
+            <div class="form-text">
+              <strong>Choose a unique username</strong> (like GitHub: letters, numbers, hyphens, underscores).<br>
+              <small class="text-muted">Your profile URL will be: scitex.ai/<span id="username-preview">username</span></small>
+            </div>
             {% if form.username.errors %}
               <div class="text-danger small">{{ form.username.errors.0 }}</div>
             {% endif %}
@@ -206,23 +169,11 @@
               <div class="text-danger small">{{ form.password2.errors.0 }}</div>
             {% endif %}
           </div>
-          
-          <div class="row">
-            <div class="col-md-6 mb-3">
-              <label for="first-name" class="form-label">First Name</label>
-              <input type="text" class="form-control" id="first-name" name="first-name">
-            </div>
-            
-            <div class="col-md-6 mb-3">
-              <label for="last-name" class="form-label">Last Name</label>
-              <input type="text" class="form-control" id="last-name" name="last-name">
-            </div>
-          </div>
-          
+
           <div class="form-check mb-3">
             {{ form.agree_terms }}
             <label class="form-check-label" for="{{ form.agree_terms.id_for_label }}">
-              I agree to the <a href="{% url 'cloud_app:terms' %}" target="_blank">Terms of Use</a> and <a href="{% url 'cloud_app:privacy' %}" target="_blank">Privacy Policy</a>
+              I agree to the <a href="/terms/" target="_blank">Terms of Use</a> and <a href="/privacy/" target="_blank">Privacy Policy</a>
             </label>
             {% if form.agree_terms.errors %}
               <div class="text-danger small">{{ form.agree_terms.errors.0 }}</div>
@@ -233,7 +184,7 @@
         </form>
         
         <div class="text-center mt-3">
-          <p>Already have an account? <a href="{% url 'cloud_app:login' %}">Log In</a></p>
+          <p>Already have an account? <a href="{% url 'auth_app:login' %}">Log In</a></p>
         </div>
       </div>
     </div>
@@ -278,7 +229,7 @@
 </div>
 {% endblock %}
 
-{% block extra_js %}
+{% block auth_extra_js %}
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('signup-form');
@@ -290,6 +241,13 @@
     const errorMessage = document.getElementById('js-error-message');
     const errorText = document.getElementById('error-message');
     const academicBenefits = document.querySelector('.academic-benefits');
+    const usernamePreview = document.getElementById('username-preview');
+
+    // Update username preview as user types
+    usernameInput.addEventListener('input', function() {
+      const username = this.value || 'username';
+      usernamePreview.textContent = username;
+    });
     
     // Japanese academic domains (synced with backend)
     const japaneseAcademicDomains = [

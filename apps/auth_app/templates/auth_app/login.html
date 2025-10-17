@@ -1,63 +1,19 @@
-{% extends "cloud_app/base.html" %}
+{% extends "auth_app/auth_base.html" %}
 {% load static %}
 
 {% block title %}Log In - SciTeX{% endblock %}
 
 {% block meta_description %}Log in to your SciTeX account to access your research tools, documents, and settings.{% endblock %}
 
-{% block extra_css %}
-<style>
-  .login-header {
-    background-color: #eef2ff;
-    padding: 3rem 0;
-    margin-bottom: 3rem;
-    border-radius: 0 0 8px 8px;
-  }
-  
-  .login-container {
-    max-width: 500px;
-    margin: 0 auto;
-    padding-bottom: 4rem;
-  }
-  
-  .auth-form {
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    padding: 2rem;
-    margin-bottom: 2rem;
-  }
-  
-  .form-message {
-    padding: 1rem;
-    border-radius: 8px;
-    margin-bottom: 1.5rem;
-    display: none;
-  }
-  
-  .form-message.success {
-    background-color: rgba(46, 204, 113, 0.1);
-    color: #27ae60;
-    border: 1px solid rgba(46, 204, 113, 0.3);
-  }
-  
-  .form-message.error {
-    background-color: rgba(231, 76, 60, 0.1);
-    color: #e74c3c;
-    border: 1px solid rgba(231, 76, 60, 0.3);
-  }
-</style>
-{% endblock %}
-
-{% block cloud_content %}
-<div class="login-header">
+{% block auth_content %}
+<div class="auth-header">
   <div class="container">
     <h1 class="display-4 text-center">Log In to SciTeX</h1>
     <p class="lead text-center">Access your research tools and documents</p>
   </div>
 </div>
 
-<div class="container login-container">
+<div class="container auth-container">
   <div class="auth-form">
     <h2 class="mb-4">Log In</h2>
     
@@ -69,13 +25,13 @@
       <p><strong>Error:</strong> <span id="error-message">Invalid username or password.</span></p>
     </div>
     
-    <form id="login-form" method="post" action="{% url 'cloud_app:login' %}">
+    <form id="login-form" method="post" action="{% url 'auth_app:login' %}">
       {% csrf_token %}
       <div class="form-group mb-3">
         <label for="username" class="form-label">Username or Email <span class="text-danger">*</span></label>
         <input type="text" class="form-control" id="username" name="username" required>
       </div>
-      
+
       <div class="form-group mb-3">
         <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
         <div class="input-group">
@@ -85,7 +41,7 @@
           </button>
         </div>
       </div>
-      
+
       <div class="d-flex justify-content-between align-items-center mb-3">
         <div class="form-check">
           <input class="form-check-input" type="checkbox" id="remember-me" name="remember-me">
@@ -93,20 +49,20 @@
             Remember me
           </label>
         </div>
-        <a href="/forgot-password" class="text-decoration-none">Forgot password?</a>
+        <a href="{% url 'auth_app:forgot-password' %}" class="text-decoration-none">Forgot password?</a>
       </div>
-      
+
       <button type="submit" class="btn btn-primary w-100">Log In</button>
     </form>
-    
+
     <div class="text-center mt-3">
-      <p>Don't have an account? <a href="{% url 'cloud_app:signup' %}">Sign Up</a></p>
+      <p>Don't have an account? <a href="{% url 'auth_app:signup' %}">Sign Up</a></p>
     </div>
   </div>
 </div>
 {% endblock %}
 
-{% block extra_js %}
+{% block auth_extra_js %}
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('login-form');
