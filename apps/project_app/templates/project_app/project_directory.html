@@ -511,9 +511,31 @@ function toggleFolder(folderId) {
 }
 
 // Load file tree on page load
-document.addEventListener('DOMContentLoaded', loadFileTree);
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Page loaded - initializing file tree and dropdown');
+    loadFileTree();
+
+    // Debug: Check if Bootstrap dropdown is working
+    const dropdownToggle = document.querySelector('.dropdown-toggle-split');
+    if (dropdownToggle) {
+        console.log('Dropdown toggle button found:', dropdownToggle);
+        dropdownToggle.addEventListener('click', function(e) {
+            console.log('Dropdown toggle clicked!', e);
+        });
+    } else {
+        console.warn('Dropdown toggle button NOT found');
+    }
+
+    const dropdownMenu = document.querySelector('.dropdown-menu');
+    if (dropdownMenu) {
+        console.log('Dropdown menu found:', dropdownMenu);
+    } else {
+        console.warn('Dropdown menu NOT found');
+    }
+});
 
 async function copyDirToClipboard() {
+    console.log('copyDirToClipboard() called');
     const btn = event.target;
     const originalText = btn.innerHTML;
     btn.innerHTML = '⏳ Loading...';
@@ -521,8 +543,10 @@ async function copyDirToClipboard() {
 
     try {
         // Call API to get concatenated content
+        console.log('Fetching concatenated content...');
         const response = await fetch('/{{ project.owner.username }}/{{ project.slug }}/api/concatenate/{{ breadcrumb_path }}');
         const data = await response.json();
+        console.log('API response:', data);
 
         if (data.success) {
             await navigator.clipboard.writeText(data.content);
