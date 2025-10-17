@@ -7,7 +7,7 @@
 # GitHub-Style Social Features for Scientific Research
 
 ## Current Architecture
-**Existing Apps**: `project_app`, `auth_app`, `permissions_app`, `profile_app`
+**Existing Apps**: `project_app`, `auth_app`, `permissions_app`, `profile_app`, `social_app` ✨ NEW
 
 ---
 
@@ -40,34 +40,55 @@
 
 ---
 
-## 2. Social Networking Features 🆕 NEW APP NEEDED
+## 2. Social Networking Features ✅ PHASE 1 COMPLETE
 
-### 🔨 Follow/Unfollow System (Requires: `social_app`)
-- [ ] **Database models**:
+### ✅ Follow/Unfollow System (apps/social_app)
+- [x] **Database models**:
   ```python
   class UserFollow(models.Model):
       follower = models.ForeignKey(User, related_name='following')
       following = models.ForeignKey(User, related_name='followers')
       created_at = models.DateTimeField(auto_now_add=True)
   ```
-- [ ] **Views & API**:
-  - [ ] Follow/Unfollow button on profiles
-  - [ ] Followers list page (`/username/followers/`)
-  - [ ] Following list page (`/username/following/`)
-  - [ ] Follow API endpoint
-- [ ] **UI Components**:
-  - [ ] Follow button (show "Following" when already following)
-  - [ ] Follower count badge
-  - [ ] Suggested users to follow
+- [x] **API Endpoints**:
+  - [x] POST /social/api/follow/<username>/ - Follow user
+  - [x] POST /social/api/unfollow/<username>/ - Unfollow user
+  - [x] GET /social/api/followers/<username>/ - List followers
+  - [x] GET /social/api/following/<username>/ - List following
+- [x] **UI Components**:
+  - [x] Follow button on user profiles (toggles "Follow" ↔ "Following")
+  - [x] Followers/Following counts display (e.g., "4 followers • 2 following")
+  - [x] Real-time AJAX updates
 
-### 🔨 Activity Feed & Timeline
-- [ ] **Activity tracking**:
-  - [ ] Track: commits, project creation, stars, follows
-  - [ ] Activity model with polymorphic relationships
-- [ ] **Feed views**:
-  - [ ] Personal timeline (your activity)
-  - [ ] Following feed (activity from people you follow)
-  - [ ] Public activity feed (trending)
+### 🔨 TODO - Follow System Enhancements
+- [ ] Followers list page (`/username/followers/`) - Full page view
+- [ ] Following list page (`/username/following/`) - Full page view
+- [ ] Suggested users to follow (based on institution/interests)
+- [ ] Follow notifications
+
+### ✅ Activity Tracking (apps/social_app)
+- [x] **Activity model**:
+  ```python
+  class Activity(models.Model):
+      activity_type = CharField(choices=['follow', 'star', 'create_project', ...])
+      user = ForeignKey(User)
+      target_user = ForeignKey(User, null=True)
+      target_project = ForeignKey(Project, null=True)
+  ```
+- [x] **Helper methods**:
+  - [x] create_follow_activity()
+  - [x] create_star_activity()
+  - [x] create_project_activity()
+
+### 🔨 TODO - Activity Feed Views
+- [ ] **Feed pages**:
+  - [ ] Personal timeline page (`/username/?tab=activity`)
+  - [ ] Following feed (homepage feed of followed users' activity)
+  - [ ] Public activity feed (trending page)
+- [ ] **Activity rendering**:
+  - [ ] Activity item components
+  - [ ] Timeline view with filtering
+  - [ ] Load more / pagination
 
 ### 🔨 Search & Discovery
 - [ ] User search with filters (institution, research interests, location)
@@ -79,25 +100,36 @@
 
 ## 3. Repository Social Features
 
-### ✅ Implemented (via project_app)
-- [x] Private/public repositories
+### ✅ Implemented
+- [x] Private/public repositories (Project.visibility field)
+- [x] Repository settings page (`/username/project/settings/`)
+- [x] Visibility toggle (🌐 Public / 🔒 Private)
+- [x] Privacy-aware access control (decorator + model methods)
 - [x] Repository list on user profile
 - [x] Collaborator permissions (via permissions_app)
 - [x] Repository metadata
 
-### 🔨 TODO - Star System
-- [ ] **Database**:
+### ✅ Star System (apps/social_app)
+- [x] **Database**:
   ```python
   class RepositoryStar(models.Model):
       user = models.ForeignKey(User)
       project = models.ForeignKey(Project)
       starred_at = models.DateTimeField(auto_now_add=True)
   ```
-- [ ] **Features**:
-  - [ ] Star/Unstar button
-  - [ ] Star count display
-  - [ ] Starred repositories tab on profile
-  - [ ] Trending repositories page (most starred)
+- [x] **API Endpoints**:
+  - [x] POST /social/api/star/<username>/<slug>/ - Star repository
+  - [x] POST /social/api/unstar/<username>/<slug>/ - Unstar repository
+  - [x] GET /social/api/stargazers/<username>/<slug>/ - List stargazers
+- [x] **UI Components**:
+  - [x] Star button on repository listings
+  - [x] Real-time star count updates
+
+### 🔨 TODO - Star System Enhancements
+- [ ] Star count display on repositories
+- [ ] Starred repositories tab on profile (`/username/?tab=stars`)
+- [ ] Stargazers page (`/username/project/stargazers`)
+- [ ] Trending repositories page (most starred this week/month)
 
 ### 🔨 TODO - Fork System
 - [ ] **Database**:
@@ -219,14 +251,21 @@
 
 ## Implementation Roadmap
 
-### Phase 1: Social Foundation (PRIORITY - Build on profile_app)
+### ✅ Phase 1: Social Foundation - COMPLETE
 **Goal**: Enable researcher networking
-1. Create `social_app` with Follow system
-2. Implement Star repositories
-3. Add followers/following display to profiles
-4. Basic activity log
+1. ✅ Create `social_app` with Follow system
+2. ✅ Implement Star repositories
+3. ✅ Add followers/following display to profiles
+4. ✅ Basic activity log tracking
 
-**Estimated**: 2-3 weeks
+**Status**: Complete (1 day)
+**Commits**:
+- 1452d84 feat: Add private/public repository visibility
+- 9f49585 feat: Add GitHub-style repository settings
+- 3fe90a0 fix: Update decorator to respect visibility
+- c125e77 fix: Don't override 'user' context variable
+- 774523c fix: Allow anonymous access to public repos
+- 11e2084 feat: Implement social features - Follow and Star
 
 ### Phase 2: Discovery & Engagement
 **Goal**: Help researchers find collaborators
