@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- SciTeX Theme System -->
+    <script src="{% static 'js/theme-switcher.js' %}"></script>
     <link rel="stylesheet" href="{% static 'css/common/variables.css' %}">
     <link rel="stylesheet" href="{% static 'css/github_header.css' %}">
 
@@ -31,15 +32,15 @@
 
         html, body {
             height: 100%;
-            background-color: #0d1117;
-            color: #c9d1d9;
+            background-color: var(--color-canvas-default);
+            color: var(--color-fg-default);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
             font-size: 14px;
             line-height: 1.5;
         }
 
         a {
-            color: #58a6ff;
+            color: var(--color-accent-fg);
             text-decoration: none;
         }
 
@@ -49,8 +50,8 @@
 
         /* GitHub-style header */
         .github-header {
-            background-color: #161b22;
-            border-bottom: 1px solid #21262d;
+            background-color: var(--color-canvas-subtle);
+            border-bottom: 1px solid var(--color-border-default);
             padding: 0;
             position: sticky;
             top: 0;
@@ -89,7 +90,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            color: #c9d1d9;
+            color: var(--color-fg-default);
             font-size: 18px;
             font-weight: 600;
             white-space: nowrap;
@@ -103,7 +104,7 @@
 
         .github-logo i {
             font-size: 24px;
-            color: #58a6ff;
+            color: var(--color-accent-fg);
         }
 
         /* Search bar */
@@ -114,23 +115,23 @@
 
         .header-search input {
             width: 100%;
-            background: #0d1117;
-            border: 1px solid #30363d;
+            background: var(--color-canvas-inset);
+            border: 1px solid var(--color-border-muted);
             border-radius: 6px;
             padding: 5px 12px 5px 36px;
-            color: #c9d1d9;
+            color: var(--color-fg-default);
             font-size: 14px;
             transition: all 0.2s ease;
         }
 
         .header-search input:focus {
             outline: none;
-            border-color: #58a6ff;
-            background: #0d1117;
+            border-color: var(--color-accent-fg);
+            background: var(--color-canvas-default);
         }
 
         .header-search input::placeholder {
-            color: #8b949e;
+            color: var(--color-fg-muted);
         }
 
         .header-search-icon {
@@ -138,7 +139,7 @@
             left: 12px;
             top: 50%;
             transform: translateY(-50%);
-            color: #8b949e;
+            color: var(--color-fg-muted);
             pointer-events: none;
         }
 
@@ -150,7 +151,7 @@
         }
 
         .header-nav-item {
-            color: #c9d1d9;
+            color: var(--color-fg-default);
             padding: 8px 12px;
             border-radius: 6px;
             transition: background 0.2s ease;
@@ -163,7 +164,7 @@
         }
 
         .header-nav-item:hover {
-            background: #21262d;
+            background: var(--color-btn-hover-bg);
             text-decoration: none;
         }
 
@@ -180,8 +181,8 @@
 
         .header-btn {
             background: transparent;
-            border: 1px solid #30363d;
-            color: #c9d1d9;
+            border: 1px solid var(--color-border-default);
+            color: var(--color-fg-default);
             padding: 5px 12px;
             border-radius: 6px;
             font-size: 14px;
@@ -195,18 +196,19 @@
         }
 
         .header-btn:hover {
-            background: #21262d;
-            border-color: #8b949e;
+            background: var(--color-btn-hover-bg);
+            border-color: var(--color-btn-hover-border);
             text-decoration: none;
         }
 
         .header-btn-primary {
-            background: #238636;
-            border-color: rgba(240,246,252,0.1);
+            background: var(--color-btn-primary-bg);
+            border-color: var(--color-btn-primary-border);
+            color: var(--color-btn-primary-text);
         }
 
         .header-btn-primary:hover {
-            background: #2ea043;
+            background: var(--color-btn-primary-hover-bg);
         }
 
         /* User menu */
@@ -221,20 +223,20 @@
         }
 
         .header-user:hover {
-            background: #21262d;
+            background: var(--color-btn-hover-bg);
         }
 
         .header-avatar {
             width: 32px;
             height: 32px;
             border-radius: 50%;
-            background: #21262d;
+            background: var(--color-canvas-subtle);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #58a6ff;
+            color: var(--color-accent-fg);
             font-weight: 600;
-            border: 1px solid #30363d;
+            border: 1px solid var(--color-border-default);
         }
 
         /* Responsive */
@@ -270,100 +272,35 @@
         }
 
         .alert-success {
-            background: #1a472a;
-            border-color: #2ea043;
-            color: #7ee787;
+            background: var(--color-success-subtle);
+            border-color: var(--color-success-emphasis);
+            color: var(--color-success-fg);
         }
 
         .alert-error, .alert-danger {
-            background: #4c1e24;
-            border-color: #f85149;
-            color: #ff7b72;
+            background: var(--color-danger-subtle);
+            border-color: var(--color-danger-emphasis);
+            color: var(--color-danger-fg);
         }
 
         .alert-warning {
-            background: #4a3607;
-            border-color: #bb8009;
-            color: #f0b62d;
+            background: var(--color-accent-subtle);
+            border-color: var(--color-accent-emphasis);
+            color: var(--warning-color);
         }
 
         .alert-info {
-            background: #0c2d6b;
-            border-color: #58a6ff;
-            color: #79c0ff;
+            background: var(--color-accent-subtle);
+            border-color: var(--color-accent-emphasis);
+            color: var(--info-color);
         }
     </style>
 
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <!-- GitHub-style Header -->
-    <header class="github-header">
-        <div class="github-header-inner">
-            <!-- Left: Logo + Navigation -->
-            <div class="header-left">
-                <a href="/" class="github-logo">
-                    <i class="fas fa-flask"></i>
-                    <span>SciTeX</span>
-                </a>
-
-                <nav class="header-nav">
-                    <a href="/scholar/" class="header-nav-item">
-                        <i class="fas fa-book"></i>
-                        <span>Scholar</span>
-                    </a>
-                    <a href="/code/" class="header-nav-item">
-                        <i class="fas fa-code"></i>
-                        <span>Code</span>
-                    </a>
-                    <a href="/viz/" class="header-nav-item">
-                        <i class="fas fa-chart-bar"></i>
-                        <span>Viz</span>
-                    </a>
-                    <a href="/writer/" class="header-nav-item">
-                        <i class="fas fa-pen"></i>
-                        <span>Writer</span>
-                    </a>
-                </nav>
-            </div>
-
-            <!-- Center: Search -->
-            <div class="header-center">
-                <div class="header-search">
-                    <i class="fas fa-search header-search-icon"></i>
-                    <input type="text" placeholder="Search repositories, users..." id="global-search">
-                </div>
-            </div>
-
-            <!-- Right: Actions + User -->
-            <div class="header-right">
-                {% if user.is_authenticated %}
-                    <a href="/project/create/" class="header-btn header-btn-primary">
-                        <i class="fas fa-plus"></i>
-                        <span>New</span>
-                    </a>
-                    <a href="/{{ user.username }}/" class="header-user" title="Profile">
-                        <div class="header-avatar">
-                            {{ user.username|slice:":1"|upper }}
-                        </div>
-                    </a>
-                    <a href="/core/dashboard/" class="header-nav-item" title="Dashboard">
-                        <i class="fas fa-th"></i>
-                    </a>
-                    <a href="/auth/logout/" class="header-nav-item" title="Logout">
-                        <i class="fas fa-sign-out-alt"></i>
-                    </a>
-                {% else %}
-                    <a href="/auth/login/" class="header-btn">
-                        Login
-                    </a>
-                    <a href="/auth/signup/" class="header-btn header-btn-primary">
-                        Sign up
-                    </a>
-                {% endif %}
-            </div>
-        </div>
-    </header>
+    <!-- Include Global Header with theme toggle and user avatar -->
+    {% include 'partials/global_header.html' %}
 
     <!-- Django Messages -->
     {% if messages %}
