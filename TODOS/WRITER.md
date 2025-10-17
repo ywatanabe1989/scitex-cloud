@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-17 19:27:32
+!-- Timestamp: 2025-10-17 19:58:50
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/TODOS/WRITER.md
 !-- --- -->
@@ -418,7 +418,8 @@ Inserts \cite{author2024} in text
 ---
 
 ### Writing/Collaboration system integrations
-see /home/ywatanabe/proj/scitex-cloud/TODOS/INTEGRATIONS.md
+see ./INTEGRATIONS.md
+see ./PERMISSIONS_SYSTEM.md
 
 - [ ] Email Guest
   - [ ] see ./GUEST_COLLABORATORS.md
