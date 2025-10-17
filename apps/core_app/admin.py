@@ -13,10 +13,12 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 
 from .models import (
-    UserProfile, Organization, OrganizationMembership,
+    Organization, OrganizationMembership,
     ResearchGroup, ResearchGroupMembership,
     Project, ProjectMembership, GitFileStatus
 )
+# UserProfile now managed in profile_app
+from apps.profile_app.models import UserProfile
 
 
 # Inline admin classes
@@ -92,33 +94,7 @@ class UserAdmin(BaseUserAdmin):
     total_projects.short_description = 'Projects'
 
 
-# User Profile admin
-@admin.register(UserProfile)
-class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'institution', 'academic_title', 'profile_visibility', 'is_academic_ja', 'total_documents', 'total_projects')
-    list_filter = ('profile_visibility', 'is_academic_ja', 'allow_collaboration', 'allow_messages', 'created_at')
-    search_fields = ('user__username', 'user__first_name', 'user__last_name', 'institution', 'academic_title')
-    readonly_fields = ('is_academic_ja', 'created_at', 'updated_at')
-    
-    fieldsets = (
-        ('User Information', {
-            'fields': ('user', 'bio', 'institution', 'academic_title', 'department', 'research_interests')
-        }),
-        ('Academic Identity', {
-            'fields': ('orcid', 'is_academic_ja')
-        }),
-        ('Online Presence', {
-            'fields': ('website', 'google_scholar', 'linkedin', 'researchgate', 'twitter'),
-            'classes': ('collapse',)
-        }),
-        ('Privacy Settings', {
-            'fields': ('profile_visibility', 'is_public', 'show_email', 'allow_collaboration', 'allow_messages')
-        }),
-        ('Account Management', {
-            'fields': ('deletion_scheduled_at', 'created_at', 'updated_at'),
-            'classes': ('collapse',)
-        }),
-    )
+# UserProfile admin moved to apps.profile_app.admin
 
 
 # Organization admin
