@@ -68,11 +68,13 @@ class WriterConsumer(AsyncWebsocketConsumer):
 - Show colored cursor/selection for each user
 - "User X is editing Section Y" status
 
-#### Sprint 1.2: Section Locking (Week 2)
-- [ ] Implement section-level locks (stored in `CollaborativeSession.locked_sections`)
-- [ ] Show lock indicators in UI
-- [ ] Auto-release locks on disconnect
-- [ ] Handle lock timeouts (5 min inactivity)
+#### Sprint 1.2: Section Locking (Week 2) ✅ COMPLETED
+- [x] Implement section-level locks (stored in `CollaborativeSession.locked_sections`)
+- [x] Show lock indicators in UI (🔒 icon on section cards)
+- [x] Auto-release locks on disconnect (✅ Implemented!)
+- [x] Handle lock timeouts (5 min inactivity via session.is_session_active())
+- [x] Disable editor for locked sections
+- [x] Visual feedback with border colors and opacity
 
 #### Sprint 1.3: Basic Change Broadcasting (Week 2-3)
 - [ ] Broadcast text insertions/deletions
