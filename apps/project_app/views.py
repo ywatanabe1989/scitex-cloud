@@ -70,9 +70,10 @@ def user_project_list(request, username):
 
     context = {
         'projects': projects,
-        'user': user,
+        'profile_user': user,  # The user whose profile we're viewing
         'is_own_projects': is_own_projects,
-        'profile_user': user,
+        # Note: 'user' is automatically available as request.user in templates
+        # Don't override it here - it should always be the logged-in user
     }
     return render(request, 'project_app/user_project_list.html', context)
 
