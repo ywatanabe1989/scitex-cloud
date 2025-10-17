@@ -764,6 +764,23 @@
                     <span>Sections:</span>
                     <span id="sections-completed">0/5</span>
                 </div>
+                <div class="stat-item">
+                    <span id="collaboration-status">
+                        <i class="fas fa-circle text-muted"></i> Connecting...
+                    </span>
+                    <span id="collaborators-count">0</span>
+                </div>
+            </div>
+
+            <!-- Collaborators Section -->
+            <div style="margin-top: 1rem; padding: 1rem; background: rgba(255, 255, 255, 0.05); border-radius: var(--border-radius);">
+                <h6 style="font-size: 0.85rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-users"></i>
+                    <span>Active Collaborators</span>
+                </h6>
+                <div id="collaborators-list">
+                    <small style="color: var(--color-fg-muted);">Connecting...</small>
+                </div>
             </div>
         </div>
         
@@ -2680,8 +2697,23 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+
+    // Initialize real-time collaboration (Phase 1.1 - WebSocket)
+    {% if user.is_authenticated %}
+    const collaboration = new WriterCollaboration(
+        {{ project.id }},
+        {{ user.id }},
+        '{{ user.username|escapejs }}'
+    );
+    window.collaboration = collaboration;
+    console.log('✓ Real-time collaboration initialized');
+    {% endif %}
 });
 </script>
+
+<!-- Real-Time Collaboration Script -->
+{% load static %}
+<script src="{% static 'js/writer_collaboration.js' %}"></script>
 
 {% csrf_token %}
 {% endblock %}
