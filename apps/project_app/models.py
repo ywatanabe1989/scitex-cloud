@@ -61,14 +61,28 @@ class ResearchGroup(models.Model):
 class Project(models.Model):
     """Model for research projects with enhanced collaboration"""
 
+    VISIBILITY_CHOICES = [
+        ('public', 'Public'),
+        ('private', 'Private'),
+    ]
+
     name = models.CharField(max_length=200)
     slug = models.SlugField(max_length=200, unique=True, default='project')
     description = models.TextField()
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='project_app_owned_projects')
+
+    # Privacy settings
+    visibility = models.CharField(
+        max_length=20,
+        choices=VISIBILITY_CHOICES,
+        default='public',
+        help_text="Repository visibility: public (anyone can see) or private (only collaborators)"
+    )
+
     organization = models.ForeignKey(Organization, on_delete=models.SET_NULL, null=True, blank=True, related_name='projects')
-    research_group = models.ForeignKey(ResearchGroup, on_delete=models.SET_NULL, null=True, blank=True, 
+    research_group = models.ForeignKey(ResearchGroup, on_delete=models.SET_NULL, null=True, blank=True,
                                      related_name='projects', help_text="Associated research group/lab")
-    
+
     # Enhanced collaboration through ProjectMembership
     collaborators = models.ManyToManyField(User, through='ProjectMembership', through_fields=('project', 'user'), related_name='project_app_collaborative_projects')
     progress = models.IntegerField(default=0, help_text="Project progress percentage (0-100)")
@@ -191,6 +205,47 @@ class Project(models.Model):
         except:
             # Fallback to direct URL construction
             return f'/{self.owner.username}/{self.slug}/'
+
+    def is_public(self):
+        """Check if repository is public"""
+        return self.visibility == 'public'
+
+    def is_private(self):
+        """Check if repository is private"""
+        return self.visibility == 'private'
+
+    def can_view(self, user):
+        """Check if user can view this repository"""
+        # Public repositories are viewable by anyone
+        if self.is_public():
+            return True
+
+        # Private repositories require authentication
+        if not user or not user.is_authenticated:
+            return False
+
+        # Owner can always view
+        if user == self.owner:
+            return True
+
+        # Check if user is a collaborator
+        return self.memberships.filter(user=user).exists()
+
+    def can_edit(self, user):
+        """Check if user can edit this repository"""
+        if not user or not user.is_authenticated:
+            return False
+
+        # Owner can always edit
+        if user == self.owner:
+            return True
+
+        # Check collaborator permissions
+        try:
+            membership = self.memberships.get(user=user)
+            return membership.permission_level in ['write', 'admin']
+        except ProjectMembership.DoesNotExist:
+            return False
 
 
 class ProjectPermission(models.Model):

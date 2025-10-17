@@ -481,7 +481,13 @@ body {
                         <a href="{{ project.get_absolute_url }}" class="repo-name">
                             {{ project.name }}
                         </a>
-                        <span class="repo-visibility">Public</span>
+                        <span class="repo-visibility">
+                            {% if project.visibility == 'private' %}
+                                🔒 Private
+                            {% else %}
+                                🌐 Public
+                            {% endif %}
+                        </span>
                     </div>
 
                     {% if project.description %}
