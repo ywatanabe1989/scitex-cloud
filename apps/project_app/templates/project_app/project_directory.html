@@ -301,9 +301,14 @@
             ⚙️ Settings
         </a>
         </div>
-        <button onclick="copyDirToClipboard()" class="btn btn-sm btn-outline-primary" style="margin: 0.25rem;">
-            📋 Copy All Files
-        </button>
+        <div style="display: flex; gap: 8px;">
+            <button onclick="copyDirToClipboard()" class="btn btn-sm btn-outline-primary" style="margin: 0.25rem;">
+                📋 Copy All Files
+            </button>
+            <button onclick="downloadDirAsFile()" class="btn btn-sm btn-outline-secondary" style="margin: 0.25rem;">
+                💾 Download All Files
+            </button>
+        </div>
     </div>
 
     <!-- Main Content Area with Sidebar -->
@@ -506,6 +511,50 @@ async function copyDirToClipboard() {
         }
     } catch (err) {
         alert('Failed to copy: ' + err);
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+}
+
+async function downloadDirAsFile() {
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '⏳ Preparing download...';
+    btn.disabled = true;
+
+    try {
+        // Call API to get concatenated content
+        const response = await fetch('/{{ project.owner.username }}/{{ project.slug }}/api/concatenate/{{ breadcrumb_path }}');
+        const data = await response.json();
+
+        if (data.success) {
+            // Create a blob and download it
+            const blob = new Blob([data.content], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+
+            // Generate filename based on project and path
+            const dirName = '{{ breadcrumb_path }}'.split('/').filter(x => x).pop() || '{{ project.slug }}';
+            a.download = `${dirName}_all_files.txt`;
+
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+
+            btn.innerHTML = `✓ Downloaded ${data.file_count} files!`;
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }, 3000);
+        } else {
+            alert('Error: ' + data.error);
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    } catch (err) {
+        alert('Failed to download: ' + err);
         btn.innerHTML = originalText;
         btn.disabled = false;
     }
