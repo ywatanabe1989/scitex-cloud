@@ -11,9 +11,7 @@ urlpatterns = [
     path('dashboard/file-manager/', views.dashboard_react_tree, name='dashboard_react_tree'),
     path('documents/', views.document_list, name='document_list'),
     path('projects/', views.project_list, name='project_list'),
-    path('profile/', views.profile_view, name='profile'),
-    path('settings/profile/', views.profile_edit, name='profile_edit'),
-    path('settings/appearance/', views.appearance_settings, name='appearance'),
+    # Profile URLs moved to apps.profile_app
     path('monitoring/', views.monitoring, name='monitoring'),
     path('monitoring/data/', views.monitoring_data, name='monitoring_data'),
     path('about/', views.about, name='about'),

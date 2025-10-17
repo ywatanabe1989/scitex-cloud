@@ -180,19 +180,8 @@
             </div>
             <div class="dropdown-divider"></div>
 
-            <!-- Profile & Repositories -->
-            <a href="/{{ user.username }}/" class="dropdown-item">
-              <i class="fas fa-user"></i>
-              Your profile
-            </a>
-            <a href="/{{ user.username }}/?tab=repositories" class="dropdown-item">
-              <i class="fas fa-book"></i>
-              Your repositories
-            </a>
-            <div class="dropdown-divider"></div>
-
             <!-- Settings -->
-            <a href="{% url 'core_app:profile_edit' %}" class="dropdown-item">
+            <a href="{% url 'profile_app:profile_edit' %}" class="dropdown-item">
               <i class="fas fa-cog"></i>
               Settings
             </a>
