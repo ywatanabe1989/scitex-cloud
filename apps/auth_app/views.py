@@ -15,29 +15,76 @@ from .models import UserProfile
 
 
 def signup(request):
-    """User signup view with registration."""
+    """User signup view with email verification required."""
+    import logging
+    from apps.core_app.services import EmailService
+
+    logger = logging.getLogger(__name__)
+
     if request.method == "POST":
         form = SignupForm(request.POST)
         if form.is_valid():
-            # Create new user
+            email = form.cleaned_data["email"]
+            username = form.cleaned_data["username"]
+            password = form.cleaned_data["password"]
+
+            # Check if email is already registered
+            if User.objects.filter(email=email).exists():
+                messages.error(request, "An account with this email already exists.")
+                return render(request, "auth_app/signup.html", {"form": form})
+
+            # Create inactive user (cannot log in until email verified)
             user = User.objects.create_user(
-                username=form.cleaned_data["username"],
-                email=form.cleaned_data["email"],
-                password=form.cleaned_data["password"],
+                username=username,
+                email=email,
+                password=password,
+                is_active=False,  # User inactive until email verified
             )
 
             # Create user profile (should be auto-created by signal, but ensure it exists)
             UserProfile.objects.get_or_create(user=user)
 
-            # Log the user in
-            login(request, user)
-
-            messages.success(
-                request,
-                f"Welcome to SciTeX, @{user.username}! Your account has been created successfully.",
+            # Create email verification record
+            from .models import EmailVerification
+            verification = EmailVerification.objects.create(
+                user=user,
+                email=email,
             )
-            # Redirect to user's project page (GitHub-style)
-            return redirect('user_projects:user_profile', username=user.username)
+
+            # Send verification email
+            try:
+                success, message = EmailService.send_otp_email(
+                    email=email,
+                    otp_code=verification.code,
+                    verification_type='signup'
+                )
+
+                if success:
+                    logger.info(f"Verification email sent to {email}")
+                    messages.success(
+                        request,
+                        f"Account created! Please check {email} for a verification code.",
+                    )
+                    # Redirect to email verification page
+                    from django.urls import reverse
+                    verify_url = reverse('auth_app:verify-email')
+                    return redirect(f'{verify_url}?email={email}')
+                else:
+                    logger.error(f"Failed to send verification email to {email}: {message}")
+                    # Clean up user if email fails
+                    user.delete()
+                    messages.error(
+                        request,
+                        f"Failed to send verification email: {message}. Please try again."
+                    )
+            except Exception as e:
+                logger.error(f"Error during signup for {email}: {str(e)}")
+                # Clean up user if there's an error
+                user.delete()
+                messages.error(
+                    request,
+                    f"An error occurred during signup. Please try again."
+                )
     else:
         form = SignupForm()
 

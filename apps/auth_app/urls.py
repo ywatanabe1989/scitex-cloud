@@ -14,6 +14,7 @@ __DIR__ = os.path.dirname(__FILE__)
 from django.urls import path
 
 from . import views
+from . import api_views
 
 app_name = "auth_app"
 
@@ -29,6 +30,10 @@ urlpatterns = [
     ),
     path("verify-email/", views.verify_email, name="verify-email"),
     path("delete-account/", views.delete_account, name="delete-account"),
+
+    # API endpoints for email verification
+    path("api/verify-email/", api_views.verify_email_api, name="api-verify-email"),
+    path("api/resend-otp/", api_views.resend_otp_api, name="api-resend-otp"),
 ]
 
 # EOF

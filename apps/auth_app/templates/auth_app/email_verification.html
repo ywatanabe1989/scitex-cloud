@@ -132,7 +132,7 @@ document.addEventListener('DOMContentLoaded', function() {
     verifyBtn.disabled = true;
     verifyBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
     
-    fetch('/api/v1/auth/verify-email/', {
+    fetch('/auth/api/verify-email/', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({email: email, otp_code: otpCode})
@@ -140,9 +140,9 @@ document.addEventListener('DOMContentLoaded', function() {
     .then(response => response.json())
     .then(data => {
       if (data.success) {
-        showSuccess('Email verified! Redirecting to dashboard...');
+        showSuccess('Email verified! Redirecting...');
         localStorage.removeItem('pending-verification-email');
-        setTimeout(() => window.location.href = '/dashboard/', 2000);
+        setTimeout(() => window.location.href = data.redirect_url || '/dashboard/', 2000);
       } else {
         showError(data.error || 'Verification failed. Please try again.');
         resetButton();
@@ -159,7 +159,7 @@ document.addEventListener('DOMContentLoaded', function() {
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
     
-    fetch('/api/v1/auth/resend-otp/', {
+    fetch('/auth/api/resend-otp/', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({email: email})
@@ -167,7 +167,7 @@ document.addEventListener('DOMContentLoaded', function() {
     .then(response => response.json())
     .then(data => {
       if (data.success) {
-        showSuccess('New verification code sent!');
+        showSuccess(data.message || 'New verification code sent!');
       } else {
         showError(data.error || 'Failed to resend code.');
       }
