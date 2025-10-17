@@ -69,6 +69,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "apps.core_app.middleware.GuestSessionMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -86,6 +87,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "apps.core_app.context_processors.project_context",
             ],
         },
     },
@@ -315,8 +317,8 @@ LOGGING = {
 }
 
 # Authentication settings
-LOGIN_URL = "/login/"
-LOGIN_REDIRECT_URL = "/projects/"
+LOGIN_URL = "/auth/login/"
+LOGIN_REDIRECT_URL = "/core/"  # Redirects to dashboard
 LOGOUT_REDIRECT_URL = "/"
 
 # REST Framework configuration

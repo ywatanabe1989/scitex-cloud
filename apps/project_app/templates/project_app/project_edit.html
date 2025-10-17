@@ -68,8 +68,8 @@ textarea.form-control {
 <div class="container-fluid">
     <!-- Breadcrumb -->
     <nav class="breadcrumb">
-        <a href="{% url 'project_app:list' %}">Projects</a> / 
-        <a href="{% url 'project_app:detail' project.pk %}">{{ project.name }}</a> / 
+        <a href="/{{ project.owner.username }}/projects/">Projects</a> /
+        <a href="/{{ project.owner.username }}/{{ project.slug }}/">{{ project.name }}</a> /
         Edit
     </nav>
 
@@ -90,15 +90,6 @@ textarea.form-control {
             </div>
 
             <div class="form-group">
-                <label for="status">Status</label>
-                <select class="form-control" id="status" name="status">
-                    {% for value, label in project.PROJECT_STATUS %}
-                    <option value="{{ value }}" {% if project.status == value %}selected{% endif %}>{{ label }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="form-group">
                 <label for="hypotheses">Research Hypotheses</label>
                 <textarea class="form-control" id="hypotheses" name="hypotheses" placeholder="Enter your research hypotheses...">{{ project.hypotheses }}</textarea>
             </div>
@@ -110,8 +101,8 @@ textarea.form-control {
 
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">Save Changes</button>
-                <a href="{% url 'project_app:detail' project.pk %}" class="btn btn-secondary">Cancel</a>
-                <a href="{% url 'project_app:delete' project.pk %}" class="btn btn-danger" style="margin-left: auto;">Delete Project</a>
+                <a href="/{{ project.owner.username }}/{{ project.slug }}/" class="btn btn-secondary">Cancel</a>
+                <a href="/{{ project.owner.username }}/{{ project.slug }}/delete/" class="btn btn-danger" style="margin-left: auto;">Delete Project</a>
             </div>
         </form>
     </div>

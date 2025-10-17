@@ -117,6 +117,138 @@
     padding: 3rem;
     color: var(--color-fg-muted);
 }
+
+/* GitHub-style layout with sidebar on LEFT */
+.repo-layout {
+    display: grid;
+    grid-template-columns: 296px 1fr;  /* Sidebar first, then main content */
+    gap: 24px;
+    margin-top: 1.5rem;
+}
+
+.repo-main {
+    min-width: 0;
+}
+
+.repo-sidebar {
+    position: sticky;
+    top: 80px;
+    align-self: start;
+}
+
+/* Sidebar sections */
+.sidebar-section {
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    padding: 16px;
+    margin-bottom: 16px;
+    background: var(--color-canvas-default);
+}
+
+.sidebar-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-fg-default);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    letter-spacing: 0.5px;
+}
+
+.sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+    font-size: 12px;
+    color: var(--color-fg-muted);
+}
+
+.sidebar-item strong {
+    color: var(--color-fg-default);
+}
+
+.sidebar-link {
+    color: var(--color-accent-fg);
+    text-decoration: none;
+    font-size: 12px;
+    display: block;
+    padding: 4px 0;
+}
+
+.sidebar-link:hover {
+    text-decoration: underline;
+}
+
+/* File tree styles */
+.file-tree-item {
+    padding: 2px 0;
+    cursor: pointer;
+    color: var(--color-fg-default);
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.file-tree-item:hover {
+    background: var(--color-canvas-subtle);
+}
+
+.file-tree-item.active {
+    background: var(--color-accent-subtle);
+    font-weight: 600;
+}
+
+.file-tree-folder {
+    color: var(--color-fg-default);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.file-tree-file {
+    color: var(--color-fg-muted);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.file-tree-icon {
+    width: 16px;
+    display: inline-block;
+}
+
+.file-tree-chevron {
+    width: 12px;
+    height: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: var(--color-fg-muted);
+    transition: transform 0.2s;
+    cursor: pointer;
+}
+
+.file-tree-chevron.expanded {
+    transform: rotate(90deg);
+}
+
+.file-tree-children {
+    display: none;
+}
+
+.file-tree-children.expanded {
+    display: block;
+}
+
+@media (max-width: 1024px) {
+    .repo-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .repo-sidebar {
+        position: static;
+    }
+}
 </style>
 {% endblock %}
 
@@ -174,50 +306,181 @@
         </button>
     </div>
 
-    <!-- Directory Contents -->
-    {% if contents %}
-    <div class="file-browser">
-        <table>
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th style="width: 200px;">Last modified</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in contents %}
-                <tr>
-                    <td>
-                        {% if item.type == 'directory' %}
-                            <a href="/{{ project.owner.username }}/{{ project.slug }}/{{ item.path }}/" class="file-name">
-                                📁 {{ item.name }}
-                            </a>
-                        {% else %}
-                            <a href="/{{ project.owner.username }}/{{ project.slug }}/blob/{{ item.path }}" class="file-name">
-                                📄 {{ item.name }}
-                            </a>
-                        {% endif %}
-                    </td>
-                    <td class="text-muted">
-                        {% if item.modified %}
-                            {{ item.modified|date:"M j, Y" }}
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <!-- Main Content Area with Sidebar -->
+    <div class="repo-layout">
+        <!-- Sidebar (LEFT side like GitHub) - File Tree Navigation -->
+        <aside class="repo-sidebar">
+            <!-- File Tree -->
+            <div class="sidebar-section">
+                <div class="sidebar-title">
+                    <a href="/{{ project.owner.username }}/{{ project.slug }}/" style="color: var(--color-fg-default); text-decoration: none;">
+                        {{ project.name }}
+                    </a>
+                </div>
+                <div id="file-tree" style="font-size: 12px;">
+                    <!-- File tree will be loaded here -->
+                    <div class="tree-loading" style="color: var(--color-fg-muted); padding: 1rem;">
+                        <i class="fas fa-spinner fa-spin"></i> Loading file tree...
+                    </div>
+                </div>
+            </div>
+
+            <!-- About Section -->
+            <div class="sidebar-section">
+                <div class="sidebar-title">About</div>
+                {% if project.description %}
+                <p style="font-size: 12px; color: var(--color-fg-default); margin-bottom: 12px;">
+                    {{ project.description }}
+                </p>
+                {% endif %}
+                <div class="sidebar-item">
+                    <i class="fas fa-user" style="color: var(--color-fg-muted);"></i>
+                    <a href="/{{ project.owner.username }}/" class="sidebar-link">{{ project.owner.username }}</a>
+                </div>
+                <div class="sidebar-item">
+                    <i class="fas fa-calendar" style="color: var(--color-fg-muted);"></i>
+                    <span>Created {{ project.created_at|date:"M j, Y" }}</span>
+                </div>
+                <div class="sidebar-item">
+                    <i class="fas fa-clock" style="color: var(--color-fg-muted);"></i>
+                    <span>Updated {{ project.updated_at|date:"M j, Y" }}</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content (RIGHT side) -->
+        <div class="repo-main">
+            <!-- Directory Contents -->
+            {% if contents %}
+            <div class="file-browser">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th style="width: 200px;">Last modified</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in contents %}
+                        <tr>
+                            <td>
+                                {% if item.type == 'directory' %}
+                                    <a href="/{{ project.owner.username }}/{{ project.slug }}/{{ item.path }}/" class="file-name">
+                                        📁 {{ item.name }}
+                                    </a>
+                                {% else %}
+                                    <a href="/{{ project.owner.username }}/{{ project.slug }}/blob/{{ item.path }}" class="file-name">
+                                        📄 {{ item.name }}
+                                    </a>
+                                {% endif %}
+                            </td>
+                            <td class="text-muted">
+                                {% if item.modified %}
+                                    {{ item.modified|date:"M j, Y" }}
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-directory">
+                <i class="fas fa-folder-open fa-3x mb-3" style="opacity: 0.3;"></i>
+                <h4>Empty Directory</h4>
+                <p>This directory doesn't contain any files or folders yet.</p>
+            </div>
+            {% endif %}
+        </div>
     </div>
-    {% else %}
-    <div class="empty-directory">
-        <i class="fas fa-folder-open fa-3x mb-3" style="opacity: 0.3;"></i>
-        <h4>Empty Directory</h4>
-        <p>This directory doesn't contain any files or folders yet.</p>
-    </div>
-    {% endif %}
 </div>
 
 <script>
+// Build file tree for sidebar
+async function loadFileTree() {
+    try {
+        const response = await fetch('/{{ project.owner.username }}/{{ project.slug }}/api/file-tree/');
+        const data = await response.json();
+
+        if (data.success) {
+            const treeContainer = document.getElementById('file-tree');
+            treeContainer.innerHTML = buildTreeHTML(data.tree, '{{ project.owner.username }}', '{{ project.slug }}');
+        } else {
+            document.getElementById('file-tree').innerHTML = '<div style="color: var(--color-fg-muted); padding: 0.5rem;">Error loading file tree</div>';
+        }
+    } catch (err) {
+        console.error('Failed to load file tree:', err);
+        document.getElementById('file-tree').innerHTML = '<div style="color: var(--color-fg-muted); padding: 0.5rem;">Error loading file tree</div>';
+    }
+}
+
+function buildTreeHTML(items, username, slug, level = 0) {
+    let html = '';
+    const indent = level * 16;
+    const currentPath = window.location.pathname;
+
+    items.forEach((item, index) => {
+        const itemPath = `/${username}/${slug}/${item.path}${item.type === 'directory' ? '/' : ''}`;
+        const isActive = currentPath.includes(item.path);
+        const icon = item.type === 'directory' ? '📁' : '📄';
+        const hasChildren = item.children && item.children.length > 0;
+        const itemId = `tree-${item.path.replace(/\//g, '-')}`;  // Unique ID based on path
+
+        // Item row
+        html += `<div class="file-tree-item ${isActive ? 'active' : ''}" style="padding-left: ${indent}px;">`;
+
+        if (item.type === 'directory') {
+            html += `<a href="${itemPath}" class="file-tree-folder" style="text-decoration: none; color: var(--color-fg-default);">`;
+
+            // Chevron for folders with children
+            if (hasChildren) {
+                html += `<span class="file-tree-chevron ${level === 0 ? 'expanded' : ''}" onclick="toggleFolder('${itemId}'); return false;">▸</span>`;
+            } else {
+                html += `<span style="width: 12px; display: inline-block;"></span>`;
+            }
+
+            html += `<span class="file-tree-icon">${icon}</span><span>${item.name}</span>`;
+            html += `</a>`;
+        } else {
+            html += `<a href="/${username}/${slug}/blob/${item.path}" class="file-tree-file" style="text-decoration: none; color: var(--color-fg-muted);">`;
+            html += `<span style="width: 12px; display: inline-block;"></span>`;
+            html += `<span class="file-tree-icon">${icon}</span><span>${item.name}</span>`;
+            html += `</a>`;
+        }
+
+        html += `</div>`;
+
+        // Children container - render ALL children
+        if (hasChildren) {
+            const isExpanded = level === 0;  // Auto-expand root level only
+            html += `<div id="${itemId}" class="file-tree-children ${isExpanded ? 'expanded' : ''}">`;
+            html += buildTreeHTML(item.children, username, slug, level + 1);  // Recursively build all children
+            html += `</div>`;
+        }
+    });
+
+    return html;
+}
+
+function toggleFolder(folderId) {
+    const folder = document.getElementById(folderId);
+    const chevron = event.target;
+
+    if (folder.classList.contains('expanded')) {
+        folder.classList.remove('expanded');
+        chevron.classList.remove('expanded');
+    } else {
+        folder.classList.add('expanded');
+        chevron.classList.add('expanded');
+    }
+
+    event.stopPropagation();
+    event.preventDefault();
+}
+
+// Load file tree on page load
+document.addEventListener('DOMContentLoaded', loadFileTree);
+
 async function copyDirToClipboard() {
     const btn = event.target;
     const originalText = btn.innerHTML;

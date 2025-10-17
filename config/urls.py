@@ -320,19 +320,27 @@ urlpatterns = [
 
 urlpatterns += [
     # Additional URL patterns
-    # Direct dashboard access redirects to core
-    path(
-        "dashboard/",
-        RedirectView.as_view(url="/core/", permanent=False),
-    ),
     # Favicon redirect to prevent 404 errors
     path(
         "favicon.ico",
-        RedirectView.as_view(url="/static/images/favicon.svg", permanent=True),
+        RedirectView.as_view(url="/static/images/favicon.png", permanent=True),
     ),
     # Cloud app URLs (includes landing page and auth)
     path("", include("apps.cloud_app.urls", namespace="cloud_app")),
-    # GitHub-style username/project URLs (MUST be last to avoid conflicts)
+]
+
+# Reserved paths that should NOT be treated as usernames
+# Add these BEFORE the username pattern to prevent conflicts
+from apps.project_app.views import project_create
+
+urlpatterns += [
+    # /new - Create new project (GitHub-style)
+    path("new/", project_create, name="project_create"),
+]
+
+# GitHub-style username/project URLs (MUST be last to avoid conflicts)
+# This pattern catches both regular users and guest-<sessionid>
+urlpatterns += [
     path("<str:username>/", include("apps.project_app.user_urls")),
 ]
 

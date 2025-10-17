@@ -110,8 +110,8 @@
 <div class="container-fluid">
     <!-- Breadcrumb -->
     <nav class="breadcrumb">
-        <a href="{% url 'project_app:list' %}">Projects</a> / 
-        <a href="{% url 'project_app:detail' project.pk %}">{{ project.name }}</a> / 
+        <a href="/{{ project.owner.username }}/projects/">Projects</a> /
+        <a href="/{{ project.owner.username }}/{{ project.slug }}/">{{ project.name }}</a> /
         Files
     </nav>
 
@@ -120,7 +120,7 @@
         <div class="file-manager-header">
             <h3>📁 {{ project.name }} - File Manager</h3>
             <div>
-                <a href="{% url 'project_app:detail' project.pk %}" class="btn btn-secondary">← Back to Project</a>
+                <a href="/{{ project.owner.username }}/{{ project.slug }}/" class="btn btn-secondary">← Back to Project</a>
             </div>
         </div>
 

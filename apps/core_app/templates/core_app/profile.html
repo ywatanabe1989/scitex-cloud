@@ -200,8 +200,18 @@
         </div>
         
         <div class="mt-3">
-          <a href="{% url 'cloud_app:forgot-password' %}" class="btn btn-outline-secondary">
+          <a href="{% url 'auth_app:forgot-password' %}" class="btn btn-outline-secondary">
             <i class="fas fa-key"></i> Change Password
+          </a>
+        </div>
+
+        <hr class="my-4">
+
+        <div class="profile-field">
+          <div class="profile-label text-danger">Danger Zone</div>
+          <p class="text-muted small mb-3">Once you delete your account, there is no going back. Please be certain.</p>
+          <a href="{% url 'auth_app:delete-account' %}" class="btn btn-outline-danger">
+            <i class="fas fa-trash-alt"></i> Delete Account
           </a>
         </div>
       </div>

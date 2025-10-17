@@ -92,8 +92,12 @@ class UserDirectoryManager:
         self.base_path = self._get_user_base_path()
         
     def _get_user_base_path(self) -> Path:
-        """Get the base directory path for the user."""
-        return Path(settings.MEDIA_ROOT) / 'users' / str(self.user.id)
+        """
+        Get the base directory path for the user.
+
+        New structure: ./data/{username}/
+        """
+        return Path(settings.BASE_DIR) / 'data' / self.user.username
     
     def get_scientific_home_path(self) -> Path:
         """Get the scientific workflow HOME path for the user."""
@@ -156,58 +160,86 @@ class UserDirectoryManager:
             print(f"Error initializing user workspace: {e}")
             return False
     
-    def create_project_directory(self, project: Project) -> Tuple[bool, Optional[Path]]:
-        """Create directory structure for a new project using scientific workflow pattern."""
+    def create_project_directory(self, project: Project, use_template: bool = False) -> Tuple[bool, Optional[Path]]:
+        """
+        Create directory structure for a new repository.
+
+        Path: ./data/{username}/{repository-slug}/
+
+        Args:
+            project: Project instance
+            use_template: If True, create full template structure. If False, create empty directory.
+        """
         try:
-            project_slug = slugify(project.name)
-            
-            # Create project in scientific workflow structure: ./proj/username/proj/project-name/
-            project_path = self.base_path / 'proj' / self.user.username / 'proj' / project_slug
-            
-            # Also create in legacy projects directory for backward compatibility
-            legacy_project_path = self.base_path / 'projects' / project_slug
-            
+            project_slug = project.slug  # Use the generated slug
+
+            # Simple structure: ./data/username/repository-name/
+            project_path = self.base_path / project_slug
+
             # Ensure project directories exist
             if not self._ensure_directory(project_path.parent):
                 return False, None
             if not self._ensure_directory(self.base_path / 'projects'):
                 return False, None
-            
-            # Try to copy from SciTeX-Example-Research-Project template first
-            if self._copy_from_example_template(project_path, project):
-                # Create legacy symbolic link for backward compatibility
-                self._create_legacy_symlink(project_path, legacy_project_path)
-                
-                # Update project with directory info (use new scientific workflow path)
+
+            # If template requested, try to copy from SciTeX-Example-Research-Project
+            if use_template and self._copy_from_example_template(project_path, project):
+                # Update project with directory info
                 project.data_location = str(project_path.relative_to(self.base_path))
                 project.directory_created = True
                 project.save()
                 return True, project_path
-            
-            # Fallback: Create project root directory
+
+            # Create empty project root directory
             if not self._ensure_directory(project_path):
                 return False, None
-            
+
+            # Only create basic README for empty projects
+            self._create_minimal_readme(project, project_path)
+
+            # Create project metadata
+            self._create_project_metadata(project, project_path)
+
+            # Update project model with directory path
+            project.data_location = str(project_path.relative_to(self.base_path))
+            project.directory_created = True
+            project.save()
+
+            return True, project_path
+        except Exception as e:
+            print(f"Error creating project directory: {e}")
+            return False, None
+
+    def create_project_from_template(self, project: Project) -> Tuple[bool, Optional[Path]]:
+        """
+        Create full template structure for an existing project.
+        This can be called when user clicks "Create from template" button.
+        """
+        try:
+            project_path = self.get_project_path(project)
+            if not project_path:
+                return False, None
+
             # Create project subdirectories with scientific workflow structure
             for main_dir, sub_structure in self.PROJECT_STRUCTURE.items():
                 main_path = project_path / main_dir
                 if not self._ensure_directory(main_path):
                     return False, None
-                
+
                 # Create additional subdirectories under scripts for scientific workflow
                 if main_dir == 'scripts':
                     script_subdirs = ['analysis', 'preprocessing', 'modeling', 'visualization', 'utils']
                     for subdir in script_subdirs:
                         if not self._ensure_directory(main_path / subdir):
                             return False, None
-                
+
                 if isinstance(sub_structure, dict):
                     # Handle nested structure (like data directory)
                     for sub_dir, sub_sub_dirs in sub_structure.items():
                         sub_path = main_path / sub_dir
                         if not self._ensure_directory(sub_path):
                             return False, None
-                        
+
                         for sub_sub_dir in sub_sub_dirs:
                             if not self._ensure_directory(sub_path / sub_sub_dir):
                                 return False, None
@@ -216,29 +248,19 @@ class UserDirectoryManager:
                     for sub_dir in sub_structure:
                         if not self._ensure_directory(main_path / sub_dir):
                             return False, None
-            
-            # Create legacy symbolic link for backward compatibility
-            self._create_legacy_symlink(project_path, legacy_project_path)
-            
-            # Create project README
+
+            # Update README with full template info
             self._create_project_readme(project, project_path)
-            
-            # Create project metadata
-            self._create_project_metadata(project, project_path)
-            
+
             # Create project configuration files
             self._create_project_config_files(project, project_path)
-            
+
             # Create requirements.txt
             self._create_requirements_file(project, project_path)
-            
-            # Update project model with directory path
-            project.data_location = str(project_path.relative_to(self.base_path))
-            project.save()
-            
+
             return True, project_path
         except Exception as e:
-            print(f"Error creating project directory: {e}")
+            print(f"Error creating project from template: {e}")
             return False, None
     
     def get_project_path(self, project: Project) -> Optional[Path]:
@@ -389,44 +411,34 @@ class UserDirectoryManager:
             return False
     
     def _copy_from_example_template(self, project_path: Path, project) -> bool:
-        """Copy structure from SciTeX-Example-Research-Project template if available."""
-        from django.conf import settings
-        import shutil
-        
+        """Copy structure from research project template using scitex package."""
         try:
-            template_path = Path(settings.SCITEX_EXAMPLE_PROJECT_PATH)
-            if not template_path.exists():
-                print(f"SciTeX-Example-Research-Project template not found at {template_path}")
-                return False
-            
-            # Create project directory
-            project_path.mkdir(parents=True, exist_ok=True)
-            
-            # Copy entire template structure
-            for item in template_path.iterdir():
-                if item.name.startswith('.git'):
-                    continue  # Skip git directories
-                
-                src_path = item
-                dst_path = project_path / item.name
-                
-                if src_path.is_file():
-                    shutil.copy2(src_path, dst_path)
-                    print(f"Copied file: {item.name}")
-                elif src_path.is_dir():
-                    if dst_path.exists():
-                        shutil.rmtree(dst_path)
-                    shutil.copytree(src_path, dst_path)
-                    print(f"Copied directory: {item.name}")
-            
+            # Use scitex package to create research project
+            from scitex.template.create_research import create_research
+
+            # Create the project using scitex template function
+            # Note: create_research expects project_name and target_dir
+            # It creates: target_dir/project_name/
+            # So we need to pass parent as target_dir and project_slug as name
+            if not project_path.parent.exists():
+                project_path.parent.mkdir(parents=True, exist_ok=True)
+
+            # Call scitex to create the research project
+            # create_research creates target_dir/project_name, so pass parent and name
+            create_research(project_path.name, str(project_path.parent))
+
             # Customize copied template for this project
             self._customize_template_for_project(project_path, project)
-            
-            print(f"Successfully copied SciTeX-Example-Research-Project template to {project_path}")
+
+            print(f"Successfully created research project using scitex at {project_path}")
             return True
-            
+
+        except ImportError as e:
+            print(f"scitex package not available: {e}")
+            print("Fallback: Project will be created with basic structure")
+            return False
         except Exception as e:
-            print(f"Error copying SciTeX-Example-Research-Project template: {e}")
+            print(f"Error creating research project template: {e}")
             return False
     
     def _customize_template_for_project(self, project_path: Path, project):
@@ -657,13 +669,40 @@ Thumbs.db
         with open(info_path, 'w') as f:
             json.dump(info, f, indent=2)
     
+    def _create_minimal_readme(self, project: Project, project_path: Path):
+        """Create minimal README file for empty projects."""
+        readme_content = f"""# {project.name}
+
+**Created:** {project.created_at.strftime('%Y-%m-%d')}
+**Owner:** {project.owner.get_full_name() or project.owner.username}
+
+## Description
+
+{project.description or 'No description provided.'}
+
+## Getting Started
+
+This is an empty project directory. You can:
+
+1. **Create from template** - Click the "Create from template" button to set up a full SciTeX research project structure
+2. **Upload your files** - Upload your existing project files through the web interface
+3. **Create manually** - Organize your project structure as you prefer
+
+---
+*Created with SciTeX Cloud*
+"""
+
+        readme_path = project_path / 'README.md'
+        with open(readme_path, 'w', encoding='utf-8') as f:
+            f.write(readme_content)
+
     def _create_project_readme(self, project: Project, project_path: Path):
         """Create README file for the project."""
         readme_content = f"""# {project.name}
 
-**Created:** {project.created_at.strftime('%Y-%m-%d')}  
-**Owner:** {project.owner.get_full_name() or project.owner.username}  
-**Status:** {project.get_status_display()}
+**Created:** {project.created_at.strftime('%Y-%m-%d')}
+**Owner:** {project.owner.get_full_name() or project.owner.username}
+**Progress:** {getattr(project, 'progress', 0)}%
 
 ## Description
 
@@ -739,7 +778,7 @@ This project directory is managed by SciTeX Cloud. You can:
             'name': project.name,
             'slug': slugify(project.name),
             'description': project.description,
-            'status': project.status,
+            'progress': getattr(project, 'progress', 0),
             'owner_id': project.owner.id,
             'created_at': project.created_at.isoformat(),
             'updated_at': project.updated_at.isoformat(),
@@ -820,7 +859,7 @@ This project directory is managed by SciTeX Cloud. You can:
                 'description': project.description,
                 'created': project.created_at.isoformat(),
                 'owner': project.owner.username,
-                'status': project.status
+                'progress': getattr(project, 'progress', 0)
             },
             'paths': {
                 'data_raw': './data/raw',

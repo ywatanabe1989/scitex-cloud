@@ -15,6 +15,11 @@ from django.shortcuts import render
 from django.views import View
 
 
+def index(request):
+    """Dev app index page - Developer Tools Hub."""
+    return render(request, 'dev_app/index.html')
+
+
 class DesignSystemView(View):
     """Display the SciTeX design system documentation."""
 

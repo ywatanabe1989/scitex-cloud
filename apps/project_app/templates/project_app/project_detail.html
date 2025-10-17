@@ -6,253 +6,660 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/common/buttons.css' %}">
 <style>
-.project-header {
-    background: #f8f9fa;
-    border: 1px solid #e9ecef;
-    border-radius: 8px;
-    padding: 2rem;
-    margin-bottom: 2rem;
+/* GitHub-style repository header - Theme-aware */
+.repo-header {
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--color-border-default);
 }
 
-.project-title {
-    font-size: 2rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    color: #333;
-}
-
-.project-meta {
-    color: #666;
-    margin-bottom: 1rem;
-}
-
-.project-status {
-    display: inline-block;
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: 500;
-    background: #e3f2fd;
-    color: #1976d2;
-}
-
-.project-actions {
-    margin-top: 1.5rem;
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-}
-
-.module-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-}
-
-.module-card {
-    border: 1px solid #e5e5e5;
-    border-radius: 8px;
-    padding: 1.5rem;
-    background: white;
-    text-align: center;
-    transition: border-color 0.2s ease, transform 0.2s ease;
-}
-
-.module-card:hover {
-    border-color: #007acc;
-    transform: translateY(-2px);
-}
-
-.module-icon {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-}
-
-.module-title {
+.repo-title {
     font-size: 1.25rem;
     font-weight: 600;
-    margin-bottom: 0.5rem;
-    color: #333;
-}
-
-.module-description {
-    color: #666;
-    margin-bottom: 1.5rem;
-    font-size: 0.95rem;
-}
-
-.breadcrumb {
-    margin-bottom: 1.5rem;
-}
-
-.breadcrumb a {
-    color: #007acc;
+    color: var(--color-accent-fg);  /* SciTeX brand color */
     text-decoration: none;
 }
 
-.breadcrumb a:hover {
+.repo-title:hover {
     text-decoration: underline;
+}
+
+.repo-description {
+    color: var(--color-fg-muted);
+    margin-top: 0.5rem;
+}
+
+/* GitHub-style tab navigation - Theme-aware */
+.repo-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--color-border-default);
+    margin-bottom: 1.5rem;
+    overflow-x: auto;
+}
+
+.repo-tab {
+    padding: 0.5rem 1rem;
+    color: var(--color-fg-muted);
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.repo-tab:hover {
+    color: var(--color-fg-default);
+    border-bottom-color: var(--color-border-default);
+}
+
+.repo-tab.active {
+    color: var(--color-fg-default);
+    border-bottom-color: var(--tab-active-border);  /* SciTeX accent */
+    font-weight: 600;
+}
+
+/* File browser table - Theme-aware */
+.file-browser {
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+    background: var(--color-canvas-default);
+}
+
+.file-browser table {
+    width: 100%;
+    margin: 0;
+    border-collapse: collapse;
+}
+
+.file-browser th {
+    background: var(--color-canvas-subtle);
+    padding: 0.5rem 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: var(--color-fg-default);
+    border-bottom: 1px solid var(--color-border-default);
+}
+
+.file-browser td {
+    padding: 0.5rem 1rem;
+    border-top: 1px solid var(--color-border-default);
+    color: var(--color-fg-default);
+}
+
+.file-browser tr:hover {
+    background: var(--color-canvas-subtle);
+}
+
+.file-icon {
+    width: 16px;
+    height: 16px;
+    margin-right: 0.5rem;
+}
+
+.file-name {
+    color: var(--color-accent-fg);  /* SciTeX brand link color */
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.file-name:hover {
+    text-decoration: underline;
+}
+
+/* README rendering - Theme-aware */
+.readme-container {
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    padding: 2rem;
+    background: var(--color-canvas-default);
+    color: var(--color-fg-default);
+}
+
+.readme-header {
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--color-border-default);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-fg-default);
+}
+
+.readme-content {
+    line-height: 1.6;
+}
+
+.readme-content h1,
+.readme-content h2,
+.readme-content h3 {
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    line-height: 1.25;
+    color: var(--color-fg-default);
+}
+
+.readme-content h1 {
+    font-size: 2em;
+    padding-bottom: 0.3em;
+}
+
+.readme-content h2 {
+    font-size: 1.5em;
+    padding-bottom: 0.3em;
+}
+
+.readme-content code {
+    background: var(--color-canvas-subtle);
+    color: var(--color-fg-default);
+    padding: 0.2em 0.4em;
+    border-radius: 6px;
+    font-family: ui-monospace, monospace;
+    font-size: 85%;
+}
+
+.readme-content pre {
+    background: var(--color-canvas-subtle);
+    padding: 1rem;
+    border-radius: 6px;
+    overflow-x: auto;
+}
+
+.readme-content pre code {
+    background: none;
+    padding: 0;
+}
+
+/* Lists and directory structures - no borders */
+.readme-content ul,
+.readme-content ol {
+    padding-left: 2em;
+    margin: 0.5em 0;
+}
+
+.readme-content li {
+    margin: 0.25em 0;
+    border: none !important;  /* Remove any borders from list items */
+}
+
+.readme-content p {
+    margin: 1em 0;
+    color: var(--color-fg-default);
+}
+
+.readme-content a {
+    color: var(--color-accent-fg);
+}
+
+.readme-content a:hover {
+    text-decoration: underline;
+}
+
+/* Remove borders from h3, h4, h5, h6 */
+.readme-content h3,
+.readme-content h4,
+.readme-content h5,
+.readme-content h6 {
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    color: var(--color-fg-default);
+    border: none !important;  /* No borders for smaller headings */
+}
+
+/* Button overrides for theme support */
+.btn-outline-primary {
+    color: var(--color-accent-fg) !important;
+    border-color: var(--color-accent-fg) !important;
+    background: transparent !important;
+}
+
+.btn-outline-primary:hover {
+    color: #ffffff !important;
+    background: var(--color-accent-fg) !important;
+    border-color: var(--color-accent-fg) !important;
+}
+
+[data-theme="dark"] .btn-outline-primary {
+    color: var(--scitex-color-06) !important;  /* Light bluish */
+    border-color: var(--scitex-color-05) !important;
+}
+
+[data-theme="dark"] .btn-outline-primary:hover {
+    color: #ffffff !important;
+    background: var(--scitex-color-04) !important;
+    border-color: var(--scitex-color-04) !important;
+}
+
+/* Text muted helper */
+.text-muted {
+    color: var(--color-fg-muted) !important;
+}
+
+/* GitHub-style layout with sidebar on LEFT */
+.repo-layout {
+    display: grid;
+    grid-template-columns: 296px 1fr;  /* Sidebar first, then main content */
+    gap: 24px;
+    margin-top: 1.5rem;
+}
+
+.repo-main {
+    min-width: 0;
+}
+
+.repo-sidebar {
+    position: sticky;
+    top: 80px;
+    align-self: start;
+}
+
+/* Sidebar sections */
+.sidebar-section {
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    padding: 16px;
+    margin-bottom: 16px;
+    background: var(--color-canvas-default);
+}
+
+.sidebar-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-fg-default);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    letter-spacing: 0.5px;
+}
+
+.sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+    font-size: 12px;
+    color: var(--color-fg-muted);
+}
+
+.sidebar-item strong {
+    color: var(--color-fg-default);
+}
+
+.sidebar-link {
+    color: var(--color-accent-fg);
+    text-decoration: none;
+    font-size: 12px;
+    display: block;
+    padding: 4px 0;
+}
+
+.sidebar-link:hover {
+    text-decoration: underline;
+}
+
+/* File tree styles */
+.file-tree-item {
+    padding: 2px 0;
+    cursor: pointer;
+    color: var(--color-fg-default);
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.file-tree-item:hover {
+    background: var(--color-canvas-subtle);
+}
+
+.file-tree-item.active {
+    background: var(--color-accent-subtle);
+    font-weight: 600;
+}
+
+.file-tree-folder {
+    color: var(--color-fg-default);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.file-tree-file {
+    color: var(--color-fg-muted);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.file-tree-icon {
+    width: 16px;
+    display: inline-block;
+}
+
+.file-tree-chevron {
+    width: 12px;
+    height: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: var(--color-fg-muted);
+    transition: transform 0.2s;
+    cursor: pointer;
+}
+
+.file-tree-chevron.expanded {
+    transform: rotate(90deg);
+}
+
+.file-tree-children {
+    display: none;
+}
+
+.file-tree-children.expanded {
+    display: block;
+}
+
+@media (max-width: 1024px) {
+    .repo-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .repo-sidebar {
+        position: static;
+    }
 }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <!-- Breadcrumb -->
-    <nav class="breadcrumb">
-        <a href="{% url 'project_app:list' %}">Projects</a> / {{ project.name }}
-    </nav>
-
-    <!-- Project Header -->
-    <div class="project-header">
-        <div class="project-title">{{ project.name }}</div>
-        <div class="project-meta">
-            <span class="project-status">{{ project.get_status_display }}</span>
-            <span style="margin-left: 1rem;">Created: {{ project.created_at|date:"M j, Y" }}</span>
-            <span style="margin-left: 1rem;">Updated: {{ project.updated_at|date:"M j, Y" }}</span>
-        </div>
-        <div class="project-description">
-            {{ project.description }}
-        </div>
-        <div class="project-actions">
-            <a href="{% url 'project_app:files' project.slug %}" class="btn btn-primary">
-                📁 File Manager
+<div class="container-fluid" style="max-width: 1280px;">
+    <!-- Repository Header -->
+    <div class="repo-header">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <a href="/{{ project.owner.username }}/" style="color: var(--color-accent-fg); text-decoration: none; font-weight: 400;">
+                {{ project.owner.username }}
             </a>
-            <a href="{% url 'project_app:edit' project.slug %}" class="btn btn-secondary">
-                ✏️ Edit Project
-            </a>
-            <a href="{% url 'project_app:members' project.slug %}" class="btn btn-outline-secondary">
-                👥 Manage Members
-            </a>
-            <a href="{% url 'project_app:github' project.slug %}" class="btn btn-outline-secondary">
-                🔗 GitHub Integration
+            <span style="color: var(--color-fg-muted);">/</span>
+            <a href="/{{ project.owner.username }}/{{ project.slug }}/" class="repo-title">
+                {{ project.name }}
             </a>
         </div>
+        {% if project.description %}
+        <div class="repo-description">{{ project.description }}</div>
+        {% endif %}
     </div>
 
-    <!-- SciTeX Modules -->
-    <h3>SciTeX Modules</h3>
-    <div class="module-grid">
-        <div class="module-card">
-            <div class="module-icon">🔍</div>
-            <div class="module-title">Scholar</div>
-            <div class="module-description">
-                Literature search, paper discovery, and reference management
-            </div>
-            <div style="display: flex; gap: 0.5rem; justify-content: center; margin-top: 1rem;">
-                <a href="{% url 'scholar_app:project_search' project.pk %}" class="btn btn-primary">🔍 Search</a>
-                <a href="{% url 'scholar_app:project_library' project.pk %}" class="btn btn-secondary">📚 Library</a>
-            </div>
+    <!-- Tab Navigation -->
+    <div class="repo-tabs" style="justify-content: space-between;">
+        <div style="display: flex;">
+            <a href="/{{ project.owner.username }}/{{ project.slug }}/"
+               class="repo-tab {% if mode == 'overview' %}active{% endif %}">
+                📄 Code
+            </a>
+            <a href="/{{ project.owner.username }}/{{ project.slug }}?mode=scholar"
+               class="repo-tab {% if mode == 'scholar' %}active{% endif %}">
+                📚 Scholar
+            </a>
+            <a href="/{{ project.owner.username }}/{{ project.slug }}?mode=code"
+               class="repo-tab {% if mode == 'code' %}active{% endif %}">
+                💻 Code
+            </a>
+            <a href="/{{ project.owner.username }}/{{ project.slug }}?mode=viz"
+               class="repo-tab {% if mode == 'viz' %}active{% endif %}">
+                📊 Viz
+            </a>
+            <a href="/{{ project.owner.username }}/{{ project.slug }}?mode=writer"
+               class="repo-tab {% if mode == 'writer' %}active{% endif %}">
+                ✍️ Writer
+            </a>
+            <a href="/{{ project.owner.username }}/{{ project.slug }}/settings/"
+               class="repo-tab">
+                ⚙️ Settings
+            </a>
         </div>
-
-        <div class="module-card">
-            <div class="module-icon">💻</div>
-            <div class="module-title">Code</div>
-            <div class="module-description">
-                Code development, analysis, and Jupyter notebook integration
-            </div>
-            <a href="/code/?project={{ project.pk }}" class="btn btn-primary">Open Code</a>
-        </div>
-
-        <div class="module-card">
-            <div class="module-icon">📊</div>
-            <div class="module-title">Viz</div>
-            <div class="module-description">
-                Data visualization and interactive plotting tools
-            </div>
-            <a href="/viz/?project={{ project.pk }}" class="btn btn-primary">Open Viz</a>
-        </div>
-
-        <div class="module-card">
-            <div class="module-icon">✍️</div>
-            <div class="module-title">Writer</div>
-            <div class="module-description">
-                Manuscript writing, LaTeX generation, and collaborative editing
-            </div>
-            <div style="display: flex; gap: 0.5rem; justify-content: center; margin-top: 1rem;">
-                <a href="{% url 'writer:project-writer' project.pk %}" class="btn btn-primary">✍️ Write</a>
-                <a href="{% url 'writer:manuscript-list' %}?project={{ project.pk }}" class="btn btn-secondary">📄 Drafts</a>
-            </div>
-        </div>
+        <button onclick="copyProjectToClipboard()" class="btn btn-sm btn-outline-primary" style="margin: 0.25rem;">
+            📋 Copy All Files
+        </button>
     </div>
 
-    <!-- Project Information -->
-    <div class="row">
-        <div class="col-md-8">
-            <h4>Project Details</h4>
-            <table class="table">
-                <tr>
-                    <td><strong>Owner:</strong></td>
-                    <td>{{ project.owner.get_full_name|default:project.owner.username }}</td>
-                </tr>
-                <tr>
-                    <td><strong>Status:</strong></td>
-                    <td>{{ project.get_status_display }}</td>
-                </tr>
-                <tr>
-                    <td><strong>Progress:</strong></td>
-                    <td>{{ project.progress }}%</td>
-                </tr>
-                {% if project.deadline %}
-                <tr>
-                    <td><strong>Deadline:</strong></td>
-                    <td>{{ project.deadline|date:"M j, Y" }}</td>
-                </tr>
-                {% endif %}
-                {% if project.source_code_url %}
-                <tr>
-                    <td><strong>Repository:</strong></td>
-                    <td><a href="{{ project.source_code_url }}" target="_blank">{{ project.source_code_url }}</a></td>
-                </tr>
-                {% endif %}
-            </table>
-        </div>
-        <div class="col-md-4">
-            <h4>Project Activity</h4>
-            
-            <!-- Recent Manuscripts -->
-            {% if project_manuscripts %}
-            <div class="mb-3">
-                <h6>📝 Recent Manuscripts</h6>
-                {% for manuscript in project_manuscripts %}
-                <div class="list-group-item list-group-item-action" style="border: 1px solid #e5e5e5; margin-bottom: 0.5rem; border-radius: 4px;">
-                    <div style="font-weight: 500;">{{ manuscript.title }}</div>
-                    <small class="text-muted">Updated {{ manuscript.updated_at|timesince }} ago</small>
+    <!-- Main Content Area with Sidebar -->
+    <div class="repo-layout">
+        <!-- Sidebar (LEFT side like GitHub) - File Tree Navigation -->
+        <aside class="repo-sidebar">
+            <!-- File Tree -->
+            <div class="sidebar-section">
+                <div class="sidebar-title">
+                    <a href="/{{ project.owner.username }}/{{ project.slug }}/" style="color: var(--color-fg-default); text-decoration: none;">
+                        {{ project.name }}
+                    </a>
                 </div>
-                {% endfor %}
+                <div id="file-tree" style="font-size: 12px;">
+                    <!-- File tree will be loaded here -->
+                    <div class="tree-loading" style="color: var(--color-fg-muted); padding: 1rem;">
+                        <i class="fas fa-spinner fa-spin"></i> Loading file tree...
+                    </div>
+                </div>
+            </div>
+
+            <!-- About Section -->
+            <div class="sidebar-section">
+                <div class="sidebar-title">About</div>
+                {% if project.description %}
+                <p style="font-size: 12px; color: var(--color-fg-default); margin-bottom: 12px;">
+                    {{ project.description }}
+                </p>
+                {% endif %}
+                <div class="sidebar-item">
+                    <i class="fas fa-user" style="color: var(--color-fg-muted);"></i>
+                    <a href="/{{ project.owner.username }}/" class="sidebar-link">{{ project.owner.username }}</a>
+                </div>
+                <div class="sidebar-item">
+                    <i class="fas fa-calendar" style="color: var(--color-fg-muted);"></i>
+                    <span>Created {{ project.created_at|date:"M j, Y" }}</span>
+                </div>
+                <div class="sidebar-item">
+                    <i class="fas fa-clock" style="color: var(--color-fg-muted);"></i>
+                    <span>Updated {{ project.updated_at|date:"M j, Y" }}</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content (RIGHT side) -->
+        <div class="repo-main">
+            <!-- Empty State with Create from Template button -->
+            {% if not directories and not files and not readme_html %}
+            <div class="readme-container" style="text-align: center; padding: 3rem 2rem;">
+                <h3 style="color: var(--color-fg-default); margin-bottom: 1rem;">📁 Empty Project</h3>
+                <p style="color: var(--color-fg-muted); margin-bottom: 2rem;">
+                    This project doesn't have any files yet. Get started by creating a template structure or uploading your files.
+                </p>
+                <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                    <form method="POST" action="/{{ project.owner.username }}/{{ project.slug }}/create-from-template/" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary">
+                            🚀 Create from Template
+                        </button>
+                    </form>
+                    <a href="/{{ project.owner.username }}/{{ project.slug }}/settings/" class="btn btn-outline-primary">
+                        ⚙️ Project Settings
+                    </a>
+                </div>
+                <p style="color: var(--color-fg-muted); margin-top: 2rem; font-size: 0.875rem;">
+                    The template will create a complete SciTeX research project structure with directories for scripts, data, docs, results, and configuration files.
+                </p>
             </div>
             {% endif %}
-            
-            <!-- Recent Papers -->
-            {% if saved_papers %}
-            <div class="mb-3">
-                <h6>📚 Recent Papers</h6>
-                {% for paper in saved_papers %}
-                <div class="list-group-item list-group-item-action" style="border: 1px solid #e5e5e5; margin-bottom: 0.5rem; border-radius: 4px;">
-                    <div style="font-weight: 500;">{{ paper.paper.title|truncatechars:50 }}</div>
-                    <small class="text-muted">Saved {{ paper.saved_at|timesince }} ago</small>
-                </div>
-                {% endfor %}
+
+            <!-- File Browser -->
+            {% if directories or files %}
+            <div class="file-browser">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th style="width: 200px;">Last modified</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for dir in directories %}
+                        <tr>
+                            <td>
+                                <a href="/{{ project.owner.username }}/{{ project.slug }}/{{ dir.path }}/" class="file-name">
+                                    📁 {{ dir.name }}
+                                </a>
+                            </td>
+                            <td class="text-muted"></td>
+                        </tr>
+                        {% endfor %}
+                        {% for file in files %}
+                        <tr>
+                            <td>
+                                <a href="/{{ project.owner.username }}/{{ project.slug }}/blob/{{ file.path }}" class="file-name">
+                                    📄 {{ file.name }}
+                                </a>
+                            </td>
+                            <td class="text-muted">
+                                {{ file.modified|date:"M j, Y" }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
             {% endif %}
-            
-            <h6>⚡ Quick Actions</h6>
-            <div class="list-group">
-                <a href="{% url 'project_app:sync' project.slug %}" class="list-group-item list-group-item-action">
-                    🔄 Sync Project
-                </a>
-                <a href="#" class="list-group-item list-group-item-action">
-                    📈 View Analytics
-                </a>
-                <a href="#" class="list-group-item list-group-item-action">
-                    📋 Export Data
-                </a>
-                <a href="{% url 'project_app:delete' project.slug %}" class="list-group-item list-group-item-action text-danger">
-                    🗑️ Delete Project
-                </a>
+
+            <!-- README.md -->
+            {% if readme_html %}
+            <div class="readme-container">
+                <div class="readme-header">
+                    📖 README.md
+                </div>
+                <div class="readme-content">
+                    {{ readme_html|safe }}
+                </div>
             </div>
+            {% endif %}
         </div>
     </div>
 </div>
+
+<script>
+// Build file tree for sidebar
+async function loadFileTree() {
+    try {
+        const response = await fetch('/{{ project.owner.username }}/{{ project.slug }}/api/file-tree/');
+        const data = await response.json();
+
+        if (data.success) {
+            const treeContainer = document.getElementById('file-tree');
+            treeContainer.innerHTML = buildTreeHTML(data.tree, '{{ project.owner.username }}', '{{ project.slug }}');
+        } else {
+            document.getElementById('file-tree').innerHTML = '<div style="color: var(--color-fg-muted); padding: 0.5rem;">Error loading file tree</div>';
+        }
+    } catch (err) {
+        console.error('Failed to load file tree:', err);
+        document.getElementById('file-tree').innerHTML = '<div style="color: var(--color-fg-muted); padding: 0.5rem;">Error loading file tree</div>';
+    }
+}
+
+function buildTreeHTML(items, username, slug, level = 0) {
+    let html = '';
+    const indent = level * 16;
+    const currentPath = window.location.pathname;
+
+    items.forEach((item, index) => {
+        const itemPath = `/${username}/${slug}/${item.path}${item.type === 'directory' ? '/' : ''}`;
+        const isActive = currentPath.includes(item.path);
+        const icon = item.type === 'directory' ? '📁' : '📄';
+        const hasChildren = item.children && item.children.length > 0;
+        const itemId = `tree-${item.path.replace(/\//g, '-')}`;  // Unique ID based on path
+
+        // Item row
+        html += `<div class="file-tree-item ${isActive ? 'active' : ''}" style="padding-left: ${indent}px;">`;
+
+        if (item.type === 'directory') {
+            html += `<a href="${itemPath}" class="file-tree-folder" style="text-decoration: none; color: var(--color-fg-default);">`;
+
+            // Chevron for folders with children
+            if (hasChildren) {
+                html += `<span class="file-tree-chevron ${level === 0 ? 'expanded' : ''}" onclick="toggleFolder('${itemId}'); return false;">▸</span>`;
+            } else {
+                html += `<span style="width: 12px; display: inline-block;"></span>`;
+            }
+
+            html += `<span class="file-tree-icon">${icon}</span><span>${item.name}</span>`;
+            html += `</a>`;
+        } else {
+            html += `<a href="/${username}/${slug}/blob/${item.path}" class="file-tree-file" style="text-decoration: none; color: var(--color-fg-muted);">`;
+            html += `<span style="width: 12px; display: inline-block;"></span>`;
+            html += `<span class="file-tree-icon">${icon}</span><span>${item.name}</span>`;
+            html += `</a>`;
+        }
+
+        html += `</div>`;
+
+        // Children container - render ALL children
+        if (hasChildren) {
+            const isExpanded = level === 0;  // Auto-expand root level only
+            html += `<div id="${itemId}" class="file-tree-children ${isExpanded ? 'expanded' : ''}">`;
+            html += buildTreeHTML(item.children, username, slug, level + 1);  // Recursively build all children
+            html += `</div>`;
+        }
+    });
+
+    return html;
+}
+
+function toggleFolder(folderId) {
+    const folder = document.getElementById(folderId);
+    const chevron = event.target;
+
+    if (folder.classList.contains('expanded')) {
+        folder.classList.remove('expanded');
+        chevron.classList.remove('expanded');
+    } else {
+        folder.classList.add('expanded');
+        chevron.classList.add('expanded');
+    }
+
+    event.stopPropagation();
+    event.preventDefault();
+}
+
+// Load file tree on page load
+document.addEventListener('DOMContentLoaded', loadFileTree);
+
+async function copyProjectToClipboard() {
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '⏳ Loading...';
+    btn.disabled = true;
+
+    try {
+        const response = await fetch('/{{ project.owner.username }}/{{ project.slug }}/api/concatenate/');
+        const data = await response.json();
+
+        if (data.success) {
+            await navigator.clipboard.writeText(data.content);
+            btn.innerHTML = `✓ Copied ${data.file_count} files!`;
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }, 3000);
+        } else {
+            alert('Error: ' + data.error);
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    } catch (err) {
+        alert('Failed to copy: ' + err);
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+}
+</script>
 {% endblock %}

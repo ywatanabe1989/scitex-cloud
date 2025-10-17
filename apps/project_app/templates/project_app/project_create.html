@@ -74,46 +74,31 @@ textarea.form-control {
 <div class="container-fluid">
     <!-- Breadcrumb -->
     <nav class="breadcrumb">
-        <a href="{% url 'project_app:list' %}">Projects</a> / Create New Project
+        <a href="/{{ user.username }}/projects/">Projects</a> / Create New Project
     </nav>
 
-    <h1>Create New Project</h1>
+    <h1>Create New Repository</h1>
 
     <div class="create-form">
         <form method="post">
             {% csrf_token %}
-            
+
             <div class="form-group">
-                <label for="name">Project Name *</label>
-                <input type="text" class="form-control" id="name" name="name" required 
-                       placeholder="Enter a descriptive name for your research project">
-                <div class="help-text">Choose a clear, descriptive name that represents your research topic.</div>
+                <label for="name">Repository Name *</label>
+                <input type="text" class="form-control" id="name" name="name" required
+                       placeholder="my-research-project">
+                <div class="help-text">Choose a clear name (lowercase, hyphens for spaces).</div>
             </div>
 
             <div class="form-group">
-                <label for="description">Description</label>
-                <textarea class="form-control" id="description" name="description" 
-                          placeholder="Provide a brief overview of your research project, objectives, and scope..."></textarea>
-                <div class="help-text">Describe what you're researching and what you hope to achieve.</div>
-            </div>
-
-            <div class="form-group">
-                <label for="hypotheses">Research Hypotheses</label>
-                <textarea class="form-control" id="hypotheses" name="hypotheses" 
-                          placeholder="State your research hypotheses or questions..."></textarea>
-                <div class="help-text">What specific questions are you trying to answer?</div>
-            </div>
-
-            <div class="form-group">
-                <label for="source_code_url">Repository URL (Optional)</label>
-                <input type="url" class="form-control" id="source_code_url" name="source_code_url" 
-                       placeholder="https://github.com/username/repository">
-                <div class="help-text">Link to an existing GitHub repository if you have one.</div>
+                <label for="description">Description (Optional)</label>
+                <textarea class="form-control" id="description" name="description" rows="2"
+                          placeholder="Brief description..."></textarea>
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Create Project</button>
-                <a href="{% url 'project_app:list' %}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">Create Repository</button>
+                <a href="/{{ user.username }}/projects/" class="btn btn-secondary">Cancel</a>
             </div>
         </form>
     </div>

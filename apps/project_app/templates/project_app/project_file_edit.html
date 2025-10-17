@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Edit {{ file_name }} - {{ project.name }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/common/buttons.css' %}">
+<style>
+.repo-header {
+    padding: 1.5rem 0;
+    border-bottom: 1px solid #d0d7de;
+}
+
+.repo-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #0969da;
+    text-decoration: none;
+}
+
+.file-editor-container {
+    margin-top: 1.5rem;
+}
+
+.editor-header {
+    background: #f6f8fa;
+    border: 1px solid #d0d7de;
+    border-radius: 6px 6px 0 0;
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+}
+
+.editor-body {
+    border: 1px solid #d0d7de;
+    border-top: none;
+}
+
+.editor-textarea {
+    width: 100%;
+    min-height: 500px;
+    border: none;
+    padding: 1rem;
+    font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    resize: vertical;
+}
+
+.editor-textarea:focus {
+    outline: none;
+}
+
+.editor-footer {
+    background: #f6f8fa;
+    border: 1px solid #d0d7de;
+    border-top: none;
+    border-radius: 0 0 6px 6px;
+    padding: 1rem;
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+
+/* Markdown preview */
+.markdown-body {
+    line-height: 1.6;
+}
+
+.markdown-body h1 {
+    font-size: 2em;
+    border-bottom: 1px solid #d0d7de;
+    padding-bottom: 0.3em;
+    margin-bottom: 1em;
+}
+
+.markdown-body h2 {
+    font-size: 1.5em;
+    border-bottom: 1px solid #d0d7de;
+    padding-bottom: 0.3em;
+    margin-top: 1.5em;
+    margin-bottom: 1em;
+}
+
+.markdown-body code {
+    background: #f6f8fa;
+    padding: 0.2em 0.4em;
+    border-radius: 6px;
+    font-family: ui-monospace, monospace;
+    font-size: 85%;
+}
+
+.markdown-body pre {
+    background: #f6f8fa;
+    padding: 1rem;
+    border-radius: 6px;
+    overflow-x: auto;
+}
+
+.markdown-body pre code {
+    background: none;
+    padding: 0;
+}
+
+.btn-group .active {
+    background-color: #0969da;
+    color: white;
+}
+</style>
+
+<!-- Markdown rendering library -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="max-width: 1280px;">
+    <!-- Repository Header with Breadcrumb -->
+    <div class="repo-header">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <a href="/{{ project.owner.username }}/" style="color: #0969da; text-decoration: none; font-weight: 400;">
+                {{ project.owner.username }}
+            </a>
+            <span style="color: #656d76;">/</span>
+            <a href="/{{ project.owner.username }}/{{ project.slug }}/" class="repo-title">
+                {{ project.name }}
+            </a>
+            {% for breadcrumb in breadcrumbs %}
+                {% if breadcrumb.name != project.name %}
+                    <span style="color: #656d76;">/</span>
+                    {% if breadcrumb.url %}
+                        <a href="{{ breadcrumb.url }}" style="color: #0969da; text-decoration: none;">
+                            {{ breadcrumb.name }}
+                        </a>
+                    {% else %}
+                        <span style="font-weight: 600;">{{ breadcrumb.name }}</span>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- File Editor -->
+    <div class="file-editor-container">
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="editor-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <span>Edit {{ file_name }}</span>
+                {% if file_name|slice:"-3:" == ".md" %}
+                <div class="btn-group btn-group-sm" role="group">
+                    <button type="button" class="btn btn-outline-secondary active" id="editBtn" onclick="showEdit()">
+                        ✏️ Edit
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" id="previewBtn" onclick="showPreview()">
+                        👁️ Preview
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="editor-body">
+                <textarea name="content" class="editor-textarea" id="editorTextarea">{{ file_content }}</textarea>
+                <div id="previewContainer" class="markdown-body" style="display: none; padding: 2rem; min-height: 500px;"></div>
+            </div>
+
+            <div class="editor-footer">
+                <a href="/{{ project.owner.username }}/{{ project.slug }}/blob/{{ file_path }}" class="btn btn-secondary">
+                    Cancel
+                </a>
+                <button type="submit" class="btn btn-success">
+                    💾 Save changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function showEdit() {
+    document.getElementById('editorTextarea').style.display = 'block';
+    document.getElementById('previewContainer').style.display = 'none';
+    document.getElementById('editBtn').classList.add('active');
+    document.getElementById('previewBtn').classList.remove('active');
+}
+
+function showPreview() {
+    const content = document.getElementById('editorTextarea').value;
+    const html = marked.parse(content);
+    document.getElementById('previewContainer').innerHTML = html;
+
+    document.getElementById('editorTextarea').style.display = 'none';
+    document.getElementById('previewContainer').style.display = 'block';
+    document.getElementById('editBtn').classList.remove('active');
+    document.getElementById('previewBtn').classList.add('active');
+}
+</script>
+{% endblock %}

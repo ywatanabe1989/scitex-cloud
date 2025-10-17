@@ -1,0 +1,206 @@
+{% extends "global_base.html" %}
+{% load static %}
+
+{% block title %}Developer Tools - SciTeX{% endblock %}
+
+{% block meta_description %}Developer tools and resources for the SciTeX platform{% endblock %}
+
+{% block extra_css %}
+<style>
+  .dev-hero {
+    background: linear-gradient(135deg, var(--scitex-color-01) 0%, var(--scitex-color-02) 50%, var(--scitex-color-03) 100%);
+    color: white;
+    padding: 4rem 0;
+    text-align: center;
+  }
+
+  .dev-card {
+    background: var(--color-canvas-default);
+    border: 1px solid var(--color-border-default);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+    height: 100%;
+  }
+
+  .dev-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    border-color: var(--scitex-color-04);
+  }
+
+  .dev-card h3 {
+    color: var(--color-fg-default);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .dev-card p {
+    color: var(--color-fg-muted);
+    margin-bottom: 1.5rem;
+  }
+
+  .dev-card .btn {
+    width: 100%;
+  }
+
+  .dev-icon {
+    font-size: 2rem;
+    color: var(--scitex-color-04);
+  }
+
+  /* Quick links styling */
+  .dev-card a.btn {
+    margin-top: auto;
+  }
+
+  /* Link colors in lists */
+  ul li a {
+    color: var(--color-accent-fg);
+    text-decoration: none;
+  }
+
+  ul li a:hover {
+    text-decoration: underline;
+  }
+
+  [data-theme="dark"] .dev-icon {
+    color: var(--scitex-color-06);  /* Lighter icon in dark mode */
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="dev-hero">
+  <div class="container">
+    <h1 class="display-4 mb-3">
+      <i class="fas fa-tools"></i> Developer Tools
+    </h1>
+    <p class="lead">Resources and tools for building with SciTeX</p>
+  </div>
+</section>
+
+<!-- Tools Grid -->
+<div class="container py-5">
+  <div class="row">
+    <!-- Design System -->
+    <div class="col-md-6 col-lg-4">
+      <div class="dev-card">
+        <h3>
+          <i class="fas fa-palette dev-icon"></i>
+          Design System
+        </h3>
+        <p>Comprehensive design guidelines, color palettes, components, and patterns for consistent SciTeX interfaces.</p>
+        <a href="/dev/design/" class="btn btn-primary">
+          <i class="fas fa-arrow-right"></i> View Design System
+        </a>
+      </div>
+    </div>
+
+    <!-- API Documentation -->
+    <div class="col-md-6 col-lg-4">
+      <div class="dev-card">
+        <h3>
+          <i class="fas fa-code dev-icon"></i>
+          API Docs
+        </h3>
+        <p>RESTful API endpoints, authentication, request/response formats, and integration examples.</p>
+        <a href="/api-docs/" class="btn btn-outline-primary">
+          <i class="fas fa-arrow-right"></i> View API Docs
+        </a>
+      </div>
+    </div>
+
+    <!-- Component Library -->
+    <div class="col-md-6 col-lg-4">
+      <div class="dev-card">
+        <h3>
+          <i class="fas fa-puzzle-piece dev-icon"></i>
+          Components
+        </h3>
+        <p>Reusable UI components, code snippets, and templates for rapid development.</p>
+        <a href="/dev/design/#components" class="btn btn-outline-primary">
+          <i class="fas fa-arrow-right"></i> View Components
+        </a>
+      </div>
+    </div>
+
+    <!-- GitHub Repository -->
+    <div class="col-md-6 col-lg-4">
+      <div class="dev-card">
+        <h3>
+          <i class="fab fa-github dev-icon"></i>
+          Source Code
+        </h3>
+        <p>Explore the SciTeX ecosystem on GitHub. Contribute, report issues, or fork for your own projects.</p>
+        <a href="https://github.com/SciTeX-AI" target="_blank" class="btn btn-outline-primary">
+          <i class="fab fa-github"></i> Visit GitHub
+        </a>
+      </div>
+    </div>
+
+    <!-- Module Icons -->
+    <div class="col-md-6 col-lg-4">
+      <div class="dev-card">
+        <h3>
+          <i class="fas fa-icons dev-icon"></i>
+          Module Icons
+        </h3>
+        <p>Official SciTeX module icons (SVG & emoji), usage guidelines, and branding assets.</p>
+        <a href="/dev/design/#module-icons" class="btn btn-outline-primary">
+          <i class="fas fa-arrow-right"></i> View Icons
+        </a>
+      </div>
+    </div>
+
+    <!-- Theme System -->
+    <div class="col-md-6 col-lg-4">
+      <div class="dev-card">
+        <h3>
+          <i class="fas fa-adjust dev-icon"></i>
+          Theme System
+        </h3>
+        <p>Light/dark mode implementation, CSS variables, and theme customization guide.</p>
+        <a href="/dev/design/#theme" class="btn btn-outline-primary">
+          <i class="fas fa-arrow-right"></i> View Theme
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Links -->
+  <div class="row mt-5">
+    <div class="col-12">
+      <div style="background: var(--color-canvas-subtle); border-radius: 12px; padding: 2rem;">
+        <h2 class="mb-4" style="color: var(--color-fg-default);">
+          <i class="fas fa-link"></i> Quick Links
+        </h2>
+        <div class="row">
+          <div class="col-md-6">
+            <h4 style="color: var(--color-fg-default); font-size: 1.1rem;">Design Resources</h4>
+            <ul style="color: var(--color-fg-muted);">
+              <li><a href="/dev/design/#colors">Color Palette</a></li>
+              <li><a href="/dev/design/#typography">Typography</a></li>
+              <li><a href="/dev/design/#spacing">Spacing System</a></li>
+              <li><a href="/dev/design/#hero-designs">Hero Designs</a></li>
+            </ul>
+          </div>
+          <div class="col-md-6">
+            <h4 style="color: var(--color-fg-default); font-size: 1.1rem;">Developer Resources</h4>
+            <ul style="color: var(--color-fg-muted);">
+              <li><a href="https://github.com/SciTeX-AI" target="_blank">GitHub Organization</a></li>
+              <li><a href="/api-docs/">API Documentation</a></li>
+              <li><a href="/dev/design/#guidelines">Usage Guidelines</a></li>
+              <li><a href="/contact/">Contact Support</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

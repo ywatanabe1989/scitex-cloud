@@ -60,14 +60,7 @@ class ResearchGroup(models.Model):
 
 class Project(models.Model):
     """Model for research projects with enhanced collaboration"""
-    
-    PROJECT_STATUS = [
-        ('planning', 'Planning'),
-        ('active', 'Active'),
-        ('completed', 'Completed'),
-        ('on_hold', 'On Hold'),
-    ]
-    
+
     name = models.CharField(max_length=200)
     slug = models.SlugField(max_length=200, unique=True, default='project')
     description = models.TextField()
@@ -78,14 +71,13 @@ class Project(models.Model):
     
     # Enhanced collaboration through ProjectMembership
     collaborators = models.ManyToManyField(User, through='ProjectMembership', through_fields=('project', 'user'), related_name='project_app_collaborative_projects')
-    status = models.CharField(max_length=20, choices=PROJECT_STATUS, default='planning')
     progress = models.IntegerField(default=0, help_text="Project progress percentage (0-100)")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     deadline = models.DateTimeField(null=True, blank=True)
     
     # Research data - Core SciTeX workflow fields
-    hypotheses = models.TextField(help_text="Research hypotheses (required)")
+    hypotheses = models.TextField(blank=True, help_text="Research hypotheses (optional)")
     source_code_url = models.URLField(blank=True, help_text="GitHub/GitLab repository URL")
     data_location = models.CharField(max_length=500, blank=True, help_text="Relative path to project directory")
     # manuscript_draft = models.ForeignKey('document_app.Document', on_delete=models.SET_NULL, null=True, blank=True,  # Removed - document_app not installed

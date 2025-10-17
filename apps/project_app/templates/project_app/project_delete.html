@@ -61,8 +61,8 @@
 <div class="container-fluid">
     <!-- Breadcrumb -->
     <nav class="breadcrumb">
-        <a href="{% url 'project_app:list' %}">Projects</a> / 
-        <a href="{% url 'project_app:detail' project.pk %}">{{ project.name }}</a> / 
+        <a href="/{{ project.owner.username }}/projects/">Projects</a> /
+        <a href="/{{ project.owner.username }}/{{ project.slug }}/">{{ project.name }}</a> /
         Delete
     </nav>
 
@@ -94,7 +94,7 @@
             {% csrf_token %}
             <div class="form-actions">
                 <button type="submit" class="btn btn-danger">Yes, Delete Project</button>
-                <a href="{% url 'project_app:detail' project.pk %}" class="btn btn-secondary">Cancel</a>
+                <a href="/{{ project.owner.username }}/{{ project.slug }}/" class="btn btn-secondary">Cancel</a>
             </div>
         </form>
     </div>

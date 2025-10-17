@@ -18,13 +18,13 @@ class ResearchGroupAdmin(admin.ModelAdmin):
 
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
-    list_display = ('name', 'owner', 'status', 'progress', 'created_at', 'updated_at')
+    list_display = ('name', 'owner', 'progress', 'created_at', 'updated_at')
     search_fields = ('name', 'description', 'owner__username')
-    list_filter = ('status', 'created_at', 'updated_at', 'organization')
+    list_filter = ('created_at', 'updated_at', 'organization')
     readonly_fields = ('created_at', 'updated_at')
     fieldsets = (
         ('Basic Information', {
-            'fields': ('name', 'description', 'owner', 'status', 'progress')
+            'fields': ('name', 'description', 'owner', 'progress')
         }),
         ('Organization', {
             'fields': ('organization', 'research_group'),

@@ -1,218 +1,566 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}{{ profile_user.username }}'s Projects - SciTeX Cloud{% endblock %}
+{% block title %}{{ profile_user.username }} - SciTeX Cloud{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/common/buttons.css' %}">
 <style>
-.project-grid {
+/* GitHub-inspired layout */
+body {
+    background-color: var(--color-canvas-default);
+    color: var(--color-fg-default);
+}
+
+.profile-page {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 32px 16px;
+}
+
+.profile-layout {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1.5rem;
-    margin-top: 2rem;
+    grid-template-columns: 296px 1fr;
+    gap: 24px;
 }
 
-.project-card {
-    border: 1px solid #e5e5e5;
-    border-radius: 8px;
-    padding: 1.5rem;
-    background: white;
-    transition: border-color 0.2s ease;
+/* Left sidebar - Profile info */
+.profile-sidebar {
+    position: sticky;
+    top: 24px;
+    align-self: start;
 }
 
-.project-card:hover {
-    border-color: #007acc;
-}
-
-.project-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #1a2332;
-    margin-bottom: 0.5rem;
-}
-
-.project-description {
-    color: #666;
-    margin-bottom: 1rem;
-    line-height: 1.5;
-}
-
-.project-meta {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.875rem;
-    color: #888;
-}
-
-.user-profile-header {
-    background: linear-gradient(135deg, #1a2332 0%, #2c3e50 50%, #34495e 100%);
-    color: white;
-    padding: 2rem 0;
-    margin-bottom: 2rem;
-}
-
-.user-info {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1rem;
-}
-
-.user-avatar {
-    width: 80px;
-    height: 80px;
+.profile-avatar {
+    width: 296px;
+    height: 296px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid var(--color-border-default);
+    background: var(--color-canvas-subtle);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 2rem;
-    font-weight: bold;
+    font-size: 8rem;
+    font-weight: 300;
+    color: var(--color-accent-fg);
+    margin-bottom: 16px;
+    overflow: hidden;
 }
 
-.user-details h1 {
-    margin: 0;
-    font-size: 2rem;
+.profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-names {
+    margin-bottom: 16px;
+}
+
+.profile-fullname {
+    font-size: 26px;
+    font-weight: 600;
+    line-height: 1.25;
+    color: var(--color-fg-default);
+    margin-bottom: 4px;
+}
+
+.profile-username {
+    font-size: 20px;
+    font-weight: 300;
+    line-height: 24px;
+    color: var(--color-fg-muted);
+}
+
+.profile-bio {
+    margin-bottom: 16px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--color-fg-default);
+}
+
+.profile-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.profile-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--color-fg-muted);
+}
+
+.profile-meta-item i {
+    width: 16px;
+    color: var(--color-fg-muted);
+}
+
+.profile-stats {
+    display: flex;
+    gap: 16px;
+    margin-top: 16px;
+    font-size: 14px;
+}
+
+.profile-stat {
+    color: var(--color-fg-muted);
+}
+
+.profile-stat strong {
+    color: var(--color-fg-default);
     font-weight: 600;
 }
 
-.user-stats {
+/* Right content area */
+.profile-content {
+    min-width: 0;
+}
+
+/* Navigation tabs */
+.profile-nav {
     display: flex;
-    gap: 2rem;
-    margin-top: 1rem;
+    gap: 16px;
+    border-bottom: 1px solid var(--color-border-muted);
+    margin-bottom: 24px;
 }
 
-.stat-item {
-    text-align: center;
+.profile-nav-item {
+    padding: 12px 8px;
+    color: var(--color-fg-muted);
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
-.stat-value {
-    font-size: 1.5rem;
-    font-weight: bold;
-    display: block;
+.profile-nav-item:hover {
+    color: var(--color-fg-default);
+    border-bottom-color: var(--color-border-default);
 }
 
-.stat-label {
-    font-size: 0.875rem;
-    opacity: 0.8;
+.profile-nav-item.active {
+    color: var(--color-fg-default);
+    border-bottom-color: var(--tab-active-border);
 }
 
+.nav-counter {
+    background: var(--color-canvas-subtle);
+    color: var(--color-fg-default);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* Repository section */
+.repo-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.repo-search {
+    display: flex;
+    gap: 8px;
+}
+
+.repo-search input {
+    background: var(--color-canvas-default);
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    padding: 5px 12px;
+    color: var(--color-fg-default);
+    font-size: 14px;
+}
+
+.repo-search input::placeholder {
+    color: var(--color-fg-muted);
+}
+
+.repo-search input:focus {
+    outline: none;
+    border-color: var(--color-accent-fg);
+}
+
+/* Repository list */
+.repo-list {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.repo-item {
+    border-bottom: 1px solid var(--color-border-muted);
+    padding-bottom: 24px;
+}
+
+.repo-item:last-child {
+    border-bottom: none;
+}
+
+.repo-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.repo-name {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--color-accent-fg);
+    text-decoration: none;
+    transition: text-decoration 0.1s ease;
+}
+
+.repo-name:hover {
+    text-decoration: underline;
+}
+
+.repo-visibility {
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    border: 1px solid var(--color-border-default);
+    color: var(--color-fg-muted);
+    font-weight: 500;
+}
+
+.repo-description {
+    color: var(--color-fg-muted);
+    font-size: 14px;
+    margin-bottom: 12px;
+    line-height: 1.5;
+}
+
+.repo-meta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 12px;
+    color: var(--color-fg-muted);
+}
+
+.repo-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.language-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+/* Empty state */
 .empty-state {
     text-align: center;
-    padding: 3rem;
-    color: #666;
+    padding: 48px 24px;
+    background: var(--color-canvas-default);
+    border: 1px solid var(--color-border-muted);
+    border-radius: 6px;
+    margin-top: 24px;
 }
 
-.empty-state i {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-    opacity: 0.5;
+.empty-state-icon {
+    font-size: 48px;
+    color: var(--color-border-default);
+    margin-bottom: 16px;
+}
+
+.empty-state h3 {
+    color: var(--color-fg-default);
+    font-size: 24px;
+    margin-bottom: 8px;
+}
+
+.empty-state p {
+    color: var(--color-fg-muted);
+    font-size: 14px;
+    margin-bottom: 24px;
+}
+
+/* Buttons */
+.btn-edit-profile {
+    width: 100%;
+    background: var(--color-btn-bg);
+    color: var(--color-btn-text);
+    border: 1px solid var(--color-btn-border);
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    margin-bottom: 16px;
+}
+
+.btn-edit-profile:hover {
+    background: var(--color-btn-hover-bg);
+    border-color: var(--color-btn-hover-border);
+    text-decoration: none;
+    color: var(--color-btn-text);
+}
+
+.btn-new-repo {
+    background: var(--color-btn-primary-bg);
+    color: var(--color-btn-primary-text);
+    border: 1px solid var(--color-btn-primary-border);
+    padding: 5px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.2s ease;
+}
+
+.btn-new-repo:hover {
+    background: var(--color-btn-primary-hover-bg);
+    color: var(--color-btn-primary-text);
+}
+
+/* Pagination */
+.pagination-link {
+    padding: 8px 16px;
+    background: var(--color-btn-bg);
+    color: var(--color-fg-default);
+    border-radius: 6px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.pagination-link:hover {
+    background: var(--color-btn-hover-bg);
+    text-decoration: none;
+}
+
+.pagination-info {
+    padding: 8px 16px;
+    color: var(--color-fg-muted);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .profile-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-sidebar {
+        position: static;
+    }
+
+    .profile-avatar {
+        width: 200px;
+        height: 200px;
+        font-size: 5rem;
+    }
 }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="user-profile-header">
-    <div class="container">
-        <div class="user-info">
-            <div class="user-avatar">
-                {{ profile_user.first_name|first|default:profile_user.username|first }}
-            </div>
-            <div class="user-details">
-                <h1>{{ profile_user.get_full_name|default:profile_user.username }}</h1>
-                <p>@{{ profile_user.username }}</p>
-                {% if profile_user.userprofile.institution %}
-                    <p><i class="fas fa-university"></i> {{ profile_user.userprofile.institution }}</p>
+<div class="profile-page">
+    <div class="profile-layout">
+        <!-- Left Sidebar - Profile Info -->
+        <aside class="profile-sidebar">
+            <div class="profile-avatar">
+                {% if profile_user.profile.avatar %}
+                    <img src="{{ profile_user.profile.avatar.url }}" alt="{{ profile_user.username }}">
+                {% else %}
+                    {{ profile_user.username|slice:":1"|upper }}
                 {% endif %}
             </div>
-        </div>
-        
-        <div class="user-stats">
-            <div class="stat-item">
-                <span class="stat-value">{{ projects.paginator.count }}</span>
-                <span class="stat-label">Projects</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-value">{{ profile_user.date_joined|date:"Y" }}</span>
-                <span class="stat-label">Joined</span>
-            </div>
-        </div>
-    </div>
-</div>
 
-<div class="container">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Public Projects</h2>
-        {% if user.is_authenticated and user == profile_user %}
-            <a href="{% url 'project_app:list' %}" class="btn btn-primary">
-                <i class="fas fa-cog"></i> Manage Projects
+            <div class="profile-names">
+                <div class="profile-fullname">
+                    {{ profile_user.get_full_name|default:profile_user.username }}
+                </div>
+                <div class="profile-username">{{ profile_user.username }}</div>
+            </div>
+
+            {% if user.is_authenticated and user == profile_user %}
+            <a href="{% url 'core_app:profile_edit' %}" class="btn-edit-profile">
+                <i class="fas fa-cog"></i>
+                Edit profile
             </a>
-        {% endif %}
-    </div>
+            {% endif %}
 
-    {% if projects %}
-        <div class="project-grid">
-            {% for project in projects %}
-                <div class="project-card">
-                    <div class="project-title">
-                        <a href="{{ project.get_absolute_url }}" style="text-decoration: none; color: inherit;">
+            {% if profile_user.profile.bio %}
+            <div class="profile-bio">
+                {{ profile_user.profile.bio }}
+            </div>
+            {% endif %}
+
+            <div class="profile-meta">
+                {% if profile_user.profile.institution %}
+                <div class="profile-meta-item">
+                    <i class="fas fa-university"></i>
+                    <span>{{ profile_user.profile.institution }}</span>
+                </div>
+                {% endif %}
+                {% if profile_user.profile.location %}
+                <div class="profile-meta-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>{{ profile_user.profile.location }}</span>
+                </div>
+                {% endif %}
+                {% if profile_user.email %}
+                <div class="profile-meta-item">
+                    <i class="fas fa-envelope"></i>
+                    <span>{{ profile_user.email }}</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="profile-stats">
+                <div class="profile-stat">
+                    <strong>{{ projects.paginator.count }}</strong> repositories
+                </div>
+            </div>
+        </aside>
+
+        <!-- Right Content Area -->
+        <main class="profile-content">
+            <!-- Navigation Tabs -->
+            <nav class="profile-nav">
+                <a href="?tab=overview" class="profile-nav-item">
+                    <i class="fas fa-book"></i>
+                    Overview
+                </a>
+                <a href="?tab=repositories" class="profile-nav-item active">
+                    <i class="fas fa-book-open"></i>
+                    Repositories
+                    <span class="nav-counter">{{ projects.paginator.count }}</span>
+                </a>
+                <a href="?tab=projects" class="profile-nav-item">
+                    <i class="fas fa-table"></i>
+                    Projects
+                    <span class="nav-counter">0</span>
+                </a>
+                <a href="?tab=stars" class="profile-nav-item">
+                    <i class="fas fa-star"></i>
+                    Stars
+                    <span class="nav-counter">0</span>
+                </a>
+            </nav>
+
+            <!-- Repository Section Header -->
+            <div class="repo-section-header">
+                <div class="repo-search">
+                    <input type="text" placeholder="Find a repository..." id="repo-search">
+                </div>
+                {% if user.is_authenticated and user == profile_user %}
+                <a href="{% url 'project_create' %}" class="btn-new-repo">
+                    <i class="fas fa-book"></i>
+                    New
+                </a>
+                {% endif %}
+            </div>
+
+            <!-- Repository List -->
+            {% if projects %}
+            <div class="repo-list">
+                {% for project in projects %}
+                <article class="repo-item">
+                    <div class="repo-header">
+                        <a href="{{ project.get_absolute_url }}" class="repo-name">
                             {{ project.name }}
                         </a>
+                        <span class="repo-visibility">Public</span>
                     </div>
-                    <div class="project-description">
-                        {{ project.description|truncatewords:20 }}
-                    </div>
-                    <div class="project-meta">
-                        <span>{{ project.status|capfirst }}</span>
-                        <span>Updated {{ project.updated_at|timesince }} ago</span>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
 
-        <!-- Pagination -->
-        {% if projects.has_other_pages %}
-            <nav aria-label="Projects pagination" class="mt-4">
-                <ul class="pagination justify-content-center">
-                    {% if projects.has_previous %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page=1">&laquo; First</a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ projects.previous_page_number }}">Previous</a>
-                        </li>
+                    {% if project.description %}
+                    <p class="repo-description">
+                        {{ project.description|truncatewords:30 }}
+                    </p>
                     {% endif %}
 
-                    <li class="page-item active">
-                        <span class="page-link">
-                            Page {{ projects.number }} of {{ projects.paginator.num_pages }}
+                    <div class="repo-meta">
+                        <span class="repo-meta-item">
+                            <span class="language-dot" style="background-color: #3572A5;"></span>
+                            <span>Python</span>
                         </span>
-                    </li>
+                        <span class="repo-meta-item">
+                            Updated {{ project.updated_at|timesince }} ago
+                        </span>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if projects.has_other_pages %}
+            <nav aria-label="Repository pagination" style="margin-top: 32px;">
+                <div style="display: flex; justify-content: center; gap: 8px;">
+                    {% if projects.has_previous %}
+                    <a href="?page={{ projects.previous_page_number }}" class="pagination-link">
+                        Previous
+                    </a>
+                    {% endif %}
+
+                    <span class="pagination-info">
+                        {{ projects.number }} / {{ projects.paginator.num_pages }}
+                    </span>
 
                     {% if projects.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ projects.next_page_number }}">Next</a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ projects.paginator.num_pages }}">Last &raquo;</a>
-                        </li>
+                    <a href="?page={{ projects.next_page_number }}" class="pagination-link">
+                        Next
+                    </a>
                     {% endif %}
-                </ul>
+                </div>
             </nav>
-        {% endif %}
-    {% else %}
-        <div class="empty-state">
-            <i class="fas fa-folder-open"></i>
-            <h3>No Public Projects</h3>
-            <p>{{ profile_user.get_full_name|default:profile_user.username }} hasn't made any projects public yet.</p>
-            {% if user.is_authenticated and user == profile_user %}
-                <a href="{% url 'project_app:create' %}" class="btn btn-primary mt-3">
-                    <i class="fas fa-plus"></i> Create Your First Project
-                </a>
             {% endif %}
-        </div>
-    {% endif %}
+            {% else %}
+            <!-- Empty State -->
+            <div class="empty-state">
+                <div class="empty-state-icon">
+                    <i class="fas fa-book-open"></i>
+                </div>
+                <h3>{{ profile_user.username }} doesn't have any public repositories yet.</h3>
+                {% if user.is_authenticated and user == profile_user %}
+                <p>Create your first repository to start building with SciTeX.</p>
+                <a href="{% url 'project_create' %}" class="btn-new-repo">
+                    <i class="fas fa-book"></i>
+                    Create a new repository
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </main>
+    </div>
 </div>
+
+<script>
+// Simple client-side repository search
+document.getElementById('repo-search')?.addEventListener('input', function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    const repoItems = document.querySelectorAll('.repo-item');
+
+    repoItems.forEach(item => {
+        const repoName = item.querySelector('.repo-name').textContent.toLowerCase();
+        const repoDesc = item.querySelector('.repo-description')?.textContent.toLowerCase() || '';
+
+        if (repoName.includes(searchTerm) || repoDesc.includes(searchTerm)) {
+            item.style.display = '';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+});
+</script>
 {% endblock %}
