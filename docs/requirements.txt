@@ -24,6 +24,9 @@ python-decouple==3.8
 PyJWT==2.8.0
 cryptography==42.0.5
 
+# Integrations
+requests>=2.31.0
+
 # Utilities
 python-dotenv==1.0.1
 whitenoise==6.11.0

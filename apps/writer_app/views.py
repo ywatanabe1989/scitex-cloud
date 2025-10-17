@@ -3015,3 +3015,79 @@ def ai_suggest_citations(request):
 
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+
+# ============================================
+# Collaborator Management
+# ============================================
+
+@login_required
+@require_http_methods(["POST"])
+def add_collaborator(request, project_id):
+    """Add collaborator to manuscript."""
+    try:
+        project = get_object_or_404(Project, id=project_id, owner=request.user)
+        manuscript, _ = Manuscript.objects.get_or_create(
+            project=project,
+            owner=request.user
+        )
+        
+        data = json.loads(request.body)
+        username = data.get('username', '').strip()
+        
+        if not username:
+            return JsonResponse({'error': 'Username required'}, status=400)
+        
+        # Find user
+        try:
+            collaborator = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return JsonResponse({'error': f'User "{username}" not found'}, status=404)
+        
+        # Can't add yourself
+        if collaborator == request.user:
+            return JsonResponse({'error': 'Cannot add yourself as collaborator'}, status=400)
+        
+        # Check if already collaborator
+        if manuscript.collaborators.filter(id=collaborator.id).exists():
+            return JsonResponse({'error': f'{username} is already a collaborator'}, status=400)
+        
+        # Add collaborator
+        manuscript.collaborators.add(collaborator)
+        
+        # Also add to project collaborators
+        if not project.collaborators.filter(id=collaborator.id).exists():
+            project.collaborators.add(collaborator)
+        
+        return JsonResponse({
+            'success': True,
+            'collaborator': {
+                'id': collaborator.id,
+                'username': collaborator.username,
+                'full_name': collaborator.get_full_name() or collaborator.username
+            }
+        })
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@login_required
+@require_http_methods(["POST"])
+def remove_collaborator(request, project_id, collaborator_id):
+    """Remove collaborator from manuscript."""
+    try:
+        project = get_object_or_404(Project, id=project_id, owner=request.user)
+        manuscript = get_object_or_404(Manuscript, project=project, owner=request.user)
+        collaborator = get_object_or_404(User, id=collaborator_id)
+        
+        # Remove from manuscript
+        manuscript.collaborators.remove(collaborator)
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'{collaborator.username} removed from manuscript'
+        })
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
