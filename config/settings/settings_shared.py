@@ -321,6 +321,12 @@ LOGIN_URL = "/auth/login/"
 LOGIN_REDIRECT_URL = "/core/"  # Redirects to dashboard
 LOGOUT_REDIRECT_URL = "/"
 
+# Integration settings
+# ORCID OAuth Configuration
+ORCID_CLIENT_ID = os.getenv('ORCID_CLIENT_ID', '')
+ORCID_CLIENT_SECRET = os.getenv('ORCID_CLIENT_SECRET', '')
+ORCID_REDIRECT_URI = os.getenv('ORCID_REDIRECT_URI', 'http://localhost:8000/integrations/orcid/callback/')
+
 # REST Framework configuration
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
