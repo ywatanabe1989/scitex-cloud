@@ -425,12 +425,12 @@
             <button onclick="copyProjectToClipboard()" class="btn btn-sm btn-outline-primary" id="copy-project-btn">
                 📋 Copy Concatenated Text
             </button>
-            <button class="btn btn-sm btn-outline-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+            <button class="btn btn-sm btn-outline-primary dropdown-toggle dropdown-toggle-split" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                 <span class="visually-hidden">Toggle Dropdown</span>
             </button>
-            <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="#" onclick="copyProjectToClipboard(); return false;">📋 Copy</a></li>
-                <li><a class="dropdown-item" href="#" onclick="downloadProjectAsFile(); return false;">💾 Download</a></li>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); copyProjectToClipboard();">📋 Copy</a></li>
+                <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); downloadProjectAsFile();">💾 Download</a></li>
             </ul>
         </div>
     </div>
