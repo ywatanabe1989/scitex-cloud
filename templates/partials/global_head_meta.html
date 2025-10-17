@@ -3,7 +3,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="{% block meta_description %}SciTeX - The complete scientific research platform for researchers and academics{% endblock %}">
 
-<!-- Theme Switcher moved to global_body_scripts.html for centralization -->
+<!-- Inline theme application - Prevents flash of unstyled content -->
+<script>
+(function() {
+    const theme = localStorage.getItem('scitex-theme-preference') || 'light';
+    if (theme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        document.documentElement.setAttribute('data-color-mode', 'dark');
+    } else {
+        document.documentElement.setAttribute('data-color-mode', 'light');
+    }
+})();
+</script>
 
 <!-- Favicon -->
 <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}?v=2">
