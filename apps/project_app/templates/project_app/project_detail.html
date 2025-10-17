@@ -363,6 +363,29 @@
     display: block;
 }
 
+/* Split button dropdown fix */
+.btn-group {
+    position: relative;
+}
+
+.btn-group .dropdown-menu {
+    z-index: 1050;
+    background: var(--color-canvas-default);
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+}
+
+.btn-group .dropdown-item {
+    color: var(--color-fg-default);
+    padding: 8px 16px;
+}
+
+.btn-group .dropdown-item:hover {
+    background: var(--color-canvas-subtle);
+    color: var(--color-fg-default);
+}
+
 @media (max-width: 1024px) {
     .repo-layout {
         grid-template-columns: 1fr;
@@ -429,8 +452,8 @@
                 <span class="visually-hidden">Toggle Dropdown</span>
             </button>
             <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); copyProjectToClipboard();">📋 Copy</a></li>
-                <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); downloadProjectAsFile();">💾 Download</a></li>
+                <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); copyProjectToClipboard();">📋 Copy Concatenated Text</a></li>
+                <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); downloadProjectAsFile();">💾 Download Concatenated Text</a></li>
             </ul>
         </div>
     </div>
