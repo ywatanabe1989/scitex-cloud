@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SciTeX{% endblock %}</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/static/images/favicon.png">
+
+    <!-- Theme Switcher (must load early to prevent flash) -->
+    {% load static %}
+    <script src="{% static 'js/theme-switcher.js' %}"></script>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- SciTeX Theme System -->
+    <link rel="stylesheet" href="{% static 'css/common/variables.css' %}">
+    <link rel="stylesheet" href="{% static 'css/github_header.css' %}">
+
+    <!-- GitHub-style base styles -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        a {
+            color: #58a6ff;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* GitHub-style header */
+        .github-header {
+            background-color: #161b22;
+            border-bottom: 1px solid #21262d;
+            padding: 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .github-header-inner {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 0 16px;
+            height: 64px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-center {
+            flex: 1;
+            max-width: 600px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Logo */
+        .github-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #c9d1d9;
+            font-size: 18px;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: opacity 0.2s ease;
+        }
+
+        .github-logo:hover {
+            opacity: 0.8;
+            text-decoration: none;
+        }
+
+        .github-logo i {
+            font-size: 24px;
+            color: #58a6ff;
+        }
+
+        /* Search bar */
+        .header-search {
+            width: 100%;
+            position: relative;
+        }
+
+        .header-search input {
+            width: 100%;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 5px 12px 5px 36px;
+            color: #c9d1d9;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .header-search input:focus {
+            outline: none;
+            border-color: #58a6ff;
+            background: #0d1117;
+        }
+
+        .header-search input::placeholder {
+            color: #8b949e;
+        }
+
+        .header-search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #8b949e;
+            pointer-events: none;
+        }
+
+        /* Navigation */
+        .header-nav {
+            display: flex;
+            gap: 0;
+            align-items: center;
+        }
+
+        .header-nav-item {
+            color: #c9d1d9;
+            padding: 8px 12px;
+            border-radius: 6px;
+            transition: background 0.2s ease;
+            font-size: 14px;
+            font-weight: 500;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .header-nav-item:hover {
+            background: #21262d;
+            text-decoration: none;
+        }
+
+        .header-nav-item i {
+            font-size: 16px;
+        }
+
+        /* Action buttons */
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-btn {
+            background: transparent;
+            border: 1px solid #30363d;
+            color: #c9d1d9;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .header-btn:hover {
+            background: #21262d;
+            border-color: #8b949e;
+            text-decoration: none;
+        }
+
+        .header-btn-primary {
+            background: #238636;
+            border-color: rgba(240,246,252,0.1);
+        }
+
+        .header-btn-primary:hover {
+            background: #2ea043;
+        }
+
+        /* User menu */
+        .header-user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .header-user:hover {
+            background: #21262d;
+        }
+
+        .header-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #21262d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #58a6ff;
+            font-weight: 600;
+            border: 1px solid #30363d;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .header-nav-item span {
+                display: none;
+            }
+
+            .header-search {
+                max-width: 300px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-center {
+                display: none;
+            }
+
+            .header-nav {
+                gap: 4px;
+            }
+
+            .header-nav-item {
+                padding: 8px;
+            }
+        }
+
+        /* Messages */
+        .alert {
+            max-width: 1280px;
+            margin: 16px auto;
+            border-radius: 6px;
+        }
+
+        .alert-success {
+            background: #1a472a;
+            border-color: #2ea043;
+            color: #7ee787;
+        }
+
+        .alert-error, .alert-danger {
+            background: #4c1e24;
+            border-color: #f85149;
+            color: #ff7b72;
+        }
+
+        .alert-warning {
+            background: #4a3607;
+            border-color: #bb8009;
+            color: #f0b62d;
+        }
+
+        .alert-info {
+            background: #0c2d6b;
+            border-color: #58a6ff;
+            color: #79c0ff;
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- GitHub-style Header -->
+    <header class="github-header">
+        <div class="github-header-inner">
+            <!-- Left: Logo + Navigation -->
+            <div class="header-left">
+                <a href="/" class="github-logo">
+                    <i class="fas fa-flask"></i>
+                    <span>SciTeX</span>
+                </a>
+
+                <nav class="header-nav">
+                    <a href="/scholar/" class="header-nav-item">
+                        <i class="fas fa-book"></i>
+                        <span>Scholar</span>
+                    </a>
+                    <a href="/code/" class="header-nav-item">
+                        <i class="fas fa-code"></i>
+                        <span>Code</span>
+                    </a>
+                    <a href="/viz/" class="header-nav-item">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Viz</span>
+                    </a>
+                    <a href="/writer/" class="header-nav-item">
+                        <i class="fas fa-pen"></i>
+                        <span>Writer</span>
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Center: Search -->
+            <div class="header-center">
+                <div class="header-search">
+                    <i class="fas fa-search header-search-icon"></i>
+                    <input type="text" placeholder="Search repositories, users..." id="global-search">
+                </div>
+            </div>
+
+            <!-- Right: Actions + User -->
+            <div class="header-right">
+                {% if user.is_authenticated %}
+                    <a href="/project/create/" class="header-btn header-btn-primary">
+                        <i class="fas fa-plus"></i>
+                        <span>New</span>
+                    </a>
+                    <a href="/{{ user.username }}/" class="header-user" title="Profile">
+                        <div class="header-avatar">
+                            {{ user.username|slice:":1"|upper }}
+                        </div>
+                    </a>
+                    <a href="/core/dashboard/" class="header-nav-item" title="Dashboard">
+                        <i class="fas fa-th"></i>
+                    </a>
+                    <a href="/auth/logout/" class="header-nav-item" title="Logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </a>
+                {% else %}
+                    <a href="/auth/login/" class="header-btn">
+                        Login
+                    </a>
+                    <a href="/auth/signup/" class="header-btn header-btn-primary">
+                        Sign up
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <!-- Django Messages -->
+    {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

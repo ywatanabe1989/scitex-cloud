@@ -1,0 +1,15 @@
+/* SciTeX Typography Variables */
+
+:root {
+  /* Typography */
+  --base-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --heading-font-family: var(--base-font-family);
+  --mono-font-family: Consolas, Monaco, 'Andale Mono', monospace;
+
+  --base-font-size: 16px;
+  --small-font-size: 0.875rem;
+  --large-font-size: 1.125rem;
+
+  --base-line-height: 1.6;
+  --heading-line-height: 1.2;
+}

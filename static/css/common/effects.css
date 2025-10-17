@@ -1,0 +1,22 @@
+/* SciTeX Effects - Borders, Shadows, Transitions */
+
+:root {
+  /* Borders & Radius */
+  --border-radius: 4px;
+  --border-radius-lg: 8px;
+  --border-radius-xl: 12px;
+  --border-radius-pill: 50rem;
+  --border-width: 1px;
+  --border-color: var(--gray-300);
+
+  /* Box Shadows */
+  --box-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --box-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --box-shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --box-shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1);
+
+  /* Transitions */
+  --transition-fast: 0.2s;
+  --transition-normal: 0.3s;
+  --transition-slow: 0.5s;
+}
