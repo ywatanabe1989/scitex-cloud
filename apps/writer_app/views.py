@@ -401,42 +401,49 @@ SciTeX Cloud Team
 
             print(f"[COMPILE] Starting subprocess at {paper_path}", file=sys.stderr)
 
-            # Run the compile script with -m flag and capture output
-            process = subprocess.Popen(
-                ['bash', './compile', '-m'],
-                cwd=paper_path,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-                env=env
-            )
+            # Create a log file to capture output in real-time
+            from django.conf import settings
+            log_dir = Path(settings.BASE_DIR) / 'tmp' / 'compilation_logs'
+            log_dir.mkdir(parents=True, exist_ok=True)
+            log_file_path = log_dir / f'{job.job_id}.log'
 
-            print(f"[COMPILE] Process started, PID: {process.pid}", file=sys.stderr)
+            # Run compile script and redirect output to log file
+            # Use 'tee' to capture AND display output
+            with open(log_file_path, 'w') as log_file:
+                process = subprocess.Popen(
+                    ['bash', './compile', '-m'],
+                    cwd=paper_path,
+                    stdout=log_file,
+                    stderr=subprocess.STDOUT,  # Merge stderr into stdout for combined log
+                    text=True,
+                    env=env
+                )
 
-            # Capture output
-            try:
-                stdout, stderr = process.communicate(timeout=300)  # 5 minutes for compilation
-                print(f"[COMPILE] Process completed. Return code: {process.returncode}", file=sys.stderr)
-                print(f"[COMPILE] Stdout: {len(stdout)} chars, Stderr: {len(stderr)} chars", file=sys.stderr)
+                print(f"[COMPILE] Process started, PID: {process.pid}, Log: {log_file_path}", file=sys.stderr)
 
-                # Combine stdout and stderr (compile script outputs to both)
-                full_log = stdout + '\n\n=== STDERR ===\n' + stderr
-                job.log_file = full_log
+                # Store log file path for incremental reading
+                job.log_file = str(log_file_path)
                 job.save()
-                print(f"[COMPILE] Log saved: {len(full_log)} chars", file=sys.stderr)
 
-                result = type('Result', (), {
-                    'returncode': process.returncode,
-                    'stdout': stdout,
-                    'stderr': stderr
-                })()
+                # Wait for process to complete
+                returncode = process.wait(timeout=300)  # 5 minutes
+                print(f"[COMPILE] Process completed. Return code: {returncode}", file=sys.stderr)
 
-            except subprocess.TimeoutExpired:
-                print(f"[COMPILE] Process timed out!", file=sys.stderr)
-                process.kill()
-                stdout, stderr = process.communicate()
-                full_log = (stdout or '') + '\n' + (stderr or '')
-                raise
+            # Read final log
+            with open(log_file_path, 'r') as f:
+                full_log = f.read()
+
+            print(f"[COMPILE] Final log: {len(full_log)} chars", file=sys.stderr)
+
+            # Update job with full log
+            job.log_file = full_log
+            job.save()
+
+            result = type('Result', (), {
+                'returncode': returncode,
+                'stdout': full_log,
+                'stderr': ''
+            })()
             
             if result.returncode == 0:
                 # Check if PDF was created (compile script outputs to 01_manuscript/manuscript.pdf)
@@ -1093,8 +1100,24 @@ def compilation_status(request, job_id):
 
     # Add log information - show to all users for transparency
     if job.log_file:
-        response_data['log'] = job.log_file  # Full log for user visibility
-        response_data['log_preview'] = job.log_file[:500]  # First 500 chars for preview
+        # Check if log_file is a file path (starts with /) or actual log content
+        if job.log_file.startswith('/') or job.log_file.startswith('tmp/'):
+            # It's a file path - read the current content
+            try:
+                log_file_path = Path(job.log_file) if job.log_file.startswith('/') else Path(settings.BASE_DIR) / job.log_file
+                if log_file_path.exists():
+                    with open(log_file_path, 'r') as f:
+                        current_log = f.read()
+                    response_data['log'] = current_log
+                    response_data['log_preview'] = current_log[-1000:]  # Last 1000 chars
+                else:
+                    response_data['log'] = 'Log file not found'
+            except Exception as e:
+                response_data['log'] = f'Error reading log: {e}'
+        else:
+            # It's actual log content
+            response_data['log'] = job.log_file
+            response_data['log_preview'] = job.log_file[:500]
 
     return JsonResponse(response_data)
 
