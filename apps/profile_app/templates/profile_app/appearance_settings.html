@@ -215,12 +215,12 @@
                 <i class="fas fa-bell"></i>
                 <span>Notifications</span>
             </a>
-            <a href="#" class="settings-nav-item">
-                <i class="fas fa-shield-alt"></i>
-                <span>Security</span>
-            </a>
-            <a href="#" class="settings-nav-item">
+            <a href="{% url 'profile_app:ssh_keys' %}" class="settings-nav-item">
                 <i class="fas fa-key"></i>
+                <span>SSH keys</span>
+            </a>
+            <a href="{% url 'profile_app:api_keys' %}" class="settings-nav-item">
+                <i class="fas fa-shield-alt"></i>
                 <span>API keys</span>
             </a>
         </aside>

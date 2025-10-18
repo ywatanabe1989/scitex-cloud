@@ -24,10 +24,14 @@ logger = logging.getLogger("scitex")
 
 
 def index(request):
-    """Cloud app index view - redirect logged-in users to their profile (GitHub-style)."""
-    # If user is authenticated, redirect to their profile page (GitHub-style: /username/)
-    if request.user.is_authenticated:
-        return redirect(f'/{request.user.username}/')
+    """
+    Cloud app index view - Landing page for all users.
+
+    Shows the landing page to all visitors, including authenticated users.
+    This allows the logo to always return to the landing page.
+    """
+    # Show landing page to all users (removed auto-redirect for logged-in users)
+    # Users can navigate to their profile via the header navigation
 
     # Module features for landing page demos
     scholar_features = [

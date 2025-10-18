@@ -1,3 +1,9 @@
+<!-- ---
+!-- Timestamp: 2025-10-18 21:32:16
+!-- Author: ywatanabe
+!-- File: /home/ywatanabe/proj/scitex-cloud/config/README.md
+!-- --- -->
+
 # SciTeX Cloud Configuration
 
 This directory contains all Django configuration files organized for easy environment management.
@@ -6,113 +12,100 @@ This directory contains all Django configuration files organized for easy enviro
 
 ```
 config/
-├── settings/              # Django settings (organized by environment)
-│   ├── __init__.py       # Auto-detects environment
-│   ├── base.py           # Shared settings for all environments
-│   ├── development.py    # Development-specific settings
-│   └── production.py     # Production-specific settings
-├── deployment/            # Deployment configurations
-│   ├── uwsgi/            # uWSGI configs
-│   │   ├── uwsgi.ini
-│   │   ├── uwsgi_prod.ini
-│   │   └── uwsgi_simple.ini
-│   └── nginx/            # Nginx configs
-│       └── *.conf
-├── asgi.py               # ASGI application
-├── wsgi.py               # WSGI application
-├── urls.py               # URL configuration
-├── routing.py            # WebSocket routing
-└── logger.py             # Logging configuration
+├── settings/                      # Django settings (organized by environment)
+│   ├── __init__.py               # Auto-detects environment
+│   ├── settings_shared.py        # Shared settings for all environments
+│   ├── settings_dev.py           # Development-specific settings
+│   └── settings_prod.py          # Production-specific settings
+├── asgi.py                       # ASGI application
+├── wsgi.py                       # WSGI application
+├── urls.py                       # URL configuration
+├── routing.py                    # WebSocket routing
+└── logger.py                     # Logging configuration
 ```
 
-## Environment Switching
-
-### Method 1: Environment Variable (Recommended)
-
-```bash
-# Development (default)
-export SCITEX_CLOUD_ENV=development
-python manage.py runserver
-
-# Production
-export SCITEX_CLOUD_ENV=production
-gunicorn config.wsgi:application
-```
-
-### Method 2: Django Settings Module
-
-```bash
-# Development
-export DJANGO_SETTINGS_MODULE=config.settings.development
-
-# Production
-export DJANGO_SETTINGS_MODULE=config.settings.production
-```
-
-## Quick Start
-
-### Development
-
-```bash
-# Default - automatically uses development settings
-./scripts/scitex_server.sh start
-
-# Or explicitly
-./scripts/scitex_server.sh start -m dev
-```
-
-### Production
-
-```bash
-# Set environment
-export SCITEX_CLOUD_ENV=production
-
-# Start production server
-./scripts/scitex_server.sh start -m prod -d
-```
+> **Note**: This directory contains **Django application configuration only**.
+> For deployment configs (Nginx, uWSGI, PostgreSQL), see `../deployment/`
 
 ## Settings Files
 
-### `base.py`
+### `settings_shared.py`
 - Shared settings for all environments
-- Database configuration
+- Database configuration (supports both PostgreSQL and SQLite)
 - Installed apps
 - Middleware
 - Static/media files base configuration
+- Logging setup
 
-### `development.py`
-- Inherits from `base.py`
+### `settings_dev.py`
+- Imports from `settings_shared.py`
 - DEBUG=True
-- Development database (SQLite)
-- Django debug toolbar
-- Hot reload enabled
-- Console email backend
+- Development database (PostgreSQL `scitex_cloud_dev` or SQLite fallback)
+- CORS enabled for all origins
+- Console logging
+- Environment variables with `_DEV` suffix
 
-### `production.py`
-- Inherits from `base.py`
+### `settings_prod.py`
+- Imports from `settings_shared.py`
 - DEBUG=False
-- Production database
-- Security settings
-- SMTP email backend
-- Logging configuration
+- Production database (PostgreSQL `scitex_cloud_prod`)
+- Security settings enforced
+- HTTPS required
+- Environment variables with `_PROD` suffix
 
-## Auto-Detection Logic
+## Environment Switching
 
-The `settings/__init__.py` automatically loads the appropriate settings based on:
+### Method 1: Django Settings Module (Recommended)
 
-1. `SCITEX_CLOUD_ENV` environment variable (recommended)
-2. Falls back to development if not set
+```bash
+# Development (default)
+export DJANGO_SETTINGS_MODULE=config.settings.settings_dev
+python manage.py runserver
 
-## Migration from Old Structure
+# Production
+export DJANGO_SETTINGS_MODULE=config.settings.settings_prod
+```
 
-Previously used files (now archived):
-- `config/settings.py` → Archived
-- `config/django_settings.py` → Archived
+### Method 2: Auto-detection
 
-These have been replaced by the organized `config/settings/` directory structure.
+The `settings/__init__.py` automatically detects the environment based on:
+- Hostname patterns
+- Environment variables
+- Working directory location
+
+## Environment Variables
+
+Both environments use `SCITEX_CLOUD_*` prefix:
+
+**Development:**
+```bash
+SCITEX_CLOUD_DB_NAME_DEV=scitex_cloud_dev
+SCITEX_CLOUD_DB_USER_DEV=scitex_dev
+SCITEX_CLOUD_DB_PASSWORD_DEV=scitex_dev_2025
+```
+
+**Production:**
+```bash
+SCITEX_CLOUD_DB_NAME_PROD=scitex_cloud_prod
+SCITEX_CLOUD_DB_USER_PROD=scitex_prod
+SCITEX_CLOUD_DB_PASSWORD_PROD=your_secure_password
+```
+
+See `../deployment/docs/01_ENVIRONMENT_VARIABLES.md` for complete documentation.
+
+## Deployment
+
+For server deployment configuration (Nginx, uWSGI, systemd), see:
+- **`../deployment/`** - Complete deployment configuration and documentation
+  - `deployment/docs/00_QUICK_START.md` - Step-by-step deployment guide
+  - `deployment/nginx/` - Nginx web server configs
+  - `deployment/uwsgi/` - uWSGI application server configs
+  - `deployment/postgres/` - PostgreSQL database setup
 
 ## See Also
 
-- `/scripts/` - Server management scripts organized by environment
-- `/scripts/dev/` - Development scripts
-- `/scripts/prod/` - Production deployment scripts
+- `../deployment/` - Server deployment configurations
+- `../scripts/` - Database and deployment automation scripts
+- `../apps/` - Django applications
+
+<!-- EOF -->

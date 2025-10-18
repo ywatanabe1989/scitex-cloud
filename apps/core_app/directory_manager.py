@@ -95,7 +95,7 @@ class UserDirectoryManager:
         """
         Get the base directory path for the user.
 
-        New structure: ./data/{username}/
+        Structure: ./data/{username}/
         """
         return Path(settings.BASE_DIR) / 'data' / self.user.username
     
@@ -160,7 +160,7 @@ class UserDirectoryManager:
             print(f"Error initializing user workspace: {e}")
             return False
     
-    def create_project_directory(self, project: Project, use_template: bool = False) -> Tuple[bool, Optional[Path]]:
+    def create_project_directory(self, project: Project, use_template: bool = False, template_type: str = 'research') -> Tuple[bool, Optional[Path]]:
         """
         Create directory structure for a new repository.
 
@@ -169,6 +169,7 @@ class UserDirectoryManager:
         Args:
             project: Project instance
             use_template: If True, create full template structure. If False, create empty directory.
+            template_type: Type of template to use ('research', 'pip_project', 'singularity')
         """
         try:
             project_slug = project.slug  # Use the generated slug
@@ -182,8 +183,8 @@ class UserDirectoryManager:
             if not self._ensure_directory(self.base_path / 'projects'):
                 return False, None
 
-            # If template requested, try to copy from SciTeX-Example-Research-Project
-            if use_template and self._copy_from_example_template(project_path, project):
+            # If template requested, try to copy from scitex template
+            if use_template and self._copy_from_example_template(project_path, project, template_type):
                 # Update project with directory info
                 project.data_location = str(project_path.relative_to(self.base_path))
                 project.directory_created = True
@@ -210,16 +211,25 @@ class UserDirectoryManager:
             print(f"Error creating project directory: {e}")
             return False, None
 
-    def create_project_from_template(self, project: Project) -> Tuple[bool, Optional[Path]]:
+    def create_project_from_template(self, project: Project, template_type: str = 'research') -> Tuple[bool, Optional[Path]]:
         """
         Create full template structure for an existing project.
         This can be called when user clicks "Create from template" button.
+
+        Args:
+            project: Project instance
+            template_type: Type of template ('research', 'pip_project', or 'singularity')
         """
         try:
             project_path = self.get_project_path(project)
             if not project_path:
                 return False, None
 
+            # Try to use scitex template if available
+            if self._copy_from_example_template(project_path, project, template_type):
+                return True, project_path
+
+            # Fallback: Create manual structure if scitex template fails
             # Create project subdirectories with scientific workflow structure
             for main_dir, sub_structure in self.PROJECT_STRUCTURE.items():
                 main_path = project_path / main_dir
@@ -410,27 +420,42 @@ class UserDirectoryManager:
             print(f"Error deleting project directory: {e}")
             return False
     
-    def _copy_from_example_template(self, project_path: Path, project) -> bool:
-        """Copy structure from research project template using scitex package."""
+    def _copy_from_example_template(self, project_path: Path, project, template_type: str = 'research') -> bool:
+        """
+        Copy structure from template using scitex package.
+
+        Args:
+            project_path: Path where project will be created
+            project: Project instance
+            template_type: Type of template ('research', 'pip_project', or 'singularity')
+        """
         try:
-            # Use scitex package to create research project
-            from scitex.template.create_research import create_research
+            # Import appropriate template creator based on type
+            if template_type == 'research':
+                from scitex.template.create_research import create_research as create_template
+            elif template_type == 'pip_project':
+                from scitex.template.create_pip_project import create_pip_project as create_template
+            elif template_type == 'singularity':
+                from scitex.template.create_singularity import create_singularity as create_template
+            else:
+                print(f"Unknown template type: {template_type}, defaulting to research")
+                from scitex.template.create_research import create_research as create_template
 
             # Create the project using scitex template function
-            # Note: create_research expects project_name and target_dir
-            # It creates: target_dir/project_name/
+            # Note: template functions expect project_name and target_dir
+            # They create: target_dir/project_name/
             # So we need to pass parent as target_dir and project_slug as name
             if not project_path.parent.exists():
                 project_path.parent.mkdir(parents=True, exist_ok=True)
 
-            # Call scitex to create the research project
-            # create_research creates target_dir/project_name, so pass parent and name
-            create_research(project_path.name, str(project_path.parent))
+            # Call scitex to create the project from template
+            # Template functions create target_dir/project_name, so pass parent and name
+            create_template(project_path.name, str(project_path.parent))
 
             # Customize copied template for this project
-            self._customize_template_for_project(project_path, project)
+            self._customize_template_for_project(project_path, project, template_type)
 
-            print(f"Successfully created research project using scitex at {project_path}")
+            print(f"Successfully created {template_type} project using scitex at {project_path}")
             return True
 
         except ImportError as e:
@@ -438,10 +463,10 @@ class UserDirectoryManager:
             print("Fallback: Project will be created with basic structure")
             return False
         except Exception as e:
-            print(f"Error creating research project template: {e}")
+            print(f"Error creating {template_type} project template: {e}")
             return False
     
-    def _customize_template_for_project(self, project_path: Path, project):
+    def _customize_template_for_project(self, project_path: Path, project, template_type: str = 'research'):
         """Customize the copied template with project-specific information."""
         try:
             # Update README.md with project info
@@ -1093,6 +1118,88 @@ Error: {error_msg or 'None'}
             print(f"Error marking script as finished: {e}")
             return False
     
+    def clone_from_git(self, project: Project, git_url: str, use_ssh: bool = True) -> Tuple[bool, Optional[str]]:
+        """
+        Clone a Git repository into the project directory.
+
+        Args:
+            project: Project instance
+            git_url: Git repository URL (works with GitHub, GitLab, Bitbucket, etc.)
+            use_ssh: If True and SSH key exists, use SSH for cloning
+
+        Returns:
+            Tuple of (success, error_message)
+        """
+        try:
+            import subprocess
+            import tempfile
+
+            project_path = self.get_project_path(project)
+            if not project_path or not project_path.exists():
+                return False, "Project directory not found"
+
+            # Get SSH environment if available
+            env = os.environ.copy()
+            ssh_used = False
+
+            if use_ssh:
+                from .ssh_manager import SSHKeyManager
+                ssh_manager = SSHKeyManager(self.user)
+
+                if ssh_manager.has_ssh_key():
+                    env = ssh_manager.get_ssh_env()
+                    ssh_used = True
+
+            # Strategy: Clone to a temporary directory, then move contents
+            # This avoids the "destination path already exists and is not an empty directory" error
+
+            # Create a temporary directory for cloning
+            with tempfile.TemporaryDirectory() as temp_dir:
+                temp_clone_path = Path(temp_dir) / 'repo'
+
+                # Clone the repository into the temporary directory
+                result = subprocess.run(
+                    ['git', 'clone', git_url, str(temp_clone_path)],
+                    capture_output=True,
+                    text=True,
+                    timeout=300,  # 5 minute timeout
+                    env=env
+                )
+
+                if result.returncode != 0:
+                    error_msg = result.stderr or result.stdout or "Unknown error"
+                    return False, error_msg
+
+                # Remove any existing files in the project directory (created during initialization)
+                for item in project_path.iterdir():
+                    if item.is_file():
+                        item.unlink()
+                    elif item.is_dir():
+                        shutil.rmtree(item)
+
+                # Move all contents from temp clone to project directory
+                for item in temp_clone_path.iterdir():
+                    dest = project_path / item.name
+                    if item.is_file():
+                        shutil.copy2(item, dest)
+                    elif item.is_dir():
+                        shutil.copytree(item, dest)
+
+            # Mark SSH key as used if it was used
+            if ssh_used:
+                from .ssh_manager import SSHKeyManager
+                ssh_manager = SSHKeyManager(self.user)
+                ssh_manager.mark_key_used()
+
+            return True, None
+
+        except subprocess.TimeoutExpired:
+            return False, "Git clone operation timed out (max 5 minutes)"
+        except FileNotFoundError:
+            return False, "Git command not found. Please ensure Git is installed."
+        except Exception as e:
+            return False, str(e)
+
     def get_script_executions(self, project: Project, script_name: str = None) -> List[Dict]:
         """Get execution history for scripts in the project."""
         try:

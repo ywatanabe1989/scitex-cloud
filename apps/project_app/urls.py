@@ -9,6 +9,7 @@ urlpatterns = [
     path('', views.project_list, name='list'),
 
     # API endpoints (keep numeric IDs for API)
+    path('api/check-name/', views.api_check_name_availability, name='api_check_name'),
     path('api/list/', views.api_project_list, name='api_list'),
     path('api/create/', views.api_project_create, name='api_create'),
     path('api/<int:pk>/', views.api_project_detail, name='api_detail'),

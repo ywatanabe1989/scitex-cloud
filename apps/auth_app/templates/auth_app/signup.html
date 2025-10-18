@@ -32,24 +32,35 @@
   }
   
   .password-rules {
-    background-color: #f8f9fa;
+    background-color: var(--color-canvas-subtle);
+    border: 1px solid var(--color-border-default);
     border-radius: 8px;
     padding: 1rem;
-    margin-top: 0.5rem;
     font-size: 0.9rem;
   }
-  
+
+  .password-rules-title {
+    font-weight: 600;
+    color: var(--color-fg-default);
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+  }
+
   .password-rule {
-    margin-bottom: 0.25rem;
-    color: #6c757d;
+    margin-bottom: 0.4rem;
+    color: var(--color-fg-muted);
+    display: flex;
+    align-items: center;
   }
-  
+
   .password-rule.valid {
-    color: #28a745;
+    color: var(--scitex-success);
   }
-  
+
   .password-rule i {
     margin-right: 0.5rem;
+    width: 16px;
+    font-size: 0.75rem;
   }
 </style>
 {% endblock %}
@@ -137,7 +148,7 @@
             </div>
           </div>
           
-          <div class="form-group mb-3">
+          <div class="form-group mb-2">
             <label for="{{ form.password.id_for_label }}" class="form-label">Password <span class="text-danger">*</span></label>
             <div class="input-group">
               {{ form.password }}
@@ -148,15 +159,8 @@
             {% if form.password.errors %}
               <div class="text-danger small">{{ form.password.errors.0 }}</div>
             {% endif %}
-            <div class="password-rules">
-              <div class="password-rule" id="rule-length"><i class="fas fa-circle"></i> At least 8 characters</div>
-              <div class="password-rule" id="rule-lowercase"><i class="fas fa-circle"></i> At least one lowercase letter</div>
-              <div class="password-rule" id="rule-uppercase"><i class="fas fa-circle"></i> At least one uppercase letter</div>
-              <div class="password-rule" id="rule-number"><i class="fas fa-circle"></i> At least one number</div>
-              <div class="password-rule" id="rule-special"><i class="fas fa-circle"></i> At least one special character (!@#$%^&*)</div>
-            </div>
           </div>
-          
+
           <div class="form-group mb-3">
             <label for="{{ form.password2.id_for_label }}" class="form-label">Confirm Password <span class="text-danger">*</span></label>
             <div class="input-group">
@@ -168,6 +172,16 @@
             {% if form.password2.errors %}
               <div class="text-danger small">{{ form.password2.errors.0 }}</div>
             {% endif %}
+          </div>
+
+          <!-- Password Requirements -->
+          <div class="password-rules mb-3">
+            <div class="password-rules-title">Password Requirements:</div>
+            <div class="password-rule" id="rule-length"><i class="fas fa-circle"></i> At least 8 characters</div>
+            <div class="password-rule" id="rule-lowercase"><i class="fas fa-circle"></i> At least one lowercase letter</div>
+            <div class="password-rule" id="rule-uppercase"><i class="fas fa-circle"></i> At least one uppercase letter</div>
+            <div class="password-rule" id="rule-number"><i class="fas fa-circle"></i> At least one number</div>
+            <div class="password-rule" id="rule-special"><i class="fas fa-circle"></i> At least one special character (!@#$%^&*)</div>
           </div>
 
           <div class="form-check mb-3">

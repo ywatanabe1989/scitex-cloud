@@ -1,0 +1,347 @@
+{% extends 'github_base.html' %}
+{% load static %}
+
+{% block title %}API Keys - Settings - SciTeX Cloud{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/common/settings-layout.css' %}">
+<style>
+/* API keys page-specific styles */
+.settings-content {
+    max-width: 800px;
+}
+
+.api-key-card {
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    padding: 1.5rem;
+    background: var(--color-canvas-default);
+    margin-bottom: 1rem;
+}
+
+.key-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.key-prefix {
+    font-family: monospace;
+    font-size: 0.9rem;
+    background: var(--color-canvas-subtle);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    color: var(--color-fg-muted);
+}
+
+.key-status {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.key-status.active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.key-status.inactive {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.new-key-alert {
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 6px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.new-key-display {
+    background: #000;
+    color: #0f0;
+    font-family: monospace;
+    padding: 1rem;
+    border-radius: 4px;
+    margin: 1rem 0;
+    font-size: 0.9rem;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+.create-form {
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    padding: 1.5rem;
+    background: var(--color-canvas-subtle);
+    margin-bottom: 2rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--color-border-default);
+    border-radius: 4px;
+    background: var(--color-canvas-default);
+    color: var(--color-fg-default);
+}
+
+.checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: normal;
+}
+
+.settings-header {
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--color-border-default);
+}
+
+.settings-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--color-fg-default);
+    margin: 0 0 4px 0;
+}
+
+.settings-subtitle {
+    font-size: 14px;
+    color: var(--color-fg-muted);
+    margin: 0;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="settings-page">
+    <div class="settings-layout">
+        <!-- Left Navigation -->
+        <aside class="settings-nav">
+            <a href="{% url 'profile_app:profile_edit' %}" class="settings-nav-item">
+                <i class="fas fa-user"></i>
+                <span>Public profile</span>
+            </a>
+            <a href="#" class="settings-nav-item">
+                <i class="fas fa-lock"></i>
+                <span>Account</span>
+            </a>
+            <a href="{% url 'profile_app:appearance' %}" class="settings-nav-item">
+                <i class="fas fa-palette"></i>
+                <span>Appearance</span>
+            </a>
+            <a href="#" class="settings-nav-item">
+                <i class="fas fa-bell"></i>
+                <span>Notifications</span>
+            </a>
+            <a href="{% url 'profile_app:ssh_keys' %}" class="settings-nav-item">
+                <i class="fas fa-key"></i>
+                <span>SSH keys</span>
+            </a>
+            <a href="{% url 'profile_app:api_keys' %}" class="settings-nav-item active">
+                <i class="fas fa-shield-alt"></i>
+                <span>API keys</span>
+            </a>
+        </aside>
+
+    <!-- Main Content -->
+    <main class="settings-content">
+        <div class="settings-header">
+            <h1 class="settings-title">Personal access tokens</h1>
+            <p class="settings-subtitle">
+                Tokens you have generated that can be used to access the SciTeX Cloud API.
+            </p>
+        </div>
+
+        <!-- New Key Alert (shown once after creation) -->
+        {% if new_api_key %}
+        <div class="new-key-alert">
+            <h3 style="margin-top: 0;">✓ API Key Created: {{ new_api_key_name }}</h3>
+            <p style="margin-bottom: 0.5rem;"><strong>⚠️ Important:</strong> Copy this key now. You won't be able to see it again!</p>
+            <div class="new-key-display" id="new-api-key">{{ new_api_key }}</div>
+            <button onclick="copyNewAPIKey(event)" class="btn btn-sm btn-primary">
+                📋 Copy Key
+            </button>
+        </div>
+        {% endif %}
+
+        <!-- Create New Key Form -->
+        <details {% if not api_keys %}open{% endif %} style="margin-bottom: 2rem;">
+            <summary style="cursor: pointer; font-weight: 600; padding: 1rem; background: var(--color-canvas-subtle); border: 1px solid var(--color-border-default); border-radius: 6px;">
+                <i class="fas fa-plus" style="margin-right: 0.5rem;"></i> Generate new token
+            </summary>
+            <div class="create-form" style="margin-top: 1rem;">
+                <form method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="create">
+
+                    <div class="form-group">
+                        <label for="key-name">Key Name *</label>
+                        <input type="text" class="form-control" id="key-name" name="name" required
+                               placeholder="e.g., CLI Tool, GitHub Actions, Personal Script">
+                        <small style="color: var(--color-fg-muted);">A descriptive name to help you remember what this key is for.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Permissions (Scopes)</label>
+                        <div class="checkbox-group">
+                            <label>
+                                <input type="checkbox" name="scopes" value="*" checked>
+                                <span>Full Access (All permissions)</span>
+                            </label>
+                            <label>
+                                <input type="checkbox" name="scopes" value="project:read">
+                                <span>Read Projects</span>
+                            </label>
+                            <label>
+                                <input type="checkbox" name="scopes" value="project:write">
+                                <span>Write Projects</span>
+                            </label>
+                            <label>
+                                <input type="checkbox" name="scopes" value="scholar:read">
+                                <span>Read Scholar Data</span>
+                            </label>
+                        </div>
+                        <small style="color: var(--color-fg-muted);">Select which parts of your account this key can access.</small>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        Generate token
+                    </button>
+                </form>
+            </div>
+        </details>
+
+        <!-- Existing Keys List -->
+        {% if api_keys %}
+        <h2 style="margin-bottom: 1rem; font-size: 16px; font-weight: 600;">Active tokens</h2>
+        {% endif %}
+
+        {% if api_keys %}
+        {% for key in api_keys %}
+        <div class="api-key-card">
+            <div class="key-header">
+                <div>
+                    <h3 style="margin: 0;">{{ key.name }}</h3>
+                    <div class="key-prefix" style="margin-top: 0.5rem;">{{ key.key_prefix }}••••••••••••••••</div>
+                </div>
+                <span class="key-status {% if key.is_active %}active{% else %}inactive{% endif %}">
+                    {% if key.is_active %}Active{% else %}Inactive{% endif %}
+                </span>
+            </div>
+
+            <div style="font-size: 0.9rem; color: var(--color-fg-muted); margin-bottom: 1rem;">
+                <strong>Scopes:</strong>
+                {% if '*' in key.scopes %}
+                    Full Access
+                {% else %}
+                    {{ key.scopes|join:", " }}
+                {% endif %}
+            </div>
+
+            <div style="font-size: 0.85rem; color: var(--color-fg-muted); margin-bottom: 1rem;">
+                <p style="margin: 0.25rem 0;">
+                    <strong>Created:</strong> {{ key.created_at|date:"Y-m-d H:i" }}
+                </p>
+                {% if key.last_used_at %}
+                <p style="margin: 0.25rem 0;">
+                    <strong>Last used:</strong> {{ key.last_used_at|date:"Y-m-d H:i" }}
+                </p>
+                {% else %}
+                <p style="margin: 0.25rem 0;">
+                    <strong>Last used:</strong> Never
+                </p>
+                {% endif %}
+                {% if key.expires_at %}
+                <p style="margin: 0.25rem 0;">
+                    <strong>Expires:</strong> {{ key.expires_at|date:"Y-m-d H:i" }}
+                </p>
+                {% endif %}
+            </div>
+
+            <div style="display: flex; gap: 0.5rem;">
+                <form method="POST" style="display: inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="toggle">
+                    <input type="hidden" name="key_id" value="{{ key.id }}">
+                    <button type="submit" class="btn btn-sm btn-outline-primary">
+                        {% if key.is_active %}⏸️ Deactivate{% else %}▶️ Activate{% endif %}
+                    </button>
+                </form>
+
+                <form method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this API key? Applications using it will stop working.');">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="delete">
+                    <input type="hidden" name="key_id" value="{{ key.id }}">
+                    <button type="submit" class="btn btn-sm btn-danger">
+                        🗑️ Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div style="padding: 2rem; border: 1px solid var(--color-border-default); border-radius: 6px; background: var(--color-canvas-default); margin-bottom: 2rem;">
+            <h3 style="margin: 0 0 0.5rem 0; font-size: 16px; font-weight: 600;">You don't have any personal access tokens yet.</h3>
+            <p style="color: var(--color-fg-muted); margin: 0; font-size: 14px;">
+                Generate a token above to access the SciTeX Cloud API programmatically.
+            </p>
+        </div>
+        {% endif %}
+
+        <!-- Usage Instructions -->
+        <div style="margin-top: 2rem; padding: 1.5rem; background: var(--color-canvas-subtle); border-radius: 6px; border-left: 3px solid #007acc;">
+            <h3 style="margin-top: 0;">How to use API keys</h3>
+            <p>Include your API key in the Authorization header of your HTTP requests:</p>
+            <pre style="background: #000; color: #0f0; padding: 1rem; border-radius: 4px; overflow-x: auto;"><code>curl -H "Authorization: Bearer scitex_your_key_here" \
+     https://scitex.ai/api/projects/</code></pre>
+
+            <p style="margin-top: 1rem;">Or in Python:</p>
+            <pre style="background: #000; color: #0f0; padding: 1rem; border-radius: 4px; overflow-x: auto;"><code>import requests
+
+headers = {"Authorization": "Bearer scitex_your_key_here"}
+response = requests.get("https://scitex.ai/api/projects/", headers=headers)</code></pre>
+        </main>
+    </div>
+</div>
+
+<script>
+function copyNewAPIKey(event) {
+    event.preventDefault();
+    const keyElement = document.getElementById('new-api-key');
+    const keyText = keyElement.textContent;
+
+    navigator.clipboard.writeText(keyText).then(() => {
+        const btn = event.target;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '✓ Copied!';
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+        }, 2000);
+    }).catch(err => {
+        alert('Failed to copy: ' + err);
+    });
+}
+</script>
+{% endblock %}

@@ -13,10 +13,9 @@
 </style>
 
 <!-- Demo Video Section -->
-<div class="container">
-  <section class="section integrated-ecosystem-section" id="demos">
-    <div class="container">
-      <h2 style="text-align: center; margin-bottom: 3rem; font-size: 2.5rem; color: #1e293b;">Demonstrations</h2>
+<section class="landing-section section-demos" id="demos">
+  <div class="container">
+      <h2 style="text-align: center; margin-bottom: 3rem; font-size: 2.5rem; color: var(--color-fg-default);">Demonstrations</h2>
 
       <!-- Scholar Demo -->
       {% include 'cloud_app/landing_partials/components/module_demo.html' with module_name='Scholar' icon_path='images/scitex-scholar-icon.svg' video_path='videos/scholar-demo.mp4' poster='videos/thumbnails/scholar-demo.jpg' docs_url='docs:scholar' github_url='https://github.com/ywatanabe1989/SciTeX-Code/tree/main/src/scitex/scholar' video_position='2fr 1fr' video_first=True margin='0 auto 3rem' features=scholar_features %}
@@ -32,7 +31,5 @@
 
       <!-- Cloud Demo -->
       {% include 'cloud_app/landing_partials/components/module_demo.html' with module_name='Cloud' icon_path='images/scitex-cloud-icon.svg' video_path='videos/cloud-demo.mp4' docs_url='core_app:about' github_url='https://github.com/ywatanabe1989/SciTeX-Cloud' video_position='2fr 1fr' video_first=True extra_note='This website: scitex.ai' margin='3rem auto' features=cloud_features %}
-
-    </div>
-  </section>
-</div>
+  </div>
+</section>

@@ -26,16 +26,22 @@ def user_profile(request, username):
     Supports tabs via query parameter:
     - /<username>/ or /<username>?tab=overview - Overview
     - /<username>?tab=repositories - Projects list
-    - /<username>?tab=stars - Starred projects (future)
+    - /<username>?tab=projects - Project boards (future)
+    - /<username>?tab=stars - Starred projects
     """
     user = get_object_or_404(User, username=username)
     tab = request.GET.get('tab', 'repositories')  # Default to repositories
 
     if tab == 'repositories':
         return user_project_list(request, username)
+    elif tab == 'overview':
+        return user_overview(request, username)
+    elif tab == 'projects':
+        return user_projects_board(request, username)
+    elif tab == 'stars':
+        return user_stars(request, username)
     else:
-        # For now, all tabs show repositories
-        # Future: overview, stars, packages, etc.
+        # Invalid tab - redirect to repositories
         return user_project_list(request, username)
 
 
@@ -81,6 +87,7 @@ def user_project_list(request, username):
         'followers_count': followers_count,
         'following_count': following_count,
         'is_following': is_following,
+        'active_tab': 'repositories',
         # Note: 'user' is automatically available as request.user in templates
         # Don't override it here - it should always be the logged-in user
     }
@@ -221,34 +228,185 @@ def project_create(request):
     if request.method == 'POST':
         name = request.POST.get('name', '').strip()
         description = request.POST.get('description', '').strip()
+        init_type = request.POST.get('init_type', 'empty')
+        template_type = request.POST.get('template_type', 'research')
+        git_url = request.POST.get('git_url', '').strip()
+
+        # Initialize directory manager for all init types
+        from apps.core_app.directory_manager import get_user_directory_manager
+        manager = get_user_directory_manager(request.user)
+
+        # If importing from Git and no name provided, extract from URL
+        if not name and git_url and init_type in ['github', 'git']:
+            name = Project.extract_repo_name_from_url(git_url)
 
         if not name:
             messages.error(request, 'Project name is required')
-            return redirect('project_app:list')
+            # Get templates for re-rendering form
+            try:
+                from scitex.template import get_available_templates_info
+                available_templates = get_available_templates_info()
+            except ImportError:
+                available_templates = []
+            context = {'available_templates': available_templates}
+            return render(request, 'project_app/project_create.html', context)
 
-        # Ensure unique name
-        unique_name = Project.generate_unique_name(name, request.user)
+        # Validate repository name
+        is_valid, error_message = Project.validate_repository_name(name)
+        if not is_valid:
+            messages.error(request, error_message)
+            # Get templates for re-rendering form
+            try:
+                from scitex.template import get_available_templates_info
+                available_templates = get_available_templates_info()
+            except ImportError:
+                available_templates = []
+            context = {
+                'available_templates': available_templates,
+                'name': name,
+                'description': description,
+                'init_type': init_type,
+                'git_url': git_url
+            }
+            return render(request, 'project_app/project_create.html', context)
 
-        # Generate unique slug
+        # Check if name already exists for this user
+        if Project.objects.filter(name=name, owner=request.user).exists():
+            messages.error(request, f'You already have a project named "{name}". Please choose a different name.')
+            # Get templates for re-rendering form
+            try:
+                from scitex.template import get_available_templates_info
+                available_templates = get_available_templates_info()
+            except ImportError:
+                available_templates = []
+            context = {'available_templates': available_templates, 'name': name, 'description': description}
+            return render(request, 'project_app/project_create.html', context)
+
+        # Generate slug from name
         from django.utils.text import slugify
-        base_slug = slugify(unique_name)
+        base_slug = slugify(name)
         unique_slug = Project.generate_unique_slug(base_slug)
 
         project = Project.objects.create(
-            name=unique_name,
+            name=name,
             slug=unique_slug,
             description=description,
             owner=request.user,
         )
 
-        # Create project directory structure
-        from apps.core_app.directory_manager import ensure_project_directory
-        ensure_project_directory(project)
+        # Handle different initialization types
+        if init_type == 'gitea':
+            # Create with Gitea + template
+            try:
+                # Create repository in Gitea
+                repo = project.create_gitea_repository()
 
-        messages.success(request, f'Project "{project.name}" created successfully')
+                # Clone to local directory
+                success, result = project.clone_gitea_to_local()
+
+                if success:
+                    messages.success(request, f'Project "{project.name}" created in Git repository')
+                else:
+                    messages.error(request, f'Gitea repository created but clone failed: {result}')
+
+            except Exception as e:
+                messages.error(request, f'Failed to create Gitea repository: {str(e)}')
+                project.delete()
+                return redirect('project_app:list')
+
+        elif init_type == 'github':
+            # Import from GitHub/GitLab - Use direct Git clone instead of Gitea
+            if not git_url:
+                messages.error(request, 'Repository URL is required for importing')
+                project.delete()
+                # Get templates for re-rendering form
+                try:
+                    from scitex.template import get_available_templates_info
+                    available_templates = get_available_templates_info()
+                except ImportError:
+                    available_templates = []
+                context = {
+                    'available_templates': available_templates,
+                    'name': name,
+                    'description': description,
+                    'init_type': 'github',
+                    'git_url': git_url
+                }
+                return render(request, 'project_app/project_create.html', context)
+
+            try:
+                # Clone from Git repository directly (no Gitea needed)
+                success, error_msg = manager.clone_from_git(project, git_url)
+
+                if success:
+                    messages.success(request, f'Project "{project.name}" imported from Git repository successfully')
+                else:
+                    messages.error(request, f'Failed to clone repository: {error_msg}')
+                    project.delete()
+                    return redirect('new')
+
+            except Exception as e:
+                messages.error(request, f'Failed to import from Git: {str(e)}')
+                project.delete()
+                return redirect('new')
+
+        elif init_type == 'template':
+            # Create with template (no Gitea)
+            success, path = manager.create_project_directory(project, use_template=True, template_type=template_type)
+            if success:
+                messages.success(request, f'Project "{project.name}" created with {template_type} template')
+            else:
+                messages.error(request, f'Failed to create project with template')
+                project.delete()
+                return redirect('project_app:list')
+
+        elif init_type == 'git':
+            # Validate Git URL
+            if not git_url:
+                messages.error(request, 'Repository URL is required for cloning from Git')
+                project.delete()
+                return redirect('new')
+
+            # Create empty directory first
+            success, path = manager.create_project_directory(project, use_template=False)
+            if not success:
+                messages.error(request, 'Failed to create project directory')
+                project.delete()
+                return redirect('project_app:list')
+
+            # Clone from Git repository
+            success, error_msg = manager.clone_from_git(project, git_url)
+            if success:
+                messages.success(request, f'Project "{project.name}" created and cloned from Git repository')
+            else:
+                messages.error(request, f'Project created but cloning failed: {error_msg}')
+
+        else:
+            # Create empty project
+            success, path = manager.create_project_directory(project, use_template=False)
+            if success:
+                messages.success(request, f'Project "{project.name}" created successfully')
+            else:
+                messages.error(request, f'Failed to create project directory')
+                project.delete()
+                return redirect('project_app:list')
+
         return redirect('user_projects:detail', username=request.user.username, slug=project.slug)
-    
-    return render(request, 'project_app/project_create.html')
+
+    # GET request - get available templates from scitex
+    try:
+        from scitex.template import get_available_templates_info
+        available_templates = get_available_templates_info()
+    except ImportError:
+        # Fallback if scitex not available
+        available_templates = [
+            {"id": "research", "name": "Research Project", "description": "Full scientific workflow structure"},
+            {"id": "pip_project", "name": "Python Package", "description": "Pip-installable package template"},
+            {"id": "singularity", "name": "Singularity Container", "description": "Container-based project"},
+        ]
+
+    context = {'available_templates': available_templates}
+    return render(request, 'project_app/project_create.html', context)
 
 
 @login_required
@@ -326,7 +484,6 @@ def project_settings(request, username, slug):
             # Update basic project info
             project.name = request.POST.get('name', '').strip()
             project.description = request.POST.get('description', '').strip()
-            project.hypotheses = request.POST.get('hypotheses', '').strip()
             project.save()
             messages.success(request, 'General settings updated successfully')
 
@@ -338,6 +495,33 @@ def project_settings(request, username, slug):
                 project.visibility = new_visibility
                 project.save()
                 messages.success(request, f'Repository visibility changed from {old_visibility} to {new_visibility}')
+
+        elif action == 'add_collaborator':
+            # Add collaborator
+            collaborator_username = request.POST.get('collaborator_username', '').strip()
+            collaborator_role = request.POST.get('collaborator_role', 'collaborator')
+
+            if collaborator_username:
+                try:
+                    collaborator = User.objects.get(username=collaborator_username)
+
+                    # Check if already a collaborator
+                    if ProjectMembership.objects.filter(project=project, user=collaborator).exists():
+                        messages.warning(request, f'{collaborator_username} is already a collaborator')
+                    elif collaborator == project.owner:
+                        messages.warning(request, 'Repository owner is already a collaborator')
+                    else:
+                        # Add collaborator
+                        ProjectMembership.objects.create(
+                            project=project,
+                            user=collaborator,
+                            role=collaborator_role
+                        )
+                        messages.success(request, f'{collaborator_username} added as {collaborator_role}')
+                except User.DoesNotExist:
+                    messages.error(request, f'User "{collaborator_username}" not found')
+            else:
+                messages.error(request, 'Please enter a username')
 
         elif action == 'delete_repository':
             # Delete repository
@@ -486,6 +670,30 @@ def api_file_tree(request, username, slug):
     tree = build_tree(project_path)
 
     return JsonResponse({'success': True, 'tree': tree})
+
+
+@login_required
+@require_http_methods(["GET"])
+def api_check_name_availability(request):
+    """API endpoint to check if project name is available"""
+    name = request.GET.get('name', '').strip()
+
+    if not name:
+        return JsonResponse({'available': False, 'message': 'Project name is required'})
+
+    # Check if name exists for this user
+    exists = Project.objects.filter(name=name, owner=request.user).exists()
+
+    if exists:
+        return JsonResponse({
+            'available': False,
+            'message': f'You already have a project named "{name}"'
+        })
+    else:
+        return JsonResponse({
+            'available': True,
+            'message': f'"{name}" is available'
+        })
 
 
 @login_required
@@ -1104,5 +1312,86 @@ def project_directory(request, username, slug, directory, subpath=None):
         'breadcrumbs': breadcrumbs,
         'can_edit': project.owner == request.user or project.collaborators.filter(id=request.user.id).exists(),
     }
-    
+
     return render(request, 'project_app/project_directory.html', context)
+
+
+def user_overview(request, username):
+    """User profile overview tab"""
+    user = get_object_or_404(User, username=username)
+    is_own_profile = request.user.is_authenticated and request.user == user
+
+    # Get recent activity
+    recent_projects = Project.objects.filter(owner=user).order_by('-updated_at')[:6]
+    if not is_own_profile:
+        recent_projects = recent_projects.filter(visibility='public')
+
+    # Get social stats
+    from apps.social_app.models import UserFollow, RepositoryStar
+    followers_count = UserFollow.get_followers_count(user)
+    following_count = UserFollow.get_following_count(user)
+    is_following = UserFollow.is_following(request.user, user) if request.user.is_authenticated else False
+
+    context = {
+        'profile_user': user,
+        'is_own_profile': is_own_profile,
+        'recent_projects': recent_projects,
+        'followers_count': followers_count,
+        'following_count': following_count,
+        'is_following': is_following,
+        'active_tab': 'overview',
+    }
+    return render(request, 'project_app/user_overview.html', context)
+
+
+def user_projects_board(request, username):
+    """User project boards tab (placeholder for future implementation)"""
+    user = get_object_or_404(User, username=username)
+    is_own_profile = request.user.is_authenticated and request.user == user
+
+    # Get social stats
+    from apps.social_app.models import UserFollow
+    followers_count = UserFollow.get_followers_count(user)
+    following_count = UserFollow.get_following_count(user)
+    is_following = UserFollow.is_following(request.user, user) if request.user.is_authenticated else False
+
+    context = {
+        'profile_user': user,
+        'is_own_profile': is_own_profile,
+        'followers_count': followers_count,
+        'following_count': following_count,
+        'is_following': is_following,
+        'active_tab': 'projects',
+    }
+    return render(request, 'project_app/user_projects_board.html', context)
+
+
+def user_stars(request, username):
+    """User starred repositories tab"""
+    user = get_object_or_404(User, username=username)
+    is_own_profile = request.user.is_authenticated and request.user == user
+
+    # Get starred repositories
+    from apps.social_app.models import RepositoryStar, UserFollow
+    starred_repos = RepositoryStar.objects.filter(user=user).select_related('repository').order_by('-created_at')
+
+    # Pagination
+    paginator = Paginator(starred_repos, 12)
+    page_number = request.GET.get('page')
+    stars = paginator.get_page(page_number)
+
+    # Get social stats
+    followers_count = UserFollow.get_followers_count(user)
+    following_count = UserFollow.get_following_count(user)
+    is_following = UserFollow.is_following(request.user, user) if request.user.is_authenticated else False
+
+    context = {
+        'profile_user': user,
+        'is_own_profile': is_own_profile,
+        'stars': stars,
+        'followers_count': followers_count,
+        'following_count': following_count,
+        'is_following': is_following,
+        'active_tab': 'stars',
+    }
+    return render(request, 'project_app/user_stars.html', context)

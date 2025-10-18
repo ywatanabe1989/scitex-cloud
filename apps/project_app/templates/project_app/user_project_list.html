@@ -71,6 +71,10 @@ body {
     color: var(--color-fg-muted);
 }
 
+.profile-username::before {
+    content: '@';
+}
+
 .profile-bio {
     margin-bottom: 16px;
     font-size: 14px;
@@ -457,27 +461,28 @@ body {
         <main class="profile-content">
             <!-- Navigation Tabs -->
             <nav class="profile-nav">
-                <a href="?tab=overview" class="profile-nav-item">
+                <a href="?tab=overview" class="profile-nav-item {% if active_tab == 'overview' %}active{% endif %}">
                     <i class="fas fa-book"></i>
                     Overview
                 </a>
-                <a href="?tab=repositories" class="profile-nav-item active">
+                <a href="?tab=repositories" class="profile-nav-item {% if active_tab == 'repositories' %}active{% endif %}">
                     <i class="fas fa-book-open"></i>
                     Repositories
                     <span class="nav-counter">{{ projects.paginator.count }}</span>
                 </a>
-                <a href="?tab=projects" class="profile-nav-item">
+                <a href="?tab=projects" class="profile-nav-item {% if active_tab == 'projects' %}active{% endif %}">
                     <i class="fas fa-table"></i>
                     Projects
                     <span class="nav-counter">0</span>
                 </a>
-                <a href="?tab=stars" class="profile-nav-item">
+                <a href="?tab=stars" class="profile-nav-item {% if active_tab == 'stars' %}active{% endif %}">
                     <i class="fas fa-star"></i>
                     Stars
                     <span class="nav-counter">0</span>
                 </a>
             </nav>
 
+            {% block profile_content %}
             <!-- Repository Section Header -->
             <div class="repo-section-header">
                 <div class="repo-search">
@@ -573,6 +578,7 @@ body {
                 {% endif %}
             </div>
             {% endif %}
+            {% endblock profile_content %}
         </main>
     </div>
 </div>

@@ -3,13 +3,17 @@
 
 ### Source: /home/ywatanabe/.git-templates/.gitignore-templates/Custom/Claude.gitignore ###
 .claude
-./docs/to_claude
+docs/to_claude/
 
 ### Source: /home/ywatanabe/.git-templates/.gitignore-templates/Custom/Secrets.gitignore ###
 .git-crypt/keys
 **/*secret*
 
 ### Source: /home/ywatanabe/.git-templates/.gitignore-templates/Custom/Development.gitignore ###
+# Development directories
+.dev/
+.venv/
+
 # old directories as trash bin
 *old*
 **/*old*
@@ -44,7 +48,27 @@
 ./static/bootstrap*
 
 ### Source: /home/ywatanabe/.git-templates/.gitignore-templates/Custom/LargeFiles.gitignore ###
-data/*
+# Data directories - specific patterns to ignore
+data/db/sqlite/*.db*
+data/db/backups/*
+data/db/migrations_archive/*
+data/users/*/
+
+# User workspace data (test repositories, cloned repos, etc.)
+data/*/proj/
+data/*/workspace_info.json
+data/**/
+!data/db/
+!data/users/
+
+# SSH keys (private keys should never be committed)
+data/ssh_keys/
+
+# Keep directory structure with .gitkeep files
+!data/db/sqlite/.gitkeep
+!data/db/backups/.gitkeep
+!data/db/migrations_archive/.gitkeep
+!data/users/.gitkeep
 
 **/*.csv
 **/*.mat
@@ -219,14 +243,19 @@ celerybeat.pid
 # SageMath parsed files
 *.sage.py
 
-# Environments
-.env
-.venv
+# Virtual Environments
+.venv/
+.env/
 env/
 venv/
 ENV/
 env.bak/
 venv.bak/
+
+# Environment Variables (actual secrets - DO NOT COMMIT)
+.env
+.env.local
+.env.*.local
 
 # Spyder project settings
 .spyderproject
@@ -639,8 +668,8 @@ coverage/
 
 ### Django Security ###
 # Environment variables and secrets
-.env.local
-.env.production
+# Note: deployment/dotenvs/dotenv.{dev,prod,example} are COMMITTED (no passwords)
+# Note: .env symlink at project root is NOT COMMITTED (gitignored above)
 *.key
 *.pem
 *.crt
@@ -678,5 +707,5 @@ docs/MONETIZATION_STRATEGY_IMPLEMENTATION.md
 docs/PRICING_STRATEGY.md
 docs/DEPLOYMENT_INSTRUCTIONS.md
 docs/INSTITUTION_EMAILS.md
-./docs/to_claude
+docs/to_claude/
 externals/overleaf/

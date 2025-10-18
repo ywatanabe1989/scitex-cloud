@@ -63,6 +63,46 @@
     text-decoration: none;
 }
 
+.header-logo-img {
+    height: 40px;
+    width: auto;
+    object-fit: contain;
+}
+
+/* Navigation Icons (SVG and IMG) */
+.nav-icon,
+.nav-icon-svg {
+    height: 20px;
+    width: 20px;
+    opacity: 0.85;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* SVG icons inherit color from parent */
+.nav-icon-svg {
+    color: var(--scitex-color-01);  /* Dark in light mode */
+}
+
+[data-theme="dark"] .nav-icon-svg {
+    color: var(--scitex-color-06);  /* Bluish in dark mode */
+}
+
+.header-nav-item:hover .nav-icon,
+.header-nav-item:hover .nav-icon-svg,
+.header-nav-item.active .nav-icon,
+.header-nav-item.active .nav-icon-svg {
+    opacity: 1;
+    transform: scale(1.05);
+}
+
+/* Make SVG icons more bluish in dark mode */
+[data-theme="dark"] .header-nav-item:hover .nav-icon-svg,
+[data-theme="dark"] .header-nav-item.active .nav-icon-svg {
+    color: var(--scitex-color-04);  /* More vibrant blue on hover/active */
+}
+
 .header-logo i {
     font-size: 24px;
     color: var(--scitex-color-04);  /* Accent color */
@@ -111,6 +151,9 @@
     color: var(--scitex-color-03);  /* Muted dark */
     pointer-events: none;
     font-size: 14px;
+    height: 16px;
+    width: 16px;
+    opacity: 0.7;
 }
 
 /* Dark mode search */
@@ -199,37 +242,41 @@
 }
 
 [data-theme="dark"] .header-btn {
-    border-color: var(--scitex-color-02);
+    border-color: var(--scitex-color-05);  /* Subtle border */
     color: var(--scitex-color-07);  /* Light text in dark mode */
+    opacity: 0.85;
 }
 
 [data-theme="dark"] .header-btn:hover {
     background: var(--scitex-color-01-light);
-    border-color: var(--scitex-color-05);
+    border-color: var(--scitex-color-05);  /* Keep subtle on hover */
+    opacity: 1;
 }
 
 .header-btn-primary {
-    background: var(--success-color);  /* #4a9b7e - SciTeX harmonized green */
-    border-color: var(--success-color);
+    background: var(--scitex-color-02);  /* Medium bluish gray - SciTeX brand */
+    border-color: var(--scitex-color-02);
     color: #ffffff;
 }
 
 .header-btn-primary:hover {
-    background: #5fb98c;  /* Brighter green on hover */
-    border-color: #5fb98c;
+    background: var(--scitex-color-01);  /* Darker bluish on hover */
+    border-color: var(--scitex-color-01);
     color: #ffffff;
 }
 
 [data-theme="dark"] .header-btn-primary {
-    background: var(--success-color);
-    border-color: rgba(212, 225, 232, 0.1);
-    color: #ffffff;
+    background: var(--scitex-color-03);  /* Lighter bluish for dark mode */
+    border-color: var(--scitex-color-03);
+    color: var(--scitex-color-01-dark);  /* Dark text on light button */
+    opacity: 0.9;
 }
 
 [data-theme="dark"] .header-btn-primary:hover {
-    background: #5fb98c;
-    border-color: #5fb98c;
-    color: #ffffff;
+    background: var(--scitex-color-04);  /* Even lighter on hover */
+    border-color: var(--scitex-color-04);
+    color: var(--scitex-color-01-dark);
+    opacity: 1;
 }
 
 /* Theme Toggle Button */
@@ -282,12 +329,12 @@
 }
 
 [data-theme="dark"] .header-icon-btn {
-    color: var(--scitex-color-05);  /* Light muted in dark mode */
+    color: var(--scitex-color-06);  /* More bluish - #b5c7d1 */
 }
 
 [data-theme="dark"] .header-icon-btn:hover {
     background: var(--scitex-color-01-light);
-    color: var(--scitex-color-07);  /* Light on hover */
+    color: var(--scitex-color-07);  /* Very light bluish on hover */
 }
 
 /* User Menu */

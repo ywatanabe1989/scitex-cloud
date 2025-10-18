@@ -4,6 +4,12 @@ from . import views
 app_name = 'social_app'
 
 urlpatterns = [
+    # Explore page
+    path('explore/', views.explore, name='explore'),
+
+    # Notifications
+    path('notifications/', views.notifications, name='notifications'),
+
     # Follow/Unfollow APIs
     path('api/follow/<str:username>/', views.follow_user, name='follow'),
     path('api/unfollow/<str:username>/', views.unfollow_user, name='unfollow'),

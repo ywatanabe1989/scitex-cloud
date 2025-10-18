@@ -1,0 +1,68 @@
+#!/bin/bash
+# -*- coding: utf-8 -*-
+# SciTeX Cloud - Environment Variables Template
+#
+# This is an EXAMPLE file. DO NOT edit this directly.
+# Instead:
+#   1. Copy this to .env.dev or .env.prod
+#   2. Fill in your actual values
+#   3. Use scripts/switch_env.sh to switch between environments
+#
+# The actual .env file is a symlink managed by scripts/switch_env.sh
+
+# ----------------------------------------
+# Django Settings
+# ----------------------------------------
+export DJANGO_SETTINGS_MODULE=config.settings.settings_dev  # or settings_prod
+
+# ----------------------------------------
+# Django Secret Key
+# ----------------------------------------
+# IMPORTANT: Use a strong, unique secret key in production!
+# Generate with: python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())'
+export SCITEX_CLOUD_DJANGO_SECRET_KEY='your-secret-key-here'
+
+# ----------------------------------------
+# Database Configuration
+# ----------------------------------------
+# Development
+export SCITEX_CLOUD_DB_NAME_DEV=scitex_cloud_dev
+export SCITEX_CLOUD_DB_USER_DEV=scitex_dev
+export SCITEX_CLOUD_DB_PASSWORD_DEV=your-dev-password
+export SCITEX_CLOUD_DB_HOST_DEV=localhost
+export SCITEX_CLOUD_DB_PORT_DEV=5432
+
+# Production
+export SCITEX_CLOUD_DB_NAME_PROD=scitex_cloud_prod
+export SCITEX_CLOUD_DB_USER_PROD=scitex_prod
+export SCITEX_CLOUD_DB_PASSWORD_PROD=your-secure-prod-password
+export SCITEX_CLOUD_DB_HOST_PROD=localhost
+export SCITEX_CLOUD_DB_PORT_PROD=5432
+
+# ----------------------------------------
+# Email Configuration
+# ----------------------------------------
+export SCITEX_SCHOLAR_FROM_EMAIL_ADDRESS=agent@scitex.ai
+export SCITEX_SCHOLAR_FROM_EMAIL_PASSWORD=your-email-password
+export SCITEX_SCHOLAR_FROM_EMAIL_SMTP_SERVER=mail1030.onamae.ne.jp
+export SCITEX_SCHOLAR_FROM_EMAIL_SMTP_PORT=587
+
+export SCITEX_EMAIL_ADMIN=admin@scitex.ai
+export SCITEX_EMAIL_PASSWORD=your-email-password
+
+# ----------------------------------------
+# Logging
+# ----------------------------------------
+export SCITEX_LOGGING_LEVEL=info  # debug, info, warning, error
+
+# ----------------------------------------
+# Optional: SQLite fallback (development only)
+# ----------------------------------------
+# export SCITEX_CLOUD_USE_SQLITE_DEV=1
+
+# ----------------------------------------
+# Security (Production)
+# ----------------------------------------
+export SCITEX_CLOUD_ALLOWED_HOSTS="scitex.ai,www.scitex.ai,localhost"
+
+# EOF

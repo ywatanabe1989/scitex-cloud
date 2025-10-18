@@ -21,6 +21,9 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
+# SciTeX Cloud Version
+SCITEX_VERSION = "0.1.0-alpha"
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv("SCITEX_DJANGO_SECRET_KEY")
 
@@ -87,6 +90,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "apps.core_app.context_processors.version_context",
                 "apps.core_app.context_processors.project_context",
             ],
         },
@@ -95,11 +99,11 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
-# Database
+# Database (fallback - should be overridden by dev/prod settings)
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "data" / "scitex_cloud.db",
+        "NAME": BASE_DIR / "data" / "db" / "sqlite" / "scitex_cloud.db",
     }
 }
 

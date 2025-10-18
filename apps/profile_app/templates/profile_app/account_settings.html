@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Account Settings{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/common/settings-layout.css' %}">
+<style>
+/* Account settings page-specific styles */
+.danger-zone {
+    border-color: var(--color-danger-emphasis);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="settings-page">
+    <div class="settings-layout">
+        <!-- Left Navigation -->
+        <aside class="settings-nav">
+            {% include 'profile_app/partials/settings_nav.html' with active='account' %}
+        </aside>
+
+        <!-- Right Content -->
+        <main class="settings-content">
+            {% if messages %}
+            <div style="margin-bottom: 16px;">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}" style="padding: 12px; background: {% if message.tags == 'success' %}var(--scitex-success){% else %}var(--scitex-error){% endif %}; color: white; border-radius: 6px; margin-bottom: 8px;">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Change Email -->
+            <form method="post" class="form-section">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="change_email">
+                <div class="section-header">
+                    <h2 class="section-title">Change Email</h2>
+                    <p class="section-subtitle">Update your email address</p>
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <p style="color: var(--color-fg-muted); font-size: 14px; margin-bottom: 12px;">
+                        Current email: <strong style="color: var(--color-fg-default);">{{ user.email }}</strong>
+                    </p>
+                </div>
+                <div class="form-group">
+                    <label for="new_email">New email address</label>
+                    <input type="email" id="new_email" name="new_email" required placeholder="new@example.com">
+                </div>
+                <button type="submit" class="btn-save">
+                    <i class="fas fa-check"></i>
+                    Update email
+                </button>
+            </form>
+
+            <!-- Change Password -->
+            <form method="post" class="form-section">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="change_password">
+                <div class="section-header">
+                    <h2 class="section-title">Change Password</h2>
+                    <p class="section-subtitle">Update your password</p>
+                </div>
+                <div class="form-group">
+                    <label for="current_password">Current password</label>
+                    <input type="password" id="current_password" name="current_password" required>
+                </div>
+                <div class="form-group">
+                    <label for="new_password">New password</label>
+                    <input type="password" id="new_password" name="new_password" required minlength="8">
+                    <p class="form-help">At least 8 characters</p>
+                </div>
+                <div class="form-group">
+                    <label for="confirm_password">Confirm new password</label>
+                    <input type="password" id="confirm_password" name="confirm_password" required minlength="8">
+                </div>
+                <button type="submit" class="btn-save">
+                    <i class="fas fa-check"></i>
+                    Update password
+                </button>
+            </form>
+
+            <div class="form-section danger-zone">
+                <div class="section-header">
+                    <h2 class="section-title" style="color: var(--color-danger-fg);">Delete Account</h2>
+                    <p class="section-subtitle">Permanently delete your SciTeX account</p>
+                </div>
+                <p style="color: var(--color-fg-muted); font-size: 14px;">
+                    Once you delete your account, there is no going back. Please be certain.
+                </p>
+                <button type="button" class="btn" style="background: var(--color-danger-emphasis); color: white; border: none; padding: 8px 16px; border-radius: 6px; margin-top: 12px;">
+                    Delete account
+                </button>
+            </div>
+        </main>
+    </div>
+</div>
+{% endblock %}

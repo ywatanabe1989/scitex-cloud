@@ -1,12 +1,11 @@
 {% load static %}
 
-<!-- Integrated Ecosystem -->
-<div class="container">
-  <section class="section integrated-ecosystem-section" id="ecosystem">
-    <div class="container">
+<!-- Integrated Ecosystem Section -->
+<section class="landing-section section-ecosystem" id="ecosystem">
+  <div class="container">
       <div class="section-heading">
-        <h2 style="text-align: center; margin-bottom: 1rem; font-size: 2.5rem;">SciTeX Ecosystem</h2>
-        <p style="text-align: center; color: #64748b; margin-bottom: 3rem; max-width: 700px; margin-left: auto; margin-right: auto;">
+        <h2 style="text-align: center; margin-bottom: 1rem; font-size: 2.5rem; color: var(--color-fg-default);">SciTeX Ecosystem</h2>
+        <p style="text-align: center; color: var(--color-fg-muted); margin-bottom: 3rem; max-width: 700px; margin-left: auto; margin-right: auto;">
           Integrated research tools from literature to publication
         </p>
       </div>
@@ -19,8 +18,8 @@
             <div class="module-icon">
               <img src="{% static 'images/scitex-scholar-icon.svg' %}" alt="SciTeX Scholar" width="48" height="48">
             </div>
-            <h3 style="font-size: 1.3rem;">Scholar</h3>
-            <p class="module-tagline" style="font-size: 0.85rem;">Literature discovery & analysis</p>
+            <h3 style="font-size: 1.3rem; color: var(--color-fg-default);">Scholar</h3>
+            <p class="module-tagline" style="font-size: 0.85rem; color: var(--color-fg-muted);">Literature discovery & analysis</p>
           </a>
           <a href="https://github.com/ywatanabe1989/SciTeX-Code/tree/main/src/scitex/scholar" target="_blank" class="module-github-btn">
             <i class="fab fa-github"></i> View on GitHub
@@ -33,8 +32,8 @@
             <div class="module-icon">
               <img src="{% static 'images/scitex-writer-icon.svg' %}" alt="SciTeX Writer" width="48" height="48">
             </div>
-            <h3 style="font-size: 1.3rem;">Writer</h3>
-            <p class="module-tagline" style="font-size: 0.85rem;">AI-enhanced scientific writing</p>
+            <h3 style="font-size: 1.3rem; color: var(--color-fg-default);">Writer</h3>
+            <p class="module-tagline" style="font-size: 0.85rem; color: var(--color-fg-muted);">AI-enhanced scientific writing</p>
           </a>
           <a href="https://github.com/ywatanabe1989/SciTeX-Writer" target="_blank" class="module-github-btn">
             <i class="fab fa-github"></i> View on GitHub
@@ -47,8 +46,8 @@
             <div class="module-icon">
               <img src="{% static 'images/scitex-code-icon.svg' %}" alt="SciTeX Code" width="48" height="48">
             </div>
-            <h3 style="font-size: 1.3rem;">Code</h3>
-            <p class="module-tagline" style="font-size: 0.85rem;">Data analysis & computing</p>
+            <h3 style="font-size: 1.3rem; color: var(--color-fg-default);">Code</h3>
+            <p class="module-tagline" style="font-size: 0.85rem; color: var(--color-fg-muted);">Data analysis & computing</p>
           </a>
           <a href="https://github.com/ywatanabe1989/SciTeX-Code" target="_blank" class="module-github-btn">
             <i class="fab fa-github"></i> View on GitHub
@@ -61,8 +60,8 @@
             <div class="module-icon">
               <img src="{% static 'images/scitex-viz-icon.svg' %}" alt="SciTeX Viz" width="48" height="48">
             </div>
-            <h3 style="font-size: 1.3rem;">Viz</h3>
-            <p class="module-tagline" style="font-size: 0.85rem;">Publication-quality graphics</p>
+            <h3 style="font-size: 1.3rem; color: var(--color-fg-default);">Viz</h3>
+            <p class="module-tagline" style="font-size: 0.85rem; color: var(--color-fg-muted);">Publication-quality graphics</p>
           </a>
           <a href="https://github.com/ywatanabe1989/SciTeX-Viz" target="_blank" class="module-github-btn">
             <i class="fab fa-github"></i> View on GitHub
@@ -72,17 +71,17 @@
 
       <!-- Deployment Options (2 cards) -->
       <div class="ecosystem-deployment-simple" style="margin-top: 3rem;">
-        <p class="deployment-intro" style="font-size: 1.25rem; font-weight: 600; color: #1e293b; margin-bottom: 2rem;">Deploy on your terms:</p>
+        <p class="deployment-intro" style="font-size: 1.25rem; font-weight: 600; color: var(--color-fg-default); margin-bottom: 2rem;">Deploy on your terms:</p>
         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem; max-width: 700px; margin: 0 auto;">
 
           <!-- SciTeX Local Card -->
           <div class="module-card-simple">
             <a href="https://github.com/ywatanabe1989/emacs-claude-code" target="_blank" class="module-card-link">
               <div class="module-icon">
-              <img src="{% static 'images/scitex-engine-icon.svg' %}" alt="SciTeX Viz" width="48" height="48">                
+              <img src="{% static 'images/scitex-engine-icon.svg' %}" alt="SciTeX Viz" width="48" height="48">
               </div>
-              <h3 style="font-size: 1.3rem;">SciTeX Local</h3>
-              <p class="module-tagline" style="font-size: 0.85rem;">Full control, no internet required</p>
+              <h3 style="font-size: 1.3rem; color: var(--color-fg-default);">SciTeX Local</h3>
+              <p class="module-tagline" style="font-size: 0.85rem; color: var(--color-fg-muted);">Full control, no internet required</p>
             </a>
             <a href="https://github.com/SciTeX-AI" target="_blank" class="module-github-btn">
               <i class="fab fa-github"></i> View on GitHub
@@ -95,8 +94,8 @@
               <div class="module-icon">
                 <img src="{% static 'images/scitex-cloud-icon.svg' %}" alt="SciTeX Cloud" width="48" height="48">
               </div>
-              <h3 style="font-size: 1.3rem;">SciTeX Cloud</h3>
-              <p class="module-tagline" style="font-size: 0.85rem;">Web interface at scitex.ai</p>
+              <h3 style="font-size: 1.3rem; color: var(--color-fg-default);">SciTeX Cloud</h3>
+              <p class="module-tagline" style="font-size: 0.85rem; color: var(--color-fg-muted);">Web interface at scitex.ai</p>
             </a>
             <a href="https://github.com/ywatanabe1989/SciTeX-Cloud" target="_blank" class="module-github-btn">
               <i class="fab fa-github"></i> View on GitHub
@@ -105,7 +104,5 @@
 
         </div>
       </div>
-
-    </div>
-  </section>
-</div>
+  </div>
+</section>

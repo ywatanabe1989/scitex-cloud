@@ -26,7 +26,7 @@
         if (stored && [THEME_LIGHT, THEME_DARK].includes(stored)) {
             return stored;
         }
-        return THEME_LIGHT; // Default to light theme
+        return THEME_DARK; // Default to dark theme for new visitors
     }
 
     /**

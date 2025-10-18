@@ -89,9 +89,8 @@ class Project(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     deadline = models.DateTimeField(null=True, blank=True)
-    
+
     # Research data - Core SciTeX workflow fields
-    hypotheses = models.TextField(blank=True, help_text="Research hypotheses (optional)")
     source_code_url = models.URLField(blank=True, help_text="GitHub/GitLab repository URL")
     data_location = models.CharField(max_length=500, blank=True, help_text="Relative path to project directory")
     # manuscript_draft = models.ForeignKey('document_app.Document', on_delete=models.SET_NULL, null=True, blank=True,  # Removed - document_app not installed
@@ -106,7 +105,25 @@ class Project(models.Model):
     current_branch = models.CharField(max_length=100, default='main', help_text="Current git branch")
     last_sync_at = models.DateTimeField(null=True, blank=True, help_text="Last GitHub sync timestamp")
     github_integration_enabled = models.BooleanField(default=False, help_text="GitHub integration status")
-    
+
+    # Gitea Integration fields
+    gitea_repo_id = models.IntegerField(null=True, blank=True, help_text="Gitea repository ID")
+    gitea_repo_name = models.CharField(max_length=200, blank=True, help_text="Gitea repository name")
+    git_url = models.URLField(blank=True, help_text="Git clone URL (SSH or HTTPS)")
+    git_clone_path = models.CharField(max_length=500, blank=True, help_text="Local git clone path")
+    gitea_enabled = models.BooleanField(default=False, help_text="Gitea integration enabled")
+
+    # Source tracking (where did this project come from?)
+    SOURCE_CHOICES = [
+        ('scitex', 'Created in SciTeX'),
+        ('github', 'Imported from GitHub'),
+        ('gitlab', 'Imported from GitLab'),
+        ('bitbucket', 'Imported from Bitbucket'),
+        ('git', 'Cloned from Git URL'),
+    ]
+    source = models.CharField(max_length=20, choices=SOURCE_CHOICES, default='scitex', help_text="Project source")
+    source_url = models.URLField(blank=True, help_text="Original source URL (if imported)")
+
     # Directory management fields
     directory_created = models.BooleanField(default=False, help_text="Whether project directory has been created")
     storage_used = models.BigIntegerField(default=0, help_text="Storage used by project in bytes")
@@ -133,16 +150,38 @@ class Project(models.Model):
     
     @classmethod
     def generate_unique_slug(cls, name):
-        """Generate a globally unique slug from project name"""
+        """
+        Generate a globally unique slug from project name
+
+        Follows GitHub repository naming rules:
+        - Only alphanumeric, hyphens, underscores, periods
+        - Cannot start or end with special characters
+        - Max 100 characters
+        """
+        import re
         from django.utils.text import slugify
+
+        # Use Django's slugify (handles unicode, converts to ASCII)
         base_slug = slugify(name)
+
+        # Further sanitize for GitHub compatibility
+        # GitHub allows: alphanumeric, hyphens, underscores, periods
+        base_slug = re.sub(r'[^a-z0-9._-]', '-', base_slug.lower())
+
+        # Remove leading/trailing special chars
+        base_slug = re.sub(r'^[._-]+|[._-]+$', '', base_slug)
+
+        # Ensure not empty
         if not base_slug:
             base_slug = 'project'
-        
+
+        # Limit to 100 chars (GitHub limit)
+        base_slug = base_slug[:100]
+
         # Check if slug is unique
         if not cls.objects.filter(slug=base_slug).exists():
             return base_slug
-        
+
         # If base slug exists, try with numbers
         counter = 1
         while True:
@@ -173,6 +212,45 @@ class Project(models.Model):
         if exclude_id:
             queryset = queryset.exclude(id=exclude_id)
         return not queryset.exists()
+
+    @classmethod
+    def validate_repository_name(cls, name):
+        """
+        Validate repository name according to GitHub/Gitea naming rules
+
+        Returns:
+            Tuple of (is_valid: bool, error_message: str or None)
+
+        Rules:
+        - Cannot contain spaces
+        - Must be 1-100 characters
+        - Can only contain: alphanumeric, hyphens, underscores, periods
+        - Cannot start or end with special characters (-, _, .)
+        - Cannot be empty or whitespace only
+        """
+        import re
+
+        # Check if empty or whitespace only
+        if not name or not name.strip():
+            return False, "Repository name cannot be empty"
+
+        # Check length
+        if len(name) > 100:
+            return False, "Repository name must be 100 characters or less"
+
+        # Check for spaces
+        if ' ' in name:
+            return False, "Repository name cannot contain spaces. Use hyphens (-) or underscores (_) instead."
+
+        # Check for valid characters (alphanumeric, hyphens, underscores, periods)
+        if not re.match(r'^[a-zA-Z0-9._-]+$', name):
+            return False, "Repository name can only contain letters, numbers, hyphens (-), underscores (_), and periods (.)"
+
+        # Check that it doesn't start or end with special characters
+        if re.match(r'^[._-]', name) or re.match(r'[._-]$', name):
+            return False, "Repository name cannot start or end with hyphens, underscores, or periods"
+
+        return True, None
     
     def get_github_safe_name(self):
         """Get a GitHub-safe repository name"""
@@ -192,7 +270,42 @@ class Project(models.Model):
         safe_name = re.sub(r'\s+', '_', safe_name)  # Replace spaces with underscores
         safe_name = safe_name[:255]  # Filesystem limit
         return safe_name or 'scitex_project'
-    
+
+    @staticmethod
+    def extract_repo_name_from_url(git_url: str) -> str:
+        """
+        Extract repository name from Git URL, preserving the original name.
+
+        Examples:
+            https://github.com/user/my-repo.git -> my-repo
+            https://github.com/user/MyRepo -> MyRepo
+            git@github.com:user/awesome_project.git -> awesome_project
+
+        Args:
+            git_url: Git repository URL
+
+        Returns:
+            Repository name extracted from URL (preserves original case and valid characters)
+        """
+        git_url = git_url.strip()
+
+        # Remove .git suffix if present
+        if git_url.endswith('.git'):
+            git_url = git_url[:-4]
+
+        # Extract repo name (last part of path)
+        # Works for both HTTPS and SSH formats
+        repo_name = git_url.rstrip('/').split('/')[-1]
+
+        # Only decode URL encoding if present, but keep original name otherwise
+        try:
+            from urllib.parse import unquote
+            repo_name = unquote(repo_name)
+        except:
+            pass
+
+        return repo_name or 'imported-repo'
+
     def get_absolute_url(self):
         """Get project detail URL using GitHub-style username/project pattern"""
         from django.urls import reverse
@@ -246,6 +359,136 @@ class Project(models.Model):
             return membership.permission_level in ['write', 'admin']
         except ProjectMembership.DoesNotExist:
             return False
+
+    # ----------------------------------------
+    # Gitea Integration Methods
+    # ----------------------------------------
+
+    def create_gitea_repository(self, user_token: str = None):
+        """
+        Create repository in Gitea
+
+        Args:
+            user_token: User's Gitea API token (optional, uses default if not provided)
+
+        Returns:
+            Gitea repository object
+        """
+        from apps.gitea_app.api_client import GiteaClient
+
+        client = GiteaClient(token=user_token) if user_token else GiteaClient()
+
+        repo = client.create_repository(
+            name=self.slug,
+            description=self.description,
+            private=(self.visibility == 'private'),
+            auto_init=True,
+            gitignores='Python',
+            readme='Default'
+        )
+
+        # Update project with Gitea info
+        self.gitea_repo_id = repo['id']
+        self.gitea_repo_name = repo['name']
+        self.git_url = repo['clone_url']  # HTTPS URL
+        self.gitea_enabled = True
+        self.save()
+
+        return repo
+
+    def clone_gitea_to_local(self):
+        """
+        Clone Gitea repository to local working directory
+
+        Returns:
+            Tuple of (success, path or error_message)
+        """
+        import subprocess
+        from pathlib import Path
+        from apps.core_app.directory_manager import get_user_directory_manager
+
+        if not self.git_url:
+            return False, "No git URL configured"
+
+        manager = get_user_directory_manager(self.owner)
+        clone_path = manager.base_path / self.slug
+
+        # Remove existing directory if empty
+        if clone_path.exists():
+            if any(clone_path.iterdir()):
+                return False, "Directory already exists and is not empty"
+            else:
+                clone_path.rmdir()
+
+        try:
+            result = subprocess.run(
+                ['git', 'clone', self.git_url, str(clone_path)],
+                capture_output=True,
+                text=True,
+                timeout=300
+            )
+
+            if result.returncode == 0:
+                self.git_clone_path = str(clone_path)
+                self.directory_created = True
+                self.data_location = str(clone_path.relative_to(manager.base_path))
+                self.save()
+                return True, str(clone_path)
+            else:
+                return False, result.stderr
+
+        except subprocess.TimeoutExpired:
+            return False, "Clone operation timed out"
+        except Exception as e:
+            return False, str(e)
+
+    def import_from_github(self, github_url: str, github_token: str = '',
+                          import_issues: bool = True, import_pulls: bool = True):
+        """
+        Import project from GitHub repository
+
+        Args:
+            github_url: GitHub repository URL
+            github_token: GitHub personal access token (for private repos)
+            import_issues: Import issues
+            import_pulls: Import pull requests
+
+        Returns:
+            Tuple of (success, repo_object or error_message)
+        """
+        from apps.gitea_app.api_client import GiteaClient
+
+        client = GiteaClient()
+
+        try:
+            repo = client.migrate_repository(
+                clone_addr=github_url,
+                repo_name=self.slug,
+                service='github',
+                auth_token=github_token,
+                mirror=False,
+                private=(self.visibility == 'private'),
+                description=self.description,
+                issues=import_issues,
+                pull_requests=import_pulls
+            )
+
+            # Update project with Gitea info
+            self.gitea_repo_id = repo['id']
+            self.gitea_repo_name = repo['name']
+            self.git_url = repo['clone_url']
+            self.gitea_enabled = True
+            self.source = 'github'
+            self.source_url = github_url
+            self.save()
+
+            # Clone to local directory
+            success, result = self.clone_gitea_to_local()
+
+            return True, repo
+
+        except Exception as e:
+            return False, str(e)
 
 
 class ProjectPermission(models.Model):

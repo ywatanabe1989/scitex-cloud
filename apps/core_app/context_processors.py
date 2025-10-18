@@ -2,7 +2,15 @@
 Context processors for making common variables available in all templates.
 """
 import re
+from django.conf import settings
 from apps.project_app.models import Project
+
+
+def version_context(request):
+    """Add SciTeX version to all templates."""
+    return {
+        'SCITEX_VERSION': getattr(settings, 'SCITEX_VERSION', '0.1.0-alpha'),
+    }
 
 
 def project_context(request):

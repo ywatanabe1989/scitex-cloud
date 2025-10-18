@@ -148,3 +148,93 @@
     width: 100%;
   }
 }
+
+/* SciTeX Hero Gradient Variants - Silverish AI Palette */
+/* Theme-responsive hero sections */
+
+/* Light Variant - Better text visibility, softer appearance */
+.hero-silverish-ai-light {
+  background: linear-gradient(135deg, #506b7a 0%, #6c8ba0 30%, #8fa4b0 60%, #b5c7d1 100%);
+  color: var(--scitex-color-01);
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+}
+
+/* Dark theme variant */
+[data-theme="dark"] .hero-silverish-ai-light {
+  background: linear-gradient(135deg, #1a2332 0%, #34495e 30%, #506b7a 60%, #6c8ba0 100%);
+  color: var(--scitex-color-07);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Radial Gradient - Focal point effect */
+.hero-silverish-ai-radial {
+  background: radial-gradient(ellipse at center, #8fa4b0 0%, #6c8ba0 30%, #506b7a 60%, #34495e 80%, #1a2332 100%);
+  color: var(--scitex-color-01);
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+[data-theme="dark"] .hero-silverish-ai-radial {
+  background: radial-gradient(ellipse at center, #34495e 0%, #506b7a 30%, #6c8ba0 60%, #8fa4b0 80%, #b5c7d1 100%);
+  color: var(--scitex-color-07);
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Soft Variant - Gentle, subtle transitions */
+.hero-silverish-ai-soft {
+  background: linear-gradient(135deg, #6c8ba0 0%, #8fa4b0 35%, #b5c7d1 65%, #d4e1e8 100%);
+  color: var(--scitex-color-01);
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.6);
+}
+
+[data-theme="dark"] .hero-silverish-ai-soft {
+  background: linear-gradient(135deg, #1a2332 0%, #34495e 35%, #506b7a 65%, #6c8ba0 100%);
+  color: var(--scitex-color-07);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+/* Subtle Variant - Very gentle, almost imperceptible gradient */
+.hero-silverish-ai-subtle {
+  background: linear-gradient(135deg, #8fa4b0 0%, #a4b8c4 25%, #b5c7d1 50%, #c7d8df 75%, #d4e1e8 100%);
+  color: var(--scitex-color-01);
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.7);
+}
+
+[data-theme="dark"] .hero-silverish-ai-subtle {
+  background: linear-gradient(135deg, #1a2332 0%, #34495e 25%, #506b7a 50%, #6c8ba0 75%, #8fa4b0 100%);
+  color: var(--scitex-color-07);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+/* Default Silverish AI - Standard variant */
+.hero-silverish-ai {
+  background: linear-gradient(135deg, #34495e 0%, #506b7a 30%, #6c8ba0 60%, #8fa4b0 100%);
+  color: var(--scitex-color-01);
+  text-shadow: 0 1px 3px rgba(255, 255, 255, 0.4);
+}
+
+[data-theme="dark"] .hero-silverish-ai {
+  background: linear-gradient(135deg, #1a2332 0%, #34495e 30%, #506b7a 60%, #6c8ba0 100%);
+  color: var(--scitex-color-07);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+/* Module-specific hero variants */
+.hero-scholar {
+  border-bottom: 4px solid var(--scitex-color-04);
+}
+
+.hero-writer {
+  border-bottom: 4px solid var(--scitex-color-03);
+}
+
+.hero-code {
+  border-bottom: 4px solid var(--scitex-color-02);
+}
+
+.hero-viz {
+  border-bottom: 4px solid var(--scitex-color-05);
+}
+
+.hero-landing {
+  border-bottom: none;
+}

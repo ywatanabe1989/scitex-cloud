@@ -72,28 +72,51 @@ CSRF_COOKIE_SECURE = (
 SESSION_COOKIE_HTTPONLY = True  # Prevent JavaScript access to session cookies
 CSRF_COOKIE_HTTPONLY = True  # Prevent JavaScript access to CSRF cookies
 
-# Production database - Use PostgreSQL if configured, fallback to SQLite
-DB_PASSWORD = os.environ.get("DB_PASSWORD")
-if DB_PASSWORD and DB_PASSWORD != "your_database_password_here":
-    # PostgreSQL configuration
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": os.environ.get("DB_NAME", "scitex_cloud"),
-            "USER": os.environ.get("DB_USER", "scitex"),
-            "PASSWORD": DB_PASSWORD,
-            "HOST": os.environ.get("DB_HOST", "localhost"),
-            "PORT": os.environ.get("DB_PORT", "5432"),
-        }
-    }
-else:
-    # SQLite fallback for simpler deployment
+# Production database - PostgreSQL (recommended) with SQLite fallback
+# Use SQLite: export SCITEX_CLOUD_USE_SQLITE_PROD=1
+if os.environ.get('SCITEX_CLOUD_USE_SQLITE_PROD'):
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "data" / "scitex_cloud_prod.db",
+            "NAME": BASE_DIR / "data" / "db" / "sqlite" / "scitex_cloud_prod.db",
         }
     }
+else:
+    # PostgreSQL (default for production)
+    DB_PASSWORD = os.environ.get("SCITEX_CLOUD_DB_PASSWORD_PROD")
+
+    if DB_PASSWORD and DB_PASSWORD != "your_database_password_here":
+        # Remote PostgreSQL (for production deployment)
+        DATABASES = {
+            "default": {
+                "ENGINE": "django.db.backends.postgresql",
+                "NAME": os.environ.get("SCITEX_CLOUD_DB_NAME_PROD", "scitex_cloud_prod"),
+                "USER": os.environ.get("SCITEX_CLOUD_DB_USER_PROD", "scitex_prod"),
+                "PASSWORD": DB_PASSWORD,
+                "HOST": os.environ.get("SCITEX_CLOUD_DB_HOST_PROD", "localhost"),
+                "PORT": os.environ.get("SCITEX_CLOUD_DB_PORT_PROD", "5432"),
+                "ATOMIC_REQUESTS": True,
+                "CONN_MAX_AGE": 600,
+                "OPTIONS": {
+                    "connect_timeout": 10,
+                    "options": "-c statement_timeout=30000",  # 30 second query timeout
+                },
+            }
+        }
+    else:
+        # Local PostgreSQL for production testing (default credentials)
+        DATABASES = {
+            "default": {
+                "ENGINE": "django.db.backends.postgresql",
+                "NAME": "scitex_cloud_prod",
+                "USER": "scitex_prod",
+                "PASSWORD": "CHANGE_THIS_IN_PRODUCTION",
+                "HOST": "localhost",
+                "PORT": "5432",
+                "ATOMIC_REQUESTS": True,
+                "CONN_MAX_AGE": 600,
+            }
+        }
 
 # Production static files
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")

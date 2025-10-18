@@ -84,8 +84,18 @@ body {
 [data-theme="dark"] .btn-outline-secondary,
 [data-theme="dark"] .btn-outline-dark {
   color: var(--scitex-color-06) !important;  /* Light bluish for dark mode */
-  border-color: var(--scitex-color-04) !important;  /* Medium border for visibility */
+  border-color: var(--scitex-color-05) !important;  /* Subtle border, not too vivid */
   background: transparent !important;
+  opacity: 0.9;
+}
+
+[data-theme="dark"] .btn-outline-primary:hover,
+[data-theme="dark"] .btn-outline-secondary:hover,
+[data-theme="dark"] .btn-outline-dark:hover {
+  color: var(--scitex-color-01) !important;
+  background: var(--scitex-color-06) !important;
+  border-color: var(--scitex-color-06) !important;
+  opacity: 1;
 }
 
 /* Ensure form controls use appropriate text color per theme */

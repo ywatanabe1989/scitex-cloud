@@ -1,8 +1,9 @@
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.models import User
+from django.db.models import Count
 from apps.project_app.models import Project
 from .models import UserFollow, RepositoryStar, Activity
 
@@ -165,3 +166,55 @@ def stargazers_list(request, username, slug):
         'count': len(stargazers_data),
         'stargazers': stargazers_data
     })
+
+
+def explore(request):
+    """
+    Explore page showing public repositories and trending content.
+    GitHub-style explore/discover page.
+    """
+    tab = request.GET.get('tab', 'repositories')
+
+    context = {
+        'tab': tab,
+    }
+
+    if tab == 'repositories':
+        # Get public repositories, ordered by stars and recent activity
+        repositories = Project.objects.filter(
+            visibility='public'
+        ).annotate(
+            star_count=Count('stars')
+        ).select_related('owner').order_by('-star_count', '-updated_at')[:20]
+
+        context['repositories'] = repositories
+
+    elif tab == 'users':
+        # Get active users with public profiles
+        users = User.objects.filter(
+            is_active=True
+        ).annotate(
+            repo_count=Count('owned_projects'),
+            follower_count=Count('followers')
+        ).order_by('-follower_count', '-repo_count')[:20]
+
+        context['users'] = users
+
+    return render(request, 'social_app/explore.html', context)
+
+
+@login_required
+def notifications(request):
+    """
+    User notifications page.
+    Shows activity notifications, follow notifications, star notifications, etc.
+    """
+    # For now, this is a placeholder
+    # In the future, this will show actual notifications from a Notification model
+
+    context = {
+        'has_notifications': False,
+        'notifications': [],
+    }
+
+    return render(request, 'social_app/notifications.html', context)

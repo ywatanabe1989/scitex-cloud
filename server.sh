@@ -1,1 +1,1 @@
-scripts/scitex_server.sh
+scripts/server/scitex_server.sh

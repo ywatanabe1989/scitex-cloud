@@ -43,13 +43,32 @@ INTERNAL_IPS = [
     "127.0.0.1",
 ]
 
-# Development database (SQLite)
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "scitex_cloud_dev.db",
+# Development database (PostgreSQL by default, SQLite fallback)
+# Use SQLite: export SCITEX_CLOUD_USE_SQLITE_DEV=1
+if os.environ.get('SCITEX_CLOUD_USE_SQLITE_DEV'):
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "data" / "db" / "sqlite" / "scitex_cloud_dev.db",
+        }
     }
-}
+else:
+    # PostgreSQL (default for development)
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.environ.get("SCITEX_CLOUD_DB_NAME_DEV", "scitex_cloud_dev"),
+            "USER": os.environ.get("SCITEX_CLOUD_DB_USER_DEV", "scitex_dev"),
+            "PASSWORD": os.environ.get("SCITEX_CLOUD_DB_PASSWORD_DEV", "scitex_dev_2025"),
+            "HOST": os.environ.get("SCITEX_CLOUD_DB_HOST_DEV", "localhost"),
+            "PORT": os.environ.get("SCITEX_CLOUD_DB_PORT_DEV", "5432"),
+            "ATOMIC_REQUESTS": True,  # Wrap each request in a transaction
+            "CONN_MAX_AGE": 600,  # Connection pooling (10 minutes)
+            "OPTIONS": {
+                "connect_timeout": 10,
+            },
+        }
+    }
 
 # Development Cache Configuration - fallback to dummy cache if Redis not available
 import socket
@@ -168,5 +187,12 @@ LOGGING.update({
         },
     },
 })
+
+# ----------------------------------------
+# Gitea Integration
+# ----------------------------------------
+GITEA_URL = os.environ.get('SCITEX_CLOUD_GITEA_URL', 'http://localhost:3000')
+GITEA_API_URL = f"{GITEA_URL}/api/v1"
+GITEA_TOKEN = os.environ.get('SCITEX_CLOUD_GITEA_TOKEN', '')
 
 # EOF

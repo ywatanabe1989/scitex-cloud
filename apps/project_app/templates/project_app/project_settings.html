@@ -275,11 +275,6 @@
                         <p class="form-help">Brief description of your research project</p>
                     </div>
 
-                    <div class="form-group">
-                        <label for="hypotheses">Research Hypotheses</label>
-                        <textarea id="hypotheses" name="hypotheses" rows="5">{{ project.hypotheses }}</textarea>
-                        <p class="form-help">Your research questions and hypotheses</p>
-                    </div>
 
                     <button type="submit" name="action" value="update_general" class="btn-save">
                         Save changes
@@ -311,26 +306,68 @@
                         </label>
                     </div>
 
-                    <button type="submit" name="action" value="update_visibility" class="btn-save" style="margin-top: 16px;">
-                        Update visibility
-                    </button>
+                    <!-- Visibility updates automatically on radio change via JavaScript -->
                 </div>
 
-                <!-- Collaborators (placeholder) -->
+                <!-- Collaborators -->
                 <div class="settings-section" id="collaborators">
                     <div class="settings-section-header">
                         <h2 class="settings-title">Manage access</h2>
                         <p class="settings-description">Control who has access to this repository</p>
                     </div>
 
-                    <p style="color: var(--color-fg-muted);">
-                        {{ project.memberships.count }} collaborator(s)
-                    </p>
+                    <!-- Current Collaborators -->
+                    {% if project.memberships.count > 0 %}
+                    <div style="margin-bottom: 16px;">
+                        <h6 style="color: var(--color-fg-muted); font-size: 12px; margin-bottom: 8px;">COLLABORATORS ({{ project.memberships.count }})</h6>
+                        {% for membership in project.memberships.all %}
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; border: 1px solid var(--color-border-default); border-radius: 6px; margin-bottom: 8px;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--scitex-color-04); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600;">
+                                    {{ membership.user.username|slice:":1"|upper }}
+                                </div>
+                                <div>
+                                    <div style="font-weight: 600; color: var(--color-fg-default);">{{ membership.user.username }}</div>
+                                    <div style="font-size: 12px; color: var(--color-fg-muted);">{{ membership.role|title }}</div>
+                                </div>
+                            </div>
+                            <select name="role_{{ membership.id }}" style="padding: 4px 8px; border: 1px solid var(--color-border-default); border-radius: 6px; background: var(--color-canvas-default); color: var(--color-fg-default);">
+                                <option value="viewer" {% if membership.role == 'viewer' %}selected{% endif %}>Read</option>
+                                <option value="collaborator" {% if membership.role == 'collaborator' %}selected{% endif %}>Write</option>
+                                <option value="admin" {% if membership.role == 'admin' %}selected{% endif %}>Admin</option>
+                            </select>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
 
-                    <div style="margin-top: 16px;">
-                        <a href="#" class="btn btn-sm btn-outline-primary">
-                            <i class="fas fa-user-plus"></i> Add collaborator
-                        </a>
+                    <!-- Add Collaborator Form -->
+                    <div style="margin-top: 16px; padding: 16px; border: 1px solid var(--color-border-default); border-radius: 6px; background: var(--color-canvas-subtle);">
+                        <h6 style="margin-bottom: 12px; color: var(--color-fg-default);">Add collaborator</h6>
+                        <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                            <input
+                                type="text"
+                                name="collaborator_username"
+                                id="collaboratorUsername"
+                                placeholder="Search by username"
+                                required
+                                style="flex: 1; padding: 8px 12px; border: 1px solid var(--color-border-default); border-radius: 6px; background: var(--color-canvas-default); color: var(--color-fg-default); font-size: 14px;"
+                            >
+                            <select name="collaborator_role" style="padding: 8px; border: 1px solid var(--color-border-default); border-radius: 6px; background: var(--color-canvas-default); color: var(--color-fg-default);">
+                                <option value="viewer">Read</option>
+                                <option value="collaborator" selected>Write</option>
+                                <option value="admin">Admin</option>
+                            </select>
+                            <button type="submit" name="action" value="add_collaborator" class="btn btn-sm" style="background: var(--scitex-color-02); color: white; border: none; padding: 8px 16px; border-radius: 6px; white-space: nowrap;">
+                                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="display: inline-block; vertical-align: text-bottom; margin-right: 4px;">
+                                    <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zm.5 4.75a.75.75 0 0 0-1.5 0v2.5h-2.5a.75.75 0 0 0 0 1.5h2.5v2.5a.75.75 0 0 0 1.5 0v-2.5h2.5a.75.75 0 0 0 0-1.5h-2.5v-2.5z"/>
+                                </svg>
+                                Add
+                            </button>
+                        </div>
+                        <p style="font-size: 12px; color: var(--color-fg-muted); margin: 0;">
+                            Enter the username of the person you want to add as a collaborator.
+                        </p>
                     </div>
                 </div>
             </form>
@@ -342,20 +379,6 @@
                     <p class="settings-description">Irreversible, destructive actions</p>
                 </div>
 
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px; background: var(--color-canvas-default); border: 1px solid var(--color-danger-emphasis); border-radius: 6px; margin-bottom: 16px;">
-                    <div>
-                        <div style="font-weight: 600; color: var(--color-fg-default); margin-bottom: 4px;">
-                            Change repository visibility
-                        </div>
-                        <div style="font-size: 12px; color: var(--color-fg-muted);">
-                            Change whether this repository is public or private
-                        </div>
-                    </div>
-                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="document.getElementById('access').scrollIntoView({behavior: 'smooth'})">
-                        Change visibility
-                    </button>
-                </div>
-
                 <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px; background: var(--color-canvas-default); border: 1px solid var(--color-danger-emphasis); border-radius: 6px;">
                     <div>
                         <div style="font-weight: 600; color: var(--color-fg-default); margin-bottom: 4px;">
@@ -365,7 +388,7 @@
                             Once you delete a repository, there is no going back. Please be certain.
                         </div>
                     </div>
-                    <button type="button" class="btn-danger" onclick="confirmDelete()">
+                    <button type="button" class="btn-danger" onclick="showDeleteModal()">
                         Delete repository
                     </button>
                 </div>
@@ -375,6 +398,19 @@
 </div>
 
 <script>
+// Auto-submit visibility changes
+document.querySelectorAll('input[name="visibility"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        const form = this.closest('form');
+        const actionInput = document.createElement('input');
+        actionInput.type = 'hidden';
+        actionInput.name = 'action';
+        actionInput.value = 'update_visibility';
+        form.appendChild(actionInput);
+        form.submit();
+    });
+});
+
 // Radio button selection visual feedback
 document.querySelectorAll('.radio-option input[type="radio"]').forEach(radio => {
     radio.addEventListener('change', function() {
@@ -383,31 +419,111 @@ document.querySelectorAll('.radio-option input[type="radio"]').forEach(radio => 
     });
 });
 
-// Delete confirmation
-function confirmDelete() {
-    if (confirm('Are you absolutely sure you want to delete this repository?\n\nThis will permanently delete:\n- All files and directories\n- All commit history\n- All issues and pull requests\n- All collaborator access\n\nThis action CANNOT be undone!')) {
-        if (confirm('Please type the repository name "{{ project.name }}" to confirm.\n\n(This is a safety measure - actual implementation would require typing)')) {
-            // Submit delete form
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = window.location.href;
+// GitHub-style Delete Modal
+function showDeleteModal() {
+    const modal = document.getElementById('deleteModal');
+    modal.style.display = 'flex';
+    document.getElementById('deleteConfirmInput').value = '';
+    document.getElementById('deleteConfirmButton').disabled = true;
+}
 
-            const csrfInput = document.createElement('input');
-            csrfInput.type = 'hidden';
-            csrfInput.name = 'csrfmiddlewaretoken';
-            csrfInput.value = document.querySelector('[name=csrfmiddlewaretoken]').value;
+function hideDeleteModal() {
+    document.getElementById('deleteModal').style.display = 'none';
+}
 
-            const actionInput = document.createElement('input');
-            actionInput.type = 'hidden';
-            actionInput.name = 'action';
-            actionInput.value = 'delete_repository';
+function checkDeleteInput() {
+    const input = document.getElementById('deleteConfirmInput');
+    const button = document.getElementById('deleteConfirmButton');
+    const expectedValue = '{{ user.username }}/{{ project.name }}';
 
-            form.appendChild(csrfInput);
-            form.appendChild(actionInput);
-            document.body.appendChild(form);
-            form.submit();
-        }
+    if (input.value === expectedValue) {
+        button.disabled = false;
+        button.style.opacity = '1';
+    } else {
+        button.disabled = true;
+        button.style.opacity = '0.5';
     }
 }
+
+function submitDelete() {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = window.location.href;
+
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'csrfmiddlewaretoken';
+    csrfInput.value = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    const actionInput = document.createElement('input');
+    actionInput.type = 'hidden';
+    actionInput.name = 'action';
+    actionInput.value = 'delete_repository';
+
+    form.appendChild(csrfInput);
+    form.appendChild(actionInput);
+    document.body.appendChild(form);
+    form.submit();
+}
+
+// Close modal on ESC key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        hideDeleteModal();
+    }
+});
 </script>
+
+<!-- GitHub-style Delete Confirmation Modal -->
+<div id="deleteModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 10000; align-items: center; justify-content: center;">
+    <div style="background: var(--color-canvas-default); border-radius: 12px; max-width: 600px; width: 90%; padding: 24px; box-shadow: 0 8px 32px rgba(0,0,0,0.4);">
+        <div style="display: flex; align-items: center; margin-bottom: 16px;">
+            <svg width="48" height="48" viewBox="0 0 16 16" fill="#d73a49" style="margin-right: 12px;">
+                <path d="M6.5 1.75a.25.25 0 01.25-.25h2.5a.25.25 0 01.25.25V3h-3V1.75zm4.5 0V3h2.25a.75.75 0 110 1.5H2.75a.75.75 0 010-1.5H5V1.75C5 .784 5.784 0 6.75 0h2.5C10.216 0 11 .784 11 1.75zM4.496 6.675a.75.75 0 10-1.492.15l.66 6.6A1.75 1.75 0 005.405 15h5.19c.9 0 1.652-.681 1.741-1.576l.66-6.6a.75.75 0 00-1.492-.149l-.66 6.6a.25.25 0 01-.249.225h-5.19a.25.25 0 01-.249-.225l-.66-6.6z"/>
+            </svg>
+            <h2 style="margin: 0; color: var(--color-fg-default); font-size: 20px; font-weight: 600;">Delete repository</h2>
+        </div>
+
+        <div style="padding: 16px; background: var(--color-danger-subtle); border: 1px solid var(--color-danger-emphasis); border-radius: 6px; margin-bottom: 16px;">
+            <p style="margin: 0 0 12px 0; color: var(--color-fg-default); font-weight: 600;">
+                ⚠️ Unexpected bad things will happen if you don't read this!
+            </p>
+            <p style="margin: 0; color: var(--color-fg-default); font-size: 14px;">
+                This action <strong>cannot</strong> be undone. This will permanently delete the <strong>{{ project.name }}</strong> repository, all files, commit history, and remove all collaborator associations.
+            </p>
+        </div>
+
+        <p style="color: var(--color-fg-default); margin-bottom: 8px; font-size: 14px;">
+            Please type <strong style="color: var(--color-danger-fg);">{{ user.username }}/{{ project.name }}</strong> to confirm.
+        </p>
+
+        <input
+            type="text"
+            id="deleteConfirmInput"
+            placeholder="{{ user.username }}/{{ project.name }}"
+            oninput="checkDeleteInput()"
+            style="width: 100%; padding: 8px 12px; border: 1px solid var(--color-border-default); border-radius: 6px; font-size: 14px; margin-bottom: 16px; background: var(--color-canvas-default); color: var(--color-fg-default);"
+        >
+
+        <div style="display: flex; gap: 12px; justify-content: flex-end;">
+            <button
+                type="button"
+                onclick="hideDeleteModal()"
+                style="padding: 8px 16px; border: 1px solid var(--color-border-default); border-radius: 6px; background: var(--color-canvas-default); color: var(--color-fg-default); cursor: pointer; font-size: 14px;"
+            >
+                Cancel
+            </button>
+            <button
+                type="button"
+                id="deleteConfirmButton"
+                onclick="submitDelete()"
+                disabled
+                style="padding: 8px 16px; border: none; border-radius: 6px; background: #d73a49; color: white; cursor: pointer; font-size: 14px; font-weight: 600; opacity: 0.5;"
+            >
+                I understand the consequences, delete this repository
+            </button>
+        </div>
+    </div>
+</div>
+
 {% endblock %}

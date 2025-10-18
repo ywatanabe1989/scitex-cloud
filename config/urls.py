@@ -278,12 +278,20 @@ def discover_app_urls():
     patterns = []
     apps_dir = Path(settings.BASE_DIR) / "apps"
 
+    # Apps to skip because they're manually configured below
+    skip_apps = {'cloud_app'}
+
     if apps_dir.exists():
         for app_dir in sorted(apps_dir.iterdir()):
             if app_dir.is_dir() and not app_dir.name.startswith("_"):
+                app_name = app_dir.name
+
+                # Skip apps that are manually configured
+                if app_name in skip_apps:
+                    continue
+
                 urls_file = app_dir / "urls.py"
                 if urls_file.exists():
-                    app_name = app_dir.name
                     # Extract URL prefix from app name (remove _app suffix if present)
                     url_prefix = app_name.replace("_app", "")
 
@@ -326,7 +334,9 @@ urlpatterns += [
         RedirectView.as_view(url="/static/images/favicon.png", permanent=True),
     ),
     # Cloud app URLs (includes landing page and auth)
-    path("", include("apps.cloud_app.urls", namespace="cloud_app")),
+    # Note: cloud_app is already included by discover_app_urls() at /cloud/
+    # This additional include makes it accessible at root path /
+    path("", include("apps.cloud_app.urls")),
 ]
 
 # Reserved paths that should NOT be treated as usernames
@@ -364,6 +374,7 @@ def get_reserved_paths():
         'about', 'help', 'support', 'contact', 'terms', 'privacy',
         'settings', 'dashboard', 'profile', 'account',
         'login', 'logout', 'signup', 'register', 'reset', 'verify', 'confirm',
+        'explore', 'trending', 'discover',
     ])
 
     # 4. Development/debug paths
