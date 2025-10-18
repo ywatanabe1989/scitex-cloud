@@ -1,7 +1,7 @@
 <!-- ---
-!-- Timestamp: 2025-06-27 07:25:12
+!-- Timestamp: 2025-10-18 10:20:32
 !-- Author: ywatanabe
-!-- File: /ssh:scitex:/home/ywatanabe/proj/scitex-cloud/README.md
+!-- File: /home/ywatanabe/proj/scitex-cloud/README.md
 !-- --- -->
 
 # SciTeX-Cloud
@@ -16,8 +16,8 @@ Django-based online platform for accelerating scientific workflows and manuscrip
 
 ```bash
 # Clone and setup
-git clone git@github.com/ywatanabe1989/SciTeX-Cloud
-cd SciTeX-Cloud
+git clone git@github.com/SciTeX-AI/scitex-cloud
+cd scite-cloud
 date && sudo apt-get install -y python3-dev build-essential
 
 # Setup virtual environment
