@@ -141,6 +141,13 @@ ADMINS = [
     ("Yusuke Watanabe", "ywatanabe@scitex.ai"),
 ]
 
+# ----------------------------------------
+# Gitea Configuration (Production)
+# ----------------------------------------
+GITEA_URL = os.environ.get('SCITEX_CLOUD_GITEA_URL', 'https://git.scitex.ai')
+GITEA_API_URL = os.environ.get('SCITEX_CLOUD_GITEA_API_URL', 'https://git.scitex.ai/api/v1')
+GITEA_TOKEN = os.environ.get('SCITEX_CLOUD_GITEA_TOKEN', '')
+
 # Production logging - extends the base logging config
 
 # Define log directory for production

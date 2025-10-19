@@ -41,4 +41,11 @@ export SCITEX_LOGGING_LEVEL=${SCITEX_LOGGING_LEVEL:-warning}
 # ----------------------------------------
 export SCITEX_CLOUD_ALLOWED_HOSTS="scitex.ai,www.scitex.ai,localhost"
 
+# ----------------------------------------
+# Gitea Configuration
+# ----------------------------------------
+export SCITEX_CLOUD_GITEA_URL="https://git.scitex.ai"
+export SCITEX_CLOUD_GITEA_API_URL="https://git.scitex.ai/api/v1"
+export SCITEX_CLOUD_GITEA_TOKEN="${SCITEX_CLOUD_GITEA_TOKEN:-}"  # Set after Gitea setup
+
 # EOF
