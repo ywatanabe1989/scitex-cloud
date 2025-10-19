@@ -2,7 +2,6 @@
 name: ExamplesDeveloperAgent
 description: MUST BE USED. Implements and maange examples based on project and current code understanding.
 color: green
-model: sonnet
 ---
 
 ## Roles:

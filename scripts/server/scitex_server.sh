@@ -59,18 +59,17 @@ COMMANDS:
 
 OPTIONS:
     -m, --mode MODE         Server mode: dev, prod, windows (default: dev)
-    -p, --port PORT         Port number (default: 8000)
+    -p, --port PORT         Port number for dev server (default: 8000)
     -c, --clean             Clean before starting
     -s, --static            Collect static files
-    -d, --daemon            Run in daemon mode (production only)
-    -w, --workers NUM       Number of workers (production only, default: 4)
     -h, --help              Show this help message
 
 EXAMPLES:
     $0 start                    # Start development server
-    $0 start -m prod -d         # Start production server as daemon
+    $0 start -m prod            # Start production server (systemd uWSGI)
     $0 start -m windows         # Start for Windows access
     $0 stop                     # Stop all servers
+    $0 status                   # Check server status
     $0 logs                     # View logs
     $0 test                     # Run tests
 
@@ -82,8 +81,6 @@ MODE="dev"
 PORT="8000"
 DO_CLEAN=false
 DO_STATIC=false
-DAEMON=false
-WORKERS=4
 COMMAND="start"
 
 # Parse command line arguments
@@ -108,14 +105,6 @@ while [[ $# -gt 0 ]]; do
         -s|--static)
             DO_STATIC=true
             shift
-            ;;
-        -d|--daemon)
-            DAEMON=true
-            shift
-            ;;
-        -w|--workers)
-            WORKERS="$2"
-            shift 2
             ;;
         -h|--help)
             show_usage
@@ -157,24 +146,16 @@ activate_venv() {
 # Stop server function
 stop_server() {
     log_info "Stopping SciTeX Cloud processes..."
-    
+
+    # Stop systemd services if running and kill Django dev server
+    if systemctl is-active --quiet scitex_cloud_prod 2>/dev/null; then
+        log_info "Stopping systemd uWSGI service..."
+        sudo systemctl stop scitex_cloud_prod 2>/dev/null || true
+    fi
+
     # Kill Django development server
-    pkill -f "python.*manage.py runserver" || true
-    
-    # Kill Gunicorn
-    if [ -f "$PID_DIR/gunicorn.pid" ]; then
-        kill $(cat "$PID_DIR/gunicorn.pid") 2>/dev/null || true
-        rm -f "$PID_DIR/gunicorn.pid"
-    fi
-    pkill -f "gunicorn.*config.wsgi" || true
-    
-    # Kill uWSGI
-    if [ -f "$PID_DIR/uwsgi.pid" ]; then
-        uwsgi --stop "$PID_DIR/uwsgi.pid" 2>/dev/null || true
-        rm -f "$PID_DIR/uwsgi.pid"
-    fi
-    pkill -f "uwsgi.*config.wsgi" || true
-    
+    pkill -f "python.*manage.py runserver" 2>/dev/null || true
+
     log_success "All processes stopped"
 }
 
@@ -207,9 +188,6 @@ collect_static() {
 
 # Start development server
 start_dev() {
-    export SCITEX_CLOUD_ENV=development
-    export SCITEX_DJANGO_SECRET_KEY="${SCITEX_DJANGO_SECRET_KEY:-dev-secret-key-123}"
-    
     cd "$PROJECT_ROOT"
     
     if [[ "$MODE" == "windows" ]]; then
@@ -234,35 +212,41 @@ start_dev() {
 
 # Start production server
 start_prod() {
-    export SCITEX_CLOUD_ENV=production
-    
-    if [ -z "$SCITEX_DJANGO_SECRET_KEY" ]; then
-        log_error "SCITEX_DJANGO_SECRET_KEY not set for production!"
+    cd "$PROJECT_ROOT"
+
+    log_info "Starting production server via systemd..."
+
+    # Check if systemd service exists
+    if ! systemctl list-unit-files | grep -q scitex_cloud_prod.service; then
+        log_error "Systemd service not installed!"
+        log_info "Install it with: sudo bash scripts/prod/deploy_prod.sh --install"
         exit 1
     fi
-    
-    cd "$PROJECT_ROOT"
-    
-    if $DAEMON; then
-        log_info "Starting production server as daemon..."
-        gunicorn config.wsgi:application \
-            --bind 0.0.0.0:$PORT \
-            --workers $WORKERS \
-            --pid "$PID_DIR/gunicorn.pid" \
-            --log-file "$LOG_DIR/gunicorn.log" \
-            --access-logfile "$LOG_DIR/gunicorn_access.log" \
-            --daemon
-        
-        log_success "Production server started as daemon on port $PORT"
-        log_info "PID file: $PID_DIR/gunicorn.pid"
-        log_info "Logs: $LOG_DIR/gunicorn.log"
+
+    # Start the service
+    sudo systemctl start scitex_cloud_prod
+
+    sleep 2
+
+    # Check if it started successfully
+    if systemctl is-active --quiet scitex_cloud_prod; then
+        log_success "Production server started successfully"
+        log_info ""
+        log_info "===================================================="
+        log_success "Production server: Nginx + uWSGI (systemd)"
+        log_info "Service: scitex_cloud_prod"
+        log_info "Socket: /run/scitex_cloud.sock"
+        log_info "Access via: https://scitex.ai"
+        log_info "===================================================="
+        log_info ""
+        log_info "Commands:"
+        log_info "  Check status:  sudo systemctl status scitex_cloud_prod"
+        log_info "  View logs:     sudo journalctl -u scitex_cloud_prod -f"
+        log_info "  Stop server:   ./server.sh stop"
     else
-        log_info "Starting production server..."
-        gunicorn config.wsgi:application \
-            --bind 0.0.0.0:$PORT \
-            --workers $WORKERS \
-            --log-file "$LOG_DIR/gunicorn.log" \
-            --access-logfile "$LOG_DIR/gunicorn_access.log"
+        log_error "Failed to start production server"
+        log_info "Check logs: sudo journalctl -u scitex_cloud_prod -n 50"
+        exit 1
     fi
 }
 
@@ -270,7 +254,29 @@ start_prod() {
 show_status() {
     log_info "SciTeX Cloud Server Status"
     echo "============================"
-    
+
+    # Check systemd uWSGI service
+    if systemctl is-active --quiet scitex_cloud_prod 2>/dev/null; then
+        log_success "Systemd uWSGI service (scitex_cloud_prod): RUNNING"
+        systemctl status scitex_cloud_prod --no-pager -l | head -n 15
+        echo ""
+        log_info "Socket status:"
+        ls -l /run/scitex_cloud.sock 2>/dev/null || log_warning "Socket not found"
+    else
+        log_warning "Systemd uWSGI service (scitex_cloud_prod): NOT RUNNING"
+    fi
+
+    echo ""
+
+    # Check Nginx
+    if systemctl is-active --quiet nginx 2>/dev/null; then
+        log_success "Nginx: RUNNING"
+    else
+        log_warning "Nginx: NOT RUNNING"
+    fi
+
+    echo ""
+
     # Check Django dev server
     if pgrep -f "python.*manage.py runserver" > /dev/null; then
         log_success "Django development server: RUNNING"
@@ -278,45 +284,26 @@ show_status() {
     else
         log_warning "Django development server: NOT RUNNING"
     fi
-    
-    echo ""
-    
-    # Check Gunicorn
-    if [ -f "$PID_DIR/gunicorn.pid" ] && kill -0 $(cat "$PID_DIR/gunicorn.pid") 2>/dev/null; then
-        log_success "Gunicorn: RUNNING (PID: $(cat $PID_DIR/gunicorn.pid))"
-    elif pgrep -f "gunicorn.*config.wsgi" > /dev/null; then
-        log_success "Gunicorn: RUNNING"
-        ps aux | grep "gunicorn.*config.wsgi" | grep -v grep
-    else
-        log_warning "Gunicorn: NOT RUNNING"
-    fi
-    
-    echo ""
-    
-    # Check uWSGI
-    if [ -f "$PID_DIR/uwsgi.pid" ] && kill -0 $(cat "$PID_DIR/uwsgi.pid") 2>/dev/null; then
-        log_success "uWSGI: RUNNING (PID: $(cat $PID_DIR/uwsgi.pid))"
-    elif pgrep -f "uwsgi.*config.wsgi" > /dev/null; then
-        log_success "uWSGI: RUNNING"
-        ps aux | grep "uwsgi.*config.wsgi" | grep -v grep
-    else
-        log_warning "uWSGI: NOT RUNNING"
-    fi
 }
 
 # View logs
 view_logs() {
     log_info "Viewing SciTeX Cloud logs..."
-    
-    # Use multitail if available
-    if command -v multitail &> /dev/null; then
-        multitail -f "$LOG_DIR/django.log" \
-                  -f "$LOG_DIR/app.log" \
-                  -f "$LOG_DIR/gunicorn.log" 2>/dev/null || \
-        tail -f "$LOG_DIR"/*.log
+
+    # Check if production service is running
+    if systemctl is-active --quiet scitex_cloud_prod 2>/dev/null; then
+        log_info "Showing systemd uWSGI logs (Ctrl+C to exit)..."
+        sudo journalctl -u scitex_cloud_prod -f
     else
-        # Fall back to regular tail
-        tail -f "$LOG_DIR"/*.log
+        # Use multitail if available
+        if command -v multitail &> /dev/null; then
+            multitail -f "$LOG_DIR/django.log" \
+                      -f "$LOG_DIR/app.log" 2>/dev/null || \
+            tail -f "$LOG_DIR"/*.log
+        else
+            # Fall back to regular tail
+            tail -f "$LOG_DIR"/*.log
+        fi
     fi
 }
 
@@ -324,36 +311,87 @@ view_logs() {
 case $COMMAND in
     start)
         activate_venv
-        
+
+        # Set environment early based on mode
+        case $MODE in
+            prod)
+                export SCITEX_CLOUD_ENV=production
+                if [ -z "$SCITEX_DJANGO_SECRET_KEY" ]; then
+                    log_error "SCITEX_DJANGO_SECRET_KEY not set for production!"
+                    exit 1
+                fi
+                ;;
+            dev|windows)
+                export SCITEX_CLOUD_ENV=development
+                export SCITEX_DJANGO_SECRET_KEY="${SCITEX_DJANGO_SECRET_KEY:-dev-secret-key-123}"
+                ;;
+        esac
+
         # Clean if requested
         if $DO_CLEAN; then
             clean_temp
         fi
-        
+
         # Run migrations
         run_migrations
-        
-        # Collect static if requested or in production
-        if $DO_STATIC || [[ "$MODE" == "prod" ]]; then
+
+        # For production: collect static, set permissions, and manage services
+        if [[ "$MODE" == "prod" ]]; then
+            log_info "Preparing production deployment..."
+
+            # Kill any remaining processes (non-sudo)
+            pkill -9 -f "gunicorn" 2>/dev/null || true
+            pkill -9 -f "uwsgi" 2>/dev/null || true
+            pkill -f "python.*manage.py runserver" 2>/dev/null || true
+            rm -f "$LOG_DIR/gunicorn*.log" 2>/dev/null || true
+
+            # Collect static files first
             collect_static
-        fi
-        
-        # Stop any running servers
-        stop_server
-        
-        # Start appropriate server
-        case $MODE in
-            dev|windows)
-                start_dev
-                ;;
-            prod)
-                start_prod
-                ;;
-            *)
-                log_error "Unknown mode: $MODE"
+
+            log_info "Deploying production server (requesting sudo access)..."
+
+            # ONE sudo call for everything: permissions, stop, cleanup, start
+            sudo sh -c "
+                # Fix permissions before and after
+                chown -R ywatanabe:www-data staticfiles/ media/ logs/ 2>/dev/null || true
+                chmod -R 775 staticfiles/ media/ logs/ 2>/dev/null || true
+
+                # Stop service and cleanup
+                systemctl stop scitex_cloud_prod 2>/dev/null || true
+                rm -f /run/scitex_cloud.sock 2>/dev/null || true
+
+                # Start service
+                systemctl start scitex_cloud_prod
+            "
+
+            sleep 2
+
+            # Check if it started successfully
+            if systemctl is-active --quiet scitex_cloud_prod; then
+                log_success "Production server started successfully"
+                log_info ""
+                log_info "===================================================="
+                log_success "Production server: Nginx + uWSGI (systemd)"
+                log_info "Service: scitex_cloud_prod"
+                log_info "Socket: /run/scitex_cloud.sock"
+                log_info "Access via: https://scitex.ai"
+                log_info "===================================================="
+                log_info ""
+                log_info "Commands:"
+                log_info "  Check status:  sudo systemctl status scitex_cloud_prod"
+                log_info "  View logs:     sudo journalctl -u scitex_cloud_prod -f"
+                log_info "  Stop server:   ./server.sh stop"
+            else
+                log_error "Failed to start production server"
+                log_info "Check logs: sudo journalctl -u scitex_cloud_prod -n 50"
                 exit 1
-                ;;
-        esac
+            fi
+        else
+            # Development mode
+            collect_static
+            stop_server
+            start_dev
+        fi
         ;;
         
     stop)

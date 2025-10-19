@@ -58,8 +58,8 @@ Visit: http://localhost:8000
 ## 🚀 Production Setup
 
 ### Prerequisites
-- [ ] Ubuntu server with public IP
-- [ ] Domain name pointing to server
+- [ ] Ubuntu server with public IP (e.g., 162.43.35.139)
+- [ ] Domain name pointing to server (e.g., scitex.ai)
 - [ ] SSH access with sudo
 - [ ] Firewall configured (ports 22, 80, 443)
 
@@ -68,7 +68,7 @@ Visit: http://localhost:8000
 ```bash
 # 1. Install dependencies
 sudo apt update && sudo apt upgrade -y
-sudo apt install -y python3.11 python3.11-venv postgresql nginx git ufw
+sudo apt install -y python3.11 python3.11-venv postgresql nginx git ufw uwsgi uwsgi-plugin-python3
 
 # 2. Configure firewall
 sudo ufw allow 22/tcp   # SSH
@@ -76,45 +76,52 @@ sudo ufw allow 80/tcp   # HTTP
 sudo ufw allow 443/tcp  # HTTPS
 sudo ufw enable
 
-# 3. Clone project
-sudo mkdir -p /var/www
-cd /var/www
-sudo git clone https://github.com/ywatanabe1989/scitex-cloud.git
-sudo chown -R $USER:$USER scitex-cloud
+# 3. Clone project (use your actual location)
+cd ~/proj
+git clone https://github.com/ywatanabe1989/scitex-cloud.git
 cd scitex-cloud
 
 # 4. Setup Python environment
 python3.11 -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
+pip install -r deployment/requirements.txt
 
 # 5. Setup database
 bash scripts/deployment/setup_postgres.sh
 
 # 6. Switch to production environment
-source scripts/deployment/switch_env.sh prod
+source deployment/dotenvs/dotenv.prod
 
 # 7. Run migrations
-python manage.py migrate
-python manage.py createsuperuser
-python manage.py collectstatic --noinput
+python manage.py migrate --settings=config.settings.settings_prod
+python manage.py createsuperuser --settings=config.settings.settings_prod
+python manage.py collectstatic --noinput --settings=config.settings.settings_prod
 
-# 8. Setup uWSGI systemd service
-sudo cp deployment/uwsgi/scitex_cloud_prod.service /etc/systemd/system/scitex_cloud.service
+# 8. Create necessary directories
+mkdir -p logs staticfiles media
+
+# 9. Setup uWSGI systemd service
+sudo cp deployment/uwsgi/scitex_cloud_prod.service /etc/systemd/system/scitex_cloud_prod.service
 sudo systemctl daemon-reload
-sudo systemctl enable scitex_cloud
-sudo systemctl start scitex_cloud
+sudo systemctl enable scitex_cloud_prod
+sudo systemctl start scitex_cloud_prod
 
-# 9. Setup Nginx
+# 10. Setup Nginx
 sudo cp deployment/nginx/scitex_cloud_prod.conf /etc/nginx/sites-available/scitex_cloud
 sudo ln -s /etc/nginx/sites-available/scitex_cloud /etc/nginx/sites-enabled/
 sudo nginx -t
 sudo systemctl restart nginx
 
-# 10. Setup SSL
+# 11. Setup SSL (after DNS is configured)
 sudo apt install -y certbot python3-certbot-nginx
-sudo certbot --nginx -d your-domain.com -d www.your-domain.com
+sudo certbot --nginx -d scitex.ai -d www.scitex.ai
 ```
+
+**Important Notes:**
+- Project location: `/home/ywatanabe/proj/scitex-cloud`
+- Virtual environment: `.venv`
+- Socket: `/run/scitex_cloud.sock`
+- Database: `scitex_cloud_prod` with user `scitex_prod`
 
 Visit: https://your-domain.com
 
