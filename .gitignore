@@ -709,3 +709,8 @@ docs/DEPLOYMENT_INSTRUCTIONS.md
 docs/INSTITUTION_EMAILS.md
 docs/to_claude/
 externals/overleaf/
+static/images/.old
+static/css/.old
+static/css/common/.old
+static/css/legacy
+static/css/legacy

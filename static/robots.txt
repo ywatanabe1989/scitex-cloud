@@ -1,0 +1,19 @@
+# SciTeX robots.txt
+# Allow all crawlers
+
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /core/dashboard/
+Disallow: /core/documents/
+Disallow: /core/projects/
+Disallow: /core/profile/
+Disallow: /static/admin/
+Disallow: /*.json$
+
+# Sitemap location
+Sitemap: https://scitex.ai/sitemap.xml
+
+# Crawl-delay for considerate crawling
+Crawl-delay: 1
