@@ -41,9 +41,43 @@ def send_test_email(recipient_email='ywata1989@gmail.com'):
     print()
 
     try:
-        result = send_mail(
-            subject='Test Email from SciTeX Cloud',
-            message='''
+        html_message = """
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="icon" type="image/png" href="https://scitex.ai/static/images/favicon.png">
+    <link rel="shortcut icon" type="image/png" href="https://scitex.ai/static/images/favicon.png">
+</head>
+<body>
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+    <div style="text-align: center; margin-bottom: 30px;">
+        <h1 style="color: #4a6baf;">SciTeX Cloud</h1>
+        <h2>Test Email</h2>
+    </div>
+
+    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+        <p>This is a test email to verify SMTP configuration is working correctly.</p>
+        <p>If you receive this email, password reset and other email features will work!</p>
+
+        <div style="margin: 20px 0;">
+            <h3 style="color: #4a6baf;">Configuration tested:</h3>
+            <ul>
+                <li>SMTP Server: mail1030.onamae.ne.jp</li>
+                <li>Port: 587 (TLS)</li>
+                <li>From: agent@scitex.ai</li>
+            </ul>
+        </div>
+    </div>
+
+    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #dee2e6; color: #666; font-size: 14px;">
+        <p>Best regards,<br>The SciTeX Team</p>
+    </div>
+</div>
+</body>
+</html>
+"""
+
+        plain_message = '''
 This is a test email to verify SMTP configuration is working correctly.
 
 If you receive this email, password reset and other email features will work!
@@ -51,13 +85,18 @@ If you receive this email, password reset and other email features will work!
 Configuration tested:
 - SMTP Server: mail1030.onamae.ne.jp
 - Port: 587 (TLS)
-- From: admin@scitex.ai
+- From: agent@scitex.ai
 
 Best regards,
 The SciTeX Team
-''',
+'''
+
+        result = send_mail(
+            subject='Test Email from SciTeX Cloud',
+            message=plain_message,
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[recipient_email],
+            html_message=html_message,
             fail_silently=False,
         )
 

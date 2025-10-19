@@ -55,6 +55,13 @@ class EmailService:
             
             # Create fallback plain text email if template doesn't exist
             html_message = f"""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <link rel="icon" type="image/png" href="https://scitex.ai/static/images/favicon.png">
+                <link rel="shortcut icon" type="image/png" href="https://scitex.ai/static/images/favicon.png">
+            </head>
+            <body>
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
                 <div style="text-align: center; margin-bottom: 30px;">
                     <h1 style="color: #4a6baf;">SciTeX</h1>
@@ -84,6 +91,8 @@ class EmailService:
                     <p>This is an automated message from SciTeX Cloud.</p>
                 </div>
             </div>
+            </body>
+            </html>
             """
             
             plain_message = f"""
@@ -133,6 +142,13 @@ class EmailService:
             subject = 'Welcome to SciTeX - Your Scientific Research Platform'
             
             html_message = f"""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <link rel="icon" type="image/png" href="https://scitex.ai/static/images/favicon.png">
+                <link rel="shortcut icon" type="image/png" href="https://scitex.ai/static/images/favicon.png">
+            </head>
+            <body>
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
                 <div style="text-align: center; margin-bottom: 30px;">
                     <h1 style="color: #4a6baf;">SciTeX</h1>
@@ -167,6 +183,8 @@ class EmailService:
                     <p>The SciTeX Team</p>
                 </div>
             </div>
+            </body>
+            </html>
             """
             
             plain_message = f"""
@@ -218,6 +236,13 @@ class EmailService:
             subject = 'SciTeX Account Deletion Scheduled'
             
             html_message = f"""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <link rel="icon" type="image/png" href="https://scitex.ai/static/images/favicon.png">
+                <link rel="shortcut icon" type="image/png" href="https://scitex.ai/static/images/favicon.png">
+            </head>
+            <body>
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
                 <div style="text-align: center; margin-bottom: 30px;">
                     <h1 style="color: #4a6baf;">SciTeX</h1>
@@ -258,6 +283,8 @@ class EmailService:
                     <p>The SciTeX Team</p>
                 </div>
             </div>
+            </body>
+            </html>
             """
             
             plain_message = f"""

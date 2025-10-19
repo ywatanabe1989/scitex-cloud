@@ -1,12 +1,12 @@
 /* SciTeX Web - Landing Page Styles */
 
-/* Hero Section */
+/* Hero Section - Layout only (background defined in hero.css) */
 .hero-landing {
-  background-color: var(--silver-light);
-  background-image: linear-gradient(135deg, var(--silver-light) 0%, var(--light-color) 100%);
   padding: 5rem 0 3rem;
   position: relative;
   overflow: hidden;
+  margin-bottom: 0;
+  border-bottom: none;
 }
 
 .hero-wrapper {
@@ -26,19 +26,71 @@
   font-size: 3.5rem;
   font-weight: 700;
   margin-bottom: 1.5rem;
-  color: var(--primary-color);
+  color: var(--scitex-color-01);
   line-height: 1.1;
   letter-spacing: -0.02em;
+}
+
+[data-theme="dark"] .hero-landing .hero-title {
+  color: var(--scitex-color-07);
 }
 
 .hero-landing .hero-subtitle {
   font-size: 1.25rem;
   font-weight: 400;
   margin-bottom: 2rem;
-  color: var(--text-color);
+  color: var(--scitex-color-01);
   max-width: 540px;
   line-height: 1.6;
   letter-spacing: -0.01em;
+}
+
+[data-theme="dark"] .hero-landing .hero-subtitle {
+  color: var(--scitex-color-07);
+}
+
+.hero-bullet-point {
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+  color: var(--scitex-color-01);
+  line-height: 1.5;
+}
+
+[data-theme="dark"] .hero-bullet-point {
+  color: var(--scitex-color-07);
+}
+
+.hero-badges {
+  margin-top: 1.5rem;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.hero-badge {
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hero-badge.badge-success {
+  background: #28a745;
+  color: white;
+}
+
+.hero-badge.badge-primary {
+  background: #0366d6;
+  color: white;
+}
+
+.hero-badge.badge-secondary {
+  background: #34495e;
+  color: white;
 }
 
 .hero-actions {
@@ -68,9 +120,9 @@
 }
 
 .btn-outline-light {
-  border: 2px solid rgba(255,255,255,0.8);
-  color: var(--primary-color);
-  background: rgba(255,255,255,0.9);
+  border: 2px solid var(--color-border-default);
+  color: var(--color-fg-default);
+  background: var(--color-canvas-default);
   font-weight: 500;
   padding: 1rem 2rem;
   border-radius: 8px;
@@ -81,9 +133,9 @@
 }
 
 .btn-outline-light:hover {
-  background: white;
-  border-color: white;
-  color: var(--primary-color);
+  background: var(--color-canvas-subtle);
+  border-color: var(--color-border-default);
+  color: var(--color-fg-default);
   transform: translateY(-1px);
 }
 
@@ -324,10 +376,48 @@
   margin-top: 0.5rem;
 }
 
-/* Integrated Ecosystem Section */
+/* Landing Page Section Backgrounds - Alternating for visual separation */
+.landing-section {
+  padding: 4rem 0;
+  width: 100%;
+}
+
+/* Ecosystem Section - Subtle background */
+.section-ecosystem {
+  background-color: var(--color-canvas-subtle);
+}
+
+[data-theme="dark"] .section-ecosystem {
+  background-color: rgba(26, 35, 50, 0.3);
+}
+
+/* Demonstrations Section - Default background */
+.section-demos {
+  background-color: var(--color-canvas-default);
+}
+
+[data-theme="dark"] .section-demos {
+  background-color: var(--color-canvas-default);
+}
+
+/* Commitment Section - Subtle background */
+.section-commitment {
+  background-color: var(--color-canvas-subtle);
+  padding: 4rem 0;
+}
+
+[data-theme="dark"] .section-commitment {
+  background-color: rgba(26, 35, 50, 0.3);
+}
+
+/* Legacy class support */
 .integrated-ecosystem-section {
-  padding: 2rem 0;
-  background-color: var(--bg-color);
+  padding: 4rem 0;
+  background-color: var(--color-canvas-subtle);
+}
+
+[data-theme="dark"] .integrated-ecosystem-section {
+  background-color: rgba(26, 35, 50, 0.3);
 }
 
 /* Horizontal Architecture Layout */
@@ -1690,8 +1780,8 @@
 }
 
 .module-card-simple {
-  background: var(--white);
-  border: 1px solid var(--scitex-color-06);
+  background: #ffffff;  /* White in light mode */
+  border: 1px solid #e1e4e8;
   border-radius: var(--border-radius);
   padding: 1.5rem;
   text-align: center;
@@ -1703,7 +1793,18 @@
 
 .module-card-simple:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  border-color: var(--scitex-color-04);
+}
+
+[data-theme="dark"] .module-card-simple {
+  background: rgba(52, 73, 94, 0.3);  /* Lighter dark background */
+  border-color: rgba(108, 139, 160, 0.3);
+}
+
+[data-theme="dark"] .module-card-simple:hover {
+  background: rgba(52, 73, 94, 0.5);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
   border-color: var(--scitex-color-04);
 }
 
