@@ -69,13 +69,13 @@
     object-fit: contain;
 }
 
-/* Navigation Icons (SVG and IMG) */
+/* Navigation Icons (SVG and IMG) - Enhanced bluish colors in dark mode */
 .nav-icon,
 .nav-icon-svg {
     height: 20px;
     width: 20px;
     opacity: 0.85;
-    transition: opacity 0.2s ease, transform 0.2s ease;
+    transition: opacity 0.2s ease, transform 0.2s ease, filter 0.2s ease;
     display: inline-block;
     vertical-align: middle;
 }
@@ -85,10 +85,23 @@
     color: var(--scitex-color-01);  /* Dark in light mode */
 }
 
-[data-theme="dark"] .nav-icon-svg {
-    color: var(--scitex-color-06);  /* Bluish in dark mode */
+/* IMG icons in light mode - no filter */
+.nav-icon {
+    filter: none;
 }
 
+/* Dark mode: Make ALL icons bluish using filters for IMG and color for SVG */
+[data-theme="dark"] .nav-icon-svg {
+    color: var(--scitex-color-05);  /* Brighter bluish: #8fa4b0 */
+}
+
+/* IMG icons in dark mode: Apply bluish filter */
+[data-theme="dark"] .nav-icon {
+    filter: brightness(1.2) sepia(0.3) saturate(1.5) hue-rotate(180deg);
+    opacity: 0.9;
+}
+
+/* Hover and Active states - more vibrant bluish */
 .header-nav-item:hover .nav-icon,
 .header-nav-item:hover .nav-icon-svg,
 .header-nav-item.active .nav-icon,
@@ -97,10 +110,16 @@
     transform: scale(1.05);
 }
 
-/* Make SVG icons more bluish in dark mode */
+/* Dark mode hover/active: Even brighter bluish */
 [data-theme="dark"] .header-nav-item:hover .nav-icon-svg,
 [data-theme="dark"] .header-nav-item.active .nav-icon-svg {
-    color: var(--scitex-color-04);  /* More vibrant blue on hover/active */
+    color: var(--scitex-color-06);  /* Brighter bluish: #b5c7d1 */
+}
+
+[data-theme="dark"] .header-nav-item:hover .nav-icon,
+[data-theme="dark"] .header-nav-item.active .nav-icon {
+    filter: brightness(1.4) sepia(0.4) saturate(1.8) hue-rotate(180deg);
+    opacity: 1;
 }
 
 .header-logo i {
@@ -154,6 +173,7 @@
     height: 16px;
     width: 16px;
     opacity: 0.7;
+    transition: filter 0.2s ease;
 }
 
 /* Dark mode search */
@@ -164,11 +184,13 @@
 }
 
 [data-theme="dark"] .header-search input::placeholder {
-    color: var(--scitex-color-05);  /* Muted light */
+    color: var(--scitex-color-05);  /* Muted bluish light */
 }
 
+/* Search icon in dark mode - bluish tint */
 [data-theme="dark"] .header-search-icon {
-    color: var(--scitex-color-05);  /* Muted light */
+    filter: brightness(1.3) sepia(0.2) saturate(1.3) hue-rotate(180deg);
+    opacity: 0.85;
 }
 
 /* Navigation Items */
@@ -217,7 +239,7 @@
     font-size: 16px;
 }
 
-/* Action Buttons */
+/* Action Buttons - Softer edges in dark mode */
 .header-btn {
     background: transparent;
     border: 1px solid var(--scitex-color-05);
@@ -241,16 +263,16 @@
     text-decoration: none;
 }
 
+/* Dark mode: Softer, less vivid edges */
 [data-theme="dark"] .header-btn {
-    border-color: var(--scitex-color-05);  /* Subtle border */
-    color: var(--scitex-color-07);  /* Light text in dark mode */
-    opacity: 0.85;
+    border-color: rgba(143, 164, 176, 0.3);  /* Subtle semi-transparent bluish */
+    color: var(--scitex-color-06);  /* Bluish text */
 }
 
 [data-theme="dark"] .header-btn:hover {
     background: var(--scitex-color-01-light);
-    border-color: var(--scitex-color-05);  /* Keep subtle on hover */
-    opacity: 1;
+    border-color: rgba(143, 164, 176, 0.5);  /* Slightly more visible on hover */
+    color: var(--scitex-color-07);  /* Brighter on hover */
 }
 
 .header-btn-primary {
@@ -310,7 +332,7 @@
     color: var(--scitex-color-07);
 }
 
-/* Icon Buttons */
+/* Icon Buttons - Enhanced bluish in dark mode */
 .header-icon-btn {
     width: 32px;
     height: 32px;
@@ -328,13 +350,19 @@
     color: var(--scitex-color-01);  /* Dark on hover */
 }
 
+/* Dark mode: Brighter bluish icons */
 [data-theme="dark"] .header-icon-btn {
-    color: var(--scitex-color-06);  /* More bluish - #b5c7d1 */
+    color: var(--scitex-color-05);  /* Brighter bluish: #8fa4b0 */
 }
 
 [data-theme="dark"] .header-icon-btn:hover {
     background: var(--scitex-color-01-light);
-    color: var(--scitex-color-07);  /* Very light bluish on hover */
+    color: var(--scitex-color-06);  /* Even brighter bluish on hover: #b5c7d1 */
+}
+
+/* SVG icons within icon buttons get bluish tint in dark mode */
+[data-theme="dark"] .header-icon-btn svg {
+    filter: brightness(1.1) saturate(1.3);
 }
 
 /* User Menu */

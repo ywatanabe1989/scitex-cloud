@@ -88,11 +88,11 @@ sudo certbot --nginx -d scitex.ai -d www.scitex.ai
 sudo systemctl reload nginx
 
 # 5. Start uWSGI service
-sudo systemctl enable scitex_cloud
-sudo systemctl start scitex_cloud
+sudo systemctl enable scitex_cloud_prod
+sudo systemctl start scitex_cloud_prod
 
 # 6. Check logs
-sudo journalctl -u scitex_cloud -f
+sudo journalctl -u scitex_cloud_prod -f
 ```
 
 ### Update Configuration
@@ -109,23 +109,23 @@ sudo systemctl reload nginx
 
 ```bash
 # Start
-sudo systemctl start scitex_cloud
+sudo systemctl start scitex_cloud_prod
 
 # Stop
-sudo systemctl stop scitex_cloud
+sudo systemctl stop scitex_cloud_prod
 
 # Restart
-sudo systemctl restart scitex_cloud
+sudo systemctl restart scitex_cloud_prod
 
 # Status
-sudo systemctl status scitex_cloud
+sudo systemctl status scitex_cloud_prod
 ```
 
 ### View Logs
 
 ```bash
 # uWSGI logs
-sudo journalctl -u scitex_cloud -f
+sudo journalctl -u scitex_cloud_prod -f
 sudo tail -f /var/log/uwsgi/scitex_cloud.log
 
 # Nginx logs
@@ -159,7 +159,7 @@ nginx/
 - **SSL**: Let's Encrypt certificates
 - **Static files**: Served directly by Nginx with caching
 - **Security headers**: Enabled
-- **Location**: Works in `/var/www/scitex-cloud` (or current location)
+- **Location**: `/home/ywatanabe/proj/scitex-cloud`
 
 ## Troubleshooting
 
@@ -168,17 +168,17 @@ nginx/
 ```bash
 # Check if uWSGI is running
 ps aux | grep uwsgi
-sudo systemctl status scitex_cloud
+sudo systemctl status scitex_cloud_prod
 
 # Check uWSGI logs
-sudo journalctl -u scitex_cloud -f
+sudo journalctl -u scitex_cloud_prod -f
 sudo tail -f /var/log/uwsgi/scitex_cloud.log
 
 # Check nginx error logs
 sudo tail -f /var/log/nginx/scitex_cloud_error.log
 
 # Restart uWSGI
-sudo systemctl restart scitex_cloud
+sudo systemctl restart scitex_cloud_prod
 ```
 
 ### Socket Permission Issues

@@ -127,11 +127,7 @@ try:
     }
     SESSION_ENGINE = "django.contrib.sessions.backends.cache"
     SESSION_CACHE_ALIAS = "default"
-except (
-    ImportError,
-    redis.exceptions.ConnectionError,
-    redis.exceptions.RedisError,
-):
+except (ImportError, Exception):
     # Redis not available, use database cache
     CACHES = {
         "default": {
@@ -232,11 +228,7 @@ try:
             },
         },
     }
-except (
-    ImportError,
-    redis.exceptions.ConnectionError,
-    redis.exceptions.RedisError,
-):
+except (ImportError, Exception):
     # Fallback to in-memory channel layer
     CHANNEL_LAYERS = {
         "default": {"BACKEND": "channels.layers.InMemoryChannelLayer"},

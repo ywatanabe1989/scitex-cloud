@@ -1,15 +1,17 @@
 [Unit]
-Description=uWSGI instance to serve SciTeX Cloud
+Description=uWSGI instance to serve SciTeX Cloud (Production)
 After=network.target postgresql.service
 Wants=postgresql.service
 
 [Service]
 User=www-data
 Group=www-data
-WorkingDirectory=/var/www/scitex-cloud
-Environment="PATH=/var/www/scitex-cloud/venv/bin"
-EnvironmentFile=/var/www/scitex-cloud/.env
-ExecStart=/var/www/scitex-cloud/venv/bin/uwsgi --ini /etc/uwsgi/scitex_cloud.ini
+WorkingDirectory=/home/ywatanabe/proj/scitex-cloud
+Environment="PATH=/home/ywatanabe/proj/scitex-cloud/.venv/bin"
+Environment="SCITEX_CLOUD_ENV=production"
+Environment="DJANGO_SETTINGS_MODULE=config.settings.settings_prod"
+EnvironmentFile=/home/ywatanabe/proj/scitex-cloud/deployment/dotenvs/dotenv.prod
+ExecStart=/home/ywatanabe/proj/scitex-cloud/.venv/bin/uwsgi --ini /home/ywatanabe/proj/scitex-cloud/deployment/uwsgi/scitex_cloud_prod.ini
 
 # Restart policy
 Restart=always

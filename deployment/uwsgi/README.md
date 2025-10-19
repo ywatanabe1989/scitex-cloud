@@ -30,24 +30,30 @@ uwsgi --version
 
 ## Configuration Files
 
-### 1. uWSGI Configuration (scitex_cloud.ini)
+### 1. uWSGI Configuration (scitex_cloud_prod.ini)
 
-Location: `/etc/uwsgi/scitex_cloud.ini` or `deployment/uwsgi/scitex_cloud.ini`
+Location: `deployment/uwsgi/scitex_cloud_prod.ini`
+
+**Production configuration updated for:**
+- Project location: `/home/ywatanabe/proj/scitex-cloud`
+- Virtual environment: `.venv`
+- Socket: `/run/scitex_cloud.sock`
 
 ```ini
 [uwsgi]
-# Django project settings
-chdir = /var/www/scitex-cloud
+# Django project settings - PRODUCTION
+chdir = /home/ywatanabe/proj/scitex-cloud
 module = config.wsgi:application
-home = /var/www/scitex-cloud/.venv
+home = /home/ywatanabe/proj/scitex-cloud/.venv
 env = DJANGO_SETTINGS_MODULE=config.settings.settings_prod
 
-# Process management
+# Process management (Production - more workers)
 master = true
-processes = 4
-threads = 2
+processes = 8
+threads = 4
 max-requests = 5000
 harakiri = 60
+max-worker-lifetime = 3600
 
 # Socket configuration
 socket = /run/scitex_cloud.sock
@@ -66,34 +72,41 @@ single-interpreter = true
 buffer-size = 32768
 
 # Static files (handled by Nginx in production)
-static-map = /static=/var/www/scitex-cloud/staticfiles
-static-map = /media=/var/www/scitex-cloud/media
+static-map = /static=/home/ywatanabe/proj/scitex-cloud/staticfiles
+static-map = /media=/home/ywatanabe/proj/scitex-cloud/media
 
 # User/Group
 uid = www-data
 gid = www-data
 
+# Production optimizations
+cheaper = 2
+cheaper-initial = 4
+cheaper-step = 1
+cheaper-algo = spare
+
 # Misc
 die-on-term = true
+need-app = true
 ```
 
-### 2. Systemd Service File (scitex_cloud.service)
+### 2. Systemd Service File (scitex_cloud_prod.service)
 
-Location: `/etc/systemd/system/scitex_cloud.service`
+Location: `/etc/systemd/system/scitex_cloud_prod.service`
 
 ```ini
 [Unit]
-Description=uWSGI instance to serve SciTeX Cloud
+Description=uWSGI instance to serve SciTeX Cloud (Production)
 After=network.target postgresql.service
 Wants=postgresql.service
 
 [Service]
 User=www-data
 Group=www-data
-WorkingDirectory=/var/www/scitex-cloud
-Environment="PATH=/var/www/scitex-cloud/.venv/bin"
-EnvironmentFile=/var/www/scitex-cloud/.env
-ExecStart=/var/www/scitex-cloud/.venv/bin/uwsgi --ini /etc/uwsgi/scitex_cloud.ini
+WorkingDirectory=/home/ywatanabe/proj/scitex-cloud
+Environment="PATH=/home/ywatanabe/proj/scitex-cloud/.venv/bin"
+EnvironmentFile=/home/ywatanabe/proj/scitex-cloud/deployment/dotenvs/dotenv.prod
+ExecStart=/home/ywatanabe/proj/scitex-cloud/.venv/bin/uwsgi --ini /home/ywatanabe/proj/scitex-cloud/deployment/uwsgi/scitex_cloud_prod.ini
 
 # Restart policy
 Restart=always
@@ -122,25 +135,27 @@ sudo chown www-data:www-data /var/log/uwsgi
 sudo mkdir -p /etc/uwsgi
 ```
 
-### 3. Copy Configuration Files
+### 3. Setup Systemd Service
 
 ```bash
-# Copy uWSGI config
-sudo cp deployment/uwsgi/scitex_cloud_prod.ini /etc/uwsgi/scitex_cloud.ini
-
 # Copy systemd service
-sudo cp deployment/uwsgi/scitex_cloud_prod.service /etc/systemd/system/scitex_cloud.service
+sudo cp deployment/uwsgi/scitex_cloud_prod.service /etc/systemd/system/scitex_cloud_prod.service
+
+# Note: uWSGI config is read directly from:
+# /home/ywatanabe/proj/scitex-cloud/deployment/uwsgi/scitex_cloud_prod.ini
 ```
 
 ### 4. Set File Permissions
 
 ```bash
-# Set ownership
-sudo chown -R www-data:www-data /var/www/scitex-cloud
+# Set ownership (or add your user to www-data group)
+sudo chown -R www-data:www-data /home/ywatanabe/proj/scitex-cloud
+# OR add your user to www-data group
+sudo usermod -aG www-data ywatanabe
 
 # Set permissions
-sudo chmod 755 /var/www/scitex-cloud
-sudo chmod 600 /var/www/scitex-cloud/.env
+sudo chmod 755 /home/ywatanabe/proj/scitex-cloud
+sudo chmod 600 /home/ywatanabe/proj/scitex-cloud/deployment/dotenvs/dotenv.prod
 ```
 
 ### 5. Enable and Start Service
@@ -150,13 +165,13 @@ sudo chmod 600 /var/www/scitex-cloud/.env
 sudo systemctl daemon-reload
 
 # Enable service (start on boot)
-sudo systemctl enable scitex_cloud
+sudo systemctl enable scitex_cloud_prod
 
 # Start service
-sudo systemctl start scitex_cloud
+sudo systemctl start scitex_cloud_prod
 
 # Check status
-sudo systemctl status scitex_cloud
+sudo systemctl status scitex_cloud_prod
 ```
 
 ## Management Commands
@@ -165,22 +180,22 @@ sudo systemctl status scitex_cloud
 
 ```bash
 # Start service
-sudo systemctl start scitex_cloud
+sudo systemctl start scitex_cloud_prod
 
 # Stop service
-sudo systemctl stop scitex_cloud
+sudo systemctl stop scitex_cloud_prod
 
 # Restart service
-sudo systemctl restart scitex_cloud
+sudo systemctl restart scitex_cloud_prod
 
 # Reload configuration (no downtime)
-sudo systemctl reload scitex_cloud
+sudo systemctl reload scitex_cloud_prod
 
 # Check status
-sudo systemctl status scitex_cloud
+sudo systemctl status scitex_cloud_prod
 
 # View logs
-sudo journalctl -u scitex_cloud -f
+sudo journalctl -u scitex_cloud_prod -f
 ```
 
 ### Check Socket
@@ -199,20 +214,21 @@ stat /run/scitex_cloud.sock
 
 ```bash
 # Check logs
-sudo journalctl -u scitex_cloud --no-pager
+sudo journalctl -u scitex_cloud_prod --no-pager
 
 # Check uWSGI logs
 sudo tail -f /var/log/uwsgi/scitex_cloud.log
 
-# Test uWSGI configuration
-/var/www/scitex-cloud/.venv/bin/uwsgi --ini /etc/uwsgi/scitex_cloud.ini --check-static
+# Test uWSGI configuration manually
+cd /home/ywatanabe/proj/scitex-cloud
+.venv/bin/uwsgi --ini deployment/uwsgi/scitex_cloud_prod.ini
 ```
 
 ### Permission Errors
 
 ```bash
 # Fix ownership
-sudo chown -R www-data:www-data /var/www/scitex-cloud
+sudo chown -R www-data:www-data /home/ywatanabe/proj/scitex-cloud
 
 # Fix socket permissions
 sudo chmod 666 /run/scitex_cloud.sock
@@ -228,7 +244,7 @@ ps aux | grep uwsgi
 sudo killall -9 uwsgi
 
 # Restart service
-sudo systemctl restart scitex_cloud
+sudo systemctl restart scitex_cloud_prod
 ```
 
 ## Performance Tuning
@@ -273,7 +289,7 @@ max-worker-lifetime = 3600
 uwsgitop /run/scitex_cloud.sock
 
 # Via systemd
-sudo systemctl status scitex_cloud
+sudo systemctl status scitex_cloud_prod
 ```
 
 ### Memory Usage
@@ -304,10 +320,10 @@ die-on-term = true
 
 ```bash
 # Load from secure file
-EnvironmentFile=/var/www/scitex-cloud/.env
+EnvironmentFile=/home/ywatanabe/proj/scitex-cloud/deployment/dotenvs/dotenv.prod
 
 # Ensure file is secure
-chmod 600 /var/www/scitex-cloud/.env
+chmod 600 /home/ywatanabe/proj/scitex-cloud/deployment/dotenvs/dotenv.prod
 ```
 
 ## Configuration Files in This Directory
