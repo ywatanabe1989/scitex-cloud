@@ -3,6 +3,11 @@
 # SciTeX Cloud - Production Environment Variables
 # This file is sourced by scripts/switch_env.sh
 
+# Only show message if in interactive shell or explicitly requested
+if [ -t 1 ] || [ "${SCITEX_SHOW_ENV_MESSAGE:-}" = "1" ]; then
+    echo -e "\033[0;31m✓ Production environmental variables for SCITEX_CLOUD_* loaded\033[0m"
+fi
+
 # ----------------------------------------
 # Django Settings
 # ----------------------------------------
@@ -42,10 +47,10 @@ export SCITEX_LOGGING_LEVEL=${SCITEX_LOGGING_LEVEL:-warning}
 export SCITEX_CLOUD_ALLOWED_HOSTS="scitex.ai,www.scitex.ai,localhost"
 
 # ----------------------------------------
-# Gitea Configuration
+# Gitea Configuration - Production
 # ----------------------------------------
-export SCITEX_CLOUD_GITEA_URL="https://git.scitex.ai"
-export SCITEX_CLOUD_GITEA_API_URL="https://git.scitex.ai/api/v1"
-export SCITEX_CLOUD_GITEA_TOKEN="${SCITEX_CLOUD_GITEA_TOKEN:-}"  # Set after Gitea setup
+export SCITEX_CLOUD_GITEA_URL_PROD="https://git.scitex.ai"
+export SCITEX_CLOUD_GITEA_API_URL_PROD="https://git.scitex.ai/api/v1"
+export SCITEX_CLOUD_GITEA_TOKEN_PROD="${SCITEX_CLOUD_GITEA_TOKEN_PROD:-}"  # Set after Gitea setup
 
 # EOF

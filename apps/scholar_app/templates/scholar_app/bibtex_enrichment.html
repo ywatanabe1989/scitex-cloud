@@ -44,20 +44,40 @@
         </small>
       </div>
 
-      <!-- Project Name (Optional) -->
+      <!-- Project Selection (for Gitea Integration) -->
+      <div style="margin-bottom: 1.5rem;">
+        <label for="project_id" style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #1e293b;">
+          <i class="fas fa-folder"></i> Associate with Project (Recommended)
+        </label>
+        <select
+          name="project_id"
+          id="project_id"
+          style="display: block; width: 100%; padding: 0.75rem; border: 1px solid #cbd5e0; border-radius: 6px;"
+        >
+          <option value="">-- No Project (Manual Download Only) --</option>
+          {% for project in user_projects %}
+          <option value="{{ project.id }}">{{ project.name }} ({{ project.slug }})</option>
+          {% endfor %}
+        </select>
+        <small style="color: #64748b; display: block; margin-top: 0.5rem;">
+          <i class="fas fa-info-circle"></i> Enriched .bib will be auto-committed to project's Gitea repository at <code>/references/references.bib</code>
+        </small>
+      </div>
+
+      <!-- Project Name (Optional - for non-project enrichment) -->
       <div style="margin-bottom: 1.5rem;">
         <label for="project_name" style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #1e293b;">
-          Project Name (Optional)
+          Project Label (Optional)
         </label>
         <input
           type="text"
           name="project_name"
           id="project_name"
-          placeholder="e.g., my_research_project"
+          placeholder="e.g., my_research_notes"
           style="display: block; width: 100%; padding: 0.75rem; border: 1px solid #cbd5e0; border-radius: 6px;"
         >
         <small style="color: #64748b; display: block; margin-top: 0.5rem;">
-          <i class="fas fa-info-circle"></i> For organizing papers by project
+          <i class="fas fa-tag"></i> For organizing papers (not linked to Gitea)
         </small>
       </div>
 
@@ -177,8 +197,13 @@
           <tr style="border-bottom: 1px solid #e2e8f0;">
             <td style="padding: 1rem;">
               <strong>{{ job.input_file.name|slice:"-50:" }}</strong>
-              {% if job.project_name %}
-              <br><small style="color: #64748b;">Project: {{ job.project_name }}</small>
+              {% if job.project %}
+              <br><small style="color: #667eea;"><i class="fas fa-folder"></i> {{ job.project.name }}</small>
+              {% if job.enrichment_summary.gitea_commit %}
+              <br><small style="color: #10b981;"><i class="fas fa-check"></i> Committed to Gitea</small>
+              {% endif %}
+              {% elif job.project_name %}
+              <br><small style="color: #64748b;"><i class="fas fa-tag"></i> {{ job.project_name }}</small>
               {% endif %}
             </td>
             <td style="padding: 1rem;">

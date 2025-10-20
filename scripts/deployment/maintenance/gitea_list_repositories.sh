@@ -1,0 +1,1 @@
+../../../deployment/gitea/scripts/maintenance/gitea_list_repositories.sh

@@ -109,6 +109,9 @@ class Project(models.Model):
     # Gitea Integration fields
     gitea_repo_id = models.IntegerField(null=True, blank=True, help_text="Gitea repository ID")
     gitea_repo_name = models.CharField(max_length=200, blank=True, help_text="Gitea repository name")
+    gitea_repo_url = models.URLField(blank=True, help_text="Gitea repository web URL")
+    gitea_clone_url = models.URLField(blank=True, help_text="Gitea HTTPS clone URL")
+    gitea_ssh_url = models.CharField(max_length=500, blank=True, help_text="Gitea SSH clone URL")
     git_url = models.URLField(blank=True, help_text="Git clone URL (SSH or HTTPS)")
     git_clone_path = models.CharField(max_length=500, blank=True, help_text="Local git clone path")
     gitea_enabled = models.BooleanField(default=False, help_text="Gitea integration enabled")

@@ -32,20 +32,28 @@ from .models import BibTeXEnrichmentJob
 
 def bibtex_enrichment(request):
     """BibTeX enrichment landing page - upload and manage enrichment jobs (anonymous allowed)."""
+    from apps.project_app.models import Project
 
     # Get user's recent enrichment jobs
     if request.user.is_authenticated:
         recent_jobs = BibTeXEnrichmentJob.objects.filter(
             user=request.user
-        ).order_by('-created_at')[:10]
+        ).select_related('project').order_by('-created_at')[:10]
+
+        # Get user's projects for project selection
+        user_projects = Project.objects.filter(
+            owner=request.user
+        ).order_by('-created_at')
     else:
         # For anonymous users, get jobs by session key
         recent_jobs = BibTeXEnrichmentJob.objects.filter(
             session_key=request.session.session_key
         ).order_by('-created_at')[:10] if request.session.session_key else []
+        user_projects = []
 
     context = {
         'recent_jobs': recent_jobs,
+        'user_projects': user_projects,
         'is_anonymous': not request.user.is_authenticated,
         'show_save_prompt': not request.user.is_authenticated,
     }
@@ -75,8 +83,19 @@ def bibtex_upload(request):
 
     # Get optional parameters
     project_name = request.POST.get('project_name', '').strip() or None
+    project_id = request.POST.get('project_id', '').strip() or None
     num_workers = int(request.POST.get('num_workers', 4))
     browser_mode = request.POST.get('browser_mode', 'stealth')
+
+    # Get project if specified (only for authenticated users)
+    project = None
+    if project_id and request.user.is_authenticated:
+        from apps.project_app.models import Project
+        try:
+            project = Project.objects.get(id=project_id, owner=request.user)
+        except Project.DoesNotExist:
+            messages.error(request, 'Selected project not found.')
+            return redirect('scholar_app:bibtex_enrichment')
 
     # Save uploaded file - use user ID or session key
     if request.user.is_authenticated:
@@ -95,6 +114,7 @@ def bibtex_upload(request):
         session_key=request.session.session_key if not request.user.is_authenticated else None,
         input_file=file_path,
         project_name=project_name,
+        project=project,
         num_workers=num_workers,
         browser_mode=browser_mode,
         status='pending',
@@ -215,6 +235,10 @@ def _process_bibtex_job(job):
 
     In production, this should be a Celery task for async processing.
     """
+    import shutil
+    import logging
+
+    logger = logging.getLogger(__name__)
 
     try:
         # Update job status
@@ -254,6 +278,44 @@ def _process_bibtex_job(job):
         job.processed_papers = len([p for p in papers if p.metadata.path.pdfs])
         job.failed_papers = len(papers) - job.processed_papers
         job.output_file = str(output_path.relative_to(settings.MEDIA_ROOT))
+
+        # Gitea Integration: Auto-commit enriched .bib file to project repository
+        if job.project and job.project.git_clone_path:
+            try:
+                from apps.core_app.git_operations import auto_commit_file
+
+                # Create references directory in project if it doesn't exist
+                project_refs_dir = Path(job.project.git_clone_path) / 'references'
+                project_refs_dir.mkdir(parents=True, exist_ok=True)
+
+                # Copy enriched .bib to project repository
+                project_bib_path = project_refs_dir / 'references.bib'
+                shutil.copy(output_path, project_bib_path)
+
+                logger.info(f"Copied enriched .bib to {project_bib_path}")
+
+                # Auto-commit to Gitea
+                commit_message = f"Scholar: Enriched bibliography ({job.processed_papers}/{job.total_papers} papers enriched)"
+                success, output = auto_commit_file(
+                    project_dir=Path(job.project.git_clone_path),
+                    filepath='references/references.bib',
+                    message=commit_message
+                )
+
+                if success:
+                    logger.info(f"✓ Auto-committed enriched .bib to Gitea: {output}")
+                    job.enrichment_summary['gitea_commit'] = True
+                    job.enrichment_summary['gitea_message'] = commit_message
+                else:
+                    logger.warning(f"Failed to auto-commit to Gitea: {output}")
+                    job.enrichment_summary['gitea_commit'] = False
+                    job.enrichment_summary['gitea_error'] = output
+
+            except Exception as gitea_error:
+                logger.error(f"Gitea integration error: {gitea_error}")
+                job.enrichment_summary['gitea_commit'] = False
+                job.enrichment_summary['gitea_error'] = str(gitea_error)
+
         job.status = 'completed'
         job.completed_at = timezone.now()
         job.save()

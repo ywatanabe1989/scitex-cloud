@@ -1,0 +1,1 @@
+../../../static/maintenance/static_check_status.sh

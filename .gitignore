@@ -721,3 +721,7 @@ static/css/common/.old
 static/css/legacy
 static/css/legacy
 .venv
+./TODOS/99_COMPARISON_TABLE.md
+TODOS/99_COMPARISON_TABLE.md
+tmp/
+django-gitea-demo/
