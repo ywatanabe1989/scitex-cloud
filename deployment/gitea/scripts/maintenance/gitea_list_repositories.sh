@@ -1,33 +1,29 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-10-20 11:14:03 (ywatanabe)"
-# File: ./deployment/gitea/scripts/maintenance/gitea_list_repositories.sh
+# List all repositories in Gitea
+# Works for both development and production
 
 ORIG_DIR="$(pwd)"
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
 LOG_PATH="$THIS_DIR/.$(basename $0).log"
+ERR_PATH="$THIS_DIR/.$(basename $0).err"
 echo > "$LOG_PATH"
+echo > "$ERR_PATH"
+
+set -euo pipefail
 
 BLACK='\033[0;30m'
 LIGHT_GRAY='\033[0;37m'
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 RED='\033[0;31m'
+BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 echo_info() { echo -e "${LIGHT_GRAY}$1${NC}"; }
 echo_success() { echo -e "${GREEN}$1${NC}"; }
 echo_warning() { echo -e "${YELLOW}$1${NC}"; }
 echo_error() { echo -e "${RED}$1${NC}"; }
-# ---------------------------------------
-
-# List all repositories in Gitea
-# Works for both development and production
-
-set -euo pipefail
-
-# Color codes
-BLUE='\033[0;34m'
 
 echo_header() { echo -e "${BLUE}$1${NC}"; }
 
@@ -316,6 +312,8 @@ print(json.dumps(repos))
     fi
 }
 
-main "$@"
+main "$@" > >(tee -a "$LOG_PATH") 2> >(tee -a "$ERR_PATH" >&2)
+
+echo -e "\nLogs: $LOG_PATH (stdout) | $ERR_PATH (stderr)"
 
 # EOF

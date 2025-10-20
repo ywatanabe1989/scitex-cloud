@@ -1,7 +1,7 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-10-20 11:14:02 (ywatanabe)"
-# File: ./deployment/gitea/scripts/maintenance/gitea_check_status.sh
+# Timestamp: "2025-10-20 11:41:00 (ywatanabe)"
+# File: ./scripts/deployment/maintenance/gitea_check_status.sh
 
 ORIG_DIR="$(pwd)"
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
@@ -21,12 +21,14 @@ echo_warning() { echo -e "${YELLOW}$1${NC}"; }
 echo_error() { echo -e "${RED}$1${NC}"; }
 # ---------------------------------------
 
+ERR_PATH="$THIS_DIR/.$(basename $0).err"
+echo > "$ERR_PATH"
+
 # Check Gitea server status
 # Works for both development (Docker) and production (systemd)
 
 set -euo pipefail
 
-# Color codes
 BLUE='\033[0;34m'
 
 echo_header() { echo -e "${BLUE}$1${NC}"; }
@@ -240,6 +242,8 @@ main() {
     esac
 }
 
-main "$@"
+main "$@" > >(tee -a "$LOG_PATH") 2> >(tee -a "$ERR_PATH" >&2)
+
+echo -e "\nLogs: $LOG_PATH (stdout) | $ERR_PATH (stderr)"
 
 # EOF
