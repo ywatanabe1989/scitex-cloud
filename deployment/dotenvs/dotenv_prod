@@ -1,0 +1,51 @@
+#!/bin/bash
+# -*- coding: utf-8 -*-
+# SciTeX Cloud - Production Environment Variables
+# This file is sourced by scripts/switch_env.sh
+
+# ----------------------------------------
+# Django Settings
+# ----------------------------------------
+export DJANGO_SETTINGS_MODULE=config.settings.settings_prod
+
+# ----------------------------------------
+# Django Secret Key
+# ----------------------------------------
+export SCITEX_CLOUD_DJANGO_SECRET_KEY="${SCITEX_EMAIL_PASSWORD}"
+
+# ----------------------------------------
+# Database - Production
+# ----------------------------------------
+export SCITEX_CLOUD_DB_NAME_PROD=scitex_cloud_prod
+export SCITEX_CLOUD_DB_USER_PROD=scitex_prod
+export SCITEX_CLOUD_DB_PASSWORD_PROD="${SCITEX_EMAIL_PASSWORD}"
+export SCITEX_CLOUD_DB_HOST_PROD=localhost
+export SCITEX_CLOUD_DB_PORT_PROD=5432
+
+# ----------------------------------------
+# Email Configuration (from dotfiles)
+# ----------------------------------------
+# These are already set in ~/.dotfiles/.bash.d/secrets/001_ENV_SCITEX.src
+# export SCITEX_SCHOLAR_FROM_EMAIL_ADDRESS
+# export SCITEX_SCHOLAR_FROM_EMAIL_PASSWORD
+# export SCITEX_EMAIL_ADMIN
+# export SCITEX_EMAIL_PASSWORD
+
+# ----------------------------------------
+# Logging
+# ----------------------------------------
+export SCITEX_LOGGING_LEVEL=${SCITEX_LOGGING_LEVEL:-warning}
+
+# ----------------------------------------
+# Security
+# ----------------------------------------
+export SCITEX_CLOUD_ALLOWED_HOSTS="scitex.ai,www.scitex.ai,localhost"
+
+# ----------------------------------------
+# Gitea Configuration
+# ----------------------------------------
+export SCITEX_CLOUD_GITEA_URL="https://git.scitex.ai"
+export SCITEX_CLOUD_GITEA_API_URL="https://git.scitex.ai/api/v1"
+export SCITEX_CLOUD_GITEA_TOKEN="${SCITEX_CLOUD_GITEA_TOKEN:-}"  # Set after Gitea setup
+
+# EOF
