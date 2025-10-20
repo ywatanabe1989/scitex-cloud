@@ -77,9 +77,16 @@
         <div style="color: #1e293b; font-weight: 600;">{{ job.input_file.name|slice:"-40:" }}</div>
       </div>
 
-      {% if job.project_name %}
+      {% if job.project %}
       <div>
         <div style="color: #64748b; font-size: 0.85rem; margin-bottom: 0.25rem;">Project</div>
+        <div style="color: #667eea; font-weight: 600;">
+          <i class="fas fa-folder"></i> {{ job.project.name }}
+        </div>
+      </div>
+      {% elif job.project_name %}
+      <div>
+        <div style="color: #64748b; font-size: 0.85rem; margin-bottom: 0.25rem;">Project Label</div>
         <div style="color: #1e293b; font-weight: 600;">{{ job.project_name }}</div>
       </div>
       {% endif %}
@@ -125,6 +132,50 @@
       <i class="fas fa-exclamation-triangle"></i> Error
     </h3>
     <p style="color: #7f1d1d; margin: 0;">{{ job.error_message }}</p>
+  </div>
+  {% endif %}
+
+  <!-- Gitea Integration Status -->
+  {% if job.project and job.status == 'completed' %}
+  <div style="background: {% if job.enrichment_summary.gitea_commit %}#d1fae5{% else %}#fef3c7{% endif %}; border-left: 4px solid {% if job.enrichment_summary.gitea_commit %}#10b981{% else %}#f59e0b{% endif %}; border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+    <h3 style="color: {% if job.enrichment_summary.gitea_commit %}#065f46{% else %}#92400e{% endif %}; margin-bottom: 0.5rem;">
+      <i class="fas fa-{% if job.enrichment_summary.gitea_commit %}check-circle{% else %}exclamation-circle{% endif %}"></i>
+      Gitea Version Control
+    </h3>
+
+    {% if job.enrichment_summary.gitea_commit %}
+    <p style="color: #065f46; margin: 0 0 0.5rem 0;">
+      ✓ Enriched bibliography successfully committed to Gitea repository
+    </p>
+    <div style="background: rgba(255, 255, 255, 0.5); border-radius: 6px; padding: 0.75rem; margin-top: 0.75rem;">
+      <div style="color: #047857; font-size: 0.9rem;">
+        <strong>Commit Message:</strong><br>
+        <code style="color: #065f46;">{{ job.enrichment_summary.gitea_message }}</code>
+      </div>
+      <div style="color: #047857; font-size: 0.9rem; margin-top: 0.5rem;">
+        <strong>Location:</strong><br>
+        <code style="color: #065f46;">/references/references.bib</code>
+      </div>
+      {% if job.project.gitea_repo_url %}
+      <div style="margin-top: 0.75rem;">
+        <a href="{{ job.project.gitea_repo_url }}" target="_blank" style="color: #667eea; text-decoration: none; font-weight: 600;">
+          <i class="fas fa-external-link-alt"></i> View in Gitea Repository
+        </a>
+      </div>
+      {% endif %}
+    </div>
+    {% else %}
+    <p style="color: #92400e; margin: 0;">
+      ⚠ Auto-commit to Gitea failed. You can still download the enriched file manually.
+    </p>
+    {% if job.enrichment_summary.gitea_error %}
+    <div style="background: rgba(255, 255, 255, 0.5); border-radius: 6px; padding: 0.75rem; margin-top: 0.75rem;">
+      <div style="color: #92400e; font-size: 0.85rem;">
+        <strong>Error:</strong> {{ job.enrichment_summary.gitea_error }}
+      </div>
+    </div>
+    {% endif %}
+    {% endif %}
   </div>
   {% endif %}
 
