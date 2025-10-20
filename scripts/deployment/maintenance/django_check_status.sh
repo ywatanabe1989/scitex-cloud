@@ -1,0 +1,1 @@
+../../../config/settings/maintenance/django_check_status.sh
