@@ -1,29 +1,34 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# List all repositories in Gitea
-# Works for both development and production
+# Timestamp: "2025-10-20 12:08:14 (ywatanabe)"
+# File: ./scripts/deployment/maintenance/gitea_list_repositories.sh
 
 ORIG_DIR="$(pwd)"
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
 LOG_PATH="$THIS_DIR/.$(basename $0).log"
-ERR_PATH="$THIS_DIR/.$(basename $0).err"
 echo > "$LOG_PATH"
-echo > "$ERR_PATH"
-
-set -euo pipefail
 
 BLACK='\033[0;30m'
 LIGHT_GRAY='\033[0;37m'
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 RED='\033[0;31m'
-BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 echo_info() { echo -e "${LIGHT_GRAY}$1${NC}"; }
 echo_success() { echo -e "${GREEN}$1${NC}"; }
 echo_warning() { echo -e "${YELLOW}$1${NC}"; }
 echo_error() { echo -e "${RED}$1${NC}"; }
+# ---------------------------------------
+
+# List all repositories in Gitea
+# Works for both development and production
+
+ERR_PATH="$THIS_DIR/.$(basename $0).err"
+echo > "$ERR_PATH"
+
+# Color codes
+BLUE='\033[0;34m'
 
 echo_header() { echo -e "${BLUE}$1${NC}"; }
 
@@ -31,10 +36,13 @@ echo_header() { echo -e "${BLUE}$1${NC}"; }
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
 
-# Load environment variables
+# Load environment variables (before set -u to avoid unbound variable errors during sourcing)
 if [ -f "$PROJECT_ROOT/.env" ]; then
     source "$PROJECT_ROOT/.env"
 fi
+
+# Enable strict mode after sourcing environment
+set -euo pipefail
 
 # Detect environment
 detect_environment() {
@@ -71,6 +79,26 @@ get_api_config() {
         echo_error "GITEA_TOKEN not set. Please configure SCITEX_CLOUD_GITEA_TOKEN_${env^^} in your environment"
         echo_info "Run: source deployment/dotenvs/dotenv.${env_file}"
         echo_info "Or set: export SCITEX_CLOUD_GITEA_TOKEN_${env^^}=<your-token>"
+        exit 1
+    fi
+
+    # Validate token by testing API access
+    local test_response=$(curl -s -H "Authorization: token $GITEA_TOKEN" "$GITEA_URL/api/v1/user" 2>/dev/null)
+
+    if echo "$test_response" | grep -q '"message":"token is required"'; then
+        echo_error "Invalid or expired token!"
+        echo
+        echo_info "The token is set but Gitea rejects it as invalid."
+        echo_info "Please generate a new token:"
+        echo_info "  1. Go to $GITEA_URL"
+        echo_info "  2. Login → Settings → Applications → Generate New Token"
+        echo_info "  3. Update deployment/dotenvs/dotenv.${env_file}:"
+        echo_info "     export SCITEX_CLOUD_GITEA_TOKEN_${env^^}=<new-token>"
+        echo
+        echo_error "Current token: ${GITEA_TOKEN:0:8}...${GITEA_TOKEN: -8}"
+        exit 1
+    elif echo "$test_response" | grep -q '"message"'; then
+        echo_error "API Error: $(echo "$test_response" | python3 -c "import sys,json; print(json.load(sys.stdin).get('message','Unknown error'))" 2>/dev/null || echo "Unknown error")"
         exit 1
     fi
 }
@@ -311,12 +339,30 @@ print(json.dumps(repos))
     # List for specific user or current user
     if [ -n "$user" ]; then
         echo_info "Fetching repositories for user: $user"
-        list_user_repos "$GITEA_URL" "$GITEA_TOKEN" "$user" | format_repo_info
+        local response=$(list_user_repos "$GITEA_URL" "$GITEA_TOKEN" "$user")
     else
         echo_info "Fetching your repositories..."
-        curl -s -H "Authorization: token $GITEA_TOKEN" \
-            "$GITEA_URL/api/v1/user/repos" | format_repo_info
+        local response=$(curl -s -H "Authorization: token $GITEA_TOKEN" "$GITEA_URL/api/v1/user/repos")
     fi
+
+    # Check if response indicates token error
+    if echo "$response" | grep -q '"message":"token is required"'; then
+        echo_error "Invalid or expired token!"
+        echo
+        echo_info "The token is set but Gitea API rejects it."
+        echo_info "Please generate a new token:"
+        echo_info "  1. Go to $GITEA_URL"
+        echo_info "  2. Login → Settings → Applications → Generate New Token"
+        echo_info "  3. Select scopes: read:repository, read:user"
+        echo_info "  4. Update in deployment/dotenvs/dotenv.dev:"
+        echo_info "     export SCITEX_CLOUD_GITEA_TOKEN_DEV=<new-token>"
+        echo
+        echo_error "Current token: ${GITEA_TOKEN:0:8}...${GITEA_TOKEN: -8}"
+        exit 1
+    fi
+
+    # Format and display
+    echo "$response" | format_repo_info
 }
 
 main "$@" > >(tee -a "$LOG_PATH") 2> >(tee -a "$ERR_PATH" >&2)

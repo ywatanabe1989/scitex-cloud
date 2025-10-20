@@ -10,8 +10,7 @@ ERR_PATH="$THIS_DIR/.$(basename $0).err"
 echo > "$LOG_PATH"
 echo > "$ERR_PATH"
 
-set -euo pipefail
-
+# Color codes
 BLACK='\033[0;30m'
 LIGHT_GRAY='\033[0;37m'
 GREEN='\033[0;32m'
@@ -31,10 +30,13 @@ echo_header() { echo -e "${BLUE}$1${NC}"; }
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
 
-# Load environment variables
+# Load environment variables (before set -u to avoid unbound variable errors during sourcing)
 if [ -f "$PROJECT_ROOT/.env" ]; then
     source "$PROJECT_ROOT/.env"
 fi
+
+# Enable strict mode after sourcing environment
+set -euo pipefail
 
 # Detect environment
 detect_environment() {
@@ -71,6 +73,26 @@ get_api_config() {
         echo_error "GITEA_TOKEN not set. Please configure SCITEX_CLOUD_GITEA_TOKEN_${env^^} in your environment"
         echo_info "Run: source deployment/dotenvs/dotenv.${env_file}"
         echo_info "Or set: export SCITEX_CLOUD_GITEA_TOKEN_${env^^}=<your-token>"
+        exit 1
+    fi
+
+    # Validate token by testing API access
+    local test_response=$(curl -s -H "Authorization: token $GITEA_TOKEN" "$GITEA_URL/api/v1/user" 2>/dev/null)
+
+    if echo "$test_response" | grep -q '"message":"token is required"'; then
+        echo_error "Invalid or expired token!"
+        echo
+        echo_info "The token is set but Gitea rejects it as invalid."
+        echo_info "Please generate a new token:"
+        echo_info "  1. Go to $GITEA_URL"
+        echo_info "  2. Login → Settings → Applications → Generate New Token"
+        echo_info "  3. Update deployment/dotenvs/dotenv.${env_file}:"
+        echo_info "     export SCITEX_CLOUD_GITEA_TOKEN_${env^^}=<new-token>"
+        echo
+        echo_error "Current token: ${GITEA_TOKEN:0:8}...${GITEA_TOKEN: -8}"
+        exit 1
+    elif echo "$test_response" | grep -q '"message"'; then
+        echo_error "API Error: $(echo "$test_response" | python3 -c "import sys,json; print(json.load(sys.stdin).get('message','Unknown error'))" 2>/dev/null || echo "Unknown error")"
         exit 1
     fi
 }
