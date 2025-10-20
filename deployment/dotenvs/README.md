@@ -1,164 +1,82 @@
-<!-- ---
-!-- Timestamp: 2025-10-18 21:56:00
-!-- Author: ywatanabe
-!-- File: /home/ywatanabe/proj/scitex-cloud/deployment/dotenvs/README.md
-!-- --- -->
+# Environment Variables
 
-# Environment Variable Files
+Environment-specific configuration for SciTeX Cloud
 
-This directory contains environment-specific configuration files for SciTeX Cloud.
+---
 
 ## Files
 
-- **`dotenv.dev`** - Development environment variables (committed)
-- **`dotenv.prod`** - Production environment variables (committed)
-- **`dotenv.example`** - Template showing all available variables (committed)
+| File | Purpose |
+|------|---------|
+| `dotenv.dev` | Development environment |
+| `dotenv.prod` | Production environment |
+| `setup_env.sh` | Environment setup script |
 
-## How It Works
+**All files are safe to commit** (no secrets - references only)
 
-### Symlink Strategy
+---
 
-The project root has a `.env` symlink that points to one of these files:
-
-```
-scitex-cloud/
-├── .env  → deployment/dotenvs/dotenv.dev   (or dotenv.prod)
-└── deployment/
-    └── dotenvs/
-        ├── dotenv.dev      ✅ committed
-        ├── dotenv.prod     ✅ committed
-        └── dotenv.example  ✅ committed
-```
-
-### Switching Environments
+## Quick Start
 
 ```bash
-# Switch to development
-source scripts/deployment/switch_env.sh dev
+# Setup environment (creates symlink and loads vars)
+source ./setup_env.sh
 
-# Switch to production
-source scripts/deployment/switch_env.sh prod
+# Manual sourcing
+source dotenv.dev    # or dotenv.prod
 ```
 
-The script:
-1. Updates the `.env` symlink
-2. Sources the environment file
-3. Shows current configuration
-4. Tests database connection
+---
 
-## Why This Organization?
+## Architecture
 
-### ✅ Advantages
+**Two-layer approach:**
 
-1. **Clean separation**: Deployment configs grouped together
-2. **Clear naming**: `dotenv.*` clearly indicates purpose
-3. **Safe to commit**: No secrets in these files
-4. **Team-friendly**: Everyone uses same config files
-5. **Easy to find**: All dotenvs in one place
+1. **Global secrets** (from `~/.dotfiles/.bash.d/secrets/`)
+   - API keys, passwords, credentials
+   - Loaded automatically by shell
 
-### Security Model
-
-**Secrets come from dotfiles:**
-```bash
-# ~/.dotfiles/.bash.d/secrets/001_ENV_SCITEX.src
-SCITEX_EMAIL_PASSWORD="actual_secret"
-SCITEX_SCHOLAR_ZENROWS_API_KEY="actual_api_key"
-```
-
-**Config comes from project:**
-```bash
-# deployment/dotenvs/dotenv.dev
-SCITEX_CLOUD_DJANGO_SECRET_KEY="${SCITEX_EMAIL_PASSWORD}"  # Reference
-SCITEX_CLOUD_DB_NAME_DEV=scitex_cloud_dev  # Safe to commit
-```
-
-## Environment Variables Hierarchy
-
-1. **Global secrets** (from `~/.dotfiles/`) - Always loaded by shell
-   - API keys
-   - Email passwords
-   - Service credentials
-
-2. **Environment-specific** (from this directory) - Loaded by switch script
-   - Database configuration
-   - Django settings module
-   - Logging levels
-   - Feature flags
-
-## File Format
-
-All files are bash scripts that export environment variables:
+2. **Project config** (this directory)
+   - References secrets via `${VARIABLE}`
+   - Database settings, Django config
+   - Safe to commit
 
 ```bash
-#!/bin/bash
-# Comments explaining the variable
-export VARIABLE_NAME=value
-export ANOTHER_VAR="${REFERENCE_FROM_DOTFILES}"
+# Example: dotenv.dev
+export SCITEX_CLOUD_DJANGO_SECRET_KEY="${SCITEX_EMAIL_PASSWORD}"  # Reference
+export SCITEX_CLOUD_DB_NAME=scitex_cloud_dev                       # Safe config
 ```
 
-## Adding New Variables
+---
 
-1. Add to `dotenv.example` with documentation
-2. Add to `dotenv.dev` with dev value
-3. Add to `dotenv.prod` with prod value
-4. Document in `../docs/01_ENVIRONMENT_VARIABLES.md`
+## Common Variables
 
-## Important Notes
+**Database:**
+- `SCITEX_CLOUD_DB_NAME`
+- `SCITEX_CLOUD_DB_USER`
+- `SCITEX_CLOUD_DB_PASSWORD`
+- `SCITEX_CLOUD_DB_HOST`
+- `SCITEX_CLOUD_DB_PORT`
 
-### ⚠️ Security
-
-- **DO commit** `dotenv.{dev,prod,example}` - they contain no secrets
-- **DO NOT commit** `.env` symlink at project root - it's gitignored
-- **DO use** `${VARIABLE}` syntax to reference dotfile secrets
-- **DO NOT** hardcode passwords in these files
-
-### 📝 Best Practices
-
-1. Use descriptive variable names with `SCITEX_CLOUD_` prefix
-2. Group related variables with comments
-3. Reference dotfile secrets, don't duplicate them
-4. Keep examples in `dotenv.example` up to date
-
-### 🔍 Verification
-
-Check current environment:
-```bash
-# Show current symlink
-ls -la .env
-
-# Show loaded variables
-source scripts/deployment/switch_env.sh
-```
-
-## Environment Variables Reference
-
-For complete documentation on all available environment variables, including naming conventions and security best practices, see the deployment documentation.
-
-### Quick Reference
-
-**Database Configuration:**
-- `SCITEX_CLOUD_DB_NAME_{DEV|PROD}`
-- `SCITEX_CLOUD_DB_USER_{DEV|PROD}`
-- `SCITEX_CLOUD_DB_PASSWORD_{DEV|PROD}`
-- `SCITEX_CLOUD_DB_HOST_{DEV|PROD}`
-- `SCITEX_CLOUD_DB_PORT_{DEV|PROD}`
-- `SCITEX_CLOUD_USE_SQLITE_{DEV|PROD}`
-
-**Django Configuration:**
+**Django:**
 - `DJANGO_SETTINGS_MODULE`
 - `SCITEX_CLOUD_DJANGO_SECRET_KEY`
 
-**Logging:**
-- `SCITEX_LOGGING_LEVEL` (debug, info, warning, error)
+**Services:**
+- `SCITEX_CLOUD_GITEA_URL`
+- `SCITEX_CLOUD_GITEA_TOKEN`
 
-**Global SciTeX Variables (from dotfiles):**
-- `SCITEX_EMAIL_PASSWORD`
-- `SCITEX_EMAIL_ADMIN`
-- `SCITEX_SCHOLAR_FROM_EMAIL_ADDRESS`
+---
 
-## See Also
+## Security
 
-- `../../scripts/deployment/switch_env.sh` - Environment switcher script
-- `~/.dotfiles/.bash.d/secrets/001_ENV_SCITEX.src` - Global secrets
+- ✅ **DO** commit these dotenv files (no secrets)
+- ✅ **DO** use `${VAR}` to reference secrets
+- ❌ **DON'T** hardcode passwords
+- ❌ **DON'T** commit `.env` symlink at project root
+
+---
+
+**Location:** `/home/ywatanabe/proj/scitex-cloud/deployment/dotenvs/`
 
 <!-- EOF -->

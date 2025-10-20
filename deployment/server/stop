@@ -29,16 +29,12 @@ lsof -ti:8000 | xargs kill -9 2>/dev/null || true
 echo "Stopping uwsgi processes..."
 pkill -f "uwsgi.*scitex" 2>/dev/null || true
 
-# Stop gunicorn processes
-echo "Stopping gunicorn processes..."
-pkill -f "gunicorn.*scitex" 2>/dev/null || true
-
 # Kill by PID file
 kill_by_pidfile
 
 # Remove socket files
 rm -f "$APP_HOME/run/uwsgi.sock" 2>/dev/null
-rm -f "$APP_HOME/run/gunicorn.sock" 2>/dev/null
+rm -f "$APP_HOME/run/scitex_cloud.sock" 2>/dev/null
 
 # Check if any processes are still running
 if lsof -ti:8000 >/dev/null 2>&1; then

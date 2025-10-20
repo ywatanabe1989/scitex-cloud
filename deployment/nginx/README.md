@@ -1,301 +1,167 @@
-<!-- ---
-!-- Timestamp: 2025-10-18 21:40:00
-!-- Author: ywatanabe
-!-- File: /home/ywatanabe/proj/scitex-cloud/deployment/nginx/README.md
-!-- --- -->
-
 # Nginx Configuration for SciTeX Cloud
 
-## Overview
+Nginx reverse proxy for SciTeX Django application at `scitex.ai`
 
-This directory contains Nginx configurations for SciTeX Cloud in both development and production environments.
+---
 
-## Active Configurations
+## Quick Start
 
-### Development: `scitex_cloud_dev.conf`
-- HTTP only (no SSL)
-- Uses uWSGI backend via Unix socket
-- Serves at: http://localhost or http://scitex.local
+### Development
+```bash
+# Link dev config
+sudo ln -sf $(pwd)/scitex_cloud_dev.conf /etc/nginx/sites-enabled/scitex_cloud.conf
 
-### Production: `scitex_cloud_prod.conf`
-- HTTPS with Let's Encrypt SSL certificates
-- HTTP → HTTPS redirect
-- Uses uWSGI backend via Unix socket
-- Serves at: https://scitex.ai
+# Test and reload
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+### Production
+```bash
+# Link prod config
+sudo ln -sf $(pwd)/scitex_cloud_prod.conf /etc/nginx/sites-enabled/scitex_cloud.conf
+
+# Test config
+sudo nginx -t
+
+# Get SSL certificate
+sudo certbot --nginx -d scitex.ai
+
+# Reload
+sudo systemctl reload nginx
+```
+
+---
 
 ## Architecture
 
 ```
 Browser → Nginx (80/443) → uWSGI (Unix socket) → Django
+                ↓
+         Static/Media files (direct serve)
 ```
 
-## Development Setup
+---
 
-### 1. Link Development Config
+## Configuration Files
 
+| File | Purpose |
+|------|---------|
+| `scitex_cloud_dev.conf` | HTTP only, for local development |
+| `scitex_cloud_prod.conf` | HTTP + HTTPS (unified), for production |
+| `nginx.conf` | System-level nginx config (reference) |
+| `setup_nginx.sh` | Automated setup script |
+
+**Key Settings:**
+- Upstream: Unix socket at `/run/scitex_cloud.sock`
+- Static files: `./staticfiles/`
+- Media files: `./media/`
+- Logs: `./logs/nginx_*.log`
+
+---
+
+## Maintenance
+
+### Check DNS and SSL
 ```bash
-SCITEX_NGINX_DIR=/home/ywatanabe/proj/scitex-cloud/deployment/nginx
+# Check DNS and SSL status
+./maintenance/nginx_check_dns.sh
 
-# Link site-specific config
-sudo ln -sf \
-    "$SCITEX_NGINX_DIR"/scitex_cloud_dev.conf \
-    /etc/nginx/sites-available/scitex_cloud_dev.conf
-
-sudo ln -sf \
-    /etc/nginx/sites-available/scitex_cloud_dev.conf \
-    /etc/nginx/sites-enabled/scitex_cloud_dev.conf
-
-# Test nginx configuration
+# Test nginx config
 sudo nginx -t
 
 # Reload nginx
 sudo systemctl reload nginx
 ```
 
-### 2. Start Development Server
-
+### Common Operations
 ```bash
-# Using uWSGI
-uwsgi --ini deployment/uwsgi/scitex_cloud_dev.ini
+# View nginx logs
+sudo tail -f /var/log/nginx/error.log
+tail -f logs/nginx_access.log
 
-# Or using Django dev server (simpler)
-python manage.py runserver
+# Check nginx status
+sudo systemctl status nginx
+
+# Renew SSL certificate
+sudo certbot renew
 ```
 
-## Production Setup
-
-### Initial Setup
-
-```bash
-SCITEX_NGINX_DIR=/home/ywatanabe/proj/scitex-cloud/deployment/nginx
-
-# 1. Link production config
-sudo ln -sf \
-    "$SCITEX_NGINX_DIR"/scitex_cloud_prod.conf \
-    /etc/nginx/sites-available/scitex_cloud
-
-sudo ln -sf \
-    /etc/nginx/sites-available/scitex_cloud \
-    /etc/nginx/sites-enabled/scitex_cloud
-
-# 2. Test nginx configuration
-sudo nginx -t
-
-# 3. Setup SSL with Let's Encrypt
-sudo certbot --nginx -d scitex.ai -d www.scitex.ai
-
-# 4. Reload nginx
-sudo systemctl reload nginx
-
-# 5. Start uWSGI service
-sudo systemctl enable scitex_cloud_prod
-sudo systemctl start scitex_cloud_prod
-
-# 6. Check logs
-sudo journalctl -u scitex_cloud_prod -f
-```
-
-### Update Configuration
-
-```bash
-# After editing nginx config
-sudo nginx -t
-sudo systemctl reload nginx
-```
-
-## Server Management
-
-### Control uWSGI Service
-
-```bash
-# Start
-sudo systemctl start scitex_cloud_prod
-
-# Stop
-sudo systemctl stop scitex_cloud_prod
-
-# Restart
-sudo systemctl restart scitex_cloud_prod
-
-# Status
-sudo systemctl status scitex_cloud_prod
-```
-
-### View Logs
-
-```bash
-# uWSGI logs
-sudo journalctl -u scitex_cloud_prod -f
-sudo tail -f /var/log/uwsgi/scitex_cloud.log
-
-# Nginx logs
-sudo tail -f /var/log/nginx/scitex_cloud_access.log
-sudo tail -f /var/log/nginx/scitex_cloud_error.log
-```
-
-## File Structure
-
-```
-nginx/
-├── README.md                   # This file
-├── scitex_cloud_dev.conf       # Development config (HTTP)
-├── scitex_cloud_prod.conf      # Production config (HTTPS)
-└── README_FROM_ANOTHER_BRANCH.md  # Legacy reference
-```
-
-## Configuration Details
-
-### Development (`scitex_cloud_dev.conf`)
-- **Protocol**: HTTP only
-- **Backend**: uWSGI via Unix socket
-- **Socket**: `/run/scitex_cloud.sock`
-- **Static files**: Served directly by Nginx
-- **Location**: Works in `~/proj/scitex-cloud`
-
-### Production (`scitex_cloud_prod.conf`)
-- **Protocol**: HTTPS with SSL
-- **Backend**: uWSGI via Unix socket
-- **Socket**: `/run/scitex_cloud.sock`
-- **SSL**: Let's Encrypt certificates
-- **Static files**: Served directly by Nginx with caching
-- **Security headers**: Enabled
-- **Location**: `/home/ywatanabe/proj/scitex-cloud`
+---
 
 ## Troubleshooting
 
 ### Bad Gateway (502)
-
 ```bash
-# Check if uWSGI is running
-ps aux | grep uwsgi
-sudo systemctl status scitex_cloud_prod
+# Check uWSGI service
+sudo systemctl status uwsgi
 
-# Check uWSGI logs
-sudo journalctl -u scitex_cloud_prod -f
-sudo tail -f /var/log/uwsgi/scitex_cloud.log
-
-# Check nginx error logs
-sudo tail -f /var/log/nginx/scitex_cloud_error.log
+# Check socket exists and accessible
+ls -la /run/scitex_cloud.sock
+sudo -u www-data test -r /run/scitex_cloud.sock && echo "OK"
 
 # Restart uWSGI
-sudo systemctl restart scitex_cloud_prod
-```
-
-### Socket Permission Issues
-
-```bash
-# Check socket exists
-ls -la /run/scitex_cloud.sock
-
-# Check nginx can access it
-sudo -u www-data test -r /run/scitex_cloud.sock && echo "OK" || echo "FAIL"
-
-# Fix permissions (if needed)
-sudo chmod 666 /run/scitex_cloud.sock
+sudo systemctl restart uwsgi
 ```
 
 ### SSL Certificate Issues
-
 ```bash
-# Check expiry
+# Check certificate status
 sudo certbot certificates
 
-# Renew certificates
-sudo certbot renew
-
-# Reload nginx after renewal
-sudo systemctl reload nginx
+# Test renewal
+sudo certbot renew --dry-run
 ```
 
 ### Static Files Not Loading
-
 ```bash
 # Collect static files
 python manage.py collectstatic --noinput
 
 # Check permissions
-ls -la ./staticfiles/
+ls -la staticfiles/
 
-# Check nginx config paths match
-grep static deployment/nginx/scitex_cloud_prod.conf
+# Verify nginx config paths
+grep static scitex_cloud_prod.conf
 ```
 
-### PostgreSQL Connection Issues
+---
 
-```bash
-# Check PostgreSQL is running
-pg_isready
-sudo service postgresql status
+## Configuration Pattern
 
-# Check database connection
-psql -U scitex_dev -d scitex_cloud_dev -c "SELECT version();"
+**Unified Config Approach:**
+- Uses single config file for both HTTP and HTTPS
+- Self-signed cert for initial HTTPS block
+- Certbot automatically updates SSL certificate paths
+- No config switching needed after SSL setup
 
-# Check Django can connect
-python manage.py dbshell
+**Ports:**
+- Dev: HTTP on 80 (or custom)
+- Prod: HTTP on 80 (redirects to HTTPS), HTTPS on 443
+
+**SSL:**
+- Let's Encrypt certificates
+- Auto-renewal via certbot
+- Certificate location: `/etc/letsencrypt/live/scitex.ai/`
+
+---
+
+## Files Structure
+
+```
+deployment/nginx/
+├── README.md                 # This file
+├── scitex_cloud_dev.conf     # Dev config (HTTP)
+├── scitex_cloud_prod.conf    # Prod config (unified)
+├── nginx.conf                # System config reference
+├── setup_nginx.sh            # Setup script
+└── maintenance/
+    └── nginx_check_dns.sh    # DNS/SSL check tool
 ```
 
-## Important Notes
+---
 
-### Development
-- Use HTTP for local development
-- No SSL certificates needed
-- Can use Django dev server instead of uWSGI
-- PostgreSQL recommended but SQLite available as fallback
-
-### Production
-- Always use HTTPS with valid SSL certificates
-- uWSGI service runs as systemd service
-- PostgreSQL required (no SQLite in production)
-- Environment variables required:
-  - `SCITEX_CLOUD_DJANGO_SECRET_KEY`
-  - `SCITEX_CLOUD_DB_PASSWORD_PROD`
-- Always test nginx config before reloading: `sudo nginx -t`
-- Static files must be collected: `python manage.py collectstatic`
-
-## Migration from SQLite to PostgreSQL
-
-If you're migrating from SQLite to PostgreSQL:
-
-```bash
-# 1. Backup current SQLite database
-cp data/scitex_cloud_dev.db data/backups/scitex_cloud_dev.db.backup_$(date +%Y%m%d_%H%M%S)
-
-# 2. Setup PostgreSQL
-bash scripts/setup_postgres.sh
-
-# 3. Export data from SQLite
-python manage.py dumpdata --natural-foreign --natural-primary > data/backups/sqlite_data.json
-
-# 4. Switch to PostgreSQL in settings
-# (Already configured in settings_dev.py and settings_prod.py)
-
-# 5. Run migrations
-python manage.py migrate
-
-# 6. Load data into PostgreSQL
-python manage.py loaddata data/backups/sqlite_data.json
-
-# 7. Create superuser (if needed)
-python manage.py createsuperuser
-```
-
-See `../docs/02_POSTGRESQL_SETUP.md` for detailed PostgreSQL documentation.
-
-## Next Steps
-
-1. ✅ Nginx configuration files created
-2. ✅ PostgreSQL setup documented
-3. ⏳ Configure for your environment (dev or prod)
-4. ⏳ Setup SSL certificates (production only)
-5. ⏳ Test the complete stack
-
-## See Also
-
-- `../README.md` - Main deployment guide
-- `../docs/00_QUICK_START.md` - Quick start guide
-- `../docs/02_POSTGRESQL_SETUP.md` - PostgreSQL setup
-- `../docs/03_UWSGI_SETUP.md` - uWSGI configuration
-- `../docs/99_FILE_ORGANIZATION.md` - File organization reference
-- `../../config/` - Django application configuration
+**Status:** Production Ready  
+**Domain:** scitex.ai  
+**SSL:** Let's Encrypt
 
 <!-- EOF -->

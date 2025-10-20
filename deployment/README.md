@@ -1,215 +1,168 @@
-<!-- ---
-!-- Timestamp: 2025-10-19 00:29:29
-!-- Author: ywatanabe
-!-- File: /home/ywatanabe/proj/scitex-cloud/deployment/README.md
-!-- --- -->
+# SciTeX Cloud Deployment
 
-# Quick Start - SciTeX Cloud Deployment
-
-**Estimated Time**: 30-60 minutes
-
-> **Note**: For detailed component documentation, see the README.md files in each subdirectory (dotenvs/, postgres/, uwsgi/, nginx/).
+Production and development deployment configurations
 
 ---
 
-## 📍 Development Setup
+## Quick Start
 
-### Prerequisites
-- [ ] Ubuntu 20.04+ or Debian 11+ (or WSL2)
-- [ ] Python 3.11, Git, PostgreSQL installed
-- [ ] Project cloned
-
-### Steps
-
+### Development
 ```bash
-# 1. Clone
-cd ~/proj/
-git clone https://github.com/scitex-ai/scitex-cloud.git
-cd scitex-cloud
+# 1. Setup PostgreSQL
+sudo ./deployment/postgres/setup_postgres.sh -e dev
 
-# 2. Setup virtual environment
-python3.11 -m venv .venv
-source .venv/bin/activate
-pip install -r ./deployment/requirements.txt
+# 2. Setup environment
+source ./deployment/dotenvs/setup_env.sh -e dev
 
-# 3. Setup database
-bash scripts/deployment/setup_postgres.sh
-
-# 4. Switch to dev environment
-source scripts/deployment/switch_env.sh dev
-
-# 5. Run migrations
-python manage.py migrate
-python manage.py createsuperuser
-
-# 6. Start development server
+# 3. Run Django
 python manage.py runserver
 ```
 
-Visit: http://localhost:8000
-
-**Verification:**
-- [ ] Homepage loads
-- [ ] Admin panel accessible at /admin
-- [ ] Login works
-
----
-
-## 🚀 Production Setup
-
-### Prerequisites
-- [ ] Ubuntu server with public IP (e.g., 162.43.35.139)
-- [ ] Domain name pointing to server (e.g., scitex.ai)
-- [ ] SSH access with sudo
-- [ ] Firewall configured (ports 22, 80, 443)
-
-### Steps
-
-```bash
-# 1. Install dependencies
-sudo apt update && sudo apt upgrade -y
-sudo apt install -y python3.11 python3.11-venv postgresql nginx git ufw uwsgi uwsgi-plugin-python3
-
-# 2. Configure firewall
-sudo ufw allow 22/tcp   # SSH
-sudo ufw allow 80/tcp   # HTTP
-sudo ufw allow 443/tcp  # HTTPS
-sudo ufw enable
-
-# 3. Clone project (use your actual location)
-cd ~/proj
-git clone https://github.com/ywatanabe1989/scitex-cloud.git
-cd scitex-cloud
-
-# 4. Setup Python environment
-python3.11 -m venv .venv
-source .venv/bin/activate
-pip install -r deployment/requirements.txt
-
-# 5. Setup database
-bash scripts/deployment/setup_postgres.sh
-
-# 6. Switch to production environment
-source deployment/dotenvs/dotenv.prod
-
-# 7. Run migrations
-python manage.py migrate --settings=config.settings.settings_prod
-python manage.py createsuperuser --settings=config.settings.settings_prod
-python manage.py collectstatic --noinput --settings=config.settings.settings_prod
-
-# 8. Create necessary directories
-mkdir -p logs staticfiles media
-
-# 9. Setup uWSGI systemd service
-sudo cp deployment/uwsgi/scitex_cloud_prod.service /etc/systemd/system/scitex_cloud_prod.service
-sudo systemctl daemon-reload
-sudo systemctl enable scitex_cloud_prod
-sudo systemctl start scitex_cloud_prod
-
-# 10. Setup Nginx
-sudo cp deployment/nginx/scitex_cloud_prod.conf /etc/nginx/sites-available/scitex_cloud
-sudo ln -s /etc/nginx/sites-available/scitex_cloud /etc/nginx/sites-enabled/
-sudo nginx -t
-sudo systemctl restart nginx
-
-# 11. Setup SSL (after DNS is configured)
-sudo apt install -y certbot python3-certbot-nginx
-sudo certbot --nginx -d scitex.ai -d www.scitex.ai
-```
-
-**Important Notes:**
-- Project location: `/home/ywatanabe/proj/scitex-cloud`
-- Virtual environment: `.venv`
-- Socket: `/run/scitex_cloud.sock`
-- Database: `scitex_cloud_prod` with user `scitex_prod`
-
-Visit: https://your-domain.com
-
-**Verification:**
-- [ ] HTTPS works
-- [ ] SSL certificate valid
-- [ ] HTTP redirects to HTTPS
-- [ ] All static files loading
-
----
-
-## 🔍 Troubleshooting
-
-### Development
-
-**Database connection error:**
-```bash
-pg_isready
-psql -U scitex_dev -d scitex_cloud_dev
-```
-
-**Migration errors:**
-```bash
-python manage.py showmigrations
-python manage.py migrate --fake-initial
-```
-
 ### Production
-
-**502 Bad Gateway:**
 ```bash
-sudo systemctl status scitex_cloud
-sudo journalctl -u scitex_cloud -f
-```
+# 1. Setup all services
+sudo ./deployment/postgres/setup_postgres.sh -e prod
+sudo ./deployment/uwsgi/setup_uwsgi.sh -e prod
+sudo ./deployment/nginx/setup_nginx.sh -e prod
+sudo ./deployment/gitea/setup_gitea.sh -e prod
 
-**Static files not loading:**
-```bash
-python manage.py collectstatic --noinput
-sudo nginx -t
+# 2. Get SSL certificates
+sudo certbot --nginx -d scitex.ai
+sudo certbot --nginx -d git.scitex.ai
+
+# 3. Start services
+sudo systemctl start uwsgi_prod gitea_prod nginx
 ```
 
 ---
 
-## 📖 Component Documentation
+## Architecture
 
-For detailed configuration and troubleshooting:
-
-- **[dotenvs/README.md](./dotenvs/README.md)** - Environment variables reference
-- **[postgres/README.md](./postgres/README.md)** - PostgreSQL setup and management
-- **[uwsgi/README.md](./uwsgi/README.md)** - Application server configuration
-- **[nginx/README.md](./nginx/README.md)** - Web server and SSL setup
+```
+Browser
+   ↓
+Nginx (80/443) ← SSL (Let's Encrypt)
+   ├→ Static/Media (direct)
+   ├→ uWSGI (socket) → Django → PostgreSQL
+   └→ Gitea (proxy) → Gitea Service → PostgreSQL
+```
 
 ---
 
-## 📁 Directory Structure
+## Components
+
+| Component | Purpose | Config |
+|-----------|---------|--------|
+| **PostgreSQL** | Database | `./postgres/` |
+| **uWSGI** | App server | `./uwsgi/` |
+| **Nginx** | Reverse proxy | `./nginx/` |
+| **Gitea** | Git hosting | `./gitea/` |
+| **Environment** | Variables | `./dotenvs/` |
+
+---
+
+## DNS Requirements
+
+| Domain | Points To | Purpose |
+|--------|-----------|---------|
+| `scitex.ai` | `162.43.35.139` | Main site |
+| `git.scitex.ai` | `162.43.35.139` | Git hosting |
+
+---
+
+## Service Names
+
+**Development:**
+```bash
+uwsgi_dev
+gitea_dev
+nginx (system)
+postgresql (system)
+```
+
+**Production:**
+```bash
+uwsgi_prod
+gitea_prod
+nginx (system)
+postgresql (system)
+```
+
+---
+
+## Service Management
+
+```bash
+# Check all services
+sudo systemctl status uwsgi_prod gitea_prod nginx postgresql
+
+# Restart all
+sudo systemctl restart uwsgi_prod gitea_prod nginx
+
+# View logs
+sudo journalctl -u uwsgi_prod -f
+sudo journalctl -u gitea_prod -f
+tail -f logs/nginx_*.log
+```
+
+---
+
+## Maintenance Scripts
+
+```bash
+# Check DNS and SSL
+./nginx/maintenance/nginx_check_dns.sh
+./gitea/maintenance/gitea_check_dns.sh
+
+# Backup database
+./scripts/deployment/backup_database.sh
+
+# Server management
+./server.sh {start|stop|restart|status} -m {dev|prod}
+```
+
+---
+
+## File Structure
 
 ```
 deployment/
-├── README.md                      # This file (quick start guide)
-├── dotenvs/                       # Environment variable files
-│   ├── README.md                 # Environment variables documentation
-│   ├── dotenv.dev                # Development variables
-│   ├── dotenv.prod               # Production variables
-│   └── dotenv.example            # Template
-├── nginx/                         # Web server configs
-│   ├── README.md                 # Nginx setup guide
-│   ├── scitex_cloud_dev.conf     # HTTP only
-│   └── scitex_cloud_prod.conf    # HTTPS with SSL
-├── postgres/                      # Database scripts
-│   ├── README.md                 # PostgreSQL documentation
-│   └── setup_production.sh       # Production DB setup
-├── uwsgi/                         # Application server configs
-│   ├── README.md                 # uWSGI documentation
-│   ├── scitex_cloud_dev.ini      # 4 processes, 2 threads
-│   ├── scitex_cloud_prod.ini     # 8 processes, 4 threads
-│   └── scitex_cloud_prod.service # Systemd service
-└── ssl/                           # SSL certificates (Let's Encrypt)
+├── README.md          # This file
+├── dotenvs/           # Environment variables
+├── postgres/          # Database setup
+├── uwsgi/             # Application server
+├── nginx/             # Reverse proxy
+├── gitea/             # Git hosting
+└── server/            # Server management scripts
 ```
 
 ---
 
-## 🔄 Next Steps
+## Ports
 
-After successful setup:
+| Service | Port | Access |
+|---------|------|--------|
+| Django (dev) | 8000 | Direct |
+| uWSGI | socket | Via nginx |
+| Nginx HTTP | 80 | Public |
+| Nginx HTTPS | 443 | Public |
+| Gitea HTTP | 3000 | Via nginx |
+| Gitea SSH | 2222 | Public |
+| PostgreSQL | 5432 | Local only |
 
-1. **Configure monitoring** - Setup log rotation, monitoring
-2. **Setup backups** - Automated database backups
-3. **Security hardening** - fail2ban, security headers
-4. **Performance tuning** - Caching, CDN
+---
+
+## URLs
+
+| Environment | Main Site | Git Hosting |
+|-------------|-----------|-------------|
+| **Development** | http://localhost:8000 | http://localhost:3001 |
+| **Production** | https://scitex.ai | https://git.scitex.ai |
+
+---
+
+**Status:** Production Ready  
+**Version:** 2025-10-20  
+**Naming:** Consistent underscore convention (service_env)
 
 <!-- EOF -->
