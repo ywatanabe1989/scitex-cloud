@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-10-20 11:26:49 (ywatanabe)"
+# Timestamp: "2025-10-20 11:37:45 (ywatanabe)"
 # File: ./scripts/deployment/maintenance/django_check_status.sh
 
 ORIG_DIR="$(pwd)"
@@ -20,6 +20,9 @@ echo_success() { echo -e "${GREEN}$1${NC}"; }
 echo_warning() { echo -e "${YELLOW}$1${NC}"; }
 echo_error() { echo -e "${RED}$1${NC}"; }
 # ---------------------------------------
+
+ERR_PATH="$THIS_DIR/.$(basename $0).err"
+echo > "$ERR_PATH"
 
 # Check Django application status
 # Works for both development and production
@@ -133,6 +136,7 @@ check_django_apps() {
         # List each app with details
         for app_dir in "$PROJECT_ROOT/apps"/*_app; do
             if [ -d "$app_dir" ]; then
+                echo
                 APP_NAME=$(basename "$app_dir")
                 echo_info "  $APP_NAME:"
 
@@ -307,9 +311,9 @@ main() {
         echo_error "Django not installed - skipping Django-specific checks"
     fi
 
-    echo -e "\nSee $LOG_PATH"
+    echo -e "\nLogs: $LOG_PATH (stdout) | $ERR_PATH (stderr)"
 }
 
-main "$@" 2>&1 | tee -a "$LOG_PATH"
+main "$@" > >(tee -a "$LOG_PATH") 2> >(tee -a "$ERR_PATH" >&2)
 
 # EOF

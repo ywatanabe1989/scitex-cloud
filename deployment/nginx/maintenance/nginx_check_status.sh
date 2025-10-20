@@ -8,7 +8,9 @@ set -euo pipefail
 ORIG_DIR="$(pwd)"
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
 LOG_PATH="$THIS_DIR/.$(basename $0).log"
+ERR_PATH="$THIS_DIR/.$(basename $0).err"
 echo > "$LOG_PATH"
+echo > "$ERR_PATH"
 
 # Color codes
 BLACK='\033[0;30m'
@@ -255,9 +257,9 @@ main() {
     echo_info "Recent Access Logs (last 5 lines):"
     sudo tail -n 5 /var/log/nginx/access.log 2>/dev/null | sed 's/^/  /' || echo_info "  No access log available"
 
-    echo -e "\nSee $LOG_PATH"
+    echo -e "\nLogs: $LOG_PATH (stdout) | $ERR_PATH (stderr)"
 }
 
-main "$@" 2>&1 | tee -a "$LOG_PATH"
+main "$@" > >(tee -a "$LOG_PATH") 2> >(tee -a "$ERR_PATH" >&2)
 
 # EOF
