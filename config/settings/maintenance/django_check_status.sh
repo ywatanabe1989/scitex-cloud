@@ -5,6 +5,11 @@
 
 set -euo pipefail
 
+ORIG_DIR="$(pwd)"
+THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
+LOG_PATH="$THIS_DIR/.$(basename $0).log"
+echo > "$LOG_PATH"
+
 # Color codes
 BLACK='\033[0;30m'
 LIGHT_GRAY='\033[0;37m'
