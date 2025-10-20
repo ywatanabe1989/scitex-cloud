@@ -36,6 +36,7 @@ class BibTeXEnrichmentJob(models.Model):
     # Input
     input_file = models.FileField(upload_to='bibtex_uploads/%Y/%m/%d/')
     project_name = models.CharField(max_length=200, blank=True, help_text="Optional project name for organization")
+    project = models.ForeignKey('project_app.Project', on_delete=models.SET_NULL, null=True, blank=True, related_name='bibtex_jobs', help_text="Associated project for Gitea integration")
 
     # Processing parameters
     num_workers = models.IntegerField(default=4, help_text="Number of parallel workers")
