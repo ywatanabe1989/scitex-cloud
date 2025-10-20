@@ -221,8 +221,10 @@ main() {
     # Recent logs
     echo_info "Recent Logs (last 10 lines):"
     sudo journalctl -u postgresql -n 10 --no-pager 2>/dev/null | sed 's/^/  /'
+
+    echo -e "\nSee $LOG_PATH"
 }
 
-main "$@"
+main "$@" 2>&1 | tee -a "$LOG_PATH"
 
 # EOF

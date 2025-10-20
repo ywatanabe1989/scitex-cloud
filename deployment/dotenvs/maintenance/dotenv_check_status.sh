@@ -1,28 +1,34 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Check environment configuration files status
-# Validates dotenv files for development and production
-
-set -euo pipefail
+# Timestamp: "2025-10-20 11:30:24 (ywatanabe)"
+# File: ./scripts/deployment/maintenance/dotenv_check_status.sh
 
 ORIG_DIR="$(pwd)"
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
 LOG_PATH="$THIS_DIR/.$(basename $0).log"
 echo > "$LOG_PATH"
 
-# Color codes
 BLACK='\033[0;30m'
 LIGHT_GRAY='\033[0;37m'
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 RED='\033[0;31m'
-BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 echo_info() { echo -e "${LIGHT_GRAY}$1${NC}"; }
 echo_success() { echo -e "${GREEN}$1${NC}"; }
 echo_warning() { echo -e "${YELLOW}$1${NC}"; }
 echo_error() { echo -e "${RED}$1${NC}"; }
+# ---------------------------------------
+
+# Check environment configuration files status
+# Validates dotenv files for development and production
+
+set -euo pipefail
+
+# Color codes
+BLUE='\033[0;34m'
+
 echo_header() { echo -e "${BLUE}$1${NC}"; }
 
 # Project root
@@ -263,8 +269,11 @@ main() {
     check_root_env
     check_consistency
     show_security_recommendations
+
 }
 
-main "$@"
+main "$@" 2>&1 | tee -a "$LOG_PATH"
+
+echo -e "See $LOG_PATH"
 
 # EOF

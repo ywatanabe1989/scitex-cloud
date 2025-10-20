@@ -254,8 +254,10 @@ main() {
 
     echo_info "Recent Access Logs (last 5 lines):"
     sudo tail -n 5 /var/log/nginx/access.log 2>/dev/null | sed 's/^/  /' || echo_info "  No access log available"
+
+    echo -e "\nSee $LOG_PATH"
 }
 
-main "$@"
+main "$@" 2>&1 | tee -a "$LOG_PATH"
 
 # EOF

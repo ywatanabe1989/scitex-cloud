@@ -191,11 +191,15 @@ main() {
             echo_info "Production:"
             echo_info "  Check: sudo systemctl status scitex_cloud_prod"
             echo_info "  Start: sudo systemctl start scitex_cloud_prod"
+            echo
+            echo -e "See $LOG_PATH"
             exit 1
             ;;
     esac
+
+    echo -e "\nSee $LOG_PATH"
 }
 
-main "$@"
+main "$@" 2>&1 | tee -a "$LOG_PATH"
 
 # EOF
