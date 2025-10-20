@@ -53,11 +53,11 @@ get_api_config() {
 
     if [ "$env" = "development" ]; then
         GITEA_URL="${SCITEX_CLOUD_GITEA_URL_DEV:-http://localhost:3000}"
-        GITEA_TOKEN="${SCITEX_CLOUD_GITEA_TOKEN_DEV}"
+        GITEA_TOKEN="${SCITEX_CLOUD_GITEA_TOKEN_DEV:-}"
         ENV_DISPLAY="DEVELOPMENT"
     elif [ "$env" = "production" ]; then
         GITEA_URL="${SCITEX_CLOUD_GITEA_URL_PROD:-https://git.scitex.ai}"
-        GITEA_TOKEN="${SCITEX_CLOUD_GITEA_TOKEN_PROD}"
+        GITEA_TOKEN="${SCITEX_CLOUD_GITEA_TOKEN_PROD:-}"
         ENV_DISPLAY="PRODUCTION"
     else
         echo_error "Unknown environment"
@@ -65,7 +65,12 @@ get_api_config() {
     fi
 
     if [ -z "$GITEA_TOKEN" ]; then
-        echo_error "GITEA_TOKEN not set. Please configure SCITEX_CLOUD_GITEA_TOKEN_${env^^} in .env"
+        local env_file="dev"
+        [ "$env" = "production" ] && env_file="prod"
+
+        echo_error "GITEA_TOKEN not set. Please configure SCITEX_CLOUD_GITEA_TOKEN_${env^^} in your environment"
+        echo_info "Run: source deployment/dotenvs/dotenv.${env_file}"
+        echo_info "Or set: export SCITEX_CLOUD_GITEA_TOKEN_${env^^}=<your-token>"
         exit 1
     fi
 }

@@ -3,7 +3,10 @@
 # SciTeX Cloud - Production Environment Variables
 # This file is sourced by scripts/switch_env.sh
 
-echo -e "\033[0;31m✓ Production environmental variables for SCITEX_CLOUD_* loaded\033[0m"
+# Only show message if in interactive shell or explicitly requested
+if [ -t 1 ] || [ "${SCITEX_SHOW_ENV_MESSAGE:-}" = "1" ]; then
+    echo -e "\033[0;31m✓ Production environmental variables for SCITEX_CLOUD_* loaded\033[0m"
+fi
 
 # ----------------------------------------
 # Django Settings
