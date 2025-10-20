@@ -3,6 +3,8 @@
 # SciTeX Cloud - Development Environment Variables
 # This file is sourced by scripts/switch_env.sh
 
+echo -e "\033[0;32m✓ Development environmental variables for SCITEX_CLOUD_* loaded\033[0m"
+
 # ----------------------------------------
 # Django Settings
 # ----------------------------------------
@@ -42,10 +44,10 @@ export SCITEX_LOGGING_LEVEL=${SCITEX_LOGGING_LEVEL:-info}
 # export SCITEX_CLOUD_USE_SQLITE_DEV=1
 
 # ----------------------------------------
-# Gitea Integration
+# Gitea Integration - Development
 # ----------------------------------------
-export SCITEX_CLOUD_GITEA_URL=http://localhost:3000
-export SCITEX_CLOUD_GITEA_TOKEN=6a341ae28db2a367dd337e25142640501e6e7918
+export SCITEX_CLOUD_GITEA_URL_DEV=http://localhost:3000
+export SCITEX_CLOUD_GITEA_TOKEN_DEV=6a341ae28db2a367dd337e25142640501e6e7918
 
 export SCITEX_CLOUD_EMAIL="ywata1989@gmail.com"
 export SCITEX_CLOUD_PASSWORD="Yusuke8939."

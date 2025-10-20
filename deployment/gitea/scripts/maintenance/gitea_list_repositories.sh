@@ -52,18 +52,20 @@ get_api_config() {
     local env=$1
 
     if [ "$env" = "development" ]; then
-        GITEA_URL="${SCITEX_CLOUD_GITEA_URL:-http://localhost:3000}"
-        GITEA_TOKEN="${SCITEX_CLOUD_GITEA_TOKEN}"
+        GITEA_URL="${SCITEX_CLOUD_GITEA_URL_DEV:-http://localhost:3000}"
+        GITEA_TOKEN="${SCITEX_CLOUD_GITEA_TOKEN_DEV}"
+        ENV_DISPLAY="DEVELOPMENT"
     elif [ "$env" = "production" ]; then
-        GITEA_URL="${SCITEX_CLOUD_GITEA_URL:-https://git.scitex.ai}"
-        GITEA_TOKEN="${SCITEX_CLOUD_GITEA_TOKEN}"
+        GITEA_URL="${SCITEX_CLOUD_GITEA_URL_PROD:-https://git.scitex.ai}"
+        GITEA_TOKEN="${SCITEX_CLOUD_GITEA_TOKEN_PROD}"
+        ENV_DISPLAY="PRODUCTION"
     else
         echo_error "Unknown environment"
         exit 1
     fi
 
     if [ -z "$GITEA_TOKEN" ]; then
-        echo_error "GITEA_TOKEN not set. Please configure SCITEX_CLOUD_GITEA_TOKEN in .env"
+        echo_error "GITEA_TOKEN not set. Please configure SCITEX_CLOUD_GITEA_TOKEN_${env^^} in .env"
         exit 1
     fi
 }
@@ -255,7 +257,7 @@ main() {
     # Get API config
     get_api_config "$ENV"
 
-    echo_header "=== Gitea Repositories ($ENV) ==="
+    echo_header "=== Gitea Repositories ($ENV_DISPLAY) ==="
     echo
 
     # Show detail for specific repo
