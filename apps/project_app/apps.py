@@ -8,4 +8,5 @@ class ProjectAppConfig(AppConfig):
     
     def ready(self):
         """Initialize the app when Django starts."""
-        pass
+        # Import signals to register them
+        from . import signals
