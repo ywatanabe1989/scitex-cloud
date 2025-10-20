@@ -15,6 +15,10 @@ docs/to_claude/
 .dev/
 .venv/
 
+# Temporary scripts
+tmp.sh
+tmp/*.sh
+
 # old directories as trash bin
 *old*
 **/*old*
@@ -692,6 +696,7 @@ uploads/
 
 # Django static files in production
 staticfiles/
+_staticfiles/
 collected-static/
 
 # Django session files
