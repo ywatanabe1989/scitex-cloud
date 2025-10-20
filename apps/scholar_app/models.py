@@ -1327,11 +1327,12 @@ class BibTeXEnrichmentJob(models.Model):
     ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bibtex_jobs')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bibtex_jobs', null=True, blank=True)
+    session_key = models.CharField(max_length=40, blank=True, null=True, help_text="For anonymous users")
 
     # Input
     input_file = models.FileField(upload_to='bibtex_uploads/%Y/%m/%d/')
-    project_name = models.CharField(max_length=200, blank=True, help_text="Optional project name for organization")
+    project_name = models.CharField(max_length=200, blank=True, null=True, help_text="Optional project name for organization")
 
     # Processing parameters
     num_workers = models.IntegerField(default=4, help_text="Number of parallel workers")
@@ -1365,11 +1366,15 @@ class BibTeXEnrichmentJob(models.Model):
         ordering = ['-created_at']
         indexes = [
             models.Index(fields=['user', '-created_at']),
+            models.Index(fields=['session_key', '-created_at']),
             models.Index(fields=['status']),
         ]
 
     def __str__(self):
-        return f"BibTeX Job #{self.id} - {self.user.username} ({self.status})"
+        if self.user:
+            return f"BibTeX Job #{self.id} - {self.user.username} ({self.status})"
+        else:
+            return f"BibTeX Job #{self.id} - anonymous ({self.status})"
 
     def get_progress_percentage(self):
         """Calculate progress percentage."""

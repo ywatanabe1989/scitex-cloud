@@ -33,11 +33,15 @@ user_default_workspace = default_workspace_views.user_default_workspace
 project_search = project_views.project_search
 
 
-@login_required
 def index(request):
-    """Scholar app - redirect to user's projects."""
-    messages.info(request, 'Please select or create a project to use Scholar.')
-    return redirect('user_projects:user_projects', username=request.user.username)
+    """Scholar app - main landing page for all users."""
+    if request.user.is_authenticated:
+        # Logged in users - redirect to their projects
+        messages.info(request, 'Please select or create a project to use Scholar.')
+        return redirect('user_projects:user_projects', username=request.user.username)
+    else:
+        # Anonymous users - redirect to default workspace
+        return redirect('scholar_app:user_default_workspace')
 
 
 def features(request):

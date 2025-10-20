@@ -30,26 +30,36 @@ from django.conf import settings
 from .models import BibTeXEnrichmentJob
 
 
-@login_required
 def bibtex_enrichment(request):
-    """BibTeX enrichment landing page - upload and manage enrichment jobs."""
+    """BibTeX enrichment landing page - upload and manage enrichment jobs (anonymous allowed)."""
 
     # Get user's recent enrichment jobs
-    recent_jobs = BibTeXEnrichmentJob.objects.filter(
-        user=request.user
-    ).order_by('-created_at')[:10]
+    if request.user.is_authenticated:
+        recent_jobs = BibTeXEnrichmentJob.objects.filter(
+            user=request.user
+        ).order_by('-created_at')[:10]
+    else:
+        # For anonymous users, get jobs by session key
+        recent_jobs = BibTeXEnrichmentJob.objects.filter(
+            session_key=request.session.session_key
+        ).order_by('-created_at')[:10] if request.session.session_key else []
 
     context = {
         'recent_jobs': recent_jobs,
+        'is_anonymous': not request.user.is_authenticated,
+        'show_save_prompt': not request.user.is_authenticated,
     }
 
     return render(request, 'scholar_app/bibtex_enrichment.html', context)
 
 
-@login_required
 @require_http_methods(["POST"])
 def bibtex_upload(request):
-    """Handle BibTeX file upload and start enrichment job."""
+    """Handle BibTeX file upload and start enrichment job (anonymous allowed)."""
+
+    # Ensure session exists for anonymous users
+    if not request.user.is_authenticated and not request.session.session_key:
+        request.session.create()
 
     # Check if file was uploaded
     if 'bibtex_file' not in request.FILES:
@@ -68,15 +78,21 @@ def bibtex_upload(request):
     num_workers = int(request.POST.get('num_workers', 4))
     browser_mode = request.POST.get('browser_mode', 'stealth')
 
-    # Save uploaded file
+    # Save uploaded file - use user ID or session key
+    if request.user.is_authenticated:
+        user_identifier = str(request.user.id)
+    else:
+        user_identifier = f"anonymous_{request.session.session_key}"
+
     file_path = default_storage.save(
-        f'bibtex_uploads/{request.user.id}/{bibtex_file.name}',
+        f'bibtex_uploads/{user_identifier}/{bibtex_file.name}',
         ContentFile(bibtex_file.read())
     )
 
     # Create enrichment job
     job = BibTeXEnrichmentJob.objects.create(
-        user=request.user,
+        user=request.user if request.user.is_authenticated else None,
+        session_key=request.session.session_key if not request.user.is_authenticated else None,
         input_file=file_path,
         project_name=project_name,
         num_workers=num_workers,
@@ -86,20 +102,29 @@ def bibtex_upload(request):
 
     # Start processing asynchronously (in production, use Celery)
     # For now, we'll process synchronously with a loading page
+    if not request.user.is_authenticated:
+        messages.info(request, 'Working as guest. Sign up to save your enriched files permanently!')
     messages.success(request, f'BibTeX file uploaded successfully. Starting enrichment job #{job.id}')
 
     return redirect('scholar_app:bibtex_job_detail', job_id=job.id)
 
 
-@login_required
 def bibtex_job_detail(request, job_id):
-    """View details and progress of a BibTeX enrichment job."""
+    """View details and progress of a BibTeX enrichment job (anonymous allowed)."""
 
-    job = get_object_or_404(
-        BibTeXEnrichmentJob,
-        id=job_id,
-        user=request.user
-    )
+    # Get job by user or session key
+    if request.user.is_authenticated:
+        job = get_object_or_404(
+            BibTeXEnrichmentJob,
+            id=job_id,
+            user=request.user
+        )
+    else:
+        job = get_object_or_404(
+            BibTeXEnrichmentJob,
+            id=job_id,
+            session_key=request.session.session_key
+        )
 
     # If job is pending, start processing
     if job.status == 'pending':
@@ -115,15 +140,22 @@ def bibtex_job_detail(request, job_id):
     return render(request, 'scholar_app/bibtex_job_detail.html', context)
 
 
-@login_required
 def bibtex_download_enriched(request, job_id):
-    """Download the enriched BibTeX file."""
+    """Download the enriched BibTeX file (anonymous allowed)."""
 
-    job = get_object_or_404(
-        BibTeXEnrichmentJob,
-        id=job_id,
-        user=request.user
-    )
+    # Get job by user or session key
+    if request.user.is_authenticated:
+        job = get_object_or_404(
+            BibTeXEnrichmentJob,
+            id=job_id,
+            user=request.user
+        )
+    else:
+        job = get_object_or_404(
+            BibTeXEnrichmentJob,
+            id=job_id,
+            session_key=request.session.session_key
+        )
 
     if job.status != 'completed' or not job.output_file:
         messages.error(request, 'Enriched BibTeX file not available yet.')
@@ -145,16 +177,23 @@ def bibtex_download_enriched(request, job_id):
     return response
 
 
-@login_required
 @require_http_methods(["GET"])
 def bibtex_job_status(request, job_id):
-    """AJAX endpoint to get job status and progress."""
+    """AJAX endpoint to get job status and progress (anonymous allowed)."""
 
-    job = get_object_or_404(
-        BibTeXEnrichmentJob,
-        id=job_id,
-        user=request.user
-    )
+    # Get job by user or session key
+    if request.user.is_authenticated:
+        job = get_object_or_404(
+            BibTeXEnrichmentJob,
+            id=job_id,
+            user=request.user
+        )
+    else:
+        job = get_object_or_404(
+            BibTeXEnrichmentJob,
+            id=job_id,
+            session_key=request.session.session_key
+        )
 
     data = {
         'status': job.status,

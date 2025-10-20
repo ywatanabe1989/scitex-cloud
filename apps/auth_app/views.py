@@ -44,6 +44,13 @@ def signup(request):
             # Create user profile (should be auto-created by signal, but ensure it exists)
             UserProfile.objects.get_or_create(user=user)
 
+            # Migrate anonymous session data if exists
+            if request.session.session_key:
+                from apps.core_app.anonymous_storage import migrate_to_user_storage
+                migrated = migrate_to_user_storage(request.session.session_key, user)
+                if migrated:
+                    logger.info(f"Migrated anonymous session data for new user {username}")
+
             # Create email verification record
             from .models import EmailVerification
             verification = EmailVerification.objects.create(
@@ -114,6 +121,16 @@ def login_view(request):
             user = authenticate(request, username=username, password=password)
 
             if user is not None:
+                # Migrate anonymous session data before login if exists
+                if request.session.session_key:
+                    from apps.core_app.anonymous_storage import migrate_to_user_storage
+                    migrated = migrate_to_user_storage(request.session.session_key, user)
+                    if migrated:
+                        import logging
+                        logger = logging.getLogger(__name__)
+                        logger.info(f"Migrated anonymous session data for user {user.username}")
+                        messages.info(request, "Your previous session data has been saved to your account!")
+
                 login(request, user)
 
                 # Handle remember me
@@ -141,8 +158,14 @@ def login_view(request):
 
 
 def logout_view(request):
-    """User logout view."""
+    """User logout view - clears all session data for fresh start."""
+    # Clear all session data before logout
+    # This ensures no "last visited" or other data persists
+    request.session.flush()
+
+    # Logout user
     logout(request)
+
     messages.success(request, "You have been logged out successfully.")
     return render(request, "auth_app/logout.html")
 
