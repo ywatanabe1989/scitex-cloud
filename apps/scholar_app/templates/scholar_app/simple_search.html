@@ -462,10 +462,11 @@ function togglePanel(panelType) {
                         </div>
                     </div>
 
-                    <!-- Submit Button -->
-                    <button type="submit" id="bibtexSubmitBtn" style="width: 100%; padding: 1.25rem; background: linear-gradient(135deg, var(--scitex-color-01) 0%, var(--scitex-color-02) 100%); color: var(--white); border: none; border-radius: 10px; font-size: 1.2rem; font-weight: 700; cursor: pointer; transition: all 0.3s; margin-bottom: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                        ✨ Enrich BibTeX File ✨
-                    </button>
+                    <!-- Auto-processing: Enrichment starts automatically after file upload -->
+                    <div style="text-align: center; padding: 1rem; background: var(--color-canvas-subtle); border-radius: 8px; margin-bottom: 1.5rem;">
+                        <i class="fas fa-magic" style="color: var(--scitex-color-03); margin-right: 0.5rem;"></i>
+                        <span style="color: var(--color-fg-muted); font-size: 0.9rem;">Enrichment starts automatically after file selection</span>
+                    </div>
 
                     <!-- Project Selection -->
                     {% if user.is_authenticated %}
@@ -991,8 +992,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const dropZone = document.getElementById('dropZone');
 
     if (bibtexForm) {
-        // Drag & Drop functionality
+        // Drag & Drop functionality with drag counter
         if (dropZone && fileInput) {
+            let dragCounter = 0;
+
             ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
                 dropZone.addEventListener(eventName, preventDefaults, false);
             });
@@ -1002,19 +1005,42 @@ document.addEventListener('DOMContentLoaded', function() {
                 e.stopPropagation();
             }
 
-            // Highlight drop zone when dragging over
-            ['dragenter', 'dragover'].forEach(eventName => {
-                dropZone.addEventListener(eventName, () => {
-                    dropZone.style.borderColor = 'var(--scitex-color-03)';
-                    dropZone.style.background = 'var(--color-canvas-inset)';
-                });
+            // Dragenter: increment counter and apply styles
+            dropZone.addEventListener('dragenter', (e) => {
+                dragCounter++;
+                if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
+                dropZone.style.borderColor = '#6B8FB3';
+                dropZone.style.borderStyle = 'solid';
+                dropZone.style.background = 'rgba(107, 143, 179, 0.15)';
+                dropZone.style.transform = 'scale(1.01)';
+                dropZone.style.boxShadow = '0 4px 16px rgba(107, 143, 179, 0.3)';
             });
 
-            ['dragleave', 'drop'].forEach(eventName => {
-                dropZone.addEventListener(eventName, () => {
+            // Dragover: maintain styles
+            dropZone.addEventListener('dragover', (e) => {
+                if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
+            });
+
+            // Dragleave: decrement counter, remove styles only when truly leaving
+            dropZone.addEventListener('dragleave', (e) => {
+                dragCounter--;
+                if (dragCounter === 0) {
                     dropZone.style.borderColor = 'var(--scitex-color-03)';
+                    dropZone.style.borderStyle = 'dashed';
                     dropZone.style.background = 'var(--color-canvas-subtle)';
-                });
+                    dropZone.style.transform = 'scale(1)';
+                    dropZone.style.boxShadow = 'none';
+                }
+            });
+
+            // Drop: reset counter and remove styles
+            dropZone.addEventListener('drop', (e) => {
+                dragCounter = 0;
+                dropZone.style.borderColor = 'var(--scitex-color-03)';
+                dropZone.style.borderStyle = 'dashed';
+                dropZone.style.background = 'var(--color-canvas-subtle)';
+                dropZone.style.transform = 'scale(1)';
+                dropZone.style.boxShadow = 'none';
             });
 
             // Handle dropped files
@@ -1045,7 +1071,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
 
-            // Function to display file name
+            // Function to display file name and auto-submit
             function showFileName(fileName) {
                 document.getElementById('uploadMessage').style.display = 'none';
                 document.getElementById('fileNameDisplay').style.display = 'block';
@@ -1053,45 +1079,57 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('buttonText').textContent = fileName;
 
                 // Add success visual feedback to drop zone
-                dropZone.style.borderColor = 'var(--success-color)';
-                dropZone.style.background = 'rgba(var(--success-color-rgb, 74, 155, 126), 0.1)';
+                dropZone.style.borderColor = 'var(--info-color)';
+                dropZone.style.background = 'rgba(107, 143, 179, 0.1)';
+
+                // Auto-submit after short delay
+                setTimeout(() => {
+                    autoSubmitBibtexForm();
+                }, 300);
+            }
+
+            // Auto-submit function
+            function autoSubmitBibtexForm() {
+                const formData = new FormData(bibtexForm);
+
+                // Show processing state
+                dropZone.style.borderColor = 'var(--info-color)';
+                dropZone.style.background = 'rgba(107, 143, 179, 0.15)';
+
+                // Hide form, show progress
+                document.getElementById('bibtexFormArea').style.display = 'none';
+                document.getElementById('bibtexProgressArea').style.display = 'block';
+
+                // Submit form via AJAX
+                fetch('{% url "scholar_app:bibtex_upload" %}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.job_id) {
+                        document.getElementById('jobStatusText').textContent = 'Job started successfully!';
+                        // Start polling for job status
+                        pollBibtexJobStatus(data.job_id);
+                    } else {
+                        alert('Error: ' + (data.error || 'Failed to start enrichment'));
+                        resetBibtexForm();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to upload BibTeX file');
+                    resetBibtexForm();
+                });
             }
         }
 
-        // Form submission
+        // Prevent manual form submission (auto-processing only)
         bibtexForm.addEventListener('submit', function(e) {
             e.preventDefault();
-
-            const formData = new FormData(this);
-
-            // Hide form, show progress
-            document.getElementById('bibtexFormArea').style.display = 'none';
-            document.getElementById('bibtexProgressArea').style.display = 'block';
-
-            // Submit form via AJAX
-            fetch('{% url "scholar_app:bibtex_upload" %}', {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success && data.job_id) {
-                    document.getElementById('jobStatusText').textContent = 'Job started successfully!';
-                    // Start polling for job status
-                    pollBibtexJobStatus(data.job_id);
-                } else {
-                    alert('Error: ' + (data.error || 'Failed to start enrichment'));
-                    resetBibtexForm();
-                }
-            })
-            .catch(error => {
-                console.error('Upload error:', error);
-                alert('Error uploading file. Please try again.');
-                resetBibtexForm();
-            });
         });
     }
 
