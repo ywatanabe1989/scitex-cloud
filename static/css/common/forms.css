@@ -10,6 +10,12 @@
   display: inline-block;
   margin-bottom: var(--spacing-xs);
   font-weight: 500;
+  color: var(--color-fg-default);
+}
+
+/* Dark mode form label - bluish color for better visibility */
+[data-theme="dark"] .form-label {
+  color: var(--scitex-color-06); /* Pale bluish gray for readability */
 }
 
 /* Form Control */
@@ -19,12 +25,19 @@
   padding: 0.75rem var(--spacing-md);
   font-size: 1rem;
   line-height: 1.5;
-  color: var(--text-color);
-  background-color: white;
+  color: var(--color-fg-default);
+  background-color: var(--color-canvas-default);
   background-clip: padding-box;
-  border: var(--border-width) solid var(--border-color);
+  border: var(--border-width) solid var(--color-border-default);
   border-radius: var(--border-radius);
   transition: border-color var(--transition-normal), box-shadow var(--transition-normal);
+}
+
+/* Dark mode form controls - bluish theme */
+[data-theme="dark"] .form-control {
+  color: var(--scitex-color-06);
+  background-color: var(--scitex-color-01-light);
+  border-color: var(--scitex-color-03);
 }
 
 .form-control:focus {
@@ -33,15 +46,35 @@
   box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
 }
 
+/* Dark mode focus state - bluish glow */
+[data-theme="dark"] .form-control:focus {
+  border-color: var(--scitex-color-04);
+  box-shadow: 0 0 0 0.2rem rgba(108, 139, 160, 0.25);
+}
+
 .form-control::placeholder {
-  color: var(--dark-gray);
-  opacity: 1;
+  color: var(--color-fg-muted);
+  opacity: 0.7;
+}
+
+/* Dark mode placeholder - bluish muted color */
+[data-theme="dark"] .form-control::placeholder {
+  color: var(--scitex-color-05);
+  opacity: 0.6;
 }
 
 .form-control:disabled,
 .form-control[readonly] {
-  background-color: var(--light-gray);
-  opacity: 1;
+  background-color: var(--color-canvas-subtle);
+  opacity: 0.7;
+}
+
+/* Dark mode disabled state */
+[data-theme="dark"] .form-control:disabled,
+[data-theme="dark"] .form-control[readonly] {
+  background-color: var(--scitex-color-01);
+  color: var(--scitex-color-04);
+  opacity: 0.6;
 }
 
 /* Select */
@@ -52,6 +85,11 @@ select.form-control {
   background-repeat: no-repeat;
   background-position: right 0.75rem center;
   background-size: 16px 12px;
+}
+
+/* Dark mode select - bluish arrow */
+[data-theme="dark"] select.form-control {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238fa4b0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
 }
 
 /* Checkboxes and Radios */
@@ -70,6 +108,12 @@ select.form-control {
 
 .form-check-label {
   margin-bottom: 0;
+  color: var(--color-fg-default);
+}
+
+/* Dark mode checkbox/radio labels - bluish color */
+[data-theme="dark"] .form-check-label {
+  color: var(--scitex-color-06);
 }
 
 /* Input Groups */
@@ -100,11 +144,18 @@ select.form-control {
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.5;
-  color: var(--text-color);
+  color: var(--color-fg-default);
   text-align: center;
   white-space: nowrap;
-  background-color: var(--light-gray);
-  border: var(--border-width) solid var(--border-color);
+  background-color: var(--color-canvas-subtle);
+  border: var(--border-width) solid var(--color-border-default);
+}
+
+/* Dark mode input group text - bluish theme */
+[data-theme="dark"] .input-group-text {
+  color: var(--scitex-color-06);
+  background-color: var(--scitex-color-01);
+  border-color: var(--scitex-color-03);
 }
 
 .input-group-prepend .input-group-text {

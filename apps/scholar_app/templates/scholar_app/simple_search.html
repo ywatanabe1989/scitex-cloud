@@ -7,89 +7,265 @@
 <link rel="stylesheet" href="{% static 'css/components/hero.css' %}">
 <link rel="stylesheet" href="{% static 'css/common/scitex-components.css' %}">
 <style>
-    .search-hero {
-        background: linear-gradient(135deg, #1a2332 0%, #34495e 100%);
-        color: white;
-        padding: 4rem 0;
+    /* Split-screen layout styles */
+    .split-container {
+        display: flex;
+        gap: 1rem;
+        transition: all 0.6s ease;
         margin-bottom: 2rem;
     }
+
+    .split-panel {
+        flex: 1;
+        min-height: 600px;
+        transition: all 0.6s ease;
+        position: relative;
+    }
+
+    .split-panel.expanded {
+        flex: 3;
+    }
+
+    .split-panel.collapsed {
+        flex: 0.3;
+        min-width: 80px;
+    }
+
+    .panel-header {
+        background: var(--scitex-color-02);
+        color: var(--white);
+        padding: 1.5rem;
+        border-radius: 12px 12px 0 0;
+        cursor: pointer;
+        transition: background 0.2s ease;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .panel-header:hover {
+        background: var(--scitex-color-01);
+    }
+
+    .panel-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+    }
+
+    /* Fix text visibility in Literature Search panel - Dark Mode */
+    #searchPanel .text-muted,
+    #searchPanel .form-label,
+    #searchPanel small,
+    #searchPanel label {
+        color: var(--color-fg-muted) !important;
+    }
+
+    #searchPanel .fw-bold,
+    #searchPanel .form-label.fw-bold {
+        color: var(--color-fg-default) !important;
+    }
+
+    /* Dark mode - bluish colors for filter section labels */
+    [data-theme="dark"] #searchPanel .fw-bold,
+    [data-theme="dark"] #searchPanel .form-label.fw-bold {
+        color: var(--scitex-color-06) !important;
+    }
+
+    /* Fix checkbox labels and quick filter buttons */
+    #searchPanel .scitex-checkbox-label,
+    #searchPanel .scitex-toggle-label {
+        color: var(--color-fg-default) !important;
+        background: var(--color-canvas-subtle) !important;
+        border-color: var(--color-border-default) !important;
+    }
+
+    /* Dark mode - bluish colors for checkbox labels */
+    [data-theme="dark"] #searchPanel .scitex-checkbox-label,
+    [data-theme="dark"] #searchPanel .scitex-toggle-label {
+        color: var(--scitex-color-06) !important;
+        background: var(--scitex-color-01-light) !important;
+        border-color: var(--scitex-color-03) !important;
+    }
+
+    /* Make checkboxes visible in dark mode */
+    #searchPanel .scitex-checkbox {
+        accent-color: var(--scitex-color-03);
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
+
+    [data-theme="dark"] #searchPanel .scitex-checkbox {
+        accent-color: var(--scitex-color-05);
+    }
+
+    #searchPanel .scitex-toggle:checked + .scitex-toggle-label {
+        background: var(--scitex-color-01) !important;
+        color: var(--white) !important;
+    }
+
+    [data-theme="dark"] #searchPanel .scitex-toggle:checked + .scitex-toggle-label {
+        background: var(--scitex-color-04) !important;
+        color: var(--scitex-color-01) !important;
+    }
+
+    /* Show BibTeX Enrichment as selected/active by default (primary feature) */
+    #bibtexPanel .panel-header {
+        background: var(--scitex-color-01);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    #bibtexPanel.collapsed .panel-header {
+        background: var(--scitex-color-02);
+        box-shadow: none;
+    }
+
+    #searchPanel .panel-header {
+        background: var(--scitex-color-02);
+    }
+
+    #searchPanel:not(.collapsed) .panel-header {
+        background: var(--scitex-color-01);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .panel-content {
+        background: var(--color-canvas-default);
+        border: 2px solid var(--scitex-color-02);
+        border-top: none;
+        border-radius: 0 0 12px 12px;
+        padding: 2rem;
+        min-height: 750px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .search-card-inner {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .collapsed .panel-content {
+        display: none;
+    }
+
+    .collapsed .panel-header {
+        writing-mode: vertical-lr;
+        text-orientation: mixed;
+        min-height: 400px;
+        justify-content: center;
+        border-radius: 12px;
+    }
+
+    .search-hero {
+        background: linear-gradient(135deg, var(--scitex-color-01) 0%, var(--scitex-color-02) 100%);
+        color: var(--white);
+        padding: 1rem 0;
+        margin-bottom: 1rem;
+        text-align: center;
+    }
     .search-card {
-        background: rgba(255,255,255,0.98);
+        background: var(--color-canvas-default);
         border-radius: 20px;
         padding: 2rem;
         backdrop-filter: blur(10px);
         box-shadow: 0 15px 40px rgba(0,0,0,0.15);
-        border: 1px solid rgba(255,255,255,0.3);
+        border: 1px solid var(--color-border-default);
     }
     .search-input {
-        border: 1px solid #ced4da;
+        border: 1px solid var(--color-border-default);
         border-radius: 15px;
         padding: 1rem 1.5rem;
         font-size: 1.1rem;
         box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        background: white;
+        background: var(--color-canvas-default);
+        color: var(--color-fg-default);
     }
+
+    .search-input::placeholder {
+        color: var(--color-fg-muted);
+        opacity: 0.6;
+    }
+
+    /* Dark mode specific styles for search input */
+    [data-theme="dark"] .search-input {
+        background: var(--scitex-color-01-light);
+        border-color: var(--scitex-color-03);
+        color: var(--scitex-color-06);
+    }
+
+    [data-theme="dark"] .search-input::placeholder {
+        color: var(--scitex-color-05);
+        opacity: 0.7;
+    }
+
     .search-input:focus {
-        border-color: #506b7a;
-        box-shadow: 0 0 0 0.2rem rgba(80, 107, 122, 0.25);
+        border-color: var(--scitex-color-03);
+        box-shadow: 0 0 0 0.2rem rgba(var(--scitex-color-03-rgb), 0.25);
+    }
+
+    [data-theme="dark"] .search-input:focus {
+        border-color: var(--scitex-color-04);
+        box-shadow: 0 0 0 0.2rem rgba(108, 139, 160, 0.25);
     }
     .search-btn {
         border-radius: 15px;
         padding: 1rem 2rem;
         font-weight: 600;
-        background: #1a2332;
+        background: var(--scitex-color-01);
         border: none;
-        color: white;
+        color: var(--white);
     }
     .search-btn:hover {
-        background: #2d3748;
-        color: white;
+        background: var(--scitex-color-01-light);
+        color: var(--white);
     }
     .result-card {
-        background: white;
+        background: var(--color-canvas-default);
         border-radius: 12px;
         padding: 1.5rem;
         margin-bottom: 1rem;
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        border-left: 4px solid #1a2332;
+        border-left: 4px solid var(--scitex-color-01);
     }
     .result-title {
-        color: #1a2332;
+        color: var(--color-fg-default);
         font-weight: 600;
         font-size: 1.1rem;
         margin-bottom: 0.5rem;
         text-decoration: none;
     }
     .result-title:hover {
-        color: #34495e;
+        color: var(--scitex-color-02);
     }
     .result-authors {
-        color: #7f8c8d;
+        color: var(--color-fg-muted);
         font-size: 0.9rem;
         margin-bottom: 0.5rem;
     }
     .result-snippet {
-        color: #34495e;
+        color: var(--color-fg-default);
         font-size: 0.9rem;
         line-height: 1.5;
         margin-top: 1rem;
     }
     .simple-filter {
-        background: #f8f9fa;
+        background: var(--color-canvas-subtle);
         border-radius: 10px;
         padding: 1rem;
         margin-bottom: 1rem;
     }
     .year-badge {
-        background: #e9ecef;
-        color: #495057;
+        background: var(--color-canvas-subtle);
+        color: var(--color-fg-muted);
         padding: 0.25rem 0.5rem;
         border-radius: 8px;
         font-size: 0.8rem;
     }
     .open-access {
-        background: #28a745;
-        color: white;
+        background: var(--success-color);
+        color: var(--white);
         padding: 0.25rem 0.5rem;
         border-radius: 8px;
         font-size: 0.8rem;
@@ -120,10 +296,10 @@
     .scitex-toggle-label {
         display: inline-block;
         padding: 0.375rem 0.75rem;
-        background: #f8f9fa;
-        border: 1px solid #506b7a;
+        background: var(--color-canvas-subtle);
+        border: 1px solid var(--scitex-color-03);
         border-radius: 4px;
-        color: #1a2332;
+        color: var(--color-fg-default);
         font-size: 0.875rem;
         font-weight: 500;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -131,27 +307,34 @@
         transition: all 0.3s ease;
         user-select: none;
     }
-    
+
     .scitex-toggle-label:hover {
-        background: #e9ecef;
-        border-color: #34495e;
-        color: #1a2332;
+        background: var(--color-canvas-inset);
+        border-color: var(--scitex-color-02);
+        color: var(--color-fg-default);
         text-decoration: none;
     }
-    
+
     .scitex-toggle:checked + .scitex-toggle-label {
-        background: #1a2332;
-        border-color: #1a2332;
-        color: white;
-        box-shadow: 0 2px 4px rgba(26, 35, 50, 0.2);
+        background: var(--scitex-color-01);
+        border-color: var(--scitex-color-01);
+        color: var(--white);
+        box-shadow: 0 2px 4px rgba(var(--scitex-color-01-rgb), 0.2);
     }
-    
+
     .scitex-toggle:checked + .scitex-toggle-label:hover {
-        background: #34495e;
+        background: var(--scitex-color-02);
         border-color: #34495e;
         color: white;
     }
-    
+
+    /* Enrich Button Hover Effect */
+    #bibtexSubmitBtn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+        background: linear-gradient(135deg, var(--scitex-color-02) 0%, var(--scitex-color-03) 100%);
+    }
+
     /* Fix header button focus states to follow SciTeX design */
     .btn:focus,
     .btn:active,
@@ -181,33 +364,179 @@
         color: white !important;
     }
 </style>
+<script>
+// Split-screen panel toggle - defined early for onclick handlers
+function togglePanel(panelType) {
+    const searchPanel = document.getElementById('searchPanel');
+    const bibtexPanel = document.getElementById('bibtexPanel');
+
+    if (panelType === 'search') {
+        // If search panel is collapsed, expand it to maximum
+        if (searchPanel.classList.contains('collapsed')) {
+            searchPanel.classList.remove('collapsed');
+            searchPanel.classList.add('expanded');
+            bibtexPanel.classList.remove('expanded');
+            bibtexPanel.classList.add('collapsed');
+        }
+        // If search panel is already expanded, return to normal
+        else if (searchPanel.classList.contains('expanded')) {
+            searchPanel.classList.remove('expanded');
+            bibtexPanel.classList.remove('collapsed');
+        }
+        // If search panel is normal, expand it to maximum
+        else {
+            searchPanel.classList.add('expanded');
+            bibtexPanel.classList.add('collapsed');
+        }
+    } else if (panelType === 'bibtex') {
+        // If bibtex panel is collapsed, expand it to maximum
+        if (bibtexPanel.classList.contains('collapsed')) {
+            bibtexPanel.classList.remove('collapsed');
+            bibtexPanel.classList.add('expanded');
+            searchPanel.classList.remove('expanded');
+            searchPanel.classList.add('collapsed');
+        }
+        // If bibtex panel is already expanded, return to normal
+        else if (bibtexPanel.classList.contains('expanded')) {
+            bibtexPanel.classList.remove('expanded');
+            searchPanel.classList.remove('collapsed');
+        }
+        // If bibtex panel is normal, expand it to maximum
+        else {
+            bibtexPanel.classList.add('expanded');
+            searchPanel.classList.add('collapsed');
+        }
+    }
+}
+</script>
 {% endblock %}
 
 {% block content %}
-<!-- Super Simple Search -->
-<div class="hero-section hero-silverish-ai-light hero-scholar">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="text-center mb-4">
-                    <h1 class="hero-title">SciTeX Scholar</h1>
-                    <p class="hero-subtitle">AI-Powered Literature Discovery & Analysis</p>
-                    {% if user.is_authenticated %}
-                    <!-- <div class="mt-3">
-                     !--     <a href="{% url 'scholar_app:personal_library' %}" class="btn btn-outline-light btn-sm me-2">
-                     !--         <i class="fas fa-book"></i> My Library
-                     !--     </a>
-                     !--     <a href="{% url 'scholar_app:research_trends' %}" class="btn btn-outline-light btn-sm me-2">
-                     !--         <i class="fas fa-chart-line"></i> Research Trends
-                     !--     </a>
-                     !--     <br>
-                     !--     <small class="text-light opacity-75">Manage your saved papers • Discover trending research</small>
-                     !-- </div> -->
-                    {% endif %}
+<!-- Split-Screen Layout -->
+<div class="container" style="margin-top: 2rem; margin-bottom: 3rem;">
+    <div class="split-container" id="splitContainer">
+        <!-- LEFT PANEL: BibTeX Enrichment (Primary Feature) -->
+        <div class="split-panel" id="bibtexPanel">
+            <div class="panel-header" onclick="togglePanel('bibtex')">
+                <div>
+                    <i class="fas fa-file-code"></i> <span class="panel-title">BibTeX Enrichment</span>
                 </div>
-                
-                <div class="search-card">
-                    <form method="get">
+                <i class="fas fa-expand-alt toggle-icon"></i>
+            </div>
+            <div class="panel-content">
+                <!-- Upload Form Area -->
+                <div id="bibtexFormArea">
+                    <!-- Helper Message -->
+                    <div style="background: linear-gradient(135deg, rgba(var(--info-color-rgb, 107, 143, 179), 0.1) 0%, rgba(var(--scitex-color-03-rgb, 80, 107, 122), 0.1) 100%); border-left: 4px solid var(--info-color); border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1.5rem;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <i class="fas fa-lightbulb" style="color: var(--info-color); font-size: 1.5rem;"></i>
+                            <div>
+                                <span style="color: var(--color-fg-muted); font-size: 0.95rem;">
+                                    No BibTeX file? Ask <a href="https://asta.allen.ai/chat/" target="_blank" rel="noopener noreferrer" style="color: var(--info-color); font-weight: 600; text-decoration: none; border-bottom: 1px solid var(--info-color);">Asta AI</a> and <code style="background: rgba(var(--info-color-rgb, 107, 143, 179), 0.15); padding: 0.2rem 0.4rem; border-radius: 3px; color: var(--color-fg-default); font-size: 0.9rem;">Export All Citations</code>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form id="bibtexEnrichmentForm" method="post" action="{% url 'scholar_app:bibtex_upload' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <!-- File Upload with instructions inside -->
+                    <div style="margin-bottom: 1.5rem;">
+                        <div id="dropZone" style="position: relative; border: 3px dashed var(--scitex-color-03); border-radius: 12px; padding: 3rem 2rem; text-align: center; background: var(--color-canvas-subtle); transition: all 0.3s;">
+                            <i class="fas fa-cloud-upload-alt" style="font-size: 3.5rem; color: var(--scitex-color-02); margin-bottom: 1rem;"></i>
+                            <h3 style="color: var(--color-fg-default); margin-bottom: 0.5rem; font-size: 1.5rem; font-weight: 700;">
+                                Upload your .bib file
+                            </h3>
+                            <p id="uploadMessage" style="color: var(--color-fg-muted); margin-bottom: 1rem; font-size: 1.05rem;">
+                                Enrich with <strong>Abstract</strong>, <strong>URL</strong>, <strong>Citation Count</strong>, and <strong>Impact Factor</strong>
+                            </p>
+                            <div id="fileNameDisplay" style="display: none; color: var(--success-color); font-weight: 600; margin-bottom: 1rem; font-size: 1rem;">
+                                <i class="fas fa-check-circle"></i> <span id="fileName"></span>
+                            </div>
+                            <input type="file" name="bibtex_file" id="bibtexFileInput" accept=".bib" required
+                                   style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;">
+                            <div id="chooseFileButton" style="display: inline-block; padding: 0.75rem 2rem; background: var(--scitex-color-01); color: var(--white); border-radius: 6px; font-weight: 600; pointer-events: none;">
+                                <i class="fas fa-file-upload"></i> <span id="buttonText">Choose .bib File</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" id="bibtexSubmitBtn" style="width: 100%; padding: 1.25rem; background: linear-gradient(135deg, var(--scitex-color-01) 0%, var(--scitex-color-02) 100%); color: var(--white); border: none; border-radius: 10px; font-size: 1.2rem; font-weight: 700; cursor: pointer; transition: all 0.3s; margin-bottom: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                        ✨ Enrich BibTeX File ✨
+                    </button>
+
+                    <!-- Project Selection -->
+                    {% if user.is_authenticated %}
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--color-fg-default);">
+                            <i class="fas fa-folder"></i> Save to project
+                        </label>
+                        <select name="project_id" style="display: block; width: 100%; padding: 0.75rem; border: 1px solid var(--color-border-default); border-radius: 6px; background: var(--color-canvas-default); color: var(--color-fg-default);">
+                            <option value="">-- No Project --</option>
+                            {% for project in user_projects %}
+                            <option value="{{ project.id }}">{{ project.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endif %}
+                    </form>
+                </div>
+
+                <!-- Progress Display Area (hidden initially) -->
+                <div id="bibtexProgressArea" style="display: none;">
+                    <div style="text-align: center; margin-bottom: 2rem;">
+                        <h3 style="color: var(--color-fg-default);">
+                            <i class="fas fa-spinner fa-spin"></i> Enriching BibTeX File
+                        </h3>
+                        <p style="color: var(--color-fg-muted);" id="jobStatusText">Starting enrichment...</p>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div style="margin-bottom: 1.5rem;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span style="font-weight: 600; color: var(--color-fg-default);">Progress</span>
+                            <span style="color: var(--color-fg-muted);" id="progressPercentage">0%</span>
+                        </div>
+                        <div style="background: var(--color-border-default); border-radius: 8px; height: 12px; overflow: hidden;">
+                            <div id="progressBar" style="background: var(--scitex-color-03); height: 100%; width: 0%; transition: width 0.3s;"></div>
+                        </div>
+                        <div style="margin-top: 0.5rem; color: var(--color-fg-muted); font-size: 0.9rem;" id="progressDetails">
+                            0 / 0 papers processed
+                        </div>
+                    </div>
+
+                    <!-- Processing Log -->
+                    <div style="margin-top: 1.5rem;">
+                        <h4 style="color: var(--color-fg-default); margin-bottom: 0.5rem;">Processing Log</h4>
+                        <pre id="processingLog" style="background: #0a0f1a; color: #00ff00; padding: 1rem; border-radius: 8px; max-height: 300px; overflow-y: auto; font-size: 0.85rem; font-family: 'Courier New', monospace; white-space: pre-wrap;">Initializing...</pre>
+                    </div>
+
+                    <!-- Download Button (shown after completion) -->
+                    <div id="downloadArea" style="display: none; text-align: center; margin-top: 1.5rem;">
+                        <a id="downloadBtn" href="#" style="display: inline-block; padding: 1rem 2rem; background: var(--success-color); color: var(--white); border-radius: 8px; text-decoration: none; font-weight: 600;">
+                            <i class="fas fa-download"></i> Download Enriched BibTeX
+                        </a>
+                        <button onclick="resetBibtexForm()" style="display: block; width: 100%; margin-top: 1rem; padding: 0.75rem; background: var(--color-canvas-subtle); color: var(--color-fg-default); border: 1px solid var(--color-border-default); border-radius: 6px; cursor: pointer;">
+                            <i class="fas fa-plus"></i> Enrich Another File
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- LEFT PANEL: BibTeX Enrichment (Primary Feature) -->
+        <div class="split-panel" id="bibtexPanel">
+            <div class="panel-header" onclick="togglePanel('search')">
+                <div>
+                    <i class="fas fa-search"></i> <span class="panel-title">Literature Search</span>
+                </div>
+                <i class="fas fa-expand-alt toggle-icon"></i>
+            </div>
+            <div class="panel-content">
+                <div class="search-card-inner">
+                    <form method="get" action="{% url 'scholar_app:simple_search' %}">
                         <div class="input-group input-group-lg">
                             <input type="text" name="q" class="form-control search-input" 
                                    placeholder="Enter keywords here..."
@@ -220,17 +549,17 @@
                         <div class="mt-3">
                             <!-- Advanced Filters Toggle -->
                             <div class="d-flex justify-content-between align-items-center mb-3">
-                                <small class="text-muted">Filters:</small>
-                                <button type="button" class="btn btn-outline-secondary btn-sm" id="toggleAdvancedFilters" style="border-color: var(--primary-color, #1a2332); color: var(--primary-color, #1a2332);">
+                                <small style="color: var(--color-fg-default); font-weight: 600;">Filters:</small>
+                                <button type="button" class="btn btn-outline-secondary btn-sm" id="toggleAdvancedFilters" style="border-color: var(--scitex-color-05); color: var(--color-fg-default); background: var(--color-canvas-subtle);">
                                     <i class="fas fa-sliders-h"></i> Advanced Filters
                                 </button>
                             </div>
-                            
+
                             <!-- Basic Filters -->
                             <div id="basicFilters" class="row g-3 mb-3">
                                 <!-- Source Selection -->
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold">Search Sources:</label>
+                                    <label class="form-label fw-bold" style="color: var(--color-fg-default);">Search Sources:</label>
                                     <div class="d-flex flex-wrap gap-2">
                                         <div class="scitex-toggle-wrapper">
                                             <input class="scitex-toggle all-sources-toggle" type="checkbox" id="source_all_toggle" {% if not request.GET.source_pubmed and not request.GET.source_google_scholar and not request.GET.source_arxiv and not request.GET.source_semantic %}checked{% endif %}>
@@ -257,7 +586,7 @@
                                 
                                 <!-- Quick Filters -->
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold">Quick Filters:</label>
+                                    <label class="form-label fw-bold" style="color: var(--color-fg-default);">Quick Filters:</label>
                                     <div class="d-flex flex-wrap gap-2">
                                         <div class="scitex-checkbox-wrapper">
                                             <input class="scitex-checkbox" type="checkbox" name="open_access" id="open_access" {% if request.GET.open_access %}checked{% endif %}>
@@ -411,23 +740,9 @@
                             </div>
                         </div>
                     </form>
-
-                    <!-- BibTeX Enrichment Feature Link -->
-                    <div style="text-align: center; margin-top: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px;">
-                        <h3 style="color: white; margin-bottom: 0.5rem; font-size: 1.2rem;">
-                            <i class="fas fa-file-code"></i> Enrich Your BibTeX Files
-                        </h3>
-                        <p style="color: rgba(255,255,255,0.9); margin-bottom: 1rem; font-size: 0.9rem;">
-                            Upload your .bib file and get it enriched with citation counts, impact factors, and PDFs
-                        </p>
-                        <a href="{% url 'scholar_app:bibtex_enrichment' %}" class="btn" style="background: white; color: #667eea; padding: 0.75rem 2rem; border-radius: 6px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.5rem; transition: transform 0.2s;">
-                            <i class="fas fa-magic"></i> Enrich BibTeX File
-                        </a>
-                    </div>
                 </div>
             </div>
         </div>
-    </div>
 </div>
 
 <div class="container">
@@ -662,9 +977,126 @@
 
 {% block extra_js %}
 <script>
+// Reset BibTeX form to initial state
+function resetBibtexForm() {
+    document.getElementById('bibtexFormArea').style.display = 'block';
+    document.getElementById('bibtexProgressArea').style.display = 'none';
+    document.getElementById('bibtexEnrichmentForm').reset();
+}
+
 document.addEventListener('DOMContentLoaded', function() {
+    // BibTeX AJAX Form Submission
+    const bibtexForm = document.getElementById('bibtexEnrichmentForm');
+    const fileInput = document.getElementById('bibtexFileInput');
+    const dropZone = document.getElementById('dropZone');
+
+    if (bibtexForm) {
+        // Drag & Drop functionality
+        if (dropZone && fileInput) {
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            // Highlight drop zone when dragging over
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => {
+                    dropZone.style.borderColor = 'var(--scitex-color-03)';
+                    dropZone.style.background = 'var(--color-canvas-inset)';
+                });
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => {
+                    dropZone.style.borderColor = 'var(--scitex-color-03)';
+                    dropZone.style.background = 'var(--color-canvas-subtle)';
+                });
+            });
+
+            // Handle dropped files
+            dropZone.addEventListener('drop', function(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+
+                if (files.length > 0) {
+                    const file = files[0];
+                    if (file.name.endsWith('.bib')) {
+                        // Assign the dropped file to the input
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(file);
+                        fileInput.files = dataTransfer.files;
+
+                        // Update visual feedback
+                        showFileName(file.name);
+                    } else {
+                        alert('Please drop a .bib file');
+                    }
+                }
+            });
+
+            // Handle file input change (click to upload)
+            fileInput.addEventListener('change', function(e) {
+                if (this.files.length > 0) {
+                    showFileName(this.files[0].name);
+                }
+            });
+
+            // Function to display file name
+            function showFileName(fileName) {
+                document.getElementById('uploadMessage').style.display = 'none';
+                document.getElementById('fileNameDisplay').style.display = 'block';
+                document.getElementById('fileName').textContent = fileName;
+                document.getElementById('buttonText').textContent = fileName;
+
+                // Add success visual feedback to drop zone
+                dropZone.style.borderColor = 'var(--success-color)';
+                dropZone.style.background = 'rgba(var(--success-color-rgb, 74, 155, 126), 0.1)';
+            }
+        }
+
+        // Form submission
+        bibtexForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+
+            // Hide form, show progress
+            document.getElementById('bibtexFormArea').style.display = 'none';
+            document.getElementById('bibtexProgressArea').style.display = 'block';
+
+            // Submit form via AJAX
+            fetch('{% url "scholar_app:bibtex_upload" %}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.job_id) {
+                    document.getElementById('jobStatusText').textContent = 'Job started successfully!';
+                    // Start polling for job status
+                    pollBibtexJobStatus(data.job_id);
+                } else {
+                    alert('Error: ' + (data.error || 'Failed to start enrichment'));
+                    resetBibtexForm();
+                }
+            })
+            .catch(error => {
+                console.error('Upload error:', error);
+                alert('Error uploading file. Please try again.');
+                resetBibtexForm();
+            });
+        });
+    }
+
     // Simple search functionality
-    const form = document.querySelector('form');
+    const searchForm = document.querySelector('form');
     const searchInput = document.querySelector('input[name="q"]');
     const searchButton = document.getElementById('searchButton');
     const progressiveLoadingStatus = document.getElementById('progressiveLoadingStatus');
@@ -1009,9 +1441,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Auto-submit search if there's a query
         const searchInput = document.querySelector('input[name="q"]');
         if (searchInput && searchInput.value.trim()) {
-            const form = document.querySelector('form');
-            if (form) {
-                form.submit();
+            const autoSubmitForm = document.querySelector('form');
+            if (autoSubmitForm) {
+                autoSubmitForm.submit();
             }
         }
     }
@@ -1072,12 +1504,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Search functionality - intercept form submission for progressive search
-    const form = document.querySelector('form');
+    const literatureSearchForm = document.querySelector('form');
     const searchButton = document.getElementById('searchButton');
-    
+
     // Search functionality - intercept form submission for progressive search
-    if (form) {
-        form.addEventListener('submit', function(e) {
+    if (literatureSearchForm) {
+        literatureSearchForm.addEventListener('submit', function(e) {
             e.preventDefault(); // Prevent normal form submission
             
             const query = searchInput.value.trim();
@@ -1365,8 +1797,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const saveSearchButton = document.getElementById('saveSearch');
     if (saveSearchButton) {
         saveSearchButton.addEventListener('click', function() {
-            const form = document.querySelector('form');
-            const formData = new FormData(form);
+            const saveSearchFormElement = document.querySelector('form');
+            const formData = new FormData(saveSearchFormElement);
             
             // Get current search query
             const query = formData.get('q');
@@ -1925,6 +2357,62 @@ function getCookie(name) {
         }
     }
     return cookieValue;
+}
+
+// BibTeX Job Status Polling
+function pollBibtexJobStatus(jobId, attempts = 0) {
+    if (attempts > 180) {
+        document.getElementById('jobStatusText').textContent = 'Polling timeout. Please check job status manually.';
+        return;
+    }
+
+    fetch(`/scholar/api/bibtex/job/${jobId}/status/`)
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            return response.json();
+        })
+        .then(data => {
+            // Update progress
+            if (data.progress_percentage !== undefined) {
+                document.getElementById('progressBar').style.width = `${data.progress_percentage}%`;
+                document.getElementById('progressPercentage').textContent = `${data.progress_percentage}%`;
+            }
+
+            // Update paper counts
+            if (data.total_papers !== undefined) {
+                let text = `${data.processed_papers} / ${data.total_papers} papers processed`;
+                if (data.failed_papers > 0) text += ` (${data.failed_papers} failed)`;
+                document.getElementById('progressDetails').textContent = text;
+            }
+
+            // Update log
+            if (data.log) {
+                document.getElementById('processingLog').textContent = data.log;
+                document.getElementById('processingLog').scrollTop = document.getElementById('processingLog').scrollHeight;
+            }
+
+            // Update status
+            document.getElementById('jobStatusText').textContent =
+                data.status === 'processing' ? 'Processing papers...' :
+                data.status === 'pending' ? 'Job queued...' :
+                data.status === 'completed' ? '✓ Enrichment Complete!' :
+                '✗ Enrichment Failed';
+
+            // Check if done
+            if (data.status === 'completed') {
+                document.getElementById('downloadBtn').href = `/scholar/bibtex/job/${jobId}/download/`;
+                document.getElementById('downloadArea').style.display = 'block';
+            } else if (data.status === 'failed') {
+                document.getElementById('processingLog').textContent += '\n\n✗ ERROR: ' + (data.error_message || 'Unknown error');
+                setTimeout(() => resetBibtexForm(), 5000);
+            } else {
+                setTimeout(() => pollBibtexJobStatus(jobId, attempts + 1), 2000);
+            }
+        })
+        .catch(error => {
+            console.error('Polling error:', error);
+            setTimeout(() => pollBibtexJobStatus(jobId, attempts + 1), 5000);
+        });
 }
 </script>
 {% endblock %}

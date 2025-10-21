@@ -180,10 +180,20 @@
     border-radius: 6px;
     transition: var(--transition-fast);
     user-select: none;
+    color: var(--color-fg-default);
 }
 
 .scitex-checkbox-label:hover {
     background-color: var(--light-gray);
+}
+
+/* Dark mode checkbox label - bluish color */
+[data-theme="dark"] .scitex-checkbox-label {
+    color: var(--scitex-color-06);
+}
+
+[data-theme="dark"] .scitex-checkbox-label:hover {
+    background-color: var(--scitex-color-01);
 }
 
 /* Custom checkbox visual */
@@ -199,6 +209,12 @@
     background-color: white;
 }
 
+/* Dark mode checkbox visual - bluish theme */
+[data-theme="dark"] .scitex-checkbox-label::before {
+    border-color: var(--scitex-color-04);
+    background-color: var(--scitex-color-01-light);
+}
+
 /* Checked state */
 .scitex-checkbox:checked + .scitex-checkbox-label::before {
     background-color: var(--primary-color);
@@ -207,6 +223,12 @@
     background-repeat: no-repeat;
     background-position: center;
     background-size: 12px;
+}
+
+/* Dark mode checked state - bluish accent */
+[data-theme="dark"] .scitex-checkbox:checked + .scitex-checkbox-label::before {
+    background-color: var(--scitex-color-04);
+    border-color: var(--scitex-color-04);
 }
 
 /* =========================
