@@ -150,6 +150,78 @@
     </form>
   </div>
 
+  <!-- Active Job Progress (Hidden by default, shown after upload) -->
+  <div id="activeJobPanel" style="display: none; background: var(--color-canvas-default); border-radius: 12px; padding: 2rem; box-shadow: 0 2px 12px rgba(0,0,0,0.08); border: 1px solid var(--color-border-default); margin-bottom: 3rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+      <h2 style="color: var(--color-fg-default); font-size: 1.5rem; margin: 0;">
+        <i class="fas fa-cog fa-spin"></i> <span id="jobTitle">Enrichment in Progress</span>
+      </h2>
+      <button id="closeJobPanel" style="background: none; border: 1px solid var(--color-border-default); border-radius: 6px; padding: 0.5rem; cursor: pointer; color: var(--color-fg-muted);">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- Job Info -->
+    <div style="background: var(--color-canvas-subtle); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+        <div>
+          <div style="color: var(--color-fg-muted); font-size: 0.85rem; margin-bottom: 0.25rem;">File</div>
+          <div style="color: var(--color-fg-default); font-weight: 600;" id="jobFileName">-</div>
+        </div>
+        <div>
+          <div style="color: var(--color-fg-muted); font-size: 0.85rem; margin-bottom: 0.25rem;">Status</div>
+          <div style="color: var(--color-fg-default); font-weight: 600;" id="jobStatus">
+            <span style="color: var(--info-color);"><i class="fas fa-clock"></i> Pending</span>
+          </div>
+        </div>
+        <div>
+          <div style="color: var(--color-fg-muted); font-size: 0.85rem; margin-bottom: 0.25rem;">Duration</div>
+          <div style="color: var(--color-fg-default); font-weight: 600;" id="jobDuration">-</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div style="margin-bottom: 1.5rem;">
+      <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+        <span style="font-weight: 600; color: var(--color-fg-default);">Progress</span>
+        <span style="color: var(--color-fg-muted);" id="jobProgressPercent">0%</span>
+      </div>
+      <div style="background: var(--color-border-default); border-radius: 8px; height: 12px; overflow: hidden;">
+        <div id="jobProgressBar" style="background: var(--scitex-color-03); height: 100%; width: 0%; transition: width 0.3s;"></div>
+      </div>
+      <div style="margin-top: 0.5rem; color: var(--color-fg-muted); font-size: 0.9rem;" id="jobProgressText">
+        0 / 0 papers processed
+      </div>
+    </div>
+
+    <!-- Processing Log -->
+    <div style="margin-bottom: 1.5rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+        <h3 style="color: var(--color-fg-default); font-size: 1.1rem; margin: 0;">
+          <i class="fas fa-terminal"></i> Processing Log
+        </h3>
+        <button id="toggleJobLog" style="background: none; border: 1px solid var(--color-border-default); border-radius: 6px; padding: 0.5rem; cursor: pointer; color: var(--color-fg-muted);">
+          <i class="fas fa-expand-alt"></i>
+        </button>
+      </div>
+      <pre id="jobProcessingLog" style="background: #0a0f1a; color: #00ff00; padding: 1.5rem; border-radius: 8px; overflow-y: auto; max-height: 300px; font-size: 0.875rem; line-height: 1.3; margin: 0; font-family: 'Courier New', monospace; white-space: pre-wrap;">Waiting for job to start...</pre>
+    </div>
+
+    <!-- Download Button (shown when complete) -->
+    <div id="jobDownloadSection" style="display: none; text-align: center; padding: 1rem; background: var(--color-success-subtle); border-radius: 8px; border: 1px solid var(--success-color);">
+      <h3 style="color: var(--success-color); margin-bottom: 1rem;">
+        <i class="fas fa-check-circle"></i> Enrichment Complete!
+      </h3>
+      <a id="jobDownloadBtn" href="#" style="display: inline-block; padding: 1rem 2rem; background: var(--success-color); color: white; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 1.1rem;">
+        <i class="fas fa-download"></i> Download Enriched BibTeX
+      </a>
+      <div style="color: var(--color-fg-muted); margin-top: 0.5rem; font-size: 0.9rem;" id="jobDownloadInfo">
+        -
+      </div>
+    </div>
+  </div>
+
   <!-- What Gets Enriched -->
   <div style="background: var(--color-canvas-subtle); border-radius: 12px; padding: 2.5rem; margin-bottom: 3rem;">
     <h2 style="color: var(--color-fg-default); margin-bottom: 1.5rem; font-size: 1.5rem; text-align: center;">
@@ -439,10 +511,19 @@ document.addEventListener('DOMContentLoaded', function() {
         submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> Upload Complete!';
         submitBtn.style.background = 'var(--success-color)';
 
-        // Redirect to job detail page after short delay
+        // Show inline progress panel instead of redirecting
         setTimeout(() => {
-          window.location.href = `/scholar/bibtex/job/${data.job_id}/`;
-        }, 800);
+          showJobProgress(data.job_id, fileInput.files[0].name);
+
+          // Reset upload form
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalBtnText;
+          submitBtn.style.background = 'var(--color-btn-primary-bg)';
+          submitBtn.style.cursor = 'pointer';
+
+          // Scroll to progress panel
+          document.getElementById('activeJobPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 500);
       } else {
         throw new Error(data.message || 'Upload failed');
       }
@@ -454,6 +535,153 @@ document.addEventListener('DOMContentLoaded', function() {
       submitBtn.innerHTML = originalBtnText;
       submitBtn.style.cursor = 'pointer';
     });
+  });
+
+  // ============ Inline Job Progress Tracking ============
+
+  let activeJobId = null;
+  let pollingInterval = null;
+  let jobStartTime = null;
+  let logExpanded = false;
+
+  // Show job progress panel
+  function showJobProgress(jobId, fileName) {
+    activeJobId = jobId;
+    jobStartTime = new Date();
+
+    const panel = document.getElementById('activeJobPanel');
+    const jobFileNameEl = document.getElementById('jobFileName');
+    const jobProcessingLog = document.getElementById('jobProcessingLog');
+
+    // Update UI
+    jobFileNameEl.textContent = fileName;
+    jobProcessingLog.textContent = 'Starting enrichment job...\n';
+    panel.style.display = 'block';
+
+    // Start polling for status
+    startJobPolling();
+  }
+
+  // Start polling for job status
+  function startJobPolling() {
+    if (pollingInterval) clearInterval(pollingInterval);
+
+    // Poll immediately, then every 2 seconds
+    pollJobStatus();
+    pollingInterval = setInterval(pollJobStatus, 2000);
+  }
+
+  // Poll job status
+  function pollJobStatus() {
+    if (!activeJobId) return;
+
+    fetch(`/scholar/api/bibtex/job/${activeJobId}/status/`)
+      .then(response => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.json();
+      })
+      .then(data => {
+        updateJobUI(data);
+
+        // Stop polling if job is complete or failed
+        if (data.status === 'completed' || data.status === 'failed') {
+          if (pollingInterval) {
+            clearInterval(pollingInterval);
+            pollingInterval = null;
+          }
+        }
+      })
+      .catch(error => {
+        console.error('[Job Polling Error]:', error);
+      });
+  }
+
+  // Update job UI with latest data
+  function updateJobUI(data) {
+    // Update status
+    const jobStatus = document.getElementById('jobStatus');
+    const jobTitle = document.getElementById('jobTitle');
+    const titleIcon = jobTitle.previousElementSibling;
+
+    if (data.status === 'completed') {
+      jobStatus.innerHTML = '<span style="color: var(--success-color);"><i class="fas fa-check-circle"></i> Completed</span>';
+      jobTitle.textContent = 'Enrichment Complete';
+      titleIcon.className = 'fas fa-check-circle';
+      titleIcon.style.animation = 'none';
+      document.getElementById('jobDownloadSection').style.display = 'block';
+      document.getElementById('jobDownloadBtn').href = `/scholar/bibtex/job/${activeJobId}/download/`;
+      document.getElementById('jobDownloadInfo').textContent = `${data.total_papers} entries, ${data.processed_papers} enriched`;
+    } else if (data.status === 'processing') {
+      jobStatus.innerHTML = '<span style="color: var(--info-color);"><i class="fas fa-spinner fa-spin"></i> Processing</span>';
+      jobTitle.textContent = 'Enrichment in Progress';
+    } else if (data.status === 'failed') {
+      jobStatus.innerHTML = '<span style="color: var(--error-color);"><i class="fas fa-times-circle"></i> Failed</span>';
+      jobTitle.textContent = 'Enrichment Failed';
+      titleIcon.className = 'fas fa-times-circle';
+      titleIcon.style.animation = 'none';
+    }
+
+    // Update progress
+    const progressPercent = data.progress_percentage || 0;
+    document.getElementById('jobProgressBar').style.width = `${progressPercent}%`;
+    document.getElementById('jobProgressPercent').textContent = `${progressPercent}%`;
+
+    let progressText = `${data.processed_papers || 0} / ${data.total_papers || 0} papers processed`;
+    if (data.failed_papers > 0) {
+      progressText += ` (${data.failed_papers} failed)`;
+    }
+    document.getElementById('jobProgressText').textContent = progressText;
+
+    // Update duration
+    if (jobStartTime) {
+      const now = new Date();
+      const elapsedSec = Math.floor((now - jobStartTime) / 1000);
+      let durationText;
+      if (elapsedSec < 60) {
+        durationText = `${elapsedSec}s`;
+      } else if (elapsedSec < 3600) {
+        const min = Math.floor(elapsedSec / 60);
+        const sec = elapsedSec % 60;
+        durationText = `${min}m ${sec}s`;
+      } else {
+        const hr = Math.floor(elapsedSec / 3600);
+        const min = Math.floor((elapsedSec % 3600) / 60);
+        durationText = `${hr}h ${min}m`;
+      }
+      document.getElementById('jobDuration').textContent = durationText;
+    }
+
+    // Update log
+    if (data.log) {
+      const logEl = document.getElementById('jobProcessingLog');
+      logEl.textContent = data.log;
+      // Auto-scroll to bottom
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+  }
+
+  // Close job panel
+  document.getElementById('closeJobPanel').addEventListener('click', function() {
+    document.getElementById('activeJobPanel').style.display = 'none';
+    if (pollingInterval) {
+      clearInterval(pollingInterval);
+      pollingInterval = null;
+    }
+    activeJobId = null;
+  });
+
+  // Toggle log size
+  document.getElementById('toggleJobLog').addEventListener('click', function() {
+    const logEl = document.getElementById('jobProcessingLog');
+    logExpanded = !logExpanded;
+
+    if (logExpanded) {
+      logEl.style.maxHeight = '600px';
+      this.innerHTML = '<i class="fas fa-compress-alt"></i>';
+    } else {
+      logEl.style.maxHeight = '300px';
+      this.innerHTML = '<i class="fas fa-expand-alt"></i>';
+    }
   });
 });
 </script>

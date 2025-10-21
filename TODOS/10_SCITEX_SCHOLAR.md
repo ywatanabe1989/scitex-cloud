@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-21 22:26:41
+!-- Timestamp: 2025-10-21 22:34:48
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/TODOS/10_SCITEX_SCHOLAR.md
 !-- --- -->
@@ -17,33 +17,9 @@ Fill checkboxes of this file when implemented and confirmed their functionality 
   - [ ] About 70% of papers downloaded (~/.scitex/scholar/library/neurovista)
 - [ ] We need to plan how to serve this functionality
 
-### ✅ Completed Issues (2025-10-21)
-
 #### Upload UX Improvements
-- [x] Upload drag & drop with visual feedback ✅ (2025-10-21)
-  - [x] Enhanced drop zone with hover effects - solid border, shadow, scale (1.01x)
-  - [x] Border color changes on drag (SciTeX color-03 #6B8FB3)
-  - [x] File validation (only .bib files, 50MB limit)
-  - See `bibtex_enrichment.html:366-389`
-
-- [x] Upload progress feedback ✅ (2025-10-21)
-  - [x] Submit button shows spinner and "Uploading..." text
-  - [x] Button disabled during upload
-  - [x] AJAX-based upload with JSON response handling
-  - [x] Success animation before redirect
-  - See `bibtex_enrichment.html:394-427`
-
-- [x] Filename display after upload ✅ (2025-10-21)
-  - [x] Shows selected filename prominently with file icon
-  - [x] Displays file size in human-readable format (KB/MB)
-  - [x] "Change file" button for re-selection
-  - [x] Success color indication (green border) when file selected
-  - See `bibtex_enrichment.html:54-74, 296-354`
-
-- [x] JavaScript errors fixed ✅ (2025-10-21)
-  - [x] Fixed `sortSelect` redeclaration error with defensive initialization
-  - [x] Changed `const` to `let` for search-related variables
-  - See `simple_search.html:1099-1103, 1482-1493`
+- Upload drag & drop with visual feedback
+  - [ ] Now, this works but not only after dropped, when being dragged, make it responsible
 
 #### Progress Display Features (Currently on Job Detail Page)
 - [x] Progress bar implemented ✅ (exists on `/scholar/bibtex/job/{id}/`)
@@ -69,10 +45,24 @@ Fill checkboxes of this file when implemented and confirmed their functionality 
   - File size display on download
   - See `bibtex_views.py:250-287`
 
-**USER REQUEST**: Show progress bar and logs in `/scholar/` page instead of separate job detail page
-- [ ] TODO: Move progress tracking to inline panel on enrichment page
-- [ ] TODO: Eliminate separate job detail page navigation
-- [ ] TODO: Show real-time logs in expandable section below upload form
+**USER REQUEST IMPLEMENTED**: Show progress bar and logs in `/scholar/bibtex/enrichment/` page ✅ (2025-10-21)
+- [x] Move progress tracking to inline panel on enrichment page
+  - Added hidden panel that appears after upload (lines 153-223)
+  - Shows file info, status, duration in grid layout
+  - See `bibtex_enrichment.html:153-223`
+- [x] Eliminate separate job detail page navigation
+  - Upload now shows progress inline instead of redirecting
+  - Modified AJAX response handler (lines 509-526)
+  - Smooth scroll to progress panel after upload
+- [x] Show real-time logs in expandable section below upload form
+  - Terminal-style log display with green text on dark background
+  - Expandable from 300px to 600px with toggle button
+  - Auto-scrolls to bottom as logs update
+  - Real-time polling every 2 seconds (lines 540-686)
+- [x] Download button appears inline when complete
+  - Success section with download link
+  - Shows enrichment statistics (entries, enriched count)
+  - No page navigation required
 
 ### Next Steps (Optional Enhancements)
 ~~- [ ] Consider adding WebSocket for even faster log updates~~
