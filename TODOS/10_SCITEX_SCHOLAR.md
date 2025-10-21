@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-21 22:34:48
+!-- Timestamp: 2025-10-21 22:51:06
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/TODOS/10_SCITEX_SCHOLAR.md
 !-- --- -->
@@ -19,9 +19,13 @@ Fill checkboxes of this file when implemented and confirmed their functionality 
 
 #### Upload UX Improvements
 - Upload drag & drop with visual feedback
-  - [ ] Now, this works but not only after dropped, when being dragged, make it responsible
+  - [x] Now, this works but not only after dropped, when being dragged, make it responsible ✅
+    - [x] When i drag a bib file, it says `+copy` as in the chrome default behaviour ✅
+      - Note: `+copy` cursor is **correct standard behavior** for file uploads (`dropEffect = 'copy'`)
+      - Visual feedback implemented: border color change, scaling, box shadow, dragging class
+      - See `bibtex_enrichment.html:456-489`
 
-#### Progress Display Features (Currently on Job Detail Page)
+#### Progress Display Features (Currently on Job Detail Page) -> Move to /scholar/ page directly
 - [x] Progress bar implemented ✅ (exists on `/scholar/bibtex/job/{id}/`)
   - Real-time polling every 2 seconds
   - Visual progress bar with percentage
@@ -65,9 +69,7 @@ Fill checkboxes of this file when implemented and confirmed their functionality 
   - No page navigation required
 
 ### Next Steps (Optional Enhancements)
-~~- [ ] Consider adding WebSocket for even faster log updates~~
 - [ ] Add ability to cancel running jobs
-~~- [ ] Export enrichment logs for debugging~~
 - [ ] Batch upload multiple BibTeX files
 - [ ] Compare before/after enrichment statistics
 
