@@ -5,21 +5,11 @@
 {% block title %}BibTeX Enrichment - SciTeX Scholar{% endblock %}
 
 {% block search_content %}
-<div class="container" style="max-width: 1000px; margin: 3rem auto; padding: 2rem;">
-
-  <!-- Header -->
-  <div style="text-align: center; margin-bottom: 3rem;">
-    <h1 style="color: #667eea; font-size: 2.5rem; margin-bottom: 1rem;">
-      <i class="fas fa-file-code"></i> BibTeX Enrichment
-    </h1>
-    <p style="color: #64748b; font-size: 1.1rem; max-width: 700px; margin: 0 auto;">
-      Upload your BibTeX file and get it enriched with citation counts, impact factors, PDFs, and more
-    </p>
-  </div>
+<div class="container" style="max-width: 1000px; margin: 2rem auto 3rem auto; padding: 2rem;">
 
   <!-- Upload Form -->
-  <div style="background: white; border-radius: 12px; padding: 2.5rem; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 3rem;">
-    <h2 style="color: #1e293b; margin-bottom: 1.5rem; font-size: 1.5rem;">
+  <div style="background: var(--color-canvas-default); border-radius: 12px; padding: 2.5rem; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 3rem; border: 1px solid var(--color-border-default);">
+    <h2 style="color: var(--color-fg-default); margin-bottom: 1.5rem; font-size: 1.5rem;">
       <i class="fas fa-upload"></i> Upload BibTeX File
     </h2>
 
@@ -28,45 +18,86 @@
 
       <!-- File Upload -->
       <div style="margin-bottom: 1.5rem;">
-        <label for="bibtex_file" style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #1e293b;">
+        <label for="bibtex_file" style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--color-fg-default);">
           Select BibTeX File (.bib)
         </label>
-        <input
-          type="file"
-          name="bibtex_file"
-          id="bibtex_file"
-          accept=".bib"
-          required
-          style="display: block; width: 100%; padding: 0.75rem; border: 2px dashed #cbd5e0; border-radius: 8px; background: #f8f9fa;"
-        >
-        <small style="color: #64748b; display: block; margin-top: 0.5rem;">
-          <i class="fas fa-info-circle"></i> Supported format: .bib files
-        </small>
+
+        <!-- Custom drop zone -->
+        <div id="dropZone" style="
+          position: relative;
+          width: 100%;
+          padding: 2rem;
+          border: 2px dashed var(--color-border-default);
+          border-radius: 8px;
+          background: var(--color-canvas-subtle);
+          text-align: center;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        ">
+          <input
+            type="file"
+            name="bibtex_file"
+            id="bibtex_file"
+            accept=".bib"
+            required
+            style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; opacity: 0; cursor: pointer;"
+          >
+          <div id="dropZoneContent">
+            <i class="fas fa-cloud-upload-alt" style="font-size: 3rem; color: var(--scitex-color-03); margin-bottom: 0.5rem;"></i>
+            <p style="color: var(--color-fg-default); font-weight: 600; margin: 0.5rem 0;">
+              Click to browse or drag & drop
+            </p>
+            <p style="color: var(--color-fg-muted); font-size: 0.9rem; margin: 0;">
+              <i class="fas fa-info-circle"></i> BibTeX files (.bib) only
+            </p>
+          </div>
+          <div id="fileNameDisplay" style="display: none;">
+            <i class="fas fa-file-alt" style="font-size: 2rem; color: var(--success-color); margin-bottom: 0.5rem;"></i>
+            <p style="color: var(--color-fg-default); font-weight: 600; margin: 0.5rem 0;">
+              <span id="fileName"></span>
+            </p>
+            <p style="color: var(--color-fg-muted); font-size: 0.85rem; margin: 0;">
+              <span id="fileSize"></span>
+            </p>
+            <button type="button" id="changeFileBtn" style="
+              margin-top: 0.75rem;
+              padding: 0.5rem 1rem;
+              background: var(--color-canvas-default);
+              border: 1px solid var(--color-border-default);
+              border-radius: 6px;
+              color: var(--color-fg-default);
+              cursor: pointer;
+              font-size: 0.9rem;
+            ">
+              <i class="fas fa-exchange-alt"></i> Change file
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- Project Selection (for Gitea Integration) -->
       <div style="margin-bottom: 1.5rem;">
-        <label for="project_id" style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #1e293b;">
-          <i class="fas fa-folder"></i> Associate with Project (Recommended)
+        <label for="project_id" style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--color-fg-default);">
+          <i class="fas fa-folder"></i> Save to project (Recommended)
         </label>
         <select
           name="project_id"
           id="project_id"
-          style="display: block; width: 100%; padding: 0.75rem; border: 1px solid #cbd5e0; border-radius: 6px;"
+          style="display: block; width: 100%; padding: 0.75rem; border: 1px solid var(--color-border-default); border-radius: 6px; background: var(--color-canvas-default); color: var(--color-fg-default);"
         >
           <option value="">-- No Project (Manual Download Only) --</option>
           {% for project in user_projects %}
           <option value="{{ project.id }}">{{ project.name }} ({{ project.slug }})</option>
           {% endfor %}
         </select>
-        <small style="color: #64748b; display: block; margin-top: 0.5rem;">
+        <small style="color: var(--color-fg-muted); display: block; margin-top: 0.5rem;">
           <i class="fas fa-info-circle"></i> Enriched .bib will be auto-committed to project's Gitea repository at <code>/references/references.bib</code>
         </small>
       </div>
 
       <!-- Project Name (Optional - for non-project enrichment) -->
       <div style="margin-bottom: 1.5rem;">
-        <label for="project_name" style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #1e293b;">
+        <label for="project_name" style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--color-fg-default);">
           Project Label (Optional)
         </label>
         <input
@@ -74,29 +105,29 @@
           name="project_name"
           id="project_name"
           placeholder="e.g., my_research_notes"
-          style="display: block; width: 100%; padding: 0.75rem; border: 1px solid #cbd5e0; border-radius: 6px;"
+          style="display: block; width: 100%; padding: 0.75rem; border: 1px solid var(--color-border-default); border-radius: 6px; background: var(--color-canvas-default); color: var(--color-fg-default);"
         >
-        <small style="color: #64748b; display: block; margin-top: 0.5rem;">
+        <small style="color: var(--color-fg-muted); display: block; margin-top: 0.5rem;">
           <i class="fas fa-tag"></i> For organizing papers (not linked to Gitea)
         </small>
       </div>
 
       <!-- Advanced Options -->
-      <details style="margin-bottom: 1.5rem; padding: 1rem; background: #f8f9fa; border-radius: 6px;">
-        <summary style="cursor: pointer; font-weight: 600; color: #1e293b;">
+      <details style="margin-bottom: 1.5rem; padding: 1rem; background: var(--color-canvas-subtle); border-radius: 6px;">
+        <summary style="cursor: pointer; font-weight: 600; color: var(--color-fg-default);">
           <i class="fas fa-cog"></i> Advanced Options
         </summary>
 
         <div style="margin-top: 1rem;">
           <!-- Number of Workers -->
           <div style="margin-bottom: 1rem;">
-            <label for="num_workers" style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #1e293b;">
+            <label for="num_workers" style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--color-fg-default);">
               Parallel Workers
             </label>
             <select
               name="num_workers"
               id="num_workers"
-              style="display: block; width: 100%; padding: 0.75rem; border: 1px solid #cbd5e0; border-radius: 6px;"
+              style="display: block; width: 100%; padding: 0.75rem; border: 1px solid var(--color-border-default); border-radius: 6px; background: var(--color-canvas-default); color: var(--color-fg-default);"
             >
               <option value="2">2 workers (slower, lighter)</option>
               <option value="4" selected>4 workers (balanced)</option>
@@ -104,29 +135,15 @@
             </select>
           </div>
 
-          <!-- Browser Mode -->
-          <div style="margin-bottom: 1rem;">
-            <label for="browser_mode" style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #1e293b;">
-              Browser Mode
-            </label>
-            <select
-              name="browser_mode"
-              id="browser_mode"
-              style="display: block; width: 100%; padding: 0.75rem; border: 1px solid #cbd5e0; border-radius: 6px;"
-            >
-              <option value="stealth" selected>Stealth (recommended)</option>
-              <option value="interactive">Interactive</option>
-            </select>
-          </div>
         </div>
       </details>
 
       <!-- Submit Button -->
       <button
         type="submit"
-        style="width: 100%; padding: 1rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: transform 0.2s;"
-        onmouseover="this.style.transform='translateY(-2px)'"
-        onmouseout="this.style.transform='translateY(0)'"
+        style="width: 100%; padding: 1rem; background: var(--color-btn-primary-bg); color: var(--color-btn-primary-text); border: 1px solid var(--color-btn-primary-border); border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: transform 0.2s, background-color 0.2s;"
+        onmouseover="this.style.background='var(--color-btn-primary-hover-bg)'; this.style.transform='translateY(-2px)'"
+        onmouseout="this.style.background='var(--color-btn-primary-bg)'; this.style.transform='translateY(0)'"
       >
         <i class="fas fa-magic"></i> Enrich BibTeX File
       </button>
@@ -134,100 +151,100 @@
   </div>
 
   <!-- What Gets Enriched -->
-  <div style="background: #f8f9fa; border-radius: 12px; padding: 2.5rem; margin-bottom: 3rem;">
-    <h2 style="color: #1e293b; margin-bottom: 1.5rem; font-size: 1.5rem; text-align: center;">
+  <div style="background: var(--color-canvas-subtle); border-radius: 12px; padding: 2.5rem; margin-bottom: 3rem;">
+    <h2 style="color: var(--color-fg-default); margin-bottom: 1.5rem; font-size: 1.5rem; text-align: center;">
       <i class="fas fa-sparkles"></i> What Gets Enriched
     </h2>
 
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
       <div style="text-align: center;">
-        <div style="font-size: 2.5rem; color: #667eea; margin-bottom: 0.5rem;">
+        <div style="font-size: 2.5rem; color: var(--scitex-color-03); margin-bottom: 0.5rem;">
           <i class="fas fa-quote-right"></i>
         </div>
-        <h3 style="color: #1e293b; font-size: 1.1rem; margin-bottom: 0.5rem;">Citation Counts</h3>
-        <p style="color: #64748b; font-size: 0.9rem;">From CrossRef, Semantic Scholar, and more</p>
+        <h3 style="color: var(--color-fg-default); font-size: 1.1rem; margin-bottom: 0.5rem;">Citation Counts</h3>
+        <p style="color: var(--color-fg-muted); font-size: 0.9rem;">From CrossRef, Semantic Scholar, and more</p>
       </div>
 
       <div style="text-align: center;">
-        <div style="font-size: 2.5rem; color: #667eea; margin-bottom: 0.5rem;">
+        <div style="font-size: 2.5rem; color: var(--scitex-color-03); margin-bottom: 0.5rem;">
           <i class="fas fa-chart-line"></i>
         </div>
-        <h3 style="color: #1e293b; font-size: 1.1rem; margin-bottom: 0.5rem;">Impact Factors</h3>
-        <p style="color: #64748b; font-size: 0.9rem;">Journal metrics and rankings</p>
+        <h3 style="color: var(--color-fg-default); font-size: 1.1rem; margin-bottom: 0.5rem;">Impact Factors</h3>
+        <p style="color: var(--color-fg-muted); font-size: 0.9rem;">Journal metrics and rankings</p>
       </div>
 
       <div style="text-align: center;">
-        <div style="font-size: 2.5rem; color: #667eea; margin-bottom: 0.5rem;">
+        <div style="font-size: 2.5rem; color: var(--scitex-color-03); margin-bottom: 0.5rem;">
           <i class="fas fa-file-pdf"></i>
         </div>
-        <h3 style="color: #1e293b; font-size: 1.1rem; margin-bottom: 0.5rem;">PDF Downloads</h3>
-        <p style="color: #64748b; font-size: 0.9rem;">Automatic PDF acquisition</p>
+        <h3 style="color: var(--color-fg-default); font-size: 1.1rem; margin-bottom: 0.5rem;">PDF Downloads</h3>
+        <p style="color: var(--color-fg-muted); font-size: 0.9rem;">Automatic PDF acquisition</p>
       </div>
 
       <div style="text-align: center;">
-        <div style="font-size: 2.5rem; color: #667eea; margin-bottom: 0.5rem;">
+        <div style="font-size: 2.5rem; color: var(--scitex-color-03); margin-bottom: 0.5rem;">
           <i class="fas fa-database"></i>
         </div>
-        <h3 style="color: #1e293b; font-size: 1.1rem; margin-bottom: 0.5rem;">Metadata</h3>
-        <p style="color: #64748b; font-size: 0.9rem;">Abstract, keywords, and more</p>
+        <h3 style="color: var(--color-fg-default); font-size: 1.1rem; margin-bottom: 0.5rem;">Metadata</h3>
+        <p style="color: var(--color-fg-muted); font-size: 0.9rem;">Abstract, keywords, and more</p>
       </div>
     </div>
   </div>
 
   <!-- Recent Jobs -->
   {% if recent_jobs %}
-  <div style="background: white; border-radius: 12px; padding: 2.5rem; box-shadow: 0 2px 12px rgba(0,0,0,0.08);">
-    <h2 style="color: #1e293b; margin-bottom: 1.5rem; font-size: 1.5rem;">
+  <div style="background: var(--color-canvas-default); border-radius: 12px; padding: 2.5rem; box-shadow: 0 2px 12px rgba(0,0,0,0.08); border: 1px solid var(--color-border-default);">
+    <h2 style="color: var(--color-fg-default); margin-bottom: 1.5rem; font-size: 1.5rem;">
       <i class="fas fa-history"></i> Recent Enrichment Jobs
     </h2>
 
     <div style="overflow-x: auto;">
       <table style="width: 100%; border-collapse: collapse;">
         <thead>
-          <tr style="background: #f8f9fa; border-bottom: 2px solid #e2e8f0;">
-            <th style="padding: 1rem; text-align: left; font-weight: 600; color: #1e293b;">File</th>
-            <th style="padding: 1rem; text-align: left; font-weight: 600; color: #1e293b;">Status</th>
-            <th style="padding: 1rem; text-align: left; font-weight: 600; color: #1e293b;">Progress</th>
-            <th style="padding: 1rem; text-align: left; font-weight: 600; color: #1e293b;">Created</th>
-            <th style="padding: 1rem; text-align: left; font-weight: 600; color: #1e293b;">Actions</th>
+          <tr style="background: var(--color-canvas-subtle); border-bottom: 2px solid var(--color-border-default);">
+            <th style="padding: 1rem; text-align: left; font-weight: 600; color: var(--color-fg-default);">File</th>
+            <th style="padding: 1rem; text-align: left; font-weight: 600; color: var(--color-fg-default);">Status</th>
+            <th style="padding: 1rem; text-align: left; font-weight: 600; color: var(--color-fg-default);">Progress</th>
+            <th style="padding: 1rem; text-align: left; font-weight: 600; color: var(--color-fg-default);">Created</th>
+            <th style="padding: 1rem; text-align: left; font-weight: 600; color: var(--color-fg-default);">Actions</th>
           </tr>
         </thead>
         <tbody>
           {% for job in recent_jobs %}
-          <tr style="border-bottom: 1px solid #e2e8f0;">
+          <tr style="border-bottom: 1px solid var(--color-border-default);">
             <td style="padding: 1rem;">
               <strong>{{ job.input_file.name|slice:"-50:" }}</strong>
               {% if job.project %}
-              <br><small style="color: #667eea;"><i class="fas fa-folder"></i> {{ job.project.name }}</small>
+              <br><small style="color: var(--scitex-color-03);"><i class="fas fa-folder"></i> {{ job.project.name }}</small>
               {% if job.enrichment_summary.gitea_commit %}
-              <br><small style="color: #10b981;"><i class="fas fa-check"></i> Committed to Gitea</small>
+              <br><small style="color: var(--success-color);"><i class="fas fa-check"></i> Committed to Gitea</small>
               {% endif %}
               {% elif job.project_name %}
-              <br><small style="color: #64748b;"><i class="fas fa-tag"></i> {{ job.project_name }}</small>
+              <br><small style="color: var(--color-fg-muted);"><i class="fas fa-tag"></i> {{ job.project_name }}</small>
               {% endif %}
             </td>
             <td style="padding: 1rem;">
               {% if job.status == 'completed' %}
-              <span style="color: #10b981; font-weight: 600;"><i class="fas fa-check-circle"></i> Completed</span>
+              <span style="color: var(--success-color); font-weight: 600;"><i class="fas fa-check-circle"></i> Completed</span>
               {% elif job.status == 'processing' %}
-              <span style="color: #3b82f6; font-weight: 600;"><i class="fas fa-spinner fa-spin"></i> Processing</span>
+              <span style="color: var(--info-color); font-weight: 600;"><i class="fas fa-spinner fa-spin"></i> Processing</span>
               {% elif job.status == 'failed' %}
-              <span style="color: #ef4444; font-weight: 600;"><i class="fas fa-times-circle"></i> Failed</span>
+              <span style="color: var(--error-color); font-weight: 600;"><i class="fas fa-times-circle"></i> Failed</span>
               {% else %}
-              <span style="color: #64748b; font-weight: 600;"><i class="fas fa-clock"></i> Pending</span>
+              <span style="color: var(--color-fg-muted); font-weight: 600;"><i class="fas fa-clock"></i> Pending</span>
               {% endif %}
             </td>
             <td style="padding: 1rem;">
-              <div style="background: #e2e8f0; border-radius: 4px; height: 8px; overflow: hidden;">
-                <div style="background: #667eea; height: 100%; width: {{ job.get_progress_percentage }}%;"></div>
+              <div style="background: var(--color-border-default); border-radius: 4px; height: 8px; overflow: hidden;">
+                <div style="background: var(--scitex-color-03); height: 100%; width: {{ job.get_progress_percentage }}%;"></div>
               </div>
-              <small style="color: #64748b;">{{ job.processed_papers }}/{{ job.total_papers }} papers</small>
+              <small style="color: var(--color-fg-muted);">{{ job.processed_papers }}/{{ job.total_papers }} papers</small>
             </td>
-            <td style="padding: 1rem; color: #64748b;">
+            <td style="padding: 1rem; color: var(--color-fg-muted);">
               {{ job.created_at|date:"M d, Y H:i" }}
             </td>
             <td style="padding: 1rem;">
-              <a href="{% url 'scholar_app:bibtex_job_detail' job.id %}" style="color: #667eea; text-decoration: none; font-weight: 600;">
+              <a href="{% url 'scholar_app:bibtex_job_detail' job.id %}" style="color: var(--color-accent-fg); text-decoration: none; font-weight: 600;">
                 <i class="fas fa-eye"></i> View
               </a>
             </td>
@@ -240,4 +257,204 @@
   {% endif %}
 
 </div>
+
+<!-- Drag & Drop and Upload Progress JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const dropZone = document.getElementById('dropZone');
+  const fileInput = document.getElementById('bibtex_file');
+  const dropZoneContent = document.getElementById('dropZoneContent');
+  const fileNameDisplay = document.getElementById('fileNameDisplay');
+  const fileName = document.getElementById('fileName');
+  const fileSize = document.getElementById('fileSize');
+  const changeFileBtn = document.getElementById('changeFileBtn');
+  const uploadForm = document.querySelector('form');
+  const submitBtn = uploadForm.querySelector('button[type="submit"]');
+
+  // Format file size
+  function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+  }
+
+  // Validate file
+  function validateFile(file) {
+    if (!file.name.toLowerCase().endsWith('.bib')) {
+      alert('Please select a valid BibTeX file (.bib)');
+      return false;
+    }
+    if (file.size > 50 * 1024 * 1024) { // 50MB limit
+      alert('File is too large. Maximum size is 50MB.');
+      return false;
+    }
+    return true;
+  }
+
+  // Display file info
+  function displayFileInfo(file) {
+    if (!file) return;
+
+    fileName.textContent = file.name;
+    fileSize.textContent = formatFileSize(file.size);
+
+    // Force hide/show with display style
+    dropZoneContent.style.display = 'none';
+    dropZoneContent.style.visibility = 'hidden';
+
+    fileNameDisplay.style.display = 'block';
+    fileNameDisplay.style.visibility = 'visible';
+
+    dropZone.style.borderColor = 'var(--success-color)';
+    dropZone.style.borderStyle = 'solid';
+    dropZone.style.background = 'rgba(74, 155, 126, 0.1)';
+
+    console.log('File selected:', file.name, file.size);
+  }
+
+  // Handle file selection
+  function handleFileSelect(file) {
+    if (validateFile(file)) {
+      displayFileInfo(file);
+    } else {
+      fileInput.value = '';
+    }
+  }
+
+  // File input change
+  fileInput.addEventListener('change', function(e) {
+    if (this.files && this.files[0]) {
+      handleFileSelect(this.files[0]);
+    }
+  });
+
+  // Change file button
+  changeFileBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Clear the file input
+    fileInput.value = '';
+
+    // Show upload zone, hide file display
+    dropZoneContent.style.display = 'block';
+    dropZoneContent.style.visibility = 'visible';
+
+    fileNameDisplay.style.display = 'none';
+    fileNameDisplay.style.visibility = 'hidden';
+
+    // Reset border styling
+    dropZone.style.borderColor = 'var(--color-border-default)';
+    dropZone.style.borderStyle = 'dashed';
+    dropZone.style.background = 'var(--color-canvas-subtle)';
+
+    console.log('File selection cleared');
+  });
+
+  // Drag and drop events
+  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, preventDefaults, false);
+  });
+
+  function preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+
+  // Highlight on drag
+  ['dragenter', 'dragover'].forEach(eventName => {
+    dropZone.addEventListener(eventName, function() {
+      if (!fileInput.files || !fileInput.files[0]) {
+        dropZone.style.borderColor = '#6B8FB3'; // scitex-color-03
+        dropZone.style.borderStyle = 'solid';
+        dropZone.style.background = 'rgba(107, 143, 179, 0.15)';
+      }
+      dropZone.style.transform = 'scale(1.01)';
+      dropZone.style.boxShadow = '0 4px 16px rgba(107, 143, 179, 0.3)';
+    });
+  });
+
+  ['dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, function() {
+      if (!fileInput.files || !fileInput.files[0]) {
+        dropZone.style.borderColor = 'var(--color-border-default)';
+        dropZone.style.borderStyle = 'dashed';
+        dropZone.style.background = 'var(--color-canvas-subtle)';
+      }
+      dropZone.style.transform = 'scale(1)';
+      dropZone.style.boxShadow = 'none';
+    });
+  });
+
+  // Handle drop
+  dropZone.addEventListener('drop', function(e) {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+
+    if (files && files[0]) {
+      // Set the file to the input element
+      fileInput.files = files;
+      handleFileSelect(files[0]);
+    }
+  });
+
+  // Form submission with progress
+  uploadForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    // Validate file is selected
+    if (!fileInput.files || !fileInput.files[0]) {
+      alert('Please select a BibTeX file to upload.');
+      return;
+    }
+
+    // Show loading state
+    const originalBtnText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+    submitBtn.style.cursor = 'not-allowed';
+
+    // Create FormData
+    const formData = new FormData(uploadForm);
+
+    // Submit via AJAX for better feedback
+    fetch(uploadForm.action, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      if (data.success) {
+        // Show success message
+        submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> Upload Complete!';
+        submitBtn.style.background = 'var(--success-color)';
+
+        // Redirect to job detail page after short delay
+        setTimeout(() => {
+          window.location.href = `/scholar/bibtex/job/${data.job_id}/`;
+        }, 800);
+      } else {
+        throw new Error(data.message || 'Upload failed');
+      }
+    })
+    .catch(error => {
+      console.error('Upload error:', error);
+      alert('Upload failed: ' + error.message);
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalBtnText;
+      submitBtn.style.cursor = 'pointer';
+    });
+  });
+});
+</script>
 {% endblock %}

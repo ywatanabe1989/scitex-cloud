@@ -1095,12 +1095,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Simple search functionality
-    const searchForm = document.querySelector('form');
-    const searchInput = document.querySelector('input[name="q"]');
-    const searchButton = document.getElementById('searchButton');
-    const progressiveLoadingStatus = document.getElementById('progressiveLoadingStatus');
-    const progressiveResults = document.getElementById('progressiveResults');
+    // Simple search functionality - using let to avoid redeclaration errors
+    let searchForm = document.querySelector('form');
+    let searchInput = document.querySelector('input[name="q"]');
+    let searchButton = document.getElementById('searchButton');
+    let progressiveLoadingStatus = document.getElementById('progressiveLoadingStatus');
+    let progressiveResults = document.getElementById('progressiveResults');
     
     // Advanced filters functionality
     const toggleAdvancedFilters = document.getElementById('toggleAdvancedFilters');
@@ -1478,14 +1478,18 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Sort functionality
-    const sortSelect = document.getElementById('sortSelect');
-    if (sortSelect) {
-        sortSelect.addEventListener('change', function() {
-            const currentUrl = new URL(window.location.href);
-            currentUrl.searchParams.set('sort_by', this.value);
-            window.location.href = currentUrl.toString();
-        });
+    // Sort functionality - avoid redeclaration errors
+    if (!window._scholarSortInitialized) {
+        const sortSelect = document.getElementById('sortSelect');
+        if (sortSelect && !sortSelect._listenerAttached) {
+            sortSelect.addEventListener('change', function() {
+                const currentUrl = new URL(window.location.href);
+                currentUrl.searchParams.set('sort_by', this.value);
+                window.location.href = currentUrl.toString();
+            });
+            sortSelect._listenerAttached = true;
+        }
+        window._scholarSortInitialized = true;
     }
     
     // Progressive search is always available
@@ -1502,10 +1506,10 @@ document.addEventListener('DOMContentLoaded', function() {
             if (count) count.textContent = '-';
         });
     }
-    
+
     // Search functionality - intercept form submission for progressive search
     const literatureSearchForm = document.querySelector('form');
-    const searchButton = document.getElementById('searchButton');
+    // searchButton already declared above at line 1101
 
     // Search functionality - intercept form submission for progressive search
     if (literatureSearchForm) {
@@ -1756,16 +1760,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
-    // Handle sort functionality
-    const sortSelect = document.getElementById('sortSelect');
-    if (sortSelect) {
-        sortSelect.addEventListener('change', function() {
-            if (searchInput.value.trim()) {
-                form.submit();
-            }
-        });
-    }
+
+    // Handle sort functionality - sortSelect already declared above at line 1482
+    // The sortSelect event listener is already registered at line 1482-1489
     
     // Note: Source selection auto-submit is now handled by the source-toggle event listeners above
     
