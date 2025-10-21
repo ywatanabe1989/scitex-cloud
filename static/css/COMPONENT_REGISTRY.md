@@ -1,8 +1,30 @@
 # SciTeX UI Component Registry
 
 **Last Updated:** 2025-10-21
-**Status:** In Development
+**Status:** In Development (Phase 1: ~50% complete)
 **Purpose:** Centralized inventory of all SciTeX UI components with API documentation
+
+---
+
+## Quick Stats
+
+**Overall Coverage:**
+- ✅ Fully Implemented: ~35 components (29%)
+- ⚠️ Partially Implemented: ~20 components (17%)
+- ❌ Missing: ~65 components (54%)
+
+**Dark Mode Coverage (Existing Components):**
+- ✅ Full Support: Forms, Checkboxes, Header, Footer, Hero
+- ⚠️ Partial Support: Radios, Toggles, Buttons, Cards
+- ❌ No Support: Many missing components
+
+**CRITICAL REQUIREMENT:**
+> All new components MUST include both light and dark mode from day one. Dark mode is not optional.
+
+**Related Documentation:**
+- See `COMPONENT_GAP_ANALYSIS.md` for detailed coverage analysis
+- See `UI_COMPONENT_IDEAL_LIST.md` for complete component hierarchy
+- See `REFACTOR_PLAN.md` for implementation roadmap
 
 ---
 
