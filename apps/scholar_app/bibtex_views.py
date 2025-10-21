@@ -376,67 +376,38 @@ def _process_bibtex_job(job):
         job.failed_papers = 0
         job.save(update_fields=['total_papers', 'processed_papers', 'failed_papers'])
 
-        # Enrich papers with metadata (API-only, with progress tracking)
+        # Enrich papers with metadata (API-only, with progress tracking via callback)
         _append_log_sync(job, "Enriching papers with metadata...")
         _append_log_sync(job, "Fetching citations, impact factors, abstracts...")
         _append_log_sync(job, "")
 
-        # Enrich papers one by one to show incremental progress
-        enriched_papers = []
-        for i, paper in enumerate(papers, 1):
-            try:
-                # Get paper title safely
-                paper_title = "Untitled"
-                if hasattr(paper, 'metadata') and hasattr(paper.metadata, 'basic') and paper.metadata.basic.title:
-                    paper_title = paper.metadata.basic.title[:60]
+        # Define progress callback for real-time updates
+        def progress_callback(current, total, info):
+            """Called after each paper is processed."""
+            title = info.get('title', 'Untitled')[:60]
+            success = info.get('success', False)
+            error = info.get('error')
 
-                _append_log_sync(job, f"[{i}/{len(papers)}] Processing: {paper_title}...")
+            # Log progress
+            status_icon = "✓" if success else "✗"
+            _append_log_sync(job, f"[{current}/{total}] {status_icon} {title}")
 
-                # Enrich single paper
-                import io
-                import sys
-                log_capture = io.StringIO()
-                old_stdout = sys.stdout
-                old_stderr = sys.stderr
+            if error:
+                _append_log_sync(job, f"    Error: {error[:100]}")
 
-                try:
-                    # Redirect stdout/stderr to capture Scholar pipeline logs
-                    sys.stdout = log_capture
-                    sys.stderr = log_capture
-
-                    # Run async enrichment for single paper
-                    enriched = asyncio.run(pipeline.enrich_papers_async([paper]))
-                    if enriched:
-                        enriched_papers.extend(enriched)
-
-                        # Check if paper was successfully enriched
-                        enriched_paper = enriched[0]
-                        if (hasattr(enriched_paper.metadata, 'citation_count') and enriched_paper.metadata.citation_count is not None) or \
-                           (hasattr(enriched_paper.metadata, 'id') and enriched_paper.metadata.id.doi):
-                            job.processed_papers += 1
-                            _append_log_sync(job, f"  ✓ Enriched successfully")
-                        else:
-                            job.failed_papers += 1
-                            _append_log_sync(job, f"  ⚠ Limited metadata found")
-                    else:
-                        job.failed_papers += 1
-                        _append_log_sync(job, f"  ✗ Enrichment failed")
-
-                finally:
-                    # Restore stdout/stderr
-                    sys.stdout = old_stdout
-                    sys.stderr = old_stderr
-
-                    # Get captured logs (optional - can be verbose)
-                    # captured_output = log_capture.getvalue()
-
-                # Update progress in database for real-time polling
-                job.save(update_fields=['processed_papers', 'failed_papers', 'processing_log'])
-
-            except Exception as e:
+            # Update counters
+            if success:
+                job.processed_papers = current
+            else:
                 job.failed_papers += 1
-                _append_log_sync(job, f"  ✗ Error: {str(e)[:100]}")
-                job.save(update_fields=['failed_papers', 'processing_log'])
+
+            # Save to database for real-time polling
+            job.save(update_fields=['processed_papers', 'failed_papers', 'processing_log'])
+
+        # Enrich all papers with progress callback
+        enriched_papers = asyncio.run(
+            pipeline.enrich_papers_async(papers, on_progress=progress_callback)
+        )
 
         _append_log_sync(job, "")
         _append_log_sync(job, f"Enrichment complete! Processed {len(enriched_papers)} papers")
