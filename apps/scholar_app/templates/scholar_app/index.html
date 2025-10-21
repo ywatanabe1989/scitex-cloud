@@ -9,7 +9,7 @@
   }
   
   .hero-search .lead {
-    color: #34495e;
+    color: var(--scitex-color-02);
     opacity: 1.0;
   }
   
@@ -19,7 +19,7 @@
   }
   
   .search-box {
-    background-color: white;
+    background-color: var(--color-canvas-default);
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow-md);
     padding: var(--spacing-lg);
@@ -40,13 +40,13 @@
   }
   
   .search-input::placeholder {
-    color: #9ca3af;
+    color: var(--color-fg-muted);
     opacity: 0.5;
   }
   
   .search-btn {
     background-color: var(--primary-color);
-    color: white;
+    color: var(--white);
     border: none;
     border-radius: var(--border-radius);
     padding: 0 var(--spacing-lg);
@@ -60,7 +60,7 @@
   
   .help-btn {
     background-color: var(--secondary-color);
-    color: white;
+    color: var(--white);
     border: none;
     border-radius: var(--border-radius);
     padding: 0 var(--spacing-md);
@@ -69,7 +69,7 @@
   }
   
   .help-btn:hover {
-    background-color: #3a82f6;
+    background-color: var(--secondary-dark);
   }
   
   .help-modal {
@@ -84,7 +84,7 @@
   }
   
   .help-modal-content {
-    background-color: white;
+    background-color: var(--color-canvas-default);
     margin: 5% auto;
     padding: 2rem;
     border-radius: var(--border-radius);
@@ -95,15 +95,15 @@
   }
   
   .help-close {
-    color: #aaa;
+    color: var(--color-fg-muted);
     float: right;
     font-size: 28px;
     font-weight: bold;
     cursor: pointer;
   }
-  
+
   .help-close:hover {
-    color: black;
+    color: var(--color-fg-default);
   }
   
   .help-section {
@@ -126,8 +126,8 @@
   .tooltip .tooltiptext {
     visibility: hidden;
     width: 200px;
-    background-color: #333;
-    color: #fff;
+    background-color: var(--scitex-color-01);
+    color: var(--white);
     text-align: center;
     border-radius: 6px;
     padding: 5px;
@@ -164,7 +164,7 @@
   }
   
   .result-card {
-    background-color: white;
+    background-color: var(--color-canvas-default);
     border-radius: var(--border-radius);
     padding: var(--spacing-md);
     margin-bottom: var(--spacing-md);
@@ -221,7 +221,7 @@
   }
   
   .feature-card {
-    background-color: white;
+    background-color: var(--color-canvas-default);
     border-radius: var(--border-radius);
     padding: var(--spacing-lg);
     box-shadow: var(--box-shadow-sm);
@@ -241,14 +241,14 @@
   }
 
   .demo-section {
-    background-color: #f8f9fa;
+    background-color: var(--color-canvas-subtle);
     padding: var(--spacing-xxl) 0;
   }
 
   .demo-video-container {
     max-width: 900px;
     margin: 0 auto;
-    background: white;
+    background: var(--color-canvas-default);
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow-lg);
     overflow: hidden;
@@ -332,17 +332,96 @@
         </div>
       </form>
 
-      <!-- BibTeX Enrichment Feature Link -->
-      <div style="text-align: center; margin-top: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px;">
-        <h3 style="color: white; margin-bottom: 0.5rem; font-size: 1.3rem;">
+      <!-- BibTeX Enrichment - Direct Upload -->
+      <div style="margin-top: 2rem; padding: 2rem; background: var(--color-canvas-default); border-radius: 12px; border: 1px solid var(--color-border-default);">
+        <h3 style="color: var(--color-fg-default); margin-bottom: 0.75rem; font-size: 1.3rem;">
           <i class="fas fa-file-code"></i> Enrich Your BibTeX Files
         </h3>
-        <p style="color: rgba(255,255,255,0.9); margin-bottom: 1rem; font-size: 0.95rem;">
-          Upload your .bib file and get it enriched with citation counts, impact factors, and PDFs
+        <p style="color: var(--color-fg-muted); margin-bottom: 1.5rem; font-size: 0.95rem;">
+          Drop your .bib file below - enrichment starts automatically with citation counts, impact factors, and PDFs
         </p>
-        <a href="{% url 'scholar_app:bibtex_enrichment' %}" class="btn" style="background: white; color: #667eea; padding: 0.75rem 2rem; border-radius: 6px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.5rem; transition: transform 0.2s;">
-          <i class="fas fa-magic"></i> Enrich BibTeX File
-        </a>
+
+        <form id="bibtexUploadForm" method="post" action="{% url 'scholar_app:bibtex_upload' %}" enctype="multipart/form-data">
+          {% csrf_token %}
+
+          <!-- Drop Zone -->
+          <div id="bibDropZone" class="bib-drop-zone" style="
+            position: relative;
+            width: 100%;
+            padding: 2rem;
+            border: 2px dashed var(--color-border-default);
+            border-radius: 8px;
+            background: var(--color-canvas-subtle);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+          ">
+            <input
+              type="file"
+              name="bibtex_file"
+              id="bibFileInput"
+              accept=".bib"
+              required
+              style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; opacity: 0; cursor: pointer;"
+            >
+            <div id="bibDropZoneContent">
+              <i class="fas fa-cloud-upload-alt" style="font-size: 2.5rem; color: var(--scitex-color-03); margin-bottom: 0.5rem;"></i>
+              <p style="color: var(--color-fg-default); font-weight: 600; margin: 0.5rem 0;">
+                Click to browse or drag & drop
+              </p>
+              <p style="color: var(--color-fg-muted); font-size: 0.85rem; margin: 0;">
+                <i class="fas fa-info-circle"></i> BibTeX files (.bib) only • Auto-processing starts immediately
+              </p>
+            </div>
+            <div id="bibFileDisplay" style="display: none;">
+              <i class="fas fa-file-alt" style="font-size: 2rem; color: var(--success-color); margin-bottom: 0.5rem;"></i>
+              <p style="color: var(--color-fg-default); font-weight: 600; margin: 0.5rem 0;">
+                <span id="bibFileName"></span>
+              </p>
+              <p style="color: var(--color-fg-muted); font-size: 0.85rem; margin: 0;">
+                <span id="bibFileSize"></span>
+              </p>
+            </div>
+          </div>
+
+          <!-- Hidden fields for compatibility with existing backend -->
+          <input type="hidden" name="project_id" value="">
+          <input type="hidden" name="project_name" value="">
+          <input type="hidden" name="num_workers" value="4">
+        </form>
+
+        <!-- Progress Panel (Hidden by default) -->
+        <div id="bibJobPanel" style="display: none; padding: 1.5rem; background: var(--color-canvas-subtle); border-radius: 8px; border: 1px solid var(--color-border-default); margin-top: 1rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h4 style="color: var(--color-fg-default); margin: 0;">
+              <i class="fas fa-cog fa-spin"></i> <span id="bibJobTitle">Enriching...</span>
+            </h4>
+          </div>
+
+          <!-- Progress Bar -->
+          <div style="margin-bottom: 1rem;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+              <span style="font-weight: 600; color: var(--color-fg-default); font-size: 0.9rem;">Progress</span>
+              <span style="color: var(--color-fg-muted); font-size: 0.9rem;" id="bibProgressPercent">0%</span>
+            </div>
+            <div style="background: var(--color-border-default); border-radius: 8px; height: 10px; overflow: hidden;">
+              <div id="bibProgressBar" style="background: var(--scitex-color-03); height: 100%; width: 0%; transition: width 0.3s;"></div>
+            </div>
+            <div style="margin-top: 0.5rem; color: var(--color-fg-muted); font-size: 0.85rem;" id="bibProgressText">
+              0 / 0 papers processed
+            </div>
+          </div>
+
+          <!-- Download Section (Hidden until complete) -->
+          <div id="bibDownloadSection" style="display: none; padding: 1rem; background: var(--success-color); color: white; border-radius: 6px; text-align: center;">
+            <i class="fas fa-check-circle" style="font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
+            <p style="margin: 0.5rem 0; font-weight: 600;">Enrichment Complete!</p>
+            <a id="bibDownloadLink" href="#" style="display: inline-block; margin-top: 0.5rem; padding: 0.5rem 1.5rem; background: white; color: var(--success-color); border-radius: 6px; text-decoration: none; font-weight: 600;">
+              <i class="fas fa-download"></i> Download Enriched BibTeX
+            </a>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -711,8 +790,8 @@ function showSearchTip(message) {
         tipElement.className = 'search-tip';
         tipElement.style.cssText = `
             position: absolute;
-            background: #333;
-            color: white;
+            background: var(--scitex-color-01);
+            color: var(--white);
             padding: 8px 12px;
             border-radius: 4px;
             font-size: 0.9rem;
@@ -761,5 +840,213 @@ document.addEventListener('DOMContentLoaded', enhanceSearchExperience);
 
 // Help system keyboard shortcuts info
 console.log('SciTeX Scholar Help: Press F1 or Ctrl+H for help, Escape to close');
+
+// ============ BibTeX Auto-Processing ============
+document.addEventListener('DOMContentLoaded', function() {
+  const bibDropZone = document.getElementById('bibDropZone');
+  const bibFileInput = document.getElementById('bibFileInput');
+  const bibDropZoneContent = document.getElementById('bibDropZoneContent');
+  const bibFileDisplay = document.getElementById('bibFileDisplay');
+  const bibFileName = document.getElementById('bibFileName');
+  const bibFileSize = document.getElementById('bibFileSize');
+  const bibUploadForm = document.getElementById('bibtexUploadForm');
+
+  if (!bibDropZone || !bibFileInput) return; // Guard if elements don't exist
+
+  let bibDragCounter = 0;
+
+  // Format file size
+  function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+  }
+
+  // Validate file
+  function validateBibFile(file) {
+    if (!file.name.toLowerCase().endsWith('.bib')) {
+      alert('Please select a valid BibTeX file (.bib)');
+      return false;
+    }
+    if (file.size > 50 * 1024 * 1024) {
+      alert('File is too large. Maximum size is 50MB.');
+      return false;
+    }
+    return true;
+  }
+
+  // Display file info
+  function displayBibFileInfo(file) {
+    bibFileName.textContent = file.name;
+    bibFileSize.textContent = formatFileSize(file.size);
+    bibDropZoneContent.style.display = 'none';
+    bibFileDisplay.style.display = 'block';
+    bibDropZone.style.borderColor = 'var(--info-color)';
+    bibDropZone.style.borderStyle = 'solid';
+    bibDropZone.style.background = 'rgba(107, 143, 179, 0.1)';
+  }
+
+  // Auto-submit form
+  function autoSubmitBibTeX() {
+    if (!bibFileInput.files || !bibFileInput.files[0]) return;
+
+    // Show processing state
+    bibDropZone.style.borderColor = 'var(--info-color)';
+    bibDropZone.style.background = 'rgba(107, 143, 179, 0.15)';
+
+    const formData = new FormData(bibUploadForm);
+
+    fetch(bibUploadForm.action, {
+      method: 'POST',
+      body: formData,
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(response => {
+      if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+      return response.json();
+    })
+    .then(data => {
+      if (data.success) {
+        // Show success state
+        bibDropZone.style.borderColor = 'var(--success-color)';
+        bibDropZone.style.background = 'rgba(74, 155, 126, 0.1)';
+
+        // Start progress tracking
+        setTimeout(() => {
+          showBibJobProgress(data.job_id, bibFileInput.files[0].name);
+        }, 300);
+      } else {
+        throw new Error(data.message || 'Upload failed');
+      }
+    })
+    .catch(error => {
+      console.error('Upload error:', error);
+      alert('Enrichment failed: ' + error.message);
+      bibDropZone.style.borderColor = 'var(--color-border-default)';
+      bibDropZone.style.background = 'var(--color-canvas-subtle)';
+    });
+  }
+
+  // Handle file selection with auto-processing
+  function handleBibFileSelect(file) {
+    if (validateBibFile(file)) {
+      displayBibFileInfo(file);
+      setTimeout(() => autoSubmitBibTeX(), 300);
+    } else {
+      bibFileInput.value = '';
+    }
+  }
+
+  // File input change
+  bibFileInput.addEventListener('change', function(e) {
+    if (this.files && this.files[0]) {
+      handleBibFileSelect(this.files[0]);
+    }
+  });
+
+  // Drag events
+  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    bibDropZone.addEventListener(eventName, e => {
+      e.preventDefault();
+      e.stopPropagation();
+    }, false);
+  });
+
+  // Dragenter: increment counter and apply styles
+  bibDropZone.addEventListener('dragenter', function(e) {
+    bibDragCounter++;
+    if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
+    bibDropZone.classList.add('dragging');
+    bibDropZone.style.borderColor = '#6B8FB3';
+    bibDropZone.style.borderStyle = 'solid';
+    bibDropZone.style.background = 'rgba(107, 143, 179, 0.15)';
+    bibDropZone.style.transform = 'scale(1.01)';
+    bibDropZone.style.boxShadow = '0 4px 16px rgba(107, 143, 179, 0.3)';
+  });
+
+  // Dragleave: decrement counter and remove styles when truly leaving
+  bibDropZone.addEventListener('dragleave', function(e) {
+    bibDragCounter--;
+    if (bibDragCounter === 0) {
+      bibDropZone.classList.remove('dragging');
+      bibDropZone.style.borderColor = 'var(--color-border-default)';
+      bibDropZone.style.borderStyle = 'dashed';
+      bibDropZone.style.background = 'var(--color-canvas-subtle)';
+      bibDropZone.style.transform = 'scale(1)';
+      bibDropZone.style.boxShadow = 'none';
+    }
+  });
+
+  // Drop: reset counter and handle file
+  bibDropZone.addEventListener('drop', function(e) {
+    bibDragCounter = 0;
+    bibDropZone.classList.remove('dragging');
+    bibDropZone.style.borderColor = 'var(--color-border-default)';
+    bibDropZone.style.borderStyle = 'dashed';
+    bibDropZone.style.background = 'var(--color-canvas-subtle)';
+    bibDropZone.style.transform = 'scale(1)';
+    bibDropZone.style.boxShadow = 'none';
+
+    const files = e.dataTransfer.files;
+    if (files && files[0]) {
+      bibFileInput.files = files;
+      handleBibFileSelect(files[0]);
+    }
+  });
+
+  // Progress tracking
+  let activeBibJobId = null;
+  let bibPollingInterval = null;
+
+  function showBibJobProgress(jobId, fileName) {
+    activeBibJobId = jobId;
+    const panel = document.getElementById('bibJobPanel');
+    panel.style.display = 'block';
+
+    // Start polling
+    bibPollingInterval = setInterval(pollBibJobStatus, 2000);
+    pollBibJobStatus(); // Immediate first poll
+  }
+
+  function pollBibJobStatus() {
+    if (!activeBibJobId) return;
+
+    fetch(`/scholar/api/bibtex/job/${activeBibJobId}/status/`)
+      .then(response => response.json())
+      .then(data => {
+        updateBibJobUI(data);
+        if (data.status === 'completed' || data.status === 'failed') {
+          clearInterval(bibPollingInterval);
+        }
+      })
+      .catch(error => console.error('Polling error:', error));
+  }
+
+  function updateBibJobUI(data) {
+    const progressBar = document.getElementById('bibProgressBar');
+    const progressPercent = document.getElementById('bibProgressPercent');
+    const progressText = document.getElementById('bibProgressText');
+    const downloadSection = document.getElementById('bibDownloadSection');
+    const downloadLink = document.getElementById('bibDownloadLink');
+
+    // Update progress
+    const percent = data.progress_percentage || 0;
+    progressBar.style.width = percent + '%';
+    progressPercent.textContent = percent + '%';
+    progressText.textContent = `${data.processed_papers || 0} / ${data.total_papers || 0} papers processed`;
+
+    // Show download when complete
+    if (data.status === 'completed' && data.enriched_file_url) {
+      downloadSection.style.display = 'block';
+      downloadLink.href = data.enriched_file_url;
+    }
+  }
+
+  // Prevent form submission
+  bibUploadForm.addEventListener('submit', e => e.preventDefault());
+});
+
 </script>
 {% endblock %}
