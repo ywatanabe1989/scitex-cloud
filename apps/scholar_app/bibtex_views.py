@@ -385,7 +385,12 @@ def _process_bibtex_job(job):
         enriched_papers = []
         for i, paper in enumerate(papers, 1):
             try:
-                _append_log_sync(job, f"[{i}/{len(papers)}] Processing: {paper.title[:60]}...")
+                # Get paper title safely
+                paper_title = "Untitled"
+                if hasattr(paper, 'metadata') and hasattr(paper.metadata, 'basic') and paper.metadata.basic.title:
+                    paper_title = paper.metadata.basic.title[:60]
+
+                _append_log_sync(job, f"[{i}/{len(papers)}] Processing: {paper_title}...")
 
                 # Enrich single paper
                 import io
