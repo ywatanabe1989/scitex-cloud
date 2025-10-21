@@ -138,15 +138,8 @@
         </div>
       </details>
 
-      <!-- Submit Button -->
-      <button
-        type="submit"
-        style="width: 100%; padding: 1rem; background: var(--color-btn-primary-bg); color: var(--color-btn-primary-text); border: 1px solid var(--color-btn-primary-border); border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: transform 0.2s, background-color 0.2s;"
-        onmouseover="this.style.background='var(--color-btn-primary-hover-bg)'; this.style.transform='translateY(-2px)'"
-        onmouseout="this.style.background='var(--color-btn-primary-bg)'; this.style.transform='translateY(0)'"
-      >
-        <i class="fas fa-magic"></i> Enrich BibTeX File
-      </button>
+      <!-- Auto-processing: File upload triggers enrichment automatically -->
+      <!-- No submit button needed - processing starts immediately after file selection -->
     </form>
   </div>
 
@@ -357,7 +350,6 @@ document.addEventListener('DOMContentLoaded', function() {
   const fileSize = document.getElementById('fileSize');
   const changeFileBtn = document.getElementById('changeFileBtn');
   const uploadForm = document.querySelector('form');
-  const submitBtn = uploadForm.querySelector('button[type="submit"]');
 
   // Format file size
   function formatFileSize(bytes) {
@@ -402,13 +394,89 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('File selected:', file.name, file.size);
   }
 
-  // Handle file selection
+  // Handle file selection - auto-trigger processing
   function handleFileSelect(file) {
     if (validateFile(file)) {
       displayFileInfo(file);
+
+      // Auto-trigger enrichment process immediately after file selection
+      setTimeout(() => {
+        autoSubmitForm();
+      }, 300); // Small delay to show file info first
     } else {
       fileInput.value = '';
     }
+  }
+
+  // Auto-submit function - triggers enrichment without button click
+  function autoSubmitForm() {
+    if (!fileInput.files || !fileInput.files[0]) {
+      return;
+    }
+
+    // Show visual feedback that processing is starting
+    dropZone.style.borderColor = 'var(--info-color)';
+    dropZone.style.background = 'rgba(107, 143, 179, 0.1)';
+
+    // Add processing indicator
+    const processingIndicator = document.createElement('div');
+    processingIndicator.id = 'processingIndicator';
+    processingIndicator.style.cssText = 'margin-top: 1rem; padding: 1rem; background: var(--info-color); color: white; border-radius: 6px; text-align: center; font-weight: 600;';
+    processingIndicator.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Starting enrichment...';
+    dropZone.appendChild(processingIndicator);
+
+    // Create FormData
+    const formData = new FormData(uploadForm);
+
+    // Submit via AJAX
+    fetch(uploadForm.action, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      // Remove processing indicator
+      const indicator = document.getElementById('processingIndicator');
+      if (indicator) indicator.remove();
+
+      if (data.success) {
+        // Show success state briefly
+        dropZone.style.borderColor = 'var(--success-color)';
+        dropZone.style.background = 'rgba(74, 155, 126, 0.1)';
+
+        // Show inline progress panel
+        setTimeout(() => {
+          showJobProgress(data.job_id, fileInput.files[0].name);
+
+          // Scroll to progress panel
+          document.getElementById('activeJobPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 300);
+      } else {
+        throw new Error(data.message || 'Upload failed');
+      }
+    })
+    .catch(error => {
+      console.error('Upload error:', error);
+
+      // Remove processing indicator
+      const indicator = document.getElementById('processingIndicator');
+      if (indicator) indicator.remove();
+
+      // Show error
+      alert('Enrichment failed: ' + error.message);
+
+      // Reset styles
+      dropZone.style.borderColor = 'var(--color-border-default)';
+      dropZone.style.background = 'var(--color-canvas-subtle)';
+    });
   }
 
   // File input change
@@ -451,41 +519,66 @@ document.addEventListener('DOMContentLoaded', function() {
     e.stopPropagation();
   }
 
-  // Highlight on drag
-  ['dragenter', 'dragover'].forEach(eventName => {
-    dropZone.addEventListener(eventName, function(e) {
-      // Set the cursor to show proper drag feedback
-      // 'copy' shows the standard copy cursor with + indicator
-      if (e.dataTransfer) {
-        e.dataTransfer.dropEffect = 'copy';
-      }
+  // Counter to track drag depth (prevents flickering on child elements)
+  let dragCounter = 0;
 
-      // Add dragging class for enhanced visual feedback
-      dropZone.classList.add('dragging');
+  // Apply visual feedback styles
+  function applyDragStyles() {
+    dropZone.classList.add('dragging');
+    if (!fileInput.files || !fileInput.files[0]) {
+      dropZone.style.borderColor = '#6B8FB3'; // scitex-color-03
+      dropZone.style.borderStyle = 'solid';
+      dropZone.style.background = 'rgba(107, 143, 179, 0.15)';
+    }
+    dropZone.style.transform = 'scale(1.01)';
+    dropZone.style.boxShadow = '0 4px 16px rgba(107, 143, 179, 0.3)';
+  }
 
-      if (!fileInput.files || !fileInput.files[0]) {
-        dropZone.style.borderColor = '#6B8FB3'; // scitex-color-03
-        dropZone.style.borderStyle = 'solid';
-        dropZone.style.background = 'rgba(107, 143, 179, 0.15)';
-      }
-      dropZone.style.transform = 'scale(1.01)';
-      dropZone.style.boxShadow = '0 4px 16px rgba(107, 143, 179, 0.3)';
-    });
+  // Remove visual feedback styles
+  function removeDragStyles() {
+    dropZone.classList.remove('dragging');
+    if (!fileInput.files || !fileInput.files[0]) {
+      dropZone.style.borderColor = 'var(--color-border-default)';
+      dropZone.style.borderStyle = 'dashed';
+      dropZone.style.background = 'var(--color-canvas-subtle)';
+    }
+    dropZone.style.transform = 'scale(1)';
+    dropZone.style.boxShadow = 'none';
+  }
+
+  // Dragenter: increment counter and apply styles
+  dropZone.addEventListener('dragenter', function(e) {
+    dragCounter++;
+    if (e.dataTransfer) {
+      e.dataTransfer.dropEffect = 'copy';
+    }
+    applyDragStyles();
   });
 
-  ['dragleave', 'drop'].forEach(eventName => {
-    dropZone.addEventListener(eventName, function() {
-      // Remove dragging class
-      dropZone.classList.remove('dragging');
+  // Dragover: maintain styles and cursor
+  dropZone.addEventListener('dragover', function(e) {
+    if (e.dataTransfer) {
+      e.dataTransfer.dropEffect = 'copy';
+    }
+    // Ensure styles stay applied (in case they were removed)
+    if (!dropZone.classList.contains('dragging')) {
+      applyDragStyles();
+    }
+  });
 
-      if (!fileInput.files || !fileInput.files[0]) {
-        dropZone.style.borderColor = 'var(--color-border-default)';
-        dropZone.style.borderStyle = 'dashed';
-        dropZone.style.background = 'var(--color-canvas-subtle)';
-      }
-      dropZone.style.transform = 'scale(1)';
-      dropZone.style.boxShadow = 'none';
-    });
+  // Dragleave: decrement counter, only remove styles when truly leaving
+  dropZone.addEventListener('dragleave', function(e) {
+    dragCounter--;
+    // Only remove styles when counter reaches 0 (actually left the zone)
+    if (dragCounter === 0) {
+      removeDragStyles();
+    }
+  });
+
+  // Drop: reset counter and remove styles
+  dropZone.addEventListener('drop', function(e) {
+    dragCounter = 0;
+    removeDragStyles();
   });
 
   // Handle drop
@@ -500,69 +593,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // Form submission with progress
+  // No manual form submission needed - auto-processing triggers on file selection
+  // Prevent accidental form submission
   uploadForm.addEventListener('submit', function(e) {
     e.preventDefault();
-
-    // Validate file is selected
-    if (!fileInput.files || !fileInput.files[0]) {
-      alert('Please select a BibTeX file to upload.');
-      return;
-    }
-
-    // Show loading state
-    const originalBtnText = submitBtn.innerHTML;
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
-    submitBtn.style.cursor = 'not-allowed';
-
-    // Create FormData
-    const formData = new FormData(uploadForm);
-
-    // Submit via AJAX for better feedback
-    fetch(uploadForm.action, {
-      method: 'POST',
-      body: formData,
-      headers: {
-        'X-Requested-With': 'XMLHttpRequest'
-      }
-    })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error(`HTTP error ${response.status}`);
-      }
-      return response.json();
-    })
-    .then(data => {
-      if (data.success) {
-        // Show success message
-        submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> Upload Complete!';
-        submitBtn.style.background = 'var(--success-color)';
-
-        // Show inline progress panel instead of redirecting
-        setTimeout(() => {
-          showJobProgress(data.job_id, fileInput.files[0].name);
-
-          // Reset upload form
-          submitBtn.disabled = false;
-          submitBtn.innerHTML = originalBtnText;
-          submitBtn.style.background = 'var(--color-btn-primary-bg)';
-          submitBtn.style.cursor = 'pointer';
-
-          // Scroll to progress panel
-          document.getElementById('activeJobPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 500);
-      } else {
-        throw new Error(data.message || 'Upload failed');
-      }
-    })
-    .catch(error => {
-      console.error('Upload error:', error);
-      alert('Upload failed: ' + error.message);
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = originalBtnText;
-      submitBtn.style.cursor = 'pointer';
-    });
   });
 
   // ============ Inline Job Progress Tracking ============
