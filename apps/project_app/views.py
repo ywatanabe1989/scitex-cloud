@@ -550,6 +550,14 @@ def project_delete(request, username, slug):
         return redirect('project_app:detail', username=username, slug=slug)
 
     if request.method == 'POST':
+        # Verify confirmation text matches "username/slug"
+        confirmation = request.POST.get('confirmation', '').strip()
+        expected_confirmation = f"{username}/{slug}"
+
+        if confirmation != expected_confirmation:
+            messages.error(request, f'Confirmation text does not match. Please type "{expected_confirmation}" exactly.')
+            return render(request, 'project_app/project_delete.html', {'project': project})
+
         project_name = project.name
         project.delete()
         messages.success(request, f'Project "{project_name}" deleted successfully')
@@ -1322,9 +1330,10 @@ def user_overview(request, username):
     is_own_profile = request.user.is_authenticated and request.user == user
 
     # Get recent activity
-    recent_projects = Project.objects.filter(owner=user).order_by('-updated_at')[:6]
+    recent_projects = Project.objects.filter(owner=user)
     if not is_own_profile:
         recent_projects = recent_projects.filter(visibility='public')
+    recent_projects = recent_projects.order_by('-updated_at')[:6]
 
     # Get social stats
     from apps.social_app.models import UserFollow, RepositoryStar
