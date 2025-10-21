@@ -23,7 +23,7 @@
         </label>
 
         <!-- Custom drop zone -->
-        <div id="dropZone" style="
+        <div id="dropZone" class="drop-zone" style="
           position: relative;
           width: 100%;
           padding: 2rem;
@@ -330,6 +330,22 @@
 
 </div>
 
+<!-- Drag & Drop Styling -->
+<style>
+  .drop-zone.dragging {
+    cursor: copy !important;
+  }
+  .drop-zone.dragging::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+  }
+</style>
+
 <!-- Drag & Drop and Upload Progress JavaScript -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -437,7 +453,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Highlight on drag
   ['dragenter', 'dragover'].forEach(eventName => {
-    dropZone.addEventListener(eventName, function() {
+    dropZone.addEventListener(eventName, function(e) {
+      // Set the cursor to show proper drag feedback
+      // 'copy' shows the standard copy cursor with + indicator
+      if (e.dataTransfer) {
+        e.dataTransfer.dropEffect = 'copy';
+      }
+
+      // Add dragging class for enhanced visual feedback
+      dropZone.classList.add('dragging');
+
       if (!fileInput.files || !fileInput.files[0]) {
         dropZone.style.borderColor = '#6B8FB3'; // scitex-color-03
         dropZone.style.borderStyle = 'solid';
@@ -450,6 +475,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
   ['dragleave', 'drop'].forEach(eventName => {
     dropZone.addEventListener(eventName, function() {
+      // Remove dragging class
+      dropZone.classList.remove('dragging');
+
       if (!fileInput.files || !fileInput.files[0]) {
         dropZone.style.borderColor = 'var(--color-border-default)';
         dropZone.style.borderStyle = 'dashed';
