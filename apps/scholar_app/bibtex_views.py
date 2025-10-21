@@ -370,41 +370,71 @@ def _process_bibtex_job(job):
 
         _append_log_sync(job, f"Loaded {len(papers)} papers from BibTeX")
 
-        # Enrich papers with metadata (API-only, parallel)
+        # Set total papers count immediately for progress tracking
+        job.total_papers = len(papers)
+        job.processed_papers = 0
+        job.failed_papers = 0
+        job.save(update_fields=['total_papers', 'processed_papers', 'failed_papers'])
+
+        # Enrich papers with metadata (API-only, with progress tracking)
         _append_log_sync(job, "Enriching papers with metadata...")
         _append_log_sync(job, "Fetching citations, impact factors, abstracts...")
         _append_log_sync(job, "")
 
-        # Capture Scholar pipeline logs
-        import io
-        import sys
-        log_capture = io.StringIO()
-        old_stdout = sys.stdout
-        old_stderr = sys.stderr
+        # Enrich papers one by one to show incremental progress
+        enriched_papers = []
+        for i, paper in enumerate(papers, 1):
+            try:
+                _append_log_sync(job, f"[{i}/{len(papers)}] Processing: {paper.title[:60]}...")
 
-        try:
-            # Redirect stdout/stderr to capture Scholar pipeline logs
-            sys.stdout = log_capture
-            sys.stderr = log_capture
+                # Enrich single paper
+                import io
+                import sys
+                log_capture = io.StringIO()
+                old_stdout = sys.stdout
+                old_stderr = sys.stderr
 
-            # Run async enrichment in sync context
-            enriched_papers = asyncio.run(pipeline.enrich_papers_async(papers))
+                try:
+                    # Redirect stdout/stderr to capture Scholar pipeline logs
+                    sys.stdout = log_capture
+                    sys.stderr = log_capture
 
-        finally:
-            # Restore stdout/stderr
-            sys.stdout = old_stdout
-            sys.stderr = old_stderr
+                    # Run async enrichment for single paper
+                    enriched = asyncio.run(pipeline.enrich_papers_async([paper]))
+                    if enriched:
+                        enriched_papers.extend(enriched)
 
-            # Get captured logs and append to job log
-            captured_output = log_capture.getvalue()
-            if captured_output:
-                _append_log_sync(job, "--- Scholar Pipeline Output ---")
-                job.processing_log += captured_output
-                job.save(update_fields=['processing_log'])
-                _append_log_sync(job, "--- End Pipeline Output ---")
+                        # Check if paper was successfully enriched
+                        enriched_paper = enriched[0]
+                        if (hasattr(enriched_paper.metadata, 'citation_count') and enriched_paper.metadata.citation_count is not None) or \
+                           (hasattr(enriched_paper.metadata, 'id') and enriched_paper.metadata.id.doi):
+                            job.processed_papers += 1
+                            _append_log_sync(job, f"  ✓ Enriched successfully")
+                        else:
+                            job.failed_papers += 1
+                            _append_log_sync(job, f"  ⚠ Limited metadata found")
+                    else:
+                        job.failed_papers += 1
+                        _append_log_sync(job, f"  ✗ Enrichment failed")
 
-            _append_log_sync(job, "")
-            _append_log_sync(job, f"Enrichment complete! Processed {len(enriched_papers)} papers")
+                finally:
+                    # Restore stdout/stderr
+                    sys.stdout = old_stdout
+                    sys.stderr = old_stderr
+
+                    # Get captured logs (optional - can be verbose)
+                    # captured_output = log_capture.getvalue()
+
+                # Update progress in database for real-time polling
+                job.save(update_fields=['processed_papers', 'failed_papers', 'processing_log'])
+
+            except Exception as e:
+                job.failed_papers += 1
+                _append_log_sync(job, f"  ✗ Error: {str(e)[:100]}")
+                job.save(update_fields=['failed_papers', 'processing_log'])
+
+        _append_log_sync(job, "")
+        _append_log_sync(job, f"Enrichment complete! Processed {len(enriched_papers)} papers")
 
         # Save enriched BibTeX
         _append_log_sync(job, "Saving enriched BibTeX file...")
@@ -413,15 +443,7 @@ def _process_bibtex_job(job):
         bibtex_handler.papers_to_bibtex(enriched_collection, output_path=output_path)
         _append_log_sync(job, f"Saved enriched BibTeX to: {output_filename}")
 
-        # Update job with results
-        job.total_papers = len(papers)
-        # For metadata enrichment, count papers with enriched data (citation count or DOI)
-        job.processed_papers = len([
-            p for p in enriched_papers
-            if (hasattr(p.metadata, 'citation_count') and p.metadata.citation_count is not None)
-            or (hasattr(p.metadata, 'id') and p.metadata.id.doi)
-        ])
-        job.failed_papers = len(papers) - job.processed_papers
+        # Update job with output file path (counts already updated incrementally)
         job.output_file = str(output_path.relative_to(settings.MEDIA_ROOT))
 
         _append_log_sync(job, "")
