@@ -491,10 +491,9 @@ def project_settings(request, username, slug):
             # Update visibility
             new_visibility = request.POST.get('visibility')
             if new_visibility in ['public', 'private']:
-                old_visibility = project.visibility
                 project.visibility = new_visibility
                 project.save()
-                messages.success(request, f'Repository visibility changed from {old_visibility} to {new_visibility}')
+                # No success message - the visual state change is sufficient feedback
 
         elif action == 'add_collaborator':
             # Add collaborator
