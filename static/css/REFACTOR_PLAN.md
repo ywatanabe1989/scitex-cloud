@@ -253,33 +253,39 @@ scitex-components.css:
 
 ---
 
-### Phase 5: Add Design System Documentation
+### Phase 5: Programmatic Design System Documentation
+
+**NEW APPROACH:** Auto-generate documentation from CSS files (See `PROGRAMMATIC_IMPLEMENTATION_PLAN.md`)
 
 **Tasks:**
-1. [ ] Add "Checkboxes & Toggles" section to `/dev/design/`
-2. [ ] Document checkbox component with live examples
-3. [ ] Document radio component with live examples
-4. [ ] Document toggle switch component with live examples
-5. [ ] Show light/dark mode variants
-6. [ ] Include HTML code snippets
+1. [ ] Add @annotations to existing CSS files (checkboxes, radios, toggles, buttons, forms)
+2. [ ] Create `generate_design_docs.py` management command
+3. [ ] Generate `components.json` from CSS files
+4. [ ] Update `/dev/design/` view to use auto-generated data
+5. [ ] Create auto-generating template with theme toggle
+6. [ ] Add interactive features (code copy, variant switcher)
 
-**Design page structure:**
-```html
-<section id="checkboxes">
-  <h3>Checkboxes 📁 /static/css/common/checkboxes.css</h3>
+**Benefits:**
+- ✅ Zero manual documentation (auto-generated from CSS)
+- ✅ Single source of truth (CSS files)
+- ✅ Always in sync (regenerate on change)
+- ✅ Live theme switching
+- ✅ Copy-paste code examples
 
-  <h4>SciTeX Checkbox Component</h4>
-  <div class="component-demo">
-    <!-- Light mode examples -->
-    <!-- Dark mode examples -->
-  </div>
-
-  <h4>HTML Implementation</h4>
-  <pre><code>...</code></pre>
-
-  <h4>States</h4>
-  <!-- Unchecked, Checked, Disabled, Hover -->
-</section>
+**CSS Annotation Format:**
+```css
+/*
+ * @component Checkbox
+ * @description Custom-styled checkboxes
+ * @darkmode true
+ * @variant scitex-checkbox - Base component
+ * @state checked - Checked with checkmark
+ * @example
+ * <div class="scitex-checkbox-wrapper">
+ *   <input type="checkbox" id="cb1" class="scitex-checkbox">
+ *   <label for="cb1" class="scitex-checkbox-label">Label</label>
+ * </div>
+ */
 ```
 
 ---
