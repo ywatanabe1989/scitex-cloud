@@ -1,0 +1,77 @@
+/*
+ * SciTeX Toggle Switch Component
+ * Custom-styled toggle button switches with theme support
+ * 📁 Source: /static/css/common/toggles.css
+ * 📖 Docs: /dev/design/#toggles
+ *
+ * Component Definition:
+ * - .scitex-toggle         # Hidden native checkbox input
+ * - .scitex-toggle-label   # Custom styled label (button-like toggle)
+ * - .scitex-toggle-wrapper # Optional wrapper for positioning
+ *
+ * States:
+ * - Default (unchecked/off)
+ * - Checked (filled background/on)
+ * - Hover (border highlight)
+ * - Dark mode variants
+ *
+ * Usage:
+ * <div class="scitex-toggle-wrapper">
+ *   <input type="checkbox" id="myToggle" class="scitex-toggle">
+ *   <label for="myToggle" class="scitex-toggle-label">Toggle Label</label>
+ * </div>
+ */
+
+/* =========================
+   Base Toggle Styles
+   ========================= */
+
+/* Toggle wrapper */
+.scitex-toggle-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+/* Hide default toggle (checkbox input) */
+.scitex-toggle {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Toggle label (button-like appearance) */
+.scitex-toggle-label {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 0.375rem 0.75rem;
+    border: 1px solid var(--mid-gray);
+    border-radius: 6px;
+    background-color: white;
+    color: var(--primary-color);
+    font-weight: 500;
+    transition: var(--transition-fast);
+    user-select: none;
+    min-width: 80px;
+    justify-content: center;
+}
+
+.scitex-toggle-label:hover {
+    border-color: var(--primary-color);
+    background-color: var(--light-gray);
+}
+
+/* =========================
+   Checked State (Toggle ON)
+   ========================= */
+
+.scitex-toggle:checked + .scitex-toggle-label {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+.scitex-toggle:checked + .scitex-toggle-label:hover {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+}

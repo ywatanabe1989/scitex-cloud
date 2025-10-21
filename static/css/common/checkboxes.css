@@ -1,0 +1,108 @@
+/*
+ * SciTeX Checkbox Component
+ * Custom-styled checkboxes with theme support
+ * 📁 Source: /static/css/common/checkboxes.css
+ * 📖 Docs: /dev/design/#checkboxes
+ *
+ * Component Definition:
+ * - .scitex-checkbox         # Hidden native checkbox input
+ * - .scitex-checkbox-label   # Custom styled label with visual checkbox
+ * - .scitex-checkbox-wrapper # Optional wrapper for positioning
+ *
+ * States:
+ * - Default (unchecked)
+ * - Checked (with checkmark icon)
+ * - Hover (background highlight)
+ * - Disabled
+ * - Dark mode variants
+ *
+ * Usage:
+ * <div class="scitex-checkbox-wrapper">
+ *   <input type="checkbox" id="myCheckbox" class="scitex-checkbox">
+ *   <label for="myCheckbox" class="scitex-checkbox-label">Label Text</label>
+ * </div>
+ */
+
+/* =========================
+   Base Checkbox Styles
+   ========================= */
+
+/* Custom checkbox wrapper */
+.scitex-checkbox-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+/* Hide default checkbox */
+.scitex-checkbox {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Checkbox label */
+.scitex-checkbox-label {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 6px;
+    transition: var(--transition-fast);
+    user-select: none;
+    color: var(--color-fg-default);
+}
+
+.scitex-checkbox-label:hover {
+    background-color: var(--light-gray);
+}
+
+/* Custom checkbox visual (::before pseudo-element) */
+.scitex-checkbox-label::before {
+    content: '';
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--mid-gray);
+    border-radius: 4px;
+    margin-right: 0.5rem;
+    display: inline-block;
+    transition: var(--transition-fast);
+    background-color: white;
+}
+
+/* =========================
+   Checked State
+   ========================= */
+
+.scitex-checkbox:checked + .scitex-checkbox-label::before {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="white"><path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 12px;
+}
+
+/* =========================
+   Dark Mode
+   ========================= */
+
+/* Dark mode checkbox label - bluish color */
+[data-theme="dark"] .scitex-checkbox-label {
+    color: var(--scitex-color-06);
+}
+
+[data-theme="dark"] .scitex-checkbox-label:hover {
+    background-color: var(--scitex-color-01);
+}
+
+/* Dark mode checkbox visual - bluish theme */
+[data-theme="dark"] .scitex-checkbox-label::before {
+    border-color: var(--scitex-color-04);
+    background-color: var(--scitex-color-01-light);
+}
+
+/* Dark mode checked state - bluish accent */
+[data-theme="dark"] .scitex-checkbox:checked + .scitex-checkbox-label::before {
+    background-color: var(--scitex-color-04);
+    border-color: var(--scitex-color-04);
+}
