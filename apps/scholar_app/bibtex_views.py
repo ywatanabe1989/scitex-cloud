@@ -17,6 +17,7 @@ Uses scitex.scholar.pipelines.ScholarPipelineBibTeX under the hood.
 
 import asyncio
 import json
+import logging
 from pathlib import Path
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -29,31 +30,34 @@ from django.utils import timezone
 from django.conf import settings
 from .models import BibTeXEnrichmentJob
 
+logger = logging.getLogger(__name__)
 
-@login_required
+
 def bibtex_enrichment(request):
     """BibTeX enrichment landing page - upload and manage enrichment jobs."""
     from apps.project_app.models import Project
 
-    # Get user's recent enrichment jobs
-    recent_jobs = BibTeXEnrichmentJob.objects.filter(
-        user=request.user
-    ).select_related('project').order_by('-created_at')[:10]
-
-    # Get user's projects for project selection
-    user_projects = Project.objects.filter(
-        owner=request.user
-    ).order_by('-created_at')
-
+    # Initialize context
     context = {
-        'recent_jobs': recent_jobs,
-        'user_projects': user_projects,
+        'recent_jobs': [],
+        'user_projects': [],
     }
+
+    # Only show user-specific data if authenticated
+    if request.user.is_authenticated:
+        # Get user's recent enrichment jobs
+        context['recent_jobs'] = BibTeXEnrichmentJob.objects.filter(
+            user=request.user
+        ).select_related('project').order_by('-created_at')[:10]
+
+        # Get user's projects for project selection
+        context['user_projects'] = Project.objects.filter(
+            owner=request.user
+        ).order_by('-created_at')
 
     return render(request, 'scholar_app/bibtex_enrichment.html', context)
 
 
-@login_required
 @require_http_methods(["POST"])
 def bibtex_upload(request):
     """Handle BibTeX file upload and start enrichment job."""
@@ -74,11 +78,11 @@ def bibtex_upload(request):
     project_name = request.POST.get('project_name', '').strip() or None
     project_id = request.POST.get('project_id', '').strip() or None
     num_workers = int(request.POST.get('num_workers', 4))
-    browser_mode = request.POST.get('browser_mode', 'stealth')
+    # No browser needed - enrichment uses APIs only
 
-    # Get project if specified
+    # Get project if specified (only for authenticated users)
     project = None
-    if project_id:
+    if project_id and request.user.is_authenticated:
         from apps.project_app.models import Project
         try:
             project = Project.objects.get(id=project_id, owner=request.user)
@@ -87,45 +91,129 @@ def bibtex_upload(request):
             return redirect('scholar_app:bibtex_enrichment')
 
     # Save uploaded file
+    # Use user ID for authenticated users, 'anonymous' for anonymous users
+    user_folder = request.user.id if request.user.is_authenticated else 'anonymous'
     file_path = default_storage.save(
-        f'bibtex_uploads/{request.user.id}/{bibtex_file.name}',
+        f'bibtex_uploads/{user_folder}/{bibtex_file.name}',
         ContentFile(bibtex_file.read())
     )
 
     # Create enrichment job
+    # For anonymous users, user field will be None
     job = BibTeXEnrichmentJob.objects.create(
-        user=request.user,
+        user=request.user if request.user.is_authenticated else None,
         input_file=file_path,
         project_name=project_name,
         project=project,
         num_workers=num_workers,
-        browser_mode=browser_mode,
+        browser_mode='none',  # BibTeX enrichment is API-only, no browser needed
         status='pending',
     )
 
-    # Start processing asynchronously (in production, use Celery)
-    # For now, we'll process synchronously with a loading page
+    # Store job ID in session for anonymous users to track their job
+    if not request.user.is_authenticated:
+        if 'anonymous_jobs' not in request.session:
+            request.session['anonymous_jobs'] = []
+        request.session['anonymous_jobs'].append(str(job.id))
+        request.session.modified = True
+
+    # Start processing asynchronously in background thread
+    import threading
+
+    def process_in_background():
+        try:
+            # Run in thread (not async) to avoid Django ORM issues
+            _process_bibtex_job(job)
+        except Exception as e:
+            logger.error(f"Background processing error for job {job.id}: {e}")
+            # Try to save error to job
+            try:
+                job.refresh_from_db()
+                job.status = 'failed'
+                job.error_message = f"Background thread error: {str(e)}"
+                job.processing_log += f"\n\n✗ FATAL ERROR: {str(e)}\n"
+                job.completed_at = timezone.now()
+                job.save()
+            except:
+                pass
+
+    thread = threading.Thread(target=process_in_background, daemon=True)
+    thread.start()
+
+    # Mark as processing immediately so polling shows it's started
+    job.status = 'processing'
+    job.started_at = timezone.now()
+    job.save()
+
     messages.success(request, f'BibTeX file uploaded successfully. Starting enrichment job #{job.id}')
 
-    return redirect('scholar_app:bibtex_job_detail', job_id=job.id)
+    # Return JSON for AJAX requests
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({
+            'success': True,
+            'job_id': str(job.id),
+            'message': 'BibTeX enrichment job started successfully'
+        })
+
+    # For non-AJAX requests, redirect back to scholar page with a message
+    # No need for separate job detail page anymore - progress shows in panel
+    messages.info(request, f'BibTeX enrichment started. Job ID: {job.id}. Please use the AJAX interface.')
+    return redirect('scholar_app:index')
 
 
-@login_required
 def bibtex_job_detail(request, job_id):
     """View details and progress of a BibTeX enrichment job."""
 
-    job = get_object_or_404(
-        BibTeXEnrichmentJob,
-        id=job_id,
-        user=request.user
-    )
+    # For authenticated users, verify ownership
+    if request.user.is_authenticated:
+        job = get_object_or_404(
+            BibTeXEnrichmentJob,
+            id=job_id,
+            user=request.user
+        )
+    else:
+        # For anonymous users, verify job is in their session
+        anonymous_jobs = request.session.get('anonymous_jobs', [])
+        if str(job_id) not in anonymous_jobs:
+            messages.error(request, 'Job not found or access denied.')
+            return redirect('scholar_app:bibtex_enrichment')
 
-    # If job is pending, start processing
+        job = get_object_or_404(
+            BibTeXEnrichmentJob,
+            id=job_id,
+            user=None
+        )
+
+    # If job is pending, start processing in background
     if job.status == 'pending':
         # In production, this would be a Celery task
-        # For now, start processing synchronously
-        _process_bibtex_job(job)
-        job.refresh_from_db()
+        # For now, start processing in a background thread
+        import threading
+
+        def process_in_background():
+            try:
+                # Run in thread (not async) to avoid Django ORM issues
+                _process_bibtex_job(job)
+            except Exception as e:
+                logger.error(f"Background processing error for job {job.id}: {e}")
+                # Try to save error to job
+                try:
+                    job.refresh_from_db()
+                    job.status = 'failed'
+                    job.error_message = f"Background thread error: {str(e)}"
+                    job.processing_log += f"\n\n✗ FATAL ERROR: {str(e)}\n"
+                    job.completed_at = timezone.now()
+                    job.save()
+                except:
+                    pass
+
+        thread = threading.Thread(target=process_in_background, daemon=True)
+        thread.start()
+
+        # Mark as processing immediately so polling shows it's started
+        job.status = 'processing'
+        job.started_at = timezone.now()
+        job.save()
 
     context = {
         'job': job,
@@ -134,15 +222,28 @@ def bibtex_job_detail(request, job_id):
     return render(request, 'scholar_app/bibtex_job_detail.html', context)
 
 
-@login_required
 def bibtex_download_enriched(request, job_id):
     """Download the enriched BibTeX file."""
 
-    job = get_object_or_404(
-        BibTeXEnrichmentJob,
-        id=job_id,
-        user=request.user
-    )
+    # For authenticated users, verify ownership
+    if request.user.is_authenticated:
+        job = get_object_or_404(
+            BibTeXEnrichmentJob,
+            id=job_id,
+            user=request.user
+        )
+    else:
+        # For anonymous users, verify job is in their session
+        anonymous_jobs = request.session.get('anonymous_jobs', [])
+        if str(job_id) not in anonymous_jobs:
+            messages.error(request, 'Job not found or access denied.')
+            return redirect('scholar_app:bibtex_enrichment')
+
+        job = get_object_or_404(
+            BibTeXEnrichmentJob,
+            id=job_id,
+            user=None
+        )
 
     if job.status != 'completed' or not job.output_file:
         messages.error(request, 'Enriched BibTeX file not available yet.')
@@ -164,16 +265,28 @@ def bibtex_download_enriched(request, job_id):
     return response
 
 
-@login_required
 @require_http_methods(["GET"])
 def bibtex_job_status(request, job_id):
     """AJAX endpoint to get job status and progress."""
 
-    job = get_object_or_404(
-        BibTeXEnrichmentJob,
-        id=job_id,
-        user=request.user
-    )
+    # For authenticated users, verify ownership
+    if request.user.is_authenticated:
+        job = get_object_or_404(
+            BibTeXEnrichmentJob,
+            id=job_id,
+            user=request.user
+        )
+    else:
+        # For anonymous users, verify job is in their session
+        anonymous_jobs = request.session.get('anonymous_jobs', [])
+        if str(job_id) not in anonymous_jobs:
+            return JsonResponse({'error': 'Job not found or access denied.'}, status=403)
+
+        job = get_object_or_404(
+            BibTeXEnrichmentJob,
+            id=job_id,
+            user=None
+        )
 
     data = {
         'status': job.status,
@@ -185,63 +298,147 @@ def bibtex_job_status(request, job_id):
         'completed_at': job.completed_at.isoformat() if job.completed_at else None,
         'error_message': job.error_message,
         'has_output': bool(job.output_file),
+        'log': job.processing_log,  # Real-time processing log
     }
 
     return JsonResponse(data)
 
 
+def _append_log_sync(job, message):
+    """Helper function to append log message to job and save (sync version for threading)."""
+    timestamp = timezone.now().strftime('%Y-%m-%d %H:%M:%S')
+    log_line = f"[{timestamp}] {message}\n"
+    job.processing_log += log_line
+    job.save(update_fields=['processing_log'])
+    return log_line
+
+
 def _process_bibtex_job(job):
-    """Process a BibTeX enrichment job using ScholarPipelineBibTeX.
+    """Process a BibTeX enrichment job using metadata-only pipeline (API-only).
 
     In production, this should be a Celery task for async processing.
     """
     import shutil
-    import logging
-
-    logger = logging.getLogger(__name__)
+    import traceback
 
     try:
-        # Update job status
-        job.status = 'processing'
-        job.started_at = timezone.now()
+        # IMMEDIATE log write to show we started
+        job.processing_log = f"[{timezone.now().strftime('%Y-%m-%d %H:%M:%S')}] Function started\n"
+
+        # Update job status (only if not already processing)
+        if job.status != 'processing':
+            job.status = 'processing'
+            job.started_at = timezone.now()
+
         job.save()
 
-        # Import scholar pipeline
-        from scitex.scholar.pipelines import ScholarPipelineBibTeX
+        _append_log_sync(job, "Background thread is running...")
+        _append_log_sync(job, "Starting BibTeX enrichment process...")
+        _append_log_sync(job, f"Workers: {job.num_workers} (API-only mode)")
+
+        # Import metadata-only pipeline (no browser needed!)
+        from scitex.scholar.pipelines import ScholarPipelineMetadataParallel
+        from scitex.scholar.storage import BibTeXHandler
 
         # Get input file path
         input_path = Path(settings.MEDIA_ROOT) / job.input_file.name
+        _append_log_sync(job, f"Input file: {input_path.name}")
 
         # Create output path
+        user_folder = str(job.user.id) if job.user else 'anonymous'
         output_filename = f"{Path(job.input_file.name).stem}_enriched_{job.id}.bib"
-        output_path = Path(settings.MEDIA_ROOT) / 'bibtex_enriched' / str(job.user.id) / output_filename
+        output_path = Path(settings.MEDIA_ROOT) / 'bibtex_enriched' / user_folder / output_filename
         output_path.parent.mkdir(parents=True, exist_ok=True)
+        _append_log_sync(job, f"Output will be saved to: {output_filename}")
 
-        # Create pipeline
-        pipeline = ScholarPipelineBibTeX(
-            num_workers=job.num_workers,
-            browser_mode=job.browser_mode,
-            base_chrome_profile='system',
-        )
+        # Create metadata-only pipeline (API-based, no browser)
+        _append_log_sync(job, "Initializing metadata enrichment pipeline...")
+        _append_log_sync(job, "Using API sources: CrossRef, Semantic Scholar, PubMed, OpenAlex")
+        _append_log_sync(job, "No browser automation - fast API-only enrichment")
 
-        # Process BibTeX file
-        papers = asyncio.run(
-            pipeline.process_bibtex_file_async(
-                bibtex_path=input_path,
-                project=job.project_name,
-                output_bibtex_path=output_path,
-            )
-        )
+        pipeline = ScholarPipelineMetadataParallel(num_workers=job.num_workers)
+        _append_log_sync(job, "Pipeline initialized successfully")
+
+        # Load papers from BibTeX
+        _append_log_sync(job, "Loading BibTeX entries...")
+        bibtex_handler = BibTeXHandler(project=job.project_name)
+        papers = bibtex_handler.papers_from_bibtex(input_path)
+
+        if not papers:
+            _append_log_sync(job, "WARNING: No papers found in BibTeX file")
+            raise ValueError("No papers found in BibTeX file")
+
+        _append_log_sync(job, f"Loaded {len(papers)} papers from BibTeX")
+
+        # Enrich papers with metadata (API-only, parallel)
+        _append_log_sync(job, "Enriching papers with metadata...")
+        _append_log_sync(job, "Fetching citations, impact factors, abstracts...")
+        _append_log_sync(job, "")
+
+        # Capture Scholar pipeline logs
+        import io
+        import sys
+        log_capture = io.StringIO()
+        old_stdout = sys.stdout
+        old_stderr = sys.stderr
+
+        try:
+            # Redirect stdout/stderr to capture Scholar pipeline logs
+            sys.stdout = log_capture
+            sys.stderr = log_capture
+
+            # Run async enrichment in sync context
+            enriched_papers = asyncio.run(pipeline.enrich_papers_async(papers))
+
+        finally:
+            # Restore stdout/stderr
+            sys.stdout = old_stdout
+            sys.stderr = old_stderr
+
+            # Get captured logs and append to job log
+            captured_output = log_capture.getvalue()
+            if captured_output:
+                _append_log_sync(job, "--- Scholar Pipeline Output ---")
+                job.processing_log += captured_output
+                job.save(update_fields=['processing_log'])
+                _append_log_sync(job, "--- End Pipeline Output ---")
+
+            _append_log_sync(job, "")
+            _append_log_sync(job, f"Enrichment complete! Processed {len(enriched_papers)} papers")
+
+        # Save enriched BibTeX
+        _append_log_sync(job, "Saving enriched BibTeX file...")
+        from scitex.scholar.core import Papers
+        enriched_collection = Papers(enriched_papers, project=job.project_name)
+        bibtex_handler.papers_to_bibtex(enriched_collection, output_path=output_path)
+        _append_log_sync(job, f"Saved enriched BibTeX to: {output_filename}")
 
         # Update job with results
         job.total_papers = len(papers)
-        job.processed_papers = len([p for p in papers if p.metadata.path.pdfs])
+        # For metadata enrichment, count papers with enriched data (citation count or DOI)
+        job.processed_papers = len([
+            p for p in enriched_papers
+            if (hasattr(p.metadata, 'citation_count') and p.metadata.citation_count is not None)
+            or (hasattr(p.metadata, 'id') and p.metadata.id.doi)
+        ])
         job.failed_papers = len(papers) - job.processed_papers
         job.output_file = str(output_path.relative_to(settings.MEDIA_ROOT))
+
+        _append_log_sync(job, "")
+        _append_log_sync(job, "=" * 50)
+        _append_log_sync(job, "ENRICHMENT SUMMARY")
+        _append_log_sync(job, "=" * 50)
+        _append_log_sync(job, f"Total papers: {job.total_papers}")
+        _append_log_sync(job, f"Successfully enriched: {job.processed_papers}")
+        _append_log_sync(job, f"Failed: {job.failed_papers}")
+        _append_log_sync(job, "=" * 50)
 
         # Gitea Integration: Auto-commit enriched .bib file to project repository
         if job.project and job.project.git_clone_path:
             try:
+                _append_log_sync(job, "")
+                _append_log_sync(job, "Gitea Integration: Auto-committing to repository...")
+
                 from apps.core_app.git_operations import auto_commit_file
 
                 # Create references directory in project if it doesn't exist
@@ -252,10 +449,13 @@ def _process_bibtex_job(job):
                 project_bib_path = project_refs_dir / 'references.bib'
                 shutil.copy(output_path, project_bib_path)
 
+                _append_log_sync(job, f"Copied enriched .bib to project: {project_bib_path.name}")
                 logger.info(f"Copied enriched .bib to {project_bib_path}")
 
                 # Auto-commit to Gitea
                 commit_message = f"Scholar: Enriched bibliography ({job.processed_papers}/{job.total_papers} papers enriched)"
+                _append_log_sync(job, "Committing to Gitea...")
+
                 success, output = auto_commit_file(
                     project_dir=Path(job.project.git_clone_path),
                     filepath='references/references.bib',
@@ -263,29 +463,52 @@ def _process_bibtex_job(job):
                 )
 
                 if success:
+                    _append_log_sync(job, "✓ Successfully auto-committed to Gitea!")
                     logger.info(f"✓ Auto-committed enriched .bib to Gitea: {output}")
                     job.enrichment_summary['gitea_commit'] = True
                     job.enrichment_summary['gitea_message'] = commit_message
                 else:
+                    _append_log_sync(job, f"✗ Failed to auto-commit to Gitea: {output}")
                     logger.warning(f"Failed to auto-commit to Gitea: {output}")
                     job.enrichment_summary['gitea_commit'] = False
                     job.enrichment_summary['gitea_error'] = output
 
             except Exception as gitea_error:
+                _append_log_sync(job, f"✗ Gitea integration error: {str(gitea_error)}")
                 logger.error(f"Gitea integration error: {gitea_error}")
                 job.enrichment_summary['gitea_commit'] = False
                 job.enrichment_summary['gitea_error'] = str(gitea_error)
 
+        _append_log_sync(job, "")
+        _append_log_sync(job, "✓ Enrichment process completed successfully!")
         job.status = 'completed'
         job.completed_at = timezone.now()
         job.save()
 
     except Exception as e:
+        error_msg = f"✗ ERROR: {str(e)}"
+        error_traceback = traceback.format_exc()
+
+        # Log error with full traceback
+        try:
+            _append_log_sync(job, "")
+            _append_log_sync(job, "=" * 50)
+            _append_log_sync(job, error_msg)
+            _append_log_sync(job, "=" * 50)
+            _append_log_sync(job, "Full traceback:")
+            _append_log_sync(job, error_traceback)
+        except:
+            # If logging fails, write directly
+            job.processing_log += f"\n\n{error_msg}\n{error_traceback}\n"
+
         job.status = 'failed'
         job.error_message = str(e)
         job.completed_at = timezone.now()
         job.save()
-        raise
+
+        # Also log to Django logger
+        logger.error(f"BibTeX job {job.id} failed: {e}")
+        logger.error(error_traceback)
 
 
 # EOF
