@@ -1,0 +1,331 @@
+<!-- Colors -->
+<section class="design-section container-section" id="colors">
+  <div class="section-header">
+    <h2>
+      <svg class="section-header-icon" viewBox="0 0 16 16" fill="currentColor">
+        <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm4.5 5.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H4.5z"/>
+      </svg>
+      Color Palette
+    </h2>
+    <span class="badge badge-secondary badge-file-path">
+      /static/css/common/colors.css
+    </span>
+  </div>
+  <p class="text-intro">Our color system is built with accessibility and consistency in mind. The dark gray color scheme provides a sophisticated, professional appearance that reflects the scientific and technical nature of the SciTeX platform.</p>
+
+  <div class="demo-box">
+    <h3 class="mb-4">SciTeX Design Token System v2.0</h3>
+    <p>Our predictable, theme-agnostic color scale maintains consistency across light and dark modes. <strong>Lower numbers (100) are always lighter, higher numbers (900) are always darker</strong> - regardless of theme.</p>
+
+    <div class="info-box alert alert-info" style="background-color: var(--status-info-bg); border: 2px solid var(--status-info-border);">
+      <strong class="info-box-title" style="color: var(--status-info-text);"><i class="fas fa-file-code"></i> Architecture:</strong>
+      <span class="info-box-content" style="color: var(--status-info-text);">Two-tier system with primitive tokens (_prefix, internal only) and semantic tokens (public API).</span>
+      <br>
+      <a class="info-box-link" href="/static/docs/DESIGN_TOKEN_ARCHITECTURE.html" style="color: var(--status-info-text);">📖 View Documentation</a>
+    </div>
+
+    <!-- Text Color Scale -->
+    <h4 class="mt-4 mb-3">Text Colors (100 = Lightest → 900 = Darkest)</h4>
+    <p class="text-label">Use these for all text content. The scale automatically adapts to provide proper contrast in each theme.</p>
+    <div class="color-palette grid-layout grid-auto-fit mb-4">
+      <div class="color-swatch" style="background-color: var(--bg-900); color: var(--text-100);">
+        <strong>text-100</strong><br>
+        <small>Lightest</small><br>
+        <small style="opacity: 0.7;">On dark BG</small>
+      </div>
+      <div class="color-swatch" style="background-color: var(--bg-800); color: var(--text-200); padding: 1rem;">
+        <strong>text-200</strong><br>
+        <small>Very Light</small>
+      </div>
+      <div class="color-swatch" style="background-color: var(--bg-700); color: var(--text-300); padding: 1rem;">
+        <strong>text-300</strong><br>
+        <small>Light</small>
+      </div>
+      <div class="color-swatch" style="background-color: var(--bg-600); color: var(--text-400); padding: 1rem;">
+        <strong>text-400</strong><br>
+        <small>Medium-Light</small>
+      </div>
+      <div class="color-swatch" style="background-color: var(--bg-500); color: var(--text-500); padding: 1rem;">
+        <strong>text-500</strong><br>
+        <small>Medium</small><br>
+        <small style="opacity: 0.7;">Disabled</small>
+      </div>
+      <div class="color-swatch" style="background-color: var(--bg-400); color: var(--text-600); padding: 1rem;">
+        <strong>text-600</strong><br>
+        <small>Medium-Dark</small><br>
+        <small style="opacity: 0.7;">Secondary</small>
+      </div>
+      <div class="color-swatch" style="background-color: var(--bg-300); color: var(--text-700); padding: 1rem;">
+        <strong>text-700</strong><br>
+        <small>Dark</small>
+      </div>
+      <div class="color-swatch" style="background-color: var(--bg-200); color: var(--text-800); padding: 1rem;">
+        <strong>text-800</strong><br>
+        <small>Very Dark</small><br>
+        <small style="opacity: 0.7;">Primary (light)</small>
+      </div>
+      <div class="color-swatch" style="background-color: var(--bg-100); color: var(--text-900); padding: 1rem;">
+        <strong>text-900</strong><br>
+        <small>Darkest</small><br>
+        <small style="opacity: 0.7;">On light BG</small>
+      </div>
+    </div>
+
+    <!-- Background Color Scale -->
+    <h4 class="mt-4 mb-3">Background Colors (100 = Lightest → 900 = Darkest)</h4>
+    <p class="text-muted mb-3">Use these for surfaces, cards, and containers.</p>
+    <div class="color-palette mb-4" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
+      <div class="color-swatch" style="background-color: var(--bg-100); color: var(--text-800); padding: 1rem; border: 1px solid var(--border-200);">
+        <strong>bg-100</strong><br>
+        <small>Primary BG</small><br>
+        <small style="opacity: 0.7;">Page background</small>
+      </div>
+      <div class="color-swatch" style="background-color: var(--bg-200); color: var(--text-800); padding: 1rem; border: 1px solid var(--border-200);">
+        <strong>bg-200</strong><br>
+        <small>Cards/Panels</small>
+      </div>
+      <div class="color-swatch" style="background-color: var(--bg-300); color: var(--text-700); padding: 1rem; border: 1px solid var(--border-300);">
+        <strong>bg-300</strong><br>
+        <small>Hover States</small>
+      </div>
+      <div class="color-swatch" style="background-color: var(--bg-400); color: var(--text-700); padding: 1rem;">
+        <strong>bg-400</strong><br>
+        <small>Active States</small>
+      </div>
+      <div class="color-swatch" style="background-color: var(--bg-500); color: var(--text-200); padding: 1rem;">
+        <strong>bg-500</strong><br>
+        <small>Medium</small>
+      </div>
+      <div class="color-swatch" style="background-color: var(--bg-600); color: var(--text-200); padding: 1rem;">
+        <strong>bg-600</strong><br>
+        <small>Medium-Dark</small>
+      </div>
+      <div class="color-swatch" style="background-color: var(--bg-700); color: var(--text-100); padding: 1rem;">
+        <strong>bg-700</strong><br>
+        <small>Dark</small>
+      </div>
+      <div class="color-swatch" style="background-color: var(--bg-800); color: var(--text-100); padding: 1rem;">
+        <strong>bg-800</strong><br>
+        <small>Cards (dark)</small>
+      </div>
+      <div class="color-swatch" style="background-color: var(--bg-900); color: var(--text-100); padding: 1rem;">
+        <strong>bg-900</strong><br>
+        <small>Header/Footer</small>
+      </div>
+    </div>
+
+    <!-- Border Color Scale -->
+    <h4 class="mt-4 mb-3">Border Colors (100 = Lightest → 700 = Darkest)</h4>
+    <p class="text-muted mb-3">Use these for all borders, dividers, and outlines.</p>
+    <div class="color-palette mb-4" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+      <div style="background-color: var(--bg-100); padding: 1rem; border: 3px solid var(--border-100);">
+        <strong style="color: var(--text-800);">border-100</strong><br>
+        <small style="color: var(--text-600);">Subtle borders</small>
+      </div>
+      <div style="background-color: var(--bg-100); padding: 1rem; border: 3px solid var(--border-200);">
+        <strong style="color: var(--text-800);">border-200</strong><br>
+        <small style="color: var(--text-600);">Default borders</small>
+      </div>
+      <div style="background-color: var(--bg-100); padding: 1rem; border: 3px solid var(--border-300);">
+        <strong style="color: var(--text-800);">border-300</strong><br>
+        <small style="color: var(--text-600);">Medium-light</small>
+      </div>
+      <div style="background-color: var(--bg-100); padding: 1rem; border: 3px solid var(--border-400);">
+        <strong style="color: var(--text-800);">border-400</strong><br>
+        <small style="color: var(--text-600);">Hover state</small>
+      </div>
+      <div style="background-color: var(--bg-100); padding: 1rem; border: 3px solid var(--border-500);">
+        <strong style="color: var(--text-800);">border-500</strong><br>
+        <small style="color: var(--text-600);">Medium-dark</small>
+      </div>
+      <div style="background-color: var(--bg-100); padding: 1rem; border: 3px solid var(--border-600);">
+        <strong style="color: var(--text-800);">border-600</strong><br>
+        <small style="color: var(--text-600);">Focus state</small>
+      </div>
+      <div style="background-color: var(--bg-100); padding: 1rem; border: 3px solid var(--border-700);">
+        <strong style="color: var(--text-800);">border-700</strong><br>
+        <small style="color: var(--text-600);">Strong borders</small>
+      </div>
+    </div>
+
+    <!-- Component-Specific Semantic Tokens -->
+    <h4 class="mt-4 mb-3">Component-Specific Semantic Tokens</h4>
+    <p class="text-muted mb-3">Pre-configured token combinations for common UI patterns.</p>
+
+    <div class="row">
+      <div class="col-md-6">
+        <h5 class="mb-2">Buttons</h5>
+        <button class="btn" style="background-color: var(--btn-primary-bg); color: var(--btn-primary-text); border: 1px solid var(--btn-primary-border); margin-right: 0.5rem; margin-bottom: 0.5rem;">
+          Primary Button
+        </button>
+        <button class="btn" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border: 1px solid var(--btn-secondary-border); margin-bottom: 0.5rem;">
+          Secondary Button
+        </button>
+        <div class="mt-2" style="font-size: 0.875rem; color: var(--text-600);">
+          <code>--btn-primary-bg</code>, <code>--btn-primary-text</code><br>
+          <code>--btn-secondary-bg</code>, <code>--btn-secondary-text</code>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <h5 class="mb-2">Form Inputs</h5>
+        <input type="text" placeholder="Example input" style="background-color: var(--input-bg); color: var(--input-text); border: 1px solid var(--input-border); padding: 0.5rem; border-radius: 4px; width: 100%; margin-bottom: 0.5rem;">
+        <input type="text" placeholder="Focused input" style="background-color: var(--input-bg); color: var(--input-text); border: 2px solid var(--input-border-focus); padding: 0.5rem; border-radius: 4px; width: 100%; margin-bottom: 0.5rem;">
+        <div class="mt-2" style="font-size: 0.875rem; color: var(--text-600);">
+          <code>--input-bg</code>, <code>--input-text</code><br>
+          <code>--input-border</code>, <code>--input-border-focus</code>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status Colors -->
+    <h4 class="mt-4 mb-3">Status/Semantic Colors</h4>
+    <div class="row">
+      <div class="col-md-6 col-lg-3 mb-3">
+        <div style="background-color: var(--status-success-bg); color: var(--status-success-text); border: 2px solid var(--status-success-border); padding: 1.25rem; border-radius: 10px; box-shadow: var(--shadow-sm); transition: all 0.2s ease-in-out; cursor: pointer;" onmouseover="this.style.boxShadow='var(--shadow-md)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.boxShadow='var(--shadow-sm)'; this.style.transform='translateY(0)';">
+          <strong style="font-size: 1.1rem;">✓ Success</strong><br>
+          <small>Operation completed</small>
+        </div>
+        <small style="color: var(--text-600); display: block; margin-top: 0.5rem;"><code>--status-success-*</code></small>
+      </div>
+      <div class="col-md-6 col-lg-3 mb-3">
+        <div style="background-color: var(--status-warning-bg); color: var(--status-warning-text); border: 2px solid var(--status-warning-border); padding: 1.25rem; border-radius: 10px; box-shadow: var(--shadow-sm); transition: all 0.2s ease-in-out; cursor: pointer;" onmouseover="this.style.boxShadow='var(--shadow-md)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.boxShadow='var(--shadow-sm)'; this.style.transform='translateY(0)';">
+          <strong style="font-size: 1.1rem;">⚠ Warning</strong><br>
+          <small>Please review</small>
+        </div>
+        <small style="color: var(--text-600); display: block; margin-top: 0.5rem;"><code>--status-warning-*</code></small>
+      </div>
+      <div class="col-md-6 col-lg-3 mb-3">
+        <div style="background-color: var(--status-error-bg); color: var(--status-error-text); border: 2px solid var(--status-error-border); padding: 1.25rem; border-radius: 10px; box-shadow: var(--shadow-sm); transition: all 0.2s ease-in-out; cursor: pointer;" onmouseover="this.style.boxShadow='var(--shadow-md)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.boxShadow='var(--shadow-sm)'; this.style.transform='translateY(0)';">
+          <strong style="font-size: 1.1rem;">✗ Error</strong><br>
+          <small>Action failed</small>
+        </div>
+        <small style="color: var(--text-600); display: block; margin-top: 0.5rem;"><code>--status-error-*</code></small>
+      </div>
+      <div class="col-md-6 col-lg-3 mb-3">
+        <div style="background-color: var(--status-info-bg); color: var(--status-info-text); border: 2px solid var(--status-info-border); padding: 1.25rem; border-radius: 10px; box-shadow: var(--shadow-sm); transition: all 0.2s ease-in-out; cursor: pointer;" onmouseover="this.style.boxShadow='var(--shadow-md)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.boxShadow='var(--shadow-sm)'; this.style.transform='translateY(0)';">
+          <strong style="font-size: 1.1rem;">ℹ Info</strong><br>
+          <small>Additional details</small>
+        </div>
+        <small style="color: var(--text-600); display: block; margin-top: 0.5rem;"><code>--status-info-*</code></small>
+      </div>
+    </div>
+
+    <!-- Key Principles -->
+    <div class="alert" style="background-color: var(--bg-300); border: 2px solid var(--border-400); border-radius: 12px; padding: 2rem; margin-top: 2rem; box-shadow: var(--shadow-sm);">
+      <h5 style="color: var(--text-800); margin-top: 0; font-size: 1.25rem;">🎯 Key Principles</h5>
+      <ul style="margin-bottom: 0; color: var(--text-700); line-height: 1.8;">
+        <li><strong>Predictable Scale:</strong> 100 (lightest) → 900 (darkest) across ALL themes</li>
+        <li><strong>Semantic Naming:</strong> Use purpose-based tokens (<code style="background-color: var(--bg-200); padding: 0.2rem 0.4rem; border-radius: 4px;">--text-primary</code>), not primitive values (<code style="background-color: var(--bg-200); padding: 0.2rem 0.4rem; border-radius: 4px;">--_scitex-01</code>)</li>
+        <li><strong>Theme Agnostic:</strong> Same token names work in both light and dark modes</li>
+        <li><strong>Validation Enforced:</strong> Primitive tokens (with <code style="background-color: var(--bg-200); padding: 0.2rem 0.4rem; border-radius: 4px;">_</code> prefix) are only allowed in colors.css</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="demo-box mt-4">
+    <h3 class="mb-3">Color Usage Examples</h3>
+
+    <div class="row">
+      <div class="col-md-6 mb-4">
+        <h4>UI Elements</h4>
+        <table class="table table-bordered">
+          <thead class="table-light">
+            <tr>
+              <th>Element</th>
+              <th>Color Variable</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Header Background</td>
+              <td><code>--header-bg</code></td>
+            </tr>
+            <tr>
+              <td>Footer Background</td>
+              <td><code>--footer-bg</code></td>
+            </tr>
+            <tr>
+              <td>Primary Button</td>
+              <td><code>--color-btn-primary-bg</code></td>
+            </tr>
+            <tr>
+              <td>Secondary Button</td>
+              <td><code>--secondary-color</code></td>
+            </tr>
+            <tr>
+              <td>Section Backgrounds</td>
+              <td><code>--color-canvas-subtle</code></td>
+            </tr>
+            <tr>
+              <td>Card Borders</td>
+              <td><code>--color-border-default</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="col-md-6 mb-4">
+        <h4>Text Colors (Live Demo)</h4>
+        <div style="background-color: var(--header-bg); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+          <p style="color: var(--header-text); margin-bottom: 0.5rem;"><strong>Header text</strong> - Uses --header-text</p>
+          <p style="color: var(--header-text-muted); margin-bottom: 0; opacity: 0.7;"><strong>Header muted</strong> - Uses --header-text-muted</p>
+        </div>
+        <div style="background-color: var(--color-canvas-default); padding: 1rem; border-radius: 8px; border: 1px solid var(--color-border-default);">
+          <p style="color: var(--color-fg-default); margin-bottom: 0.5rem;"><strong>Body text</strong> - Uses --color-fg-default</p>
+          <p style="color: var(--color-fg-muted); margin-bottom: 0.5rem;"><strong>Muted text</strong> - Uses --color-fg-muted</p>
+          <p style="color: var(--color-accent-fg); margin-bottom: 0;"><strong>Links</strong> - Uses --color-accent-fg</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="demo-box">
+    <h3 class="mb-3">Color Variables <span class="badge bg-secondary badge-file-path">📁 /static/css/common/colors.css</span></h3>
+    <pre class="code-block">
+/* SciTeX Color System - Bluish Dark Gray Theme */
+--scitex-color-01: #1a2332; /* Dark Bluish Gray (Primary) */
+--scitex-color-02: #34495e; /* Medium Bluish Gray */
+--scitex-color-03: #506b7a; /* Light Bluish Gray */
+--scitex-color-04: #6c8ba0; /* Lighter Bluish Gray */
+--scitex-color-05: #8fa4b0; /* Very Light Bluish Gray */
+--scitex-color-06: #b5c7d1; /* Pale Bluish Gray */
+--scitex-color-07: #d4e1e8; /* Very Pale Bluish Gray */
+
+/* Status Colors with Gray Elements (SciTeX-harmonized) */
+--success-color: #4a9b7e; /* Grayish Green */
+--warning-color: #b8956a; /* Grayish Orange */
+--error-color: #a67373;   /* Grayish Red */
+--info-color: #6b8fb3;     /* Grayish Blue */
+
+/* SciTeX Bluish Dark Gray Scale */
+--darkgray-100: #d4e1e8; /* scitex-color-07 */
+--darkgray-200: #b5c7d1; /* scitex-color-06 */
+--darkgray-300: #8fa4b0; /* scitex-color-05 */
+--darkgray-400: #6c8ba0; /* scitex-color-04 */
+--darkgray-500: #506b7a; /* scitex-color-03 */
+--darkgray-600: #34495e; /* scitex-color-02 */
+--darkgray-700: #2d3748; /* scitex-color-01-light */
+--darkgray-800: #1a2332; /* scitex-color-01 */
+--darkgray-900: #0f1419; /* scitex-color-01-dark */
+
+/* Semantic mapping using SciTeX colors only */
+--primary-color: var(--scitex-color-01);
+--secondary-color: var(--scitex-color-02);
+--accent-color: var(--scitex-color-03);
+--white: #ffffff;
+--white-rgb: 255, 255, 255;
+--black: #000000;
+--black-rgb: 0, 0, 0;
+
+/* Dark Mode: Text uses WHITE for maximum visibility */
+[data-theme="dark"] {
+  --color-fg-default: var(--white);
+  --color-fg-muted: var(--white);
+  --color-accent-fg: var(--white);
+  --header-text: var(--white);
+  --header-text-muted: var(--white);
+}
+</pre>
+  </div>
+</section>

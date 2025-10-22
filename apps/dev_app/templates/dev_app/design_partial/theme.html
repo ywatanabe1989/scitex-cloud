@@ -1,0 +1,127 @@
+<!-- Theme (CSS Variables) -->
+<section class="design-section container-section" id="theme">
+  <div class="section-header">
+    <h2>
+      <svg class="section-header-icon" viewBox="0 0 16 16" fill="currentColor">
+        <path d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z"/>
+      </svg>
+      Theme System
+    </h2>
+    <span class="badge badge-secondary badge-file-path">
+      /static/css/theme.css
+    </span>
+  </div>
+  <p class="text-intro">
+    SciTeX uses a modular CSS variable system with light/dark theme support. The main theme file is <code>/static/css/theme.css</code> with support files in <code>/static/css/common/</code>.
+  </p>
+
+  <div class="demo-box">
+    <h4><i class="fas fa-info-circle"></i> Modular CSS Structure</h4>
+    <p style="margin-bottom: 0.5rem;"><strong>Main Theme:</strong> <code>/static/css/theme.css</code> (Light & Dark mode with <code>data-theme</code> attribute)</p>
+    <p style="margin-bottom: 0.5rem;"><strong>Variables Entry Point:</strong> <code>/static/css/common/variables.css</code></p>
+    <p style="margin-bottom: 0.5rem;">Variables are split into focused files:</p>
+    <ul style="margin-bottom: 0;">
+      <li><code>colors.css</code> - All color definitions (brand, status, semantic)</li>
+      <li><code>typography-vars.css</code> - Font families, sizes, line heights</li>
+      <li><code>spacing.css</code> - Spacing scale and layout widths</li>
+      <li><code>effects.css</code> - Borders, shadows, transitions</li>
+      <li><code>z-index.css</code> - Z-index scale</li>
+    </ul>
+  </div>
+
+  <div class="demo-box">
+    <h3 class="mb-3">Light & Dark Mode Support</h3>
+    <p>SciTeX supports light and dark themes using the <code>data-theme</code> attribute on the <code>&lt;html&gt;</code> tag.</p>
+
+    <div class="row mb-4">
+      <div class="col-md-6">
+        <h4>Light Mode (Default)</h4>
+        <pre class="code-block">
+          &lt;html lang="en" data-theme="light"&gt;
+          &lt;!-- Light mode active --&gt;
+          &lt;/html&gt;
+        </pre>
+        <div style="background: var(--color-canvas-default); border: 2px solid var(--color-border-default); padding: 1.5rem; border-radius: 8px; margin-top: 1rem;">
+          <p style="color: var(--color-fg-default); margin-bottom: 0.5rem;"><strong>Text (--color-fg-default):</strong> Uses actual theme variable</p>
+          <p style="color: var(--color-fg-muted); margin-bottom: 0.5rem;"><strong>Muted (--color-fg-muted):</strong> Uses actual theme variable</p>
+          <p style="background: var(--color-canvas-subtle); padding: 0.5rem; border-radius: 4px; margin: 0; color: var(--color-fg-default);"><strong>Canvas subtle (--color-canvas-subtle)</strong></p>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <h4>Dark Mode</h4>
+        <pre style="background-color: var(--scitex-color-01-dark); color: var(--white); border: 1px solid var(--scitex-color-02); padding: 1rem; border-radius: 8px;">
+          &lt;html lang="en" data-theme="dark"&gt;
+          &lt;!-- Dark mode active --&gt;
+          &lt;/html&gt;
+        </pre>
+        <div style="background: var(--scitex-color-01-dark); border: 2px solid var(--scitex-color-02); padding: 1.5rem; border-radius: 8px; margin-top: 1rem;">
+          <p style="color: var(--white); margin-bottom: 0.5rem;"><strong>Text (--color-fg-default):</strong> Pure white in dark mode</p>
+          <p style="color: var(--white); margin-bottom: 0.5rem; opacity: 0.8;"><strong>Muted (--color-fg-muted):</strong> White in dark mode</p>
+          <p style="background: var(--scitex-color-01); padding: 0.5rem; border-radius: 4px; margin: 0; color: var(--white);"><strong>Canvas subtle:</strong> --scitex-color-01</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert alert-warning">
+      <strong><i class="fas fa-exclamation-triangle"></i> Important:</strong> Always use theme variables (<code>var(--color-fg-default)</code>) instead of hardcoded colors to ensure proper contrast in both modes.
+      <br><br>
+      <strong>Dark Mode Update:</strong> Text colors now use pure white (<code>var(--white)</code>) for maximum visibility and contrast in dark mode.
+    </div>
+  </div>
+
+  <div class="demo-box mt-4">
+    <h3 class="mb-3">Spacing & Layout <span class="badge bg-secondary badge-file-path">📁 /static/css/common/spacing.css</span></h3>
+    <pre class="code-block">
+      /* Spacing Scale */
+      --spacing-xs: 0.25rem;   /* 4px */
+      --spacing-sm: 0.5rem;    /* 8px */
+      --spacing-md: 1rem;      /* 16px */
+      --spacing-lg: 1.5rem;    /* 24px */
+      --spacing-xl: 2rem;      /* 32px */
+      --spacing-xxl: 3rem;     /* 48px */
+
+      /* Layout */
+      --container-width: 90%;
+      --container-max-width: 1400px;
+    </pre>
+  </div>
+
+  <div class="demo-box mt-4">
+    <h3 class="mb-3">Effects & Transitions <span class="badge bg-secondary badge-file-path">📁 /static/css/common/effects.css</span></h3>
+    <pre class="code-block">
+      /* Borders & Radius */
+      --border-radius: 4px;
+      --border-radius-lg: 8px;
+      --border-radius-xl: 12px;
+      --border-radius-pill: 50rem;
+      --border-width: 1px;
+      --border-color: var(--gray-300);
+
+      /* Box Shadows */
+      --box-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+      --box-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+      --box-shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+      --box-shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1);
+
+      /* Transitions */
+      --transition-fast: 0.2s;
+      --transition-normal: 0.3s;
+      --transition-slow: 0.5s;
+    </pre>
+  </div>
+
+  <div class="demo-box mt-4">
+    <h3 class="mb-3">Z-Index Scale <span class="badge bg-secondary badge-file-path">📁 /static/css/common/z-index.css</span></h3>
+    <pre class="code-block">
+      /* Z-indices */
+      --z-dropdown: 1000;
+      --z-sticky: 1020;
+      --z-fixed: 1030;
+      --z-modal-backdrop: 1040;
+      --z-modal: 1050;
+      --z-popover: 1060;
+      --z-tooltip: 1070;
+    </pre>
+  </div>
+</section>
