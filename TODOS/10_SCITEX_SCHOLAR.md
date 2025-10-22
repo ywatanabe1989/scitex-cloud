@@ -83,10 +83,9 @@ should be refactored using
     - Old job marked as "cancelled - new job uploaded"
   - **Anonymous users (special handling for abuse prevention):**
     - ❌ Cannot cancel running jobs - must wait for completion
-    - ⏱️ Rate limit: 1 job per 5 minutes per session
-    - 💡 Encourages sign-up: "Sign up for an account to remove this limit"
-    - Prevents malicious spam attacks from anonymous users
-  - **Implementation:** `bibtex_views.py::bibtex_upload()` (lines 87-141)
+    - 💡 Encourages sign-up: "Sign up for an account to cancel and retry"
+    - Simple and prevents abuse without annoying time limits
+  - **Implementation:** `bibtex_views.py::bibtex_upload()` (lines 87-123)
 - [x] Automatic stale job cleanup (MALICIOUS ATTACK PREVENTION)
   - **Periodic cleanup**: Systemd timer runs every 5 minutes
   - Jobs stuck in "processing" for >10 minutes → failed
