@@ -123,7 +123,7 @@ All these files now use variables from `colors.css`:
 1. **Headers**: `templates/partials/global_header.html`
 2. **Header Styles**: `static/css/github_header.css`
 3. **Profile Page**: `apps/project_app/templates/project_app/user_project_list.html`
-4. **Settings Pages**: `apps/core_app/templates/core_app/*.html`
+4. **Settings Pages**: `apps/workspace_app/templates/workspace_app/*.html`
 5. **All Future Components**: Use the same variables
 
 ## How to Change Colors

@@ -134,9 +134,9 @@ Successfully transformed SciTeX Cloud to match GitHub's professional design and 
 ### 5. Profile Editing ✅
 
 **Files:**
-- `apps/core_app/views.py` - Added `profile_edit` and `appearance_settings` views
-- `apps/core_app/templates/core_app/profile_edit.html` - Profile settings
-- `apps/core_app/templates/core_app/appearance_settings.html` - Theme settings
+- `apps/workspace_app/views.py` - Added `profile_edit` and `appearance_settings` views
+- `apps/workspace_app/templates/workspace_app/profile_edit.html` - Profile settings
+- `apps/workspace_app/templates/workspace_app/appearance_settings.html` - Theme settings
 
 **Profile Edit Features:**
 - Avatar upload (with live preview)
@@ -155,7 +155,7 @@ Successfully transformed SciTeX Cloud to match GitHub's professional design and 
 
 ### 6. Database Schema ✅
 
-**Migration**: `apps/core_app/migrations/0002_userprofile_avatar_userprofile_location.py`
+**Migration**: `apps/workspace_app/migrations/0002_userprofile_avatar_userprofile_location.py`
 
 **New Fields:**
 - `UserProfile.avatar` - ImageField for profile pictures
@@ -274,9 +274,9 @@ Values: `'light'`, `'dark'`, `'system'` (default)
 ### Modified:
 1. `apps/project_app/views.py` - Made profiles public
 2. `apps/auth_app/views.py` - Fixed URL namespace
-3. `apps/core_app/models.py` - Added avatar and location fields
-4. `apps/core_app/views.py` - Added profile_edit and appearance_settings views
-5. `apps/core_app/urls.py` - Added settings URLs
+3. `apps/workspace_app/models.py` - Added avatar and location fields
+4. `apps/workspace_app/views.py` - Added profile_edit and appearance_settings views
+5. `apps/workspace_app/urls.py` - Added settings URLs
 6. `templates/partials/global_header.html` - Complete GitHub-style redesign
 7. `templates/partials/global_head_styles.html` - Added theme.css
 8. `templates/partials/global_head_meta.html` - Added theme-switcher.js
@@ -287,9 +287,9 @@ Values: `'light'`, `'dark'`, `'system'` (default)
 2. `static/css/theme.css` - Theme system CSS variables
 3. `static/css/github_header.css` - Header styles
 4. `static/js/theme-switcher.js` - Theme switching logic
-5. `apps/core_app/templates/core_app/profile_edit.html` - Profile settings page
-6. `apps/core_app/templates/core_app/appearance_settings.html` - Theme settings page
-7. `apps/core_app/migrations/0002_userprofile_avatar_userprofile_location.py` - Database migration
+5. `apps/workspace_app/templates/workspace_app/profile_edit.html` - Profile settings page
+6. `apps/workspace_app/templates/workspace_app/appearance_settings.html` - Theme settings page
+7. `apps/workspace_app/migrations/0002_userprofile_avatar_userprofile_location.py` - Database migration
 
 ### Documentation:
 1. `docs/GITHUB_STYLE_IMPROVEMENTS.md` - Initial improvements
@@ -311,7 +311,7 @@ Values: `'light'`, `'dark'`, `'system'` (default)
 
 1. **Run migrations**:
    ```bash
-   python manage.py migrate core_app
+   python manage.py migrate workspace_app
    ```
 
 2. **Collect static files** (production):
@@ -406,7 +406,7 @@ After pulling these changes, run:
 
 ```bash
 # Apply database migrations
-python manage.py migrate core_app
+python manage.py migrate workspace_app
 
 # Collect static files (if in production)
 python manage.py collectstatic --noinput

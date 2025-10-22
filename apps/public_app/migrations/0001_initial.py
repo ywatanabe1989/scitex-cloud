@@ -158,7 +158,7 @@ class Migration(migrations.Migration):
                     "plan",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.PROTECT,
-                        to="cloud_app.subscriptionplan",
+                        to="public_app.subscriptionplan",
                     ),
                 ),
                 (
@@ -358,7 +358,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         null=True,
                         on_delete=django.db.models.deletion.SET_NULL,
-                        to="cloud_app.subscription",
+                        to="public_app.subscription",
                     ),
                 ),
                 (
@@ -375,7 +375,7 @@ class Migration(migrations.Migration):
                 "indexes": [
                     models.Index(
                         fields=["user", "resource_type", "period_start"],
-                        name="cloud_app_c_user_id_88f098_idx",
+                        name="public_app_c_user_id_88f098_idx",
                     )
                 ],
             },

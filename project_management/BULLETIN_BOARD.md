@@ -7,17 +7,17 @@
 
 ## ✅ COMPLETED: Model Duplication Resolution
 
-### Phase 1 Complete: core_app Cleanup (2025-10-23 06:10)
+### Phase 1 Complete: workspace_app Cleanup (2025-10-23 06:10)
 1. **✅ Fixed Migration Errors**
    - Resolved FieldDoesNotExist error during migrations
    - Fixed constraint ordering in migration 0007
    - All migrations now apply successfully
 
-2. **✅ Removed ALL Duplicate Models from core_app**
+2. **✅ Removed ALL Duplicate Models from workspace_app**
    - Deleted: Project, ProjectMembership, ProjectPermission, Manuscript, GitFileStatus
    - Added backward-compatible imports from canonical locations
    - Updated admin registrations and inline classes
-   - **Result: core_app now has 0 models (was 9+)**
+   - **Result: workspace_app now has 0 models (was 9+)**
 
 **Commit:** 0c5665a
 
@@ -43,7 +43,7 @@
 1. **✅ Renamed Four Core Apps**
    - profile_app → accounts_app (User accounts, profiles, API keys, SSH keys)
    - sustainability_app → donations_app (Donations and fundraising)
-   - core_app → workspace_app (User projects, files, dashboard, GitHub integration)
+   - workspace_app → workspace_app (User projects, files, dashboard, GitHub integration)
    - cloud_app → public_app (Public landing pages, subscriptions, legal)
 
 2. **✅ Updated All References**
@@ -64,11 +64,11 @@
 ## 🚨 REMAINING: Architecture Issues (OUTDATED - See updated section above)
 
 ### Critical Problems
-1. ~~**Model Duplication**: core_app and project_app have DUPLICATE models~~ ✅ RESOLVED
+1. ~~**Model Duplication**: workspace_app and project_app have DUPLICATE models~~ ✅ RESOLVED
    - ✅ Project, ProjectMembership models moved to project_app
    - ⚠️ Organization, ResearchGroup still duplicated - needs organizations_app extraction
 
-2. **core_app Overloaded** (9 models, 7 services, 5 view modules)
+2. **workspace_app Overloaded** (9 models, 7 services, 5 view modules)
    - Organizations, Projects, Git, Files, Email, Manuscripts
    - Mixes too many concerns
 
@@ -77,7 +77,7 @@
    - Overlaps with auth_app, donations_app, integrations_app
 
 ### Immediate Impact
-- ✅ Fixed: URL namespace error (core_app now registered)
+- ✅ Fixed: URL namespace error (workspace_app now registered)
 - ⚠️ Risk: Model conflicts if both apps are active
 - ⚠️ Maintainability: Hard to understand which app owns what
 
@@ -86,7 +86,7 @@
 ## Current Phase
 
 🔴 **PHASE 1: CRITICAL REFACTORING REQUIRED**
-- Resolve model duplication between core_app and project_app
+- Resolve model duplication between workspace_app and project_app
 - Extract Git/GitHub functionality to integrations_app
 - Move donations to donations_app (renamed from sustainability_app)
 - Consolidate auth functionality in auth_app
@@ -130,13 +130,13 @@
 
 ---
 
-## Refactoring Plan: core_app & cloud_app
+## Refactoring Plan: workspace_app & cloud_app
 
 ### Phase 1: Resolve Model Duplication (CRITICAL) 🔴
-**Problem:** core_app and project_app both define same models
+**Problem:** workspace_app and project_app both define same models
 **Decision needed:** Which app should own these models?
-   - Option A: Keep in project_app (more specific), deprecate core_app models
-   - Option B: Keep in core_app (more general), migrate project_app to use them
+   - Option A: Keep in project_app (more specific), deprecate workspace_app models
+   - Option B: Keep in workspace_app (more general), migrate project_app to use them
    - Option C: Create new org_app for Organization/ResearchGroup models
 
 **Affected models:**
@@ -146,7 +146,7 @@
 **Action required:** Check database migrations to see which is canonical
 
 ### Phase 2: Extract Git/GitHub to integrations_app 🟡
-**Move from core_app:**
+**Move from workspace_app:**
 - GitFileStatus model
 - views/github_views.py (OAuth, repo management)
 - services/git_service.py
@@ -170,7 +170,7 @@
 - ServiceIntegration, APIKey models
 
 ### Phase 5: Manuscript Model 🟢
-**Move from core_app to writer_app:**
+**Move from workspace_app to writer_app:**
 - Manuscript model
 - writer_app already handles papers/documents
 
@@ -179,14 +179,14 @@
 ## Next Architecture Tasks (Updated Priority)
 
 ### CRITICAL (Do First)
-1. ⚠️ **Resolve Model Duplication** - core_app vs project_app
+1. ⚠️ **Resolve Model Duplication** - workspace_app vs project_app
    - Investigate which is canonical source
    - Create migration plan
    - Update all imports across codebase
    - Estimated: 6-8 hours
 
 ### High Priority
-2. **Extract Git/GitHub** - core_app → integrations_app
+2. **Extract Git/GitHub** - workspace_app → integrations_app
    - Clean separation of concerns
    - Estimated: 3-4 hours
 
@@ -242,7 +242,7 @@
 ## Recommendations
 
 ### COMPLETED IN THIS SESSION ✅
-1. ✅ Renamed core_app → workspace_app
+1. ✅ Renamed workspace_app → workspace_app
 2. ✅ Renamed cloud_app → public_app
 3. ✅ Renamed profile_app → accounts_app
 4. ✅ Renamed sustainability_app → donations_app
@@ -278,13 +278,13 @@
 
 ---
 
-**Ready for:** Critical refactoring of core_app and cloud_app
+**Ready for:** Critical refactoring of workspace_app and cloud_app
 
 ---
 
 ## Detailed Analysis: Model Duplication Investigation
 
-### Models in BOTH core_app AND project_app:
+### Models in BOTH workspace_app AND project_app:
 1. **Project** - Full project model with metadata
 2. **ProjectMembership** - User membership in projects
 3. **ProjectPermission** - Permission management
@@ -292,13 +292,13 @@
 5. **ResearchGroup** - Research group model
 
 ### Additional models:
-- **core_app only:** GitFileStatus, Manuscript, ResearchGroupMembership, OrganizationMembership
+- **workspace_app only:** GitFileStatus, Manuscript, ResearchGroupMembership, OrganizationMembership
 - **project_app only:** (Need to verify if truly unique)
 
 ### Investigation needed:
 ```bash
 # Check which app's migrations were created first
-ls -la apps/core_app/migrations/ | grep -E "000[0-9]_"
+ls -la apps/workspace_app/migrations/ | grep -E "000[0-9]_"
 ls -la apps/project_app/migrations/ | grep -E "000[0-9]_"
 
 # Check which models are actually being used in INSTALLED_APPS
@@ -308,7 +308,7 @@ ls -la apps/project_app/migrations/ | grep -E "000[0-9]_"
 ### Recommendation:
 Based on Django best practices and SciTeX architecture:
 - **Keep in project_app**: Project, ProjectMembership, ProjectPermission (project-specific)
-- **Keep in core_app**: Organization, ResearchGroup, OrganizationMembership, ResearchGroupMembership (broader scope)
+- **Keep in workspace_app**: Organization, ResearchGroup, OrganizationMembership, ResearchGroupMembership (broader scope)
 - **OR** Consider creating dedicated apps:
   - `organizations_app` for Organization/ResearchGroup models
   - Keep Project models in `project_app`
@@ -318,12 +318,12 @@ Based on Django best practices and SciTeX architecture:
 ## Session Summary (2025-10-23 04:30)
 
 ### ✅ Completed
-1. Fixed `'core_app' is not a registered namespace` error
-   - Updated 10 import statements across core_app
+1. Fixed `'workspace_app' is not a registered namespace` error
+   - Updated 10 import statements across workspace_app
    - Fixed views package structure
    - Namespace now successfully registered at `/core/`
 
-2. Analyzed core_app and cloud_app responsibilities
+2. Analyzed workspace_app and cloud_app responsibilities
    - Identified critical model duplication
    - Mapped overlapping concerns
    - Created 5-phase refactoring plan
@@ -334,8 +334,8 @@ Based on Django best practices and SciTeX architecture:
    - Created actionable migration plan
 
 ### ⚠️ Critical Issues Identified
-1. **Model duplication** between core_app and project_app
-2. **core_app too large** - mixing 6+ different domains
+1. **Model duplication** between workspace_app and project_app
+2. **workspace_app too large** - mixing 6+ different domains
 3. **cloud_app overlaps** with auth_app, donations_app, integrations_app
 
 ### 📋 Next Actions Required
@@ -345,16 +345,16 @@ Based on Django best practices and SciTeX architecture:
 1. ✅ **COMPLETED:** Investigation complete - See MODEL_DUPLICATION_DECISION.md
    - 92% of imports use project_app (25 vs 2)
    - project_app is better domain owner
-   - Only 3 files need updating (vs 22 if we used core_app)
+   - Only 3 files need updating (vs 22 if we used workspace_app)
 
 2. **READY TO EXECUTE:** Phase 1 - Update 3 files to use project_app
    - apps/profile_app/models.py
    - apps/project_app/views.py
-   - apps/core_app/management/commands/create_sample_data.py
+   - apps/workspace_app/management/commands/create_sample_data.py
    - Estimated: 2-3 hours
 
 3. **NEXT:** Create organizations_app for Organization/ResearchGroup models
-   - Extract from both core_app and project_app
+   - Extract from both workspace_app and project_app
    - Clean separation of concerns
    - Estimated: 4-6 hours
 
@@ -368,15 +368,15 @@ Based on Django best practices and SciTeX architecture:
 
 ### Model Duplication Analysis ✅
 
-**Finding:** core_app and project_app both have 5 duplicate models
+**Finding:** workspace_app and project_app both have 5 duplicate models
 - Both migrations created same day (2025-10-15 14:13)
-- core_app loads first in INSTALLED_APPS (index 13 vs 20)
+- workspace_app loads first in INSTALLED_APPS (index 13 vs 20)
 - BUT 92% of codebase uses project_app.models
 
 **Evidence:**
 ```
 Imports from project_app: 25 occurrences across 22 files
-Imports from core_app:     2 occurrences across 3 files
+Imports from workspace_app:     2 occurrences across 3 files
 ```
 
 **Decision:** Use project_app as canonical source ✅

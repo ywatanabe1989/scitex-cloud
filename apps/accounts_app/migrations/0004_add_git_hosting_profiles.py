@@ -7,7 +7,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         (
-            "profile_app",
+            "accounts_app",
             "0003_userprofile_bitbucket_token_userprofile_github_token_and_more",
         ),
     ]

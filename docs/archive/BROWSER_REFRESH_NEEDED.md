@@ -69,7 +69,7 @@ Once you can see the new GitHub-style layout, the next improvements to implement
 - `templates/github_base.html` - New base template (dark theme)
 - `apps/project_app/templates/project_app/user_project_list.html` - Uses `github_base.html`
 - `apps/project_app/views.py:19` - Removed `@login_required` decorator
-- `apps/core_app/models.py:55-57` - Added `avatar` and `location` fields
+- `apps/workspace_app/models.py:55-57` - Added `avatar` and `location` fields
 
 ### Why Cache Issue Occurred
 Django templates are compiled and browsers aggressively cache CSS. The template change from `base.html` to `github_base.html` requires browser cache invalidation.

@@ -17,12 +17,12 @@ Could not parse: 'user.username if user.is_authenticated else 'explore''
 - Used `{% if user.is_authenticated %}...{% else %}...{% endif %}`
 
 ### 2. Database Migration (CRITICAL)
-**Problem**: `OperationalError: no such column: core_app_userprofile.avatar`
+**Problem**: `OperationalError: no such column: workspace_app_userprofile.avatar`
 
 **Solution**:
 ```bash
-python manage.py makemigrations core_app
-python manage.py migrate core_app
+python manage.py makemigrations workspace_app
+python manage.py migrate workspace_app
 ```
 
 Created migration `0002_userprofile_avatar_userprofile_location.py` adding:

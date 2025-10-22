@@ -40,8 +40,8 @@ Examples:
 ## Implementation
 
 **Files Created/Modified**:
-1. `apps/core_app/middleware.py` - Guest session ID generation
-2. `apps/core_app/context_processors.py` - Project context detection
+1. `apps/workspace_app/middleware.py` - Guest session ID generation
+2. `apps/workspace_app/context_processors.py` - Project context detection
 3. `templates/partials/global_header.html` - Context-aware navigation
 4. `apps/project_app/views.py` - Module integration views
 5. `config/settings/settings_shared.py` - Middleware registration

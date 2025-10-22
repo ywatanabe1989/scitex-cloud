@@ -15,7 +15,7 @@ Successfully reorganized SciTeX Cloud with automatic app discovery, clean databa
 2. **billing_app** - `/billing/` - Pricing and subscriptions
 3. **cloud_app** - `/cloud/` - Main website and landing pages
 4. **code_app** - `/code/` - Code execution and data analysis
-5. **core_app** - `/core/` - Core functionality and projects
+5. **workspace_app** - `/core/` - Core functionality and projects
 6. **dev_app** - `/dev/` - **NEW** Development tools (design system at `/dev/design.html`)
 7. **project_app** - `/project/` - Project management
 8. **scholar_app** - `/scholar/` - Literature discovery

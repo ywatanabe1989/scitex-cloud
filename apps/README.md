@@ -247,7 +247,7 @@ class SearchResult(models.Model):
 | App | Status | Notes |
 |-----|--------|-------|
 | scholar_app | ✅ Reorganized | Reference implementation (26 models organized into 6 modules, 9 view modules) |
-| core_app | 🔄 In Progress | 707 lines, 9 models - Can follow scholar_app pattern |
+| workspace_app | 🔄 In Progress | 707 lines, 9 models - Can follow scholar_app pattern |
 | writer_app | ⏳ Pending | 1,503 lines, 20 models - Highest priority for reorganization |
 | code_app | ⏳ Pending | 5 models, 297 lines - Needs query optimization |
 | integrations_app | ⏳ Pending | Needs query optimization |

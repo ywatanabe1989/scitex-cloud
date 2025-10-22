@@ -71,13 +71,13 @@ You had:
 
 ### Root Cause
 
-When refactoring `core_app` to `profile_app`, you:
+When refactoring `workspace_app` to `profile_app`, you:
 1. Created `profile_app` with new models
 2. Manually renamed migration files using `~/.bin/utils/rename.sh`
 3. This broke Django's migration history tracking
 
 **The Problem**: Django tracks applied migrations in the `django_migrations` table. When you rename migration files:
-- Django thinks old migrations (e.g., `core_app.0001_initial`) are still pending
+- Django thinks old migrations (e.g., `workspace_app.0001_initial`) are still pending
 - Django thinks new migrations (e.g., `profile_app.0001_initial`) haven't run
 - This causes migrations to run multiple times or in wrong order
 - Database state becomes inconsistent with migration history
@@ -87,22 +87,22 @@ When refactoring `core_app` to `profile_app`, you:
 Looking at the migrations:
 
 ```
-apps/core_app/migrations/
+apps/workspace_app/migrations/
 ├── 0001_initial.py
 ├── 0002_userprofile_avatar_userprofile_location.py
 ├── 0003_alter_project_collaborators.py
 ├── 0004_userprofile_last_active_project.py
 ├── 0005_remove_userprofile_last_active_project_and_more.py
-└── 0006_delete_userprofile.py  # Deleted UserProfile from core_app
+└── 0006_delete_userprofile.py  # Deleted UserProfile from workspace_app
 
 apps/profile_app/migrations/
 └── 0001_initial.py  # Created UserProfile in profile_app
 ```
 
 The migration shows `UserProfile` was:
-1. Created in `core_app`
+1. Created in `workspace_app`
 2. Modified several times
-3. Deleted from `core_app` (0006)
+3. Deleted from `workspace_app` (0006)
 4. Re-created in `profile_app` (0001)
 
 **But the table name shows the issue:**
@@ -110,7 +110,7 @@ The migration shows `UserProfile` was:
 ```python
 # profile_app/migrations/0001_initial.py
 options={
-    "db_table": "core_app_userprofile",  # ❌ Still using core_app table name!
+    "db_table": "workspace_app_userprofile",  # ❌ Still using workspace_app table name!
     "ordering": ["user__last_name", "user__first_name"],
 },
 ```
@@ -125,8 +125,8 @@ This suggests you copied and renamed files, but Django's migration system lost t
 
 ```bash
 # Don't do this!
-cd apps/core_app/migrations/
-~/.bin/utils/rename.sh core_app profile_app *.py
+cd apps/workspace_app/migrations/
+~/.bin/utils/rename.sh workspace_app profile_app *.py
 ```
 
 **Problems:**
@@ -152,7 +152,7 @@ python manage.py startapp profile_app apps/profile_app
 from django.db import models
 
 class UserProfile(models.Model):
-    # Copy model definition from core_app
+    # Copy model definition from workspace_app
     pass
 ```
 
@@ -165,16 +165,16 @@ python manage.py makemigrations profile_app
 #### Step 4: Create a data migration to copy data
 
 ```bash
-python manage.py makemigrations profile_app --empty --name migrate_from_core_app
+python manage.py makemigrations profile_app --empty --name migrate_from_workspace_app
 ```
 
 Edit the migration:
 
 ```python
-# apps/profile_app/migrations/0002_migrate_from_core_app.py
+# apps/profile_app/migrations/0002_migrate_from_workspace_app.py
 def migrate_data_forward(apps, schema_editor):
-    # Get old model from core_app
-    OldUserProfile = apps.get_model('core_app', 'UserProfile')
+    # Get old model from workspace_app
+    OldUserProfile = apps.get_model('workspace_app', 'UserProfile')
     # Get new model from profile_app
     NewUserProfile = apps.get_model('profile_app', 'UserProfile')
 
@@ -194,7 +194,7 @@ def migrate_data_backward(apps, schema_editor):
 class Migration(migrations.Migration):
     dependencies = [
         ('profile_app', '0001_initial'),
-        ('core_app', '0005_last_migration_before_split'),
+        ('workspace_app', '0005_last_migration_before_split'),
     ]
 
     operations = [
@@ -202,15 +202,15 @@ class Migration(migrations.Migration):
     ]
 ```
 
-#### Step 5: Delete old model from core_app
+#### Step 5: Delete old model from workspace_app
 
 ```python
-# apps/core_app/models.py
+# apps/workspace_app/models.py
 # Delete or comment out UserProfile class
 ```
 
 ```bash
-python manage.py makemigrations core_app --name delete_userprofile
+python manage.py makemigrations workspace_app --name delete_userprofile
 ```
 
 #### Step 6: Run all migrations
@@ -333,10 +333,10 @@ python manage.py makemigrations --check
 Create a migration plan document before major changes:
 
 ```markdown
-## Migration Plan: Refactor core_app → profile_app
+## Migration Plan: Refactor workspace_app → profile_app
 
 ### Current State
-- UserProfile in core_app
+- UserProfile in workspace_app
 - 150 users in production
 
 ### Steps

@@ -67,7 +67,7 @@ git push origin main
 **Status:** Fully implemented for Git operations
 
 **What Works:**
-- ✅ Generate SSH keys (`apps/core_app/ssh_manager.py`)
+- ✅ Generate SSH keys (`apps/workspace_app/ssh_manager.py`)
 - ✅ Secure key storage (`data/ssh_keys/user_{id}/`)
 - ✅ Integration with Git clone/push/pull
 - ✅ Web UI for key management
@@ -343,7 +343,7 @@ Before proceeding, clarify:
 
 **Implementation:**
 - `apps/gitea_app/api_client.py` - Gitea API wrapper
-- `apps/core_app/ssh_manager.py` - SSH key management
+- `apps/workspace_app/ssh_manager.py` - SSH key management
 - `deployment/gitea/` - Gitea deployment scripts
 
 **Archive:**

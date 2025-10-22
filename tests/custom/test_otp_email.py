@@ -10,8 +10,8 @@ import django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.production')
 django.setup()
 
-from apps.core_app.services import EmailService
-from apps.core_app.models import EmailVerification
+from apps.workspace_app.services import EmailService
+from apps.workspace_app.models import EmailVerification
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -73,4 +73,3 @@ if __name__ == "__main__":
     if verification_success and email_success:
         print("\n✅ OTP system is working correctly!")
     else:
-        print("\n❌ OTP system has issues that need to be fixed.")

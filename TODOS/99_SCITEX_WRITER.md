@@ -453,7 +453,7 @@ see ./PERMISSIONS_SYSTEM.md
   drwxr-xr-x  5 ywatanabe ywatanabe 4.0K Oct 16 02:05 billing_app
   drwxr-xr-x  7 ywatanabe ywatanabe 4.0K Oct 17 06:54 cloud_app
   drwxr-xr-x  6 ywatanabe ywatanabe 4.0K Oct 17 18:42 code_app
-  drwxr-xr-x  6 ywatanabe ywatanabe 4.0K Oct 17 20:26 core_app
+  drwxr-xr-x  6 ywatanabe ywatanabe 4.0K Oct 17 20:26 workspace_app
   drwxr-xr-x  5 ywatanabe ywatanabe 4.0K Oct 17 05:33 dev_app
   drwxr-xr-x  7 ywatanabe ywatanabe 4.0K Oct 16 04:14 docs_app
   -rw-r--r--  1 ywatanabe ywatanabe    0 Oct 16 00:22 __init__.py
@@ -467,4 +467,3 @@ see ./PERMISSIONS_SYSTEM.md
   drwxr-xr-x  6 ywatanabe ywatanabe 4.0K Oct 17 18:42 viz_app
   drwxr-xr-x  7 ywatanabe ywatanabe 4.0K Oct 17 19:07 writer_app
 
-<!-- EOF -->

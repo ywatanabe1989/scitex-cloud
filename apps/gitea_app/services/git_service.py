@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # Timestamp: "2025-10-20 20:15:00 (ywatanabe)"
-# File: ./apps/core_app/git_operations.py
+# File: ./apps/workspace_app/git_operations.py
 
 """
 Git operations for SciTeX Cloud

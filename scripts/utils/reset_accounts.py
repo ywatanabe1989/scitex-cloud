@@ -11,7 +11,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.production')
 django.setup()
 
 from django.contrib.auth import get_user_model
-from apps.core_app.models import UserProfile, EmailVerification, Project, Organization
+from apps.workspace_app.models import UserProfile, EmailVerification, Project, Organization
 from apps.public_app.models import Subscription, APIKey, Donation
 
 User = get_user_model()
@@ -77,4 +77,3 @@ if __name__ == "__main__":
         print("\n🚀 Account reset completed successfully!")
         print("💡 You can now create new accounts with the fixed OTP verification system.")
     else:
-        print("\n💥 Account reset failed. Please check the error messages above.")

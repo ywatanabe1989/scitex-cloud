@@ -29,7 +29,7 @@
 
 ```
 apps/
-├── core_app/              # Dashboard, shared utilities
+├── workspace_app/              # Dashboard, shared utilities
 ├── auth_app/              # Authentication, user profiles
 ├── project_app/           # Project management (project-centric!)
 ├── cloud_app/             # Landing, marketing pages
@@ -135,7 +135,7 @@ apps/
 
 ```
 apps/
-└── core_app/
+└── workspace_app/
     ├── services/          # Business logic layer
     │   ├── email_service.py
     │   ├── auth_service.py
@@ -228,7 +228,7 @@ def forgot_password(request):
 ### Phase 3: Service Layer (Week 3)
 1. **Create core services**
    ```
-   apps/core_app/services/
+   apps/workspace_app/services/
    ├── __init__.py
    ├── email_service.py
    ├── auth_service.py
@@ -271,7 +271,7 @@ def forgot_password(request):
 ```
 scitex-cloud/
 ├── apps/                  # All Django apps
-│   ├── core_app/          # Core functionality + services
+│   ├── workspace_app/          # Core functionality + services
 │   ├── auth_app/          # Authentication
 │   ├── project_app/       # Projects (project-centric!)
 │   ├── cloud_app/         # Landing/marketing
@@ -380,7 +380,7 @@ mkdir -p templates/{partials,layouts,emails,errors}
 ### Step 5: Create Service Layer
 ```bash
 # Create services
-mkdir -p apps/core_app/services
+mkdir -p apps/workspace_app/services
 # Extract business logic from views
 # Add tests
 ```

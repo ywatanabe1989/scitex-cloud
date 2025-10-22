@@ -4,8 +4,8 @@
 !-- File: /home/ywatanabe/proj/scitex-cloud/TODOS/APPS_CONFILICTS.md
 !-- --- -->
 
-- [ ] We have factored out profile_app from core_app
-- [ ] During the migration, I renamed core_app to profile_app in a bulky manner
+- [ ] We have factored out profile_app from workspace_app
+- [ ] During the migration, I renamed workspace_app to profile_app in a bulky manner
   - [ ] I think here, I renamed migration histories as well, using ~/.bin/utils/rename.sh
 - [ ] This might have caused model conflicts or database corruption
 - [ ] Fortunatelly, the user is only me, ywatanabe (ywata1989@gmail.com). So, we can start database freshly
@@ -57,4 +57,3 @@ Traceback (most recent call last):
     raise self.model.MultipleObjectsReturned(
 django.contrib.auth.models.User.MultipleObjectsReturned: get() returned more than one User -- it returned 2!
 
-<!-- EOF -->

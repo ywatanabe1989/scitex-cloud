@@ -2,7 +2,7 @@
 Gitea App Models
 
 Models for Git/GitHub/Gitea integration functionality.
-Extracted from core_app to resolve model duplication and properly organize Git-specific features.
+Extracted from workspace_app to resolve model duplication and properly organize Git-specific features.
 """
 
 from django.db import models

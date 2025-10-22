@@ -17,7 +17,7 @@ The system now has **11 focused apps**:
 2. **billing_app** - Pricing, subscriptions, donations
 3. **cloud_app** - Landing pages, main website
 4. **code_app** - Code execution and analysis
-5. **core_app** - Core functionality, projects, user profiles
+5. **workspace_app** - Core functionality, projects, user profiles
 6. **dev_app** - Development tools (design system)
 7. **project_app** - Project management
 8. **scholar_app** - Literature discovery
@@ -90,7 +90,7 @@ URL mapping (automatic):
 - `billing_app` → `/billing/`
 - `cloud_app` → `/cloud/`
 - `code_app` → `/code/`
-- `core_app` → `/core/`
+- `workspace_app` → `/core/`
 - `dev_app` → `/dev/`
 - `project_app` → `/project/`
 - `scholar_app` → `/scholar/`
@@ -149,9 +149,9 @@ Created `dev_app` for development tools:
 ### 7. Code Cleanup
 
 Fixed references to removed apps:
-- Commented out `document_app` imports in `core_app/signals.py`
-- Commented out `document_app` imports in `core_app/directory_manager.py`
-- Commented out `manuscript_draft` field in `core_app/models.py` and `project_app/models.py`
+- Commented out `document_app` imports in `workspace_app/signals.py`
+- Commented out `document_app` imports in `workspace_app/directory_manager.py`
+- Commented out `manuscript_draft` field in `workspace_app/models.py` and `project_app/models.py`
 - Removed monitoring middleware from `settings_shared.py`
 
 ### 8. Configuration Status
@@ -179,9 +179,9 @@ Current system check status:
 
 - `config/settings/settings_shared.py` - Automatic app discovery
 - `config/urls.py` - Automatic URL discovery
-- `apps/core_app/signals.py` - Removed document_app references
-- `apps/core_app/directory_manager.py` - Removed document_app references
-- `apps/core_app/models.py` - Commented manuscript_draft field
+- `apps/workspace_app/signals.py` - Removed document_app references
+- `apps/workspace_app/directory_manager.py` - Removed document_app references
+- `apps/workspace_app/models.py` - Commented manuscript_draft field
 - `apps/project_app/models.py` - Commented manuscript_draft field
 - `apps/dev_app/` - Created new app for design system
 - `apps/billing_app/` - Recreated with basic views

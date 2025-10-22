@@ -11,7 +11,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.development')
 django.setup()
 
 from django.contrib.auth.models import User
-from apps.core_app.models import UserProfile
+from apps.workspace_app.models import UserProfile
 
 def update_user_info():
     """Update the user with the requested information"""
@@ -86,4 +86,3 @@ if __name__ == '__main__':
             print(f"  Password: ywatanabe123")
     except Exception as e:
         print(f"❌ Error updating user: {e}")
-        sys.exit(1)

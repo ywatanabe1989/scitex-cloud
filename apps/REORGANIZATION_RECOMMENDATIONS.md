@@ -45,7 +45,7 @@
   └── export.py        # Export, Gallery
   ```
 
-### 3. core_app 🟡 MEDIUM-LOW PRIORITY
+### 3. workspace_app 🟡 MEDIUM-LOW PRIORITY
 - **Current:** 707 lines, ~9 models
 - **Recommendation:** Monitor - reorganize if exceeds 800 lines
 - **Note:** Core app models might be intentionally cohesive
@@ -128,7 +128,7 @@ From `apps/README.md` and `scholar_app` reference:
 
 ### Near Term (Next Sprint)
 3. 🟡 Viz app reorganization (13 models, 408 lines)
-4. 🟡 Review core_app for potential reorganization
+4. 🟡 Review workspace_app for potential reorganization
 
 ### Long Term (As Needed)
 - Monitor other apps as they grow

@@ -91,7 +91,7 @@ workspace_app/
 │   └── utils/
 │       └── model_imports.py   # Import utilities and compatibility
 │
-├── templates/core_app/        # HTML templates for views
+├── templates/workspace_app/        # HTML templates for views
 ├── migrations/                # Database migrations
 └── tests.py                   # Test suite
 ```
@@ -191,7 +191,7 @@ Triggered for:
 ## Configuration
 
 Located in `apps.py`:
-- App name: `core_app`
+- App name: `workspace_app`
 - Verbose name: "Core App"
 - Ready signal handling for initialization
 

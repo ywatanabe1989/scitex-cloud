@@ -1,5 +1,5 @@
 """
-Views package for core_app.
+Views package for workspace_app.
 Exports all view functions for use in urls.py
 """
 

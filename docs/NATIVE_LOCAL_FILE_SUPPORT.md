@@ -47,7 +47,7 @@ Database only stores: metadata, permissions, relationships
 ### 2. Bidirectional Sync Strategy
 
 ```python
-# apps/core_app/filesystem_monitor.py
+# apps/workspace_app/filesystem_monitor.py
 
 class FilesystemMonitor:
     """Monitor project directories for changes"""
@@ -163,7 +163,7 @@ def edit_file_direct(request, username, slug, file_path):
 #### A. Project Creation from Existing Directory
 
 ```python
-# apps/core_app/directory_manager.py
+# apps/workspace_app/directory_manager.py
 
 def import_existing_directory(self, source_path: Path, project_name: str) -> Project:
     """Import existing local directory as a SciTeX project"""
@@ -203,7 +203,7 @@ git push
 ### 6. Intelligent Caching
 
 ```python
-# apps/core_app/file_cache.py
+# apps/workspace_app/file_cache.py
 
 class FileMetadataCache:
     """Cache file metadata to avoid repeated filesystem calls"""
@@ -278,7 +278,7 @@ FILESYSTEM_MONITOR = {
 # config/urls.py
 
 from django.urls import path
-from apps.core_app.consumers import ProjectFileConsumer
+from apps.workspace_app.consumers import ProjectFileConsumer
 
 websocket_urlpatterns = [
     path('ws/project/<slug:slug>/', ProjectFileConsumer.as_asgi()),

@@ -77,7 +77,7 @@ apps/gitea_app/
 **Status:** Fully implemented for Git operations
 
 **What's Implemented:**
-- SSH key generation (`apps/core_app/ssh_manager.py` - 170 lines)
+- SSH key generation (`apps/workspace_app/ssh_manager.py` - 170 lines)
 - User-level SSH keys (one per user)
 - Secure key storage (`data/ssh_keys/user_{id}/`)
 - Integration with Git clone operations
@@ -85,7 +85,7 @@ apps/gitea_app/
 
 **Evidence:**
 ```python
-# apps/core_app/ssh_manager.py
+# apps/workspace_app/ssh_manager.py
 class SSHKeyManager:
     def get_or_create_user_key()  # Generate SSH keys
     def get_private_key_path()     # Get key for Git operations

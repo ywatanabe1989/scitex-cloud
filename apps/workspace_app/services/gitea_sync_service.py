@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # Timestamp: "2025-10-20 20:10:00 (ywatanabe)"
-# File: ./apps/core_app/gitea_sync.py
+# File: ./apps/workspace_app/gitea_sync.py
 
 """
 Gitea synchronization utilities for SciTeX Cloud

@@ -338,7 +338,7 @@ document.querySelectorAll('.form-check-input').forEach(checkbox => {
     const value = this.checked;
     
     try {
-      const response = await fetch('{% url "core_app:api-user-profile" %}', {
+      const response = await fetch('{% url "workspace_app:api-user-profile" %}', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

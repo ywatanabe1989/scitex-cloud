@@ -14,7 +14,7 @@ Successfully updated the SciTeX Cloud profile pages to closely match GitHub's de
 - Users can view any user's profile at `/{username}/`
 
 ### 2. User Profile Model Enhancements
-**File**: `apps/core_app/models.py:54-60`
+**File**: `apps/workspace_app/models.py:54-60`
 
 Added new fields to `UserProfile` model:
 - `avatar` - ImageField for profile pictures (uploaded to `avatars/`)
@@ -138,7 +138,7 @@ Active tab: #f78166 (orange underline)
 
 After making model changes, run:
 ```bash
-python manage.py makemigrations core_app
+python manage.py makemigrations workspace_app
 python manage.py migrate
 ```
 
@@ -188,7 +188,7 @@ To test the new layout:
 ## Files Modified
 
 1. `apps/project_app/views.py` - Removed login requirement
-2. `apps/core_app/models.py` - Added avatar and location fields
+2. `apps/workspace_app/models.py` - Added avatar and location fields
 3. `templates/github_base.html` - NEW GitHub-style base template
 4. `apps/project_app/templates/project_app/user_project_list.html` - Complete redesign
 

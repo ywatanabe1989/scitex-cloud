@@ -11,7 +11,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.development')
 django.setup()
 
 from django.contrib.auth.models import User
-from apps.core_app.models import UserProfile
+from apps.workspace_app.models import UserProfile
 
 def create_initial_user():
     """Create the initial user and profile"""
@@ -72,4 +72,3 @@ if __name__ == '__main__':
         print("\n✅ Database initialization completed successfully!")
     except Exception as e:
         print(f"❌ Error creating user: {e}")
-        sys.exit(1)

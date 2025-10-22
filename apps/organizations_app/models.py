@@ -2,7 +2,7 @@
 Organizations App Models
 
 This app manages organizations and research groups.
-Extracted from core_app and project_app to resolve model duplication.
+Extracted from workspace_app and project_app to resolve model duplication.
 
 See: project_management/MODEL_DUPLICATION_DECISION.md
 """
@@ -16,7 +16,7 @@ class Organization(models.Model):
     Model for research organizations (universities, institutes, companies).
 
     Canonical source for Organization model - previously duplicated in
-    core_app and project_app.
+    workspace_app and project_app.
     """
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)

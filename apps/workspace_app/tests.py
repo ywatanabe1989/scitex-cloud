@@ -136,37 +136,37 @@ class CoreViewsTestCase(TestCase):
     
     def test_landing_page(self):
         """Test landing page"""
-        response = self.client.get(reverse('core_app:landing'))
+        response = self.client.get(reverse('workspace_app:landing'))
         self.assertEqual(response.status_code, 200)
     
     def test_dashboard_requires_login(self):
         """Test dashboard requires authentication"""
-        response = self.client.get(reverse('core_app:index'))
+        response = self.client.get(reverse('workspace_app:index'))
         self.assertEqual(response.status_code, 302)  # Redirect to login
     
     def test_dashboard_authenticated(self):
         """Test dashboard with authenticated user - should redirect to projects"""
         self.client.login(username='testuser', password='testpass123')
-        response = self.client.get(reverse('core_app:index'))
+        response = self.client.get(reverse('workspace_app:index'))
         self.assertEqual(response.status_code, 302)  # Redirect to projects
         self.assertEqual(response.url, '/projects/')
     
     def test_monitoring_requires_login(self):
         """Test monitoring page requires authentication"""
-        response = self.client.get(reverse('core_app:monitoring'))
+        response = self.client.get(reverse('workspace_app:monitoring'))
         self.assertEqual(response.status_code, 302)  # Redirect to login
     
     def test_monitoring_authenticated(self):
         """Test monitoring page with authenticated user"""
         self.client.login(username='testuser', password='testpass123')
-        response = self.client.get(reverse('core_app:monitoring'))
+        response = self.client.get(reverse('workspace_app:monitoring'))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'System Monitoring')
     
     def test_monitoring_data_api(self):
         """Test monitoring data API endpoint"""
         self.client.login(username='testuser', password='testpass123')
-        response = self.client.get(reverse('core_app:monitoring_data'))
+        response = self.client.get(reverse('workspace_app:monitoring_data'))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['Content-Type'], 'application/json')
         
@@ -193,7 +193,7 @@ class CoreViewsTestCase(TestCase):
             document_type='draft'
         )
         
-        response = self.client.get(reverse('core_app:document_list'))
+        response = self.client.get(reverse('workspace_app:document_list'))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'My Documents')
         self.assertContains(response, 'document-list')  # Check for the container
@@ -215,7 +215,7 @@ class CoreViewsTestCase(TestCase):
         )
         
         # Test type filtering - since it's dynamic, just check the page loads
-        response = self.client.get(reverse('core_app:document_list') + '?type=paper')
+        response = self.client.get(reverse('workspace_app:document_list') + '?type=paper')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'document-type-filter')
     
@@ -239,25 +239,25 @@ class CoreViewsTestCase(TestCase):
             hypotheses='Completed project hypothesis'
         )
         
-        response = self.client.get(reverse('core_app:project_list'))
+        response = self.client.get(reverse('workspace_app:project_list'))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'My Projects')  # Check page title instead
     
     def test_profile_view(self):
         """Test profile view"""
         self.client.login(username='testuser', password='testpass123')
-        response = self.client.get(reverse('core_app:profile'))
+        response = self.client.get(reverse('workspace_app:profile'))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Profile')
     
     def test_static_pages(self):
         """Test static pages"""
         pages = [
-            ('core_app:about', 'About'),
-            ('core_app:contact', 'Contact'),
-            ('core_app:privacy', 'Privacy Policy'),
-            ('core_app:terms', 'Terms of Use'),
-            ('core_app:cookies', 'Cookie Policy')
+            ('workspace_app:about', 'About'),
+            ('workspace_app:contact', 'Contact'),
+            ('workspace_app:privacy', 'Privacy Policy'),
+            ('workspace_app:terms', 'Terms of Use'),
+            ('workspace_app:cookies', 'Cookie Policy')
         ]
         
         for url_name, expected_text in pages:
@@ -295,6 +295,5 @@ class DashboardMetricsTestCase(TestCase):
         """Test dashboard redirects to projects page"""
         self.client.login(username='testuser', password='testpass123')
         
-        response = self.client.get(reverse('core_app:index'))
+        response = self.client.get(reverse('workspace_app:index'))
         self.assertEqual(response.status_code, 302)  # Redirect to projects
-        self.assertEqual(response.url, '/projects/')
