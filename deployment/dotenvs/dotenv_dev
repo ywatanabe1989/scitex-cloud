@@ -50,7 +50,7 @@ export SCITEX_CLOUD_GITEA_TOKEN_DEV=bfd4ecd8471bde7f3b7ee7e1ce3f86ec8c966a36
 # ----------------------------------------
 # SciTeX Scholar Search - Development
 # ----------------------------------------
-export SCITEX_USE_CACHE=True
+export SCITEX_USE_CACHE=False
 export SCITEX_MAX_WORKERS=3  # Lower for dev to avoid rate limits
 export SCITEX_TIMEOUT_PER_ENGINE=45  # Higher timeout for debugging
 export SCITEX_ENGINES="CrossRef,PubMed,arXiv"  # Fewer engines for faster dev
