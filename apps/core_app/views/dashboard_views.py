@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
-from .views import index as dashboard_view
+from .core_views import index as dashboard_view
 
 
 @never_cache
@@ -28,5 +28,5 @@ def root_redirect(request):
         return redirect('/dashboard/')
     else:
         # Show landing page for anonymous users
-        from .views import landing
+        from .core_views import landing
         return landing(request)

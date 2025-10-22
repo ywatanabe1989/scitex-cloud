@@ -422,7 +422,7 @@ class ProjectAPIView(BaseAPIView):
     def _create_default_directories(self, project):
         """Create default directory structure for research project"""
         try:
-            from .directory_manager import get_user_directory_manager
+            from ..services.directory_service import get_user_directory_manager
             manager = get_user_directory_manager(project.owner)
             
             # Standard research project directories
