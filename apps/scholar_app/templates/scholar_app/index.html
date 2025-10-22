@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="{% static 'css/common/scitex-components.css' %}">
 <link rel="stylesheet" href="{% static 'css/common/terminal-log.css' %}">
 <link rel="stylesheet" href="{% static 'css/common.css' %}">
-<link rel="stylesheet" href="{% static 'styles/scholar-index.css' %}">
+<link rel="stylesheet" href="{% static 'scholar_app/styles/scholar-index.css' %}">
 {% endblock %}
 
 {% block extra_js %}
@@ -19,174 +19,19 @@
 <!-- Split-Screen Layout -->
 <div class="container u-mt-2 u-mb-3">
     <div class="split-container" id="splitContainer">
-        <!-- LEFT PANEL: BibTeX Enrichment (Primary Feature) -->
-        <div class="split-panel" id="bibtexPanel">
-            <div class="panel-header" onclick="togglePanel('bibtex')">
-                <div>
-                    <i class="fas fa-file-code"></i> <span class="panel-title">BibTeX Enrichment</span>
-                </div>
-                <i class="fas fa-expand-alt toggle-icon"></i>
-            </div>
-            <div class="panel-content">
-                <!-- Upload Form Area -->
-                <div id="bibtexFormArea">
-                    <!-- Helper Message with ASTA Instructions -->
-                    <div style="background: linear-gradient(135deg, rgba(var(--info-color-rgb, 107, 143, 179), 0.1) 0%, rgba(var(--scitex-color-03-rgb, 80, 107, 122), 0.1) 100%); border-left: 4px solid var(--info-color); border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1.5rem;">
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <i class="fas fa-lightbulb" style="color: var(--info-color); font-size: 1.5rem;"></i>
-                            <div style="flex: 1;">
-                                <span style="color: var(--color-fg-muted); font-size: 0.95rem;">
-                                    No BibTeX file? Find papers at <a href="https://asta.allen.ai/chat/" target="_blank" rel="noopener noreferrer" style="color: var(--info-color); font-weight: 600; text-decoration: none; border-bottom: 1px solid var(--info-color);">AI2 Asta</a><span class="tooltip-wrapper"><i class="fas fa-question-circle tooltip-trigger"></i><span class="tooltip-content"><h5 class="tooltip-header"><i class="fas fa-graduation-cap"></i> How to Use AI2 Asta</h5><div class="tooltip-image-grid"><div class="tooltip-image-item"><img src="{% static 'images/asta/asta-1.jpg' %}" alt="ASTA Step 1" onclick="window.open(this.src, '_blank')" class="tooltip-image"><p class="tooltip-caption"><strong>Step 1:</strong> Type query & search</p></div><div class="tooltip-image-item"><img src="{% static 'images/asta/asta-2.jpg' %}" alt="ASTA Step 2" onclick="window.open(this.src, '_blank')" class="tooltip-image"><p class="tooltip-caption"><strong>Step 2:</strong> Export Citations</p></div></div><p class="tooltip-footer"><i class="fas fa-university"></i> AI2 Asta is provided by Allen Institute</p></span></span> and <code style="background: rgba(var(--info-color-rgb, 107, 143, 179), 0.15); padding: 0.2rem 0.4rem; border-radius: 3px; color: var(--color-fg-default); font-size: 0.9rem;">Export All Citations</code><br>Once downloaded, enhance the .bib file by uploading below - <strong>Abstracts, URLs, citation counts, and impact factors of journals will be appended</strong>.
-                                </span>
-                            </div>
-                        </div>
-                    </div>
+        {% include "scholar_app/index_partials/enrich.html" %}
 
-                    <!-- Resource Monitoring Panel -->
-                    <div id="resourceMonitorPanel" class="u-info-panel">
-                        <div class="u-flex-between-mb">
-                            <h4 class="u-heading-md">
-                                <i class="fas fa-tasks"></i> Job Queue Status
-                            </h4>
-                            <span id="resourceRefreshTime" style="color: var(--color-fg-muted); font-size: 0.85rem;">Loading...</span>
-                        </div>
+        {% include "scholar_app/index_partials/search.html" %}
+    </div>
 
-                        <!-- Job Stats (simplified - removed CPU/Memory) -->
-                        <div class="u-grid-2col">
-                            <div class="u-stat-card">
-                                <div class="u-text-muted-sm">Active Jobs</div>
-                                <div style="color: var(--scitex-color-03); font-size: 1.5rem; font-weight: 700;">
-                                    <span id="activeJobsCount">0</span>
-                                </div>
-                            </div>
-                            <div class="u-stat-card">
-                                <div class="u-text-muted-sm">Queued</div>
-                                <div style="color: var(--warning-color); font-size: 1.5rem; font-weight: 700;">
-                                    <span id="queuedJobsCount">0</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Active Jobs List -->
-                        <div id="activeJobsList" style="display: none; margin-bottom: 1rem;">
-                            <div class="u-heading-sm">
-                                <i class="fas fa-cog fa-spin"></i> Active Jobs
-                            </div>
-                            <div id="activeJobsContent" class="u-scroll-container"></div>
-                        </div>
-
-                        <!-- Queued Jobs List -->
-                        <div id="queuedJobsList" class="u-hidden">
-                            <div class="u-heading-sm">
-                                <i class="fas fa-hourglass-half"></i> Queued Jobs
-                            </div>
-                            <div id="queuedJobsContent" class="u-scroll-container"></div>
-                        </div>
-                    </div>
-
-                    <form id="bibtexEnrichmentForm" method="post" action="{% url 'scholar_app:bibtex_upload' %}" enctype="multipart/form-data">
-                    {% csrf_token %}
-
-                    <!-- File Upload with instructions inside -->
-                    <div class="u-mb-1_5">
-                        <div id="dropZone" class="u-upload-zone">
-                            <i class="fas fa-cloud-upload-alt u-upload-icon"></i>
-                            <h3 style="color: var(--color-fg-default); margin-bottom: 0.5rem; font-size: 1.5rem; font-weight: 700;">
-                                Upload your .bib file
-                            </h3>
-                            <p id="uploadMessage" style="color: var(--color-fg-muted); margin-bottom: 1rem; font-size: 1.05rem;">
-                                Enrich with <strong>Abstract</strong>, <strong>URL</strong>, <strong>Citation Count</strong>, and <strong>Impact Factor</strong>
-                            </p>
-                            <div id="fileNameDisplay" style="display: none; color: var(--success-color); font-weight: 600; margin-bottom: 1rem; font-size: 1rem;">
-                                <i class="fas fa-check-circle"></i> <span id="fileName"></span>
-                            </div>
-                            <input type="file" name="bibtex_file" id="bibtexFileInput" accept=".bib" required
-                                   class="u-upload-input">
-                        </div>
-                    </div>
-
-                    <!-- Progress Display Area (shown right under dropbox) -->
-                    <div id="bibtexProgressArea" style="display: none; margin-top: 1.5rem;">
-                        <!-- Progress Bar -->
-                        <div class="u-mb-1_5">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                                <span class="u-text-bold">Progress</span>
-                                <span style="color: var(--color-fg-muted);" id="progressPercentage">0%</span>
-                            </div>
-                            <div style="background: var(--color-border-default); border-radius: 8px; height: 12px; overflow: hidden;">
-                                <div id="progressBar" style="background: var(--scitex-color-03); height: 100%; width: 0%; transition: width 0.3s;"></div>
-                            </div>
-                            <div class="u-mt-0_5 u-text-muted" id="progressDetails">
-                                0 / 0 papers processed
-                            </div>
-                        </div>
-
-                        <!-- Processing Log -->
-                        <div class="terminal-log-container">
-                            <div class="terminal-log-container__header">
-                                <h4 class="terminal-log-container__title">Processing Log</h4>
-                                <button id="copyBibtexLogBtn" style="background: var(--color-btn-bg); border: 1px solid var(--color-border-default); border-radius: 6px; padding: 0.5rem 1rem; cursor: pointer; color: var(--color-fg-default); font-weight: 600; transition: all 0.2s;" title="Copy log to clipboard">
-                                    <i class="fas fa-copy"></i> Copy Log
-                                </button>
-                            </div>
-                            <pre id="processingLog" class="terminal-log terminal-log--medium">Initializing...</pre>
-                        </div>
-
-                        <!-- Download and Open URLs Buttons (always visible, disabled until completion) -->
-                        <div id="downloadArea" class="u-flex-center">
-                            <a id="downloadBtn" href="#" class="disabled" style="display: inline-block; padding: 1rem 2rem; background: var(--success-color); color: var(--white); border-radius: 8px; text-decoration: none; font-weight: 600; transition: opacity 0.3s, background 0.3s;">
-                                <i class="fas fa-download"></i> Download Enriched BibTeX
-                            </a>
-                            <button id="showDiffBtn" onclick="showBibtexDiff()" disabled style="display: inline-block; padding: 1rem 2rem; background: var(--scitex-color-02); color: var(--white); border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: opacity 0.3s, background 0.3s;">
-                                <i class="fas fa-code-branch"></i> Show What Enhanced
-                            </button>
-                            <button id="openUrlsBtn" onclick="openAllPaperUrls()" disabled style="display: inline-block; padding: 1rem 2rem; background: var(--scitex-color-04); color: var(--white); border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: opacity 0.3s, background 0.3s;">
-                                <i class="fas fa-external-link-alt"></i> Open All URLs (<span id="urlCount">0</span>)
-                            </button>
-                        </div>
-
-                        <!-- Diff View Modal (shown when user clicks "Show What Enhanced") -->
-                        <div id="bibtexDiffModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); z-index: 9999; overflow: auto;">
-                            <div class="u-modal-container">
-                                <button onclick="closeBibtexDiff()" class="u-close-btn">
-                                    ×
-                                </button>
-                                <h3 style="color: var(--color-fg-default); margin-bottom: 1rem;">
-                                    <i class="fas fa-code-branch"></i> BibTeX Enhancement Comparison
-                                </h3>
-                                <p style="color: var(--color-fg-muted); margin-bottom: 1.5rem;">
-                                    <span style="color: var(--success-color); font-weight: 600;">● Green</span> = Added fields,
-                                    <span style="color: var(--scitex-color-03); font-weight: 600;">● Blue</span> = Original fields
-                                </p>
-                                <div id="bibtexDiffContent" class="u-terminal-log">
-                                    Loading...
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Project Selection -->
-                    {% if user.is_authenticated %}
-                    <div class="u-mb-1_5">
-                        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--color-fg-default);">
-                            <i class="fas fa-folder"></i> Save to project
-                        </label>
-                        <select name="project_id" style="display: block; width: 100%; padding: 0.75rem; border: 1px solid var(--color-border-default); border-radius: 6px; background: var(--color-canvas-default); color: var(--color-fg-default);">
-                            <option value="">-- No Project --</option>
-                            {% for project in user_projects %}
-                            <option value="{{ project.id }}">{{ project.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    {% endif %}
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- LEFT PANEL: BibTeX Enrichment (Primary Feature) -->
-        <div class="split-panel" id="bibtexPanel">
-            <div class="panel-header" onclick="togglePanel('search')">
+    <!-- Results Section Below Split Container -->
+    <div class="container">
+        {% if has_results %}
+            <!-- Search Results -->
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <!-- Results Header -->
+                    <div class="d-flex justify-content-between align-items-center mb-3">
                 <div>
                     <i class="fas fa-search"></i> <span class="panel-title">Literature Search</span>
                 </div>
@@ -646,9 +491,9 @@ window.SCHOLAR_CONFIG = {
 };
 </script>
 <!-- Panel Toggle Functionality -->
-<script src="{% static 'scripts/panel-toggle.js' %}"></script>
+<script src="{% static 'scholar_app/scripts/panel-toggle.js' %}"></script>
 <!-- Main Scholar Index Functionality -->
-<script src="{% static 'scripts/scholar-index-main.js' %}"></script>
+<script src="{% static 'scholar_app/scripts/scholar-index-main.js' %}"></script>
 
 {% endblock %}
 
