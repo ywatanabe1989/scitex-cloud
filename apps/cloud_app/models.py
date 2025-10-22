@@ -5,6 +5,10 @@ import random
 import string
 import uuid
 
+# Donation models moved to apps.sustainability_app.models
+# Import here for backwards compatibility
+from apps.sustainability_app.models import Donation, DonationTier  # noqa
+
 class EmailVerification(models.Model):
     """Model for storing email verification codes."""
     email = models.EmailField()
@@ -33,79 +37,10 @@ class EmailVerification(models.Model):
         return f"{self.email} - {self.code}"
 
 
-class Donation(models.Model):
-    """Model for tracking donations."""
-    PAYMENT_METHODS = [
-        ('credit_card', 'Credit Card'),
-        ('paypal', 'PayPal'),
-        ('github', 'GitHub Sponsors'),
-        ('bank_transfer', 'Bank Transfer'),
-    ]
-    
-    DONATION_STATUS = [
-        ('pending', 'Pending'),
-        ('completed', 'Completed'),
-        ('failed', 'Failed'),
-        ('refunded', 'Refunded'),
-    ]
-    
-    # Donor information
-    donor_name = models.CharField(max_length=255)
-    donor_email = models.EmailField()
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-    
-    # Donation details
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
-    currency = models.CharField(max_length=3, default='USD')
-    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHODS)
-    
-    # Status tracking
-    status = models.CharField(max_length=20, choices=DONATION_STATUS, default='pending')
-    transaction_id = models.CharField(max_length=255, blank=True)
-    
-    # Preferences
-    is_public = models.BooleanField(default=False)
-    is_anonymous = models.BooleanField(default=False)
-    
-    # Timestamps
-    created_at = models.DateTimeField(auto_now_add=True)
-    completed_at = models.DateTimeField(null=True, blank=True)
-    
-    # Additional information
-    message = models.TextField(blank=True)
-    notes = models.TextField(blank=True)
-    
-    class Meta:
-        ordering = ['-created_at']
-    
-    def __str__(self):
-        return f"{self.donor_name} - ${self.amount} ({self.status})"
-    
-    def complete_donation(self, transaction_id):
-        """Mark donation as completed."""
-        self.status = 'completed'
-        self.transaction_id = transaction_id
-        self.completed_at = timezone.now()
-        self.save()
+# Donation and DonationTier model definitions moved to apps.sustainability_app.models
+# Import statements at top of file provide backwards compatibility
 
-
-class DonationTier(models.Model):
-    """Model for donation tiers and benefits."""
-    name = models.CharField(max_length=100)
-    minimum_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    description = models.TextField()
-    benefits = models.TextField()
-    badge_color = models.CharField(max_length=7, default='#4a6baf')
-    is_active = models.BooleanField(default=True)
-    
-    class Meta:
-        ordering = ['minimum_amount']
-    
-    def __str__(self):
-        return f"{self.name} (${self.minimum_amount}+)"
-
-
-# New models for SciTeX-Cloud services
+# Models for SciTeX-Cloud services
 
 class SubscriptionPlan(models.Model):
     """Model for subscription plans."""
