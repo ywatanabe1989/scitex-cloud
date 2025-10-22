@@ -110,7 +110,7 @@ def unstar_repository(request, username, slug):
 def followers_list(request, username):
     """List followers of a user"""
     user = get_object_or_404(User, username=username)
-    followers = UserFollow.objects.filter(following=user).select_related('follower')
+    followers = UserFollow.objects.filter(following=user).select_related('follower__profile')
 
     followers_data = [{
         'username': f.follower.username,
@@ -152,7 +152,7 @@ def stargazers_list(request, username, slug):
     owner = get_object_or_404(User, username=username)
     project = get_object_or_404(Project, slug=slug, owner=owner)
 
-    stars = RepositoryStar.objects.filter(project=project).select_related('user')
+    stars = RepositoryStar.objects.filter(project=project).select_related('user__profile')
 
     stargazers_data = [{
         'username': s.user.username,

@@ -107,7 +107,7 @@ def ssh_keys(request):
 @login_required
 def api_keys(request):
     """API key management page."""
-    user_api_keys = APIKey.objects.filter(user=request.user)
+    user_api_keys = APIKey.objects.filter(user=request.user).select_related('user')
 
     if request.method == 'POST':
         action = request.POST.get('action')
