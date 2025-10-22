@@ -12,7 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.conf import settings
 from django.utils import timezone
-from .models import Project, GitFileStatus
+from ..models import Project, GitFileStatus
 import subprocess
 import os
 from pathlib import Path

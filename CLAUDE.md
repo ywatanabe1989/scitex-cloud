@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-23 03:59:34
+!-- Timestamp: 2025-10-23 04:08:13
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/CLAUDE.md
 !-- --- -->
@@ -40,6 +40,8 @@ See /dev/design/
   - Use git effectively
   - Work collaborately with other agents using ./project_management/BULLETIN_BOARD.md
 
-- [ ] core_app and cloud_app has too many responsibilities
+- [ ] Root cause is that core_app and cloud_app have too many responsibilities
+  - [ ] core_app
+  - [ ] cloud_app 
 
 <!-- EOF -->

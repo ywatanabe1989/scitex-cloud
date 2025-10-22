@@ -5,7 +5,7 @@ URL patterns for project directory management and file operations.
 """
 
 from django.urls import path
-from . import directory_views
+from .views import directory_views
 
 app_name = 'directory'
 

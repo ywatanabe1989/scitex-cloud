@@ -1,7 +1,7 @@
 from django.urls import path, include
 from . import views
 from .api import viewsets as api_views
-from . import github_views
+from .views import github_views
 
 app_name = 'core_app'
 

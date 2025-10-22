@@ -13,8 +13,8 @@ from pathlib import Path
 import json
 
 from apps.project_app.models import Project
-from .directory_manager import get_user_directory_manager
-from .filesystem_utils import NativeFileHandler, ProjectFileScanner
+from ..services.directory_service import get_user_directory_manager
+from ..services.filesystem_utils import NativeFileHandler, ProjectFileScanner
 
 
 @login_required
