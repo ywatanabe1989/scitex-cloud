@@ -322,23 +322,6 @@ def discover_app_urls():
     return patterns
 
 
-urlpatterns = [
-    path("admin/", admin.site.urls),
-] + discover_app_urls()
-
-urlpatterns += [
-    # Additional URL patterns
-    # Favicon redirect to prevent 404 errors
-    path(
-        "favicon.ico",
-        RedirectView.as_view(url="/static/images/favicon.png", permanent=True),
-    ),
-    # Cloud app URLs (includes landing page and auth)
-    # Note: cloud_app is already included by discover_app_urls() at /cloud/
-    # This additional include makes it accessible at root path /
-    path("", include("apps.cloud_app.urls")),
-]
-
 # Reserved paths that should NOT be treated as usernames
 # Add these BEFORE the username pattern to prevent conflicts
 from apps.project_app.views import project_create
@@ -385,6 +368,24 @@ def get_reserved_paths():
 
 # Generate reserved paths dynamically
 RESERVED_PATHS = get_reserved_paths()
+
+# Build URL patterns with correct ordering
+urlpatterns = [
+    path("admin/", admin.site.urls),
+] + discover_app_urls()
+
+urlpatterns += [
+    # Additional URL patterns
+    # Favicon redirect to prevent 404 errors
+    path(
+        "favicon.ico",
+        RedirectView.as_view(url="/static/images/favicon.png", permanent=True),
+    ),
+    # Cloud app URLs (includes landing page and auth)
+    # Note: cloud_app is already included by discover_app_urls() at /cloud/
+    # This additional include makes it accessible at root path /
+    path("", include("apps.cloud_app.urls")),
+]
 
 urlpatterns += [
     # /new - Create new project (GitHub-style)

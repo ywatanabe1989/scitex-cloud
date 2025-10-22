@@ -30,12 +30,12 @@
         {% endif %}
         <small class="text-muted">
             <em>{{ result.journal|default:"Unknown Journal" }}</em>
-            {% if result.citations and result.citations > 0 %}
-                • <strong>{{ result.citations }} citations</strong>
+            {% if result.citation_count and result.citation_count > 0 %}
+                • <strong>{{ result.citation_count }} citations</strong>
                 {% if result.citation_source %}
                     <span class="badge bg-light text-dark" style="font-size: 0.6rem;" title="Citation data source">{{ result.citation_source|upper }}</span>
                 {% endif %}
-            {% elif result.citations == 0 %}
+            {% elif result.citation_count == 0 %}
                 • <span class="text-muted">0 citations</span>
             {% else %}
                 • <span class="text-muted">Citations unavailable</span>
@@ -44,8 +44,12 @@
                 • PMID: {{ result.pmid }}
             {% endif %}
         </small>
-        {% if result.source %}
-        <span class="badge bg-info ms-2 u-text-muted-xs">{{ result.source|upper }}</span>
+        {% if result.source_engines %}
+            {% for engine in result.source_engines %}
+            <span class="badge bg-info ms-1 u-text-muted-xs" title="Found by {{ engine }}">{{ engine|upper }}</span>
+            {% endfor %}
+        {% elif result.source %}
+        <span class="badge bg-info ms-2 u-text-muted-xs" title="Source">{{ result.source|upper }}</span>
         {% endif %}
     </div>
 

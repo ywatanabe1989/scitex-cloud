@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-22 21:07:53
+!-- Timestamp: 2025-10-23 02:11:17
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/TODOS/10_SCITEX_SCHOLAR.md
 !-- --- -->
@@ -29,8 +29,10 @@ Fill checkboxes of this file when implemented and confirmed their functionality 
 
 ### Search
 - [ ] Exporting and selection
-  - [ ] Each paper should have checkbox
-  - [ ] Export as bibtex
+  - [ ] The color is violeting our theme in dark mode
+    - [ ] /dev/design/
+  - [ ] Export selected as Bibtex
+    - [ ] Failed to export papers. Please try again.
 
 # Running log
 - [ ] Add hook for ScholarSearchEngines and show counts as in bibtex enrichment
@@ -57,13 +59,6 @@ to
 
 - [ ] Enter key in the search box should call the search functionality
 
-- [ ] Paper Cards are too large; use the space effectively
-
-## Impact factor
-- [ ] Impact factor not available for "Journal: eLife" indicates a bug
-- [ ] Impact factor range from 2 by default is not recommended; from 0 and accept none like arxiv
-
-
 - [ ] Remove these status section
 Search Engine Queue Status
 8:49:45 PM
@@ -79,5 +74,11 @@ Total Results
 Ctrl + click shows two tabs, one is the page itself and the other is the url associated
 Right click and open in new tab does only open like this:
 http://127.0.0.1:8000/scholar/?q=sharp+wave+ripples&source_crossref=crossref&source_pubmed=pubmed&source_semantic=semantic&source_arxiv=arxiv&source_openalex=openalex&year_from=1900&year_to=2025&min_citations=0&max_citations=448&min_impact_factor=1.8&max_impact_factor=44.7&author=&journal=&doc_type=&study_type=&language=&sort_by=relevance#search
+
+# http://127.0.0.1:8000/scholar/?q=sharp+wave+ripples&source_crossref=crossref&source_pubmed=pubmed&source_semantic=semantic&source_arxiv=arxiv&source_openalex=openalex&year_from=1900&year_to=2025&min_citations=0&max_citations=448&min_impact_factor=1.8&max_impact_factor=44.7&author=&journal=&doc_type=&study_type=&language=&sort_by=relevance#search
+result.source?
+
+database, scitex index
+unknown authors
 
 <!-- EOF -->
