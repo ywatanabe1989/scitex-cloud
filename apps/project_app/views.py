@@ -493,7 +493,7 @@ def project_settings(request, username, slug):
             if new_visibility in ['public', 'private']:
                 project.visibility = new_visibility
                 project.save()
-                # No success message - the visual state change is sufficient feedback
+                messages.success(request, f'Repository visibility updated to {new_visibility}')
 
         elif action == 'add_collaborator':
             # Add collaborator
