@@ -13,154 +13,16 @@ from apps.profile_app.models import UserProfile  # noqa
 # Japanese Academic utilities moved to apps.profile_app.models
 from apps.profile_app.models import JAPANESE_ACADEMIC_DOMAINS, is_japanese_academic_email  # noqa
 
+# Organization and ResearchGroup models moved to apps.organizations_app.models
+# Import here for backwards compatibility
+from apps.organizations_app.models import (  # noqa
+    Organization,
+    OrganizationMembership,
+    ResearchGroup,
+    ResearchGroupMembership,
+)
 
 # Document model moved to apps.document_app.models
-
-
-# ============================================================================
-# DEPRECATED MODELS - These models are duplicated in apps.project_app.models
-# ============================================================================
-# The following models exist in BOTH core_app and project_app.
-# project_app is the canonical source (92% of codebase uses it).
-# These models will be removed from core_app in the next major version.
-#
-# MIGRATION PLAN:
-# - Phase 1: All imports updated to use project_app (CURRENT PHASE)
-# - Phase 2: Organization/ResearchGroup moved to new organizations_app
-# - Phase 3: These models removed from core_app
-#
-# DO NOT USE THESE MODELS - Import from apps.project_app.models instead
-# ============================================================================
-
-class Organization(models.Model):
-    """
-    DEPRECATED: Use apps.organizations_app.models.Organization instead.
-    This model is duplicated and will be removed in the next version.
-
-    Model for research organizations
-    """
-    name = models.CharField(max_length=200)
-    description = models.TextField(blank=True)
-    members = models.ManyToManyField(User, through='OrganizationMembership', related_name='core_app_organizations')
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        managed = False
-        db_table = 'organizations_app_organization'
-
-    def __str__(self):
-        return self.name
-
-
-class OrganizationMembership(models.Model):
-    """Model for organization membership with roles"""
-    ROLES = [
-        ('admin', 'Administrator'),
-        ('member', 'Member'),
-        ('viewer', 'Viewer'),
-    ]
-    
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
-    role = models.CharField(max_length=20, choices=ROLES, default='member')
-    joined_at = models.DateTimeField(auto_now_add=True)
-    
-    class Meta:
-        unique_together = ('user', 'organization')
-        
-    def __str__(self):
-        return f"{self.user.username} - {self.organization.name} ({self.role})"
-
-
-class ResearchGroup(models.Model):
-    """Model for research groups/labs with hierarchical structure"""
-    
-    name = models.CharField(max_length=200, help_text="Research group/lab name (e.g., 'Ikegaya Lab')")
-    description = models.TextField(blank=True, help_text="Description of research focus and goals")
-    organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name='research_groups')
-    
-    # Group leadership
-    principal_investigator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='led_groups', 
-                                             help_text="PI/Lab head with full administrative control")
-    admins = models.ManyToManyField(User, related_name='administered_groups', blank=True,
-                                   help_text="Additional admins (senior postdocs, co-PIs)")
-    
-    # Group membership
-    members = models.ManyToManyField(User, through='ResearchGroupMembership', related_name='research_groups')
-    
-    # Group settings
-    is_public = models.BooleanField(default=False, help_text="Public group visibility")
-    allow_external_collaborators = models.BooleanField(default=True, help_text="Allow external collaborators")
-    auto_approve_internal = models.BooleanField(default=True, help_text="Auto-approve same organization members")
-    
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    
-    class Meta:
-        ordering = ['name']
-        unique_together = ('name', 'organization')
-    
-    def __str__(self):
-        return f"{self.name} ({self.organization.name})"
-    
-    def get_all_members(self):
-        """Get all members including PI and admins"""
-        member_ids = set(self.members.values_list('id', flat=True))
-        member_ids.add(self.principal_investigator.id)
-        member_ids.update(self.admins.values_list('id', flat=True))
-        return User.objects.filter(id__in=member_ids)
-    
-    def is_member(self, user):
-        """Check if user is a member of this group"""
-        return (user == self.principal_investigator or 
-                self.admins.filter(id=user.id).exists() or
-                self.members.filter(id=user.id).exists())
-    
-    def get_user_role(self, user):
-        """Get user's role in this group"""
-        if user == self.principal_investigator:
-            return 'pi'
-        elif self.admins.filter(id=user.id).exists():
-            return 'admin'
-        else:
-            try:
-                membership = ResearchGroupMembership.objects.get(group=self, user=user)
-                return membership.role
-            except ResearchGroupMembership.DoesNotExist:
-                return None
-
-
-class ResearchGroupMembership(models.Model):
-    """Model for research group membership with roles"""
-    
-    GROUP_ROLES = [
-        ('postdoc', 'Postdoctoral Researcher'),
-        ('phd', 'PhD Student'),
-        ('masters', 'Masters Student'),
-        ('undergrad', 'Undergraduate Student'),
-        ('researcher', 'Research Staff'),
-        ('visiting', 'Visiting Researcher'),
-        ('collaborator', 'External Collaborator'),
-    ]
-    
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    group = models.ForeignKey(ResearchGroup, on_delete=models.CASCADE)
-    role = models.CharField(max_length=20, choices=GROUP_ROLES, default='researcher')
-    
-    # Permissions within group
-    can_create_projects = models.BooleanField(default=True, help_text="Can create new projects for the group")
-    can_invite_collaborators = models.BooleanField(default=False, help_text="Can invite external collaborators")
-    
-    joined_at = models.DateTimeField(auto_now_add=True)
-    is_active = models.BooleanField(default=True)
-    
-    class Meta:
-        unique_together = ('user', 'group')
-        ordering = ['joined_at']
-    
-    def __str__(self):
-        return f"{self.user.get_full_name() or self.user.username} - {self.group.name} ({self.role})"
 
 
 class ProjectMembership(models.Model):
@@ -279,20 +141,20 @@ class Project(models.Model):
 
     Model for research projects with enhanced collaboration
     """
-    
+
     PROJECT_STATUS = [
         ('planning', 'Planning'),
         ('active', 'Active'),
         ('completed', 'Completed'),
         ('on_hold', 'On Hold'),
     ]
-    
+
     name = models.CharField(max_length=200)
     description = models.TextField()
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='owned_projects')
-    organization = models.ForeignKey(Organization, on_delete=models.SET_NULL, null=True, blank=True, related_name='projects')
-    research_group = models.ForeignKey(ResearchGroup, on_delete=models.SET_NULL, null=True, blank=True, 
-                                     related_name='projects', help_text="Associated research group/lab")
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='core_owned_projects')
+    organization = models.ForeignKey(Organization, on_delete=models.SET_NULL, null=True, blank=True, related_name='core_projects')
+    research_group = models.ForeignKey(ResearchGroup, on_delete=models.SET_NULL, null=True, blank=True,
+                                     related_name='core_projects', help_text="Associated research group/lab")
     
     # Enhanced collaboration through ProjectMembership
     collaborators = models.ManyToManyField(User, through='ProjectMembership', through_fields=('project', 'user'), related_name='collaborative_projects')
@@ -332,6 +194,8 @@ class Project(models.Model):
     manuscript_generated = models.BooleanField(default=False, help_text="Manuscript generated")
     
     class Meta:
+        managed = False
+        db_table = 'project_app_project'
         ordering = ['-updated_at']
         unique_together = ('name', 'owner')  # Ensure unique project names per user
         

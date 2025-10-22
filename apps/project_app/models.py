@@ -3,6 +3,9 @@ from django.contrib.auth.models import User
 from datetime import timedelta
 from django.utils import timezone
 
+# Import Organization models from dedicated app
+from apps.organizations_app.models import Organization, ResearchGroup
+
 
 class ProjectMembership(models.Model):
     """Enhanced membership model for project collaboration"""
@@ -35,27 +38,8 @@ class ProjectMembership(models.Model):
         return f"{self.user.username} - {self.project.name} ({self.role})"
 
 
-class Organization(models.Model):
-    """Model for research organizations"""
-    name = models.CharField(max_length=200)
-    description = models.TextField(blank=True)
-    website = models.URLField(blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    
-    def __str__(self):
-        return self.name
-
-
-class ResearchGroup(models.Model):
-    """Model for research groups/labs within organizations"""
-    name = models.CharField(max_length=200)
-    organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name='research_groups')
-    leader = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='project_app_led_groups')
-    description = models.TextField(blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    
-    def __str__(self):
-        return f"{self.name} ({self.organization.name})"
+# Organization and ResearchGroup models moved to apps.organizations_app
+# Import them at the top of this file
 
 
 class Project(models.Model):
