@@ -20,7 +20,7 @@ window.currentBibtexJobId = null;
  * Initialize BibTeX enrichment system
  * @param {Object} config - Configuration
  */
-export function initBibtexEnrichment(config = {}) {
+function initBibtexEnrichment(config = {}) {
     const {
         formId = 'bibtexEnrichmentForm',
         fileInputId = 'bibtexFileInput',
@@ -556,10 +556,9 @@ window.addEventListener('beforeunload', () => {
     stopJobPolling();
 });
 
-// Export functions
-export {
-    startJobPolling,
-    stopJobPolling,
-    updateJobStatus,
-    displayBibtexDiff,
-};
+// Auto-initialize when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => initBibtexEnrichment());
+} else {
+    initBibtexEnrichment();
+}
