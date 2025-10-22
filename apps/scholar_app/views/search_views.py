@@ -1851,7 +1851,7 @@ def save_paper(request):
         data = json.loads(request.body)
         paper_id = data.get('paper_id')
         paper_title = data.get('title', '')
-        project = data.get('project', '')
+        project_id = data.get('project', '')
 
         # Create or get paper in SearchIndex
         paper, created = SearchIndex.objects.get_or_create(
@@ -1875,6 +1875,15 @@ def save_paper(request):
                 'message': 'Paper already in your library'
             })
 
+        # Get project if specified
+        project = None
+        if project_id:
+            from apps.project_app.models import Project
+            try:
+                project = Project.objects.get(id=project_id, owner=request.user)
+            except Project.DoesNotExist:
+                pass  # Silently ignore invalid project
+
         # Save to user library
         library_item = UserLibrary.objects.create(
             user=request.user,
@@ -1883,9 +1892,10 @@ def save_paper(request):
             personal_notes=f"Saved from search: {paper_title}"
         )
 
+        project_name = project.name if project else "your library"
         return JsonResponse({
             'status': 'success',
-            'message': f'Paper saved to {project or "your library"}'
+            'message': f'Paper saved to {project_name}'
         })
 
     except Exception as e:
