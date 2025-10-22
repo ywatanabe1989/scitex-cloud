@@ -33,11 +33,7 @@ def create_gitea_repository(sender, instance, created, **kwargs):
     if not created:
         return
 
-    # Skip if Gitea integration is disabled
-    if not getattr(settings, 'GITEA_INTEGRATION_ENABLED', True):
-        logger.info(f"Gitea integration disabled, skipping repo creation for {instance.slug}")
-        return
-
+    # Gitea integration is always enabled (core feature)
     try:
         from apps.gitea_app.api_client import GiteaClient, GiteaAPIError
 

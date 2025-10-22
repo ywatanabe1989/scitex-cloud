@@ -129,7 +129,7 @@ GITEA_URL = os.environ.get(
 )
 GITEA_API_URL = f"{GITEA_URL}/api/v1"
 GITEA_TOKEN = os.environ.get("SCITEX_CLOUD_GITEA_TOKEN_DEV", "")
-GITEA_INTEGRATION_ENABLED = True
+GITEA_INTEGRATION_ENABLED = True  # Core feature, always enabled
 
 # Development Cache Configuration - fallback to dummy cache if Redis not available
 # Override cache configuration for development if Redis is not available

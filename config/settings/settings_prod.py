@@ -139,12 +139,13 @@ ADMINS = [
 # ---------------------------------------
 # Integration
 # ---------------------------------------
-# Gitea
+# Gitea - Always enabled (core feature)
 GITEA_URL = os.environ.get("SCITEX_CLOUD_GITEA_URL", "https://git.scitex.ai")
 GITEA_API_URL = os.environ.get(
     "SCITEX_CLOUD_GITEA_API_URL", "https://git.scitex.ai/api/v1"
 )
 GITEA_TOKEN = os.environ.get("SCITEX_CLOUD_GITEA_TOKEN", "")
+GITEA_INTEGRATION_ENABLED = True  # Core feature, always enabled
 
 # ---------------------------------------
 # Logging
