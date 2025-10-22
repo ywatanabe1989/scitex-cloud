@@ -40,7 +40,7 @@
             id="bibtex_file"
             accept=".bib"
             required
-            style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; opacity: 0; cursor: pointer;"
+            style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; opacity: 0; cursor: pointer; pointer-events: none;"
           >
           <div id="dropZoneContent">
             <i class="fas fa-cloud-upload-alt" style="font-size: 3rem; color: var(--scitex-color-03); margin-bottom: 0.5rem;"></i>
@@ -203,9 +203,12 @@
 
     <!-- Download Button (shown when complete) -->
     <div id="jobDownloadSection" style="display: none; text-align: center; padding: 1rem; background: var(--color-success-subtle); border-radius: 8px; border: 1px solid var(--success-color);">
-      <h3 style="color: var(--success-color); margin-bottom: 1rem;">
+      <h3 style="color: var(--success-color); margin-bottom: 0.5rem;">
         <i class="fas fa-check-circle"></i> Enrichment Complete!
       </h3>
+      <p style="color: var(--color-fg-muted); margin-bottom: 1rem; font-size: 0.9rem;">
+        <i class="fas fa-info-circle"></i> Download should start automatically. If not, click below:
+      </p>
       <a id="jobDownloadBtn" href="#" style="display: inline-block; padding: 1rem 2rem; background: var(--success-color); color: white; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 1.1rem;">
         <i class="fas fa-download"></i> Download Enriched BibTeX
       </a>
@@ -350,6 +353,16 @@ document.addEventListener('DOMContentLoaded', function() {
   const fileSize = document.getElementById('fileSize');
   const changeFileBtn = document.getElementById('changeFileBtn');
   const uploadForm = document.querySelector('form');
+
+  // Click on dropZone triggers file input (since input has pointer-events: none)
+  dropZone.addEventListener('click', function(e) {
+    // Don't trigger if clicking the change file button
+    if (e.target.id !== 'changeFileBtn' && !e.target.closest('#changeFileBtn')) {
+      fileInput.style.pointerEvents = 'auto';
+      fileInput.click();
+      fileInput.style.pointerEvents = 'none';
+    }
+  });
 
   // Format file size
   function formatFileSize(bytes) {
@@ -548,6 +561,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Dragenter: increment counter and apply styles
   dropZone.addEventListener('dragenter', function(e) {
+    console.log('dragenter fired, counter:', dragCounter);
     dragCounter++;
     if (e.dataTransfer) {
       e.dataTransfer.dropEffect = 'copy';
@@ -568,6 +582,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Dragleave: decrement counter, only remove styles when truly leaving
   dropZone.addEventListener('dragleave', function(e) {
+    console.log('dragleave fired, counter:', dragCounter);
     dragCounter--;
     // Only remove styles when counter reaches 0 (actually left the zone)
     if (dragCounter === 0) {
@@ -577,6 +592,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Drop: reset counter and remove styles
   dropZone.addEventListener('drop', function(e) {
+    console.log('drop fired');
     dragCounter = 0;
     removeDragStyles();
   });
@@ -635,48 +651,84 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Poll job status
   function pollJobStatus() {
-    if (!activeJobId) return;
+    if (!activeJobId) {
+      console.log('[pollJobStatus] No active job ID, skipping poll');
+      return;
+    }
+
+    console.log('[pollJobStatus] Polling job status for ID:', activeJobId);
 
     fetch(`/scholar/api/bibtex/job/${activeJobId}/status/`)
       .then(response => {
+        console.log('[pollJobStatus] Status API response:', response.status);
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         return response.json();
       })
       .then(data => {
+        console.log('[pollJobStatus] Received data:', data);
+        console.log('[pollJobStatus] Job status:', data.status);
+
         updateJobUI(data);
 
         // Stop polling if job is complete or failed
         if (data.status === 'completed' || data.status === 'failed') {
+          console.log('[pollJobStatus] Job finished with status:', data.status);
+          console.log('[pollJobStatus] Stopping polling...');
           if (pollingInterval) {
             clearInterval(pollingInterval);
             pollingInterval = null;
+            console.log('[pollJobStatus] Polling stopped');
           }
         }
       })
       .catch(error => {
-        console.error('[Job Polling Error]:', error);
+        console.error('[pollJobStatus] Error:', error);
       });
   }
 
   // Update job UI with latest data
   function updateJobUI(data) {
+    console.log('[updateJobUI] Called with status:', data.status);
+
     // Update status
     const jobStatus = document.getElementById('jobStatus');
     const jobTitle = document.getElementById('jobTitle');
     const titleIcon = jobTitle.previousElementSibling;
 
     if (data.status === 'completed') {
+      console.log('[updateJobUI] Job completed! Preparing download...');
+
       jobStatus.innerHTML = '<span style="color: var(--success-color);"><i class="fas fa-check-circle"></i> Completed</span>';
       jobTitle.textContent = 'Enrichment Complete';
       titleIcon.className = 'fas fa-check-circle';
       titleIcon.style.animation = 'none';
       document.getElementById('jobDownloadSection').style.display = 'block';
-      document.getElementById('jobDownloadBtn').href = `/scholar/bibtex/job/${activeJobId}/download/`;
+      const downloadUrl = `/scholar/api/bibtex/job/${activeJobId}/download/`;
+
+      console.log('[updateJobUI] Download URL:', downloadUrl);
+      console.log('[updateJobUI] Setting download button href...');
+
+      document.getElementById('jobDownloadBtn').href = downloadUrl;
       document.getElementById('jobDownloadInfo').textContent = `${data.total_papers} entries, ${data.processed_papers} enriched`;
+
+      console.log('[updateJobUI] Calling autoDownloadFile()...');
+
+      // Add visual notification that download is starting
+      const downloadInfo = document.getElementById('jobDownloadInfo');
+      downloadInfo.innerHTML = `
+        <span style="color: var(--info-color);">
+          <i class="fas fa-spinner fa-spin"></i> Starting automatic download...
+        </span>
+      `;
+
+      // Auto-download the file immediately
+      autoDownloadFile(downloadUrl);
     } else if (data.status === 'processing') {
+      console.log('[updateJobUI] Job still processing...');
       jobStatus.innerHTML = '<span style="color: var(--info-color);"><i class="fas fa-spinner fa-spin"></i> Processing</span>';
       jobTitle.textContent = 'Enrichment in Progress';
     } else if (data.status === 'failed') {
+      console.log('[updateJobUI] Job failed!');
       jobStatus.innerHTML = '<span style="color: var(--error-color);"><i class="fas fa-times-circle"></i> Failed</span>';
       jobTitle.textContent = 'Enrichment Failed';
       titleIcon.className = 'fas fa-times-circle';
@@ -745,6 +797,132 @@ document.addEventListener('DOMContentLoaded', function() {
       this.innerHTML = '<i class="fas fa-expand-alt"></i>';
     }
   });
+
+  // Auto-download file when completed
+  function autoDownloadFile(url) {
+    console.log('========================================');
+    console.log('[Auto-Download] FUNCTION CALLED');
+    console.log('[Auto-Download] URL:', url);
+    console.log('[Auto-Download] Starting fetch request...');
+    console.log('========================================');
+
+    // Method 1: Try using fetch + blob (more reliable for cross-origin)
+    fetch(url)
+      .then(response => {
+        console.log('[Auto-Download] Fetch response received');
+        console.log('[Auto-Download] Status:', response.status, response.statusText);
+        console.log('[Auto-Download] Headers:', [...response.headers.entries()]);
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        // Extract filename from Content-Disposition header if available
+        let filename = 'enriched_bibliography.bib';
+        const contentDisposition = response.headers.get('Content-Disposition');
+        console.log('[Auto-Download] Content-Disposition:', contentDisposition);
+
+        if (contentDisposition) {
+          const filenameMatch = contentDisposition.match(/filename="?(.+?)"?$/);
+          if (filenameMatch) {
+            filename = filenameMatch[1];
+            console.log('[Auto-Download] Extracted filename:', filename);
+          }
+        } else {
+          console.log('[Auto-Download] Using default filename:', filename);
+        }
+
+        console.log('[Auto-Download] Converting to blob...');
+        return response.blob().then(blob => {
+          console.log('[Auto-Download] Blob created, size:', blob.size, 'bytes');
+          console.log('[Auto-Download] Blob type:', blob.type);
+          return { blob, filename };
+        });
+      })
+      .then(({ blob, filename }) => {
+        console.log('[Auto-Download] Creating object URL...');
+        // Create object URL from blob
+        const blobUrl = window.URL.createObjectURL(blob);
+        console.log('[Auto-Download] Blob URL created:', blobUrl);
+
+        // Create temporary anchor and trigger download
+        console.log('[Auto-Download] Creating anchor element...');
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = filename;
+        a.style.display = 'none';
+        document.body.appendChild(a);
+
+        console.log('[Auto-Download] Anchor created and appended to body');
+        console.log('[Auto-Download] Triggering click...');
+        a.click();
+        console.log('[Auto-Download] Click triggered!');
+
+        // Clean up
+        setTimeout(() => {
+          console.log('[Auto-Download] Cleaning up...');
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(blobUrl);
+          console.log('[Auto-Download] Cleanup complete');
+        }, 100);
+
+        console.log('========================================');
+        console.log('[Auto-Download] ✓ SUCCESS - Download triggered:', filename);
+        console.log('========================================');
+
+        // Update visual feedback
+        const downloadInfo = document.getElementById('jobDownloadInfo');
+        if (downloadInfo) {
+          downloadInfo.innerHTML = `
+            <span style="color: var(--success-color);">
+              <i class="fas fa-check-circle"></i> Download started! Check your downloads folder.
+            </span><br>
+            <span style="color: var(--color-fg-muted); font-size: 0.85rem;">
+              If download didn't start, click the button above.
+            </span>
+          `;
+        }
+      })
+      .catch(error => {
+        console.error('========================================');
+        console.error('[Auto-Download] ✗ FETCH FAILED');
+        console.error('[Auto-Download] Error:', error);
+        console.error('[Auto-Download] Error message:', error.message);
+        console.error('[Auto-Download] Error stack:', error.stack);
+        console.error('========================================');
+        console.log('[Auto-Download] Trying fallback method...');
+
+        // Fallback: Direct anchor click
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'enriched_bibliography.bib';
+        a.style.display = 'none';
+        document.body.appendChild(a);
+
+        console.log('[Auto-Download] Fallback: Anchor created');
+        console.log('[Auto-Download] Fallback: Triggering click...');
+        a.click();
+        console.log('[Auto-Download] Fallback: Click triggered');
+
+        setTimeout(() => {
+          document.body.removeChild(a);
+          console.log('[Auto-Download] Fallback: Cleanup complete');
+        }, 100);
+
+        // Update visual feedback for fallback
+        const downloadInfo = document.getElementById('jobDownloadInfo');
+        if (downloadInfo) {
+          downloadInfo.innerHTML = `
+            <span style="color: var(--warning-color);">
+              <i class="fas fa-exclamation-triangle"></i> Auto-download may have failed
+            </span><br>
+            <span style="color: var(--color-fg-muted); font-size: 0.85rem;">
+              Please click the download button above to get your file.
+            </span>
+          `;
+        }
+      });
+  }
 });
 </script>
 {% endblock %}

@@ -7,30 +7,30 @@
 <link rel="stylesheet" href="{% static 'css/components/hero.css' %}">
 <style>
     .library-hero {
-        background: linear-gradient(135deg, #1a2332 0%, #34495e 100%);
-        color: white;
+        background: linear-gradient(135deg, var(--scitex-color-01) 0%, var(--scitex-color-02) 100%);
+        color: var(--white);
         padding: 3rem 0;
         margin-bottom: 2rem;
     }
     .stats-card {
-        background: white;
+        background: var(--color-canvas-default);
         border-radius: 12px;
         padding: 1.5rem;
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         text-align: center;
-        border-left: 4px solid #1a2332;
+        border-left: 4px solid var(--scitex-color-01);
     }
     .stats-number {
         font-size: 2rem;
         font-weight: bold;
-        color: #1a2332;
+        color: var(--color-fg-default);
     }
     .collection-card {
-        background: white;
+        background: var(--color-canvas-default);
         border-radius: 12px;
         padding: 1rem;
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        border-left: 4px solid var(--collection-color, #1a2332);
+        border-left: 4px solid var(--collection-color, var(--scitex-color-01));
         cursor: pointer;
         transition: transform 0.2s ease;
     }
@@ -39,22 +39,22 @@
         box-shadow: 0 4px 15px rgba(0,0,0,0.15);
     }
     .paper-card {
-        background: white;
+        background: var(--color-canvas-default);
         border-radius: 12px;
         padding: 1.5rem;
         margin-bottom: 1rem;
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        border-left: 4px solid #1a2332;
+        border-left: 4px solid var(--scitex-color-01);
     }
     .paper-title {
-        color: #1a2332;
+        color: var(--color-fg-default);
         font-weight: 600;
         font-size: 1.1rem;
         margin-bottom: 0.5rem;
         text-decoration: none;
     }
     .paper-meta {
-        color: #7f8c8d;
+        color: var(--color-fg-muted);
         font-size: 0.9rem;
         margin-bottom: 0.5rem;
     }
@@ -65,19 +65,19 @@
         font-size: 0.8rem;
         font-weight: 500;
     }
-    .status-to_read { background: #e3f2fd; color: #1976d2; }
-    .status-reading { background: #fff3e0; color: #f57c00; }
-    .status-read { background: #e8f5e8; color: #388e3c; }
-    .status-referenced { background: #f3e5f5; color: #7b1fa2; }
-    .status-favorite { background: #ffebee; color: #d32f2f; }
-    
+    .status-to_read { background: rgba(var(--info-color-rgb), 0.15); color: var(--info-color); }
+    .status-reading { background: rgba(var(--warning-color-rgb), 0.15); color: var(--warning-color); }
+    .status-read { background: rgba(var(--success-color-rgb), 0.15); color: var(--success-color); }
+    .status-referenced { background: rgba(var(--scitex-color-03-rgb), 0.15); color: var(--scitex-color-03); }
+    .status-favorite { background: rgba(var(--error-color-rgb), 0.15); color: var(--error-color); }
+
     .importance-stars {
-        color: #ffc107;
+        color: var(--warning-color);
     }
     .tag {
         display: inline-block;
-        background: #e9ecef;
-        color: #495057;
+        background: var(--color-canvas-subtle);
+        color: var(--color-fg-muted);
         padding: 0.25rem 0.5rem;
         border-radius: 8px;
         font-size: 0.75rem;
@@ -85,21 +85,21 @@
         margin-bottom: 0.25rem;
     }
     .filter-sidebar {
-        background: #f8f9fa;
+        background: var(--color-canvas-subtle);
         border-radius: 12px;
         padding: 1.5rem;
         margin-bottom: 2rem;
     }
     .search-input {
-        border: 1px solid #ced4da;
+        border: 1px solid var(--color-border-default);
         border-radius: 8px;
         padding: 0.75rem;
         width: 100%;
         margin-bottom: 1rem;
     }
     .create-collection-btn {
-        background: #28a745;
-        color: white;
+        background: var(--success-color);
+        color: var(--white);
         border: none;
         border-radius: 8px;
         padding: 0.5rem 1rem;
@@ -108,7 +108,7 @@
         transition: background 0.2s ease;
     }
     .create-collection-btn:hover {
-        background: #218838;
+        background: var(--color-success-emphasis);
     }
 </style>
 {% endblock %}
