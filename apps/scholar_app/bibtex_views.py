@@ -84,49 +84,43 @@ def bibtex_upload(request):
         messages.error(request, 'Please upload a .bib file.')
         return redirect('scholar_app:bibtex_enrichment')
 
-    # Clean up stale jobs first (jobs stuck for >10 minutes)
+    # Job management: One user = One job at a time
+    # Different handling for authenticated vs anonymous users
+
     if request.user.is_authenticated:
-        stale_jobs = BibTeXEnrichmentJob.objects.filter(
+        # Authenticated users: Can cancel old jobs and start new ones
+        existing_jobs = BibTeXEnrichmentJob.objects.filter(
             user=request.user,
             status__in=['pending', 'processing']
         )
+
+        # Cancel all existing jobs - new upload takes priority
+        for old_job in existing_jobs:
+            old_job.status = 'cancelled'
+            old_job.error_message = 'Cancelled - new job uploaded'
+            old_job.completed_at = timezone.now()
+            old_job.processing_log += '\n\n✗ Cancelled by user uploading new file'
+            old_job.save(update_fields=['status', 'error_message', 'completed_at', 'processing_log'])
+
     else:
-        stale_jobs = BibTeXEnrichmentJob.objects.filter(
+        # Anonymous users: Must wait for current job to complete
+        # Cannot cancel and retry like authenticated users
+        existing_jobs = BibTeXEnrichmentJob.objects.filter(
             session_key=request.session.session_key,
             status__in=['pending', 'processing']
         ) if request.session.session_key else BibTeXEnrichmentJob.objects.none()
 
-    for stale_job in stale_jobs:
-        if stale_job.is_stale():
-            stale_job.status = 'failed'
-            stale_job.error_message = 'Job timed out or became unresponsive'
-            stale_job.completed_at = timezone.now()
-            stale_job.processing_log += '\n\n✗ Job automatically cancelled (timeout/stale)'
-            stale_job.save(update_fields=['status', 'error_message', 'completed_at', 'processing_log'])
-
-    # Check if user already has an active or pending job (one job at a time)
-    if request.user.is_authenticated:
-        existing_active_job = BibTeXEnrichmentJob.objects.filter(
-            user=request.user,
-            status__in=['pending', 'processing']
-        ).first()
-    else:
-        existing_active_job = BibTeXEnrichmentJob.objects.filter(
-            session_key=request.session.session_key,
-            status__in=['pending', 'processing']
-        ).first() if request.session.session_key else None
-
-    if existing_active_job:
-        error_message = f'You already have a job in progress: "{existing_active_job.original_filename or "Unknown"}". Please wait for it to complete.'
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return JsonResponse({
-                'success': False,
-                'error': error_message,
-                'existing_job_id': str(existing_active_job.id),
-            }, status=429)  # 429 Too Many Requests
-        else:
-            messages.error(request, error_message)
-            return redirect('scholar_app:bibtex_enrichment')
+        if existing_jobs.exists():
+            error_message = 'You already have a job in progress. Please wait for it to complete or sign up for an account to cancel and retry.'
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,
+                    'error': error_message,
+                    'anonymous_limit': True,
+                }, status=429)
+            else:
+                messages.error(request, error_message)
+                return redirect('scholar_app:bibtex_enrichment')
 
     # Get optional parameters
     project_name = request.POST.get('project_name', '').strip() or None
