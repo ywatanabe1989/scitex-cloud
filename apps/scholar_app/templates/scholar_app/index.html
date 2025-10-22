@@ -26,87 +26,11 @@
 
   {% if query %}
   <div class="mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <div>
-        <h5 class="mb-0">Search Results</h5>
-        <small class="text-muted" id="searchResultsText">
-          Found {{ results|length }} result{{ results|length|pluralize }} for "{{ query }}"
-          {% if results %}
-          <span id="sourceDisplay">from selected sources</span>
-          {% endif %}
-        </small>
-      </div>
-      <div class="d-flex align-items-center gap-2">
+    {% include "scholar_app/index_partials/search_results_header.html" %}
 
-        <div>
-          <small class="text-muted">Sort by:</small>
-          <select name="sort_by" class="form-select form-select-sm d-inline-block w-auto ms-2" id="sortSelect">
-            <option value="relevance" {% if request.GET.sort_by == 'relevance' or not request.GET.sort_by %}selected{% endif %}>Most Relevant</option>
-            <option value="date" {% if request.GET.sort_by == 'date' %}selected{% endif %}>Most Recent</option>
-            <option value="citations" {% if request.GET.sort_by == 'citations' %}selected{% endif %}>Most Cited</option>
-          </select>
-        </div>
-      </div>
-    </div>
-    
-    <!-- API Key Alert -->
-    {% if missing_api_keys %}
-    <div class="alert alert-warning alert-dismissible fade show mb-3" role="alert">
-      <div class="d-flex align-items-center">
-        <i class="fas fa-key me-2 text-warning"></i>
-        <div class="flex-grow-1">
-          <strong>Improve Your Search Performance!</strong><br>
-          <small>Missing API keys for: <strong>{{ missing_api_keys|join:", "|title }}</strong>. 
-            Add them for higher rate limits and more comprehensive results.</small>
-        </div>
-        <a href="{% url 'scholar_app:api_keys' %}" class="btn btn-warning btn-sm ms-2">
-          <i class="fas fa-plus"></i> Add API Keys
-        </a>
-      </div>
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    {% endif %}
-    
-    <!-- Progressive Loading Status -->
-    <div id="progressiveLoadingStatus" class="u-hidden">
-      <div class="row mb-3">
-        <div class="col-12">
-          <div class="d-flex flex-wrap gap-3 align-items-center">
-            <div class="progress-source" data-source="pubmed">
-              <span class="badge bg-secondary">PubMed</span>
-              <div class="spinner-border spinner-border-sm ms-2" role="status">
-                <span class="visually-hidden">Loading...</span>
-              </div>
-              <span class="count ms-1">0</span>
-            </div>
-            <div class="progress-source" data-source="google_scholar">
-              <span class="badge bg-secondary">Google Scholar</span>
-              <div class="spinner-border spinner-border-sm ms-2" role="status">
-                <span class="visually-hidden">Loading...</span>
-              </div>
-              <span class="count ms-1">0</span>
-            </div>
-            <div class="progress-source" data-source="arxiv">
-              <span class="badge bg-secondary">arXiv</span>
-              <div class="spinner-border spinner-border-sm ms-2" role="status">
-                <span class="visually-hidden">Loading...</span>
-              </div>
-              <span class="count ms-1">0</span>
-            </div>
-            <div class="progress-source" data-source="semantic">
-              <span class="badge bg-secondary">Semantic Scholar</span>
-              <div class="spinner-border spinner-border-sm ms-2" role="status">
-                <span class="visually-hidden">Loading...</span>
-              </div>
-              <span class="count ms-1">0</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    {% include "scholar_app/index_partials/api_key_alert.html" %}
 
-    <!-- Progressive Results Container -->
-    <div id="progressiveResults" class="u-hidden"></div>
+    {% include "scholar_app/index_partials/progressive_loading.html" %}
 
     <!-- Search Results -->
     {% for result in results %}
