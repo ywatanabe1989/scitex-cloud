@@ -132,17 +132,35 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 })
                 .then(response => {
-                    if (response.status === 429) {
-                        // User already has an active job
+                    if (response.status === 409) {
+                        // Conflict - user already has a job in progress
                         return response.json().then(data => {
-                            alert(data.error || 'You already have a job in progress. Please wait for it to complete.');
-                            // If we have the existing job ID, start polling for it
-                            if (data.existing_job_id) {
-                                pollBibtexJobStatus(data.existing_job_id);
+                            if (data.requires_confirmation && data.existing_job) {
+                                // Ask user if they want to cancel the existing job
+                                const msg = `You already have a job in progress: "${data.existing_job.filename}" (${data.existing_job.progress}% complete).\n\nCancel it and start a new job?`;
+                                if (confirm(msg)) {
+                                    // Resubmit with force flag
+                                    formData.append('force', 'true');
+                                    return fetch(window.SCHOLAR_CONFIG.urls.bibtexUpload, {
+                                        method: 'POST',
+                                        body: formData,
+                                        headers: {
+                                            'X-Requested-With': 'XMLHttpRequest',
+                                            'X-CSRFToken': csrfToken
+                                        }
+                                    }).then(r => r.json());
+                                } else {
+                                    // User declined, start monitoring existing job
+                                    if (data.existing_job.id) {
+                                        pollBibtexJobStatus(data.existing_job.id);
+                                    }
+                                    throw new Error('User declined to cancel existing job');
+                                }
                             } else {
+                                alert(data.message || 'You already have a job in progress. Please wait for it to complete.');
                                 resetBibtexForm();
+                                throw new Error('Job already running');
                             }
-                            throw new Error('Job already running');
                         });
                     }
                     return response.json();
@@ -157,9 +175,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 })
                 .catch(error => {
-                    if (error.message !== 'Job already running') {
+                    const ignoredErrors = ['Job already running', 'User declined to cancel existing job'];
+                    if (!ignoredErrors.includes(error.message)) {
                         console.error('Error:', error);
-                        alert('Failed to upload BibTeX file');
+                        alert('Failed to upload BibTeX file: ' + error.message);
                         resetBibtexForm();
                     }
                 });
