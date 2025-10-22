@@ -12,9 +12,7 @@ from django.utils.html import format_html
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 
-from .models import (
-    Project, ProjectMembership
-)
+# ProjectMembership now managed in project_app
 # UserProfile now managed in profile_app
 from apps.profile_app.models import UserProfile
 # Organization models now managed in organizations_app
@@ -54,31 +52,11 @@ class ResearchGroupMembershipInline(admin.TabularInline):
     readonly_fields = ('joined_at',)
 
 
-class ProjectMembershipInlineForUser(admin.TabularInline):
-    model = ProjectMembership
-    fk_name = 'user'  # For User admin - show projects this user is a member of
-    extra = 0
-    fields = (
-        'project', 'role', 'can_read_files', 'can_write_files', 'can_delete_files',
-        'can_manage_collaborators', 'access_expires_at', 'is_active'
-    )
-    readonly_fields = ('created_at',)
-
-
-class ProjectMembershipInlineForProject(admin.TabularInline):
-    model = ProjectMembership
-    fk_name = 'project'  # For Project admin - show users who are members of this project
-    extra = 0
-    fields = (
-        'user', 'role', 'can_read_files', 'can_write_files', 'can_delete_files',
-        'can_manage_collaborators', 'access_expires_at', 'is_active'
-    )
-    readonly_fields = ('created_at',)
-
+# ProjectMembershipInline classes moved to apps.project_app.admin
 
 # Extended User admin
 class UserAdmin(BaseUserAdmin):
-    inlines = (UserProfileInline, OrganizationMembershipInline, ResearchGroupMembershipInline, ProjectMembershipInlineForUser)
+    inlines = (UserProfileInline, OrganizationMembershipInline, ResearchGroupMembershipInline)
     
     list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'is_academic_ja', 'total_projects', 'date_joined')
     list_filter = ('is_staff', 'is_superuser', 'is_active', 'date_joined', 'profile__is_academic_ja')
@@ -95,144 +73,14 @@ class UserAdmin(BaseUserAdmin):
     
     def total_projects(self, obj):
         """Show total projects owned"""
-        return obj.owned_projects.count()
+        return obj.project_app_owned_projects.count()
     total_projects.short_description = 'Projects'
 
 
 # UserProfile admin moved to apps.profile_app.admin
 # Organization and ResearchGroup admin moved to apps.organizations_app.admin
-
-
-# Project admin
-@admin.register(Project)
-class ProjectAdmin(admin.ModelAdmin):
-    list_display = ('name', 'owner', 'research_group', 'status', 'progress_display', 'total_collaborators', 'storage_usage_mb', 'github_status', 'updated_at')
-    list_filter = ('status', 'organization', 'research_group', 'github_integration_enabled', 'directory_created', 'created_at')
-    search_fields = ('name', 'description', 'owner__username', 'owner__first_name', 'owner__last_name')
-    filter_horizontal = ()  # Remove since we use through model
-    inlines = (ProjectMembershipInlineForProject,)
-    
-    fieldsets = (
-        ('Basic Information', {
-            'fields': ('name', 'description', 'owner', 'organization', 'research_group')
-        }),
-        ('Project Status', {
-            'fields': ('status', 'progress', 'deadline')
-        }),
-        ('Research Data', {
-            'fields': ('hypotheses', 'manuscript_draft'),
-            'classes': ('collapse',)
-        }),
-        ('Directory Management', {
-            'fields': ('data_location', 'directory_created', 'storage_used', 'last_activity'),
-            'classes': ('collapse',)
-        }),
-        ('GitHub Integration', {
-            'fields': ('github_integration_enabled', 'github_repo_name', 'github_owner', 'current_branch', 'last_sync_at'),
-            'classes': ('collapse',)
-        }),
-        ('SciTeX Workflow Status', {
-            'fields': ('search_completed', 'knowledge_gap_identified', 'analysis_completed', 'figures_generated', 'manuscript_generated'),
-            'classes': ('collapse',)
-        }),
-        ('Timestamps', {
-            'fields': ('created_at', 'updated_at'),
-            'classes': ('collapse',)
-        }),
-    )
-    readonly_fields = ('created_at', 'updated_at', 'last_activity', 'storage_used')
-    
-    def progress_display(self, obj):
-        """Display progress as a colored bar"""
-        progress = obj.get_progress_percentage()
-        if progress < 30:
-            color = '#dc3545'  # Red
-        elif progress < 70:
-            color = '#ffc107'  # Yellow
-        else:
-            color = '#28a745'  # Green
-        
-        return format_html(
-            '<div style="width: 100px; background-color: #e9ecef; border-radius: 3px;">'
-            '<div style="width: {}px; background-color: {}; height: 18px; border-radius: 3px; text-align: center; color: white; font-size: 12px; line-height: 18px;">'
-            '{}%</div></div>',
-            progress, color, progress
-        )
-    progress_display.short_description = 'Progress'
-    
-    def total_collaborators(self, obj):
-        return obj.get_all_collaborators().count() - 1  # Exclude owner
-    total_collaborators.short_description = 'Collaborators'
-    
-    def storage_usage_mb(self, obj):
-        return f"{obj.get_storage_usage_mb()} MB"
-    storage_usage_mb.short_description = 'Storage Used'
-    
-    def github_status(self, obj):
-        status = obj.get_github_status_complete()
-        colors = {
-            'connected': '#28a745',
-            'disconnected': '#6c757d', 
-            'auth_required': '#ffc107',
-            'repo_required': '#dc3545'
-        }
-        return format_html(
-            '<span style="color: {}; font-weight: bold;">{}</span>',
-            colors.get(status, '#6c757d'),
-            status.replace('_', ' ').title()
-        )
-    github_status.short_description = 'GitHub'
-
-
-# Project Membership admin
-@admin.register(ProjectMembership)
-class ProjectMembershipAdmin(admin.ModelAdmin):
-    list_display = ('user', 'project', 'role', 'permissions_summary', 'access_expires_at', 'is_active', 'created_at')
-    list_filter = ('role', 'is_active', 'can_read_files', 'can_write_files', 'can_delete_files', 'created_at')
-    search_fields = ('user__username', 'user__first_name', 'user__last_name', 'project__name')
-    list_editable = ('role', 'is_active')
-    
-    fieldsets = (
-        ('Membership', {
-            'fields': ('user', 'project', 'role', 'is_active')
-        }),
-        ('File Permissions', {
-            'fields': ('can_read_files', 'can_write_files', 'can_delete_files')
-        }),
-        ('Project Permissions', {
-            'fields': ('can_manage_collaborators', 'can_edit_metadata', 'can_run_analysis', 'can_export_data', 'can_view_results')
-        }),
-        ('Administrative Permissions', {
-            'fields': ('can_change_settings', 'can_archive_project'),
-            'classes': ('collapse',)
-        }),
-        ('Access Control', {
-            'fields': ('access_expires_at', 'access_granted_by'),
-            'classes': ('collapse',)
-        }),
-        ('Timestamps', {
-            'fields': ('created_at', 'updated_at'),
-            'classes': ('collapse',)
-        }),
-    )
-    readonly_fields = ('created_at', 'updated_at')
-    
-    def permissions_summary(self, obj):
-        """Show a summary of key permissions"""
-        perms = []
-        if obj.can_read_files:
-            perms.append('Read')
-        if obj.can_write_files:
-            perms.append('Write')
-        if obj.can_delete_files:
-            perms.append('Delete')
-        if obj.can_manage_collaborators:
-            perms.append('Manage')
-        
-        return ', '.join(perms) if perms else 'No permissions'
-    permissions_summary.short_description = 'Key Permissions'
-
-
+# Project admin moved to apps.project_app.admin
+# ProjectMembership admin moved to apps.project_app.admin
 # Git File Status admin moved to apps.gitea_app.admin
 
 
