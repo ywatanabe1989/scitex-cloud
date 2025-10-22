@@ -65,8 +65,8 @@ from datetime import datetime
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.utils.text import slugify
-from .models import Project
-# from apps.document_app  # Removed - document_app not installed.models import Document
+from ..models import Project
+# from apps.document_app.models import Document  # Removed - document_app not installed
 
 
 class UserDirectoryManager:

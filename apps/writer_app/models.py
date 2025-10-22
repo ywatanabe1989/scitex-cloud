@@ -129,7 +129,7 @@ class Manuscript(models.Model):
     def get_project_paper_path(self):
         """Get the paper directory path within the project."""
         if self.project and hasattr(self.project, 'data_location'):
-            from apps.core_app.directory_manager import get_user_directory_manager
+            from apps.core_app.services.directory_service import get_user_directory_manager
             manager = get_user_directory_manager(self.owner)
             project_path = manager.get_project_path(self.project)
             return project_path / 'paper' if project_path else None

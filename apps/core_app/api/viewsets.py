@@ -26,8 +26,8 @@ from django.views.decorators.http import require_http_methods
 from django.core.paginator import Paginator
 from django.db import transaction
 
-from .models import Project, UserProfile
-# from apps.document_app  # Removed - document_app not installed.models import Document
+from ..models import Project, UserProfile
+# from apps.document_app.models import Document  # Removed - document_app not installed
 import logging
 import re
 import subprocess

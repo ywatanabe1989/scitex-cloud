@@ -408,7 +408,7 @@ class Project(models.Model):
         """
         import subprocess
         from pathlib import Path
-        from apps.core_app.directory_manager import get_user_directory_manager
+        from apps.core_app.services.directory_service import get_user_directory_manager
 
         if not self.git_url:
             return False, "No git URL configured"
