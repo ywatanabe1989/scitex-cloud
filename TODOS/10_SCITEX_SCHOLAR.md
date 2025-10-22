@@ -75,5 +75,12 @@ should be refactored using
   - Prevents jobs from hanging indefinitely
   - Clear error message if timeout occurs
   - Implemented in `bibtex_views.py` using `asyncio.wait_for()`
+- [x] Automatic stale job cleanup
+  - **HOW it works**: Before allowing new job uploads, system checks for stale jobs
+  - Jobs stuck in "processing" for >10 minutes are automatically marked as failed
+  - Jobs stuck in "pending" for >5 minutes are automatically marked as failed
+  - User can immediately submit new job after stale job is cleaned up
+  - Implemented in `models.py::is_stale()` and `bibtex_views.py::bibtex_upload()`
+  - **No partial results** - only complete results are provided
 
 <!-- EOF -->

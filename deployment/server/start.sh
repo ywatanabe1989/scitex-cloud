@@ -39,21 +39,25 @@ mkdir -p "$LOG_DIR" "$APP_HOME/run"
 usage() {
     echo "Usage: $0 [OPTIONS]"
     echo "Options:"
-    echo "  -m, --migrate          Run database migrations"
-    echo "  -c, --collect-static   Collect static files"
     echo "  -p, --production       Start in production mode"
     echo "  -d, --daemon           Run in background (daemon mode)"
+    echo "  --skip-migrate         Skip database migrations (not recommended)"
+    echo "  --skip-static          Skip collecting static files (not recommended)"
     echo "  -h, --help             Show this help message"
     echo
     echo "Description:"
-    echo "  This script manages Django project tasks and server startup."
-    echo "  Without options, it starts the development server."
+    echo "  This script automatically handles:"
+    echo "  1. Killing existing processes on port 8000"
+    echo "  2. Running database migrations"
+    echo "  3. Collecting static files"
+    echo "  4. Starting the server"
+    echo "  5. Tailing logs"
     echo
     echo "Examples:"
-    echo "  $0                     # Start development server"
-    echo "  $0 -m -c               # Migrate, collect static, start dev server"
-    echo "  $0 -p                  # Start production server with uwsgi"
+    echo "  $0                     # Standard start (migrate + static + dev server + logs)"
     echo "  $0 -d                  # Start dev server in background"
+    echo "  $0 -p                  # Start production server"
+    echo "  $0 --skip-migrate      # Skip migrations (faster for quick testing)"
     exit 1
 }
 
@@ -157,8 +161,9 @@ start_prod() {
 
 # Main function
 main() {
-    local do_migrate=false
-    local do_collect_static=false
+    # Default: migrate and collect static automatically
+    local do_migrate=true
+    local do_collect_static=true
     local is_prod=false
     local is_daemon=false
 
@@ -169,6 +174,8 @@ main() {
             -c|--collect-static) do_collect_static=true ;;
             -p|--production) is_prod=true ;;
             -d|--daemon) is_daemon=true ;;
+            --skip-migrate) do_migrate=false ;;
+            --skip-static) do_collect_static=false ;;
             -h|--help) usage ;;
             *) echo "Unknown option: $1"; usage ;;
         esac
@@ -177,7 +184,7 @@ main() {
 
     rm $LOG_DIR/*.log -f
 
-    # In production, always migrate and collect static
+    # In production, always migrate and collect static (no skip allowed)
     if $is_prod; then
         do_migrate=true
         do_collect_static=true
