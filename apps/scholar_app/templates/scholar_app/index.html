@@ -50,7 +50,10 @@
   window.SCHOLAR_CONFIG = {
   urls: {
   bibtexUpload: '{% url "scholar_app:bibtex_upload" %}',
-  resourceStatus: '{% url "scholar_app:bibtex_resource_status" %}'
+  resourceStatus: '{% url "scholar_app:bibtex_resource_status" %}',
+  scitexSearch: '{% url "scholar_app:api_scitex_search" %}',
+  scitexSearchSingle: '{% url "scholar_app:api_scitex_search_single" %}',
+  scitexCapabilities: '{% url "scholar_app:api_scitex_capabilities" %}'
   },
   user: {
   isAuthenticated: {% if user.is_authenticated %}true{% else %}false{% endif %}
@@ -59,6 +62,8 @@
 </script>
 <!-- Panel Toggle Functionality -->
 <script src="{% static 'scholar_app/scripts/panel-toggle.js' %}"></script>
+<!-- SciTeX Search Integration -->
+<script src="{% static 'scholar_app/scripts/scitex-search.js' %}"></script>
 <!-- BibTeX Enrichment -->
 <script src="{% static 'scholar_app/scripts/bibtex-enrichment.js' %}"></script>
 <!-- Queue Management -->

@@ -644,7 +644,8 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             
             // Start progressive search
-            startProgressiveSearch(query);
+            // DISABLED: Now using SciTeX search instead (see scitex-search.js)
+            // startProgressiveSearch(query);
         });
     }
     
@@ -696,20 +697,22 @@ document.addEventListener('DOMContentLoaded', function() {
     function searchSource(source, query) {
         const url = `${source.endpoint}?q=${encodeURIComponent(query)}&max_results=${source.maxResults}`;
         const progressSource = document.querySelector(`[data-source="${source.name}"]`);
-        
+
         fetch(url)
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
                     // Update progress indicator
-                    const badge = progressSource.querySelector('.badge');
-                    const spinner = progressSource.querySelector('.spinner-border');
-                    const count = progressSource.querySelector('.count');
-                    
-                    badge.className = 'badge bg-success';
-                    spinner.style.display = 'none';
-                    count.textContent = data.count;
-                    
+                    if (progressSource) {
+                        const badge = progressSource.querySelector('.badge');
+                        const spinner = progressSource.querySelector('.spinner-border');
+                        const count = progressSource.querySelector('.count');
+
+                        if (badge) badge.className = 'badge bg-success';
+                        if (spinner) spinner.style.display = 'none';
+                        if (count) count.textContent = data.count;
+                    }
+
                     // Add results to progressive container
                     data.results.forEach(result => {
                         addResultToProgressive(result);
@@ -725,9 +728,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function addResultToProgressive(result) {
+        if (!progressiveResults) {
+            console.warn('Progressive results container not found');
+            return;
+        }
+
         const resultCard = createResultCard(result);
         progressiveResults.appendChild(resultCard);
-        
+
         // Animate the new result
         resultCard.style.opacity = '0';
         resultCard.style.transform = 'translateY(20px)';
@@ -837,14 +845,19 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function handleSearchError(sourceName, errorMessage) {
         const progressSource = document.querySelector(`[data-source="${sourceName}"]`);
+        if (!progressSource) {
+            console.error(`${sourceName} search failed (no progress element):`, errorMessage);
+            return;
+        }
+
         const badge = progressSource.querySelector('.badge');
         const spinner = progressSource.querySelector('.spinner-border');
         const count = progressSource.querySelector('.count');
-        
-        badge.className = 'badge bg-danger';
-        spinner.style.display = 'none';
-        count.textContent = 'Error';
-        
+
+        if (badge) badge.className = 'badge bg-danger';
+        if (spinner) spinner.style.display = 'none';
+        if (count) count.textContent = 'Error';
+
         console.error(`${sourceName} search failed:`, errorMessage);
     }
     
