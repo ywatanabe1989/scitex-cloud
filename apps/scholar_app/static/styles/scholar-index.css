@@ -1,0 +1,621 @@
+/*
+ * Scholar Index Page Styles
+ * Extracted from inline styles for better maintainability
+ */
+
+/* Split-screen layout styles */
+.split-container {
+    display: flex;
+    gap: 1rem;
+    transition: all 0.6s ease;
+    margin-bottom: 2rem;
+}
+
+.split-panel {
+    flex: 1;
+    min-height: 600px;
+    transition: all 0.6s ease;
+    position: relative;
+}
+
+.split-panel.expanded {
+    flex: 3;
+}
+
+.split-panel.collapsed {
+    flex: 0.3;
+    min-width: 80px;
+}
+
+.panel-header {
+    background: var(--scitex-color-02);
+    color: var(--white);
+    padding: 1.5rem;
+    border-radius: 12px 12px 0 0;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.panel-header:hover {
+    background: var(--scitex-color-01);
+}
+
+.panel-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+/* Fix text visibility in Literature Search panel - Dark Mode */
+#searchPanel .text-muted,
+#searchPanel .form-label,
+#searchPanel small,
+#searchPanel label {
+    color: var(--color-fg-muted) !important;
+}
+
+#searchPanel .fw-bold,
+#searchPanel .form-label.fw-bold {
+    color: var(--color-fg-default) !important;
+}
+
+/* Dark mode - bluish colors for filter section labels */
+[data-theme="dark"] #searchPanel .fw-bold,
+[data-theme="dark"] #searchPanel .form-label.fw-bold {
+    color: var(--scitex-color-06) !important;
+}
+
+/* Fix checkbox labels and quick filter buttons */
+#searchPanel .scitex-checkbox-label,
+#searchPanel .scitex-toggle-label {
+    color: var(--color-fg-default) !important;
+    background: var(--color-canvas-subtle) !important;
+    border-color: var(--color-border-default) !important;
+}
+
+/* Dark mode - bluish colors for checkbox labels */
+[data-theme="dark"] #searchPanel .scitex-checkbox-label,
+[data-theme="dark"] #searchPanel .scitex-toggle-label {
+    color: var(--scitex-color-06) !important;
+    background: var(--scitex-color-01-light) !important;
+    border-color: var(--scitex-color-03) !important;
+}
+
+/* Make checkboxes visible in dark mode */
+#searchPanel .scitex-checkbox {
+    accent-color: var(--scitex-color-03);
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+[data-theme="dark"] #searchPanel .scitex-checkbox {
+    accent-color: var(--scitex-color-05);
+}
+
+#searchPanel .scitex-toggle:checked + .scitex-toggle-label {
+    background: var(--scitex-color-01) !important;
+    color: var(--white) !important;
+}
+
+[data-theme="dark"] #searchPanel .scitex-toggle:checked + .scitex-toggle-label {
+    background: var(--scitex-color-04) !important;
+    color: var(--scitex-color-01) !important;
+}
+
+/* Show BibTeX Enrichment as selected/active by default (primary feature) */
+#bibtexPanel .panel-header {
+    background: var(--scitex-color-01);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+#bibtexPanel.collapsed .panel-header {
+    background: var(--scitex-color-02);
+    box-shadow: none;
+}
+
+#searchPanel .panel-header {
+    background: var(--scitex-color-02);
+}
+
+#searchPanel:not(.collapsed) .panel-header {
+    background: var(--scitex-color-01);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.panel-content {
+    background: var(--color-canvas-default);
+    border: 2px solid var(--scitex-color-02);
+    border-top: none;
+    border-radius: 0 0 12px 12px;
+    padding: 2rem;
+    min-height: 750px;
+    display: flex;
+    flex-direction: column;
+}
+
+.search-card-inner {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.collapsed .panel-content {
+    display: none;
+}
+
+.collapsed .panel-header {
+    writing-mode: vertical-lr;
+    text-orientation: mixed;
+    min-height: 400px;
+    justify-content: center;
+    border-radius: 12px;
+}
+
+.search-hero {
+    background: linear-gradient(135deg, var(--scitex-color-01) 0%, var(--scitex-color-02) 100%);
+    color: var(--white);
+    padding: 1rem 0;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.search-card {
+    background: var(--color-canvas-default);
+    border-radius: 20px;
+    padding: 2rem;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    border: 1px solid var(--color-border-default);
+}
+
+.search-input {
+    border: 1px solid var(--color-border-default);
+    border-radius: 15px;
+    padding: 1rem 1.5rem;
+    font-size: 1.1rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    background: var(--color-canvas-default);
+    color: var(--color-fg-default);
+}
+
+.search-input::placeholder {
+    color: var(--color-fg-muted);
+    opacity: 0.6;
+}
+
+/* Dark mode specific styles for search input */
+[data-theme="dark"] .search-input {
+    background: var(--scitex-color-01-light);
+    border-color: var(--scitex-color-03);
+    color: var(--scitex-color-06);
+}
+
+[data-theme="dark"] .search-input::placeholder {
+    color: var(--scitex-color-05);
+    opacity: 0.7;
+}
+
+.search-input:focus {
+    border-color: var(--scitex-color-03);
+    box-shadow: 0 0 0 0.2rem rgba(var(--scitex-color-03-rgb), 0.25);
+}
+
+[data-theme="dark"] .search-input:focus {
+    border-color: var(--scitex-color-04);
+    box-shadow: 0 0 0 0.2rem rgba(108, 139, 160, 0.25);
+}
+
+.search-btn {
+    border-radius: 15px;
+    padding: 1rem 2rem;
+    font-weight: 600;
+    background: var(--scitex-color-01);
+    border: none;
+    color: var(--white);
+}
+
+.search-btn:hover {
+    background: var(--scitex-color-01-light);
+    color: var(--white);
+}
+
+.result-card {
+    background: var(--color-canvas-default);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-left: 4px solid var(--scitex-color-01);
+}
+
+.result-title {
+    color: var(--color-fg-default);
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    text-decoration: none;
+}
+
+.result-title:hover {
+    color: var(--scitex-color-02);
+}
+
+.result-authors {
+    color: var(--color-fg-muted);
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.result-snippet {
+    color: var(--color-fg-default);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-top: 1rem;
+}
+
+.simple-filter {
+    background: var(--color-canvas-subtle);
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.year-badge {
+    background: var(--color-canvas-subtle);
+    color: var(--color-fg-muted);
+    padding: 0.25rem 0.5rem;
+    border-radius: 8px;
+    font-size: 0.8rem;
+}
+
+.open-access {
+    background: var(--success-color);
+    color: var(--white);
+    padding: 0.25rem 0.5rem;
+    border-radius: 8px;
+    font-size: 0.8rem;
+}
+
+.abstract-full {
+    line-height: 1.5;
+}
+
+.abstract-toggle {
+    cursor: pointer;
+    text-decoration: none !important;
+}
+
+.abstract-toggle:hover {
+    text-decoration: underline !important;
+}
+
+/* SciTeX Design System - Toggle Buttons */
+.scitex-toggle-wrapper {
+    position: relative;
+    display: inline-block;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.scitex-toggle {
+    display: none;
+}
+
+.scitex-toggle-label {
+    display: inline-block;
+    padding: 0.375rem 0.75rem;
+    background: var(--color-canvas-subtle);
+    border: 1px solid var(--scitex-color-03);
+    border-radius: 4px;
+    color: var(--color-fg-default);
+    font-size: 0.875rem;
+    font-weight: 500;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    user-select: none;
+}
+
+.scitex-toggle-label:hover {
+    background: var(--color-canvas-inset);
+    border-color: var(--scitex-color-02);
+    color: var(--color-fg-default);
+    text-decoration: none;
+}
+
+.scitex-toggle:checked + .scitex-toggle-label {
+    background: var(--scitex-color-01);
+    border-color: var(--scitex-color-01);
+    color: var(--white);
+    box-shadow: 0 2px 4px rgba(var(--scitex-color-01-rgb), 0.2);
+}
+
+.scitex-toggle:checked + .scitex-toggle-label:hover {
+    background: var(--scitex-color-02);
+    border-color: #34495e;
+    color: white;
+}
+
+/* Enrich Button Hover Effect */
+#bibtexSubmitBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+    background: linear-gradient(135deg, var(--scitex-color-02) 0%, var(--scitex-color-03) 100%);
+}
+
+/* Fix header button focus states to follow SciTeX design */
+.btn:focus,
+.btn:active,
+.btn.active {
+    box-shadow: none !important;
+}
+
+.btn-primary:focus,
+.btn-primary:active,
+.btn-primary.active {
+    background-color: #1a2332 !important;
+    border-color: #1a2332 !important;
+}
+
+.btn-outline-primary:focus,
+.btn-outline-primary:active,
+.btn-outline-primary.active {
+    background-color: #1a2332 !important;
+    border-color: #1a2332 !important;
+    color: white !important;
+}
+
+.search-btn:focus,
+.search-btn:active {
+    background: #34495e !important;
+    border-color: #34495e !important;
+    color: white !important;
+}
+
+/* Disabled button styles */
+button:disabled,
+a.disabled {
+    opacity: 0.5 !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+}
+
+#downloadArea button:disabled {
+    background: var(--color-border-default) !important;
+}
+
+/* Utility Classes - Extracted from inline styles */
+
+/* Display utilities */
+.u-hidden {
+    display: none;
+}
+
+/* Spacing utilities */
+.u-mb-1_5 {
+    margin-bottom: 1.5rem;
+}
+
+.u-mb-1 {
+    margin-bottom: 1rem;
+}
+
+.u-mb-0_5 {
+    margin-bottom: 0.5rem;
+}
+
+.u-mt-1_5 {
+    margin-top: 1.5rem;
+}
+
+.u-mt-0_5 {
+    margin-top: 0.5rem;
+}
+
+.u-mt-2 {
+    margin-top: 2rem;
+}
+
+.u-mb-2 {
+    margin-bottom: 2rem;
+}
+
+.u-mb-3 {
+    margin-bottom: 3rem;
+}
+
+/* Container utilities */
+.u-scroll-container {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.u-scroll-container-lg {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+/* Card/Panel utilities */
+.u-stat-card {
+    background: var(--color-canvas-default);
+    padding: 0.75rem;
+    border-radius: 6px;
+    border: 1px solid var(--color-border-default);
+}
+
+.u-info-panel {
+    background: var(--color-canvas-subtle);
+    border: 1px solid var(--color-border-default);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Typography utilities */
+.u-text-muted-sm {
+    color: var(--color-fg-muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.25rem;
+}
+
+.u-text-muted {
+    color: var(--color-fg-muted);
+    font-size: 0.9rem;
+}
+
+.u-text-muted-xs {
+    font-size: 0.7rem;
+}
+
+.u-heading-sm {
+    font-weight: 600;
+    color: var(--color-fg-default);
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.u-heading-md {
+    margin: 0;
+    color: var(--color-fg-default);
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.u-text-bold {
+    font-weight: 600;
+    color: var(--color-fg-default);
+}
+
+.u-text-default {
+    color: var(--color-fg-default);
+}
+
+.u-text-xs {
+    font-size: 0.9rem;
+}
+
+/* Upload zone styling */
+.u-upload-zone {
+    position: relative;
+    border: 3px dashed var(--scitex-color-03);
+    border-radius: 12px;
+    padding: 3rem 2rem;
+    text-align: center;
+    background: var(--color-canvas-subtle);
+    transition: all 0.3s;
+}
+
+.u-upload-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.u-upload-icon {
+    font-size: 3.5rem;
+    color: var(--scitex-color-02);
+    margin-bottom: 1rem;
+}
+
+/* Modal/Dialog utilities */
+.u-modal-container {
+    position: relative;
+    max-width: 1200px;
+    margin: 2rem auto;
+    background: var(--color-canvas-default);
+    border-radius: 12px;
+    padding: 2rem;
+}
+
+.u-close-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: var(--error-color);
+    color: var(--white);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Code/Terminal styling */
+.u-terminal-log {
+    max-height: 70vh;
+    overflow-y: auto;
+    background: var(--color-canvas-subtle);
+    border-radius: 8px;
+    padding: 1.5rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+/* Flex utilities */
+.u-flex-center {
+    text-align: center;
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 1.5rem;
+}
+
+.u-flex-between {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.u-flex-between-mb {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+/* Grid utilities */
+.u-grid-2col {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+/* Helper message box */
+.u-helper-box {
+    background: linear-gradient(135deg, rgba(var(--info-color-rgb, 107, 143, 179), 0.1) 0%, rgba(var(--scitex-color-03-rgb, 80, 107, 122), 0.1) 100%);
+    border-left: 4px solid var(--info-color);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.u-helper-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.u-helper-icon {
+    color: var(--info-color);
+    font-size: 1.5rem;
+}
+
+.u-helper-text {
+    flex: 1;
+    color: var(--color-fg-muted);
+    font-size: 0.95rem;
+}
