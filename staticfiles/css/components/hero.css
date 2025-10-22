@@ -1,4 +1,48 @@
-/* SciTeX Web - Hero Component */
+/*
+ * @component Hero
+ * @description Large header section for landing pages with title, subtitle, and CTA buttons
+ * @category Layout Components
+ * @file /static/css/components/hero.css
+ * @darkmode false
+ *
+ * @variant hero - Base hero container with centered content
+ * @variant hero-content - Inner content wrapper (max-width constrained)
+ * @variant hero-title - Large primary heading (2.5rem, bold)
+ * @variant hero-subtitle - Secondary heading (1.25rem, lighter color)
+ * @variant hero-description - Paragraph text (1.1rem)
+ * @variant hero-buttons - Flex container for CTA buttons with gap
+ * @variant hero-bg-image - Hero with background image and dark overlay
+ * @variant hero-angled - Hero with angled bottom edge
+ *
+ * @state default - Light background, centered text
+ * @state bg-image - Background image with dark overlay for contrast
+ * @state responsive - Adjusted sizing on mobile (<768px)
+ *
+ * @example
+ * <div class="hero">
+ *   <div class="hero-content">
+ *     <h1 class="hero-title">Welcome to SciTeX</h1>
+ *     <p class="hero-subtitle">Your research companion</p>
+ *     <p class="hero-description">Discover, organize, and share scientific knowledge.</p>
+ *     <div class="hero-buttons">
+ *       <a href="#" class="btn btn-primary">Get Started</a>
+ *       <a href="#" class="btn btn-outline-secondary">Learn More</a>
+ *     </div>
+ *   </div>
+ * </div>
+ *
+ * @example
+ * <div class="hero hero-bg-image" style="background-image: url('bg.jpg')">
+ *   <div class="hero-content">
+ *     <h1 class="hero-title">Background Hero</h1>
+ *     <p class="hero-description">With image background and overlay</p>
+ *   </div>
+ * </div>
+ */
+
+/* =========================
+   Hero Styles
+   ========================= */
 
 .hero {
   background-color: var(--light-color);
@@ -152,18 +196,18 @@
 /* SciTeX Hero Gradient Variants - Silverish AI Palette */
 /* Theme-responsive hero sections */
 
-/* Light Variant - Better text visibility, softer appearance */
+/* Light Variant - Clean, professional appearance */
 .hero-silverish-ai-light {
-  background: linear-gradient(135deg, #506b7a 0%, #6c8ba0 30%, #8fa4b0 60%, #b5c7d1 100%);
+  background: var(--scitex-color-07);
   color: var(--scitex-color-01);
-  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+  border-bottom: 1px solid var(--color-border-default);
 }
 
 /* Dark theme variant */
 [data-theme="dark"] .hero-silverish-ai-light {
-  background: linear-gradient(135deg, #1a2332 0%, #34495e 30%, #506b7a 60%, #6c8ba0 100%);
+  background: var(--scitex-color-01-dark);
   color: var(--scitex-color-07);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  border-bottom: 1px solid var(--color-border-default);
 }
 
 /* Radial Gradient - Focal point effect */

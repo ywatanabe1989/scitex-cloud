@@ -1,0 +1,93 @@
+/*
+ * @component Badge
+ * @description Small count and labeling component for status indicators and labels
+ * @category Visual Identity
+ * @file /static/css/common/badges.css
+ * @darkmode false
+ *
+ * @variant badge - Base badge class (required)
+ * @variant badge-primary - Primary color badge
+ * @variant badge-secondary - Secondary color badge
+ * @variant badge-light - Light background badge with border
+ * @variant badge-success - Success/positive badge (green)
+ * @variant badge-warning - Warning badge (yellow/orange)
+ * @variant badge-error - Error/danger badge (red)
+ * @variant badge-info - Informational badge (blue)
+ *
+ * @state default - Normal display state
+ * @state responsive - Smaller on mobile devices (<768px)
+ *
+ * @example
+ * <span class="badge badge-primary">New</span>
+ * <span class="badge badge-success">Active</span>
+ * <span class="badge badge-warning">Pending</span>
+ * <span class="badge badge-error">Failed</span>
+ *
+ * @example
+ * <button class="btn btn-primary">
+ *   Notifications <span class="badge badge-light">4</span>
+ * </button>
+ */
+
+/* =========================
+   Badge Styles
+   ========================= */
+
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: var(--border-radius);
+}
+
+.badge-primary {
+  color: var(--white);
+  background-color: var(--primary-color);
+}
+
+.badge-secondary {
+  color: var(--white);
+  background-color: var(--secondary-color);
+}
+
+.badge-light {
+  color: var(--text-color);
+  background-color: var(--light-color);
+  border: var(--border-width) solid var(--border-color);
+}
+
+.badge-success {
+  color: var(--white);
+  background-color: var(--success-color);
+}
+
+.badge-warning {
+  color: var(--white);
+  background-color: var(--warning-color);
+}
+
+.badge-error {
+  color: var(--white);
+  background-color: var(--error-color);
+}
+
+.badge-info {
+  color: var(--white);
+  background-color: var(--info-color);
+}
+
+/* =========================
+   Responsive Design
+   ========================= */
+
+@media (max-width: 768px) {
+  .badge {
+    font-size: 0.65rem;
+    padding: 0.2rem 0.4rem;
+  }
+}

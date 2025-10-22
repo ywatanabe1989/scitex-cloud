@@ -1,4 +1,74 @@
-/* SciTeX Web - Card Styles */
+/*
+ * @component Card
+ * @description Flexible content container with optional header, body, and footer sections
+ * @category Layout Components
+ * @file /static/css/common/cards.css
+ * @darkmode false
+ *
+ * @variant card - Base card container (required)
+ * @variant card-body - Main content area with padding
+ * @variant card-header - Optional header section with background
+ * @variant card-footer - Optional footer section with background
+ * @variant card-title - Card title (h5-sized, bold)
+ * @variant card-subtitle - Card subtitle (smaller, muted)
+ * @variant card-text - Paragraph text with spacing
+ * @variant card-link - Inline link with spacing
+ * @variant card-img-top - Image at top of card (rounded corners)
+ * @variant card-img-bottom - Image at bottom of card (rounded corners)
+ * @variant card-img-overlay - Overlay text on card image
+ * @variant card-primary - Primary color card variant
+ * @variant card-secondary - Secondary color card variant
+ * @variant card-accent - Accent color card variant
+ * @variant card-clickable - Interactive card with hover effects
+ * @variant card-hover - Hover effect only (no active state)
+ * @variant card-deck - Flex container for equal-width cards
+ * @variant card-group - Grouped cards with connected borders
+ * @variant card-columns - Masonry-style card columns (3 columns)
+ *
+ * @state default - Normal display state with shadow
+ * @state hover - Elevated shadow and background on hover (clickable/hover variants)
+ * @state active - Pressed down effect (clickable variant only)
+ *
+ * @example
+ * <div class="card">
+ *   <div class="card-body">
+ *     <h5 class="card-title">Card Title</h5>
+ *     <p class="card-text">Some quick example text to build on the card.</p>
+ *     <a href="#" class="card-link">Card link</a>
+ *   </div>
+ * </div>
+ *
+ * @example
+ * <div class="card">
+ *   <div class="card-header">Header</div>
+ *   <div class="card-body">
+ *     <h5 class="card-title">Card with header</h5>
+ *     <p class="card-text">Content goes here.</p>
+ *   </div>
+ *   <div class="card-footer">Footer</div>
+ * </div>
+ *
+ * @example
+ * <div class="card card-clickable">
+ *   <div class="card-body">
+ *     <h5 class="card-title">Clickable Card</h5>
+ *     <p class="card-text">This card has hover and active states.</p>
+ *   </div>
+ * </div>
+ *
+ * @example
+ * <div class="card">
+ *   <img src="image.jpg" class="card-img-top" alt="Card image">
+ *   <div class="card-body">
+ *     <h5 class="card-title">Card with Image</h5>
+ *     <p class="card-text">Text below image.</p>
+ *   </div>
+ * </div>
+ */
+
+/* =========================
+   Base Card Styles
+   ========================= */
 
 /* Base Card */
 .card {

@@ -1,3 +1,15 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# Timestamp: "2025-10-22 08:20:20 (ywatanabe)"
+# File: /home/ywatanabe/proj/scitex-cloud/apps/scholar_app/simple_views.py
+# ----------------------------------------
+from __future__ import annotations
+import os
+__FILE__ = (
+    "./apps/scholar_app/simple_views.py"
+)
+__DIR__ = os.path.dirname(__FILE__)
+# ----------------------------------------
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_http_methods
@@ -11,10 +23,9 @@ import json
 import requests
 import urllib.parse
 import hashlib
-import logging
+from scitex import logging
 import asyncio
 import sys
-import os
 from datetime import datetime, timedelta
 from django.db.models import Count, Avg, Max, Min, Q
 from django.utils import timezone
@@ -29,11 +40,11 @@ try:
     from scitex_scholar.paper_acquisition import PaperAcquisition, PaperMetadata
     from scitex_scholar.impact_factor_search import JournalRankingSearch, get_journal_impact_factor
     SCITEX_SCHOLAR_AVAILABLE = True
-    logger.info("✅ SciTeX-Scholar package imported successfully")
+    logger.info("    SciTeX-Scholar package imported successfully")
 except ImportError as e:
     SCITEX_SCHOLAR_AVAILABLE = False
-    logger.warning(f"⚠️ SciTeX-Scholar package not available: {e}")
-    logger.warning("   Falling back to database-only search")
+    logger.warning(f"    SciTeX-Scholar package not available: {e}")
+    logger.warning(f"    Falling back to database-only search")
 
 
 def simple_search(request):
@@ -48,38 +59,38 @@ def simple_search(request):
     if request.GET.get('source_semantic'): selected_sources.append('semantic')
     sources = ','.join(selected_sources) if selected_sources else 'all'
     sort_by = request.GET.get('sort_by', 'relevance')
-    
+
     # Check for API key alerts if user is authenticated
     missing_api_keys = []
     if request.user.is_authenticated:
         user_prefs = UserPreference.get_or_create_for_user(request.user)
         missing_api_keys = user_prefs.get_missing_api_keys()
-    
+
     # Extract advanced filters from request
     filters = extract_search_filters(request)
     results = []
-    
+
     # If there's a query, search for papers
     if query:
         logger.info(f"🔍 SCHOLAR SEARCH DEBUG:")
         logger.info(f"   Query: '{query}'")
-        logger.info(f"   Raw sources param: '{sources}'") 
+        logger.info(f"   Raw sources param: '{sources}'")
         logger.info(f"   Selected checkboxes: PubMed={bool(request.GET.get('source_pubmed'))}, GoogleScholar={bool(request.GET.get('source_google_scholar'))}, arXiv={bool(request.GET.get('source_arxiv'))}, Semantic={bool(request.GET.get('source_semantic'))}")
         logger.info(f"   User: {request.user.username if request.user.is_authenticated else 'anonymous'}")
-        
+
         # First check existing papers in our database with filters applied
         existing_papers = search_database_papers(query, filters)
-        
+
         # Perform web search for additional results with filters
         user_prefs = None
         if request.user.is_authenticated:
             user_prefs = UserPreference.get_or_create_for_user(request.user)
-        
+
         web_results = search_papers_online(query, sources=sources, filters=filters, user_preferences=user_prefs)
-        
+
         # Combine and store results
         all_results = []
-        
+
         # Add existing papers
         for paper in existing_papers:
             all_results.append({
@@ -99,7 +110,7 @@ def simple_search(request):
                 'impact_factor': paper.journal.impact_factor if paper.journal else None,
                 'source': 'database'
             })
-        
+
         # Add web search results
         for result in web_results:
             # Store in database for future searches
@@ -122,10 +133,10 @@ def simple_search(request):
                 'impact_factor': result.get('impact_factor'),
                 'source': result.get('source', 'web')
             })
-        
+
         # Apply advanced filters to results
         all_results = apply_advanced_filters(all_results, filters)
-        
+
         # Apply sorting
         if sort_by == 'date':
             all_results.sort(key=lambda x: int(x.get('year', 0)), reverse=True)
@@ -134,9 +145,15 @@ def simple_search(request):
         elif sort_by == 'relevance':
             # Keep original order (already sorted by relevance from APIs)
             pass
-        
+
         results = all_results[:10000]  # Return up to 10k results
-    
+
+    # Get user projects for BibTeX enrichment form
+    user_projects = []
+    if request.user.is_authenticated:
+        from apps.project_app.models import Project
+        user_projects = Project.objects.filter(owner=request.user).order_by('-created_at')
+
     context = {
         'query': query,
         'project': project,
@@ -145,15 +162,16 @@ def simple_search(request):
         'results': results,
         'has_results': bool(results),
         'missing_api_keys': missing_api_keys,
+        'user_projects': user_projects,
     }
-    
-    return render(request, 'scholar_app/simple_search.html', context)
+
+    return render(request, 'scholar_app/index.html', context)
 
 
 def extract_search_filters(request):
     """Extract all advanced search filters from request."""
     filters = {}
-    
+
     # Year range filters
     year_from = request.GET.get('year_from')
     year_to = request.GET.get('year_to')
@@ -167,7 +185,7 @@ def extract_search_filters(request):
             filters['year_to'] = int(year_to)
         except ValueError:
             pass
-    
+
     # Citation count filter
     min_citations = request.GET.get('min_citations')
     if min_citations:
@@ -175,7 +193,7 @@ def extract_search_filters(request):
             filters['min_citations'] = int(min_citations)
         except ValueError:
             pass
-    
+
     # Impact factor filter
     min_impact_factor = request.GET.get('min_impact_factor')
     if min_impact_factor:
@@ -183,46 +201,46 @@ def extract_search_filters(request):
             filters['min_impact_factor'] = float(min_impact_factor)
         except ValueError:
             pass
-    
+
     # Author filter
     author = request.GET.get('author', '').strip()
     if author:
         # Split by comma and clean up
         authors = [a.strip() for a in author.split(',') if a.strip()]
         filters['authors'] = authors
-    
+
     # Journal filter
     journal = request.GET.get('journal', '').strip()
     if journal:
         filters['journal'] = journal
-    
+
     # Document type filter
     doc_type = request.GET.get('doc_type', '').strip()
     if doc_type:
         filters['doc_type'] = doc_type
-    
+
     # Study type filter
     study_type = request.GET.get('study_type', '').strip()
     if study_type:
         filters['study_type'] = study_type
-    
+
     # Language filter
     language = request.GET.get('language', '').strip()
     if language:
         filters['language'] = language
-    
+
     # Quick filters
     if request.GET.get('open_access'):
         filters['open_access'] = True
-    
+
     if request.GET.get('recent_only'):
         from datetime import datetime
         current_year = datetime.now().year
         filters['year_from'] = max(filters.get('year_from', 0), current_year - 5)
-    
+
     if request.GET.get('high_impact'):
         filters['min_impact_factor'] = max(filters.get('min_impact_factor', 0), 5.0)
-    
+
     return filters
 
 
@@ -233,39 +251,39 @@ def search_database_papers(query, filters):
     cached_results = cache.get(cache_key)
     if cached_results is not None:
         return cached_results
-    
+
     # Start with optimized text search - only essential fields
     queryset = SearchIndex.objects.filter(
         title__icontains=query,
         status='active'
     ).select_related('journal').only(
-        'id', 'title', 'abstract', 'publication_date', 'citation_count', 
+        'id', 'title', 'abstract', 'publication_date', 'citation_count',
         'is_open_access', 'pdf_url', 'journal__name', 'journal__impact_factor'
     )
-    
+
     # Apply only essential filters for performance
     if filters.get('year_from'):
         queryset = queryset.filter(publication_date__year__gte=filters['year_from'])
     if filters.get('year_to'):
         queryset = queryset.filter(publication_date__year__lte=filters['year_to'])
-    
+
     if filters.get('min_citations'):
         queryset = queryset.filter(citation_count__gte=filters['min_citations'])
-    
+
     if filters.get('open_access'):
         queryset = queryset.filter(is_open_access=True)
-    
+
     # Simplified journal filter
     if filters.get('journal'):
         queryset = queryset.filter(journal__name__icontains=filters['journal'])
-    
+
     # Skip complex author filtering for performance - can be added back if needed
     # Author search adds significant complexity and JOIN overhead
-    
+
     # Limit results and cache for 30 minutes
     results = list(queryset.order_by('-relevance_score', '-citation_count')[:10])
     cache.set(cache_key, results, 1800)
-    
+
     return results
 
 
@@ -273,9 +291,9 @@ def apply_advanced_filters(results, filters):
     """Apply advanced filters to search results."""
     if not filters:
         return results
-    
+
     filtered_results = []
-    
+
     for result in results:
         # Year range filter
         if filters.get('year_from') or filters.get('year_to'):
@@ -287,7 +305,7 @@ def apply_advanced_filters(results, filters):
                     continue
             except (ValueError, TypeError):
                 continue
-        
+
         # Citation count filter
         if filters.get('min_citations'):
             try:
@@ -296,7 +314,7 @@ def apply_advanced_filters(results, filters):
                     continue
             except (ValueError, TypeError):
                 continue
-        
+
         # Impact factor filter
         if filters.get('min_impact_factor'):
             try:
@@ -305,7 +323,7 @@ def apply_advanced_filters(results, filters):
                     continue
             except (ValueError, TypeError):
                 continue
-        
+
         # Author filter
         if filters.get('authors'):
             authors_text = ' '.join(result.get('authors', [])).lower()
@@ -316,38 +334,38 @@ def apply_advanced_filters(results, filters):
                     break
             if not author_match:
                 continue
-        
+
         # Journal filter
         if filters.get('journal'):
             journal_name = result.get('journal', '').lower()
             if filters['journal'].lower() not in journal_name:
                 continue
-        
+
         # Open access filter
         if filters.get('open_access') and not result.get('is_open_access'):
             continue
-        
+
         # Document type filter (basic implementation)
         if filters.get('doc_type'):
             # This would need to be enhanced with better document type detection
             title_and_abstract = (result.get('title', '') + ' ' + result.get('snippet', '')).lower()
             doc_type = filters['doc_type'].lower()
-            
+
             # Simple heuristic matching
             if doc_type == 'review' and 'review' not in title_and_abstract:
                 continue
             elif doc_type == 'preprint' and 'preprint' not in result.get('source', '').lower():
                 continue
-        
+
         # Language filter (basic implementation)
         if filters.get('language'):
             # Would need language detection for better implementation
             if filters['language'].lower() != 'english':
                 # For now, assume most papers are English unless specified
                 continue
-        
+
         filtered_results.append(result)
-    
+
     return filtered_results
 
 
@@ -355,9 +373,9 @@ def search_papers_online(query, max_results=200, sources='all', filters=None, us
     """Search for papers using multiple online sources with user API keys and impact factor integration."""
     # Disable caching for fresh results and debugging
     logger.info(f"Scholar search: fresh search (no cache) for query: '{query}'")
-    
+
     results = []
-    
+
     # Parse sources parameter (can be comma-separated list or single source)
     source_list = []
     if sources == 'all':
@@ -367,11 +385,11 @@ def search_papers_online(query, max_results=200, sources='all', filters=None, us
         source_list = [s.strip() for s in sources.split(',') if s.strip()]
         if not source_list:
             source_list = ['arxiv', 'pubmed']  # Default fallback
-    
+
     logger.info(f"📚 EXTERNAL API SEARCH:")
     logger.info(f"   Sources to search: {source_list}")
     logger.info(f"   Query: '{query}'")
-    
+
     # Always search SciTeX database for cached results
     existing_paper_count = 0
     try:
@@ -398,13 +416,13 @@ def search_papers_online(query, max_results=200, sources='all', filters=None, us
         logger.info(f"SciTeX Index search returned {existing_paper_count} results")
     except Exception as e:
         logger.warning(f"SciTeX Index search failed: {e}")
-    
+
     # Use SciTeX-Scholar package for REAL external API searches with user API keys
     if SCITEX_SCHOLAR_AVAILABLE and source_list:
         external_results = search_with_scitex_scholar(query, source_list, max_results=30, filters=filters, user_preferences=user_preferences)
         results.extend(external_results)
         logger.info(f"SciTeX-Scholar returned {len(external_results)} real results")
-        
+
         # Show API key alert if user is missing keys
         if user_preferences:
             missing_keys = user_preferences.get_missing_api_keys()
@@ -423,11 +441,11 @@ def search_papers_online(query, max_results=200, sources='all', filters=None, us
                 logger.warning("   ⚠️ Google Scholar search disabled (not implemented)")
             elif source == 'semantic':
                 logger.warning("   ⚠️ Semantic Scholar search disabled (not implemented)")
-    
+
     # Return fresh results without caching
     final_results = results[:max_results]
     logger.info(f"Scholar search completed: {len(final_results)} fresh results from {len(source_list)} sources")
-    
+
     return final_results
 
 
@@ -438,12 +456,12 @@ def search_with_scitex_scholar(query, sources, max_results=30, filters=None, use
     """
     if not SCITEX_SCHOLAR_AVAILABLE:
         return []
-    
+
     try:
         logger.info(f"🚀 Using SciTeX-Scholar for real API search")
         logger.info(f"   Query: '{query}'")
         logger.info(f"   Sources: {sources}")
-        
+
         # Map Django source names to SciTeX-Scholar source names
         scitex_sources = []
         for source in sources:
@@ -452,35 +470,35 @@ def search_with_scitex_scholar(query, sources, max_results=30, filters=None, use
             elif source == 'pubmed':
                 scitex_sources.append('pubmed')
             # Skip unsupported sources for now
-        
+
         if not scitex_sources:
             logger.warning("   No supported sources in SciTeX-Scholar")
             return []
-        
+
         # Run async search in sync context
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        
+
         try:
             # Get user API keys if available
             email = 'research@scitex.ai'  # Default email
             if user_preferences and user_preferences.unpaywall_email:
                 email = user_preferences.unpaywall_email
-            
+
             # Create PaperAcquisition instance with user email
             acquisition = PaperAcquisition(email=email)
-            
+
             # Add user API keys to acquisition if available
             if user_preferences:
                 # Track API usage
                 for source in scitex_sources:
                     user_preferences.increment_api_usage(source)
-                
+
                 # Use user API keys for better rate limits
                 if user_preferences.has_api_key('pubmed') and 'pubmed' in scitex_sources:
                     # PaperAcquisition doesn't directly support API keys yet, but we log it
                     logger.info("   ✓ Using user's PubMed API key for enhanced rate limits")
-            
+
             # Execute async search
             papers = loop.run_until_complete(
                 acquisition.search(
@@ -489,13 +507,13 @@ def search_with_scitex_scholar(query, sources, max_results=30, filters=None, use
                     max_results=max_results
                 )
             )
-            
+
             logger.info(f"   SciTeX-Scholar found {len(papers)} papers")
-            
+
             # Convert PaperMetadata to Django format with impact factor
             results = []
             impact_factor_cache = {}
-            
+
             for paper in papers:
                 # Get impact factor for journal if available
                 impact_factor = None
@@ -510,7 +528,7 @@ def search_with_scitex_scholar(query, sources, max_results=30, filters=None, use
                         impact_factor_cache[paper.journal] = None
                 elif paper.journal:
                     impact_factor = impact_factor_cache[paper.journal]
-                
+
                 result = {
                     'title': paper.title,
                     'authors': ', '.join(paper.authors) if paper.authors else 'Unknown Authors',
@@ -530,12 +548,12 @@ def search_with_scitex_scholar(query, sources, max_results=30, filters=None, use
                 }
                 results.append(result)
                 logger.info(f"   ✓ Converted: {paper.title[:50]}... (IF: {impact_factor or 'N/A'})")
-            
+
             return results
-            
+
         finally:
             loop.close()
-            
+
     except Exception as e:
         logger.error(f"SciTeX-Scholar search failed: {e}")
         return []
@@ -545,13 +563,13 @@ def search_arxiv_real(query, max_results=15, filters=None):
     """Real arXiv search that parses actual paper metadata from arXiv API."""
     try:
         logger.info(f"🔍 REAL arXiv API search for: '{query}'")
-        
+
         # Build search query
         search_query = f'all:{query}'
         if filters and filters.get('authors'):
             for author in filters['authors'][:2]:
                 search_query += f' AND au:"{author}"'
-        
+
         base_url = "http://export.arxiv.org/api/query"
         params = {
             'search_query': search_query,
@@ -560,21 +578,21 @@ def search_arxiv_real(query, max_results=15, filters=None):
             'sortBy': 'relevance',
             'sortOrder': 'descending'
         }
-        
+
         logger.info(f"   Requesting: {base_url} with query: {search_query}")
         response = requests.get(base_url, params=params, timeout=10)
         response.raise_for_status()
-        
+
         # Parse XML response
         import xml.etree.ElementTree as ET
         root = ET.fromstring(response.content)
-        
+
         results = []
         namespace = {'atom': 'http://www.w3.org/2005/Atom'}
         entries = root.findall('atom:entry', namespace)
-        
+
         logger.info(f"   Found {len(entries)} arXiv entries")
-        
+
         for entry in entries:
             try:
                 # Extract paper metadata
@@ -583,20 +601,20 @@ def search_arxiv_real(query, max_results=15, filters=None):
                 published_elem = entry.find('atom:published', namespace)
                 summary_elem = entry.find('atom:summary', namespace)
                 id_elem = entry.find('atom:id', namespace)
-                
+
                 if not title_elem or not id_elem:
                     continue
-                    
+
                 # Clean up title (remove extra whitespace/newlines)
                 title = ' '.join(title_elem.text.strip().split())
-                
+
                 # Extract author names
                 author_names = []
                 for author in authors:
                     name_elem = author.find('atom:name', namespace)
                     if name_elem and name_elem.text:
                         author_names.append(name_elem.text.strip())
-                
+
                 # Extract publication year
                 year = '2024'
                 if published_elem and published_elem.text:
@@ -604,16 +622,16 @@ def search_arxiv_real(query, max_results=15, filters=None):
                         year = published_elem.text[:4]
                     except:
                         pass
-                
+
                 # Extract arXiv ID
                 arxiv_url = id_elem.text
                 arxiv_id = arxiv_url.split('/')[-1].replace('v1', '').replace('v2', '').replace('v3', '')
-                
+
                 # Clean up abstract
                 abstract = ''
                 if summary_elem and summary_elem.text:
                     abstract = ' '.join(summary_elem.text.strip().split())[:300] + '...'
-                
+
                 result = {
                     'title': title,
                     'authors': ', '.join(author_names[:3]) + (' et al.' if len(author_names) > 3 else ''),
@@ -629,17 +647,17 @@ def search_arxiv_real(query, max_results=15, filters=None):
                     'citations': 0,  # arXiv doesn't provide citation counts
                     'source': 'arxiv'
                 }
-                
+
                 results.append(result)
                 logger.info(f"   ✓ Parsed: {title[:60]}...")
-                
+
             except Exception as e:
                 logger.warning(f"   Failed to parse arXiv entry: {e}")
                 continue
-        
+
         logger.info(f"   Returning {len(results)} real arXiv results")
         return results
-        
+
     except Exception as e:
         logger.error(f"Real arXiv search failed: {e}")
         return []
@@ -656,18 +674,18 @@ def search_pubmed_central_fast(query, max_results=50, filters=None):
             'retmode': 'json',
             'sort': 'relevance'
         }
-        
+
         response = requests.get(base_url, params=params, timeout=3)  # Reduced timeout
         response.raise_for_status()
         data = response.json()
-        
+
         if 'esearchresult' not in data or 'idlist' not in data['esearchresult']:
             return []
-        
+
         # Generate fast results from PMC IDs
         ids = data['esearchresult']['idlist'][:max_results]
         results = []
-        
+
         for i, pmc_id in enumerate(ids):
             results.append({
                 'title': f'PMC Research: {query} - Study {i+1}',
@@ -684,7 +702,7 @@ def search_pubmed_central_fast(query, max_results=50, filters=None):
                 'citations': 25 - (i % 25),
                 'source': 'pmc'
             })
-        
+
         return results
     except Exception as e:
         logger.warning(f"Fast PMC search failed: {e}")
@@ -702,18 +720,18 @@ def search_pubmed_fast(query, max_results=50, filters=None):
             'retmode': 'json',
             'sort': 'relevance'
         }
-        
+
         response = requests.get(base_url, params=params, timeout=3)  # Reduced timeout
         response.raise_for_status()
         data = response.json()
-        
+
         if 'esearchresult' not in data or 'idlist' not in data['esearchresult']:
             return []
-        
+
         # Generate fast results from PubMed IDs
         ids = data['esearchresult']['idlist'][:max_results]
         results = []
-        
+
         for i, pmid in enumerate(ids):
             results.append({
                 'title': f'PubMed Study: {query} - Article {i+1}',
@@ -730,7 +748,7 @@ def search_pubmed_fast(query, max_results=50, filters=None):
                 'citations': 40 - (i % 40),
                 'source': 'pubmed'
             })
-        
+
         return results
     except Exception as e:
         logger.warning(f"Fast PubMed search failed: {e}")
@@ -742,19 +760,19 @@ def search_arxiv(query, max_results=50, filters=None):
     try:
         # Build search query with filters
         search_query = f'all:{query}'
-        
+
         # Add author filter to arXiv query if specified
         if filters and filters.get('authors'):
             for author in filters['authors']:
                 search_query += f' AND au:"{author}"'
-        
+
         # Add year filter to arXiv query if specified
         if filters and (filters.get('year_from') or filters.get('year_to')):
             if filters.get('year_from'):
                 search_query += f' AND submittedDate:[{filters["year_from"]}0101* TO *]'
             if filters.get('year_to'):
                 search_query += f' AND submittedDate:[* TO {filters["year_to"]}1231*]'
-        
+
         base_url = "http://export.arxiv.org/api/query"
         params = {
             'search_query': search_query,
@@ -763,44 +781,44 @@ def search_arxiv(query, max_results=50, filters=None):
             'sortBy': 'relevance',
             'sortOrder': 'descending'
         }
-        
+
         response = requests.get(base_url, params=params, timeout=10)
         response.raise_for_status()
-        
+
         # Parse XML response (simplified)
         import xml.etree.ElementTree as ET
         root = ET.fromstring(response.content)
-        
+
         results = []
         namespace = {'atom': 'http://www.w3.org/2005/Atom'}
-        
+
         for entry in root.findall('atom:entry', namespace):
             title = entry.find('atom:title', namespace)
             authors = entry.findall('atom:author', namespace)
             published = entry.find('atom:published', namespace)
             summary = entry.find('atom:summary', namespace)
             pdf_link = None
-            
+
             # Find PDF link
             for link in entry.findall('atom:link', namespace):
                 if link.get('title') == 'pdf':
                     pdf_link = link.get('href')
                     break
-            
+
             if title is not None:
                 author_names = []
                 for author in authors:
                     name = author.find('atom:name', namespace)
                     if name is not None:
                         author_names.append(name.text)
-                
+
                 year = '2024'
                 if published is not None:
                     try:
                         year = published.text[:4]
                     except:
                         pass
-                
+
                 results.append({
                     'title': title.text.strip(),
                     'authors': ', '.join(author_names[:3]),  # Limit to 3 authors
@@ -812,9 +830,9 @@ def search_arxiv(query, max_results=50, filters=None):
                     'citations': 0,
                     'source': 'arxiv'
                 })
-        
+
         return results
-        
+
     except Exception as e:
         print(f"Error searching arXiv: {e}")
         return []
@@ -832,19 +850,19 @@ def search_pubmed(query, max_results=50, filters=None):
             'retmode': 'json',
             'sort': 'relevance'
         }
-        
+
         response = requests.get(base_url, params=params, timeout=10)
         response.raise_for_status()
         data = response.json()
-        
+
         if 'esearchresult' not in data or 'idlist' not in data['esearchresult']:
             return []
-        
+
         # Get IDs
         ids = data['esearchresult']['idlist']
         if not ids:
             return []
-        
+
         # Fetch full details including abstracts using efetch
         fetch_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
         fetch_params = {
@@ -853,21 +871,21 @@ def search_pubmed(query, max_results=50, filters=None):
             'retmode': 'xml',
             'rettype': 'abstract'
         }
-        
+
         fetch_response = requests.get(fetch_url, params=fetch_params, timeout=15)
         fetch_response.raise_for_status()
-        
+
         # Parse XML response
         import xml.etree.ElementTree as ET
         root = ET.fromstring(fetch_response.content)
-        
+
         results = []
         for article in root.findall('.//PubmedArticle'):
             try:
                 # Extract title
                 title_elem = article.find('.//ArticleTitle')
                 title = title_elem.text if title_elem is not None else 'Unknown Title'
-                
+
                 # Extract authors
                 authors = []
                 author_list = article.find('.//AuthorList')
@@ -880,7 +898,7 @@ def search_pubmed(query, max_results=50, filters=None):
                             if first_name is not None:
                                 name = f"{last_name.text}, {first_name.text}"
                             authors.append(name)
-                
+
                 # Extract year
                 year = '2024'
                 pub_date = article.find('.//PubDate/Year')
@@ -891,14 +909,14 @@ def search_pubmed(query, max_results=50, filters=None):
                     med_date = article.find('.//DateCompleted/Year')
                     if med_date is not None:
                         year = med_date.text
-                
+
                 # Extract journal and impact factor
                 journal_elem = article.find('.//Journal/Title')
                 journal = journal_elem.text if journal_elem is not None else 'PubMed Journal'
-                
+
                 # Get impact factor (approximate based on well-known journals)
                 impact_factor = get_journal_impact_factor(journal)
-                
+
                 # Extract abstract
                 abstract_elem = article.find('.//AbstractText')
                 abstract = ''
@@ -917,14 +935,14 @@ def search_pubmed(query, max_results=50, filters=None):
                             else:
                                 abstract_parts.append(text)
                     abstract = ' '.join(abstract_parts)
-                
+
                 # Get PMID for DOI lookup
                 pmid_elem = article.find('.//PMID')
                 pmid = pmid_elem.text if pmid_elem is not None else ''
-                
+
                 # Try to get citation count (this is limited for PubMed, but we can try)
                 citations = get_pubmed_citations(pmid) if pmid else 0
-                
+
                 results.append({
                     'title': title,
                     'authors': ', '.join(authors),
@@ -938,13 +956,13 @@ def search_pubmed(query, max_results=50, filters=None):
                     'pmid': pmid,
                     'source': 'pubmed'
                 })
-                
+
             except Exception as e:
                 print(f"Error parsing PubMed article: {e}")
                 continue
-        
+
         return results
-        
+
     except Exception as e:
         print(f"Error searching PubMed: {e}")
         return []
@@ -972,22 +990,22 @@ def get_journal_impact_factor(journal_name):
     """Get impact factor using the impact_factor package with fallback."""
     if not journal_name:
         return None
-    
+
     fa = get_impact_factor_instance()
-    
+
     # Use impact_factor package if available
     if fa:
         try:
             # Clean journal name
             journal_clean = journal_name.strip()
-            
+
             # Try exact match first
             results = fa.search(journal_clean)
             if results and len(results) > 0:
                 impact_factor = results[0].get('factor')  # The field is 'factor' not 'impact_factor'
                 if impact_factor and impact_factor != '-' and impact_factor != 0:
                     return float(impact_factor)
-            
+
             # Try fuzzy match with wildcard
             if len(journal_clean) > 3:  # Avoid very short searches
                 fuzzy_results = fa.search(f'{journal_clean}%')
@@ -995,10 +1013,10 @@ def get_journal_impact_factor(journal_name):
                     impact_factor = fuzzy_results[0].get('factor')  # The field is 'factor' not 'impact_factor'
                     if impact_factor and impact_factor != '-' and impact_factor != 0:
                         return float(impact_factor)
-                        
+
         except Exception as e:
             print(f"Error getting IF for {journal_name}: {e}")
-    
+
     # Fallback to hardcoded values for most common journals
     fallback_if_map = {
         'nature': 64.8,
@@ -1012,12 +1030,12 @@ def get_journal_impact_factor(journal_name):
         'proceedings of the national academy of sciences': 12.8,
         'pnas': 12.8
     }
-    
+
     journal_lower = journal_name.lower()
     for journal_key, if_value in fallback_if_map.items():
         if journal_key in journal_lower:
             return if_value
-    
+
     return None
 
 
@@ -1029,7 +1047,7 @@ def is_open_access_journal(journal_name):
         'frontiers in', 'bmc', 'journal of medical internet research',
         'nucleic acids research', 'bioinformatics', 'genome biology'
     ]
-    
+
     journal_lower = journal_name.lower()
     return any(oa_journal in journal_lower for oa_journal in open_access_journals)
 
@@ -1052,25 +1070,25 @@ def validate_citation_count(citation_count, source=None):
     """
     try:
         count = int(citation_count) if citation_count is not None else 0
-        
+
         # Basic validation
         if count < 0:
             return 0, False
-        
+
         # Flag potentially unreliable data
         is_reliable = True
-        
+
         # Very high citation counts need verification
         if count > 10000:
             logger.warning(f"Unusually high citation count: {count} from {source}")
             is_reliable = False
-        
+
         # Mark zero citations from certain sources as less reliable
         if count == 0 and source in ['pubmed', 'arxiv']:
             is_reliable = False
-            
+
         return count, is_reliable
-        
+
     except (ValueError, TypeError):
         return 0, False
 
@@ -1086,18 +1104,18 @@ def search_pubmed_central(query, max_results=50, filters=None):
             'retmode': 'json',
             'sort': 'relevance'
         }
-        
+
         response = requests.get(base_url, params=params, timeout=10)
         response.raise_for_status()
         data = response.json()
-        
+
         if 'esearchresult' not in data or 'idlist' not in data['esearchresult']:
             return []
-        
+
         # Generate results from PMC IDs
         ids = data['esearchresult']['idlist'][:max_results]
         results = []
-        
+
         for i, pmc_id in enumerate(ids):
             results.append({
                 'title': f'PMC Open Access Paper {i+1}: {query} Research',
@@ -1110,7 +1128,7 @@ def search_pubmed_central(query, max_results=50, filters=None):
                 'citations': 50 - (i % 50),
                 'source': 'pmc'
             })
-        
+
         return results
     except Exception as e:
         print(f"Error searching PMC: {e}")
@@ -1127,27 +1145,27 @@ def search_doaj(query, max_results=50, filters=None):
             'pageSize': min(max_results, 50),  # Reduced limit
             'sort': 'score:desc'
         }
-        
+
         response = requests.get(base_url, params=params, timeout=15)
         response.raise_for_status()
         data = response.json()
-        
+
         results = []
         if 'results' in data:
             for i, article in enumerate(data['results'][:max_results]):
                 bibjson = article.get('bibjson', {})
-                
+
                 # Extract authors
                 authors = []
                 if 'author' in bibjson:
                     for author in bibjson['author'][:3]:
                         name = author.get('name', 'Unknown Author')
                         authors.append(name)
-                
+
                 # Extract journal info
                 journal_info = bibjson.get('journal', {})
                 journal_name = journal_info.get('title', 'DOAJ Journal')
-                
+
                 results.append({
                     'title': bibjson.get('title', f'DOAJ Article {i+1}'),
                     'authors': ', '.join(authors) if authors else 'DOAJ Authors',
@@ -1159,7 +1177,7 @@ def search_doaj(query, max_results=50, filters=None):
                     'citations': 0,  # DOAJ doesn't provide citation counts
                     'source': 'doaj'
                 })
-        
+
         return results
     except Exception as e:
         print(f"Error searching DOAJ: {e}")
@@ -1171,19 +1189,19 @@ def search_biorxiv(query, max_results=50, filters=None):
     try:
         # bioRxiv API
         base_url = "https://api.biorxiv.org/details/biorxiv"
-        
+
         # Search recent papers (bioRxiv API is date-based)
         from datetime import datetime, timedelta
         end_date = datetime.now()
         start_date = end_date - timedelta(days=365)  # Last year
-        
+
         date_str = f"{start_date.strftime('%Y-%m-%d')}/{end_date.strftime('%Y-%m-%d')}"
         url = f"{base_url}/{date_str}"
-        
+
         response = requests.get(url, timeout=15)
         response.raise_for_status()
         data = response.json()
-        
+
         results = []
         if 'collection' in data:
             # Filter by query and take max_results
@@ -1195,7 +1213,7 @@ def search_biorxiv(query, max_results=50, filters=None):
                     filtered_papers.append(paper)
                     if len(filtered_papers) >= max_results:
                         break
-            
+
             for i, paper in enumerate(filtered_papers):
                 results.append({
                     'title': paper.get('title', f'bioRxiv Preprint {i+1}'),
@@ -1208,7 +1226,7 @@ def search_biorxiv(query, max_results=50, filters=None):
                     'citations': 0,
                     'source': 'biorxiv'
                 })
-        
+
         return results
     except Exception as e:
         print(f"Error searching bioRxiv: {e}")
@@ -1227,11 +1245,11 @@ def search_plos(query, max_results=50, filters=None):
             'sort': 'score desc',
             'fl': 'id,title,author,journal,publication_date,abstract'
         }
-        
+
         response = requests.get(base_url, params=params, timeout=15)
         response.raise_for_status()
         data = response.json()
-        
+
         results = []
         if 'response' in data and 'docs' in data['response']:
             for i, doc in enumerate(data['response']['docs']):
@@ -1242,11 +1260,11 @@ def search_plos(query, max_results=50, filters=None):
                         authors = doc['author'][:3]
                     else:
                         authors = [doc['author']]
-                
+
                 # Extract year from publication_date
                 pub_date = doc.get('publication_date', '2024-01-01T00:00:00Z')
                 year = pub_date[:4] if pub_date else '2024'
-                
+
                 results.append({
                     'title': doc.get('title', [f'PLOS Article {i+1}'])[0] if isinstance(doc.get('title'), list) else doc.get('title', f'PLOS Article {i+1}'),
                     'authors': ', '.join(authors) if authors else 'PLOS Authors',
@@ -1258,7 +1276,7 @@ def search_plos(query, max_results=50, filters=None):
                     'citations': 0,  # PLOS API doesn't provide citation counts directly
                     'source': 'plos'
                 })
-        
+
         return results
     except Exception as e:
         print(f"Error searching PLOS: {e}")
@@ -1274,15 +1292,15 @@ def search_semantic_scholar(query, max_results=100, filters=None):
             'limit': min(max_results, 10),  # Reduced to avoid rate limits
             'fields': 'title,authors,year,journal,abstract,openAccessPdf,citationCount'
         }
-        
+
         # Add delay to respect rate limits
         import time
         time.sleep(0.5)
-        
+
         response = requests.get(base_url, params=params, timeout=10)
         response.raise_for_status()
         data = response.json()
-        
+
         results = []
         if 'data' in data:
             for paper in data['data']:
@@ -1291,15 +1309,15 @@ def search_semantic_scholar(query, max_results=100, filters=None):
                     for author in paper['authors'][:3]:  # Limit to 3 authors
                         if 'name' in author:
                             authors.append(author['name'])
-                
+
                 pdf_url = ''
                 if paper.get('openAccessPdf') and paper['openAccessPdf'].get('url'):
                     pdf_url = paper['openAccessPdf']['url']
-                
+
                 journal_name = 'Unknown Journal'
                 if paper.get('journal') and paper['journal'].get('name'):
                     journal_name = paper['journal']['name']
-                
+
                 results.append({
                     'title': paper.get('title', 'Unknown Title'),
                     'authors': ', '.join(authors),
@@ -1311,9 +1329,9 @@ def search_semantic_scholar(query, max_results=100, filters=None):
                     'citations': paper.get('citationCount', 0),
                     'source': 'semantic_scholar'
                 })
-        
+
         return results
-        
+
     except Exception as e:
         print(f"Error searching Semantic Scholar: {e}")
         return []
@@ -1324,25 +1342,25 @@ def store_search_result(result):
     try:
         # Check for existing paper using multiple identifiers
         existing_paper = None
-        
+
         # Check by DOI first (most reliable)
         if result.get('doi'):
             existing_paper = SearchIndex.objects.filter(doi=result['doi']).first()
-        
+
         # Check by PMID
         if not existing_paper and result.get('pmid'):
             existing_paper = SearchIndex.objects.filter(pmid=result['pmid']).first()
-        
+
         # Check by arXiv ID
         if not existing_paper and result.get('arxiv_id'):
             existing_paper = SearchIndex.objects.filter(arxiv_id=result['arxiv_id']).first()
-        
+
         # Check by title similarity (exact match or very close)
         if not existing_paper and result.get('title'):
             title_lower = result['title'].lower().strip()
             # Check for exact title match
             existing_paper = SearchIndex.objects.filter(title__iexact=title_lower).first()
-            
+
             # Check for very similar titles (remove common words and check)
             if not existing_paper:
                 title_clean = ' '.join([word for word in title_lower.split() if len(word) > 3])
@@ -1352,18 +1370,18 @@ def store_search_result(result):
                         if abs(len(similar_paper.title) - len(result['title'])) < 10:
                             existing_paper = similar_paper
                             break
-        
+
         # If paper exists, update it with new information
         if existing_paper:
             logger.info(f"Found existing paper, updating: {existing_paper.title}")
-            
+
             # Update citation count if new source provides better data
             new_citation_count, is_reliable = validate_citation_count(result.get('citations', 0), result.get('source', 'unknown'))
             if is_reliable and new_citation_count > existing_paper.citation_count:
                 existing_paper.citation_count = new_citation_count
                 existing_paper.citation_source = result.get('source', 'unknown')
                 existing_paper.citation_last_updated = timezone.now()
-            
+
             # Update missing fields
             if not existing_paper.abstract and result.get('abstract'):
                 existing_paper.abstract = result['abstract']
@@ -1375,10 +1393,10 @@ def store_search_result(result):
                 existing_paper.pmid = result['pmid'] or None  # Convert empty strings to None
             if not existing_paper.arxiv_id and result.get('arxiv_id'):
                 existing_paper.arxiv_id = result['arxiv_id'] or None  # Convert empty strings to None
-            
+
             existing_paper.save()
             return existing_paper
-        
+
         # Create or get journal
         journal = None
         if result.get('journal'):
@@ -1386,7 +1404,7 @@ def store_search_result(result):
                 name=result['journal'],
                 defaults={'abbreviation': result['journal'][:10]}
             )
-        
+
         # Create new paper
         paper = SearchIndex.objects.create(
             title=result['title'],
@@ -1404,7 +1422,7 @@ def store_search_result(result):
             source=result.get('source', 'web'),
             relevance_score=1.0
         )
-        
+
         # Create authors
         if result.get('authors'):
             author_names = result['authors'].split(', ')
@@ -1414,13 +1432,13 @@ def store_search_result(result):
                     name_parts = author_name.strip().split()
                     first_name = name_parts[0] if name_parts else ''
                     last_name = ' '.join(name_parts[1:]) if len(name_parts) > 1 else ''
-                    
+
                     author, created = Author.objects.get_or_create(
                         first_name=first_name,
                         last_name=last_name,
                         defaults={'email': ''}
                     )
-                    
+
                     # Link author to paper
                     from .models import AuthorPaper
                     AuthorPaper.objects.get_or_create(
@@ -1428,9 +1446,9 @@ def store_search_result(result):
                         paper=paper,
                         defaults={'author_order': i + 1}
                     )
-        
+
         return paper
-        
+
     except Exception as e:
         print(f"Error storing search result: {e}")
         # Return a minimal paper object if storage fails
@@ -1450,7 +1468,7 @@ def get_paper_authors(paper):
         author_papers = paper.authors.through.objects.filter(
             paper=paper
         ).order_by('author_order')[:3]  # Limit to 3 authors
-        
+
         authors = []
         for ap in author_papers:
             author = ap.author
@@ -1460,9 +1478,9 @@ def get_paper_authors(paper):
                 authors.append(author.last_name)
             elif author.first_name:
                 authors.append(author.first_name)
-        
+
         return ', '.join(authors) if authors else 'Unknown Authors'
-        
+
     except Exception as e:
         return 'Unknown Authors'
 
@@ -1491,23 +1509,23 @@ def personal_library(request):
     ).select_related('paper', 'paper__journal').prefetch_related(
         'paper__authors', 'collections'
     ).order_by('-saved_at')
-    
+
     # Get user's collections
     collections = Collection.objects.filter(user=request.user).order_by('name')
-    
+
     # Get reading status statistics
     status_stats = {}
     for status_code, status_name in UserLibrary.READING_STATUS_CHOICES:
         count = library_papers.filter(reading_status=status_code).count()
         status_stats[status_code] = {'name': status_name, 'count': count}
-    
+
     context = {
         'library_papers': library_papers,
         'collections': collections,
         'status_stats': status_stats,
         'total_papers': library_papers.count(),
     }
-    
+
     return render(request, 'scholar_app/personal_library.html', context)
 
 
@@ -1519,25 +1537,25 @@ def export_bibtex(request):
     """Export selected papers as BibTeX"""
     try:
         from .utils import CitationExporter
-        
+
         data = json.loads(request.body)
         paper_ids = data.get('paper_ids', [])
         collection_name = data.get('collection_name', '')
-        
+
         if not paper_ids:
             return JsonResponse({'error': 'No papers selected for export'}, status=400)
-        
+
         # Get papers with authors
         papers = SearchIndex.objects.filter(
             id__in=paper_ids
         ).prefetch_related('authors', 'journal').order_by('publication_date')
-        
+
         if not papers.exists():
             return JsonResponse({'error': 'No valid papers found'}, status=404)
-        
+
         # Generate BibTeX content
         bibtex_content = CitationExporter.to_bibtex(list(papers))
-        
+
         # Log the export
         CitationExporter.log_export(
             user=request.user,
@@ -1546,14 +1564,14 @@ def export_bibtex(request):
             collection_name=collection_name,
             filter_criteria={'paper_ids': paper_ids}
         )
-        
+
         return JsonResponse({
             'success': True,
             'content': bibtex_content,
             'filename': f'scitex_export_{collection_name}_{papers.count()}_papers.bib' if collection_name else f'scitex_export_{papers.count()}_papers.bib',
             'count': papers.count()
         })
-        
+
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Invalid JSON data'}, status=400)
     except Exception as e:
@@ -1567,25 +1585,25 @@ def export_ris(request):
     """Export selected papers as RIS"""
     try:
         from .utils import CitationExporter
-        
+
         data = json.loads(request.body)
         paper_ids = data.get('paper_ids', [])
         collection_name = data.get('collection_name', '')
-        
+
         if not paper_ids:
             return JsonResponse({'error': 'No papers selected for export'}, status=400)
-        
+
         # Get papers with authors
         papers = SearchIndex.objects.filter(
             id__in=paper_ids
         ).prefetch_related('authors', 'journal').order_by('publication_date')
-        
+
         if not papers.exists():
             return JsonResponse({'error': 'No valid papers found'}, status=404)
-        
+
         # Generate RIS content
         ris_content = CitationExporter.to_ris(list(papers))
-        
+
         # Log the export
         CitationExporter.log_export(
             user=request.user,
@@ -1594,14 +1612,14 @@ def export_ris(request):
             collection_name=collection_name,
             filter_criteria={'paper_ids': paper_ids}
         )
-        
+
         return JsonResponse({
             'success': True,
             'content': ris_content,
             'filename': f'scitex_export_{collection_name}_{papers.count()}_papers.ris' if collection_name else f'scitex_export_{papers.count()}_papers.ris',
             'count': papers.count()
         })
-        
+
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Invalid JSON data'}, status=400)
     except Exception as e:
@@ -1615,25 +1633,25 @@ def export_endnote(request):
     """Export selected papers as EndNote"""
     try:
         from .utils import CitationExporter
-        
+
         data = json.loads(request.body)
         paper_ids = data.get('paper_ids', [])
         collection_name = data.get('collection_name', '')
-        
+
         if not paper_ids:
             return JsonResponse({'error': 'No papers selected for export'}, status=400)
-        
+
         # Get papers with authors
         papers = SearchIndex.objects.filter(
             id__in=paper_ids
         ).prefetch_related('authors', 'journal').order_by('publication_date')
-        
+
         if not papers.exists():
             return JsonResponse({'error': 'No valid papers found'}, status=404)
-        
+
         # Generate EndNote content
         endnote_content = CitationExporter.to_endnote(list(papers))
-        
+
         # Log the export
         CitationExporter.log_export(
             user=request.user,
@@ -1642,14 +1660,14 @@ def export_endnote(request):
             collection_name=collection_name,
             filter_criteria={'paper_ids': paper_ids}
         )
-        
+
         return JsonResponse({
             'success': True,
             'content': endnote_content,
             'filename': f'scitex_export_{collection_name}_{papers.count()}_papers.enw' if collection_name else f'scitex_export_{papers.count()}_papers.enw',
             'count': papers.count()
         })
-        
+
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Invalid JSON data'}, status=400)
     except Exception as e:
@@ -1663,25 +1681,25 @@ def export_csv(request):
     """Export selected papers as CSV"""
     try:
         from .utils import CitationExporter
-        
+
         data = json.loads(request.body)
         paper_ids = data.get('paper_ids', [])
         collection_name = data.get('collection_name', '')
-        
+
         if not paper_ids:
             return JsonResponse({'error': 'No papers selected for export'}, status=400)
-        
+
         # Get papers with authors
         papers = SearchIndex.objects.filter(
             id__in=paper_ids
         ).prefetch_related('authors', 'journal').order_by('publication_date')
-        
+
         if not papers.exists():
             return JsonResponse({'error': 'No valid papers found'}, status=404)
-        
+
         # Generate CSV content
         csv_content = CitationExporter.to_csv(list(papers))
-        
+
         # Log the export
         CitationExporter.log_export(
             user=request.user,
@@ -1690,14 +1708,14 @@ def export_csv(request):
             collection_name=collection_name,
             filter_criteria={'paper_ids': paper_ids}
         )
-        
+
         return JsonResponse({
             'success': True,
             'content': csv_content,
             'filename': f'scitex_export_{collection_name}_{papers.count()}_papers.csv' if collection_name else f'scitex_export_{papers.count()}_papers.csv',
             'count': papers.count()
         })
-        
+
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Invalid JSON data'}, status=400)
     except Exception as e:
@@ -1714,7 +1732,7 @@ def save_paper(request):
         paper_id = data.get('paper_id')
         paper_title = data.get('title', '')
         project = data.get('project', '')
-        
+
         # Create or get paper in SearchIndex
         paper, created = SearchIndex.objects.get_or_create(
             id=paper_id,
@@ -1724,19 +1742,19 @@ def save_paper(request):
                 'relevance_score': 1.0
             }
         )
-        
+
         # Check if paper already saved
         existing = UserLibrary.objects.filter(
             user=request.user,
             paper=paper
         ).first()
-        
+
         if existing:
             return JsonResponse({
                 'status': 'info',
                 'message': 'Paper already in your library'
             })
-        
+
         # Save to user library
         library_item = UserLibrary.objects.create(
             user=request.user,
@@ -1744,12 +1762,12 @@ def save_paper(request):
             project=project,
             personal_notes=f"Saved from search: {paper_title}"
         )
-        
+
         return JsonResponse({
             'status': 'success',
             'message': f'Paper saved to {project or "your library"}'
         })
-        
+
     except Exception as e:
         return JsonResponse({
             'status': 'error',
@@ -1764,21 +1782,21 @@ def upload_file(request):
     try:
         if 'file' not in request.FILES:
             return JsonResponse({'status': 'error', 'message': 'No file provided'})
-        
+
         uploaded_file = request.FILES['file']
         paper_id = request.POST.get('paper_id')
         file_type = request.POST.get('file_type', 'pdf')  # pdf or bibtex
-        
+
         # Validate file type
         if file_type == 'pdf' and not uploaded_file.name.lower().endswith('.pdf'):
             return JsonResponse({'status': 'error', 'message': 'Invalid PDF file'})
         elif file_type == 'bibtex' and not uploaded_file.name.lower().endswith(('.bib', '.bibtex')):
             return JsonResponse({'status': 'error', 'message': 'Invalid BibTeX file'})
-        
+
         # Save file
         file_path = f"scholar/{file_type}s/{uploaded_file.name}"
         saved_path = default_storage.save(file_path, uploaded_file)
-        
+
         # If user is logged in, associate with their library
         if request.user.is_authenticated and paper_id:
             # Get or create the paper
@@ -1790,26 +1808,26 @@ def upload_file(request):
                     'relevance_score': 1.0
                 }
             )
-            
+
             library_item, created = UserLibrary.objects.get_or_create(
                 user=request.user,
                 paper=paper,
                 defaults={'personal_notes': f'File uploaded: {uploaded_file.name}'}
             )
-            
+
             if file_type == 'pdf':
                 library_item.personal_pdf = saved_path
             elif file_type == 'bibtex':
                 library_item.personal_bibtex = saved_path
-            
+
             library_item.save()
-        
+
         return JsonResponse({
             'status': 'success',
             'message': f'{file_type.upper()} file uploaded successfully',
             'file_path': saved_path
         })
-        
+
     except Exception as e:
         return JsonResponse({
             'status': 'error',
@@ -1824,7 +1842,7 @@ def get_citation(request):
     authors = request.GET.get('authors', 'Author, A.')
     year = request.GET.get('year', '2024')
     journal = request.GET.get('journal', 'Journal Name')
-    
+
     # Generate citations
     bibtex = f"""@article{{paper{year},
   title={{{paper_title}}},
@@ -1832,7 +1850,7 @@ def get_citation(request):
   journal={{{journal}}},
   year={{{year}}}
 }}"""
-    
+
     return JsonResponse({
         'apa': f"{authors} ({year}). {paper_title}. {journal}.",
         'mla': f'{authors}. "{paper_title}" {journal}, {year}.',
@@ -1864,10 +1882,10 @@ def api_search_arxiv(request):
     """API endpoint for arXiv search only."""
     query = request.GET.get('q', '').strip()
     max_results = min(int(request.GET.get('max_results', 50)), 100)
-    
+
     if not query:
         return JsonResponse({'error': 'Query parameter required'}, status=400)
-    
+
     try:
         results = search_arxiv(query, max_results=max_results)
         return JsonResponse({
@@ -1887,10 +1905,10 @@ def api_search_pubmed(request):
     """API endpoint for PubMed search only."""
     query = request.GET.get('q', '').strip()
     max_results = min(int(request.GET.get('max_results', 50)), 100)
-    
+
     if not query:
         return JsonResponse({'error': 'Query parameter required'}, status=400)
-    
+
     try:
         results = search_pubmed(query, max_results=max_results)
         return JsonResponse({
@@ -1910,10 +1928,10 @@ def api_search_semantic(request):
     """API endpoint for Semantic Scholar search only."""
     query = request.GET.get('q', '').strip()
     max_results = min(int(request.GET.get('max_results', 10)), 20)
-    
+
     if not query:
         return JsonResponse({'error': 'Query parameter required'}, status=400)
-    
+
     try:
         results = search_semantic_scholar(query, max_results=max_results)
         return JsonResponse({
@@ -1933,10 +1951,10 @@ def api_search_pmc(request):
     """API endpoint for PMC search only."""
     query = request.GET.get('q', '').strip()
     max_results = min(int(request.GET.get('max_results', 50)), 100)
-    
+
     if not query:
         return JsonResponse({'error': 'Query parameter required'}, status=400)
-    
+
     try:
         results = search_pubmed_central(query, max_results=max_results)
         return JsonResponse({
@@ -1956,10 +1974,10 @@ def api_search_doaj(request):
     """API endpoint for DOAJ search only."""
     query = request.GET.get('q', '').strip()
     max_results = min(int(request.GET.get('max_results', 25)), 50)
-    
+
     if not query:
         return JsonResponse({'error': 'Query parameter required'}, status=400)
-    
+
     try:
         results = search_doaj(query, max_results=max_results)
         return JsonResponse({
@@ -1979,10 +1997,10 @@ def api_search_biorxiv(request):
     """API endpoint for bioRxiv search only."""
     query = request.GET.get('q', '').strip()
     max_results = min(int(request.GET.get('max_results', 25)), 50)
-    
+
     if not query:
         return JsonResponse({'error': 'Query parameter required'}, status=400)
-    
+
     try:
         results = search_biorxiv(query, max_results=max_results)
         return JsonResponse({
@@ -2002,10 +2020,10 @@ def api_search_plos(request):
     """API endpoint for PLOS search only."""
     query = request.GET.get('q', '').strip()
     max_results = min(int(request.GET.get('max_results', 25)), 50)
-    
+
     if not query:
         return JsonResponse({'error': 'Query parameter required'}, status=400)
-    
+
     try:
         results = search_plos(query, max_results=max_results)
         return JsonResponse({
@@ -2034,17 +2052,17 @@ def save_search(request):
         filters = data.get('filters', {})
         email_alerts = data.get('email_alerts', False)
         alert_frequency = data.get('alert_frequency', 'never')
-        
+
         if not name or not query:
             return JsonResponse({'status': 'error', 'message': 'Name and query are required'}, status=400)
-        
+
         # Check if saved search with this name already exists
         if SavedSearch.objects.filter(user=request.user, name=name).exists():
             return JsonResponse({'status': 'error', 'message': 'A saved search with this name already exists'}, status=400)
-        
+
         # Import the SavedSearch model
         from .models import SavedSearch
-        
+
         # Create saved search
         saved_search = SavedSearch.objects.create(
             user=request.user,
@@ -2055,14 +2073,14 @@ def save_search(request):
             email_alerts=email_alerts,
             alert_frequency=alert_frequency
         )
-        
+
         return JsonResponse({
             'status': 'success',
             'message': 'Search saved successfully',
             'search_id': str(saved_search.id),
             'name': saved_search.name
         })
-        
+
     except Exception as e:
         logger.error(f"Error saving search: {e}")
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
@@ -2074,9 +2092,9 @@ def get_saved_searches(request):
     """Get user's saved searches."""
     try:
         from .models import SavedSearch
-        
+
         saved_searches = SavedSearch.objects.filter(user=request.user).order_by('-created_at')
-        
+
         searches_data = []
         for search in saved_searches:
             searches_data.append({
@@ -2089,12 +2107,12 @@ def get_saved_searches(request):
                 'created_at': search.created_at.isoformat(),
                 'last_run': search.last_run.isoformat() if search.last_run else None
             })
-        
+
         return JsonResponse({
             'status': 'success',
             'saved_searches': searches_data
         })
-        
+
     except Exception as e:
         logger.error(f"Error getting saved searches: {e}")
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
@@ -2107,15 +2125,15 @@ def delete_saved_search(request, search_id):
     """Delete a saved search."""
     try:
         from .models import SavedSearch
-        
+
         saved_search = SavedSearch.objects.get(id=search_id, user=request.user)
         saved_search.delete()
-        
+
         return JsonResponse({
             'status': 'success',
             'message': 'Saved search deleted successfully'
         })
-        
+
     except SavedSearch.DoesNotExist:
         return JsonResponse({'status': 'error', 'message': 'Saved search not found'}, status=404)
     except Exception as e:
@@ -2131,29 +2149,29 @@ def run_saved_search(request, search_id):
     try:
         from .models import SavedSearch
         from django.utils import timezone
-        
+
         saved_search = SavedSearch.objects.get(id=search_id, user=request.user)
-        
+
         # Update last run time
         saved_search.last_run = timezone.now()
         saved_search.save()
-        
+
         # Perform the search with saved filters
         query = saved_search.query_text
         filters = saved_search.filters
-        
+
         # Apply filters from saved search
         sources = filters.get('sources', 'all')
-        
+
         # Perform web search with all saved filters
         web_results = search_papers_online(query, sources=sources, filters=filters)
-        
+
         # Also search database with filters
         existing_papers = search_database_papers(query, filters)
-        
+
         # Combine database and web results
         all_results = []
-        
+
         # Add database results
         for paper in existing_papers:
             all_results.append({
@@ -2169,7 +2187,7 @@ def run_saved_search(request, search_id):
                 'impact_factor': paper.journal.impact_factor if paper.journal else None,
                 'source': 'database'
             })
-        
+
         # Add web results
         for result in web_results:
             all_results.append({
@@ -2185,10 +2203,10 @@ def run_saved_search(request, search_id):
                 'impact_factor': result.get('impact_factor'),
                 'source': result.get('source', 'web')
             })
-        
+
         # Apply advanced filters to results
         filtered_results = apply_advanced_filters(all_results, filters)
-        
+
         return JsonResponse({
             'status': 'success',
             'search_name': saved_search.name,
@@ -2197,7 +2215,7 @@ def run_saved_search(request, search_id):
             'results': filtered_results[:50],  # Limit to 50 results
             'result_count': len(filtered_results)
         })
-        
+
     except SavedSearch.DoesNotExist:
         return JsonResponse({'status': 'error', 'message': 'Saved search not found'}, status=404)
     except Exception as e:
@@ -2212,13 +2230,13 @@ def export_citation(request):
         data = json.loads(request.body)
         paper_data = data.get('paper')
         format_type = data.get('format', 'bibtex')
-        
+
         if not paper_data:
             return JsonResponse({'error': 'Paper data required'}, status=400)
-        
+
         # Generate citation based on format
         citation = generate_citation(paper_data, format_type)
-        
+
         if citation:
             return JsonResponse({
                 'success': True,
@@ -2228,7 +2246,7 @@ def export_citation(request):
             })
         else:
             return JsonResponse({'error': 'Failed to generate citation'}, status=500)
-            
+
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Invalid JSON'}, status=400)
     except Exception as e:
@@ -2247,10 +2265,10 @@ def generate_citation(paper_data, format_type):
     volume = paper_data.get('volume', '')
     pages = paper_data.get('pages', '')
     pmid = paper_data.get('pmid', '')
-    
+
     # Generate citation key from first author and year
     citation_key = generate_citation_key(authors, year)
-    
+
     if format_type.lower() == 'bibtex':
         return generate_bibtex(citation_key, title, authors, journal, year, doi, url, volume, pages, pmid)
     elif format_type.lower() == 'endnote':
@@ -2286,7 +2304,7 @@ def generate_bibtex(citation_key, title, authors, journal, year, doi, url, volum
     bibtex += f"  author = {{{authors}}},\n"
     bibtex += f"  journal = {{{journal}}},\n"
     bibtex += f"  year = {{{year}}},\n"
-    
+
     if volume:
         bibtex += f"  volume = {{{volume}}},\n"
     if pages:
@@ -2297,7 +2315,7 @@ def generate_bibtex(citation_key, title, authors, journal, year, doi, url, volum
         bibtex += f"  url = {{{url}}},\n"
     if pmid:
         bibtex += f"  pmid = {{{pmid}}},\n"
-    
+
     bibtex += "}"
     return bibtex
 
@@ -2309,7 +2327,7 @@ def generate_endnote(title, authors, journal, year, doi, url, volume, pages, pmi
     endnote += f"%A {authors}\n"
     endnote += f"%J {journal}\n"
     endnote += f"%D {year}\n"
-    
+
     if volume:
         endnote += f"%V {volume}\n"
     if pages:
@@ -2320,7 +2338,7 @@ def generate_endnote(title, authors, journal, year, doi, url, volume, pages, pmi
         endnote += f"%U {url}\n"
     if pmid:
         endnote += f"%M {pmid}\n"
-    
+
     return endnote
 
 
@@ -2328,16 +2346,16 @@ def generate_ris(title, authors, journal, year, doi, url, volume, pages, pmid):
     """Generate RIS citation."""
     ris = "TY  - JOUR\n"
     ris += f"TI  - {title}\n"
-    
+
     # Handle multiple authors
     if authors:
         author_list = authors.replace(' and ', ', ').split(', ')
         for author in author_list:
             ris += f"AU  - {author.strip()}\n"
-    
+
     ris += f"JO  - {journal}\n"
     ris += f"PY  - {year}\n"
-    
+
     if volume:
         ris += f"VL  - {volume}\n"
     if pages:
@@ -2348,7 +2366,7 @@ def generate_ris(title, authors, journal, year, doi, url, volume, pages, pmid):
         ris += f"UR  - {url}\n"
     if pmid:
         ris += f"ID  - {pmid}\n"
-    
+
     ris += "ER  - \n"
     return ris
 
@@ -2381,13 +2399,13 @@ def paper_recommendations(request, paper_id):
     """Get similarity recommendations for a specific paper."""
     try:
         from .views import _calculate_paper_similarity
-        
+
         # Get the source paper
         paper = SearchIndex.objects.get(id=paper_id, status='active')
-        
+
         # Get similarity recommendations
         similar_papers = _calculate_paper_similarity(paper, limit=10)
-        
+
         # Format recommendations for API response
         recommendations = []
         for sim_paper, score, reason in similar_papers:
@@ -2404,7 +2422,7 @@ def paper_recommendations(request, paper_id):
                 'pdf_url': sim_paper.pdf_url,
                 'doi': sim_paper.doi
             })
-        
+
         return JsonResponse({
             'status': 'success',
             'paper_id': paper_id,
@@ -2412,7 +2430,7 @@ def paper_recommendations(request, paper_id):
             'recommendations': recommendations,
             'count': len(recommendations)
         })
-        
+
     except SearchIndex.DoesNotExist:
         return JsonResponse({
             'status': 'error',
@@ -2433,16 +2451,16 @@ def user_recommendations(request):
     try:
         from .views import _get_similar_papers_recommendations
         from .models import RecommendationLog
-        
+
         # Get user's recent views for recommendations
         recent_views = RecommendationLog.objects.filter(
             user=request.user,
             clicked=True
         ).select_related('source_paper').order_by('-created_at')[:10]
-        
+
         # Generate recommendations
         recommendations = _get_similar_papers_recommendations(request.user, recent_views)
-        
+
         # Format for API response
         formatted_recommendations = []
         for rec in recommendations:
@@ -2461,13 +2479,13 @@ def user_recommendations(request):
                 'pdf_url': paper.pdf_url,
                 'doi': paper.doi
             })
-        
+
         return JsonResponse({
             'status': 'success',
             'recommendations': formatted_recommendations,
             'count': len(formatted_recommendations)
         })
-        
+
     except Exception as e:
         logger.error(f"Error generating user recommendations for user {request.user.id}: {e}")
         return JsonResponse({
@@ -2488,35 +2506,35 @@ def api_library_papers(request):
         status = request.GET.get('status')
         search_query = request.GET.get('q', '').strip()
         sort_by = request.GET.get('sort', '-saved_at')
-        
+
         # Base queryset
         papers = UserLibrary.objects.filter(
             user=request.user
         ).select_related('paper', 'paper__journal').prefetch_related(
             'paper__authors', 'collections'
         )
-        
+
         # Apply filters
         if collection_id:
             papers = papers.filter(collections__id=collection_id)
-        
+
         if status:
             papers = papers.filter(reading_status=status)
-        
+
         if search_query:
             papers = papers.filter(
                 Q(paper__title__icontains=search_query) |
                 Q(personal_notes__icontains=search_query) |
                 Q(tags__icontains=search_query)
             )
-        
+
         # Apply sorting
         valid_sorts = ['-saved_at', 'saved_at', '-updated_at', 'paper__title', '-importance_rating']
         if sort_by in valid_sorts:
             papers = papers.order_by(sort_by)
         else:
             papers = papers.order_by('-saved_at')
-        
+
         # Format response
         papers_data = []
         for library_paper in papers:
@@ -2538,13 +2556,13 @@ def api_library_papers(request):
                 'pdf_url': paper.pdf_url,
                 'personal_pdf': library_paper.personal_pdf.url if library_paper.personal_pdf else None,
             })
-        
+
         return JsonResponse({
             'status': 'success',
             'papers': papers_data,
             'count': len(papers_data)
         })
-        
+
     except Exception as e:
         logger.error(f"Error getting library papers: {e}")
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
@@ -2556,7 +2574,7 @@ def api_library_collections(request):
     """Get user's collections with paper counts."""
     try:
         collections = Collection.objects.filter(user=request.user).order_by('name')
-        
+
         collections_data = []
         for collection in collections:
             collections_data.append({
@@ -2568,13 +2586,13 @@ def api_library_collections(request):
                 'paper_count': collection.paper_count(),
                 'created_at': collection.created_at.isoformat(),
             })
-        
+
         return JsonResponse({
             'status': 'success',
             'collections': collections_data,
             'count': len(collections_data)
         })
-        
+
     except Exception as e:
         logger.error(f"Error getting collections: {e}")
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
@@ -2590,14 +2608,14 @@ def api_create_collection(request):
         description = data.get('description', '').strip()
         color = data.get('color', '#1a2332')
         icon = data.get('icon', 'fas fa-folder')
-        
+
         if not name:
             return JsonResponse({'status': 'error', 'message': 'Collection name is required'}, status=400)
-        
+
         # Check if collection already exists
         if Collection.objects.filter(user=request.user, name=name).exists():
             return JsonResponse({'status': 'error', 'message': 'Collection with this name already exists'}, status=400)
-        
+
         collection = Collection.objects.create(
             user=request.user,
             name=name,
@@ -2605,7 +2623,7 @@ def api_create_collection(request):
             color=color,
             icon=icon
         )
-        
+
         return JsonResponse({
             'status': 'success',
             'collection': {
@@ -2618,7 +2636,7 @@ def api_create_collection(request):
                 'created_at': collection.created_at.isoformat(),
             }
         })
-        
+
     except json.JSONDecodeError:
         return JsonResponse({'status': 'error', 'message': 'Invalid JSON data'}, status=400)
     except Exception as e:
@@ -2632,34 +2650,34 @@ def api_update_library_paper(request, paper_id):
     """Update library paper metadata."""
     try:
         data = json.loads(request.body)
-        
+
         # Get the library paper
         library_paper = UserLibrary.objects.get(
             user=request.user,
             paper__id=paper_id
         )
-        
+
         # Update fields
         if 'reading_status' in data:
             library_paper.reading_status = data['reading_status']
-        
+
         if 'importance_rating' in data:
             rating = data['importance_rating']
             if rating is not None and (rating < 1 or rating > 5):
                 return JsonResponse({'status': 'error', 'message': 'Rating must be between 1-5'}, status=400)
             library_paper.importance_rating = rating
-        
+
         if 'personal_notes' in data:
             library_paper.personal_notes = data['personal_notes']
-        
+
         if 'tags' in data:
             if isinstance(data['tags'], list):
                 library_paper.tags = ', '.join(data['tags'])
             else:
                 library_paper.tags = data['tags']
-        
+
         library_paper.save()
-        
+
         # Update collections if provided
         if 'collection_ids' in data:
             collection_ids = data['collection_ids']
@@ -2668,12 +2686,12 @@ def api_update_library_paper(request, paper_id):
                 id__in=collection_ids
             )
             library_paper.collections.set(collections)
-        
+
         return JsonResponse({
             'status': 'success',
             'message': 'Paper updated successfully'
         })
-        
+
     except UserLibrary.DoesNotExist:
         return JsonResponse({'status': 'error', 'message': 'Paper not found in library'}, status=404)
     except json.JSONDecodeError:
@@ -2692,21 +2710,21 @@ def api_remove_library_paper(request, paper_id):
             user=request.user,
             paper__id=paper_id
         )
-        
+
         # Store paper title for response
         paper_title = library_paper.paper.title
-        
+
         # Remove the library entry
         library_paper.delete()
-        
+
         return JsonResponse({
             'status': 'success',
             'message': f'"{paper_title}" removed from your library'
         })
-        
+
     except UserLibrary.DoesNotExist:
         return JsonResponse({
-            'status': 'error', 
+            'status': 'error',
             'message': 'Paper not found in your library'
         }, status=404)
     except Exception as e:
@@ -2734,7 +2752,7 @@ def api_trending_papers(request):
         # Get time range parameter (default: last 30 days)
         days = int(request.GET.get('days', 30))
         since = timezone.now() - timedelta(days=days)
-        
+
         # Get trending papers based on recent creation and citation count
         trending_papers = SearchIndex.objects.filter(
             status='active',
@@ -2742,7 +2760,7 @@ def api_trending_papers(request):
         ).select_related('journal').prefetch_related('authors').annotate(
             total_citations=Count('citations_received')
         ).order_by('-citation_count', '-view_count', '-created_at')[:20]
-        
+
         papers_data = []
         for paper in trending_papers:
             authors = get_paper_authors(paper)
@@ -2759,14 +2777,14 @@ def api_trending_papers(request):
                 'pdf_url': paper.pdf_url,
                 'trend_score': paper.citation_count + (paper.view_count * 0.1)  # Weighted trending score
             })
-        
+
         return JsonResponse({
             'status': 'success',
             'papers': papers_data,
             'period_days': days,
             'total_count': len(papers_data)
         })
-        
+
     except Exception as e:
         logger.error(f"Error getting trending papers: {e}")
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
@@ -2780,13 +2798,13 @@ def api_trending_topics(request):
         # Get time range parameter
         days = int(request.GET.get('days', 30))
         since = timezone.now() - timedelta(days=days)
-        
+
         # Analyze trending topics from recent paper keywords
         recent_papers = SearchIndex.objects.filter(
             status='active',
             created_at__gte=since
         ).exclude(keywords='')
-        
+
         # Count keyword frequency
         topic_counts = {}
         for paper in recent_papers:
@@ -2795,29 +2813,29 @@ def api_trending_topics(request):
                 for keyword in keywords:
                     if len(keyword) > 2:  # Filter out very short keywords
                         topic_counts[keyword] = topic_counts.get(keyword, 0) + 1
-        
+
         # Get top trending topics
         trending_topics = sorted(topic_counts.items(), key=lambda x: x[1], reverse=True)[:15]
-        
+
         topics_data = []
         for topic, count in trending_topics:
             # Calculate growth rate (simplified)
             growth_rate = min(count * 10, 100)  # Simplified growth calculation
-            
+
             topics_data.append({
                 'topic': topic.title(),
                 'paper_count': count,
                 'growth_rate': growth_rate,
                 'trend_category': 'emerging' if count < 5 else 'hot' if count < 15 else 'established'
             })
-        
+
         return JsonResponse({
             'status': 'success',
             'topics': topics_data,
             'period_days': days,
             'total_analyzed_papers': recent_papers.count()
         })
-        
+
     except Exception as e:
         logger.error(f"Error getting trending topics: {e}")
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
@@ -2831,7 +2849,7 @@ def api_trending_authors(request):
         # Get time range parameter
         days = int(request.GET.get('days', 90))  # Default to 90 days for author trends
         since = timezone.now() - timedelta(days=days)
-        
+
         # Get authors with recent publications
         trending_authors = Author.objects.filter(
             authorpaper__paper__status='active',
@@ -2841,7 +2859,7 @@ def api_trending_authors(request):
             total_citations=Count('authorpaper__paper__citations_received', distinct=True),
             avg_citations=Avg('authorpaper__paper__citation_count')
         ).filter(recent_papers__gt=0).order_by('-recent_papers', '-total_citations')[:15]
-        
+
         authors_data = []
         for author in trending_authors:
             # Get recent papers for this author
@@ -2850,9 +2868,9 @@ def api_trending_authors(request):
                 authors=author,
                 created_at__gte=since
             ).order_by('-publication_date')[:3]
-            
+
             recent_paper_titles = [paper.title for paper in recent_papers]
-            
+
             authors_data.append({
                 'id': str(author.id),
                 'name': author.full_name,
@@ -2864,14 +2882,14 @@ def api_trending_authors(request):
                 'recent_papers': recent_paper_titles,
                 'orcid': author.orcid
             })
-        
+
         return JsonResponse({
             'status': 'success',
             'authors': authors_data,
             'period_days': days,
             'total_count': len(authors_data)
         })
-        
+
     except Exception as e:
         logger.error(f"Error getting trending authors: {e}")
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
@@ -2886,11 +2904,11 @@ def api_research_analytics(request):
         current_date = timezone.now()
         last_month = current_date - timedelta(days=30)
         last_year = current_date - timedelta(days=365)
-        
+
         # Basic statistics
         total_papers = SearchIndex.objects.filter(status='active').count()
         recent_papers = SearchIndex.objects.filter(status='active', created_at__gte=last_month).count()
-        
+
         # Publication trends by year
         yearly_stats = SearchIndex.objects.filter(
             status='active',
@@ -2900,16 +2918,16 @@ def api_research_analytics(request):
         ).values('year').annotate(
             paper_count=Count('id')
         ).order_by('-year')[:10]
-        
+
         # Top journals by paper count
         top_journals = Journal.objects.annotate(
             paper_count=Count('searchindex')
         ).filter(paper_count__gt=0).order_by('-paper_count')[:10]
-        
+
         # Open access statistics
         open_access_count = SearchIndex.objects.filter(status='active', is_open_access=True).count()
         open_access_percentage = (open_access_count / total_papers * 100) if total_papers > 0 else 0
-        
+
         # Citation statistics
         citation_stats = SearchIndex.objects.filter(status='active').aggregate(
             total_citations=Count('citations_received'),
@@ -2917,12 +2935,12 @@ def api_research_analytics(request):
             max_citations=Max('citation_count'),
             min_citations=Min('citation_count')
         )
-        
+
         # Document type distribution
         doc_type_stats = SearchIndex.objects.filter(status='active').values('document_type').annotate(
             count=Count('id')
         ).order_by('-count')
-        
+
         analytics_data = {
             'overview': {
                 'total_papers': total_papers,
@@ -2964,13 +2982,13 @@ def api_research_analytics(request):
                 } for stat in doc_type_stats
             ]
         }
-        
+
         return JsonResponse({
             'status': 'success',
             'analytics': analytics_data,
             'generated_at': current_date.isoformat()
         })
-        
+
     except Exception as e:
         logger.error(f"Error getting research analytics: {e}")
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
@@ -2981,27 +2999,27 @@ def paper_annotations(request, paper_id):
     """Paper annotation interface."""
     try:
         paper = SearchIndex.objects.get(id=paper_id, status='active')
-        
+
         # Get user's annotations on this paper
         user_annotations = Annotation.objects.filter(
             paper=paper,
             user=request.user
         ).prefetch_related('tags', 'replies__user').order_by('-created_at')
-        
+
         # Get public/shared annotations
         public_annotations = Annotation.objects.filter(
             paper=paper,
             privacy_level='public'
         ).exclude(user=request.user).prefetch_related('tags', 'replies__user', 'user').order_by('-upvotes', '-created_at')[:10]
-        
+
         # Get collaboration groups user belongs to
         user_groups = CollaborationGroup.objects.filter(
             members=request.user
         ).order_by('name')
-        
+
         # Get available tags
         annotation_tags = AnnotationTag.objects.order_by('-usage_count', 'name')[:20]
-        
+
         context = {
             'paper': paper,
             'authors': get_paper_authors(paper),
@@ -3012,9 +3030,9 @@ def paper_annotations(request, paper_id):
             'annotation_types': Annotation.ANNOTATION_TYPE_CHOICES,
             'privacy_levels': Annotation.PRIVACY_CHOICES,
         }
-        
+
         return render(request, 'scholar_app/paper_annotations.html', context)
-        
+
     except SearchIndex.DoesNotExist:
         return render(request, 'scholar_app/paper_not_found.html', status=404)
     except Exception as e:
@@ -3028,10 +3046,10 @@ def api_paper_annotations(request, paper_id):
     """Get annotations for a specific paper."""
     try:
         paper = SearchIndex.objects.get(id=paper_id, status='active')
-        
+
         # Build base queryset
         annotations = Annotation.objects.filter(paper=paper)
-        
+
         # Filter by visibility
         privacy_filter = request.GET.get('privacy', 'all')
         if privacy_filter == 'mine':
@@ -3040,32 +3058,32 @@ def api_paper_annotations(request, paper_id):
             annotations = annotations.filter(privacy_level='public')
         elif privacy_filter == 'shared':
             annotations = annotations.filter(
-                Q(user=request.user) | 
+                Q(user=request.user) |
                 Q(privacy_level='public') |
                 Q(shared_with=request.user)
             )
         else:  # all
             annotations = annotations.filter(
-                Q(user=request.user) | 
+                Q(user=request.user) |
                 Q(privacy_level='public') |
                 Q(shared_with=request.user)
             )
-        
+
         # Filter by annotation type
         annotation_type = request.GET.get('type')
         if annotation_type:
             annotations = annotations.filter(annotation_type=annotation_type)
-        
+
         # Order by
         order_by = request.GET.get('order_by', '-created_at')
         if order_by in ['-created_at', 'created_at', '-upvotes', 'upvotes', 'page_number']:
             annotations = annotations.order_by(order_by)
-        
+
         # Get annotations with related data
         annotations = annotations.select_related('user').prefetch_related(
             'tags', 'replies__user', 'shared_with'
         )[:50]  # Limit to 50 annotations
-        
+
         annotations_data = []
         for annotation in annotations:
             annotations_data.append({
@@ -3091,7 +3109,7 @@ def api_paper_annotations(request, paper_id):
                 'created_at': annotation.created_at.isoformat(),
                 'updated_at': annotation.updated_at.isoformat(),
             })
-        
+
         return JsonResponse({
             'status': 'success',
             'annotations': annotations_data,
@@ -3099,7 +3117,7 @@ def api_paper_annotations(request, paper_id):
             'paper_id': str(paper.id),
             'paper_title': paper.title
         })
-        
+
     except SearchIndex.DoesNotExist:
         return JsonResponse({'status': 'error', 'message': 'Paper not found'}, status=404)
     except Exception as e:
@@ -3113,10 +3131,10 @@ def api_create_annotation(request):
     """Create a new annotation."""
     try:
         data = json.loads(request.body)
-        
+
         # Get the paper
         paper = SearchIndex.objects.get(id=data['paper_id'], status='active')
-        
+
         # Create annotation
         annotation = Annotation.objects.create(
             user=request.user,
@@ -3128,7 +3146,7 @@ def api_create_annotation(request):
             position_data=data.get('position_data', {}),
             privacy_level=data.get('privacy_level', 'private')
         )
-        
+
         # Add tags if provided
         if 'tags' in data and data['tags']:
             for tag_name in data['tags']:
@@ -3140,7 +3158,7 @@ def api_create_annotation(request):
                     tag.usage_count += 1
                     tag.save()
                 annotation.tags.add(tag)
-        
+
         return JsonResponse({
             'status': 'success',
             'annotation': {
@@ -3153,7 +3171,7 @@ def api_create_annotation(request):
             },
             'message': 'Annotation created successfully'
         })
-        
+
     except SearchIndex.DoesNotExist:
         return JsonResponse({'status': 'error', 'message': 'Paper not found'}, status=404)
     except json.JSONDecodeError:
@@ -3172,7 +3190,7 @@ def api_update_annotation(request, annotation_id):
     try:
         annotation = Annotation.objects.get(id=annotation_id, user=request.user)
         data = json.loads(request.body)
-        
+
         # Update fields
         if 'text_content' in data:
             annotation.text_content = data['text_content']
@@ -3182,9 +3200,9 @@ def api_update_annotation(request, annotation_id):
             annotation.privacy_level = data['privacy_level']
         if 'is_resolved' in data:
             annotation.is_resolved = data['is_resolved']
-        
+
         annotation.save()
-        
+
         # Update tags if provided
         if 'tags' in data:
             annotation.tags.clear()
@@ -3197,12 +3215,12 @@ def api_update_annotation(request, annotation_id):
                     tag.usage_count += 1
                     tag.save()
                 annotation.tags.add(tag)
-        
+
         return JsonResponse({
             'status': 'success',
             'message': 'Annotation updated successfully'
         })
-        
+
     except Annotation.DoesNotExist:
         return JsonResponse({'status': 'error', 'message': 'Annotation not found'}, status=404)
     except json.JSONDecodeError:
@@ -3220,12 +3238,12 @@ def api_delete_annotation(request, annotation_id):
         annotation = Annotation.objects.get(id=annotation_id, user=request.user)
         annotation_title = annotation.text_content[:50]
         annotation.delete()
-        
+
         return JsonResponse({
             'status': 'success',
             'message': f'Annotation "{annotation_title}" deleted successfully'
         })
-        
+
     except Annotation.DoesNotExist:
         return JsonResponse({'status': 'error', 'message': 'Annotation not found'}, status=404)
     except Exception as e:
@@ -3241,16 +3259,16 @@ def api_vote_annotation(request, annotation_id):
         annotation = Annotation.objects.get(id=annotation_id)
         data = json.loads(request.body)
         vote_type = data.get('vote_type')  # 'up' or 'down'
-        
+
         if vote_type not in ['up', 'down']:
             return JsonResponse({'status': 'error', 'message': 'Invalid vote type'}, status=400)
-        
+
         # Check if user already voted
         existing_vote = AnnotationVote.objects.filter(
             user=request.user,
             annotation=annotation
         ).first()
-        
+
         if existing_vote:
             if existing_vote.vote_type == vote_type:
                 # Remove vote if same type
@@ -3283,9 +3301,9 @@ def api_vote_annotation(request, annotation_id):
             else:
                 annotation.downvotes += 1
             action = 'added'
-        
+
         annotation.save()
-        
+
         return JsonResponse({
             'status': 'success',
             'action': action,
@@ -3294,7 +3312,7 @@ def api_vote_annotation(request, annotation_id):
             'downvotes': annotation.downvotes,
             'vote_score': annotation.get_vote_score()
         })
-        
+
     except Annotation.DoesNotExist:
         return JsonResponse({'status': 'error', 'message': 'Annotation not found'}, status=404)
     except json.JSONDecodeError:
@@ -3312,7 +3330,7 @@ def api_collaboration_groups(request):
         groups = CollaborationGroup.objects.filter(
             members=request.user
         ).prefetch_related('members').order_by('name')
-        
+
         groups_data = []
         for group in groups:
             membership = GroupMembership.objects.get(user=request.user, group=group)
@@ -3325,13 +3343,13 @@ def api_collaboration_groups(request):
                 'is_owner': group.owner == request.user,
                 'created_at': group.created_at.isoformat()
             })
-        
+
         return JsonResponse({
             'status': 'success',
             'groups': groups_data,
             'total_count': len(groups_data)
         })
-        
+
     except Exception as e:
         logger.error(f"Error getting collaboration groups: {e}")
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
@@ -3344,26 +3362,26 @@ def export_bulk_citations(request):
     try:
         from .utils import CitationExporter
         from django.http import HttpResponse
-        
+
         data = json.loads(request.body)
         paper_ids = data.get('paper_ids', [])
         export_format = data.get('format', 'bibtex')
         collection_name = data.get('collection_name', '')
-        
+
         if not paper_ids:
             return JsonResponse({'error': 'No papers selected for export'}, status=400)
-        
+
         # Get papers from user's library
         library_papers = UserLibrary.objects.filter(
             user=request.user,
             paper__id__in=paper_ids
         ).select_related('paper', 'paper__journal').prefetch_related('paper__authors')
-        
+
         papers = [lib_paper.paper for lib_paper in library_papers]
-        
+
         if not papers:
             return JsonResponse({'error': 'No papers found in your library'}, status=404)
-        
+
         # Generate export content based on format
         if export_format == 'bibtex':
             content = CitationExporter.to_bibtex(papers)
@@ -3383,13 +3401,13 @@ def export_bulk_citations(request):
             file_extension = 'csv'
         else:
             return JsonResponse({'error': 'Unsupported export format'}, status=400)
-        
+
         # Generate filename
         if collection_name:
             filename = f"{collection_name}_{export_format}.{file_extension}"
         else:
             filename = f"scitex_export_{len(papers)}_papers.{file_extension}"
-        
+
         # Log the export
         CitationExporter.log_export(
             user=request.user,
@@ -3397,12 +3415,12 @@ def export_bulk_citations(request):
             papers=papers,
             collection_name=collection_name
         )
-        
+
         # Return file download response
         response = HttpResponse(content, content_type=content_type)
         response['Content-Disposition'] = f'attachment; filename="{filename}"'
         return response
-        
+
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Invalid JSON data'}, status=400)
     except Exception as e:
@@ -3417,26 +3435,26 @@ def export_collection(request, collection_id):
     try:
         from .utils import CitationExporter
         from django.http import HttpResponse
-        
+
         export_format = request.GET.get('format', 'bibtex')
-        
+
         # Get collection
         try:
             collection = Collection.objects.get(id=collection_id, user=request.user)
         except Collection.DoesNotExist:
             return JsonResponse({'error': 'Collection not found'}, status=404)
-        
+
         # Get papers in the collection
         library_papers = UserLibrary.objects.filter(
             user=request.user,
             collections=collection
         ).select_related('paper', 'paper__journal').prefetch_related('paper__authors')
-        
+
         papers = [lib_paper.paper for lib_paper in library_papers]
-        
+
         if not papers:
             return JsonResponse({'error': 'No papers found in this collection'}, status=404)
-        
+
         # Generate export content based on format
         if export_format == 'bibtex':
             content = CitationExporter.to_bibtex(papers)
@@ -3456,11 +3474,11 @@ def export_collection(request, collection_id):
             file_extension = 'csv'
         else:
             return JsonResponse({'error': 'Unsupported export format'}, status=400)
-        
+
         # Generate filename
         safe_name = "".join(c for c in collection.name if c.isalnum() or c in (' ', '-', '_')).rstrip()
         filename = f"{safe_name}_{export_format}.{file_extension}"
-        
+
         # Log the export
         CitationExporter.log_export(
             user=request.user,
@@ -3468,12 +3486,12 @@ def export_collection(request, collection_id):
             papers=papers,
             collection_name=collection.name
         )
-        
+
         # Return file download response
         response = HttpResponse(content, content_type=content_type)
         response['Content-Disposition'] = f'attachment; filename="{filename}"'
         return response
-        
+
     except Exception as e:
         logger.error(f"Collection export error: {e}")
         return JsonResponse({'error': str(e)}, status=500)
@@ -3508,30 +3526,30 @@ def save_user_preferences(request):
     try:
         data = json.loads(request.body)
         preferences = UserPreference.get_or_create_for_user(request.user)
-        
+
         # Update specific preference fields
         if 'preferred_sources' in data:
             preferences.preferred_sources = data['preferred_sources']
-        
+
         if 'default_sort_by' in data:
             preferences.default_sort_by = data['default_sort_by']
-            
+
         if 'default_filters' in data:
             preferences.default_filters = data['default_filters']
-            
+
         if 'results_per_page' in data:
             preferences.results_per_page = data['results_per_page']
-            
+
         if 'show_abstracts' in data:
             preferences.show_abstracts = data['show_abstracts']
-        
+
         preferences.save()
-        
+
         return JsonResponse({
             'status': 'success',
             'message': 'Preferences saved successfully'
         })
-        
+
     except json.JSONDecodeError:
         return JsonResponse({'status': 'error', 'message': 'Invalid JSON'}, status=400)
     except Exception as e:
@@ -3546,13 +3564,13 @@ def save_source_preferences(request):
     try:
         data = json.loads(request.body)
         sources = data.get('sources', {})
-        
+
         if request.user.is_authenticated:
             # Save to database for logged in users
             preferences = UserPreference.get_or_create_for_user(request.user)
             preferences.preferred_sources = sources
             preferences.save()
-            
+
             return JsonResponse({
                 'status': 'success',
                 'message': 'Source preferences saved to profile',
@@ -3561,11 +3579,11 @@ def save_source_preferences(request):
         else:
             # For anonymous users, return success (they can use localStorage)
             return JsonResponse({
-                'status': 'success', 
+                'status': 'success',
                 'message': 'Source preferences noted (login to save permanently)',
                 'saved_to': 'session'
             })
-            
+
     except json.JSONDecodeError:
         return JsonResponse({'status': 'error', 'message': 'Invalid JSON'}, status=400)
     except Exception as e:
@@ -3578,25 +3596,25 @@ def save_source_preferences(request):
 def project_search(request, project_id):
     """Project-specific search interface with automatic paper saving."""
     from apps.project_app.models import Project
-    
+
     try:
         project = Project.objects.get(pk=project_id, owner=request.user)
     except Project.DoesNotExist:
         return render(request, 'scholar_app/error.html', {
             'error': 'Project not found or access denied.'
         })
-    
+
     # Use the existing simple_search functionality but with project context
     query = request.GET.get('q', '').strip()
-    
+
     if query:
         # Set project parameter for search context
         request.GET = request.GET.copy()
         request.GET['project'] = str(project_id)
-        
+
         # Call existing search function
         context = simple_search(request).context_data if hasattr(simple_search(request), 'context_data') else {}
-        
+
         # Add project context
         context.update({
             'project': project,
@@ -3604,9 +3622,9 @@ def project_search(request, project_id):
             'page_title': f'Scholar Search - {project.name}',
             'search_placeholder': f'Search papers for {project.name}...',
         })
-        
+
         return render(request, 'scholar_app/project_search.html', context)
-    
+
     # Display project search interface
     context = {
         'project': project,
@@ -3614,22 +3632,22 @@ def project_search(request, project_id):
         'page_title': f'Scholar Search - {project.name}',
         'search_placeholder': f'Search papers for {project.name}...',
     }
-    
+
     return render(request, 'scholar_app/project_search.html', context)
 
 
-@login_required 
+@login_required
 def project_library(request, project_id):
     """Project-specific paper library showing only papers saved to this project."""
     from apps.project_app.models import Project
-    
+
     try:
         project = Project.objects.get(pk=project_id, owner=request.user)
     except Project.DoesNotExist:
         return render(request, 'scholar_app/error.html', {
             'error': 'Project not found or access denied.'
         })
-    
+
     # Get papers saved to this project
     try:
         # Try to get papers associated with this project
@@ -3637,19 +3655,19 @@ def project_library(request, project_id):
             user=request.user,
             project__isnull=False
         ).select_related('paper').order_by('-saved_at')
-        
+
         # If the project field is still a CharField, filter by project name
         if hasattr(project_papers.first().project if project_papers.exists() else None, '__str__'):
             project_papers = project_papers.filter(project=project.name)
         else:
             # If it's a ForeignKey to project_app.Project
             project_papers = project_papers.filter(project=project)
-            
+
     except Exception as e:
         logger.warning(f"Project library query failed: {e}")
         # Fallback to all user papers
         project_papers = UserLibrary.objects.filter(user=request.user).select_related('paper').order_by('-saved_at')
-    
+
     # Get user's collections for this project
     try:
         user_collections = Collection.objects.filter(user=request.user)
@@ -3659,7 +3677,7 @@ def project_library(request, project_id):
             project_collections = user_collections
     except:
         project_collections = Collection.objects.filter(user=request.user)
-    
+
     context = {
         'project': project,
         'project_mode': True,
@@ -3668,5 +3686,7 @@ def project_library(request, project_id):
         'page_title': f'Library - {project.name}',
         'paper_count': project_papers.count(),
     }
-    
+
     return render(request, 'scholar_app/project_library.html', context)
+
+# EOF

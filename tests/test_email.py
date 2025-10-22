@@ -1,9 +1,19 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# Timestamp: "2025-10-22 06:53:31 (ywatanabe)"
+# File: /home/ywatanabe/proj/scitex-cloud/tests/test_email.py
+# ----------------------------------------
+from __future__ import annotations
+import os
+__FILE__ = (
+    "./tests/test_email.py"
+)
+__DIR__ = os.path.dirname(__FILE__)
+# ----------------------------------------
 """
 Test email configuration and send test email.
 """
 
-import os
 import sys
 import django
 
@@ -41,7 +51,14 @@ def send_test_email(recipient_email='ywata1989@gmail.com'):
     print()
 
     try:
-        html_message = """
+        # Get settings
+        email_host = settings.EMAIL_HOST
+        email_port = settings.EMAIL_PORT
+        from_email = settings.DEFAULT_FROM_EMAIL
+        use_tls = getattr(settings, 'EMAIL_USE_TLS', False)
+        protocol = "TLS" if use_tls else "SSL"
+
+        html_message = f"""
 <!DOCTYPE html>
 <html>
 <head>
@@ -62,9 +79,9 @@ def send_test_email(recipient_email='ywata1989@gmail.com'):
         <div style="margin: 20px 0;">
             <h3 style="color: #4a6baf;">Configuration tested:</h3>
             <ul>
-                <li>SMTP Server: mail1030.onamae.ne.jp</li>
-                <li>Port: 587 (TLS)</li>
-                <li>From: agent@scitex.ai</li>
+                <li>SMTP Server: {email_host}</li>
+                <li>Port: {email_port} ({protocol})</li>
+                <li>From: {from_email}</li>
             </ul>
         </div>
     </div>
@@ -77,15 +94,16 @@ def send_test_email(recipient_email='ywata1989@gmail.com'):
 </html>
 """
 
-        plain_message = '''
+
+        plain_message = f'''
 This is a test email to verify SMTP configuration is working correctly.
 
 If you receive this email, password reset and other email features will work!
 
 Configuration tested:
-- SMTP Server: mail1030.onamae.ne.jp
-- Port: 587 (TLS)
-- From: agent@scitex.ai
+- SMTP Server: {email_host}
+- Port: {email_port} ({protocol})
+- From: {from_email}
 
 Best regards,
 The SciTeX Team
@@ -122,3 +140,5 @@ if __name__ == '__main__':
     import sys
     recipient = sys.argv[1] if len(sys.argv) > 1 else 'ywata1989@gmail.com'
     send_test_email(recipient)
+
+# EOF

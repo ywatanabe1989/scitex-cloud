@@ -56,23 +56,23 @@ collect_static() {
 stop_existing() {
     # Kill existing Django processes
     lsof -ti:8000 | xargs kill -9 2>/dev/null || true
-    
+
     # Kill existing uwsgi processes
     pkill -f "uwsgi.*scitex" 2>/dev/null || true
-    
+
     # Remove PID file
     rm -f "$PID_FILE"
-    
+
     # Remove uwsgi socket
     rm -f "$APP_HOME/run/uwsgi.sock"
-    
+
     echo "Stopped existing processes"
 }
 
 # Start development server
 start_dev() {
     echo "Starting SciTeX-Cloud development server..."
-    
+
     if [[ "$1" == "daemon" ]]; then
         nohup $MANAGE_PY runserver 0.0.0.0:8000 > "$LOG_DIR/django.log" 2>&1 &
         echo $! > "$PID_FILE"
@@ -88,18 +88,18 @@ start_dev() {
 # Start production server with uwsgi
 start_prod() {
     echo "Starting SciTeX-Cloud production server..."
-    
+
     # Ensure nginx is configured
     if ! nginx -t 2>/dev/null; then
         echo "Warning: Nginx configuration not found or invalid"
         echo "Please configure nginx before running in production"
     fi
-    
+
     # Start uwsgi
     "$APP_HOME/env/bin/uwsgi" --ini "$APP_HOME/config/uwsgi.ini" \
         --daemonize "$LOG_DIR/uwsgi.log" \
         --pidfile "$PID_FILE"
-    
+
     echo "Production server started with uwsgi"
     echo "Logs: tail -f $LOG_DIR/uwsgi.log"
 }
@@ -126,23 +126,23 @@ main() {
 
     # Activate virtual environment
     source "$APP_HOME/env/bin/activate"
-    
+
     # Ensure permissions
     ensure_permissions
-    
+
     # Stop existing processes
     stop_existing
-    
+
     # Run migrations if requested
     if $do_migrate; then
         migrate
     fi
-    
+
     # Collect static files if requested
     if $do_collect_static; then
         collect_static
     fi
-    
+
     # Start appropriate server
     if $is_prod; then
         # In production, always migrate and collect static

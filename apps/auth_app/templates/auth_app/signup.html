@@ -10,6 +10,10 @@
   .benefits-list {
     margin-top: 3rem;
   }
+
+  .col-lg-5 h3 {
+    color: var(--text-800);
+  }
   
   .benefit-item {
     display: flex;
@@ -17,16 +21,24 @@
     margin-bottom: 1.5rem;
     align-items: flex-start;
   }
+
+  .benefit-item h4 {
+    color: var(--text-800);
+  }
+
+  .benefit-item p {
+    color: var(--text-700);
+  }
   
   .benefit-icon {
     font-size: 1.5rem;
-    color: #4a6baf;
+    color: var(--btn-primary-bg);
     width: 40px;
     height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: rgba(74, 107, 175, 0.1);
+    background-color: var(--bg-300);
     border-radius: 50%;
     flex-shrink: 0;
   }
@@ -161,7 +173,7 @@
             {% endif %}
           </div>
 
-          <div class="form-group mb-3">
+          <div class="form-group mb-2">
             <label for="{{ form.password2.id_for_label }}" class="form-label">Confirm Password <span class="text-danger">*</span></label>
             <div class="input-group">
               {{ form.password2 }}

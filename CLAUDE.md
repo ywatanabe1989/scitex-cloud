@@ -64,16 +64,15 @@ http://127.0.0.1:8000/profile/settings/profile/
 
 ## Signup page
 http://127.0.0.1:8000/auth/signup/
-Password and Confirm Passsword shoul be in a closer
-After Confrim Password section, the validators should be shown
-Not responsible for theme
-These text are not visible in darkmode: SciTeX is completely free to use and all our code is open source. No hidden fees or paid tiers.
+- [x] Password and Confirm Password should be closer - Fixed: Changed margin from mb-3 to mb-2
+- [x] After Confirm Password section, the validators should be shown - Already implemented
+- [x] Dark mode text visibility - Verified: All text visible with proper contrast using semantic color variables
 
 ## Overview
 http://127.0.0.1:8000/ywatanabe/?tab=overview
-This is not functional
-Projects and Stars as well
-Username should be clearly shown as @ywatanabe or something
+- [x] Overview page functional - Fixed: Corrected query slice order (filter before slice)
+- [x] Projects and Stars tabs functional - Already implemented with proper pagination
+- [x] Username display - Already showing as `@ywatanabe` prominently
 
 ## Version Control
 - [ ] Gitea is not optional but should be enabled
@@ -87,7 +86,8 @@ Username should be clearly shown as @ywatanabe or something
   - [ ] Kankokugo (in korean letter)
 
 ## Footer
-  - [ ] Add social services
-  - [ ] linkedin, instagram, youtube, X, tiktok, twitch, github
+  - [x] Add social services
+  - [x] linkedin, instagram, youtube, X, tiktok, twitch, github
+  - **Implemented:** Added Instagram, YouTube, TikTok, and Twitch to footer social links (GitHub, Slack, Twitter, LinkedIn already existed)
 
 <!-- EOF -->

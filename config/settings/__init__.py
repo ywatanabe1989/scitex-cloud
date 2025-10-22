@@ -13,9 +13,13 @@ Usage:
 
 import os
 import sys
+from scitex import logging
+logger = logging.getLogger(__name__)
 
 # Determine which settings to use
 env = os.environ.get('SCITEX_CLOUD_ENV', 'development').lower()
+
+logger.info(f"Loading: {__file__}...")
 
 if env == 'production':
     from .settings_prod import *
@@ -23,9 +27,5 @@ elif env == 'development':
     from .settings_dev import *
 else:
     # Fallback to development
-    print(f"Warning: Unknown SCITEX_CLOUD_ENV '{env}', defaulting to development")
+    print(f"    Warning: Unknown SCITEX_CLOUD_ENV '{env}', defaulting to development")
     from .settings_dev import *
-
-# Display which settings are loaded (only in development)
-if DEBUG:
-    print(f" SciTeX Cloud settings loaded: {env.upper()}")

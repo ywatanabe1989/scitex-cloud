@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-10-16 00:36:36 (ywatanabe)"
+# Timestamp: "2025-10-22 08:23:01 (ywatanabe)"
 # File: /home/ywatanabe/proj/scitex-cloud/config/settings/settings_shared.py
 # ----------------------------------------
 from __future__ import annotations
@@ -17,17 +17,73 @@ Base settings shared across all environments.
 """
 
 from pathlib import Path
+from datetime import timedelta
+from scitex import logging
+logger = logging.getLogger(__name__)
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
+# ---------------------------------------
+# Functions
+# ---------------------------------------
+def discover_local_apps():
+    """Discover all Django apps in the apps directory."""
+    apps_path = BASE_DIR / "apps"
+    local_apps = []
 
-# SciTeX Cloud Version
+    if apps_path.exists():
+        for item in sorted(apps_path.iterdir()):
+            if item.is_dir() and not item.name.startswith("_"):
+                # Check if it's a Django app (has apps.py or __init__.py)
+                if (item / "apps.py").exists() or (
+                    item / "__init__.py"
+                ).exists():
+                    app_name = f"apps.{item.name}"
+                    local_apps.append(app_name)
+
+    return local_apps
+
+
+# ---------------------------------------
+# Meatadata
+# ---------------------------------------
 SCITEX_VERSION = "0.1.0-alpha"
 
-# SECURITY WARNING: keep the secret key used in production secret!
+# ---------------------------------------
+# Paths
+# ---------------------------------------
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+ROOT_URLCONF = "config.urls"
+LOG_DIR = BASE_DIR / "logs"
+if not os.path.exists(LOG_DIR):
+    os.makedirs(LOG_DIR)
+
+# Static files (CSS, JavaScript, Images)
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+
+# Media files
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
+# ---------------------------------------
+# URL
+# ---------------------------------------
+# Authentication settings
+LOGIN_URL = "/auth/login/"
+LOGIN_REDIRECT_URL = "/core/"  # Redirects to dashboard
+LOGOUT_REDIRECT_URL = "/"
+
+
+# ---------------------------------------
+# Security
+# ---------------------------------------
 SECRET_KEY = os.getenv("SCITEX_DJANGO_SECRET_KEY")
 
-# Application definition
+# ---------------------------------------
+# Applications
+# ---------------------------------------
 DJANGO_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -44,22 +100,6 @@ THIRD_PARTY_APPS = [
     "channels",
 ]
 
-# Automatically discover and register all Django apps in ./apps/
-def discover_local_apps():
-    """Discover all Django apps in the apps directory."""
-    apps_path = BASE_DIR / 'apps'
-    local_apps = []
-
-    if apps_path.exists():
-        for item in sorted(apps_path.iterdir()):
-            if item.is_dir() and not item.name.startswith('_'):
-                # Check if it's a Django app (has apps.py or __init__.py)
-                if (item / 'apps.py').exists() or (item / '__init__.py').exists():
-                    app_name = f"apps.{item.name}"
-                    local_apps.append(app_name)
-
-    return local_apps
-
 LOCAL_APPS = discover_local_apps()
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -75,8 +115,11 @@ MIDDLEWARE = [
     "apps.core_app.middleware.GuestSessionMiddleware",
 ]
 
-ROOT_URLCONF = "config.urls"
+WSGI_APPLICATION = "config.wsgi.application"
 
+# ---------------------------------------
+# Templates
+# ---------------------------------------
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -97,9 +140,10 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "config.wsgi.application"
 
-# Database (fallback - should be overridden by dev/prod settings)
+# ---------------------------------------
+# Database - Fallback
+# ---------------------------------------
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
@@ -107,7 +151,6 @@ DATABASES = {
     }
 }
 
-# Cache Configuration
 # Cache Configuration - fallback to database if Redis not available
 REDIS_URL = os.getenv("REDIS_URL", "redis://127.0.0.1:6379/1")
 try:
@@ -139,7 +182,9 @@ except (ImportError, Exception):
 
 SESSION_COOKIE_AGE = 86400  # 24 hours
 
+# ---------------------------------------
 # Password validation
+# ---------------------------------------
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
@@ -155,17 +200,20 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# ---------------------------------------
 # Internationalization
+# ---------------------------------------
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
 
-# Email Configuration
-# Use scitex.ai domain email via mail1030.onamae.ne.jp
+# ---------------------------------------
+# Email
+# ---------------------------------------
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "mail1030.onamae.ne.jp"
-EMAIL_PORT = 587
+EMAIL_PORT = 587  # 587 is modern; use 465 only if 587 is blocked
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.environ.get(
     "SCITEX_SCHOLAR_FROM_EMAIL_ADDRESS", "agent@scitex.ai"
@@ -173,37 +221,6 @@ EMAIL_HOST_USER = os.environ.get(
 EMAIL_HOST_PASSWORD = os.environ.get("SCITEX_SCHOLAR_FROM_EMAIL_PASSWORD", "")
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 SERVER_EMAIL = EMAIL_HOST_USER
-
-# Static files (CSS, JavaScript, Images)
-STATIC_URL = "/static/"
-STATIC_ROOT = BASE_DIR / "staticfiles"
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-]
-
-# Media files
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
-
-# # SciTeX External Components
-# SCITEX_EXTERNALS_PATH = str(BASE_DIR / "externals")
-# SCITEX_WRITER_TEMPLATE_PATH = str(BASE_DIR / "externals" / "SciTeX-Writer")
-# SCITEX_CODE_PATH = str(BASE_DIR / "externals" / "SciTeX-Code")
-# SCITEX_VIZ_PATH = str(BASE_DIR / "externals" / "SciTeX-Viz")
-# SCITEX_SCHOLAR_PATH = str(BASE_DIR / "externals" / "SciTeX-Scholar")
-# SCITEX_ENGINE_PATH = str(BASE_DIR / "externals" / "SciTeX-Engine")
-# SCITEX_EXAMPLE_PROJECT_PATH = str(
-#     BASE_DIR / "externals" / "SciTeX-Example-Research-Project"
-# )
-
-# # SciTeX Component Integration Status
-# SCITEX_COMPONENTS = {
-#     "writer": {"path": SCITEX_WRITER_TEMPLATE_PATH, "status": "active"},
-#     "code": {"path": SCITEX_CODE_PATH, "status": "ready"},
-#     "viz": {"path": SCITEX_VIZ_PATH, "status": "ready"},
-#     "engine": {"path": SCITEX_ENGINE_PATH, "status": "planned"},
-#     "example": {"path": SCITEX_EXAMPLE_PROJECT_PATH, "status": "template"},
-# }
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
@@ -234,8 +251,9 @@ except (ImportError, Exception):
         "default": {"BACKEND": "channels.layers.InMemoryChannelLayer"},
     }
 
-# Base logging configuration (shared between environments)
-# More specific configurations in development.py and production.py
+# ---------------------------------------
+# Logging
+# ---------------------------------------
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -312,18 +330,19 @@ LOGGING = {
     },
 }
 
-# Authentication settings
-LOGIN_URL = "/auth/login/"
-LOGIN_REDIRECT_URL = "/core/"  # Redirects to dashboard
-LOGOUT_REDIRECT_URL = "/"
+# ---------------------------------------
+# Integration
+# ---------------------------------------
+# ORCID OAuth
+ORCID_CLIENT_ID = os.getenv("ORCID_CLIENT_ID", "")
+ORCID_CLIENT_SECRET = os.getenv("ORCID_CLIENT_SECRET", "")
+ORCID_REDIRECT_URI = os.getenv(
+    "ORCID_REDIRECT_URI", "http://localhost:8000/integrations/orcid/callback/"
+)
 
-# Integration settings
-# ORCID OAuth Configuration
-ORCID_CLIENT_ID = os.getenv('ORCID_CLIENT_ID', '')
-ORCID_CLIENT_SECRET = os.getenv('ORCID_CLIENT_SECRET', '')
-ORCID_REDIRECT_URI = os.getenv('ORCID_REDIRECT_URI', 'http://localhost:8000/integrations/orcid/callback/')
-
-# REST Framework configuration
+# ---------------------------------------
+# REST Framework
+# ---------------------------------------
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.SessionAuthentication",
@@ -340,9 +359,9 @@ REST_FRAMEWORK = {
     ],
 }
 
+# ---------------------------------------
 # JWT Settings
-from datetime import timedelta
-
+# ---------------------------------------
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),

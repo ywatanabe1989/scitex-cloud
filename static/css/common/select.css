@@ -1,0 +1,201 @@
+/*
+ * @component Select Dropdown
+ * @description Styled select dropdown for form selections with custom arrow indicator
+ * @category Form and Selection
+ * @file /static/css/common/select.css
+ * @darkmode true
+ *
+ * @variant form-select - Styled select dropdown
+ * @variant form-select-sm - Small select dropdown
+ * @variant form-select-lg - Large select dropdown
+ *
+ * @state default - Normal interactive state
+ * @state focus - Highlighted border when focused
+ * @state disabled - Non-interactive disabled state
+ * @state valid - Valid state with green border
+ * @state invalid - Invalid state with red border
+ *
+ * @example
+ * <div class="form-group">
+ *   <label class="form-label" for="country">Country</label>
+ *   <select id="country" class="form-select">
+ *     <option value="">Select a country...</option>
+ *     <option value="us">United States</option>
+ *     <option value="uk">United Kingdom</option>
+ *     <option value="ca">Canada</option>
+ *   </select>
+ * </div>
+ *
+ * @example
+ * <div class="form-group">
+ *   <label class="form-label" for="category">Category</label>
+ *   <select id="category" class="form-select form-select-sm">
+ *     <option value="">Choose...</option>
+ *     <option value="tech">Technology</option>
+ *     <option value="science">Science</option>
+ *     <option value="health">Health</option>
+ *   </select>
+ * </div>
+ *
+ * @example
+ * <div class="form-group">
+ *   <label class="form-label" for="status">Status</label>
+ *   <select id="status" class="form-select is-valid">
+ *     <option value="active" selected>Active</option>
+ *     <option value="inactive">Inactive</option>
+ *     <option value="pending">Pending</option>
+ *   </select>
+ *   <div class="valid-feedback">Status updated successfully!</div>
+ * </div>
+ */
+
+/* =========================
+   Base Select Styles
+   ========================= */
+
+.form-select {
+  display: block;
+  width: 100%;
+  padding: 0.75rem 2.5rem 0.75rem 0.75rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--text-900);
+  background-color: var(--bg-100);
+  background-clip: padding-box;
+  border: 2px solid var(--border-400);
+  border-radius: var(--border-radius);
+  transition: border-color var(--transition-normal), box-shadow var(--transition-normal);
+  appearance: none;
+  cursor: pointer;
+
+  /* Custom dropdown arrow */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236c757d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 16px 12px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.form-select:focus {
+  border-color: var(--btn-primary-bg);
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(74, 107, 175, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.form-select:disabled {
+  background-color: var(--bg-200);
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* =========================
+   Dark Mode
+   ========================= */
+
+[data-theme="dark"] .form-select {
+  color: var(--scitex-color-06);
+  background-color: var(--scitex-color-01-light);
+  border-color: var(--scitex-color-04);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238fa4b0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+}
+
+[data-theme="dark"] .form-select:focus {
+  border-color: var(--scitex-color-05);
+  box-shadow: 0 0 0 3px rgba(108, 139, 160, 0.2), 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .form-select:disabled {
+  background-color: var(--scitex-color-01);
+  color: var(--scitex-color-04);
+  opacity: 0.6;
+}
+
+/* =========================
+   Size Variants
+   ========================= */
+
+.form-select-sm {
+  padding: 0.25rem 2rem 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  border-radius: calc(var(--border-radius) * 0.75);
+}
+
+.form-select-lg {
+  padding: 0.5rem 3rem 0.5rem 1rem;
+  font-size: 1.25rem;
+  line-height: 1.5;
+  border-radius: calc(var(--border-radius) * 1.25);
+}
+
+/* =========================
+   Validation States
+   ========================= */
+
+/* Valid state */
+.form-select.is-valid,
+.was-validated .form-select:valid {
+  border-color: var(--success-color);
+}
+
+/* Invalid state */
+.form-select.is-invalid,
+.was-validated .form-select:invalid {
+  border-color: var(--error-color);
+}
+
+/* Warning state */
+.form-select.is-warning {
+  border-color: var(--warning-color);
+}
+
+/* =========================
+   Multiple Select
+   ========================= */
+
+.form-select[multiple] {
+  padding-right: 0.75rem;
+  background-image: none;
+  height: auto;
+  min-height: calc(1.5em + 1.5rem + 4px);
+}
+
+.form-select[multiple] option {
+  padding: 0.5rem 0.75rem;
+}
+
+/* =========================
+   Option Groups
+   ========================= */
+
+.form-select optgroup {
+  font-weight: 600;
+  color: var(--text-800);
+}
+
+[data-theme="dark"] .form-select optgroup {
+  color: var(--scitex-color-06);
+}
+
+.form-select option {
+  padding: 0.5rem 0.75rem;
+}
+
+/* =========================
+   Responsive Design
+   ========================= */
+
+@media (max-width: 768px) {
+  .form-select {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+
+  .form-select-sm {
+    font-size: 14px;
+  }
+
+  .form-select-lg {
+    font-size: 18px;
+  }
+}

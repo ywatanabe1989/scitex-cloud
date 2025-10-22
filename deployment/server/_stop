@@ -48,3 +48,31 @@ fi
 echo
 echo "Recent error logs (if any):"
 tail -n 5 "$LOG_DIR/django.log" 2>/dev/null | grep -i error || echo "No recent errors"
+
+# #!/bin/bash
+
+# stop_processes() {
+#     rm /home/ywatanabe/proj/airight/uwsgi.sock -f 1&>2 /dev/null
+#     sudo pkill -f uwsgi -9 1&>2 /dev/null
+#     sudo pkill -f daphne -9 1&>2 /dev/null
+#     lsof -ti:8000 | xargs kill -9 1&>2 /dev/null
+#     echo "All processes stopped."
+# }
+
+# stop_processes
+
+# # # Remove the uWSGI socket
+# # rm /home/ywatanabe/proj/aiielts/uwsgi.sock -f > /dev/null
+
+# # # Kill any running uwsgi processes
+# # sudo pkill -f uwsgi -9 > /dev/null
+
+# # # Kill any running daphne processes
+# # sudo pkill -f daphne -9 > /dev/null
+
+# # # Kill runserver
+# # lsof -ti:8000 | xargs kill -9 > /dev/null
+
+# # echo "All processes stopped."
+
+# # ## EOF

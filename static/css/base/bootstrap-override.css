@@ -1,8 +1,14 @@
 /* Bootstrap Override - Ensure our container width is respected */
 
-/* Override Bootstrap's default text color to use SciTeX 800 */
+/* Override Bootstrap's default text and background colors */
 body {
-  color: var(--text-color) !important; /* SciTeX 800 */
+  color: var(--text-800) !important; /* Dark text for light mode */
+  background-color: var(--bg-100) !important; /* White background for light mode */
+}
+
+[data-theme="dark"] body {
+  color: var(--text-100) !important; /* Light text for dark mode */
+  background-color: var(--bg-900) !important; /* Dark background for dark mode */
 }
 
 /* Override Bootstrap's container max-width at all breakpoints */
