@@ -65,4 +65,23 @@ export SCITEX_LOGGING_LEVEL=info  # debug, info, warning, error
 # ----------------------------------------
 export SCITEX_CLOUD_ALLOWED_HOSTS="scitex.ai,www.scitex.ai,localhost"
 
+# ----------------------------------------
+# SciTeX Scholar Search Configuration
+# ----------------------------------------
+# Enable/disable search result caching (default: True)
+export SCITEX_USE_CACHE=True
+
+# Maximum parallel workers for search (default: 5, dev: 3, prod: 8)
+export SCITEX_MAX_WORKERS=5
+
+# Timeout per engine in seconds (default: 30)
+export SCITEX_TIMEOUT_PER_ENGINE=30
+
+# Comma-separated list of search engines to use
+# Available: CrossRef, PubMed, Semantic_Scholar, arXiv, OpenAlex
+export SCITEX_ENGINES="CrossRef,PubMed,Semantic_Scholar,arXiv,OpenAlex"
+
+# Default search mode: "parallel" (faster) or "single" (safer for rate limits)
+export SCITEX_DEFAULT_MODE=parallel
+
 # EOF

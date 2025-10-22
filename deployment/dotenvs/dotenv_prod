@@ -45,4 +45,13 @@ export SCITEX_CLOUD_GITEA_URL_PROD="https://git.scitex.ai"
 export SCITEX_CLOUD_GITEA_API_URL_PROD="https://git.scitex.ai/api/v1"
 export SCITEX_CLOUD_GITEA_TOKEN_PROD="${SCITEX_CLOUD_GITEA_TOKEN_PROD:-}"  # Set after Gitea setup
 
+# ----------------------------------------
+# SciTeX Scholar Search - Production
+# ----------------------------------------
+export SCITEX_USE_CACHE=True
+export SCITEX_MAX_WORKERS=8  # Higher for production (more throughput)
+export SCITEX_TIMEOUT_PER_ENGINE=30  # Standard timeout
+export SCITEX_ENGINES="CrossRef,PubMed,Semantic_Scholar,arXiv,OpenAlex"  # All engines
+export SCITEX_DEFAULT_MODE=parallel  # Parallel mode for speed
+
 # EOF
