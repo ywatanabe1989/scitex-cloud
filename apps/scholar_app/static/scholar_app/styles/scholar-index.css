@@ -1038,3 +1038,35 @@ a.disabled {
     font-weight: 600;
     padding: 0.5rem 0.75rem;
 }
+
+/* Enhanced Search Button Styling */
+.search-btn {
+    border: 1px solid var(--color-border-default) !important;
+    background: var(--color-canvas-default);
+    color: var(--color-fg-default);
+    padding: 0.5rem 1rem;
+    transition: all 0.2s ease;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.search-btn:hover {
+    border-color: var(--scitex-color-03);
+    background: var(--color-canvas-subtle);
+    color: var(--scitex-color-03);
+    cursor: pointer;
+}
+
+.search-btn:active {
+    background: var(--color-canvas-default);
+    border-color: var(--scitex-color-02);
+}
+
+/* Ensure search input and button heights match */
+.input-group-lg .form-control,
+.input-group-lg .search-btn {
+    height: auto;
+    min-height: 2.5rem;
+}
