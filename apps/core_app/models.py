@@ -34,17 +34,21 @@ from apps.profile_app.models import JAPANESE_ACADEMIC_DOMAINS, is_japanese_acade
 
 class Organization(models.Model):
     """
-    DEPRECATED: Use apps.project_app.models.Organization instead.
+    DEPRECATED: Use apps.organizations_app.models.Organization instead.
     This model is duplicated and will be removed in the next version.
 
     Model for research organizations
     """
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
-    members = models.ManyToManyField(User, through='OrganizationMembership')
+    members = models.ManyToManyField(User, through='OrganizationMembership', related_name='core_app_organizations')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+
+    class Meta:
+        managed = False
+        db_table = 'organizations_app_organization'
+
     def __str__(self):
         return self.name
 
