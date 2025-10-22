@@ -84,6 +84,26 @@ def bibtex_upload(request):
         messages.error(request, 'Please upload a .bib file.')
         return redirect('scholar_app:bibtex_enrichment')
 
+    # Clean up stale jobs first (jobs stuck for >10 minutes)
+    if request.user.is_authenticated:
+        stale_jobs = BibTeXEnrichmentJob.objects.filter(
+            user=request.user,
+            status__in=['pending', 'processing']
+        )
+    else:
+        stale_jobs = BibTeXEnrichmentJob.objects.filter(
+            session_key=request.session.session_key,
+            status__in=['pending', 'processing']
+        ) if request.session.session_key else BibTeXEnrichmentJob.objects.none()
+
+    for stale_job in stale_jobs:
+        if stale_job.is_stale():
+            stale_job.status = 'failed'
+            stale_job.error_message = 'Job timed out or became unresponsive'
+            stale_job.completed_at = timezone.now()
+            stale_job.processing_log += '\n\n✗ Job automatically cancelled (timeout/stale)'
+            stale_job.save(update_fields=['status', 'error_message', 'completed_at', 'processing_log'])
+
     # Check if user already has an active or pending job (one job at a time)
     if request.user.is_authenticated:
         existing_active_job = BibTeXEnrichmentJob.objects.filter(
@@ -273,8 +293,20 @@ def _process_bibtex_job(job):
     """
     import shutil
     import logging
+    import threading
 
     logger = logging.getLogger(__name__)
+
+    # Create a cancellation flag that can be checked
+    cancellation_flag = {'cancelled': False}
+
+    def check_cancellation():
+        """Check if job should be cancelled (either by user or timeout)."""
+        job.refresh_from_db()
+        if job.status == 'cancelled':
+            cancellation_flag['cancelled'] = True
+            return True
+        return False
 
     def progress_callback(current: int, total: int, info: dict):
         """Callback to capture and store progress messages in real-time.
@@ -362,7 +394,14 @@ def _process_bibtex_job(job):
         try:
             enriched_papers = asyncio.run(enrich_with_timeout())
         except asyncio.TimeoutError:
-            raise Exception("Enrichment process timed out after 10 minutes. Please try with fewer papers or contact support.")
+            # Mark job as failed due to timeout
+            job.status = 'failed'
+            job.error_message = 'Enrichment process timed out after 10 minutes. Please try with fewer papers or contact support.'
+            job.completed_at = timezone.now()
+            job.processing_log += f"\n\n✗ TIMEOUT: Job exceeded 10-minute limit"
+            job.save(update_fields=['status', 'error_message', 'completed_at', 'processing_log'])
+            logger.error(f"BibTeX job {job.id} timed out after 10 minutes")
+            return  # Exit the function without raising exception
 
         # Create output path with format: originalname-enriched-by-scitex_timestamp.bib
         # Use stored original filename (without .bib extension)
@@ -650,11 +689,13 @@ def bibtex_cancel_job(request, job_id):
         }, status=400)
 
     # Mark job as cancelled
-    job.status = 'failed'
+    job.status = 'cancelled'
     job.error_message = 'Cancelled by user'
     job.completed_at = timezone.now()
     job.processing_log += '\n\n✗ Job cancelled by user'
     job.save(update_fields=['status', 'error_message', 'completed_at', 'processing_log'])
+
+    # Note: The background thread will check job.status and stop processing
 
     return JsonResponse({
         'success': True,

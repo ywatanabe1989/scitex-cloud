@@ -1411,3 +1411,22 @@ class BibTeXEnrichmentJob(models.Model):
             return f"{int(duration / 60)} minutes"
         else:
             return f"{duration / 3600:.1f} hours"
+
+    def is_stale(self):
+        """Check if job has been running too long (>10 minutes) or stuck in pending."""
+        if self.status not in ['pending', 'processing']:
+            return False
+
+        # If processing and started more than 10 minutes ago
+        if self.status == 'processing' and self.started_at:
+            duration = (timezone.now() - self.started_at).total_seconds()
+            if duration > 600:  # 10 minutes
+                return True
+
+        # If pending for more than 5 minutes (something went wrong)
+        if self.status == 'pending':
+            duration = (timezone.now() - self.created_at).total_seconds()
+            if duration > 300:  # 5 minutes
+                return True
+
+        return False
