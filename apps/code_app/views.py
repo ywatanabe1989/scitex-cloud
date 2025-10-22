@@ -40,12 +40,16 @@ def pricing(request):
 @login_required
 def editor(request):
     """SciTeX Code editor interface."""
-    # Get user's recent jobs for sidebar
-    recent_jobs = CodeExecutionJob.objects.filter(user=request.user)[:5]
-    
+    # Get user's recent jobs for sidebar with optimizations
+    recent_jobs = CodeExecutionJob.objects.filter(
+        user=request.user
+    ).select_related('user').order_by('-created_at')[:5]
+
     context = {
         'recent_jobs': recent_jobs,
-        'user_notebooks': Notebook.objects.filter(user=request.user)[:5]
+        'user_notebooks': Notebook.objects.filter(
+            user=request.user
+        ).select_related('user').order_by('-updated_at')[:5]
     }
     return render(request, 'code_app/editor.html', context)
 
