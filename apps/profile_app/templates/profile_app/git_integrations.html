@@ -176,11 +176,36 @@
                     </div>
                 </div>
 
+                <div class="form-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Git Hosting Profiles</h2>
+                        <p class="section-subtitle">Your public profile usernames on different Git platforms</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="github_profile">GitHub Username</label>
+                        <input type="text" id="github_profile" name="github_profile" value="{{ profile.github_profile }}" placeholder="username">
+                        <p class="form-help">Your GitHub profile: github.com/<span id="github-preview">{{ profile.github_profile|default:"username" }}</span></p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gitlab_profile">GitLab Username</label>
+                        <input type="text" id="gitlab_profile" name="gitlab_profile" value="{{ profile.gitlab_profile }}" placeholder="username">
+                        <p class="form-help">Your GitLab profile: gitlab.com/<span id="gitlab-preview">{{ profile.gitlab_profile|default:"username" }}</span></p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="bitbucket_profile">Bitbucket Username</label>
+                        <input type="text" id="bitbucket_profile" name="bitbucket_profile" value="{{ profile.bitbucket_profile }}" placeholder="username">
+                        <p class="form-help">Your Bitbucket profile: bitbucket.org/<span id="bitbucket-preview">{{ profile.bitbucket_profile|default:"username" }}</span></p>
+                    </div>
+                </div>
+
                 <!-- Actions -->
                 <div class="form-actions">
                     <button type="submit" class="btn-save">
                         <i class="fas fa-check"></i>
-                        Save tokens
+                        Save changes
                     </button>
                     <a href="{% url 'profile_app:profile_edit' %}" class="btn-cancel">Cancel</a>
                 </div>

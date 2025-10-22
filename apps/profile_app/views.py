@@ -33,16 +33,12 @@ def profile_edit(request):
         # Update profile info
         profile.bio = request.POST.get('bio', '').strip()
         profile.location = request.POST.get('location', '').strip()
+        profile.timezone = request.POST.get('timezone', '').strip() or 'UTC'
         profile.institution = request.POST.get('institution', '').strip()
         profile.website = request.POST.get('website', '').strip()
         profile.orcid = request.POST.get('orcid', '').strip()
         profile.google_scholar = request.POST.get('google_scholar', '').strip()
         profile.twitter = request.POST.get('twitter', '').strip()
-
-        # Git hosting profiles
-        profile.github_profile = request.POST.get('github_profile', '').strip()
-        profile.gitlab_profile = request.POST.get('gitlab_profile', '').strip()
-        profile.bitbucket_profile = request.POST.get('bitbucket_profile', '').strip()
 
         # Handle avatar upload
         if 'avatar' in request.FILES:
@@ -207,6 +203,11 @@ def git_integrations(request):
             profile.gitlab_token = gitlab_token
         if bitbucket_token:
             profile.bitbucket_token = bitbucket_token
+
+        # Update Git hosting profiles (public usernames)
+        profile.github_profile = request.POST.get('github_profile', '').strip()
+        profile.gitlab_profile = request.POST.get('gitlab_profile', '').strip()
+        profile.bitbucket_profile = request.POST.get('bitbucket_profile', '').strip()
 
         profile.save()
         messages.success(request, 'Git platform integrations updated successfully!')

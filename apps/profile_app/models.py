@@ -50,6 +50,7 @@ class UserProfile(models.Model):
     avatar = models.ImageField(upload_to='avatars/', blank=True, null=True, help_text="Profile picture")
     bio = models.TextField(max_length=500, blank=True, help_text="Brief description of your research background")
     location = models.CharField(max_length=200, blank=True, help_text="Your current location (e.g., 'Tokyo, Japan')")
+    timezone = models.CharField(max_length=100, blank=True, default='UTC', help_text="Your timezone (e.g., 'Asia/Tokyo')")
     institution = models.CharField(max_length=200, blank=True, help_text="Your current institution")
     research_interests = models.TextField(max_length=500, blank=True, help_text="Your research areas and interests")
     website = models.URLField(blank=True, help_text="Your personal or professional website")
