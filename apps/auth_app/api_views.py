@@ -13,7 +13,7 @@ import json
 import logging
 
 from .models import EmailVerification
-from apps.core_app.services import EmailService
+from apps.core_app.email_service import EmailService
 
 logger = logging.getLogger(__name__)
 
