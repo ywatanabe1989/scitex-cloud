@@ -9,35 +9,11 @@ import uuid
 # Import here for backwards compatibility
 from apps.sustainability_app.models import Donation, DonationTier  # noqa
 
-class EmailVerification(models.Model):
-    """Model for storing email verification codes."""
-    email = models.EmailField()
-    code = models.CharField(max_length=6)
-    created_at = models.DateTimeField(auto_now_add=True)
-    is_verified = models.BooleanField(default=False)
-    
-    class Meta:
-        ordering = ['-created_at']
-    
-    def save(self, *args, **kwargs):
-        if not self.code:
-            self.code = self.generate_code()
-        super().save(*args, **kwargs)
-    
-    def is_expired(self):
-        """Check if code is expired (15 minutes validity)."""
-        return timezone.now() > self.created_at + timezone.timedelta(minutes=15)
-    
-    @classmethod
-    def generate_code(cls):
-        """Generate a 6-digit verification code."""
-        return ''.join(random.choices(string.digits, k=6))
-    
-    def __str__(self):
-        return f"{self.email} - {self.code}"
+# EmailVerification model moved to apps.auth_app.models
+# Import here for backwards compatibility
+from apps.auth_app.models import EmailVerification  # noqa
 
-
-# Donation and DonationTier model definitions moved to apps.sustainability_app.models
+# EmailVerification, Donation and DonationTier model definitions moved to their respective apps
 # Import statements at top of file provide backwards compatibility
 
 # Models for SciTeX-Cloud services
