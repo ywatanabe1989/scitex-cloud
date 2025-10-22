@@ -43,9 +43,12 @@ pw: REDACTED
 no need for this page: http://127.0.0.1:8000/ywatanabe/django-gitea-demo/?mode=scholar
 instead, redirect to /scholar/ as well, filling the page to the latest project
 
-### Open All URLS functionality
-When bibtex updated or after enrichment try to open new URLs from doi and URL fields
-when doi is available we should prioritize doi, adding https://doi.org/ as prefix
-By opening all by new tabs, users can effectively download PDF files (and if possible to our designated directory with naming)
+### Open All URLS functionality ✅
+- [x] When bibtex updated or after enrichment try to open new URLs from doi and URL fields
+- [x] when doi is available we should prioritize doi, adding https://doi.org/ as prefix
+- [x] By opening all by new tabs, users can effectively download PDF files
+- **Implemented:** Added "Open All URLs" button with dynamic count display
+- **Features:** Confirmation dialog, staggered tab opening (100ms delay), error handling
+- **API:** `/scholar/api/bibtex/job/<id>/urls/` endpoint extracts and returns URLs/DOIs
 
 <!-- EOF -->
