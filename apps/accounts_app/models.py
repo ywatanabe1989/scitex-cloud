@@ -159,6 +159,11 @@ class UserProfile(models.Model):
         """Get total number of projects owned by the user"""
         return self.user.owned_projects.count()
 
+    def get_user_projects(self):
+        """Get all projects owned by the user, ordered by last activity"""
+        from apps.project_app.models import Project
+        return Project.objects.filter(owner=self.user).order_by('-updated_at')
+
     @property
     def total_collaborations(self):
         """Get total number of collaborations"""

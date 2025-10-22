@@ -334,25 +334,6 @@
 {% endblock %}
 
 {% block content %}
-<!-- Project Selector Header (for logged-in users) -->
-{% if user.is_authenticated and user_projects %}
-<div class="container u-mt-2 u-mb-2" style="border-bottom: 1px solid var(--color-border-default); padding-bottom: 1rem;">
-  <div style="display: flex; align-items: center; justify-content: space-between; max-width: 1200px; margin: 0 auto;">
-    <div>
-      <label for="project-selector" style="font-size: 0.875rem; font-weight: 600; color: var(--color-fg-muted); margin-right: 0.5rem;">Save to Project:</label>
-    </div>
-    <div style="min-width: 280px;">
-      <select id="project-selector" name="selected_project" style="width: 100%; padding: 0.5rem 0.75rem; border: 1px solid var(--color-border-default); border-radius: 6px; background-color: var(--color-canvas-default); color: var(--color-fg-default); font-size: 0.9rem; cursor: pointer;">
-        <option value="">-- No project selected --</option>
-        {% for proj in user_projects %}
-        <option value="{{ proj.id }}" {% if project == proj.slug %}selected{% endif %}>{{ proj.name }}</option>
-        {% endfor %}
-      </select>
-    </div>
-  </div>
-</div>
-{% endif %}
-
 <!-- Vertical Tab Layout -->
 <div class="container u-mt-2 u-mb-3">
   <div class="vertical-tab-container">
