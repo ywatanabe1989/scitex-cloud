@@ -1,8 +1,9 @@
 <!-- ---
-!-- Timestamp: 2025-10-23 03:17:14
+!-- Timestamp: 2025-10-23 03:23:49
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/CLAUDE.md
 !-- --- -->
+
 
 See `./docs/SciTeX-Ecosystem-and-Corresponding-Local-Directories.md` as well
 
@@ -28,13 +29,9 @@ Do not place any files under project root directory
 ## Design Theme of the website
 See /dev/design/
 
-## Playwright Automation
-Always show what you are thinking as one line of popup
-
 ## Current Urgent Requests
-
-## Colors
-
-## Design page
+- [ ] Refactor structures of apps
+  - Use git effectively
+  - Work collaborately with other agents using ./project_management/BULLETIN_BOARD.md
 
 <!-- EOF -->
