@@ -33,7 +33,7 @@ def reset_database():
     
     # 2. Remove migration files (keep __init__.py)
     apps_to_reset = [
-        'apps/core_app/migrations',
+        'apps/workspace_app/migrations',
         'apps/cloud_app/migrations', 
         'apps/scholar/migrations',
         'apps/writer_app/migrations',
@@ -62,7 +62,7 @@ def reset_database():
     # 5. Create superuser
     print("  ✓ Creating superuser account...")
     from django.contrib.auth.models import User
-    from apps.core_app.models import UserProfile
+    from apps.workspace_app.models import UserProfile
     
     # Create superuser
     if not User.objects.filter(username='admin').exists():
@@ -101,7 +101,7 @@ def reset_database():
 def create_sample_data():
     """Create sample organizations, groups, and projects for testing"""
     from django.contrib.auth.models import User
-    from apps.core_app.models import Organization, ResearchGroup, Project, ProjectMembership
+    from apps.workspace_app.models import Organization, ResearchGroup, Project, ProjectMembership
     
     # Create sample organization
     org, created = Organization.objects.get_or_create(
@@ -164,7 +164,7 @@ def create_sample_data():
         
         # Add group members
         if created_users.get('postdoc'):
-            from apps.core_app.models import ResearchGroupMembership
+            from apps.workspace_app.models import ResearchGroupMembership
             ResearchGroupMembership.objects.get_or_create(
                 user=created_users['postdoc'],
                 group=group,
@@ -176,7 +176,7 @@ def create_sample_data():
             )
         
         if created_users.get('phd'):
-            from apps.core_app.models import ResearchGroupMembership
+            from apps.workspace_app.models import ResearchGroupMembership
             ResearchGroupMembership.objects.get_or_create(
                 user=created_users['phd'],
                 group=group,
@@ -240,4 +240,3 @@ def create_sample_data():
 
 
 if __name__ == '__main__':
-    reset_database()

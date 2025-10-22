@@ -461,7 +461,7 @@ pip list | grep scitex-scholar
 ## Related Documentation
 
 - **Django-Gitea Architecture**: `docs/DJANGO_GITEA_ARCHITECTURE.md`
-- **Git Operations**: `apps/core_app/git_operations.py`
+- **Git Operations**: `apps/workspace_app/git_operations.py`
 - **Scholar Pipeline**: External package `scitex.scholar`
 
 ---

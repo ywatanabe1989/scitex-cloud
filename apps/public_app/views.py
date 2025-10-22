@@ -547,7 +547,7 @@ def signup(request):
                 request,
                 "Welcome to SciTeX! Your account has been created successfully.",
             )
-            return redirect("core_app:dashboard")
+            return redirect("workspace_app:dashboard")
     else:
         form = SignupForm()
 

@@ -106,7 +106,7 @@ All automatically available at:
 To add integrations to your main navigation, edit your base template:
 
 ```django
-<!-- In templates/core_app/base.html or similar -->
+<!-- In templates/workspace_app/base.html or similar -->
 <nav>
   ...
   <a href="{% url 'integrations_app:dashboard' %}">Integrations</a>

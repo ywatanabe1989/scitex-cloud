@@ -43,7 +43,7 @@ SciTeX Cloud uses a **dual-layer architecture** where Gitea provides professiona
 │  ├── project_app  ─────────→  HTTP REST API                 │
 │  ├── writer_app   ─────────→  /api/v1/*                     │
 │  ├── scholar_app  ─────────→  Authentication: Token         │
-│  └── core_app     ←─────────  Webhooks (optional)           │
+│  └── workspace_app     ←─────────  Webhooks (optional)           │
 │                                                              │
 └─────────────────────────────────────────────────────────────┘
                             ↓ ↑
@@ -121,7 +121,7 @@ project.save()
 # → Django saves file to: /data/ywatanabe/my-research/paper/manuscript.tex
 
 # Auto-commit and push (using git_operations.py)
-from apps.core_app.git_operations import auto_commit_file
+from apps.workspace_app.git_operations import auto_commit_file
 
 success, output = auto_commit_file(
     project_dir='/data/ywatanabe/my-research',
@@ -196,10 +196,10 @@ def create_gitea_repository(sender, instance, created, **kwargs):
 ```
 
 ### 3. Git Operations Helper
-**File:** `apps/core_app/git_operations.py`
+**File:** `apps/workspace_app/git_operations.py`
 
 ```python
-from apps.core_app.git_operations import (
+from apps.workspace_app.git_operations import (
     git_commit_and_push,
     git_pull,
     auto_commit_file
@@ -227,10 +227,10 @@ success, output = auto_commit_file(
 ```
 
 ### 4. User Synchronization
-**File:** `apps/core_app/gitea_sync.py`
+**File:** `apps/workspace_app/gitea_sync.py`
 
 ```python
-from apps.core_app.gitea_sync import sync_user_to_gitea
+from apps.workspace_app.gitea_sync import sync_user_to_gitea
 
 # Sync user when they register
 sync_user_to_gitea(user, password='user_password')
@@ -295,7 +295,7 @@ class Project(models.Model):
 ```python
 # In apps/writer_app/views.py
 
-from apps.core_app.git_operations import auto_commit_file
+from apps.workspace_app.git_operations import auto_commit_file
 
 def save_manuscript_section(request, project_id, section_id):
     """Save manuscript section and auto-commit to Gitea"""
@@ -326,7 +326,7 @@ def save_manuscript_section(request, project_id, section_id):
 ```python
 # In apps/scholar_app/views.py
 
-from apps.core_app.git_operations import auto_commit_file
+from apps.workspace_app.git_operations import auto_commit_file
 
 def save_bibliography(request, project_id):
     """Save bibliography and auto-commit to Gitea"""
@@ -495,7 +495,7 @@ SCITEX_CLOUD_GITEA_TOKEN_DEV=bfd4ecd8471bde7f3b7ee7e1ce3f86ec8c966a36
 
 ### 2. File Editing
 - **Trigger:** Writer/Scholar save operations
-- **Helper:** `apps/core_app/git_operations.py::auto_commit_file`
+- **Helper:** `apps/workspace_app/git_operations.py::auto_commit_file`
 - **Actions:**
   1. Save file to disk
   2. `git add filepath`
@@ -574,7 +574,7 @@ SCITEX_CLOUD_GITEA_TOKEN_DEV=bfd4ecd8471bde7f3b7ee7e1ce3f86ec8c966a36
 
 ```python
 # In your Django view/service
-from apps.core_app.git_operations import auto_commit_file
+from apps.workspace_app.git_operations import auto_commit_file
 
 def save_analysis_results(project, results):
     """Save analysis results and push to Gitea"""
@@ -678,8 +678,8 @@ sudo journalctl -u gitea_dev -f
 **Implementation Files:**
 - `apps/gitea_app/api_client.py` - API wrapper
 - `apps/project_app/signals.py` - Auto-creation signals
-- `apps/core_app/git_operations.py` - Git helpers
-- `apps/core_app/gitea_sync.py` - User sync
+- `apps/workspace_app/git_operations.py` - Git helpers
+- `apps/workspace_app/gitea_sync.py` - User sync
 - `deployment/gitea/` - Deployment scripts
 
 **Related TODOs:**

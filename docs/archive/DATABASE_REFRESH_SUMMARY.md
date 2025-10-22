@@ -27,7 +27,7 @@ New migration files created for all active apps:
 - `auth_app.0001_initial` - UserProfile, EmailVerification
 - `cloud_app.0001_initial` - DonationTier, SubscriptionPlan, APIKey, etc.
 - `code_app.0001_initial` - CodeExecutionJob, DataAnalysisJob, Notebook, etc.
-- `core_app.0001_initial` - Organization, Project, ResearchGroup, UserProfile, etc.
+- `workspace_app.0001_initial` - Organization, Project, ResearchGroup, UserProfile, etc.
 - `project_app.0001_initial` - Organization, Project, ProjectMembership, etc.
 - `scholar_app.0001_initial` - Annotation, Author, Citation, Dataset, etc.
 - `viz_app.0001_initial` - Visualization, Dashboard, ColorScheme, etc.

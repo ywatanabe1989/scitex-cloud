@@ -21,7 +21,7 @@ The header Scholar/Code/Viz/Writer buttons route users based on their authentica
 
 ### Implementation
 
-**Context Processor** (`apps/core_app/context_processors.py`):
+**Context Processor** (`apps/workspace_app/context_processors.py`):
 ```python
 def project_context(request):
     """

@@ -148,7 +148,7 @@ apps/
 ├── auth_app/           # Authentication & user management
 ├── billing_app/        # Billing system
 ├── code_app/           # SciTeX-Code integration
-├── core_app/           # Core platform (landing, dashboard, middleware)
+├── workspace_app/           # Core platform (landing, dashboard, middleware)
 ├── doc_app/            # Document management
 ├── gitea_app/          # Gitea integration (NEW)
 ├── integrations_app/   # Third-party integrations
@@ -171,7 +171,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "apps.core_app.middleware.GuestSessionMiddleware",  # Custom
+    "apps.workspace_app.middleware.GuestSessionMiddleware",  # Custom
 ]
 ```
 
@@ -179,7 +179,7 @@ MIDDLEWARE = [
 ```python
 TEMPLATES[0]["OPTIONS"]["context_processors"] = [
     ...
-    "apps.core_app.context_processors.project_context",  # Custom
+    "apps.workspace_app.context_processors.project_context",  # Custom
 ]
 ```
 

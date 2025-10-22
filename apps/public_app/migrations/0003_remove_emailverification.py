@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("cloud_app", "0002_remove_duplicate_donation_models"),
+        ("public_app", "0002_remove_duplicate_donation_models"),
     ]
 
     operations = [

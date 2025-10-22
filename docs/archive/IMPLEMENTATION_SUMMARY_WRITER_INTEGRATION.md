@@ -48,7 +48,7 @@
 - **Anonymous users** → Links to login page
 
 **Implementation**:
-- Context processor: `apps/core_app/context_processors.py`
+- Context processor: `apps/workspace_app/context_processors.py`
 - Detects current project from URL pattern
 - Provides `project` variable to all templates
 
@@ -113,8 +113,8 @@
 ### Core Infrastructure
 1. `config/settings/settings_shared.py` - Added middleware, context processors
 2. `config/urls.py` - GitHub-style URL routing
-3. `apps/core_app/middleware.py` - Guest session handling (now unused but available)
-4. `apps/core_app/context_processors.py` - Project context detection
+3. `apps/workspace_app/middleware.py` - Guest session handling (now unused but available)
+4. `apps/workspace_app/context_processors.py` - Project context detection
 
 ### Project App
 5. `apps/project_app/views.py` - Simplified with decorators

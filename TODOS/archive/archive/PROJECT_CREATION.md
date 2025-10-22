@@ -33,7 +33,7 @@
 - `/apps/project_app/templates/project_app/project_create.html` - Added checkbox and dynamic template selector
 - `/apps/project_app/views.py` - Updated `project_create()` to handle template init and type selection
 - `/home/ywatanabe/proj/scitex-code/src/scitex/template/__init__.py` - Added `get_available_templates_info()`
-- `/apps/core_app/directory_manager.py` - Added template_type support
+- `/apps/workspace_app/directory_manager.py` - Added template_type support
 
 ## Additional Improvements (2025-10-18)
 
@@ -98,7 +98,7 @@
 
 **Implementation:**
 - Models: `profile_app/models.py` - SSH key fields in UserProfile
-- Manager: `core_app/ssh_manager.py` - SSHKeyManager class
+- Manager: `workspace_app/ssh_manager.py` - SSHKeyManager class
 - Views: `profile_app/views.py` - ssh_keys() view
 - Template: `profile_app/templates/profile_app/ssh_keys.html`
 - Integration: Git clone automatically uses SSH if key exists
@@ -131,8 +131,8 @@
 - `apps/profile_app/models.py` - Added SSH fields to UserProfile, created APIKey model
 
 **Managers/Utilities:**
-- `apps/core_app/ssh_manager.py` - NEW: SSHKeyManager class
-- `apps/core_app/directory_manager.py` - Updated clone_from_git() with SSH support
+- `apps/workspace_app/ssh_manager.py` - NEW: SSHKeyManager class
+- `apps/workspace_app/directory_manager.py` - Updated clone_from_git() with SSH support
 
 **Views:**
 - `apps/profile_app/views.py` - Added ssh_keys(), api_keys(), api_generate_ssh_key()
@@ -153,4 +153,3 @@
 **Documentation:**
 - `docs/SSH_KEY_MANAGEMENT_DESIGN.md` - NEW: Complete architecture documentation
 
-<!-- EOF -->

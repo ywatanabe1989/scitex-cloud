@@ -20,7 +20,7 @@ import django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.settings_prod')
 django.setup()
 
-from apps.core_app.anonymous_storage import cleanup_expired_sessions
+from apps.workspace_app.anonymous_storage import cleanup_expired_sessions
 import logging
 
 logging.basicConfig(level=logging.INFO)

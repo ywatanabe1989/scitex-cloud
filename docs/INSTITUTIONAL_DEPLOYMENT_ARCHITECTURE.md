@@ -119,7 +119,7 @@ singularity exec \
 
 ### 1. **Django Multi-Tenancy**
 ```python
-# apps/core_app/models.py
+# apps/workspace_app/models.py
 class Institution(models.Model):
     name = models.CharField(max_length=200)
     domain = models.CharField(max_length=200)  # e.g., "university.edu"

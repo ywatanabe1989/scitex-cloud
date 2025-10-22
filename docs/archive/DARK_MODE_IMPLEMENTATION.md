@@ -88,7 +88,7 @@ Successfully implemented a comprehensive Light/Dark/System theme system for SciT
    - System preference detection
    - Exposed API: `window.SciTeX.theme`
 
-3. **`apps/core_app/templates/core_app/appearance_settings.html`** (New)
+3. **`apps/workspace_app/templates/workspace_app/appearance_settings.html`** (New)
    - Settings page UI
    - Theme mode cards
    - Live preview
@@ -110,13 +110,13 @@ Successfully implemented a comprehensive Light/Dark/System theme system for SciT
    - Now supports light/dark modes properly
    - Avatar image display support
 
-5. **`apps/core_app/views.py`**
+5. **`apps/workspace_app/views.py`**
    - Added `appearance_settings` view
 
-6. **`apps/core_app/urls.py`**
+6. **`apps/workspace_app/urls.py`**
    - Added `/settings/appearance/` URL
 
-7. **`apps/core_app/templates/core_app/profile_edit.html`**
+7. **`apps/workspace_app/templates/workspace_app/profile_edit.html`**
    - Added Appearance link in sidebar
 
 ### CSS Variables System

@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # Timestamp: "2025-05-22 16:20:00 (ywatanabe)"
-# File: /home/ywatanabe/proj/SciTeX-Cloud/apps/core_app/api_views.py
+# File: /home/ywatanabe/proj/SciTeX-Cloud/apps/workspace_app/api_views.py
 # ----------------------------------------
 import os
 __FILE__ = (
-    "./apps/core_app/api_views.py"
+    "./apps/workspace_app/api_views.py"
 )
 __DIR__ = os.path.dirname(__FILE__)
 # ----------------------------------------
@@ -1298,4 +1298,3 @@ def debug_user_projects(request):
             'error': str(e)
         }, status=500)
 
-# EOF

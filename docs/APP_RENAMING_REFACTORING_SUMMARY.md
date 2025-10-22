@@ -43,7 +43,7 @@ Successfully renamed four core Django apps to better reflect their responsibilit
 
 ---
 
-### 3. core_app → workspace_app
+### 3. workspace_app → workspace_app
 
 **Reason:** "Core_app" is too generic. "Workspace_app" accurately describes the app's purpose: providing an authenticated work environment for research projects and file management.
 

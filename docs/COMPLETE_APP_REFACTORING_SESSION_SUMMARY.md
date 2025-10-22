@@ -29,7 +29,7 @@ Renamed four apps to better reflect their responsibilities:
 |----------|----------|---------|
 | `profile_app` | `accounts_app` | User account management (profiles, API keys, SSH keys, git tokens) |
 | `sustainability_app` | `donations_app` | Donation and fundraising functionality |
-| `core_app` | `workspace_app` | Authenticated user workspace (projects, files, dashboard, GitHub) |
+| `workspace_app` | `workspace_app` | Authenticated user workspace (projects, files, dashboard, GitHub) |
 | `cloud_app` | `public_app` | Public SaaS layer (landing pages, subscriptions, legal) |
 
 **Commits:**
@@ -48,7 +48,7 @@ Renamed four apps to better reflect their responsibilities:
 ### Phase 2: Model Duplication Resolution ✅
 
 **Previous State:**
-- `workspace_app` (formerly core_app) had duplicate models
+- `workspace_app` (formerly workspace_app) had duplicate models
 - `project_app` had canonical Project models
 - `organizations_app` created to hold Organization/ResearchGroup models
 - `public_app` (formerly cloud_app) had duplicate Donation models
@@ -151,7 +151,7 @@ System check identified no issues (0 silenced)
 
 ### No Remaining Old References ✅
 ```
-✗ No imports from apps.core_app
+✗ No imports from apps.workspace_app
 ✗ No imports from apps.cloud_app
 ✗ No imports from apps.profile_app
 ✗ No imports from apps.sustainability_app
@@ -163,7 +163,7 @@ System check identified no issues (0 silenced)
 
 ### Before Refactoring
 ```
-core_app (CONFUSED PURPOSE)
+workspace_app (CONFUSED PURPOSE)
 ├── Project models (duplicated)
 ├── Organization models (duplicated)
 ├── User profiles
@@ -279,7 +279,7 @@ d364902 refactor: Rename apps for improved clarity and semantic meaning
 db9819e refactor: Remove EmailVerification from cloud_app
 cc6bb5e refactor: Remove duplicate Donation models from cloud_app
 85d86b0 docs: Update bulletin board with model duplication resolution
-0c5665a fix: Resolve migration errors and model duplication in core_app
+0c5665a fix: Resolve migration errors and model duplication in workspace_app
 ```
 
 ---
@@ -365,7 +365,7 @@ from apps.writer_app.models import Manuscript
 - ✅ Zero breaking changes
 
 ### What We'd Do Differently
-- Would have renamed apps earlier (initially thought "core_app" was clear)
+- Would have renamed apps earlier (initially thought "workspace_app" was clear)
 - Would have created organizations_app sooner (obvious in retrospect)
 - Could have automated import updates more
 

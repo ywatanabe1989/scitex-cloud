@@ -68,7 +68,7 @@ Provide secure, user-specific SSH keys for Git operations (clone, push, pull) wi
 
 **Option A: Store in UserProfile model**
 ```python
-# apps/core_app/models.py
+# apps/workspace_app/models.py
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     # ... existing fields ...
@@ -82,7 +82,7 @@ class UserProfile(models.Model):
 
 **Option B: Separate SSH Key model (more flexible)**
 ```python
-# apps/core_app/models.py
+# apps/workspace_app/models.py
 class SSHKey(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ssh_keys')
     name = models.CharField(max_length=100)  # e.g., "SciTeX Cloud - Main"
@@ -103,7 +103,7 @@ class SSHKey(models.Model):
 ### SSH Key Manager
 
 ```python
-# apps/core_app/ssh_manager.py
+# apps/workspace_app/ssh_manager.py
 import os
 import subprocess
 from pathlib import Path
@@ -209,7 +209,7 @@ class SSHKeyManager:
 ### Updated Git Clone with SSH Support
 
 ```python
-# apps/core_app/directory_manager.py (update clone_from_git method)
+# apps/workspace_app/directory_manager.py (update clone_from_git method)
 def clone_from_git(self, project: Project, git_url: str, use_ssh: bool = True) -> Tuple[bool, Optional[str]]:
     """
     Clone a Git repository with SSH or HTTPS.
@@ -364,7 +364,7 @@ def clone_from_git(self, project: Project, git_url: str, use_ssh: bool = True) -
 @login_required
 def ssh_keys(request):
     """SSH key management page."""
-    from apps.core_app.ssh_manager import SSHKeyManager
+    from apps.workspace_app.ssh_manager import SSHKeyManager
 
     ssh_manager = SSHKeyManager(request.user)
 
@@ -402,7 +402,7 @@ def ssh_keys(request):
 @require_http_methods(["POST"])
 def api_generate_ssh_key(request):
     """API endpoint to generate SSH key."""
-    from apps.core_app.ssh_manager import SSHKeyManager
+    from apps.workspace_app.ssh_manager import SSHKeyManager
 
     ssh_manager = SSHKeyManager(request.user)
     success, public_key, error = ssh_manager.get_or_create_user_key()

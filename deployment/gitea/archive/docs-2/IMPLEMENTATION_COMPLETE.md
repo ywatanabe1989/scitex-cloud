@@ -184,7 +184,7 @@ apps/project_app/templates/project_app/project_create.html
   + GitHub import option
   + JavaScript for conditional fields
 
-apps/core_app/directory_manager.py
+apps/workspace_app/directory_manager.py
   + Fixed clone_from_git() for existing directories
 ```
 

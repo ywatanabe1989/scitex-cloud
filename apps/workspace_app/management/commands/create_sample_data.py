@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # Timestamp: "2025-05-23 08:15:00 (ywatanabe)"
-# File: /home/ywatanabe/proj/SciTeX-Cloud/apps/core_app/management/commands/create_sample_data.py
+# File: /home/ywatanabe/proj/SciTeX-Cloud/apps/workspace_app/management/commands/create_sample_data.py
 # ----------------------------------------
 import os
 __FILE__ = (
-    "./apps/core_app/management/commands/create_sample_data.py"
+    "./apps/workspace_app/management/commands/create_sample_data.py"
 )
 __DIR__ = os.path.dirname(__FILE__)
 # ----------------------------------------
@@ -217,4 +217,3 @@ class Command(BaseCommand):
         self.stdout.write('  Password: testpass123')
         self.stdout.write('  Other users: researcher1-5 with same password')
 
-# EOF

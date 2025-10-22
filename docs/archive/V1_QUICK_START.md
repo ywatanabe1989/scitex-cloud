@@ -17,7 +17,7 @@
 2. billing_app - Subscriptions
 3. cloud_app - Landing pages
 4. code_app - Code execution
-5. core_app - Core functionality
+5. workspace_app - Core functionality
 6. dev_app - Design system (NEW)
 7. project_app - Project management
 8. scholar_app - Literature search

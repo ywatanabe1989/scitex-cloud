@@ -13,8 +13,8 @@ django.setup()
 from django.contrib.auth import get_user_model
 from django.test import Client
 from django.urls import reverse
-from apps.core_app.models import UserProfile, EmailVerification
-from apps.core_app.services import EmailService
+from apps.workspace_app.models import UserProfile, EmailVerification
+from apps.workspace_app.services import EmailService
 import json
 
 User = get_user_model()
@@ -187,4 +187,3 @@ class SystemValidator:
 
 if __name__ == "__main__":
     validator = SystemValidator()
-    results = validator.run_all_tests()

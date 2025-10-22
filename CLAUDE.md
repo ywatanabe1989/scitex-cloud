@@ -40,12 +40,11 @@ See /dev/design/
   - Use git effectively
   - Work collaborately with other agents using ./project_management/BULLETIN_BOARD.md
 
-- [ ] Root cause is that core_app and cloud_app have too many responsibilities
-  - [ ] core_app
+- [ ] Root cause is that workspace_app and cloud_app have too many responsibilities
+  - [ ] workspace_app
   - [ ] cloud_app 
 
-- [ ] Could you explain what core_app is, and what cloud_app is as well?
+- [ ] Could you explain what workspace_app is, and what cloud_app is as well?
   - [ ] Each app must be explanined in one sentence. Otherwise, they have too many responsibilities.
 - [ ] Each app should have thier own README.md
 
-<!-- EOF -->

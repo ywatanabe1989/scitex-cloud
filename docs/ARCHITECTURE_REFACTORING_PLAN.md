@@ -1,4 +1,4 @@
-# Architecture Refactoring Plan: Decoupling core_app and cloud_app
+# Architecture Refactoring Plan: Decoupling workspace_app and cloud_app
 
 **Created:** 2025-10-23  
 **Status:** Planning Phase
@@ -6,7 +6,7 @@
 ## Executive Summary
 
 The codebase has two ambiguous, overlapping apps that violate the single responsibility principle:
-- **core_app** (11,136 lines) - Handles user workspaces, projects, documents, GitHub integration, monitoring
+- **workspace_app** (11,136 lines) - Handles user workspaces, projects, documents, GitHub integration, monitoring
 - **cloud_app** (2,095 lines) - Handles marketing pages, donations, subscriptions, API keys, email verification
 
 This creates:
@@ -17,7 +17,7 @@ This creates:
 
 ## Current State Analysis
 
-### core_app (11,136 lines)
+### workspace_app (11,136 lines)
 **Responsibilities:**
 - User workspace management (landing, dashboard, index)
 - Project & document CRUD (project_list, document_list, monitoring)
@@ -67,7 +67,7 @@ This creates:
 
 ```
 ┌─────────────────────────────────────────┐
-│           core_app (11KB)               │
+│           workspace_app (11KB)               │
 ├─────────────────────────────────────────┤
 │ ✓ User workspaces (landing, dashboard)  │
 │ ✓ Projects & Documents CRUD             │
@@ -100,7 +100,7 @@ profile_app       → User profiles, preferences (EXISTING)
 ├── SSH keys, GPG keys
 └── User settings
 
-core_app          → User workspaces & projects (REFACTORED)
+workspace_app          → User workspaces & projects (REFACTORED)
 ├── landing, dashboard, index
 ├── project_list, document_list
 ├── Project, Manuscript, ProjectMembership models
@@ -128,7 +128,7 @@ organization_app  → Organization & research groups (NEW)
 ├── Team management
 └── Collaboration features
 
-vcs_app           → Version control (NEW - extracted from core_app)
+vcs_app           → Version control (NEW - extracted from workspace_app)
 ├── GitHub integration & OAuth
 ├── GitFileStatus model
 ├── Repository linking
@@ -213,7 +213,7 @@ vcs_app           → Version control (NEW - extracted from core_app)
 1. Create apps/organization_app/
 2. Migrate organization models
 3. Create views for team management
-4. Update core_app to reference organization_app models
+4. Update workspace_app to reference organization_app models
 5. Update signals
 
 ### Impact Analysis
@@ -221,7 +221,7 @@ vcs_app           → Version control (NEW - extracted from core_app)
 #### Import Changes
 - `from apps.cloud_app.models import APIKey` → `from apps.profile_app.models import APIKey`
 - `from apps.cloud_app.models import SubscriptionPlan` → `from apps.billing_app.models import SubscriptionPlan`
-- `from apps.core_app.models import GitFileStatus` → `from apps.vcs_app.models import GitFileStatus`
+- `from apps.workspace_app.models import GitFileStatus` → `from apps.vcs_app.models import GitFileStatus`
 
 #### URL Mapping
 ```
@@ -229,7 +229,7 @@ Current                          Future
 /cloud/                    →     /website/
 /cloud/donate/             →     /billing/donate/
 /cloud/privacy/            →     /website/privacy/
-/core_app:about            →     /core:about
+/workspace_app:about            →     /core:about
 ```
 
 #### Database Migrations

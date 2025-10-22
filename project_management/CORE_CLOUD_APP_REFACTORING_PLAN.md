@@ -9,9 +9,9 @@
 ## Executive Summary
 
 ### Problem
-`core_app` and `cloud_app` violate Single Responsibility Principle:
-- **Model duplication**: core_app and project_app define same 5 models
-- **core_app**: Mixes 6+ domains (Projects, Git, Files, Email, Organizations, Manuscripts)
+`workspace_app` and `cloud_app` violate Single Responsibility Principle:
+- **Model duplication**: workspace_app and project_app define same 5 models
+- **workspace_app**: Mixes 6+ domains (Projects, Git, Files, Email, Organizations, Manuscripts)
 - **cloud_app**: Overlaps with 3 other apps (auth_app, donations_app, integrations_app)
 
 ### Impact
@@ -26,7 +26,7 @@
 
 ## Phase 1: Resolve Model Duplication (CRITICAL)
 
-### Models Duplicated in Both core_app AND project_app:
+### Models Duplicated in Both workspace_app AND project_app:
 1. `Project` - Project metadata and management
 2. `ProjectMembership` - User membership in projects
 3. `ProjectPermission` - Permission management
@@ -42,26 +42,26 @@
 - More focused scope
 
 **Actions:**
-1. Mark core_app models as deprecated
+1. Mark workspace_app models as deprecated
 2. Create migration to use project_app models
-3. Update all imports: `from apps.core_app.models import Project` → `from apps.project_app.models import Project`
-4. Remove core_app models after migration
+3. Update all imports: `from apps.workspace_app.models import Project` → `from apps.project_app.models import Project`
+4. Remove workspace_app models after migration
 
 **Files to update:**
 ```bash
 # Find all imports
-grep -r "from apps.core_app.models import.*Project" apps/
-grep -r "from core_app.models import.*Project" apps/
+grep -r "from apps.workspace_app.models import.*Project" apps/
+grep -r "from workspace_app.models import.*Project" apps/
 ```
 
-#### Option B: Keep in core_app
+#### Option B: Keep in workspace_app
 **Rationale:**
 - More general/shared models
-- Other apps already import from core_app
+- Other apps already import from workspace_app
 
 **Actions:**
 1. Deprecate project_app models
-2. Migrate to core_app models
+2. Migrate to workspace_app models
 3. Update imports
 
 #### Option C: Create organizations_app
@@ -79,7 +79,7 @@ grep -r "from core_app.models import.*Project" apps/
 **Final distribution:**
 - **project_app**: Project, ProjectMembership, ProjectPermission
 - **organizations_app** (new): Organization, OrganizationMembership, ResearchGroup, ResearchGroupMembership
-- **core_app**: Remove all duplicated models
+- **workspace_app**: Remove all duplicated models
 
 **Estimated effort:** 6-8 hours
 **Risk level:** HIGH (requires careful migration)
@@ -94,14 +94,14 @@ grep -r "from core_app.models import.*Project" apps/
 - `GitFileStatus` → `apps/integrations_app/models/git.py`
 
 #### Views:
-- `core_app/views/github_views.py` → `integrations_app/views/github_views.py`
+- `workspace_app/views/github_views.py` → `integrations_app/views/github_views.py`
 
 #### Services:
-- `core_app/services/git_service.py` → `integrations_app/services/git_service.py`
-- `core_app/services/gitea_sync_service.py` → `integrations_app/services/gitea_service.py`
+- `workspace_app/services/git_service.py` → `integrations_app/services/git_service.py`
+- `workspace_app/services/gitea_sync_service.py` → `integrations_app/services/gitea_service.py`
 
 #### URLs:
-- GitHub API endpoints from `core_app/urls.py` → `integrations_app/urls.py`
+- GitHub API endpoints from `workspace_app/urls.py` → `integrations_app/urls.py`
   - `/api/v1/github/*` routes
 
 ### Migration Checklist
@@ -213,7 +213,7 @@ grep -r "from core_app.models import.*Project" apps/
 
 ## Final State
 
-### core_app (Reduced Scope)
+### workspace_app (Reduced Scope)
 **Responsibilities:**
 - File/directory management (filesystem operations)
 - SSH service
@@ -246,7 +246,7 @@ grep -r "from core_app.models import.*Project" apps/
 | Donations | donations_app | Donation, DonationTier |
 | Writing | writer_app | Manuscript, Paper, Document |
 | Subscriptions | cloud_app | SubscriptionPlan, Subscription, CloudResource |
-| Files | core_app | (services only, no models) |
+| Files | workspace_app | (services only, no models) |
 
 ---
 
@@ -275,7 +275,7 @@ grep -r "from core_app.models import.*Project" apps/
 4. **Day 5:** Phase 5 - Manuscript to writer_app
 
 ### Week 3: Reorganization & Polish
-1. Internal reorganization of core_app following scholar_app pattern
+1. Internal reorganization of workspace_app following scholar_app pattern
 2. Internal reorganization of cloud_app
 3. Documentation updates
 4. Full test coverage

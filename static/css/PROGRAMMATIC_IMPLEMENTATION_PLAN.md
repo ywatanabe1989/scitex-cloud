@@ -93,7 +93,7 @@ Update all component CSS files with parseable annotations:
 
 ### 1.2 Create Component JSON Schema
 
-**File:** `apps/core_app/fixtures/component_schema.json`
+**File:** `apps/workspace_app/fixtures/component_schema.json`
 
 ```json
 {
@@ -150,7 +150,7 @@ Update all component CSS files with parseable annotations:
 
 ### 2.1 Create Management Command
 
-**File:** `apps/core_app/management/commands/generate_design_docs.py`
+**File:** `apps/workspace_app/management/commands/generate_design_docs.py`
 
 ```python
 from django.core.management.base import BaseCommand
@@ -168,7 +168,7 @@ class Command(BaseCommand):
         parser.add_argument(
             '--output',
             type=str,
-            default='apps/core_app/fixtures/components.json',
+            default='apps/workspace_app/fixtures/components.json',
             help='Output JSON file path'
         )
         parser.add_argument(
@@ -304,7 +304,7 @@ Parsing static/css/common/radios.css...
 Parsing static/css/common/toggles.css...
   ✓ Extracted Toggle Switch
 ...
-Generated docs for 9 components → apps/core_app/fixtures/components.json
+Generated docs for 9 components → apps/workspace_app/fixtures/components.json
 ```
 
 ---
@@ -313,7 +313,7 @@ Generated docs for 9 components → apps/core_app/fixtures/components.json
 
 ### 3.1 Update Design System View
 
-**File:** `apps/core_app/views.py`
+**File:** `apps/workspace_app/views.py`
 
 ```python
 from django.shortcuts import render
@@ -323,7 +323,7 @@ from pathlib import Path
 
 def design_system(request):
     """Auto-generated design system from components.json"""
-    components_file = Path('apps/core_app/fixtures/components.json')
+    components_file = Path('apps/workspace_app/fixtures/components.json')
 
     if components_file.exists():
         with open(components_file, 'r') as f:
@@ -347,7 +347,7 @@ def design_system(request):
             categories[category] = []
         categories[category].append(component)
 
-    return render(request, 'core_app/design_system.html', {
+    return render(request, 'workspace_app/design_system.html', {
         'categories': categories,
         'total_components': len(components),
     })
@@ -355,7 +355,7 @@ def design_system(request):
 
 ### 3.2 Auto-Generated Template
 
-**File:** `apps/core_app/templates/core_app/design_system.html`
+**File:** `apps/workspace_app/templates/workspace_app/design_system.html`
 
 ```html
 {% extends "base.html" %}

@@ -70,7 +70,7 @@ def landing(request):
     if request.user.is_authenticated:
         # Redirect to user's profile page (GitHub-style: /username/)
         return redirect(f'/{request.user.username}/')
-    return render(request, 'core_app/landing.html')
+    return render(request, 'workspace_app/landing.html')
 
 
 @login_required
@@ -89,32 +89,32 @@ def dashboard_react_tree(request):
         'user': user,
     }
     
-    return render(request, 'core_app/dashboard_react_tree.html', context)
+    return render(request, 'workspace_app/dashboard_react_tree.html', context)
 
 
 def about(request):
     """About page view."""
-    return render(request, 'core_app/about.html')
+    return render(request, 'workspace_app/about.html')
 
 
 def contact(request):
     """Contact page view."""
-    return render(request, 'core_app/contact.html')
+    return render(request, 'workspace_app/contact.html')
 
 
 def privacy_policy(request):
     """Privacy policy page view."""
-    return render(request, 'core_app/privacy_policy.html')
+    return render(request, 'workspace_app/privacy_policy.html')
 
 
 def terms_of_use(request):
     """Terms of use page view."""
-    return render(request, 'core_app/terms_of_use.html')
+    return render(request, 'workspace_app/terms_of_use.html')
 
 
 def cookie_policy(request):
     """Cookie policy page view."""
-    return render(request, 'core_app/cookie_policy.html')
+    return render(request, 'workspace_app/cookie_policy.html')
 
 
 @login_required
@@ -139,7 +139,7 @@ def document_list(request):
         'document_types': Document.DOCUMENT_TYPES,
     }
     
-    return render(request, 'core_app/document_list.html', context)
+    return render(request, 'workspace_app/document_list.html', context)
 
 
 @login_required
@@ -162,7 +162,7 @@ def project_list(request):
         'has_projects': has_projects,
     }
     
-    return render(request, 'core_app/project_list.html', context)
+    return render(request, 'workspace_app/project_list.html', context)
 
 
 # Profile views moved to apps.accounts_app.views
@@ -196,7 +196,7 @@ def monitoring(request):
         }
     }
     
-    return render(request, 'core_app/monitoring.html', context)
+    return render(request, 'workspace_app/monitoring.html', context)
 
 
 @login_required
@@ -1306,4 +1306,4 @@ def _copy_project_files(source_path, dest_path):
                     # Copy file
                     shutil.copy2(item, dest_file)
     except Exception as e:
-        print(f"Error copying files: {e}")
+        pass  # TODO: Add proper error handling
