@@ -68,19 +68,36 @@ should be refactored using
 
 ### UI Improvements ✅
 - [x] Simplified System Resources panel
-  - Removed detailed CPU/Memory usage (saved for future reuse)
+  - Removed detailed CPU/Memory usage (saved for future reuse - still collected in backend)
   - Now shows only "Job Queue Status" with Active Jobs and Queued counts
   - Cleaner, less technical interface for users
 - [x] Added 10-minute timeout for enrichment jobs
   - Prevents jobs from hanging indefinitely
   - Clear error message if timeout occurs
   - Implemented in `bibtex_views.py` using `asyncio.wait_for()`
-- [x] Automatic stale job cleanup
-  - **HOW it works**: Before allowing new job uploads, system checks for stale jobs
-  - Jobs stuck in "processing" for >10 minutes are automatically marked as failed
-  - Jobs stuck in "pending" for >5 minutes are automatically marked as failed
-  - User can immediately submit new job after stale job is cleaned up
-  - Implemented in `models.py::is_stale()` and `bibtex_views.py::bibtex_upload()`
+- [x] Simple job management: **Kill old, start new**
+  - **Authenticated users:**
+    - Can cancel old jobs and start new ones anytime
+    - One user = One job. New upload kills old job automatically.
+    - No error messages, no waiting - just upload again!
+    - Old job marked as "cancelled - new job uploaded"
+  - **Anonymous users (special handling for abuse prevention):**
+    - ❌ Cannot cancel running jobs - must wait for completion
+    - ⏱️ Rate limit: 1 job per 5 minutes per session
+    - 💡 Encourages sign-up: "Sign up for an account to remove this limit"
+    - Prevents malicious spam attacks from anonymous users
+  - **Implementation:** `bibtex_views.py::bibtex_upload()` (lines 87-141)
+- [x] Automatic stale job cleanup (MALICIOUS ATTACK PREVENTION)
+  - **Periodic cleanup**: Systemd timer runs every 5 minutes
+  - Jobs stuck in "processing" for >10 minutes → failed
+  - Jobs stuck in "pending" for >5 minutes → failed
+  - Old jobs (>30 days) → deleted (prevents database bloat)
+  - **Implementation:**
+    - `models.py::is_stale()` - detection logic
+    - `management/commands/cleanup_stale_jobs.py` - periodic cleanup command
+    - `deployment/systemd/scitex-cleanup-jobs.timer` - every 5 minutes
+    - `deployment/scripts/setup_cleanup_timer.sh` - easy installation
   - **No partial results** - only complete results are provided
+  - **Security**: Prevents resource exhaustion and malicious job spam attacks
 
 <!-- EOF -->
