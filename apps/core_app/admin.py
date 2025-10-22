@@ -13,7 +13,7 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 
 from .models import (
-    Project, ProjectMembership, GitFileStatus
+    Project, ProjectMembership
 )
 # UserProfile now managed in profile_app
 from apps.profile_app.models import UserProfile
@@ -22,6 +22,8 @@ from apps.organizations_app.models import (
     Organization, OrganizationMembership,
     ResearchGroup, ResearchGroupMembership,
 )
+# Git models now managed in gitea_app
+from apps.gitea_app.models import GitFileStatus
 
 
 # Inline admin classes
@@ -231,13 +233,7 @@ class ProjectMembershipAdmin(admin.ModelAdmin):
     permissions_summary.short_description = 'Key Permissions'
 
 
-# Git File Status admin
-@admin.register(GitFileStatus)
-class GitFileStatusAdmin(admin.ModelAdmin):
-    list_display = ('project', 'file_path', 'git_status', 'last_modified_at', 'file_size', 'is_binary')
-    list_filter = ('git_status', 'is_binary', 'last_modified_at')
-    search_fields = ('project__name', 'file_path', 'last_commit_hash')
-    readonly_fields = ('last_modified_at',)
+# Git File Status admin moved to apps.gitea_app.admin
 
 
 # Re-register User with custom admin
