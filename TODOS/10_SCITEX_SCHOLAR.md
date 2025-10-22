@@ -30,10 +30,13 @@ Fill checkboxes of this file when implemented and confirmed their functionality 
   - [x] "Show what enhanced" button to show diff in colored format
   - [x] Diff between original bib file and enhanced bibfile
   - [x] API endpoint: `/scholar/api/bibtex/job/<id>/diff/`
-  - [x] Shows statistics: total entries, entries enhanced, fields added/modified, enhancement rate
-  - [x] Visual indicators:
-    - Green for added fields
-    - Orange for modified fields
+  - [x] Shows statistics: total entries, entries enhanced, fields added, enhancement rate
+  - [x] GitHub-style diff display:
+    - Shows ALL entries (not just changed ones)
+    - Green background with + prefix for added fields
+    - Black on white for original fields
+    - Red for removed fields (if any)
+    - Monospace font for code-like appearance
     - Statistics dashboard at top
   - [x] Handle empty diff (all entries already complete)
 
@@ -62,5 +65,15 @@ should be refactored using
 - **Implemented:** Added "Open All URLs" button with dynamic count display
 - **Features:** Confirmation dialog, staggered tab opening (100ms delay), error handling
 - **API:** `/scholar/api/bibtex/job/<id>/urls/` endpoint extracts and returns URLs/DOIs
+
+### UI Improvements ✅
+- [x] Simplified System Resources panel
+  - Removed detailed CPU/Memory usage (saved for future reuse)
+  - Now shows only "Job Queue Status" with Active Jobs and Queued counts
+  - Cleaner, less technical interface for users
+- [x] Added 10-minute timeout for enrichment jobs
+  - Prevents jobs from hanging indefinitely
+  - Clear error message if timeout occurs
+  - Implemented in `bibtex_views.py` using `asyncio.wait_for()`
 
 <!-- EOF -->
