@@ -10,7 +10,7 @@ from django.dispatch import receiver
 from django.contrib.auth.models import User
 from .models import Project, UserProfile
 # from apps.document_app.models import Document  # Removed - document_app not installed
-from .directory_manager import get_user_directory_manager, ensure_project_directory
+from .services.directory_service import get_user_directory_manager, ensure_project_directory
 import logging
 
 logger = logging.getLogger(__name__)

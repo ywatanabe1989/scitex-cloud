@@ -1,6 +1,6 @@
 """Default workspace views for Scholar app."""
 from django.shortcuts import render
-from apps.core_app.anonymous_storage import get_anonymous_storage_path
+from apps.core_app.services.anonymous_storage import get_anonymous_storage_path
 
 
 def guest_session_view(request, username):

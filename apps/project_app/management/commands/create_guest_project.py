@@ -48,7 +48,7 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS('Created demo project'))
 
             # Initialize demo project structure
-            from apps.core_app.directory_manager import get_user_directory_manager
+            from apps.core_app.services.directory_service import get_user_directory_manager
             manager = get_user_directory_manager(guest_user)
             project_path = manager.get_project_path(demo_project)
 
