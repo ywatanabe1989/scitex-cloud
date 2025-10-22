@@ -1292,7 +1292,22 @@ function saveToLibrary(btn) {
             project: selectedProject
         })
     })
-    .then(response => response.json())
+    .then(response => {
+        if (response.status === 401) {
+            // Not authenticated
+            return response.json().then(data => {
+                if (data.status === 'signup_required') {
+                    // Show signup prompt
+                    const signupPrompt = confirm(data.message + '\n\nWould you like to sign up now?');
+                    if (signupPrompt) {
+                        window.location.href = data.signup_url;
+                    }
+                }
+                throw new Error('Not authenticated');
+            });
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.status === 'success') {
             // Visual feedback
@@ -1300,13 +1315,15 @@ function saveToLibrary(btn) {
             btn.classList.remove('btn-outline-warning');
             btn.classList.add('btn-warning');
             alert(data.message);
-        } else {
+        } else if (data.status !== 'signup_required') {
             alert(data.message || 'Error saving paper');
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('Error saving paper. Please try again.');
+        if (error.message !== 'Not authenticated') {
+            alert('Error saving paper. Please try again.');
+        }
     });
 }
 

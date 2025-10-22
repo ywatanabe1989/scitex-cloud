@@ -1837,10 +1837,17 @@ def export_csv(request):
 
 
 @require_http_methods(["POST"])
-@login_required
 def save_paper(request):
     """Save paper to user's library."""
     try:
+        # Check if user is authenticated
+        if not request.user.is_authenticated:
+            return JsonResponse({
+                'status': 'signup_required',
+                'message': 'Sign up to save papers to your library and build your personal research library!',
+                'signup_url': '/auth/signup/'
+            }, status=401)
+
         data = json.loads(request.body)
         paper_id = data.get('paper_id')
         paper_title = data.get('title', '')
