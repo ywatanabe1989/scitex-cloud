@@ -976,3 +976,65 @@ a.disabled {
 .scholar-side-panel .accordion-row-content {
     padding: 1rem 0.8rem;
 }
+
+/* Enhanced Progress Indicator Styling */
+#progressiveLoadingStatus {
+    margin: 1.5rem 0;
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+#progressiveLoadingStatus .scitex-card {
+    border: 2px solid var(--scitex-color-03);
+    box-shadow: 0 4px 12px rgba(79, 90, 102, 0.15);
+    background: var(--color-canvas-default);
+}
+
+#progressiveLoadingStatus .scitex-card-header {
+    background: linear-gradient(135deg, var(--scitex-color-03) 0%, var(--scitex-color-02) 100%);
+    color: white;
+    border-radius: 8px 8px 0 0;
+    padding: 1rem 1.5rem;
+}
+
+#progressiveLoadingStatus .scitex-card-header h4 {
+    color: white;
+    font-weight: 600;
+}
+
+#progressiveLoadingStatus .progress-source {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: var(--color-canvas-subtle);
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+#progressiveLoadingStatus .progress-source:hover {
+    border-color: var(--scitex-color-03);
+    background: var(--color-canvas-default);
+}
+
+.spinner-border-sm {
+    color: var(--scitex-color-03);
+}
+
+#activeSearchCount,
+#totalResultsCount {
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding: 0.5rem 0.75rem;
+}
