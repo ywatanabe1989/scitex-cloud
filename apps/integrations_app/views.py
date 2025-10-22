@@ -219,14 +219,14 @@ def slack_delete(request, webhook_id):
 @require_http_methods(["GET"])
 def api_integration_status(request):
     """Get integration status for user"""
-    connections = IntegrationConnection.objects.filter(user=request.user)
+    connections = IntegrationConnection.objects.filter(user=request.user).values('service', 'status', 'last_sync_at')
 
     status = {}
     for conn in connections:
-        status[conn.service] = {
-            'connected': conn.status == 'active',
-            'status': conn.status,
-            'last_sync': conn.last_sync_at.isoformat() if conn.last_sync_at else None,
+        status[conn['service']] = {
+            'connected': conn['status'] == 'active',
+            'status': conn['status'],
+            'last_sync': conn['last_sync_at'].isoformat() if conn['last_sync_at'] else None,
         }
 
     return JsonResponse(status)
@@ -237,7 +237,7 @@ def api_integration_status(request):
 def api_orcid_profile(request):
     """Get ORCID profile data"""
     try:
-        connection = IntegrationConnection.objects.get(
+        connection = IntegrationConnection.objects.select_related('orcid_profile').get(
             user=request.user,
             service='orcid',
             status='active'

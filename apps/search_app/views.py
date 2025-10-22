@@ -121,7 +121,7 @@ def search_repositories(query, current_user=None, limit=20):
         Q(name__icontains=query) |
         Q(description__icontains=query) |
         Q(hypotheses__icontains=query)
-    ).select_related('owner')[:limit]
+    ).select_related('owner').prefetch_related('stars')[:limit]
 
     # Format results
     results = []
@@ -161,7 +161,7 @@ def autocomplete(request):
         Q(username__istartswith=query) |
         Q(first_name__istartswith=query) |
         Q(last_name__istartswith=query)
-    )[:5]
+    ).select_related('profile')[:5]
 
     for user in users:
         suggestions.append({
