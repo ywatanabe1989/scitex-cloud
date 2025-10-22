@@ -28,6 +28,7 @@ from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django.utils import timezone
 from django.conf import settings
+from asgiref.sync import sync_to_async
 from .models import BibTeXEnrichmentJob
 
 logger = logging.getLogger(__name__)
@@ -133,7 +134,7 @@ def bibtex_upload(request):
                 job.error_message = f"Background thread error: {str(e)}"
                 job.processing_log += f"\n\n✗ FATAL ERROR: {str(e)}\n"
                 job.completed_at = timezone.now()
-                job.save()
+                job.save(update_fields=['status', 'error_message', 'processing_log', 'completed_at'])
             except:
                 pass
 
@@ -143,7 +144,7 @@ def bibtex_upload(request):
     # Mark as processing immediately so polling shows it's started
     job.status = 'processing'
     job.started_at = timezone.now()
-    job.save()
+    job.save(update_fields=['status', 'started_at'])
 
     messages.success(request, f'BibTeX file uploaded successfully. Starting enrichment job #{job.id}')
 
@@ -203,7 +204,7 @@ def bibtex_job_detail(request, job_id):
                     job.error_message = f"Background thread error: {str(e)}"
                     job.processing_log += f"\n\n✗ FATAL ERROR: {str(e)}\n"
                     job.completed_at = timezone.now()
-                    job.save()
+                    job.save(update_fields=['status', 'error_message', 'processing_log', 'completed_at'])
                 except:
                     pass
 
@@ -213,7 +214,7 @@ def bibtex_job_detail(request, job_id):
         # Mark as processing immediately so polling shows it's started
         job.status = 'processing'
         job.started_at = timezone.now()
-        job.save()
+        job.save(update_fields=['status', 'started_at'])
 
     context = {
         'job': job,
@@ -223,39 +224,73 @@ def bibtex_job_detail(request, job_id):
 
 
 def bibtex_download_enriched(request, job_id):
-    """Download the enriched BibTeX file."""
+    """API endpoint to download the enriched BibTeX file.
+
+    Returns:
+        - FileResponse with the enriched .bib file if job is completed
+        - JsonResponse with error if job not found, not completed, or file missing
+    """
 
     # For authenticated users, verify ownership
     if request.user.is_authenticated:
-        job = get_object_or_404(
-            BibTeXEnrichmentJob,
-            id=job_id,
-            user=request.user
-        )
+        try:
+            job = BibTeXEnrichmentJob.objects.get(
+                id=job_id,
+                user=request.user
+            )
+        except BibTeXEnrichmentJob.DoesNotExist:
+            return JsonResponse(
+                {'error': 'Job not found or access denied.'},
+                status=404
+            )
     else:
         # For anonymous users, verify job is in their session
         anonymous_jobs = request.session.get('anonymous_jobs', [])
         if str(job_id) not in anonymous_jobs:
-            messages.error(request, 'Job not found or access denied.')
-            return redirect('scholar_app:bibtex_enrichment')
+            return JsonResponse(
+                {'error': 'Job not found or access denied.'},
+                status=403
+            )
 
-        job = get_object_or_404(
-            BibTeXEnrichmentJob,
-            id=job_id,
-            user=None
+        try:
+            job = BibTeXEnrichmentJob.objects.get(
+                id=job_id,
+                user=None
+            )
+        except BibTeXEnrichmentJob.DoesNotExist:
+            return JsonResponse(
+                {'error': 'Job not found.'},
+                status=404
+            )
+
+    # Check if job is completed
+    if job.status != 'completed':
+        return JsonResponse(
+            {
+                'error': 'Enriched BibTeX file not available yet.',
+                'status': job.status,
+                'message': f'Job is currently {job.status}. Please wait for completion.'
+            },
+            status=400
         )
 
-    if job.status != 'completed' or not job.output_file:
-        messages.error(request, 'Enriched BibTeX file not available yet.')
-        return redirect('scholar_app:bibtex_job_detail', job_id=job_id)
+    # Check if output file exists
+    if not job.output_file:
+        return JsonResponse(
+            {'error': 'No output file generated for this job.'},
+            status=404
+        )
 
     # Serve the file
     file_path = Path(settings.MEDIA_ROOT) / job.output_file.name
 
     if not file_path.exists():
-        messages.error(request, 'File not found.')
-        return redirect('scholar_app:bibtex_job_detail', job_id=job_id)
+        return JsonResponse(
+            {'error': 'File not found on server.'},
+            status=404
+        )
 
+    # Return file as downloadable attachment
     response = FileResponse(
         open(file_path, 'rb'),
         content_type='application/x-bibtex'
@@ -313,6 +348,18 @@ def _append_log_sync(job, message):
     return log_line
 
 
+async def _append_log_async(job, message):
+    """Helper function to append log message to job and save (async version for async callbacks)."""
+    def _append():
+        timestamp = timezone.now().strftime('%Y-%m-%d %H:%M:%S')
+        log_line = f"[{timestamp}] {message}\n"
+        job.processing_log += log_line
+        job.save(update_fields=['processing_log'])
+        return log_line
+
+    return await sync_to_async(_append)()
+
+
 def _process_bibtex_job(job):
     """Process a BibTeX enrichment job using metadata-only pipeline (API-only).
 
@@ -322,6 +369,9 @@ def _process_bibtex_job(job):
     import traceback
 
     try:
+        # Refresh from database to ensure we have the latest state
+        job.refresh_from_db()
+
         # IMMEDIATE log write to show we started
         job.processing_log = f"[{timezone.now().strftime('%Y-%m-%d %H:%M:%S')}] Function started\n"
 
@@ -330,7 +380,7 @@ def _process_bibtex_job(job):
             job.status = 'processing'
             job.started_at = timezone.now()
 
-        job.save()
+        job.save(update_fields=['processing_log', 'status', 'started_at'])
 
         _append_log_sync(job, "Background thread is running...")
         _append_log_sync(job, "Starting BibTeX enrichment process...")
@@ -344,9 +394,18 @@ def _process_bibtex_job(job):
         input_path = Path(settings.MEDIA_ROOT) / job.input_file.name
         _append_log_sync(job, f"Input file: {input_path.name}")
 
-        # Create output path
+        # Create output path with cleaner filename format
         user_folder = str(job.user.id) if job.user else 'anonymous'
-        output_filename = f"{Path(job.input_file.name).stem}_enriched_{job.id}.bib"
+        # Extract original filename stem (without extension)
+        original_stem = Path(job.input_file.name).stem
+        # Remove only Django's upload suffix (last underscore with random chars)
+        # Keep user's original filename intact (e.g., "my_paper_abc123" stays as is)
+        import re
+        # Django adds suffix like "_vYhtlmd" at the end - remove only that pattern
+        base_name = re.sub(r'_[A-Za-z0-9]{7}$', '', original_stem)
+        # Create clean output filename: origname-enriched-by-scitex-<short-id>.bib
+        short_id = str(job.id).split('-')[0]  # First segment of UUID for brevity
+        output_filename = f"{base_name}-enriched-by-scitex-{short_id}.bib"
         output_path = Path(settings.MEDIA_ROOT) / 'bibtex_enriched' / user_folder / output_filename
         output_path.parent.mkdir(parents=True, exist_ok=True)
         _append_log_sync(job, f"Output will be saved to: {output_filename}")
@@ -382,32 +441,48 @@ def _process_bibtex_job(job):
         _append_log_sync(job, "")
 
         # Define progress callback for real-time updates
-        def progress_callback(current, total, info):
-            """Called after each paper is processed."""
+        async def progress_callback(current, total, info):
+            """Called after each paper is processed (async version)."""
+            logger.info(f"🔔 CALLBACK INVOKED: current={current}, total={total}, info={info}")
+
             title = info.get('title', 'Untitled')[:60]
             success = info.get('success', False)
             error = info.get('error')
 
-            # Log progress
+            # Log progress (using async version)
             status_icon = "✓" if success else "✗"
-            _append_log_sync(job, f"[{current}/{total}] {status_icon} {title}")
+            await _append_log_async(job, f"[{current}/{total}] {status_icon} {title}")
+            await _append_log_async(job, f"    DEBUG: Callback invoked - updating processed_papers from {job.processed_papers} to {current}")
 
             if error:
-                _append_log_sync(job, f"    Error: {error[:100]}")
+                await _append_log_async(job, f"    Error: {error[:100]}")
 
-            # Update counters
-            if success:
-                job.processed_papers = current
-            else:
-                job.failed_papers += 1
+            # Update counters and save to database (wrapped in sync_to_async)
+            async def _update_job():
+                if success:
+                    job.processed_papers = current
+                    logger.info(f"DEBUG: Updated job.processed_papers to {current}")
+                else:
+                    job.failed_papers += 1
+                    logger.info(f"DEBUG: Incremented job.failed_papers to {job.failed_papers}")
 
-            # Save to database for real-time polling
-            job.save(update_fields=['processed_papers', 'failed_papers', 'processing_log'])
+                # Save to database for real-time polling
+                job.save(update_fields=['processed_papers', 'failed_papers', 'processing_log'])
+                logger.info(f"DEBUG: Saved job - processed={job.processed_papers}, failed={job.failed_papers}")
+
+            await sync_to_async(_update_job)()
+
+            await _append_log_async(job, f"    DEBUG: Database updated - processed_papers is now {job.processed_papers}")
 
         # Enrich all papers with progress callback
+        logger.info(f"🚀 About to call enrich_papers_async with {len(papers)} papers and callback={progress_callback}")
+        _append_log_sync(job, f"DEBUG: Calling enrichment with callback: {progress_callback}")
+
         enriched_papers = asyncio.run(
             pipeline.enrich_papers_async(papers, on_progress=progress_callback)
         )
+
+        logger.info(f"✓ enrich_papers_async completed, returned {len(enriched_papers)} papers")
 
         _append_log_sync(job, "")
         _append_log_sync(job, f"Enrichment complete! Processed {len(enriched_papers)} papers")
@@ -419,7 +494,10 @@ def _process_bibtex_job(job):
         bibtex_handler.papers_to_bibtex(enriched_collection, output_path=output_path)
         _append_log_sync(job, f"Saved enriched BibTeX to: {output_filename}")
 
-        # Update job with output file path (counts already updated incrementally)
+        # Refresh from database to get latest processed_papers count from callback
+        job.refresh_from_db()
+
+        # Update job with output file path (after refresh to avoid overwriting)
         job.output_file = str(output_path.relative_to(settings.MEDIA_ROOT))
 
         _append_log_sync(job, "")
@@ -481,7 +559,8 @@ def _process_bibtex_job(job):
         _append_log_sync(job, "✓ Enrichment process completed successfully!")
         job.status = 'completed'
         job.completed_at = timezone.now()
-        job.save()
+        # Save without overwriting processed_papers which was updated by callback
+        job.save(update_fields=['status', 'completed_at', 'processing_log', 'output_file', 'enrichment_summary'])
 
     except Exception as e:
         error_msg = f"✗ ERROR: {str(e)}"
@@ -499,10 +578,11 @@ def _process_bibtex_job(job):
             # If logging fails, write directly
             job.processing_log += f"\n\n{error_msg}\n{error_traceback}\n"
 
+        job.refresh_from_db()
         job.status = 'failed'
         job.error_message = str(e)
         job.completed_at = timezone.now()
-        job.save()
+        job.save(update_fields=['status', 'error_message', 'completed_at'])
 
         # Also log to Django logger
         logger.error(f"BibTeX job {job.id} failed: {e}")

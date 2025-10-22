@@ -1,1052 +1,2500 @@
 {% extends "scholar_app/scholar_base.html" %}
 {% load static %}
 
+{% block title %}SciTeX Scholar - Literature Search{% endblock %}
+
 {% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/components/hero.css' %}">
+<link rel="stylesheet" href="{% static 'css/common/scitex-components.css' %}">
+<link rel="stylesheet" href="{% static 'css/common/terminal-log.css' %}">
+<link rel="stylesheet" href="{% static 'css/common.css' %}">
 <style>
-  .hero-search {
-    background-color: var(--gray-100);
-    padding: var(--spacing-xxl) 0;
-  }
-  
-  .hero-search .lead {
-    color: var(--scitex-color-02);
-    opacity: 1.0;
-  }
-  
-  .hero-search p {
-    color: var(--text-dark);
-    opacity: 0.8;
-  }
-  
-  .search-box {
-    background-color: var(--color-canvas-default);
-    border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow-md);
-    padding: var(--spacing-lg);
-    margin-top: var(--spacing-lg);
-  }
-  
-  .search-input-container {
-    display: flex;
-    gap: var(--spacing-sm);
-  }
-  
-  .search-input {
-    flex-grow: 1;
-    padding: var(--spacing-md);
-    border: 1px solid var(--mid-gray);
-    border-radius: var(--border-radius);
-    font-size: 1.1rem;
-  }
-  
-  .search-input::placeholder {
-    color: var(--color-fg-muted);
-    opacity: 0.5;
-  }
-  
-  .search-btn {
-    background-color: var(--primary-color);
-    color: var(--white);
-    border: none;
-    border-radius: var(--border-radius);
-    padding: 0 var(--spacing-lg);
-    cursor: pointer;
-    transition: background-color var(--transition-normal);
-  }
-  
-  .search-btn:hover {
-    background-color: var(--primary-dark);
-  }
-  
-  .help-btn {
-    background-color: var(--secondary-color);
-    color: var(--white);
-    border: none;
-    border-radius: var(--border-radius);
-    padding: 0 var(--spacing-md);
-    cursor: pointer;
-    transition: background-color var(--transition-normal);
-  }
-  
-  .help-btn:hover {
-    background-color: var(--secondary-dark);
-  }
-  
-  .help-modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.5);
-  }
-  
-  .help-modal-content {
-    background-color: var(--color-canvas-default);
-    margin: 5% auto;
-    padding: 2rem;
-    border-radius: var(--border-radius);
-    width: 80%;
-    max-width: 600px;
-    max-height: 80vh;
-    overflow-y: auto;
-  }
-  
-  .help-close {
-    color: var(--color-fg-muted);
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-  }
+    /* Split-screen layout styles */
+    .split-container {
+        display: flex;
+        gap: 1rem;
+        transition: all 0.6s ease;
+        margin-bottom: 2rem;
+    }
 
-  .help-close:hover {
-    color: var(--color-fg-default);
-  }
-  
-  .help-section {
-    margin-bottom: var(--spacing-lg);
-  }
-  
-  .help-example {
-    background-color: var(--light-gray);
-    padding: var(--spacing-sm);
-    border-radius: var(--border-radius);
-    font-family: monospace;
-    margin: var(--spacing-xs) 0;
-  }
-  
-  .tooltip {
-    position: relative;
-    display: inline-block;
-  }
-  
-  .tooltip .tooltiptext {
-    visibility: hidden;
-    width: 200px;
-    background-color: var(--scitex-color-01);
-    color: var(--white);
-    text-align: center;
-    border-radius: 6px;
-    padding: 5px;
-    position: absolute;
-    z-index: 1;
-    bottom: 125%;
-    left: 50%;
-    margin-left: -100px;
-    opacity: 0;
-    transition: opacity 0.3s;
-    font-size: 0.8rem;
-  }
-  
-  .tooltip:hover .tooltiptext {
-    visibility: visible;
-    opacity: 1;
-  }
-  
-  .search-options {
-    display: flex;
-    margin-top: var(--spacing-md);
-    gap: var(--spacing-lg);
-  }
-  
-  .search-options label {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-xs);
-    cursor: pointer;
-  }
-  
-  .results-preview {
-    margin-top: var(--spacing-xl);
-  }
-  
-  .result-card {
-    background-color: var(--color-canvas-default);
-    border-radius: var(--border-radius);
-    padding: var(--spacing-md);
-    margin-bottom: var(--spacing-md);
-    box-shadow: var(--box-shadow-sm);
-    transition: transform var(--transition-normal), box-shadow var(--transition-normal);
-  }
-  
-  .result-card:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--box-shadow-md);
-  }
-  
-  .result-title {
-    color: var(--primary-color);
-    margin-bottom: var(--spacing-xs);
-  }
-  
-  .result-authors {
-    color: var(--text-light);
-    font-size: 0.9rem;
-    margin-bottom: var(--spacing-xs);
-  }
-  
-  .result-journal {
-    color: var(--text-light);
-    font-style: italic;
-    font-size: 0.9rem;
-    margin-bottom: var(--spacing-sm);
-  }
-  
-  .result-abstract {
-    font-size: 0.95rem;
-    line-height: 1.5;
-    margin-bottom: var(--spacing-sm);
-  }
-  
-  .highlight {
-    background-color: rgba(var(--primary-color-rgb), 0.1);
-    padding: 0 2px;
-  }
-  
-  .result-meta {
-    display: flex;
-    gap: var(--spacing-lg);
-    font-size: 0.9rem;
-    color: var(--text-light);
-  }
-  
-  .features-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: var(--spacing-lg);
-    margin-top: var(--spacing-xl);
-  }
-  
-  .feature-card {
-    background-color: var(--color-canvas-default);
-    border-radius: var(--border-radius);
-    padding: var(--spacing-lg);
-    box-shadow: var(--box-shadow-sm);
-  }
-  
-  .feature-icon {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background-color: rgba(var(--primary-color-rgb), 0.1);
-    color: var(--primary-color);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    margin-bottom: var(--spacing-md);
-  }
+    .split-panel {
+        flex: 1;
+        min-height: 600px;
+        transition: all 0.6s ease;
+        position: relative;
+    }
 
-  .demo-section {
-    background-color: var(--color-canvas-subtle);
-    padding: var(--spacing-xxl) 0;
-  }
+    .split-panel.expanded {
+        flex: 3;
+    }
 
-  .demo-video-container {
-    max-width: 900px;
-    margin: 0 auto;
-    background: var(--color-canvas-default);
-    border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow-lg);
-    overflow: hidden;
-  }
+    .split-panel.collapsed {
+        flex: 0.3;
+        min-width: 80px;
+    }
 
-  .demo-video-container video {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
+    .panel-header {
+        background: var(--scitex-color-02);
+        color: var(--white);
+        padding: 1.5rem;
+        border-radius: 12px 12px 0 0;
+        cursor: pointer;
+        transition: background 0.2s ease;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
 
-  .demo-description {
-    padding: var(--spacing-lg);
-    text-align: center;
-  }
+    .panel-header:hover {
+        background: var(--scitex-color-01);
+    }
 
-  .demo-features {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: var(--spacing-md);
-    margin-top: var(--spacing-md);
-    padding: 0 var(--spacing-lg);
-  }
+    .panel-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+    }
 
-  .demo-feature-item {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-xs);
-    font-size: 0.95rem;
-  }
+    /* Fix text visibility in Literature Search panel - Dark Mode */
+    #searchPanel .text-muted,
+    #searchPanel .form-label,
+    #searchPanel small,
+    #searchPanel label {
+        color: var(--color-fg-muted) !important;
+    }
 
-  .demo-feature-item i {
-    color: var(--primary-color);
-  }
+    #searchPanel .fw-bold,
+    #searchPanel .form-label.fw-bold {
+        color: var(--color-fg-default) !important;
+    }
+
+    /* Dark mode - bluish colors for filter section labels */
+    [data-theme="dark"] #searchPanel .fw-bold,
+    [data-theme="dark"] #searchPanel .form-label.fw-bold {
+        color: var(--scitex-color-06) !important;
+    }
+
+    /* Fix checkbox labels and quick filter buttons */
+    #searchPanel .scitex-checkbox-label,
+    #searchPanel .scitex-toggle-label {
+        color: var(--color-fg-default) !important;
+        background: var(--color-canvas-subtle) !important;
+        border-color: var(--color-border-default) !important;
+    }
+
+    /* Dark mode - bluish colors for checkbox labels */
+    [data-theme="dark"] #searchPanel .scitex-checkbox-label,
+    [data-theme="dark"] #searchPanel .scitex-toggle-label {
+        color: var(--scitex-color-06) !important;
+        background: var(--scitex-color-01-light) !important;
+        border-color: var(--scitex-color-03) !important;
+    }
+
+    /* Make checkboxes visible in dark mode */
+    #searchPanel .scitex-checkbox {
+        accent-color: var(--scitex-color-03);
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
+
+    [data-theme="dark"] #searchPanel .scitex-checkbox {
+        accent-color: var(--scitex-color-05);
+    }
+
+    #searchPanel .scitex-toggle:checked + .scitex-toggle-label {
+        background: var(--scitex-color-01) !important;
+        color: var(--white) !important;
+    }
+
+    [data-theme="dark"] #searchPanel .scitex-toggle:checked + .scitex-toggle-label {
+        background: var(--scitex-color-04) !important;
+        color: var(--scitex-color-01) !important;
+    }
+
+    /* Show BibTeX Enrichment as selected/active by default (primary feature) */
+    #bibtexPanel .panel-header {
+        background: var(--scitex-color-01);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    #bibtexPanel.collapsed .panel-header {
+        background: var(--scitex-color-02);
+        box-shadow: none;
+    }
+
+    #searchPanel .panel-header {
+        background: var(--scitex-color-02);
+    }
+
+    #searchPanel:not(.collapsed) .panel-header {
+        background: var(--scitex-color-01);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .panel-content {
+        background: var(--color-canvas-default);
+        border: 2px solid var(--scitex-color-02);
+        border-top: none;
+        border-radius: 0 0 12px 12px;
+        padding: 2rem;
+        min-height: 750px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .search-card-inner {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .collapsed .panel-content {
+        display: none;
+    }
+
+    .collapsed .panel-header {
+        writing-mode: vertical-lr;
+        text-orientation: mixed;
+        min-height: 400px;
+        justify-content: center;
+        border-radius: 12px;
+    }
+
+    .search-hero {
+        background: linear-gradient(135deg, var(--scitex-color-01) 0%, var(--scitex-color-02) 100%);
+        color: var(--white);
+        padding: 1rem 0;
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+    .search-card {
+        background: var(--color-canvas-default);
+        border-radius: 20px;
+        padding: 2rem;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        border: 1px solid var(--color-border-default);
+    }
+    .search-input {
+        border: 1px solid var(--color-border-default);
+        border-radius: 15px;
+        padding: 1rem 1.5rem;
+        font-size: 1.1rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        background: var(--color-canvas-default);
+        color: var(--color-fg-default);
+    }
+
+    .search-input::placeholder {
+        color: var(--color-fg-muted);
+        opacity: 0.6;
+    }
+
+    /* Dark mode specific styles for search input */
+    [data-theme="dark"] .search-input {
+        background: var(--scitex-color-01-light);
+        border-color: var(--scitex-color-03);
+        color: var(--scitex-color-06);
+    }
+
+    [data-theme="dark"] .search-input::placeholder {
+        color: var(--scitex-color-05);
+        opacity: 0.7;
+    }
+
+    .search-input:focus {
+        border-color: var(--scitex-color-03);
+        box-shadow: 0 0 0 0.2rem rgba(var(--scitex-color-03-rgb), 0.25);
+    }
+
+    [data-theme="dark"] .search-input:focus {
+        border-color: var(--scitex-color-04);
+        box-shadow: 0 0 0 0.2rem rgba(108, 139, 160, 0.25);
+    }
+    .search-btn {
+        border-radius: 15px;
+        padding: 1rem 2rem;
+        font-weight: 600;
+        background: var(--scitex-color-01);
+        border: none;
+        color: var(--white);
+    }
+    .search-btn:hover {
+        background: var(--scitex-color-01-light);
+        color: var(--white);
+    }
+    .result-card {
+        background: var(--color-canvas-default);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        border-left: 4px solid var(--scitex-color-01);
+    }
+    .result-title {
+        color: var(--color-fg-default);
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+        text-decoration: none;
+    }
+    .result-title:hover {
+        color: var(--scitex-color-02);
+    }
+    .result-authors {
+        color: var(--color-fg-muted);
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+    .result-snippet {
+        color: var(--color-fg-default);
+        font-size: 0.9rem;
+        line-height: 1.5;
+        margin-top: 1rem;
+    }
+
+    .simple-filter {
+        background: var(--color-canvas-subtle);
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    .year-badge {
+        background: var(--color-canvas-subtle);
+        color: var(--color-fg-muted);
+        padding: 0.25rem 0.5rem;
+        border-radius: 8px;
+        font-size: 0.8rem;
+    }
+    .open-access {
+        background: var(--success-color);
+        color: var(--white);
+        padding: 0.25rem 0.5rem;
+        border-radius: 8px;
+        font-size: 0.8rem;
+    }
+    .abstract-full {
+        line-height: 1.5;
+    }
+    .abstract-toggle {
+        cursor: pointer;
+        text-decoration: none !important;
+    }
+    .abstract-toggle:hover {
+        text-decoration: underline !important;
+    }
+    
+    /* SciTeX Design System - Toggle Buttons */
+    .scitex-toggle-wrapper {
+        position: relative;
+        display: inline-block;
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .scitex-toggle {
+        display: none;
+    }
+    
+    .scitex-toggle-label {
+        display: inline-block;
+        padding: 0.375rem 0.75rem;
+        background: var(--color-canvas-subtle);
+        border: 1px solid var(--scitex-color-03);
+        border-radius: 4px;
+        color: var(--color-fg-default);
+        font-size: 0.875rem;
+        font-weight: 500;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        user-select: none;
+    }
+
+    .scitex-toggle-label:hover {
+        background: var(--color-canvas-inset);
+        border-color: var(--scitex-color-02);
+        color: var(--color-fg-default);
+        text-decoration: none;
+    }
+
+    .scitex-toggle:checked + .scitex-toggle-label {
+        background: var(--scitex-color-01);
+        border-color: var(--scitex-color-01);
+        color: var(--white);
+        box-shadow: 0 2px 4px rgba(var(--scitex-color-01-rgb), 0.2);
+    }
+
+    .scitex-toggle:checked + .scitex-toggle-label:hover {
+        background: var(--scitex-color-02);
+        border-color: #34495e;
+        color: white;
+    }
+
+    /* Enrich Button Hover Effect */
+    #bibtexSubmitBtn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+        background: linear-gradient(135deg, var(--scitex-color-02) 0%, var(--scitex-color-03) 100%);
+    }
+
+    /* Fix header button focus states to follow SciTeX design */
+    .btn:focus,
+    .btn:active,
+    .btn.active {
+        box-shadow: none !important;
+    }
+    
+    .btn-primary:focus,
+    .btn-primary:active,
+    .btn-primary.active {
+        background-color: #1a2332 !important;
+        border-color: #1a2332 !important;
+    }
+    
+    .btn-outline-primary:focus,
+    .btn-outline-primary:active,
+    .btn-outline-primary.active {
+        background-color: #1a2332 !important;
+        border-color: #1a2332 !important;
+        color: white !important;
+    }
+    
+    .search-btn:focus,
+    .search-btn:active {
+        background: #34495e !important;
+        border-color: #34495e !important;
+        color: white !important;
+    }
 </style>
+<script>
+// Split-screen panel toggle - defined early for onclick handlers
+function togglePanel(panelType) {
+    const searchPanel = document.getElementById('searchPanel');
+    const bibtexPanel = document.getElementById('bibtexPanel');
+
+    if (panelType === 'search') {
+        // If search panel is collapsed, expand it to maximum
+        if (searchPanel.classList.contains('collapsed')) {
+            searchPanel.classList.remove('collapsed');
+            searchPanel.classList.add('expanded');
+            bibtexPanel.classList.remove('expanded');
+            bibtexPanel.classList.add('collapsed');
+        }
+        // If search panel is already expanded, return to normal
+        else if (searchPanel.classList.contains('expanded')) {
+            searchPanel.classList.remove('expanded');
+            bibtexPanel.classList.remove('collapsed');
+        }
+        // If search panel is normal, expand it to maximum
+        else {
+            searchPanel.classList.add('expanded');
+            bibtexPanel.classList.add('collapsed');
+        }
+    } else if (panelType === 'bibtex') {
+        // If bibtex panel is collapsed, expand it to maximum
+        if (bibtexPanel.classList.contains('collapsed')) {
+            bibtexPanel.classList.remove('collapsed');
+            bibtexPanel.classList.add('expanded');
+            searchPanel.classList.remove('expanded');
+            searchPanel.classList.add('collapsed');
+        }
+        // If bibtex panel is already expanded, return to normal
+        else if (bibtexPanel.classList.contains('expanded')) {
+            bibtexPanel.classList.remove('expanded');
+            searchPanel.classList.remove('collapsed');
+        }
+        // If bibtex panel is normal, expand it to maximum
+        else {
+            bibtexPanel.classList.add('expanded');
+            searchPanel.classList.add('collapsed');
+        }
+    }
+}
+</script>
 {% endblock %}
 
-{% block search_content %}
-<section class="hero-section hero-silverish-ai-light">
-  <div class="container">
-    <div class="row justify-content-center">
-      <div class="col-lg-8 text-center">
-        <h1 class="hero-title">SciTeX Scholar</h1>
-        <p class="hero-subtitle">Advanced semantic search for scientific literature</p>
-      </div>
-    </div>
-    
-    <div class="search-box">
-      <form action="#" method="get">
-        <div class="search-input-container">
-          <input type="text" class="search-input" placeholder="Search scientific papers..." value="Protein folding prediction using deep learning" data-help="Enter keywords, authors, or topics to search across 7 academic databases">
-          <button type="submit" class="search-btn" data-help="Click to search or press Enter">
-            <i class="fas fa-search"></i>
-          </button>
-          <button type="button" class="help-btn" onclick="showHelpModal()" data-help="Get help with search tips and examples">
-            <i class="fas fa-question-circle"></i>
-          </button>
-        </div>
-        <div class="search-options">
-          <label>
-            <input type="checkbox" checked> Full text
-          </label>
-          <label>
-            <input type="checkbox" checked> Include abstracts
-          </label>
-          <label>
-            <input type="checkbox"> Open access only
-          </label>
-          <label>
-            <input type="checkbox"> Subscripted papers <span class="coming-soon-text">Coming Soon</span>
-          </label>
-          <div style="margin-left: auto">
-            <label for="years">Year range:</label>
-            <select id="years">
-              <option>All time</option>
-              <option selected>Last 5 years</option>
-              <option>Last 10 years</option>
-              <option>Custom...</option>
-            </select>
-          </div>
-        </div>
-      </form>
-
-      <!-- BibTeX Enrichment - Direct Upload -->
-      <div style="margin-top: 2rem; padding: 2rem; background: var(--color-canvas-default); border-radius: 12px; border: 1px solid var(--color-border-default);">
-        <h3 style="color: var(--color-fg-default); margin-bottom: 0.75rem; font-size: 1.3rem;">
-          <i class="fas fa-file-code"></i> Enrich Your BibTeX Files
-        </h3>
-        <p style="color: var(--color-fg-muted); margin-bottom: 1.5rem; font-size: 0.95rem;">
-          Drop your .bib file below - enrichment starts automatically with citation counts, impact factors, and PDFs
-        </p>
-
-        <form id="bibtexUploadForm" method="post" action="{% url 'scholar_app:bibtex_upload' %}" enctype="multipart/form-data">
-          {% csrf_token %}
-
-          <!-- Drop Zone -->
-          <div id="bibDropZone" class="bib-drop-zone" style="
-            position: relative;
-            width: 100%;
-            padding: 2rem;
-            border: 2px dashed var(--color-border-default);
-            border-radius: 8px;
-            background: var(--color-canvas-subtle);
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-bottom: 1rem;
-          ">
-            <input
-              type="file"
-              name="bibtex_file"
-              id="bibFileInput"
-              accept=".bib"
-              required
-              style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; opacity: 0; cursor: pointer;"
-            >
-            <div id="bibDropZoneContent">
-              <i class="fas fa-cloud-upload-alt" style="font-size: 2.5rem; color: var(--scitex-color-03); margin-bottom: 0.5rem;"></i>
-              <p style="color: var(--color-fg-default); font-weight: 600; margin: 0.5rem 0;">
-                Click to browse or drag & drop
-              </p>
-              <p style="color: var(--color-fg-muted); font-size: 0.85rem; margin: 0;">
-                <i class="fas fa-info-circle"></i> BibTeX files (.bib) only • Auto-processing starts immediately
-              </p>
+{% block content %}
+<!-- Split-Screen Layout -->
+<div class="container" style="margin-top: 2rem; margin-bottom: 3rem;">
+    <div class="split-container" id="splitContainer">
+        <!-- LEFT PANEL: BibTeX Enrichment (Primary Feature) -->
+        <div class="split-panel" id="bibtexPanel">
+            <div class="panel-header" onclick="togglePanel('bibtex')">
+                <div>
+                    <i class="fas fa-file-code"></i> <span class="panel-title">BibTeX Enrichment</span>
+                </div>
+                <i class="fas fa-expand-alt toggle-icon"></i>
             </div>
-            <div id="bibFileDisplay" style="display: none;">
-              <i class="fas fa-file-alt" style="font-size: 2rem; color: var(--success-color); margin-bottom: 0.5rem;"></i>
-              <p style="color: var(--color-fg-default); font-weight: 600; margin: 0.5rem 0;">
-                <span id="bibFileName"></span>
-              </p>
-              <p style="color: var(--color-fg-muted); font-size: 0.85rem; margin: 0;">
-                <span id="bibFileSize"></span>
-              </p>
+            <div class="panel-content">
+                <!-- Upload Form Area -->
+                <div id="bibtexFormArea">
+                    <!-- Helper Message with ASTA Instructions -->
+                    <div style="background: linear-gradient(135deg, rgba(var(--info-color-rgb, 107, 143, 179), 0.1) 0%, rgba(var(--scitex-color-03-rgb, 80, 107, 122), 0.1) 100%); border-left: 4px solid var(--info-color); border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1.5rem;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <i class="fas fa-lightbulb" style="color: var(--info-color); font-size: 1.5rem;"></i>
+                            <div style="flex: 1;">
+                                <span style="color: var(--color-fg-muted); font-size: 0.95rem;">
+                                    No BibTeX file? Find papers at <a href="https://asta.allen.ai/chat/" target="_blank" rel="noopener noreferrer" style="color: var(--info-color); font-weight: 600; text-decoration: none; border-bottom: 1px solid var(--info-color);">AI2 Asta</a><span class="tooltip-wrapper"><i class="fas fa-question-circle tooltip-trigger"></i><span class="tooltip-content"><h5 class="tooltip-header"><i class="fas fa-graduation-cap"></i> How to Use AI2 Asta</h5><div class="tooltip-image-grid"><div class="tooltip-image-item"><img src="{% static 'images/asta/asta-1.jpg' %}" alt="ASTA Step 1" onclick="window.open(this.src, '_blank')" class="tooltip-image"><p class="tooltip-caption"><strong>Step 1:</strong> Type query & search</p></div><div class="tooltip-image-item"><img src="{% static 'images/asta/asta-2.jpg' %}" alt="ASTA Step 2" onclick="window.open(this.src, '_blank')" class="tooltip-image"><p class="tooltip-caption"><strong>Step 2:</strong> Export Citations</p></div></div><p class="tooltip-footer"><i class="fas fa-university"></i> AI2 Asta is provided by Allen Institute</p></span></span> and <code style="background: rgba(var(--info-color-rgb, 107, 143, 179), 0.15); padding: 0.2rem 0.4rem; border-radius: 3px; color: var(--color-fg-default); font-size: 0.9rem;">Export All Citations</code><br>Once downloaded, enhance the .bib file by uploading below - <strong>Abstracts, URLs, citation counts, and impact factors of journals will be appended</strong>.
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form id="bibtexEnrichmentForm" method="post" action="{% url 'scholar_app:bibtex_upload' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <!-- File Upload with instructions inside -->
+                    <div style="margin-bottom: 1.5rem;">
+                        <div id="dropZone" style="position: relative; border: 3px dashed var(--scitex-color-03); border-radius: 12px; padding: 3rem 2rem; text-align: center; background: var(--color-canvas-subtle); transition: all 0.3s;">
+                            <i class="fas fa-cloud-upload-alt" style="font-size: 3.5rem; color: var(--scitex-color-02); margin-bottom: 1rem;"></i>
+                            <h3 style="color: var(--color-fg-default); margin-bottom: 0.5rem; font-size: 1.5rem; font-weight: 700;">
+                                Upload your .bib file
+                            </h3>
+                            <p id="uploadMessage" style="color: var(--color-fg-muted); margin-bottom: 1rem; font-size: 1.05rem;">
+                                Enrich with <strong>Abstract</strong>, <strong>URL</strong>, <strong>Citation Count</strong>, and <strong>Impact Factor</strong>
+                            </p>
+                            <div id="fileNameDisplay" style="display: none; color: var(--success-color); font-weight: 600; margin-bottom: 1rem; font-size: 1rem;">
+                                <i class="fas fa-check-circle"></i> <span id="fileName"></span>
+                            </div>
+                            <input type="file" name="bibtex_file" id="bibtexFileInput" accept=".bib" required
+                                   style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;">
+                        </div>
+                    </div>
+
+                    <!-- Progress Display Area (shown right under dropbox) -->
+                    <div id="bibtexProgressArea" style="display: none; margin-top: 1.5rem;">
+                        <!-- Progress Bar -->
+                        <div style="margin-bottom: 1.5rem;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span style="font-weight: 600; color: var(--color-fg-default);">Progress</span>
+                                <span style="color: var(--color-fg-muted);" id="progressPercentage">0%</span>
+                            </div>
+                            <div style="background: var(--color-border-default); border-radius: 8px; height: 12px; overflow: hidden;">
+                                <div id="progressBar" style="background: var(--scitex-color-03); height: 100%; width: 0%; transition: width 0.3s;"></div>
+                            </div>
+                            <div style="margin-top: 0.5rem; color: var(--color-fg-muted); font-size: 0.9rem;" id="progressDetails">
+                                0 / 0 papers processed
+                            </div>
+                        </div>
+
+                        <!-- Processing Log -->
+                        <div class="terminal-log-container">
+                            <div class="terminal-log-container__header">
+                                <h4 class="terminal-log-container__title">Processing Log</h4>
+                            </div>
+                            <pre id="processingLog" class="terminal-log terminal-log--medium">Initializing...</pre>
+                        </div>
+
+                        <!-- Download Button (shown after completion) -->
+                        <div id="downloadArea" style="display: none; text-align: center;">
+                            <a id="downloadBtn" href="#" style="display: inline-block; padding: 1rem 2rem; background: var(--success-color); color: var(--white); border-radius: 8px; text-decoration: none; font-weight: 600;">
+                                <i class="fas fa-download"></i> Download Enriched BibTeX
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Project Selection -->
+                    {% if user.is_authenticated %}
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--color-fg-default);">
+                            <i class="fas fa-folder"></i> Save to project
+                        </label>
+                        <select name="project_id" style="display: block; width: 100%; padding: 0.75rem; border: 1px solid var(--color-border-default); border-radius: 6px; background: var(--color-canvas-default); color: var(--color-fg-default);">
+                            <option value="">-- No Project --</option>
+                            {% for project in user_projects %}
+                            <option value="{{ project.id }}">{{ project.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endif %}
+                    </form>
+                </div>
             </div>
-          </div>
+        </div>
 
-          <!-- Hidden fields for compatibility with existing backend -->
-          <input type="hidden" name="project_id" value="">
-          <input type="hidden" name="project_name" value="">
-          <input type="hidden" name="num_workers" value="4">
-        </form>
-
-        <!-- Progress Panel (Hidden by default) -->
-        <div id="bibJobPanel" style="display: none; padding: 1.5rem; background: var(--color-canvas-subtle); border-radius: 8px; border: 1px solid var(--color-border-default); margin-top: 1rem;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-            <h4 style="color: var(--color-fg-default); margin: 0;">
-              <i class="fas fa-cog fa-spin"></i> <span id="bibJobTitle">Enriching...</span>
-            </h4>
-          </div>
-
-          <!-- Progress Bar -->
-          <div style="margin-bottom: 1rem;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-              <span style="font-weight: 600; color: var(--color-fg-default); font-size: 0.9rem;">Progress</span>
-              <span style="color: var(--color-fg-muted); font-size: 0.9rem;" id="bibProgressPercent">0%</span>
+        <!-- LEFT PANEL: BibTeX Enrichment (Primary Feature) -->
+        <div class="split-panel" id="bibtexPanel">
+            <div class="panel-header" onclick="togglePanel('search')">
+                <div>
+                    <i class="fas fa-search"></i> <span class="panel-title">Literature Search</span>
+                </div>
+                <i class="fas fa-expand-alt toggle-icon"></i>
             </div>
-            <div style="background: var(--color-border-default); border-radius: 8px; height: 10px; overflow: hidden;">
-              <div id="bibProgressBar" style="background: var(--scitex-color-03); height: 100%; width: 0%; transition: width 0.3s;"></div>
+            <div class="panel-content">
+                <div class="search-card-inner">
+                    <form method="get" action="{% url 'scholar_app:simple_search' %}">
+                        <div class="input-group input-group-lg">
+                            <input type="text" name="q" class="form-control search-input" 
+                                   placeholder="Enter keywords here..."
+                                   value="{{ query }}" autofocus>
+                            <button type="submit" class="btn search-btn" id="searchButton">
+                                🔍 Search
+                            </button>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <!-- Advanced Filters Toggle -->
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <small style="color: var(--color-fg-default); font-weight: 600;">Filters:</small>
+                                <button type="button" class="btn btn-outline-secondary btn-sm" id="toggleAdvancedFilters" style="border-color: var(--scitex-color-05); color: var(--color-fg-default); background: var(--color-canvas-subtle);">
+                                    <i class="fas fa-sliders-h"></i> Advanced Filters
+                                </button>
+                            </div>
+
+                            <!-- Basic Filters -->
+                            <div id="basicFilters" class="row g-3 mb-3">
+                                <!-- Source Selection -->
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold" style="color: var(--color-fg-default);">Search Sources:</label>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <div class="scitex-toggle-wrapper">
+                                            <input class="scitex-toggle all-sources-toggle" type="checkbox" id="source_all_toggle" {% if not request.GET.source_pubmed and not request.GET.source_google_scholar and not request.GET.source_arxiv and not request.GET.source_semantic %}checked{% endif %}>
+                                            <label class="scitex-toggle-label" for="source_all_toggle">All Sources</label>
+                                        </div>
+                                        <div class="scitex-toggle-wrapper">
+                                            <input class="scitex-toggle source-toggle" type="checkbox" name="source_pubmed" id="source_pubmed" value="pubmed" {% if request.GET.source_pubmed %}checked{% endif %}>
+                                            <label class="scitex-toggle-label" for="source_pubmed">PubMed</label>
+                                        </div>
+                                        <div class="scitex-toggle-wrapper">
+                                            <input class="scitex-toggle source-toggle" type="checkbox" name="source_google_scholar" id="source_google_scholar" value="google_scholar" {% if request.GET.source_google_scholar %}checked{% endif %}>
+                                            <label class="scitex-toggle-label" for="source_google_scholar">Google Scholar</label>
+                                        </div>
+                                        <div class="scitex-toggle-wrapper">
+                                            <input class="scitex-toggle source-toggle" type="checkbox" name="source_arxiv" id="source_arxiv" value="arxiv" {% if request.GET.source_arxiv %}checked{% endif %}>
+                                            <label class="scitex-toggle-label" for="source_arxiv">arXiv</label>
+                                        </div>
+                                        <div class="scitex-toggle-wrapper">
+                                            <input class="scitex-toggle source-toggle" type="checkbox" name="source_semantic" id="source_semantic" value="semantic" {% if request.GET.source_semantic %}checked{% endif %}>
+                                            <label class="scitex-toggle-label" for="source_semantic">Semantic Scholar</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Quick Filters -->
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold" style="color: var(--color-fg-default);">Quick Filters:</label>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <div class="scitex-checkbox-wrapper">
+                                            <input class="scitex-checkbox" type="checkbox" name="open_access" id="open_access" {% if request.GET.open_access %}checked{% endif %}>
+                                            <label class="scitex-checkbox-label" for="open_access">Open Access Only</label>
+                                        </div>
+                                        <div class="scitex-checkbox-wrapper">
+                                            <input class="scitex-checkbox" type="checkbox" name="recent_only" id="recent_only" {% if request.GET.recent_only %}checked{% endif %}>
+                                            <label class="scitex-checkbox-label" for="recent_only">Last 5 Years</label>
+                                        </div>
+                                        <div class="scitex-checkbox-wrapper">
+                                            <input class="scitex-checkbox" type="checkbox" name="high_impact" id="high_impact" {% if request.GET.high_impact %}checked{% endif %}>
+                                            <label class="scitex-checkbox-label" for="high_impact">High Impact (IF > 5)</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Advanced Filters -->
+                            <div id="advancedFilters" class="border rounded p-3 mb-3" style="display: none; background: #f8f9fa;">
+                                <div class="row g-3">
+                                    <!-- Year Range -->
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">Publication Year Range:</label>
+                                        <div class="d-flex gap-2 align-items-center">
+                                            <input type="number" name="year_from" class="form-control form-control-sm" placeholder="From" min="1900" max="2024" value="{{ request.GET.year_from }}">
+                                            <span>to</span>
+                                            <input type="number" name="year_to" class="form-control form-control-sm" placeholder="To" min="1900" max="2024" value="{{ request.GET.year_to }}">
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Citation Count -->
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">Minimum Citations:</label>
+                                        <select name="min_citations" class="form-select form-select-sm">
+                                            <option value="" {% if not request.GET.min_citations %}selected{% endif %}>Any</option>
+                                            <option value="10" {% if request.GET.min_citations == '10' %}selected{% endif %}>10+</option>
+                                            <option value="50" {% if request.GET.min_citations == '50' %}selected{% endif %}>50+</option>
+                                            <option value="100" {% if request.GET.min_citations == '100' %}selected{% endif %}>100+</option>
+                                            <option value="500" {% if request.GET.min_citations == '500' %}selected{% endif %}>500+</option>
+                                            <option value="1000" {% if request.GET.min_citations == '1000' %}selected{% endif %}>1000+</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <!-- Impact Factor -->
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">Journal Impact Factor:</label>
+                                        <select name="min_impact_factor" class="form-select form-select-sm">
+                                            <option value="" {% if not request.GET.min_impact_factor %}selected{% endif %}>Any</option>
+                                            <option value="1" {% if request.GET.min_impact_factor == '1' %}selected{% endif %}>1.0+</option>
+                                            <option value="3" {% if request.GET.min_impact_factor == '3' %}selected{% endif %}>3.0+</option>
+                                            <option value="5" {% if request.GET.min_impact_factor == '5' %}selected{% endif %}>5.0+</option>
+                                            <option value="10" {% if request.GET.min_impact_factor == '10' %}selected{% endif %}>10.0+</option>
+                                            <option value="20" {% if request.GET.min_impact_factor == '20' %}selected{% endif %}>20.0+</option>
+                                        </select>
+                                        <small class="text-muted">💡 Check journal rankings at <a href="https://www.scimagojr.com/journalrank.php" target="_blank" class="text-decoration-none">ScimagoJR</a></small>
+                                    </div>
+                                    
+                                    <!-- Author Filter -->
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Author(s):</label>
+                                        <input type="text" name="author" class="form-control form-control-sm" placeholder="e.g., Smith, Johnson" value="{{ request.GET.author }}">
+                                        <small class="text-muted">Separate multiple authors with commas</small>
+                                    </div>
+                                    
+                                    <!-- Journal Filter -->
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Journal:</label>
+                                        <input type="text" name="journal" class="form-control form-control-sm" placeholder="e.g., Nature, Science" value="{{ request.GET.journal }}">
+                                        <small class="text-muted">Journal name or partial name</small>
+                                    </div>
+                                    
+                                    <!-- Document Type -->
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">Document Type:</label>
+                                        <select name="doc_type" class="form-select form-select-sm">
+                                            <option value="" {% if not request.GET.doc_type %}selected{% endif %}>All Types</option>
+                                            <option value="article" {% if request.GET.doc_type == 'article' %}selected{% endif %}>Research Article</option>
+                                            <option value="review" {% if request.GET.doc_type == 'review' %}selected{% endif %}>Review</option>
+                                            <option value="preprint" {% if request.GET.doc_type == 'preprint' %}selected{% endif %}>Preprint</option>
+                                            <option value="conference" {% if request.GET.doc_type == 'conference' %}selected{% endif %}>Conference Paper</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <!-- Study Type -->
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">Study Type:</label>
+                                        <select name="study_type" class="form-select form-select-sm">
+                                            <option value="" {% if not request.GET.study_type %}selected{% endif %}>Any</option>
+                                            <option value="clinical_trial" {% if request.GET.study_type == 'clinical_trial' %}selected{% endif %}>Clinical Trial</option>
+                                            <option value="meta_analysis" {% if request.GET.study_type == 'meta_analysis' %}selected{% endif %}>Meta-Analysis</option>
+                                            <option value="systematic_review" {% if request.GET.study_type == 'systematic_review' %}selected{% endif %}>Systematic Review</option>
+                                            <option value="case_study" {% if request.GET.study_type == 'case_study' %}selected{% endif %}>Case Study</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <!-- Language -->
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">Language:</label>
+                                        <select name="language" class="form-select form-select-sm">
+                                            <option value="" {% if not request.GET.language %}selected{% endif %}>Any Language</option>
+                                            <option value="english" {% if request.GET.language == 'english' %}selected{% endif %}>English</option>
+                                            <option value="japanese" {% if request.GET.language == 'japanese' %}selected{% endif %}>Japanese</option>
+                                            <option value="chinese" {% if request.GET.language == 'chinese' %}selected{% endif %}>Chinese</option>
+                                            <option value="german" {% if request.GET.language == 'german' %}selected{% endif %}>German</option>
+                                            <option value="french" {% if request.GET.language == 'french' %}selected{% endif %}>French</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <!-- Filter Actions -->
+                                <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+                                    <div>
+                                        <button type="button" class="btn btn-outline-secondary btn-sm" id="clearFilters">
+                                            <i class="fas fa-times"></i> Clear All Filters
+                                        </button>
+                                        {% if user.is_authenticated %}
+                                        <button type="button" class="btn btn-outline-success btn-sm ms-2" id="saveSearch">
+                                            <i class="fas fa-bookmark"></i> Save Search
+                                        </button>
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        <span class="text-muted me-2">Active filters: <span id="activeFilterCount">0</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Project Selection and Actions -->
+                            <div class="d-flex flex-wrap gap-2 align-items-center">
+                                {% if user.is_authenticated %}
+                                <select name="project" class="form-select form-select-sm w-auto">
+                                    <option value="">Save to project...</option>
+                                    <option value="default">My Research</option>
+                                    <option value="ml-project">Machine Learning Project</option>
+                                    <option value="thesis">PhD Thesis</option>
+                                </select>
+                                <!-- Saved Searches Dropdown -->
+                                <div class="dropdown">
+                                    <button class="btn btn-outline-info btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="fas fa-history"></i> Saved Searches
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><h6 class="dropdown-header">Recent Searches</h6></li>
+                                        <li><a class="dropdown-item" href="?q=neural+mechanisms+visual+attention">neural mechanisms visual attention</a></li>
+                                        <li><a class="dropdown-item" href="?q=machine+learning+neuroscience">machine learning neuroscience</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" href="#" onclick="showSavedSearches()"><i class="fas fa-bookmark"></i> Manage Saved Searches</a></li>
+                                    </ul>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
-            <div style="margin-top: 0.5rem; color: var(--color-fg-muted); font-size: 0.85rem;" id="bibProgressText">
-              0 / 0 papers processed
-            </div>
-          </div>
-
-          <!-- Download Section (Hidden until complete) -->
-          <div id="bibDownloadSection" style="display: none; padding: 1rem; background: var(--success-color); color: white; border-radius: 6px; text-align: center;">
-            <i class="fas fa-check-circle" style="font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
-            <p style="margin: 0.5rem 0; font-weight: 600;">Enrichment Complete!</p>
-            <a id="bibDownloadLink" href="#" style="display: inline-block; margin-top: 0.5rem; padding: 0.5rem 1.5rem; background: white; color: var(--success-color); border-radius: 6px; text-decoration: none; font-weight: 600;">
-              <i class="fas fa-download"></i> Download Enriched BibTeX
-            </a>
-          </div>
         </div>
-      </div>
-    </div>
-
-    <div class="results-preview">
-      <h3>Example Results</h3>
-      
-      <div class="result-card">
-        <h4 class="result-title">AlphaFold2: Highly accurate protein structure prediction with deep learning</h4>
-        <div class="result-authors">Jumper J, Evans R, Pritzel A, Green T, Figurnov M, et al.</div>
-        <div class="result-journal">Nature, 2021; 596(7873): 583-589</div>
-        <div class="result-abstract">
-          We developed an AI system, AlphaFold, which can accurately predict <span class="highlight">protein</span> structures based solely on their amino acid sequence. This system was used in the 14th Critical Assessment of <span class="highlight">Protein</span> Structure <span class="highlight">Prediction</span> (CASP14), where it achieved a median score of 92.4 GDT_TS across all targets, showing a median error of just 0.96 Å. This high accuracy enables <span class="highlight">prediction</span> of <span class="highlight">protein</span> structures to tackle problems that were previously inaccessible to computational structure <span class="highlight">prediction</span>.
-        </div>
-        <div class="result-meta">
-          <div><i class="fas fa-file-pdf"></i> PDF available</div>
-          <div><i class="fas fa-quote-right"></i> Citations: 2,876</div>
-          <div><i class="fas fa-star"></i> Relevance: 98%</div>
-        </div>
-      </div>
-      
-      <div class="result-card">
-        <h4 class="result-title">Improved protein structure prediction using potentials from deep learning</h4>
-        <div class="result-authors">Senior AW, Evans R, Jumper J, Kirkpatrick J, Sifre L, et al.</div>
-        <div class="result-journal">Nature, 2020; 577(7792): 706-710</div>
-        <div class="result-abstract">
-          <span class="highlight">Protein</span> structure <span class="highlight">prediction</span> can be used to determine the three-dimensional shape of a <span class="highlight">protein</span> from its amino acid sequence. This problem is of fundamental importance as the structure of a <span class="highlight">protein</span> largely determines its function; however, <span class="highlight">protein</span> structures can be difficult to determine experimentally. Here we develop a <span class="highlight">deep</span> <span class="highlight">learning</span> approach to <span class="highlight">protein</span> structure <span class="highlight">prediction</span> that builds on AlphaFold, achieving high accuracy, even for sequences with few homologous sequences.
-        </div>
-        <div class="result-meta">
-          <div><i class="fas fa-file-pdf"></i> PDF available</div>
-          <div><i class="fas fa-quote-right"></i> Citations: 1,562</div>
-          <div><i class="fas fa-star"></i> Relevance: 95%</div>
-        </div>
-      </div>
-      
-      <div class="result-card">
-        <h4 class="result-title">Highly accurate protein structure prediction with AlphaFold</h4>
-        <div class="result-authors">Alphafold Team</div>
-        <div class="result-journal">Nature, 2021; 596(7873): 583-589</div>
-        <div class="result-abstract">
-          <span class="highlight">Protein</span> structure <span class="highlight">prediction</span> has been a grand challenge in computational biology for decades. Here we present AlphaFold, a <span class="highlight">deep</span> <span class="highlight">learning</span>-based system that predicts <span class="highlight">protein</span> structures with atomic accuracy, even in the absence of similar structures. This AI system has been shown to achieve accuracy competitive with experimental methods in blind structure <span class="highlight">prediction</span> challenges.
-        </div>
-        <div class="result-meta">
-          <div><i class="fas fa-file-pdf"></i> PDF available</div>
-          <div><i class="fas fa-quote-right"></i> Citations: 2,118</div>
-          <div><i class="fas fa-star"></i> Relevance: 93%</div>
-        </div>
-      </div>
-      
-      <div class="text-center mt-4">
-        <a href="#" class="btn btn-outline-primary">Show More Results</a>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Demo Video Section -->
-<section class="demo-section">
-  <div class="container">
-    <h2 class="text-center mb-4">See SciTeX Scholar in Action</h2>
-    <p class="text-center lead mb-5">Watch how our CLI tool discovers, downloads, and organizes scientific literature with automatic authentication and impact factor retrieval</p>
-
-    <div class="demo-video-container">
-      <video controls preload="metadata">
-        <source src="{% static 'videos/scholar-demo.mp4' %}" type="video/mp4">
-        Your browser does not support the video tag.
-      </video>
-
-      <div class="demo-description">
-        <h4>Automated Literature Management</h4>
-        <p>This demo shows the complete workflow from DOI/title input to organized library with PDFs</p>
-
-        <div class="demo-features">
-          <div class="demo-feature-item">
-            <i class="fas fa-check-circle"></i>
-            <span>Automated authentication</span>
-          </div>
-          <div class="demo-feature-item">
-            <i class="fas fa-check-circle"></i>
-            <span>Impact factor retrieval</span>
-          </div>
-          <div class="demo-feature-item">
-            <i class="fas fa-check-circle"></i>
-            <span>Citation count tracking</span>
-          </div>
-          <div class="demo-feature-item">
-            <i class="fas fa-check-circle"></i>
-            <span>Smart file organization</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="section">
-  <div class="container">
-    <h2 class="text-center mb-5">Powerful Search Features</h2>
-    
-    <div class="features-grid">
-      <div class="feature-card">
-        <div class="feature-icon">
-          <i class="fas fa-brain"></i>
-        </div>
-        <h3>Semantic Search</h3>
-        <p>Find papers based on meaning rather than just keywords, using advanced AI models that understand scientific concepts.</p>
-      </div>
-      
-      <div class="feature-card">
-        <div class="feature-icon">
-          <i class="fas fa-fingerprint"></i>
-        </div>
-        <h3>Research Fingerprinting</h3>
-        <p>Create a semantic fingerprint of your research interests for personalized recommendations and alerts.</p>
-      </div>
-      
-      <div class="feature-card">
-        <div class="feature-icon">
-          <i class="fas fa-project-diagram"></i>
-        </div>
-        <h3>Citation Network Analysis</h3>
-        <p>Visualize and explore citation networks to find seminal papers and emerging research fronts.</p>
-      </div>
-      
-      <div class="feature-card">
-        <div class="feature-icon">
-          <i class="fas fa-search-plus"></i>
-        </div>
-        <h3>Full-Text Search</h3>
-        <p>Search beyond abstracts into the full text of papers, including methods, results, and discussions.</p>
-      </div>
-      
-      <div class="feature-card">
-        <div class="feature-icon">
-          <i class="fas fa-file-alt"></i>
-        </div>
-        <h3>Personalized Summaries</h3>
-        <p>Get AI-generated summaries of papers tailored to your specific research questions and background.</p>
-      </div>
-      
-      <div class="feature-card">
-        <div class="feature-icon">
-          <i class="fas fa-bell"></i>
-        </div>
-        <h3>Research Alerts</h3>
-        <p>Stay updated with automatic alerts when new papers relevant to your research interests are published.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="section section-alt">
-  <div class="container">
-    <div class="row align-items-center">
-      <div class="col-lg-6">
-        <h2>Comprehensive Coverage</h2>
-        <p class="lead">SciTeX Search indexes millions of scientific papers from multiple sources.</p>
-        <ul class="list-unstyled mt-4">
-          <li class="mb-3"><i class="fas fa-check text-light me-2"></i> 150+ million papers indexed</li>
-          <li class="mb-3"><i class="fas fa-check text-light me-2"></i> Coverage across all scientific disciplines</li>
-          <li class="mb-3"><i class="fas fa-check text-light me-2"></i> Integration with major publishers and preprint servers</li>
-          <li class="mb-3"><i class="fas fa-check text-light me-2"></i> Historical archives dating back to 1900</li>
-          <li class="mb-3"><i class="fas fa-check text-light me-2"></i> Daily updates with new publications</li>
-        </ul>
-        <div class="mt-4">
-          <a href="#" class="btn btn-light">Learn More</a>
-        </div>
-      </div>
-      <div class="col-lg-6">
-        <img src="{% static 'images/search-coverage.svg' %}" alt="SciTeX Search database coverage" class="img-fluid">
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="section">
-  <div class="container text-center">
-    <h2>Ready to enhance your literature search?</h2>
-    <p class="lead mb-5">Join thousands of researchers using SciTeX Search to discover the most relevant papers for their work.</p>
-    <div>
-      <a href="/cloud/signup" class="btn btn-lg btn-primary">Get Started</a>
-      <a href="/search/pricing" class="btn btn-lg btn-outline-primary ms-3">View Pricing</a>
-    </div>
-  </div>
-</section>
-
-<!-- Help Modal -->
-<div id="helpModal" class="help-modal">
-  <div class="help-modal-content">
-    <span class="help-close" onclick="closeHelpModal()">&times;</span>
-    <h2><i class="fas fa-graduation-cap"></i> SciTeX Scholar Help Guide</h2>
-    
-    <div class="help-section">
-      <h3><i class="fas fa-search"></i> Search Tips</h3>
-      <p>Get the most out of SciTeX Scholar with these search strategies:</p>
-      <ul>
-        <li><strong>Keywords:</strong> Use specific scientific terms for better results</li>
-        <li><strong>Authors:</strong> Search by author name: "Einstein" or "Smith A"</li>
-        <li><strong>Phrases:</strong> Use quotes for exact phrases: "machine learning"</li>
-        <li><strong>Boolean:</strong> Combine terms with AND, OR, NOT</li>
-      </ul>
-    </div>
-    
-    <div class="help-section">
-      <h3><i class="fas fa-lightbulb"></i> Search Examples</h3>
-      <div class="help-example">COVID-19 AND vaccine</div>
-      <div class="help-example">"deep learning" neural networks</div>
-      <div class="help-example">author:"Smith" climate change</div>
-      <div class="help-example">quantum computing NOT cryptography</div>
-    </div>
-    
-    <div class="help-section">
-      <h3><i class="fas fa-database"></i> Data Sources</h3>
-      <p>We search across 7 major academic databases:</p>
-      <ul>
-        <li><strong>arXiv:</strong> Preprints in physics, mathematics, computer science</li>
-        <li><strong>PubMed Central:</strong> Biomedical and life sciences literature</li>
-        <li><strong>Semantic Scholar:</strong> AI-powered academic search across disciplines</li>
-        <li><strong>DOAJ:</strong> Open access journals from all research areas</li>
-        <li><strong>bioRxiv:</strong> Biology preprints</li>
-        <li><strong>PLOS:</strong> Open access scientific publications</li>
-        <li><strong>PubMed:</strong> Biomedical literature database</li>
-      </ul>
-    </div>
-    
-    <div class="help-section">
-      <h3><i class="fas fa-filter"></i> Search Options</h3>
-      <ul>
-        <li><strong>Full text:</strong> Search within the complete text of papers</li>
-        <li><strong>Include abstracts:</strong> Search abstracts for better relevance</li>
-        <li><strong>Open access only:</strong> Limit to freely available papers</li>
-        <li><strong>Year range:</strong> Filter by publication date</li>
-      </ul>
-    </div>
-    
-    <div class="help-section">
-      <h3><i class="fas fa-magic"></i> Advanced Features</h3>
-      <ul>
-        <li><strong>Progressive Loading:</strong> Results appear as they're found from different sources</li>
-        <li><strong>Relevance Ranking:</strong> Papers sorted by relevance to your query</li>
-        <li><strong>Citation Information:</strong> See citation counts and journal details</li>
-        <li><strong>PDF Access:</strong> Direct links to full papers when available</li>
-      </ul>
-    </div>
-    
-    <div class="help-section">
-      <h3><i class="fas fa-question-circle"></i> Need More Help?</h3>
-      <p>For additional support:</p>
-      <ul>
-        <li>Visit our <a href="/contact">Contact Page</a></li>
-        <li>Check out <a href="/publications">example searches</a></li>
-        <li>Email us at support@scitex.ai</li>
-      </ul>
-    </div>
-  </div>
 </div>
+
+<div class="container">
+    {% if has_results %}
+        <!-- Search Results -->
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <!-- Results Header -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h5 class="mb-0">Search Results</h5>
+                        <small class="text-muted" id="searchResultsText">
+                            Found {{ results|length }} result{{ results|length|pluralize }} for "{{ query }}" 
+                            {% if results %}
+                                <span id="sourceDisplay">from selected sources</span>
+                            {% endif %}
+                        </small>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        
+                        <div>
+                            <small class="text-muted">Sort by:</small>
+                            <select name="sort_by" class="form-select form-select-sm d-inline-block w-auto ms-2" id="sortSelect">
+                                <option value="relevance" {% if request.GET.sort_by == 'relevance' or not request.GET.sort_by %}selected{% endif %}>Most Relevant</option>
+                                <option value="date" {% if request.GET.sort_by == 'date' %}selected{% endif %}>Most Recent</option>
+                                <option value="citations" {% if request.GET.sort_by == 'citations' %}selected{% endif %}>Most Cited</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- API Key Alert -->
+                {% if missing_api_keys %}
+                <div class="alert alert-warning alert-dismissible fade show mb-3" role="alert">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-key me-2 text-warning"></i>
+                        <div class="flex-grow-1">
+                            <strong>Improve Your Search Performance!</strong><br>
+                            <small>Missing API keys for: <strong>{{ missing_api_keys|join:", "|title }}</strong>. 
+                            Add them for higher rate limits and more comprehensive results.</small>
+                        </div>
+                        <a href="{% url 'scholar_app:api_keys' %}" class="btn btn-warning btn-sm ms-2">
+                            <i class="fas fa-plus"></i> Add API Keys
+                        </a>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endif %}
+                
+                <!-- Progressive Loading Status -->
+                <div id="progressiveLoadingStatus" style="display: none;">
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <div class="d-flex flex-wrap gap-3 align-items-center">
+                                <div class="progress-source" data-source="pubmed">
+                                    <span class="badge bg-secondary">PubMed</span>
+                                    <div class="spinner-border spinner-border-sm ms-2" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <span class="count ms-1">0</span>
+                                </div>
+                                <div class="progress-source" data-source="google_scholar">
+                                    <span class="badge bg-secondary">Google Scholar</span>
+                                    <div class="spinner-border spinner-border-sm ms-2" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <span class="count ms-1">0</span>
+                                </div>
+                                <div class="progress-source" data-source="arxiv">
+                                    <span class="badge bg-secondary">arXiv</span>
+                                    <div class="spinner-border spinner-border-sm ms-2" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <span class="count ms-1">0</span>
+                                </div>
+                                <div class="progress-source" data-source="semantic">
+                                    <span class="badge bg-secondary">Semantic Scholar</span>
+                                    <div class="spinner-border spinner-border-sm ms-2" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <span class="count ms-1">0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Progressive Results Container -->
+                <div id="progressiveResults" style="display: none;"></div>
+
+                <!-- Search Results -->
+                {% for result in results %}
+                <div class="result-card" data-paper-id="{{ result.id }}" data-title="{{ result.title }}" data-authors="{{ result.authors }}" data-year="{{ result.year }}" data-journal="{{ result.journal|default:'Unknown Journal' }}" data-doi="{{ result.doi|default:'' }}" data-pmid="{{ result.pmid|default:'' }}" data-arxiv-id="{{ result.arxiv_id|default:'' }}" data-external-url="{{ result.external_url|default:'' }}" data-source="{{ result.source|default:'' }}">
+                    <h6 class="result-title">
+                        <a href="#" class="text-decoration-none" onclick="viewOnWeb(this)">
+                            {{ result.title }}
+                        </a>
+                    </h6>
+                    <div class="result-authors">
+                        {{ result.authors }}
+                    </div>
+                    <div class="d-flex align-items-center mt-2 flex-wrap">
+                        <span class="year-badge me-2">{{ result.year }}</span>
+                        {% if result.is_open_access %}
+                        <span class="open-access me-2">Open Access</span>
+                        {% endif %}
+                        {% if result.impact_factor %}
+                        <span class="badge bg-warning text-dark me-2" style="font-size: 0.7rem;">
+                            IF: {{ result.impact_factor }}
+                        </span>
+                        {% endif %}
+                        <small class="text-muted">
+                            {{ result.journal|default:"Unknown Journal" }}
+                            {% if result.citations and result.citations > 0 %}
+                                • <strong>{{ result.citations }} citations</strong>
+                                {% if result.citation_source %}
+                                    <span class="badge bg-light text-dark" style="font-size: 0.6rem;" title="Citation data source">{{ result.citation_source|upper }}</span>
+                                {% endif %}
+                            {% elif result.citations == 0 %}
+                                • <span class="text-muted">0 citations</span>
+                            {% else %}
+                                • <span class="text-muted">Citations unavailable</span>
+                            {% endif %}
+                            {% if result.pmid %}
+                                • PMID: {{ result.pmid }}
+                            {% endif %}
+                        </small>
+                        {% if result.source %}
+                        <span class="badge bg-info ms-2" style="font-size: 0.7rem;">{{ result.source|upper }}</span>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Abstract Section -->
+                    <div class="result-snippet mt-2">
+                        <div class="abstract-preview">
+                            {% if result.full_abstract and result.full_abstract|length > 200 %}
+                                <span class="abstract-short">{{ result.snippet|default:"No abstract available." }}</span>
+                                <span class="abstract-full" style="display: none;">{{ result.full_abstract }}</span>
+                                <a href="#" class="abstract-toggle text-primary ms-2" style="font-size: 0.9rem;">[Show full abstract]</a>
+                            {% else %}
+                                {{ result.snippet|default:"No abstract available." }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        {% if result.pdf_url %}
+                        <a href="{{ result.pdf_url }}" class="btn btn-outline-success btn-sm me-2" target="_blank">
+                            📄 Download PDF
+                        </a>
+                        {% else %}
+                        <span class="btn btn-outline-secondary btn-sm me-2 disabled">
+                            📄 No PDF
+                        </span>
+                        {% endif %}
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-info btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                📝 Export Citation
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#" onclick="exportCitation(this, 'bibtex')">
+                                    <i class="fas fa-file-code"></i> BibTeX (.bib)
+                                </a></li>
+                                <li><a class="dropdown-item" href="#" onclick="exportCitation(this, 'ris')">
+                                    <i class="fas fa-file-text"></i> RIS (.ris)
+                                </a></li>
+                                <li><a class="dropdown-item" href="#" onclick="exportCitation(this, 'endnote')">
+                                    <i class="fas fa-file-alt"></i> EndNote (.enw)
+                                </a></li>
+                                <li><a class="dropdown-item" href="#" onclick="exportCitation(this, 'csv')">
+                                    <i class="fas fa-table"></i> CSV (.csv)
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#" onclick="showBibTeX(this)">
+                                    <i class="fas fa-eye"></i> Quick Preview
+                                </a></li>
+                            </ul>
+                        </div>
+                        <a href="#" class="btn btn-outline-warning btn-sm me-2" onclick="saveToLibrary(this)">
+                            ⭐ Add to Library
+                        </a>
+                        {% if user.is_authenticated %}
+                        <a href="{% url 'scholar_app:paper_annotations' result.id %}" class="btn btn-outline-success btn-sm me-2">
+                            💬 Annotate
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+
+                <!-- Simple Pagination -->
+                <div class="text-center mt-4">
+                    <nav>
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item disabled">
+                                <span class="page-link">Previous</span>
+                            </li>
+                            <li class="page-item active">
+                                <span class="page-link">1</span>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="#">2</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="#">3</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="#">Next</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <!-- <\!-- Quick Examples -\->
+         !-- <div class="row justify-content-center">
+         !--     <div class="col-lg-8 text-center">
+         !--         <div class="mt-4">
+         !--             <p class="mb-3">Try searching for:</p>
+         !--             <div class="d-flex flex-wrap justify-content-center gap-2">
+         !--                 <a href="?q=neural mechanisms visual attention" class="btn btn-outline-primary btn-sm">neural mechanisms visual attention</a>
+         !--                 <a href="?q=machine learning neuroscience" class="btn btn-outline-primary btn-sm">machine learning neuroscience</a>
+         !--                 <a href="?q=fMRI attention networks" class="btn btn-outline-primary btn-sm">fMRI attention networks</a>
+         !--                 <a href="?q=computational vision models" class="btn btn-outline-primary btn-sm">computational vision models</a>
+         !--             </div>
+         !--         </div>
+         !--     </div>
+         !-- </div> -->
+    {% endif %}
+</div>
+{% endblock %}
 
 {% block extra_js %}
 <script>
-// Help Modal Functions
-function showHelpModal() {
-    document.getElementById('helpModal').style.display = 'block';
+// Reset BibTeX form to initial state
+function resetBibtexForm() {
+    document.getElementById('bibtexFormArea').style.display = 'block';
+    document.getElementById('bibtexProgressArea').style.display = 'none';
+    document.getElementById('bibtexEnrichmentForm').reset();
 }
 
-function closeHelpModal() {
-    document.getElementById('helpModal').style.display = 'none';
-}
-
-// Close modal when clicking outside of it
-window.onclick = function(event) {
-    const modal = document.getElementById('helpModal');
-    if (event.target == modal) {
-        modal.style.display = 'none';
-    }
-}
-
-// Enhanced Tooltip System
 document.addEventListener('DOMContentLoaded', function() {
-    // Add tooltips to elements with data-help attribute
-    const helpElements = document.querySelectorAll('[data-help]');
+    // BibTeX AJAX Form Submission
+    const bibtexForm = document.getElementById('bibtexEnrichmentForm');
+    const fileInput = document.getElementById('bibtexFileInput');
+    const dropZone = document.getElementById('dropZone');
+
+    if (bibtexForm) {
+        // Drag & Drop functionality with drag counter
+        if (dropZone && fileInput) {
+            let dragCounter = 0;
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            // Dragenter: increment counter and apply styles
+            dropZone.addEventListener('dragenter', (e) => {
+                dragCounter++;
+                if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
+                dropZone.style.borderColor = '#6B8FB3';
+                dropZone.style.borderStyle = 'solid';
+                dropZone.style.background = 'rgba(107, 143, 179, 0.15)';
+                dropZone.style.transform = 'scale(1.01)';
+                dropZone.style.boxShadow = '0 4px 16px rgba(107, 143, 179, 0.3)';
+            });
+
+            // Dragover: maintain styles
+            dropZone.addEventListener('dragover', (e) => {
+                if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
+            });
+
+            // Dragleave: decrement counter, remove styles only when truly leaving
+            dropZone.addEventListener('dragleave', (e) => {
+                dragCounter--;
+                if (dragCounter === 0) {
+                    dropZone.style.borderColor = 'var(--scitex-color-03)';
+                    dropZone.style.borderStyle = 'dashed';
+                    dropZone.style.background = 'var(--color-canvas-subtle)';
+                    dropZone.style.transform = 'scale(1)';
+                    dropZone.style.boxShadow = 'none';
+                }
+            });
+
+            // Drop: reset counter and remove styles
+            dropZone.addEventListener('drop', (e) => {
+                dragCounter = 0;
+                dropZone.style.borderColor = 'var(--scitex-color-03)';
+                dropZone.style.borderStyle = 'dashed';
+                dropZone.style.background = 'var(--color-canvas-subtle)';
+                dropZone.style.transform = 'scale(1)';
+                dropZone.style.boxShadow = 'none';
+            });
+
+            // Handle dropped files
+            dropZone.addEventListener('drop', function(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+
+                if (files.length > 0) {
+                    const file = files[0];
+                    if (file.name.endsWith('.bib')) {
+                        // Assign the dropped file to the input
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(file);
+                        fileInput.files = dataTransfer.files;
+
+                        // Update visual feedback
+                        showFileName(file.name);
+                    } else {
+                        alert('Please drop a .bib file');
+                    }
+                }
+            });
+
+            // Handle file input change (click to upload)
+            fileInput.addEventListener('change', function(e) {
+                if (this.files.length > 0) {
+                    showFileName(this.files[0].name);
+                }
+            });
+
+            // Function to display file name and auto-submit
+            function showFileName(fileName) {
+                document.getElementById('uploadMessage').style.display = 'none';
+                document.getElementById('fileNameDisplay').style.display = 'block';
+                document.getElementById('fileName').textContent = fileName;
+
+                // Add success visual feedback to drop zone
+                dropZone.style.borderColor = 'var(--info-color)';
+                dropZone.style.background = 'rgba(107, 143, 179, 0.1)';
+
+
+                // Auto-submit after short delay
+                setTimeout(() => {
+                    autoSubmitBibtexForm();
+                }, 300);
+            }
+
+            // Auto-submit function
+            function autoSubmitBibtexForm() {
+                const formData = new FormData(bibtexForm);
+
+                // Show processing state
+                dropZone.style.borderColor = 'var(--info-color)';
+                dropZone.style.background = 'rgba(107, 143, 179, 0.15)';
+
+                // Show progress area (but keep form visible - just collapse dropzone)
+                document.getElementById('bibtexProgressArea').style.display = 'block';
+
+                // Submit form via AJAX
+                fetch('{% url "scholar_app:bibtex_upload" %}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.job_id) {
+                        // Start polling for job status
+                        pollBibtexJobStatus(data.job_id);
+                    } else {
+                        alert('Error: ' + (data.error || 'Failed to start enrichment'));
+                        resetBibtexForm();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to upload BibTeX file');
+                    resetBibtexForm();
+                });
+            }
+        }
+
+        // Prevent manual form submission (auto-processing only)
+        bibtexForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+        });
+    }
+
+    // Simple search functionality - using let to avoid redeclaration errors
+    let searchForm = document.querySelector('form');
+    let searchInput = document.querySelector('input[name="q"]');
+    let searchButton = document.getElementById('searchButton');
+    let progressiveLoadingStatus = document.getElementById('progressiveLoadingStatus');
+    let progressiveResults = document.getElementById('progressiveResults');
     
-    helpElements.forEach(element => {
-        // Create tooltip
-        const tooltip = document.createElement('div');
-        tooltip.className = 'tooltiptext';
-        tooltip.textContent = element.getAttribute('data-help');
-        
-        // Wrap element in tooltip container
-        const wrapper = document.createElement('div');
-        wrapper.className = 'tooltip';
-        element.parentNode.insertBefore(wrapper, element);
-        wrapper.appendChild(element);
-        wrapper.appendChild(tooltip);
-    });
+    // Advanced filters functionality
+    const toggleAdvancedFilters = document.getElementById('toggleAdvancedFilters');
+    const advancedFilters = document.getElementById('advancedFilters');
+    const clearFiltersBtn = document.getElementById('clearFilters');
+    const saveSearchBtn = document.getElementById('saveSearch');
     
-    // Add help tour for first-time users
-    if (!localStorage.getItem('scholar_tour_completed')) {
-        setTimeout(showFirstTimeHelp, 2000);
+    // Toggle advanced filters
+    if (toggleAdvancedFilters) {
+        toggleAdvancedFilters.addEventListener('click', function() {
+            if (advancedFilters.style.display === 'none') {
+                advancedFilters.style.display = 'block';
+                this.innerHTML = '<i class="fas fa-sliders-h"></i> Hide Advanced Filters';
+                this.style.backgroundColor = 'var(--primary-color, #1a2332)';
+                this.style.color = 'white';
+                this.style.borderColor = 'var(--primary-color, #1a2332)';
+            } else {
+                advancedFilters.style.display = 'none';
+                this.innerHTML = '<i class="fas fa-sliders-h"></i> Advanced Filters';
+                this.style.backgroundColor = 'transparent';
+                this.style.color = 'var(--primary-color, #1a2332)';
+                this.style.borderColor = 'var(--primary-color, #1a2332)';
+            }
+        });
     }
     
-    // Add keyboard shortcuts
-    document.addEventListener('keydown', function(e) {
-        // Show help modal with F1 or Ctrl+H
-        if (e.key === 'F1' || (e.ctrlKey && e.key === 'h')) {
-            e.preventDefault();
-            showHelpModal();
-        }
-        
-        // Close help modal with Escape
-        if (e.key === 'Escape') {
-            closeHelpModal();
-        }
-    });
-});
-
-// First-time user help tour
-function showFirstTimeHelp() {
-    if (confirm('Welcome to SciTeX Scholar! Would you like a quick tour of the search features?')) {
-        showHelpModal();
-        localStorage.setItem('scholar_tour_completed', 'true');
+    // Clear all filters
+    if (clearFiltersBtn) {
+        clearFiltersBtn.addEventListener('click', function() {
+            // Reset all filter inputs
+            document.querySelectorAll('#advancedFilters input, #advancedFilters select').forEach(input => {
+                if (input.type === 'checkbox' || input.type === 'radio') {
+                    input.checked = false;
+                } else {
+                    input.value = '';
+                }
+            });
+            
+            // Reset basic filters
+            document.querySelectorAll('#basicFilters input[type="checkbox"]').forEach(input => {
+                input.checked = false;
+            });
+            
+            // Reset source toggles to all enabled
+            document.querySelectorAll('.source-toggle').forEach(toggle => {
+                toggle.checked = true;
+            });
+            saveSourcePreferences();
+            
+            updateActiveFilterCount();
+        });
     }
-}
-
-// Enhanced search functionality with help integration
-function enhanceSearchExperience() {
-    const searchInput = document.querySelector('.search-input');
-    const searchForm = searchInput.closest('form');
     
-    // Add search suggestions and validation
-    searchInput.addEventListener('input', function() {
-        const query = this.value.trim();
+    // Save search functionality
+    if (saveSearchBtn) {
+        saveSearchBtn.addEventListener('click', function() {
+            const query = searchInput.value.trim();
+            if (!query) {
+                alert('Please enter a search query first.');
+                return;
+            }
+            
+            const searchName = prompt('Enter a name for this saved search:', query.substring(0, 50));
+            if (!searchName) return;
+            
+            // Collect all active filters
+            const filters = {};
+            document.querySelectorAll('#advancedFilters input, #advancedFilters select, #basicFilters input[type="checkbox"]:checked').forEach(input => {
+                if (input.name && input.value) {
+                    filters[input.name] = input.value;
+                }
+            });
+            
+            // Save to backend
+            fetch('/scholar/api/save-search/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    name: searchName,
+                    query: query,
+                    filters: filters
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('Search saved successfully!');
+                } else {
+                    alert(data.message || 'Error saving search');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error saving search. Please try again.');
+            });
+        });
+    }
+    
+    // Update active filter count
+    function updateActiveFilterCount() {
+        let count = 0;
         
-        // Show search tips for short queries
-        if (query.length > 0 && query.length < 3) {
-            showSearchTip('Try using at least 3 characters for better results');
+        // Count advanced filters
+        document.querySelectorAll('#advancedFilters input, #advancedFilters select').forEach(input => {
+            if (input.name && input.value && ((input.type === 'checkbox' && input.checked) || (input.type !== 'checkbox' && input.type !== 'radio'))) {
+                count++;
+            }
+        });
+        
+        // Count basic filters and source toggles
+        document.querySelectorAll('#basicFilters input[type="checkbox"]:checked:not(.source-toggle)').forEach(() => count++);
+        
+        // Count enabled sources (only count as filter if not all sources are enabled)
+        const totalSources = document.querySelectorAll('.source-toggle').length;
+        const enabledSources = document.querySelectorAll('.source-toggle:checked').length;
+        if (enabledSources < totalSources && enabledSources > 0) {
+            count++; // Count as one filter if source selection is customized
         }
         
-        // Suggest boolean operators for multiple words
-        if (query.includes(' ') && !query.includes(' AND ') && !query.includes(' OR ')) {
-            showSearchTip('Tip: Use "AND" or "OR" to combine search terms');
+        const activeFilterCountEl = document.getElementById('activeFilterCount');
+        if (activeFilterCountEl) {
+            activeFilterCountEl.textContent = count;
         }
+    }
+    
+    // Source preference management with database/localStorage
+    function saveSourcePreferences() {
+        const preferences = {};
+        document.querySelectorAll('.source-toggle').forEach(toggle => {
+            preferences[toggle.value] = toggle.checked;
+        });
+        
+        // Save to database if user is logged in, otherwise use localStorage
+        {% if user.is_authenticated %}
+            fetch('/scholar/api/preferences/sources/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify({ sources: preferences })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    console.log('Source preferences saved to profile');
+                }
+            })
+            .catch(error => console.error('Error saving preferences:', error));
+        {% else %}
+            // For anonymous users, use localStorage
+            localStorage.setItem('scholar_source_preferences', JSON.stringify(preferences));
+        {% endif %}
+    }
+    
+    function getCsrfToken() {
+        return document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
+               document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
+               getCookie('csrftoken');
+    }
+    
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+    
+    // Update source display text based on selected checkboxes
+    function updateSourceDisplay() {
+        const selectedSources = document.querySelectorAll('.source-toggle:checked');
+        const sourceDisplay = document.getElementById('sourceDisplay');
+        
+        if (sourceDisplay) {
+            const sourceNames = [];
+            selectedSources.forEach(checkbox => {
+                switch (checkbox.value) {
+                    case 'pubmed':
+                        sourceNames.push('PubMed');
+                        break;
+                    case 'google_scholar':
+                        sourceNames.push('Google Scholar');
+                        break;
+                    case 'arxiv':
+                        sourceNames.push('arXiv');
+                        break;
+                    case 'semantic':
+                        sourceNames.push('Semantic Scholar');
+                        break;
+                }
+            });
+            
+            let displayText = '';
+            if (sourceNames.length === 0) {
+                displayText = 'from no sources selected (ERROR: please select at least one source)';
+            } else if (sourceNames.length === 4) {
+                displayText = 'from all external sources: PubMed, Google Scholar, arXiv, Semantic Scholar + SciTeX Index';
+            } else if (sourceNames.length === 1) {
+                displayText = `from ${sourceNames[0]} + SciTeX Index`;
+            } else {
+                displayText = `from ${sourceNames.join(', ')} + SciTeX Index`;
+            }
+            
+            sourceDisplay.textContent = displayText;
+        }
+    }
+    
+    function loadSourcePreferences() {
+        {% if user.is_authenticated %}
+            // Load from database for logged-in users
+            fetch('/scholar/api/preferences/')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success' && data.preferences.preferred_sources) {
+                        const preferences = data.preferences.preferred_sources;
+                        applySourcePreferences(preferences);
+                    } else {
+                        // No saved preferences, set defaults
+                        setDefaultSourcePreferences();
+                    }
+                })
+                .catch(error => {
+                    console.log('Could not load user preferences, using localStorage fallback');
+                    // Fallback to localStorage if database fails
+                    loadSourcePreferencesFromStorage();
+                });
+        {% else %}
+            // Load from localStorage for anonymous users
+            loadSourcePreferencesFromStorage();
+        {% endif %}
+    }
+    
+    function loadSourcePreferencesFromStorage() {
+        const saved = localStorage.getItem('scholar_source_preferences');
+        if (saved) {
+            try {
+                const preferences = JSON.parse(saved);
+                applySourcePreferences(preferences);
+            } catch (e) {
+                console.log('Could not load source preferences from localStorage');
+                setDefaultSourcePreferences();
+            }
+        } else {
+            // No saved preferences, set defaults
+            setDefaultSourcePreferences();
+        }
+    }
+    
+    function applySourcePreferences(preferences) {
+        let hasAnyPreference = false;
+        document.querySelectorAll('.source-toggle').forEach(toggle => {
+            if (preferences.hasOwnProperty(toggle.value)) {
+                toggle.checked = preferences[toggle.value];
+                hasAnyPreference = true;
+            }
+        });
+        
+        // If no preferences found, set defaults
+        if (!hasAnyPreference) {
+            setDefaultSourcePreferences();
+        }
+        
+        // Update master toggle after applying preferences
+        updateAllSourcesToggle();
+        updateSourceDisplay();
+        updateActiveFilterCount();
+    }
+    
+    function setDefaultSourcePreferences() {
+        // Default: All sources enabled
+        document.querySelectorAll('.source-toggle').forEach(toggle => {
+            toggle.checked = true;
+        });
+        updateAllSourcesToggle();
+        updateSourceDisplay();
+        updateActiveFilterCount();
+    }
+    
+    // Enhanced source toggle logic with "All Sources" master toggle
+    function initializeSourceToggles() {
+        const allSourcesToggle = document.getElementById('source_all_toggle');
+        const sourceToggles = document.querySelectorAll('.source-toggle');
+        
+        // Master "All Sources" toggle functionality
+        if (allSourcesToggle) {
+            allSourcesToggle.addEventListener('change', function() {
+                const isChecked = this.checked;
+                // Set all individual source toggles to match
+                sourceToggles.forEach(toggle => {
+                    toggle.checked = isChecked;
+                });
+                handleSourceChange();
+            });
+        }
+        
+        // Individual source toggle functionality
+        sourceToggles.forEach(toggle => {
+            toggle.addEventListener('change', function() {
+                // Update "All Sources" toggle based on individual selections
+                updateAllSourcesToggle();
+                handleSourceChange();
+            });
+        });
+        
+        // Initial state check
+        updateAllSourcesToggle();
+    }
+    
+    function updateAllSourcesToggle() {
+        const allSourcesToggle = document.getElementById('source_all_toggle');
+        const sourceToggles = document.querySelectorAll('.source-toggle');
+        const checkedToggles = document.querySelectorAll('.source-toggle:checked');
+        
+        if (allSourcesToggle) {
+            if (checkedToggles.length === sourceToggles.length) {
+                // All individual sources are checked
+                allSourcesToggle.checked = true;
+                allSourcesToggle.indeterminate = false;
+            } else if (checkedToggles.length === 0) {
+                // No individual sources are checked
+                allSourcesToggle.checked = false;
+                allSourcesToggle.indeterminate = false;
+            } else {
+                // Some but not all individual sources are checked
+                allSourcesToggle.checked = false;
+                allSourcesToggle.indeterminate = true;
+            }
+        }
+    }
+    
+    function handleSourceChange() {
+        saveSourcePreferences();
+        updateActiveFilterCount();
+        updateSourceDisplay();
+        
+        // Auto-submit search if there's a query
+        const searchInput = document.querySelector('input[name="q"]');
+        if (searchInput && searchInput.value.trim()) {
+            const autoSubmitForm = document.querySelector('form');
+            if (autoSubmitForm) {
+                autoSubmitForm.submit();
+            }
+        }
+    }
+    
+    // Initialize source toggles
+    initializeSourceToggles();
+    
+    // Load source preferences on page load - ensure they persist
+    loadSourcePreferences();
+    
+    // Force reload preferences after a brief delay to ensure DOM is ready
+    setTimeout(() => {
+        loadSourcePreferences();
+    }, 200);
+    
+    // Monitor filter changes
+    document.querySelectorAll('#advancedFilters input, #advancedFilters select, #basicFilters input').forEach(input => {
+        input.addEventListener('change', updateActiveFilterCount);
+        input.addEventListener('input', updateActiveFilterCount);
     });
     
-    // Enhanced form submission with help integration
-    searchForm.addEventListener('submit', function(e) {
-        const query = searchInput.value.trim();
+    // Initial filter count and source display
+    updateActiveFilterCount();
+    updateSourceDisplay();
+    
+    // Auto-submit on filter changes
+    document.querySelectorAll('#basicFilters input[type="checkbox"]:not(.source-toggle)').forEach(input => {
+        input.addEventListener('change', function() {
+            if (searchInput.value.trim()) {
+                form.submit();
+            }
+        });
+    });
+    
+    // Sort functionality - avoid redeclaration errors
+    if (!window._scholarSortInitialized) {
+        const sortSelect = document.getElementById('sortSelect');
+        if (sortSelect && !sortSelect._listenerAttached) {
+            sortSelect.addEventListener('change', function() {
+                const currentUrl = new URL(window.location.href);
+                currentUrl.searchParams.set('sort_by', this.value);
+                window.location.href = currentUrl.toString();
+            });
+            sortSelect._listenerAttached = true;
+        }
+        window._scholarSortInitialized = true;
+    }
+    
+    // Progressive search is always available
+    
+    // Helper function to reset all progress indicators
+    function resetProgressIndicators() {
+        document.querySelectorAll('.progress-source').forEach(source => {
+            const badge = source.querySelector('.badge');
+            const spinner = source.querySelector('.spinner-border');
+            const count = source.querySelector('.count');
+            
+            if (badge) badge.className = 'badge bg-light';
+            if (spinner) spinner.style.display = 'none';
+            if (count) count.textContent = '-';
+        });
+    }
+
+    // Search functionality - intercept form submission for progressive search
+    const literatureSearchForm = document.querySelector('form');
+    // searchButton already declared above at line 1101
+
+    // Search functionality - intercept form submission for progressive search
+    if (literatureSearchForm) {
+        literatureSearchForm.addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent normal form submission
+            
+            const query = searchInput.value.trim();
+            if (!query) {
+                alert('Please enter a search query.');
+                return;
+            }
+            
+            // Save current source preferences before starting search
+            saveSourcePreferences();
+            
+            // Hide regular results and show progressive interface
+            const regularResults = document.querySelectorAll('.result-card');
+            regularResults.forEach(card => card.style.display = 'none');
+            
+            // Show progressive interface
+            if (progressiveLoadingStatus) progressiveLoadingStatus.style.display = 'block';
+            if (progressiveResults) {
+                progressiveResults.style.display = 'block';
+                progressiveResults.innerHTML = '';
+            }
+            
+            // Reset progress indicators
+            document.querySelectorAll('.progress-source').forEach(source => {
+                const badge = source.querySelector('.badge');
+                const spinner = source.querySelector('.spinner-border');
+                const count = source.querySelector('.count');
+                
+                if (badge) badge.className = 'badge bg-secondary';
+                if (spinner) spinner.style.display = 'inline-block';
+                if (count) count.textContent = '0';
+            });
+            
+            // Start progressive search
+            startProgressiveSearch(query);
+        });
+    }
+    
+    // Progressive search implementation
+    function startProgressiveSearch(query) {
+        // Get selected sources from checkboxes
+        const selectedCheckboxes = document.querySelectorAll('.source-toggle:checked');
+        const selectedSourceValues = Array.from(selectedCheckboxes).map(cb => cb.value);
         
-        if (!query) {
-            e.preventDefault();
-            showSearchTip('Please enter a search query');
-            searchInput.focus();
+        const allSources = [
+            { name: 'pubmed', value: 'pubmed', endpoint: '/scholar/api/search/pubmed/', maxResults: 50 },
+            { name: 'google_scholar', value: 'google_scholar', endpoint: '/scholar/api/search/google-scholar/', maxResults: 50 },
+            { name: 'arxiv', value: 'arxiv', endpoint: '/scholar/api/search/arxiv/', maxResults: 50 },
+            { name: 'semantic', value: 'semantic', endpoint: '/scholar/api/search/semantic/', maxResults: 25 }
+        ];
+        
+        // Filter to only selected sources
+        const sourcesToSearch = allSources.filter(source => selectedSourceValues.includes(source.value));
+        
+        if (sourcesToSearch.length === 0) {
+            alert('Please select at least one search source.');
+            resetProgressIndicators();
             return;
         }
         
-        // Track search patterns for help improvements
-        trackSearchQuery(query);
+        // Search each selected source in parallel
+        sourcesToSearch.forEach(source => {
+            searchSource(source, query);
+        });
+        
+        // Reset progress indicators for unselected sources
+        allSources.forEach(source => {
+            const shouldSearch = selectedSourceValues.includes(source.value);
+            if (!shouldSearch) {
+                const progressSource = document.querySelector(`[data-source="${source.name}"]`);
+                if (progressSource) {
+                    const badge = progressSource.querySelector('.badge');
+                    const spinner = progressSource.querySelector('.spinner-border');
+                    const count = progressSource.querySelector('.count');
+                    
+                    if (badge) badge.className = 'badge bg-light';
+                    if (spinner) spinner.style.display = 'none';
+                    if (count) count.textContent = '-';
+                }
+            }
+        });
+    }
+    
+    function searchSource(source, query) {
+        const url = `${source.endpoint}?q=${encodeURIComponent(query)}&max_results=${source.maxResults}`;
+        const progressSource = document.querySelector(`[data-source="${source.name}"]`);
+        
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Update progress indicator
+                    const badge = progressSource.querySelector('.badge');
+                    const spinner = progressSource.querySelector('.spinner-border');
+                    const count = progressSource.querySelector('.count');
+                    
+                    badge.className = 'badge bg-success';
+                    spinner.style.display = 'none';
+                    count.textContent = data.count;
+                    
+                    // Add results to progressive container
+                    data.results.forEach(result => {
+                        addResultToProgressive(result);
+                    });
+                } else {
+                    // Handle error
+                    handleSearchError(source.name, data.error || 'Unknown error');
+                }
+            })
+            .catch(error => {
+                handleSearchError(source.name, error.message);
+            });
+    }
+    
+    function addResultToProgressive(result) {
+        const resultCard = createResultCard(result);
+        progressiveResults.appendChild(resultCard);
+        
+        // Animate the new result
+        resultCard.style.opacity = '0';
+        resultCard.style.transform = 'translateY(20px)';
+        setTimeout(() => {
+            resultCard.style.transition = 'all 0.3s ease';
+            resultCard.style.opacity = '1';
+            resultCard.style.transform = 'translateY(0)';
+        }, 50);
+    }
+    
+    function createResultCard(result) {
+        const cardDiv = document.createElement('div');
+        cardDiv.className = 'result-card';
+        cardDiv.setAttribute('data-paper-id', result.id || '');
+        cardDiv.setAttribute('data-title', result.title || '');
+        cardDiv.setAttribute('data-authors', result.authors || '');
+        cardDiv.setAttribute('data-year', result.year || '');
+        cardDiv.setAttribute('data-journal', result.journal || 'Unknown Journal');
+        
+        cardDiv.innerHTML = `
+            <h6 class="result-title">
+                <a href="#" class="text-decoration-none">
+                    ${result.title || 'Unknown Title'}
+                </a>
+            </h6>
+            <div class="result-authors">
+                ${result.authors || 'Unknown Authors'}
+            </div>
+            <div class="d-flex align-items-center mt-2 flex-wrap">
+                <span class="year-badge me-2">${result.year || '2024'}</span>
+                ${result.is_open_access ? '<span class="open-access me-2">Open Access</span>' : ''}
+                ${result.impact_factor ? `<span class="badge bg-warning text-dark me-2" style="font-size: 0.7rem;">IF: ${result.impact_factor}</span>` : ''}
+                <small class="text-muted">
+                    ${result.journal || 'Unknown Journal'}
+                    ${result.citations && result.citations > 0 ? `• <strong>${result.citations} citations</strong>` : ''}
+                    ${result.pmid ? `• PMID: ${result.pmid}` : ''}
+                </small>
+                ${result.source ? `<span class="badge bg-info ms-2" style="font-size: 0.7rem;">${result.source.toUpperCase()}</span>` : ''}
+            </div>
+            <div class="result-snippet mt-2">
+                <div class="abstract-preview">
+                    ${result.abstract && result.abstract.length > 200 ? 
+                        `<span class="abstract-short">${result.abstract.substring(0, 200)}...</span>
+                         <span class="abstract-full" style="display: none;">${result.abstract}</span>
+                         <a href="#" class="abstract-toggle text-primary ms-2" style="font-size: 0.9rem;">[Show full abstract]</a>` :
+                        (result.abstract || 'No abstract available.')
+                    }
+                </div>
+            </div>
+            <div class="mt-3">
+                ${result.pdf_url ? 
+                    `<a href="${result.pdf_url}" class="btn btn-outline-success btn-sm me-2" target="_blank">📄 Download PDF</a>` :
+                    '<span class="btn btn-outline-secondary btn-sm me-2 disabled">📄 No PDF</span>'
+                }
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-info btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        📝 Export Citation
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" onclick="exportCitation(this, 'bibtex')">
+                            <i class="fas fa-file-code"></i> BibTeX (.bib)
+                        </a></li>
+                        <li><a class="dropdown-item" href="#" onclick="exportCitation(this, 'ris')">
+                            <i class="fas fa-file-text"></i> RIS (.ris)
+                        </a></li>
+                        <li><a class="dropdown-item" href="#" onclick="exportCitation(this, 'endnote')">
+                            <i class="fas fa-file-alt"></i> EndNote (.enw)
+                        </a></li>
+                        <li><a class="dropdown-item" href="#" onclick="exportCitation(this, 'csv')">
+                            <i class="fas fa-table"></i> CSV (.csv)
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#" onclick="showBibTeX(this)">
+                            <i class="fas fa-eye"></i> Quick Preview
+                        </a></li>
+                    </ul>
+                </div>
+                <a href="#" class="btn btn-outline-warning btn-sm me-2" onclick="saveToLibrary(this)">
+                    ⭐ Add to Library
+                </a>
+            </div>
+        `;
+        
+        // Add event listeners for abstract toggle
+        const abstractToggle = cardDiv.querySelector('.abstract-toggle');
+        if (abstractToggle) {
+            abstractToggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                const abstractPreview = this.closest('.abstract-preview');
+                const shortAbstract = abstractPreview.querySelector('.abstract-short');
+                const fullAbstract = abstractPreview.querySelector('.abstract-full');
+                
+                if (fullAbstract.style.display === 'none') {
+                    shortAbstract.style.display = 'none';
+                    fullAbstract.style.display = 'inline';
+                    this.textContent = '[Show less]';
+                } else {
+                    shortAbstract.style.display = 'inline';
+                    fullAbstract.style.display = 'none';
+                    this.textContent = '[Show full abstract]';
+                }
+            });
+        }
+        
+        return cardDiv;
+    }
+    
+    function handleSearchError(sourceName, errorMessage) {
+        const progressSource = document.querySelector(`[data-source="${sourceName}"]`);
+        const badge = progressSource.querySelector('.badge');
+        const spinner = progressSource.querySelector('.spinner-border');
+        const count = progressSource.querySelector('.count');
+        
+        badge.className = 'badge bg-danger';
+        spinner.style.display = 'none';
+        count.textContent = 'Error';
+        
+        console.error(`${sourceName} search failed:`, errorMessage);
+    }
+    
+    // Auto-submit when project filter changes (but not sort)
+    document.querySelectorAll('select[name="project"]').forEach(select => {
+        select.addEventListener('change', function() {
+            if (searchInput.value.trim()) {
+                form.submit();
+            }
+        });
+    });
+
+    // Handle sort functionality - sortSelect already declared above at line 1482
+    // The sortSelect event listener is already registered at line 1482-1489
+    
+    // Note: Source selection auto-submit is now handled by the source-toggle event listeners above
+    
+    // Note: Bulk export functionality removed - papers can be added to library instead
+    
+    // Handle abstract toggle functionality
+    document.querySelectorAll('.abstract-toggle').forEach(toggle => {
+        toggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            const abstractPreview = this.closest('.abstract-preview');
+            const shortAbstract = abstractPreview.querySelector('.abstract-short');
+            const fullAbstract = abstractPreview.querySelector('.abstract-full');
+            
+            if (fullAbstract.style.display === 'none') {
+                // Show full abstract
+                shortAbstract.style.display = 'none';
+                fullAbstract.style.display = 'inline';
+                this.textContent = '[Show less]';
+            } else {
+                // Show short abstract
+                shortAbstract.style.display = 'inline';
+                fullAbstract.style.display = 'none';
+                this.textContent = '[Show full abstract]';
+            }
+        });
+    });
+    
+    // Save Search functionality
+    const saveSearchButton = document.getElementById('saveSearch');
+    if (saveSearchButton) {
+        saveSearchButton.addEventListener('click', function() {
+            const saveSearchFormElement = document.querySelector('form');
+            const formData = new FormData(saveSearchFormElement);
+            
+            // Get current search query
+            const query = formData.get('q');
+            if (!query || !query.trim()) {
+                alert('Please enter a search query first');
+                return;
+            }
+            
+            // Get search name from user
+            const searchName = prompt('Enter a name for this saved search:', query.substring(0, 50));
+            if (!searchName) return;
+            
+            // Collect all active filters
+            const filters = {};
+            formData.forEach((value, key) => {
+                if (value && key !== 'q') {
+                    filters[key] = value;
+                }
+            });
+            
+            // Send save request
+            fetch('/scholar/api/save-search/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    name: searchName,
+                    query: query.trim(),
+                    filters: filters,
+                    email_alerts: false,
+                    alert_frequency: 'never'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('Search saved successfully!');
+                } else {
+                    alert('Error saving search: ' + (data.message || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error saving search');
+            });
+        });
+    }
+    
+    // Functions are defined globally to work with onclick handlers
+    
+});
+
+// Global function for managing saved searches
+function showSavedSearches() {
+    fetch('/scholar/api/saved-searches/', {
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            displaySavedSearchesModal(data.searches);
+        } else {
+            alert('Error loading saved searches');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error loading saved searches');
     });
 }
 
-// Show contextual search tips
-function showSearchTip(message) {
-    // Create or update tip element
-    let tipElement = document.querySelector('.search-tip');
+function displaySavedSearchesModal(searches) {
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.5); z-index: 1000; display: flex;
+        align-items: center; justify-content: center;
+    `;
     
-    if (!tipElement) {
-        tipElement = document.createElement('div');
-        tipElement.className = 'search-tip';
-        tipElement.style.cssText = `
-            position: absolute;
-            background: var(--scitex-color-01);
-            color: var(--white);
-            padding: 8px 12px;
-            border-radius: 4px;
-            font-size: 0.9rem;
-            z-index: 100;
-            margin-top: 5px;
-            max-width: 300px;
-        `;
-        document.querySelector('.search-input-container').appendChild(tipElement);
+    const searchList = searches.map(search => `
+        <div class="d-flex justify-content-between align-items-center p-2 border-bottom">
+            <div>
+                <strong>${search.name}</strong><br>
+                <small class="text-muted">Query: ${search.query}</small><br>
+                <small class="text-muted">Saved: ${new Date(search.created_at).toLocaleDateString()}</small>
+            </div>
+            <div>
+                <button class="btn btn-sm btn-outline-primary me-2" onclick="loadSavedSearch('${search.id}')">
+                    <i class="fas fa-search"></i> Load
+                </button>
+                <button class="btn btn-sm btn-outline-danger" onclick="deleteSavedSearch('${search.id}')">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+    `).join('');
+    
+    modal.innerHTML = `
+        <div style="background: white; padding: 2rem; border-radius: 8px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5>Saved Searches</h5>
+                <button class="btn btn-close" onclick="this.closest('div[style*=\"position: fixed\"]').remove()"></button>
+            </div>
+            <div class="saved-searches-list">
+                ${searches.length > 0 ? searchList : '<p class="text-muted text-center">No saved searches yet.</p>'}
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.remove();
+    });
+}
+
+function loadSavedSearch(searchId) {
+    fetch(`/scholar/api/saved-searches/${searchId}/`, {
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            const search = data.search;
+            
+            // Load query
+            document.querySelector('input[name="q"]').value = search.query;
+            
+            // Load filters
+            Object.entries(search.filters).forEach(([name, value]) => {
+                const input = document.querySelector(`[name="${name}"]`);
+                if (input) {
+                    if (input.type === 'checkbox' || input.type === 'radio') {
+                        if (input.value === value) {
+                            input.checked = true;
+                        }
+                    } else {
+                        input.value = value;
+                    }
+                }
+            });
+            
+            // Submit the form
+            document.querySelector('form').submit();
+            
+            // Close modal
+            document.querySelector('div[style*="position: fixed"]').remove();
+        } else {
+            alert('Error loading saved search');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error loading saved search');
+    });
+}
+
+function deleteSavedSearch(searchId) {
+    if (!confirm('Are you sure you want to delete this saved search?')) return;
+    
+    fetch(`/scholar/api/saved-searches/${searchId}/`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            // Refresh the modal
+            showSavedSearches();
+        } else {
+            alert('Error deleting saved search');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error deleting saved search');
+    });
+}
+
+// Global functions for file handling
+function viewOnWeb(btn) {
+    const resultCard = btn.closest('.result-card');
+    const paperTitle = resultCard.dataset.title;
+    const doi = resultCard.dataset.doi;
+    const pmid = resultCard.dataset.pmid;
+    const arxivId = resultCard.dataset.arxivId;
+    const externalUrl = resultCard.dataset.externalUrl;
+    const source = resultCard.dataset.source;
+    
+    // Determine the best web link with proper priority
+    let webUrl = '';
+    
+    // Priority 1: DOI (most reliable for published papers)
+    if (doi && doi.trim()) {
+        webUrl = `https://doi.org/${doi}`;
+    }
+    // Priority 2: External URL if available
+    else if (externalUrl && externalUrl.trim()) {
+        webUrl = externalUrl;
+    }
+    // Priority 3: Source-specific URLs
+    else if (source === 'arxiv' && arxivId && arxivId.trim()) {
+        webUrl = `https://arxiv.org/abs/${arxivId}`;
+    }
+    else if ((source === 'pubmed' || pmid) && pmid && pmid.trim()) {
+        webUrl = `https://pubmed.ncbi.nlm.nih.gov/${pmid}/`;
+    }
+    // Priority 4: Google Scholar search as last resort
+    else {
+        webUrl = `https://scholar.google.com/scholar?q=${encodeURIComponent(paperTitle)}`;
     }
     
-    tipElement.textContent = message;
-    tipElement.style.display = 'block';
+    window.open(webUrl, '_blank');
+}
+
+function exportCitation(btn, format) {
+    const resultCard = btn.closest('.result-card');
+    const paperId = resultCard.dataset.paperId;
     
-    // Hide tip after 3 seconds
+    if (!paperId) {
+        alert('Error: Paper ID not found. Please try refreshing the page.');
+        return;
+    }
+    
+    // Show loading state
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Exporting...';
+    btn.disabled = true;
+    
+    // Export citation in requested format
+    fetch(`/scholar/api/export/${format}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            paper_ids: [paperId],
+            collection_name: 'single_export'
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Create download link
+            const blob = new Blob([data.content], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = data.filename;
+            a.click();
+            window.URL.revokeObjectURL(url);
+            
+            // Show success message
+            showToast(`Citation exported successfully as ${format.toUpperCase()}!`, 'success');
+        } else {
+            alert(`Error exporting citation: ${data.error || 'Unknown error'}`);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error exporting citation. Please try again.');
+    })
+    .finally(() => {
+        // Reset button state
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    });
+}
+
+function showBibTeX(btn) {
+    const resultCard = btn.closest('.result-card');
+    const paperTitle = resultCard.dataset.title;
+    const authors = resultCard.dataset.authors;
+    const year = resultCard.dataset.year;
+    const journal = resultCard.dataset.journal;
+    
+    // Get citation from backend
+    const params = new URLSearchParams({
+        title: paperTitle,
+        authors: authors,
+        year: year,
+        journal: journal
+    });
+    
+    fetch('/scholar/api/get-citation/?' + params)
+    .then(response => response.json())
+    .then(data => {
+        const bibtex = data.bibtex;
+        
+        // Create a modal-like display for BibTeX
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 1000; display: flex;
+            align-items: center; justify-content: center;
+        `;
+        
+        modal.innerHTML = `
+            <div style="background: white; padding: 2rem; border-radius: 8px; max-width: 600px; width: 90%;">
+                <h5>BibTeX Citation Preview</h5>
+                <textarea readonly style="width: 100%; height: 200px; font-family: monospace; font-size: 12px; border: 1px solid #ddd; padding: 1rem;">${bibtex}</textarea>
+                <div class="mt-3">
+                    <button class="btn btn-primary me-2" onclick="navigator.clipboard.writeText(\`${bibtex.replace(/`/g, '\\`')}\`).then(() => alert('Copied to clipboard!'))">Copy to Clipboard</button>
+                    <button class="btn btn-secondary" onclick="this.closest('div[style*=\\"position: fixed\\"]').remove()">Close</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) modal.remove();
+        });
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error generating citation. Please try again.');
+    });
+}
+
+function saveToLibrary(btn) {
+    const resultCard = btn.closest('.result-card');
+    const paperId = resultCard.dataset.paperId;
+    const paperTitle = resultCard.dataset.title;
+    const projectSelect = document.querySelector('select[name="project"]');
+    const selectedProject = projectSelect ? projectSelect.value : '';
+    
+    // Send save request to backend
+    fetch('/scholar/api/save-paper/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            paper_id: paperId,
+            title: paperTitle,
+            project: selectedProject
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            // Visual feedback
+            btn.innerHTML = '⭐ In Library';
+            btn.classList.remove('btn-outline-warning');
+            btn.classList.add('btn-warning');
+            alert(data.message);
+        } else {
+            alert(data.message || 'Error saving paper');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error saving paper. Please try again.');
+    });
+}
+
+function generateBibTeX(btn) {
+    const resultCard = btn.closest('.result-card');
+    const paperTitle = resultCard.dataset.title;
+    const authors = resultCard.dataset.authors;
+    const year = resultCard.dataset.year;
+    const journal = resultCard.dataset.journal;
+    
+    // Get citation from backend
+    const params = new URLSearchParams({
+        title: paperTitle,
+        authors: authors,
+        year: year,
+        journal: journal
+    });
+    
+    fetch('/scholar/api/get-citation/?' + params)
+    .then(response => response.json())
+    .then(data => {
+        const bibtex = data.bibtex;
+        
+        // Copy to clipboard
+        navigator.clipboard.writeText(bibtex).then(() => {
+            alert('BibTeX citation copied to clipboard!\n\n' + bibtex);
+        }).catch(() => {
+            // Fallback for older browsers
+            const textArea = document.createElement('textarea');
+            textArea.value = bibtex;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            alert('BibTeX citation copied to clipboard!\n\n' + bibtex);
+        });
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error generating citation. Please try again.');
+    });
+}
+
+function uploadMyFiles(btn) {
+    const resultCard = btn.closest('.result-card');
+    const paperId = resultCard.dataset.paperId;
+    const paperTitle = resultCard.dataset.title;
+    
+    // Create file input dialog
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.multiple = true;
+    fileInput.accept = '.pdf,.bib,.bibtex';
+    
+    fileInput.onchange = function(e) {
+        const files = Array.from(e.target.files);
+        
+        if (files.length === 0) return;
+        
+        // Upload each file
+        const uploadPromises = files.map(file => {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('paper_id', paperId);
+            formData.append('file_type', file.name.toLowerCase().endsWith('.pdf') ? 'pdf' : 'bibtex');
+            
+            return fetch('/scholar/api/upload-file/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: formData
+            }).then(response => response.json());
+        });
+        
+        Promise.all(uploadPromises)
+        .then(results => {
+            const successCount = results.filter(r => r.status === 'success').length;
+            if (successCount > 0) {
+                // Visual feedback
+                btn.innerHTML = '✓ Uploaded';
+                btn.classList.remove('btn-outline-success');
+                btn.classList.add('btn-success');
+                alert(`Successfully uploaded ${successCount} file(s) for: ${paperTitle}`);
+            } else {
+                alert('Error uploading files. Please try again.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error uploading files. Please try again.');
+        });
+    };
+    
+    fileInput.click();
+}
+
+// Bulk export functions
+function selectAllPapers() {
+    const checkboxes = document.querySelectorAll('.paper-checkbox');
+    const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+    
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = !allChecked;
+    });
+    
+    // Bulk actions removed
+}
+
+function bulkExportCitations(format) {
+    const selectedCheckboxes = document.querySelectorAll('.paper-checkbox:checked');
+    
+    if (selectedCheckboxes.length === 0) {
+        alert('Please select at least one paper to export.');
+        return;
+    }
+    
+    const paperIds = Array.from(selectedCheckboxes).map(cb => cb.dataset.paperId);
+    
+    // Show loading state
+    showToast(`Exporting ${selectedCheckboxes.length} citations as ${format.toUpperCase()}...`, 'info');
+    
+    // Export citations in requested format
+    fetch(`/scholar/api/export/${format}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            paper_ids: paperIds,
+            collection_name: 'bulk_search_export'
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Create download link
+            const blob = new Blob([data.content], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = data.filename;
+            a.click();
+            window.URL.revokeObjectURL(url);
+            
+            // Show success message
+            showToast(`Successfully exported ${data.count} citations as ${format.toUpperCase()}!`, 'success');
+            
+            // Clear selections
+            document.querySelectorAll('.paper-checkbox:checked').forEach(cb => cb.checked = false);
+            // Bulk actions removed
+        } else {
+            showToast(`Error exporting citations: ${data.error || 'Unknown error'}`, 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Error exporting citations. Please try again.', 'danger');
+    });
+}
+
+// Helper function to show toast notifications
+function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+    toast.style.cssText = 'top: 20px; right: 20px; z-index: 1050; min-width: 300px;';
+    toast.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    // Auto-remove after 3 seconds
     setTimeout(() => {
-        tipElement.style.display = 'none';
+        if (toast.parentNode) {
+            toast.remove();
+        }
     }, 3000);
 }
 
-// Track search patterns for analytics and help improvements
-function trackSearchQuery(query) {
-    // Simple analytics for help system optimization
-    const searchData = {
-        query: query,
-        timestamp: new Date().toISOString(),
-        hasBoolean: query.includes(' AND ') || query.includes(' OR ') || query.includes(' NOT '),
-        hasQuotes: query.includes('"'),
-        hasAuthor: query.toLowerCase().includes('author:'),
-        wordCount: query.split(' ').length
-    };
-    
-    // Store in local storage for help system improvements
-    const searches = JSON.parse(localStorage.getItem('scholar_searches') || '[]');
-    searches.push(searchData);
-    
-    // Keep only last 10 searches
-    if (searches.length > 10) {
-        searches.splice(0, searches.length - 10);
+// Helper function to get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
     }
-    
-    localStorage.setItem('scholar_searches', JSON.stringify(searches));
+    return cookieValue;
 }
 
-// Initialize enhanced search experience
-document.addEventListener('DOMContentLoaded', enhanceSearchExperience);
-
-// Help system keyboard shortcuts info
-console.log('SciTeX Scholar Help: Press F1 or Ctrl+H for help, Escape to close');
-
-// ============ BibTeX Auto-Processing ============
-document.addEventListener('DOMContentLoaded', function() {
-  const bibDropZone = document.getElementById('bibDropZone');
-  const bibFileInput = document.getElementById('bibFileInput');
-  const bibDropZoneContent = document.getElementById('bibDropZoneContent');
-  const bibFileDisplay = document.getElementById('bibFileDisplay');
-  const bibFileName = document.getElementById('bibFileName');
-  const bibFileSize = document.getElementById('bibFileSize');
-  const bibUploadForm = document.getElementById('bibtexUploadForm');
-
-  if (!bibDropZone || !bibFileInput) return; // Guard if elements don't exist
-
-  let bibDragCounter = 0;
-
-  // Format file size
-  function formatFileSize(bytes) {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
-  }
-
-  // Validate file
-  function validateBibFile(file) {
-    if (!file.name.toLowerCase().endsWith('.bib')) {
-      alert('Please select a valid BibTeX file (.bib)');
-      return false;
+// BibTeX Job Status Polling
+function pollBibtexJobStatus(jobId, attempts = 0) {
+    if (attempts > 180) {
+        console.error('[Scholar Index] Polling timeout after 180 attempts');
+        document.getElementById('processingLog').textContent += '\n\n✗ Polling timeout. Please refresh the page.';
+        return;
     }
-    if (file.size > 50 * 1024 * 1024) {
-      alert('File is too large. Maximum size is 50MB.');
-      return false;
-    }
-    return true;
-  }
 
-  // Display file info
-  function displayBibFileInfo(file) {
-    bibFileName.textContent = file.name;
-    bibFileSize.textContent = formatFileSize(file.size);
-    bibDropZoneContent.style.display = 'none';
-    bibFileDisplay.style.display = 'block';
-    bibDropZone.style.borderColor = 'var(--info-color)';
-    bibDropZone.style.borderStyle = 'solid';
-    bibDropZone.style.background = 'rgba(107, 143, 179, 0.1)';
-  }
+    fetch(`/scholar/api/bibtex/job/${jobId}/status/`)
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            return response.json();
+        })
+        .then(data => {
+            // Update progress
+            if (data.progress_percentage !== undefined) {
+                document.getElementById('progressBar').style.width = `${data.progress_percentage}%`;
+                document.getElementById('progressPercentage').textContent = `${data.progress_percentage}%`;
+            }
 
-  // Auto-submit form
-  function autoSubmitBibTeX() {
-    if (!bibFileInput.files || !bibFileInput.files[0]) return;
+            // Update paper counts
+            if (data.total_papers !== undefined) {
+                let text = `${data.processed_papers} / ${data.total_papers} papers processed`;
+                if (data.failed_papers > 0) text += ` (${data.failed_papers} failed)`;
+                document.getElementById('progressDetails').textContent = text;
+            }
 
-    // Show processing state
-    bibDropZone.style.borderColor = 'var(--info-color)';
-    bibDropZone.style.background = 'rgba(107, 143, 179, 0.15)';
+            // Update log
+            if (data.log) {
+                document.getElementById('processingLog').textContent = data.log;
+                document.getElementById('processingLog').scrollTop = document.getElementById('processingLog').scrollHeight;
+            }
 
-    const formData = new FormData(bibUploadForm);
+            // Check if done
+            if (data.status === 'completed') {
+                console.log('[Scholar Index] Job completed! Setting up download...');
+                const downloadUrl = `/scholar/api/bibtex/job/${jobId}/download/`;
+                console.log('[Scholar Index] Download URL:', downloadUrl);
 
-    fetch(bibUploadForm.action, {
-      method: 'POST',
-      body: formData,
-      headers: { 'X-Requested-With': 'XMLHttpRequest' }
-    })
-    .then(response => {
-      if (!response.ok) throw new Error(`HTTP error ${response.status}`);
-      return response.json();
-    })
-    .then(data => {
-      if (data.success) {
-        // Show success state
-        bibDropZone.style.borderColor = 'var(--success-color)';
-        bibDropZone.style.background = 'rgba(74, 155, 126, 0.1)';
+                document.getElementById('downloadBtn').href = downloadUrl;
+                document.getElementById('downloadArea').style.display = 'block';
+                console.log('[Scholar Index] Download button shown');
 
-        // Start progress tracking
-        setTimeout(() => {
-          showBibJobProgress(data.job_id, bibFileInput.files[0].name);
-        }, 300);
-      } else {
-        throw new Error(data.message || 'Upload failed');
-      }
-    })
-    .catch(error => {
-      console.error('Upload error:', error);
-      alert('Enrichment failed: ' + error.message);
-      bibDropZone.style.borderColor = 'var(--color-border-default)';
-      bibDropZone.style.background = 'var(--color-canvas-subtle)';
-    });
-  }
+                // Auto-download the enriched file
+                console.log('[Scholar Index] Triggering auto-download for:', downloadUrl);
+                console.log('[Scholar Index] autoDownloadBibtexFile function exists?', typeof autoDownloadBibtexFile);
+                try {
+                    autoDownloadBibtexFile(downloadUrl);
+                } catch (error) {
+                    console.error('[Scholar Index] Auto-download failed:', error);
+                    // Fallback: let user click the button
+                    document.getElementById('processingLog').textContent += '\n\n✓ Download ready! Click the button below to download.';
+                }
+            } else if (data.status === 'failed') {
+                console.log('[Scholar Index] Job failed:', data.error_message);
+                document.getElementById('processingLog').textContent += '\n\n✗ ERROR: ' + (data.error_message || 'Unknown error');
+                setTimeout(() => resetBibtexForm(), 5000);
+            } else {
+                setTimeout(() => pollBibtexJobStatus(jobId, attempts + 1), 2000);
+            }
+        })
+        .catch(error => {
+            console.error('Polling error:', error);
+            setTimeout(() => pollBibtexJobStatus(jobId, attempts + 1), 5000);
+        });
+}
 
-  // Handle file selection with auto-processing
-  function handleBibFileSelect(file) {
-    if (validateBibFile(file)) {
-      displayBibFileInfo(file);
-      setTimeout(() => autoSubmitBibTeX(), 300);
-    } else {
-      bibFileInput.value = '';
-    }
-  }
+// Auto-download BibTeX file when enrichment completes
+function autoDownloadBibtexFile(url) {
+    console.log('[Auto-Download] Starting download for:', url);
 
-  // File input change
-  bibFileInput.addEventListener('change', function(e) {
-    if (this.files && this.files[0]) {
-      handleBibFileSelect(this.files[0]);
-    }
-  });
+    fetch(url)
+        .then(response => {
+            console.log('[Auto-Download] Response status:', response.status);
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
 
-  // Drag events
-  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-    bibDropZone.addEventListener(eventName, e => {
-      e.preventDefault();
-      e.stopPropagation();
-    }, false);
-  });
+            // Extract filename from headers
+            let filename = 'enriched_bibliography.bib';
+            const contentDisposition = response.headers.get('Content-Disposition');
+            if (contentDisposition) {
+                const match = contentDisposition.match(/filename="?(.+?)"?$/);
+                if (match) filename = match[1];
+            }
+            console.log('[Auto-Download] Filename:', filename);
 
-  // Dragenter: increment counter and apply styles
-  bibDropZone.addEventListener('dragenter', function(e) {
-    bibDragCounter++;
-    if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
-    bibDropZone.classList.add('dragging');
-    bibDropZone.style.borderColor = '#6B8FB3';
-    bibDropZone.style.borderStyle = 'solid';
-    bibDropZone.style.background = 'rgba(107, 143, 179, 0.15)';
-    bibDropZone.style.transform = 'scale(1.01)';
-    bibDropZone.style.boxShadow = '0 4px 16px rgba(107, 143, 179, 0.3)';
-  });
+            return response.blob().then(blob => ({ blob, filename }));
+        })
+        .then(({ blob, filename }) => {
+            console.log('[Auto-Download] Creating download link...');
+            const blobUrl = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = blobUrl;
+            a.download = filename;
+            a.style.display = 'none';
+            document.body.appendChild(a);
+            a.click();
 
-  // Dragleave: decrement counter and remove styles when truly leaving
-  bibDropZone.addEventListener('dragleave', function(e) {
-    bibDragCounter--;
-    if (bibDragCounter === 0) {
-      bibDropZone.classList.remove('dragging');
-      bibDropZone.style.borderColor = 'var(--color-border-default)';
-      bibDropZone.style.borderStyle = 'dashed';
-      bibDropZone.style.background = 'var(--color-canvas-subtle)';
-      bibDropZone.style.transform = 'scale(1)';
-      bibDropZone.style.boxShadow = 'none';
-    }
-  });
+            setTimeout(() => {
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(blobUrl);
+                console.log('[Auto-Download] ✓ Download completed');
+            }, 100);
+        })
+        .catch(error => {
+            console.error('[Auto-Download] ✗ Failed:', error);
+            console.log('[Auto-Download] Trying fallback method...');
 
-  // Drop: reset counter and handle file
-  bibDropZone.addEventListener('drop', function(e) {
-    bibDragCounter = 0;
-    bibDropZone.classList.remove('dragging');
-    bibDropZone.style.borderColor = 'var(--color-border-default)';
-    bibDropZone.style.borderStyle = 'dashed';
-    bibDropZone.style.background = 'var(--color-canvas-subtle)';
-    bibDropZone.style.transform = 'scale(1)';
-    bibDropZone.style.boxShadow = 'none';
-
-    const files = e.dataTransfer.files;
-    if (files && files[0]) {
-      bibFileInput.files = files;
-      handleBibFileSelect(files[0]);
-    }
-  });
-
-  // Progress tracking
-  let activeBibJobId = null;
-  let bibPollingInterval = null;
-
-  function showBibJobProgress(jobId, fileName) {
-    activeBibJobId = jobId;
-    const panel = document.getElementById('bibJobPanel');
-    panel.style.display = 'block';
-
-    // Start polling
-    bibPollingInterval = setInterval(pollBibJobStatus, 2000);
-    pollBibJobStatus(); // Immediate first poll
-  }
-
-  function pollBibJobStatus() {
-    if (!activeBibJobId) return;
-
-    fetch(`/scholar/api/bibtex/job/${activeBibJobId}/status/`)
-      .then(response => response.json())
-      .then(data => {
-        updateBibJobUI(data);
-        if (data.status === 'completed' || data.status === 'failed') {
-          clearInterval(bibPollingInterval);
-        }
-      })
-      .catch(error => console.error('Polling error:', error));
-  }
-
-  function updateBibJobUI(data) {
-    const progressBar = document.getElementById('bibProgressBar');
-    const progressPercent = document.getElementById('bibProgressPercent');
-    const progressText = document.getElementById('bibProgressText');
-    const downloadSection = document.getElementById('bibDownloadSection');
-    const downloadLink = document.getElementById('bibDownloadLink');
-
-    // Update progress
-    const percent = data.progress_percentage || 0;
-    progressBar.style.width = percent + '%';
-    progressPercent.textContent = percent + '%';
-    progressText.textContent = `${data.processed_papers || 0} / ${data.total_papers || 0} papers processed`;
-
-    // Show download when complete
-    if (data.status === 'completed' && data.enriched_file_url) {
-      downloadSection.style.display = 'block';
-      downloadLink.href = data.enriched_file_url;
-    }
-  }
-
-  // Prevent form submission
-  bibUploadForm.addEventListener('submit', e => e.preventDefault());
-});
-
+            // Fallback: direct link
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'enriched_bibliography.bib';
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => document.body.removeChild(a), 100);
+        });
+}
 </script>
 {% endblock %}
