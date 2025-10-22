@@ -103,24 +103,43 @@ def bibtex_upload(request):
             old_job.save(update_fields=['status', 'error_message', 'completed_at', 'processing_log'])
 
     else:
-        # Anonymous users: Must wait for current job to complete
-        # Cannot cancel and retry like authenticated users
+        # Anonymous users: Ask if they want to cancel old job
         existing_jobs = BibTeXEnrichmentJob.objects.filter(
             session_key=request.session.session_key,
             status__in=['pending', 'processing']
         ) if request.session.session_key else BibTeXEnrichmentJob.objects.none()
 
         if existing_jobs.exists():
-            error_message = 'You already have a job in progress. Please wait for it to complete or sign up for an account to cancel and retry.'
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({
-                    'success': False,
-                    'error': error_message,
-                    'anonymous_limit': True,
-                }, status=429)
+            # Check if user explicitly wants to cancel old job
+            force_cancel = request.POST.get('force_cancel') == 'true'
+
+            if force_cancel:
+                # User chose to cancel old job - proceed with cancellation
+                for old_job in existing_jobs:
+                    old_job.status = 'cancelled'
+                    old_job.error_message = 'Cancelled - new job uploaded'
+                    old_job.completed_at = timezone.now()
+                    old_job.processing_log += '\n\n✗ Cancelled by user uploading new file'
+                    old_job.save(update_fields=['status', 'error_message', 'completed_at', 'processing_log'])
+                # Continue to create new job below
             else:
-                messages.error(request, error_message)
-                return redirect('scholar_app:bibtex_enrichment')
+                # Show confirmation dialog to user
+                existing_job = existing_jobs.first()
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'success': False,
+                        'requires_confirmation': True,
+                        'existing_job': {
+                            'id': str(existing_job.id),
+                            'filename': existing_job.original_filename or 'Unknown',
+                            'progress': existing_job.get_progress_percentage(),
+                            'status': existing_job.status,
+                        },
+                        'message': 'You already have a job in progress. Cancel it and start new job?'
+                    }, status=409)  # 409 Conflict
+                else:
+                    messages.warning(request, f'You already have a job in progress: "{existing_job.original_filename or "Unknown"}". Please wait for it to complete.')
+                    return redirect('scholar_app:bibtex_enrichment')
 
     # Get optional parameters
     project_name = request.POST.get('project_name', '').strip() or None
@@ -314,23 +333,31 @@ def _process_bibtex_job(job):
         import asyncio
 
         async def update_job():
-            # Wrap Django ORM operations in sync_to_async
-            await sync_to_async(job.refresh_from_db)()
+            try:
+                # Wrap Django ORM operations in sync_to_async
+                await sync_to_async(job.refresh_from_db)()
 
-            # Create progress message
-            title = info.get('title', 'Unknown')[:50]
-            status_icon = '✓' if info.get('success') else '✗'
-            message = f"[{current}/{total}] {status_icon} {title}"
+                # Check if job was cancelled
+                if await sync_to_async(lambda: job.status)() == 'cancelled':
+                    return  # Job was cancelled, stop updating
 
-            current_log = await sync_to_async(lambda: job.processing_log)()
-            if current_log:
-                job.processing_log = current_log + f"\n{message}"
-            else:
-                job.processing_log = message
+                # Create progress message
+                title = info.get('title', 'Unknown')[:50]
+                status_icon = '✓' if info.get('success') else '✗'
+                message = f"[{current}/{total}] {status_icon} {title}"
 
-            # Update counters
-            job.processed_papers = current
-            await sync_to_async(job.save)(update_fields=['processing_log', 'processed_papers'])
+                current_log = await sync_to_async(lambda: job.processing_log)()
+                if current_log:
+                    job.processing_log = current_log + f"\n{message}"
+                else:
+                    job.processing_log = message
+
+                # Update counters
+                job.processed_papers = current
+                await sync_to_async(job.save)(update_fields=['processing_log', 'processed_papers'])
+            except Exception as e:
+                # Job may have been deleted or cancelled - ignore update errors
+                logger.warning(f"Failed to update job {job.id}: {e}")
 
         # Run the async update
         try:
@@ -340,7 +367,17 @@ def _process_bibtex_job(job):
             asyncio.run(update_job())
 
     try:
-        # Update job status (use update_fields to avoid duplicate key error)
+        # Update job status - refresh first to avoid conflicts
+        try:
+            job.refresh_from_db()
+            # Check if job was cancelled before we even started
+            if job.status == 'cancelled':
+                logger.info(f"Job {job.id} was cancelled before processing started")
+                return
+        except BibTeXEnrichmentJob.DoesNotExist:
+            logger.warning(f"Job {job.id} was deleted before processing started")
+            return
+
         job.status = 'processing'
         job.started_at = timezone.now()
         job.processing_log = "Loading BibTeX file..."
