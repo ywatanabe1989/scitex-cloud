@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-23 07:17:12
+!-- Timestamp: 2025-10-23 07:23:52
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/CLAUDE.md
 !-- --- -->
@@ -46,5 +46,14 @@ Add console.log for debugging
 - [x] Core app refactoring completion - DONE: All references updated
 
 ## Modules for logged-in users
+Currently, logged-in users have different pages from anynomous users
+However, /scholar/ page is good in implementation and it should be used as is for logged-in users.
+One thing we can implement is the addition of save to library functionality. For anonymous users, it is an opportunity to suggest signup.
+
+This page is not necessary at all: http://127.0.0.1:8000/ywatanabe/full-integration-test/?mode=scholar
+This URL should serve the same contents with /scholar/ but with default library as the current one
+what is the best approach? redirecting is good? or just render the page contents in with http://127.0.0.1:8000/ywatanabe/full-integration-test/?mode=scholar?
+
+Or we can add current project dropdown selector in the header 
 
 <!-- EOF -->

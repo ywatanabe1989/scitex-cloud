@@ -1261,9 +1261,24 @@ function saveToLibrary(btn) {
     const resultCard = btn.closest('.result-card');
     const paperId = resultCard.dataset.paperId;
     const paperTitle = resultCard.dataset.title;
-    const projectSelect = document.querySelector('select[name="project"]');
-    const selectedProject = projectSelect ? projectSelect.value : '';
-    
+
+    // Try multiple ways to get selected project
+    let selectedProject = '';
+
+    // 1. Check sessionStorage from project selector
+    const projectIdFromSession = sessionStorage.getItem('scholar_selected_project_id');
+    if (projectIdFromSession) {
+        selectedProject = projectIdFromSession;
+    }
+
+    // 2. Fall back to project select in BibTeX form (if exists)
+    if (!selectedProject) {
+        const projectSelect = document.querySelector('select[name="project"]');
+        if (projectSelect) {
+            selectedProject = projectSelect.value;
+        }
+    }
+
     // Send save request to backend
     fetch('/scholar/api/save-paper/', {
         method: 'POST',
