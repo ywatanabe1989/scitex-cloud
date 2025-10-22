@@ -75,7 +75,12 @@ http://127.0.0.1:8000/ywatanabe/?tab=overview
 - [x] Username display - Already showing as `@ywatanabe` prominently
 
 ## Version Control
-- [ ] Gitea is not optional but should be enabled
+- [x] Gitea is not optional but should be enabled
+  - **Implemented:** Removed conditional checks that allowed disabling Gitea
+  - **Changes:**
+    - Removed `GITEA_INTEGRATION_ENABLED` check from signals.py (line 37)
+    - Added `GITEA_INTEGRATION_ENABLED = True` to both dev and prod settings with comment "Core feature, always enabled"
+    - Gitea repository creation now happens automatically for all new projects without any opt-out mechanism
 
 ## Footer
 - [x] Multilingual support - Language selector with localStorage persistence
