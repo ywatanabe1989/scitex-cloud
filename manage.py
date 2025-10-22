@@ -1,18 +1,19 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-05-21 10:08:09 (ywatanabe)"
-# File: /home/ywatanabe/proj/SciTeX-Cloud/manage.py
+# Timestamp: "2025-10-22 08:15:48 (ywatanabe)"
+# File: /home/ywatanabe/proj/scitex-cloud/manage.py
 # ----------------------------------------
+from __future__ import annotations
 import os
 __FILE__ = (
     "./manage.py"
 )
 __DIR__ = os.path.dirname(__FILE__)
 # ----------------------------------------
-#!/usr/bin/env python
-"""Django's command-line utility for administrative tasks."""
-import sys
 
+"""Django's command-line utility for administrative tasks."""
+
+import sys
 
 def main():
     """Run administrative tasks."""
