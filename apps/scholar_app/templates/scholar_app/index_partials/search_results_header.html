@@ -1,0 +1,23 @@
+<!-- Search Results Header -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h5 class="mb-0">Search Results</h5>
+    <small class="text-muted" id="searchResultsText">
+      Found {{ results|length }} result{{ results|length|pluralize }} for "{{ query }}"
+      {% if results %}
+      <span id="sourceDisplay">from selected sources</span>
+      {% endif %}
+    </small>
+  </div>
+  <div class="d-flex align-items-center gap-2">
+
+    <div>
+      <small class="text-muted">Sort by:</small>
+      <select name="sort_by" class="form-select form-select-sm d-inline-block w-auto ms-2" id="sortSelect">
+        <option value="relevance" {% if request.GET.sort_by == 'relevance' or not request.GET.sort_by %}selected{% endif %}>Most Relevant</option>
+        <option value="date" {% if request.GET.sort_by == 'date' %}selected{% endif %}>Most Recent</option>
+        <option value="citations" {% if request.GET.sort_by == 'citations' %}selected{% endif %}>Most Cited</option>
+      </select>
+    </div>
+  </div>
+</div>
