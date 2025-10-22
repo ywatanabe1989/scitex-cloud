@@ -786,6 +786,26 @@ a.disabled {
     background: var(--color-canvas-subtle);
 }
 
+/* Result Card Titles - Better visibility in dark mode */
+[data-theme="dark"] .result-title {
+    color: var(--white);
+}
+
+[data-theme="dark"] .result-title a {
+    color: var(--white);
+}
+
+[data-theme="dark"] .result-title:hover,
+[data-theme="dark"] .result-title a:hover {
+    color: var(--scitex-color-02);
+}
+
+/* Impact Factor Badge - Better visibility in dark mode */
+[data-theme="dark"] .badge.bg-warning {
+    background-color: #ffc107 !important;
+    color: #000 !important;
+}
+
 /* Search Results Header - Better visibility in dark mode */
 #searchResultsContainer h5,
 .search-results-header h5 {

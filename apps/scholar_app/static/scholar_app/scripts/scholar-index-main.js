@@ -1100,31 +1100,45 @@ function viewOnWeb(btn) {
     const arxivId = resultCard.dataset.arxivId;
     const externalUrl = resultCard.dataset.externalUrl;
     const source = resultCard.dataset.source;
-    
-    // Determine the best web link with proper priority
-    let webUrl = '';
-    
-    // Priority 1: DOI (most reliable for published papers)
+
+    // Collect all available URLs
+    const urls = [];
+
+    // Add DOI URL if available
     if (doi && doi.trim()) {
-        webUrl = `https://doi.org/${doi}`;
+        urls.push({ type: 'DOI', url: `https://doi.org/${doi}` });
     }
-    // Priority 2: External URL if available
-    else if (externalUrl && externalUrl.trim()) {
-        webUrl = externalUrl;
+
+    // Add PMID URL if available
+    if (pmid && pmid.trim()) {
+        urls.push({ type: 'PubMed', url: `https://pubmed.ncbi.nlm.nih.gov/${pmid}/` });
     }
-    // Priority 3: Source-specific URLs
-    else if (source === 'arxiv' && arxivId && arxivId.trim()) {
-        webUrl = `https://arxiv.org/abs/${arxivId}`;
+
+    // Add arXiv URL if available
+    if (arxivId && arxivId.trim()) {
+        urls.push({ type: 'arXiv', url: `https://arxiv.org/abs/${arxivId}` });
     }
-    else if ((source === 'pubmed' || pmid) && pmid && pmid.trim()) {
-        webUrl = `https://pubmed.ncbi.nlm.nih.gov/${pmid}/`;
+
+    // Add external URL if available and not duplicate
+    if (externalUrl && externalUrl.trim()) {
+        // Check if it's not already a DOI URL
+        if (!externalUrl.includes('doi.org')) {
+            urls.push({ type: 'External', url: externalUrl });
+        }
     }
-    // Priority 4: Google Scholar search as last resort
-    else {
-        webUrl = `https://scholar.google.com/scholar?q=${encodeURIComponent(paperTitle)}`;
+
+    // If no URLs found, fallback to Google Scholar search
+    if (urls.length === 0) {
+        urls.push({
+            type: 'Google Scholar',
+            url: `https://scholar.google.com/scholar?q=${encodeURIComponent(paperTitle)}`
+        });
     }
-    
-    window.open(webUrl, '_blank');
+
+    // Open all URLs in new tabs
+    urls.forEach(item => {
+        window.open(item.url, '_blank');
+    });
 }
 
 function exportCitation(btn, format) {

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-10-22 10:40:20 (ywatanabe)"
+# Timestamp: "2025-10-22 19:15:37 (ywatanabe)"
 # File: /home/ywatanabe/proj/scitex-cloud/apps/scholar_app/urls.py
 # ----------------------------------------
 from __future__ import annotations
@@ -27,9 +27,8 @@ urlpatterns = [
     # Default workspace for logged-in users without project
     path('workspace/', default_workspace_views.user_default_workspace, name='user_default_workspace'),
 
-    # MVP Simple Interface
+    # MVP Simple Interface - Hash-based navigation for tabs (#bibtex, #search)
     path('', simple_views.index, name='index'),
-    path('search/', simple_views.index, name='simple_search'),
     # path('search/', simple_views.simple_search, name='simple_search'),
     # path('project/<int:project_id>/search/', simple_views.project_search, name='project_search'),
     # path('project/<int:project_id>/library/', simple_views.project_library, name='project_library'),
