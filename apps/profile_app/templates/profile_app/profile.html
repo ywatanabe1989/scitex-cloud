@@ -111,7 +111,7 @@
           </button>
         </div>
         
-        <form id="profileForm" method="post" action="{% url 'core_app:api-user-profile' %}">
+        <form id="profileForm" method="post" action="{%url'core:api-user-profile' %}">
           {% csrf_token %}
           
           <div class="row">

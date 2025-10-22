@@ -1,4 +1,10 @@
 <!-- ---
+!-- Timestamp: 2025-10-23 03:53:10
+!-- Author: ywatanabe
+!-- File: /home/ywatanabe/proj/scitex-cloud/CLAUDE.md
+!-- --- -->
+
+ <!-- ---
 !-- Timestamp: 2025-10-23 03:23:49
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/CLAUDE.md
@@ -33,5 +39,10 @@ See /dev/design/
 - [ ] Refactor structures of apps
   - Use git effectively
   - Work collaborately with other agents using ./project_management/BULLETIN_BOARD.md
+
+- [ ] core_app and cloud_app has too many responsibilities
+- [x] billing_app renamed to sustainability_app
+  - Handles subscriptions, donations, and fundraising
+  - Aligns with platform's mission for sustainable support
 
 <!-- EOF -->

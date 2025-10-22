@@ -1095,7 +1095,7 @@ body {
                 <small class="text-muted">Welcome back, {{ user.get_full_name|default:user.username }}!</small>
             </div>
             <div class="d-flex gap-2">
-                <a href="{% url 'core_app:dashboard_react_tree' %}" class="btn btn-outline-primary btn-sm">
+                <a href="{%url'core:dashboard_react_tree' %}" class="btn btn-outline-primary btn-sm">
                     <i class="fas fa-folder-tree me-1"></i>File Manager
                 </a>
                 <button class="btn btn-primary btn-sm" onclick="console.log('Button clicked'); createNewProject();">

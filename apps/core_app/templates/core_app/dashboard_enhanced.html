@@ -192,10 +192,10 @@
 
     <!-- Quick Actions -->
     <div class="quick-actions">
-        <a href="{% url 'core_app:document_list' %}" class="quick-action-btn">
+        <a href="{%url'core:document_list' %}" class="quick-action-btn">
             <span>📝</span> New Document
         </a>
-        <a href="{% url 'core_app:project_list' %}" class="quick-action-btn">
+        <a href="{%url'core:project_list' %}" class="quick-action-btn">
             <span>🚀</span> New Project
         </a>
         <a href="/search/" class="quick-action-btn">
@@ -204,7 +204,7 @@
         <a href="/viz/" class="quick-action-btn">
             <span>📊</span> Create Visualization
         </a>
-        <a href="{% url 'core_app:monitoring' %}" class="quick-action-btn">
+        <a href="{%url'core:monitoring' %}" class="quick-action-btn">
             <span>📈</span> System Monitoring
         </a>
     </div>
@@ -235,14 +235,14 @@
         <div class="dashboard-section">
             <div class="section-header">
                 <h2 class="section-title">Recent Documents</h2>
-                <a href="{% url 'core_app:document_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+                <a href="{%url'core:document_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
             </div>
             
             <div id="recent-documents-list">
                 {% if documents %}
                     <ul class="item-list">
                         {% for document in documents %}
-                        <li onclick="location.href='{% url 'core_app:document_list' %}'">
+                        <li onclick="location.href='{%url'core:document_list' %}'">
                             <div class="item-title">
                                 <span class="document-type-badge type-{{ document.document_type }}">
                                     {{ document.document_type|title }}
@@ -257,7 +257,7 @@
                     </ul>
                 {% else %}
                     <div class="empty-state">
-                        <p>No documents yet. <a href="{% url 'core_app:document_list' %}">Create your first document!</a></p>
+                        <p>No documents yet. <a href="{%url'core:document_list' %}">Create your first document!</a></p>
                     </div>
                 {% endif %}
             </div>
@@ -267,14 +267,14 @@
         <div class="dashboard-section">
             <div class="section-header">
                 <h2 class="section-title">Active Projects</h2>
-                <a href="{% url 'core_app:project_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+                <a href="{%url'core:project_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
             </div>
             
             <div id="recent-projects-list">
                 {% if projects %}
                     <ul class="item-list">
                         {% for project in projects %}
-                        <li onclick="location.href='{% url 'core_app:project_list' %}'">
+                        <li onclick="location.href='{%url'core:project_list' %}'">
                             <div class="item-title">
                                 <span class="status-indicator status-{{ project.status }}"></span>
                                 {{ project.name }}
@@ -288,7 +288,7 @@
                     </ul>
                 {% else %}
                     <div class="empty-state">
-                        <p>No projects yet. <a href="{% url 'core_app:project_list' %}">Start your first project!</a></p>
+                        <p>No projects yet. <a href="{%url'core:project_list' %}">Start your first project!</a></p>
                     </div>
                 {% endif %}
             </div>
