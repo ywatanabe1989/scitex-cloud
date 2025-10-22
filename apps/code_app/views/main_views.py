@@ -53,7 +53,7 @@ def editor(request):
 @login_required
 def jobs(request):
     """List user's code execution jobs."""
-    jobs_list = CodeExecutionJob.objects.filter(user=request.user).order_by('-created_at')
+    jobs_list = CodeExecutionJob.objects.filter(user=request.user).select_related('user').order_by('-created_at')
     
     # Filter by status if provided
     status_filter = request.GET.get('status')
@@ -158,7 +158,7 @@ def job_status(request, job_id):
 @login_required
 def notebooks(request):
     """List user's notebooks."""
-    notebooks_list = Notebook.objects.filter(user=request.user).order_by('-updated_at')
+    notebooks_list = Notebook.objects.filter(user=request.user).prefetch_related('shared_with').order_by('-updated_at')
     
     # Paginate results
     paginator = Paginator(notebooks_list, 20)
