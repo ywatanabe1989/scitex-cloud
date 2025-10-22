@@ -42,7 +42,7 @@ class NotebookListAPI(NotebookAPIView):
     def get(self, request):
         """List user's notebooks."""
         try:
-            notebooks = Notebook.objects.filter(user=request.user).order_by('-updated_at')
+            notebooks = Notebook.objects.filter(user=request.user).prefetch_related('shared_with').order_by('-updated_at')
             
             # Pagination
             page = int(request.GET.get('page', 1))
