@@ -1,0 +1,103 @@
+<!-- ========================================
+     PROGRAMMATIC COMPONENT LIBRARY
+     Auto-generated from components.json
+     ======================================== -->
+{% if total_components > 0 %}
+<section id="components" class="design-section component-section">
+  <div class="section-header">
+    <h2>
+      <svg class="section-header-icon" viewBox="0 0 16 16" fill="currentColor">
+        <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm3 1a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1H3zm0 6a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1H3zm6-6a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1H9zm0 6a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1H9z"/>
+      </svg>
+      Components
+    </h2>
+    <div class="component-header-badges">
+      <span class="badge badge-success component-badge-large">
+        {{ total_components }} Components
+      </span>
+      <span class="badge badge-info component-badge-date">
+        Auto-generated {{ metadata.generated_at|slice:":10" }}
+      </span>
+    </div>
+  </div>
+
+  <p class="text-intro">
+    Components are automatically extracted from CSS @annotations using <code>python manage.py generate_design_docs</code>
+  </p>
+
+  {% for category, components in components_by_category.items %}
+  <div class="component-category-section" id="category-{{ category|slugify }}">
+    <h3 class="component-category-title">
+      {{ category }} ({{ components|length }})
+    </h3>
+
+    {% for component in components %}
+    <div class="component-example-card" id="component-{{ component.id|slugify }}">
+      <div class="component-example-header">
+        <div>
+          <h4 class="component-example-title">{{ component.name }}</h4>
+          <p class="component-example-description">{{ component.description }}</p>
+        </div>
+        <div class="component-example-badges">
+          <span class="badge badge-secondary">{{ component.css_file }}</span>
+        </div>
+      </div>
+
+      {% if component.variants %}
+      <details class="component-details">
+        <summary>
+          Variants ({{ component.variants|length }})
+        </summary>
+        <ul class="component-variant-list">
+          {% for variant in component.variants %}
+          <li class="component-variant-item">
+            <code class="component-variant-code">{{ variant.class_name }}</code>
+            <span class="component-variant-desc"> - {{ variant.description }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+      </details>
+      {% endif %}
+
+      {% if component.states %}
+      <details class="component-details">
+        <summary>
+          States ({{ component.states|length }})
+        </summary>
+        <div class="component-states-grid">
+          {% for state in component.states %}
+          <span class="badge badge-light component-state-badge">
+            {{ state.name }}: {{ state.description }}
+          </span>
+          {% endfor %}
+        </div>
+      </details>
+      {% endif %}
+
+      {% if component.examples %}
+      <div class="component-examples-section">
+        <h5 class="component-examples-title">Examples</h5>
+        {% for example in component.examples %}
+        <div class="component-example-wrapper">
+          <div class="component-example-display">
+            {{ example|safe }}
+          </div>
+          <details class="component-code-details">
+            <summary class="component-code-summary">
+              View HTML
+            </summary>
+            <pre class="component-code-pre"><code>{{ example|escape }}</code></pre>
+          </details>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endfor %}
+</section>
+
+<hr class="component-section-divider">
+{% endif %}
+<!-- End Programmatic Components -->
