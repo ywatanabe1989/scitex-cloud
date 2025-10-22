@@ -160,9 +160,14 @@
       <h2 style="color: var(--color-fg-default); font-size: 1.5rem; margin: 0;">
         <i class="fas fa-terminal"></i> Processing Log
       </h2>
-      <button id="toggle-log-size" style="background: none; border: 1px solid var(--color-border-default); border-radius: 6px; padding: 0.5rem; cursor: pointer; color: var(--color-fg-muted);">
-        <i class="fas fa-expand-alt"></i>
-      </button>
+      <div style="display: flex; gap: 0.5rem;">
+        <button id="copy-log-btn" style="background: var(--color-btn-bg); border: 1px solid var(--color-border-default); border-radius: 6px; padding: 0.5rem 1rem; cursor: pointer; color: var(--color-fg-default); font-weight: 600; transition: all 0.2s;" title="Copy log to clipboard">
+          <i class="fas fa-copy"></i> Copy Log
+        </button>
+        <button id="toggle-log-size" style="background: none; border: 1px solid var(--color-border-default); border-radius: 6px; padding: 0.5rem; cursor: pointer; color: var(--color-fg-muted);" title="Expand/Collapse log">
+          <i class="fas fa-expand-alt"></i>
+        </button>
+      </div>
     </div>
     <pre id="processing-log" style="background: #0a0f1a; color: #00ff00; padding: 1.5rem; border-radius: 8px; overflow-y: auto; max-height: 400px; font-size: 0.875rem; line-height: 1.3; margin: 0; font-family: 'Courier New', monospace; white-space: pre-wrap;">{% if job.processing_log %}{{ job.processing_log }}{% else %}Waiting for processing to start...{% endif %}</pre>
   </div>
@@ -265,7 +270,50 @@ let logExpanded = false;
 // Elements
 const processingLog = document.getElementById('processing-log');
 const toggleLogSizeBtn = document.getElementById('toggle-log-size');
+const copyLogBtn = document.getElementById('copy-log-btn');
 const elapsedTimeEl = document.getElementById('elapsed-time');
+
+// Copy log to clipboard
+if (copyLogBtn && processingLog) {
+  copyLogBtn.addEventListener('click', async function() {
+    try {
+      const logText = processingLog.textContent;
+      await navigator.clipboard.writeText(logText);
+
+      // Visual feedback
+      const originalHTML = this.innerHTML;
+      this.innerHTML = '<i class="fas fa-check"></i> Copied!';
+      this.style.background = 'var(--success-color)';
+      this.style.color = 'var(--white)';
+
+      setTimeout(() => {
+        this.innerHTML = originalHTML;
+        this.style.background = 'var(--color-btn-bg)';
+        this.style.color = 'var(--color-fg-default)';
+      }, 2000);
+    } catch (err) {
+      console.error('Failed to copy log:', err);
+
+      // Fallback: select text for manual copy
+      const range = document.createRange();
+      range.selectNodeContents(processingLog);
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+
+      // Show error feedback
+      this.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Select text manually';
+      this.style.background = 'var(--error-color)';
+      this.style.color = 'var(--white)';
+
+      setTimeout(() => {
+        this.innerHTML = '<i class="fas fa-copy"></i> Copy Log';
+        this.style.background = 'var(--color-btn-bg)';
+        this.style.color = 'var(--color-fg-default)';
+      }, 3000);
+    }
+  });
+}
 
 // Toggle log size
 if (toggleLogSizeBtn) {

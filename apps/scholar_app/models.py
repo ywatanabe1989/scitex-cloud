@@ -1332,6 +1332,7 @@ class BibTeXEnrichmentJob(models.Model):
 
     # Input
     input_file = models.FileField(upload_to='bibtex_uploads/%Y/%m/%d/')
+    original_filename = models.CharField(max_length=255, blank=True, help_text="Original uploaded filename (before Django adds suffix)")
     project_name = models.CharField(max_length=200, blank=True, null=True, help_text="Optional project name for organization")
     project = models.ForeignKey('project_app.Project', on_delete=models.SET_NULL, null=True, blank=True, related_name='bibtex_jobs', help_text="Associated project for Gitea integration")
 
@@ -1361,6 +1362,13 @@ class BibTeXEnrichmentJob(models.Model):
         default=dict,
         blank=True,
         help_text="Summary of enrichments: citations added, IFs found, PDFs downloaded, etc."
+    )
+
+    # Processing log (for real-time updates)
+    processing_log = models.TextField(
+        blank=True,
+        default='',
+        help_text="Real-time processing log for user feedback"
     )
 
     class Meta:
