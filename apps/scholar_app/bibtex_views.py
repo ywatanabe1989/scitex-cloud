@@ -348,14 +348,21 @@ def _process_bibtex_job(job):
             num_workers=job.num_workers,
         )
 
-        # Enrich papers with progress callback
-        enriched_papers = asyncio.run(
-            pipeline.enrich_papers_async(
-                papers=papers,
-                force=False,
-                on_progress=progress_callback,
+        # Enrich papers with progress callback and 10-minute timeout
+        async def enrich_with_timeout():
+            return await asyncio.wait_for(
+                pipeline.enrich_papers_async(
+                    papers=papers,
+                    force=False,
+                    on_progress=progress_callback,
+                ),
+                timeout=600  # 10 minutes = 600 seconds
             )
-        )
+
+        try:
+            enriched_papers = asyncio.run(enrich_with_timeout())
+        except asyncio.TimeoutError:
+            raise Exception("Enrichment process timed out after 10 minutes. Please try with fewer papers or contact support.")
 
         # Create output path with format: originalname-enriched-by-scitex_timestamp.bib
         # Use stored original filename (without .bib extension)
