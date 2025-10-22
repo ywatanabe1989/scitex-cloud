@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # Timestamp: "2025-10-16 05:41:11 (ywatanabe)"
-# File: /home/ywatanabe/proj/scitex-cloud/apps/cloud_app/views.py
+# File: /home/ywatanabe/proj/scitex-cloud/apps/public_app/views.py
 # ----------------------------------------
 from __future__ import annotations
 import os
 __FILE__ = (
-    "./apps/cloud_app/views.py"
+    "./apps/public_app/views.py"
 )
 __DIR__ = os.path.dirname(__FILE__)
 # ----------------------------------------
@@ -150,7 +150,7 @@ def index(request):
     }
 
     # Otherwise show landing page for anonymous users
-    return render(request, "cloud_app/landing.html", context)
+    return render(request, "public_app/landing.html", context)
 
 
 def premium_subscription(request):
@@ -362,17 +362,17 @@ def premium_subscription(request):
         "add_on_services": add_on_services,
     }
 
-    return render(request, "cloud_app/premium_subscription.html", context)
+    return render(request, "public_app/premium_subscription.html", context)
 
 
 def vision(request):
     """SciTeX vision and values page."""
-    return render(request, "cloud_app/pages/vision.html")
+    return render(request, "public_app/pages/vision.html")
 
 
 def publications(request):
     """Publications page."""
-    return render(request, "cloud_app/pages/publications.html")
+    return render(request, "public_app/pages/publications.html")
 
 
 def donate(request):
@@ -487,12 +487,12 @@ def donate(request):
         "funding_percentage": funding_percentage,
     }
 
-    return render(request, "cloud_app/pages/donate.html", context)
+    return render(request, "public_app/pages/donate.html", context)
 
 
 def fundraising(request):
     """Fundraising and sustainability page."""
-    return render(request, "cloud_app/pages/fundraising.html")
+    return render(request, "public_app/pages/fundraising.html")
 
 
 # ---------------------------------------
@@ -500,22 +500,22 @@ def fundraising(request):
 # ---------------------------------------
 def contact(request):
     """Contact page."""
-    return render(request, "cloud_app/legal/contact.html")
+    return render(request, "public_app/legal/contact.html")
 
 
 def privacy_policy(request):
     """Privacy policy page."""
-    return render(request, "cloud_app/legal/privacy_policy.html")
+    return render(request, "public_app/legal/privacy_policy.html")
 
 
 def terms_of_use(request):
     """Terms of use page."""
-    return render(request, "cloud_app/legal/terms_of_use.html")
+    return render(request, "public_app/legal/terms_of_use.html")
 
 
 def cookie_policy(request):
     """Cookie policy page."""
-    return render(request, "cloud_app/legal/cookie_policy.html")
+    return render(request, "public_app/legal/cookie_policy.html")
 
 
 def signup(request):
@@ -554,7 +554,7 @@ def signup(request):
     context = {
         "form": form,
     }
-    return render(request, "cloud_app/signup.html", context)
+    return render(request, "public_app/signup.html", context)
 
 
 def login_view(request):
@@ -602,12 +602,12 @@ def login_view(request):
     context = {
         "form": form,
     }
-    return render(request, "cloud_app/login.html", context)
+    return render(request, "public_app/login.html", context)
 
 
 def forgot_password(request):
     """Forgot password page."""
-    return render(request, "cloud_app/forgot_password.html")
+    return render(request, "public_app/forgot_password.html")
 
 
 def reset_password(request, uidb64, token):
@@ -637,7 +637,7 @@ def reset_password(request, uidb64, token):
     except (TypeError, ValueError, OverflowError, User.DoesNotExist):
         pass
 
-    return render(request, "cloud_app/reset_password.html", context)
+    return render(request, "public_app/reset_password.html", context)
 
 
 def logout_view(request):
@@ -645,7 +645,7 @@ def logout_view(request):
     from django.contrib.auth import logout
 
     logout(request)
-    return render(request, "cloud_app/logout.html")
+    return render(request, "public_app/logout.html")
 
 
 def verify_email(request):
@@ -653,7 +653,7 @@ def verify_email(request):
     # This page is for OTP email verification during account signup
     # The actual verification is handled by the JavaScript frontend
     # which calls the API endpoints in apps.api.v1.auth.views
-    return render(request, "cloud_app/email_verification.html")
+    return render(request, "public_app/email_verification.html")
 
 
 def donation_success(request, donation_id):
@@ -675,7 +675,7 @@ def donation_success(request, donation_id):
         "donation": donation,
     }
 
-    return render(request, "cloud_app/donation_success.html", context)
+    return render(request, "public_app/donation_success.html", context)
 
 
 def send_donation_confirmation(donation):
@@ -721,13 +721,13 @@ The SciTeX Team
 
 def api_docs(request):
     """Display the API documentation page."""
-    return render(request, "cloud_app/pages/api_docs.html")
+    return render(request, "public_app/pages/api_docs.html")
 
 
 # Missing view functions - added during cleanup to fix URL import errors
 def demo(request):
     """Demo page."""
-    return render(request, "cloud_app/demo.html")
+    return render(request, "public_app/demo.html")
 
 
 def contributors(request):
@@ -753,6 +753,6 @@ def contributors(request):
         "contributors": contributors,
     }
 
-    return render(request, "cloud_app/pages/contributors.html", context)
+    return render(request, "public_app/pages/contributors.html", context)
 
 # EOF

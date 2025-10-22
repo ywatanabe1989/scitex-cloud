@@ -29,7 +29,7 @@ class DjangoConfigTests(TestCase):
         self.assertIn('django.contrib.sessions', installed_apps)
         
         # Our custom apps
-        self.assertIn('apps.cloud_app', installed_apps)
+        self.assertIn('apps.public_app', installed_apps)
         
     def test_debug_mode_in_development(self):
         """Test that debug mode is properly configured"""
@@ -52,7 +52,7 @@ class URLConfigTests(TestCase):
             pass
             
         # Test our main app URLs
-        index_url = reverse('cloud_app:index')
+        index_url = reverse('public_app:index')
         self.assertEqual(index_url, '/')
 
 

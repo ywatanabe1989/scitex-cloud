@@ -1,4 +1,4 @@
-{% extends "cloud_app/cloud_base.html" %}
+{% extends "public_app/cloud_base.html" %}
 {% load static %}
 
 {% block title %}SciTeX Cloud - Integrated Research Platform{% endblock %}
@@ -123,8 +123,8 @@
             <h2>Experience the Future of Scientific Research</h2>
             <p>Join the growing community of researchers using SciTeX Cloud to accelerate their discoveries.</p>
             <div class="cta-buttons">
-                <a href="{% url 'cloud_app:signup' %}" class="btn btn-primary">Start Free Trial</a>
-                <a href="{% url 'cloud_app:demo' %}" class="btn btn-secondary">Live Demo</a>
+                <a href="{% url 'public_app:signup' %}" class="btn btn-primary">Start Free Trial</a>
+                <a href="{% url 'public_app:demo' %}" class="btn btn-secondary">Live Demo</a>
             </div>
         </div>
     </div>

@@ -1,4 +1,4 @@
-{% extends "cloud_app/cloud_base.html" %}
+{% extends "public_app/cloud_base.html" %}
 {% load static %}
 
 {% block title %}SciTeX-Viz - Interactive Scientific Visualization{% endblock %}
@@ -159,7 +159,7 @@
             <p>Transform your data into compelling visual narratives that enhance your research communication.</p>
             <div class="cta-buttons">
                 <a href="https://github.com/ywatanabe1989/SigMacro" class="btn btn-primary">View on GitHub</a>
-                <a href="{% url 'cloud_app:demo' %}" class="btn btn-secondary">Interactive Demo</a>
+                <a href="{% url 'public_app:demo' %}" class="btn btn-secondary">Interactive Demo</a>
             </div>
         </div>
     </div>

@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-23 04:08:13
+!-- Timestamp: 2025-10-23 05:20:14
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/CLAUDE.md
 !-- --- -->
@@ -43,5 +43,9 @@ See /dev/design/
 - [ ] Root cause is that core_app and cloud_app have too many responsibilities
   - [ ] core_app
   - [ ] cloud_app 
+
+- [ ] Could you explain what core_app is, and what cloud_app is as well?
+  - [ ] Each app must be explanined in one sentence. Otherwise, they have too many responsibilities.
+- [ ] Each app should have thier own README.md
 
 <!-- EOF -->

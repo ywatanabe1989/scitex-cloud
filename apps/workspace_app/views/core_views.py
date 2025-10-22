@@ -165,10 +165,10 @@ def project_list(request):
     return render(request, 'core_app/project_list.html', context)
 
 
-# Profile views moved to apps.profile_app.views
-# - profile_view -> apps.profile_app.views.profile_view
-# - profile_edit -> apps.profile_app.views.profile_edit
-# - appearance_settings -> apps.profile_app.views.appearance_settings
+# Profile views moved to apps.accounts_app.views
+# - profile_view -> apps.accounts_app.views.profile_view
+# - profile_edit -> apps.accounts_app.views.profile_edit
+# - appearance_settings -> apps.accounts_app.views.appearance_settings
 
 
 @login_required

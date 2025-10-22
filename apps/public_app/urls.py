@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # Timestamp: "2025-10-16 02:00:47 (ywatanabe)"
-# File: /home/ywatanabe/proj/scitex-cloud/apps/cloud_app/urls.py
+# File: /home/ywatanabe/proj/scitex-cloud/apps/public_app/urls.py
 # ----------------------------------------
 from __future__ import annotations
 import os
 __FILE__ = (
-    "./apps/cloud_app/urls.py"
+    "./apps/public_app/urls.py"
 )
 __DIR__ = os.path.dirname(__FILE__)
 # ----------------------------------------
@@ -16,11 +16,11 @@ from django.urls import path
 
 from . import views
 
-app_name = "cloud_app"
+app_name = "public_app"
 
 urlpatterns = [
     path("", views.index, name="index"),
-    path("cloud/", lambda request: redirect("cloud_app:index"), name="cloud"),
+    path("cloud/", lambda request: redirect("public_app:index"), name="cloud"),
     # Concept and vision pages
     path("vision/", views.vision, name="vision"),
     path("publications/", views.publications, name="publications"),

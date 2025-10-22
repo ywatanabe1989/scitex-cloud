@@ -36,12 +36,12 @@ class ViewsTestCase(TestCase):
         )
     
     def test_index_page(self):
-        response = self.client.get(reverse('cloud_app:index'))
+        response = self.client.get(reverse('public_app:index'))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'SciTeX')
     
     def test_features_page(self):
-        response = self.client.get(reverse('cloud_app:features'))
+        response = self.client.get(reverse('public_app:features'))
         self.assertEqual(response.status_code, 200)
     
     def test_pricing_page(self):
@@ -54,23 +54,23 @@ class ViewsTestCase(TestCase):
             storage_gb=5
         )
         
-        response = self.client.get(reverse('cloud_app:pricing'))
+        response = self.client.get(reverse('public_app:pricing'))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Choose Your SciTeX Plan')
     
     def test_api_docs_page(self):
-        response = self.client.get(reverse('cloud_app:api-docs'))
+        response = self.client.get(reverse('public_app:api-docs'))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'API Documentation')
     
     def test_product_pages(self):
         product_urls = [
-            'cloud_app:product-engine',
-            'cloud_app:product-scholar',
-            'cloud_app:product-code',
-            'cloud_app:product-writer',
-            'cloud_app:product-viz',
-            'cloud_app:product-cloud'
+            'public_app:product-engine',
+            'public_app:product-scholar',
+            'public_app:product-code',
+            'public_app:product-writer',
+            'public_app:product-viz',
+            'public_app:product-cloud'
         ]
         
         for url_name in product_urls:
@@ -81,8 +81,8 @@ class ViewsTestCase(TestCase):
     def test_legacy_product_redirects(self):
         """Test that legacy product URLs redirect correctly"""
         legacy_urls = [
-            'cloud_app:product-search',
-            'cloud_app:product-doc',
+            'public_app:product-search',
+            'public_app:product-doc',
         ]
         
         for url_name in legacy_urls:
@@ -91,12 +91,12 @@ class ViewsTestCase(TestCase):
                 self.assertEqual(response.status_code, 302)
     
     def test_login_page(self):
-        response = self.client.get(reverse('cloud_app:login'))
+        response = self.client.get(reverse('public_app:login'))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Log In')
     
     def test_signup_page(self):
-        response = self.client.get(reverse('cloud_app:signup'))
+        response = self.client.get(reverse('public_app:signup'))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Sign Up')
 
@@ -111,21 +111,21 @@ class AuthenticationTestCase(TestCase):
         )
     
     def test_login_with_username(self):
-        response = self.client.post(reverse('cloud_app:login'), {
+        response = self.client.post(reverse('public_app:login'), {
             'username': 'testuser',
             'password': 'testpass123'
         })
         self.assertEqual(response.status_code, 302)  # Redirect after login
     
     def test_login_with_email(self):
-        response = self.client.post(reverse('cloud_app:login'), {
+        response = self.client.post(reverse('public_app:login'), {
             'username': 'test@example.com',
             'password': 'testpass123'
         })
         self.assertEqual(response.status_code, 302)  # Redirect after login
     
     def test_invalid_login(self):
-        response = self.client.post(reverse('cloud_app:login'), {
+        response = self.client.post(reverse('public_app:login'), {
             'username': 'wronguser',
             'password': 'wrongpass'
         })

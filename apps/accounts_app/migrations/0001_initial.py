@@ -191,7 +191,7 @@ class Migration(migrations.Migration):
                 ),
             ],
             options={
-                "db_table": "core_app_userprofile",
+                "db_table": "workspace_app_userprofile",
                 "ordering": ["user__last_name", "user__first_name"],
             },
         ),

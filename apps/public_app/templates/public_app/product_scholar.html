@@ -1,4 +1,4 @@
-{% extends "cloud_app/cloud_base.html" %}
+{% extends "public_app/cloud_base.html" %}
 {% load static %}
 
 {% block title %}SciTeX Scholar - Literature Search{% endblock %}
@@ -74,7 +74,7 @@
             <a href="/scholar/" class="btn btn-primary">Go to Scholar</a>
         {% else %}
             <h3>Get started with Scholar</h3>
-            <a href="{% url 'cloud_app:signup' %}" class="btn btn-primary me-3">Sign Up</a>
+            <a href="{% url 'public_app:signup' %}" class="btn btn-primary me-3">Sign Up</a>
             <a href="/scholar/" class="btn btn-outline-primary">Try Search</a>
         {% endif %}
     </div>

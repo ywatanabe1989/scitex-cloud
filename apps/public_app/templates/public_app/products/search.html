@@ -1,4 +1,4 @@
-{% extends "cloud_app/cloud_base.html" %}
+{% extends "public_app/cloud_base.html" %}
 {% load static %}
 
 {% block title %}SciTeX Scholar - Intelligent Scientific Literature Search{% endblock %}
@@ -138,7 +138,7 @@
             <h2>Coming Soon</h2>
             <p>SciTeX Scholar is currently under development. Join our waitlist to be notified when this advanced scientific literature search platform launches.</p>
             <div class="cta-buttons">
-                <a href="{% url 'cloud_app:signup' %}" class="btn btn-primary">Join Waitlist</a>
+                <a href="{% url 'public_app:signup' %}" class="btn btn-primary">Join Waitlist</a>
                 <a href="mailto:support@scitex.ai?subject=SciTeX%20Scholar%20Feature%20Request" class="btn btn-secondary">Request Features</a>
             </div>
         </div>

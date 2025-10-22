@@ -15,7 +15,7 @@ def profile_view(request):
         'profile': profile,
     }
 
-    return render(request, 'profile_app/profile.html', context)
+    return render(request, 'accounts_app/profile.html', context)
 
 
 @login_required
@@ -47,14 +47,14 @@ def profile_edit(request):
         profile.save()
 
         messages.success(request, 'Profile updated successfully!')
-        return redirect('profile_app:profile_edit')
+        return redirect('accounts_app:profile_edit')
 
     context = {
         'profile': profile,
         'user': request.user,
     }
 
-    return render(request, 'profile_app/profile_edit.html', context)
+    return render(request, 'accounts_app/profile_edit.html', context)
 
 
 @login_required
@@ -63,13 +63,13 @@ def appearance_settings(request):
     context = {
         'user': request.user,
     }
-    return render(request, 'profile_app/appearance_settings.html', context)
+    return render(request, 'accounts_app/appearance_settings.html', context)
 
 
 @login_required
 def ssh_keys(request):
     """SSH key management page."""
-    from apps.core_app.ssh_manager import SSHKeyManager
+    from apps.workspace_app.ssh_manager import SSHKeyManager
 
     ssh_manager = SSHKeyManager(request.user)
     profile, _ = UserProfile.objects.get_or_create(user=request.user)
@@ -91,7 +91,7 @@ def ssh_keys(request):
             else:
                 messages.error(request, f'Failed to delete SSH key: {error}')
 
-        return redirect('profile_app:ssh_keys')
+        return redirect('accounts_app:ssh_keys')
 
     # GET request
     context = {
@@ -101,7 +101,7 @@ def ssh_keys(request):
         'ssh_key_last_used_at': profile.ssh_key_last_used_at,
         'has_ssh_key': ssh_manager.has_ssh_key(),
     }
-    return render(request, 'profile_app/ssh_keys.html', context)
+    return render(request, 'accounts_app/ssh_keys.html', context)
 
 
 @login_required
@@ -150,7 +150,7 @@ def api_keys(request):
             except APIKey.DoesNotExist:
                 messages.error(request, 'API key not found')
 
-        return redirect('profile_app:api_keys')
+        return redirect('accounts_app:api_keys')
 
     # Get newly created key from session (show once)
     new_api_key = request.session.pop('new_api_key', None)
@@ -161,7 +161,7 @@ def api_keys(request):
         'new_api_key': new_api_key,
         'new_api_key_name': new_api_key_name,
     }
-    return render(request, 'profile_app/api_keys.html', context)
+    return render(request, 'accounts_app/api_keys.html', context)
 
 
 # API Endpoints
@@ -169,7 +169,7 @@ def api_keys(request):
 @require_http_methods(["POST"])
 def api_generate_ssh_key(request):
     """API endpoint to generate SSH key."""
-    from apps.core_app.ssh_manager import SSHKeyManager
+    from apps.workspace_app.ssh_manager import SSHKeyManager
 
     ssh_manager = SSHKeyManager(request.user)
     success, public_key, error = ssh_manager.get_or_create_user_key()
@@ -211,7 +211,7 @@ def git_integrations(request):
 
         profile.save()
         messages.success(request, 'Git platform integrations updated successfully!')
-        return redirect('profile_app:git_integrations')
+        return redirect('accounts_app:git_integrations')
 
     # Helper function to mask tokens
     def mask_token(token):
@@ -225,7 +225,7 @@ def git_integrations(request):
         'gitlab_token_masked': mask_token(profile.gitlab_token) if profile.gitlab_token else None,
         'bitbucket_token_masked': mask_token(profile.bitbucket_token) if profile.bitbucket_token else None,
     }
-    return render(request, 'profile_app/git_integrations.html', context)
+    return render(request, 'accounts_app/git_integrations.html', context)
 
 
 @login_required
@@ -266,9 +266,9 @@ def account_settings(request):
                 update_session_auth_hash(request, request.user)  # Keep user logged in
                 messages.success(request, 'Password updated successfully!')
 
-        return redirect('profile_app:account')
+        return redirect('accounts_app:account')
 
     context = {
         'user': request.user,
     }
-    return render(request, 'profile_app/account_settings.html', context)
+    return render(request, 'accounts_app/account_settings.html', context)

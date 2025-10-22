@@ -398,7 +398,7 @@ body {
             </div>
 
             {% if user.is_authenticated and user == profile_user %}
-            <a href="{% url 'profile_app:profile_edit' %}" class="btn-edit-profile">
+            <a href="{% url 'accounts_app:profile_edit' %}" class="btn-edit-profile">
                 <i class="fas fa-cog"></i>
                 Edit profile
             </a>

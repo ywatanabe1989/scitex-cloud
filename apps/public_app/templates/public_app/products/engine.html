@@ -1,4 +1,4 @@
-{% extends "cloud_app/cloud_base.html" %}
+{% extends "public_app/cloud_base.html" %}
 {% load static %}
 
 {% block title %}SciTeX Engine - AI Research Assistant for Emacs{% endblock %}
@@ -175,7 +175,7 @@
             <p>Join researchers who are accelerating their work with intelligent assistance.</p>
             <div class="cta-buttons">
                 <a href="https://github.com/ywatanabe1989/emacs-claude-code" class="btn btn-primary">View on GitHub</a>
-                <a href="{% url 'cloud_app:signup' %}" class="btn btn-secondary">Get Started</a>
+                <a href="{% url 'public_app:signup' %}" class="btn btn-secondary">Get Started</a>
             </div>
         </div>
     </div>

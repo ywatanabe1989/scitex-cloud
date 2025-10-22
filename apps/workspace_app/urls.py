@@ -3,7 +3,7 @@ from . import views
 from .api import viewsets as api_views
 from .views import github_views
 
-app_name = 'core_app'
+app_name = 'workspace_app'
 
 urlpatterns = [
     path('', views.landing, name='landing'),
@@ -60,7 +60,7 @@ api_urlpatterns = [
 
 # Directory management URLs
 directory_urlpatterns = [
-    path('directory/', include('apps.core_app.directory_urls')),
+    path('directory/', include('apps.workspace_app.directory_urls')),
 ]
 
 # Combine regular, API, and directory URLs

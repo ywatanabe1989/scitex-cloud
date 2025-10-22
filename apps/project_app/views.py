@@ -99,7 +99,7 @@ def user_bio_page(request, username):
     user = get_object_or_404(User, username=username)
 
     # Get or create user profile
-    from apps.profile_app.models import UserProfile
+    from apps.accounts_app.models import UserProfile
     profile, created = UserProfile.objects.get_or_create(user=user)
 
     # Get user's projects
@@ -166,7 +166,7 @@ def project_detail(request, username, slug):
 
     # Default mode: overview - GitHub-style file browser with README
     # Get project directory and file list
-    from apps.core_app.services.directory_service import get_user_directory_manager
+    from apps.workspace_app.services.directory_service import get_user_directory_manager
     manager = get_user_directory_manager(project.owner)
     project_path = manager.get_project_path(project)
 
@@ -233,7 +233,7 @@ def project_create(request):
         git_url = request.POST.get('git_url', '').strip()
 
         # Initialize directory manager for all init types
-        from apps.core_app.services.directory_service import get_user_directory_manager
+        from apps.workspace_app.services.directory_service import get_user_directory_manager
         manager = get_user_directory_manager(request.user)
 
         # If importing from Git and no name provided, extract from URL
@@ -422,7 +422,7 @@ def project_create_from_template(request, username, slug):
 
     if request.method == 'POST':
         # Create template structure
-        from apps.core_app.services.directory_service import get_user_directory_manager
+        from apps.workspace_app.services.directory_service import get_user_directory_manager
         manager = get_user_directory_manager(project.owner)
 
         success, path = manager.create_project_from_template(project)
@@ -639,7 +639,7 @@ def api_file_tree(request, username, slug):
         return JsonResponse({'success': False, 'error': 'Permission denied'})
 
     # Get project directory
-    from apps.core_app.services.directory_service import get_user_directory_manager
+    from apps.workspace_app.services.directory_service import get_user_directory_manager
     manager = get_user_directory_manager(project.owner)
     project_path = manager.get_project_path(project)
 
@@ -765,7 +765,7 @@ def api_concatenate_directory(request, username, slug, directory_path=''):
         return JsonResponse({'success': False, 'error': 'Permission denied'})
 
     # Get directory path
-    from apps.core_app.services.directory_service import get_user_directory_manager
+    from apps.workspace_app.services.directory_service import get_user_directory_manager
     manager = get_user_directory_manager(project.owner)
     project_path = manager.get_project_path(project)
 
@@ -900,7 +900,7 @@ def project_directory_dynamic(request, username, slug, directory_path):
             return redirect('user_projects:detail', username=username, slug=slug)
 
     # Get project path
-    from apps.core_app.services.directory_service import get_user_directory_manager
+    from apps.workspace_app.services.directory_service import get_user_directory_manager
     manager = get_user_directory_manager(project.owner)
     project_path = manager.get_project_path(project)
 
@@ -1021,7 +1021,7 @@ def project_file_view(request, username, slug, file_path):
         return redirect('user_projects:detail', username=username, slug=slug)
 
     # Get file path
-    from apps.core_app.services.directory_service import get_user_directory_manager
+    from apps.workspace_app.services.directory_service import get_user_directory_manager
     manager = get_user_directory_manager(project.owner)
     project_path = manager.get_project_path(project)
 
@@ -1237,7 +1237,7 @@ def project_directory(request, username, slug, directory, subpath=None):
             return redirect('project_app:detail', username=username, slug=slug)
     
     # Get the project directory manager
-    from apps.core_app.services.directory_service import get_user_directory_manager
+    from apps.workspace_app.services.directory_service import get_user_directory_manager
     manager = get_user_directory_manager(project.owner)
     project_path = manager.get_project_path(project)
     

@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from apps.cloud_app.models import SubscriptionPlan
+from apps.public_app.models import SubscriptionPlan
 
 
 class Command(BaseCommand):

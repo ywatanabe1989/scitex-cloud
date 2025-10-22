@@ -12,7 +12,7 @@ django.setup()
 
 from django.contrib.auth import get_user_model
 from apps.core_app.models import UserProfile, EmailVerification, Project, Organization
-from apps.cloud_app.models import Subscription, APIKey, Donation
+from apps.public_app.models import Subscription, APIKey, Donation
 
 User = get_user_model()
 

@@ -458,7 +458,7 @@ def _process_bibtex_job(job):
         # Gitea Integration: Auto-commit enriched .bib file to project repository
         if job.project and job.project.git_clone_path:
             try:
-                from apps.core_app.git_operations import auto_commit_file
+                from apps.workspace_app.git_operations import auto_commit_file
 
                 # Create references directory in project if it doesn't exist
                 project_refs_dir = Path(job.project.git_clone_path) / 'references'

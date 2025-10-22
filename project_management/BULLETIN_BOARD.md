@@ -24,7 +24,7 @@
 ### Phase 2 Complete: cloud_app Cleanup (2025-10-23 06:15)
 1. **✅ Removed Duplicate Donation Models**
    - Deleted: Donation, DonationTier from cloud_app
-   - Added backward-compatible imports from sustainability_app
+   - Added backward-compatible imports from donations_app (formerly sustainability_app)
    - Removed duplicate admin registrations
 
 2. **✅ Removed Duplicate EmailVerification**
@@ -50,7 +50,7 @@
 
 3. **cloud_app Overloaded** (8 models)
    - Auth, Billing, Landing, Resources, Integrations
-   - Overlaps with auth_app, sustainability_app, integrations_app
+   - Overlaps with auth_app, donations_app, integrations_app
 
 ### Immediate Impact
 - ✅ Fixed: URL namespace error (core_app now registered)
@@ -64,7 +64,7 @@
 🔴 **PHASE 1: CRITICAL REFACTORING REQUIRED**
 - Resolve model duplication between core_app and project_app
 - Extract Git/GitHub functionality to integrations_app
-- Move donations to sustainability_app
+- Move donations to donations_app (renamed from sustainability_app)
 - Consolidate auth functionality in auth_app
 
 ---
@@ -130,12 +130,12 @@
 
 **Benefits:** Clean separation, integrations_app is proper home
 
-### Phase 3: Move Donations to sustainability_app 🟡
+### Phase 3: Move Donations to donations_app 🟡
 **Move from cloud_app:**
 - Donation, DonationTier models
 - Related donation views
 
-**Note:** sustainability_app already exists - this is clearly its domain!
+**Note:** donations_app (formerly sustainability_app) already exists - this is clearly its domain!
 
 ### Phase 4: Consolidate Auth 🟢
 **Move from cloud_app to auth_app:**
@@ -166,8 +166,8 @@
    - Clean separation of concerns
    - Estimated: 3-4 hours
 
-3. **Move Donations** - cloud_app → sustainability_app
-   - Already has proper app
+3. **Move Donations** - cloud_app → donations_app
+   - Already has proper app (renamed from sustainability_app)
    - Estimated: 2-3 hours
 
 ### Medium Priority
@@ -303,7 +303,7 @@ Based on Django best practices and SciTeX architecture:
 ### ⚠️ Critical Issues Identified
 1. **Model duplication** between core_app and project_app
 2. **core_app too large** - mixing 6+ different domains
-3. **cloud_app overlaps** with auth_app, sustainability_app, integrations_app
+3. **cloud_app overlaps** with auth_app, donations_app, integrations_app
 
 ### 📋 Next Actions Required
 
@@ -326,7 +326,7 @@ Based on Django best practices and SciTeX architecture:
    - Estimated: 4-6 hours
 
 4. **THEN:** Extract Git/GitHub to integrations_app
-5. **THEN:** Move donations to sustainability_app
+5. **THEN:** Move donations to donations_app (renamed from sustainability_app)
 6. **THEN:** Consolidate auth in auth_app
 
 ---

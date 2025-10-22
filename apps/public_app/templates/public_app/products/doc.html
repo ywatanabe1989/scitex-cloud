@@ -1,4 +1,4 @@
-{% extends "cloud_app/cloud_base.html" %}
+{% extends "public_app/cloud_base.html" %}
 {% load static %}
 
 {% block title %}SciTeX-Doc - LLM-Friendly LaTeX Compilation System{% endblock %}
@@ -216,7 +216,7 @@ scitex add-response reviewer1.txt</code></pre>
             <p>Join researchers who are writing papers faster and better with SciTeX-Doc.</p>
             <div class="cta-buttons">
                 <a href="https://github.com/ywatanabe1989/scitex" class="btn btn-primary">View on GitHub</a>
-                <a href="{% url 'cloud_app:signup' %}" class="btn btn-secondary">Get Started</a>
+                <a href="{% url 'public_app:signup' %}" class="btn btn-secondary">Get Started</a>
             </div>
         </div>
     </div>

@@ -436,7 +436,7 @@ class Migration(migrations.Migration):
                     "group",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        to="core_app.researchgroup",
+                        to="workspace_app.researchgroup",
                     ),
                 ),
                 (
@@ -457,7 +457,7 @@ class Migration(migrations.Migration):
             name="members",
             field=models.ManyToManyField(
                 related_name="research_groups",
-                through="core_app.ResearchGroupMembership",
+                through="workspace_app.ResearchGroupMembership",
                 to=settings.AUTH_USER_MODEL,
             ),
         ),
@@ -467,7 +467,7 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="research_groups",
-                to="core_app.organization",
+                to="workspace_app.organization",
             ),
         ),
         migrations.AddField(
@@ -593,7 +593,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
                         related_name="memberships",
-                        to="core_app.project",
+                        to="workspace_app.project",
                     ),
                 ),
                 (
@@ -614,7 +614,7 @@ class Migration(migrations.Migration):
             name="collaborators",
             field=models.ManyToManyField(
                 related_name="collaborative_projects",
-                through="core_app.ProjectMembership",
+                through="workspace_app.ProjectMembership",
                 to=settings.AUTH_USER_MODEL,
             ),
         ),
@@ -626,7 +626,7 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
                 related_name="projects",
-                to="core_app.organization",
+                to="workspace_app.organization",
             ),
         ),
         migrations.AddField(
@@ -647,7 +647,7 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
                 related_name="projects",
-                to="core_app.researchgroup",
+                to="workspace_app.researchgroup",
             ),
         ),
         migrations.CreateModel(
@@ -679,7 +679,7 @@ class Migration(migrations.Migration):
                     "organization",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        to="core_app.organization",
+                        to="workspace_app.organization",
                     ),
                 ),
                 (
@@ -698,7 +698,7 @@ class Migration(migrations.Migration):
             model_name="organization",
             name="members",
             field=models.ManyToManyField(
-                through="core_app.OrganizationMembership", to=settings.AUTH_USER_MODEL
+                through="workspace_app.OrganizationMembership", to=settings.AUTH_USER_MODEL
             ),
         ),
         migrations.AlterUniqueTogether(
@@ -735,7 +735,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
                         related_name="permissions",
-                        to="core_app.project",
+                        to="workspace_app.project",
                     ),
                 ),
                 (
@@ -783,7 +783,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
                         related_name="core_manuscripts",
-                        to="core_app.project",
+                        to="workspace_app.project",
                     ),
                 ),
             ],
@@ -857,7 +857,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
                         related_name="git_files",
-                        to="core_app.project",
+                        to="workspace_app.project",
                     ),
                 ),
             ],
@@ -866,11 +866,11 @@ class Migration(migrations.Migration):
                 "indexes": [
                     models.Index(
                         fields=["project", "git_status"],
-                        name="core_app_gi_project_5d1d26_idx",
+                        name="workspace_app_gi_project_5d1d26_idx",
                     ),
                     models.Index(
                         fields=["project", "file_path"],
-                        name="core_app_gi_project_275a64_idx",
+                        name="workspace_app_gi_project_275a64_idx",
                     ),
                 ],
                 "unique_together": {("project", "file_path")},
