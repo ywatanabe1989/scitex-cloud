@@ -14,12 +14,21 @@ from apps.project_app.models import Project
 @login_required
 def integrations_dashboard(request):
     """Main integrations dashboard"""
-    connections = IntegrationConnection.objects.filter(user=request.user)
+    connections = IntegrationConnection.objects.filter(user=request.user).select_related('user')
+
+    # Build connection status map to avoid multiple queries
+    connection_statuses = {}
+    for conn in connections:
+        if conn.service not in connection_statuses:
+            connection_statuses[conn.service] = {'active': False, 'all': []}
+        connection_statuses[conn.service]['all'].append(conn)
+        if conn.status == 'active':
+            connection_statuses[conn.service]['active'] = True
 
     context = {
         'connections': connections,
-        'orcid_connected': connections.filter(service='orcid', status='active').exists(),
-        'slack_connected': connections.filter(service='slack', status='active').exists(),
+        'orcid_connected': connection_statuses.get('orcid', {}).get('active', False),
+        'slack_connected': connection_statuses.get('slack', {}).get('active', False),
     }
 
     return render(request, 'integrations_app/dashboard.html', context)
