@@ -240,10 +240,6 @@
                 <i class="fas fa-palette"></i>
                 <span>Appearance</span>
             </a>
-            <a href="{% url 'social_app:notifications' %}" class="settings-nav-item">
-                <i class="fas fa-bell"></i>
-                <span>Notifications</span>
-            </a>
 
             <div style="height: 1px; background: var(--color-border-default); margin: 12px 8px;"></div>
 
@@ -338,7 +334,16 @@
 
                     <div class="form-group">
                         <label for="location">Location</label>
-                        <input type="text" id="location" name="location" value="{{ profile.location }}" placeholder="e.g., Tokyo, Japan">
+                        <input type="text" id="location" name="location" value="{{ profile.location }}" placeholder="e.g., Tokyo, Japan" autocomplete="off">
+                        <input type="hidden" id="timezone" name="timezone" value="{{ profile.timezone }}">
+                        <div id="location-suggestions" class="location-suggestions"></div>
+                        <p class="form-help">
+                            {% if profile.timezone %}
+                                <i class="fas fa-clock"></i> Timezone: <strong>{{ profile.timezone }}</strong>
+                            {% else %}
+                                Start typing to see location suggestions
+                            {% endif %}
+                        </p>
                     </div>
 
                     <div class="form-group">
@@ -372,27 +377,6 @@
                         <p class="form-help">Your ORCID identifier (e.g., 0000-0001-2345-6789)</p>
                     </div>
 
-                    <div class="section-header" style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--color-border-default);">
-                        <h3 style="font-size: 14px; font-weight: 600; color: var(--color-fg-muted); margin-bottom: 0.5rem;">Git Hosting Profiles</h3>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="github_profile">GitHub Username</label>
-                        <input type="text" id="github_profile" name="github_profile" value="{{ profile.github_profile }}" placeholder="username">
-                        <p class="form-help">Your GitHub profile: github.com/<span id="github-preview">{{ profile.github_profile|default:"username" }}</span></p>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="gitlab_profile">GitLab Username</label>
-                        <input type="text" id="gitlab_profile" name="gitlab_profile" value="{{ profile.gitlab_profile }}" placeholder="username">
-                        <p class="form-help">Your GitLab profile: gitlab.com/<span id="gitlab-preview">{{ profile.gitlab_profile|default:"username" }}</span></p>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="bitbucket_profile">Bitbucket Username</label>
-                        <input type="text" id="bitbucket_profile" name="bitbucket_profile" value="{{ profile.bitbucket_profile }}" placeholder="username">
-                        <p class="form-help">Your Bitbucket profile: bitbucket.org/<span id="bitbucket-preview">{{ profile.bitbucket_profile|default:"username" }}</span></p>
-                    </div>
                 </div>
 
                 <!-- Actions -->
@@ -408,6 +392,60 @@
     </div>
 </div>
 
+<style>
+.location-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: var(--color-canvas-default);
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    margin-top: 4px;
+    max-height: 300px;
+    overflow-y: auto;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: none;
+}
+
+.location-suggestions.show {
+    display: block;
+}
+
+.location-suggestion-item {
+    padding: 10px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--color-border-muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.location-suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.location-suggestion-item:hover {
+    background: var(--color-canvas-subtle);
+}
+
+.location-city {
+    font-weight: 500;
+    color: var(--color-fg-default);
+}
+
+.location-timezone {
+    font-size: 12px;
+    color: var(--color-fg-muted);
+    font-family: monospace;
+}
+
+.form-group {
+    position: relative;
+}
+</style>
+
 <script>
 // Preview avatar before upload
 document.getElementById('avatar-input')?.addEventListener('change', function(e) {
@@ -421,5 +459,112 @@ document.getElementById('avatar-input')?.addEventListener('change', function(e) 
         reader.readAsDataURL(file);
     }
 });
+
+// Location autocomplete with timezone
+(function() {
+    const locationInput = document.getElementById('location');
+    const timezoneInput = document.getElementById('timezone');
+    const suggestionsDiv = document.getElementById('location-suggestions');
+    let citiesData = [];
+
+    // Load cities/timezones data
+    fetch('/static/data/cities_timezones.json')
+        .then(response => response.json())
+        .then(data => {
+            citiesData = data;
+        })
+        .catch(err => console.error('Failed to load cities data:', err));
+
+    // Show suggestions on input
+    locationInput.addEventListener('input', function(e) {
+        const query = e.target.value.trim().toLowerCase();
+
+        if (query.length < 2) {
+            suggestionsDiv.classList.remove('show');
+            return;
+        }
+
+        // Filter cities matching query
+        const matches = citiesData.filter(item =>
+            item.city.toLowerCase().includes(query)
+        ).slice(0, 10); // Limit to 10 results
+
+        if (matches.length === 0) {
+            suggestionsDiv.classList.remove('show');
+            return;
+        }
+
+        // Render suggestions
+        suggestionsDiv.innerHTML = matches.map(item => `
+            <div class="location-suggestion-item" data-city="${item.city}" data-timezone="${item.timezone}">
+                <span class="location-city">${item.city}</span>
+                <span class="location-timezone"><i class="fas fa-clock"></i> ${item.timezone}</span>
+            </div>
+        `).join('');
+
+        suggestionsDiv.classList.add('show');
+
+        // Add click handlers
+        suggestionsDiv.querySelectorAll('.location-suggestion-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const city = this.dataset.city;
+                const timezone = this.dataset.timezone;
+
+                locationInput.value = city;
+                timezoneInput.value = timezone;
+                suggestionsDiv.classList.remove('show');
+
+                // Update help text
+                const helpText = locationInput.parentElement.querySelector('.form-help');
+                helpText.innerHTML = `<i class="fas fa-clock"></i> Timezone: <strong>${timezone}</strong>`;
+            });
+        });
+    });
+
+    // Hide suggestions when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!locationInput.contains(e.target) && !suggestionsDiv.contains(e.target)) {
+            suggestionsDiv.classList.remove('show');
+        }
+    });
+
+    // Handle keyboard navigation
+    locationInput.addEventListener('keydown', function(e) {
+        const items = suggestionsDiv.querySelectorAll('.location-suggestion-item');
+        if (items.length === 0) return;
+
+        let currentIndex = Array.from(items).findIndex(item => item.classList.contains('active'));
+
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            if (currentIndex < items.length - 1) {
+                items[currentIndex]?.classList.remove('active');
+                items[currentIndex + 1].classList.add('active');
+            } else {
+                items[currentIndex]?.classList.remove('active');
+                items[0].classList.add('active');
+            }
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            if (currentIndex > 0) {
+                items[currentIndex].classList.remove('active');
+                items[currentIndex - 1].classList.add('active');
+            } else {
+                items[currentIndex]?.classList.remove('active');
+                items[items.length - 1].classList.add('active');
+            }
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            const activeItem = suggestionsDiv.querySelector('.location-suggestion-item.active');
+            if (activeItem) {
+                activeItem.click();
+            } else if (items.length > 0) {
+                items[0].click();
+            }
+        } else if (e.key === 'Escape') {
+            suggestionsDiv.classList.remove('show');
+        }
+    });
+})();
 </script>
 {% endblock %}

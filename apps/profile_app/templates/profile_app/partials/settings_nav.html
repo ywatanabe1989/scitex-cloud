@@ -18,19 +18,24 @@
     </a>
 </div>
 
-<!-- Access & Security -->
+<!-- Integrations -->
 <div class="settings-nav-section">
-    <div class="settings-nav-header">Access & Security</div>
+    <div class="settings-nav-header">Integrations</div>
     <a href="{% url 'profile_app:git_integrations' %}" class="settings-nav-item {% if active == 'git_integrations' %}active{% endif %}">
         <i class="fab fa-git-alt"></i>
-        <span>Git integrations</span>
+        <span>Git platforms</span>
     </a>
+</div>
+
+<!-- Authentication & Tokens -->
+<div class="settings-nav-section">
+    <div class="settings-nav-header">Authentication</div>
     <a href="{% url 'profile_app:ssh_keys' %}" class="settings-nav-item {% if active == 'ssh_keys' %}active{% endif %}">
         <i class="fas fa-key"></i>
         <span>SSH and GPG keys</span>
     </a>
     <a href="{% url 'profile_app:api_keys' %}" class="settings-nav-item {% if active == 'api_keys' %}active{% endif %}">
         <i class="fas fa-code"></i>
-        <span>API keys</span>
+        <span>Personal access tokens</span>
     </a>
 </div>
