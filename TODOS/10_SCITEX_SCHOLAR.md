@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-22 01:55:59
+!-- Timestamp: 2025-10-22 13:42:51
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/TODOS/10_SCITEX_SCHOLAR.md
 !-- --- -->
@@ -25,23 +25,35 @@ Fill checkboxes of this file when implemented and confirmed their functionality 
 - [ ] Yes, but your instinct is right; the index html should be index.html instead of index.html
   - [ ] So, after index.html implemented, please 
 
-### Next Steps (Optional Enhancements)
-- [ ] Add ability to cancel running jobs
-- [ ] Batch upload multiple BibTeX files
-- [ ] Compare before/after enrichment statistics
+### BibTeX Diff/Comparison Feature ✅ (Implemented)
+- [x] Compare before/after enrichment statistics
+  - [x] "Show what enhanced" button to show diff in colored format
+  - [x] Diff between original bib file and enhanced bibfile
+  - [x] API endpoint: `/scholar/api/bibtex/job/<id>/diff/`
+  - [x] Shows statistics: total entries, entries enhanced, fields added/modified, enhancement rate
+  - [x] Visual indicators:
+    - Green for added fields
+    - Orange for modified fields
+    - Statistics dashboard at top
+  - [x] Handle empty diff (all entries already complete)
 
+### Bug Fixes ✅
+- [x] **CRITICAL FIX**: "Please enter a search query" error on BibTeX buttons
+  - **Root Cause**: `document.querySelector('form')` was selecting the first form (BibTeX) instead of search form
+  - **Solution**:
+    1. Added `id="literatureSearchForm"` to search form (line 608)
+    2. Changed `document.querySelector('form')` to `document.getElementById('literatureSearchForm')` (lines 1636, 1922)
+  - **Impact**: BibTeX upload, Show What Enhanced, Open URLs buttons now work correctly
+  - **Files Modified**: `apps/scholar_app/templates/scholar_app/index.html`
 
-### Speed up is due to cache
-### We need to handle multiple jobs due to computational limits
+### Next Steps (Future Enhancements)
 
-### Login not accepted now
-This should be working but ... why?
-username: ywatanabe
-pw: Yusuke8939.
-
-### From project
-no need for this page: http://127.0.0.1:8000/ywatanabe/django-gitea-demo/?mode=scholar
-instead, redirect to /scholar/ as well, filling the page to the latest project
+### Refactoring
+we cannot accept heavy html pages
+/home/ywatanabe/proj/scitex-cloud/apps/scholar_app/templates/scholar_app/index.html
+should be refactored using
+/home/ywatanabe/proj/scitex-cloud/apps/scholar_app/static/scholar_app/styles/*.css
+/home/ywatanabe/proj/scitex-cloud/apps/scholar_app/static/scholar_app/scripts/*.js
 
 ### Open All URLS functionality ✅
 - [x] When bibtex updated or after enrichment try to open new URLs from doi and URL fields
