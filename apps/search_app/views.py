@@ -101,8 +101,8 @@ def search_repositories(query, current_user=None, limit=20):
     Search for repositories by name, description, or hypotheses.
     Respects privacy: only shows public repos or repos user has access to.
     """
-    # Base queryset
-    repos = Project.objects.all()
+    # Base queryset with optimizations
+    repos = Project.objects.select_related('owner').prefetch_related('memberships', 'stars')
 
     # Apply visibility filter
     if current_user and current_user.is_authenticated:
@@ -121,7 +121,7 @@ def search_repositories(query, current_user=None, limit=20):
         Q(name__icontains=query) |
         Q(description__icontains=query) |
         Q(hypotheses__icontains=query)
-    ).select_related('owner').prefetch_related('stars')[:limit]
+    )[:limit]
 
     # Format results
     results = []
@@ -173,7 +173,7 @@ def autocomplete(request):
         })
 
     # Search repositories (top 5)
-    repos = Project.objects.filter(
+    repos = Project.objects.select_related('owner').filter(
         Q(name__icontains=query) |
         Q(description__icontains=query)
     )
@@ -188,7 +188,7 @@ def autocomplete(request):
     else:
         repos = repos.filter(visibility='public')
 
-    repos = repos.select_related('owner')[:5]
+    repos = repos[:5]
 
     for repo in repos:
         visibility_icon = '🔒' if repo.visibility == 'private' else '📘'
