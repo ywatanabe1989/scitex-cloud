@@ -1,29 +1,11 @@
 from django.contrib import admin
 from .models import (
-    EmailVerification, Donation, DonationTier,
     SubscriptionPlan, Subscription, CloudResource,
     APIKey, ServiceIntegration
 )
 
-@admin.register(EmailVerification)
-class EmailVerificationAdmin(admin.ModelAdmin):
-    list_display = ['email', 'code', 'is_verified', 'created_at']
-    list_filter = ['is_verified', 'created_at']
-    search_fields = ['email']
-    readonly_fields = ['created_at']
-
-@admin.register(Donation)
-class DonationAdmin(admin.ModelAdmin):
-    list_display = ['donor_name', 'donor_email', 'amount', 'status', 'created_at']
-    list_filter = ['status', 'payment_method', 'created_at']
-    search_fields = ['donor_name', 'donor_email', 'transaction_id']
-    readonly_fields = ['created_at', 'completed_at']
-
-@admin.register(DonationTier)
-class DonationTierAdmin(admin.ModelAdmin):
-    list_display = ['name', 'minimum_amount', 'is_active']
-    list_filter = ['is_active']
-    ordering = ['minimum_amount']
+# EmailVerification admin now in apps.auth_app.admin
+# Donation, DonationTier admin now in apps.sustainability_app.admin
 
 @admin.register(SubscriptionPlan)
 class SubscriptionPlanAdmin(admin.ModelAdmin):
