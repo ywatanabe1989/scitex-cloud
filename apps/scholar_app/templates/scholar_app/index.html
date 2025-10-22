@@ -2927,43 +2927,39 @@ function showBibtexDiff() {
         });
 }
 
-// Display the diff in a readable format
+// Display the diff in a readable format (GitHub-style)
 function displayBibtexDiff(diffData, stats) {
     let html = '';
 
     // Show statistics at the top
     if (stats) {
-        html += `<div style="background: var(--color-canvas-subtle); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; border-left: 4px solid var(--success-color);">`;
-        html += `<h3 style="color: var(--color-fg-default); margin-bottom: 1rem; font-size: 1.2rem;">
+        html += `<div style="background: #f6f8fa; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; border-left: 4px solid #28a745;">`;
+        html += `<h3 style="color: #24292e; margin-bottom: 1rem; font-size: 1.2rem;">
             <i class="fas fa-chart-bar"></i> Enhancement Statistics
         </h3>`;
         html += `<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">`;
         html += `<div style="text-align: center;">
-            <div style="color: var(--color-fg-muted); font-size: 0.85rem;">Total Entries</div>
-            <div style="color: var(--scitex-color-03); font-size: 1.8rem; font-weight: 700;">${stats.total_entries}</div>
+            <div style="color: #586069; font-size: 0.85rem;">Total Entries</div>
+            <div style="color: #0366d6; font-size: 1.8rem; font-weight: 700;">${stats.total_entries}</div>
         </div>`;
         html += `<div style="text-align: center;">
-            <div style="color: var(--color-fg-muted); font-size: 0.85rem;">Entries Enhanced</div>
-            <div style="color: var(--success-color); font-size: 1.8rem; font-weight: 700;">${stats.entries_enhanced}</div>
+            <div style="color: #586069; font-size: 0.85rem;">Entries Enhanced</div>
+            <div style="color: #28a745; font-size: 1.8rem; font-weight: 700;">${stats.entries_enhanced}</div>
         </div>`;
         html += `<div style="text-align: center;">
-            <div style="color: var(--color-fg-muted); font-size: 0.85rem;">Fields Added</div>
-            <div style="color: var(--success-color); font-size: 1.8rem; font-weight: 700;">${stats.total_fields_added}</div>
+            <div style="color: #586069; font-size: 0.85rem;">Fields Added</div>
+            <div style="color: #28a745; font-size: 1.8rem; font-weight: 700;">${stats.total_fields_added}</div>
         </div>`;
         html += `<div style="text-align: center;">
-            <div style="color: var(--color-fg-muted); font-size: 0.85rem;">Fields Modified</div>
-            <div style="color: var(--warning-color); font-size: 1.8rem; font-weight: 700;">${stats.total_fields_modified}</div>
-        </div>`;
-        html += `<div style="text-align: center;">
-            <div style="color: var(--color-fg-muted); font-size: 0.85rem;">Enhancement Rate</div>
-            <div style="color: var(--scitex-color-02); font-size: 1.8rem; font-weight: 700;">${stats.enhancement_rate}%</div>
+            <div style="color: #586069; font-size: 0.85rem;">Enhancement Rate</div>
+            <div style="color: #0366d6; font-size: 1.8rem; font-weight: 700;">${stats.enhancement_rate}%</div>
         </div>`;
         html += `</div></div>`;
     }
 
     if (!diffData || diffData.length === 0) {
-        html += '<div style="text-align: center; padding: 3rem; color: var(--color-fg-muted);">';
-        html += '<i class="fas fa-check-circle" style="font-size: 3rem; margin-bottom: 1rem; display: block;"></i>';
+        html += '<div style="text-align: center; padding: 3rem; color: #586069; background: #ffffff;">';
+        html += '<i class="fas fa-check-circle" style="font-size: 3rem; margin-bottom: 1rem; display: block; color: #28a745;"></i>';
         html += '<p style="font-size: 1.1rem;">All entries are already complete!</p>';
         html += '<p style="font-size: 0.9rem;">No new fields were added during enrichment.</p>';
         html += '</div>';
@@ -2971,51 +2967,60 @@ function displayBibtexDiff(diffData, stats) {
         return;
     }
 
+    // Display ALL entries in GitHub-style diff format
     diffData.forEach(entry => {
-        html += `<div style="margin-bottom: 2rem; border: 1px solid var(--color-border-default); border-radius: 6px; padding: 1rem; background: var(--color-canvas-default);">`;
-        html += `<div style="font-weight: 700; font-size: 1.1rem; color: var(--color-fg-default); margin-bottom: 0.75rem;">`;
-        html += `<i class="fas fa-file-alt"></i> @${entry.type}{${entry.key}}</div>`;
+        const hasChanges = entry.has_changes || false;
 
-        // Show title if available
-        if (entry.title) {
-            html += `<div style="color: var(--color-fg-muted); font-size: 0.9rem; margin-bottom: 0.75rem; font-style: italic;">`;
-            const shortTitle = entry.title.length > 100 ? entry.title.substring(0, 100) + '...' : entry.title;
-            html += `"${shortTitle}"</div>`;
+        html += `<div style="margin-bottom: 1.5rem; border: 1px solid #d1d5da; border-radius: 6px; overflow: hidden; background: #ffffff;">`;
+
+        // Entry header
+        html += `<div style="background: #f6f8fa; padding: 0.5rem 1rem; border-bottom: 1px solid #d1d5da; font-family: monospace; font-size: 0.9rem; color: #24292e; font-weight: 600;">`;
+        html += `@${entry.type}{${entry.key}}`;
+        if (hasChanges) {
+            html += ` <span style="color: #28a745; font-size: 0.85rem;"><i class="fas fa-check-circle"></i></span>`;
         }
-
-        // Added fields (in green)
-        if (entry.added_fields && Object.keys(entry.added_fields).length > 0) {
-            html += `<div style="margin-top: 0.75rem; margin-bottom: 0.5rem; color: var(--success-color); font-weight: 600;">
-                <i class="fas fa-plus-circle"></i> Added fields (${Object.keys(entry.added_fields).length}):
-            </div>`;
-            for (const [key, value] of Object.entries(entry.added_fields)) {
-                const displayValue = value.length > 100 ? value.substring(0, 100) + '...' : value;
-                html += `<div style="padding-left: 1.5rem; color: var(--success-color); margin-bottom: 0.25rem;">`;
-                html += `<span style="font-weight: 600; background: var(--color-canvas-subtle); padding: 0.15rem 0.4rem; border-radius: 3px;">${key}</span> = <span style="font-family: monospace;">{${displayValue}}</span>`;
-                html += `</div>`;
-            }
-        }
-
-        // Modified fields (in orange)
-        if (entry.modified_fields && Object.keys(entry.modified_fields).length > 0) {
-            html += `<div style="margin-top: 0.75rem; margin-bottom: 0.5rem; color: var(--warning-color); font-weight: 600;">
-                <i class="fas fa-edit"></i> Modified fields (${Object.keys(entry.modified_fields).length}):
-            </div>`;
-            for (const [key, change] of Object.entries(entry.modified_fields)) {
-                const oldValue = change.old.length > 50 ? change.old.substring(0, 50) + '...' : change.old;
-                const newValue = change.new.length > 50 ? change.new.substring(0, 50) + '...' : change.new;
-                html += `<div style="padding-left: 1.5rem; margin-bottom: 0.5rem;">`;
-                html += `<div style="font-weight: 600; background: var(--color-canvas-subtle); padding: 0.15rem 0.4rem; border-radius: 3px; display: inline-block; margin-bottom: 0.25rem;">${key}</div>`;
-                html += `<div style="padding-left: 0.5rem; color: var(--error-color); text-decoration: line-through; font-family: monospace; font-size: 0.85rem;">- {${oldValue}}</div>`;
-                html += `<div style="padding-left: 0.5rem; color: var(--success-color); font-family: monospace; font-size: 0.85rem;">+ {${newValue}}</div>`;
-                html += `</div>`;
-            }
-        }
-
         html += `</div>`;
+
+        // Diff content
+        html += `<div style="font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 0.85rem; line-height: 1.5;">`;
+
+        // Opening brace
+        html += `<div style="background: #ffffff; padding: 0.25rem 1rem; color: #24292e;">{</div>`;
+
+        // Original fields (black)
+        if (entry.original_fields && Object.keys(entry.original_fields).length > 0) {
+            for (const [key, value] of Object.entries(entry.original_fields)) {
+                const displayValue = value.length > 80 ? value.substring(0, 80) + '...' : value;
+                html += `<div style="background: #ffffff; padding: 0.25rem 1rem; color: #24292e;">`;
+                html += `  ${key} = {${escapeHtml(displayValue)}}`;
+                html += `</div>`;
+            }
+        }
+
+        // Added fields (green with + prefix)
+        if (entry.added_fields && Object.keys(entry.added_fields).length > 0) {
+            for (const [key, value] of Object.entries(entry.added_fields)) {
+                const displayValue = value.length > 80 ? value.substring(0, 80) + '...' : value;
+                html += `<div style="background: #e6ffed; padding: 0.25rem 1rem; color: #22863a;">`;
+                html += `+ ${key} = {${escapeHtml(displayValue)}}`;
+                html += `</div>`;
+            }
+        }
+
+        // Closing brace
+        html += `<div style="background: #ffffff; padding: 0.25rem 1rem; color: #24292e;">}</div>`;
+
+        html += `</div></div>`;
     });
 
     document.getElementById('bibtexDiffContent').innerHTML = html;
+}
+
+// Helper function to escape HTML
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
 // Close BibTeX diff modal
