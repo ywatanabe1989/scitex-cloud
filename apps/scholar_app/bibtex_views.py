@@ -126,6 +126,12 @@ def bibtex_upload(request):
         messages.info(request, 'Working as guest. Sign up to save your enriched files permanently!')
     messages.success(request, f'BibTeX file uploaded successfully. Starting enrichment job #{job.id}')
 
+    # Start processing immediately in a background thread
+    import threading
+    thread = threading.Thread(target=_process_bibtex_job, args=(job,))
+    thread.daemon = True
+    thread.start()
+
     return redirect('scholar_app:bibtex_job_detail', job_id=job.id)
 
 
@@ -225,13 +231,14 @@ def bibtex_job_status(request, job_id):
         'completed_at': job.completed_at.isoformat() if job.completed_at else None,
         'error_message': job.error_message,
         'has_output': bool(job.output_file),
+        'log': job.processing_log,  # Add processing log for real-time updates
     }
 
     return JsonResponse(data)
 
 
 def _process_bibtex_job(job):
-    """Process a BibTeX enrichment job using ScholarPipelineBibTeX.
+    """Process a BibTeX enrichment job using ScholarPipelineMetadataParallel directly.
 
     In production, this should be a Celery task for async processing.
     """
@@ -240,38 +247,77 @@ def _process_bibtex_job(job):
 
     logger = logging.getLogger(__name__)
 
+    def progress_callback(current: int, total: int, info: dict):
+        """Callback to capture and store progress messages in real-time.
+
+        Args:
+            current: Number of papers processed (1-indexed)
+            total: Total number of papers
+            info: Dict with 'title', 'success', 'error', 'index'
+        """
+        job.refresh_from_db()
+
+        # Create progress message
+        title = info.get('title', 'Unknown')[:50]
+        status_icon = '✓' if info.get('success') else '✗'
+        message = f"[{current}/{total}] {status_icon} {title}"
+
+        if job.processing_log:
+            job.processing_log += f"\n{message}"
+        else:
+            job.processing_log = message
+
+        # Update counters
+        job.processed_papers = current
+        job.save(update_fields=['processing_log', 'processed_papers'])
+
     try:
         # Update job status
         job.status = 'processing'
         job.started_at = timezone.now()
+        job.processing_log = "Loading BibTeX file..."
         job.save()
 
-        # Import scholar pipeline
-        from scitex.scholar.pipelines import ScholarPipelineBibTeX
+        # Import scholar components
+        from scitex.scholar.pipelines import ScholarPipelineMetadataParallel
+        from scitex.scholar.storage import BibTeXHandler
 
         # Get input file path
         input_path = Path(settings.MEDIA_ROOT) / job.input_file.name
 
-        # Create output path
-        output_filename = f"{Path(job.input_file.name).stem}_enriched_{job.id}.bib"
-        output_path = Path(settings.MEDIA_ROOT) / 'bibtex_enriched' / str(job.user.id) / output_filename
-        output_path.parent.mkdir(parents=True, exist_ok=True)
+        # Load papers from BibTeX
+        bibtex_handler = BibTeXHandler(project=job.project_name)
+        papers = bibtex_handler.papers_from_bibtex(input_path)
 
-        # Create pipeline
-        pipeline = ScholarPipelineBibTeX(
+        if not papers:
+            raise ValueError("No papers found in BibTeX file")
+
+        job.total_papers = len(papers)
+        job.processing_log += f"\nFound {len(papers)} papers in BibTeX file"
+        job.save(update_fields=['total_papers', 'processing_log'])
+
+        # Create metadata enrichment pipeline
+        pipeline = ScholarPipelineMetadataParallel(
             num_workers=job.num_workers,
-            browser_mode=job.browser_mode,
-            base_chrome_profile='system',
         )
 
-        # Process BibTeX file
-        papers = asyncio.run(
-            pipeline.process_bibtex_file_async(
-                bibtex_path=input_path,
-                project=job.project_name,
-                output_bibtex_path=output_path,
+        # Enrich papers with progress callback
+        enriched_papers = asyncio.run(
+            pipeline.enrich_papers_async(
+                papers=papers,
+                force=False,
+                on_progress=progress_callback,
             )
         )
+
+        # Create output path
+        output_filename = f"{Path(job.input_file.name).stem}_enriched_{job.id}.bib"
+        user_dir = str(job.user.id) if job.user else 'anonymous'
+        output_path = Path(settings.MEDIA_ROOT) / 'bibtex_enriched' / user_dir / output_filename
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+
+        # Save enriched BibTeX
+        bibtex_handler.save_to_bibtex(enriched_papers, output_path)
 
         # Update job with results
         job.total_papers = len(papers)
@@ -326,6 +372,82 @@ def _process_bibtex_job(job):
         job.completed_at = timezone.now()
         job.save()
         raise
+
+
+def bibtex_get_urls(request, job_id):
+    """API endpoint to extract URLs and DOIs from enriched BibTeX file."""
+    import bibtexparser
+    from pathlib import Path
+
+    # Get the job (handle both authenticated and anonymous users)
+    if request.user.is_authenticated:
+        try:
+            job = BibTeXEnrichmentJob.objects.get(id=job_id, user=request.user)
+        except BibTeXEnrichmentJob.DoesNotExist:
+            return JsonResponse({'error': 'Job not found or access denied.'}, status=404)
+    else:
+        anonymous_jobs = request.session.get('anonymous_jobs', [])
+        if str(job_id) not in anonymous_jobs:
+            return JsonResponse({'error': 'Job not found or access denied.'}, status=403)
+        try:
+            job = BibTeXEnrichmentJob.objects.get(id=job_id, user=None)
+        except BibTeXEnrichmentJob.DoesNotExist:
+            return JsonResponse({'error': 'Job not found.'}, status=404)
+
+    # Check if job is completed and has output file
+    if job.status != 'completed':
+        return JsonResponse({
+            'error': 'Job not completed yet.',
+            'status': job.status
+        }, status=400)
+
+    if not job.output_file:
+        return JsonResponse({'error': 'No output file available.'}, status=404)
+
+    # Read and parse the BibTeX file
+    file_path = Path(settings.MEDIA_ROOT) / job.output_file.name
+    if not file_path.exists():
+        return JsonResponse({'error': 'Output file not found on server.'}, status=404)
+
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            bib_database = bibtexparser.load(f)
+
+        urls = []
+        for entry in bib_database.entries:
+            title = entry.get('title', 'Unknown')
+            doi = entry.get('doi', '').strip()
+            url = entry.get('url', '').strip()
+
+            # Prioritize DOI over URL
+            if doi:
+                # Add https://doi.org/ prefix if not already present
+                if not doi.startswith('http'):
+                    final_url = f"https://doi.org/{doi}"
+                else:
+                    final_url = doi
+                urls.append({
+                    'title': title,
+                    'url': final_url,
+                    'type': 'doi'
+                })
+            elif url:
+                urls.append({
+                    'title': title,
+                    'url': url,
+                    'type': 'url'
+                })
+
+        return JsonResponse({
+            'job_id': str(job_id),
+            'total_urls': len(urls),
+            'urls': urls
+        })
+
+    except Exception as e:
+        return JsonResponse({
+            'error': f'Failed to extract URLs: {str(e)}'
+        }, status=500)
 
 
 # EOF
