@@ -102,7 +102,7 @@ def simple_search(request):
         'has_results': bool(results),
     }
     
-    return render(request, 'scholar_app/simple_search.html', context)
+    return render(request, 'scholar_app/index.html', context)
 
 
 def extract_search_filters(request):

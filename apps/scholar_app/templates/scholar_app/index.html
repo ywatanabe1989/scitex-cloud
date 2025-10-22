@@ -441,6 +441,60 @@ function togglePanel(panelType) {
                         </div>
                     </div>
 
+                    <!-- Resource Monitoring Panel -->
+                    <div id="resourceMonitorPanel" style="background: var(--color-canvas-subtle); border: 1px solid var(--color-border-default); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <h4 style="margin: 0; color: var(--color-fg-default); font-size: 1.1rem; font-weight: 600;">
+                                <i class="fas fa-server"></i> System Resources
+                            </h4>
+                            <span id="resourceRefreshTime" style="color: var(--color-fg-muted); font-size: 0.85rem;">Loading...</span>
+                        </div>
+
+                        <!-- System Stats -->
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem; margin-bottom: 1rem;">
+                            <div style="background: var(--color-canvas-default); padding: 0.75rem; border-radius: 6px; border: 1px solid var(--color-border-default);">
+                                <div style="color: var(--color-fg-muted); font-size: 0.85rem; margin-bottom: 0.25rem;">CPU Usage</div>
+                                <div style="color: var(--color-fg-default); font-size: 1.5rem; font-weight: 700;">
+                                    <span id="cpuPercent">--</span><span style="font-size: 1rem;">%</span>
+                                </div>
+                            </div>
+                            <div style="background: var(--color-canvas-default); padding: 0.75rem; border-radius: 6px; border: 1px solid var(--color-border-default);">
+                                <div style="color: var(--color-fg-muted); font-size: 0.85rem; margin-bottom: 0.25rem;">Memory</div>
+                                <div style="color: var(--color-fg-default); font-size: 1.5rem; font-weight: 700;">
+                                    <span id="memoryPercent">--</span><span style="font-size: 1rem;">%</span>
+                                </div>
+                            </div>
+                            <div style="background: var(--color-canvas-default); padding: 0.75rem; border-radius: 6px; border: 1px solid var(--color-border-default);">
+                                <div style="color: var(--color-fg-muted); font-size: 0.85rem; margin-bottom: 0.25rem;">Active Jobs</div>
+                                <div style="color: var(--scitex-color-03); font-size: 1.5rem; font-weight: 700;">
+                                    <span id="activeJobsCount">0</span>
+                                </div>
+                            </div>
+                            <div style="background: var(--color-canvas-default); padding: 0.75rem; border-radius: 6px; border: 1px solid var(--color-border-default);">
+                                <div style="color: var(--color-fg-muted); font-size: 0.85rem; margin-bottom: 0.25rem;">Queued</div>
+                                <div style="color: var(--warning-color); font-size: 1.5rem; font-weight: 700;">
+                                    <span id="queuedJobsCount">0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Active Jobs List -->
+                        <div id="activeJobsList" style="display: none; margin-bottom: 1rem;">
+                            <div style="font-weight: 600; color: var(--color-fg-default); margin-bottom: 0.5rem; font-size: 0.95rem;">
+                                <i class="fas fa-cog fa-spin"></i> Active Jobs
+                            </div>
+                            <div id="activeJobsContent" style="max-height: 200px; overflow-y: auto;"></div>
+                        </div>
+
+                        <!-- Queued Jobs List -->
+                        <div id="queuedJobsList" style="display: none;">
+                            <div style="font-weight: 600; color: var(--color-fg-default); margin-bottom: 0.5rem; font-size: 0.95rem;">
+                                <i class="fas fa-hourglass-half"></i> Queued Jobs
+                            </div>
+                            <div id="queuedJobsContent" style="max-height: 200px; overflow-y: auto;"></div>
+                        </div>
+                    </div>
+
                     <form id="bibtexEnrichmentForm" method="post" action="{% url 'scholar_app:bibtex_upload' %}" enctype="multipart/form-data">
                     {% csrf_token %}
 
@@ -482,6 +536,9 @@ function togglePanel(panelType) {
                         <div class="terminal-log-container">
                             <div class="terminal-log-container__header">
                                 <h4 class="terminal-log-container__title">Processing Log</h4>
+                                <button id="copyBibtexLogBtn" style="background: var(--color-btn-bg); border: 1px solid var(--color-border-default); border-radius: 6px; padding: 0.5rem 1rem; cursor: pointer; color: var(--color-fg-default); font-weight: 600; transition: all 0.2s;" title="Copy log to clipboard">
+                                    <i class="fas fa-copy"></i> Copy Log
+                                </button>
                             </div>
                             <pre id="processingLog" class="terminal-log terminal-log--medium">Initializing...</pre>
                         </div>
@@ -491,9 +548,31 @@ function togglePanel(panelType) {
                             <a id="downloadBtn" href="#" style="display: inline-block; padding: 1rem 2rem; background: var(--success-color); color: var(--white); border-radius: 8px; text-decoration: none; font-weight: 600;">
                                 <i class="fas fa-download"></i> Download Enriched BibTeX
                             </a>
+                            <button id="showDiffBtn" onclick="showBibtexDiff()" style="display: inline-block; padding: 1rem 2rem; background: var(--scitex-color-02); color: var(--white); border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                                <i class="fas fa-code-branch"></i> Show What Enhanced
+                            </button>
                             <button id="openUrlsBtn" onclick="openAllPaperUrls()" style="display: inline-block; padding: 1rem 2rem; background: var(--scitex-color-04); color: var(--white); border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
                                 <i class="fas fa-external-link-alt"></i> Open All URLs (<span id="urlCount">0</span>)
                             </button>
+                        </div>
+
+                        <!-- Diff View Modal (shown when user clicks "Show What Enhanced") -->
+                        <div id="bibtexDiffModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); z-index: 9999; overflow: auto;">
+                            <div style="position: relative; max-width: 1200px; margin: 2rem auto; background: var(--color-canvas-default); border-radius: 12px; padding: 2rem;">
+                                <button onclick="closeBibtexDiff()" style="position: absolute; top: 1rem; right: 1rem; background: var(--error-color); color: var(--white); border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 1.5rem; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                                    ×
+                                </button>
+                                <h3 style="color: var(--color-fg-default); margin-bottom: 1rem;">
+                                    <i class="fas fa-code-branch"></i> BibTeX Enhancement Comparison
+                                </h3>
+                                <p style="color: var(--color-fg-muted); margin-bottom: 1.5rem;">
+                                    <span style="color: var(--success-color); font-weight: 600;">● Green</span> = Added fields,
+                                    <span style="color: var(--scitex-color-03); font-weight: 600;">● Blue</span> = Original fields
+                                </p>
+                                <div id="bibtexDiffContent" style="max-height: 70vh; overflow-y: auto; background: var(--color-canvas-subtle); border-radius: 8px; padding: 1.5rem; font-family: 'Courier New', monospace; font-size: 0.9rem; line-height: 1.6;">
+                                    Loading...
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -526,7 +605,7 @@ function togglePanel(panelType) {
             </div>
             <div class="panel-content">
                 <div class="search-card-inner">
-                    <form method="get" action="{% url 'scholar_app:simple_search' %}">
+                    <form id="literatureSearchForm" method="get" action="{% url 'scholar_app:simple_search' %}">
                         <div class="input-group input-group-lg">
                             <input type="text" name="q" class="form-control search-input" 
                                    placeholder="Enter keywords here..."
@@ -1081,6 +1160,9 @@ document.addEventListener('DOMContentLoaded', function() {
             function autoSubmitBibtexForm() {
                 const formData = new FormData(bibtexForm);
 
+                // Get CSRF token
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
                 // Show processing state
                 dropZone.style.borderColor = 'var(--info-color)';
                 dropZone.style.background = 'rgba(107, 143, 179, 0.15)';
@@ -1093,10 +1175,26 @@ document.addEventListener('DOMContentLoaded', function() {
                     method: 'POST',
                     body: formData,
                     headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': csrfToken
                     }
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (response.status === 429) {
+                        // User already has an active job
+                        return response.json().then(data => {
+                            alert(data.error || 'You already have a job in progress. Please wait for it to complete.');
+                            // If we have the existing job ID, start polling for it
+                            if (data.existing_job_id) {
+                                pollBibtexJobStatus(data.existing_job_id);
+                            } else {
+                                resetBibtexForm();
+                            }
+                            throw new Error('Job already running');
+                        });
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.success && data.job_id) {
                         // Start polling for job status
@@ -1107,9 +1205,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 })
                 .catch(error => {
-                    console.error('Error:', error);
-                    alert('Failed to upload BibTeX file');
-                    resetBibtexForm();
+                    if (error.message !== 'Job already running') {
+                        console.error('Error:', error);
+                        alert('Failed to upload BibTeX file');
+                        resetBibtexForm();
+                    }
                 });
             }
         }
@@ -1533,7 +1633,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Search functionality - intercept form submission for progressive search
-    const literatureSearchForm = document.querySelector('form');
+    const literatureSearchForm = document.getElementById('literatureSearchForm');
     // searchButton already declared above at line 1101
 
     // Search functionality - intercept form submission for progressive search
@@ -1819,7 +1919,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const saveSearchButton = document.getElementById('saveSearch');
     if (saveSearchButton) {
         saveSearchButton.addEventListener('click', function() {
-            const saveSearchFormElement = document.querySelector('form');
+            const saveSearchFormElement = document.getElementById('literatureSearchForm');
             const formData = new FormData(saveSearchFormElement);
             
             // Get current search query
@@ -2383,6 +2483,9 @@ function getCookie(name) {
 
 // BibTeX Job Status Polling
 function pollBibtexJobStatus(jobId, attempts = 0) {
+    // Store job ID globally for "Open All URLs" button
+    window.currentBibtexJobId = jobId;
+
     if (attempts > 180) {
         console.error('[Scholar Index] Polling timeout after 180 attempts');
         document.getElementById('processingLog').textContent += '\n\n✗ Polling timeout. Please refresh the page.';
@@ -2461,6 +2564,233 @@ function pollBibtexJobStatus(jobId, attempts = 0) {
             setTimeout(() => pollBibtexJobStatus(jobId, attempts + 1), 5000);
         });
 }
+
+// Copy BibTeX processing log to clipboard
+document.addEventListener('DOMContentLoaded', function() {
+    const copyBibtexLogBtn = document.getElementById('copyBibtexLogBtn');
+    const processingLog = document.getElementById('processingLog');
+
+    if (copyBibtexLogBtn && processingLog) {
+        copyBibtexLogBtn.addEventListener('click', async function() {
+            try {
+                const logText = processingLog.textContent;
+                await navigator.clipboard.writeText(logText);
+
+                // Visual feedback
+                const originalHTML = this.innerHTML;
+                this.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                this.style.background = 'var(--success-color)';
+                this.style.color = 'var(--white)';
+
+                setTimeout(() => {
+                    this.innerHTML = originalHTML;
+                    this.style.background = 'var(--color-btn-bg)';
+                    this.style.color = 'var(--color-fg-default)';
+                }, 2000);
+            } catch (err) {
+                console.error('Failed to copy log:', err);
+
+                // Fallback: select text for manual copy
+                const range = document.createRange();
+                range.selectNodeContents(processingLog);
+                const selection = window.getSelection();
+                selection.removeAllRanges();
+                selection.addRange(range);
+
+                // Show error feedback
+                this.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Select text manually';
+                this.style.background = 'var(--error-color)';
+                this.style.color = 'var(--white)';
+
+                setTimeout(() => {
+                    this.innerHTML = '<i class="fas fa-copy"></i> Copy Log';
+                    this.style.background = 'var(--color-btn-bg)';
+                    this.style.color = 'var(--color-fg-default)';
+                }, 3000);
+            }
+        });
+    }
+});
+
+// Resource Monitoring - Poll for resource status
+let resourceMonitorInterval = null;
+
+function updateResourceMonitor() {
+    fetch("{% url 'scholar_app:bibtex_resource_status' %}")
+        .then(response => response.json())
+        .then(data => {
+            // Update system stats
+            document.getElementById('cpuPercent').textContent = data.system.cpu_percent;
+            document.getElementById('memoryPercent').textContent = data.system.memory_percent;
+            document.getElementById('activeJobsCount').textContent = data.jobs.active_count;
+            document.getElementById('queuedJobsCount').textContent = data.jobs.queued_count;
+
+            // Update refresh time
+            const updateTime = new Date(data.timestamp);
+            document.getElementById('resourceRefreshTime').textContent =
+                `Updated ${updateTime.toLocaleTimeString()}`;
+
+            // Show/hide active jobs list
+            const activeJobsList = document.getElementById('activeJobsList');
+            const activeJobsContent = document.getElementById('activeJobsContent');
+
+            // Show active list if user has active jobs OR if there are system active jobs
+            if (data.jobs.active.length > 0) {
+                activeJobsList.style.display = 'block';
+                activeJobsContent.innerHTML = data.jobs.active.map(job => `
+                    <div style="background: var(--color-canvas-default); padding: 0.75rem; border-radius: 6px; margin-bottom: 0.5rem; border-left: 3px solid var(--scitex-color-03); animation: pulse 2s infinite;">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.25rem;">
+                            <div style="color: var(--color-fg-default); font-weight: 600; font-size: 0.9rem;">
+                                <i class="fas fa-cog fa-spin"></i> ${job.filename}
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                ${job.can_cancel ? `
+                                    <button onclick="cancelJob('${job.id}')" style="background: var(--error-color); color: var(--white); border: none; border-radius: 4px; padding: 0.25rem 0.5rem; cursor: pointer; font-size: 0.75rem;" title="Cancel job">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="flex: 1; margin-right: 1rem;">
+                                <div style="background: var(--color-border-default); border-radius: 4px; height: 6px; overflow: hidden;">
+                                    <div style="background: var(--scitex-color-03); height: 100%; width: ${job.progress}%; transition: width 0.3s;"></div>
+                                </div>
+                            </div>
+                            <div style="color: var(--color-fg-muted); font-size: 0.85rem; white-space: nowrap;">
+                                ${job.progress}% (${job.processed}/${job.total})
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } else if (data.jobs.active_count > 0) {
+                // System has active jobs, but none belong to this user
+                activeJobsList.style.display = 'block';
+                activeJobsContent.innerHTML = `
+                    <div style="background: var(--color-canvas-subtle); padding: 1rem; border-radius: 6px; text-align: center; color: var(--color-fg-muted);">
+                        <i class="fas fa-info-circle"></i> ${data.jobs.active_count} job(s) currently processing
+                        <div style="font-size: 0.85rem; margin-top: 0.25rem;">
+                            (Other users' jobs - hidden for privacy)
+                        </div>
+                    </div>
+                `;
+            } else {
+                activeJobsList.style.display = 'none';
+            }
+
+            // Show/hide queued jobs list
+            const queuedJobsList = document.getElementById('queuedJobsList');
+            const queuedJobsContent = document.getElementById('queuedJobsContent');
+
+            // Show queued list if user has queued jobs OR if there are system queues
+            if (data.jobs.queued.length > 0) {
+                queuedJobsList.style.display = 'block';
+                queuedJobsContent.innerHTML = data.jobs.queued.map(job => {
+                    // Visual indicator based on queue position
+                    const positionColor = job.position === 1 ? 'var(--success-color)' :
+                                         job.position === 2 ? 'var(--scitex-color-03)' :
+                                         'var(--warning-color)';
+                    const positionBadge = job.position === 1 ? '<i class="fas fa-star"></i> Next up' :
+                                         job.position === 2 ? '<i class="fas fa-arrow-up"></i> 2nd in line' :
+                                         `<i class="fas fa-hourglass-half"></i> Position #${job.position}`;
+
+                    return `
+                        <div style="background: var(--color-canvas-default); padding: 0.75rem; border-radius: 6px; margin-bottom: 0.5rem; border-left: 3px solid ${positionColor};">
+                            <div style="display: flex; justify-content: space-between; align-items: start;">
+                                <div style="flex: 1;">
+                                    <div style="color: var(--color-fg-default); font-weight: 600; font-size: 0.9rem; margin-bottom: 0.25rem;">
+                                        <i class="fas fa-file-code"></i> ${job.filename}
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <span style="color: ${positionColor}; font-size: 0.85rem; font-weight: 600;">
+                                            ${positionBadge}
+                                        </span>
+                                        ${job.position > 3 ? `
+                                            <span style="color: var(--color-fg-muted); font-size: 0.75rem;">
+                                                (${job.position - 1} jobs ahead)
+                                            </span>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    ${job.can_cancel ? `
+                                        <button onclick="cancelJob('${job.id}')" style="background: var(--error-color); color: var(--white); border: none; border-radius: 4px; padding: 0.25rem 0.5rem; cursor: pointer; font-size: 0.75rem;" title="Cancel job">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } else if (data.jobs.queued_count > 0) {
+                // System has queued jobs, but none belong to this user
+                queuedJobsList.style.display = 'block';
+                queuedJobsContent.innerHTML = `
+                    <div style="background: var(--color-canvas-subtle); padding: 1rem; border-radius: 6px; text-align: center; color: var(--color-fg-muted);">
+                        <i class="fas fa-info-circle"></i> ${data.jobs.queued_count} job(s) in system queue
+                        <div style="font-size: 0.85rem; margin-top: 0.25rem;">
+                            (Other users' jobs - hidden for privacy)
+                        </div>
+                    </div>
+                `;
+            } else {
+                queuedJobsList.style.display = 'none';
+            }
+        })
+        .catch(error => {
+            console.error('Failed to fetch resource status:', error);
+            document.getElementById('resourceRefreshTime').textContent = 'Error fetching data';
+        });
+}
+
+// Cancel a job
+function cancelJob(jobId) {
+    if (!confirm('Are you sure you want to cancel this job?')) {
+        return;
+    }
+
+    // Get CSRF token
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    fetch(`/scholar/api/bibtex/job/${jobId}/cancel/`, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': csrfToken
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Job cancelled successfully');
+            // Refresh resource monitor
+            updateResourceMonitor();
+        } else {
+            alert('Failed to cancel job: ' + (data.error || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        console.error('Error cancelling job:', error);
+        alert('Failed to cancel job');
+    });
+}
+
+// Start resource monitoring on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Initial update
+    updateResourceMonitor();
+
+    // Poll every 3 seconds
+    resourceMonitorInterval = setInterval(updateResourceMonitor, 3000);
+});
+
+// Clean up interval when leaving page
+window.addEventListener('beforeunload', function() {
+    if (resourceMonitorInterval) {
+        clearInterval(resourceMonitorInterval);
+    }
+});
 
 // Auto-download BibTeX file when enrichment completes
 function autoDownloadBibtexFile(url) {
@@ -2560,6 +2890,137 @@ function openAllPaperUrls() {
             console.error('[Open URLs] Error:', error);
             alert(`Failed to fetch URLs: ${error.message}\n\nPlease try downloading the BibTeX file manually.`);
         });
+}
+
+// Show BibTeX diff - what was enhanced
+function showBibtexDiff() {
+    const jobId = window.currentBibtexJobId;
+    if (!jobId) {
+        alert('No job ID available. Please wait for enrichment to complete.');
+        return;
+    }
+
+    // Show modal
+    document.getElementById('bibtexDiffModal').style.display = 'block';
+    document.getElementById('bibtexDiffContent').innerHTML = 'Loading comparison...';
+
+    // Fetch diff data
+    fetch(`/scholar/api/bibtex/job/${jobId}/diff/`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                displayBibtexDiff(data.diff, data.stats);
+            } else {
+                document.getElementById('bibtexDiffContent').innerHTML =
+                    `<div style="color: var(--error-color);">Error: ${data.error || 'Failed to generate diff'}</div>`;
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching diff:', error);
+            document.getElementById('bibtexDiffContent').innerHTML =
+                `<div style="color: var(--error-color);">Failed to load comparison: ${error.message}</div>`;
+        });
+}
+
+// Display the diff in a readable format
+function displayBibtexDiff(diffData, stats) {
+    let html = '';
+
+    // Show statistics at the top
+    if (stats) {
+        html += `<div style="background: var(--color-canvas-subtle); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; border-left: 4px solid var(--success-color);">`;
+        html += `<h3 style="color: var(--color-fg-default); margin-bottom: 1rem; font-size: 1.2rem;">
+            <i class="fas fa-chart-bar"></i> Enhancement Statistics
+        </h3>`;
+        html += `<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">`;
+        html += `<div style="text-align: center;">
+            <div style="color: var(--color-fg-muted); font-size: 0.85rem;">Total Entries</div>
+            <div style="color: var(--scitex-color-03); font-size: 1.8rem; font-weight: 700;">${stats.total_entries}</div>
+        </div>`;
+        html += `<div style="text-align: center;">
+            <div style="color: var(--color-fg-muted); font-size: 0.85rem;">Entries Enhanced</div>
+            <div style="color: var(--success-color); font-size: 1.8rem; font-weight: 700;">${stats.entries_enhanced}</div>
+        </div>`;
+        html += `<div style="text-align: center;">
+            <div style="color: var(--color-fg-muted); font-size: 0.85rem;">Fields Added</div>
+            <div style="color: var(--success-color); font-size: 1.8rem; font-weight: 700;">${stats.total_fields_added}</div>
+        </div>`;
+        html += `<div style="text-align: center;">
+            <div style="color: var(--color-fg-muted); font-size: 0.85rem;">Fields Modified</div>
+            <div style="color: var(--warning-color); font-size: 1.8rem; font-weight: 700;">${stats.total_fields_modified}</div>
+        </div>`;
+        html += `<div style="text-align: center;">
+            <div style="color: var(--color-fg-muted); font-size: 0.85rem;">Enhancement Rate</div>
+            <div style="color: var(--scitex-color-02); font-size: 1.8rem; font-weight: 700;">${stats.enhancement_rate}%</div>
+        </div>`;
+        html += `</div></div>`;
+    }
+
+    if (!diffData || diffData.length === 0) {
+        html += '<div style="text-align: center; padding: 3rem; color: var(--color-fg-muted);">';
+        html += '<i class="fas fa-check-circle" style="font-size: 3rem; margin-bottom: 1rem; display: block;"></i>';
+        html += '<p style="font-size: 1.1rem;">All entries are already complete!</p>';
+        html += '<p style="font-size: 0.9rem;">No new fields were added during enrichment.</p>';
+        html += '</div>';
+        document.getElementById('bibtexDiffContent').innerHTML = html;
+        return;
+    }
+
+    diffData.forEach(entry => {
+        html += `<div style="margin-bottom: 2rem; border: 1px solid var(--color-border-default); border-radius: 6px; padding: 1rem; background: var(--color-canvas-default);">`;
+        html += `<div style="font-weight: 700; font-size: 1.1rem; color: var(--color-fg-default); margin-bottom: 0.75rem;">`;
+        html += `<i class="fas fa-file-alt"></i> @${entry.type}{${entry.key}}</div>`;
+
+        // Show title if available
+        if (entry.title) {
+            html += `<div style="color: var(--color-fg-muted); font-size: 0.9rem; margin-bottom: 0.75rem; font-style: italic;">`;
+            const shortTitle = entry.title.length > 100 ? entry.title.substring(0, 100) + '...' : entry.title;
+            html += `"${shortTitle}"</div>`;
+        }
+
+        // Added fields (in green)
+        if (entry.added_fields && Object.keys(entry.added_fields).length > 0) {
+            html += `<div style="margin-top: 0.75rem; margin-bottom: 0.5rem; color: var(--success-color); font-weight: 600;">
+                <i class="fas fa-plus-circle"></i> Added fields (${Object.keys(entry.added_fields).length}):
+            </div>`;
+            for (const [key, value] of Object.entries(entry.added_fields)) {
+                const displayValue = value.length > 100 ? value.substring(0, 100) + '...' : value;
+                html += `<div style="padding-left: 1.5rem; color: var(--success-color); margin-bottom: 0.25rem;">`;
+                html += `<span style="font-weight: 600; background: var(--color-canvas-subtle); padding: 0.15rem 0.4rem; border-radius: 3px;">${key}</span> = <span style="font-family: monospace;">{${displayValue}}</span>`;
+                html += `</div>`;
+            }
+        }
+
+        // Modified fields (in orange)
+        if (entry.modified_fields && Object.keys(entry.modified_fields).length > 0) {
+            html += `<div style="margin-top: 0.75rem; margin-bottom: 0.5rem; color: var(--warning-color); font-weight: 600;">
+                <i class="fas fa-edit"></i> Modified fields (${Object.keys(entry.modified_fields).length}):
+            </div>`;
+            for (const [key, change] of Object.entries(entry.modified_fields)) {
+                const oldValue = change.old.length > 50 ? change.old.substring(0, 50) + '...' : change.old;
+                const newValue = change.new.length > 50 ? change.new.substring(0, 50) + '...' : change.new;
+                html += `<div style="padding-left: 1.5rem; margin-bottom: 0.5rem;">`;
+                html += `<div style="font-weight: 600; background: var(--color-canvas-subtle); padding: 0.15rem 0.4rem; border-radius: 3px; display: inline-block; margin-bottom: 0.25rem;">${key}</div>`;
+                html += `<div style="padding-left: 0.5rem; color: var(--error-color); text-decoration: line-through; font-family: monospace; font-size: 0.85rem;">- {${oldValue}}</div>`;
+                html += `<div style="padding-left: 0.5rem; color: var(--success-color); font-family: monospace; font-size: 0.85rem;">+ {${newValue}}</div>`;
+                html += `</div>`;
+            }
+        }
+
+        html += `</div>`;
+    });
+
+    document.getElementById('bibtexDiffContent').innerHTML = html;
+}
+
+// Close BibTeX diff modal
+function closeBibtexDiff() {
+    document.getElementById('bibtexDiffModal').style.display = 'none';
 }
 </script>
 {% endblock %}
