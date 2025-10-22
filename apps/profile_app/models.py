@@ -163,7 +163,7 @@ class UserProfile(models.Model):
     def total_collaborations(self):
         """Get total number of collaborations"""
         # Import here to avoid circular dependency
-        from apps.core_app.models import ProjectPermission
+        from apps.project_app.models import ProjectPermission
         return ProjectPermission.objects.filter(user=self.user).count()
 
     def get_social_links(self):

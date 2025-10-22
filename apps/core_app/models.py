@@ -17,8 +17,28 @@ from apps.profile_app.models import JAPANESE_ACADEMIC_DOMAINS, is_japanese_acade
 # Document model moved to apps.document_app.models
 
 
+# ============================================================================
+# DEPRECATED MODELS - These models are duplicated in apps.project_app.models
+# ============================================================================
+# The following models exist in BOTH core_app and project_app.
+# project_app is the canonical source (92% of codebase uses it).
+# These models will be removed from core_app in the next major version.
+#
+# MIGRATION PLAN:
+# - Phase 1: All imports updated to use project_app (CURRENT PHASE)
+# - Phase 2: Organization/ResearchGroup moved to new organizations_app
+# - Phase 3: These models removed from core_app
+#
+# DO NOT USE THESE MODELS - Import from apps.project_app.models instead
+# ============================================================================
+
 class Organization(models.Model):
-    """Model for research organizations"""
+    """
+    DEPRECATED: Use apps.project_app.models.Organization instead.
+    This model is duplicated and will be removed in the next version.
+
+    Model for research organizations
+    """
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     members = models.ManyToManyField(User, through='OrganizationMembership')
@@ -249,7 +269,12 @@ class ProjectMembership(models.Model):
 
 
 class Project(models.Model):
-    """Model for research projects with enhanced collaboration"""
+    """
+    DEPRECATED: Use apps.project_app.models.Project instead.
+    This model is duplicated and will be removed in the next version.
+
+    Model for research projects with enhanced collaboration
+    """
     
     PROJECT_STATUS = [
         ('planning', 'Planning'),
@@ -358,16 +383,16 @@ class Project(models.Model):
     def get_directory_path(self):
         """Get the full directory path for this project"""
         if self.data_location:
-            from .directory_manager import get_user_directory_manager
+            from .services.directory_service import get_user_directory_manager
             manager = get_user_directory_manager(self.owner)
             return manager.base_path / self.data_location
         return None
-    
+
     def ensure_directory(self):
         """Ensure project directory exists"""
-        from .directory_manager import get_user_directory_manager
+        from .services.directory_service import get_user_directory_manager
         manager = get_user_directory_manager(self.owner)
-        
+
         if not self.directory_created:
             success, path = manager.create_project_directory(self)
             if success:
@@ -375,16 +400,16 @@ class Project(models.Model):
                 self.save()
             return success
         return True
-    
+
     def get_file_structure(self):
         """Get the complete file structure for this project"""
-        from .directory_manager import get_user_directory_manager
+        from .services.directory_service import get_user_directory_manager
         manager = get_user_directory_manager(self.owner)
         return manager.get_project_structure(self)
-    
+
     def list_files(self, category=None):
         """List files in the project directory"""
-        from .directory_manager import get_user_directory_manager
+        from .services.directory_service import get_user_directory_manager
         manager = get_user_directory_manager(self.owner)
         return manager.list_project_files(self, category)
     
