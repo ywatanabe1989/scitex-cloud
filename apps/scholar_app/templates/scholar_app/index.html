@@ -445,25 +445,13 @@ function togglePanel(panelType) {
                     <div id="resourceMonitorPanel" style="background: var(--color-canvas-subtle); border: 1px solid var(--color-border-default); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                             <h4 style="margin: 0; color: var(--color-fg-default); font-size: 1.1rem; font-weight: 600;">
-                                <i class="fas fa-server"></i> System Resources
+                                <i class="fas fa-tasks"></i> Job Queue Status
                             </h4>
                             <span id="resourceRefreshTime" style="color: var(--color-fg-muted); font-size: 0.85rem;">Loading...</span>
                         </div>
 
-                        <!-- System Stats -->
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem; margin-bottom: 1rem;">
-                            <div style="background: var(--color-canvas-default); padding: 0.75rem; border-radius: 6px; border: 1px solid var(--color-border-default);">
-                                <div style="color: var(--color-fg-muted); font-size: 0.85rem; margin-bottom: 0.25rem;">CPU Usage</div>
-                                <div style="color: var(--color-fg-default); font-size: 1.5rem; font-weight: 700;">
-                                    <span id="cpuPercent">--</span><span style="font-size: 1rem;">%</span>
-                                </div>
-                            </div>
-                            <div style="background: var(--color-canvas-default); padding: 0.75rem; border-radius: 6px; border: 1px solid var(--color-border-default);">
-                                <div style="color: var(--color-fg-muted); font-size: 0.85rem; margin-bottom: 0.25rem;">Memory</div>
-                                <div style="color: var(--color-fg-default); font-size: 1.5rem; font-weight: 700;">
-                                    <span id="memoryPercent">--</span><span style="font-size: 1rem;">%</span>
-                                </div>
-                            </div>
+                        <!-- Job Stats (simplified - removed CPU/Memory) -->
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-bottom: 1rem;">
                             <div style="background: var(--color-canvas-default); padding: 0.75rem; border-radius: 6px; border: 1px solid var(--color-border-default);">
                                 <div style="color: var(--color-fg-muted); font-size: 0.85rem; margin-bottom: 0.25rem;">Active Jobs</div>
                                 <div style="color: var(--scitex-color-03); font-size: 1.5rem; font-weight: 700;">
@@ -2990,9 +2978,8 @@ function displayBibtexDiff(diffData, stats) {
         // Original fields (black)
         if (entry.original_fields && Object.keys(entry.original_fields).length > 0) {
             for (const [key, value] of Object.entries(entry.original_fields)) {
-                const displayValue = value.length > 80 ? value.substring(0, 80) + '...' : value;
-                html += `<div style="background: #ffffff; padding: 0.25rem 1rem; color: #24292e;">`;
-                html += `  ${key} = {${escapeHtml(displayValue)}}`;
+                html += `<div style="background: #ffffff; padding: 0.25rem 1rem; color: #24292e; word-wrap: break-word; white-space: pre-wrap;">`;
+                html += `  ${key} = {${escapeHtml(value)}}`;
                 html += `</div>`;
             }
         }
@@ -3000,9 +2987,8 @@ function displayBibtexDiff(diffData, stats) {
         // Added fields (green with + prefix)
         if (entry.added_fields && Object.keys(entry.added_fields).length > 0) {
             for (const [key, value] of Object.entries(entry.added_fields)) {
-                const displayValue = value.length > 80 ? value.substring(0, 80) + '...' : value;
-                html += `<div style="background: #e6ffed; padding: 0.25rem 1rem; color: #22863a;">`;
-                html += `+ ${key} = {${escapeHtml(displayValue)}}`;
+                html += `<div style="background: #e6ffed; padding: 0.25rem 1rem; color: #22863a; word-wrap: break-word; white-space: pre-wrap;">`;
+                html += `+ ${key} = {${escapeHtml(value)}}`;
                 html += `</div>`;
             }
         }
