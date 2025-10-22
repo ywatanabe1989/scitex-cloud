@@ -508,6 +508,103 @@
     background: var(--scitex-color-03);  /* Lighter divider */
 }
 
+/* Project Selector */
+.header-project-selector {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0 12px;
+}
+
+.project-selector-input {
+    background: var(--scitex-color-07);  /* Light gray in light mode */
+    border: 1px solid var(--scitex-color-05);
+    border-radius: 6px;
+    padding: 5px 8px;
+    color: var(--scitex-color-01);  /* Dark text */
+    font-size: 13px;
+    min-width: 160px;
+    max-width: 220px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.project-selector-input:hover {
+    border-color: var(--scitex-color-04);
+    background: #f6f8fa;
+}
+
+.project-selector-input:focus {
+    outline: none;
+    border-color: var(--scitex-color-04);
+    box-shadow: 0 0 0 3px rgba(108, 139, 160, 0.15);
+    background: var(--scitex-color-07);
+}
+
+/* Dark mode project selector */
+[data-theme="dark"] .project-selector-input {
+    background: var(--scitex-color-01-dark);  /* Very dark: #0f1419 */
+    border-color: var(--scitex-color-02);
+    color: var(--scitex-color-07);  /* Light text */
+}
+
+[data-theme="dark"] .project-selector-input:hover {
+    border-color: var(--scitex-color-03);
+    background: var(--scitex-color-02);
+}
+
+[data-theme="dark"] .project-selector-input:focus {
+    border-color: var(--scitex-color-04);
+    box-shadow: 0 0 0 3px rgba(108, 139, 160, 0.25);
+    background: var(--scitex-color-02);
+}
+
+.project-selector-input option {
+    background: var(--scitex-color-07);
+    color: var(--scitex-color-01);
+}
+
+[data-theme="dark"] .project-selector-input option {
+    background: var(--scitex-color-02);
+    color: var(--scitex-color-07);
+}
+
+/* New Project Button */
+.header-project-new-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border-radius: 6px;
+    color: var(--scitex-color-03);  /* Muted in light mode */
+    background: transparent;
+    border: 1px solid var(--scitex-color-05);
+    transition: all 0.2s ease;
+    cursor: pointer;
+    flex-shrink: 0;
+    text-decoration: none;
+}
+
+.header-project-new-btn:hover {
+    background: var(--scitex-color-07);
+    border-color: var(--scitex-color-04);
+    color: var(--scitex-color-01);
+}
+
+[data-theme="dark"] .header-project-new-btn {
+    color: var(--scitex-color-05);  /* Muted bluish */
+    border-color: var(--scitex-color-02);
+}
+
+[data-theme="dark"] .header-project-new-btn:hover {
+    background: var(--scitex-color-01-light);
+    border-color: var(--scitex-color-03);
+    color: var(--scitex-color-06);
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
     .nav-label {
@@ -546,6 +643,23 @@
 
     .header-nav {
         display: none; /* Hide main nav on mobile, show in hamburger menu */
+    }
+
+    .header-project-selector {
+        padding: 0 8px;
+        gap: 2px;
+    }
+
+    .project-selector-input {
+        min-width: 120px;
+        max-width: 160px;
+        font-size: 12px;
+        padding: 4px 6px;
+    }
+
+    .header-project-new-btn {
+        width: 26px;
+        height: 26px;
     }
 }
 

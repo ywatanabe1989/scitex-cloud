@@ -134,6 +134,24 @@
       </nav>
     </div>
 
+    <!-- Project Selector (for authenticated users) -->
+    {% if user.is_authenticated %}
+    <div class="header-project-selector">
+      <select id="project-selector" class="project-selector-input" title="Switch between your projects">
+        {% for project in user.profile.get_user_projects %}
+          <option value="{{ project.id }}" data-url="{% url 'user_projects:detail' username=project.owner.username slug=project.slug %}" {% if user.profile.last_active_repository and user.profile.last_active_repository.id == project.id %}selected{% endif %}>
+            {{ project.name }}
+          </option>
+        {% endfor %}
+      </select>
+      <a href="/new/" class="header-project-new-btn" title="Create new project">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="display: inline-block; vertical-align: text-bottom;">
+          <path d="M8 0a1 1 0 0 1 1 1v6h6a1 1 0 1 1 0 2H9v6a1 1 0 1 1-2 0V9H1a1 1 0 0 1 0-2h6V1a1 1 0 0 1 1-1z"/>
+        </svg>
+      </a>
+    </div>
+    {% endif %}
+
     <!-- Center: Search -->
     <div class="header-center">
       <div class="header-search">
@@ -387,5 +405,39 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // Note: Theme toggle functionality is handled by /static/js/theme-switcher.js
+
+  // Project selector functionality
+  const projectSelector = document.getElementById('project-selector');
+  if (projectSelector) {
+    projectSelector.addEventListener('change', function(e) {
+      const selectedOption = this.options[this.selectedIndex];
+      const projectUrl = selectedOption.getAttribute('data-url');
+
+      if (projectUrl) {
+        // Store selected project ID in sessionStorage for Scholar app
+        sessionStorage.setItem('scholar_selected_project_id', this.value);
+
+        // Navigate to the project
+        window.location.href = projectUrl;
+      }
+    });
+
+    // Restore selected project from sessionStorage if available and is a valid option
+    const savedProjectId = sessionStorage.getItem('scholar_selected_project_id');
+    if (savedProjectId && projectSelector.value !== savedProjectId) {
+      const option = projectSelector.querySelector(`option[value="${savedProjectId}"]`);
+      if (option && option.hasAttribute('data-url')) {
+        projectSelector.value = savedProjectId;
+      }
+    }
+
+    // Keyboard navigation: Alt+P to focus project selector
+    document.addEventListener('keydown', function(e) {
+      if ((e.altKey || e.metaKey) && e.key === 'p') {
+        e.preventDefault();
+        projectSelector.focus();
+      }
+    });
+  }
 });
 </script>

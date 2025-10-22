@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-23 07:23:52
+!-- Timestamp: 2025-10-23 07:43:06
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/CLAUDE.md
 !-- --- -->
@@ -52,12 +52,18 @@ Add console.log for debugging
 - [x] Proper handling of project association when saving papers
 - [x] All tests passing for save functionality
 
-## Project Selector Implementation
-The project-centric approach is now fully integrated into the Scholar module:
-- Users select a project via dropdown in the header
-- Selected project is remembered during the session
-- Papers are automatically associated with the selected project when saved
-- Anonymous users get a friendly signup prompt instead of errors
-- Eliminates the need for project-specific URLs (e.g., /username/project/?mode=scholar)
+## Project Selector Implementation (Completed)
+The project-centric approach is now fully integrated with main header project selector:
+- [x] Auto default project creation on user signup
+- [x] Users select a project via dropdown in the main header
+- [x] Selected project is remembered during the session via sessionStorage
+- [x] Papers are automatically associated with the selected project when saved
+- [x] Anonymous users get a friendly signup prompt instead of errors
+- [x] Eliminates the need for project-specific URLs (e.g., /username/project/?mode=scholar)
+- [x] Sign in/Sign out/Sign up terminology consistent throughout
+- [x] Main header contains project selector + create project button
+- [x] Alt+P keyboard shortcut to focus project selector
+- [x] Full dark/light mode support
+- [x] Responsive design for mobile/tablet
 
 <!-- EOF -->
