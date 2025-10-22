@@ -1327,11 +1327,11 @@ class BibTeXEnrichmentJob(models.Model):
     ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bibtex_jobs')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bibtex_jobs', null=True, blank=True, help_text="User who created this job (null for anonymous users)")
 
     # Input
     input_file = models.FileField(upload_to='bibtex_uploads/%Y/%m/%d/')
-    project_name = models.CharField(max_length=200, blank=True, help_text="Optional project name for organization")
+    project_name = models.CharField(max_length=200, blank=True, null=True, help_text="Optional project name for organization")
     project = models.ForeignKey('project_app.Project', on_delete=models.SET_NULL, null=True, blank=True, related_name='bibtex_jobs', help_text="Associated project for Gitea integration")
 
     # Processing parameters
@@ -1355,6 +1355,9 @@ class BibTeXEnrichmentJob(models.Model):
     # Error handling
     error_message = models.TextField(blank=True)
 
+    # Processing logs (real-time)
+    processing_log = models.TextField(blank=True, help_text="Real-time processing log output")
+
     # Results summary
     enrichment_summary = models.JSONField(
         default=dict,
@@ -1370,7 +1373,8 @@ class BibTeXEnrichmentJob(models.Model):
         ]
 
     def __str__(self):
-        return f"BibTeX Job #{self.id} - {self.user.username} ({self.status})"
+        username = self.user.username if self.user else "Anonymous"
+        return f"BibTeX Job #{self.id} - {username} ({self.status})"
 
     def get_progress_percentage(self):
         """Calculate progress percentage."""
@@ -1398,3 +1402,57 @@ class BibTeXEnrichmentJob(models.Model):
             return f"{int(duration / 60)} minutes"
         else:
             return f"{duration / 3600:.1f} hours"
+
+    def get_output_file_size(self):
+        """Get output file size in bytes."""
+        if not self.output_file:
+            return 0
+
+        try:
+            from django.conf import settings
+            from pathlib import Path
+            file_path = Path(settings.MEDIA_ROOT) / self.output_file.name
+            if file_path.exists():
+                return file_path.stat().st_size
+        except:
+            pass
+        return 0
+
+    def get_output_file_size_display(self):
+        """Get human-readable output file size."""
+        size = self.get_output_file_size()
+        if size == 0:
+            return "0 B"
+        elif size < 1024:
+            return f"{size} B"
+        elif size < 1024 * 1024:
+            return f"{size / 1024:.1f} KB"
+        else:
+            return f"{size / (1024 * 1024):.1f} MB"
+
+    def get_input_file_size(self):
+        """Get input file size in bytes."""
+        if not self.input_file:
+            return 0
+
+        try:
+            from django.conf import settings
+            from pathlib import Path
+            file_path = Path(settings.MEDIA_ROOT) / self.input_file.name
+            if file_path.exists():
+                return file_path.stat().st_size
+        except:
+            pass
+        return 0
+
+    def get_input_file_size_display(self):
+        """Get human-readable input file size."""
+        size = self.get_input_file_size()
+        if size == 0:
+            return "0 B"
+        elif size < 1024:
+            return f"{size} B"
+        elif size < 1024 * 1024:
+            return f"{size / 1024:.1f} KB"
+        else:
+            return f"{size / (1024 * 1024):.1f} MB"
