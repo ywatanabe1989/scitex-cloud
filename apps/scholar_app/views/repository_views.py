@@ -20,11 +20,11 @@ from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
-from .models import (
+from ..models import (
     Repository, RepositoryConnection, Dataset, DatasetFile, 
     DatasetVersion, RepositorySync
 )
-from .repository_services import (
+from ..services.repository_services import (
     RepositoryServiceFactory, RepositoryServiceError,
     sync_dataset_with_repository, upload_dataset_to_repository
 )

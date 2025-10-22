@@ -5,7 +5,7 @@ Project-specific views for Scholar app.
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from apps.project_app.models import Project
-from .models import BibTeXEnrichmentJob
+from ..models import BibTeXEnrichmentJob
 
 
 def project_search(request, project_id):
