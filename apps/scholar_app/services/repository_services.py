@@ -16,7 +16,7 @@ from django.conf import settings
 from django.utils import timezone
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
-from .models import Repository, RepositoryConnection, Dataset, DatasetFile, RepositorySync
+from ..models import Repository, RepositoryConnection, Dataset, DatasetFile, RepositorySync
 
 logger = logging.getLogger(__name__)
 

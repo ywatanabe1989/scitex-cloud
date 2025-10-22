@@ -4,7 +4,7 @@ Utility functions for Scholar module citation export functionality.
 import re
 from datetime import datetime
 from typing import List, Dict, Any
-from .models import SearchIndex, Author, LibraryExport
+from ..models import SearchIndex, Author, LibraryExport
 
 
 class CitationExporter:

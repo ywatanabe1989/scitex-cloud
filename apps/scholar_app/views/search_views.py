@@ -29,7 +29,7 @@ import sys
 from datetime import datetime, timedelta
 from django.db.models import Count, Avg, Max, Min, Q
 from django.utils import timezone
-from .models import SearchIndex, UserLibrary, Author, Journal, Collection, Topic, AuthorPaper, Citation, Annotation, AnnotationReply, AnnotationVote, CollaborationGroup, GroupMembership, AnnotationTag, UserPreference
+from ..models import SearchIndex, UserLibrary, Author, Journal, Collection, Topic, AuthorPaper, Citation, Annotation, AnnotationReply, AnnotationVote, CollaborationGroup, GroupMembership, AnnotationTag, UserPreference
 
 # Set up logger for Scholar module
 logger = logging.getLogger(__name__)
@@ -104,7 +104,8 @@ def simple_search_with_tab(request, active_tab='search'):
                 'authors': get_paper_authors(paper),
                 'year': paper.publication_date.year if paper.publication_date else 'Unknown',
                 'journal': paper.journal.name if paper.journal else 'Unknown Journal',
-                'citations': paper.citation_count,
+                'citation_count': paper.citation_count,
+                'citation_source': paper.citation_source,
                 'is_open_access': paper.is_open_access,
                 'snippet': paper.abstract[:200] + '...' if paper.abstract else 'No abstract available.',
                 'pdf_url': paper.pdf_url,
@@ -113,7 +114,8 @@ def simple_search_with_tab(request, active_tab='search'):
                 'pmid': paper.pmid or '',
                 'arxiv_id': paper.arxiv_id or '',
                 'impact_factor': paper.journal.impact_factor if paper.journal else None,
-                'source': 'database'
+                'source': paper.source,
+                'source_engines': paper.source_engines if paper.source_engines else []
             })
 
         # Add web search results
@@ -123,10 +125,11 @@ def simple_search_with_tab(request, active_tab='search'):
             all_results.append({
                 'id': str(stored_paper.id),
                 'title': result['title'],
-                'authors': result['authors'],
+                'authors': result['authors'] if isinstance(result['authors'], str) else ', '.join(result['authors']),
                 'year': result['year'],
                 'journal': result['journal'],
-                'citations': result.get('citations', 0),
+                'citation_count': result.get('citation_count', 0),
+                'citation_source': result.get('citation_source', ''),
                 'is_open_access': result.get('is_open_access', False),
                 'snippet': result.get('abstract', 'No abstract available.')[:200] + '...',
                 'full_abstract': result.get('abstract', ''),
@@ -136,7 +139,8 @@ def simple_search_with_tab(request, active_tab='search'):
                 'pmid': result.get('pmid', ''),
                 'arxiv_id': result.get('arxiv_id', ''),
                 'impact_factor': result.get('impact_factor'),
-                'source': result.get('source', 'web')
+                'source': result.get('source', 'web'),
+                'source_engines': result.get('source_engines', [])
             })
 
         # Apply advanced filters to results
@@ -1401,6 +1405,20 @@ def store_search_result(result):
         if existing_paper:
             logger.info(f"Found existing paper, updating: {existing_paper.title}")
 
+            # Update source_engines list (merge sources)
+            result_sources = result.get('source_engines', [])
+            if isinstance(result_sources, list) and result_sources:
+                existing_sources = existing_paper.source_engines if existing_paper.source_engines else []
+                # Merge and deduplicate sources
+                merged_sources = list(set(existing_sources + result_sources))
+                existing_paper.source_engines = merged_sources
+            elif result.get('source'):
+                # Fall back to single source if source_engines not provided
+                existing_sources = existing_paper.source_engines if existing_paper.source_engines else []
+                source = result.get('source', 'unknown')
+                if source not in existing_sources:
+                    existing_paper.source_engines = existing_sources + [source]
+
             # Update citation count if new source provides better data
             new_citation_count, is_reliable = validate_citation_count(result.get('citations', 0), result.get('source', 'unknown'))
             if is_reliable and new_citation_count > existing_paper.citation_count:
@@ -1420,6 +1438,10 @@ def store_search_result(result):
             if not existing_paper.arxiv_id and result.get('arxiv_id'):
                 existing_paper.arxiv_id = result['arxiv_id'] or None  # Convert empty strings to None
 
+            # Update authors if existing paper has no authors
+            if not existing_paper.authors.exists() and result.get('authors'):
+                _create_paper_authors(paper=existing_paper, authors_str=result['authors'])
+
             existing_paper.save()
             return existing_paper
 
@@ -1430,6 +1452,11 @@ def store_search_result(result):
                 name=result['journal'],
                 defaults={'abbreviation': result['journal'][:10]}
             )
+
+        # Prepare source_engines list
+        source_engines = result.get('source_engines', [])
+        if not source_engines and result.get('source'):
+            source_engines = [result.get('source', 'web')]
 
         # Create new paper
         paper = SearchIndex.objects.create(
@@ -1446,32 +1473,13 @@ def store_search_result(result):
             citation_last_updated=timezone.now() if result.get('citations', 0) > 0 else None,
             is_open_access=result.get('is_open_access', False),
             source=result.get('source', 'web'),
+            source_engines=source_engines,
             relevance_score=1.0
         )
 
         # Create authors
         if result.get('authors'):
-            author_names = result['authors'].split(', ')
-            for i, author_name in enumerate(author_names):
-                if author_name.strip():
-                    # Simple name parsing
-                    name_parts = author_name.strip().split()
-                    first_name = name_parts[0] if name_parts else ''
-                    last_name = ' '.join(name_parts[1:]) if len(name_parts) > 1 else ''
-
-                    author, created = Author.objects.get_or_create(
-                        first_name=first_name,
-                        last_name=last_name,
-                        defaults={'email': ''}
-                    )
-
-                    # Link author to paper
-                    from .models import AuthorPaper
-                    AuthorPaper.objects.get_or_create(
-                        author=author,
-                        paper=paper,
-                        defaults={'author_order': i + 1}
-                    )
+            _create_paper_authors(paper=paper, authors_str=result['authors'])
 
         return paper
 
@@ -1486,6 +1494,46 @@ def store_search_result(result):
             arxiv_id=None,  # Ensure unique constraint compliance
             relevance_score=1.0
         )
+
+
+def _create_paper_authors(paper, authors_str):
+    """Helper function to create author associations for a paper.
+
+    Args:
+        paper: SearchIndex paper object
+        authors_str: String of comma-separated authors or list of author names
+    """
+    if not authors_str:
+        return
+
+    # Handle both string and list inputs
+    if isinstance(authors_str, str):
+        author_names = authors_str.split(', ')
+    elif isinstance(authors_str, list):
+        author_names = authors_str
+    else:
+        return
+
+    for i, author_name in enumerate(author_names):
+        if author_name and author_name.strip():
+            # Simple name parsing
+            name_parts = author_name.strip().split()
+            first_name = name_parts[0] if name_parts else ''
+            last_name = ' '.join(name_parts[1:]) if len(name_parts) > 1 else ''
+
+            author, created = Author.objects.get_or_create(
+                first_name=first_name,
+                last_name=last_name,
+                defaults={'email': ''}
+            )
+
+            # Link author to paper
+            from ..models import AuthorPaper
+            AuthorPaper.objects.get_or_create(
+                author=author,
+                paper=paper,
+                defaults={'author_order': i + 1}
+            )
 
 
 def get_paper_authors(paper):
@@ -1601,7 +1649,7 @@ def personal_library(request):
 def export_bibtex(request):
     """Export selected papers as BibTeX"""
     try:
-        from .utils import CitationExporter
+        from ..services.utils import CitationExporter
 
         data = json.loads(request.body)
         paper_ids = data.get('paper_ids', [])
@@ -1649,7 +1697,7 @@ def export_bibtex(request):
 def export_ris(request):
     """Export selected papers as RIS"""
     try:
-        from .utils import CitationExporter
+        from ..services.utils import CitationExporter
 
         data = json.loads(request.body)
         paper_ids = data.get('paper_ids', [])
@@ -1697,7 +1745,7 @@ def export_ris(request):
 def export_endnote(request):
     """Export selected papers as EndNote"""
     try:
-        from .utils import CitationExporter
+        from ..services.utils import CitationExporter
 
         data = json.loads(request.body)
         paper_ids = data.get('paper_ids', [])
@@ -1745,7 +1793,7 @@ def export_endnote(request):
 def export_csv(request):
     """Export selected papers as CSV"""
     try:
-        from .utils import CitationExporter
+        from ..services.utils import CitationExporter
 
         data = json.loads(request.body)
         paper_ids = data.get('paper_ids', [])
@@ -2126,7 +2174,7 @@ def save_search(request):
             return JsonResponse({'status': 'error', 'message': 'A saved search with this name already exists'}, status=400)
 
         # Import the SavedSearch model
-        from .models import SavedSearch
+        from ..models import SavedSearch
 
         # Create saved search
         saved_search = SavedSearch.objects.create(
@@ -2156,7 +2204,7 @@ def save_search(request):
 def get_saved_searches(request):
     """Get user's saved searches."""
     try:
-        from .models import SavedSearch
+        from ..models import SavedSearch
 
         saved_searches = SavedSearch.objects.filter(user=request.user).order_by('-created_at')
 
@@ -2189,7 +2237,7 @@ def get_saved_searches(request):
 def delete_saved_search(request, search_id):
     """Delete a saved search."""
     try:
-        from .models import SavedSearch
+        from ..models import SavedSearch
 
         saved_search = SavedSearch.objects.get(id=search_id, user=request.user)
         saved_search.delete()
@@ -2212,7 +2260,7 @@ def delete_saved_search(request, search_id):
 def run_saved_search(request, search_id):
     """Run a saved search and return results."""
     try:
-        from .models import SavedSearch
+        from ..models import SavedSearch
         from django.utils import timezone
 
         saved_search = SavedSearch.objects.get(id=search_id, user=request.user)
@@ -2515,7 +2563,7 @@ def user_recommendations(request):
     """Get personalized recommendations based on user's recent activity."""
     try:
         from .views import _get_similar_papers_recommendations
-        from .models import RecommendationLog
+        from ..models import RecommendationLog
 
         # Get user's recent views for recommendations
         recent_views = RecommendationLog.objects.filter(
@@ -3425,7 +3473,7 @@ def api_collaboration_groups(request):
 def export_bulk_citations(request):
     """Export multiple papers in bulk with specified format."""
     try:
-        from .utils import CitationExporter
+        from ..services.utils import CitationExporter
         from django.http import HttpResponse
 
         data = json.loads(request.body)
@@ -3498,7 +3546,7 @@ def export_bulk_citations(request):
 def export_collection(request, collection_id):
     """Export all papers in a specific collection."""
     try:
-        from .utils import CitationExporter
+        from ..services.utils import CitationExporter
         from django.http import HttpResponse
 
         export_format = request.GET.get('format', 'bibtex')

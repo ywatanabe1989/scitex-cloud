@@ -13,7 +13,7 @@ from django.conf import settings
 from django.utils import timezone
 from django.core.exceptions import ValidationError
 
-from .models import Dataset, SearchIndex, Repository, RepositoryConnection
+from ..models import Dataset, SearchIndex, Repository, RepositoryConnection
 from .repository_services import RepositoryServiceFactory
 
 logger = logging.getLogger(__name__)

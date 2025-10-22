@@ -11,7 +11,7 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 import logging
 
-from .models import UserPreference
+from ..models import UserPreference
 
 logger = logging.getLogger(__name__)
 

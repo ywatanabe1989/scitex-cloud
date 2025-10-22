@@ -27,7 +27,7 @@ from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django.utils import timezone
 from django.conf import settings
-from .models import BibTeXEnrichmentJob
+from ..models import BibTeXEnrichmentJob
 
 
 def bibtex_enrichment(request):
