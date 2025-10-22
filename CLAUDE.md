@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-23 07:08:28
+!-- Timestamp: 2025-10-23 07:17:12
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/CLAUDE.md
 !-- --- -->
@@ -41,11 +41,10 @@ Add console.log for debugging
   - [x] Underscore for selected - DONE: Using scitex-color-03 bottom border
   - [x] Non-selected as darker (in the dark) or lighter (in the light mode) - DONE: color-fg-muted with hover states
   - [x] The input box of the search page should have edge - DONE: 1px solid border with focus states
-  - [ ] Add edge for search button to keep height the same
+  - [x] Add edge for search button to keep height the same - DONE: min-height matching and border styling
+- [x] Login issue fixed - DONE: Template namespace references updated from core_app to workspace_app
+- [x] Core app refactoring completion - DONE: All references updated
 
-## Cannot login
-ywatanabe
-REDACTED
-http://127.0.0.1:8000/auth/login/
+## Modules for logged-in users
 
 <!-- EOF -->
