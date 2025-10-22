@@ -7,22 +7,33 @@
 
 ## ✅ COMPLETED: Model Duplication Resolution
 
-### Phase 1 Complete (2025-10-23 06:10)
+### Phase 1 Complete: core_app Cleanup (2025-10-23 06:10)
 1. **✅ Fixed Migration Errors**
    - Resolved FieldDoesNotExist error during migrations
    - Fixed constraint ordering in migration 0007
    - All migrations now apply successfully
 
-2. **✅ Removed Duplicate Models from core_app**
+2. **✅ Removed ALL Duplicate Models from core_app**
    - Deleted: Project, ProjectMembership, ProjectPermission, Manuscript, GitFileStatus
    - Added backward-compatible imports from canonical locations
    - Updated admin registrations and inline classes
+   - **Result: core_app now has 0 models (was 9+)**
 
-3. **✅ Created sustainability_app Initial Migration**
-   - Donation and DonationTier models migrated successfully
-   - Database schema updated
+**Commit:** 0c5665a
 
-**Commit:** 0c5665a on `refactor/resolve-model-duplication` branch
+### Phase 2 Complete: cloud_app Cleanup (2025-10-23 06:15)
+1. **✅ Removed Duplicate Donation Models**
+   - Deleted: Donation, DonationTier from cloud_app
+   - Added backward-compatible imports from sustainability_app
+   - Removed duplicate admin registrations
+
+2. **✅ Removed Duplicate EmailVerification**
+   - Deleted: EmailVerification from cloud_app
+   - Added backward-compatible import from auth_app
+   - Removed duplicate admin registration
+   - **Result: cloud_app now has 5 models (was 8)**
+
+**Commits:** cc6bb5e, db9819e on `refactor/resolve-model-duplication` branch
 
 ---
 
