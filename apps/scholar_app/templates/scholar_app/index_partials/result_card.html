@@ -1,9 +1,17 @@
 <div class="result-card" data-paper-id="{{ result.id }}" data-title="{{ result.title }}" data-authors="{{ result.authors }}" data-year="{{ result.year }}" data-journal="{{ result.journal|default:'Unknown Journal' }}" data-doi="{{ result.doi|default:'' }}" data-pmid="{{ result.pmid|default:'' }}" data-arxiv-id="{{ result.arxiv_id|default:'' }}" data-external-url="{{ result.external_url|default:'' }}" data-source="{{ result.source|default:'' }}">
-    <h6 class="result-title">
-        <a href="#" class="text-decoration-none" onclick="viewOnWeb(this)">
-            {{ result.title }}
-        </a>
-    </h6>
+    <div class="d-flex align-items-start gap-2">
+        <div class="form-check mt-1">
+            <input class="form-check-input paper-select-checkbox" type="checkbox" id="select_{{ result.id }}" data-paper-id="{{ result.id }}" data-doi="{{ result.doi|default:'' }}" data-title="{{ result.title }}">
+            <label class="form-check-label" for="select_{{ result.id }}"></label>
+        </div>
+        <div class="flex-grow-1">
+            <h6 class="result-title mb-0">
+                <a href="#" class="text-decoration-none" onclick="viewOnWeb(this)">
+                    {{ result.title }}
+                </a>
+            </h6>
+        </div>
+    </div>
     <div class="result-authors">
         {{ result.authors }}
     </div>
@@ -18,7 +26,7 @@
         </span>
         {% endif %}
         <small class="text-muted">
-            {{ result.journal|default:"Unknown Journal" }}
+            <em>{{ result.journal|default:"Unknown Journal" }}</em>
             {% if result.citations and result.citations > 0 %}
                 • <strong>{{ result.citations }} citations</strong>
                 {% if result.citation_source %}
@@ -60,32 +68,6 @@
             📄 No PDF
         </span>
         {% endif %}
-        <div class="btn-group" role="group">
-            <button type="button" class="btn btn-outline-info btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                📝 Export Citation
-            </button>
-            <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="#" onclick="exportCitation(this, 'bibtex')">
-                    <i class="fas fa-file-code"></i> BibTeX (.bib)
-                </a></li>
-                <li><a class="dropdown-item" href="#" onclick="exportCitation(this, 'ris')">
-                    <i class="fas fa-file-text"></i> RIS (.ris)
-                </a></li>
-                <li><a class="dropdown-item" href="#" onclick="exportCitation(this, 'endnote')">
-                    <i class="fas fa-file-alt"></i> EndNote (.enw)
-                </a></li>
-                <li><a class="dropdown-item" href="#" onclick="exportCitation(this, 'csv')">
-                    <i class="fas fa-table"></i> CSV (.csv)
-                </a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" href="#" onclick="showBibTeX(this)">
-                    <i class="fas fa-eye"></i> Quick Preview
-                </a></li>
-            </ul>
-        </div>
-        <a href="#" class="btn btn-outline-warning btn-sm me-2" onclick="saveToLibrary(this)">
-            ⭐ Add to Library
-        </a>
         {% if user.is_authenticated %}
         <a href="{% url 'scholar_app:paper_annotations' result.id %}" class="btn btn-outline-success btn-sm me-2">
             💬 Annotate
