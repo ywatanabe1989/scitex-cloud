@@ -13,12 +13,15 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 
 from .models import (
-    Organization, OrganizationMembership,
-    ResearchGroup, ResearchGroupMembership,
     Project, ProjectMembership, GitFileStatus
 )
 # UserProfile now managed in profile_app
 from apps.profile_app.models import UserProfile
+# Organization models now managed in organizations_app
+from apps.organizations_app.models import (
+    Organization, OrganizationMembership,
+    ResearchGroup, ResearchGroupMembership,
+)
 
 
 # Inline admin classes
@@ -95,67 +98,7 @@ class UserAdmin(BaseUserAdmin):
 
 
 # UserProfile admin moved to apps.profile_app.admin
-
-
-# Organization admin
-@admin.register(Organization)
-class OrganizationAdmin(admin.ModelAdmin):
-    list_display = ('name', 'total_members', 'total_groups', 'created_at')
-    list_filter = ('created_at',)
-    search_fields = ('name', 'description')
-    inlines = (OrganizationMembershipInline,)
-    
-    def total_members(self, obj):
-        return obj.members.count()
-    total_members.short_description = 'Members'
-    
-    def total_groups(self, obj):
-        return obj.research_groups.count()
-    total_groups.short_description = 'Research Groups'
-
-
-# Research Group admin  
-@admin.register(ResearchGroup)
-class ResearchGroupAdmin(admin.ModelAdmin):
-    list_display = ('name', 'organization', 'principal_investigator', 'total_members', 'total_projects', 'is_public', 'created_at')
-    list_filter = ('organization', 'is_public', 'allow_external_collaborators', 'created_at')
-    search_fields = ('name', 'description', 'principal_investigator__username', 'principal_investigator__first_name', 'principal_investigator__last_name')
-    filter_horizontal = ('admins',)
-    inlines = (ResearchGroupMembershipInline,)
-    
-    fieldsets = (
-        ('Basic Information', {
-            'fields': ('name', 'description', 'organization')
-        }),
-        ('Leadership', {
-            'fields': ('principal_investigator', 'admins')
-        }),
-        ('Settings', {
-            'fields': ('is_public', 'allow_external_collaborators', 'auto_approve_internal')
-        }),
-        ('Timestamps', {
-            'fields': ('created_at', 'updated_at'),
-            'classes': ('collapse',)
-        }),
-    )
-    readonly_fields = ('created_at', 'updated_at')
-    
-    def total_members(self, obj):
-        return obj.get_all_members().count()
-    total_members.short_description = 'Total Members'
-    
-    def total_projects(self, obj):
-        return obj.projects.count()
-    total_projects.short_description = 'Projects'
-
-
-# Research Group Membership admin
-@admin.register(ResearchGroupMembership)
-class ResearchGroupMembershipAdmin(admin.ModelAdmin):
-    list_display = ('user', 'group', 'role', 'can_create_projects', 'can_invite_collaborators', 'joined_at', 'is_active')
-    list_filter = ('role', 'can_create_projects', 'can_invite_collaborators', 'is_active', 'joined_at')
-    search_fields = ('user__username', 'user__first_name', 'user__last_name', 'group__name')
-    list_editable = ('role', 'can_create_projects', 'can_invite_collaborators', 'is_active')
+# Organization and ResearchGroup admin moved to apps.organizations_app.admin
 
 
 # Project admin

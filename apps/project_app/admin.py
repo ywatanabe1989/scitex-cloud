@@ -1,19 +1,9 @@
 from django.contrib import admin
-from .models import Project, ProjectMembership, Organization, ResearchGroup, ProjectPermission
+from .models import Project, ProjectMembership, ProjectPermission
+# Organization and ResearchGroup models now managed in organizations_app
+from apps.organizations_app.models import Organization, ResearchGroup
 
-
-@admin.register(Organization)
-class OrganizationAdmin(admin.ModelAdmin):
-    list_display = ('name', 'website', 'created_at')
-    search_fields = ('name', 'description')
-    list_filter = ('created_at',)
-
-
-@admin.register(ResearchGroup)
-class ResearchGroupAdmin(admin.ModelAdmin):
-    list_display = ('name', 'organization', 'leader', 'created_at')
-    search_fields = ('name', 'description', 'organization__name')
-    list_filter = ('organization', 'created_at')
+# Organization and ResearchGroup admin now in organizations_app.admin
 
 
 @admin.register(Project)
