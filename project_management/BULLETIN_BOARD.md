@@ -1,16 +1,37 @@
 # SciTeX Development Bulletin Board
 
-**Last Updated:** 2025-10-23 04:30
-**Status:** Critical Architecture Issues Identified - core_app/cloud_app Refactoring Required
+**Last Updated:** 2025-10-23 06:10
+**Status:** ✅ Model Duplication Resolved - Continuing with Architecture Refactoring
 
 ---
 
-## 🚨 URGENT: Architecture Issues Discovered
+## ✅ COMPLETED: Model Duplication Resolution
+
+### Phase 1 Complete (2025-10-23 06:10)
+1. **✅ Fixed Migration Errors**
+   - Resolved FieldDoesNotExist error during migrations
+   - Fixed constraint ordering in migration 0007
+   - All migrations now apply successfully
+
+2. **✅ Removed Duplicate Models from core_app**
+   - Deleted: Project, ProjectMembership, ProjectPermission, Manuscript, GitFileStatus
+   - Added backward-compatible imports from canonical locations
+   - Updated admin registrations and inline classes
+
+3. **✅ Created sustainability_app Initial Migration**
+   - Donation and DonationTier models migrated successfully
+   - Database schema updated
+
+**Commit:** 0c5665a on `refactor/resolve-model-duplication` branch
+
+---
+
+## 🚨 REMAINING: Architecture Issues
 
 ### Critical Problems
-1. **Model Duplication**: core_app and project_app have DUPLICATE models
-   - Project, ProjectMembership, Organization, ResearchGroup, ProjectPermission
-   - Both apps define the same models causing potential conflicts
+1. ~~**Model Duplication**: core_app and project_app have DUPLICATE models~~ ✅ RESOLVED
+   - ✅ Project, ProjectMembership models moved to project_app
+   - ⚠️ Organization, ResearchGroup still duplicated - needs organizations_app extraction
 
 2. **core_app Overloaded** (9 models, 7 services, 5 view modules)
    - Organizations, Projects, Git, Files, Email, Manuscripts
