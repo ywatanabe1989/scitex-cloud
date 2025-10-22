@@ -20,7 +20,7 @@ let resourceMonitorInterval = null;
  * @param {string} config.resourceStatusUrl - URL for resource status endpoint
  * @param {number} config.pollInterval - Polling interval in milliseconds (default: 2000)
  */
-export function initQueueManagement(config = {}) {
+function initQueueManagement(config = {}) {
     const {
         resourceStatusUrl = '/scholar/api/bibtex/resource-status/',
         pollInterval = 2000
@@ -41,7 +41,7 @@ export function initQueueManagement(config = {}) {
 /**
  * Stop queue management monitoring
  */
-export function stopQueueManagement() {
+function stopQueueManagement() {
     if (resourceMonitorInterval) {
         clearInterval(resourceMonitorInterval);
         resourceMonitorInterval = null;
@@ -296,5 +296,9 @@ function escapeHtml(text) {
     return text.replace(/[&<>"']/g, m => map[m]);
 }
 
-// Export for use in other modules
-export { updateResourceMonitor, cancelJob };
+// Auto-initialize when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => initQueueManagement());
+} else {
+    initQueueManagement();
+}

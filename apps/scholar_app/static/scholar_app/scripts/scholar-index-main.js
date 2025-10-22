@@ -312,9 +312,9 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.source-toggle').forEach(toggle => {
             preferences[toggle.value] = toggle.checked;
         });
-        
+
         // Save to database if user is logged in, otherwise use localStorage
-        {% if user.is_authenticated %}
+        if (window.scholarConfig && window.scholarConfig.user && window.scholarConfig.user.isAuthenticated) {
             fetch('/scholar/api/preferences/sources/', {
                 method: 'POST',
                 headers: {
@@ -330,10 +330,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             })
             .catch(error => console.error('Error saving preferences:', error));
-        {% else %}
+        } else {
             // For anonymous users, use localStorage
             localStorage.setItem('scholar_source_preferences', JSON.stringify(preferences));
-        {% endif %}
+        }
     }
     
     function getCsrfToken() {
@@ -388,7 +388,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function loadSourcePreferences() {
-        {% if user.is_authenticated %}
+        if (window.scholarConfig && window.scholarConfig.user && window.scholarConfig.user.isAuthenticated) {
             // Load from database for logged-in users
             fetch('/scholar/api/preferences/')
                 .then(response => response.json())
@@ -406,10 +406,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Fallback to localStorage if database fails
                     loadSourcePreferencesFromStorage();
                 });
-        {% else %}
+        } else {
             // Load from localStorage for anonymous users
             loadSourcePreferencesFromStorage();
-        {% endif %}
+        }
     }
     
     function loadSourcePreferencesFromStorage() {
@@ -1590,7 +1590,8 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Resource Monitoring - Poll for resource status
-let resourceMonitorInterval = null;
+// Note: resourceMonitorInterval is now managed by queue-management.js
+// let resourceMonitorInterval = null; // REMOVED - duplicate declaration
 
 function updateResourceMonitor() {
     fetch(window.SCHOLAR_CONFIG.urls.resourceStatus)
