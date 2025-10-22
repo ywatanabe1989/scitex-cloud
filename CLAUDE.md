@@ -1,11 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-23 05:20:14
-!-- Author: ywatanabe
-!-- File: /home/ywatanabe/proj/scitex-cloud/CLAUDE.md
-!-- --- -->
-
- <!-- ---
-!-- Timestamp: 2025-10-23 03:23:49
+!-- Timestamp: 2025-10-23 06:48:53
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/CLAUDE.md
 !-- --- -->
@@ -13,6 +7,9 @@
 
 See `./docs/SciTeX-Ecosystem-and-Corresponding-Local-Directories.md` as well
 
+## Simple Documents
+- Keep documents necessary and sufficient. Too much information may do more hram than good.
+- 
 ## Research proposal for this project, SciTeX
 See `./docs/BOOST_応募済み申請書_26151429_oubo_20250626.pdf`
 However, we are also thinking monetization strategies. `./docs/MONETIZATION_STRATEGY_IMPLEMENTATION.md`
@@ -36,15 +33,7 @@ Do not place any files under project root directory
 See /dev/design/
 
 ## Current Urgent Requests
-- [ ] Refactor structures of apps
-  - Use git effectively
-  - Work collaborately with other agents using ./project_management/BULLETIN_BOARD.md
+- [x] Each app must be explained in one sentence. Otherwise, they have too many responsibilities.
+- [x] Each app should have their own README.md
 
-- [ ] Root cause is that workspace_app and cloud_app have too many responsibilities
-  - [ ] workspace_app
-  - [ ] cloud_app 
-
-- [ ] Could you explain what workspace_app is, and what cloud_app is as well?
-  - [ ] Each app must be explanined in one sentence. Otherwise, they have too many responsibilities.
-- [ ] Each app should have thier own README.md
-
+<!-- EOF -->
