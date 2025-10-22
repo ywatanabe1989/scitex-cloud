@@ -1092,8 +1092,17 @@ function deleteSavedSearch(searchId) {
 }
 
 // Global functions for file handling
-function viewOnWeb(btn) {
-    const resultCard = btn.closest('.result-card');
+function viewOnWeb(link, event) {
+    // Check if this is a Ctrl+Click, Cmd+Click, middle-click, or right-click
+    // In these cases, let the browser handle it normally (just open the href)
+    if (event.ctrlKey || event.metaKey || event.button === 1 || event.button === 2) {
+        return true; // Allow default behavior
+    }
+
+    // For normal left-click, open all URLs
+    event.preventDefault();
+
+    const resultCard = link.closest('.result-card');
     const paperTitle = resultCard.dataset.title;
     const doi = resultCard.dataset.doi;
     const pmid = resultCard.dataset.pmid;
@@ -1139,6 +1148,8 @@ function viewOnWeb(btn) {
     urls.forEach(item => {
         window.open(item.url, '_blank');
     });
+
+    return false; // Prevent default link behavior for normal clicks
 }
 
 function exportCitation(btn, format) {
