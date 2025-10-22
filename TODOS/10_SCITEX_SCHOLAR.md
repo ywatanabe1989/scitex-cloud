@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-22 20:51:04
+!-- Timestamp: 2025-10-22 21:07:53
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/TODOS/10_SCITEX_SCHOLAR.md
 !-- --- -->
@@ -74,5 +74,10 @@ Total Results
 
 
 - [ ] Make journal names inclined
+
+# Open in new tab does not work
+Ctrl + click shows two tabs, one is the page itself and the other is the url associated
+Right click and open in new tab does only open like this:
+http://127.0.0.1:8000/scholar/?q=sharp+wave+ripples&source_crossref=crossref&source_pubmed=pubmed&source_semantic=semantic&source_arxiv=arxiv&source_openalex=openalex&year_from=1900&year_to=2025&min_citations=0&max_citations=448&min_impact_factor=1.8&max_impact_factor=44.7&author=&journal=&doc_type=&study_type=&language=&sort_by=relevance#search
 
 <!-- EOF -->

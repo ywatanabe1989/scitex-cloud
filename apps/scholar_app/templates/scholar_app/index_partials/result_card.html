@@ -6,7 +6,10 @@
         </div>
         <div class="flex-grow-1">
             <h6 class="result-title mb-0">
-                <a href="#" class="text-decoration-none" onclick="viewOnWeb(this)">
+                <a href="{% if result.doi %}https://doi.org/{{ result.doi }}{% elif result.external_url %}{{ result.external_url }}{% elif result.pmid %}https://pubmed.ncbi.nlm.nih.gov/{{ result.pmid }}/{% elif result.arxiv_id %}https://arxiv.org/abs/{{ result.arxiv_id }}{% else %}https://scholar.google.com/scholar?q={{ result.title|urlencode }}{% endif %}"
+                   class="text-decoration-none"
+                   target="_blank"
+                   onclick="return viewOnWeb(this, event)">
                     {{ result.title }}
                 </a>
             </h6>
