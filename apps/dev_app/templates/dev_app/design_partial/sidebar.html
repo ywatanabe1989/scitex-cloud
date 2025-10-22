@@ -1,0 +1,45 @@
+<!-- Sidebar Navigation -->
+<nav class="sidebar" style="width: 280px; flex-shrink: 0;">
+  <div class="sidebar-heading">Navigation</div>
+  <ul class="sidebar-nav">
+    <!-- Components Section with Categories -->
+    <li>
+      <div style="display: flex; align-items: center; gap: 0;">
+        <a href="#components" class="sidebar-nav-item sidebar-nav-item-active" style="flex: 1; margin-bottom: 0;">Components</a>
+        <button class="sidebar-nav-toggle" onclick="toggleSidebarSection('components'); event.stopPropagation();"
+                style="background: transparent; border: none; cursor: pointer; padding: 0.625rem 0.75rem; color: var(--color-fg-default); flex-shrink: 0;">
+          <svg class="sidebar-toggle-icon" width="12" height="12" viewBox="0 0 16 16" fill="currentColor" style="transition: transform 0.2s; transform: rotate(0deg);">
+            <path d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
+          </svg>
+        </button>
+      </div>
+      <ul class="sidebar-nav-submenu" id="submenu-components" style="display: block; padding-left: 1rem; margin-top: 0.25rem;">
+        {% for category, components in components_by_category.items %}
+        <li>
+          <div style="display: flex; align-items: center; gap: 0;">
+            <a href="#category-{{ category|slugify }}" class="sidebar-nav-item" style="flex: 1; margin-bottom: 0; font-size: 0.875rem; padding: 0.5rem 0.75rem;">{{ category }}</a>
+            <button class="sidebar-nav-toggle" onclick="toggleSidebarSection('{{ category|slugify }}'); event.stopPropagation();"
+                    style="background: transparent; border: none; cursor: pointer; padding: 0.5rem 0.625rem; color: var(--color-fg-default); flex-shrink: 0;">
+              <svg class="sidebar-toggle-icon" width="10" height="10" viewBox="0 0 16 16" fill="currentColor" style="transition: transform 0.2s; transform: rotate(0deg);">
+                <path d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
+              </svg>
+            </button>
+          </div>
+          <ul class="sidebar-nav-submenu" id="submenu-{{ category|slugify }}" style="display: block; padding-left: 1rem; margin-top: 0.25rem;">
+            {% for component in components %}
+            <li><a href="#component-{{ component.id|slugify }}" class="sidebar-nav-item" style="font-size: 0.8125rem; padding: 0.375rem 0.625rem;">{{ component.name }}</a></li>
+            {% endfor %}
+          </ul>
+        </li>
+        {% endfor %}
+      </ul>
+    </li>
+
+    <!-- Other Design System Sections -->
+    <li><a href="#colors" class="sidebar-nav-item">Colors</a></li>
+    <li><a href="#typography" class="sidebar-nav-item">Typography</a></li>
+    <li><a href="#spacing" class="sidebar-nav-item">Spacing</a></li>
+    <li><a href="#theme" class="sidebar-nav-item">Theme</a></li>
+    <li><a href="#guidelines" class="sidebar-nav-item">Usage Guidelines</a></li>
+  </ul>
+</nav>
