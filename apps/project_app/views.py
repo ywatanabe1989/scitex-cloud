@@ -99,7 +99,7 @@ def user_bio_page(request, username):
     user = get_object_or_404(User, username=username)
 
     # Get or create user profile
-    from apps.core_app.models import UserProfile
+    from apps.profile_app.models import UserProfile
     profile, created = UserProfile.objects.get_or_create(user=user)
 
     # Get user's projects
