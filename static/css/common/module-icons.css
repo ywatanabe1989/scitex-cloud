@@ -1,0 +1,320 @@
+/*
+ * @component Module Icons
+ * @description SciTeX ecosystem module iconography using both professional SVG icons and emoji variants. Provides consistent visual identity across all modules (Engine, Scholar, Writer, Code, Viz, Cloud, Developer). For generic icon sizing and styling utilities, see the Icon component.
+ * @category Visual Identity
+ * @file /static/css/common/module-icons.css
+ * @darkmode true
+ *
+ * @variant module-icons-grid - Grid layout for displaying module icon cards
+ * @variant icon-showcase - Individual module icon card (SVG)
+ * @variant emoji-showcase - Individual module emoji card
+ * @variant module-icon - Container for SVG module icons
+ * @variant emoji-icon - Container for emoji module icons
+ * @variant nav-icon - Navigation header icon (20px)
+ * @variant nav-icon-svg - SVG navigation icon with theme support
+ *
+ * @state default - Standard display state
+ * @state hover - Scale and opacity enhancement on hover
+ * @state dark - Bluish theme colors in dark mode
+ *
+ * @modules
+ * - Engine (⚙️): Emacs orchestration - scitex-engine-icon.svg
+ * - Scholar (🔍): Literature discovery - scitex-scholar-icon.svg
+ * - Writer (✍️): Scientific writing - scitex-writer-icon.svg
+ * - Code (💻): Data analysis - scitex-code-icon.svg
+ * - Viz (📊): Publication graphics - scitex-viz-icon.svg
+ * - Cloud (☁️): Platform & infrastructure - scitex-cloud-icon.svg
+ * - Developer (👨‍💻): Development tools & docs - scitex-developer-icon.svg
+ *
+ * @example
+ * <div class="module-icons-grid">
+ *   <div class="icon-showcase">
+ *     <div class="module-icon">
+ *       <img src="{% static 'images/scitex-scholar-icon.svg' %}" alt="SciTeX Scholar" width="56" height="56">
+ *     </div>
+ *     <h5>Scholar</h5>
+ *     <p>Literature discovery</p>
+ *     <code>scitex-scholar-icon.svg</code>
+ *   </div>
+ * </div>
+ *
+ * @example
+ * <div class="emoji-icons-grid">
+ *   <div class="emoji-showcase">
+ *     <div class="emoji-icon">🔍</div>
+ *     <h5>Scholar</h5>
+ *     <p>Magnifying glass - search & discovery</p>
+ *     <code>🔍 U+1F50D</code>
+ *   </div>
+ * </div>
+ *
+ * @example
+ * <a href="/scholar" class="header-nav-item" title="Literature review and research">
+ *   <img src="{% static 'images/scitex-scholar-icon.svg' %}" alt="" class="nav-icon">
+ *   <span class="nav-label">Scholar</span>
+ * </a>
+ *
+ * @example
+ * <a href="/repositories" class="header-nav-item" title="Your repositories">
+ *   <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor" class="nav-icon-svg">
+ *     <path d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 1 1 0-1.5h1.75v-2h-8a1 1 0 0 0-.714 1.7.75.75 0 0 1-1.072 1.05A2.495 2.495 0 0 1 2 11.5v-9zm10.5-1V9h-8c-.356 0-.694.074-1 .208V2.5a1 1 0 0 1 1-1h8zM5 12.25v3.25a.25.25 0 0 0 .4.2l1.45-1.087a.25.25 0 0 1 .3 0L8.6 15.7a.25.25 0 0 0 .4-.2v-3.25a.25.25 0 0 0-.25-.25h-3.5a.25.25 0 0 0-.25.25z"/>
+ *   </svg>
+ *   <span class="nav-label">Repositories</span>
+ * </a>
+ */
+
+/* =========================
+   Module Icons Grid (SVG)
+   ========================= */
+
+.module-icons-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.icon-showcase {
+  text-align: center;
+  padding: 1.5rem;
+  background: var(--bg-100);
+  border-radius: 12px;
+  border: 1px solid var(--border-300);
+  transition: all 0.3s ease;
+}
+
+.icon-showcase:hover {
+  border-color: var(--btn-primary-bg);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+[data-theme="dark"] .icon-showcase {
+  background: var(--scitex-color-01-light);
+  border-color: var(--scitex-color-04);
+}
+
+[data-theme="dark"] .icon-showcase:hover {
+  border-color: var(--scitex-color-05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.module-icon {
+  margin-bottom: 1rem;
+  display: inline-block;
+}
+
+.icon-showcase h5 {
+  margin-bottom: 0.5rem;
+  color: var(--btn-primary-bg);
+  font-weight: 600;
+}
+
+[data-theme="dark"] .icon-showcase h5 {
+  color: var(--scitex-color-05);
+}
+
+.icon-showcase p {
+  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-700);
+  line-height: 1.3;
+}
+
+[data-theme="dark"] .icon-showcase p {
+  color: var(--scitex-color-06);
+}
+
+.icon-showcase code {
+  font-size: 0.75rem;
+  background: var(--bg-200);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  color: var(--text-800);
+}
+
+[data-theme="dark"] .icon-showcase code {
+  background: var(--scitex-color-01);
+  color: var(--scitex-color-07);
+}
+
+/* =========================
+   Emoji Icons Grid
+   ========================= */
+
+.emoji-icons-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.emoji-showcase {
+  text-align: center;
+  padding: 1.5rem;
+  background: #f0f8ff;
+  border-radius: 12px;
+  border: 2px solid #d1ecf1;
+  transition: all 0.3s ease;
+}
+
+.emoji-showcase:hover {
+  border-color: var(--btn-primary-bg);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+[data-theme="dark"] .emoji-showcase {
+  background: var(--scitex-color-01-light);
+  border-color: var(--scitex-color-04);
+}
+
+[data-theme="dark"] .emoji-showcase:hover {
+  border-color: var(--scitex-color-05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.emoji-icon {
+  font-size: 3.5rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.emoji-showcase h5 {
+  margin-bottom: 0.5rem;
+  color: var(--btn-primary-bg);
+  font-weight: 600;
+}
+
+[data-theme="dark"] .emoji-showcase h5 {
+  color: var(--scitex-color-05);
+}
+
+.emoji-showcase p {
+  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-700);
+}
+
+[data-theme="dark"] .emoji-showcase p {
+  color: var(--scitex-color-06);
+}
+
+.emoji-showcase code {
+  font-size: 0.75rem;
+  background: #d1ecf1;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  color: var(--text-800);
+}
+
+[data-theme="dark"] .emoji-showcase code {
+  background: var(--scitex-color-04);
+  color: var(--scitex-color-07);
+}
+
+/* =========================
+   Navigation Icons
+   ========================= */
+
+/* Navigation Icons (SVG and IMG) */
+.nav-icon,
+.nav-icon-svg {
+  height: 20px;
+  width: 20px;
+  opacity: 0.85;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.nav-icon-svg {
+  color: var(--text-900);  /* Dark in light mode */
+}
+
+[data-theme="dark"] .nav-icon-svg {
+  color: var(--scitex-color-06);  /* Bluish in dark mode */
+}
+
+/* Hover effects */
+.header-nav-item:hover .nav-icon,
+.header-nav-item:hover .nav-icon-svg {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+[data-theme="dark"] .header-nav-item:hover .nav-icon-svg {
+  color: var(--scitex-color-04);  /* More vibrant blue on hover */
+}
+
+/* =========================
+   Icon Size Standards
+   ========================= */
+
+/* Hero icons (64px) */
+.module-icon-hero img,
+.module-icon-hero svg {
+  width: 64px;
+  height: 64px;
+}
+
+/* Card icons (48px) */
+.module-icon-card img,
+.module-icon-card svg {
+  width: 48px;
+  height: 48px;
+}
+
+/* List icons (32px) */
+.module-icon-list img,
+.module-icon-list svg {
+  width: 32px;
+  height: 32px;
+}
+
+/* Inline icons (24px) */
+.module-icon-inline img,
+.module-icon-inline svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* =========================
+   Accessibility
+   ========================= */
+
+.module-emoji {
+  display: inline-block;
+  font-style: normal;
+}
+
+.module-icon-fallback .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* =========================
+   Responsive Design
+   ========================= */
+
+@media (max-width: 768px) {
+  .module-icons-grid,
+  .emoji-icons-grid {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
+  }
+
+  .icon-showcase,
+  .emoji-showcase {
+    padding: 1rem;
+  }
+
+  .emoji-icon {
+    font-size: 2.5rem;
+  }
+}

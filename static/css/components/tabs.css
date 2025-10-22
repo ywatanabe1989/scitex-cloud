@@ -1,0 +1,160 @@
+/*
+ * @component Tabs
+ * @description Tabbed interface for organizing content into separate views
+ * @category Navigation Components
+ * @file /static/css/components/tabs.css
+ * @darkmode true
+ *
+ * @variant tabs - Tab navigation container
+ * @variant tab-item - Individual tab button
+ * @variant tab-content - Content container for tab panels
+ * @variant tab-pane - Individual tab panel content
+ *
+ * @state default - Inactive tab
+ * @state active - Currently selected tab
+ * @state hover - Hover state
+ * @state disabled - Non-interactive disabled tab
+ *
+ * @example
+ * <div class="tabs">
+ *   <button class="tab-item active">Overview</button>
+ *   <button class="tab-item">Details</button>
+ *   <button class="tab-item">Settings</button>
+ * </div>
+ * <div class="tab-content">
+ *   <div class="tab-pane active">Overview content here</div>
+ *   <div class="tab-pane">Details content here</div>
+ *   <div class="tab-pane">Settings content here</div>
+ * </div>
+ *
+ * @example
+ * <div class="tabs">
+ *   <button class="tab-item active">📊 Analytics</button>
+ *   <button class="tab-item">📁 Files</button>
+ *   <button class="tab-item">⚙️ Config</button>
+ *   <button class="tab-item" disabled>🔒 Advanced</button>
+ * </div>
+ */
+
+/* =========================
+   Base Tabs Styles
+   ========================= */
+
+.tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--border-300);
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.tabs::-webkit-scrollbar {
+  height: 4px;
+}
+
+.tabs::-webkit-scrollbar-thumb {
+  background-color: var(--border-400);
+  border-radius: 2px;
+}
+
+.tab-item {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--text-700);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+  position: relative;
+  margin-bottom: -2px;
+}
+
+.tab-item:hover:not(.active):not(:disabled) {
+  color: var(--text-900);
+  border-bottom-color: var(--border-400);
+}
+
+.tab-item.active {
+  color: var(--btn-primary-bg);
+  border-bottom-color: var(--btn-primary-bg);
+  font-weight: 600;
+}
+
+.tab-item:disabled {
+  color: var(--text-400);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* =========================
+   Tab Content
+   ========================= */
+
+.tab-content {
+  position: relative;
+}
+
+.tab-pane {
+  display: none;
+}
+
+.tab-pane.active {
+  display: block;
+  animation: fadeIn 0.2s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================
+   Dark Mode
+   ========================= */
+
+[data-theme="dark"] .tabs {
+  border-bottom-color: var(--scitex-color-03);
+}
+
+[data-theme="dark"] .tab-item {
+  color: var(--scitex-color-05);
+}
+
+[data-theme="dark"] .tab-item:hover:not(.active):not(:disabled) {
+  color: var(--scitex-color-07);
+  border-bottom-color: var(--scitex-color-04);
+}
+
+[data-theme="dark"] .tab-item.active {
+  color: var(--scitex-color-06);
+  border-bottom-color: var(--scitex-color-05);
+}
+
+[data-theme="dark"] .tab-item:disabled {
+  color: var(--scitex-color-03);
+}
+
+/* =========================
+   Responsive Design
+   ========================= */
+
+@media (max-width: 768px) {
+  .tab-item {
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  .tabs {
+    margin-bottom: 1rem;
+  }
+}
