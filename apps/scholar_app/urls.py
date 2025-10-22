@@ -108,6 +108,7 @@ urlpatterns = [
     # API endpoints
     path('api/bibtex/job/<uuid:job_id>/status/', bibtex_views.bibtex_job_status, name='bibtex_job_status'),
     path('api/bibtex/job/<uuid:job_id>/download/', bibtex_views.bibtex_download_enriched, name='bibtex_download_enriched'),
+    path('api/bibtex/job/<uuid:job_id>/urls/', bibtex_views.bibtex_get_urls, name='bibtex_get_urls'),
 
     # Legacy mock endpoints
     path('api/mock/save-paper/', simple_views.mock_save_paper, name='mock_save_paper'),

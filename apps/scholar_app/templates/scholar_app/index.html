@@ -486,11 +486,14 @@ function togglePanel(panelType) {
                             <pre id="processingLog" class="terminal-log terminal-log--medium">Initializing...</pre>
                         </div>
 
-                        <!-- Download Button (shown after completion) -->
-                        <div id="downloadArea" style="display: none; text-align: center;">
+                        <!-- Download and Open URLs Buttons (shown after completion) -->
+                        <div id="downloadArea" style="display: none; text-align: center; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
                             <a id="downloadBtn" href="#" style="display: inline-block; padding: 1rem 2rem; background: var(--success-color); color: var(--white); border-radius: 8px; text-decoration: none; font-weight: 600;">
                                 <i class="fas fa-download"></i> Download Enriched BibTeX
                             </a>
+                            <button id="openUrlsBtn" onclick="openAllPaperUrls()" style="display: inline-block; padding: 1rem 2rem; background: var(--scitex-color-04); color: var(--white); border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                                <i class="fas fa-external-link-alt"></i> Open All URLs (<span id="urlCount">0</span>)
+                            </button>
                         </div>
                     </div>
 
@@ -2415,11 +2418,25 @@ function pollBibtexJobStatus(jobId, attempts = 0) {
             if (data.status === 'completed') {
                 console.log('[Scholar Index] Job completed! Setting up download...');
                 const downloadUrl = `/scholar/api/bibtex/job/${jobId}/download/`;
+                const urlsUrl = `/scholar/api/bibtex/job/${jobId}/urls/`;
                 console.log('[Scholar Index] Download URL:', downloadUrl);
 
                 document.getElementById('downloadBtn').href = downloadUrl;
-                document.getElementById('downloadArea').style.display = 'block';
+                document.getElementById('downloadArea').style.display = 'flex';
                 console.log('[Scholar Index] Download button shown');
+
+                // Fetch URL count for the "Open All URLs" button
+                fetch(urlsUrl)
+                    .then(response => response.json())
+                    .then(urlData => {
+                        const count = urlData.total_urls || 0;
+                        document.getElementById('urlCount').textContent = count;
+                        console.log('[Scholar Index] URL count updated:', count);
+                    })
+                    .catch(error => {
+                        console.error('[Scholar Index] Failed to fetch URL count:', error);
+                        document.getElementById('urlCount').textContent = '?';
+                    });
 
                 // Auto-download the enriched file
                 console.log('[Scholar Index] Triggering auto-download for:', downloadUrl);
@@ -2494,6 +2511,54 @@ function autoDownloadBibtexFile(url) {
             document.body.appendChild(a);
             a.click();
             setTimeout(() => document.body.removeChild(a), 100);
+        });
+}
+
+// Open all paper URLs from enriched BibTeX file
+function openAllPaperUrls() {
+    const jobId = window.currentBibtexJobId;
+    if (!jobId) {
+        alert('No job ID available. Please wait for enrichment to complete.');
+        return;
+    }
+
+    console.log('[Open URLs] Fetching URLs for job:', jobId);
+    const urlsEndpoint = `/scholar/api/bibtex/job/${jobId}/urls/`;
+
+    fetch(urlsEndpoint)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('[Open URLs] Received data:', data);
+
+            if (data.urls && data.urls.length > 0) {
+                const confirmMsg = `Open ${data.total_urls} paper URL(s) in new tabs?\n\n` +
+                    `Note: Your browser may block some pop-ups. Please allow pop-ups for this site if needed.`;
+
+                if (confirm(confirmMsg)) {
+                    console.log(`[Open URLs] Opening ${data.urls.length} URLs...`);
+
+                    // Open URLs with a small delay between each to avoid browser blocking
+                    data.urls.forEach((paper, index) => {
+                        setTimeout(() => {
+                            console.log(`[Open URLs] Opening: ${paper.title.substring(0, 50)}... (${paper.type})`);
+                            window.open(paper.url, '_blank');
+                        }, index * 100); // 100ms delay between each tab
+                    });
+
+                    alert(`✓ Opened ${data.urls.length} paper URL(s) in new tabs.`);
+                }
+            } else {
+                alert('No URLs found in the enriched BibTeX file.\n\nThis could mean:\n- Papers don\'t have DOI or URL fields\n- Enrichment didn\'t add URLs\n- Try downloading the file to check');
+            }
+        })
+        .catch(error => {
+            console.error('[Open URLs] Error:', error);
+            alert(`Failed to fetch URLs: ${error.message}\n\nPlease try downloading the BibTeX file manually.`);
         });
 }
 </script>
