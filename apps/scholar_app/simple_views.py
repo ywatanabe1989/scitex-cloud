@@ -1530,12 +1530,21 @@ def bibtex_enrichment_view(request):
         from apps.project_app.models import Project
         user_projects = Project.objects.filter(owner=request.user).order_by('-created_at')
 
+    # Default filter ranges (used when no search results)
+    filter_ranges = {
+        'citations_min': 0,
+        'citations_max': 12000,
+        'impact_factor_min': 0,
+        'impact_factor_max': 50.0,
+    }
+
     context = {
         'query': '',  # No search query for BibTeX tab
         'results': [],
         'has_results': False,
         'user_projects': user_projects,
         'active_tab': 'bibtex',  # Indicate which tab is active
+        'filter_ranges': filter_ranges,  # Add default filter ranges
     }
 
     return render(request, 'scholar_app/index.html', context)
