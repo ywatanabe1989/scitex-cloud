@@ -341,6 +341,24 @@ ORCID_REDIRECT_URI = os.getenv(
 )
 
 # ---------------------------------------
+# SciTeX Scholar Search Settings
+# ---------------------------------------
+# Enable/disable search pipeline caching
+SCITEX_USE_CACHE = os.getenv("SCITEX_USE_CACHE", "True").lower() in ["true", "1", "yes"]
+
+# Maximum parallel workers for parallel search pipeline
+SCITEX_MAX_WORKERS = int(os.getenv("SCITEX_MAX_WORKERS", "5"))
+
+# Timeout per engine in seconds
+SCITEX_TIMEOUT_PER_ENGINE = int(os.getenv("SCITEX_TIMEOUT_PER_ENGINE", "30"))
+
+# Preferred engines (comma-separated, e.g., "PubMed,CrossRef,arXiv")
+SCITEX_ENGINES = os.getenv("SCITEX_ENGINES", "CrossRef,PubMed,Semantic_Scholar,arXiv,OpenAlex").split(",")
+
+# Default search mode: "parallel" or "single"
+SCITEX_DEFAULT_MODE = os.getenv("SCITEX_DEFAULT_MODE", "parallel")
+
+# ---------------------------------------
 # REST Framework
 # ---------------------------------------
 REST_FRAMEWORK = {

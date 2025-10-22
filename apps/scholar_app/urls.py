@@ -13,6 +13,7 @@ __DIR__ = os.path.dirname(__FILE__)
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from . import views, simple_views, repository_views, api_views, bibtex_views, default_workspace_views
+from .scholar import scitex_search
 
 app_name = 'scholar_app'
 
@@ -65,6 +66,11 @@ urlpatterns = [
     path('api/search/doaj/', simple_views.api_search_doaj, name='api_search_doaj'),
     path('api/search/biorxiv/', simple_views.api_search_biorxiv, name='api_search_biorxiv'),
     path('api/search/plos/', simple_views.api_search_plos, name='api_search_plos'),
+
+    # SciTeX integrated search endpoints
+    path('api/search/scitex/', scitex_search.api_scitex_search, name='api_scitex_search'),
+    path('api/search/scitex/single/', scitex_search.api_scitex_search_single, name='api_scitex_search_single'),
+    path('api/search/scitex/capabilities/', scitex_search.api_scitex_capabilities, name='api_scitex_capabilities'),
 
     # Citation Export endpoints
     path('api/export/bibtex/', simple_views.export_bibtex, name='export_bibtex'),

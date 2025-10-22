@@ -39,24 +39,9 @@
 
     {% include "scholar_app/index_partials/pagination.html" %}
   </div>
-</div>
-</div>
-{% else %}
-<!-- <\!-- Quick Examples -\->
-     !-- <div class="row justify-content-center">
-     !--     <div class="col-lg-8 text-center">
-     !--         <div class="mt-4">
-     !--             <p class="mb-3">Try searching for:</p>
-     !--             <div class="d-flex flex-wrap justify-content-center gap-2">
-     !--                 <a href="?q=neural mechanisms visual attention" class="btn btn-outline-primary btn-sm">neural mechanisms visual attention</a>
-     !--                 <a href="?q=machine learning neuroscience" class="btn btn-outline-primary btn-sm">machine learning neuroscience</a>
-     !--                 <a href="?q=fMRI attention networks" class="btn btn-outline-primary btn-sm">fMRI attention networks</a>
-     !--                 <a href="?q=computational vision models" class="btn btn-outline-primary btn-sm">computational vision models</a>
-     !--             </div>
-     !--         </div>
-     !--     </div>
-     !-- </div> -->
-     {% endif %}
+  {% else %}
+  <!-- Empty state when no query -->
+  {% endif %}
 </div>
 
 <!-- Configuration for JavaScript -->
