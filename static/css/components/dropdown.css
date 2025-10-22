@@ -1,4 +1,49 @@
-/* SciTeX Cloud - Dropdown Component */
+/*
+ * @component Dropdown Menu
+ * @description Toggleable dropdown menu for navigation and actions (user menus, action buttons, etc.). For form selection dropdowns, use the Select Dropdown component instead.
+ * @category Navigation Components
+ * @file /static/css/components/dropdown.css
+ * @darkmode false
+ *
+ * @variant dropdown - Container for dropdown component
+ * @variant dropdown-toggle - Clickable trigger element with caret
+ * @variant dropdown-menu - Hidden menu that appears on hover/click
+ * @variant dropdown-item - Individual menu item link
+ * @variant dropdown-divider - Horizontal divider between items
+ * @variant dropdown-menu-end - Right-aligned dropdown menu
+ *
+ * @state closed - Menu hidden (default)
+ * @state open - Menu visible with animation
+ * @state hover - Toggle and item hover states with transitions
+ * @state mobile - Simplified mobile view (<768px)
+ * @state desktop - Hover-triggered view (>768px)
+ *
+ * @example
+ * <div class="dropdown">
+ *   <a href="#" class="dropdown-toggle">Actions</a>
+ *   <div class="dropdown-menu show">
+ *     <a href="#" class="dropdown-item">Edit</a>
+ *     <a href="#" class="dropdown-item">Delete</a>
+ *     <div class="dropdown-divider"></div>
+ *     <a href="#" class="dropdown-item">Share</a>
+ *   </div>
+ * </div>
+ *
+ * @example
+ * <div class="dropdown">
+ *   <a href="#" class="dropdown-toggle">User Menu</a>
+ *   <div class="dropdown-menu dropdown-menu-end">
+ *     <a href="#" class="dropdown-item"><i class="icon"></i>Profile</a>
+ *     <a href="#" class="dropdown-item"><i class="icon"></i>Settings</a>
+ *     <div class="dropdown-divider"></div>
+ *     <a href="#" class="dropdown-item"><i class="icon"></i>Logout</a>
+ *   </div>
+ * </div>
+ */
+
+/* =========================
+   Dropdown Styles
+   ========================= */
 
 .dropdown {
   position: relative;

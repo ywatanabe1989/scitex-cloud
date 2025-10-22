@@ -1,0 +1,218 @@
+/*
+ * @component Navbar
+ * @description Top navigation bar with branding, links, and actions
+ * @category Navigation Components
+ * @file /static/css/components/navbar.css
+ * @darkmode true
+ *
+ * @variant navbar - Main navbar container
+ * @variant navbar-brand - Logo/brand area
+ * @variant navbar-nav - Navigation links container
+ * @variant nav-item - Individual navigation item
+ * @variant nav-link - Navigation link
+ * @variant navbar-toggler - Mobile menu toggle button
+ * @variant navbar-collapse - Collapsible navbar content
+ *
+ * @state default - Normal state
+ * @state active - Active/current page link
+ * @state hover - Hover state for links
+ * @state collapsed - Mobile collapsed state
+ * @state expanded - Mobile expanded state
+ *
+ * @example
+ * <nav class="navbar">
+ *   <div class="navbar-brand">
+ *     <a href="/" class="brand-logo">SciTeX</a>
+ *   </div>
+ *   <ul class="navbar-nav">
+ *     <li class="nav-item"><a href="#" class="nav-link active">Home</a></li>
+ *     <li class="nav-item"><a href="#" class="nav-link">About</a></li>
+ *     <li class="nav-item"><a href="#" class="nav-link">Contact</a></li>
+ *   </ul>
+ * </nav>
+ *
+ * @example
+ * <nav class="navbar">
+ *   <div class="navbar-brand">
+ *     <a href="/" class="brand-logo">SciTeX Cloud</a>
+ *   </div>
+ *   <button class="navbar-toggler">☰</button>
+ *   <div class="navbar-collapse">
+ *     <ul class="navbar-nav">
+ *       <li class="nav-item"><a href="#" class="nav-link">Dashboard</a></li>
+ *       <li class="nav-item"><a href="#" class="nav-link">Projects</a></li>
+ *       <li class="nav-item"><a href="#" class="nav-link">Settings</a></li>
+ *     </ul>
+ *   </div>
+ * </nav>
+ */
+
+/* =========================
+   Base Navbar Styles
+   ========================= */
+
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  background-color: var(--bg-100);
+  border-bottom: 1px solid var(--border-300);
+  position: relative;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.brand-logo {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-900);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.brand-logo:hover {
+  color: var(--btn-primary-bg);
+}
+
+/* =========================
+   Navigation Links
+   ========================= */
+
+.navbar-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-item {
+  position: relative;
+}
+
+.nav-link {
+  display: block;
+  padding: 0.5rem 1rem;
+  color: var(--text-800);
+  text-decoration: none;
+  font-weight: 500;
+  border-radius: var(--border-radius);
+  transition: all var(--transition-fast);
+}
+
+.nav-link:hover {
+  color: var(--btn-primary-bg);
+  background-color: var(--bg-200);
+}
+
+.nav-link.active {
+  color: var(--btn-primary-bg);
+  background-color: var(--bg-300);
+  font-weight: 600;
+}
+
+/* =========================
+   Mobile Toggle
+   ========================= */
+
+.navbar-toggler {
+  display: none;
+  background: transparent;
+  border: 1px solid var(--border-400);
+  padding: 0.5rem 0.75rem;
+  font-size: 1.25rem;
+  cursor: pointer;
+  border-radius: var(--border-radius);
+  color: var(--text-800);
+}
+
+.navbar-toggler:hover {
+  background-color: var(--bg-200);
+}
+
+.navbar-collapse {
+  display: flex;
+  align-items: center;
+}
+
+/* =========================
+   Dark Mode
+   ========================= */
+
+[data-theme="dark"] .navbar {
+  background-color: var(--scitex-color-01-light);
+  border-bottom-color: var(--scitex-color-03);
+}
+
+[data-theme="dark"] .brand-logo {
+  color: var(--scitex-color-07);
+}
+
+[data-theme="dark"] .brand-logo:hover {
+  color: var(--scitex-color-05);
+}
+
+[data-theme="dark"] .nav-link {
+  color: var(--scitex-color-06);
+}
+
+[data-theme="dark"] .nav-link:hover {
+  color: var(--scitex-color-07);
+  background-color: var(--scitex-color-01);
+}
+
+[data-theme="dark"] .nav-link.active {
+  color: var(--scitex-color-07);
+  background-color: var(--scitex-color-02);
+}
+
+[data-theme="dark"] .navbar-toggler {
+  border-color: var(--scitex-color-04);
+  color: var(--scitex-color-06);
+}
+
+[data-theme="dark"] .navbar-toggler:hover {
+  background-color: var(--scitex-color-01);
+}
+
+/* =========================
+   Responsive Design
+   ========================= */
+
+@media (max-width: 768px) {
+  .navbar {
+    flex-wrap: wrap;
+    padding: 1rem;
+  }
+
+  .navbar-toggler {
+    display: block;
+  }
+
+  .navbar-collapse {
+    flex-basis: 100%;
+    display: none;
+    margin-top: 1rem;
+  }
+
+  .navbar-collapse.show {
+    display: flex;
+  }
+
+  .navbar-nav {
+    flex-direction: column;
+    width: 100%;
+    gap: 0;
+  }
+
+  .nav-link {
+    width: 100%;
+    padding: 0.75rem 1rem;
+  }
+}

@@ -1,55 +1,51 @@
 <!-- ---
-!-- Timestamp: 2025-10-20 10:08:45
+!-- Timestamp: 2025-10-22 01:55:59
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/TODOS/10_SCITEX_SCHOLAR.md
 !-- --- -->
 
-### Reference Management Integration
+DON'T TELL A LIE
+YOU **MUST** confirm your statement with visual check or user confirmation
+Django server is running with hot reloading
+User is checking the webpage with Ctrl + Shift + R to clear cache
 
-see ~/proj/scitex_repo/src/scitex/scholar/pipelines/
 
-### Guide Users
+### Scholar System TODOs
 
-## **Enrich Mode**
+Fill checkboxes of this file when implemented and confirmed their functionality correctly
 
-### Step 1.
-Users can create *.bib files from AI2
+## scitex.scholar module is available in ~/proj/scitex_repo/src/scitex/scholar
 
-``` plaintex
-**You can get BibTeX files from AI2 Scholar QA their optimized LLM**
-   - Visit [Scholar QA](https://scholarqa.allen.ai/chat/)
-   - Ask literature questions
-   - Click "Export All Citations" to save as BibTeX file (*.bib)
-```
-
-e.g., 
-~/.scitex/scholar/library/seizure_prediction/info/bibliography/seizure_prediction.bib
-
-### Step 2.
-Users bib files can be enhanced to metadata-rich version using our scholar pipelines
-- [ ] ~/.scitex/scholar/library/seizure_prediction/info/bibliography/seizure_prediction_processed.bib
-  - [ ] Check if why this is not saved there
-- [ ] /home/ywatanabe/.scitex/scholar/library/seizure_prediction
-
-### **PDF Download Mode**
+### **PDF Download Mode** (Future Feature)
 - [ ] First only open papers
 - [ ] Paywalled papers can be obtained by correctly setting authentication
   - [ ] Currently, we have confirmed `OpenAthens + OpenURL` locally
   - [ ] About 70% of papers downloaded (~/.scitex/scholar/library/neurovista)
 - [ ] We need to plan how to serve this functionality
+- [ ] Yes, but your instinct is right; the index html should be index.html instead of index.html
+  - [ ] So, after index.html implemented, please 
 
----
-
-## **Search Mode**
-- [ ] We can offer search functionality from various sources
-  - [ ] However, we highly recommend to use the AI2 Scholar QA for bulk & semantic search
-- [ ] Search from query
-  - [ ] Use external APIs
-  - [ ] Use local CrossRef (only in dev; NAS has this)
-- [ ] Current we might only accept doi and titles in the pipeline
-- [ ] So, we need to update our metadata_engines (ScholarEngine? API)
+### Next Steps (Optional Enhancements)
+- [ ] Add ability to cancel running jobs
+- [ ] Batch upload multiple BibTeX files
+- [ ] Compare before/after enrichment statistics
 
 
----
+### Speed up is due to cache
+### We need to handle multiple jobs due to computational limits
+
+### Login not accepted now
+This should be working but ... why?
+username: ywatanabe
+pw: REDACTED
+
+### From project
+no need for this page: http://127.0.0.1:8000/ywatanabe/django-gitea-demo/?mode=scholar
+instead, redirect to /scholar/ as well, filling the page to the latest project
+
+### Open All URLS functionality
+When bibtex updated or after enrichment try to open new URLs from doi and URL fields
+when doi is available we should prioritize doi, adding https://doi.org/ as prefix
+By opening all by new tabs, users can effectively download PDF files (and if possible to our designated directory with naming)
 
 <!-- EOF -->
