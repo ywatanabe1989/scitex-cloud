@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-22 13:42:51
+!-- Timestamp: 2025-10-22 14:23:51
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/TODOS/10_SCITEX_SCHOLAR.md
 !-- --- -->
@@ -49,14 +49,22 @@ Fill checkboxes of this file when implemented and confirmed their functionality 
   - **Impact**: BibTeX upload, Show What Enhanced, Open URLs buttons now work correctly
   - **Files Modified**: `apps/scholar_app/templates/scholar_app/index.html`
 
+### Refactoring ✅ (Completed)
+- [x] **Heavy HTML refactored**: index.html reduced from 2,694 lines to 638 lines (76% reduction)
+  - **CSS Extraction**: 388 lines extracted to `static/styles/scholar-index.css`
+  - **JavaScript Extraction**: 2,059 lines extracted to modular files:
+    - `static/scripts/panel-toggle.js` (48 lines) - Split-screen panel functionality
+    - `static/scripts/scholar-index-main.js` (2,011 lines) - Main functionality (BibTeX upload, search, diff, URLs, resource monitor)
+  - **Files Modified**:
+    - `/home/ywatanabe/proj/scitex-cloud/apps/scholar_app/templates/scholar_app/index.html`
+    - Removed all inline `<style>` tags (lines 11-342)
+    - Removed all inline `<script>` tags (lines 639-2644)
+    - Added external CSS/JS imports via Django static template tags
+  - **Result**: Clean, maintainable HTML template with proper separation of concerns
+
 ### Next Steps (Future Enhancements)
 
-### Refactoring
-we cannot accept heavy html pages
-/home/ywatanabe/proj/scitex-cloud/apps/scholar_app/templates/scholar_app/index.html
-should be refactored using
-/home/ywatanabe/proj/scitex-cloud/apps/scholar_app/static/scholar_app/styles/*.css
-/home/ywatanabe/proj/scitex-cloud/apps/scholar_app/static/scholar_app/scripts/*.js
+
 
 ### Open All URLS functionality ✅
 - [x] When bibtex updated or after enrichment try to open new URLs from doi and URL fields
