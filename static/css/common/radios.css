@@ -1,30 +1,36 @@
 /*
- * SciTeX Radio Button Component
- * Custom-styled segmented radio button groups with theme support
- * 📁 Source: /static/css/common/radios.css
- * 📖 Docs: /dev/design/#radios
+ * @component Segmented Radio Control
+ * @description Segmented radio button groups with circular radio indicators (iOS-style segmented control). Each option shows a circular radio button indicator.
+ * @category Form and Selection
+ * @file /static/css/common/radios.css
+ * @darkmode true
  *
- * Component Definition:
- * - .scitex-radio         # Hidden native radio input
- * - .scitex-radio-label   # Custom styled label (button-like)
- * - .scitex-radio-group   # Container for radio buttons (segmented control)
+ * @variant scitex-radio - Hidden native radio input
+ * @variant scitex-radio-label - Button-style label with circular radio indicator
+ * @variant scitex-radio-group - Container creating segmented control
+ * @variant scitex-radio-group-sm - Smaller size variant
  *
- * Variants:
- * - .scitex-radio-group-sm  # Smaller size variant
+ * @state default - Unchecked with empty circle indicator
+ * @state checked - Circle filled with primary color and inner dot
+ * @state hover - Background highlight on hover
+ * @state mobile - Stacks vertically on mobile (<768px)
  *
- * States:
- * - Default (unchecked)
- * - Checked (filled background)
- * - Hover (light background)
- * - Dark mode variants
- *
- * Usage:
+ * @example
  * <div class="scitex-radio-group">
- *   <input type="radio" id="option1" name="group" class="scitex-radio">
- *   <label for="option1" class="scitex-radio-label">Option 1</label>
+ *   <input type="radio" id="all" name="sources" class="scitex-radio" checked>
+ *   <label for="all" class="scitex-radio-label">All Sources</label>
+ *   <input type="radio" id="pubmed" name="sources" class="scitex-radio">
+ *   <label for="pubmed" class="scitex-radio-label">PubMed</label>
+ *   <input type="radio" id="scholar" name="sources" class="scitex-radio">
+ *   <label for="scholar" class="scitex-radio-label">Scholar</label>
+ * </div>
  *
- *   <input type="radio" id="option2" name="group" class="scitex-radio">
- *   <label for="option2" class="scitex-radio-label">Option 2</label>
+ * @example
+ * <div class="scitex-radio-group scitex-radio-group-sm">
+ *   <input type="radio" id="opt1" name="small" class="scitex-radio" checked>
+ *   <label for="opt1" class="scitex-radio-label">Option 1</label>
+ *   <input type="radio" id="opt2" name="small" class="scitex-radio">
+ *   <label for="opt2" class="scitex-radio-label">Option 2</label>
  * </div>
  */
 
@@ -45,24 +51,38 @@
     gap: 0;
     border-radius: 8px;
     overflow: hidden;
-    border: 1px solid var(--mid-gray);
+    border: 1px solid var(--border-300);
 }
 
-/* Radio button labels (button-like appearance) */
+/* Radio button labels (with circular radio indicator) */
 .scitex-radio-label {
-    background-color: white;
+    background-color: var(--bg-100);
     border: none;
-    border-right: 1px solid var(--mid-gray);
-    color: var(--primary-color);
+    border-right: 1px solid var(--border-300);
+    color: var(--text-800);
     padding: 0.5rem 1rem;
+    padding-left: 2.5rem;
     font-weight: 500;
     text-decoration: none;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
     transition: var(--transition-fast);
     cursor: pointer;
     position: relative;
     min-width: 80px;
-    text-align: center;
+}
+
+/* Circular radio indicator */
+.scitex-radio-label::before {
+    content: '';
+    position: absolute;
+    left: 0.75rem;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--border-400);
+    border-radius: 50%;
+    background-color: var(--bg-100);
+    transition: var(--transition-fast);
 }
 
 .scitex-radio-label:last-child {
@@ -70,7 +90,11 @@
 }
 
 .scitex-radio-label:hover {
-    background-color: var(--light-gray);
+    background-color: var(--bg-200);
+}
+
+.scitex-radio-label:hover::before {
+    border-color: var(--btn-primary-bg);
 }
 
 /* =========================
@@ -78,13 +102,25 @@
    ========================= */
 
 .scitex-radio:checked + .scitex-radio-label {
-    background-color: var(--primary-color);
-    color: white;
+    background-color: var(--bg-200);
+    color: var(--text-900);
     font-weight: 600;
 }
 
+/* Filled circle indicator when checked */
+.scitex-radio:checked + .scitex-radio-label::before {
+    border-color: var(--btn-primary-bg);
+    background-color: var(--btn-primary-bg);
+    box-shadow: inset 0 0 0 4px var(--bg-100);
+}
+
 .scitex-radio:checked + .scitex-radio-label:hover {
-    background-color: var(--secondary-color);
+    background-color: var(--bg-300);
+}
+
+.scitex-radio:checked + .scitex-radio-label:hover::before {
+    border-color: var(--btn-primary-bg-hover);
+    background-color: var(--btn-primary-bg-hover);
 }
 
 /* =========================
@@ -109,10 +145,16 @@
 
     .scitex-radio-label {
         border-right: none;
-        border-bottom: 1px solid var(--mid-gray);
+        border-bottom: 1px solid var(--border-300);
     }
 
     .scitex-radio-label:last-child {
         border-bottom: none;
     }
 }
+
+/* =========================
+   Theme Support
+   ========================= */
+/* Semantic tokens automatically handle light/dark mode switching.
+   No manual theme-specific styles needed! */

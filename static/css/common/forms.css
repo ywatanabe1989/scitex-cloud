@@ -1,4 +1,74 @@
-/* SciTeX Web - Form Styles */
+/*
+ * @component Form Input
+ * @description Standard form input controls including text fields, textareas, selects, and input groups
+ * @category Form and Selection
+ * @file /static/css/common/forms.css
+ * @darkmode true
+ *
+ * @variant form-control - Base input/textarea/select field
+ * @variant form-label - Label for form fields
+ * @variant form-group - Wrapper for label + input with spacing
+ * @variant form-check - Checkbox/radio wrapper
+ * @variant form-check-input - Native checkbox/radio input
+ * @variant form-check-label - Label for checkbox/radio
+ * @variant input-group - Container for input with prefix/suffix
+ * @variant input-group-text - Prefix/suffix text or icon
+ * @variant input-group-prepend - Prefix container
+ * @variant input-group-append - Suffix container
+ * @variant form-control-sm - Small input size
+ * @variant form-control-lg - Large input size
+ *
+ * @state default - Normal interactive state
+ * @state focus - Highlighted border and shadow when focused
+ * @state disabled - Non-interactive disabled state
+ * @state readonly - Read-only state (not editable)
+ * @state valid - Valid input state (green border with checkmark icon)
+ * @state invalid - Invalid input state (red border with error icon)
+ * @state warning - Warning input state (yellow border with warning icon)
+ *
+ * @example
+ * <div class="form-group">
+ *   <label class="form-label" for="email">Email Address</label>
+ *   <input type="email" id="email" class="form-control" placeholder="you@example.com">
+ *   <div class="form-text">We'll never share your email with anyone else.</div>
+ * </div>
+ *
+ * @example
+ * <div class="form-group">
+ *   <label class="form-label" for="username">Username</label>
+ *   <input type="text" id="username" class="form-control is-valid" value="john_doe">
+ *   <div class="valid-feedback">Looks good!</div>
+ * </div>
+ *
+ * @example
+ * <div class="form-group">
+ *   <label class="form-label" for="password">Password</label>
+ *   <input type="password" id="password" class="form-control is-invalid" value="123">
+ *   <div class="invalid-feedback">Password must be at least 8 characters.</div>
+ * </div>
+ *
+ * @example
+ * <div class="form-group">
+ *   <label class="form-label" for="age">Age</label>
+ *   <input type="number" id="age" class="form-control is-warning" value="17">
+ *   <div class="warning-feedback">You must be 18 or older to proceed.</div>
+ * </div>
+ *
+ * @example
+ * <div class="form-group">
+ *   <label class="form-label" for="country">Country</label>
+ *   <select id="country" class="form-control">
+ *     <option>Select country...</option>
+ *     <option>United States</option>
+ *     <option>United Kingdom</option>
+ *     <option>Canada</option>
+ *   </select>
+ * </div>
+ */
+
+/* =========================
+   Base Form Styles
+   ========================= */
 
 /* Form Group */
 .form-group {
@@ -25,31 +95,33 @@
   padding: 0.75rem var(--spacing-md);
   font-size: 1rem;
   line-height: 1.5;
-  color: var(--color-fg-default);
-  background-color: var(--color-canvas-default);
+  color: var(--text-900);
+  background-color: var(--bg-100);
   background-clip: padding-box;
-  border: var(--border-width) solid var(--color-border-default);
+  border: 2px solid var(--border-400);
   border-radius: var(--border-radius);
   transition: border-color var(--transition-normal), box-shadow var(--transition-normal);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 /* Dark mode form controls - bluish theme */
 [data-theme="dark"] .form-control {
   color: var(--scitex-color-06);
   background-color: var(--scitex-color-01-light);
-  border-color: var(--scitex-color-03);
+  border-color: var(--scitex-color-04);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .form-control:focus {
-  border-color: var(--secondary-color);
+  border-color: var(--btn-primary-bg);
   outline: 0;
-  box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+  box-shadow: 0 0 0 3px rgba(74, 107, 175, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 /* Dark mode focus state - bluish glow */
 [data-theme="dark"] .form-control:focus {
-  border-color: var(--scitex-color-04);
-  box-shadow: 0 0 0 0.2rem rgba(108, 139, 160, 0.25);
+  border-color: var(--scitex-color-05);
+  box-shadow: 0 0 0 3px rgba(108, 139, 160, 0.2), 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .form-control::placeholder {
@@ -144,18 +216,18 @@ select.form-control {
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.5;
-  color: var(--color-fg-default);
+  color: var(--text-800);
   text-align: center;
   white-space: nowrap;
-  background-color: var(--color-canvas-subtle);
-  border: var(--border-width) solid var(--color-border-default);
+  background-color: var(--bg-200);
+  border: 2px solid var(--border-400);
 }
 
 /* Dark mode input group text - bluish theme */
 [data-theme="dark"] .input-group-text {
   color: var(--scitex-color-06);
   background-color: var(--scitex-color-01);
-  border-color: var(--scitex-color-03);
+  border-color: var(--scitex-color-04);
 }
 
 .input-group-prepend .input-group-text {
@@ -180,17 +252,83 @@ select.form-control {
   border-bottom-left-radius: 0;
 }
 
-/* Form Validation */
+/* =========================
+   Form Validation & Feedback
+   ========================= */
+
+/* Helper text (hint/description) */
+.form-text,
+.form-helper-text {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: var(--text-600);
+  line-height: 1.4;
+}
+
+[data-theme="dark"] .form-text,
+[data-theme="dark"] .form-helper-text {
+  color: var(--scitex-color-05);
+}
+
+/* Valid state */
 .was-validated .form-control:valid,
 .form-control.is-valid {
   border-color: var(--success-color);
 }
 
+.was-validated .form-control:valid:not(select),
+.form-control.is-valid:not(select) {
+  padding-right: 2.5rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2328a745' viewBox='0 0 16 16'%3E%3Cpath d='M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1rem;
+}
+
+/* Invalid state */
 .was-validated .form-control:invalid,
 .form-control.is-invalid {
   border-color: var(--error-color);
 }
 
+.was-validated .form-control:invalid:not(select),
+.form-control.is-invalid:not(select) {
+  padding-right: 2.5rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23dc3545' viewBox='0 0 16 16'%3E%3Cpath d='M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z'/%3E%3Cpath d='M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1rem;
+}
+
+/* Warning state */
+.form-control.is-warning {
+  border-color: var(--warning-color);
+}
+
+.form-control.is-warning:not(select) {
+  padding-right: 2.5rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23ffc107' viewBox='0 0 16 16'%3E%3Cpath d='M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1rem;
+}
+
+/* Valid feedback (success message) */
+.valid-feedback {
+  display: none;
+  width: 100%;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: var(--success-color);
+}
+
+.was-validated .form-control:valid ~ .valid-feedback,
+.form-control.is-valid ~ .valid-feedback {
+  display: block;
+}
+
+/* Invalid feedback (error message) */
 .invalid-feedback {
   display: none;
   width: 100%;
@@ -202,6 +340,30 @@ select.form-control {
 .was-validated .form-control:invalid ~ .invalid-feedback,
 .form-control.is-invalid ~ .invalid-feedback {
   display: block;
+}
+
+/* Warning feedback */
+.warning-feedback {
+  display: none;
+  width: 100%;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: var(--warning-color);
+}
+
+.form-control.is-warning ~ .warning-feedback {
+  display: block;
+}
+
+/* Validation icons for checkboxes and radios */
+.was-validated .form-check-input:valid ~ .form-check-label,
+.form-check-input.is-valid ~ .form-check-label {
+  color: var(--success-color);
+}
+
+.was-validated .form-check-input:invalid ~ .form-check-label,
+.form-check-input.is-invalid ~ .form-check-label {
+  color: var(--error-color);
 }
 
 /* Form Sizes */

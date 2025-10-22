@@ -68,7 +68,7 @@
 | Number Input | ✅ Implemented | `forms.css` | ✅ Complete | **Phase 1** |
 | Email Input | ✅ Implemented | `forms.css` | ✅ Complete | **Phase 1** |
 | Password Input | ✅ Implemented | `forms.css` | ✅ Complete | **Phase 1** |
-| Search Input | ⚠️ Partial | `simple_search.html` (inline) | ✅ Complete | **Phase 1** |
+| Search Input | ⚠️ Partial | `index.html` (inline) | ✅ Complete | **Phase 1** |
 | URL Input | ✅ Implemented | `forms.css` | ✅ Complete | **Phase 1** |
 | Tel Input | ✅ Implemented | `forms.css` | ✅ Complete | **Phase 1** |
 

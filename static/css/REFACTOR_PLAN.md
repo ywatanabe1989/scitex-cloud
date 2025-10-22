@@ -152,7 +152,7 @@ git commit -m "feat: Add dark mode support for forms and checkboxes
 📁 Modified files:
 - static/css/common/forms.css
 - static/css/common/scitex-components.css
-- apps/scholar_app/templates/scholar_app/simple_search.html"
+- apps/scholar_app/templates/scholar_app/index.html"
 
 git checkout -b refactor/css-modular-architecture
 ```
@@ -219,7 +219,7 @@ scitex-components.css:
 **Files to update:**
 ```
 ✅ Already using scitex-components.css:
-- apps/scholar_app/templates/scholar_app/simple_search.html
+- apps/scholar_app/templates/scholar_app/index.html
 - apps/scholar_app/templates/scholar_app/search_dashboard.html
 
 🔍 Check for direct imports:

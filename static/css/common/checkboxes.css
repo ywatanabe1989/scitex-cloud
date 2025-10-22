@@ -1,25 +1,29 @@
 /*
- * SciTeX Checkbox Component
- * Custom-styled checkboxes with theme support
- * 📁 Source: /static/css/common/checkboxes.css
- * 📖 Docs: /dev/design/#checkboxes
+ * @component Checkbox
+ * @description Custom-styled checkboxes with theme support
+ * @category Form and Selection
+ * @file /static/css/common/checkboxes.css
+ * @darkmode true
  *
- * Component Definition:
- * - .scitex-checkbox         # Hidden native checkbox input
- * - .scitex-checkbox-label   # Custom styled label with visual checkbox
- * - .scitex-checkbox-wrapper # Optional wrapper for positioning
+ * @variant scitex-checkbox - Hidden native checkbox input
+ * @variant scitex-checkbox-label - Custom styled label with visual checkbox
+ * @variant scitex-checkbox-wrapper - Optional wrapper for positioning
  *
- * States:
- * - Default (unchecked)
- * - Checked (with checkmark icon)
- * - Hover (background highlight)
- * - Disabled
- * - Dark mode variants
+ * @state default - Unchecked state with border
+ * @state checked - Checked with white checkmark icon
+ * @state hover - Background highlight on label hover
+ * @state disabled - Reduced opacity (not yet implemented)
  *
- * Usage:
+ * @example
  * <div class="scitex-checkbox-wrapper">
- *   <input type="checkbox" id="myCheckbox" class="scitex-checkbox">
- *   <label for="myCheckbox" class="scitex-checkbox-label">Label Text</label>
+ *   <input type="checkbox" id="option1" class="scitex-checkbox">
+ *   <label for="option1" class="scitex-checkbox-label">Option 1</label>
+ * </div>
+ *
+ * @example
+ * <div class="scitex-checkbox-wrapper">
+ *   <input type="checkbox" id="option2" class="scitex-checkbox" checked>
+ *   <label for="option2" class="scitex-checkbox-label">Option 2 (Checked)</label>
  * </div>
  */
 

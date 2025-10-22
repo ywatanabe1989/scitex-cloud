@@ -54,6 +54,9 @@
 @import './radios.css';
 @import './toggles.css';
 
+/* Data display components */
+@import './badges.css';
+
 /* Note: buttons.css and forms.css are imported separately in the main CSS entry point */
 
 /* =========================
