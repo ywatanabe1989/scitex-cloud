@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-22 14:23:51
+!-- Timestamp: 2025-10-22 14:40:52
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/TODOS/10_SCITEX_SCHOLAR.md
 !-- --- -->
@@ -64,55 +64,21 @@ Fill checkboxes of this file when implemented and confirmed their functionality 
 
 ### Next Steps (Future Enhancements)
 
+/home/ywatanabe/proj/scitex-cloud/apps/scholar_app/templates/scholar_app/index.html
+this is too large
+Split into
+  /home/ywatanabe/proj/scitex-cloud/apps/scholar_app/templates/scholar_app/index_partials:
+  drwxr-xr-x 2 ywatanabe ywatanabe 4.0K Oct 22 14:39 .
+  drwxr-xr-x 5 ywatanabe ywatanabe 4.0K Oct 22 14:39 ..
+  -rw-r--r-- 1 ywatanabe ywatanabe    0 Oct 22 14:39 asta_tooltip.html
+  -rw-r--r-- 1 ywatanabe ywatanabe    0 Oct 22 14:39 enrich.html
+  -rw-r--r-- 1 ywatanabe ywatanabe    0 Oct 22 14:39 search.html
 
-
-### Open All URLS functionality ✅
-- [x] When bibtex updated or after enrichment try to open new URLs from doi and URL fields
-- [x] when doi is available we should prioritize doi, adding https://doi.org/ as prefix
-- [x] By opening all by new tabs, users can effectively download PDF files
-- [x] Buttons disabled until job completes
-  - "Download Enriched BibTeX" - enabled only when status = completed
-  - "Show What Enhanced" - disabled during processing, enabled on completion
-  - "Open All URLs" - disabled during processing, enabled on completion
-  - Visual feedback: opacity 0.5, gray background, not-allowed cursor
-- **Implemented:** Added "Open All URLs" button with dynamic count display
-- **Features:** Confirmation dialog, staggered tab opening (100ms delay), error handling
-- **API:** `/scholar/api/bibtex/job/<id>/urls/` endpoint extracts and returns URLs/DOIs
-
-### UI Improvements ✅
-- [x] Simplified System Resources panel
-  - Removed detailed CPU/Memory usage (saved for future reuse - still collected in backend)
-  - Now shows only "Job Queue Status" with Active Jobs and Queued counts
-  - Cleaner, less technical interface for users
-- [x] Added 10-minute timeout for enrichment jobs
-  - Prevents jobs from hanging indefinitely
-  - Clear error message if timeout occurs
-  - Implemented in `bibtex_views.py` using `asyncio.wait_for()`
-- [x] Simple job management: **Kill old, start new**
-  - **Authenticated users:**
-    - Can cancel old jobs and start new ones anytime
-    - One user = One job. New upload kills old job automatically.
-    - No error messages, no waiting - just upload again!
-    - Old job marked as "cancelled - new job uploaded"
-  - **Anonymous users (user-friendly confirmation):**
-    - ⚠️ Show confirmation dialog: "Cancel old job and start new?"
-    - Shows progress of existing job in dialog
-    - User chooses: Cancel old job OR Keep old job running
-    - Simple UX - no blocking, user has control
-  - **Implementation:**
-    - Backend: `bibtex_views.py::bibtex_upload()` (lines 105-142)
-    - Frontend: `bibtex-enrichment.js::handleJobConflict()` (lines 126-135)
-- [x] Automatic stale job cleanup (MALICIOUS ATTACK PREVENTION)
-  - **Periodic cleanup**: Systemd timer runs every 5 minutes
-  - Jobs stuck in "processing" for >10 minutes → failed
-  - Jobs stuck in "pending" for >5 minutes → failed
-  - Old jobs (>30 days) → deleted (prevents database bloat)
-  - **Implementation:**
-    - `models.py::is_stale()` - detection logic
-    - `management/commands/cleanup_stale_jobs.py` - periodic cleanup command
-    - `deployment/systemd/scitex-cleanup-jobs.timer` - every 5 minutes
-    - `deployment/scripts/setup_cleanup_timer.sh` - easy installation
-  - **No partial results** - only complete results are provided
-  - **Security**: Prevents resource exhaustion and malicious job spam attacks
+  /home/ywatanabe/proj/scitex-cloud/apps/scholar_app/static/scholar_app:
+  drwxr-xr-x 5 ywatanabe ywatanabe 4.0K Oct 22 14:40 .
+  drwxr-xr-x 3 ywatanabe ywatanabe 4.0K Oct 22 14:40 ..
+  drwxr-xr-x 2 ywatanabe ywatanabe 4.0K Oct 22 13:30 data
+  drwxr-xr-x 2 ywatanabe ywatanabe 4.0K Oct 22 14:35 scripts
+  drwxr-xr-x 2 ywatanabe ywatanabe 4.0K Oct 22 14:32 styles
 
 <!-- EOF -->
