@@ -619,3 +619,340 @@ a.disabled {
     color: var(--color-fg-muted);
     font-size: 0.95rem;
 }
+
+/* Tab Selection Enhancement - Make active tab more recognizable */
+.nav-tabs {
+    border-bottom: 2px solid var(--color-border-default);
+}
+
+.nav-tabs .nav-link {
+    border: none;
+    background: transparent;
+    color: var(--color-fg-muted);
+    padding: 1rem 1.5rem;
+    margin-right: 0.5rem;
+    border-bottom: 3px solid transparent;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.nav-tabs .nav-link:hover {
+    color: var(--color-fg-default);
+    background: var(--color-canvas-subtle);
+    border-bottom-color: var(--scitex-color-04);
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--scitex-color-01);
+    background: var(--color-canvas-subtle);
+    border-bottom: 3px solid var(--scitex-color-01);
+    font-weight: 600;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="dark"] .nav-tabs .nav-link.active {
+    color: var(--scitex-color-05);
+    background: var(--scitex-color-01-light);
+    border-bottom-color: var(--scitex-color-05);
+}
+
+/* Vertical Tab Styling - Enhanced active state */
+.vertical-tab-btn,
+.tab-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    color: var(--color-fg-muted);
+    text-decoration: none;
+    border-left: 4px solid transparent;
+    background: transparent;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.vertical-tab-btn:hover,
+.tab-link:hover {
+    color: var(--color-fg-default);
+    background: var(--color-canvas-subtle);
+    border-left-color: var(--scitex-color-03);
+}
+
+.vertical-tab-btn.active,
+.tab-link.active {
+    color: var(--scitex-color-01) !important;
+    background: var(--scitex-color-02-light) !important;
+    border-left: 4px solid var(--scitex-color-01) !important;
+    font-weight: 700 !important;
+    box-shadow: inset 0 0 0 1px var(--scitex-color-02);
+}
+
+[data-theme="dark"] .vertical-tab-btn.active,
+[data-theme="dark"] .tab-link.active {
+    color: var(--scitex-color-06) !important;
+    background: var(--scitex-color-01-light) !important;
+    border-left-color: var(--scitex-color-05) !important;
+    box-shadow: inset 0 0 0 1px var(--scitex-color-04);
+}
+
+/* Compact Paper Cards - Better space usage */
+.paper-card {
+    padding: 1rem !important;
+    margin-bottom: 0.75rem !important;
+    border-radius: 8px;
+}
+
+.paper-card-header {
+    margin-bottom: 0.5rem !important;
+}
+
+.paper-card-title {
+    font-size: 1rem !important;
+    line-height: 1.4 !important;
+    margin-bottom: 0.25rem !important;
+}
+
+.paper-card-authors {
+    font-size: 0.85rem !important;
+    margin-bottom: 0.4rem !important;
+}
+
+.paper-card-metadata {
+    font-size: 0.8rem !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.paper-card-abstract {
+    font-size: 0.85rem !important;
+    line-height: 1.5 !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.paper-card-actions {
+    padding-top: 0.5rem !important;
+    gap: 0.5rem !important;
+}
+
+.paper-card-actions a,
+.paper-card-actions button {
+    padding: 0.4rem 0.8rem !important;
+    font-size: 0.85rem !important;
+}
+
+/* Slider Section Spacing - Sufficient margins between sliders */
+.filter-section {
+    margin-bottom: 2.5rem !important;
+}
+
+.filter-section:last-child {
+    margin-bottom: 1rem !important;
+}
+
+.filter-label {
+    margin-bottom: 0.75rem !important;
+    font-weight: 600 !important;
+}
+
+.filter-range-display {
+    margin-bottom: 1rem !important;
+}
+
+.swarm-plot-container {
+    margin-bottom: 0.5rem !important;
+}
+
+/* Dark Mode Text Visibility Fixes */
+[data-theme="dark"] .filter-label,
+[data-theme="dark"] .filter-range-display,
+[data-theme="dark"] .accordion-row-header,
+[data-theme="dark"] .paper-card-title a {
+    color: var(--scitex-color-06) !important;
+}
+
+[data-theme="dark"] .paper-card {
+    background: var(--scitex-color-01-light) !important;
+    border-color: var(--scitex-color-03) !important;
+}
+
+[data-theme="dark"] .paper-card-authors,
+[data-theme="dark"] .paper-card-metadata,
+[data-theme="dark"] .paper-card-abstract {
+    color: var(--scitex-color-05) !important;
+}
+
+/* Result Cards - Visible edges in dark mode */
+[data-theme="dark"] .result-card {
+    border: 1px solid var(--scitex-color-03);
+    background: var(--color-canvas-subtle);
+}
+
+/* Search Results Header - Better visibility in dark mode */
+#searchResultsContainer h5,
+.search-results-header h5 {
+    color: var(--color-fg-default);
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+[data-theme="dark"] #searchResultsContainer h5,
+[data-theme="dark"] .search-results-header h5 {
+    color: var(--scitex-color-06) !important;
+}
+
+/* Pagination - Follow SciTeX color palette */
+.pagination {
+    gap: 0.25rem;
+}
+
+.pagination .page-item .page-link {
+    color: var(--scitex-color-01);
+    background-color: var(--color-canvas-default);
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    transition: all 0.2s ease;
+}
+
+.pagination .page-item .page-link:hover {
+    color: var(--scitex-color-06);
+    background-color: var(--scitex-color-02-light);
+    border-color: var(--scitex-color-02);
+}
+
+.pagination .page-item.active .page-link {
+    color: var(--scitex-color-06) !important;
+    background-color: var(--scitex-color-01) !important;
+    border-color: var(--scitex-color-01) !important;
+    font-weight: 700;
+}
+
+.pagination .page-item.disabled .page-link {
+    color: var(--color-fg-muted);
+    background-color: var(--color-canvas-subtle);
+    border-color: var(--color-border-default);
+    opacity: 0.6;
+}
+
+[data-theme="dark"] .pagination .page-item .page-link {
+    color: var(--scitex-color-05);
+    background-color: var(--scitex-color-01-light);
+    border-color: var(--scitex-color-03);
+}
+
+[data-theme="dark"] .pagination .page-item .page-link:hover {
+    color: var(--scitex-color-06);
+    background-color: var(--scitex-color-02-dark);
+    border-color: var(--scitex-color-04);
+}
+
+[data-theme="dark"] .pagination .page-item.active .page-link {
+    color: var(--scitex-color-06) !important;
+    background-color: var(--scitex-color-02) !important;
+    border-color: var(--scitex-color-04) !important;
+}
+
+[data-theme="dark"] .pagination .page-item.disabled .page-link {
+    color: var(--scitex-color-04);
+    background-color: var(--scitex-color-01-dark);
+    border-color: var(--scitex-color-03);
+}
+
+/* Accordion row headers - better visibility */
+.accordion-row-header {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    background: var(--color-canvas-subtle);
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+    transition: all 0.2s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.accordion-row-header:hover {
+    background: var(--color-canvas-inset);
+    border-color: var(--scitex-color-03);
+}
+
+[data-theme="dark"] .accordion-row-header {
+    background: var(--scitex-color-01-light);
+    border-color: var(--scitex-color-03);
+}
+
+[data-theme="dark"] .accordion-row-header:hover {
+    background: var(--scitex-color-02);
+    border-color: var(--scitex-color-04);
+}
+
+/* Selection/Export div styling */
+.selection-export-container {
+    background: var(--color-canvas-subtle);
+    border: 1px solid var(--color-border-default);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+[data-theme="dark"] .selection-export-container {
+    background: var(--scitex-color-01-light);
+    border-color: var(--scitex-color-03);
+}
+
+.selection-info {
+    color: var(--color-fg-default);
+    font-weight: 500;
+}
+
+[data-theme="dark"] .selection-info {
+    color: var(--scitex-color-06);
+}
+
+/* Scholar Side Panel Styling */
+.scholar-side-panel {
+    background: var(--color-canvas-subtle);
+    border: 1px solid var(--color-border-default);
+    border-radius: 8px;
+    padding: 1.5rem;
+    position: sticky;
+    top: 80px;
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+}
+
+[data-theme="dark"] .scholar-side-panel {
+    background: var(--scitex-color-01-light);
+    border-color: var(--scitex-color-03);
+}
+
+.side-panel-title {
+    font-weight: 600;
+    color: var(--color-fg-default);
+    font-size: 1rem;
+    border-bottom: 2px solid var(--scitex-color-02);
+    padding-bottom: 0.75rem;
+}
+
+[data-theme="dark"] .side-panel-title {
+    color: var(--scitex-color-06);
+    border-bottom-color: var(--scitex-color-04);
+}
+
+/* Adjust accordion rows for side panel */
+.scholar-side-panel .accordion-row {
+    margin-bottom: 1rem !important;
+}
+
+.scholar-side-panel .accordion-row-header {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.9rem;
+}
+
+.scholar-side-panel .accordion-row-content {
+    padding: 1rem 0.8rem;
+}

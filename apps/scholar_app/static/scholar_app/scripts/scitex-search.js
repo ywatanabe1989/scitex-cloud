@@ -53,7 +53,8 @@
                     console.log('[SciTeX Search] Available and ready');
                     this.setupEventListeners();
                     this.loadEngineCapabilities();
-                    this.injectSearchModeToggle();
+                    // Parallel mode is now the default, no toggle needed
+                    // this.injectSearchModeToggle();
                 } else {
                     console.warn('[SciTeX Search] Not available, falling back to default search');
                 }
@@ -235,6 +236,36 @@
          * Show loading state
          */
         showLoadingState: function(query) {
+            // Show the progressive loading status div
+            const progressiveLoadingStatus = document.getElementById('progressiveLoadingStatus');
+            if (progressiveLoadingStatus) {
+                progressiveLoadingStatus.classList.remove('u-hidden');
+
+                // Update timestamp
+                const timestamp = document.getElementById('searchQueueTimestamp');
+                if (timestamp) {
+                    const now = new Date();
+                    timestamp.textContent = now.toLocaleTimeString();
+                }
+
+                // Initialize all engines as loading (0 results)
+                this.state.engines.forEach(engineName => {
+                    this.updateEngineStatus(engineName, 'loading', 0);
+                });
+
+                // Update active searches count
+                const activeSearchCount = document.getElementById('activeSearchCount');
+                if (activeSearchCount) {
+                    activeSearchCount.textContent = this.state.engines.length;
+                }
+
+                // Reset total results
+                const totalResultsCount = document.getElementById('totalResultsCount');
+                if (totalResultsCount) {
+                    totalResultsCount.textContent = '0';
+                }
+            }
+
             // Get or create results container
             let resultsContainer = document.getElementById('scitex-results-container');
 
@@ -243,38 +274,58 @@
                 resultsContainer.id = 'scitex-results-container';
                 resultsContainer.className = 'mt-4';
 
-                // Insert after search panel
-                const searchPanel = document.getElementById('searchPanel');
-                if (searchPanel && searchPanel.parentElement) {
-                    searchPanel.parentElement.appendChild(resultsContainer);
+                // Insert after progressive loading status
+                if (progressiveLoadingStatus && progressiveLoadingStatus.parentElement) {
+                    progressiveLoadingStatus.parentElement.insertBefore(resultsContainer, progressiveLoadingStatus.nextSibling);
                 }
             }
 
-            resultsContainer.innerHTML = `
-                <div class="card" style="background: var(--color-canvas-default); border: 1px solid var(--color-border-default);">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                            </div>
-                            <h5 class="mb-0" style="color: var(--color-fg-default);">
-                                Searching for: <strong>"${this.escapeHtml(query)}"</strong>
-                            </h5>
-                        </div>
-                        <div class="progress mb-3" style="height: 4px;">
-                            <div class="progress-bar progress-bar-striped progress-bar-animated"
-                                 role="progressbar" style="width: 100%;"></div>
-                        </div>
-                        <div id="engine-status" class="d-flex flex-wrap gap-2">
-                            ${this.renderEngineStatus()}
-                        </div>
-                    </div>
-                </div>
-            `;
+            // Clear previous results
+            resultsContainer.innerHTML = '';
         },
 
         /**
-         * Render engine status badges
+         * Update individual engine status
+         */
+        updateEngineStatus: function(engineName, status, count) {
+            // Map engine names to data-source values
+            const engineMap = {
+                'CrossRef': 'crossref',
+                'PubMed': 'pubmed',
+                'Semantic_Scholar': 'semantic',
+                'arXiv': 'arxiv',
+                'OpenAlex': 'openalex'
+            };
+
+            const dataSource = engineMap[engineName] || engineName.toLowerCase();
+            const progressSource = document.querySelector(`[data-source="${dataSource}"]`);
+
+            if (!progressSource) {
+                console.warn(`[SciTeX Search] Progress element not found for ${engineName}`);
+                return;
+            }
+
+            const badge = progressSource.querySelector('.badge');
+            const spinner = progressSource.querySelector('.spinner-border');
+            const countEl = progressSource.querySelector('.count');
+
+            if (status === 'loading') {
+                if (badge) badge.className = 'badge bg-secondary';
+                if (spinner) spinner.style.display = 'inline-block';
+                if (countEl) countEl.textContent = count || '0';
+            } else if (status === 'completed') {
+                if (badge) badge.className = 'badge bg-success';
+                if (spinner) spinner.style.display = 'none';
+                if (countEl) countEl.textContent = count || '0';
+            } else if (status === 'error') {
+                if (badge) badge.className = 'badge bg-danger';
+                if (spinner) spinner.style.display = 'none';
+                if (countEl) countEl.textContent = 'Error';
+            }
+        },
+
+        /**
+         * Render engine status badges (legacy - for inline display)
          */
         renderEngineStatus: function() {
             return this.state.engines.map(engine => {
@@ -308,6 +359,25 @@
             const results = data.results || [];
             const metadata = data.metadata || {};
             const enginesUsed = metadata.engines_used || [];
+            const engineCounts = metadata.engine_counts || {};
+
+            // Update engine statuses with result counts
+            enginesUsed.forEach(engineName => {
+                const count = engineCounts[engineName] || 0;
+                this.updateEngineStatus(engineName, 'completed', count);
+            });
+
+            // Update active searches count (all completed now)
+            const activeSearchCount = document.getElementById('activeSearchCount');
+            if (activeSearchCount) {
+                activeSearchCount.textContent = '0';
+            }
+
+            // Update total results count
+            const totalResultsCount = document.getElementById('totalResultsCount');
+            if (totalResultsCount) {
+                totalResultsCount.textContent = results.length;
+            }
 
             // Build results HTML
             let html = `
@@ -342,6 +412,18 @@
 
             resultsContainer.innerHTML = html;
 
+            // Initialize swarm plots with results
+            if (window.SwarmPlots && results.length > 0) {
+                // Clear any existing swarm plots
+                window.SwarmPlots.clear();
+
+                // Wait for DOM to update, then initialize swarm plots
+                setTimeout(() => {
+                    window.SwarmPlots.init(results);
+                    console.log('[SciTeX Search] Swarm plots initialized with', results.length, 'papers');
+                }, 100);
+            }
+
             // Scroll to results
             resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
         },
@@ -371,19 +453,36 @@
             const moreAuthors = paper.authors && paper.authors.length > 5 ?
                 ` + ${paper.authors.length - 5} more` : '';
 
+            // Determine the best URL for the paper
+            const paperUrl = paper.external_url || paper.pdf_url || (paper.doi ? `https://doi.org/${paper.doi}` : null);
+
+            // Format journal with impact factor if available
+            let journalInfo = '';
+            if (paper.journal) {
+                journalInfo = `<br><strong>Journal:</strong> <em>${this.escapeHtml(paper.journal)}</em>`;
+                if (paper.impact_factor && paper.impact_factor > 0) {
+                    journalInfo += ` <span class="badge bg-warning text-dark">IF: ${paper.impact_factor}</span>`;
+                }
+            }
+
             return `
-                <div class="card mb-3" style="background: var(--color-canvas-default); border: 1px solid var(--color-border-default);">
+                <div class="card mb-3" style="background: var(--color-canvas-default); border: 2px solid var(--color-border-default); box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
                     <div class="card-body">
                         <!-- Title -->
                         <h5 class="card-title" style="color: var(--color-fg-default);">
-                            ${index + 1}. ${this.escapeHtml(paper.title || 'Untitled')}
+                            ${index + 1}. ${paperUrl ?
+                                `<a href="${this.escapeHtml(paperUrl)}" target="_blank" style="color: var(--scitex-color-03); text-decoration: none;">
+                                    ${this.escapeHtml(paper.title || 'Untitled')}
+                                    <i class="fas fa-external-link-alt" style="font-size: 0.7em; margin-left: 4px;"></i>
+                                </a>` :
+                                this.escapeHtml(paper.title || 'Untitled')}
                         </h5>
 
                         <!-- Authors & Year -->
                         <p class="card-text mb-2" style="color: var(--color-fg-muted);">
                             <strong>Authors:</strong> ${this.escapeHtml(authors)}${moreAuthors}
                             ${paper.year ? `<br><strong>Year:</strong> ${paper.year}` : ''}
-                            ${paper.journal ? `<br><strong>Journal:</strong> ${this.escapeHtml(paper.journal)}` : ''}
+                            ${journalInfo}
                         </p>
 
                         <!-- Abstract -->
@@ -399,26 +498,6 @@
                             ${paper.citation_count ? `<span class="badge bg-info"><i class="fas fa-quote-right"></i> ${paper.citation_count} citations</span>` : ''}
                             ${paper.doi ? `<span class="badge bg-secondary">DOI: ${this.escapeHtml(paper.doi)}</span>` : ''}
                             ${(paper.source_engines || []).map(e => `<span class="badge" style="background-color: ${(this.engineStatus[e] || {}).color || '#95a5a6'};">${e}</span>`).join('')}
-                        </div>
-
-                        <!-- Actions -->
-                        <div class="d-flex gap-2">
-                            ${paper.pdf_url ? `
-                                <a href="${this.escapeHtml(paper.pdf_url)}" target="_blank" class="btn btn-sm btn-primary">
-                                    <i class="fas fa-file-pdf"></i> PDF
-                                </a>
-                            ` : ''}
-                            ${paper.external_url ? `
-                                <a href="${this.escapeHtml(paper.external_url)}" target="_blank" class="btn btn-sm btn-outline-secondary">
-                                    <i class="fas fa-external-link-alt"></i> View Online
-                                </a>
-                            ` : ''}
-                            <button class="btn btn-sm btn-outline-success" onclick="ScitexSearch.savePaper('${paper.id}')">
-                                <i class="fas fa-bookmark"></i> Save
-                            </button>
-                            <button class="btn btn-sm btn-outline-info" onclick="ScitexSearch.getCitation('${paper.id}')">
-                                <i class="fas fa-quote-left"></i> Cite
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -517,11 +596,126 @@
         },
 
         /**
-         * Get citation for paper (placeholder)
+         * Show citation modal for paper
          */
-        getCitation: function(paperId) {
-            console.log('[SciTeX Search] Get citation:', paperId);
-            alert('Get citation functionality - to be implemented');
+        showCitation: function(paperIndex) {
+            const paper = this.state.lastResults?.results?.[paperIndex];
+            if (!paper) {
+                alert('Paper not found');
+                return;
+            }
+
+            // Generate citations in multiple formats
+            const citations = this.generateCitations(paper);
+
+            // Create modal
+            const modal = `
+                <div class="modal fade" id="citationModal" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content" style="background: var(--color-canvas-default); color: var(--color-fg-default);">
+                            <div class="modal-header" style="border-bottom: 1px solid var(--color-border-default);">
+                                <h5 class="modal-title">
+                                    <i class="fas fa-quote-left"></i> Cite this article
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <h6>APA Style</h6>
+                                <div class="citation-box mb-3">
+                                    <code>${this.escapeHtml(citations.apa)}</code>
+                                    <button class="btn btn-sm btn-outline-primary float-end" onclick="ScitexSearch.copyCitation('${this.escapeHtml(citations.apa)}')">
+                                        <i class="fas fa-copy"></i> Copy
+                                    </button>
+                                </div>
+
+                                <h6>MLA Style</h6>
+                                <div class="citation-box mb-3">
+                                    <code>${this.escapeHtml(citations.mla)}</code>
+                                    <button class="btn btn-sm btn-outline-primary float-end" onclick="ScitexSearch.copyCitation('${this.escapeHtml(citations.mla)}')">
+                                        <i class="fas fa-copy"></i> Copy
+                                    </button>
+                                </div>
+
+                                <h6>Chicago Style</h6>
+                                <div class="citation-box mb-3">
+                                    <code>${this.escapeHtml(citations.chicago)}</code>
+                                    <button class="btn btn-sm btn-outline-primary float-end" onclick="ScitexSearch.copyCitation('${this.escapeHtml(citations.chicago)}')">
+                                        <i class="fas fa-copy"></i> Copy
+                                    </button>
+                                </div>
+
+                                <h6>BibTeX</h6>
+                                <div class="citation-box mb-3">
+                                    <pre><code>${this.escapeHtml(citations.bibtex)}</code></pre>
+                                    <button class="btn btn-sm btn-outline-primary float-end" onclick="ScitexSearch.copyCitation(\`${this.escapeHtml(citations.bibtex)}\`)">
+                                        <i class="fas fa-copy"></i> Copy
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Remove existing modal if any
+            const existing = document.getElementById('citationModal');
+            if (existing) existing.remove();
+
+            // Add modal to page
+            document.body.insertAdjacentHTML('beforeend', modal);
+
+            // Show modal
+            const modalEl = document.getElementById('citationModal');
+            const bsModal = new bootstrap.Modal(modalEl);
+            bsModal.show();
+
+            // Remove modal from DOM after hiding
+            modalEl.addEventListener('hidden.bs.modal', () => {
+                modalEl.remove();
+            });
+        },
+
+        /**
+         * Generate citations in multiple formats
+         */
+        generateCitations: function(paper) {
+            const authors = paper.authors || [];
+            const title = paper.title || 'Untitled';
+            const year = paper.year || 'n.d.';
+            const journal = paper.journal || '';
+            const doi = paper.doi || '';
+
+            // Format authors for different styles
+            const firstAuthor = authors[0] || 'Unknown';
+            const authorsAPA = authors.length > 0 ?
+                (authors.length === 1 ? firstAuthor :
+                 authors.length === 2 ? `${authors[0]} & ${authors[1]}` :
+                 `${authors[0]} et al.`) : 'Unknown';
+
+            const authorsMLA = authors.length > 0 ?
+                (authors.length === 1 ? firstAuthor :
+                 authors.length === 2 ? `${authors[0]}, and ${authors[1]}` :
+                 `${authors[0]}, et al.`) : 'Unknown';
+
+            // Generate citations
+            return {
+                apa: `${authorsAPA}. (${year}). ${title}. ${journal}${doi ? `. https://doi.org/${doi}` : ''}`,
+                mla: `${authorsMLA}. "${title}." ${journal}${year !== 'n.d.' ? ` ${year}` : ''}${doi ? `, doi:${doi}` : ''}.`,
+                chicago: `${firstAuthor}${authors.length > 1 ? ' et al.' : ''}. "${title}." ${journal}${year !== 'n.d.' ? ` (${year})` : ''}${doi ? `. https://doi.org/${doi}` : ''}.`,
+                bibtex: `@article{${(firstAuthor.split(' ')[0] || 'unknown').toLowerCase()}${year},\n  author = {${authors.join(' and ')}},\n  title = {${title}},\n  journal = {${journal}},\n  year = {${year}}${doi ? `,\n  doi = {${doi}}` : ''}\n}`
+            };
+        },
+
+        /**
+         * Copy citation to clipboard
+         */
+        copyCitation: function(citation) {
+            navigator.clipboard.writeText(citation).then(() => {
+                alert('Citation copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                alert('Failed to copy citation');
+            });
         },
 
         /**
