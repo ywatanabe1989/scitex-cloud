@@ -306,7 +306,12 @@
                         </label>
                     </div>
 
-                    <!-- Visibility updates automatically on radio change via JavaScript -->
+                    <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--color-border-default);">
+                        <button type="submit" name="action" value="update_visibility" class="btn btn-sm" style="background: var(--color-btn-primary-bg); color: var(--color-btn-primary-text); border: none; padding: 8px 16px; border-radius: 6px;">
+                            <i class="fas fa-check"></i>
+                            Update visibility
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Collaborators -->
@@ -399,19 +404,6 @@
 </div>
 
 <script>
-// Auto-submit visibility changes
-document.querySelectorAll('input[name="visibility"]').forEach(radio => {
-    radio.addEventListener('change', function() {
-        const form = this.closest('form');
-        const actionInput = document.createElement('input');
-        actionInput.type = 'hidden';
-        actionInput.name = 'action';
-        actionInput.value = 'update_visibility';
-        form.appendChild(actionInput);
-        form.submit();
-    });
-});
-
 // Radio button selection visual feedback
 document.querySelectorAll('.radio-option input[type="radio"]').forEach(radio => {
     radio.addEventListener('change', function() {
