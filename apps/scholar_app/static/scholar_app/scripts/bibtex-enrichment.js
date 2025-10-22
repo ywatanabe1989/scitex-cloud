@@ -67,11 +67,16 @@ function handleFileSelect(e) {
 /**
  * Handle form submission
  */
-function handleFormSubmit(e) {
+function handleFormSubmit(e, forceCancel = false) {
     e.preventDefault();
 
     const formData = new FormData(e.target);
     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    // Add force_cancel flag if user confirmed cancellation
+    if (forceCancel) {
+        formData.append('force_cancel', 'true');
+    }
 
     // Show loading state
     showLoadingState();
@@ -84,7 +89,16 @@ function handleFormSubmit(e) {
         },
         body: formData
     })
-    .then(response => response.json())
+    .then(response => {
+        if (response.status === 409) {
+            // Conflict - existing job found, requires confirmation
+            return response.json().then(data => {
+                handleJobConflict(e.target, data);
+                throw new Error('Conflict handled');
+            });
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
             window.currentBibtexJobId = data.job_id;
@@ -95,10 +109,29 @@ function handleFormSubmit(e) {
         }
     })
     .catch(error => {
+        if (error.message === 'Conflict handled') {
+            // This is expected, don't show error
+            resetForm();
+            return;
+        }
         console.error('Upload error:', error);
         showError('Failed to upload file. Please try again.');
         resetForm();
     });
+}
+
+/**
+ * Handle job conflict - ask user to cancel old job
+ */
+function handleJobConflict(form, data) {
+    const existingJob = data.existing_job;
+    const message = `You already have a job in progress:\n"${existingJob.filename}"\nProgress: ${existingJob.progress}%\n\nCancel it and start new job?`;
+
+    if (confirm(message)) {
+        // User confirmed - resubmit with force_cancel flag
+        const event = new Event('submit', { bubbles: true, cancelable: true });
+        handleFormSubmit.call(form, event, true);
+    }
 }
 
 /**

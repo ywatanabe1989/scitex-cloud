@@ -62,6 +62,11 @@ should be refactored using
 - [x] When bibtex updated or after enrichment try to open new URLs from doi and URL fields
 - [x] when doi is available we should prioritize doi, adding https://doi.org/ as prefix
 - [x] By opening all by new tabs, users can effectively download PDF files
+- [x] Buttons disabled until job completes
+  - "Download Enriched BibTeX" - enabled only when status = completed
+  - "Show What Enhanced" - disabled during processing, enabled on completion
+  - "Open All URLs" - disabled during processing, enabled on completion
+  - Visual feedback: opacity 0.5, gray background, not-allowed cursor
 - **Implemented:** Added "Open All URLs" button with dynamic count display
 - **Features:** Confirmation dialog, staggered tab opening (100ms delay), error handling
 - **API:** `/scholar/api/bibtex/job/<id>/urls/` endpoint extracts and returns URLs/DOIs
@@ -81,11 +86,14 @@ should be refactored using
     - One user = One job. New upload kills old job automatically.
     - No error messages, no waiting - just upload again!
     - Old job marked as "cancelled - new job uploaded"
-  - **Anonymous users (special handling for abuse prevention):**
-    - ❌ Cannot cancel running jobs - must wait for completion
-    - 💡 Encourages sign-up: "Sign up for an account to cancel and retry"
-    - Simple and prevents abuse without annoying time limits
-  - **Implementation:** `bibtex_views.py::bibtex_upload()` (lines 87-123)
+  - **Anonymous users (user-friendly confirmation):**
+    - ⚠️ Show confirmation dialog: "Cancel old job and start new?"
+    - Shows progress of existing job in dialog
+    - User chooses: Cancel old job OR Keep old job running
+    - Simple UX - no blocking, user has control
+  - **Implementation:**
+    - Backend: `bibtex_views.py::bibtex_upload()` (lines 105-142)
+    - Frontend: `bibtex-enrichment.js::handleJobConflict()` (lines 126-135)
 - [x] Automatic stale job cleanup (MALICIOUS ATTACK PREVENTION)
   - **Periodic cleanup**: Systemd timer runs every 5 minutes
   - Jobs stuck in "processing" for >10 minutes → failed

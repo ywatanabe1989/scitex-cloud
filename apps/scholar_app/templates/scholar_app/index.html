@@ -366,6 +366,18 @@
         border-color: #34495e !important;
         color: white !important;
     }
+
+    /* Disabled button styles */
+    button:disabled,
+    a.disabled {
+        opacity: 0.5 !important;
+        cursor: not-allowed !important;
+        pointer-events: none !important;
+    }
+
+    #downloadArea button:disabled {
+        background: var(--color-border-default) !important;
+    }
 </style>
 <script>
 // Split-screen panel toggle - defined early for onclick handlers
@@ -531,15 +543,15 @@ function togglePanel(panelType) {
                             <pre id="processingLog" class="terminal-log terminal-log--medium">Initializing...</pre>
                         </div>
 
-                        <!-- Download and Open URLs Buttons (shown after completion) -->
+                        <!-- Download and Open URLs Buttons (shown only after completion) -->
                         <div id="downloadArea" style="display: none; text-align: center; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-                            <a id="downloadBtn" href="#" style="display: inline-block; padding: 1rem 2rem; background: var(--success-color); color: var(--white); border-radius: 8px; text-decoration: none; font-weight: 600;">
+                            <a id="downloadBtn" href="#" style="display: inline-block; padding: 1rem 2rem; background: var(--success-color); color: var(--white); border-radius: 8px; text-decoration: none; font-weight: 600; transition: opacity 0.3s;">
                                 <i class="fas fa-download"></i> Download Enriched BibTeX
                             </a>
-                            <button id="showDiffBtn" onclick="showBibtexDiff()" style="display: inline-block; padding: 1rem 2rem; background: var(--scitex-color-02); color: var(--white); border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                            <button id="showDiffBtn" onclick="showBibtexDiff()" disabled style="display: inline-block; padding: 1rem 2rem; background: var(--scitex-color-02); color: var(--white); border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: opacity 0.3s;">
                                 <i class="fas fa-code-branch"></i> Show What Enhanced
                             </button>
-                            <button id="openUrlsBtn" onclick="openAllPaperUrls()" style="display: inline-block; padding: 1rem 2rem; background: var(--scitex-color-04); color: var(--white); border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                            <button id="openUrlsBtn" onclick="openAllPaperUrls()" disabled style="display: inline-block; padding: 1rem 2rem; background: var(--scitex-color-04); color: var(--white); border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: opacity 0.3s;">
                                 <i class="fas fa-external-link-alt"></i> Open All URLs (<span id="urlCount">0</span>)
                             </button>
                         </div>
@@ -2514,7 +2526,12 @@ function pollBibtexJobStatus(jobId, attempts = 0) {
 
                 document.getElementById('downloadBtn').href = downloadUrl;
                 document.getElementById('downloadArea').style.display = 'flex';
-                console.log('[Scholar Index] Download button shown');
+
+                // Enable all buttons now that job is complete
+                document.getElementById('showDiffBtn').disabled = false;
+                document.getElementById('openUrlsBtn').disabled = false;
+
+                console.log('[Scholar Index] Download button shown and all buttons enabled');
 
                 // Fetch URL count for the "Open All URLs" button
                 fetch(urlsUrl)
