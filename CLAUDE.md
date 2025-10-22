@@ -45,15 +45,19 @@ Add console.log for debugging
 - [x] Login issue fixed - DONE: Template namespace references updated from core_app to workspace_app
 - [x] Core app refactoring completion - DONE: All references updated
 
-## Modules for logged-in users
-Currently, logged-in users have different pages from anynomous users
-However, /scholar/ page is good in implementation and it should be used as is for logged-in users.
-One thing we can implement is the addition of save to library functionality. For anonymous users, it is an opportunity to suggest signup.
+## Scholar App Enhancements (Completed)
+- [x] Save to library functionality with project selector dropdown
+- [x] Signup suggestion for anonymous users when saving papers
+- [x] Project selector persists across page navigation using sessionStorage
+- [x] Proper handling of project association when saving papers
+- [x] All tests passing for save functionality
 
-This page is not necessary at all: http://127.0.0.1:8000/ywatanabe/full-integration-test/?mode=scholar
-This URL should serve the same contents with /scholar/ but with default library as the current one
-what is the best approach? redirecting is good? or just render the page contents in with http://127.0.0.1:8000/ywatanabe/full-integration-test/?mode=scholar?
-
-Or we can add current project dropdown selector in the header 
+## Project Selector Implementation
+The project-centric approach is now fully integrated into the Scholar module:
+- Users select a project via dropdown in the header
+- Selected project is remembered during the session
+- Papers are automatically associated with the selected project when saved
+- Anonymous users get a friendly signup prompt instead of errors
+- Eliminates the need for project-specific URLs (e.g., /username/project/?mode=scholar)
 
 <!-- EOF -->
