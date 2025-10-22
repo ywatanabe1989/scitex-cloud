@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-23 07:10:00
+!-- Timestamp: 2025-10-23 07:08:28
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/CLAUDE.md
 !-- --- -->
@@ -42,5 +42,10 @@ Add console.log for debugging
   - [x] Non-selected as darker (in the dark) or lighter (in the light mode) - DONE: color-fg-muted with hover states
   - [x] The input box of the search page should have edge - DONE: 1px solid border with focus states
   - [ ] Add edge for search button to keep height the same
+
+## Cannot login
+ywatanabe
+REDACTED
+http://127.0.0.1:8000/auth/login/
 
 <!-- EOF -->
