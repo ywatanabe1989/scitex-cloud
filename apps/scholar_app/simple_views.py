@@ -49,6 +49,11 @@ except ImportError as e:
 
 def simple_search(request):
     """Advanced search interface with comprehensive filtering."""
+    return simple_search_with_tab(request, active_tab='search')
+
+
+def simple_search_with_tab(request, active_tab='search'):
+    """Advanced search interface with tab specification."""
     query = request.GET.get('q', '').strip()
     project = request.GET.get('project', '')
     # Handle multiple checkbox source selection
@@ -148,6 +153,25 @@ def simple_search(request):
 
         results = all_results[:10000]  # Return up to 10k results
 
+    # Calculate dynamic filter ranges from results
+    filter_ranges = {
+        'citations_min': 0,
+        'citations_max': 12000,  # Default fallback
+        'impact_factor_min': 0,
+        'impact_factor_max': 50.0,  # Default fallback
+    }
+
+    if results:
+        # Extract citation counts (filter out None values)
+        citation_counts = [r.get('citations', 0) for r in results if r.get('citations') is not None]
+        if citation_counts:
+            filter_ranges['citations_max'] = max(citation_counts)
+
+        # Extract impact factors (filter out None values)
+        impact_factors = [r.get('impact_factor', 0) for r in results if r.get('impact_factor') is not None]
+        if impact_factors:
+            filter_ranges['impact_factor_max'] = max(impact_factors)
+
     # Get user projects for BibTeX enrichment form
     user_projects = []
     if request.user.is_authenticated:
@@ -163,6 +187,8 @@ def simple_search(request):
         'has_results': bool(results),
         'missing_api_keys': missing_api_keys,
         'user_projects': user_projects,
+        'active_tab': active_tab,  # Indicate which tab is active
+        'filter_ranges': filter_ranges,  # Add dynamic filter ranges
     }
 
     return render(request, 'scholar_app/index.html', context)
@@ -1486,8 +1512,38 @@ def get_paper_authors(paper):
 
 
 def index(request):
-    """Scholar app index view - redirect to simple search."""
-    return simple_search(request)
+    """Scholar app index view with hash-based tab navigation."""
+    # If there's a search query, use search view logic and set active_tab to 'search'
+    query = request.GET.get('q', '').strip()
+    if query:
+        return simple_search_with_tab(request, active_tab='search')
+
+    # Otherwise, show BibTeX enrichment tab by default
+    return bibtex_enrichment_view(request)
+
+
+def bibtex_enrichment_view(request):
+    """BibTeX Enrichment tab view."""
+    # Get user projects for BibTeX enrichment form
+    user_projects = []
+    if request.user.is_authenticated:
+        from apps.project_app.models import Project
+        user_projects = Project.objects.filter(owner=request.user).order_by('-created_at')
+
+    context = {
+        'query': '',  # No search query for BibTeX tab
+        'results': [],
+        'has_results': False,
+        'user_projects': user_projects,
+        'active_tab': 'bibtex',  # Indicate which tab is active
+    }
+
+    return render(request, 'scholar_app/index.html', context)
+
+
+def literature_search_view(request):
+    """Literature Search tab view."""
+    return simple_search_with_tab(request, active_tab='search')
 
 
 def features(request):
