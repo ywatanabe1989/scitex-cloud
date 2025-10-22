@@ -9,6 +9,288 @@
 <link rel="stylesheet" href="{% static 'css/common/terminal-log.css' %}">
 <link rel="stylesheet" href="{% static 'css/common.css' %}">
 <link rel="stylesheet" href="{% static 'scholar_app/styles/scholar-index.css' %}">
+<!-- noUiSlider for proper dual-range sliders -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.css" rel="stylesheet">
+<style>
+    /* noUiSlider Custom Styling for SciTeX Theme */
+    .noUi-target {
+        background: var(--color-border-default);
+        border-radius: 6px;
+        border: none;
+        box-shadow: none;
+        height: 8px;
+    }
+
+    .noUi-connect {
+        background: linear-gradient(to right, var(--scitex-color-05), var(--scitex-color-03));
+    }
+
+    .noUi-handle {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--scitex-color-02) 0%, var(--scitex-color-03) 100%);
+        border: 3px solid var(--color-canvas-default);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 1px 3px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        top: -7px;
+    }
+
+    .noUi-handle:before,
+    .noUi-handle:after {
+        display: none;
+    }
+
+    .noUi-handle:hover {
+        background: linear-gradient(135deg, var(--scitex-color-03) 0%, var(--scitex-color-04) 100%);
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3), 0 2px 6px rgba(0, 0, 0, 0.15);
+        transform: scale(1.1);
+    }
+
+    .noUi-handle:active {
+        background: var(--scitex-color-02);
+        transform: scale(1.15);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .noUi-tooltip {
+        display: none;
+    }
+
+    /* Modern Range Slider Styles - Single Handle */
+    .dual-range-input {
+        -webkit-appearance: none;
+        appearance: none;
+        height: 6px;
+        background: linear-gradient(to right, var(--scitex-color-05) 0%, var(--scitex-color-03) 100%);
+        outline: none;
+        border-radius: 3px;
+        transition: opacity 0.2s;
+    }
+
+    .dual-range-input::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        background: linear-gradient(135deg, var(--scitex-color-02) 0%, var(--scitex-color-03) 100%);
+        cursor: pointer;
+        border-radius: 50%;
+        border: 3px solid var(--color-canvas-default);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 1px 3px rgba(0, 0, 0, 0.1);
+        pointer-events: auto;
+        position: relative;
+        z-index: 10;
+        transition: all 0.2s ease;
+    }
+
+    .dual-range-input::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+        background: linear-gradient(135deg, var(--scitex-color-02) 0%, var(--scitex-color-03) 100%);
+        cursor: pointer;
+        border-radius: 50%;
+        border: 3px solid var(--color-canvas-default);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 1px 3px rgba(0, 0, 0, 0.1);
+        pointer-events: auto;
+        transition: all 0.2s ease;
+    }
+
+    .dual-range-input:hover::-webkit-slider-thumb {
+        background: linear-gradient(135deg, var(--scitex-color-03) 0%, var(--scitex-color-04) 100%);
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3), 0 2px 6px rgba(0, 0, 0, 0.15);
+        transform: scale(1.1);
+    }
+
+    .dual-range-input:hover::-moz-range-thumb {
+        background: linear-gradient(135deg, var(--scitex-color-03) 0%, var(--scitex-color-04) 100%);
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3), 0 2px 6px rgba(0, 0, 0, 0.15);
+        transform: scale(1.1);
+    }
+
+    .dual-range-input:active::-webkit-slider-thumb {
+        background: var(--scitex-color-02);
+        transform: scale(1.15);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .dual-range-input:active::-moz-range-thumb {
+        background: var(--scitex-color-02);
+        transform: scale(1.15);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Drag-and-Drop Sort Items */
+    .sort-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        background: var(--color-canvas-default);
+        border: 2px solid var(--color-border-default);
+        border-radius: 6px;
+        cursor: move;
+        user-select: none;
+        transition: all 0.2s ease;
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    .sort-item:hover {
+        background: var(--color-canvas-subtle);
+        border-color: var(--scitex-color-03);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        transform: translateY(-1px);
+    }
+
+    .sort-item.dragging {
+        opacity: 0.5;
+        transform: scale(0.95);
+    }
+
+    .sort-item.drag-over {
+        border-color: var(--scitex-color-02);
+        border-style: dashed;
+    }
+
+    .sort-item[data-state="asc"] {
+        background: var(--scitex-color-03);
+        border-color: var(--scitex-color-02);
+        color: white;
+    }
+
+    .sort-item[data-state="desc"] {
+        background: var(--scitex-color-04);
+        border-color: var(--scitex-color-03);
+        color: white;
+    }
+
+    .sort-item[data-state="none"] {
+        opacity: 0.6;
+    }
+
+    .drag-handle {
+        color: var(--color-fg-muted);
+        cursor: grab;
+        display: flex;
+        align-items: center;
+    }
+
+    .drag-handle:active {
+        cursor: grabbing;
+    }
+
+    .sort-item[data-state="asc"] .drag-handle,
+    .sort-item[data-state="desc"] .drag-handle {
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .sort-label {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        cursor: pointer;
+    }
+
+    .sort-indicator {
+        font-size: 16px;
+        font-weight: bold;
+        min-width: 20px;
+        text-align: center;
+    }
+
+    .sort-item[data-state="asc"] .sort-indicator::before {
+        content: "↑";
+    }
+
+    .sort-item[data-state="desc"] .sort-indicator::before {
+        content: "↓";
+    }
+
+    .sort-item[data-state="none"] .sort-indicator::before {
+        content: "○";
+    }
+
+    /* Horizontal Tab Layout (like browser tabs) */
+    .vertical-tab-container {
+        border: 1px solid var(--color-border-default);
+        border-radius: 8px;
+        overflow: hidden;
+        background: var(--color-canvas-default);
+    }
+
+    .vertical-tabs {
+        display: flex;
+        gap: 4px;
+        background: var(--color-canvas-subtle);
+        border-bottom: 2px solid var(--color-border-default);
+        padding: 8px 8px 0 8px;
+    }
+
+    .vertical-tab-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        background: transparent;
+        border: none;
+        border-radius: 8px 8px 0 0;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        color: var(--color-fg-muted);
+        font-size: 14px;
+        font-weight: 500;
+        position: relative;
+        text-decoration: none;
+    }
+
+    .vertical-tab-btn i {
+        font-size: 16px;
+    }
+
+    .vertical-tab-btn:hover {
+        background: var(--color-neutral-muted);
+        color: var(--color-fg-default);
+    }
+
+    .vertical-tab-btn.active {
+        background: var(--color-canvas-default);
+        color: var(--scitex-color-03);
+        font-weight: 600;
+        border-bottom: 2px solid var(--scitex-color-03);
+        margin-bottom: -2px;
+    }
+
+    .vertical-tab-btn.active i {
+        color: var(--scitex-color-03);
+    }
+
+    .vertical-tab-content-container {
+        padding: 24px;
+        min-height: 400px;
+    }
+
+    .vertical-tab-content {
+        display: none;
+    }
+
+    .vertical-tab-content.active {
+        display: block;
+        animation: fadeIn 0.3s ease-in;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
 {% endblock %}
 
 {% block extra_js %}
@@ -16,32 +298,34 @@
 {% endblock %}
 
 {% block content %}
-<!-- Split-Screen Layout -->
+<!-- Vertical Tab Layout -->
 <div class="container u-mt-2 u-mb-3">
-  <div class="split-container" id="splitContainer">
-    {% include "scholar_app/index_partials/enrich.html" %}
+  <div class="vertical-tab-container">
+    <!-- Vertical Tab Navigation -->
+    <div class="vertical-tabs">
+      <a href="#bibtex" class="vertical-tab-btn tab-link" data-tab="bibtex">
+        <i class="fas fa-file-code"></i>
+        <span>BibTeX Enrichment</span>
+      </a>
+      <a href="#search" class="vertical-tab-btn tab-link" data-tab="search">
+        <i class="fas fa-search"></i>
+        <span>Literature Search</span>
+      </a>
+    </div>
 
-    {% include "scholar_app/index_partials/search.html" %}
+    <!-- Tab Content Container -->
+    <div class="vertical-tab-content-container">
+      <!-- BibTeX Enrichment Tab -->
+      <div class="vertical-tab-content {% if active_tab == 'bibtex' %}active{% endif %}" id="bibtex-tab" data-tab="bibtex">
+        {% include "scholar_app/index_partials/enrich.html" %}
+      </div>
+
+      <!-- Literature Search Tab -->
+      <div class="vertical-tab-content {% if active_tab == 'search' %}active{% endif %}" id="search-tab" data-tab="search">
+        {% include "scholar_app/index_partials/search.html" with show_results=True %}
+      </div>
+    </div>
   </div>
-
-  {% if query %}
-  <div class="mt-4">
-    {% include "scholar_app/index_partials/search_results_header.html" %}
-
-    {% include "scholar_app/index_partials/api_key_alert.html" %}
-
-    {% include "scholar_app/index_partials/progressive_loading.html" %}
-
-    <!-- Search Results -->
-    {% for result in results %}
-    {% include "scholar_app/index_partials/result_card.html" %}
-    {% endfor %}
-
-    {% include "scholar_app/index_partials/pagination.html" %}
-  </div>
-  {% else %}
-  <!-- Empty state when no query -->
-  {% endif %}
 </div>
 
 <!-- Configuration for JavaScript -->
@@ -52,14 +336,55 @@
   bibtexUpload: '{% url "scholar_app:bibtex_upload" %}',
   resourceStatus: '{% url "scholar_app:bibtex_resource_status" %}',
   scitexSearch: '{% url "scholar_app:api_scitex_search" %}',
-  scitexSearchSingle: '{% url "scholar_app:api_scitex_search_single" %}',
   scitexCapabilities: '{% url "scholar_app:api_scitex_capabilities" %}'
   },
   user: {
   isAuthenticated: {% if user.is_authenticated %}true{% else %}false{% endif %}
   }
   };
+
+  {% if query and results %}
+  // Serialize Django search results for swarm plots
+  window.SCHOLAR_SEARCH_RESULTS = [
+    {% for result in results %}
+    {
+      title: "{{ result.title|escapejs }}",
+      year: {% if result.year %}{{ result.year }}{% else %}null{% endif %},
+      citations: {% if result.citations %}{{ result.citations }}{% else %}0{% endif %},
+      impact_factor: {% if result.impact_factor %}{{ result.impact_factor }}{% else %}null{% endif %},
+      authors: "{{ result.authors|escapejs }}",
+      journal: "{{ result.journal|escapejs }}",
+      url: "{{ result.url|escapejs }}"
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ];
+
+  // Initialize swarm plots when DOM is ready
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log('[Scholar Index] Initializing swarm plots with', window.SCHOLAR_SEARCH_RESULTS.length, 'Django results');
+
+    // Wait for SwarmPlots module to load
+    if (window.SwarmPlots) {
+      window.SwarmPlots.init(window.SCHOLAR_SEARCH_RESULTS);
+    } else {
+      // If not loaded yet, wait a bit
+      setTimeout(function() {
+        if (window.SwarmPlots) {
+          window.SwarmPlots.init(window.SCHOLAR_SEARCH_RESULTS);
+        } else {
+          console.warn('[Scholar Index] SwarmPlots module not available');
+        }
+      }, 500);
+    }
+  });
+  {% endif %}
 </script>
+<!-- noUiSlider JavaScript Library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.js"></script>
+<!-- Plotly.js for Interactive Visualizations -->
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js" charset="utf-8"></script>
+<!-- noUiSlider Initialization -->
+<script src="{% static 'scholar_app/scripts/nouislider-init.js' %}"></script>
 <!-- Panel Toggle Functionality -->
 <script src="{% static 'scholar_app/scripts/panel-toggle.js' %}"></script>
 <!-- SciTeX Search Integration -->
@@ -68,8 +393,100 @@
 <script src="{% static 'scholar_app/scripts/bibtex-enrichment.js' %}"></script>
 <!-- Queue Management -->
 <script src="{% static 'scholar_app/scripts/queue-management.js' %}"></script>
+<!-- Advanced Sorting and Selection -->
+<script src="{% static 'scholar_app/scripts/advanced-sorting.js' %}"></script>
+<!-- Drag-and-Drop Sorting -->
+<script src="{% static 'scholar_app/scripts/drag-sort.js' %}"></script>
+<!-- Swarm Plot Visualization -->
+<script src="{% static 'scholar_app/scripts/swarm-plots.js' %}?v=20251022-dynamic"></script>
 <!-- Main Scholar Index Functionality -->
 <script src="{% static 'scholar_app/scripts/scholar-index-main.js' %}"></script>
+
+<!-- Smooth Tab Switching with Hash-Based Navigation -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const tabLinks = document.querySelectorAll('.tab-link');
+    const tabContents = document.querySelectorAll('.vertical-tab-content');
+
+    // Function to switch tabs smoothly
+    function switchTab(targetTab) {
+        // Remove active class from all tabs and contents
+        tabLinks.forEach(link => link.classList.remove('active'));
+        tabContents.forEach(content => content.classList.remove('active'));
+
+        // Add active class to target tab and content
+        const targetLink = document.querySelector(`.tab-link[data-tab="${targetTab}"]`);
+        const targetContent = document.getElementById(`${targetTab}-tab`);
+
+        if (targetLink) targetLink.classList.add('active');
+        if (targetContent) targetContent.classList.add('active');
+
+        // Focus search input when switching to search tab
+        if (targetTab === 'search') {
+            setTimeout(() => {
+                const searchInput = document.querySelector('#search-tab input[name="q"]');
+                if (searchInput) {
+                    searchInput.focus();
+                    console.log('[Tab Switcher] Focused search input');
+                }
+            }, 100); // Small delay to ensure tab is visible
+        }
+
+        console.log('[Tab Switcher] Switched to:', targetTab);
+    }
+
+    // Handle hash changes (browser back/forward, direct hash navigation)
+    window.addEventListener('hashchange', function() {
+        const hash = window.location.hash.substring(1); // Remove the '#'
+        if (hash === 'bibtex' || hash === 'search') {
+            switchTab(hash);
+        }
+    });
+
+    // Initialize correct tab based on hash, query params, or default
+    function initializeTab() {
+        const hash = window.location.hash.substring(1);
+        const urlParams = new URLSearchParams(window.location.search);
+        const hasSearchQuery = urlParams.get('q') !== null && urlParams.get('q').trim() !== '';
+
+        let initialTab = 'bibtex'; // Default tab
+
+        // Priority 1: If there's a search query, always show search tab
+        if (hasSearchQuery) {
+            initialTab = 'search';
+        }
+        // Priority 2: Use hash if valid
+        else if (hash === 'search' || hash === 'bibtex') {
+            initialTab = hash;
+        }
+        // Priority 3: Use Django template context
+        else if ('{{ active_tab }}' && '{{ active_tab }}' !== '') {
+            initialTab = '{{ active_tab }}';
+        }
+
+        // Update hash to match the tab
+        window.location.hash = initialTab;
+
+        switchTab(initialTab);
+    }
+
+    initializeTab();
+
+    // Enable Enter key to submit search form
+    const searchInput = document.querySelector('#search-tab input[name="q"]');
+    const searchForm = document.getElementById('literatureSearchForm');
+
+    if (searchInput && searchForm) {
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                searchForm.submit();
+                console.log('[Search] Form submitted via Enter key');
+            }
+        });
+    }
+});
+</script>
 
 {% endblock %}
 

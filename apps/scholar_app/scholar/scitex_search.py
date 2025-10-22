@@ -154,6 +154,44 @@ def django_to_scitex_filters(request) -> Dict:
     if pmid:
         filters['pmid'] = pmid
 
+    # Sorting
+    sort_by = request.GET.get('sort_by', '').strip()
+    if sort_by:
+        filters['sort_by'] = sort_by
+
+    sort_order = request.GET.get('sort_order', 'desc').strip()
+    if sort_order in ['asc', 'desc']:
+        filters['sort_order'] = sort_order
+
+    # Threshold filters
+    min_year = request.GET.get('min_year', '').strip()
+    if min_year:
+        try:
+            filters['min_year'] = int(min_year)
+        except ValueError:
+            pass
+
+    max_year = request.GET.get('max_year', '').strip()
+    if max_year:
+        try:
+            filters['max_year'] = int(max_year)
+        except ValueError:
+            pass
+
+    min_citations = request.GET.get('min_citations', '').strip()
+    if min_citations:
+        try:
+            filters['min_citations'] = int(min_citations)
+        except ValueError:
+            pass
+
+    min_impact_factor = request.GET.get('min_impact_factor', '').strip()
+    if min_impact_factor:
+        try:
+            filters['min_impact_factor'] = float(min_impact_factor)
+        except ValueError:
+            pass
+
     return filters
 
 
@@ -216,8 +254,25 @@ def scitex_to_django_paper(scitex_result: Dict, user=None) -> SearchIndex:
         # TODO: Create Author instances and link via AuthorPaper
         pass
 
-    # Journal info
-    # TODO: Create or get Journal instance
+    # Journal info - Create or get Journal instance
+    journal_name = scitex_result.get('journal', '').strip()
+    if journal_name:
+        from ..models import Journal
+        # Get or create journal by name
+        journal, created = Journal.objects.get_or_create(
+            name=journal_name,
+            defaults={
+                'impact_factor': scitex_result.get('impact_factor'),
+                # Add other journal fields if available
+            }
+        )
+        # Update impact factor if it's provided and different
+        if scitex_result.get('impact_factor') is not None:
+            if journal.impact_factor != scitex_result.get('impact_factor'):
+                journal.impact_factor = scitex_result.get('impact_factor')
+                journal.save()
+
+        paper.journal = journal
 
     # Metrics
     paper.citation_count = scitex_result.get('citation_count', 0)
@@ -378,6 +433,7 @@ def api_scitex_search(request):
                     'year': scitex_paper.get('year'),
                     'abstract': scitex_paper.get('abstract', ''),
                     'journal': scitex_paper.get('journal', ''),
+                    'impact_factor': scitex_paper.get('impact_factor'),
                     'doi': scitex_paper.get('doi', ''),
                     'pmid': scitex_paper.get('pmid', ''),
                     'arxiv_id': scitex_paper.get('arxiv_id', ''),
@@ -508,6 +564,7 @@ def api_scitex_search_single(request):
                     'year': scitex_paper.get('year'),
                     'abstract': scitex_paper.get('abstract', ''),
                     'journal': scitex_paper.get('journal', ''),
+                    'impact_factor': scitex_paper.get('impact_factor'),
                     'doi': scitex_paper.get('doi', ''),
                     'pmid': scitex_paper.get('pmid', ''),
                     'arxiv_id': scitex_paper.get('arxiv_id', ''),

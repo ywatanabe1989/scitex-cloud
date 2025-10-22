@@ -10,7 +10,6 @@
     </small>
   </div>
   <div class="d-flex align-items-center gap-2">
-
     <div>
       <small class="text-muted">Sort by:</small>
       <select name="sort_by" class="form-select form-select-sm d-inline-block w-auto ms-2" id="sortSelect">
@@ -21,3 +20,27 @@
     </div>
   </div>
 </div>
+
+<!-- Paper Selection Toolbar -->
+{% if results %}
+<div class="card mb-3" style="border-color: var(--scitex-color-05);">
+  <div class="card-body p-2">
+    <div class="d-flex justify-content-between align-items-center">
+      <div class="d-flex align-items-center gap-2">
+        <button type="button" class="btn btn-sm btn-outline-primary" id="selectAllResults">
+          <i class="fas fa-check-double"></i> Select All
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-secondary" id="deselectAllResults">
+          <i class="fas fa-times"></i> Deselect All
+        </button>
+        <span class="text-muted small" id="selectedCount">0 of {{ results|length }} selected</span>
+      </div>
+      <div>
+        <button type="button" class="btn btn-sm btn-success" id="exportSelectedBibtex" disabled>
+          <i class="fas fa-file-download"></i> Export Selected as BibTeX
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
