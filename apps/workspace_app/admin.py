@@ -13,8 +13,8 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 
 # ProjectMembership now managed in project_app
-# UserProfile now managed in profile_app
-from apps.profile_app.models import UserProfile
+# UserProfile now managed in accounts_app
+from apps.accounts_app.models import UserProfile
 # Organization models now managed in organizations_app
 from apps.organizations_app.models import (
     Organization, OrganizationMembership,
@@ -77,7 +77,7 @@ class UserAdmin(BaseUserAdmin):
     total_projects.short_description = 'Projects'
 
 
-# UserProfile admin moved to apps.profile_app.admin
+# UserProfile admin moved to apps.accounts_app.admin
 # Organization and ResearchGroup admin moved to apps.organizations_app.admin
 # Project admin moved to apps.project_app.admin
 # ProjectMembership admin moved to apps.project_app.admin

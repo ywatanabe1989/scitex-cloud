@@ -1,4 +1,4 @@
-{% extends "cloud_app/cloud_base.html" %}
+{% extends "public_app/cloud_base.html" %}
 {% load static %}
 
 {% block title %}SciTeX-PyTools - Scientific Python Toolkit{% endblock %}
@@ -151,7 +151,7 @@ mngs.plt.plot_results(results, save_path='analysis.pdf')</code></pre>
             <p>Join researchers worldwide using MNGS for cutting-edge scientific analysis.</p>
             <div class="cta-buttons">
                 <a href="https://github.com/ywatanabe1989/mngs" class="btn btn-primary">View on GitHub</a>
-                <a href="{% url 'cloud_app:demo' %}" class="btn btn-secondary">Try Demo</a>
+                <a href="{% url 'public_app:demo' %}" class="btn btn-secondary">Try Demo</a>
             </div>
         </div>
     </div>

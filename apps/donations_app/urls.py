@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # Timestamp: "2025-10-16 02:01:04 (ywatanabe)"
-# File: /home/ywatanabe/proj/scitex-cloud/apps/sustainability_app/urls.py
+# File: /home/ywatanabe/proj/scitex-cloud/apps/donations_app/urls.py
 # ----------------------------------------
 from __future__ import annotations
 import os
 __FILE__ = (
-    "./apps/sustainability_app/urls.py"
+    "./apps/donations_app/urls.py"
 )
 __DIR__ = os.path.dirname(__FILE__)
 # ----------------------------------------
@@ -14,7 +14,7 @@ from django.urls import path
 
 from . import views
 
-app_name = "sustainability"
+app_name = "donations"
 
 urlpatterns = [
     # Pricing and subscription pages

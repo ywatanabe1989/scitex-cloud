@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("core_app", "0004_userprofile_last_active_project"),
+        ("workspace_app", "0004_userprofile_last_active_project"),
         ("project_app", "0004_alter_project_collaborators"),
     ]
 

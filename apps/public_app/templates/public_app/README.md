@@ -2,7 +2,7 @@
 
 This directory contains the template files for the main cloud_app (landing pages, legal pages, etc.).
 
-**Note:** Authentication templates have been moved to `apps/auth_app/templates/auth_app/` and monetization templates to `apps/sustainability_app/templates/sustainability_app/`.
+**Note:** Authentication templates have been moved to `apps/auth_app/templates/auth_app/` and monetization templates to `apps/donations_app/templates/donations_app/`.
 
 ## Directory Structure
 
@@ -57,7 +57,7 @@ Individual product landing pages for SciTeX modules:
 - email_verification.html
 - verify_email.html
 
-### Sustainability/Monetization (→ apps/sustainability_app/templates/sustainability_app/)
+### Sustainability/Monetization (→ apps/donations_app/templates/donations_app/)
 - pricing.html
 - pricing_enhanced.html
 - pricing_new.html
@@ -73,5 +73,5 @@ These templates are used by `apps/cloud_app` and should extend from `base.html` 
 - Main templates directory: `/templates`
 - Cloud app: `/apps/cloud_app`
 - Auth app templates: `/apps/auth_app/templates/auth_app`
-- Sustainability app templates: `/apps/sustainability_app/templates/sustainability_app`
+- Donations app templates: `/apps/donations_app/templates/donations_app`
 - Design system: Available at `/dev/design.html`

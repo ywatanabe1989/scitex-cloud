@@ -279,7 +279,7 @@ def discover_app_urls():
     apps_dir = Path(settings.BASE_DIR) / "apps"
 
     # Apps to skip because they're manually configured below
-    skip_apps = {'cloud_app'}
+    skip_apps = {'public_app'}
 
     if apps_dir.exists():
         for app_dir in sorted(apps_dir.iterdir()):
@@ -381,10 +381,10 @@ urlpatterns += [
         "favicon.ico",
         RedirectView.as_view(url="/static/images/favicon.png", permanent=True),
     ),
-    # Cloud app URLs (includes landing page and auth)
-    # Note: cloud_app is already included by discover_app_urls() at /cloud/
+    # Public app URLs (includes landing page and auth)
+    # Note: public_app is already included by discover_app_urls() at /public/
     # This additional include makes it accessible at root path /
-    path("", include("apps.cloud_app.urls")),
+    path("", include("apps.public_app.urls")),
 ]
 
 urlpatterns += [

@@ -5,14 +5,14 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class CoreAppConfig(AppConfig):
+class WorkspaceAppConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'apps.core_app'
-    verbose_name = 'SciTeX Core Application'
+    name = 'apps.workspace_app'
+    verbose_name = 'SciTeX Workspace Application'
 
     def ready(self):
         # Import signals to ensure they are connected
-        import apps.core_app.signals
+        import apps.workspace_app.signals
         
         # Auto-create cache table if using database cache
         self.ensure_cache_table()

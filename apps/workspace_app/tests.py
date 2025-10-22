@@ -5,7 +5,7 @@ from django.utils import timezone
 from datetime import timedelta
 from .models import UserProfile, Project
 # from apps.document_app  # Removed - document_app not installed.models import Document
-from apps.cloud_app.models import SubscriptionPlan, Subscription
+from apps.public_app.models import SubscriptionPlan, Subscription
 
 
 class UserProfileTestCase(TestCase):

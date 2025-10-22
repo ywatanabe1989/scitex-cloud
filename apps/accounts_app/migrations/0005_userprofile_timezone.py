@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("profile_app", "0004_add_git_hosting_profiles"),
+        ("accounts_app", "0004_add_git_hosting_profiles"),
     ]
 
     operations = [

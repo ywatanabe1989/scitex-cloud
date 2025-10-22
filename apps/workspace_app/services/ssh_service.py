@@ -75,7 +75,7 @@ class SSHKeyManager:
             fingerprint = fingerprint_result.stdout.strip()
 
             # Update user profile
-            from apps.profile_app.models import UserProfile
+            from apps.accounts_app.models import UserProfile
             profile, _ = UserProfile.objects.get_or_create(user=self.user)
             profile.ssh_public_key = public_key
             profile.ssh_key_fingerprint = fingerprint
@@ -96,7 +96,7 @@ class SSHKeyManager:
             if self.public_key_path.exists():
                 return self.public_key_path.read_text()
             # Try to get from database
-            from apps.profile_app.models import UserProfile
+            from apps.accounts_app.models import UserProfile
             try:
                 profile = UserProfile.objects.get(user=self.user)
                 return profile.ssh_public_key
@@ -117,7 +117,7 @@ class SSHKeyManager:
                 shutil.rmtree(self.ssh_dir)
 
             # Update database
-            from apps.profile_app.models import UserProfile
+            from apps.accounts_app.models import UserProfile
             try:
                 profile = UserProfile.objects.get(user=self.user)
                 profile.ssh_public_key = None
@@ -135,7 +135,7 @@ class SSHKeyManager:
     def mark_key_used(self):
         """Update last_used_at timestamp for the SSH key."""
         try:
-            from apps.profile_app.models import UserProfile
+            from apps.accounts_app.models import UserProfile
             profile = UserProfile.objects.get(user=self.user)
             profile.ssh_key_last_used_at = timezone.now()
             profile.save(update_fields=['ssh_key_last_used_at'])

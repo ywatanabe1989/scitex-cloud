@@ -5,7 +5,7 @@ from .models import (
 )
 
 # EmailVerification admin now in apps.auth_app.admin
-# Donation, DonationTier admin now in apps.sustainability_app.admin
+# Donation, DonationTier admin now in apps.donations_app.admin
 
 @admin.register(SubscriptionPlan)
 class SubscriptionPlanAdmin(admin.ModelAdmin):

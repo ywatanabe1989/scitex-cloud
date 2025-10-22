@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("core_app", "0002_userprofile_avatar_userprofile_location"),
+        ("workspace_app", "0002_userprofile_avatar_userprofile_location"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
             name="collaborators",
             field=models.ManyToManyField(
                 related_name="collaborative_projects",
-                through="core_app.ProjectMembership",
+                through="workspace_app.ProjectMembership",
                 through_fields=("project", "user"),
                 to=settings.AUTH_USER_MODEL,
             ),

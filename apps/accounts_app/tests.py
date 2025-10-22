@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Tests for profile_app
+Tests for accounts_app
 
 This module contains unit tests for the profile app, covering:
 - UserProfile model
@@ -244,7 +244,7 @@ class ProfileViewTests(TestCase):
 
     def test_profile_view_requires_login(self):
         """Test that profile view requires authentication"""
-        response = self.client.get(reverse('profile_app:profile_view'))
+        response = self.client.get(reverse('accounts_app:profile_view'))
         self.assertEqual(response.status_code, 302)
         self.assertIn('/auth/login', response.url)
 
@@ -255,27 +255,27 @@ class ProfileViewTests(TestCase):
         # Delete profile if it exists
         UserProfile.objects.filter(user=self.user).delete()
 
-        response = self.client.get(reverse('profile_app:profile_view'))
+        response = self.client.get(reverse('accounts_app:profile_view'))
         self.assertEqual(response.status_code, 200)
         self.assertTrue(UserProfile.objects.filter(user=self.user).exists())
 
     def test_profile_edit_requires_login(self):
         """Test that profile edit requires authentication"""
-        response = self.client.get(reverse('profile_app:profile_edit'))
+        response = self.client.get(reverse('accounts_app:profile_edit'))
         self.assertEqual(response.status_code, 302)
 
     def test_profile_edit_shows_form(self):
         """Test profile edit view shows form"""
         self.client.login(username='testuser', password='testpass123')
 
-        response = self.client.get(reverse('profile_app:profile_edit'))
+        response = self.client.get(reverse('accounts_app:profile_edit'))
         self.assertEqual(response.status_code, 200)
         # Should have form in context
         self.assertIn('form', response.context)
 
     def test_api_keys_view_requires_login(self):
         """Test that API keys view requires authentication"""
-        response = self.client.get(reverse('profile_app:api_keys'))
+        response = self.client.get(reverse('accounts_app:api_keys'))
         self.assertEqual(response.status_code, 302)
 
     def test_api_keys_view_shows_user_keys(self):
@@ -288,20 +288,20 @@ class ProfileViewTests(TestCase):
             name='Test Key'
         )
 
-        response = self.client.get(reverse('profile_app:api_keys'))
+        response = self.client.get(reverse('accounts_app:api_keys'))
         self.assertEqual(response.status_code, 200)
         self.assertIn('api_keys', response.context)
 
     def test_ssh_keys_view_requires_login(self):
         """Test that SSH keys view requires authentication"""
-        response = self.client.get(reverse('profile_app:ssh_keys'))
+        response = self.client.get(reverse('accounts_app:ssh_keys'))
         self.assertEqual(response.status_code, 302)
 
     def test_ssh_keys_view_accessible(self):
         """Test SSH keys view is accessible when authenticated"""
         self.client.login(username='testuser', password='testpass123')
 
-        response = self.client.get(reverse('profile_app:ssh_keys'))
+        response = self.client.get(reverse('accounts_app:ssh_keys'))
         self.assertEqual(response.status_code, 200)
 
 

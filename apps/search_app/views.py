@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.db.models import Q, Count
 from django.contrib.postgres.search import SearchVector, SearchQuery as PgSearchQuery, SearchRank
 from apps.project_app.models import Project
-from apps.profile_app.models import UserProfile
+from apps.accounts_app.models import UserProfile
 from .models import GlobalSearchQuery
 
 

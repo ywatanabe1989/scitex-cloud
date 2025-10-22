@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("core_app", "0003_alter_project_collaborators"),
+        ("workspace_app", "0003_alter_project_collaborators"),
     ]
 
     operations = [
@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
                 related_name="last_active_for_users",
-                to="core_app.project",
+                to="workspace_app.project",
             ),
         ),
     ]

@@ -5,9 +5,9 @@ import random
 import string
 import uuid
 
-# Donation models moved to apps.sustainability_app.models
+# Donation models moved to apps.donations_app.models
 # Import here for backwards compatibility
-from apps.sustainability_app.models import Donation, DonationTier  # noqa
+from apps.donations_app.models import Donation, DonationTier  # noqa
 
 # EmailVerification model moved to apps.auth_app.models
 # Import here for backwards compatibility

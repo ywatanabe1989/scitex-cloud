@@ -158,9 +158,9 @@ textarea.form-control {
                            style="max-width: 600px;">
                     <div class="help-text" style="margin-top: 0.5rem;">
                         {% if user.profile.github_token %}
-                            ✅ Using saved token from <a href="{% url 'profile_app:profile_edit' %}">profile settings</a>
+                            ✅ Using saved token from <a href="{% url 'accounts_app:profile_edit' %}">profile settings</a>
                         {% else %}
-                            💡 <a href="{% url 'profile_app:profile_edit' %}">Save token in profile</a> to avoid entering it each time<br>
+                            💡 <a href="{% url 'accounts_app:profile_edit' %}">Save token in profile</a> to avoid entering it each time<br>
                         {% endif %}
                         Create token:
                         <a href="https://github.com/settings/tokens" target="_blank">GitHub</a> |

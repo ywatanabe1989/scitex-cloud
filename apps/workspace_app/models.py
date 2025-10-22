@@ -6,12 +6,12 @@ from datetime import timedelta
 from django.utils import timezone
 
 
-# UserProfile model moved to apps.profile_app.models
+# UserProfile model moved to apps.accounts_app.models
 # Import here for backwards compatibility
-from apps.profile_app.models import UserProfile  # noqa
+from apps.accounts_app.models import UserProfile  # noqa
 
-# Japanese Academic utilities moved to apps.profile_app.models
-from apps.profile_app.models import JAPANESE_ACADEMIC_DOMAINS, is_japanese_academic_email  # noqa
+# Japanese Academic utilities moved to apps.accounts_app.models
+from apps.accounts_app.models import JAPANESE_ACADEMIC_DOMAINS, is_japanese_academic_email  # noqa
 
 # Organization and ResearchGroup models moved to apps.organizations_app.models
 # Import here for backwards compatibility

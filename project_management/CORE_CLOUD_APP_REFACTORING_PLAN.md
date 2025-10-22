@@ -12,7 +12,7 @@
 `core_app` and `cloud_app` violate Single Responsibility Principle:
 - **Model duplication**: core_app and project_app define same 5 models
 - **core_app**: Mixes 6+ domains (Projects, Git, Files, Email, Organizations, Manuscripts)
-- **cloud_app**: Overlaps with 3 other apps (auth_app, sustainability_app, integrations_app)
+- **cloud_app**: Overlaps with 3 other apps (auth_app, donations_app, integrations_app)
 
 ### Impact
 - ⚠️ **Risk**: Potential model conflicts and data inconsistency
@@ -119,24 +119,24 @@ grep -r "from core_app.models import.*Project" apps/
 
 ---
 
-## Phase 3: Move Donations → sustainability_app
+## Phase 3: Move Donations → donations_app
 
 ### Components to Move
 
 #### Models (from cloud_app):
-- `Donation` → `sustainability_app/models/donation.py`
-- `DonationTier` → `sustainability_app/models/donation.py`
+- `Donation` → `donations_app/models/donation.py`
+- `DonationTier` → `donations_app/models/donation.py`
 
 #### Views:
-- Donation-related views from cloud_app → sustainability_app
+- Donation-related views from cloud_app → donations_app
 
 #### URLs:
-- Donation endpoints → sustainability_app/urls.py
+- Donation endpoints → donations_app/urls.py
 
 ### Rationale
-- **sustainability_app already exists!**
-- Currently named "sustainability" but contains billing models
-- Donations are sustainability/funding concern
+- **donations_app already exists!** (renamed from sustainability_app)
+- Currently contains billing and funding models
+- Donations are clearly a funding/monetization concern
 - Clear domain fit
 
 ### Migration Checklist
@@ -243,7 +243,7 @@ grep -r "from core_app.models import.*Project" apps/
 | Organizations | organizations_app (new) | Organization, ResearchGroup, *Membership |
 | Git/GitHub | integrations_app | GitFileStatus, ServiceIntegration, APIKey |
 | Auth | auth_app | EmailVerification, User, UserProfile |
-| Donations | sustainability_app | Donation, DonationTier |
+| Donations | donations_app | Donation, DonationTier |
 | Writing | writer_app | Manuscript, Paper, Document |
 | Subscriptions | cloud_app | SubscriptionPlan, Subscription, CloudResource |
 | Files | core_app | (services only, no models) |
@@ -270,7 +270,7 @@ grep -r "from core_app.models import.*Project" apps/
 
 ### Week 2: High Priority Extractions
 1. **Day 1-2:** Phase 2 - Git/GitHub to integrations_app
-2. **Day 3:** Phase 3 - Donations to sustainability_app
+2. **Day 3:** Phase 3 - Donations to donations_app
 3. **Day 4:** Phase 4 - Auth consolidation
 4. **Day 5:** Phase 5 - Manuscript to writer_app
 

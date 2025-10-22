@@ -6,17 +6,17 @@ from django.shortcuts import render, redirect
 
 def pricing(request):
     """Display pricing plans."""
-    return render(request, 'sustainability_app/pricing.html')
+    return render(request, 'donations_app/pricing.html')
 
 
 def premium_subscription(request):
     """Premium subscription page."""
-    return render(request, 'sustainability_app/premium_subscription.html')
+    return render(request, 'donations_app/premium_subscription.html')
 
 
 def donation_success(request, donation_id=None):
     """Donation success page."""
-    return render(request, 'sustainability_app/donation_success.html')
+    return render(request, 'donations_app/donation_success.html')
 
 
 def fundraising(request):

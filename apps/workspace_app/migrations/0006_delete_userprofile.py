@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("core_app", "0005_remove_userprofile_last_active_project_and_more"),
+        ("workspace_app", "0005_remove_userprofile_last_active_project_and_more"),
     ]
 
     operations = [

@@ -19,7 +19,7 @@ from .models import (
 )
 from .version_control import VersionControlManager
 from apps.project_app.models import Project
-from apps.core_app.services.directory_service import get_user_directory_manager
+from apps.workspace_app.services.directory_service import get_user_directory_manager
 import json
 import uuid
 import subprocess
