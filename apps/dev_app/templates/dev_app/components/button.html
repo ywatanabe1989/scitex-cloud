@@ -1,0 +1,102 @@
+{% extends "global_base.html" %}
+
+{% block title %}Button - SciTeX Design System{% endblock %}
+
+{% block meta_description %}Versatile button component with multiple variants, sizes, and states.{% endblock %}
+
+{% block extra_css %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/common.css' %}">
+<link rel="stylesheet" href="{% static 'css/common/code-blocks.css' %}">
+<link rel="stylesheet" href="{% static 'dev_app/styles/design.css' %}">
+<link rel="stylesheet" href="{% static 'css/common/buttons.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/zenburn.min.css">
+<style>
+  .button-demo {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: 8px;
+    padding: 2rem;
+    margin: 1rem 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section style="background-color: var(--header-bg); color: var(--header-text); padding: 3rem 0; box-shadow: var(--shadow-md);">
+  <div class="container" style="text-align: center;">
+    <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem; font-weight: 700;">Button</h1>
+    <p style="font-size: 1.125rem; color: var(--header-text); opacity: 0.9;">Versatile button component with multiple variants, sizes, and states</p>
+  </div>
+</section>
+
+<div class="container py-5">
+  <div style="display: flex; gap: 2rem;">
+    {% include 'dev_app/design_partial/sidebar.html' %}
+    
+    <main style="flex: 1; min-width: 0;">
+      <section>
+        <h2>Overview</h2>
+        <p>Buttons are interactive elements that trigger actions. They come in multiple variants (primary, secondary, outline, danger) and states (default, hover, active, disabled).</p>
+        <p><strong>Category:</strong> Form and Selection</p>
+        <p><strong>Dark Mode Support:</strong> Yes</p>
+      </section>
+
+      <section style="margin-top: 2rem;">
+        <h2>Component Demo</h2>
+        <div class="button-demo">
+          <button class="btn btn-primary">Primary Button</button>
+          <button class="btn btn-secondary">Secondary Button</button>
+          <button class="btn btn-outline">Outline Button</button>
+          <button class="btn btn-danger">Danger Button</button>
+          <button class="btn btn-primary" disabled>Disabled Button</button>
+        </div>
+      </section>
+
+      <section style="margin-top: 2rem;">
+        <h2>Variants</h2>
+        <ul>
+          <li><code>btn-primary</code> - Primary action button</li>
+          <li><code>btn-secondary</code> - Secondary action button</li>
+          <li><code>btn-outline</code> - Outline button with no fill</li>
+          <li><code>btn-danger</code> - Destructive action button</li>
+        </ul>
+      </section>
+
+      <section style="margin-top: 2rem;">
+        <h2>States</h2>
+        <ul>
+          <li><strong>default</strong> - Normal button state</li>
+          <li><strong>hover</strong> - Hover state with color change</li>
+          <li><strong>active</strong> - Pressed state</li>
+          <li><strong>disabled</strong> - Disabled and cannot be clicked</li>
+        </ul>
+      </section>
+
+      <section style="margin-top: 2rem;">
+        <h2>HTML Example</h2>
+        <pre><code>&lt;button class="btn btn-primary"&gt;Primary Button&lt;/button&gt;
+&lt;button class="btn btn-secondary"&gt;Secondary Button&lt;/button&gt;
+&lt;button class="btn btn-danger" disabled&gt;Disabled&lt;/button&gt;</code></pre>
+      </section>
+    </main>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% load static %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('pre code').forEach((block) => {
+      hljs.highlightElement(block);
+    });
+  });
+</script>
+<script src="{% static 'js/code-blocks.js' %}"></script>
+{% endblock %}

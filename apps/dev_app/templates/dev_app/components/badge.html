@@ -1,0 +1,135 @@
+{% extends "global_base.html" %}
+
+{% block content %}
+<div class="dev-design-layout">
+  {% include "dev_app/design_partial/sidebar.html" %}
+
+  <main class="design-content">
+    <div class="design-header">
+      <h1>Badge</h1>
+      <p class="design-subtitle">Small labels for categorization and status indication</p>
+    </div>
+
+    <style>
+      .badge-demo {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        padding: 2rem;
+        background-color: var(--bg-secondary);
+        border-radius: 8px;
+        margin-bottom: 2rem;
+      }
+
+      .badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        white-space: nowrap;
+      }
+
+      .badge-primary {
+        background-color: #007AFF;
+        color: white;
+      }
+
+      .badge-secondary {
+        background-color: #5AC8FA;
+        color: white;
+      }
+
+      .badge-success {
+        background-color: #34C759;
+        color: white;
+      }
+
+      .badge-warning {
+        background-color: #FF9500;
+        color: white;
+      }
+
+      .badge-danger {
+        background-color: #FF3B30;
+        color: white;
+      }
+
+      .badge-neutral {
+        background-color: #8E8E93;
+        color: white;
+      }
+
+      .badge-light {
+        background-color: #F2F2F7;
+        color: #333;
+        border: 1px solid #E5E5EA;
+      }
+
+      .badge-outline {
+        background-color: transparent;
+        border: 1px solid #007AFF;
+        color: #007AFF;
+      }
+    </style>
+
+    <section class="design-section">
+      <h2>Overview</h2>
+      <div class="section-info">
+        <p><strong>Category:</strong> Status & Labels</p>
+        <p><strong>Dark mode:</strong> Supported</p>
+        <p>Badges are compact labels used to display status, count, or category information. They can be used in various colors to indicate different states or meanings.</p>
+      </div>
+    </section>
+
+    <section class="design-section">
+      <h2>Component Demo</h2>
+      <div class="badge-demo">
+        <span class="badge badge-primary">Primary</span>
+        <span class="badge badge-secondary">Secondary</span>
+        <span class="badge badge-success">Success</span>
+        <span class="badge badge-warning">Warning</span>
+        <span class="badge badge-danger">Danger</span>
+        <span class="badge badge-neutral">Neutral</span>
+        <span class="badge badge-light">Light</span>
+        <span class="badge badge-outline">Outline</span>
+      </div>
+    </section>
+
+    <section class="design-section">
+      <h2>Variants & States</h2>
+      <div class="variants-list">
+        <ul>
+          <li><strong>Primary:</strong> Default badge for general use</li>
+          <li><strong>Secondary:</strong> Lighter blue variant</li>
+          <li><strong>Success:</strong> Green badge for positive states</li>
+          <li><strong>Warning:</strong> Orange badge for warnings</li>
+          <li><strong>Danger:</strong> Red badge for errors/danger</li>
+          <li><strong>Neutral:</strong> Gray badge for neutral states</li>
+          <li><strong>Light:</strong> Light background with border</li>
+          <li><strong>Outline:</strong> Transparent with colored border</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="design-section">
+      <h2>HTML Code Example</h2>
+      <pre><code class="language-html">&lt;!-- Primary Badge --&gt;
+&lt;span class="badge badge-primary"&gt;Primary&lt;/span&gt;
+
+&lt;!-- Success Badge --&gt;
+&lt;span class="badge badge-success"&gt;Success&lt;/span&gt;
+
+&lt;!-- Danger Badge --&gt;
+&lt;span class="badge badge-danger"&gt;Danger&lt;/span&gt;
+
+&lt;!-- Outline Badge --&gt;
+&lt;span class="badge badge-outline"&gt;Outline&lt;/span&gt;
+
+&lt;!-- With Count --&gt;
+&lt;span class="badge badge-primary"&gt;5&lt;/span&gt;</code></pre>
+      <script>hljs.highlightAll();</script>
+    </section>
+  </main>
+</div>
+{% endblock %}
