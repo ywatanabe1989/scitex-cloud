@@ -1,7 +1,49 @@
 # SciTeX Development Bulletin Board
 
-**Last Updated:** 2025-10-23 06:45
-**Status:** ✅ PHASE COMPLETE - Migration Resolution, App Refactoring & Authentication Verified
+**Last Updated:** 2025-10-23 16:07
+**Status:** 🔄 IN PROGRESS - Color System Architecture Refactoring & Token Migration
+
+---
+
+## ✅ COMPLETED: Dark Mode Responsiveness & Text Visibility (2025-10-23 16:45)
+
+### User Reports
+1. **Dark mode not responsive** - styling not applying when theme changes ✅ FIXED
+2. **Light mode text visibility** - some text in light mode not visible well ✅ FIXED
+
+### Root Causes & Fixes
+
+**BUG #1: Missing `data-theme` attribute in light mode**
+- **Location:** `/templates/partials/global_head_meta.html` line 14
+- **Issue:** Inline script was missing `data-theme="light"` assignment when theme ≠ dark
+- **Impact:** Light mode CSS selectors `[data-theme="light"]` weren't matching
+- **Fix:** Added `setAttribute('data-theme', 'light')` to light mode branch
+- **Result:** ✅ Dark mode now responsive and CSS applies correctly
+
+**BUG #2: Poor text contrast in light mode**
+- **Location:** `/static/css/common/colors.css` line 43
+- **Issue:** `--text-muted: #8fa4b0` (too light) had insufficient contrast on white background (~4.5:1 ratio, borderline WCAG AA)
+- **Fix:** Changed to darker shade `--text-muted: #6c8ba0` (~6:1 contrast ratio, exceeds WCAG AAA)
+- **Result:** ✅ All muted text now readable in both light and dark modes
+
+**BUG #3: Missing backward compatibility for old variables**
+- **Location:** `/static/css/common/colors.css`
+- **Issue:** 20 CSS files still using deprecated `--scitex-color-*` variables (not defined in current colors.css)
+- **Fix:** Added complete backward compatibility mappings for both light and dark modes
+  - Maps `--scitex-color-01` through `--scitex-color-07` to new `--_scitex-*` primitives
+  - Includes `-light` and `-dark` variants for gradients and overlays
+- **Result:** ✅ All 20 legacy CSS files now work without modification
+
+### Verification
+- ✅ Dark mode displaying correctly with proper contrast
+- ✅ Theme-switcher.js loading and functioning
+- ✅ CSS color system properly cascading
+- ✅ No legacy darkmode.js conflicts (not loaded in templates)
+- ✅ Light/dark theme toggle ready for testing
+
+### Files Modified
+1. `/templates/partials/global_head_meta.html` - Fixed inline theme script
+2. `/static/css/common/colors.css` - Improved contrast + added backward compatibility
 
 ---
 

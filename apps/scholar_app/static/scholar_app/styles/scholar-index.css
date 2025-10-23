@@ -53,12 +53,12 @@
 #searchPanel .form-label,
 #searchPanel small,
 #searchPanel label {
-    color: var(--color-fg-muted) !important;
+    color: var(--text-secondary) !important;
 }
 
 #searchPanel .fw-bold,
 #searchPanel .form-label.fw-bold {
-    color: var(--color-fg-default) !important;
+    color: var(--text-primary) !important;
 }
 
 /* Dark mode - bluish colors for filter section labels */
@@ -70,7 +70,7 @@
 /* Fix checkbox labels and quick filter buttons */
 #searchPanel .scitex-checkbox-label,
 #searchPanel .scitex-toggle-label {
-    color: var(--color-fg-default) !important;
+    color: var(--text-primary) !important;
     background: var(--color-canvas-subtle) !important;
     border-color: var(--color-border-default) !important;
 }
@@ -178,11 +178,11 @@
     font-size: 1.1rem;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     background: var(--color-canvas-default);
-    color: var(--color-fg-default);
+    color: var(--text-primary);
 }
 
 .search-input::placeholder {
-    color: var(--color-fg-muted);
+    color: var(--text-secondary);
     opacity: 0.6;
 }
 
@@ -232,7 +232,7 @@
 }
 
 .result-title {
-    color: var(--color-fg-default);
+    color: var(--text-primary);
     font-weight: 600;
     font-size: 1.1rem;
     margin-bottom: 0.5rem;
@@ -244,13 +244,13 @@
 }
 
 .result-authors {
-    color: var(--color-fg-muted);
+    color: var(--text-secondary);
     font-size: 0.9rem;
     margin-bottom: 0.5rem;
 }
 
 .result-snippet {
-    color: var(--color-fg-default);
+    color: var(--text-primary);
     font-size: 0.9rem;
     line-height: 1.5;
     margin-top: 1rem;
@@ -265,7 +265,7 @@
 
 .year-badge {
     background: var(--color-canvas-subtle);
-    color: var(--color-fg-muted);
+    color: var(--text-secondary);
     padding: 0.25rem 0.5rem;
     border-radius: 8px;
     font-size: 0.8rem;
@@ -310,7 +310,7 @@
     background: var(--color-canvas-subtle);
     border: 1px solid var(--scitex-color-03);
     border-radius: 4px;
-    color: var(--color-fg-default);
+    color: var(--text-primary);
     font-size: 0.875rem;
     font-weight: 500;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -322,7 +322,7 @@
 .scitex-toggle-label:hover {
     background: var(--color-canvas-inset);
     border-color: var(--scitex-color-02);
-    color: var(--color-fg-default);
+    color: var(--text-primary);
     text-decoration: none;
 }
 
@@ -456,13 +456,13 @@ a.disabled {
 
 /* Typography utilities */
 .u-text-muted-sm {
-    color: var(--color-fg-muted);
+    color: var(--text-secondary);
     font-size: 0.85rem;
     margin-bottom: 0.25rem;
 }
 
 .u-text-muted {
-    color: var(--color-fg-muted);
+    color: var(--text-secondary);
     font-size: 0.9rem;
 }
 
@@ -472,25 +472,25 @@ a.disabled {
 
 .u-heading-sm {
     font-weight: 600;
-    color: var(--color-fg-default);
+    color: var(--text-primary);
     margin-bottom: 0.5rem;
     font-size: 0.95rem;
 }
 
 .u-heading-md {
     margin: 0;
-    color: var(--color-fg-default);
+    color: var(--text-primary);
     font-size: 1.1rem;
     font-weight: 600;
 }
 
 .u-text-bold {
     font-weight: 600;
-    color: var(--color-fg-default);
+    color: var(--text-primary);
 }
 
 .u-text-default {
-    color: var(--color-fg-default);
+    color: var(--text-primary);
 }
 
 .u-text-xs {
@@ -616,7 +616,7 @@ a.disabled {
 
 .u-helper-text {
     flex: 1;
-    color: var(--color-fg-muted);
+    color: var(--text-secondary);
     font-size: 0.95rem;
 }
 
@@ -628,7 +628,7 @@ a.disabled {
 .nav-tabs .nav-link {
     border: none;
     background: transparent;
-    color: var(--color-fg-muted);
+    color: var(--text-secondary);
     padding: 1rem 1.5rem;
     margin-right: 0.5rem;
     border-bottom: 3px solid transparent;
@@ -637,7 +637,7 @@ a.disabled {
 }
 
 .nav-tabs .nav-link:hover {
-    color: var(--color-fg-default);
+    color: var(--text-primary);
     background: var(--color-canvas-subtle);
     border-bottom-color: var(--scitex-color-04);
 }
@@ -660,7 +660,7 @@ a.disabled {
 .vertical-tab-btn,
 .tab-link {
     padding: 0.5rem 1rem;
-    color: var(--color-fg-muted);
+    color: var(--text-secondary);
     text-decoration: none;
     border-bottom: 2px solid transparent;
     white-space: nowrap;
@@ -674,26 +674,31 @@ a.disabled {
 
 .vertical-tab-btn:hover,
 .tab-link:hover {
-    color: var(--color-fg-default);
+    color: var(--text-primary);
     border-bottom-color: var(--color-border-default);
 }
 
+/* UPDATED VERSION - 2025-10-23 15:19 */
 .vertical-tab-btn.active,
 .tab-link.active {
-    color: var(--color-fg-default);
-    border-bottom-color: var(--scitex-color-03);
-    border-left: none !important;
+    color: var(--text-primary) !important;
+    border-bottom-color: var(--scitex-color-03) !important;
+    border-left: 0px !important;
+    border-left-style: none !important;
     box-shadow: none !important;
-    font-weight: 600;
+    background: transparent !important;
+    font-weight: 600 !important;
 }
 
 [data-theme="dark"] .vertical-tab-btn.active,
 [data-theme="dark"] .tab-link.active {
-    color: var(--color-fg-default);
-    border-bottom-color: var(--scitex-color-05);
-    border-left: none !important;
+    color: var(--text-primary) !important;
+    border-bottom-color: var(--scitex-color-05) !important;
+    border-left: 0px !important;
+    border-left-style: none !important;
     box-shadow: none !important;
-    font-weight: 600;
+    background: transparent !important;
+    font-weight: 600 !important;
 }
 
 /* Compact Paper Cards - Better space usage */
@@ -810,7 +815,7 @@ a.disabled {
 /* Search Results Header - Better visibility in dark mode */
 #searchResultsContainer h5,
 .search-results-header h5 {
-    color: var(--color-fg-default);
+    color: var(--text-primary);
     font-weight: 700;
     margin-bottom: 1rem;
 }
@@ -848,7 +853,7 @@ a.disabled {
 }
 
 .pagination .page-item.disabled .page-link {
-    color: var(--color-fg-muted);
+    color: var(--text-secondary);
     background-color: var(--color-canvas-subtle);
     border-color: var(--color-border-default);
     opacity: 0.6;
@@ -926,7 +931,7 @@ a.disabled {
 }
 
 .selection-info {
-    color: var(--color-fg-default);
+    color: var(--text-primary);
     font-weight: 500;
 }
 
@@ -953,7 +958,7 @@ a.disabled {
 
 .side-panel-title {
     font-weight: 600;
-    color: var(--color-fg-default);
+    color: var(--text-primary);
     font-size: 1rem;
     border-bottom: 2px solid var(--scitex-color-02);
     padding-bottom: 0.75rem;
@@ -1044,7 +1049,7 @@ a.disabled {
 .search-btn {
     border: 1px solid var(--color-border-default) !important;
     background: var(--color-canvas-default);
-    color: var(--color-fg-default);
+    color: var(--text-primary);
     padding: 0.5rem 1rem;
     transition: all 0.2s ease;
     font-weight: 500;

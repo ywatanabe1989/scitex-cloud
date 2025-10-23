@@ -28,37 +28,9 @@
     margin-top: 0.5rem;
 }
 
-/* GitHub-style tab navigation - Theme-aware */
+/* Tab navigation now uses standardized .scitex-tabs component from design system */
 .repo-tabs {
-    display: flex;
-    gap: 0;
-    border-bottom: 1px solid var(--color-border-default);
     margin-bottom: 1.5rem;
-    overflow: visible;
-    position: relative;
-}
-
-.repo-tab {
-    padding: 0.5rem 1rem;
-    color: var(--color-fg-muted);
-    text-decoration: none;
-    border-bottom: 2px solid transparent;
-    white-space: nowrap;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    transition: all 0.2s ease;
-}
-
-.repo-tab:hover {
-    color: var(--color-fg-default);
-    border-bottom-color: var(--color-border-default);
-}
-
-.repo-tab.active {
-    color: var(--color-fg-default);
-    border-bottom-color: var(--tab-active-border);  /* SciTeX accent */
-    font-weight: 600;
 }
 
 /* File browser table - Theme-aware */
@@ -425,29 +397,29 @@
 
     <!-- Tab Navigation -->
     <div class="repo-tabs" style="justify-content: space-between;">
-        <div style="display: flex;">
+        <div class="scitex-tabs">
             <a href="/{{ project.owner.username }}/{{ project.slug }}/"
-               class="repo-tab {% if mode == 'overview' %}active{% endif %}">
+               class="scitex-tab {% if mode == 'overview' %}scitex-tab-active{% endif %}">
                 📄 Code
             </a>
-            <a href="/{{ project.owner.username }}/{{ project.slug }}?mode=scholar"
-               class="repo-tab {% if mode == 'scholar' %}active{% endif %}">
+            <a href="/scholar/"
+               class="scitex-tab">
                 📚 Scholar
             </a>
-            <a href="/{{ project.owner.username }}/{{ project.slug }}?mode=code"
-               class="repo-tab {% if mode == 'code' %}active{% endif %}">
+            <a href="/code/"
+               class="scitex-tab">
                 💻 Code
             </a>
-            <a href="/{{ project.owner.username }}/{{ project.slug }}?mode=viz"
-               class="repo-tab {% if mode == 'viz' %}active{% endif %}">
+            <a href="/viz/"
+               class="scitex-tab">
                 📊 Viz
             </a>
-            <a href="/{{ project.owner.username }}/{{ project.slug }}?mode=writer"
-               class="repo-tab {% if mode == 'writer' %}active{% endif %}">
+            <a href="/writer/"
+               class="scitex-tab">
                 ✍️ Writer
             </a>
             <a href="/{{ project.owner.username }}/{{ project.slug }}/settings/"
-               class="repo-tab">
+               class="scitex-tab">
                 ⚙️ Settings
             </a>
         </div>

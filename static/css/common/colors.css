@@ -1,303 +1,90 @@
 /* =============================================================================
- * SciTeX Design Token System v2.0
+ * SciTeX Color System - Minimal Semantic Tokens
  * =============================================================================
  *
- * ARCHITECTURE:
- * 1. PRIMITIVE TOKENS (prefixed with _) - Internal use ONLY in this file
- * 2. SEMANTIC TOKENS (no prefix) - Public API for components
- *
- * SEMANTIC TOKEN NAMING CONVENTION:
- * - Scale: 100 (lightest) → 900 (darkest) - CONSISTENT across themes
- * - Example: --text-100 is always lightest text, --text-900 is always darkest
- * - Theme switching remaps what primitive values these point to
- *
  * RULES:
- * - Components MUST ONLY use semantic tokens (no _ prefix)
- * - Primitive tokens (_) are ONLY referenced inside this colors.css file
- * - All theme switching happens via semantic token remapping
+ * - Primitives (with _ prefix) are INTERNAL ONLY - use in this file only
+ * - Semantic tokens (no prefix) are PUBLIC API - use in components
+ * - Theme switching handled by remapping semantic tokens
  *
  * ============================================================================= */
 
 :root,
 [data-theme="light"] {
   /* ===========================================================================
-   * PRIMITIVE TOKENS - INTERNAL USE ONLY
-   * DO NOT USE THESE DIRECTLY IN COMPONENTS!
+   * PRIMITIVES (internal only - prefix with _)
    * =========================================================================== */
 
-  /* Brand color primitives - Bluish Dark Gray palette */
-  --_scitex-01: #1a2332; /* Dark Bluish Gray (Primary) */
-  --_scitex-01-light: #2d3748;
-  --_scitex-01-dark: #0f1419;
-  --_scitex-02: #34495e; /* Medium Bluish Gray */
-  --_scitex-03: #506b7a; /* Light Bluish Gray */
-  --_scitex-04: #6c8ba0; /* Lighter Bluish Gray */
-  --_scitex-05: #8fa4b0; /* Very Light Bluish Gray */
-  --_scitex-06: #b5c7d1; /* Pale Bluish Gray */
-  --_scitex-07: #d4e1e8; /* Very Pale Bluish Gray */
+  /* Brand colors */
+  --_scitex-01: #1a2332;
+  --_scitex-02: #34495e;
+  --_scitex-03: #506b7a;
+  --_scitex-04: #6c8ba0;
+  --_scitex-05: #8fa4b0;
+  --_scitex-06: #b5c7d1;
+  --_scitex-07: #d4e1e8;
 
-  /* Status color primitives */
-  --_success: #4a9b7e;
-  --_success-light: #5fb98c;
-  --_success-dark: #3d8169;
-  --_success-subtle: #e8f5f0;
-  --_success-subtle-dark: #1f3a2e;
-
-  --_warning: #b8956a;
-  --_warning-light: #c9a67a;
-  --_warning-dark: #a07d52;
-
-  --_error: #a67373;
-  --_error-light: #c99090;
-  --_error-dark: #8f5c5c;
-  --_error-subtle: #f5e8e8;
-  --_error-subtle-dark: #3a2020;
-
-  --_info: #6b8fb3;
-
-  /* Neutral primitives */
   --_white: #ffffff;
-  --_black: #1a1a1a;
   --_gray-subtle: #f6f8fa;
 
-  /* ===========================================================================
-   * SEMANTIC TOKENS - PUBLIC API FOR COMPONENTS
-   * Scale: 100 (lightest) → 900 (darkest) - CONSISTENT across themes
-   * =========================================================================== */
+  /* Status colors */
+  --_success: #4a9b7e;
+  --_warning: #b8956a;
+  --_error: #a67373;
+  --_info: #6b8fb3;
 
-  /* --- Text Color Scale (100=lightest, 900=darkest) --- */
-  --text-100: var(--_white); /* Lightest - for text on very dark backgrounds */
-  --text-200: var(--_scitex-07); /* Very light gray text */
-  --text-300: var(--_scitex-06); /* Light gray text */
-  --text-400: var(--_scitex-05); /* Medium-light gray text */
-  --text-500: var(--_scitex-04); /* Medium text - disabled/placeholder */
-  --text-600: var(--_scitex-03); /* Medium-dark - secondary text */
-  --text-700: var(--_scitex-02); /* Dark - tertiary text */
-  --text-800: var(--_scitex-01); /* Very dark - primary text in light mode */
-  --text-900: var(--_scitex-01-dark); /* Darkest text */
-
-  /* --- Background Color Scale (100=lightest, 900=darkest) --- */
-  --bg-100: var(--_white); /* Lightest - primary background in light mode */
-  --bg-200: var(--_gray-subtle); /* Very light - cards, panels */
-  --bg-300: var(--_scitex-07); /* Light - hover states */
-  --bg-400: var(--_scitex-06); /* Medium-light */
-  --bg-500: var(--_scitex-05); /* Medium */
-  --bg-600: var(--_scitex-04); /* Medium-dark */
-  --bg-700: var(--_scitex-03); /* Dark */
-  --bg-800: var(--_scitex-02); /* Very dark */
-  --bg-900: var(--_scitex-01); /* Darkest - header/footer in light mode */
-
-  /* --- Border Color Scale (100=lightest, 900=darkest) --- */
-  --border-100: var(--_scitex-07); /* Lightest border */
-  --border-200: var(--_scitex-06); /* Light border - default */
-  --border-300: var(--_scitex-05); /* Medium-light border */
-  --border-400: var(--_scitex-04); /* Medium border - hover */
-  --border-500: var(--_scitex-03); /* Medium-dark border */
-  --border-600: var(--_scitex-02); /* Dark border - focus */
-  --border-700: var(--_scitex-01); /* Darkest border */
-
-  /* --- Interactive Element Tokens (Buttons, Links) --- */
-  --btn-primary-bg: var(--bg-900); /* Dark button background */
-  --btn-primary-bg-hover: var(--bg-800); /* Hover state */
-  --btn-primary-text: var(--text-100); /* White text */
-  --btn-primary-border: var(--border-700); /* Dark border */
-
-  --btn-secondary-bg: var(--bg-300); /* Light button background */
-  --btn-secondary-bg-hover: var(--bg-400); /* Hover state */
-  --btn-secondary-text: var(--text-800); /* Dark text */
-  --btn-secondary-border: var(--border-300); /* Medium border */
-
-  --link-default: var(--text-800); /* Dark link */
-  --link-hover: var(--text-700); /* Slightly lighter on hover */
-  --link-visited: var(--text-600); /* Even lighter for visited */
-
-  /* --- Form Element Tokens --- */
-  --input-bg: var(--bg-100); /* White background */
-  --input-border: var(--border-300); /* Light border */
-  --input-border-focus: var(--border-600); /* Dark focus border */
-  --input-text: var(--text-800); /* Dark text */
-  --input-placeholder: var(--text-500); /* Medium gray placeholder */
-
-  /* --- Status Color Tokens --- */
-  --status-success-text: var(--_success-dark); /* Dark green text */
-  --status-success-bg: var(--_success-subtle); /* Light green background */
-  --status-success-border: var(--_success); /* Medium green border */
-
-  --status-warning-text: var(--_warning-dark); /* Dark orange text */
-  --status-warning-bg: rgba(184, 149, 106, 0.1); /* Light orange background */
-  --status-warning-border: var(--_warning); /* Medium orange border */
-
-  --status-error-text: var(--_error-dark); /* Dark red text */
-  --status-error-bg: var(--_error-subtle); /* Light red background */
-  --status-error-border: var(--_error); /* Medium red border */
-
-  --status-info-text: var(--_info); /* Blue text */
-  --status-info-bg: rgba(107, 143, 179, 0.1); /* Light blue background */
-  --status-info-border: var(--_info); /* Blue border */
-
-  /* --- Component-Specific Semantic Tokens --- */
-  --page-bg: var(--bg-100); /* Page background - white in light mode */
-
-  --header-bg: var(--bg-900); /* Dark header */
-  --header-text: var(--text-100); /* White text */
-  --header-border: var(--border-700); /* Dark border */
-
-  --sidebar-bg: var(--bg-100); /* Light sidebar */
-  --sidebar-text: var(--text-800); /* Dark text */
-  --sidebar-item-hover: var(--bg-200); /* Light gray hover */
-  --sidebar-item-active: var(--bg-400); /* Medium gray active */
-  --sidebar-border: var(--border-200); /* Light border */
-
-  --card-bg: var(--bg-100); /* White card */
-  --card-border: var(--border-200); /* Light border */
-  --card-hover-bg: var(--bg-200); /* Light gray hover */
-
-  /* --- Shadow Tokens --- */
-  --shadow-sm: 0 1px 2px 0 rgba(26, 35, 50, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(26, 35, 50, 0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(26, 35, 50, 0.1);
+  /* Legacy brand color references (deprecated - use semantic tokens instead) */
+  --scitex-color-01: var(--_scitex-01);
+  --scitex-color-01-dark: #0d111c;
+  --scitex-color-01-light: #2a3346;
+  --scitex-color-02: var(--_scitex-02);
+  --scitex-color-02-dark: #243849;
+  --scitex-color-03: var(--_scitex-03);
+  --scitex-color-04: var(--_scitex-04);
+  --scitex-color-05: var(--_scitex-05);
+  --scitex-color-06: var(--_scitex-06);
+  --scitex-color-07: var(--_scitex-07);
+  --white: var(--_white);
 
   /* ===========================================================================
-   * BACKWARDS COMPATIBILITY ALIASES
-   * These map old token names to new semantic tokens
-   * TODO: Gradually migrate all CSS to use new semantic tokens
+   * SEMANTIC TOKENS (public API - use these in components)
    * =========================================================================== */
 
-  /* Old scitex-color-XX tokens → new semantic tokens */
-  --scitex-color-01: var(--text-800); /* Dark gray - was primary */
-  --scitex-color-02: var(--text-700); /* Medium-dark gray */
-  --scitex-color-03: var(--text-600); /* Medium gray */
-  --scitex-color-04: var(--border-400); /* Medium border */
-  --scitex-color-05: var(--text-500); /* Medium-light */
-  --scitex-color-06: var(--border-200); /* Light border */
-  --scitex-color-07: var(--text-200); /* Very light */
+  /* Text */
+  --text-primary: var(--_scitex-01);
+  --text-secondary: var(--_scitex-03);
+  --text-muted: var(--_scitex-04);
+  --text-inverse: var(--_white);
 
-  /* Old semantic names → new semantic tokens */
-  --primary-color: var(--btn-primary-bg);
-  --secondary-color: var(--btn-secondary-bg);
-  --white: var(--text-100);
-  --black: var(--text-900);
-  --light-gray: var(--bg-200);
-  --mid-gray: var(--border-400);
-  --dark-gray: var(--bg-700);
+  /* Background */
+  --bg-page: var(--_white);
+  --bg-surface: var(--_gray-subtle);
+  --bg-muted: var(--_scitex-07);
+
+  /* Border */
+  --border-default: var(--_scitex-06);
+  --border-muted: var(--_scitex-07);
+
+  /* Status */
+  --status-success: var(--_success);
+  --status-warning: var(--_warning);
+  --status-error: var(--_error);
+  --status-info: var(--_info);
 }
 
-/* ===========================================================================
- * DARK MODE THEME - Same semantic scale, different primitive mapping
- * 100 (lightest) → 900 (darkest) stays consistent
- * =========================================================================== */
 [data-theme="dark"] {
-  /* --- Text Color Scale (100=lightest, 900=darkest) --- */
-  --text-100: var(--_scitex-07); /* Lightest - primary text in dark mode */
-  --text-200: var(--_scitex-06); /* Very light */
-  --text-300: var(--_scitex-05); /* Light - secondary text */
-  --text-400: var(--_scitex-04); /* Medium-light - tertiary text */
-  --text-500: var(--_scitex-03); /* Medium - disabled/placeholder */
-  --text-600: var(--_scitex-02); /* Medium-dark */
-  --text-700: var(--_scitex-01); /* Dark */
-  --text-800: var(--_scitex-01-dark); /* Very dark */
-  --text-900: var(--_black); /* Darkest - text on light backgrounds */
+  /* Text - flip to light */
+  --text-primary: var(--_scitex-07);
+  --text-secondary: var(--_scitex-05);
+  --text-muted: var(--_scitex-04);
+  --text-inverse: var(--_scitex-01);
 
-  /* --- Background Color Scale (100=lightest, 900=darkest) --- */
-  --bg-100: var(--_scitex-07); /* Lightest - for special use */
-  --bg-200: var(--_scitex-06); /* Very light */
-  --bg-300: var(--_scitex-05); /* Light */
-  --bg-400: var(--_scitex-04); /* Medium-light */
-  --bg-500: var(--_scitex-03); /* Medium */
-  --bg-600: var(--_scitex-02); /* Medium-dark */
-  --bg-700: var(--_scitex-01-light); /* Dark - hover states */
-  --bg-800: var(--_scitex-01); /* Very dark - cards */
-  --bg-900: var(--_scitex-01-dark); /* Darkest - primary background */
+  /* Background - flip to dark */
+  --bg-page: #0f1419;
+  --bg-surface: var(--_scitex-01);
+  --bg-muted: var(--_scitex-02);
 
-  /* --- Border Color Scale (100=lightest, 900=darkest) --- */
-  --border-100: var(--_scitex-06); /* Lightest */
-  --border-200: var(--_scitex-05); /* Light */
-  --border-300: var(--_scitex-04); /* Medium-light - hover */
-  --border-400: var(--_scitex-03); /* Medium - default */
-  --border-500: var(--_scitex-02); /* Medium-dark - focus */
-  --border-600: var(--_scitex-01-light); /* Dark */
-  --border-700: var(--_scitex-01); /* Darkest */
-
-  /* --- Interactive Element Tokens --- */
-  --btn-primary-bg: var(--bg-500); /* Medium-light button */
-  --btn-primary-bg-hover: var(--bg-400); /* Lighter on hover */
-  --btn-primary-text: var(--text-100); /* Light text */
-  --btn-primary-border: var(--border-300); /* Light border */
-
-  --btn-secondary-bg: var(--bg-700); /* Dark button */
-  --btn-secondary-bg-hover: var(--bg-600); /* Lighter on hover */
-  --btn-secondary-text: var(--text-100); /* Light text */
-  --btn-secondary-border: var(--border-400); /* Medium border */
-
-  --link-default: var(--text-200); /* Light link */
-  --link-hover: var(--text-100); /* Lighter on hover */
-  --link-visited: var(--text-300); /* Slightly darker for visited */
-
-  /* --- Form Element Tokens --- */
-  --input-bg: var(--bg-700); /* Dark background */
-  --input-border: var(--border-400); /* Medium border */
-  --input-border-focus: var(--border-300); /* Light focus border */
-  --input-text: var(--text-100); /* Light text */
-  --input-placeholder: var(--text-400); /* Medium placeholder */
-
-  /* --- Status Color Tokens --- */
-  --status-success-text: var(--_success-light); /* Light green text */
-  --status-success-bg: var(--_success-subtle-dark); /* Dark green background */
-  --status-success-border: var(--_success); /* Medium green border */
-
-  --status-warning-text: var(--_warning-light); /* Light orange text */
-  --status-warning-bg: rgba(184, 149, 106, 0.15); /* Dark orange background */
-  --status-warning-border: var(--_warning); /* Medium orange border */
-
-  --status-error-text: var(--_error-light); /* Light red text */
-  --status-error-bg: var(--_error-subtle-dark); /* Dark red background */
-  --status-error-border: var(--_error); /* Medium red border */
-
-  --status-info-text: var(--_scitex-06); /* Light blue text */
-  --status-info-bg: rgba(107, 143, 179, 0.15); /* Dark blue background */
-  --status-info-border: var(--_info); /* Blue border */
-
-  /* --- Component-Specific Tokens --- */
-  --page-bg: var(--bg-900); /* Page background - darkest in dark mode */
-
-  --header-bg: var(--bg-800); /* Dark header */
-  --header-text: var(--text-100); /* Light text */
-  --header-border: var(--border-400); /* Medium border */
-
-  --sidebar-bg: var(--bg-800); /* Dark sidebar - very dark */
-  --sidebar-text: var(--text-200); /* Light text */
-  --sidebar-item-hover: var(--bg-700); /* Lighter hover */
-  --sidebar-item-active: var(--bg-500); /* Lighter active */
-  --sidebar-border: var(--border-400); /* Medium border */
-
-  --card-bg: var(--bg-800); /* Dark card */
-  --card-border: var(--border-400); /* Medium border */
-  --card-hover-bg: var(--bg-700); /* Lighter hover */
-
-  /* --- Shadow Tokens --- */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
-
-  /* ===========================================================================
-   * BACKWARDS COMPATIBILITY ALIASES (Dark Mode)
-   * =========================================================================== */
-
-  /* Old scitex-color-XX tokens → new semantic tokens */
-  --scitex-color-01: var(--text-700); /* In dark mode, this is dark */
-  --scitex-color-02: var(--text-600); /* Medium-dark */
-  --scitex-color-03: var(--text-500); /* Medium */
-  --scitex-color-04: var(--border-300); /* Medium border */
-  --scitex-color-05: var(--text-300); /* Medium-light */
-  --scitex-color-06: var(--text-200); /* Light */
-  --scitex-color-07: var(--text-100); /* Very light - primary text in dark mode */
-
-  /* Old semantic names → new semantic tokens */
-  --primary-color: var(--btn-primary-bg);
-  --secondary-color: var(--btn-secondary-bg);
-  --white: var(--text-100);
-  --black: var(--text-900);
-  --light-gray: var(--bg-700);
-  --mid-gray: var(--border-400);
-  --dark-gray: var(--bg-500);
+  /* Border */
+  --border-default: var(--_scitex-03);
+  --border-muted: var(--_scitex-02);
 }

@@ -7,6 +7,10 @@
  * Last updated: 2025-10-22
  */
 
+/* Design tokens - MUST load first */
+@import url('common/colors.css');
+@import url('common/typography.css');
+
 @import url('common/toggles.css');
 @import url('common/forms.css');
 @import url('common/buttons.css');

@@ -121,7 +121,7 @@
 
 .btn-outline-light {
   border: 2px solid var(--color-border-default);
-  color: var(--color-fg-default);
+  color: var(--text-primary);
   background: var(--color-canvas-default);
   font-weight: 500;
   padding: 1rem 2rem;
@@ -135,7 +135,7 @@
 .btn-outline-light:hover {
   background: var(--color-canvas-subtle);
   border-color: var(--color-border-default);
-  color: var(--color-fg-default);
+  color: var(--text-primary);
   transform: translateY(-1px);
 }
 

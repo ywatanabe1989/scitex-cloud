@@ -23,33 +23,9 @@
     text-decoration: underline;
 }
 
-/* GitHub-style tab navigation */
+/* Tab navigation now uses standardized .scitex-tabs component from design system */
 .repo-tabs {
-    display: flex;
-    gap: 0;
-    border-bottom: 1px solid var(--color-border-default);
     margin-bottom: 1.5rem;
-    overflow: visible;
-    position: relative;
-}
-
-.repo-tab {
-    padding: 0.5rem 1rem;
-    color: var(--color-fg-muted);
-    text-decoration: none;
-    border-bottom: 2px solid transparent;
-    white-space: nowrap;
-}
-
-.repo-tab:hover {
-    color: var(--color-fg-default);
-    border-bottom-color: var(--color-border-default);
-}
-
-.repo-tab.active {
-    color: var(--color-fg-default);
-    border-bottom-color: var(--tab-active-border);
-    font-weight: 600;
 }
 
 /* Breadcrumb */
@@ -311,25 +287,25 @@
 
     <!-- Tab Navigation -->
     <div class="repo-tabs" style="justify-content: space-between;">
-        <div style="display: flex;">
-            <a href="/{{ project.owner.username }}/{{ project.slug }}/" class="repo-tab">
+        <div class="scitex-tabs">
+            <a href="/{{ project.owner.username }}/{{ project.slug }}/" class="scitex-tab">
                 📄 Code
             </a>
-            <a href="/{{ project.owner.username }}/{{ project.slug }}?mode=scholar" class="repo-tab">
-            📚 Scholar
-        </a>
-        <a href="/{{ project.owner.username }}/{{ project.slug }}?mode=code" class="repo-tab">
-            💻 Code
-        </a>
-        <a href="/{{ project.owner.username }}/{{ project.slug }}?mode=viz" class="repo-tab">
-            📊 Viz
-        </a>
-        <a href="/{{ project.owner.username }}/{{ project.slug }}?mode=writer" class="repo-tab">
-            ✍️ Writer
-        </a>
-        <a href="/{{ project.owner.username }}/{{ project.slug }}/settings/" class="repo-tab">
-            ⚙️ Settings
-        </a>
+            <a href="/scholar/" class="scitex-tab">
+                📚 Scholar
+            </a>
+            <a href="/code/" class="scitex-tab">
+                💻 Code
+            </a>
+            <a href="/viz/" class="scitex-tab">
+                📊 Viz
+            </a>
+            <a href="/writer/" class="scitex-tab">
+                ✍️ Writer
+            </a>
+            <a href="/{{ project.owner.username }}/{{ project.slug }}/settings/" class="scitex-tab">
+                ⚙️ Settings
+            </a>
         </div>
         <div class="btn-group" style="margin: 0.25rem;">
             <button onclick="copyDirToClipboard()" class="btn btn-sm btn-outline-primary" id="copy-all-btn">

@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-23 15:08:17
+!-- Timestamp: 2025-10-23 15:22:15
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/CLAUDE.md
 !-- --- -->
@@ -37,9 +37,8 @@ See `/dev/design/`
 Add console.log for debugging
 
 ## Scholar App
-- [x] Tab styling
+- [ ] Tab styling
   - [x] Selected tab with underline like tabs (or inline header) here: http://127.0.0.1:8000/ywatanabe/testtest/
-  - [x] Underline now visible with SciTeX accent color (cyan)
   - [ ] Standardize tab styles in design system for reuse across app
 
 <!-- EOF -->

@@ -43,7 +43,7 @@
 .tabs {
   display: flex;
   gap: 0;
-  border-bottom: 2px solid var(--border-300);
+  border-bottom: 2px solid var(--border-default);
   margin-bottom: 1.5rem;
   overflow-x: auto;
   scrollbar-width: thin;
@@ -54,7 +54,7 @@
 }
 
 .tabs::-webkit-scrollbar-thumb {
-  background-color: var(--border-400);
+  background-color: var(--border-default);
   border-radius: 2px;
 }
 
@@ -65,7 +65,7 @@
   padding: 0.75rem 1.25rem;
   font-size: 0.9375rem;
   font-weight: 500;
-  color: var(--text-700);
+  color: var(--text-secondary);
   cursor: pointer;
   transition: all var(--transition-fast);
   white-space: nowrap;
@@ -74,18 +74,18 @@
 }
 
 .tab-item:hover:not(.active):not(:disabled) {
-  color: var(--text-900);
-  border-bottom-color: var(--border-400);
+  color: var(--text-primary);
+  border-bottom-color: var(--border-default);
 }
 
 .tab-item.active {
-  color: var(--btn-primary-bg);
-  border-bottom-color: var(--btn-primary-bg);
+  color: var(--text-primary);
+  border-bottom-color: var(--text-primary);
   font-weight: 600;
 }
 
 .tab-item:disabled {
-  color: var(--text-400);
+  color: var(--text-muted);
   cursor: not-allowed;
   opacity: 0.6;
 }

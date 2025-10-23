@@ -1,8 +1,8 @@
 /* SciTeX Web - Footer Component */
 
 .site-footer {
-  background-color: var(--footer-bg);
-  color: var(--footer-text);
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
   padding: var(--spacing-xl) 0;
   margin-top: auto;
 }
@@ -14,10 +14,10 @@
 }
 
 .footer-section h3 {
-  color: var(--footer-text);
+  color: var(--text-primary);
   font-size: 1.25rem;
   margin-bottom: var(--spacing-md);
-  border-bottom: 1px solid rgba(var(--white-rgb), 0.1);
+  border-bottom: 1px solid var(--border-muted);
   padding-bottom: var(--spacing-sm);
 }
 
@@ -36,16 +36,16 @@
 }
 
 .footer-links a {
-  color: rgba(var(--white-rgb), 0.8);
+  color: var(--text-secondary);
   text-decoration: none;
   transition: color var(--transition-normal);
 }
 
 .footer-links a:hover {
-  color: var(--footer-text);
+  color: var(--text-primary);
   text-decoration: none;
   padding-left: 3px;
-  border-left: 2px solid var(--secondary-light);
+  border-left: 2px solid var(--border-default);
   transition: all 0.2s ease;
 }
 
@@ -56,23 +56,23 @@
 }
 
 .footer-social a {
-  color: var(--footer-text);
+  color: var(--text-primary);
   text-decoration: none;
   font-size: 1.25rem;
   transition: color var(--transition-normal);
 }
 
 .footer-social a:hover {
-  color: var(--secondary-light);
+  color: var(--text-secondary);
 }
 
 .footer-bottom {
   margin-top: var(--spacing-xl);
   padding-top: var(--spacing-md);
-  border-top: 1px solid rgba(var(--white-rgb), 0.1);
+  border-top: 1px solid var(--border-muted);
   text-align: center;
   font-size: 0.875rem;
-  color: rgba(var(--white-rgb), 0.6);
+  color: var(--text-muted);
 }
 
 .footer-bottom p {

@@ -24,8 +24,10 @@ import json
 import uuid
 import subprocess
 import os
+import logging
 from pathlib import Path
 from datetime import datetime
+from django.utils import timezone
 
 
 def index(request):
@@ -403,18 +405,17 @@ SciTeX Cloud Team
     import threading
     import sys
 
-    print(f"[DEBUG] Creating compilation function (quick_mode={quick_mode})", file=sys.stderr)
-    sys.stderr.flush()
+    # Compilation function created
 
     def run_modular_compilation():
         import traceback
         import sys
         try:
-            print(f"[COMPILE] Thread started for job {job.job_id} (quick={quick_mode})", file=sys.stderr)
+            # Thread started for compilation job
             job.status = 'running'
             job.started_at = timezone.now()
             job.save()
-            print(f"[COMPILE] Job status set to running", file=sys.stderr)
+            # Job status updated to running
 
             # Use existing TeXLive container
             # Set environment to point to pre-downloaded containers
@@ -422,7 +423,7 @@ SciTeX Cloud Team
             env['SCITEX_CONTAINER_CACHE'] = os.path.expanduser('~/.scitex/writer/cache/containers')
             env['SCITEX_USE_CONTAINER'] = '1'  # Use existing containers
 
-            print(f"[COMPILE] Starting subprocess at {paper_path}", file=sys.stderr)
+            # Starting compilation subprocess
 
             # Create a unique log file for this compilation run
             log_dir = paper_path / '01_manuscript' / 'logs'
@@ -437,7 +438,7 @@ SciTeX Cloud Team
             job.compilation_log_path = str(runtime_log_path)  # Also store in separate field if available
             job.save()
 
-            print(f"[COMPILE] Will write log to: {runtime_log_path}", file=sys.stderr)
+            # Compilation log will be written to file
 
             # Build compile command with appropriate flags
             compile_cmd = ['bash', './compile', '-m']
@@ -445,9 +446,10 @@ SciTeX Cloud Team
                 compile_cmd.append('--quick')    # Quick mode: skip word count, diff, archiving
                 compile_cmd.append('--no_figs')  # Skip figure processing
                 compile_cmd.append('--quiet')    # Less verbose output
-                print(f"[COMPILE] Quick mode enabled: {' '.join(compile_cmd)}", file=sys.stderr)
+                # Quick mode compilation enabled
             else:
-                print(f"[COMPILE] Full compilation: {' '.join(compile_cmd)}", file=sys.stderr)
+                # Full compilation mode enabled
+                pass
 
             # Run the actual compile script with real-time logging
             with open(runtime_log_path, 'w', buffering=1) as log_file:  # Line buffering
@@ -460,23 +462,23 @@ SciTeX Cloud Team
                     env=env
                 )
 
-                print(f"[COMPILE] Process started, PID: {process.pid}", file=sys.stderr)
+                # Process started successfully
 
                 # Wait for process to complete
                 # Quick mode: 2 minutes (no figure processing)
                 # Full mode: 5 minutes (includes figure processing)
                 timeout = 120 if quick_mode else 300
                 returncode = process.wait(timeout=timeout)
-                print(f"[COMPILE] Process completed. Return code: {returncode}", file=sys.stderr)
+                # Process completed
 
             # DON'T read or overwrite log_file here
             # The log_file field contains the PATH, which status API reads incrementally
             # The file is already written by the compile script
             if runtime_log_path.exists():
                 log_size = runtime_log_path.stat().st_size
-                print(f"[COMPILE] Log file size: {log_size} bytes", file=sys.stderr)
+                # Log file created successfully
             else:
-                print(f"[COMPILE] ERROR: Log file not found at {runtime_log_path}", file=sys.stderr)
+                # Log file not found - this is unexpected
 
             # job.log_file already contains the path - don't overwrite it!
 
@@ -489,10 +491,10 @@ SciTeX Cloud Team
             if result.returncode == 0:
                 # Check if PDF was created (compile script outputs to 01_manuscript/manuscript.pdf)
                 pdf_path = paper_path / '01_manuscript' / 'manuscript.pdf'
-                print(f"[COMPILE] Checking for PDF at {pdf_path}", file=sys.stderr)
+                # Checking for compiled PDF
 
                 if pdf_path.exists():
-                    print(f"[COMPILE] PDF found! Size: {pdf_path.stat().st_size} bytes", file=sys.stderr)
+                    # PDF generated successfully
                     # Copy PDF to media directory for serving
                     import shutil
                     from django.conf import settings
@@ -539,8 +541,9 @@ SciTeX Cloud Team
                         with open(output_path, 'rb') as f:
                             reader = PyPDF2.PdfReader(f)
                             job.page_count = len(reader.pages)
-                    except:
-                        pass
+                    except Exception as pdf_error:
+                        logger = logging.getLogger(__name__)
+                        logger.warning(f"Failed to count PDF pages: {pdf_error}")
                 else:
                     job.status = 'failed'
                     job.error_message = 'PDF file not generated'
@@ -551,36 +554,32 @@ SciTeX Cloud Team
                 # Error details in log file
                 
         except subprocess.TimeoutExpired:
-            print(f"[COMPILE] Timeout exception caught", file=sys.stderr)
             job.status = 'failed'
             job.error_message = 'Compilation timed out'
             # Error details in log file
         except Exception as e:
-            print(f"[COMPILE] Exception caught: {e}", file=sys.stderr)
-            traceback.print_exc(file=sys.stderr)
+            logger = logging.getLogger(__name__)
+            logger.exception("Compilation failed with exception")
             job.status = 'failed'
             job.error_message = str(e)
             job.error_log = traceback.format_exc()
         finally:
-            print(f"[COMPILE] Finally block - setting completion time", file=sys.stderr)
             job.completed_at = timezone.now()
             if job.started_at:
                 job.compilation_time = (job.completed_at - job.started_at).total_seconds()
             job.save()
-            print(f"[COMPILE] Job final status: {job.status}", file=sys.stderr)
+            # Compilation job status: {job.status}
     
     # Test: Run synchronously first to see if it works
     # TODO: Move back to background thread once working
     import sys
-    print(f"[DEBUG] About to start compilation for job {job.job_id}", file=sys.stderr)
-    sys.stderr.flush()
+    # Starting compilation task
 
     # WORKAROUND: Django dev server doesn't run background threads reliably
     # Run compilation synchronously for now
     # TODO: Use Celery or production WSGI server for async compilation
 
-    print(f"[DEBUG] Starting detached background process", file=sys.stderr)
-    sys.stderr.flush()
+    # Starting background compilation thread
 
     # Use subprocess to run compilation in truly detached background
     # This works better than threading with Django dev server
@@ -588,8 +587,7 @@ SciTeX Cloud Team
     thread = threading.Thread(target=run_modular_compilation, daemon=False)
     thread.start()
 
-    print(f"[DEBUG] Background thread started", file=sys.stderr)
-    sys.stderr.flush()
+    # Background thread initiated
 
     # Return immediately so browser can start polling
     return JsonResponse({

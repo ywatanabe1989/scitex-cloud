@@ -98,11 +98,6 @@ from .workspace_views import (
     user_default_workspace,
 )
 
-# Import project views
-from .project_views import (
-    project_search,
-)
-
 # Import search API endpoints
 from .search_views import (
     save_search,
@@ -184,8 +179,6 @@ __all__ = [
     'DatasetViewSet',
     # Workspace views
     'user_default_workspace',
-    # Project views
-    'project_search',
     # Search API endpoints
     'save_search',
     'get_saved_searches',
