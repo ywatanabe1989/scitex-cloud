@@ -103,7 +103,7 @@ def _clone_gitea_repo_to_data_dir(project):
     """
     Clone Gitea repository to Django's data directory.
 
-    Creates a working tree at: /data/{username}/{project_slug}/
+    Creates a working tree at: /data/users/{username}/{project_slug}/
     """
     import subprocess
     from pathlib import Path
@@ -111,7 +111,7 @@ def _clone_gitea_repo_to_data_dir(project):
 
     try:
         # Get user data directory
-        user_data_dir = Path(settings.BASE_DIR) / 'data' / project.owner.username
+        user_data_dir = Path(settings.BASE_DIR) / 'data' / 'users' / project.owner.username
         user_data_dir.mkdir(parents=True, exist_ok=True)
 
         project_dir = user_data_dir / project.slug
@@ -155,7 +155,7 @@ def _clone_gitea_repo_to_data_dir(project):
             )
 
             # Configure git credentials for push (embed token in URL)
-            from apps.workspace_app.git_operations import configure_git_credentials
+            from apps.workspace_app.services.git_service import configure_git_credentials
             configure_git_credentials(
                 project_dir=project_dir,
                 username=project.owner.username,
