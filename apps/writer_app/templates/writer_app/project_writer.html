@@ -13,11 +13,26 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/neat.min.css">
 <style>
 :root {
-    --scitex-primary: var(--color-accent-emphasis);
-    --scitex-secondary: var(--color-fg-muted);
-    --scitex-accent: var(--color-accent-fg);
-    --scitex-light: var(--color-canvas-subtle);
-    --scitex-white: var(--color-canvas-default);
+    /* Map GitHub Primer variables to SciTeX semantic tokens for compatibility */
+    --color-canvas-default: var(--bg-page);
+    --color-canvas-subtle: var(--bg-surface);
+    --color-canvas-inset: var(--bg-muted);
+    --color-border-default: var(--border-default);
+    --color-border-muted: var(--border-muted);
+    --color-fg-default: var(--text-primary);
+    --color-fg-muted: var(--text-muted);
+    --color-fg-on-emphasis: var(--text-inverse);
+    --color-accent-fg: var(--text-primary);
+    --color-accent-emphasis: var(--text-primary);
+    --color-danger-emphasis: var(--status-error);
+    --color-danger-subtle: var(--status-error);
+
+    /* SciTeX specific variables */
+    --scitex-primary: var(--text-primary);
+    --scitex-secondary: var(--text-secondary);
+    --scitex-accent: var(--text-primary);
+    --scitex-light: var(--bg-surface);
+    --scitex-white: var(--bg-page);
     --border-radius: 8px;
     --transition: all 0.2s ease;
 }
@@ -338,7 +353,7 @@
 
 .text-editor textarea {
     flex: 1;
-    border: 1px solid #e9ecef;
+    border: 1px solid var(--border-default);
     border-radius: var(--border-radius);
     padding: 1.5rem;
     font-family: 'Georgia', serif;
@@ -347,6 +362,8 @@
     resize: none;
     outline: none;
     transition: var(--transition);
+    background: var(--bg-page);
+    color: var(--text-primary);
 }
 
 .text-editor textarea:focus {
@@ -358,8 +375,9 @@
 .CodeMirror {
     flex: 1;
     height: 100%;
-    border: 1px solid var(--color-border-default);
+    border: 1px solid var(--border-default);
     border-radius: var(--border-radius);
+    background: var(--bg-page);
     font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', 'Menlo', 'Courier New', monospace;
     font-size: 14px;
 }
@@ -552,11 +570,11 @@
 
 .text-preview {
     flex: 1;
-    border: 1px solid var(--color-border-default);
+    border: 1px solid var(--border-default);
     border-radius: var(--border-radius);
     padding: 1.5rem;
-    background: var(--color-canvas-default);
-    color: var(--color-fg-default);
+    background: var(--bg-page);
+    color: var(--text-primary);
     overflow-y: auto;
     font-family: 'Georgia', serif;
     font-size: 1rem;
@@ -760,7 +778,55 @@
 {% endblock %}
 
 {% block writer_content %}
-<div class="writer-container">
+<!-- Demo/Anonymous Banner -->
+{% if is_demo %}
+<div class="alert alert-{% if is_anonymous %}info{% else %}warning{% endif %} mb-0 rounded-0 text-center" role="alert">
+    {% if is_anonymous %}
+        <i class="fas fa-info-circle me-2"></i>
+        <strong>Demo Mode:</strong> You're using a temporary workspace.
+        <a href="{% url 'auth_app:signup' %}" class="alert-link">Sign up</a> to save your work or
+        <a href="{% url 'auth_app:login' %}" class="alert-link">log in</a> if you have an account.
+    {% else %}
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <strong>Temporary Workspace:</strong>
+        <a href="/new/" class="alert-link">Create a project</a> to save your manuscripts permanently.
+    {% endif %}
+</div>
+{% endif %}
+
+<!-- Writer Workspace Initialization Prompt -->
+{% if not writer_initialized and not is_demo %}
+<div id="writer-init-prompt" class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-body text-center p-5">
+                    <i class="fas fa-folder-plus fa-3x text-primary mb-3"></i>
+                    <h3 class="mb-3">Initialize Writer Workspace</h3>
+                    <p class="text-muted mb-4">
+                        Set up your LaTeX manuscript workspace with the SciTeX-Writer structure:
+                    </p>
+                    <ul class="list-unstyled text-start mb-4">
+                        <li><i class="fas fa-check text-success me-2"></i>01_manuscript/ - Main manuscript sections</li>
+                        <li><i class="fas fa-check text-success me-2"></i>02_supplementary/ - Supplementary materials</li>
+                        <li><i class="fas fa-check text-success me-2"></i>03_revision/ - Revision responses</li>
+                        <li><i class="fas fa-check text-success me-2"></i>shared/ - Title, authors, bibliography</li>
+                    </ul>
+                    <p class="text-muted small mb-4">
+                        Directory will be created at:<br>
+                        <code>{{ writer_path }}/</code>
+                    </p>
+                    <button id="init-writer-btn" class="btn btn-success btn-lg">
+                        <i class="fas fa-rocket me-2"></i>Initialize Writer Workspace
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="writer-container" {% if not writer_initialized and not is_demo %}style="display: none;"{% endif %}>
     <!-- Sidebar -->
     <div class="writer-sidebar">
         <div class="sidebar-content">
@@ -769,13 +835,17 @@
                 <h6 class="fw-bold mb-3">
                     <i class="fas fa-folder-open me-2"></i>Repository:
                 </h6>
-                <select id="repository-selector" class="form-select">
-                    <option value="{{ project.id }}" selected>{{ project.name }}</option>
-                    {% for proj in user_projects %}
-                        {% if proj.id != project.id %}
-                            <option value="{{ proj.id }}">{{ proj.name }}</option>
-                        {% endif %}
-                    {% endfor %}
+                <select id="repository-selector" class="form-select" {% if is_demo %}disabled{% endif %}>
+                    {% if project %}
+                        <option value="{{ project.id }}" selected>{{ project.name }}</option>
+                        {% for proj in user_projects %}
+                            {% if proj.id != project.id %}
+                                <option value="{{ proj.id }}">{{ proj.name }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <option value="" selected>{% if is_anonymous %}Demo Workspace (Sign up to save){% else %}Create a project to save work{% endif %}</option>
+                    {% endif %}
                 </select>
             </div>
 
@@ -978,7 +1048,59 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const projectId = {{ project.id }};
+    console.log('[Writer] Initializing project writer interface');
+    const projectId = {% if project %}{{ project.id }}{% else %}null{% endif %};
+    const isDemo = {% if is_demo %}true{% else %}false{% endif %};
+    const isAnonymous = {% if is_anonymous %}true{% else %}false{% endif %};
+    const writerInitialized = {% if writer_initialized %}true{% else %}false{% endif %};
+    console.log('[Writer] Project ID:', projectId, 'Demo mode:', isDemo, 'Anonymous:', isAnonymous, 'Initialized:', writerInitialized);
+
+    // Handle writer workspace initialization
+    const initWriterBtn = document.getElementById('init-writer-btn');
+    if (initWriterBtn) {
+        initWriterBtn.addEventListener('click', function() {
+            console.log('[Writer] Initializing workspace...');
+            this.disabled = true;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Creating workspace...';
+
+            fetch(`/writer/api/initialize-workspace/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify({
+                    project_id: projectId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('[Writer] Workspace initialized successfully');
+                    // Reload page to show the editor
+                    window.location.reload();
+                } else {
+                    console.error('[Writer] Initialization failed:', data.error);
+                    alert('Failed to initialize workspace: ' + (data.error || 'Unknown error'));
+                    this.disabled = false;
+                    this.innerHTML = '<i class="fas fa-rocket me-2"></i>Initialize Writer Workspace';
+                }
+            })
+            .catch(error => {
+                console.error('[Writer] Initialization error:', error);
+                alert('Error initializing workspace: ' + error.message);
+                this.disabled = false;
+                this.innerHTML = '<i class="fas fa-rocket me-2"></i>Initialize Writer Workspace';
+            });
+        });
+    }
+
+    // Skip editor initialization if not initialized yet
+    if (!writerInitialized && !isDemo) {
+        console.log('[Writer] Workspace not initialized - skipping editor setup');
+        return;
+    }
+
     let currentSection = 'abstract';
     let currentDocType = 'manuscript';
     let liveCompileTimeout;
@@ -1370,6 +1492,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const showMainPdfBtn = document.getElementById('show-main-pdf');
     const showDiffPdfBtn = document.getElementById('show-diff-pdf');
 
+    // Debug: Log which elements are null
+    console.log('[Writer] Element check:', {
+        sectionList: !!sectionList,
+        manageSectionsBtn: !!manageSectionsBtn,
+        sectionPool: !!sectionPool,
+        sectionTitleLatex: !!sectionTitleLatex,
+        sectionTitlePreview: !!sectionTitlePreview
+    });
+
     let hasUnsavedChanges = false;
     let logExpanded = false;
     let hasDiffPdf = false;
@@ -1413,12 +1544,17 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Initialize
+    console.log('[Writer] Starting initialization...');
     loadState();
+    console.log('[Writer] State loaded, rendering sections for:', currentDocType);
     renderSections(currentDocType);
+    console.log('[Writer] Sections rendered, loading word counts');
     loadAllWordCountsFromLocalStorage(); // Load cached word counts from localStorage
     loadHistoryFromLocalStorage(); // Load undo/redo history
+    console.log('[Writer] Loading section:', currentSection);
     loadLatexSection(currentSection);
     updateWordCount();
+    console.log('[Writer] Initialization complete');
 
     // Setup compilation panel toggle (after DOM is ready)
     setupCompilationPanelToggle();
@@ -1468,10 +1604,11 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Section switching (delegated event listener)
-    sectionList.addEventListener('click', function(e) {
-        const sectionItem = e.target.closest('.section-item');
-        if (sectionItem && !e.target.closest('.section-remove-btn')) {
-            const section = sectionItem.dataset.section;
+    if (sectionList) {
+        sectionList.addEventListener('click', function(e) {
+            const sectionItem = e.target.closest('.section-item');
+            if (sectionItem && !e.target.closest('.section-remove-btn')) {
+                const section = sectionItem.dataset.section;
 
             // If we're viewing compilation panel, switch back to editor first
             const compilationPanel = document.getElementById('compilation-panel');
@@ -1498,8 +1635,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Switch to new section
                 switchToSection(section);
             }
-        }
-    });
+        });
+    } else {
+        console.error('[Writer] sectionList element not found!');
+    }
 
     // Update preview and mark as unsaved on CodeMirror change
     codeMirrorEditor.on('change', function(editor) {
@@ -1510,6 +1649,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Update word count
         updateWordCount();
+
+        // For demo mode, save to sectionsData immediately
+        if (isDemo || !projectId) {
+            sectionsData[currentDocType][currentSection] = latexContent;
+            console.log('[Writer] Saved to sectionsData:', currentSection);
+        }
 
         // Mark as unsaved
         markAsUnsaved();
@@ -1732,12 +1877,33 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function loadLatexSection(section) {
+        console.log('[Writer] Loading section:', section, 'for doc type:', currentDocType);
+
         // Update section titles in headers
         const sectionTitle = sectionTitles[currentDocType][section];
         sectionTitleLatex.textContent = `${sectionTitle} - LaTeX`;
         sectionTitlePreview.textContent = `${sectionTitle} - Preview`;
 
-        // Load actual LaTeX content from server
+        // For demo/guest users without projectId, load from local sectionsData
+        if (!projectId || isDemo) {
+            console.log('[Writer] Demo mode - loading from sectionsData');
+            const content = sectionsData[currentDocType][section] || `% ${sectionTitle}\n\n`;
+            codeMirrorEditor.setValue(content);
+
+            // Update preview
+            const textContent = convertFromLatex(section, content);
+            textPreview.textContent = textContent;
+
+            // Update word count
+            updateWordCount();
+
+            // Mark as saved
+            markAsSaved();
+            return;
+        }
+
+        // Load actual LaTeX content from server for project users
+        console.log('[Writer] Loading from server for project:', projectId);
         fetch(`/writer/project/${projectId}/load-latex/?section=${section}&doc_type=${currentDocType}`)
         .then(response => response.json())
         .then(data => {
@@ -2143,6 +2309,23 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function saveCurrentSectionManually() {
+        console.log('[Writer] Manual save triggered');
+
+        // Check if in demo mode - show guidance message
+        if (isDemo) {
+            console.log('[Writer] Demo mode - showing guidance');
+            if (isAnonymous) {
+                showToast('Demo Mode: Sign up to save your work permanently. <a href="/auth/signup/" class="alert-link">Sign Up</a> or <a href="/auth/login/" class="alert-link">Log In</a>', 'info', 5000);
+            } else {
+                showToast('Create a project to save your work permanently. <a href="/new/" class="alert-link">Create Project</a>', 'warning', 5000);
+            }
+            // Still save to localStorage for demo users
+            const latexContent = codeMirrorEditor.getValue();
+            sectionsData[currentDocType][currentSection] = latexContent;
+            markAsSaved();
+            return;
+        }
+
         const latexContent = codeMirrorEditor.getValue();
         const sectionToSave = currentSection;  // Capture current section
 
@@ -2481,9 +2664,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function exportManuscript() {
+        console.log('[Writer] Exporting manuscript');
         // Create export data
         const exportData = {
-            project: '{{ project.name }}',
+            project: {% if project %}'{{ project.name }}'{% else %}'Demo Project'{% endif %},
             manuscript: '{{ manuscript.title }}',
             sections: sectionsData,
             stats: {
@@ -2512,26 +2696,27 @@ document.addEventListener('DOMContentLoaded', function() {
         autoSaveStatus.innerHTML = `<i class="fas fa-${icon} text-${color} me-1"></i>${message}`;
     }
     
-    function showToast(message, type) {
+    function showToast(message, type, duration = 5000) {
+        console.log('[Writer] Showing toast:', type, message);
         const toast = document.createElement('div');
         toast.className = `alert alert-${type} alert-dismissible fade show`;
         toast.innerHTML = `
             ${message}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         `;
-        
+
         let container = document.querySelector('.toast-container');
         if (!container) {
             container = document.createElement('div');
             container.className = 'toast-container';
             document.body.appendChild(container);
         }
-        
+
         container.appendChild(toast);
-        
+
         setTimeout(() => {
             toast.remove();
-        }, 5000);
+        }, duration);
     }
     
     function checkForExistingPDF() {
@@ -2653,6 +2838,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function loadPDFsPanel() {
+        console.log('[Writer] Loading PDF panel');
+        {% if not project %}
+        console.log('[Writer] No project - skipping PDF load');
+        const pdfViewerPanel = document.getElementById('pdf-viewer-panel');
+        pdfViewerPanel.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--color-fg-muted);">{% if is_anonymous %}Sign up to compile PDFs{% else %}Create a project to compile PDFs{% endif %}</div>';
+        return;
+        {% endif %}
+
         const username = '{{ project.owner.username }}';
         const slug = '{{ project.slug }}';
 
@@ -3004,14 +3197,15 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Initialize real-time collaboration (Phase 1.1 - WebSocket)
-    {% if user.is_authenticated %}
+    {% if user.is_authenticated and project %}
+    console.log('[Writer] Initializing collaboration');
     const collaboration = new WriterCollaboration(
         {{ project.id }},
         {{ user.id }},
         '{{ user.username|escapejs }}'
     );
     window.collaboration = collaboration;
-    
+
     // Integrate with Writer UI
     collaboration.integrateWithWriter();
     
