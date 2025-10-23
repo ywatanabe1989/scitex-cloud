@@ -88,42 +88,38 @@ collect_static() {
 stop_existing() {
     echo_header "Stopping existing processes..."
 
-    # Suppress job control messages
-    set +m
+    {
+        # Kill all Django runserver processes (with and without sudo)
+        pkill -9 -f "runserver" 2>/dev/null || true
+        sudo pkill -9 -f "runserver" 2>/dev/null || true
 
-    # Kill all Django runserver processes (with and without sudo)
-    ( pkill -9 -f "runserver" >/dev/null 2>&1 ) || true
-    ( sudo pkill -9 -f "runserver" >/dev/null 2>&1 ) || true
+        # Kill all Python processes running manage.py
+        pkill -9 -f "python.*manage.py" 2>/dev/null || true
+        sudo pkill -9 -f "python.*manage.py" 2>/dev/null || true
 
-    # Kill all Python processes running manage.py
-    ( pkill -9 -f "python.*manage.py" >/dev/null 2>&1 ) || true
-    ( sudo pkill -9 -f "python.*manage.py" >/dev/null 2>&1 ) || true
+        # Kill processes using port 8000
+        sudo fuser -k -9 8000/tcp 2>/dev/null || true
+        fuser -k -9 8000/tcp 2>/dev/null || true
 
-    # Kill processes using port 8000
-    ( sudo fuser -k -9 8000/tcp >/dev/null 2>&1 ) || true
-    ( fuser -k -9 8000/tcp >/dev/null 2>&1 ) || true
+        # Kill any processes listening on port 8000 using lsof
+        if command -v lsof &> /dev/null; then
+            lsof -ti:8000 2>/dev/null | xargs -r kill -9 2>/dev/null || true
+            sudo lsof -ti:8000 2>/dev/null | xargs -r sudo kill -9 2>/dev/null || true
+        fi
 
-    # Kill any processes listening on port 8000 using lsof
-    if command -v lsof &> /dev/null; then
-        ( lsof -ti:8000 2>/dev/null | xargs -r kill -9 2>/dev/null ) || true
-        ( sudo lsof -ti:8000 2>/dev/null | xargs -r sudo kill -9 2>/dev/null ) || true
-    fi
+        # Kill existing uwsgi processes
+        pkill -9 -f "uwsgi.*scitex" 2>/dev/null || true
+        sudo pkill -9 -f "uwsgi.*scitex" 2>/dev/null || true
 
-    # Kill existing uwsgi processes
-    ( pkill -9 -f "uwsgi.*scitex" >/dev/null 2>&1 ) || true
-    ( sudo pkill -9 -f "uwsgi.*scitex" >/dev/null 2>&1 ) || true
+        # Remove PID file
+        rm -f "$PID_FILE" 2>/dev/null || true
 
-    # Remove PID file
-    rm -f "$PID_FILE" 2>/dev/null || true
+        # Remove uwsgi socket
+        rm -f "$APP_HOME/run/uwsgi.sock" 2>/dev/null || true
 
-    # Remove uwsgi socket
-    rm -f "$APP_HOME/run/uwsgi.sock" 2>/dev/null || true
-
-    # Wait a moment for processes to fully terminate
-    sleep 1
-
-    # Re-enable job control
-    set -m
+        # Wait a moment for processes to fully terminate
+        sleep 1
+    } 2>&1 | grep -v "Killed" || true
 
     echo_success "Done"
 }
