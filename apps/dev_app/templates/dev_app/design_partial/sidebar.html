@@ -13,7 +13,7 @@
     {% if components %}
       {% for component in components %}
       <li style="padding-left: 1rem; font-size: 0.8125rem;">
-        <a href="#component-{{ component.id|slugify }}" class="sidebar-nav-item">{{ component.name }}</a>
+        <a href="{% url 'dev_app:design_component_detail' component_id=component.id|slugify %}" class="sidebar-nav-item">{{ component.name }}</a>
       </li>
       {% endfor %}
     {% endif %}
