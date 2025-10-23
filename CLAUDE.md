@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-23 07:43:06
+!-- Timestamp: 2025-10-23 15:08:17
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/CLAUDE.md
 !-- --- -->
@@ -30,40 +30,15 @@ Follow `./apps/README.md`
 Do not place any files under project root directory
 
 ## Design Theme of the website
-See /dev/design/
+See `./apps/dev_app`
+See `/dev/design/`
 
 ## Debugging Javascripts
 Add console.log for debugging
 
-## Current Urgent Requests
-- [x] Visual aesthetics for /scholar/ page
-  - [x] Tabs should be like in the filer (github headers?) - DONE: Bottom border indicator style
-  - [x] Underscore for selected - DONE: Using scitex-color-03 bottom border
-  - [x] Non-selected as darker (in the dark) or lighter (in the light mode) - DONE: color-fg-muted with hover states
-  - [x] The input box of the search page should have edge - DONE: 1px solid border with focus states
-  - [x] Add edge for search button to keep height the same - DONE: min-height matching and border styling
-- [x] Login issue fixed - DONE: Template namespace references updated from core_app to workspace_app
-- [x] Core app refactoring completion - DONE: All references updated
-
-## Scholar App Enhancements (Completed)
-- [x] Save to library functionality with project selector dropdown
-- [x] Signup suggestion for anonymous users when saving papers
-- [x] Project selector persists across page navigation using sessionStorage
-- [x] Proper handling of project association when saving papers
-- [x] All tests passing for save functionality
-
-## Project Selector Implementation (Completed)
-The project-centric approach is now fully integrated with main header project selector:
-- [x] Auto default project creation on user signup
-- [x] Users select a project via dropdown in the main header
-- [x] Selected project is remembered during the session via sessionStorage
-- [x] Papers are automatically associated with the selected project when saved
-- [x] Anonymous users get a friendly signup prompt instead of errors
-- [x] Eliminates the need for project-specific URLs (e.g., /username/project/?mode=scholar)
-- [x] Sign in/Sign out/Sign up terminology consistent throughout
-- [x] Main header contains project selector + create project button
-- [x] Alt+P keyboard shortcut to focus project selector
-- [x] Full dark/light mode support
-- [x] Responsive design for mobile/tablet
+## Scholar App
+- [ ] Tab styling
+  - [ ] Selected tab with underline like tabs (or inline header) here: http://127.0.0.1:8000/ywatanabe/testtest/
+  - [ ] Underline is not shown
 
 <!-- EOF -->
