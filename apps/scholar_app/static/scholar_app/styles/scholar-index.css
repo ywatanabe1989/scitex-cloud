@@ -681,14 +681,18 @@ a.disabled {
 .vertical-tab-btn.active,
 .tab-link.active {
     color: var(--color-fg-default);
-    border-bottom-color: var(--tab-active-border);
+    border-bottom-color: var(--scitex-color-03);
+    border-left: none !important;
+    box-shadow: none !important;
     font-weight: 600;
 }
 
 [data-theme="dark"] .vertical-tab-btn.active,
 [data-theme="dark"] .tab-link.active {
     color: var(--color-fg-default);
-    border-bottom-color: var(--tab-active-border);
+    border-bottom-color: var(--scitex-color-05);
+    border-left: none !important;
+    box-shadow: none !important;
     font-weight: 600;
 }
 
