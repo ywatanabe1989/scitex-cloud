@@ -1079,11 +1079,11 @@ function displayRecentJobs(jobs) {
                 </div>
                 ${job.status === 'completed' ? `
                     <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
-                        <button onclick="downloadJob('${job.id}')" style="flex: 1; padding: 0.5rem; background: var(--success-color); color: var(--white); border: none; border-radius: 4px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
-                            <i class="fas fa-download"></i> Download
-                        </button>
                         <button onclick="saveJobToProject('${job.id}')" style="flex: 1; padding: 0.5rem; background: var(--success-color); color: var(--white); border: none; border-radius: 4px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
                             <i class="fas fa-folder"></i> Save
+                        </button>
+                        <button onclick="downloadJob('${job.id}')" style="flex: 1; padding: 0.5rem; background: var(--success-color); color: var(--white); border: none; border-radius: 4px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+                            <i class="fas fa-download"></i> Download
                         </button>
                     </div>
                 ` : ''}
