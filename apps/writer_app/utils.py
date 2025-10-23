@@ -231,7 +231,8 @@ def estimate_pdf_pages(pdf_content):
         # Count occurrences of /Type /Page in PDF
         page_count = pdf_content.count(b'/Type /Page')
         return max(1, page_count)  # At least 1 page
-    except:
+    except (AttributeError, TypeError):
+        # PDF content is invalid or not bytes, return default
         return 1
 
 

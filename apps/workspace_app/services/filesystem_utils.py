@@ -224,7 +224,8 @@ class NativeFileHandler:
                 sample = f.read(sample_size)
                 # If null byte found, it's binary
                 return b'\x00' not in sample
-        except:
+        except (OSError, IOError, ValueError):
+            # File access error or invalid path, treat as binary
             return False
 
     @staticmethod
@@ -269,11 +270,13 @@ class NativeFileHandler:
                     file_count += 1
                     try:
                         total_size += item.stat().st_size
-                    except:
+                    except (OSError, IOError):
+                        # Unable to stat file, skip its size
                         pass
                 elif item.is_dir():
                     dir_count += 1
-        except:
+        except (OSError, IOError, PermissionError):
+            # Unable to traverse directory, return partial results
             pass
 
         return {
@@ -438,7 +441,8 @@ class ProjectFileScanner:
                                 'content': line.strip(),
                                 'context': self._get_context(lines, line_no - 1)
                             })
-                except:
+                except (UnicodeDecodeError, OSError, IOError):
+                    # Unable to read or decode file, skip it
                     continue
 
         return results

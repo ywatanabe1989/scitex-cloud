@@ -28,7 +28,8 @@ def can(user, permission_string):
         project = parts[2] if len(parts) > 2 else None
 
         return PermissionService.check_permission(user, project, action, module)
-    except:
+    except (IndexError, AttributeError, ValueError):
+        # Invalid permission string format or user is not authenticated
         return False
 
 
@@ -55,5 +56,6 @@ def can_edit_module(user, module_and_project):
     try:
         module, project = module_and_project.split(',')
         return PermissionService.can_write(user, project, module.strip())
-    except:
+    except (ValueError, AttributeError):
+        # Invalid format (missing comma) or module/project is invalid
         return False

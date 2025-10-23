@@ -50,7 +50,8 @@ def native_list_directory(request, username, slug, directory_path=''):
         target_path = target_path.resolve()
         if not str(target_path).startswith(str(project_path.resolve())):
             return JsonResponse({'error': 'Invalid path'}, status=400)
-    except:
+    except (OSError, ValueError):
+        # Invalid path or unable to resolve, security violation
         return JsonResponse({'error': 'Invalid path'}, status=400)
 
     # Parse query parameters

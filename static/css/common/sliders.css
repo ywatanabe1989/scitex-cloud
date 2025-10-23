@@ -1,0 +1,117 @@
+/* =============================================================================
+ * SciTeX Slider Styles - Theme Responsive
+ * =============================================================================
+ *
+ * Slider component styling for noUiSlider and native range inputs
+ * Uses semantic tokens for automatic light/dark theme support
+ *
+ * ============================================================================= */
+
+/* noUiSlider Custom Styling - Theme Responsive */
+.noUi-target {
+  background: var(--border-default);
+  border-radius: 6px;
+  border: none;
+  box-shadow: none;
+  height: 8px;
+}
+
+.noUi-connect {
+  background: linear-gradient(to right, var(--text-secondary), var(--text-primary));
+}
+
+.noUi-handle {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
+  border: 3px solid var(--bg-page);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 1px 3px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  top: -7px;
+}
+
+.noUi-handle:before,
+.noUi-handle:after {
+  display: none;
+}
+
+.noUi-handle:hover {
+  background: linear-gradient(135deg, var(--text-secondary) 0%, var(--text-muted) 100%);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3), 0 2px 6px rgba(0, 0, 0, 0.15);
+  transform: scale(1.1);
+}
+
+.noUi-handle:active {
+  background: var(--text-primary);
+  transform: scale(1.15);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.noUi-tooltip {
+  display: none;
+}
+
+/* Native Range Input Styles - Theme Responsive */
+.dual-range-input {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  background: linear-gradient(to right, var(--text-secondary) 0%, var(--text-primary) 100%);
+  outline: none;
+  border-radius: 3px;
+  transition: opacity 0.2s;
+}
+
+.dual-range-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
+  cursor: pointer;
+  border-radius: 50%;
+  border: 3px solid var(--bg-page);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 1px 3px rgba(0, 0, 0, 0.1);
+  pointer-events: auto;
+  position: relative;
+  z-index: 10;
+  transition: all 0.2s ease;
+}
+
+.dual-range-input::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
+  cursor: pointer;
+  border-radius: 50%;
+  border: 3px solid var(--bg-page);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 1px 3px rgba(0, 0, 0, 0.1);
+  pointer-events: auto;
+  transition: all 0.2s ease;
+}
+
+.dual-range-input:hover::-webkit-slider-thumb {
+  background: linear-gradient(135deg, var(--text-secondary) 0%, var(--text-muted) 100%);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3), 0 2px 6px rgba(0, 0, 0, 0.15);
+  transform: scale(1.1);
+}
+
+.dual-range-input:hover::-moz-range-thumb {
+  background: linear-gradient(135deg, var(--text-secondary) 0%, var(--text-muted) 100%);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3), 0 2px 6px rgba(0, 0, 0, 0.15);
+  transform: scale(1.1);
+}
+
+.dual-range-input:active::-webkit-slider-thumb {
+  background: var(--text-primary);
+  transform: scale(1.15);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.dual-range-input:active::-moz-range-thumb {
+  background: var(--text-primary);
+  transform: scale(1.15);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2);
+}

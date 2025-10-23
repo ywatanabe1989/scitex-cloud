@@ -3,15 +3,15 @@
   <div class="sidebar-heading">Navigation</div>
   <ul class="sidebar-nav">
     <!-- Design Foundations First -->
-    <li><a href="#colors" class="sidebar-nav-item">Colors</a></li>
-    <li><a href="#typography" class="sidebar-nav-item">Typography</a></li>
-    <li><a href="#spacing" class="sidebar-nav-item">Spacing</a></li>
-    <li><a href="#theme" class="sidebar-nav-item">Theme</a></li>
+    <li><a href="{% url 'dev_app:design_colors' %}" class="sidebar-nav-item">Colors</a></li>
+    <li><a href="{% url 'dev_app:design_typography' %}" class="sidebar-nav-item">Typography</a></li>
+    <li><a href="{% url 'dev_app:design_spacing' %}" class="sidebar-nav-item">Spacing</a></li>
+    <li><a href="{% url 'dev_app:design_theme' %}" class="sidebar-nav-item">Theme</a></li>
 
     <!-- Components Section with Categories -->
     <li>
       <div style="display: flex; align-items: center; gap: 0;">
-        <a href="#components" class="sidebar-nav-item sidebar-nav-item-active" style="flex: 1; margin-bottom: 0;">Components</a>
+        <a href="{% url 'dev_app:design_components' %}" class="sidebar-nav-item sidebar-nav-item-active" style="flex: 1; margin-bottom: 0;">Components</a>
         <button class="sidebar-nav-toggle" onclick="toggleSidebarSection('components'); event.stopPropagation();"
                 style="background: transparent; border: none; cursor: pointer; padding: 0.625rem 0.75rem; color: var(--color-fg-default); flex-shrink: 0;">
           <svg class="sidebar-toggle-icon" width="12" height="12" viewBox="0 0 16 16" fill="currentColor" style="transition: transform 0.2s; transform: rotate(0deg);">
@@ -42,6 +42,6 @@
     </li>
 
     <!-- Usage Guidelines Last -->
-    <li><a href="#guidelines" class="sidebar-nav-item">Usage Guidelines</a></li>
+    <li><a href="{% url 'dev_app:design_guidelines' %}" class="sidebar-nav-item">Usage Guidelines</a></li>
   </ul>
 </nav>

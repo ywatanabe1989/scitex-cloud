@@ -114,7 +114,8 @@ class GiteaClient:
                 error_data = response.json()
                 if 'message' in error_data:
                     error_msg = error_data['message']
-            except:
+            except (ValueError, requests.RequestException):
+                # JSON parsing failed, use response text instead
                 if response.text:
                     error_msg = response.text[:200]
 
