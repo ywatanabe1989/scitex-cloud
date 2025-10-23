@@ -800,8 +800,32 @@ window.handleSaveToProject = function() {
         return;
     }
 
+    // Check if user is authenticated
+    const isAuthenticated = document.body.dataset.userAuthenticated === 'true';
+    if (!isAuthenticated) {
+        // Anonymous user - guide them
+        if (confirm(
+            'To save to a project, you need to:\n\n' +
+            '1. Create a free account\n' +
+            '2. Sign in\n' +
+            '3. Create a project\n\n' +
+            'Note: You can download the enriched file without an account.\n\n' +
+            'Would you like to sign up now?'
+        )) {
+            window.location.href = '/accounts/signup/?next=/scholar/%23bibtex';
+        }
+        return;
+    }
+
+    // Check if project selected
     if (!projectSelector || !projectSelector.value) {
-        alert('Please select a project first');
+        // User has no projects or didn't select one
+        if (confirm(
+            'Please create a project first to save bibliography files.\n\n' +
+            'Would you like to create a new project now?'
+        )) {
+            window.location.href = '/projects/new/?next=/scholar/%23bibtex';
+        }
         return;
     }
 
@@ -1055,10 +1079,10 @@ function displayRecentJobs(jobs) {
                 </div>
                 ${job.status === 'completed' ? `
                     <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
-                        <button onclick="downloadJob('${job.id}')" style="flex: 1; padding: 0.5rem; background: var(--success-color); color: var(--white); border: none; border-radius: 4px; font-size: 0.8rem; font-weight: 600; cursor: pointer;">
+                        <button onclick="downloadJob('${job.id}')" style="flex: 1; padding: 0.5rem; background: var(--success-color); color: var(--white); border: none; border-radius: 4px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
                             <i class="fas fa-download"></i> Download
                         </button>
-                        <button onclick="saveJobToProject('${job.id}')" style="flex: 1; padding: 0.5rem; background: var(--scitex-color-05); color: var(--white); border: none; border-radius: 4px; font-size: 0.8rem; font-weight: 600; cursor: pointer;">
+                        <button onclick="saveJobToProject('${job.id}')" style="flex: 1; padding: 0.5rem; background: var(--success-color); color: var(--white); border: none; border-radius: 4px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
                             <i class="fas fa-folder"></i> Save
                         </button>
                     </div>
@@ -1090,23 +1114,50 @@ window.downloadJob = function(jobId) {
 };
 
 /**
- * Save job to project
+ * Save job to project (called from history card buttons)
  * @param {string} jobId - Job UUID
  */
 window.saveJobToProject = function(jobId) {
     console.log('Saving job to project:', jobId);
 
+    // Check if user is authenticated
+    const isAuthenticated = document.body.dataset.userAuthenticated === 'true';
+    if (!isAuthenticated) {
+        // Anonymous user - guide them
+        if (confirm(
+            'To save to a project, you need to:\n\n' +
+            '1. Create a free account\n' +
+            '2. Sign in\n' +
+            '3. Create a project\n\n' +
+            'Note: You can download the enriched file without an account.\n\n' +
+            'Would you like to sign up now?'
+        )) {
+            window.location.href = '/accounts/signup/?next=/scholar/%23bibtex';
+        }
+        return;
+    }
+
     // Check if user has projects
     const projectSelector = document.getElementById('projectSelector');
     if (!projectSelector) {
-        alert('Please sign in and create a project first');
+        if (confirm(
+            'Please create a project first to save bibliography files.\n\n' +
+            'Would you like to create a new project now?'
+        )) {
+            window.location.href = '/projects/new/?next=/scholar/%23bibtex';
+        }
         return;
     }
 
     // Get selected project
     const projectId = projectSelector.value;
     if (!projectId) {
-        alert('Please select a project first');
+        if (confirm(
+            'Please select a project from the dropdown to save.\n\n' +
+            'Or create a new project?'
+        )) {
+            window.location.href = '/projects/new/?next=/scholar/%23bibtex';
+        }
         return;
     }
 

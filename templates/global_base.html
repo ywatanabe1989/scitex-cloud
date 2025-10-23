@@ -6,7 +6,7 @@
   {% include 'partials/global_head_styles.html' %}
   {% block extra_css %}{% endblock %}
 </head>
-<body style="background-color: var(--bg-page); color: var(--text-primary); min-height: 100vh; display: flex; flex-direction: column;">
+<body style="background-color: var(--bg-page); color: var(--text-primary); min-height: 100vh; display: flex; flex-direction: column;" data-user-authenticated="{% if user.is_authenticated %}true{% else %}false{% endif %}">
   <a href="#main-content" class="skip-to-content">Skip to main content</a>
 
   {% include 'partials/global_header.html' %}
