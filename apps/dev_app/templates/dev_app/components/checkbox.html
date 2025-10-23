@@ -1,0 +1,165 @@
+{% extends "global_base.html" %}
+
+{% block content %}
+<div class="dev-design-layout">
+  {% include "dev_app/design_partial/sidebar.html" %}
+
+  <main class="design-content">
+    <div class="design-header">
+      <h1>Checkbox</h1>
+      <p class="design-subtitle">Multiple selection input component</p>
+    </div>
+
+    <style>
+      .checkbox-demo {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        padding: 2rem;
+        background-color: var(--bg-secondary);
+        border-radius: 8px;
+        margin-bottom: 2rem;
+      }
+
+      .checkbox-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        font-size: 1rem;
+      }
+
+      .checkbox-group-label {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--text-primary);
+      }
+
+      input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+        accent-color: #007AFF;
+      }
+
+      input[type="checkbox"]:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .checkbox-description {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        margin-left: 1.75rem;
+      }
+    </style>
+
+    <section class="design-section">
+      <h2>Overview</h2>
+      <div class="section-info">
+        <p><strong>Category:</strong> Form & Selection</p>
+        <p><strong>Dark mode:</strong> Supported</p>
+        <p>Checkboxes allow users to select multiple options from a list. They can be used individually or in groups.</p>
+      </div>
+    </section>
+
+    <section class="design-section">
+      <h2>Component Demo</h2>
+      <div class="checkbox-demo">
+        <!-- Standard Checkboxes -->
+        <div class="checkbox-group">
+          <div class="checkbox-group-label">Subscribe to Notifications</div>
+          <label class="checkbox-label">
+            <input type="checkbox" checked>
+            <span>Email notifications</span>
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" checked>
+            <span>Push notifications</span>
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox">
+            <span>SMS notifications</span>
+          </label>
+        </div>
+
+        <!-- Disabled State -->
+        <div class="checkbox-group">
+          <div class="checkbox-group-label">Disabled Options</div>
+          <label class="checkbox-label">
+            <input type="checkbox" checked disabled>
+            <span>Option 1 (locked)</span>
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" disabled>
+            <span>Option 2 (locked)</span>
+          </label>
+        </div>
+
+        <!-- With Descriptions -->
+        <div class="checkbox-group">
+          <div class="checkbox-group-label">Features</div>
+          <label class="checkbox-label">
+            <input type="checkbox" checked>
+            <span>Dark Mode</span>
+          </label>
+          <div class="checkbox-description">Enable dark theme for comfortable viewing</div>
+          <label class="checkbox-label">
+            <input type="checkbox">
+            <span>Auto-save</span>
+          </label>
+          <div class="checkbox-description">Automatically save your work in progress</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="design-section">
+      <h2>Variants & States</h2>
+      <div class="variants-list">
+        <ul>
+          <li><strong>Unchecked:</strong> Default state, ready for selection</li>
+          <li><strong>Checked:</strong> Selected state with checkmark</li>
+          <li><strong>Disabled:</strong> Unavailable for interaction (can be checked or unchecked)</li>
+          <li><strong>With Label:</strong> Checkbox paired with descriptive text</li>
+          <li><strong>In Group:</strong> Multiple checkboxes for multi-select</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="design-section">
+      <h2>HTML Code Example</h2>
+      <pre><code class="language-html">&lt;!-- Single Checkbox --&gt;
+&lt;label class="checkbox-label"&gt;
+  &lt;input type="checkbox"&gt;
+  &lt;span&gt;Accept terms and conditions&lt;/span&gt;
+&lt;/label&gt;
+
+&lt;!-- Checkbox Group --&gt;
+&lt;div class="checkbox-group"&gt;
+  &lt;div class="checkbox-group-label"&gt;Preferences&lt;/div&gt;
+  &lt;label class="checkbox-label"&gt;
+    &lt;input type="checkbox" checked&gt;
+    &lt;span&gt;Option 1&lt;/span&gt;
+  &lt;/label&gt;
+  &lt;label class="checkbox-label"&gt;
+    &lt;input type="checkbox"&gt;
+    &lt;span&gt;Option 2&lt;/span&gt;
+  &lt;/label&gt;
+&lt;/div&gt;
+
+&lt;!-- Disabled Checkbox --&gt;
+&lt;label class="checkbox-label"&gt;
+  &lt;input type="checkbox" disabled&gt;
+  &lt;span&gt;Unavailable option&lt;/span&gt;
+&lt;/label&gt;</code></pre>
+      <script>hljs.highlightAll();</script>
+    </section>
+  </main>
+</div>
+{% endblock %}

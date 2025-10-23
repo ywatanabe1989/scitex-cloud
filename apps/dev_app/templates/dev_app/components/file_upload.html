@@ -1,0 +1,385 @@
+{% extends "global_base.html" %}
+
+{% block content %}
+<div class="dev-design-layout">
+  {% include "dev_app/design_partial/sidebar.html" %}
+
+  <main class="design-content">
+    <div class="design-header">
+      <h1>File Upload</h1>
+      <p class="design-subtitle">Drag-and-drop file upload with visual feedback</p>
+    </div>
+
+    <style>
+      .upload-demo {
+        padding: 2rem;
+        background-color: var(--bg-secondary);
+        border-radius: 8px;
+        margin-bottom: 2rem;
+      }
+
+      .upload-zone {
+        border: 2px dashed var(--border-color);
+        border-radius: 12px;
+        padding: 3rem 2rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        background-color: var(--bg-primary);
+        margin-bottom: 2rem;
+      }
+
+      .upload-zone:hover {
+        border-color: #007AFF;
+        background-color: rgba(0, 122, 255, 0.02);
+      }
+
+      .upload-zone.dragover {
+        border-color: #007AFF;
+        background-color: rgba(0, 122, 255, 0.1);
+        box-shadow: 0 0 12px rgba(0, 122, 255, 0.2);
+      }
+
+      .upload-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        display: block;
+      }
+
+      .upload-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+      }
+
+      .upload-subtitle {
+        font-size: 0.95rem;
+        color: var(--text-secondary);
+        margin-bottom: 1.5rem;
+      }
+
+      .upload-input {
+        display: none;
+      }
+
+      .upload-button {
+        display: inline-block;
+        padding: 0.75rem 2rem;
+        background-color: #007AFF;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+
+      .upload-button:hover {
+        background-color: #0051D5;
+      }
+
+      .upload-button:active {
+        background-color: #003AA3;
+      }
+
+      .file-list {
+        margin-top: 2rem;
+        padding: 1.5rem;
+        background-color: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        display: none;
+      }
+
+      .file-list.active {
+        display: block;
+      }
+
+      .file-list-title {
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: var(--text-primary);
+      }
+
+      .file-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem;
+        border-radius: 6px;
+        background-color: var(--bg-secondary);
+        margin-bottom: 0.75rem;
+      }
+
+      .file-item-info {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex: 1;
+      }
+
+      .file-icon {
+        font-size: 1.25rem;
+      }
+
+      .file-name {
+        font-weight: 500;
+        color: var(--text-primary);
+      }
+
+      .file-size {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+      }
+
+      .file-status {
+        font-size: 0.85rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 4px;
+        background-color: #34C759;
+        color: white;
+      }
+
+      .file-status.pending {
+        background-color: #FF9500;
+      }
+
+      .file-status.error {
+        background-color: #FF3B30;
+      }
+
+      /* Variant: Multiple files */
+      .upload-zone-multi {
+        border: 2px dashed var(--border-color);
+        border-radius: 12px;
+        padding: 2rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        background-color: var(--bg-primary);
+      }
+
+      .upload-zone-multi:hover {
+        border-color: #007AFF;
+      }
+
+      /* Simple upload button */
+      .upload-simple {
+        display: inline-block;
+      }
+
+      .upload-simple label {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        background-color: #007AFF;
+        color: white;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: background-color 0.2s;
+      }
+
+      .upload-simple label:hover {
+        background-color: #0051D5;
+      }
+
+      .upload-simple input[type="file"] {
+        display: none;
+      }
+    </style>
+
+    <section class="design-section">
+      <h2>Overview</h2>
+      <div class="section-info">
+        <p><strong>Category:</strong> Form & Input</p>
+        <p><strong>Dark mode:</strong> Supported</p>
+        <p>File upload components allow users to select and upload files. They support drag-and-drop interaction for a better user experience.</p>
+      </div>
+    </section>
+
+    <section class="design-section">
+      <h2>Component Demo</h2>
+      <div class="upload-demo">
+        <!-- Standard Upload Zone -->
+        <div class="upload-zone" id="uploadZone1" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+          <span class="upload-icon">☁️</span>
+          <div class="upload-title">Upload your file</div>
+          <div class="upload-subtitle">Drag and drop your files here, or click to select</div>
+          <button class="upload-button" onclick="document.getElementById('fileInput1').click()">Choose File</button>
+          <input type="file" id="fileInput1" class="upload-input" onchange="handleFileSelect(event, 'fileList1')">
+        </div>
+        <div class="file-list" id="fileList1">
+          <div class="file-list-title">Uploaded Files</div>
+          <!-- Files will appear here -->
+        </div>
+
+        <!-- Multiple Files Upload -->
+        <div style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border-color);">
+          <h3 style="margin-top: 0; color: var(--text-primary);">Multiple Files Upload</h3>
+          <div class="upload-zone-multi" id="uploadZone2" ondrop="handleDropMulti(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+            <span class="upload-icon">📁</span>
+            <div class="upload-title">Drop multiple files here</div>
+            <div class="upload-subtitle">Or click to select files</div>
+            <button class="upload-button" onclick="document.getElementById('fileInput2').click()">Choose Files</button>
+            <input type="file" id="fileInput2" class="upload-input" multiple onchange="handleMultipleFileSelect(event, 'fileList2')">
+          </div>
+          <div class="file-list" id="fileList2">
+            <div class="file-list-title">Selected Files</div>
+            <!-- Files will appear here -->
+          </div>
+        </div>
+
+        <!-- Simple Upload Button -->
+        <div style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border-color);">
+          <h3 style="margin-top: 0; color: var(--text-primary);">Simple Upload Button</h3>
+          <div class="upload-simple">
+            <label for="fileInput3">Select File</label>
+            <input type="file" id="fileInput3">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="design-section">
+      <h2>Variants & States</h2>
+      <div class="variants-list">
+        <ul>
+          <li><strong>Drag-and-Drop Zone:</strong> Large clickable area with drag support</li>
+          <li><strong>Multiple Files:</strong> Accept multiple files at once</li>
+          <li><strong>File Status:</strong> Show upload progress and completion status</li>
+          <li><strong>Hover State:</strong> Visual feedback when hovering over drop zone</li>
+          <li><strong>Drag-over State:</strong> Highlighted zone during drag-over</li>
+          <li><strong>File List:</strong> Display uploaded/selected files with details</li>
+          <li><strong>Simple Button:</strong> Minimal upload button variant</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="design-section">
+      <h2>HTML Code Example</h2>
+      <pre><code class="language-html">&lt;!-- Drag-and-Drop Upload Zone --&gt;
+&lt;div class="upload-zone" ondrop="handleDrop(event)" ondragover="handleDragOver(event)"&gt;
+  &lt;span class="upload-icon"&gt;☁️&lt;/span&gt;
+  &lt;div class="upload-title"&gt;Upload your file&lt;/div&gt;
+  &lt;div class="upload-subtitle"&gt;Drag and drop or click to select&lt;/div&gt;
+  &lt;button class="upload-button" onclick="selectFile()"&gt;Choose File&lt;/button&gt;
+  &lt;input type="file" id="fileInput" class="upload-input"&gt;
+&lt;/div&gt;
+
+&lt;!-- File List Display --&gt;
+&lt;div class="file-list"&gt;
+  &lt;div class="file-list-title"&gt;Uploaded Files&lt;/div&gt;
+  &lt;div class="file-item"&gt;
+    &lt;div class="file-item-info"&gt;
+      &lt;span class="file-icon"&gt;📄&lt;/span&gt;
+      &lt;div&gt;
+        &lt;div class="file-name"&gt;document.pdf&lt;/div&gt;
+        &lt;div class="file-size"&gt;2.5 MB&lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;span class="file-status"&gt;Uploaded&lt;/span&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Simple Upload Button --&gt;
+&lt;div class="upload-simple"&gt;
+  &lt;label for="file"&gt;Select File&lt;/label&gt;
+  &lt;input type="file" id="file"&gt;
+&lt;/div&gt;</code></pre>
+      <script>hljs.highlightAll();</script>
+    </section>
+
+    <script>
+      function handleDragOver(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.currentTarget.classList.add('dragover');
+      }
+
+      function handleDragLeave(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.currentTarget.classList.remove('dragover');
+      }
+
+      function handleDrop(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.currentTarget.classList.remove('dragover');
+        
+        const files = event.dataTransfer.files;
+        if (files.length > 0) {
+          const fileInput = event.currentTarget.querySelector('.upload-input');
+          fileInput.files = files;
+          handleFileSelect({ target: fileInput }, 'fileList1');
+        }
+      }
+
+      function handleDropMulti(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.currentTarget.classList.remove('dragover');
+        
+        const files = event.dataTransfer.files;
+        if (files.length > 0) {
+          const fileInput = event.currentTarget.querySelector('.upload-input');
+          fileInput.files = files;
+          handleMultipleFileSelect({ target: fileInput }, 'fileList2');
+        }
+      }
+
+      function handleFileSelect(event, listId) {
+        const file = event.target.files[0];
+        if (!file) return;
+        
+        const fileList = document.getElementById(listId);
+        fileList.classList.add('active');
+        
+        const fileItemsContainer = fileList.querySelector('.file-list-title').nextSibling || fileList.appendChild(document.createElement('div'));
+        fileList.innerHTML = '<div class="file-list-title">Uploaded Files</div>';
+        
+        const fileItem = document.createElement('div');
+        fileItem.className = 'file-item';
+        fileItem.innerHTML = `
+          <div class="file-item-info">
+            <span class="file-icon">📄</span>
+            <div>
+              <div class="file-name">${file.name}</div>
+              <div class="file-size">${(file.size / 1024 / 1024).toFixed(2)} MB</div>
+            </div>
+          </div>
+          <span class="file-status">Uploaded</span>
+        `;
+        fileList.appendChild(fileItem);
+      }
+
+      function handleMultipleFileSelect(event, listId) {
+        const files = event.target.files;
+        if (files.length === 0) return;
+        
+        const fileList = document.getElementById(listId);
+        fileList.classList.add('active');
+        fileList.innerHTML = '<div class="file-list-title">Selected Files (' + files.length + ')</div>';
+        
+        for (let file of files) {
+          const fileItem = document.createElement('div');
+          fileItem.className = 'file-item';
+          fileItem.innerHTML = `
+            <div class="file-item-info">
+              <span class="file-icon">📄</span>
+              <div>
+                <div class="file-name">${file.name}</div>
+                <div class="file-size">${(file.size / 1024 / 1024).toFixed(2)} MB</div>
+              </div>
+            </div>
+            <span class="file-status">Ready</span>
+          `;
+          fileList.appendChild(fileItem);
+        }
+      }
+    </script>
+  </main>
+</div>
+{% endblock %}

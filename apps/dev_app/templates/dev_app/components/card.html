@@ -1,0 +1,216 @@
+{% extends "global_base.html" %}
+
+{% block content %}
+<div class="dev-design-layout">
+  {% include "dev_app/design_partial/sidebar.html" %}
+
+  <main class="design-content">
+    <div class="design-header">
+      <h1>Card</h1>
+      <p class="design-subtitle">Container component for grouping related content</p>
+    </div>
+
+    <style>
+      .card-demo {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        padding: 2rem;
+        background-color: var(--bg-secondary);
+        border-radius: 8px;
+        margin-bottom: 2rem;
+      }
+
+      .card {
+        background-color: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        overflow: hidden;
+        transition: box-shadow 0.2s, transform 0.2s;
+      }
+
+      .card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+      }
+
+      .card-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .card-title {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+
+      .card-subtitle {
+        margin: 0.5rem 0 0;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+      }
+
+      .card-body {
+        padding: 1.5rem;
+      }
+
+      .card-body p {
+        margin: 0;
+        color: var(--text-secondary);
+        line-height: 1.6;
+      }
+
+      .card-footer {
+        padding: 1rem 1.5rem;
+        background-color: var(--bg-secondary);
+        border-top: 1px solid var(--border-color);
+        display: flex;
+        gap: 0.75rem;
+        justify-content: flex-end;
+      }
+
+      .card.card-elevated {
+        border: none;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      }
+
+      .card.card-filled {
+        background-color: var(--bg-secondary);
+        border: none;
+      }
+
+      .card-footer .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+      }
+    </style>
+
+    <section class="design-section">
+      <h2>Overview</h2>
+      <div class="section-info">
+        <p><strong>Category:</strong> Container & Layout</p>
+        <p><strong>Dark mode:</strong> Supported</p>
+        <p>Cards are flexible content containers that group related information together. They can include headers, body content, and footer actions.</p>
+      </div>
+    </section>
+
+    <section class="design-section">
+      <h2>Component Demo</h2>
+      <div class="card-demo">
+        <!-- Basic Card -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Basic Card</h3>
+          </div>
+          <div class="card-body">
+            <p>This is a basic card with header and body. It provides a simple container for content organization.</p>
+          </div>
+        </div>
+
+        <!-- Card with Footer -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Card with Actions</h3>
+            <p class="card-subtitle">Includes footer actions</p>
+          </div>
+          <div class="card-body">
+            <p>This card demonstrates how to include action buttons in the footer section.</p>
+          </div>
+          <div class="card-footer">
+            <button class="btn btn-secondary">Cancel</button>
+            <button class="btn btn-primary">Confirm</button>
+          </div>
+        </div>
+
+        <!-- Elevated Card -->
+        <div class="card card-elevated">
+          <div class="card-header">
+            <h3 class="card-title">Elevated Card</h3>
+            <p class="card-subtitle">With shadow elevation</p>
+          </div>
+          <div class="card-body">
+            <p>This card uses shadow elevation instead of borders to create depth and visual hierarchy.</p>
+          </div>
+        </div>
+
+        <!-- Filled Card -->
+        <div class="card card-filled">
+          <div class="card-header">
+            <h3 class="card-title">Filled Card</h3>
+            <p class="card-subtitle">With background fill</p>
+          </div>
+          <div class="card-body">
+            <p>This card variant uses a filled background color for better visual distinction.</p>
+          </div>
+        </div>
+
+        <!-- Compact Card -->
+        <div class="card" style="padding: 1rem;">
+          <h3 class="card-title" style="margin-bottom: 0.5rem;">Compact Card</h3>
+          <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem;">A simplified card variant with minimal padding for dense layouts.</p>
+        </div>
+
+        <!-- Feature Card -->
+        <div class="card">
+          <div class="card-body">
+            <div style="font-size: 2rem; margin-bottom: 1rem;">🚀</div>
+            <h3 class="card-title" style="margin-bottom: 0.5rem; font-size: 1.1rem;">Feature Card</h3>
+            <p>Cards can be used to showcase features with icons and descriptions.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="design-section">
+      <h2>Variants & States</h2>
+      <div class="variants-list">
+        <ul>
+          <li><strong>Basic:</strong> Standard card with border</li>
+          <li><strong>Elevated:</strong> Card with shadow elevation</li>
+          <li><strong>Filled:</strong> Card with background fill</li>
+          <li><strong>With Header:</strong> Card with header section</li>
+          <li><strong>With Footer:</strong> Card with footer section for actions</li>
+          <li><strong>Compact:</strong> Minimalist card variant</li>
+          <li><strong>Hover State:</strong> Elevation and transform on hover</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="design-section">
+      <h2>HTML Code Example</h2>
+      <pre><code class="language-html">&lt;!-- Basic Card --&gt;
+&lt;div class="card"&gt;
+  &lt;div class="card-header"&gt;
+    &lt;h3 class="card-title"&gt;Card Title&lt;/h3&gt;
+  &lt;/div&gt;
+  &lt;div class="card-body"&gt;
+    &lt;p&gt;Card content goes here&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Card with Footer --&gt;
+&lt;div class="card"&gt;
+  &lt;div class="card-header"&gt;
+    &lt;h3 class="card-title"&gt;Actions&lt;/h3&gt;
+  &lt;/div&gt;
+  &lt;div class="card-body"&gt;
+    &lt;p&gt;Content with action buttons&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div class="card-footer"&gt;
+    &lt;button class="btn btn-primary"&gt;Save&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Elevated Card --&gt;
+&lt;div class="card card-elevated"&gt;
+  &lt;div class="card-body"&gt;
+    &lt;p&gt;Elevated card with shadow&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+      <script>hljs.highlightAll();</script>
+    </section>
+  </main>
+</div>
+{% endblock %}
