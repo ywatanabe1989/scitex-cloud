@@ -240,21 +240,26 @@ function stopJobPolling() {
  */
 function updateProgressUI(data) {
     const progressBar = document.getElementById('progressBar');
-    const progressText = document.getElementById('progressText');
-    const progressLog = document.getElementById('progressLog');
+    const progressPercentage = document.getElementById('progressPercentage');
+    const progressDetails = document.getElementById('progressDetails');
+    const processingLog = document.getElementById('processingLog');
 
     if (progressBar) {
         progressBar.style.width = `${data.progress_percentage}%`;
     }
 
-    if (progressText) {
-        progressText.textContent = `${data.progress_percentage}% (${data.processed_papers}/${data.total_papers} papers)`;
+    if (progressPercentage) {
+        progressPercentage.textContent = `${data.progress_percentage}%`;
     }
 
-    if (progressLog && data.log) {
-        progressLog.textContent = data.log;
+    if (progressDetails) {
+        progressDetails.textContent = `${data.processed_papers}/${data.total_papers} papers processed`;
+    }
+
+    if (processingLog && data.log) {
+        processingLog.textContent = data.log;
         // Auto-scroll to bottom
-        progressLog.scrollTop = progressLog.scrollHeight;
+        processingLog.scrollTop = processingLog.scrollHeight;
     }
 }
 
