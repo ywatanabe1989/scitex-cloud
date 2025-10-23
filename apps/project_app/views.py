@@ -126,10 +126,11 @@ def project_detail(request, username, slug):
 
     Supports mode via query parameter:
     - /<username>/<project>/ or ?mode=overview - Project dashboard
-    - /<username>/<project>?mode=scholar - Scholar module
-    - /<username>/<project>?mode=writer - Writer module
-    - /<username>/<project>?mode=code - Code module
-    - /<username>/<project>?mode=viz - Viz module
+    - /<username>/<project>?mode=writer - Writer module (legacy, use /writer/)
+    - /<username>/<project>?mode=code - Code module (legacy, use /code/)
+    - /<username>/<project>?mode=viz - Viz module (legacy, use /viz/)
+
+    Note: Scholar module now only accessible via /scholar/
     """
     # Special case: if slug matches username, this is a bio/profile README page
     if slug == username:
@@ -151,10 +152,7 @@ def project_detail(request, username, slug):
         return api_concatenate_directory(request, username, slug, '')
 
     # Route to appropriate module based on mode
-    if mode == 'scholar':
-        from apps.scholar_app import views as scholar_views
-        return scholar_views.project_search(request, project.id)
-    elif mode == 'writer':
+    if mode == 'writer':
         from apps.writer_app import views as writer_views
         return writer_views.project_writer(request, project.id)
     elif mode == 'code':

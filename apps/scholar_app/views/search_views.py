@@ -77,11 +77,6 @@ def simple_search_with_tab(request, active_tab='search'):
 
     # If there's a query, search for papers
     if query:
-        logger.info(f"🔍 SCHOLAR SEARCH DEBUG:")
-        logger.info(f"   Query: '{query}'")
-        logger.info(f"   Raw sources param: '{sources}'")
-        logger.info(f"   Selected checkboxes: PubMed={bool(request.GET.get('source_pubmed'))}, GoogleScholar={bool(request.GET.get('source_google_scholar'))}, arXiv={bool(request.GET.get('source_arxiv'))}, Semantic={bool(request.GET.get('source_semantic'))}")
-        logger.info(f"   User: {request.user.username if request.user.is_authenticated else 'anonymous'}")
 
         # First check existing papers in our database with filters applied
         existing_papers = search_database_papers(query, filters)
@@ -3722,50 +3717,6 @@ def save_source_preferences(request):
 
 
 # Project-Aware Scholar Functions
-@login_required
-def project_search(request, project_id):
-    """Project-specific search interface with automatic paper saving."""
-    from apps.project_app.models import Project
-
-    try:
-        project = Project.objects.get(pk=project_id, owner=request.user)
-    except Project.DoesNotExist:
-        return render(request, 'scholar_app/error.html', {
-            'error': 'Project not found or access denied.'
-        })
-
-    # Use the existing simple_search functionality but with project context
-    query = request.GET.get('q', '').strip()
-
-    if query:
-        # Set project parameter for search context
-        request.GET = request.GET.copy()
-        request.GET['project'] = str(project_id)
-
-        # Call existing search function
-        context = simple_search(request).context_data if hasattr(simple_search(request), 'context_data') else {}
-
-        # Add project context
-        context.update({
-            'project': project,
-            'project_mode': True,
-            'page_title': f'Scholar Search - {project.name}',
-            'search_placeholder': f'Search papers for {project.name}...',
-        })
-
-        return render(request, 'scholar_app/project_search.html', context)
-
-    # Display project search interface
-    context = {
-        'project': project,
-        'project_mode': True,
-        'page_title': f'Scholar Search - {project.name}',
-        'search_placeholder': f'Search papers for {project.name}...',
-    }
-
-    return render(request, 'scholar_app/project_search.html', context)
-
-
 @login_required
 def project_library(request, project_id):
     """Project-specific paper library showing only papers saved to this project."""

@@ -15,7 +15,7 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     search_views, bibtex_views, api_views,
     workspace_views, library_views, export_views, annotation_views,
-    trending_views, project_views
+    trending_views
 )
 from .views import repository_views
 from .integrations import scitex_search

@@ -56,8 +56,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 1rem 2rem;
-  background-color: var(--bg-100);
-  border-bottom: 1px solid var(--border-300);
+  background-color: var(--bg-page);
+  border-bottom: 1px solid var(--border-default);
   position: relative;
 }
 
@@ -70,13 +70,13 @@
 .brand-logo {
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--text-900);
+  color: var(--text-primary);
   text-decoration: none;
   transition: color var(--transition-fast);
 }
 
 .brand-logo:hover {
-  color: var(--btn-primary-bg);
+  color: var(--text-secondary);
 }
 
 /* =========================
@@ -99,7 +99,7 @@
 .nav-link {
   display: block;
   padding: 0.5rem 1rem;
-  color: var(--text-800);
+  color: var(--text-primary);
   text-decoration: none;
   font-weight: 500;
   border-radius: var(--border-radius);
@@ -107,13 +107,13 @@
 }
 
 .nav-link:hover {
-  color: var(--btn-primary-bg);
-  background-color: var(--bg-200);
+  color: var(--text-secondary);
+  background-color: var(--bg-surface);
 }
 
 .nav-link.active {
-  color: var(--btn-primary-bg);
-  background-color: var(--bg-300);
+  color: var(--text-secondary);
+  background-color: var(--bg-muted);
   font-weight: 600;
 }
 
@@ -124,16 +124,16 @@
 .navbar-toggler {
   display: none;
   background: transparent;
-  border: 1px solid var(--border-400);
+  border: 1px solid var(--border-default);
   padding: 0.5rem 0.75rem;
   font-size: 1.25rem;
   cursor: pointer;
   border-radius: var(--border-radius);
-  color: var(--text-800);
+  color: var(--text-primary);
 }
 
 .navbar-toggler:hover {
-  background-color: var(--bg-200);
+  background-color: var(--bg-surface);
 }
 
 .navbar-collapse {

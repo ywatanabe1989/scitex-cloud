@@ -80,7 +80,7 @@
   display: inline-block;
   margin-bottom: var(--spacing-xs);
   font-weight: 500;
-  color: var(--color-fg-default);
+  color: var(--text-primary);
 }
 
 /* Dark mode form label - bluish color for better visibility */
@@ -125,7 +125,7 @@
 }
 
 .form-control::placeholder {
-  color: var(--color-fg-muted);
+  color: var(--text-secondary);
   opacity: 0.7;
 }
 
@@ -180,7 +180,7 @@ select.form-control {
 
 .form-check-label {
   margin-bottom: 0;
-  color: var(--color-fg-default);
+  color: var(--text-primary);
 }
 
 /* Dark mode checkbox/radio labels - bluish color */

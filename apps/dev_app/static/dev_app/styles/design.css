@@ -31,8 +31,8 @@
 }
 
 .component-category-title {
-  color: var(--scitex-color-02);
-  border-bottom: 2px solid var(--scitex-color-04);
+  color: var(--text-primary);
+  border-bottom: 2px solid var(--border-default);
   padding-bottom: 0.5rem;
   margin-bottom: 2rem;
 }
@@ -55,11 +55,11 @@
 
 .component-example-title {
   margin: 0;
-  color: var(--color-fg-default);
+  color: var(--text-primary);
 }
 
 .component-example-description {
-  color: var(--color-fg-muted);
+  color: var(--text-secondary);
   margin: 0.5rem 0 0 0;
 }
 
@@ -79,7 +79,7 @@
 .component-details summary {
   cursor: pointer;
   font-weight: 600;
-  color: var(--color-fg-default);
+  color: var(--text-primary);
 }
 
 .component-variant-list {
@@ -89,18 +89,18 @@
 
 .component-variant-item {
   margin-bottom: 0.5rem;
-  color: var(--color-fg-default);
+  color: var(--text-primary);
 }
 
 .component-variant-code {
-  color: var(--scitex-color-04);
-  background: var(--scitex-color-01-light);
+  color: var(--color-accent-fg);
+  background: var(--color-canvas-subtle);
   padding: 0.2rem 0.5rem;
   border-radius: 3px;
 }
 
 .component-variant-desc {
-  color: var(--color-fg-muted);
+  color: var(--text-secondary);
 }
 
 .component-states-grid {
@@ -120,7 +120,7 @@
 
 .component-examples-title {
   margin-bottom: 1rem;
-  color: var(--color-fg-default);
+  color: var(--text-primary);
 }
 
 .component-example-wrapper {
@@ -251,13 +251,13 @@
 
 /* Text Utilities */
 .text-intro {
-  color: var(--color-fg-muted);
+  color: var(--text-secondary);
   margin-bottom: 3rem;
   font-size: 1.1rem;
 }
 
 .text-label {
-  color: var(--color-fg-muted);
+  color: var(--text-secondary);
   margin-bottom: 0.5rem;
   font-size: 0.9rem;
 }
@@ -276,7 +276,7 @@
 /* Code Blocks & Pre */
 .code-block {
   background: var(--color-canvas-default);
-  color: var(--color-fg-default);
+  color: var(--text-primary);
   padding: 1rem;
   border-radius: 8px;
   border: 1px solid var(--color-border-default);
@@ -294,7 +294,7 @@
 }
 
 .demo-content-text {
-  color: var(--color-fg-default);
+  color: var(--text-primary);
   margin-bottom: 0.5rem;
 }
 
@@ -315,7 +315,7 @@
 }
 
 .subsection-description {
-  color: var(--color-fg-muted);
+  color: var(--text-secondary);
   margin-bottom: 1rem;
   font-size: 0.95rem;
 }
@@ -416,7 +416,7 @@
 
 .typography-demo .type-info {
   font-size: 14px;
-  color: var(--color-fg-muted);
+  color: var(--text-secondary);
 }
 
 .component-example {
@@ -482,7 +482,7 @@
 .spacing-demo .spacing-label {
   margin-top: 0.5rem;
   font-size: 14px;
-  color: var(--color-fg-muted);
+  color: var(--text-secondary);
 }
 
 /* Theme-responsive buttons for navigation */
@@ -505,7 +505,7 @@
 }
 
 .btn-secondary {
-  color: var(--color-fg-default) !important;
+  color: var(--text-primary) !important;
   background: var(--scitex-color-05) !important;
   border-color: var(--scitex-color-05) !important;
 }
@@ -660,7 +660,7 @@
 }
 
 [data-theme="dark"] .table {
-  color: var(--color-fg-default);
+  color: var(--text-primary);
 }
 
 [data-theme="dark"] .table-bordered {
@@ -802,4 +802,77 @@ code[style*="background:#e9ecef"] {
   color: #e2e8f0;
   border-radius: 8px;
   padding: 1rem;
+}
+
+/* ============================================================================
+   TAB NAVIGATION COMPONENT - GitHub-style horizontal tabs
+   ============================================================================
+
+   Usage:
+   <div class="scitex-tabs">
+     <a href="#tab1" class="scitex-tab scitex-tab-active">Tab 1</a>
+     <a href="#tab2" class="scitex-tab">Tab 2</a>
+   </div>
+
+   Classes:
+   - .scitex-tabs: Container for tab navigation
+   - .scitex-tab: Individual tab button/link
+   - .scitex-tab-active: Active state for selected tab
+   ============================================================================ */
+
+/* Tab container */
+.scitex-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--color-border-default);
+    padding: 0;
+    margin-bottom: 0;
+    overflow: visible;
+    position: relative;
+}
+
+/* Individual tab */
+.scitex-tab {
+    padding: 0.5rem 1rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+    background: transparent;
+    border-left: none;
+    border-right: none;
+    border-top: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 400;
+}
+
+/* Tab icon */
+.scitex-tab i {
+    font-size: 16px;
+}
+
+/* Tab hover state */
+.scitex-tab:hover {
+    color: var(--text-primary);
+    border-bottom-color: var(--color-border-default);
+    text-decoration: none;
+}
+
+/* Active tab */
+.scitex-tab-active,
+.scitex-tab.active {
+    color: var(--text-primary);
+    border-bottom: 2px solid var(--scitex-color-03);
+    font-weight: 600;
+}
+
+/* Dark theme active tab */
+[data-theme="dark"] .scitex-tab-active,
+[data-theme="dark"] .scitex-tab.active {
+    border-bottom-color: var(--scitex-color-05);
 }

@@ -212,52 +212,7 @@
         content: "○";
     }
 
-    /* GitHub-style tab navigation - Theme-aware */
-    .vertical-tab-container {
-    }
-
-    .vertical-tabs {
-        display: flex;
-        gap: 0;
-        border-bottom: 1px solid var(--color-border-default);
-        padding: 0;
-        margin-bottom: 0;
-        overflow: visible;
-        position: relative;
-    }
-
-    .vertical-tab-btn,
-    .tab-link {
-        padding: 0.5rem 1rem;
-        color: var(--color-fg-muted);
-        text-decoration: none;
-        border-bottom: 2px solid transparent;
-        white-space: nowrap;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        transition: all 0.2s ease;
-        background: transparent;
-        border: none;
-    }
-
-    .vertical-tab-btn i,
-    .tab-link i {
-        font-size: 16px;
-    }
-
-    .vertical-tab-btn:hover,
-    .tab-link:hover {
-        color: var(--color-fg-default);
-        border-bottom-color: var(--color-border-default);
-    }
-
-    .vertical-tab-btn.active,
-    .tab-link.active {
-        color: var(--color-fg-default);
-        border-bottom-color: var(--scitex-color-03);
-        font-weight: 600;
-    }
+    /* Tab navigation now uses standardized .scitex-tabs component from design system */
 
     .vertical-tab-content-container {
         padding: 24px;
@@ -328,12 +283,12 @@
 <div class="container u-mt-2 u-mb-3">
   <div class="vertical-tab-container">
     <!-- Vertical Tab Navigation -->
-    <div class="vertical-tabs">
-      <a href="#bibtex" class="vertical-tab-btn tab-link" data-tab="bibtex">
+    <div class="scitex-tabs">
+      <a href="#bibtex" class="scitex-tab tab-link" data-tab="bibtex">
         <i class="fas fa-file-code"></i>
         <span>BibTeX Enrichment</span>
       </a>
-      <a href="#search" class="vertical-tab-btn tab-link" data-tab="search">
+      <a href="#search" class="scitex-tab tab-link" data-tab="search">
         <i class="fas fa-search"></i>
         <span>Literature Search</span>
       </a>
@@ -460,14 +415,20 @@ document.addEventListener('DOMContentLoaded', function() {
     // Function to switch tabs smoothly
     function switchTab(targetTab) {
         // Remove active class from all tabs and contents
-        tabLinks.forEach(link => link.classList.remove('active'));
+        tabLinks.forEach(link => {
+            link.classList.remove('active');
+            link.classList.remove('scitex-tab-active');
+        });
         tabContents.forEach(content => content.classList.remove('active'));
 
         // Add active class to target tab and content
         const targetLink = document.querySelector(`.tab-link[data-tab="${targetTab}"]`);
         const targetContent = document.getElementById(`${targetTab}-tab`);
 
-        if (targetLink) targetLink.classList.add('active');
+        if (targetLink) {
+            targetLink.classList.add('active');
+            targetLink.classList.add('scitex-tab-active');
+        }
         if (targetContent) targetContent.classList.add('active');
 
         // Focus search input when switching to search tab

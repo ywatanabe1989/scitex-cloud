@@ -45,7 +45,7 @@
    ========================= */
 
 .hero {
-  background-color: var(--light-color);
+  background-color: var(--bg-muted);
   padding: var(--spacing-xxl) 0;
   text-align: center;
 }
@@ -58,20 +58,20 @@
 .hero-title {
   font-size: 2.5rem;
   margin-bottom: var(--spacing-md);
-  color: var(--primary-color);
+  color: var(--text-primary);
   font-weight: 700;
 }
 
 .hero-subtitle {
   font-size: 1.25rem;
   margin-bottom: var(--spacing-lg);
-  color: var(--text-light);
+  color: var(--text-secondary);
 }
 
 .hero-description {
   font-size: 1.1rem;
   margin-bottom: var(--spacing-xl);
-  color: var(--text-color);
+  color: var(--text-primary);
 }
 
 .hero-buttons {
@@ -86,7 +86,7 @@
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
-  color: var(--white);
+  color: var(--text-inverse);
 }
 
 .hero-bg-image::before {
@@ -107,7 +107,7 @@
 .hero-bg-image .hero-title,
 .hero-bg-image .hero-subtitle,
 .hero-bg-image .hero-description {
-  color: var(--white);
+  color: var(--text-inverse);
 }
 
 /* Hero with angled background */
@@ -123,7 +123,7 @@
   left: 0;
   width: 100%;
   height: 10vw;
-  background-color: var(--white);
+  background-color: var(--bg-page);
   transform-origin: bottom left;
   transform: skewY(-4deg);
 }

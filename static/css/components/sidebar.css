@@ -60,8 +60,8 @@
   height: calc(100vh - 100px);
   overflow-y: auto;
   padding: 1.5rem;
-  background-color: var(--sidebar-bg);
-  border-right: 1px solid var(--sidebar-border);
+  background-color: var(--bg-surface);
+  border-right: 1px solid var(--border-default);
   border-radius: 8px;
 }
 
@@ -70,7 +70,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--sidebar-text);
+  color: var(--text-primary);
   margin-bottom: 0.75rem;
   margin-top: 1.5rem;
   padding-left: 0.75rem;
@@ -90,7 +90,7 @@
   display: block;
   padding: 0.625rem 0.75rem;
   border-radius: 6px;
-  color: var(--sidebar-text);
+  color: var(--text-primary);
   text-decoration: none;
   font-size: 0.9375rem;
   font-weight: 500;
@@ -100,29 +100,29 @@
 }
 
 .sidebar-nav-item:hover {
-  background-color: var(--sidebar-item-hover);
-  color: var(--link-hover);
-  border-left-color: var(--border-500);
+  background-color: var(--bg-muted);
+  color: var(--text-secondary);
+  border-left-color: var(--border-default);
   padding-left: 1rem;
 }
 
 .sidebar-nav-item-active,
 .sidebar-nav-item.active {
-  background-color: var(--btn-primary-bg);
-  color: var(--btn-primary-text);
+  background-color: var(--bg-muted);
+  color: var(--text-primary);
   font-weight: 600;
-  border-left-color: var(--btn-primary-border);
+  border-left-color: var(--border-default);
 }
 
 .sidebar-nav-item-active:hover,
 .sidebar-nav-item.active:hover {
-  background-color: var(--btn-primary-bg-hover);
-  color: var(--btn-primary-text);
+  background-color: var(--bg-muted);
+  color: var(--text-primary);
 }
 
 .sidebar-divider {
   height: 1px;
-  background-color: var(--sidebar-border);
+  background-color: var(--border-default);
   margin: 1rem 0;
 }
 
@@ -131,13 +131,13 @@
    ========================= */
 
 .sidebar-nav-toggle {
-  color: var(--sidebar-text);
+  color: var(--text-primary);
   font-weight: 600;
 }
 
 .sidebar-nav-toggle:hover {
-  background-color: var(--sidebar-item-hover);
-  color: var(--link-hover);
+  background-color: var(--bg-muted);
+  color: var(--text-secondary);
 }
 
 .sidebar-nav-submenu {
@@ -153,16 +153,16 @@
 }
 
 .sidebar-nav-submenu .sidebar-nav-item:hover {
-  background-color: var(--sidebar-item-hover);
-  border-left-color: var(--border-500);
+  background-color: var(--bg-muted);
+  border-left-color: var(--border-default);
   padding-left: 0.875rem;
 }
 
 .sidebar-nav-submenu .sidebar-nav-item-active,
 .sidebar-nav-submenu .sidebar-nav-item.active {
-  background-color: var(--btn-primary-bg);
-  color: var(--btn-primary-text);
-  border-left-color: var(--btn-primary-border);
+  background-color: var(--bg-muted);
+  color: var(--text-primary);
+  border-left-color: var(--border-default);
   font-weight: 600;
 }
 
@@ -181,7 +181,7 @@
     position: static;
     height: auto;
     border-right: none;
-    border-bottom: 1px solid var(--border-300);
+    border-bottom: 1px solid var(--border-default);
     margin-bottom: 2rem;
   }
 }
@@ -210,10 +210,10 @@
 }
 
 .sidebar::-webkit-scrollbar-thumb {
-  background: var(--border-300);
+  background: var(--border-default);
   border-radius: 3px;
 }
 
 .sidebar::-webkit-scrollbar-thumb:hover {
-  background: var(--border-500);
+  background: var(--border-default);
 }

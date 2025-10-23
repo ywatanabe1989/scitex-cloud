@@ -20,7 +20,7 @@
 }
 
 .scitex-resource-card-label {
-    color: var(--color-fg-muted);
+    color: var(--text-secondary);
     font-size: 0.85rem;
     margin-bottom: 0.25rem;
 }
@@ -56,7 +56,7 @@
 
 .scitex-jobs-list-header {
     font-weight: 600;
-    color: var(--color-fg-default);
+    color: var(--text-primary);
     margin-bottom: 0.5rem;
     font-size: 0.95rem;
 }
@@ -82,7 +82,7 @@
 }
 
 .scitex-jobs-list-content::-webkit-scrollbar-thumb:hover {
-    background: var(--color-fg-muted);
+    background: var(--text-secondary);
 }
 
 /* ============================================
@@ -118,7 +118,7 @@
 }
 
 .scitex-job-card-title {
-    color: var(--color-fg-default);
+    color: var(--text-primary);
     font-weight: 600;
     font-size: 0.9rem;
 }
@@ -154,7 +154,7 @@
 }
 
 .scitex-job-card-progress-text {
-    color: var(--color-fg-muted);
+    color: var(--text-secondary);
     font-size: 0.85rem;
     white-space: nowrap;
 }
@@ -197,7 +197,7 @@
 }
 
 .scitex-queue-position-meta {
-    color: var(--color-fg-muted);
+    color: var(--text-secondary);
     font-size: 0.75rem;
 }
 
@@ -233,7 +233,7 @@
     padding: 1rem;
     border-radius: 6px;
     text-align: center;
-    color: var(--color-fg-muted);
+    color: var(--text-secondary);
 }
 
 .scitex-privacy-message-subtitle {
@@ -305,7 +305,7 @@
     justify-content: center;
     align-items: center;
     padding: 2rem;
-    color: var(--color-fg-muted);
+    color: var(--text-secondary);
 }
 
 .scitex-jobs-list-loading::before {
@@ -333,7 +333,7 @@
 .scitex-jobs-list-empty {
     padding: 2rem;
     text-align: center;
-    color: var(--color-fg-muted);
+    color: var(--text-secondary);
     font-size: 0.9rem;
 }
 

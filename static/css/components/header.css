@@ -2,9 +2,9 @@
 
 /* Base header styling */
 .site-header {
-  background-color: var(--header-bg);
+  background-color: var(--bg-surface);
   padding: var(--spacing-md) 0;
-  color: var(--header-text);
+  color: var(--text-primary);
   box-shadow: var(--box-shadow-sm);
 }
 
@@ -65,11 +65,11 @@
 
 .site-navigation a:hover,
 .site-navigation .dropdown-toggle:hover {
-  color: var(--secondary-color) !important;
+  color: var(--text-secondary);
 }
 
 .site-navigation a.active {
-  color: var(--secondary-color) !important;
+  color: var(--text-secondary);
 }
 
 .site-navigation a.active::after {
@@ -84,7 +84,7 @@
 
 /* Dropdown menu styling */
 .dropdown-menu {
-  background-color: white;
+  background-color: var(--bg-surface);
   border-radius: var(--border-radius);
   box-shadow: var(--box-shadow-md);
   padding: var(--spacing-xs) 0;
@@ -96,15 +96,15 @@
 .dropdown-item {
   display: block;
   padding: var(--spacing-xs) var(--spacing-md);
-  color: var(--gray-800) !important;
+  color: var(--text-primary);
   text-decoration: none;
   transition: background-color var(--transition-normal);
   font-weight: 400;
 }
 
 .dropdown-item:hover {
-  background-color: var(--gray-100);
-  color: var(--primary-color) !important;
+  background-color: var(--bg-muted);
+  color: var(--text-primary);
 }
 
 /* Coming Soon badges */
@@ -112,8 +112,8 @@
   display: inline-block;
   padding: 2px 6px;
   font-size: 0.7rem;
-  background-color: var(--warning-color, #ffc107);
-  color: var(--dark, #212529);
+  background-color: var(--status-warning);
+  color: var(--text-inverse);
   border-radius: 10px;
   margin-left: 8px;
   font-weight: 500;
@@ -121,7 +121,7 @@
 
 .coming-soon-text {
   font-size: 0.8rem;
-  color: var(--text-muted, #6c757d);
+  color: var(--text-muted);
   font-style: italic;
   margin-left: 8px;
 }
@@ -157,36 +157,36 @@
 }
 
 .header-actions .btn-secondary {
-  background-color: var(--secondary-color);
-  border-color: var(--secondary-color);
-  color: white !important;
+  background-color: var(--bg-muted);
+  border-color: var(--border-default);
+  color: var(--text-primary);
 }
 
 .header-actions .btn-secondary:hover {
-  background-color: var(--secondary-dark);
-  border-color: var(--secondary-dark);
+  background-color: var(--bg-surface);
+  border-color: var(--border-default);
 }
 
 .header-actions .btn-success {
-  background-color: var(--success-color);
-  border-color: var(--success-color);
-  color: white !important;
+  background-color: var(--status-success);
+  border-color: var(--status-success);
+  color: white;
 }
 
 .header-actions .btn-success:hover {
-  background-color: var(--scitex-color-01);
-  border-color: var(--scitex-color-01);
+  background-color: var(--_scitex-01);
+  border-color: var(--_scitex-01);
 }
 
 .header-actions .btn-dark {
-  background-color: var(--scitex-900);
-  border-color: var(--scitex-900);
-  color: var(--white) !important;
+  background-color: var(--_scitex-01);
+  border-color: var(--_scitex-01);
+  color: white;
 }
 
 .header-actions .btn-dark:hover {
-  background-color: var(--scitex-800);
-  border-color: var(--scitex-800);
+  background-color: var(--_scitex-02);
+  border-color: var(--_scitex-02);
 }
 
 .header-actions .btn-sm {
@@ -227,7 +227,7 @@
     top: 100%;
     left: 0;
     width: 100%;
-    background-color: var(--primary-color);
+    background-color: var(--bg-surface);
     padding: var(--spacing-md);
     box-shadow: var(--box-shadow-md);
     z-index: var(--z-dropdown);

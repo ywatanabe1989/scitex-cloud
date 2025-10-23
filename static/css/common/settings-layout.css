@@ -30,7 +30,7 @@
 .settings-nav-header {
     font-size: 12px;
     font-weight: 600;
-    color: var(--color-fg-muted);
+    color: var(--text-secondary);
     text-transform: uppercase;
     padding: 8px 12px;
     margin-bottom: 4px;
@@ -41,7 +41,7 @@
     align-items: center;
     gap: 12px;
     padding: 12px;
-    color: var(--color-fg-default);
+    color: var(--text-primary);
     text-decoration: none;
     border-radius: 6px;
     transition: all 0.2s ease;
@@ -61,7 +61,7 @@
 .settings-nav-item i {
     width: 20px;
     text-align: center;
-    color: var(--color-fg-muted);
+    color: var(--text-secondary);
 }
 
 /* Settings Content Area */
@@ -78,13 +78,13 @@
 .settings-title {
     font-size: 24px;
     font-weight: 600;
-    color: var(--color-fg-default);
+    color: var(--text-primary);
     margin: 0 0 4px 0;
 }
 
 .settings-subtitle {
     font-size: 14px;
-    color: var(--color-fg-muted);
+    color: var(--text-secondary);
     margin: 0;
 }
 
@@ -100,7 +100,7 @@
 .form-section-title {
     font-size: 18px;
     font-weight: 600;
-    color: var(--color-fg-default);
+    color: var(--text-primary);
     margin: 0 0 16px 0;
 }
 
@@ -113,13 +113,13 @@
 .section-title {
     font-size: 20px;
     font-weight: 600;
-    color: var(--color-fg-default);
+    color: var(--text-primary);
     margin: 0 0 4px 0;
 }
 
 .section-subtitle {
     font-size: 14px;
-    color: var(--color-fg-muted);
+    color: var(--text-secondary);
     margin: 0;
 }
 
@@ -132,7 +132,7 @@
     display: block;
     font-size: 14px;
     font-weight: 600;
-    color: var(--color-fg-default);
+    color: var(--text-primary);
     margin-bottom: 6px;
 }
 
@@ -146,13 +146,13 @@
     border: 1px solid var(--color-border-default);
     border-radius: 6px;
     background: var(--color-canvas-default);
-    color: var(--color-fg-default);
+    color: var(--text-primary);
     font-size: 14px;
 }
 
 .form-help {
     font-size: 12px;
-    color: var(--color-fg-muted);
+    color: var(--text-secondary);
     margin-top: 6px;
 }
 

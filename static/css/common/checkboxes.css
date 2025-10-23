@@ -53,7 +53,7 @@
     border-radius: 6px;
     transition: var(--transition-fast);
     user-select: none;
-    color: var(--color-fg-default);
+    color: var(--text-primary);
 }
 
 .scitex-checkbox-label:hover {

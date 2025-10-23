@@ -54,7 +54,7 @@
   display: flex;
   align-items: center;
   cursor: pointer;
-  color: var(--header-text);
+  color: var(--text-primary);
   text-decoration: none;
   font-weight: 500;
   padding: var(--spacing-xs) 0;
@@ -63,7 +63,7 @@
 }
 
 .dropdown-toggle:hover {
-  color: var(--secondary-light);
+  color: var(--text-secondary);
 }
 
 .dropdown-toggle::after {
@@ -91,11 +91,11 @@
   min-width: 12rem;
   padding: 0.75rem 0;
   margin: 0.125rem 0 0;
-  background-color: var(--white);
+  background-color: var(--bg-surface);
   border-radius: var(--border-radius);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  border-top: 3px solid var(--secondary-color);
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-top: 3px solid var(--border-default);
+  border: 1px solid var(--border-muted);
   animation: dropdownFade 0.25s ease;
 }
 
@@ -121,7 +121,7 @@
   clear: both;
   text-align: inherit;
   white-space: nowrap;
-  color: var(--primary-color);
+  color: var(--text-primary);
   text-decoration: none;
   background-color: transparent;
   border: 0;
@@ -134,9 +134,9 @@
 
 .dropdown-item:hover,
 .dropdown-item:focus {
-  color: var(--secondary-color);
+  color: var(--text-secondary);
   text-decoration: none;
-  background-color: rgba(var(--secondary-color-rgb), 0.1);
+  background-color: var(--bg-muted);
   padding-left: 1.25rem;
 }
 
@@ -144,7 +144,7 @@
   height: 0;
   margin: 0.5rem 0;
   overflow: hidden;
-  border-top: 1px solid var(--border-color);
+  border-top: 1px solid var(--border-default);
 }
 
 /* Add hover effect to show dropdown for desktop */
@@ -168,40 +168,40 @@
   }
   
   .dropdown-item {
-    color: var(--header-text);
+    color: var(--text-primary);
     padding: 0.5rem 0;
   }
-  
+
   .dropdown-item:hover,
   .dropdown-item:focus {
-    color: var(--secondary-light);
+    color: var(--text-secondary);
     background-color: transparent;
     padding-left: 1.25rem;
   }
-  
+
   .dropdown-divider {
-    border-top-color: rgba(var(--white-rgb), 0.2);
+    border-top-color: var(--border-muted);
   }
 }
 
 /* Bootstrap dropdown overrides for better visibility */
 .dropdown-menu-end {
-  right: 0 !important;
-  left: auto !important;
+  right: 0;
+  left: auto;
 }
 
 /* Ensure all dropdown text is visible with proper contrast */
 .dropdown-menu .dropdown-item {
-  color: var(--primary-color) !important;
-  font-size: 14px !important;
-  font-weight: 500 !important;
-  padding: 0.6rem 1rem !important;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 0.6rem 1rem;
 }
 
 .dropdown-menu .dropdown-item:hover,
 .dropdown-menu .dropdown-item:focus {
-  color: var(--secondary-color) !important;
-  background-color: rgba(var(--secondary-color-rgb), 0.1) !important;
+  color: var(--text-secondary);
+  background-color: var(--bg-muted);
 }
 
 /* Specific styling for icons in dropdown items */

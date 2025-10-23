@@ -2,13 +2,13 @@
 
 /* Override Bootstrap's default text and background colors */
 body {
-  color: var(--text-800) !important; /* Dark text for light mode */
-  background-color: var(--bg-100) !important; /* White background for light mode */
+  color: var(--text-primary); /* Dark text for light mode */
+  background-color: var(--bg-page); /* White background for light mode */
 }
 
 [data-theme="dark"] body {
-  color: var(--text-100) !important; /* Light text for dark mode */
-  background-color: var(--bg-900) !important; /* Dark background for dark mode */
+  color: var(--text-primary); /* Light text for dark mode */
+  background-color: var(--bg-page); /* Dark background for dark mode */
 }
 
 /* Override Bootstrap's container max-width at all breakpoints */
@@ -52,82 +52,68 @@ body {
   max-width: var(--container-max-width) !important;
 }
 
-/* Override Bootstrap text colors to use SciTeX colors */
+/* Override Bootstrap text colors to use semantic tokens */
 .text-primary {
-  color: var(--primary-color) !important;
+  color: var(--text-primary);
 }
 
 .text-secondary {
-  color: var(--secondary-color) !important;
+  color: var(--text-secondary);
 }
 
 .text-muted {
-  color: var(--text-light) !important;
+  color: var(--text-muted);
 }
 
 .text-dark {
-  color: var(--text-color) !important; /* SciTeX 800 */
+  color: var(--text-primary);
 }
 
 /* Override Bootstrap button colors - Theme-aware */
 .btn-outline-primary,
 .btn-outline-secondary,
 .btn-outline-dark {
-  color: var(--scitex-color-02) !important;  /* Medium bluish gray for good contrast */
-  border-color: var(--scitex-color-03) !important;  /* Darker border for visibility */
-  background: transparent !important;
+  color: var(--text-primary);
+  border-color: var(--border-default);
+  background: transparent;
 }
 
 .btn-outline-primary:hover,
 .btn-outline-secondary:hover,
 .btn-outline-dark:hover {
-  color: var(--white) !important;
-  background: var(--scitex-color-02) !important;
-  border-color: var(--scitex-color-02) !important;
+  color: var(--text-inverse);
+  background: var(--border-default);
+  border-color: var(--border-default);
 }
 
-[data-theme="dark"] .btn-outline-primary,
-[data-theme="dark"] .btn-outline-secondary,
-[data-theme="dark"] .btn-outline-dark {
-  color: var(--scitex-color-06) !important;  /* Light bluish for dark mode */
-  border-color: var(--scitex-color-05) !important;  /* Subtle border, not too vivid */
-  background: transparent !important;
-  opacity: 0.9;
-}
-
-[data-theme="dark"] .btn-outline-primary:hover,
-[data-theme="dark"] .btn-outline-secondary:hover,
-[data-theme="dark"] .btn-outline-dark:hover {
-  color: var(--scitex-color-01) !important;
-  background: var(--scitex-color-06) !important;
-  border-color: var(--scitex-color-06) !important;
-  opacity: 1;
-}
-
-/* Ensure form controls use appropriate text color per theme */
+/* Form controls use appropriate text color per theme */
 .form-control,
 .form-select {
-  color: var(--text-color) !important;
+  color: var(--text-primary);
+  border-color: var(--border-default);
+  background-color: var(--bg-surface);
 }
 
-[data-theme="dark"] .form-control,
-[data-theme="dark"] .form-select {
-  color: var(--scitex-color-07) !important;
-  background-color: var(--scitex-color-01-light) !important;
-  border-color: var(--scitex-color-02) !important;
+.form-control:focus,
+.form-select:focus {
+  color: var(--text-primary);
+  border-color: var(--text-primary);
+  background-color: var(--bg-page);
 }
 
-[data-theme="dark"] .form-select option {
-  background-color: var(--scitex-color-01-light) !important;
-  color: var(--scitex-color-07) !important;
+.form-select option {
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
 }
 
-[data-theme="dark"] .form-select optgroup {
-  background-color: var(--scitex-color-01) !important;
-  color: var(--scitex-color-06) !important;
+.form-select optgroup {
+  background-color: var(--bg-muted);
+  color: var(--text-secondary);
 }
 
 /* Override Bootstrap card text */
 .card {
-  color: var(--text-color) !important;
+  color: var(--text-primary);
+  background-color: var(--bg-surface);
+  border-color: var(--border-default);
 }
