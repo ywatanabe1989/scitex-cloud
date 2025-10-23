@@ -174,10 +174,21 @@ class DesignComponentDetailView(View):
         """Render individual component page."""
         components_data = _load_components()
 
-        # Find the specific component
+        # Find the specific component by ID or slugified name
         component = None
         for c in components_data.get("components", []):
-            if c.get("id") == component_id or c.get("name", "").lower().replace(" ", "-") == component_id.lower().replace(" ", "-"):
+            # Compare by ID directly
+            if c.get("id") == component_id:
+                component = c
+                break
+            # Compare by slugified name
+            component_name_slug = c.get("name", "").lower().replace(" ", "-").replace("(", "").replace(")", "")
+            if component_name_slug == component_id.lower():
+                component = c
+                break
+            # Compare by slugified ID
+            component_id_slug = c.get("id", "").lower().replace(" ", "-").replace("(", "").replace(")", "")
+            if component_id_slug == component_id.lower():
                 component = c
                 break
 
