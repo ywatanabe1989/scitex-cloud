@@ -115,6 +115,20 @@ class Project(models.Model):
     directory_created = models.BooleanField(default=False, help_text="Whether project directory has been created")
     storage_used = models.BigIntegerField(default=0, help_text="Storage used by project in bytes")
     last_activity = models.DateTimeField(auto_now=True, help_text="Last activity in project directory")
+
+    # SciTeX Integration (scitex.project package)
+    scitex_project_id = models.CharField(
+        max_length=100,
+        unique=True,
+        null=True,
+        blank=True,
+        help_text="Unique identifier linking to scitex/.metadata/ (from scitex.project package)"
+    )
+    local_path = models.CharField(
+        max_length=500,
+        blank=True,
+        help_text="Path to local project directory (where scitex/.metadata/ lives)"
+    )
     
     # SciTeX Engine Integration Status
     search_completed = models.BooleanField(default=False, help_text="Literature search completed")
@@ -126,6 +140,18 @@ class Project(models.Model):
     class Meta:
         ordering = ['-updated_at']
         unique_together = ('name', 'owner')  # Ensure unique project names per user
+        constraints = [
+            models.UniqueConstraint(
+                fields=['owner', 'gitea_repo_name'],
+                condition=models.Q(gitea_enabled=True),
+                name='unique_gitea_repo_per_user'
+            ),
+            models.UniqueConstraint(
+                fields=['gitea_repo_id'],
+                condition=models.Q(gitea_repo_id__isnull=False),
+                name='unique_gitea_repo_id'
+            ),
+        ]
         
     def __str__(self):
         return self.name
@@ -353,35 +379,93 @@ class Project(models.Model):
 
     def create_gitea_repository(self, user_token: str = None):
         """
-        Create repository in Gitea
+        Create repository in Gitea with one-to-one relationship validation
 
         Args:
             user_token: User's Gitea API token (optional, uses default if not provided)
 
         Returns:
             Gitea repository object
+
+        Raises:
+            Exception: If repository creation fails (including if it already exists)
         """
         from apps.gitea_app.api_client import GiteaClient
+        import logging
 
+        logger = logging.getLogger(__name__)
         client = GiteaClient(token=user_token) if user_token else GiteaClient()
 
-        repo = client.create_repository(
-            name=self.slug,
-            description=self.description,
-            private=(self.visibility == 'private'),
-            auto_init=True,
-            gitignores='Python',
-            readme='Default'
-        )
+        # 1. Check if this project already has a Gitea repository
+        if self.gitea_enabled and self.gitea_repo_id:
+            logger.warning(f"Project {self.slug} already has Gitea repository {self.gitea_repo_id}")
+            raise Exception(f"Project already has a Gitea repository")
 
-        # Update project with Gitea info
-        self.gitea_repo_id = repo['id']
-        self.gitea_repo_name = repo['name']
-        self.git_url = repo['clone_url']  # HTTPS URL
-        self.gitea_enabled = True
-        self.save()
+        # 2. Check if another Django project claims this Gitea repository
+        from django.db.models import Q
+        existing_project = Project.objects.filter(
+            Q(owner=self.owner) &
+            Q(gitea_repo_name=self.slug) &
+            Q(gitea_enabled=True)
+        ).exclude(id=self.id).first()
 
-        return repo
+        if existing_project:
+            raise Exception(
+                f"A project named '{existing_project.name}' already uses Gitea repository '{self.slug}'"
+            )
+
+        # 3. Check if repository already exists in Gitea
+        try:
+            existing_repo = client.get_repository(self.owner.username, self.slug)
+            if existing_repo:
+                logger.error(f"Gitea repository {self.owner.username}/{self.slug} already exists (ID: {existing_repo.get('id')})")
+                raise Exception(
+                    f"The repository '{self.slug}' already exists in Gitea. "
+                    f"Please choose a different name or delete the existing repository first."
+                )
+        except Exception as e:
+            # If it's a 404, the repo doesn't exist (which is what we want)
+            if "404" not in str(e) and "not found" not in str(e).lower():
+                # Some other error occurred - re-raise
+                raise
+
+        # 4. Create the repository in Gitea
+        try:
+            repo = client.create_repository(
+                name=self.slug,
+                description=self.description,
+                private=(self.visibility == 'private'),
+                auto_init=True,
+                gitignores='Python',
+                readme='Default'
+            )
+        except Exception as e:
+            logger.error(f"Failed to create Gitea repository {self.slug}: {e}")
+            raise Exception(f"Failed to create Gitea repository: {str(e)}")
+
+        # 5. Update project with Gitea info (atomic operation)
+        try:
+            self.gitea_repo_id = repo['id']
+            self.gitea_repo_name = repo['name']
+            self.gitea_repo_url = repo.get('html_url', '')
+            self.gitea_clone_url = repo.get('clone_url', '')
+            self.gitea_ssh_url = repo.get('ssh_url', '')
+            self.git_url = repo['clone_url']  # HTTPS URL
+            self.gitea_enabled = True
+            self.save()
+
+            logger.info(f"✓ Gitea repository created: {self.owner.username}/{self.slug} (ID: {repo['id']})")
+            return repo
+
+        except Exception as e:
+            # Rollback: delete the Gitea repository we just created
+            logger.error(f"Failed to save project after Gitea creation: {e}")
+            try:
+                client.delete_repository(self.owner.username, self.slug)
+                logger.info(f"✓ Rolled back Gitea repository {self.slug}")
+            except Exception as cleanup_error:
+                logger.error(f"Failed to cleanup Gitea repository {self.slug}: {cleanup_error}")
+            raise Exception(f"Failed to link Gitea repository to project: {str(e)}")
 
     def clone_gitea_to_local(self):
         """
@@ -476,6 +560,331 @@ class Project(models.Model):
 
         except Exception as e:
             return False, str(e)
+
+    def delete_gitea_repository(self, user_token: str = None):
+        """
+        Delete the associated Gitea repository
+
+        Args:
+            user_token: User's Gitea API token (optional)
+
+        Returns:
+            Tuple of (success: bool, message: str)
+        """
+        from apps.gitea_app.api_client import GiteaClient
+        import logging
+
+        logger = logging.getLogger(__name__)
+
+        if not self.gitea_enabled or not self.gitea_repo_name:
+            return False, "No Gitea repository associated with this project"
+
+        try:
+            client = GiteaClient(token=user_token) if user_token else GiteaClient()
+            client.delete_repository(self.owner.username, self.gitea_repo_name)
+
+            # Clear Gitea integration fields
+            self.gitea_repo_id = None
+            self.gitea_repo_name = ''
+            self.gitea_repo_url = ''
+            self.gitea_clone_url = ''
+            self.gitea_ssh_url = ''
+            self.gitea_enabled = False
+            self.save()
+
+            logger.info(f"✓ Deleted Gitea repository: {self.owner.username}/{self.gitea_repo_name}")
+            return True, "Gitea repository deleted successfully"
+
+        except Exception as e:
+            logger.error(f"Failed to delete Gitea repository {self.gitea_repo_name}: {e}")
+            return False, str(e)
+
+    @classmethod
+    def cleanup_orphaned_gitea_repos(cls, user, user_token: str = None):
+        """
+        Find and optionally delete Gitea repositories that don't have corresponding Django projects
+
+        Args:
+            user: Django User object
+            user_token: User's Gitea API token (optional)
+
+        Returns:
+            Dict with lists of orphaned repositories
+        """
+        from apps.gitea_app.api_client import GiteaClient
+        import logging
+
+        logger = logging.getLogger(__name__)
+        client = GiteaClient(token=user_token) if user_token else GiteaClient()
+
+        try:
+            # Get all Gitea repositories for this user
+            gitea_repos = client.list_repositories(user.username)
+
+            # Get all Django projects with Gitea integration
+            django_projects = cls.objects.filter(
+                owner=user,
+                gitea_enabled=True
+            ).values_list('gitea_repo_name', 'gitea_repo_id')
+
+            django_repo_names = {name for name, _ in django_projects if name}
+            django_repo_ids = {repo_id for _, repo_id in django_projects if repo_id}
+
+            # Find orphaned repositories
+            orphaned = []
+            for repo in gitea_repos:
+                repo_name = repo.get('name')
+                repo_id = repo.get('id')
+
+                if repo_name not in django_repo_names and repo_id not in django_repo_ids:
+                    orphaned.append({
+                        'id': repo_id,
+                        'name': repo_name,
+                        'url': repo.get('html_url', ''),
+                        'created_at': repo.get('created_at', ''),
+                    })
+
+            return {
+                'orphaned': orphaned,
+                'total_gitea': len(gitea_repos),
+                'total_django': len(django_repo_names),
+            }
+
+        except Exception as e:
+            logger.error(f"Failed to check for orphaned repositories: {e}")
+            return {'error': str(e)}
+
+    def update_storage_usage(self):
+        """
+        Calculate and update storage usage for this project
+
+        Returns:
+            int: Updated storage size in bytes
+        """
+        from pathlib import Path
+        from apps.workspace_app.services.directory_service import get_user_directory_manager
+
+        if not self.directory_created:
+            return 0
+
+        try:
+            manager = get_user_directory_manager(self.owner)
+            project_path = manager.get_project_path(self.slug)
+
+            if not project_path or not project_path.exists():
+                return 0
+
+            # Calculate total size of all files in project directory
+            total_size = 0
+            for item in project_path.rglob('*'):
+                if item.is_file():
+                    try:
+                        total_size += item.stat().st_size
+                    except (OSError, PermissionError):
+                        # Skip files we can't access
+                        pass
+
+            # Update and save
+            self.storage_used = total_size
+            self.save(update_fields=['storage_used'])
+
+            return total_size
+
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Error updating storage for project {self.name}: {e}")
+            return self.storage_used
+
+    # ----------------------------------------
+    # SciTeX Integration Methods
+    # ----------------------------------------
+
+    def get_local_path(self):
+        """
+        Get Path object for local project directory.
+
+        Returns:
+            Path to project directory (e.g., data/users/ywatanabe/neural-decoding/)
+        """
+        from pathlib import Path
+
+        if not self.local_path:
+            # Default location
+            from apps.workspace_app.services.directory_service import get_user_directory_manager
+            manager = get_user_directory_manager(self.owner)
+            return manager.base_path / self.slug
+        return Path(self.local_path)
+
+    def has_scitex_metadata(self):
+        """Check if project has scitex/.metadata/ directory."""
+        local_path = self.get_local_path()
+        return (local_path / 'scitex' / '.metadata').exists()
+
+    def to_scitex_project(self):
+        """
+        Convert Django model to SciTeXProject dataclass.
+
+        Returns:
+            SciTeXProject instance loaded from scitex/.metadata/
+
+        Raises:
+            FileNotFoundError: If scitex/.metadata/ doesn't exist
+            ImportError: If scitex package is not installed
+        """
+        try:
+            from scitex.project import SciTeXProject
+        except ImportError:
+            raise ImportError(
+                "scitex package is not installed. "
+                "Install it with: pip install scitex"
+            )
+
+        if not self.has_scitex_metadata():
+            raise FileNotFoundError(
+                f"Project '{self.name}' has no scitex/.metadata/ directory. "
+                f"Call initialize_scitex_metadata() first."
+            )
+
+        return SciTeXProject.load_from_directory(self.get_local_path())
+
+    def initialize_scitex_metadata(self):
+        """
+        Initialize scitex/.metadata/ directory for existing Django project.
+
+        This is used during migration to add scitex/.metadata/ to projects that don't have it yet.
+
+        Returns:
+            Newly created SciTeXProject
+
+        Raises:
+            FileExistsError: If scitex/.metadata/ already exists
+            ImportError: If scitex package is not installed
+        """
+        try:
+            from scitex.project import SciTeXProject
+        except ImportError:
+            raise ImportError(
+                "scitex package is not installed. "
+                "Install it with: pip install scitex"
+            )
+
+        if self.has_scitex_metadata():
+            raise FileExistsError(f"Project '{self.name}' already has scitex/.metadata/")
+
+        local_path = self.get_local_path()
+
+        # Create directory if it doesn't exist
+        local_path.mkdir(parents=True, exist_ok=True)
+
+        # Create SciTeXProject
+        scitex_project = SciTeXProject.create(
+            name=self.name,
+            path=local_path,
+            owner=self.owner.username,
+            description=self.description,
+            visibility=self.visibility,
+            template=None,  # Unknown for existing projects
+            tags=[],  # No tags in current Django model
+            init_git=False  # Git might already be initialized
+        )
+
+        # Link Django project to SciTeXProject
+        self.scitex_project_id = scitex_project.project_id
+        self.local_path = str(local_path)
+        self.save(update_fields=['scitex_project_id', 'local_path'])
+
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.info(
+            f"Initialized scitex metadata for project '{self.name}' "
+            f"(ID: {scitex_project.project_id})"
+        )
+
+        return scitex_project
+
+    def sync_from_scitex(self):
+        """
+        Update Django model from SciTeXProject metadata.
+
+        Use this when scitex/.metadata/ is the source of truth (e.g., after local edits).
+        """
+        scitex_project = self.to_scitex_project()
+
+        # Update fields from SciTeXProject
+        self.name = scitex_project.name
+        self.slug = scitex_project.slug
+        self.description = scitex_project.description
+        self.visibility = scitex_project.visibility
+        self.storage_used = scitex_project.storage_used
+
+        self.save()
+
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.info(f"Synced Django project '{self.name}' from scitex metadata")
+
+    def sync_to_scitex(self):
+        """
+        Update SciTeXProject from Django model.
+
+        Use this when Django model is the source of truth (e.g., after web UI changes).
+        """
+        scitex_project = self.to_scitex_project()
+
+        # Update SciTeXProject fields
+        scitex_project.name = self.name
+        scitex_project.slug = self.slug
+        scitex_project.description = self.description
+        scitex_project.visibility = self.visibility
+
+        # Save to scitex/.metadata/
+        scitex_project.save()
+
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.info(f"Synced scitex metadata from Django project '{self.name}'")
+
+    def update_storage_from_scitex(self):
+        """
+        Calculate storage using SciTeXProject and update Django model.
+
+        Returns:
+            Storage size in bytes
+        """
+        if not self.has_scitex_metadata():
+            # Fall back to old method
+            return self.update_storage_usage()
+
+        scitex_project = self.to_scitex_project()
+        storage = scitex_project.update_storage_usage()
+
+        # Update Django model
+        self.storage_used = storage
+        self.save(update_fields=['storage_used'])
+
+        return storage
+
+    @classmethod
+    def validate_name_using_scitex(cls, name):
+        """
+        Validate project name using scitex.project validator.
+
+        Raises:
+            ValidationError: If name is invalid
+            ImportError: If scitex package is not installed
+        """
+        from django.core.exceptions import ValidationError
+
+        try:
+            from scitex.project import validate_name
+        except ImportError:
+            # Fall back to existing validator
+            return cls.validate_repository_name(name)
+
+        is_valid, error = validate_name(name)
+        if not is_valid:
+            raise ValidationError(error)
 
 
 class ProjectPermission(models.Model):

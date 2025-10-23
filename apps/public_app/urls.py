@@ -36,6 +36,8 @@ urlpatterns = [
     path("demo/", views.demo, name="demo"),
     # API Documentation
     path("api-docs/", views.api_docs, name="api-docs"),
+    # SciTeX API Key Management
+    path("api-keys/", views.scitex_api_keys, name="scitex_api_keys"),
 ]
 
 # EOF

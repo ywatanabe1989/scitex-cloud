@@ -1,0 +1,87 @@
+{% extends "public_app/cloud_base.html" %}
+
+{% block title %}API Keys{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto; padding: 2rem;">
+    <h1 style="color: var(--color-fg-default); margin-bottom: 2rem;">
+        Get API Key
+    </h1>
+
+    {% if new_api_key %}
+    <div style="background: var(--success-color); color: var(--white); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+        <h3 style="margin-bottom: 1rem;">API Key Created</h3>
+        <p style="margin-bottom: 1rem;">Copy this key now (won't be shown again):</p>
+        <div style="background: rgba(255, 255, 255, 0.2); padding: 1rem; border-radius: 6px; font-family: monospace; word-break: break-all; margin-bottom: 1rem;">
+            {{ new_api_key }}
+        </div>
+        <button onclick="navigator.clipboard.writeText('{{ new_api_key }}'); alert('Copied!')" style="padding: 0.75rem 1.5rem; background: var(--white); color: var(--success-color); border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
+            Copy
+        </button>
+    </div>
+    {% endif %}
+
+    <!-- Create -->
+    <div style="background: var(--color-canvas-default); border: 1px solid var(--color-border-default); border-radius: 8px; padding: 2rem; margin-bottom: 2rem;">
+        <h2 style="color: var(--color-fg-default); margin-bottom: 1rem;">Create New Key</h2>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="create">
+            <input type="text" name="name" class="form-control" placeholder="Key name" required style="margin-bottom: 1rem;">
+            <button type="submit" style="padding: 0.75rem 1.5rem; background: var(--scitex-color-02); color: var(--white); border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
+                Create
+            </button>
+        </form>
+    </div>
+
+    <!-- Usage -->
+    <div style="background: var(--color-canvas-subtle); border: 1px solid var(--color-border-default); border-radius: 8px; padding: 2rem; margin-bottom: 2rem;">
+        <h2 style="color: var(--color-fg-default); margin-bottom: 1rem;">Usage</h2>
+        <pre style="background: var(--color-canvas-default); padding: 1rem; border-radius: 6px; border: 1px solid var(--color-border-default); overflow-x: auto;"><code style="color: var(--color-fg-default); font-family: monospace;">curl -X POST https://scitex.cloud/scholar/api/bibtex/enrich/ \
+  -H "Authorization: Bearer YOUR_KEY" \
+  -F "bibtex_file=@input.bib" \
+  -o enriched.bib</code></pre>
+    </div>
+
+    <!-- Keys List -->
+    <div style="background: var(--color-canvas-default); border: 1px solid var(--color-border-default); border-radius: 8px; padding: 2rem;">
+        <h2 style="color: var(--color-fg-default); margin-bottom: 1rem;">Your Keys</h2>
+        {% if api_keys %}
+        {% for key in api_keys %}
+        <div style="padding: 1rem; border: 1px solid var(--color-border-default); border-radius: 6px; margin-bottom: 1rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <div style="font-weight: 600; color: var(--color-fg-default);">{{ key.name }}</div>
+                    <div style="font-family: monospace; color: var(--color-fg-muted); font-size: 0.9rem; margin-top: 0.25rem;">
+                        {{ key.key_prefix }}••••••••
+                    </div>
+                    <div style="font-size: 0.85rem; color: var(--color-fg-muted); margin-top: 0.25rem;">
+                        Created: {{ key.created_at|date:"Y-m-d" }}
+                        {% if key.last_used_at %} | Last used: {{ key.last_used_at|date:"Y-m-d" }}{% endif %}
+                    </div>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <form method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="key_id" value="{{ key.id }}">
+                        <button type="submit" name="action" value="toggle" style="padding: 0.5rem 1rem; background: var(--warning-color); color: var(--white); border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">
+                            {% if key.is_active %}Disable{% else %}Enable{% endif %}
+                        </button>
+                    </form>
+                    <form method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="key_id" value="{{ key.id }}">
+                        <button type="submit" name="action" value="delete" onclick="return confirm('Delete?')" style="padding: 0.5rem 1rem; background: var(--error-color); color: var(--white); border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">
+                            Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <p style="color: var(--color-fg-muted); text-align: center; padding: 2rem;">No keys yet. Create one above.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

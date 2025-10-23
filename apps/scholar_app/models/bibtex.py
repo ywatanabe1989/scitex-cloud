@@ -36,12 +36,14 @@ class BibTeXEnrichmentJob(models.Model):
 
     # Input
     input_file = models.FileField(upload_to='bibtex_uploads/%Y/%m/%d/')
+    original_filename = models.CharField(max_length=255, blank=True, null=True, help_text="Original filename before upload")
     project_name = models.CharField(max_length=200, blank=True, null=True, help_text="Optional project name for organization")
     project = models.ForeignKey('project_app.Project', on_delete=models.SET_NULL, null=True, blank=True, related_name='bibtex_jobs', help_text="Associated project for Gitea integration")
 
     # Processing parameters
     num_workers = models.IntegerField(default=4, help_text="Number of parallel workers")
     browser_mode = models.CharField(max_length=20, choices=BROWSER_MODE_CHOICES, default='stealth')
+    use_cache = models.BooleanField(default=True, help_text="Use cached metadata if available")
 
     # Output
     output_file = models.FileField(upload_to='bibtex_enriched/%Y/%m/%d/', blank=True, null=True)
@@ -59,6 +61,9 @@ class BibTeXEnrichmentJob(models.Model):
 
     # Error handling
     error_message = models.TextField(blank=True)
+
+    # Processing log for real-time updates
+    processing_log = models.TextField(blank=True, default='', help_text="Real-time processing log shown to user")
 
     # Results summary
     enrichment_summary = models.JSONField(

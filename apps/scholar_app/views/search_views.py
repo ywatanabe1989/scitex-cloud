@@ -1569,11 +1569,36 @@ def index(request):
 
 def bibtex_enrichment_view(request):
     """BibTeX Enrichment tab view."""
-    # Get user projects for BibTeX enrichment form
+    from apps.scholar_app.models import BibTeXEnrichmentJob
+
+    # Get user projects and current project
     user_projects = []
+    current_project = None
     if request.user.is_authenticated:
         from apps.project_app.models import Project
         user_projects = Project.objects.filter(owner=request.user).order_by('-created_at')
+
+        # Get current project from session
+        current_project_slug = request.session.get('current_project_slug')
+        if current_project_slug:
+            try:
+                current_project = Project.objects.get(
+                    owner=request.user,
+                    slug=current_project_slug
+                )
+            except Project.DoesNotExist:
+                pass
+
+    # Get user's recent enrichment jobs
+    if request.user.is_authenticated:
+        recent_jobs = BibTeXEnrichmentJob.objects.filter(
+            user=request.user
+        ).select_related('project').order_by('-created_at')[:10]
+    else:
+        # For anonymous users, get jobs by session key
+        recent_jobs = BibTeXEnrichmentJob.objects.filter(
+            session_key=request.session.session_key
+        ).order_by('-created_at')[:10] if request.session.session_key else []
 
     # Default filter ranges (used when no search results)
     filter_ranges = {
@@ -1588,6 +1613,8 @@ def bibtex_enrichment_view(request):
         'results': [],
         'has_results': False,
         'user_projects': user_projects,
+        'current_project': current_project,
+        'recent_jobs': recent_jobs,
         'active_tab': 'bibtex',  # Indicate which tab is active
         'filter_ranges': filter_ranges,  # Add default filter ranges
     }
