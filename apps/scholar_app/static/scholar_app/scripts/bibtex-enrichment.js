@@ -97,6 +97,15 @@ function handleFormSubmit(e, forceCancel = false) {
                 throw new Error('Conflict handled');
             });
         }
+
+        if (!response.ok) {
+            // Server returned an error status (4xx, 5xx)
+            return response.text().then(text => {
+                console.error(`Server error (${response.status}):`, text);
+                throw new Error(`Upload failed: ${response.status} ${response.statusText}`);
+            });
+        }
+
         return response.json();
     })
     .then(data => {
@@ -115,7 +124,7 @@ function handleFormSubmit(e, forceCancel = false) {
             return;
         }
         console.error('Upload error:', error);
-        showError('Failed to upload file. Please try again.');
+        showError('Failed to upload file: ' + error.message);
         resetForm();
     });
 }
@@ -183,8 +192,8 @@ function startJobPolling(jobId) {
         clearInterval(jobStatusInterval);
     }
 
-    // Show progress area
-    const progressArea = document.getElementById('progressArea');
+    // Show progress area (try both ID variants for compatibility)
+    const progressArea = document.getElementById('bibtexProgressArea') || document.getElementById('progressArea');
     if (progressArea) {
         progressArea.style.display = 'block';
     }
@@ -511,7 +520,7 @@ function renderDiffEntry(entry) {
  * Show loading state
  */
 function showLoadingState() {
-    const progressArea = document.getElementById('progressArea');
+    const progressArea = document.getElementById('bibtexProgressArea') || document.getElementById('progressArea');
     if (progressArea) {
         progressArea.style.display = 'block';
     }
@@ -521,7 +530,7 @@ function showLoadingState() {
  * Reset form
  */
 function resetForm() {
-    const progressArea = document.getElementById('progressArea');
+    const progressArea = document.getElementById('bibtexProgressArea') || document.getElementById('progressArea');
     if (progressArea) {
         progressArea.style.display = 'none';
     }
