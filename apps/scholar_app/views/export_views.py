@@ -111,14 +111,15 @@ def export_bibtex(request):
     """Export papers as BibTeX"""
     try:
         paper_ids = request.GET.get('paper_ids', '').split(',')
-        
+
         if not paper_ids or paper_ids == ['']:
             return JsonResponse({
                 'success': False,
                 'error': 'No papers specified'
             }, status=400)
-        
-        papers = Paper.objects.filter(id__in=paper_ids)
+
+        # Optimize query: prefetch authors to avoid N+1 query problem
+        papers = Paper.objects.filter(id__in=paper_ids).prefetch_related('authors', 'journal')
         bibtex_content = '\n'.join([format_bibtex(paper) for paper in papers])
         
         response = HttpResponse(bibtex_content, content_type='text/plain')
@@ -139,14 +140,15 @@ def export_ris(request):
     """Export papers as RIS"""
     try:
         paper_ids = request.GET.get('paper_ids', '').split(',')
-        
+
         if not paper_ids or paper_ids == ['']:
             return JsonResponse({
                 'success': False,
                 'error': 'No papers specified'
             }, status=400)
-        
-        papers = Paper.objects.filter(id__in=paper_ids)
+
+        # Optimize query: prefetch authors to avoid N+1 query problem
+        papers = Paper.objects.filter(id__in=paper_ids).prefetch_related('authors', 'journal')
         ris_content = '\n'.join([format_ris(paper) for paper in papers])
         
         response = HttpResponse(ris_content, content_type='text/plain')
@@ -167,14 +169,15 @@ def export_endnote(request):
     """Export papers as EndNote"""
     try:
         paper_ids = request.GET.get('paper_ids', '').split(',')
-        
+
         if not paper_ids or paper_ids == ['']:
             return JsonResponse({
                 'success': False,
                 'error': 'No papers specified'
             }, status=400)
-        
-        papers = Paper.objects.filter(id__in=paper_ids)
+
+        # Optimize query: prefetch authors to avoid N+1 query problem
+        papers = Paper.objects.filter(id__in=paper_ids).prefetch_related('authors', 'journal')
         endnote_content = '\n'.join([format_endnote(paper) for paper in papers])
         
         response = HttpResponse(endnote_content, content_type='text/plain')
@@ -196,16 +199,17 @@ def export_csv(request):
     try:
         import csv
         from io import StringIO
-        
+
         paper_ids = request.GET.get('paper_ids', '').split(',')
-        
+
         if not paper_ids or paper_ids == ['']:
             return JsonResponse({
                 'success': False,
                 'error': 'No papers specified'
             }, status=400)
-        
-        papers = Paper.objects.filter(id__in=paper_ids)
+
+        # Optimize query: prefetch authors to avoid N+1 query problem
+        papers = Paper.objects.filter(id__in=paper_ids).prefetch_related('authors', 'journal')
         
         output = StringIO()
         fieldnames = ['Title', 'Authors', 'Journal', 'Year', 'DOI', 'PMID', 'URL', 'Abstract']
@@ -235,14 +239,15 @@ def export_bulk_citations(request):
         data = json.loads(request.body)
         format_type = data.get('format', 'bibtex')
         paper_ids = data.get('paper_ids', [])
-        
+
         if not paper_ids:
             return JsonResponse({
                 'success': False,
                 'error': 'No papers specified'
             }, status=400)
-        
-        papers = Paper.objects.filter(id__in=paper_ids)
+
+        # Optimize query: prefetch authors to avoid N+1 query problem
+        papers = Paper.objects.filter(id__in=paper_ids).prefetch_related('authors', 'journal')
         
         if format_type == 'bibtex':
             content = '\n'.join([format_bibtex(paper) for paper in papers])
@@ -280,13 +285,14 @@ def export_collection(request, collection_id):
     try:
         collection_id = UUID(str(collection_id))
         format_type = request.GET.get('format', 'bibtex')
-        
+
         collection = Collection.objects.get(
             id=collection_id,
             user=request.user
         )
-        
-        papers = collection.papers.all()
+
+        # Optimize query: prefetch authors to avoid N+1 query problem
+        papers = collection.papers.all().prefetch_related('authors', 'journal')
         
         if format_type == 'bibtex':
             content = '\n'.join([format_bibtex(paper) for paper in papers])
