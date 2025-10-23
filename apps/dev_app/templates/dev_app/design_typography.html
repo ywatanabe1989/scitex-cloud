@@ -1,12 +1,11 @@
 {% extends "global_base.html" %}
 
-{% block title %}SciTeX Design System{% endblock %}
+{% block title %}Typography - SciTeX Design System{% endblock %}
 
-{% block meta_description %}Design system for the SciTeX platform, showcasing components, styles, and patterns to ensure consistent design across all interfaces.{% endblock %}
+{% block meta_description %}Typography system and font guidelines for the SciTeX design system.{% endblock %}
 
 {% block extra_css %}
 {% load static %}
-<!-- Consolidated Component CSS -->
 <link rel="stylesheet" href="{% static 'css/common.css' %}">
 <link rel="stylesheet" href="{% static 'css/common/code-blocks.css' %}">
 <link rel="stylesheet" href="{% static 'dev_app/styles/design.css' %}">
@@ -26,31 +25,11 @@
 
     <!-- Main Content Area -->
     <main style="flex: 1; min-width: 0;">
-      <!-- Design Foundation: Colors, Typography, Spacing, Theme -->
-
-      <!-- Colors -->
-      {% include 'dev_app/design_partial/colors.html' %}
-
       <!-- Typography -->
       {% include 'dev_app/design_partial/typography.html' %}
-
-      <!-- Spacing -->
-      {% include 'dev_app/design_partial/spacing.html' %}
-
-      <!-- Theme -->
-      {% include 'dev_app/design_partial/theme.html' %}
-
-      <!-- Programmatic Component Library -->
-      {% include 'dev_app/design_partial/components.html' %}
-
-      <!-- Usage Guidelines -->
-      {% include 'dev_app/design_partial/guidelines.html' %}
     </main>
-    <!-- End Main Content -->
   </div>
-  <!-- End Flex Container (sidebar + main) -->
 </div>
-<!-- End Container -->
 
 {% endblock %}
 
@@ -59,7 +38,6 @@
 <!-- Syntax Highlighting -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script>
-  // Initialize Highlight.js on all code blocks
   document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('pre code').forEach((block) => {
       hljs.highlightElement(block);

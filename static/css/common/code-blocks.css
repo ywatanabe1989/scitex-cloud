@@ -1,0 +1,276 @@
+/* =============================================================================
+ * Code Block Language Labels
+ * =============================================================================
+ *
+ * Displays language badges on code blocks for better clarity
+ * Uses data attributes to specify language
+ *
+ * Usage: <pre data-language="css"><code class="language-css">...</code></pre>
+ *
+ * ============================================================================= */
+
+/* Base code block container */
+pre {
+  position: relative;
+  padding-top: 2.5rem;
+  padding-right: 3rem;
+  border: none !important;
+  box-shadow: none !important;
+  line-height: 1.5 !important;
+}
+
+/* Copy button */
+.code-copy-button {
+  position: absolute;
+  top: 0.5rem;
+  right: 2.75rem;
+  background-color: var(--bg-muted);
+  color: var(--text-secondary);
+  border: none;
+  padding: 0.375rem;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 11;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+}
+
+.code-copy-button:hover {
+  background-color: var(--text-secondary);
+  color: var(--bg-page);
+}
+
+.code-copy-button.copied {
+  background-color: var(--status-success);
+  color: var(--text-inverse);
+}
+
+.code-copy-button.error {
+  background-color: var(--status-error);
+  color: var(--text-inverse);
+}
+
+/* Icon styling */
+.code-copy-button svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+/* Code element cleanup - remove unwanted decorations but don't override color */
+pre code {
+  background-image: none !important;
+  background-clip: padding-box;
+  background-repeat: no-repeat !important;
+  background-attachment: scroll !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  display: block !important;
+  /* IMPORTANT: Don't set color here - let it be inherited or let Highlight.js apply class colors */
+  color: inherit;
+}
+
+/* Remove decorations from code spans but preserve Highlight.js colors */
+pre code span {
+  border: none !important;
+  background-image: none !important;
+  background-repeat: no-repeat !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+  text-decoration: none !important;
+  /* NOTE: Intentionally NOT setting color here - let Highlight.js class colors apply */
+}
+
+/* Remove box-shadow and other decorative effects from code lines */
+pre code::before,
+pre code::after {
+  display: none !important;
+}
+
+pre::before,
+pre::after {
+  display: none !important;
+}
+
+/* Ensure clean line rendering without striped backgrounds */
+pre {
+  background-repeat: no-repeat !important;
+  background-attachment: scroll !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  border-top: none !important;
+  border-bottom: none !important;
+}
+
+/* Explicit removal of any line decorations - critical fix */
+pre code {
+  text-shadow: none !important;
+}
+
+/* Remove any ::selection pseudo-elements that might add borders */
+pre code::selection {
+  background: rgba(255, 255, 255, 0.1) !important;
+  text-shadow: none !important;
+}
+
+/* Zenburn theme colors - explicit rules to override inheritance */
+/* These are Zenburn colors from highlight.js Zenburn theme */
+
+/* Comments - light gray */
+.hljs-comment {
+  color: #d0bf8f !important;
+}
+
+/* Strings - salmon/coral */
+.hljs-string {
+  color: #cc9393 !important;
+}
+
+/* Numbers, literals, attributes - light blue/cyan */
+.hljs-number, .hljs-literal {
+  color: #8cd0d3 !important;
+}
+
+.hljs-attr {
+  color: #93e0e5 !important;
+}
+
+/* Built-in functions and keywords - yellow */
+.hljs-built_in {
+  color: #e0cf9f !important;
+}
+
+/* Keywords - gold */
+.hljs-keyword {
+  color: #e0cf9f !important;
+}
+
+/* Tags and names - pink/light magenta */
+.hljs-name, .hljs-tag {
+  color: #dca3a3 !important;
+}
+
+/* Types - light green */
+.hljs-type {
+  color: #9ede9f !important;
+}
+
+/* Symbols and bullets - cyan */
+.hljs-symbol, .hljs-bullet {
+  color: #8cd0d3 !important;
+}
+
+/* Links - orange */
+.hljs-link {
+  color: #f0ad6d !important;
+}
+
+/* Title/section - light red */
+.hljs-title, .hljs-section {
+  color: #dca3a3 !important;
+}
+
+/* Emphasis and strong - maintain colors */
+.hljs-emphasis {
+  font-style: italic !important;
+  color: #dca3a3 !important;
+}
+
+.hljs-strong {
+  font-weight: bold !important;
+  color: #dca3a3 !important;
+}
+
+/* Parameters - light blue */
+.hljs-params {
+  color: #93e0e5 !important;
+}
+
+/* Generic cleanup for all hljs spans */
+.hljs-number, .hljs-literal, .hljs-attr, .hljs-string, .hljs-name,
+.hljs-type, .hljs-symbol, .hljs-bullet, .hljs-link,
+.hljs-title, .hljs-section, .hljs-emphasis, .hljs-strong, .hljs-params {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Language label badges using ::before on pre element */
+pre[data-language]::before {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background-color: var(--bg-muted);
+  color: var(--text-secondary);
+  padding: 0.25rem 0.5rem;
+  border-radius: 3px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  pointer-events: none;
+  z-index: 10;
+  font-family: var(--font-body);
+}
+
+/* Define content for each language */
+pre[data-language="css"]::before {
+  content: "CSS";
+}
+
+pre[data-language="html"]::before {
+  content: "HTML";
+}
+
+pre[data-language="javascript"]::before {
+  content: "JavaScript";
+}
+
+pre[data-language="js"]::before {
+  content: "JavaScript";
+}
+
+pre[data-language="python"]::before {
+  content: "Python";
+}
+
+pre[data-language="py"]::before {
+  content: "Python";
+}
+
+pre[data-language="bash"]::before {
+  content: "Bash";
+}
+
+pre[data-language="sh"]::before {
+  content: "Shell";
+}
+
+pre[data-language="sql"]::before {
+  content: "SQL";
+}
+
+pre[data-language="json"]::before {
+  content: "JSON";
+}
+
+pre[data-language="xml"]::before {
+  content: "XML";
+}
+
+pre[data-language="yaml"]::before {
+  content: "YAML";
+}
+
+pre[data-language="markdown"]::before {
+  content: "Markdown";
+}
+
+pre[data-language="diff"]::before {
+  content: "Diff";
+}

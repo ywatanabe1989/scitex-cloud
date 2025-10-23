@@ -8,138 +8,31 @@
 <link rel="stylesheet" href="{% static 'css/common/scitex-components.css' %}">
 <link rel="stylesheet" href="{% static 'css/common/terminal-log.css' %}">
 <link rel="stylesheet" href="{% static 'css/common.css' %}">
+<link rel="stylesheet" href="{% static 'css/common/sliders.css' %}">
 <link rel="stylesheet" href="{% static 'scholar_app/styles/scholar-index.css' %}">
 <!-- noUiSlider for proper dual-range sliders -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.css" rel="stylesheet">
 <style>
-    /* noUiSlider Custom Styling for SciTeX Theme */
-    .noUi-target {
-        background: var(--color-border-default);
-        border-radius: 6px;
-        border: none;
-        box-shadow: none;
-        height: 8px;
-    }
-
-    .noUi-connect {
-        background: linear-gradient(to right, var(--scitex-color-05), var(--scitex-color-03));
-    }
-
-    .noUi-handle {
-        width: 22px;
-        height: 22px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, var(--scitex-color-02) 0%, var(--scitex-color-03) 100%);
-        border: 3px solid var(--color-canvas-default);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 1px 3px rgba(0, 0, 0, 0.1);
-        cursor: pointer;
-        transition: all 0.2s ease;
-        top: -7px;
-    }
-
-    .noUi-handle:before,
-    .noUi-handle:after {
-        display: none;
-    }
-
-    .noUi-handle:hover {
-        background: linear-gradient(135deg, var(--scitex-color-03) 0%, var(--scitex-color-04) 100%);
-        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3), 0 2px 6px rgba(0, 0, 0, 0.15);
-        transform: scale(1.1);
-    }
-
-    .noUi-handle:active {
-        background: var(--scitex-color-02);
-        transform: scale(1.15);
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2);
-    }
-
-    .noUi-tooltip {
-        display: none;
-    }
-
-    /* Modern Range Slider Styles - Single Handle */
-    .dual-range-input {
-        -webkit-appearance: none;
-        appearance: none;
-        height: 6px;
-        background: linear-gradient(to right, var(--scitex-color-05) 0%, var(--scitex-color-03) 100%);
-        outline: none;
-        border-radius: 3px;
-        transition: opacity 0.2s;
-    }
-
-    .dual-range-input::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 20px;
-        height: 20px;
-        background: linear-gradient(135deg, var(--scitex-color-02) 0%, var(--scitex-color-03) 100%);
-        cursor: pointer;
-        border-radius: 50%;
-        border: 3px solid var(--color-canvas-default);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 1px 3px rgba(0, 0, 0, 0.1);
-        pointer-events: auto;
-        position: relative;
-        z-index: 10;
-        transition: all 0.2s ease;
-    }
-
-    .dual-range-input::-moz-range-thumb {
-        width: 20px;
-        height: 20px;
-        background: linear-gradient(135deg, var(--scitex-color-02) 0%, var(--scitex-color-03) 100%);
-        cursor: pointer;
-        border-radius: 50%;
-        border: 3px solid var(--color-canvas-default);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 1px 3px rgba(0, 0, 0, 0.1);
-        pointer-events: auto;
-        transition: all 0.2s ease;
-    }
-
-    .dual-range-input:hover::-webkit-slider-thumb {
-        background: linear-gradient(135deg, var(--scitex-color-03) 0%, var(--scitex-color-04) 100%);
-        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3), 0 2px 6px rgba(0, 0, 0, 0.15);
-        transform: scale(1.1);
-    }
-
-    .dual-range-input:hover::-moz-range-thumb {
-        background: linear-gradient(135deg, var(--scitex-color-03) 0%, var(--scitex-color-04) 100%);
-        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3), 0 2px 6px rgba(0, 0, 0, 0.15);
-        transform: scale(1.1);
-    }
-
-    .dual-range-input:active::-webkit-slider-thumb {
-        background: var(--scitex-color-02);
-        transform: scale(1.15);
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2);
-    }
-
-    .dual-range-input:active::-moz-range-thumb {
-        background: var(--scitex-color-02);
-        transform: scale(1.15);
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2);
-    }
-
-    /* Drag-and-Drop Sort Items */
+    /* Drag-and-Drop Sort Items - Theme Responsive */
     .sort-item {
         display: inline-flex;
         align-items: center;
         gap: 8px;
         padding: 8px 12px;
-        background: var(--color-canvas-default);
-        border: 2px solid var(--color-border-default);
+        background: var(--bg-surface);
+        border: 2px solid var(--border-default);
         border-radius: 6px;
         cursor: move;
         user-select: none;
         transition: all 0.2s ease;
         font-size: 14px;
         font-weight: 500;
+        color: var(--text-primary);
     }
 
     .sort-item:hover {
-        background: var(--color-canvas-subtle);
-        border-color: var(--scitex-color-03);
+        background: var(--bg-muted);
+        border-color: var(--text-secondary);
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         transform: translateY(-1px);
     }
@@ -150,20 +43,20 @@
     }
 
     .sort-item.drag-over {
-        border-color: var(--scitex-color-02);
+        border-color: var(--text-primary);
         border-style: dashed;
     }
 
     .sort-item[data-state="asc"] {
-        background: var(--scitex-color-03);
-        border-color: var(--scitex-color-02);
-        color: white;
+        background: var(--text-secondary);
+        border-color: var(--text-primary);
+        color: var(--text-inverse);
     }
 
     .sort-item[data-state="desc"] {
-        background: var(--scitex-color-04);
-        border-color: var(--scitex-color-03);
-        color: white;
+        background: var(--text-muted);
+        border-color: var(--text-secondary);
+        color: var(--text-inverse);
     }
 
     .sort-item[data-state="none"] {
@@ -171,7 +64,7 @@
     }
 
     .drag-handle {
-        color: var(--color-fg-muted);
+        color: var(--text-secondary);
         cursor: grab;
         display: flex;
         align-items: center;
@@ -183,7 +76,7 @@
 
     .sort-item[data-state="asc"] .drag-handle,
     .sort-item[data-state="desc"] .drag-handle {
-        color: rgba(255, 255, 255, 0.8);
+        color: var(--text-inverse);
     }
 
     .sort-label {

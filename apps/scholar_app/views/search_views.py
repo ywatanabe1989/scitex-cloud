@@ -645,7 +645,8 @@ def search_arxiv_real(query, max_results=15, filters=None):
                 if published_elem and published_elem.text:
                     try:
                         year = published_elem.text[:4]
-                    except:
+                    except (IndexError, AttributeError, TypeError):
+                        # Failed to extract year from published element, use default
                         pass
 
                 # Extract arXiv ID
@@ -841,7 +842,8 @@ def search_arxiv(query, max_results=50, filters=None):
                 if published is not None:
                     try:
                         year = published.text[:4]
-                    except:
+                    except (IndexError, AttributeError, TypeError):
+                        # Failed to extract year from published element, use default
                         pass
 
                 results.append({
@@ -2418,7 +2420,8 @@ def generate_citation_key(authors, year):
             last_name = ''.join(c for c in last_name if c.isalnum())
             return f"{last_name}{year}"
         return f"Unknown{year}"
-    except:
+    except (IndexError, AttributeError, TypeError, ValueError):
+        # Failed to parse authors/year, use generic key
         return f"Paper{year}"
 
 
@@ -3756,7 +3759,8 @@ def project_library(request, project_id):
             project_collections = user_collections.filter(project=project)
         else:
             project_collections = user_collections
-    except:
+    except (AttributeError, TypeError):
+        # Failed to filter by project, fallback to all user collections
         project_collections = Collection.objects.filter(user=request.user)
 
     context = {
