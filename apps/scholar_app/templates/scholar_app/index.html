@@ -212,7 +212,7 @@
         content: "○";
     }
 
-    /* Horizontal Tab Layout (like browser tabs) */
+    /* GitHub-style tab navigation - Theme-aware */
     .vertical-tab-container {
         border: 1px solid var(--color-border-default);
         border-radius: 8px;
@@ -223,50 +223,42 @@
     .vertical-tabs {
         display: flex;
         gap: 0;
-        background: transparent;
-        border-bottom: 2px solid var(--color-border-default);
+        border-bottom: 1px solid var(--color-border-default);
         padding: 0;
         margin-bottom: 0;
+        overflow: visible;
+        position: relative;
     }
 
-    .vertical-tab-btn {
+    .vertical-tab-btn,
+    .tab-link {
+        padding: 0.5rem 1rem;
+        color: var(--color-fg-muted);
+        text-decoration: none;
+        border-bottom: 2px solid transparent;
+        white-space: nowrap;
         display: flex;
         align-items: center;
-        gap: 8px;
-        padding: 12px 16px;
-        background: transparent;
-        border: none;
-        border-bottom: 3px solid transparent;
-        border-radius: 0;
-        cursor: pointer;
+        gap: 0.5rem;
         transition: all 0.2s ease;
-        color: var(--color-fg-muted);
-        font-size: 14px;
-        font-weight: 500;
-        position: relative;
-        text-decoration: none;
-        margin-bottom: -2px;
     }
 
-    .vertical-tab-btn i {
+    .vertical-tab-btn i,
+    .tab-link i {
         font-size: 16px;
     }
 
-    .vertical-tab-btn:hover {
-        background: var(--color-canvas-subtle);
+    .vertical-tab-btn:hover,
+    .tab-link:hover {
         color: var(--color-fg-default);
-        border-bottom-color: var(--color-border-muted);
+        border-bottom-color: var(--color-border-default);
     }
 
-    .vertical-tab-btn.active {
-        background: transparent;
-        color: var(--scitex-color-03);
+    .vertical-tab-btn.active,
+    .tab-link.active {
+        color: var(--color-fg-default);
+        border-bottom-color: var(--tab-active-border);
         font-weight: 600;
-        border-bottom-color: var(--scitex-color-03);
-    }
-
-    .vertical-tab-btn.active i {
-        color: var(--scitex-color-03);
     }
 
     .vertical-tab-content-container {
