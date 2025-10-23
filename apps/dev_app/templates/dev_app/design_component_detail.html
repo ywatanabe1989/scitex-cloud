@@ -9,205 +9,83 @@
 <link rel="stylesheet" href="{% static 'css/common.css' %}">
 <link rel="stylesheet" href="{% static 'css/common/code-blocks.css' %}">
 <link rel="stylesheet" href="{% static 'dev_app/styles/design.css' %}">
-<!-- Component-specific CSS -->
-{% if component.css_file %}
-<link rel="stylesheet" href="{{ component.css_file }}">
-{% endif %}
-<!-- Syntax Highlighting -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/zenburn.min.css">
 {% endblock %}
 
 {% block content %}
-
-<!-- Hero Section -->
-<section style="background-color: var(--header-bg); color: var(--header-text); margin-bottom: 4rem; padding: 4rem 0; box-shadow: var(--shadow-md);">
+<section style="background-color: var(--header-bg); color: var(--header-text); padding: 3rem 0; box-shadow: var(--shadow-md);">
   <div class="container" style="text-align: center;">
-    <h1 style="font-size: 3.5rem; margin-bottom: 1rem; font-weight: 700; color: var(--header-text);">
-      <svg width="48" height="48" viewBox="0 0 16 16" fill="currentColor" style="display: inline-block; vertical-align: text-bottom; margin-right: 12px;">
-        <!-- Component icon -->
-        <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm5.854 8.803a.5.5 0 1 1-.708-.707L9.243 6H6.475a.5.5 0 1 1 0-1h3.975a.5.5 0 0 1 .5.5v3.975a.5.5 0 1 1-1 0V6.707l-4.096 4.096z"/>
-      </svg>
-      {{ component.name }}
-    </h1>
-    <p style="font-size: 1.5rem; margin-bottom: 0.5rem; opacity: 0.9; color: var(--header-text);">
-      {{ component.description }}
-    </p>
-    <p style="font-size: 1rem; opacity: 0.8; color: var(--header-text);">
-      <span class="badge badge-primary" style="font-size: 0.875rem; padding: 0.375rem 0.75rem;">{{ component.category }}</span>
-      {% if component.darkmode %}
-      <span class="badge badge-success" style="font-size: 0.875rem; padding: 0.375rem 0.75rem; margin-left: 0.5rem;">Dark Mode Supported</span>
-      {% endif %}
-    </p>
+    <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem; font-weight: 700;">{{ component.name }}</h1>
+    <p style="font-size: 1.125rem; color: var(--header-text); opacity: 0.9;">{{ component.description }}</p>
   </div>
 </section>
 
 <div class="container py-5">
   <div style="display: flex; gap: 2rem;">
-    <!-- Sidebar Navigation -->
     {% include 'dev_app/design_partial/sidebar.html' %}
-
-    <!-- Main Content Area -->
     <main style="flex: 1; min-width: 0;">
-
-      <!-- Component Overview -->
-      <section class="mb-5">
-        <h2 class="section-heading">Overview</h2>
-        <p class="lead">{{ component.description }}</p>
-        {% if component.css_file %}
-        <p><strong>CSS File:</strong> <code>{{ component.css_file }}</code></p>
+      <section>
+        <h2>Overview</h2>
+        <p>{{ component.description }}</p>
+        <p><strong>Category:</strong> {{ component.category }}</p>
+        {% if component.darkmode %}
+        <p><strong>Dark Mode Support:</strong> Yes</strong></p>
         {% endif %}
       </section>
 
-      <!-- Variants Section -->
       {% if component.variants %}
-      <section class="mb-5">
-        <h2 class="section-heading">Variants</h2>
-        <div class="table-responsive">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Class Name</th>
-                <th>Description</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for variant in component.variants %}
-              <tr>
-                <td><code>{{ variant.class_name }}</code></td>
-                <td>{{ variant.description }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
+      <section style="margin-top: 2rem;">
+        <h2>Variants</h2>
+        <ul>
+          {% for variant in component.variants %}
+          <li><code>{{ variant.class_name }}</code> - {{ variant.description }}</li>
+          {% endfor %}
+        </ul>
       </section>
       {% endif %}
 
-      <!-- States Section -->
       {% if component.states %}
-      <section class="mb-5">
-        <h2 class="section-heading">States</h2>
-        <div class="table-responsive">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>State</th>
-                <th>Description</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for state in component.states %}
-              <tr>
-                <td><code>{{ state.name }}</code></td>
-                <td>{{ state.description }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
+      <section style="margin-top: 2rem;">
+        <h2>States</h2>
+        <ul>
+          {% for state in component.states %}
+          <li><strong>{{ state.name }}</strong> - {{ state.description }}</li>
+          {% endfor %}
+        </ul>
       </section>
       {% endif %}
 
-      <!-- Examples Section -->
       {% if component.examples %}
-      <section class="mb-5">
-        <h2 class="section-heading">Examples</h2>
-
+      <section style="margin-top: 2rem;">
+        <h2>Examples</h2>
         {% for example in component.examples %}
-        <div class="example-block mb-4">
-          <div class="example-preview" style="padding: 2rem; background: var(--color-canvas-subtle); border: 1px solid var(--color-border-default); border-radius: 8px 8px 0 0;">
+        <div style="margin-bottom: 2rem;">
+          <div style="border: 1px solid var(--border-default); padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
             {{ example|safe }}
           </div>
-          <div class="code-block" style="position: relative;">
-            <button class="copy-button" style="position: absolute; top: 0.5rem; right: 0.5rem; padding: 0.375rem 0.75rem; background: var(--color-btn-primary-bg); color: var(--color-btn-primary-text); border: none; border-radius: 4px; cursor: pointer; font-size: 0.875rem; z-index: 10;">
-              Copy
-            </button>
-            <pre style="margin: 0; border-radius: 0 0 8px 8px; background: #2b2b2b; padding: 1.5rem; overflow-x: auto;"><code class="language-html">{{ example|escape }}</code></pre>
-          </div>
+          <details>
+            <summary>View HTML</summary>
+            <pre><code>{{ example|escape }}</code></pre>
+          </details>
         </div>
         {% endfor %}
       </section>
       {% endif %}
-
-      <!-- Usage Guidelines -->
-      <section class="mb-5">
-        <h2 class="section-heading">Usage Guidelines</h2>
-        <div class="alert alert-info">
-          <h4>When to Use</h4>
-          <ul>
-            <li>Use this component consistently across the SciTeX ecosystem</li>
-            <li>Follow the design system guidelines for spacing and colors</li>
-            <li>Ensure accessibility by using proper HTML semantics and ARIA labels where needed</li>
-          </ul>
-        </div>
-        <div class="alert alert-warning">
-          <h4>Best Practices</h4>
-          <ul>
-            <li>Test the component in both light and dark modes{% if not component.darkmode %} (Note: dark mode support not yet implemented){% endif %}</li>
-            <li>Verify responsive behavior on mobile, tablet, and desktop viewports</li>
-            <li>Use semantic HTML elements for better accessibility</li>
-            <li>Keep interactive elements keyboard-navigable</li>
-          </ul>
-        </div>
-      </section>
-
-      <!-- Related Components -->
-      {% if component.category %}
-      <section class="mb-5">
-        <h2 class="section-heading">Related Components</h2>
-        <div class="row">
-          {% for related in components %}
-            {% if related.category == component.category and related.id != component.id %}
-            <div class="col-md-6 mb-3">
-              <div class="card card-hover">
-                <div class="card-body">
-                  <h5 class="card-title">{{ related.name }}</h5>
-                  <p class="card-text">{{ related.description|truncatewords:15 }}</p>
-                  <a href="{% url 'dev_app:design_component_detail' component_id=related.id|slugify %}" class="btn btn-sm btn-outline-primary">View Details</a>
-                </div>
-              </div>
-            </div>
-            {% endif %}
-          {% endfor %}
-        </div>
-      </section>
-      {% endif %}
-
     </main>
   </div>
 </div>
-
 {% endblock %}
 
 {% block extra_js %}
 {% load static %}
-<!-- Syntax Highlighting -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    // Initialize syntax highlighting
     document.querySelectorAll('pre code').forEach((block) => {
       hljs.highlightElement(block);
     });
-
-    // Copy button functionality
-    document.querySelectorAll('.copy-button').forEach(button => {
-      button.addEventListener('click', function() {
-        const codeBlock = this.parentElement.querySelector('code');
-        const text = codeBlock.textContent;
-
-        navigator.clipboard.writeText(text).then(() => {
-          const originalText = this.textContent;
-          this.textContent = 'Copied!';
-          setTimeout(() => {
-            this.textContent = originalText;
-          }, 2000);
-        }).catch(err => {
-          console.error('Failed to copy:', err);
-        });
-      });
-    });
   });
 </script>
+<script src="{% static 'js/code-blocks.js' %}"></script>
 <script src="{% static 'dev_app/scripts/design.js' %}"></script>
 {% endblock %}
