@@ -10,7 +10,22 @@
 <link rel="stylesheet" href="{% static 'css/common/code-blocks.css' %}">
 <link rel="stylesheet" href="{% static 'dev_app/styles/design.css' %}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/zenburn.min.css">
+{% if component.css_file %}
+<link rel="stylesheet" href="{{ component.css_file }}">
+{% endif %}
 <style>
+  .component-demo {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: 8px;
+    padding: 2rem;
+    margin: 1rem 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    justify-content: center;
+  }
   .file-upload-demo {
     border: 2px dashed var(--border-default);
     border-radius: 8px;
@@ -18,7 +33,7 @@
     text-align: center;
     cursor: pointer;
     transition: all 0.2s ease;
-    background-color: var(--bg-surface);
+    width: 100%;
   }
   .file-upload-demo:hover {
     border-color: var(--text-link);
@@ -78,6 +93,88 @@
         {% endif %}
       </section>
 
+      <!-- Interactive Component Examples -->
+      {% if component.id == "File Upload" or component.name == "File Upload" %}
+      <section style="margin-top: 2rem;">
+        <h2>Component Demo</h2>
+        <div class="file-upload-demo">
+          <div class="file-upload-icon">⬆️</div>
+          <div class="file-upload-title">Upload your file</div>
+          <div class="file-upload-desc">Drag and drop your file here or click to browse</div>
+          <button class="file-upload-button">Select File</button>
+        </div>
+      </section>
+      {% endif %}
+
+      {% if component.id == "Button" or component.name == "Button" %}
+      <section style="margin-top: 2rem;">
+        <h2>Component Demo</h2>
+        <div class="component-demo">
+          <button class="btn btn-primary">Primary Button</button>
+          <button class="btn btn-secondary">Secondary Button</button>
+          <button class="btn btn-outline">Outline Button</button>
+          <button class="btn btn-danger">Danger Button</button>
+        </div>
+      </section>
+      {% endif %}
+
+      {% if component.id == "Badge" or component.name == "Badge" %}
+      <section style="margin-top: 2rem;">
+        <h2>Component Demo</h2>
+        <div class="component-demo">
+          <span class="badge badge-primary">Primary</span>
+          <span class="badge badge-secondary">Secondary</span>
+          <span class="badge badge-success">Success</span>
+          <span class="badge badge-warning">Warning</span>
+          <span class="badge badge-danger">Danger</span>
+          <span class="badge badge-info">Info</span>
+        </div>
+      </section>
+      {% endif %}
+
+      {% if component.id == "Card" or component.name == "Card" %}
+      <section style="margin-top: 2rem;">
+        <h2>Component Demo</h2>
+        <div style="background-color: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 8px; padding: 2rem; max-width: 400px;">
+          <h3 style="margin-top: 0;">Card Title</h3>
+          <p>This is an example card component showing how content is organized with proper spacing and borders.</p>
+          <button class="btn btn-primary" style="margin-top: 1rem;">Learn More</button>
+        </div>
+      </section>
+      {% endif %}
+
+      {% if component.id == "Tabs" or component.name == "Tabs" %}
+      <section style="margin-top: 2rem;">
+        <h2>Component Demo</h2>
+        <div style="border-bottom: 2px solid var(--border-default); display: flex; gap: 1rem; margin-bottom: 1rem;">
+          <button style="padding: 1rem 1.5rem; border: none; background: none; cursor: pointer; border-bottom: 2px solid var(--text-link); color: var(--text-link); font-weight: 600;">Tab 1</button>
+          <button style="padding: 1rem 1.5rem; border: none; background: none; cursor: pointer; color: var(--text-secondary);">Tab 2</button>
+          <button style="padding: 1rem 1.5rem; border: none; background: none; cursor: pointer; color: var(--text-secondary);">Tab 3</button>
+        </div>
+        <div style="padding: 1rem;">Content for Tab 1</div>
+      </section>
+      {% endif %}
+
+      {% if component.id == "Checkbox" or component.name == "Checkbox" %}
+      <section style="margin-top: 2rem;">
+        <h2>Component Demo</h2>
+        <div class="component-demo" style="justify-content: flex-start;">
+          <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+            <input type="checkbox" checked>
+            <span>Checked checkbox</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+            <input type="checkbox">
+            <span>Unchecked checkbox</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+            <input type="checkbox" disabled>
+            <span>Disabled checkbox</span>
+          </label>
+        </div>
+      </section>
+      {% endif %}
+
       {% if component.variants %}
       <section style="margin-top: 2rem;">
         <h2>Variants</h2>
@@ -97,18 +194,6 @@
           <li><strong>{{ state.name }}</strong> - {{ state.description }}</li>
           {% endfor %}
         </ul>
-      </section>
-      {% endif %}
-
-      {% if component.id == "File Upload" or component.name == "File Upload" %}
-      <section style="margin-top: 2rem;">
-        <h2>Interactive Example</h2>
-        <div class="file-upload-demo">
-          <div class="file-upload-icon">⬆️</div>
-          <div class="file-upload-title">Upload your file</div>
-          <div class="file-upload-desc">Drag and drop your file here or click to browse</div>
-          <button class="file-upload-button">Select File</button>
-        </div>
       </section>
       {% endif %}
 
