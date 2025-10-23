@@ -1,0 +1,117 @@
+{% extends "global_base.html" %}
+
+{% block title %}Sidebar Navigation - SciTeX Design System{% endblock %}
+
+{% block meta_description %}Sidebar navigation component for main site navigation.{% endblock %}
+
+{% block extra_css %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/common.css' %}">
+<link rel="stylesheet" href="{% static 'css/common/code-blocks.css' %}">
+<link rel="stylesheet" href="{% static 'dev_app/styles/design.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/zenburn.min.css">
+<style>
+  .sidebar-nav {
+    width: 200px;
+    background-color: var(--bg-muted);
+    border-right: 1px solid var(--border-default);
+    padding: 1rem 0;
+  }
+  .sidebar-nav a {
+    display: block;
+    padding: 0.75rem 1rem;
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+  .sidebar-nav a:hover {
+    background-color: var(--bg-surface);
+    border-left: 3px solid var(--text-link);
+    padding-left: calc(1rem - 3px);
+  }
+  .sidebar-nav a.active {
+    background-color: var(--bg-page);
+    border-left: 3px solid var(--text-link);
+    padding-left: calc(1rem - 3px);
+    color: var(--text-link);
+    font-weight: 600;
+  }
+  .component-demo {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: 8px;
+    margin: 1rem 0;
+    display: flex;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section style="background-color: var(--header-bg); color: var(--header-text); padding: 3rem 0; box-shadow: var(--shadow-md);">
+  <div class="container" style="text-align: center;">
+    <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem; font-weight: 700;">Sidebar Navigation</h1>
+    <p style="font-size: 1.125rem; color: var(--header-text); opacity: 0.9;">Sidebar navigation component for main site navigation</p>
+  </div>
+</section>
+
+<div class="container py-5">
+  <div style="display: flex; gap: 2rem;">
+    {% include 'dev_app/design_partial/sidebar.html' %}
+    
+    <main style="flex: 1; min-width: 0;">
+      <section>
+        <h2>Overview</h2>
+        <p>Sidebar navigation provides a vertical menu for primary site navigation. It offers a persistent way for users to navigate between major sections.</p>
+        <p><strong>Category:</strong> Navigation</p>
+        <p><strong>Dark Mode Support:</strong> Yes</p>
+      </section>
+
+      <section style="margin-top: 2rem;">
+        <h2>Component Demo</h2>
+        <div class="component-demo">
+          <nav class="sidebar-nav">
+            <a href="#home">Home</a>
+            <a href="#projects" class="active">Projects</a>
+            <a href="#scholar">Scholar</a>
+            <a href="#code">Code</a>
+            <a href="#viz">Visualization</a>
+            <a href="#writer">Writer</a>
+            <a href="#settings">Settings</a>
+          </nav>
+        </div>
+      </section>
+
+      <section style="margin-top: 2rem;">
+        <h2>States</h2>
+        <ul>
+          <li><strong>default</strong> - Normal sidebar link</li>
+          <li><strong>hover</strong> - Link highlights with left border accent</li>
+          <li><strong>active</strong> - Current page with blue accent and highlight</li>
+        </ul>
+      </section>
+
+      <section style="margin-top: 2rem;">
+        <h2>HTML Example</h2>
+        <pre><code>&lt;nav class="sidebar-nav"&gt;
+  &lt;a href="#home"&gt;Home&lt;/a&gt;
+  &lt;a href="#projects" class="active"&gt;Projects&lt;/a&gt;
+  &lt;a href="#settings"&gt;Settings&lt;/a&gt;
+&lt;/nav&gt;</code></pre>
+      </section>
+    </main>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% load static %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('pre code').forEach((block) => {
+      hljs.highlightElement(block);
+    });
+  });
+</script>
+<script src="{% static 'js/code-blocks.js' %}"></script>
+{% endblock %}

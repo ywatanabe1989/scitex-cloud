@@ -1,0 +1,120 @@
+{% extends "global_base.html" %}
+
+{% block title %}Breadcrumb - SciTeX Design System{% endblock %}
+
+{% block meta_description %}Breadcrumb navigation component for showing the current page location.{% endblock %}
+
+{% block extra_css %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/common.css' %}">
+<link rel="stylesheet" href="{% static 'css/common/code-blocks.css' %}">
+<link rel="stylesheet" href="{% static 'dev_app/styles/design.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/zenburn.min.css">
+<style>
+  .breadcrumb {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    font-size: 0.875rem;
+  }
+  .breadcrumb a {
+    color: var(--text-link);
+    text-decoration: none;
+  }
+  .breadcrumb a:hover {
+    text-decoration: underline;
+  }
+  .breadcrumb span {
+    color: var(--text-secondary);
+  }
+  .component-demo {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: 8px;
+    padding: 2rem;
+    margin: 1rem 0;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section style="background-color: var(--header-bg); color: var(--header-text); padding: 3rem 0; box-shadow: var(--shadow-md);">
+  <div class="container" style="text-align: center;">
+    <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem; font-weight: 700;">Breadcrumb</h1>
+    <p style="font-size: 1.125rem; color: var(--header-text); opacity: 0.9;">Breadcrumb navigation component for showing the current page location</p>
+  </div>
+</section>
+
+<div class="container py-5">
+  <div style="display: flex; gap: 2rem;">
+    {% include 'dev_app/design_partial/sidebar.html' %}
+    
+    <main style="flex: 1; min-width: 0;">
+      <section>
+        <h2>Overview</h2>
+        <p>Breadcrumbs show the current page location within a website's hierarchy. They provide a trail of links back to the homepage and improve navigation usability.</p>
+        <p><strong>Category:</strong> Navigation</p>
+        <p><strong>Dark Mode Support:</strong> Yes</p>
+      </section>
+
+      <section style="margin-top: 2rem;">
+        <h2>Component Demo</h2>
+        <div class="component-demo">
+          <nav class="breadcrumb">
+            <a href="/">Home</a>
+            <span>/</span>
+            <a href="/projects">Projects</a>
+            <span>/</span>
+            <a href="/projects/scitex">SciTeX</a>
+            <span>/</span>
+            <span style="color: var(--text-primary);">Design System</span>
+          </nav>
+
+          <nav class="breadcrumb" style="margin-top: 2rem;">
+            <a href="/">Home</a>
+            <span>/</span>
+            <a href="/scholar">Scholar</a>
+            <span>/</span>
+            <a href="/scholar/libraries">Libraries</a>
+            <span>/</span>
+            <span style="color: var(--text-primary);">Machine Learning Papers</span>
+          </nav>
+        </div>
+      </section>
+
+      <section style="margin-top: 2rem;">
+        <h2>States</h2>
+        <ul>
+          <li><strong>default</strong> - Normal breadcrumb trail</li>
+          <li><strong>active</strong> - Current page (last item, not a link)</li>
+          <li><strong>hover</strong> - Breadcrumb link on hover underlines</li>
+        </ul>
+      </section>
+
+      <section style="margin-top: 2rem;">
+        <h2>HTML Example</h2>
+        <pre><code>&lt;nav class="breadcrumb"&gt;
+  &lt;a href="/"&gt;Home&lt;/a&gt;
+  &lt;span&gt;/&lt;/span&gt;
+  &lt;a href="/projects"&gt;Projects&lt;/a&gt;
+  &lt;span&gt;/&lt;/span&gt;
+  &lt;span&gt;Current Page&lt;/span&gt;
+&lt;/nav&gt;</code></pre>
+      </section>
+    </main>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% load static %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('pre code').forEach((block) => {
+      hljs.highlightElement(block);
+    });
+  });
+</script>
+<script src="{% static 'js/code-blocks.js' %}"></script>
+{% endblock %}

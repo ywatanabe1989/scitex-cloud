@@ -1,0 +1,147 @@
+{% extends "global_base.html" %}
+
+{% block title %}Dropdown Menu - SciTeX Design System{% endblock %}
+
+{% block meta_description %}Dropdown menu component for displaying related actions or navigation options.{% endblock %}
+
+{% block extra_css %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/common.css' %}">
+<link rel="stylesheet" href="{% static 'css/common/code-blocks.css' %}">
+<link rel="stylesheet" href="{% static 'dev_app/styles/design.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/zenburn.min.css">
+<style>
+  .dropdown-container {
+    position: relative;
+    display: inline-block;
+  }
+  .dropdown-button {
+    padding: 0.75rem 1rem;
+    background-color: var(--bg-muted);
+    border: 1px solid var(--border-default);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .dropdown-button:hover {
+    background-color: var(--bg-surface);
+  }
+  .dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 0.5rem;
+    background-color: var(--bg-page);
+    border: 1px solid var(--border-default);
+    border-radius: 4px;
+    box-shadow: var(--shadow-lg);
+    min-width: 200px;
+    z-index: 1000;
+  }
+  .dropdown-menu a {
+    display: block;
+    padding: 0.75rem 1rem;
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+  .dropdown-menu a:hover {
+    background-color: var(--bg-muted);
+  }
+  .dropdown-divider {
+    border-top: 1px solid var(--border-default);
+    margin: 0.5rem 0;
+  }
+  .component-demo {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: 8px;
+    padding: 2rem;
+    margin: 1rem 0;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section style="background-color: var(--header-bg); color: var(--header-text); padding: 3rem 0; box-shadow: var(--shadow-md);">
+  <div class="container" style="text-align: center;">
+    <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem; font-weight: 700;">Dropdown Menu</h1>
+    <p style="font-size: 1.125rem; color: var(--header-text); opacity: 0.9;">Dropdown menu component for displaying related actions or navigation options</p>
+  </div>
+</section>
+
+<div class="container py-5">
+  <div style="display: flex; gap: 2rem;">
+    {% include 'dev_app/design_partial/sidebar.html' %}
+    
+    <main style="flex: 1; min-width: 0;">
+      <section>
+        <h2>Overview</h2>
+        <p>Dropdown menus present a list of actions or options that appear when triggered. They are useful for hiding secondary actions and keeping interfaces clean.</p>
+        <p><strong>Category:</strong> Navigation</p>
+        <p><strong>Dark Mode Support:</strong> Yes</p>
+      </section>
+
+      <section style="margin-top: 2rem;">
+        <h2>Component Demo</h2>
+        <div class="component-demo">
+          <div class="dropdown-container">
+            <button class="dropdown-button">Actions ▼</button>
+            <div class="dropdown-menu" style="display: block;">
+              <a href="#edit">Edit</a>
+              <a href="#duplicate">Duplicate</a>
+              <a href="#share">Share</a>
+              <div class="dropdown-divider"></div>
+              <a href="#delete" style="color: var(--status-error);">Delete</a>
+            </div>
+          </div>
+
+          <div class="dropdown-container" style="margin-left: 3rem;">
+            <button class="dropdown-button">File ▼</button>
+            <div class="dropdown-menu" style="display: block;">
+              <a href="#new">New</a>
+              <a href="#open">Open</a>
+              <a href="#save">Save</a>
+              <a href="#export">Export</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section style="margin-top: 2rem;">
+        <h2>States</h2>
+        <ul>
+          <li><strong>default</strong> - Collapsed dropdown button</li>
+          <li><strong>open</strong> - Menu is visible with all options</li>
+          <li><strong>hover</strong> - Menu items highlight on hover</li>
+          <li><strong>focused</strong> - Button is focused with blue border</li>
+        </ul>
+      </section>
+
+      <section style="margin-top: 2rem;">
+        <h2>HTML Example</h2>
+        <pre><code>&lt;div class="dropdown-container"&gt;
+  &lt;button class="dropdown-button"&gt;Actions ▼&lt;/button&gt;
+  &lt;div class="dropdown-menu"&gt;
+    &lt;a href="#edit"&gt;Edit&lt;/a&gt;
+    &lt;a href="#delete"&gt;Delete&lt;/a&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+      </section>
+    </main>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% load static %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('pre code').forEach((block) => {
+      hljs.highlightElement(block);
+    });
+  });
+</script>
+<script src="{% static 'js/code-blocks.js' %}"></script>
+{% endblock %}

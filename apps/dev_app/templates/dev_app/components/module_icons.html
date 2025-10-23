@@ -1,0 +1,135 @@
+{% extends "global_base.html" %}
+
+{% block title %}Module Icons - SciTeX Design System{% endblock %}
+
+{% block meta_description %}SciTeX module icons for visual identity across applications.{% endblock %}
+
+{% block extra_css %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/common.css' %}">
+<link rel="stylesheet" href="{% static 'css/common/code-blocks.css' %}">
+<link rel="stylesheet" href="{% static 'dev_app/styles/design.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/zenburn.min.css">
+<style>
+  .icon-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 2rem;
+    margin: 1rem 0;
+  }
+  .icon-item {
+    text-align: center;
+  }
+  .icon-display {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+  }
+  .icon-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+  }
+  .component-demo {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: 8px;
+    padding: 2rem;
+    margin: 1rem 0;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section style="background-color: var(--header-bg); color: var(--header-text); padding: 3rem 0; box-shadow: var(--shadow-md);">
+  <div class="container" style="text-align: center;">
+    <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem; font-weight: 700;">Module Icons</h1>
+    <p style="font-size: 1.125rem; color: var(--header-text); opacity: 0.9;">SciTeX ecosystem module icons for visual identity across applications</p>
+  </div>
+</section>
+
+<div class="container py-5">
+  <div style="display: flex; gap: 2rem;">
+    {% include 'dev_app/design_partial/sidebar.html' %}
+    
+    <main style="flex: 1; min-width: 0;">
+      <section>
+        <h2>Overview</h2>
+        <p>Module icons provide consistent visual identity across the SciTeX ecosystem. Each module has a distinctive icon used in navigation and branding.</p>
+        <p><strong>Category:</strong> Visual Identity</p>
+        <p><strong>Dark Mode Support:</strong> Yes</p>
+      </section>
+
+      <section style="margin-top: 2rem;">
+        <h2>Component Demo</h2>
+        <div class="component-demo">
+          <div class="icon-grid">
+            <div class="icon-item">
+              <div class="icon-display">🔬</div>
+              <div class="icon-label">Engine</div>
+            </div>
+            <div class="icon-item">
+              <div class="icon-display">📚</div>
+              <div class="icon-label">Scholar</div>
+            </div>
+            <div class="icon-item">
+              <div class="icon-display">📝</div>
+              <div class="icon-label">Writer</div>
+            </div>
+            <div class="icon-item">
+              <div class="icon-display">💻</div>
+              <div class="icon-label">Code</div>
+            </div>
+            <div class="icon-item">
+              <div class="icon-display">📊</div>
+              <div class="icon-label">Viz</div>
+            </div>
+            <div class="icon-item">
+              <div class="icon-display">☁️</div>
+              <div class="icon-label">Cloud</div>
+            </div>
+            <div class="icon-item">
+              <div class="icon-display">🛠️</div>
+              <div class="icon-label">Developer</div>
+            </div>
+            <div class="icon-item">
+              <div class="icon-display">🔍</div>
+              <div class="icon-label">Explore</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section style="margin-top: 2rem;">
+        <h2>Variations</h2>
+        <ul>
+          <li><strong>SVG Icons</strong> - Professional vector icons for app navigation</li>
+          <li><strong>Emoji Variants</strong> - Friendly emoji versions for informal contexts</li>
+          <li><strong>Dark Mode</strong> - Icons adapt to dark theme</li>
+        </ul>
+      </section>
+
+      <section style="margin-top: 2rem;">
+        <h2>HTML Example</h2>
+        <pre><code>&lt;div class="icon-grid"&gt;
+  &lt;div class="icon-item"&gt;
+    &lt;img src="/icons/scholar.svg" alt="Scholar"&gt;
+    &lt;div&gt;Scholar&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+      </section>
+    </main>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% load static %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('pre code').forEach((block) => {
+      hljs.highlightElement(block);
+    });
+  });
+</script>
+<script src="{% static 'js/code-blocks.js' %}"></script>
+{% endblock %}
