@@ -128,13 +128,18 @@ start_dev() {
 
     if [[ "$1" == "daemon" ]]; then
         nohup $MANAGE_PY runserver 127.0.0.1:8000 > "$LOG_DIR/django.log" 2>&1 &
-        echo $! > "$PID_FILE"
-        echo_info "    Development server started in background (PID: $(cat $PID_FILE))"
+        DJANGO_PID=$!
+        echo $DJANGO_PID > "$PID_FILE"
+        echo_info "    Development server started in background (PID: $DJANGO_PID)"
         echo_info "    Logs: tail -f $LOG_DIR/django.log"
+        echo_info "    Stop with: kill $DJANGO_PID"
     else
         echo_info "    Starting at http://localhost:8000"
         echo_info "    Press Ctrl+C to stop"
-        $MANAGE_PY runserver 0.0.0.0:8000
+        $MANAGE_PY runserver 0.0.0.0:8000 &
+        DJANGO_PID=$!
+        echo $DJANGO_PID > "$PID_FILE"
+        echo_info "    Django PID: $DJANGO_PID"
     fi
 
     echo "Done"
@@ -221,9 +226,51 @@ main() {
     fi
 }
 
+# Cleanup function for Ctrl+C
+cleanup() {
+    echo
+    echo_warning "Shutting down SciTeX-Cloud..."
+
+    # Kill Django server if PID file exists
+    if [ -f "$PID_FILE" ]; then
+        DJANGO_PID=$(cat "$PID_FILE")
+        if kill -0 $DJANGO_PID 2>/dev/null; then
+            echo_info "Stopping Django server (PID: $DJANGO_PID)..."
+            kill -TERM $DJANGO_PID 2>/dev/null || true
+            sleep 2
+            # Force kill if still running
+            if kill -0 $DJANGO_PID 2>/dev/null; then
+                kill -9 $DJANGO_PID 2>/dev/null || true
+            fi
+        fi
+        rm -f "$PID_FILE"
+    fi
+
+    # Kill any remaining processes on port 8000
+    fuser -k 8000/tcp 2>/dev/null || true
+
+    echo_success "✓ SciTeX-Cloud stopped"
+    exit 0
+}
+
+# Trap Ctrl+C and cleanup
+trap cleanup SIGINT SIGTERM
+
 # Run main function with all arguments
 main "$@"
 
-tail -f $LOG_DIR/*.log
+# If not daemon mode, tail logs and wait for Django server
+if [ -f "$PID_FILE" ]; then
+    DJANGO_PID=$(cat "$PID_FILE")
+    echo_info "Tailing logs (Ctrl+C to stop)..."
+    tail -f $LOG_DIR/*.log &
+    TAIL_PID=$!
+
+    # Wait for Django server process
+    wait $DJANGO_PID 2>/dev/null || true
+
+    # Kill tail when Django stops
+    kill $TAIL_PID 2>/dev/null || true
+fi
 
 # EOF
