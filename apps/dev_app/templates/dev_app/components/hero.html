@@ -1,0 +1,112 @@
+{% extends "global_base.html" %}
+
+{% block title %}Hero - SciTeX Design System{% endblock %}
+
+{% block meta_description %}Hero section component for prominent page introductions.{% endblock %}
+
+{% block extra_css %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/common.css' %}">
+<link rel="stylesheet" href="{% static 'css/common/code-blocks.css' %}">
+<link rel="stylesheet" href="{% static 'dev_app/styles/design.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/zenburn.min.css">
+<style>
+  .hero {
+    background: linear-gradient(135deg, var(--header-bg) 0%, var(--bg-muted) 100%);
+    color: var(--header-text);
+    padding: 6rem 2rem;
+    text-align: center;
+    border-radius: 8px;
+  }
+  .hero h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+  }
+  .hero p {
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+    opacity: 0.9;
+  }
+  .hero .btn {
+    margin: 0 0.5rem;
+  }
+  .component-demo {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: 8px;
+    margin: 1rem 0;
+    overflow: hidden;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section style="background-color: var(--header-bg); color: var(--header-text); padding: 3rem 0; box-shadow: var(--shadow-md);">
+  <div class="container" style="text-align: center;">
+    <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem; font-weight: 700;">Hero</h1>
+    <p style="font-size: 1.125rem; color: var(--header-text); opacity: 0.9;">Hero section component for prominent page introductions</p>
+  </div>
+</section>
+
+<div class="container py-5">
+  <div style="display: flex; gap: 2rem;">
+    {% include 'dev_app/design_partial/sidebar.html' %}
+    
+    <main style="flex: 1; min-width: 0;">
+      <section>
+        <h2>Overview</h2>
+        <p>Hero sections are large banner areas at the top of pages designed to grab attention with a headline, subheading, and call-to-action buttons.</p>
+        <p><strong>Category:</strong> Sections</p>
+        <p><strong>Dark Mode Support:</strong> Yes</p>
+      </section>
+
+      <section style="margin-top: 2rem;">
+        <h2>Component Demo</h2>
+        <div class="component-demo">
+          <div class="hero">
+            <h1>Welcome to SciTeX</h1>
+            <p>The complete platform for scientific research and collaboration</p>
+            <div>
+              <button class="btn btn-primary">Get Started</button>
+              <button class="btn btn-secondary">Learn More</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section style="margin-top: 2rem;">
+        <h2>Variations</h2>
+        <ul>
+          <li><strong>Standard</strong> - Gradient background with title and CTA buttons</li>
+          <li><strong>With Image</strong> - Background image behind text</li>
+          <li><strong>Full Width</strong> - Extends edge-to-edge</li>
+          <li><strong>Minimal</strong> - Simple text-only hero</li>
+        </ul>
+      </section>
+
+      <section style="margin-top: 2rem;">
+        <h2>HTML Example</h2>
+        <pre><code>&lt;div class="hero"&gt;
+  &lt;h1&gt;Welcome&lt;/h1&gt;
+  &lt;p&gt;Your message here&lt;/p&gt;
+  &lt;button&gt;Call to Action&lt;/button&gt;
+&lt;/div&gt;</code></pre>
+      </section>
+    </main>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% load static %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('pre code').forEach((block) => {
+      hljs.highlightElement(block);
+    });
+  });
+</script>
+<script src="{% static 'js/code-blocks.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,140 @@
+{% extends "global_base.html" %}
+
+{% block title %}Segmented Radio Control - SciTeX Design System{% endblock %}
+
+{% block meta_description %}Toggle buttons organized in a segmented control for mutually exclusive selections.{% endblock %}
+
+{% block extra_css %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/common.css' %}">
+<link rel="stylesheet" href="{% static 'css/common/code-blocks.css' %}">
+<link rel="stylesheet" href="{% static 'dev_app/styles/design.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/zenburn.min.css">
+<style>
+  .segmented-control {
+    display: inline-flex;
+    background-color: var(--bg-muted);
+    border: 1px solid var(--border-default);
+    border-radius: 6px;
+    padding: 4px;
+    gap: 4px;
+  }
+  .segmented-control label {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    border-radius: 4px;
+    background-color: transparent;
+    transition: all 0.2s ease;
+    user-select: none;
+    font-size: 0.875rem;
+  }
+  .segmented-control label:hover {
+    background-color: var(--bg-page);
+  }
+  .segmented-control input[type="radio"] {
+    display: none;
+  }
+  .segmented-control input[type="radio"]:checked + label {
+    background-color: var(--bg-page);
+    color: var(--text-link);
+    font-weight: 600;
+  }
+  .component-demo {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: 8px;
+    padding: 2rem;
+    margin: 1rem 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section style="background-color: var(--header-bg); color: var(--header-text); padding: 3rem 0; box-shadow: var(--shadow-md);">
+  <div class="container" style="text-align: center;">
+    <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem; font-weight: 700;">Segmented Radio Control</h1>
+    <p style="font-size: 1.125rem; color: var(--header-text); opacity: 0.9;">Toggle buttons organized in a segmented control for mutually exclusive selections</p>
+  </div>
+</section>
+
+<div class="container py-5">
+  <div style="display: flex; gap: 2rem;">
+    {% include 'dev_app/design_partial/sidebar.html' %}
+    
+    <main style="flex: 1; min-width: 0;">
+      <section>
+        <h2>Overview</h2>
+        <p>Segmented controls allow users to select one option from a group of mutually exclusive choices. They are visually grouped together and provide clear feedback about which option is selected.</p>
+        <p><strong>Category:</strong> Form and Selection</p>
+        <p><strong>Dark Mode Support:</strong> Yes</p>
+      </section>
+
+      <section style="margin-top: 2rem;">
+        <h2>Component Demo</h2>
+        <div class="component-demo">
+          <div>
+            <h4 style="margin-top: 0;">Size Options</h4>
+            <div class="segmented-control">
+              <input type="radio" id="size-small" name="size" checked>
+              <label for="size-small">Small</label>
+              <input type="radio" id="size-medium" name="size">
+              <label for="size-medium">Medium</label>
+              <input type="radio" id="size-large" name="size">
+              <label for="size-large">Large</label>
+            </div>
+          </div>
+
+          <div>
+            <h4 style="margin-top: 0;">View Options</h4>
+            <div class="segmented-control">
+              <input type="radio" id="view-list" name="view" checked>
+              <label for="view-list">List</label>
+              <input type="radio" id="view-grid" name="view">
+              <label for="view-grid">Grid</label>
+              <input type="radio" id="view-table" name="view">
+              <label for="view-table">Table</label>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section style="margin-top: 2rem;">
+        <h2>States</h2>
+        <ul>
+          <li><strong>default</strong> - Unselected state</li>
+          <li><strong>selected</strong> - Active/selected state with highlight</li>
+          <li><strong>hover</strong> - Hover state with background change</li>
+        </ul>
+      </section>
+
+      <section style="margin-top: 2rem;">
+        <h2>HTML Example</h2>
+        <pre><code>&lt;div class="segmented-control"&gt;
+  &lt;input type="radio" id="opt-small" name="option" checked&gt;
+  &lt;label for="opt-small"&gt;Small&lt;/label&gt;
+  &lt;input type="radio" id="opt-large" name="option"&gt;
+  &lt;label for="opt-large"&gt;Large&lt;/label&gt;
+&lt;/div&gt;</code></pre>
+      </section>
+    </main>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% load static %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('pre code').forEach((block) => {
+      hljs.highlightElement(block);
+    });
+  });
+</script>
+<script src="{% static 'js/code-blocks.js' %}"></script>
+{% endblock %}

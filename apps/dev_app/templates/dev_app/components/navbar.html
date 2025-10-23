@@ -1,0 +1,125 @@
+{% extends "global_base.html" %}
+
+{% block title %}Navbar - SciTeX Design System{% endblock %}
+
+{% block meta_description %}Navigation bar component for top-level site navigation and branding.{% endblock %}
+
+{% block extra_css %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/common.css' %}">
+<link rel="stylesheet" href="{% static 'css/common/code-blocks.css' %}">
+<link rel="stylesheet" href="{% static 'dev_app/styles/design.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/zenburn.min.css">
+<style>
+  .navbar {
+    background-color: var(--header-bg);
+    color: var(--header-text);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: var(--shadow-md);
+  }
+  .navbar-brand {
+    font-size: 1.25rem;
+    font-weight: 700;
+    text-decoration: none;
+    color: var(--header-text);
+  }
+  .navbar-nav {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .navbar-nav a {
+    color: var(--header-text);
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+  .navbar-nav a:hover {
+    opacity: 0.8;
+  }
+  .component-demo {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: 8px;
+    margin: 1rem 0;
+    overflow: hidden;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section style="background-color: var(--header-bg); color: var(--header-text); padding: 3rem 0; box-shadow: var(--shadow-md);">
+  <div class="container" style="text-align: center;">
+    <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem; font-weight: 700;">Navbar</h1>
+    <p style="font-size: 1.125rem; color: var(--header-text); opacity: 0.9;">Navigation bar component for top-level site navigation and branding</p>
+  </div>
+</section>
+
+<div class="container py-5">
+  <div style="display: flex; gap: 2rem;">
+    {% include 'dev_app/design_partial/sidebar.html' %}
+    
+    <main style="flex: 1; min-width: 0;">
+      <section>
+        <h2>Overview</h2>
+        <p>Navigation bars are typically placed at the top of pages and contain the site logo/branding on the left and main navigation links on the right.</p>
+        <p><strong>Category:</strong> Navigation</p>
+        <p><strong>Dark Mode Support:</strong> Yes</p>
+      </section>
+
+      <section style="margin-top: 2rem;">
+        <h2>Component Demo</h2>
+        <div class="component-demo">
+          <nav class="navbar">
+            <a href="#" class="navbar-brand">🔬 SciTeX</a>
+            <ul class="navbar-nav">
+              <li><a href="#explore">Explore</a></li>
+              <li><a href="#scholar">Scholar</a></li>
+              <li><a href="#code">Code</a></li>
+              <li><a href="#viz">Viz</a></li>
+              <li><a href="#docs">Docs</a></li>
+            </ul>
+          </nav>
+        </div>
+      </section>
+
+      <section style="margin-top: 2rem;">
+        <h2>States</h2>
+        <ul>
+          <li><strong>default</strong> - Normal navigation state</li>
+          <li><strong>hover</strong> - Links fade slightly on hover</li>
+          <li><strong>active</strong> - Can highlight current page</li>
+        </ul>
+      </section>
+
+      <section style="margin-top: 2rem;">
+        <h2>HTML Example</h2>
+        <pre><code>&lt;nav class="navbar"&gt;
+  &lt;a href="#" class="navbar-brand"&gt;Logo&lt;/a&gt;
+  &lt;ul class="navbar-nav"&gt;
+    &lt;li&gt;&lt;a href="#"&gt;Home&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href="#"&gt;About&lt;/a&gt;&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/nav&gt;</code></pre>
+      </section>
+    </main>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% load static %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('pre code').forEach((block) => {
+      hljs.highlightElement(block);
+    });
+  });
+</script>
+<script src="{% static 'js/code-blocks.js' %}"></script>
+{% endblock %}

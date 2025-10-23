@@ -1,0 +1,121 @@
+{% extends "global_base.html" %}
+
+{% block title %}Toggle Button (Checkbox) - SciTeX Design System{% endblock %}
+
+{% block meta_description %}Button-style checkbox toggles with checkbox square indicator for on/off states.{% endblock %}
+
+{% block extra_css %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/common.css' %}">
+<link rel="stylesheet" href="{% static 'css/common/code-blocks.css' %}">
+<link rel="stylesheet" href="{% static 'dev_app/styles/design.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/zenburn.min.css">
+<style>
+  .toggle-checkbox {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border-default);
+    border-radius: 4px;
+    background-color: var(--bg-surface);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+  }
+  .toggle-checkbox:hover {
+    background-color: var(--bg-muted);
+    border-color: var(--text-link);
+  }
+  .toggle-checkbox input[type="checkbox"] {
+    cursor: pointer;
+  }
+  .component-demo {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: 8px;
+    padding: 2rem;
+    margin: 1rem 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section style="background-color: var(--header-bg); color: var(--header-text); padding: 3rem 0; box-shadow: var(--shadow-md);">
+  <div class="container" style="text-align: center;">
+    <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem; font-weight: 700;">Toggle Button (Checkbox)</h1>
+    <p style="font-size: 1.125rem; color: var(--header-text); opacity: 0.9;">Button-style checkbox toggles with checkbox square indicator for on/off states</p>
+  </div>
+</section>
+
+<div class="container py-5">
+  <div style="display: flex; gap: 2rem;">
+    {% include 'dev_app/design_partial/sidebar.html' %}
+    
+    <main style="flex: 1; min-width: 0;">
+      <section>
+        <h2>Overview</h2>
+        <p>Button-style checkbox toggles with checkbox square indicator for on/off states. Distinct from simple checkboxes by having a button-like container with borders.</p>
+        <p><strong>Category:</strong> Form and Selection</p>
+        <p><strong>Dark Mode Support:</strong> Yes</p>
+      </section>
+
+      <section style="margin-top: 2rem;">
+        <h2>Component Demo</h2>
+        <div class="component-demo">
+          <label class="toggle-checkbox">
+            <input type="checkbox" checked>
+            <span>Option 1</span>
+          </label>
+          <label class="toggle-checkbox">
+            <input type="checkbox">
+            <span>Option 2</span>
+          </label>
+          <label class="toggle-checkbox">
+            <input type="checkbox" checked>
+            <span>Option 3</span>
+          </label>
+          <label class="toggle-checkbox" style="opacity: 0.6; cursor: not-allowed;">
+            <input type="checkbox" disabled>
+            <span>Disabled</span>
+          </label>
+        </div>
+      </section>
+
+      <section style="margin-top: 2rem;">
+        <h2>States</h2>
+        <ul>
+          <li><strong>off</strong> - Unchecked state, checkbox square is empty</li>
+          <li><strong>on</strong> - Checked state, checkbox square shows checkmark</li>
+          <li><strong>hover</strong> - Background color changes on hover</li>
+          <li><strong>disabled</strong> - Disabled state with reduced opacity</li>
+        </ul>
+      </section>
+
+      <section style="margin-top: 2rem;">
+        <h2>HTML Example</h2>
+        <pre><code>&lt;label class="toggle-checkbox"&gt;
+  &lt;input type="checkbox" checked&gt;
+  &lt;span&gt;Option 1&lt;/span&gt;
+&lt;/label&gt;</code></pre>
+      </section>
+    </main>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% load static %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('pre code').forEach((block) => {
+      hljs.highlightElement(block);
+    });
+  });
+</script>
+<script src="{% static 'js/code-blocks.js' %}"></script>
+{% endblock %}

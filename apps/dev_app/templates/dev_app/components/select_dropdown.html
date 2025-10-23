@@ -1,0 +1,143 @@
+{% extends "global_base.html" %}
+
+{% block title %}Select Dropdown - SciTeX Design System{% endblock %}
+
+{% block meta_description %}Dropdown select component for choosing from multiple options.{% endblock %}
+
+{% block extra_css %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/common.css' %}">
+<link rel="stylesheet" href="{% static 'css/common/code-blocks.css' %}">
+<link rel="stylesheet" href="{% static 'dev_app/styles/design.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/zenburn.min.css">
+<style>
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+  .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+  .form-group select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-default);
+    border-radius: 4px;
+    background-color: var(--bg-page);
+    color: var(--text-primary);
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  .form-group select:focus {
+    outline: none;
+    border-color: var(--text-link);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+  .form-group select:disabled {
+    background-color: var(--bg-muted);
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  .component-demo {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: 8px;
+    padding: 2rem;
+    margin: 1rem 0;
+    max-width: 600px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section style="background-color: var(--header-bg); color: var(--header-text); padding: 3rem 0; box-shadow: var(--shadow-md);">
+  <div class="container" style="text-align: center;">
+    <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem; font-weight: 700;">Select Dropdown</h1>
+    <p style="font-size: 1.125rem; color: var(--header-text); opacity: 0.9;">Dropdown select component for choosing from multiple options</p>
+  </div>
+</section>
+
+<div class="container py-5">
+  <div style="display: flex; gap: 2rem;">
+    {% include 'dev_app/design_partial/sidebar.html' %}
+    
+    <main style="flex: 1; min-width: 0;">
+      <section>
+        <h2>Overview</h2>
+        <p>Select dropdowns provide a space-efficient way for users to choose from a list of options. They collapse the list until activated.</p>
+        <p><strong>Category:</strong> Form and Selection</p>
+        <p><strong>Dark Mode Support:</strong> Yes</p>
+      </section>
+
+      <section style="margin-top: 2rem;">
+        <h2>Component Demo</h2>
+        <div class="component-demo">
+          <div class="form-group">
+            <label>Choose a Country</label>
+            <select>
+              <option>Select an option...</option>
+              <option selected>United States</option>
+              <option>Canada</option>
+              <option>Mexico</option>
+              <option>United Kingdom</option>
+              <option>Australia</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Priority Level</label>
+            <select>
+              <option>Low</option>
+              <option selected>Medium</option>
+              <option>High</option>
+              <option>Critical</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Disabled Dropdown</label>
+            <select disabled>
+              <option selected>This is disabled</option>
+              <option>You cannot select this</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <section style="margin-top: 2rem;">
+        <h2>States</h2>
+        <ul>
+          <li><strong>default</strong> - Collapsed dropdown with default selection</li>
+          <li><strong>open</strong> - Expanded showing all options</li>
+          <li><strong>focus</strong> - Focused with blue border</li>
+          <li><strong>disabled</strong> - Disabled and cannot be interacted with</li>
+        </ul>
+      </section>
+
+      <section style="margin-top: 2rem;">
+        <h2>HTML Example</h2>
+        <pre><code>&lt;select&gt;
+  &lt;option value=""&gt;Select an option&lt;/option&gt;
+  &lt;option value="1"&gt;Option 1&lt;/option&gt;
+  &lt;option value="2"&gt;Option 2&lt;/option&gt;
+&lt;/select&gt;</code></pre>
+      </section>
+    </main>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% load static %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('pre code').forEach((block) => {
+      hljs.highlightElement(block);
+    });
+  });
+</script>
+<script src="{% static 'js/code-blocks.js' %}"></script>
+{% endblock %}
