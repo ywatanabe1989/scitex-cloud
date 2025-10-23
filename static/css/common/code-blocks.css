@@ -17,6 +17,10 @@ pre {
   border: none !important;
   box-shadow: none !important;
   line-height: 1.5 !important;
+  overflow-x: auto;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 /* Copy button */
@@ -59,6 +63,15 @@ pre {
   width: 16px;
   height: 16px;
   display: block;
+}
+
+/* Inline code wrapping for long code snippets */
+code {
+  word-wrap: break-word;
+  word-break: break-all;
+  overflow-wrap: break-word;
+  display: inline-block;
+  max-width: 100%;
 }
 
 /* Code element cleanup - remove unwanted decorations but don't override color */
