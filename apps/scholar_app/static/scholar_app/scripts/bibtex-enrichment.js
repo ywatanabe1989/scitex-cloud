@@ -812,7 +812,7 @@ window.handleSaveToProject = function() {
             'Note: You can download the enriched file without an account.\n\n' +
             'Would you like to sign up now?'
         )) {
-            window.location.href = '/accounts/signup/?next=/scholar/%23bibtex';
+            window.location.href = '/accounts/signup/?next=' + encodeURIComponent('/scholar/#bibtex');
         }
         return;
     }
@@ -824,7 +824,7 @@ window.handleSaveToProject = function() {
             'Please create a project first to save bibliography files.\n\n' +
             'Would you like to create a new project now?'
         )) {
-            window.location.href = '/projects/new/?next=/scholar/%23bibtex';
+            window.location.href = '/projects/new/?next=' + encodeURIComponent('/scholar/#bibtex');
         }
         return;
     }
@@ -1132,7 +1132,7 @@ window.saveJobToProject = function(jobId) {
             'Note: You can download the enriched file without an account.\n\n' +
             'Would you like to sign up now?'
         )) {
-            window.location.href = '/accounts/signup/?next=/scholar/%23bibtex';
+            window.location.href = '/accounts/signup/?next=' + encodeURIComponent('/scholar/#bibtex');
         }
         return;
     }
@@ -1144,7 +1144,7 @@ window.saveJobToProject = function(jobId) {
             'Please create a project first to save bibliography files.\n\n' +
             'Would you like to create a new project now?'
         )) {
-            window.location.href = '/projects/new/?next=/scholar/%23bibtex';
+            window.location.href = '/projects/new/?next=' + encodeURIComponent('/scholar/#bibtex');
         }
         return;
     }
@@ -1156,7 +1156,7 @@ window.saveJobToProject = function(jobId) {
             'Please select a project from the dropdown to save.\n\n' +
             'Or create a new project?'
         )) {
-            window.location.href = '/projects/new/?next=/scholar/%23bibtex';
+            window.location.href = '/projects/new/?next=' + encodeURIComponent('/scholar/#bibtex');
         }
         return;
     }
