@@ -51,6 +51,12 @@ def user_profile(request, username):
     - /<username>?tab=projects - Project boards (future)
     - /<username>?tab=stars - Starred projects
     """
+    # Check if username is a reserved path
+    from config.urls import RESERVED_PATHS
+    if username.lower() in [path.lower() for path in RESERVED_PATHS]:
+        from django.http import Http404
+        raise Http404("This path is reserved and not a valid username")
+
     user = get_object_or_404(User, username=username)
     tab = request.GET.get("tab", "repositories")  # Default to repositories
 
@@ -356,11 +362,26 @@ def project_create(request):
         if init_type == "gitea":
             # Create with Gitea + template
             try:
-                # Create repository in Gitea
-                repo = project.create_gitea_repository()
+                # Signal already created Gitea repo, just verify it worked
+                if not project.gitea_enabled or not project.gitea_repo_id:
+                    # If signal failed, try manual creation
+                    repo = project.create_gitea_repository()
 
-                # Clone to local directory
-                success, result = project.clone_gitea_to_local()
+                # Refresh from DB to get latest signal updates
+                project.refresh_from_db()
+
+                # Check if clone already succeeded (done by signal)
+                from pathlib import Path
+                from django.conf import settings
+                project_dir = Path(settings.BASE_DIR) / 'data' / 'users' / project.owner.username / project.slug
+
+                if not project_dir.exists() or not (project_dir / '.git').exists():
+                    # Clone to local directory if not done by signal
+                    success, result = project.clone_gitea_to_local()
+                else:
+                    # Already cloned by signal
+                    success = True
+                    result = str(project_dir)
 
                 if success:
                     messages.success(
@@ -911,7 +932,12 @@ def api_file_tree(request, username, slug):
 @login_required
 @require_http_methods(["GET"])
 def api_check_name_availability(request):
-    """API endpoint to check if project name is available"""
+    """
+    API endpoint to check if project name is available.
+
+    Enforces strict 1:1 mapping: Local ↔ Django ↔ Gitea
+    A name is only available if it's free in BOTH Django AND Gitea.
+    """
     name = request.GET.get("name", "").strip()
 
     if not name:
@@ -919,20 +945,67 @@ def api_check_name_availability(request):
             {"available": False, "message": "Project name is required"}
         )
 
-    # Check if name exists for this user
-    exists = Project.objects.filter(name=name, owner=request.user).exists()
+    # Validate name using scitex.project validator
+    try:
+        from scitex.project import validate_name
+        is_valid, error = validate_name(name)
+        if not is_valid:
+            return JsonResponse(
+                {"available": False, "message": error}
+            )
+    except ImportError:
+        # Fallback to basic validation if scitex.project not available
+        pass
 
-    if exists:
+    # Check 1: Django database (name must be unique per user)
+    exists_in_django = Project.objects.filter(name=name, owner=request.user).exists()
+    if exists_in_django:
         return JsonResponse(
             {
                 "available": False,
                 "message": f'You already have a project named "{name}"',
             }
         )
-    else:
-        return JsonResponse(
-            {"available": True, "message": f'"{name}" is available'}
-        )
+
+    # Check 2: Gitea repository (enforce 1:1 mapping)
+    # Generate slug to check in Gitea
+    from django.utils.text import slugify
+    slug = slugify(name)
+
+    try:
+        from apps.gitea_app.api_client import GiteaClient, GiteaAPIError
+        client = GiteaClient()
+
+        try:
+            existing_repo = client.get_repository(
+                owner=request.user.username,
+                repo=slug
+            )
+            if existing_repo:
+                # Gitea repo exists - check if it's orphaned (no Django project)
+                # This is the problem: orphaned Gitea repo blocks creation
+                return JsonResponse(
+                    {
+                        "available": False,
+                        "message": f'Repository "{name}" already exists in Gitea. If this is an old project, please contact support to clean it up.',
+                    }
+                )
+        except GiteaAPIError as e:
+            # 404 means repository doesn't exist in Gitea - that's good
+            if "404" in str(e) or "not found" in str(e).lower():
+                pass  # Continue, name is available
+            else:
+                # Some other Gitea error - log it but don't block
+                logger.warning(f"Gitea check failed for {name}: {e}")
+                pass  # Continue, assume available
+    except Exception as e:
+        # If Gitea check fails entirely, log but don't block
+        logger.warning(f"Gitea availability check failed: {e}")
+        pass  # Continue, assume available
+
+    return JsonResponse(
+        {"available": True, "message": f'"{name}" is available'}
+    )
 
 
 @login_required
@@ -1020,7 +1093,8 @@ def api_concatenate_directory(request, username, slug, directory_path=""):
         dir_path = dir_path.resolve()
         if not str(dir_path).startswith(str(project_path.resolve())):
             return JsonResponse({"success": False, "error": "Invalid path"})
-    except:
+    except (ValueError, OSError, RuntimeError) as e:
+        logger.warning(f"Path resolution failed: {e}")
         return JsonResponse({"success": False, "error": "Invalid path"})
 
     if not dir_path.exists() or not dir_path.is_dir():

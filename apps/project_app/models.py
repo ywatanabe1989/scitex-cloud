@@ -314,7 +314,7 @@ class Project(models.Model):
         try:
             from urllib.parse import unquote
             repo_name = unquote(repo_name)
-        except:
+        except (ValueError, TypeError, AttributeError):
             pass
 
         return repo_name or 'imported-repo'
@@ -322,13 +322,14 @@ class Project(models.Model):
     def get_absolute_url(self):
         """Get project detail URL using GitHub-style username/project pattern"""
         from django.urls import reverse
+        from django.urls.exceptions import NoReverseMatch
         try:
             # Use the new user_projects namespace
             return reverse('user_projects:detail', kwargs={
                 'username': self.owner.username,
                 'slug': self.slug
             })
-        except:
+        except NoReverseMatch:
             # Fallback to direct URL construction
             return f'/{self.owner.username}/{self.slug}/'
 
@@ -414,17 +415,18 @@ class Project(models.Model):
                 f"A project named '{existing_project.name}' already uses Gitea repository '{self.slug}'"
             )
 
-        # 3. Check if repository already exists in Gitea
+        # 3. Check if repository already exists in Gitea (enforce strict 1:1)
         try:
             existing_repo = client.get_repository(self.owner.username, self.slug)
             if existing_repo:
+                # Repository exists - this violates 1:1 mapping
                 logger.error(f"Gitea repository {self.owner.username}/{self.slug} already exists (ID: {existing_repo.get('id')})")
                 raise Exception(
-                    f"The repository '{self.slug}' already exists in Gitea. "
-                    f"Please choose a different name or delete the existing repository first."
+                    f"The repository '{self.slug}' already exists in Gitea (ID: {existing_repo.get('id')}). "
+                    f"This is an orphaned repository. Please delete it manually or contact support."
                 )
         except Exception as e:
-            # If it's a 404, the repo doesn't exist (which is what we want)
+            # If it's a 404, the repo doesn't exist (which is what we want for strict 1:1)
             if "404" not in str(e) and "not found" not in str(e).lower():
                 # Some other error occurred - re-raise
                 raise
@@ -439,9 +441,9 @@ class Project(models.Model):
                 gitignores='Python',
                 readme='Default'
             )
-        except Exception as e:
-            logger.error(f"Failed to create Gitea repository {self.slug}: {e}")
-            raise Exception(f"Failed to create Gitea repository: {str(e)}")
+        except Exception as create_error:
+            logger.error(f"Failed to create Gitea repository {self.slug}: {create_error}")
+            raise Exception(f"Failed to create Gitea repository: {str(create_error)}")
 
         # 5. Update project with Gitea info (atomic operation)
         try:
@@ -669,7 +671,7 @@ class Project(models.Model):
 
         try:
             manager = get_user_directory_manager(self.owner)
-            project_path = manager.get_project_path(self.slug)
+            project_path = manager.get_project_path(self)
 
             if not project_path or not project_path.exists():
                 return 0
@@ -684,9 +686,9 @@ class Project(models.Model):
                         # Skip files we can't access
                         pass
 
-            # Update and save
+            # Update without triggering signals to avoid recursion
+            Project.objects.filter(id=self.id).update(storage_used=total_size)
             self.storage_used = total_size
-            self.save(update_fields=['storage_used'])
 
             return total_size
 
