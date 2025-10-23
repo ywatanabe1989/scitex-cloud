@@ -10,6 +10,51 @@
 <link rel="stylesheet" href="{% static 'css/common/code-blocks.css' %}">
 <link rel="stylesheet" href="{% static 'dev_app/styles/design.css' %}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/zenburn.min.css">
+<style>
+  .file-upload-demo {
+    border: 2px dashed var(--border-default);
+    border-radius: 8px;
+    padding: 3rem 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: var(--bg-surface);
+  }
+  .file-upload-demo:hover {
+    border-color: var(--text-link);
+    background-color: var(--bg-muted);
+  }
+  .file-upload-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+  }
+  .file-upload-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+  .file-upload-desc {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+  }
+  .file-upload-button {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background-color: var(--bg-muted);
+    color: var(--text-primary);
+    border: 1px solid var(--border-default);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+  }
+  .file-upload-button:hover {
+    background-color: var(--text-primary);
+    color: var(--bg-page);
+  }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -29,7 +74,7 @@
         <p>{{ component.description }}</p>
         <p><strong>Category:</strong> {{ component.category }}</p>
         {% if component.darkmode %}
-        <p><strong>Dark Mode Support:</strong> Yes</strong></p>
+        <p><strong>Dark Mode Support:</strong> Yes</p>
         {% endif %}
       </section>
 
@@ -55,17 +100,26 @@
       </section>
       {% endif %}
 
+      {% if component.id == "File Upload" or component.name == "File Upload" %}
+      <section style="margin-top: 2rem;">
+        <h2>Interactive Example</h2>
+        <div class="file-upload-demo">
+          <div class="file-upload-icon">⬆️</div>
+          <div class="file-upload-title">Upload your file</div>
+          <div class="file-upload-desc">Drag and drop your file here or click to browse</div>
+          <button class="file-upload-button">Select File</button>
+        </div>
+      </section>
+      {% endif %}
+
       {% if component.examples %}
       <section style="margin-top: 2rem;">
-        <h2>Examples</h2>
+        <h2>Code Examples</h2>
         {% for example in component.examples %}
         <div style="margin-bottom: 2rem;">
-          <div style="border: 1px solid var(--border-default); padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
-            {{ example|safe }}
-          </div>
           <details>
-            <summary>View HTML</summary>
-            <pre><code>{{ example|escape }}</code></pre>
+            <summary style="padding: 0.5rem; background-color: var(--bg-muted); border-radius: 4px; cursor: pointer; font-weight: 500;">View HTML</summary>
+            <pre style="margin-top: 1rem;"><code>{{ example|escape }}</code></pre>
           </details>
         </div>
         {% endfor %}
