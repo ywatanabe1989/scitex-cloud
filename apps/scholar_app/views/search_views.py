@@ -34,17 +34,17 @@ from ..models import SearchIndex, UserLibrary, Author, Journal, Collection, Topi
 # Set up logger for Scholar module
 logger = logging.getLogger(__name__)
 
-# Import SciTeX-Scholar package for real API functionality
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../externals/SciTeX-Scholar/src'))
+# Import scitex.scholar package for real API functionality
 try:
-    from scitex_scholar.paper_acquisition import PaperAcquisition, PaperMetadata
-    from scitex_scholar.impact_factor_search import JournalRankingSearch, get_journal_impact_factor
+    from scitex.scholar.paper_acquisition import PaperAcquisition, PaperMetadata
+    from scitex.scholar.impact_factor_search import JournalRankingSearch, get_journal_impact_factor
     SCITEX_SCHOLAR_AVAILABLE = True
-    logger.info("    SciTeX-Scholar package imported successfully")
+    logger.info("    SciTeX Scholar package imported successfully")
 except ImportError as e:
     SCITEX_SCHOLAR_AVAILABLE = False
-    logger.warning(f"    SciTeX-Scholar package not available: {e}")
-    logger.warning(f"    Falling back to database-only search")
+    # Only warn if scitex package itself is not installed
+    logger.debug(f"    SciTeX Scholar features not available: {e}")
+    logger.debug(f"    Using database-only search")
 
 
 def simple_search(request):
@@ -456,12 +456,12 @@ def search_papers_online(query, max_results=200, sources='all', filters=None, us
                 logger.warning(f"   ℹ️ Add API keys at /scholar/api-keys/ for better performance")
     else:
         if not SCITEX_SCHOLAR_AVAILABLE:
-            logger.warning("   ⚠️ SciTeX-Scholar package not available - external searches disabled")
+            logger.debug("   External search features not available (scitex.scholar not found)")
         for source in source_list:
             if source == 'arxiv':
-                logger.warning("   ⚠️ arXiv search disabled (SciTeX-Scholar not available)")
+                logger.debug("   arXiv search using database only")
             elif source == 'pubmed':
-                logger.warning("   ⚠️ PubMed search disabled (SciTeX-Scholar not available)")
+                logger.debug("   PubMed search using database only")
             elif source == 'google_scholar':
                 logger.warning("   ⚠️ Google Scholar search disabled (not implemented)")
             elif source == 'semantic':
