@@ -752,23 +752,35 @@ def _process_bibtex_job(job):
         # Gitea Integration: Auto-commit enriched .bib file to project repository
         if job.project and job.project.git_clone_path:
             try:
-                from apps.workspace_app.git_operations import auto_commit_file
+                from apps.workspace_app.services.git_service import auto_commit_file
+                from datetime import datetime
 
-                # Create references directory in project if it doesn't exist
-                project_refs_dir = Path(job.project.git_clone_path) / 'references'
-                project_refs_dir.mkdir(parents=True, exist_ok=True)
+                # Create scitex/scholar/bib_files directory (no __init__.py, no Python conflict)
+                project_bib_dir = Path(job.project.git_clone_path) / 'scitex' / 'scholar' / 'bib_files'
+                project_bib_dir.mkdir(parents=True, exist_ok=True)
 
-                # Copy enriched .bib to project repository
-                project_bib_path = project_refs_dir / 'references.bib'
-                shutil.copy(output_path, project_bib_path)
+                # Generate filenames with original name and timestamp
+                original_name = Path(job.original_filename).stem if job.original_filename else 'references'
+                timestamp = datetime.now().strftime('%Y%m%d-%H%M%S')
+                original_filename = f"{original_name}_original-{timestamp}.bib"
+                enriched_filename = f"{original_name}_enriched-{timestamp}.bib"
 
-                logger.info(f"Copied enriched .bib to {project_bib_path}")
+                # Copy both original and enriched .bib files to project repository
+                input_file_path = Path(settings.MEDIA_ROOT) / job.input_file.name
 
-                # Auto-commit to Gitea
-                commit_message = f"Scholar: Enriched bibliography ({job.processed_papers}/{job.total_papers} papers enriched)"
+                project_original_path = project_bib_dir / original_filename
+                shutil.copy(input_file_path, project_original_path)
+                logger.info(f"Copied original .bib to {project_original_path}")
+
+                project_enriched_path = project_bib_dir / enriched_filename
+                shutil.copy(output_path, project_enriched_path)
+                logger.info(f"Copied enriched .bib to {project_enriched_path}")
+
+                # Auto-commit both files to Gitea
+                commit_message = f"Scholar: Added bibliography - {job.processed_papers}/{job.total_papers} papers enriched"
                 success, output = auto_commit_file(
                     project_dir=Path(job.project.git_clone_path),
-                    filepath='references/references.bib',
+                    filepath='scitex/scholar/bib_files/',  # Commit entire directory
                     message=commit_message
                 )
 
@@ -1023,6 +1035,101 @@ def bibtex_resource_status(request):
         },
         'timestamp': timezone.now().isoformat(),
     })
+
+
+@require_http_methods(["POST"])
+@api_key_optional
+def bibtex_save_to_project(request, job_id):
+    """Save enriched BibTeX to selected project."""
+    import shutil
+    from datetime import datetime
+
+    # Get authenticated user
+    api_authenticated = hasattr(request, 'api_user')
+    user = request.api_user if api_authenticated else request.user
+
+    if not user or not user.is_authenticated:
+        return JsonResponse({
+            'success': False,
+            'error': 'Authentication required'
+        }, status=401)
+
+    # Get job
+    try:
+        job = BibTeXEnrichmentJob.objects.get(id=job_id, user=user)
+    except BibTeXEnrichmentJob.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'error': 'Job not found'
+        }, status=404)
+
+    if job.status != 'completed':
+        return JsonResponse({
+            'success': False,
+            'error': f'Job not completed (status: {job.status})'
+        }, status=400)
+
+    # Get project_id from request
+    project_id = request.POST.get('project_id')
+    if not project_id:
+        return JsonResponse({
+            'success': False,
+            'error': 'No project selected'
+        }, status=400)
+
+    # Get project
+    from apps.project_app.models import Project
+    try:
+        project = Project.objects.get(id=project_id, owner=user)
+    except Project.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'error': 'Project not found'
+        }, status=404)
+
+    if not project.git_clone_path:
+        return JsonResponse({
+            'success': False,
+            'error': 'Project has no git repository'
+        }, status=400)
+
+    try:
+        from apps.workspace_app.services.git_service import auto_commit_file
+
+        # Create directory
+        project_bib_dir = Path(project.git_clone_path) / 'scitex' / 'scholar' / 'bib_files'
+        project_bib_dir.mkdir(parents=True, exist_ok=True)
+
+        # Generate filenames
+        original_name = Path(job.original_filename).stem if job.original_filename else 'references'
+        timestamp = datetime.now().strftime('%Y%m%d-%H%M%S')
+
+        # Copy both files
+        input_path = Path(settings.MEDIA_ROOT) / job.input_file.name
+        output_path = Path(settings.MEDIA_ROOT) / job.output_file.name
+
+        shutil.copy(input_path, project_bib_dir / f"{original_name}_original-{timestamp}.bib")
+        shutil.copy(output_path, project_bib_dir / f"{original_name}_enriched-{timestamp}.bib")
+
+        # Commit
+        success, output = auto_commit_file(
+            project_dir=Path(project.git_clone_path),
+            filepath='scitex/scholar/bib_files/',
+            message=f"Scholar: Added bibliography - {job.processed_papers}/{job.total_papers} papers"
+        )
+
+        return JsonResponse({
+            'success': True,
+            'message': f'Saved to {project.name}',
+            'project': project.name,
+            'committed': success
+        })
+
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': f'Save failed: {str(e)}'
+        }, status=500)
 
 
 @require_http_methods(["POST"])
