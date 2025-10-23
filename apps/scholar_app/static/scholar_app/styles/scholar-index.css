@@ -656,43 +656,40 @@ a.disabled {
     border-bottom-color: var(--scitex-color-05);
 }
 
-/* Vertical Tab Styling - Enhanced active state */
+/* GitHub-style tab navigation */
 .vertical-tab-btn,
 .tab-link {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 1rem 1.25rem;
+    padding: 0.5rem 1rem;
     color: var(--color-fg-muted);
     text-decoration: none;
-    border-left: 4px solid transparent;
-    background: transparent;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     transition: all 0.2s ease;
-    font-weight: 500;
+    background: transparent;
+    border: none;
 }
 
 .vertical-tab-btn:hover,
 .tab-link:hover {
     color: var(--color-fg-default);
-    background: var(--color-canvas-subtle);
-    border-left-color: var(--scitex-color-03);
+    border-bottom-color: var(--color-border-default);
 }
 
 .vertical-tab-btn.active,
 .tab-link.active {
-    color: var(--scitex-color-01) !important;
-    background: var(--scitex-color-02-light) !important;
-    border-left: 4px solid var(--scitex-color-01) !important;
-    font-weight: 700 !important;
-    box-shadow: inset 0 0 0 1px var(--scitex-color-02);
+    color: var(--color-fg-default);
+    border-bottom-color: var(--tab-active-border);
+    font-weight: 600;
 }
 
 [data-theme="dark"] .vertical-tab-btn.active,
 [data-theme="dark"] .tab-link.active {
-    color: var(--scitex-color-06) !important;
-    background: var(--scitex-color-01-light) !important;
-    border-left-color: var(--scitex-color-05) !important;
-    box-shadow: inset 0 0 0 1px var(--scitex-color-04);
+    color: var(--color-fg-default);
+    border-bottom-color: var(--tab-active-border);
+    font-weight: 600;
 }
 
 /* Compact Paper Cards - Better space usage */
