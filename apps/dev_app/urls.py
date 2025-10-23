@@ -25,8 +25,11 @@ urlpatterns = [
     path("design/typography/", views.DesignTypographyView.as_view(), name="design_typography"),
     path("design/spacing/", views.DesignSpacingView.as_view(), name="design_spacing"),
     path("design/theme/", views.DesignThemeView.as_view(), name="design_theme"),
-    path("design/components/", views.DesignComponentsView.as_view(), name="design_components"),
     path("design/guidelines/", views.DesignGuidelinesView.as_view(), name="design_guidelines"),
+
+    # Individual component pages - catch-all pattern
+    path("design/components/<str:component_id>/", views.DesignComponentDetailView.as_view(), name="design_component_detail"),
+    path("design/components/", views.DesignComponentsView.as_view(), name="design_components"),
 ]
 
 # EOF

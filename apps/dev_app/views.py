@@ -137,6 +137,50 @@ class DesignComponentsView(View):
         return render(request, self.template_name, context)
 
 
+class DesignComponentDetailView(View):
+    """Display an individual component page."""
+
+    template_name = "dev_app/design_component_detail.html"
+
+    def get(self, request, component_id):
+        """Render individual component page."""
+        # Load components.json
+        components_path = (
+            Path(settings.BASE_DIR)
+            / "staticfiles"
+            / "dev_app"
+            / "data"
+            / "components.json"
+        )
+
+        components_data = {"components": [], "metadata": {}}
+        if components_path.exists():
+            with open(components_path, "r") as f:
+                components_data = json.load(f)
+
+        # Find the specific component
+        component = None
+        for c in components_data.get("components", []):
+            if c.get("id") == component_id or c.get("name", "").lower().replace(" ", "-") == component_id.lower().replace(" ", "-"):
+                component = c
+                break
+
+        if not component:
+            from django.http import Http404
+            raise Http404(f"Component '{component_id}' not found")
+
+        # Get all components for sidebar
+        components = components_data.get("components", [])
+
+        context = {
+            "component": component,
+            "components": components,
+            "metadata": components_data.get("metadata", {}),
+        }
+
+        return render(request, self.template_name, context)
+
+
 class DesignGuidelinesView(View):
     """Display the Guidelines section of the design system."""
 
