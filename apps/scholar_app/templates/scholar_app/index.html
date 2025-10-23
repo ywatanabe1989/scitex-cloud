@@ -173,8 +173,8 @@
 
 {% block content %}
 <!-- Vertical Tab Layout -->
-<div class="container u-mt-2 u-mb-3">
-  <div class="vertical-tab-container">
+<div class="u-mt-2 u-mb-3" style="max-width: 100%; padding: 0 2rem;">
+  <div class="vertical-tab-container" style="max-width: 100%;">
     <!-- Vertical Tab Navigation -->
     <div class="scitex-tabs">
       <a href="#bibtex" class="scitex-tab tab-link" data-tab="bibtex">
@@ -188,9 +188,9 @@
     </div>
 
     <!-- Tab Content Container -->
-    <div class="vertical-tab-content-container">
+    <div class="vertical-tab-content-container" style="width: 100%; max-width: 100%; overflow: visible;">
       <!-- BibTeX Enrichment Tab -->
-      <div class="vertical-tab-content {% if active_tab == 'bibtex' %}active{% endif %}" id="bibtex-tab" data-tab="bibtex">
+      <div class="vertical-tab-content {% if active_tab == 'bibtex' %}active{% endif %}" id="bibtex-tab" data-tab="bibtex" style="width: 100%; max-width: 100%; overflow: visible;">
         {% include "scholar_app/index_partials/enrich.html" %}
       </div>
 

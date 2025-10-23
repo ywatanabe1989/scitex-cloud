@@ -65,9 +65,9 @@ function handleFileSelect(e) {
 }
 
 /**
- * Handle form submission
+ * Handle form submission - First show preview
  */
-function handleFormSubmit(e, forceCancel = false) {
+function handleFormSubmit(e, forceCancel = false, skipPreview = false) {
     e.preventDefault();
 
     const formData = new FormData(e.target);
@@ -78,10 +78,151 @@ function handleFormSubmit(e, forceCancel = false) {
         formData.append('force_cancel', 'true');
     }
 
+    // If skipPreview is true, proceed directly to upload
+    if (skipPreview) {
+        startEnrichmentJob(e.target, formData, csrfToken, forceCancel);
+        return;
+    }
+
+    // First, show preview
+    showBibtexPreview(e.target, formData, csrfToken);
+}
+
+/**
+ * Show BibTeX preview before enrichment
+ */
+function showBibtexPreview(form, formData, csrfToken) {
+    console.log('Showing BibTeX preview...');
     // Show loading state
     showLoadingState();
 
-    fetch(e.target.action, {
+    fetch('/scholar/bibtex/preview/', {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': csrfToken,
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Preview data received:', data);
+        if (data.success) {
+            displayPreviewModal(data, form, formData, csrfToken);
+            resetForm();  // Hide progress area
+        } else {
+            console.error('Preview failed:', data.error);
+            showError(data.error || 'Failed to preview file');
+            resetForm();
+        }
+    })
+    .catch(error => {
+        console.error('Preview error:', error);
+        showError('Failed to preview file: ' + error.message);
+        resetForm();
+    });
+}
+
+/**
+ * Display preview modal
+ */
+function displayPreviewModal(data, form, formData, csrfToken) {
+    // Create modal HTML
+    const modal = document.createElement('div');
+    modal.id = 'bibtexPreviewModal';
+    modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--color-canvas-overlay, rgba(0, 0, 0, 0.95)); z-index: 9999; overflow: auto;';
+
+    let entriesHtml = '';
+    data.entries.forEach(entry => {
+        const statusIcons = [];
+        if (entry.has_abstract) statusIcons.push('<span style="color: var(--success-color);" title="Has abstract"><i class="fas fa-check-circle"></i> Abstract</span>');
+        if (entry.has_url) statusIcons.push('<span style="color: var(--success-color);" title="Has URL/DOI"><i class="fas fa-check-circle"></i> URL</span>');
+        if (entry.has_citations) statusIcons.push('<span style="color: var(--success-color);" title="Has citations"><i class="fas fa-check-circle"></i> Citations</span>');
+
+        const missingIcons = [];
+        if (!entry.has_abstract) missingIcons.push('<span style="color: var(--warning-color);" title="Missing abstract"><i class="fas fa-exclamation-circle"></i> Abstract</span>');
+        if (!entry.has_url) missingIcons.push('<span style="color: var(--warning-color);" title="Missing URL/DOI"><i class="fas fa-exclamation-circle"></i> URL</span>');
+        if (!entry.has_citations) missingIcons.push('<span style="color: var(--warning-color);" title="Missing citations"><i class="fas fa-exclamation-circle"></i> Citations</span>');
+
+        entriesHtml += `
+            <div style="margin-bottom: 1rem; border: 1px solid var(--color-border-default); border-radius: 6px; padding: 1rem; background: var(--color-canvas-default);">
+                <div style="font-weight: 700; color: var(--color-fg-default); margin-bottom: 0.5rem;">
+                    <i class="fas fa-file-alt"></i> @${entry.type}{${escapeHtml(entry.key)}}
+                </div>
+                <div style="color: var(--color-fg-muted); font-size: 0.9rem; font-style: italic; margin-bottom: 0.5rem;">
+                    "${escapeHtml(entry.title)}"
+                </div>
+                <div style="font-size: 0.85rem; color: var(--color-fg-muted); margin-bottom: 0.5rem;">
+                    ${escapeHtml(entry.author)} (${escapeHtml(entry.year)})
+                </div>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap; font-size: 0.85rem;">
+                    ${statusIcons.join('')}
+                    ${missingIcons.join('')}
+                </div>
+            </div>
+        `;
+    });
+
+    const limitWarning = data.showing_limited ? `
+        <div style="background: var(--warning-color); color: var(--white); padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem;">
+            <i class="fas fa-info-circle"></i> Showing first 50 entries. Total: ${data.total_entries} entries
+        </div>
+    ` : '';
+
+    modal.innerHTML = `
+        <div style="max-width: 900px; margin: 2rem auto; background: var(--color-canvas-default); border: 1px solid var(--color-border-default); border-radius: 12px; padding: 2rem; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);">
+            <button onclick="closePreviewModal()" style="float: right; background: transparent; border: none; font-size: 2rem; cursor: pointer; color: var(--color-fg-muted); line-height: 1;">
+                ×
+            </button>
+            <h3 style="color: var(--color-fg-default); margin-bottom: 1rem; font-size: 1.5rem; font-weight: 700;">
+                <i class="fas fa-eye"></i> Preview: ${escapeHtml(data.filename)}
+            </h3>
+            <p style="color: var(--color-fg-muted); margin-bottom: 1.5rem;">
+                Found <strong style="color: var(--color-fg-default);">${data.total_entries}</strong> entries. Review them before starting enrichment.
+            </p>
+            ${limitWarning}
+            <div style="max-height: 500px; overflow-y: auto; margin-bottom: 1.5rem; padding-right: 0.5rem;">
+                ${entriesHtml}
+            </div>
+            <div style="display: flex; justify-content: space-between; gap: 1rem;">
+                <button onclick="closePreviewModal()" style="padding: 1rem 2rem; background: var(--color-btn-bg); border: 1px solid var(--color-border-default); border-radius: 6px; cursor: pointer; color: var(--color-fg-default); font-weight: 600; transition: all 0.2s;">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button id="confirmEnrichmentBtn" style="padding: 1rem 2rem; background: var(--success-color); color: var(--white); border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.2s;">
+                    <i class="fas fa-check"></i> Start Enrichment
+                </button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    // Add event listener to confirm button
+    document.getElementById('confirmEnrichmentBtn').addEventListener('click', () => {
+        console.log('User confirmed enrichment, starting job...');
+        closePreviewModal();
+        startEnrichmentJob(form, formData, csrfToken, false);
+    });
+}
+
+/**
+ * Close preview modal
+ */
+window.closePreviewModal = function() {
+    const modal = document.getElementById('bibtexPreviewModal');
+    if (modal) {
+        modal.remove();
+    }
+};
+
+/**
+ * Start enrichment job (called after preview confirmation)
+ */
+function startEnrichmentJob(form, formData, csrfToken, forceCancel) {
+    // Show loading state
+    showLoadingState();
+
+    fetch(form.action, {
         method: 'POST',
         headers: {
             'X-Requested-With': 'XMLHttpRequest',
@@ -93,7 +234,7 @@ function handleFormSubmit(e, forceCancel = false) {
         if (response.status === 409) {
             // Conflict - existing job found, requires confirmation
             return response.json().then(data => {
-                handleJobConflict(e.target, data);
+                handleJobConflict(form, data, formData, csrfToken);
                 throw new Error('Conflict handled');
             });
         }
@@ -111,6 +252,9 @@ function handleFormSubmit(e, forceCancel = false) {
     .then(data => {
         if (data.success) {
             window.currentBibtexJobId = data.job_id;
+            // Store in localStorage for page reloads
+            localStorage.setItem('currentBibtexJobId', data.job_id);
+            console.log('Job started, ID saved to localStorage:', data.job_id);
             startJobPolling(data.job_id);
         } else {
             showError(data.error || 'Upload failed');
@@ -132,14 +276,14 @@ function handleFormSubmit(e, forceCancel = false) {
 /**
  * Handle job conflict - ask user to cancel old job
  */
-function handleJobConflict(form, data) {
+function handleJobConflict(form, data, formData, csrfToken) {
     const existingJob = data.existing_job;
     const message = `You already have a job in progress:\n"${existingJob.filename}"\nProgress: ${existingJob.progress}%\n\nCancel it and start new job?`;
 
     if (confirm(message)) {
         // User confirmed - resubmit with force_cancel flag
-        const event = new Event('submit', { bubbles: true, cancelable: true });
-        handleFormSubmit.call(form, event, true);
+        formData.append('force_cancel', 'true');
+        startEnrichmentJob(form, formData, csrfToken, true);
     }
 }
 
@@ -183,6 +327,85 @@ function setupDragAndDrop() {
 }
 
 /**
+ * Load and display all papers from job
+ * @param {string} jobId - Job UUID
+ */
+function loadJobPapers(jobId) {
+    console.log('Loading papers for job:', jobId);
+
+    fetch(`/scholar/api/bibtex/job/${jobId}/papers/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log('Papers loaded:', data.total_papers);
+                displayPapersPlaceholders(data.papers, data.status);
+            } else {
+                console.error('Failed to load papers:', data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error loading papers:', error);
+        });
+}
+
+/**
+ * Display papers as placeholders
+ * @param {Array} papers - Array of paper objects
+ * @param {string} jobStatus - Current job status
+ */
+function displayPapersPlaceholders(papers, jobStatus) {
+    const papersArea = document.getElementById('bibtexPapersArea');
+    const papersContainer = document.getElementById('papersContainer');
+    const papersCount = document.getElementById('papersCount');
+
+    if (!papersArea || !papersContainer || !papersCount) return;
+
+    // Show papers area
+    papersArea.style.display = 'block';
+    papersCount.textContent = papers.length;
+
+    // Generate HTML for all papers
+    let html = '';
+    papers.forEach((paper, index) => {
+        const statusIcons = [];
+        if (paper.has_abstract) statusIcons.push('<span style="color: var(--success-color);" title="Has abstract"><i class="fas fa-check-circle"></i></span>');
+        else statusIcons.push('<span style="color: var(--color-fg-muted);" title="No abstract"><i class="fas fa-circle"></i></span>');
+
+        if (paper.has_url) statusIcons.push('<span style="color: var(--success-color);" title="Has URL/DOI"><i class="fas fa-check-circle"></i></span>');
+        else statusIcons.push('<span style="color: var(--color-fg-muted);" title="No URL"><i class="fas fa-circle"></i></span>');
+
+        if (paper.has_citations) statusIcons.push('<span style="color: var(--success-color);" title="Has citations"><i class="fas fa-check-circle"></i></span>');
+        else statusIcons.push('<span style="color: var(--color-fg-muted);" title="No citations"><i class="fas fa-circle"></i></span>');
+
+        html += `
+            <div class="paper-card" id="paper-${index}" style="margin-bottom: 0.75rem; border: 1px solid var(--color-border-default); border-radius: 6px; padding: 1rem; background: var(--color-canvas-default);">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; color: var(--color-fg-default); margin-bottom: 0.25rem;">
+                            ${escapeHtml(paper.title || 'No title')}
+                        </div>
+                        <div style="font-size: 0.85rem; color: var(--color-fg-muted);">
+                            ${escapeHtml(paper.author || 'Unknown')} (${escapeHtml(paper.year || 'N/A')})
+                        </div>
+                        ${paper.journal ? `<div style="font-size: 0.8rem; color: var(--color-fg-muted); font-style: italic;">${escapeHtml(paper.journal)}</div>` : ''}
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; font-size: 0.9rem; margin-left: 1rem;">
+                        ${statusIcons.join('')}
+                    </div>
+                </div>
+                ${paper.abstract ? `
+                    <div style="font-size: 0.85rem; color: var(--color-fg-muted); margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--color-border-default);">
+                        <strong>Abstract:</strong> ${escapeHtml(paper.abstract.substring(0, 250))}${paper.abstract.length > 250 ? '... <span style="color: var(--color-fg-muted); font-style: italic;">(truncated)</span>' : ''}
+                    </div>
+                ` : ''}
+            </div>
+        `;
+    });
+
+    papersContainer.innerHTML = html;
+}
+
+/**
  * Start polling job status
  * @param {string} jobId - Job UUID
  */
@@ -191,6 +414,9 @@ function startJobPolling(jobId) {
     if (jobStatusInterval) {
         clearInterval(jobStatusInterval);
     }
+
+    // Load and display papers immediately
+    loadJobPapers(jobId);
 
     // Show progress area (try both ID variants for compatibility)
     const progressArea = document.getElementById('bibtexProgressArea') || document.getElementById('progressArea');
@@ -276,21 +502,38 @@ function handleJobComplete(data) {
 }
 
 /**
- * Show download area
+ * Enable download buttons
  * @param {string} jobId - Job UUID
  */
 function showDownloadArea(jobId) {
-    const downloadArea = document.getElementById('downloadArea');
     const downloadBtn = document.getElementById('downloadBtn');
     const showDiffBtn = document.getElementById('showDiffBtn');
     const openUrlsBtn = document.getElementById('openUrlsBtn');
-
-    if (downloadArea) {
-        downloadArea.style.display = 'flex';
-    }
+    const saveToProjectBtn = document.getElementById('saveToProjectBtn');
 
     if (downloadBtn) {
         downloadBtn.href = `/scholar/api/bibtex/job/${jobId}/download/`;
+        downloadBtn.style.opacity = '1';
+        downloadBtn.style.pointerEvents = 'auto';
+    }
+
+    if (showDiffBtn) {
+        showDiffBtn.disabled = false;
+        showDiffBtn.style.opacity = '1';
+        showDiffBtn.style.cursor = 'pointer';
+    }
+
+    if (openUrlsBtn) {
+        openUrlsBtn.disabled = false;
+        openUrlsBtn.style.opacity = '1';
+        openUrlsBtn.style.cursor = 'pointer';
+    }
+
+    // Enable Save to Project if user has projects
+    if (saveToProjectBtn && !saveToProjectBtn.hasAttribute('data-no-projects')) {
+        saveToProjectBtn.disabled = false;
+        saveToProjectBtn.style.opacity = '1';
+        saveToProjectBtn.style.cursor = 'pointer';
     }
 
     // Fetch URL count for "Open All URLs" button
@@ -550,6 +793,170 @@ function showError(message) {
 }
 
 /**
+ * Handle Save to Project button click
+ */
+window.handleSaveToProject = function() {
+    console.log('Save to Project clicked');
+    const modal = document.getElementById('projectSelectorModal');
+    if (modal) {
+        modal.style.display = 'block';
+    }
+};
+
+/**
+ * Close project selector modal
+ */
+window.closeProjectSelector = function() {
+    const modal = document.getElementById('projectSelectorModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+};
+
+/**
+ * Confirm project save
+ */
+window.confirmProjectSave = function() {
+    const dropdown = document.getElementById('projectSelectorDropdown');
+    const input = document.getElementById('projectIdInput');
+
+    if (dropdown && input) {
+        input.value = dropdown.value;
+        console.log('Project selected:', dropdown.value);
+    }
+
+    // Close modal
+    closeProjectSelector();
+
+    // Show confirmation
+    alert('Project will be saved when enrichment completes');
+};
+
+/**
+ * Show API documentation modal
+ */
+window.showApiDocumentation = function() {
+    console.log('Showing API documentation...');
+
+    const modal = document.createElement('div');
+    modal.id = 'apiDocModal';
+    modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--color-canvas-overlay, rgba(0, 0, 0, 0.95)); z-index: 9999; overflow: auto;';
+
+    modal.innerHTML = `
+        <div style="max-width: 900px; margin: 2rem auto; background: var(--color-canvas-default); border: 1px solid var(--color-border-default); border-radius: 12px; padding: 2rem; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);">
+            <button onclick="closeApiDocumentation()" style="float: right; background: transparent; border: none; font-size: 2rem; cursor: pointer; color: var(--color-fg-muted); line-height: 1;">×</button>
+            <h3 style="color: var(--color-fg-default); margin-bottom: 1rem; font-size: 1.5rem; font-weight: 700;">
+                <i class="fas fa-book"></i> Scholar API Documentation
+            </h3>
+
+            <div style="color: var(--color-fg-muted); line-height: 1.6;">
+                <h4 style="color: var(--color-fg-default); margin-top: 1.5rem; margin-bottom: 0.75rem;">CLI (Recommended)</h4>
+                <pre style="background: var(--color-canvas-subtle); padding: 1rem; border-radius: 6px; overflow-x: auto; border: 1px solid var(--color-border-default);"><code style="color: var(--color-fg-default); font-family: monospace;">scitex cloud enrich -i orig.bib -o enriched.bib -a $SCITEX_API_KEY</code></pre>
+
+                <h4 style="color: var(--color-fg-default); margin-top: 1.5rem; margin-bottom: 0.75rem;">Direct API</h4>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <h5 style="color: var(--scitex-color-03); margin-bottom: 0.5rem;">POST /scholar/bibtex/preview/</h5>
+                    <p style="margin-bottom: 0.5rem;">Preview BibTeX file contents before enrichment</p>
+                    <pre style="background: var(--color-canvas-subtle); padding: 1rem; border-radius: 6px; overflow-x: auto; border: 1px solid var(--color-border-default);"><code style="color: var(--color-fg-default); font-family: monospace;">curl -X POST https://scitex.cloud/scholar/bibtex/preview/ \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -F "bibtex_file=@references.bib"</code></pre>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <h5 style="color: var(--scitex-color-03); margin-bottom: 0.5rem;">POST /scholar/bibtex/upload/</h5>
+                    <p style="margin-bottom: 0.5rem;">Upload and start enrichment job</p>
+                    <pre style="background: var(--color-canvas-subtle); padding: 1rem; border-radius: 6px; overflow-x: auto; border: 1px solid var(--color-border-default);"><code style="color: var(--color-fg-default); font-family: monospace;">curl -X POST https://scitex.cloud/scholar/bibtex/upload/ \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -F "bibtex_file=@references.bib" \\
+  -F "num_workers=4"</code></pre>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <h5 style="color: var(--scitex-color-03); margin-bottom: 0.5rem;">GET /scholar/api/bibtex/job/{job_id}/status/</h5>
+                    <p style="margin-bottom: 0.5rem;">Check job status and progress</p>
+                    <pre style="background: var(--color-canvas-subtle); padding: 1rem; border-radius: 6px; overflow-x: auto; border: 1px solid var(--color-border-default);"><code style="color: var(--color-fg-default); font-family: monospace;">curl https://scitex.cloud/scholar/api/bibtex/job/{job_id}/status/ \\
+  -H "Authorization: Bearer YOUR_API_KEY"</code></pre>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <h5 style="color: var(--scitex-color-03); margin-bottom: 0.5rem;">GET /scholar/api/bibtex/job/{job_id}/download/</h5>
+                    <p style="margin-bottom: 0.5rem;">Download enriched BibTeX file</p>
+                    <pre style="background: var(--color-canvas-subtle); padding: 1rem; border-radius: 6px; overflow-x: auto; border: 1px solid var(--color-border-default);"><code style="color: var(--color-fg-default); font-family: monospace;">curl https://scitex.cloud/scholar/api/bibtex/job/{job_id}/download/ \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -o enriched.bib</code></pre>
+                </div>
+
+                <h4 style="color: var(--color-fg-default); margin-top: 1.5rem; margin-bottom: 0.75rem;">Response Format</h4>
+                <p>All API responses are in JSON format:</p>
+                <pre style="background: var(--color-canvas-subtle); padding: 1rem; border-radius: 6px; overflow-x: auto; border: 1px solid var(--color-border-default);"><code style="color: var(--color-fg-default); font-family: monospace;">{
+  "success": true,
+  "job_id": "uuid-string",
+  "message": "Job started"
+}</code></pre>
+
+                <div style="margin-top: 2rem; padding: 1rem; background: var(--color-canvas-subtle); border-left: 4px solid var(--scitex-color-02); border-radius: 6px;">
+                    <p style="margin: 0;"><strong style="color: var(--color-fg-default);"><i class="fas fa-info-circle"></i> Note:</strong> Rate limits apply based on your subscription tier. Check your <a href="/scholar/api-keys/" style="color: var(--scitex-color-02);">API settings</a> for details.</p>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+};
+
+/**
+ * Close API documentation modal
+ */
+window.closeApiDocumentation = function() {
+    const modal = document.getElementById('apiDocModal');
+    if (modal) modal.remove();
+};
+
+/**
+ * Toggle advanced options panel
+ */
+window.toggleAdvancedOptions = function() {
+    const panel = document.getElementById('advancedOptionsPanel');
+    const icon = document.getElementById('advancedOptionsIcon');
+
+    if (!panel || !icon) return;
+
+    if (panel.style.display === 'none') {
+        panel.style.display = 'block';
+        icon.className = 'fas fa-chevron-up';
+        console.log('Advanced options expanded');
+    } else {
+        panel.style.display = 'none';
+        icon.className = 'fas fa-chevron-down';
+        console.log('Advanced options collapsed');
+    }
+};
+
+/**
+ * Toggle jobs history visibility
+ */
+window.toggleJobsHistory = function() {
+    const container = document.getElementById('recentJobsContainer');
+    const icon = document.getElementById('toggleJobsHistoryIcon');
+    const text = document.getElementById('toggleJobsHistoryText');
+
+    if (!container || !icon || !text) return;
+
+    if (container.style.display === 'none') {
+        container.style.display = 'block';
+        icon.className = 'fas fa-chevron-up';
+        text.textContent = 'Hide';
+        console.log('Jobs history expanded');
+    } else {
+        container.style.display = 'none';
+        icon.className = 'fas fa-chevron-down';
+        text.textContent = 'Show';
+        console.log('Jobs history collapsed');
+    }
+};
+
+/**
  * Escape HTML
  * @param {string} text - Text to escape
  * @returns {string} Escaped text
@@ -570,9 +977,172 @@ window.addEventListener('beforeunload', () => {
     stopJobPolling();
 });
 
+/**
+ * Load and display recent jobs history
+ */
+function loadRecentJobs() {
+    console.log('Loading recent jobs history...');
+
+    fetch('/scholar/api/bibtex/recent-jobs/')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.jobs.length > 0) {
+                console.log('Recent jobs loaded:', data.total);
+                displayRecentJobs(data.jobs);
+            } else {
+                console.log('No recent jobs found');
+            }
+        })
+        .catch(error => {
+            console.error('Error loading recent jobs:', error);
+        });
+}
+
+/**
+ * Display recent jobs in the sidebar
+ * @param {Array} jobs - Array of job objects
+ */
+function displayRecentJobs(jobs) {
+    const recentJobsContainer = document.getElementById('recentJobsContainer');
+
+    if (!recentJobsContainer) return;
+
+    // Generate HTML for recent jobs
+    let html = '';
+    jobs.forEach((job, index) => {
+        const statusColor = {
+            'completed': 'var(--success-color)',
+            'processing': 'var(--scitex-color-03)',
+            'pending': 'var(--warning-color)',
+            'failed': 'var(--error-color)',
+            'cancelled': 'var(--color-fg-muted)'
+        }[job.status] || 'var(--color-fg-default)';
+
+        const statusIcon = {
+            'completed': 'fa-check-circle',
+            'processing': 'fa-spinner fa-spin',
+            'pending': 'fa-hourglass-half',
+            'failed': 'fa-times-circle',
+            'cancelled': 'fa-ban'
+        }[job.status] || 'fa-circle';
+
+        const date = new Date(job.created_at);
+        const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+        const isActive = window.currentBibtexJobId === job.id;
+        const activeStyle = isActive ? 'border-color: var(--scitex-color-03); background: var(--color-canvas-subtle);' : '';
+
+        html += `
+            <div onclick="loadJobFromHistory('${job.id}')"
+                 style="margin-bottom: 0.5rem; border-left: 3px solid ${statusColor}; padding: 0.75rem; background: var(--color-canvas-subtle); cursor: pointer; transition: all 0.2s; border-radius: 4px; ${isActive ? 'background: var(--color-canvas-default);' : ''}"
+                 onmouseover="this.style.background='var(--color-canvas-default)'"
+                 onmouseout="this.style.background='${isActive ? 'var(--color-canvas-default)' : 'var(--color-canvas-subtle)'}'"
+            >
+                <div style="font-weight: 600; color: var(--color-fg-default); font-size: 0.9rem; margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas ${statusIcon}" style="color: ${statusColor}; font-size: 0.85rem;"></i>
+                    <span style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(job.original_filename)}</span>
+                </div>
+                <div style="font-size: 0.75rem; color: var(--color-fg-muted);">
+                    ${job.total_papers} papers
+                    ${job.status === 'completed' ? ` • ${job.progress_percentage}%` : ''}
+                </div>
+            </div>
+        `;
+    });
+
+    recentJobsContainer.innerHTML = html;
+}
+
+/**
+ * Load job from history when clicked - downloads if completed
+ * @param {string} jobId - Job UUID
+ */
+window.loadJobFromHistory = function(jobId) {
+    console.log('Loading job from history:', jobId);
+    window.currentBibtexJobId = jobId;
+    localStorage.setItem('currentBibtexJobId', jobId);
+
+    // Check status
+    fetch(`/scholar/api/bibtex/job/${jobId}/status/`)
+        .then(response => response.json())
+        .then(data => {
+            console.log('Job status:', data.status);
+
+            if (data.status === 'completed') {
+                // Download the enriched file directly
+                console.log('Downloading completed job...');
+                window.location.href = `/scholar/api/bibtex/job/${jobId}/download/`;
+            } else if (data.status === 'processing' || data.status === 'pending') {
+                // Show progress for active jobs
+                loadJobPapers(jobId);
+                startJobPolling(jobId);
+            } else {
+                // Failed or cancelled - just show status
+                alert(`Job ${data.status}: ${data.error_message || 'No details available'}`);
+            }
+
+            // Refresh recent jobs to update "current" indicator
+            loadRecentJobs();
+        })
+        .catch(error => {
+            console.error('Error checking job status:', error);
+        });
+};
+
+/**
+ * Load most recent job on page load if exists
+ */
+function loadMostRecentJob() {
+    // Check if there's a currentBibtexJobId in URL hash or local storage
+    const urlHash = window.location.hash;
+    const hashMatch = urlHash.match(/#bibtex-job-([0-9a-f-]+)/);
+
+    if (hashMatch) {
+        const jobId = hashMatch[1];
+        console.log('Loading job from URL hash:', jobId);
+        window.currentBibtexJobId = jobId;
+        loadJobPapers(jobId);
+        startJobPolling(jobId);
+        return;
+    }
+
+    // Check localStorage for most recent job
+    const recentJobId = localStorage.getItem('currentBibtexJobId');
+    if (recentJobId) {
+        console.log('Loading job from localStorage:', recentJobId);
+        window.currentBibtexJobId = recentJobId;
+        loadJobPapers(recentJobId);
+
+        // Check status and start polling if needed
+        fetch(`/scholar/api/bibtex/job/${recentJobId}/status/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'processing' || data.status === 'pending') {
+                    startJobPolling(recentJobId);
+                } else if (data.status === 'completed') {
+                    // Show download buttons
+                    const progressArea = document.getElementById('bibtexProgressArea');
+                    if (progressArea) progressArea.style.display = 'block';
+
+                    updateProgressUI(data);
+                    showDownloadArea(recentJobId);
+                }
+            })
+            .catch(error => {
+                console.error('Error checking job status:', error);
+            });
+    }
+}
+
 // Auto-initialize when DOM is ready
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => initBibtexEnrichment());
+    document.addEventListener('DOMContentLoaded', () => {
+        initBibtexEnrichment();
+        loadRecentJobs();  // Load jobs history first
+        loadMostRecentJob();  // Then load most recent job details
+    });
 } else {
     initBibtexEnrichment();
+    loadRecentJobs();
+    loadMostRecentJob();
 }

@@ -28,6 +28,7 @@ from django.core.files.base import ContentFile
 from django.utils import timezone
 from django.conf import settings
 from ..models import BibTeXEnrichmentJob
+from apps.scholar_app.api_auth import api_key_optional
 
 
 def bibtex_enrichment(request):
@@ -62,15 +63,203 @@ def bibtex_enrichment(request):
 
 
 @require_http_methods(["POST"])
-def bibtex_upload(request):
-    """Handle BibTeX file upload and start enrichment job (anonymous allowed)."""
+def bibtex_enrich_sync(request):
+    """
+    Synchronous BibTeX enrichment API endpoint.
 
-    # Ensure session exists for anonymous users
-    if not request.user.is_authenticated and not request.session.session_key:
-        request.session.create()
+    Upload a BibTeX file and get the enriched version directly.
+    Requires API key authentication.
+
+    Usage:
+        curl https://scitex.cloud/scholar/api/bibtex/enrich/ \
+          -H "Authorization: Bearer YOUR_API_KEY" \
+          -F "bibtex_file=@original.bib" \
+          -o enriched.bib
+    """
+    from apps.scholar_app.api_auth import require_api_key
+    from scitex.scholar.pipelines import ScholarPipelineMetadataParallel
+    from scitex.scholar.storage import BibTeXHandler
+    import tempfile
+
+    # Check API authentication (decorator applied in urls.py)
+    if not hasattr(request, 'api_user'):
+        return JsonResponse({
+            'success': False,
+            'error': 'API key required',
+            'detail': 'Use Authorization: Bearer YOUR_API_KEY header'
+        }, status=401)
 
     # Check if file was uploaded
     if 'bibtex_file' not in request.FILES:
+        return JsonResponse({
+            'success': False,
+            'error': 'No file uploaded',
+            'detail': 'Include bibtex_file in multipart form data'
+        }, status=400)
+
+    bibtex_file = request.FILES['bibtex_file']
+
+    # Validate file extension
+    if not bibtex_file.name.endswith('.bib'):
+        return JsonResponse({
+            'success': False,
+            'error': 'Invalid file type',
+            'detail': 'File must have .bib extension'
+        }, status=400)
+
+    # Get parameters
+    use_cache = request.POST.get('use_cache', 'true').lower() in ('true', '1', 'on', 'yes')
+    num_workers = int(request.POST.get('num_workers', 4))
+
+    try:
+        # Save to temporary file
+        with tempfile.NamedTemporaryFile(mode='wb', suffix='.bib', delete=False) as tmp_input:
+            for chunk in bibtex_file.chunks():
+                tmp_input.write(chunk)
+            tmp_input_path = Path(tmp_input.name)
+
+        # Load papers
+        bibtex_handler = BibTeXHandler()
+        papers = bibtex_handler.papers_from_bibtex(tmp_input_path)
+
+        if not papers:
+            return JsonResponse({
+                'success': False,
+                'error': 'No papers found',
+                'detail': 'BibTeX file contains no valid entries'
+            }, status=400)
+
+        # Enrich papers
+        pipeline = ScholarPipelineMetadataParallel(num_workers=num_workers)
+
+        async def enrich():
+            return await asyncio.wait_for(
+                pipeline.enrich_papers_async(
+                    papers=papers,
+                    force=not use_cache,
+                ),
+                timeout=600
+            )
+
+        enriched_papers = asyncio.run(enrich())
+
+        # Save to temporary output file
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.bib', delete=False, encoding='utf-8') as tmp_output:
+            tmp_output_path = Path(tmp_output.name)
+
+        bibtex_handler.papers_to_bibtex(enriched_papers, tmp_output_path)
+
+        # Return enriched file
+        response = FileResponse(
+            open(tmp_output_path, 'rb'),
+            content_type='application/x-bibtex'
+        )
+
+        original_name = Path(bibtex_file.name).stem
+        response['Content-Disposition'] = f'attachment; filename="{original_name}-enriched.bib"'
+
+        # Cleanup temp files
+        tmp_input_path.unlink(missing_ok=True)
+        # Note: tmp_output_path will be cleaned up after response is sent
+
+        return response
+
+    except asyncio.TimeoutError:
+        return JsonResponse({
+            'success': False,
+            'error': 'Enrichment timeout',
+            'detail': 'Processing exceeded 10 minutes'
+        }, status=408)
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': 'Enrichment failed',
+            'detail': str(e)
+        }, status=500)
+
+
+@require_http_methods(["POST"])
+def bibtex_preview(request):
+    """Preview BibTeX file contents before enrichment (anonymous allowed)."""
+    import bibtexparser
+    from io import StringIO
+
+    # Check if file was uploaded
+    if 'bibtex_file' not in request.FILES:
+        return JsonResponse({'success': False, 'error': 'No file uploaded'}, status=400)
+
+    bibtex_file = request.FILES['bibtex_file']
+
+    # Validate file extension
+    if not bibtex_file.name.endswith('.bib'):
+        return JsonResponse({'success': False, 'error': 'Please upload a .bib file'}, status=400)
+
+    try:
+        # Read and parse BibTeX file
+        content = bibtex_file.read().decode('utf-8')
+        bibtex_file.seek(0)  # Reset file pointer for potential reuse
+
+        bib_database = bibtexparser.loads(content)
+
+        # Extract entry information
+        entries = []
+        for entry in bib_database.entries[:50]:  # Limit to first 50 for preview
+            entries.append({
+                'key': entry.get('ID', 'Unknown'),
+                'type': entry.get('ENTRYTYPE', 'article'),
+                'title': entry.get('title', 'No title'),
+                'author': entry.get('author', 'Unknown'),
+                'year': entry.get('year', 'N/A'),
+                'has_abstract': bool(entry.get('abstract')),
+                'has_url': bool(entry.get('url') or entry.get('doi')),
+                'has_citations': bool(entry.get('citations')),
+            })
+
+        total_entries = len(bib_database.entries)
+
+        return JsonResponse({
+            'success': True,
+            'filename': bibtex_file.name,
+            'total_entries': total_entries,
+            'entries': entries,
+            'showing_limited': total_entries > 50,
+        })
+
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': f'Failed to parse BibTeX file: {str(e)}'
+        }, status=400)
+
+
+@require_http_methods(["POST"])
+@api_key_optional
+def bibtex_upload(request):
+    """Handle BibTeX file upload and start enrichment job (supports API key auth)."""
+
+    # Check for API key authentication
+    api_authenticated = hasattr(request, 'api_user')
+
+    # Get authenticated user (from API key or session)
+    if api_authenticated:
+        user = request.api_user
+        is_authenticated = True
+    else:
+        user = request.user
+        is_authenticated = request.user.is_authenticated
+
+        # Ensure session exists for anonymous users
+        if not is_authenticated and not request.session.session_key:
+            request.session.create()
+
+    # Check if file was uploaded
+    if 'bibtex_file' not in request.FILES:
+        if api_authenticated or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'error': 'No file uploaded',
+                'detail': 'Include bibtex_file in request'
+            }, status=400)
         messages.error(request, 'Please select a BibTeX file to upload.')
         return redirect('scholar_app:bibtex_enrichment')
 
@@ -87,10 +276,10 @@ def bibtex_upload(request):
     # Job management: One user = One job at a time
     # Different handling for authenticated vs anonymous users
 
-    if request.user.is_authenticated:
+    if is_authenticated:
         # Authenticated users: Can cancel old jobs and start new ones
         existing_jobs = BibTeXEnrichmentJob.objects.filter(
-            user=request.user,
+            user=user,
             status__in=['pending', 'processing']
         )
 
@@ -146,20 +335,26 @@ def bibtex_upload(request):
     project_id = request.POST.get('project_id', '').strip() or None
     num_workers = int(request.POST.get('num_workers', 4))
     browser_mode = request.POST.get('browser_mode', 'stealth')
+    use_cache = request.POST.get('use_cache', 'on') == 'on'  # Checkbox sends 'on' when checked
 
     # Get project if specified (only for authenticated users)
     project = None
-    if project_id and request.user.is_authenticated:
+    if project_id and is_authenticated:
         from apps.project_app.models import Project
         try:
-            project = Project.objects.get(id=project_id, owner=request.user)
+            project = Project.objects.get(id=project_id, owner=user)
         except Project.DoesNotExist:
+            if api_authenticated:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Project not found'
+                }, status=404)
             messages.error(request, 'Selected project not found.')
             return redirect('scholar_app:bibtex_enrichment')
 
     # Save uploaded file - use user ID or session key
-    if request.user.is_authenticated:
-        user_identifier = str(request.user.id)
+    if is_authenticated:
+        user_identifier = str(user.id)
     else:
         user_identifier = f"anonymous_{request.session.session_key}"
 
@@ -170,14 +365,15 @@ def bibtex_upload(request):
 
     # Create enrichment job
     job = BibTeXEnrichmentJob.objects.create(
-        user=request.user if request.user.is_authenticated else None,
-        session_key=request.session.session_key if not request.user.is_authenticated else None,
+        user=user if is_authenticated else None,
+        session_key=request.session.session_key if not is_authenticated else None,
         input_file=file_path,
         original_filename=original_filename,
         project_name=project_name,
         project=project,
         num_workers=num_workers,
         browser_mode=browser_mode,
+        use_cache=use_cache,
         status='pending',
     )
 
@@ -187,11 +383,18 @@ def bibtex_upload(request):
     thread.daemon = True
     thread.start()
 
-    # Return JSON for AJAX requests (no Django messages needed - we show progress in the UI)
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+    # Return JSON for API and AJAX requests
+    if api_authenticated or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return JsonResponse({
             'success': True,
             'job_id': str(job.id),
+            'status': 'pending',
+            'message': 'Enrichment job started',
+            'api_endpoints': {
+                'status': f'/scholar/api/bibtex/job/{job.id}/status/',
+                'download': f'/scholar/api/bibtex/job/{job.id}/download/',
+                'papers': f'/scholar/api/bibtex/job/{job.id}/papers/',
+            }
         })
 
     return redirect('scholar_app:bibtex_job_detail', job_id=job.id)
@@ -228,15 +431,20 @@ def bibtex_job_detail(request, job_id):
     return render(request, 'scholar_app/bibtex_job_detail.html', context)
 
 
+@api_key_optional
 def bibtex_download_enriched(request, job_id):
-    """Download the enriched BibTeX file (anonymous allowed)."""
+    """Download the enriched BibTeX file (supports API key auth)."""
+
+    # Check for API key authentication
+    api_authenticated = hasattr(request, 'api_user')
+    user = request.api_user if api_authenticated else request.user
 
     # Get job by user or session key
-    if request.user.is_authenticated:
+    if api_authenticated or request.user.is_authenticated:
         job = get_object_or_404(
             BibTeXEnrichmentJob,
             id=job_id,
-            user=request.user
+            user=user
         )
     else:
         job = get_object_or_404(
@@ -246,6 +454,13 @@ def bibtex_download_enriched(request, job_id):
         )
 
     if job.status != 'completed' or not job.output_file:
+        if api_authenticated:
+            return JsonResponse({
+                'success': False,
+                'error': 'File not ready',
+                'detail': f'Job status: {job.status}',
+                'job_id': str(job_id)
+            }, status=400)
         messages.error(request, 'Enriched BibTeX file not available yet.')
         return redirect('scholar_app:bibtex_job_detail', job_id=job_id)
 
@@ -253,6 +468,11 @@ def bibtex_download_enriched(request, job_id):
     file_path = Path(settings.MEDIA_ROOT) / job.output_file.name
 
     if not file_path.exists():
+        if api_authenticated:
+            return JsonResponse({
+                'success': False,
+                'error': 'File not found on server'
+            }, status=404)
         messages.error(request, 'File not found.')
         return redirect('scholar_app:bibtex_job_detail', job_id=job_id)
 
@@ -266,15 +486,20 @@ def bibtex_download_enriched(request, job_id):
 
 
 @require_http_methods(["GET"])
+@api_key_optional
 def bibtex_job_status(request, job_id):
-    """AJAX endpoint to get job status and progress (anonymous allowed)."""
+    """API endpoint to get job status and progress (supports API key auth)."""
+
+    # Check for API key authentication
+    api_authenticated = hasattr(request, 'api_user')
+    user = request.api_user if api_authenticated else request.user
 
     # Get job by user or session key
-    if request.user.is_authenticated:
+    if api_authenticated or request.user.is_authenticated:
         job = get_object_or_404(
             BibTeXEnrichmentJob,
             id=job_id,
-            user=request.user
+            user=user
         )
     else:
         job = get_object_or_404(
@@ -297,6 +522,72 @@ def bibtex_job_status(request, job_id):
     }
 
     return JsonResponse(data)
+
+
+@require_http_methods(["GET"])
+def bibtex_job_papers(request, job_id):
+    """API endpoint to get all papers in a job as placeholders (anonymous allowed)."""
+    import bibtexparser
+    from pathlib import Path
+
+    # Get job by user or session key
+    if request.user.is_authenticated:
+        job = get_object_or_404(
+            BibTeXEnrichmentJob,
+            id=job_id,
+            user=request.user
+        )
+    else:
+        job = get_object_or_404(
+            BibTeXEnrichmentJob,
+            id=job_id,
+            session_key=request.session.session_key
+        )
+
+    # Determine which file to read (output if completed, input otherwise)
+    if job.status == 'completed' and job.output_file:
+        file_path = Path(settings.MEDIA_ROOT) / job.output_file.name
+    else:
+        file_path = Path(settings.MEDIA_ROOT) / job.input_file.name
+
+    if not file_path.exists():
+        return JsonResponse({'success': False, 'error': 'File not found'}, status=404)
+
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            bib_database = bibtexparser.load(f)
+
+        papers = []
+        for entry in bib_database.entries:
+            papers.append({
+                'key': entry.get('ID', 'Unknown'),
+                'type': entry.get('ENTRYTYPE', 'article'),
+                'title': entry.get('title', 'No title'),
+                'author': entry.get('author', 'Unknown'),
+                'year': entry.get('year', 'N/A'),
+                'journal': entry.get('journal', ''),
+                'abstract': entry.get('abstract', ''),
+                'url': entry.get('url', ''),
+                'doi': entry.get('doi', ''),
+                'citations': entry.get('citations', ''),
+                'has_abstract': bool(entry.get('abstract')),
+                'has_url': bool(entry.get('url') or entry.get('doi')),
+                'has_citations': bool(entry.get('citations')),
+            })
+
+        return JsonResponse({
+            'success': True,
+            'job_id': str(job_id),
+            'total_papers': len(papers),
+            'papers': papers,
+            'status': job.status,
+        })
+
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': f'Failed to read papers: {str(e)}'
+        }, status=500)
 
 
 def _process_bibtex_job(job):
@@ -342,7 +633,10 @@ def _process_bibtex_job(job):
                     return  # Job was cancelled, stop updating
 
                 # Create progress message
-                title = info.get('title', 'Unknown')[:50]
+                title = info.get('title', 'Unknown')
+                # Truncate with "..." indicator if too long
+                if len(title) > 50:
+                    title = title[:50] + '...'
                 status_icon = '✓' if info.get('success') else '✗'
                 message = f"[{current}/{total}] {status_icon} {title}"
 
@@ -416,7 +710,7 @@ def _process_bibtex_job(job):
             return await asyncio.wait_for(
                 pipeline.enrich_papers_async(
                     papers=papers,
-                    force=False,
+                    force=not job.use_cache,  # force=True means ignore cache
                     on_progress=progress_callback,
                 ),
                 timeout=600  # 10 minutes = 600 seconds
@@ -591,6 +885,43 @@ def bibtex_get_urls(request, job_id):
         return JsonResponse({
             'error': f'Failed to extract URLs: {str(e)}'
         }, status=500)
+
+
+@require_http_methods(["GET"])
+def bibtex_recent_jobs(request):
+    """API endpoint to get user's recent jobs with summary (anonymous allowed)."""
+
+    # Get recent jobs
+    if request.user.is_authenticated:
+        jobs = BibTeXEnrichmentJob.objects.filter(
+            user=request.user
+        ).select_related('project').order_by('-created_at')[:10]
+    else:
+        # For anonymous users, get jobs by session key
+        jobs = BibTeXEnrichmentJob.objects.filter(
+            session_key=request.session.session_key
+        ).order_by('-created_at')[:10] if request.session.session_key else BibTeXEnrichmentJob.objects.none()
+
+    jobs_data = []
+    for job in jobs:
+        jobs_data.append({
+            'id': str(job.id),
+            'original_filename': job.original_filename or 'Unknown',
+            'status': job.status,
+            'total_papers': job.total_papers,
+            'processed_papers': job.processed_papers,
+            'failed_papers': job.failed_papers,
+            'created_at': job.created_at.isoformat() if job.created_at else None,
+            'completed_at': job.completed_at.isoformat() if job.completed_at else None,
+            'progress_percentage': job.get_progress_percentage(),
+            'project_name': job.project.name if job.project else None,
+        })
+
+    return JsonResponse({
+        'success': True,
+        'jobs': jobs_data,
+        'total': len(jobs_data),
+    })
 
 
 @require_http_methods(["GET"])
