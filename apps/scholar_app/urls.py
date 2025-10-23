@@ -125,6 +125,7 @@ urlpatterns = [
     path('api/bibtex/job/<uuid:job_id>/urls/', bibtex_views.bibtex_get_urls, name='bibtex_get_urls'),
     path('api/bibtex/job/<uuid:job_id>/diff/', bibtex_views.bibtex_job_diff, name='bibtex_job_diff'),
     path('api/bibtex/job/<uuid:job_id>/cancel/', bibtex_views.bibtex_cancel_job, name='bibtex_cancel_job'),
+    path('api/bibtex/job/<uuid:job_id>/save-to-project/', bibtex_views.bibtex_save_to_project, name='bibtex_save_to_project'),
     path('api/bibtex/recent-jobs/', bibtex_views.bibtex_recent_jobs, name='bibtex_recent_jobs'),
     path('api/bibtex/resource-status/', bibtex_views.bibtex_resource_status, name='bibtex_resource_status'),
 

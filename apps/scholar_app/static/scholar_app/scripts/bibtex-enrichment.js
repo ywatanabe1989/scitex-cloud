@@ -65,9 +65,9 @@ function handleFileSelect(e) {
 }
 
 /**
- * Handle form submission - First show preview
+ * Handle form submission - Start enrichment directly
  */
-function handleFormSubmit(e, forceCancel = false, skipPreview = false) {
+function handleFormSubmit(e, forceCancel = false) {
     e.preventDefault();
 
     const formData = new FormData(e.target);
@@ -78,14 +78,8 @@ function handleFormSubmit(e, forceCancel = false, skipPreview = false) {
         formData.append('force_cancel', 'true');
     }
 
-    // If skipPreview is true, proceed directly to upload
-    if (skipPreview) {
-        startEnrichmentJob(e.target, formData, csrfToken, forceCancel);
-        return;
-    }
-
-    // First, show preview
-    showBibtexPreview(e.target, formData, csrfToken);
+    // Start enrichment directly (no preview)
+    startEnrichmentJob(e.target, formData, csrfToken, forceCancel);
 }
 
 /**
@@ -511,10 +505,13 @@ function showDownloadArea(jobId) {
     const openUrlsBtn = document.getElementById('openUrlsBtn');
     const saveToProjectBtn = document.getElementById('saveToProjectBtn');
 
+    // Store job ID for download
+    window.currentBibtexJobId = jobId;
+
     if (downloadBtn) {
-        downloadBtn.href = `/scholar/api/bibtex/job/${jobId}/download/`;
+        downloadBtn.disabled = false;
         downloadBtn.style.opacity = '1';
-        downloadBtn.style.pointerEvents = 'auto';
+        downloadBtn.style.cursor = 'pointer';
     }
 
     if (showDiffBtn) {
@@ -529,8 +526,7 @@ function showDownloadArea(jobId) {
         openUrlsBtn.style.cursor = 'pointer';
     }
 
-    // Enable Save to Project if user has projects
-    if (saveToProjectBtn && !saveToProjectBtn.hasAttribute('data-no-projects')) {
+    if (saveToProjectBtn) {
         saveToProjectBtn.disabled = false;
         saveToProjectBtn.style.opacity = '1';
         saveToProjectBtn.style.cursor = 'pointer';
@@ -793,14 +789,26 @@ function showError(message) {
 }
 
 /**
- * Handle Save to Project button click
+ * Handle Save to Project button click - saves enriched file to project
  */
 window.handleSaveToProject = function() {
-    console.log('Save to Project clicked');
-    const modal = document.getElementById('projectSelectorModal');
-    if (modal) {
-        modal.style.display = 'block';
+    const projectSelector = document.getElementById('projectSelector');
+    const jobId = window.currentBibtexJobId;
+
+    if (!jobId) {
+        alert('No job available to save');
+        return;
     }
+
+    if (!projectSelector || !projectSelector.value) {
+        alert('Please select a project first');
+        return;
+    }
+
+    console.log('Saving job', jobId, 'to project', projectSelector.value);
+
+    // Call save to project API endpoint
+    saveJobToProject(jobId);
 };
 
 /**
@@ -819,17 +827,21 @@ window.closeProjectSelector = function() {
 window.confirmProjectSave = function() {
     const dropdown = document.getElementById('projectSelectorDropdown');
     const input = document.getElementById('projectIdInput');
+    const buttonText = document.getElementById('saveToProjectText');
 
     if (dropdown && input) {
         input.value = dropdown.value;
         console.log('Project selected:', dropdown.value);
+
+        // Update button text with selected project name
+        if (buttonText) {
+            const selectedOption = dropdown.options[dropdown.selectedIndex];
+            buttonText.textContent = selectedOption.text;
+        }
     }
 
     // Close modal
     closeProjectSelector();
-
-    // Show confirmation
-    alert('Project will be saved when enrichment completes');
 };
 
 /**
@@ -1033,19 +1045,24 @@ function displayRecentJobs(jobs) {
         const activeStyle = isActive ? 'border-color: var(--scitex-color-03); background: var(--color-canvas-subtle);' : '';
 
         html += `
-            <div onclick="loadJobFromHistory('${job.id}')"
-                 style="margin-bottom: 0.5rem; border-left: 3px solid ${statusColor}; padding: 0.75rem; background: var(--color-canvas-subtle); cursor: pointer; transition: all 0.2s; border-radius: 4px; ${isActive ? 'background: var(--color-canvas-default);' : ''}"
-                 onmouseover="this.style.background='var(--color-canvas-default)'"
-                 onmouseout="this.style.background='${isActive ? 'var(--color-canvas-default)' : 'var(--color-canvas-subtle)'}'"
-            >
-                <div style="font-weight: 600; color: var(--color-fg-default); font-size: 0.9rem; margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.5rem;">
+            <div style="margin-bottom: 0.75rem; border-left: 3px solid ${statusColor}; padding: 0.75rem; background: var(--color-canvas-subtle); border-radius: 4px;">
+                <div style="font-weight: 600; color: var(--color-fg-default); font-size: 0.9rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
                     <i class="fas ${statusIcon}" style="color: ${statusColor}; font-size: 0.85rem;"></i>
-                    <span style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(job.original_filename)}</span>
+                    <span style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(job.original_filename)}">${escapeHtml(job.original_filename)}</span>
                 </div>
-                <div style="font-size: 0.75rem; color: var(--color-fg-muted);">
-                    ${job.total_papers} papers
-                    ${job.status === 'completed' ? ` • ${job.progress_percentage}%` : ''}
+                <div style="font-size: 0.75rem; color: var(--color-fg-muted); margin-bottom: 0.5rem;">
+                    ${job.total_papers} papers • ${job.status}
                 </div>
+                ${job.status === 'completed' ? `
+                    <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                        <button onclick="downloadJob('${job.id}')" style="flex: 1; padding: 0.5rem; background: var(--success-color); color: var(--white); border: none; border-radius: 4px; font-size: 0.8rem; font-weight: 600; cursor: pointer;">
+                            <i class="fas fa-download"></i> Download
+                        </button>
+                        <button onclick="saveJobToProject('${job.id}')" style="flex: 1; padding: 0.5rem; background: var(--scitex-color-05); color: var(--white); border: none; border-radius: 4px; font-size: 0.8rem; font-weight: 600; cursor: pointer;">
+                            <i class="fas fa-folder"></i> Save
+                        </button>
+                    </div>
+                ` : ''}
             </div>
         `;
     });
@@ -1054,39 +1071,69 @@ function displayRecentJobs(jobs) {
 }
 
 /**
- * Load job from history when clicked - downloads if completed
+ * Handle download button click in main panel
+ */
+window.handleDownload = function() {
+    if (window.currentBibtexJobId) {
+        console.log('Downloading current job:', window.currentBibtexJobId);
+        window.location.href = `/scholar/api/bibtex/job/${window.currentBibtexJobId}/download/`;
+    }
+};
+
+/**
+ * Download job enriched file from history card
  * @param {string} jobId - Job UUID
  */
-window.loadJobFromHistory = function(jobId) {
-    console.log('Loading job from history:', jobId);
-    window.currentBibtexJobId = jobId;
-    localStorage.setItem('currentBibtexJobId', jobId);
+window.downloadJob = function(jobId) {
+    console.log('Downloading job:', jobId);
+    window.location.href = `/scholar/api/bibtex/job/${jobId}/download/`;
+};
 
-    // Check status
-    fetch(`/scholar/api/bibtex/job/${jobId}/status/`)
-        .then(response => response.json())
-        .then(data => {
-            console.log('Job status:', data.status);
+/**
+ * Save job to project
+ * @param {string} jobId - Job UUID
+ */
+window.saveJobToProject = function(jobId) {
+    console.log('Saving job to project:', jobId);
 
-            if (data.status === 'completed') {
-                // Download the enriched file directly
-                console.log('Downloading completed job...');
-                window.location.href = `/scholar/api/bibtex/job/${jobId}/download/`;
-            } else if (data.status === 'processing' || data.status === 'pending') {
-                // Show progress for active jobs
-                loadJobPapers(jobId);
-                startJobPolling(jobId);
-            } else {
-                // Failed or cancelled - just show status
-                alert(`Job ${data.status}: ${data.error_message || 'No details available'}`);
-            }
+    // Check if user has projects
+    const projectSelector = document.getElementById('projectSelector');
+    if (!projectSelector) {
+        alert('Please sign in and create a project first');
+        return;
+    }
 
-            // Refresh recent jobs to update "current" indicator
-            loadRecentJobs();
-        })
-        .catch(error => {
-            console.error('Error checking job status:', error);
-        });
+    // Get selected project
+    const projectId = projectSelector.value;
+    if (!projectId) {
+        alert('Please select a project first');
+        return;
+    }
+
+    // Save to project via API
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const formData = new FormData();
+    formData.append('project_id', projectId);
+
+    fetch(`/scholar/api/bibtex/job/${jobId}/save-to-project/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken,
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(`✓ Saved to ${data.project}\n\nFiles:\n- original_<timestamp>.bib\n- enriched_<timestamp>.bib\n\nLocation: scitex/scholar/bib_files/`);
+        } else {
+            alert(`Error: ${data.error}`);
+        }
+    })
+    .catch(error => {
+        console.error('Save error:', error);
+        alert('Failed to save to project');
+    });
 };
 
 /**
