@@ -4,74 +4,97 @@
 {% block title %}Create Project - SciTeX Cloud{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/common/buttons.css' %}">
+<link rel="stylesheet" href="{% static 'css/common.css' %}">
 <style>
+/* Container centering */
+.create-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+/* Form card */
 .create-form {
-    background: white;
-    border: 1px solid #e5e5e5;
+    background: var(--bg-page);
+    border: 2px solid var(--border-default);
     border-radius: 8px;
     padding: 2rem;
-    max-width: 800px;
 }
 
-.form-group {
-    margin-bottom: 1.5rem;
+[data-theme="dark"] .create-form {
+    background: var(--bg-surface);
+    border-color: var(--border-default);
 }
 
-.form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-}
-
-.form-control {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 1rem;
-}
-
-.form-control:focus {
-    outline: none;
-    border-color: #007acc;
-    box-shadow: 0 0 0 2px rgba(0, 122, 204, 0.25);
-}
-
+/* Textarea sizing */
 textarea.form-control {
     resize: vertical;
     min-height: 120px;
 }
 
+/* Breadcrumb */
 .breadcrumb {
     margin-bottom: 1.5rem;
+    color: var(--text-secondary);
 }
 
 .breadcrumb a {
-    color: #007acc;
+    color: var(--scitex-color-04);
     text-decoration: none;
 }
 
 .breadcrumb a:hover {
     text-decoration: underline;
+    color: var(--scitex-color-03);
 }
 
+/* Form actions */
 .form-actions {
     display: flex;
     gap: 1rem;
     margin-top: 2rem;
 }
 
+/* Help text */
 .help-text {
-    font-size: 0.85rem;
-    color: #666;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
     margin-top: 0.25rem;
+}
+
+[data-theme="dark"] .help-text {
+    color: var(--scitex-color-05);
+}
+
+/* Page title */
+h1 {
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+}
+
+/* Code tags in help text */
+.help-text code {
+    background: var(--bg-surface);
+    padding: 0.2rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.85rem;
+    color: var(--scitex-color-04);
+}
+
+[data-theme="dark"] .help-text code {
+    background: var(--scitex-color-01);
+    color: var(--scitex-color-05);
+}
+
+/* Availability message colors */
+#name-availability {
+    font-size: 0.9rem;
 }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid">
+<div class="create-container">
     <!-- Breadcrumb -->
     <nav class="breadcrumb">
         <a href="/{{ user.username }}/projects/">Projects</a> / Create New Project
@@ -84,10 +107,17 @@ textarea.form-control {
             {% csrf_token %}
 
             <div class="form-group">
-                <label for="name">Repository Name *</label>
+                <label class="form-label" for="name">Repository Name *</label>
                 <input type="text" class="form-control" id="name" name="name" required
-                       placeholder="my-research-project" autocomplete="off">
-                <div id="name-availability" style="margin-top: 0.5rem; font-size: 0.9rem; display: none;">
+                       placeholder="my-research-project"
+                       autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="off"
+                       spellcheck="false"
+                       data-form-type="other"
+                       data-lpignore="true"
+                       role="presentation">
+                <div id="name-availability" style="margin-top: 0.5rem; display: none;">
                     <span id="availability-icon"></span>
                     <span id="availability-message"></span>
                 </div>
@@ -95,13 +125,13 @@ textarea.form-control {
             </div>
 
             <div class="form-group">
-                <label for="description">Description (Optional)</label>
+                <label class="form-label" for="description">Description (Optional)</label>
                 <textarea class="form-control" id="description" name="description" rows="2"
                           placeholder="Brief description..."></textarea>
             </div>
 
             <div class="form-group">
-                <label style="display: block; margin-bottom: 0.75rem; font-weight: 500;">
+                <label class="form-label" style="display: block; margin-bottom: 0.75rem;">
                     Initialize Repository
                 </label>
 
@@ -138,7 +168,7 @@ textarea.form-control {
 
                 <!-- Import URL Input -->
                 <div id="github_url_input" style="display: none; margin-top: 1rem; margin-left: 2.25rem;">
-                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.95rem;">
+                    <label class="form-label" for="github_url">
                         Repository URL
                     </label>
                     <input type="text" name="git_url" id="github_url" class="form-control"
@@ -150,7 +180,7 @@ textarea.form-control {
                         • SSH: <code>git@github.com:username/repo.git</code>
                     </div>
 
-                    <label style="display: block; margin: 0.75rem 0 0.5rem 0; font-weight: 500; font-size: 0.95rem;">
+                    <label class="form-label" for="github_token" style="margin-top: 0.75rem;">
                         Access Token (Optional - for private repos)
                     </label>
                     <input type="password" name="github_token" id="github_token" class="form-control"
@@ -170,7 +200,7 @@ textarea.form-control {
 
                 <!-- Git URL Input (for Git cloning) -->
                 <div id="git_url_input" style="display: none; margin-top: 1rem; margin-left: 2.25rem;">
-                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.95rem;">
+                    <label class="form-label" for="git_url">
                         Repository URL
                     </label>
                     <input type="text" name="git_url" id="git_url" class="form-control"
@@ -178,14 +208,14 @@ textarea.form-control {
                            style="max-width: 600px;">
                     <div class="help-text" style="margin-top: 0.5rem;">
                         Enter the repository URL in HTTPS or SSH format:
-                        <br>• HTTPS: <code style="font-size: 0.85rem;">https://github.com/user/repo.git</code>
-                        <br>• SSH: <code style="font-size: 0.85rem;">git@github.com:user/repo.git</code> (requires <a href="/profile/settings/ssh-keys/" target="_blank">SSH key setup</a>)
+                        <br>• HTTPS: <code>https://github.com/user/repo.git</code>
+                        <br>• SSH: <code>git@github.com:user/repo.git</code> (requires <a href="/profile/settings/ssh-keys/" target="_blank">SSH key setup</a>)
                     </div>
                 </div>
 
                 <!-- Template Type Selector (hidden by default) -->
                 <div id="template_type_selector" style="display: none; margin-top: 1rem; margin-left: 2.25rem;">
-                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.95rem;">
+                    <label class="form-label" for="template_select">
                         Template Type
                     </label>
                     <select name="template_type" class="form-control" style="max-width: 600px;" id="template_select">
@@ -278,10 +308,28 @@ textarea.form-control {
 
                 // Real-time name availability checking
                 let nameCheckTimeout;
+                let isNameAvailable = false;  // Track availability state
                 const nameInput = document.getElementById('name');
                 const availabilityDiv = document.getElementById('name-availability');
                 const availabilityIcon = document.getElementById('availability-icon');
                 const availabilityMessage = document.getElementById('availability-message');
+                const form = document.querySelector('form');
+                const submitButton = document.querySelector('.btn-primary');
+
+                // Prevent form submission if name is not available
+                form?.addEventListener('submit', function(e) {
+                    const name = nameInput?.value.trim();
+                    if (!name) {
+                        e.preventDefault();
+                        alert('Please enter a project name');
+                        return false;
+                    }
+                    if (!isNameAvailable) {
+                        e.preventDefault();
+                        alert('Please choose an available project name. The current name is already taken or invalid.');
+                        return false;
+                    }
+                });
 
                 nameInput?.addEventListener('input', function() {
                     const name = this.value.trim();
@@ -292,8 +340,23 @@ textarea.form-control {
                     // Hide availability if empty
                     if (!name) {
                         availabilityDiv.style.display = 'none';
+                        isNameAvailable = false;
+                        if (submitButton) {
+                            submitButton.disabled = true;
+                            submitButton.style.opacity = '0.5';
+                            submitButton.style.cursor = 'not-allowed';
+                        }
                         return;
                     }
+
+                    // While typing, disable submit button
+                    isNameAvailable = false;
+                    if (submitButton) {
+                        submitButton.disabled = true;
+                        submitButton.style.opacity = '0.5';
+                        submitButton.style.cursor = 'not-allowed';
+                    }
+
 
                     // Show checking state
                     availabilityDiv.style.display = 'block';
@@ -308,13 +371,27 @@ textarea.form-control {
                             const data = await response.json();
 
                             if (data.available) {
+                                isNameAvailable = true;
                                 availabilityIcon.textContent = '✓';
                                 availabilityMessage.textContent = ' ' + data.message;
                                 availabilityMessage.style.color = '#28a745';
+                                // Re-enable submit button
+                                if (submitButton) {
+                                    submitButton.disabled = false;
+                                    submitButton.style.opacity = '1';
+                                    submitButton.style.cursor = 'pointer';
+                                }
                             } else {
+                                isNameAvailable = false;
                                 availabilityIcon.textContent = '✗';
                                 availabilityMessage.textContent = ' ' + data.message;
                                 availabilityMessage.style.color = '#dc3545';
+                                // Disable submit button
+                                if (submitButton) {
+                                    submitButton.disabled = true;
+                                    submitButton.style.opacity = '0.5';
+                                    submitButton.style.cursor = 'not-allowed';
+                                }
                             }
                         } catch (error) {
                             console.error('Error checking name availability:', error);
@@ -345,6 +422,44 @@ textarea.form-control {
                         }
                     }
                 });
+
+                // Aggressive autofill prevention for repository name field
+                // Multiple strategies to prevent username from autofilling into repo name
+                (function() {
+                    const nameInput = document.getElementById('name');
+                    if (nameInput) {
+                        // Strategy 1: Make it readonly initially (browsers don't autofill readonly fields)
+                        nameInput.setAttribute('readonly', 'readonly');
+
+                        // Strategy 2: Clear any autofilled value immediately
+                        const clearAutofill = function() {
+                            // Check if the field was autofilled (common indicator: the value matches username)
+                            // We clear it to prevent unwanted autofill
+                            if (nameInput.value && nameInput.matches(':-webkit-autofill')) {
+                                nameInput.value = '';
+                            }
+                        };
+
+                        // Run clear check multiple times as browsers autofill at different moments
+                        setTimeout(clearAutofill, 50);
+                        setTimeout(clearAutofill, 100);
+                        setTimeout(clearAutofill, 200);
+
+                        // Strategy 3: Remove readonly when user interacts
+                        nameInput.addEventListener('focus', function() {
+                            nameInput.removeAttribute('readonly');
+                        }, { once: true });
+
+                        nameInput.addEventListener('click', function() {
+                            nameInput.removeAttribute('readonly');
+                        }, { once: true });
+
+                        // Strategy 4: Also remove readonly after delay to allow interaction
+                        setTimeout(function() {
+                            nameInput.removeAttribute('readonly');
+                        }, 500);
+                    }
+                })();
                 </script>
             </div>
 

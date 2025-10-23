@@ -1,0 +1,102 @@
+/*
+ * @component Autofill Override
+ * @description Browser autofill style overrides to maintain design system consistency
+ * @category Form and Selection
+ * @file /static/css/common/autofill.css
+ * @darkmode true
+ *
+ * @description
+ * GLOBAL POLICY: Autocomplete is DISABLED by default across the entire web app.
+ * This prevents inappropriate autofill suggestions (e.g., username filling into
+ * repository name fields). Browser autofill styling is overridden when it does occur.
+ *
+ * @usage
+ * Autocomplete is disabled globally. To enable for specific fields:
+ * Add autocomplete="on" or specific values like autocomplete="email"
+ *
+ * @example
+ * <!-- Default: autocomplete disabled (no attribute needed) -->
+ * <input type="text" class="form-control" name="repo_name">
+ *
+ * @example
+ * <!-- Explicitly enable autocomplete for email -->
+ * <input type="email" class="form-control" name="email" autocomplete="email">
+ *
+ * @example
+ * <!-- Enable autocomplete for password -->
+ * <input type="password" class="form-control" name="password" autocomplete="current-password">
+ */
+
+/* =========================
+   Light Mode Autofill
+   ========================= */
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  /* Override text color */
+  -webkit-text-fill-color: var(--text-primary);
+
+  /* Override background with inset box-shadow trick */
+  -webkit-box-shadow: 0 0 0 1000px var(--bg-page) inset;
+  box-shadow: 0 0 0 1000px var(--bg-page) inset;
+
+  /* Maintain border styling */
+  border: 2px solid var(--border-default) !important;
+
+  /* Delay background color transition to prevent flash */
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* =========================
+   Dark Mode Autofill
+   ========================= */
+
+[data-theme="dark"] input:-webkit-autofill,
+[data-theme="dark"] input:-webkit-autofill:hover,
+[data-theme="dark"] input:-webkit-autofill:focus,
+[data-theme="dark"] textarea:-webkit-autofill,
+[data-theme="dark"] textarea:-webkit-autofill:hover,
+[data-theme="dark"] textarea:-webkit-autofill:focus,
+[data-theme="dark"] select:-webkit-autofill,
+[data-theme="dark"] select:-webkit-autofill:hover,
+[data-theme="dark"] select:-webkit-autofill:focus {
+  /* Dark mode text color */
+  -webkit-text-fill-color: var(--scitex-color-06);
+
+  /* Dark mode background */
+  -webkit-box-shadow: 0 0 0 1000px var(--scitex-color-01-light) inset;
+  box-shadow: 0 0 0 1000px var(--scitex-color-01-light) inset;
+
+  /* Dark mode border */
+  border: 2px solid var(--scitex-color-04) !important;
+}
+
+/* =========================
+   Form Control Specific
+   ========================= */
+
+.form-control:-webkit-autofill,
+.form-control:-webkit-autofill:hover,
+.form-control:-webkit-autofill:focus {
+  /* Ensure form-control class gets proper styling */
+  -webkit-text-fill-color: var(--text-primary);
+  -webkit-box-shadow: 0 0 0 1000px var(--bg-page) inset;
+  box-shadow: 0 0 0 1000px var(--bg-page) inset;
+  border: 2px solid var(--border-default) !important;
+}
+
+[data-theme="dark"] .form-control:-webkit-autofill,
+[data-theme="dark"] .form-control:-webkit-autofill:hover,
+[data-theme="dark"] .form-control:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--scitex-color-06);
+  -webkit-box-shadow: 0 0 0 1000px var(--scitex-color-01-light) inset;
+  box-shadow: 0 0 0 1000px var(--scitex-color-01-light) inset;
+  border: 2px solid var(--scitex-color-04) !important;
+}
