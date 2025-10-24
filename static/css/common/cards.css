@@ -290,3 +290,203 @@
 .card-accent.card-clickable:active {
   background-color: var(--scitex-color-03);
 }
+
+/* =========================
+   Extended Card Variants
+   (Extracted from page-specific CSS)
+   ========================= */
+
+/* Feature Card - For showcasing features with icons */
+.card--feature {
+  background: white;
+  padding: var(--spacing-lg);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--scitex-color-06);
+  box-shadow: var(--box-shadow-sm);
+  transition: all 0.3s ease;
+}
+
+.card--feature:hover {
+  box-shadow: var(--box-shadow-md);
+  transform: translateY(-2px);
+}
+
+.card--feature h3 {
+  color: var(--scitex-color-01);
+  margin-bottom: var(--spacing-md);
+}
+
+.card--feature ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.card--feature li {
+  padding: var(--spacing-sm) 0;
+  color: var(--scitex-color-02);
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+.card--feature li:before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: var(--scitex-color-04);
+  font-weight: bold;
+}
+
+/* Requirement Card - For displaying system requirements */
+.card--requirement {
+  background: var(--scitex-color-07);
+  padding: var(--spacing-lg);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--scitex-color-06);
+  transition: all 0.3s ease;
+}
+
+.card--requirement:hover {
+  box-shadow: var(--box-shadow-sm);
+  transform: translateY(-2px);
+}
+
+.card--requirement h3 {
+  color: var(--scitex-color-01);
+  margin-bottom: var(--spacing-md);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.card--requirement h3 i {
+  color: var(--scitex-color-04);
+}
+
+.card--requirement ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.card--requirement li {
+  padding: var(--spacing-sm) 0;
+  color: var(--scitex-color-02);
+  line-height: 1.6;
+}
+
+.card--requirement code {
+  background: var(--scitex-color-06);
+  padding: 0.2rem 0.4rem;
+  border-radius: 3px;
+  color: var(--scitex-color-01);
+  font-size: 0.9em;
+}
+
+/* Repository Card - For project/repo listings */
+.card--repo {
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+  transition: all var(--transition-normal) ease;
+  height: 100%;
+  background-color: white;
+}
+
+.card--repo:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--box-shadow-lg);
+}
+
+.card--repo h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: var(--spacing-sm) 0;
+  color: var(--primary-color);
+}
+
+.card--repo p {
+  color: var(--text-color);
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+/* Module Card - For product/module showcases */
+.card--module {
+  background: var(--scitex-color-07);
+  padding: var(--spacing-lg);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--scitex-color-06);
+}
+
+.card--module h4 {
+  color: var(--scitex-color-01);
+  margin-bottom: var(--spacing-sm);
+}
+
+.card--module p {
+  color: var(--scitex-color-02);
+  margin: 0;
+}
+
+/* Compact Module Card with Hover Expansion */
+.card--module-compact {
+  background-color: var(--scitex-color-07);
+  border: 1px solid var(--scitex-color-06);
+  border-radius: var(--border-radius);
+  padding: 1rem;
+  text-align: left;
+  box-shadow: var(--box-shadow-sm);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  height: auto;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.card--module-compact:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+  background-color: var(--white);
+  border-color: var(--scitex-color-04);
+  z-index: 10;
+  padding: 1.5rem;
+}
+
+/* Security Item Card - For security features */
+.card--security {
+  background: var(--scitex-color-07);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius);
+  border-left: 4px solid var(--scitex-color-04);
+}
+
+/* Dark Theme Support */
+[data-theme="dark"] .card {
+  background-color: var(--bg-800);
+  border-color: var(--border-400);
+}
+
+[data-theme="dark"] .card--feature,
+[data-theme="dark"] .card--repo {
+  background-color: var(--bg-700);
+  border-color: var(--border-400);
+}
+
+[data-theme="dark"] .card--feature h3,
+[data-theme="dark"] .card--repo h3,
+[data-theme="dark"] .card--requirement h3,
+[data-theme="dark"] .card--module h4 {
+  color: var(--text-100);
+}
+
+[data-theme="dark"] .card--feature li,
+[data-theme="dark"] .card--repo p,
+[data-theme="dark"] .card--requirement li,
+[data-theme="dark"] .card--module p {
+  color: var(--text-300);
+}
