@@ -363,7 +363,10 @@ def mock_save(request):
 
 @require_http_methods(["POST"])
 def initialize_workspace(request):
-    """Initialize writer workspace for a project (opt-in/on-demand)."""
+    """Initialize writer workspace for a project (opt-in/on-demand).
+
+    Handles both authenticated users and guest users via session.
+    """
     import json
 
     try:
@@ -373,30 +376,76 @@ def initialize_workspace(request):
         if not project_id:
             return JsonResponse({'success': False, 'error': 'No project ID provided'}, status=400)
 
+        # Determine the user to use for project lookup
+        user = None
+
+        # First, check if user is authenticated
+        if request.user.is_authenticated:
+            user = request.user
+            logger.info(f"Initializing workspace for authenticated user: {user.username}")
+        else:
+            # Try to get guest user from session
+            guest_user_id = request.session.get('guest_user_id')
+            if guest_user_id:
+                try:
+                    user = User.objects.get(id=guest_user_id, username__startswith='guest-')
+                    logger.info(f"Initializing workspace for guest user: {user.username}")
+                except User.DoesNotExist:
+                    logger.warning(f"Guest user not found: {guest_user_id}")
+                    return JsonResponse({
+                        'success': False,
+                        'error': 'Guest session not found. Please refresh the page.'
+                    }, status=401)
+            else:
+                logger.warning("No authenticated user or guest session found")
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Not authenticated. Please log in or refresh the page.'
+                }, status=401)
+
+        if not user:
+            return JsonResponse({
+                'success': False,
+                'error': 'Unable to determine user for workspace initialization'
+            }, status=401)
+
         # Get project
         try:
-            project = Project.objects.get(id=project_id, owner=request.user)
+            project = Project.objects.get(id=project_id, owner=user)
         except Project.DoesNotExist:
-            return JsonResponse({'success': False, 'error': 'Project not found'}, status=404)
+            logger.error(f"Project {project_id} not found for user {user.username}")
+            return JsonResponse({
+                'success': False,
+                'error': f'Project not found for user {user.username}'
+            }, status=404)
 
         # Initialize writer directory
+        logger.info(f"Creating writer directory for project: {project.name} (id={project_id})")
         writer_path = ensure_writer_directory(project)
 
         if writer_path:
+            logger.info(f"✓ Writer workspace initialized successfully: {writer_path}")
             return JsonResponse({
                 'success': True,
                 'message': 'Writer workspace initialized successfully',
                 'writer_path': str(writer_path)
             })
         else:
+            logger.error(f"Failed to create writer directory for project: {project.name}")
             return JsonResponse({
                 'success': False,
                 'error': 'Failed to create writer directory'
             }, status=500)
 
+    except json.JSONDecodeError:
+        logger.error("Invalid JSON in initialize_workspace request")
+        return JsonResponse({
+            'success': False,
+            'error': 'Invalid JSON request'
+        }, status=400)
     except Exception as e:
         logger.error(f"Error initializing workspace: {e}", exc_info=True)
         return JsonResponse({
             'success': False,
-            'error': str(e)
+            'error': f'Server error: {str(e)}'
         }, status=500)

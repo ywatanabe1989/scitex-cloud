@@ -325,7 +325,7 @@
     display: flex;
     gap: 1rem;
     padding: 2rem;
-    height: calc(100vh - 200px); /* Ensure editor fills viewport height */
+    min-height: 0; /* Critical: allows flex to work properly */
 }
 
 .latex-panel,
@@ -334,9 +334,11 @@
     display: flex;
     flex-direction: column;
     min-height: 0; /* Allow flex children to shrink */
+    max-height: 100%; /* Ensure doesn't overflow parent */
 }
 
 .latex-panel > textarea,
+.latex-panel > .CodeMirror,
 .latex-panel > .CodeMirror-wrap {
     flex: 1;
     min-height: 0; /* Allow flex children to shrink */
@@ -1057,7 +1059,24 @@
 <!-- Initialize Writer Workspace Function (must be defined early, before any syntax errors) -->
 <script>
 function getCsrfToken() {
-    return document.querySelector('[name=csrfmiddlewaretoken]').value;
+    // Try to get CSRF token from form input
+    const tokenElement = document.querySelector('[name=csrfmiddlewaretoken]');
+    if (tokenElement) {
+        return tokenElement.value;
+    }
+
+    // Fallback: try to get from cookie
+    const cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+        const [name, value] = cookie.trim().split('=');
+        if (name === 'csrftoken') {
+            return decodeURIComponent(value);
+        }
+    }
+
+    // If no CSRF token found, return empty string and let Django handle it
+    console.warn('[Writer] CSRF token not found in form or cookies');
+    return '';
 }
 
 function initializeWriterWorkspace(btn) {
