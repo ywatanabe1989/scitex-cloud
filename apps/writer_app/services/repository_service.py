@@ -12,11 +12,11 @@ from django.utils import timezone
 from django.core.files.base import ContentFile
 from django.db import transaction
 
-from .models import Manuscript, Citation, ArxivSubmission
+from ..models import Manuscript, Citation, ArxivSubmission
 from apps.scholar_app.models import (
     Dataset, DatasetFile, RepositoryConnection, SearchIndex
 )
-from apps.scholar_app.repository_services import (
+from apps.scholar_app.services.repository_services import (
     RepositoryServiceFactory, upload_dataset_to_repository
 )
 

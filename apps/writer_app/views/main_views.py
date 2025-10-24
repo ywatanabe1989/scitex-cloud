@@ -6,20 +6,20 @@ from django.core.paginator import Paginator
 from django.contrib import messages
 from django.db import models
 from django.utils.text import slugify
-from . import default_workspace_views as workspace_views
+from . import workspace_views
 
 # Expose default workspace views
 guest_session_view = workspace_views.guest_session_view
 user_default_workspace = workspace_views.user_default_workspace
-from .models import (
+from ..models import (
     DocumentTemplate, Manuscript, ManuscriptSection,
     Figure, Table, Citation, CompilationJob, AIAssistanceLog,
     CollaborativeSession, DocumentChange, ManuscriptVersion,
     ManuscriptBranch, DiffResult, MergeRequest
 )
-from .version_control import VersionControlManager
+from ..services.version_control_service import VersionControlManager
 from apps.project_app.models import Project
-from apps.workspace_app.services.directory_service import get_user_directory_manager
+from apps.project_app.services.project_filesystem import get_project_filesystem_manager
 import json
 import uuid
 import subprocess
@@ -31,23 +31,72 @@ from django.utils import timezone
 
 
 def index(request):
-    """SciTeX Writer MVP landing page."""
-    # Get popular templates
-    popular_templates = DocumentTemplate.objects.filter(
-        is_public=True
-    ).order_by('-usage_count')[:6]
-    
-    # MVP stats for landing page
-    stats = {
-        'total_manuscripts': Manuscript.objects.count(),
-        'total_compilations': CompilationJob.objects.filter(status='completed').count(),
-        'active_users': Manuscript.objects.values('owner').distinct().count(),
-    }
-    
+    """SciTeX Writer MVP editor - accessible to all users."""
+    # For anonymous users, provide a demo manuscript
+    if not request.user.is_authenticated:
+        # Create demo context for anonymous users
+        context = {
+            'manuscript': None,
+            'recent_jobs': [],
+            'is_mvp': True,
+            'is_anonymous': True,
+        }
+        return render(request, 'writer_app/index.html', context)
+
+    # For authenticated users, get or create their draft manuscript
+    manuscript, created = Manuscript.objects.get_or_create(
+        owner=request.user,
+        title="Draft Manuscript",
+        defaults={
+            'slug': f"draft-{request.user.username}-{uuid.uuid4().hex[:8]}",
+            'content': """% SciTeX Writer MVP - Quick Start Template
+\\documentclass[12pt]{article}
+\\usepackage[utf8]{inputenc}
+\\usepackage{amsmath}
+\\usepackage{graphicx}
+\\usepackage[margin=1in]{geometry}
+
+\\title{Your Manuscript Title}
+\\author{Your Name}
+\\date{\\today}
+
+\\begin{document}
+
+\\maketitle
+
+\\begin{abstract}
+Write your abstract here...
+\\end{abstract}
+
+\\section{Introduction}
+Write your introduction here...
+
+\\section{Methods}
+Describe your methodology...
+
+\\section{Results}
+Present your results...
+
+\\section{Discussion}
+Discuss your findings...
+
+\\section{Conclusion}
+Conclude your work...
+
+\\end{document}"""
+        }
+    )
+
+    # Get recent compilation jobs
+    recent_jobs = CompilationJob.objects.filter(
+        manuscript__owner=request.user
+    ).order_by('-created_at')[:5]
+
     context = {
-        'popular_templates': popular_templates,
-        'stats': stats,
-        'is_mvp': True,  # MVP flag for templates
+        'manuscript': manuscript,
+        'recent_jobs': recent_jobs,
+        'is_mvp': True,
+        'is_anonymous': False,
     }
     return render(request, 'writer_app/index.html', context)
 
@@ -193,7 +242,7 @@ def project_writer(request, project_id):
         'user_projects': user_projects
     }
 
-    return render(request, 'writer_app/project_writer.html', context)
+    return render(request, 'writer_app/index.html', context)
 
 
 @login_required
@@ -479,6 +528,7 @@ SciTeX Cloud Team
                 # Log file created successfully
             else:
                 # Log file not found - this is unexpected
+                pass
 
             # job.log_file already contains the path - don't overwrite it!
 
@@ -893,7 +943,7 @@ def manuscript_compile(request, slug):
     
     # Start compilation asynchronously
     import threading
-    from .utils import compile_latex_document
+    from ..services.utils import compile_latex_document
     
     def run_compilation():
         compile_latex_document(job)
@@ -1302,15 +1352,15 @@ def toggle_editing_mode(request, project_id):
 
 
 @login_required
-def mvp_editor(request):
-    """MVP simplified manuscript editor."""
+def latex_editor_view(request):
+    """Overleaf-style LaTeX manuscript editor."""
     # Get or create a draft manuscript for the user
     manuscript, created = Manuscript.objects.get_or_create(
         owner=request.user,
         title="Draft Manuscript",
         defaults={
             'slug': f"draft-{request.user.username}-{uuid.uuid4().hex[:8]}",
-            'content': """% SciTeX Writer MVP - Quick Start Template
+            'content': """% SciTeX Writer - Quick Start Template
 \\documentclass[12pt]{article}
 \\usepackage[utf8]{inputenc}
 \\usepackage{amsmath}
@@ -1356,9 +1406,8 @@ Conclude your work...
     context = {
         'manuscript': manuscript,
         'recent_jobs': recent_jobs,
-        'is_mvp': True
     }
-    return render(request, 'writer_app/mvp_editor.html', context)
+    return render(request, 'writer_app/latex_editor.html', context)
 
 
 @login_required
@@ -1457,7 +1506,7 @@ def quick_compile(request):
             
             # Start compilation
             import threading
-            from .utils import compile_latex_document
+            from ..services.utils import compile_latex_document
             
             def run_compilation():
                 compile_latex_document(job)
@@ -1488,7 +1537,7 @@ def test_compilation(request):
     """Test endpoint to verify PDF compilation works end-to-end."""
     if request.method == 'POST':
         try:
-            from .utils import test_pdf_compilation
+            from ..services.utils import test_pdf_compilation
             
             # Run direct PDF compilation test
             test_result = test_pdf_compilation()
@@ -1531,7 +1580,7 @@ PDF compilation is working correctly.
                 
                 # Start compilation
                 import threading
-                from .utils import compile_latex_document
+                from ..services.utils import compile_latex_document
                 
                 def run_test_compilation():
                     compile_latex_document(job)
@@ -1565,31 +1614,30 @@ PDF compilation is working correctly.
 
 
 @login_required
-def mvp_dashboard(request):
-    """MVP dashboard with simplified interface."""
+def writer_dashboard_view(request):
+    """Writer dashboard with manuscript management interface."""
     # User's manuscripts
     manuscripts = Manuscript.objects.filter(owner=request.user).order_by('-updated_at')
-    
+
     # Recent compilations
     recent_jobs = CompilationJob.objects.filter(
         manuscript__owner=request.user
     ).order_by('-created_at')[:10]
-    
-    # MVP metrics
+
+    # Dashboard metrics
     metrics = {
         'manuscripts_count': manuscripts.count(),
         'successful_compilations': recent_jobs.filter(status='completed').count(),
         'failed_compilations': recent_jobs.filter(status='failed').count(),
         'total_pages': sum([job.page_count or 0 for job in recent_jobs if job.page_count])
     }
-    
+
     context = {
-        'manuscripts': manuscripts[:10],  # Show only first 10 for MVP
+        'manuscripts': manuscripts[:10],
         'recent_jobs': recent_jobs,
         'metrics': metrics,
-        'is_mvp': True
     }
-    return render(request, 'writer_app/mvp_dashboard.html', context)
+    return render(request, 'writer_app/writer_dashboard.html', context)
 
 
 @login_required
@@ -2894,7 +2942,7 @@ def ai_improve_text(request):
             manuscript = get_object_or_404(Manuscript, id=manuscript_id, owner=request.user)
 
         # Get AI assistant
-        from .ai_assistant import get_ai_assistant
+        from ..services.ai_service import get_ai_assistant
         ai = get_ai_assistant()
 
         # Build context from other sections if available
@@ -2946,7 +2994,7 @@ def ai_generate_section(request):
         manuscript = get_object_or_404(Manuscript, id=manuscript_id, owner=request.user)
 
         # Build context from existing sections
-        from .ai_assistant import get_ai_assistant
+        from ..services.ai_service import get_ai_assistant
         ai = get_ai_assistant()
 
         # Get other sections for context
@@ -3013,7 +3061,7 @@ def ai_suggest_citations(request):
             manuscript = get_object_or_404(Manuscript, id=manuscript_id, owner=request.user)
 
         # Get AI assistant
-        from .ai_assistant import get_ai_assistant
+        from ..services.ai_service import get_ai_assistant
         ai = get_ai_assistant()
 
         # Get citation suggestions

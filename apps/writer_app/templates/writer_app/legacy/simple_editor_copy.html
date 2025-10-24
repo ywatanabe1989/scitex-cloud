@@ -1,0 +1,1031 @@
+{% extends "writer_app/writer_base.html" %}
+{% load static %}
+
+{% block title %}SciTeX Writer - LaTeX Editor{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/codemirror@5.65.12/lib/codemirror.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/codemirror@5.65.12/theme/material-darker.css" rel="stylesheet">
+<style>
+    /* SciTeX Writer - Overleaf-inspired design with SciTeX colors */
+    body {
+        background-color: var(--scitex-color-07);
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    
+    .writer-layout {
+        display: flex;
+        height: 100vh;
+        overflow: hidden;
+    }
+    
+    /* Left Sidebar - File Panel */
+    .sidebar-panel {
+        width: 280px;
+        background-color: var(--scitex-color-01);
+        color: var(--white);
+        display: flex;
+        flex-direction: column;
+        border-right: 1px solid var(--scitex-color-03);
+    }
+    
+    .sidebar-header {
+        padding: 1rem;
+        background-color: var(--scitex-color-02);
+        border-bottom: 1px solid var(--scitex-color-03);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .project-name {
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: var(--white);
+    }
+    
+    .sidebar-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .sidebar-btn {
+        background: transparent;
+        border: 1px solid var(--scitex-color-04);
+        color: var(--white);
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .sidebar-btn:hover {
+        background-color: var(--scitex-color-03);
+        border-color: var(--scitex-color-05);
+    }
+    
+    .file-tree {
+        flex: 1;
+        padding: 1rem;
+        overflow-y: auto;
+    }
+    
+    .file-item {
+        display: flex;
+        align-items: center;
+        padding: 0.5rem 0;
+        color: var(--scitex-color-06);
+        cursor: pointer;
+        border-radius: 4px;
+        margin-bottom: 0.25rem;
+        transition: all 0.2s ease;
+    }
+    
+    .file-item:hover {
+        background-color: var(--scitex-color-02);
+        color: var(--white);
+    }
+    
+    .file-item.active {
+        background-color: var(--scitex-color-03);
+        color: var(--white);
+    }
+    
+    .file-icon {
+        margin-right: 0.5rem;
+        width: 16px;
+        font-size: 0.9rem;
+    }
+    
+    .file-name {
+        font-size: 0.9rem;
+    }
+    
+    /* Center Panel - Editor */
+    .editor-panel {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        background-color: var(--white);
+        border-right: 1px solid var(--scitex-color-06);
+    }
+    
+    .editor-header {
+        background-color: var(--scitex-color-07);
+        border-bottom: 1px solid var(--scitex-color-06);
+        padding: 0.75rem 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .editor-toolbar {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+    
+    .toolbar-group {
+        display: flex;
+        gap: 0.25rem;
+        padding-right: 0.75rem;
+        border-right: 1px solid var(--scitex-color-06);
+    }
+    
+    .toolbar-group:last-child {
+        border-right: none;
+        margin-left: auto;
+    }
+    
+    .toolbar-btn {
+        background: transparent;
+        border: 1px solid var(--scitex-color-06);
+        color: var(--scitex-color-02);
+        padding: 0.375rem 0.75rem;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    
+    .toolbar-btn:hover {
+        background-color: var(--scitex-color-06);
+        border-color: var(--scitex-color-05);
+    }
+    
+    .toolbar-btn.primary {
+        background-color: var(--scitex-color-02);
+        border-color: var(--scitex-color-02);
+        color: var(--white);
+    }
+    
+    .toolbar-btn.primary:hover {
+        background-color: var(--scitex-color-01);
+        border-color: var(--scitex-color-01);
+    }
+    
+    .status-indicator {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-right: 0.5rem;
+    }
+    
+    .status-ready { background: var(--success-color); }
+    .status-compiling { background: var(--warning-color); animation: pulse 1s infinite; }
+    .status-error { background: var(--error-color); }
+    
+    @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.5; }
+        100% { opacity: 1; }
+    }
+    
+    .editor-content {
+        flex: 1;
+        position: relative;
+    }
+    
+    .CodeMirror {
+        height: 100%;
+        font-size: 14px;
+        line-height: 1.6;
+        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        border: none;
+    }
+    
+    .CodeMirror-gutters {
+        background-color: var(--scitex-color-07);
+        border-right: 1px solid var(--scitex-color-06);
+    }
+    
+    /* Right Panel - Preview */
+    .preview-panel {
+        width: 45%;
+        background-color: var(--scitex-color-07);
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .preview-header {
+        background-color: var(--scitex-color-06);
+        border-bottom: 1px solid var(--scitex-color-05);
+        padding: 0.75rem 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .preview-title {
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: var(--scitex-color-02);
+    }
+    
+    .preview-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .preview-content {
+        flex: 1;
+        padding: 2rem;
+        overflow-y: auto;
+        background-color: var(--white);
+        margin: 1rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .preview-placeholder {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        color: var(--scitex-color-04);
+        text-align: center;
+    }
+    
+    .preview-placeholder i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.6;
+    }
+    
+    /* Modal styling with SciTeX colors */
+    .modal-content {
+        border: 1px solid var(--scitex-color-06);
+    }
+    
+    .modal-header {
+        background-color: var(--scitex-color-07);
+        border-bottom: 1px solid var(--scitex-color-06);
+    }
+    
+    .template-card {
+        border: 2px solid var(--scitex-color-06);
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background-color: var(--white);
+    }
+    
+    .template-card:hover {
+        border-color: var(--scitex-color-04);
+        background-color: var(--scitex-color-07);
+    }
+    
+    .template-card.selected {
+        border-color: var(--scitex-color-02);
+        background-color: var(--scitex-color-07);
+    }
+    
+    /* Compilation output styling */
+    .compilation-log {
+        background-color: var(--scitex-color-01);
+        color: var(--scitex-color-06);
+        padding: 1rem;
+        border-radius: 6px;
+        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        font-size: 0.85rem;
+        height: 200px;
+        overflow-y: auto;
+        line-height: 1.4;
+    }
+    
+    /* Responsive design */
+    @media (max-width: 1200px) {
+        .sidebar-panel {
+            width: 240px;
+        }
+        .preview-panel {
+            width: 40%;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .writer-layout {
+            flex-direction: column;
+        }
+        .sidebar-panel {
+            width: 100%;
+            height: 60px;
+            flex-direction: row;
+        }
+        .file-tree {
+            display: none;
+        }
+        .preview-panel {
+            width: 100%;
+            height: 300px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="writer-layout">
+    <!-- Left Sidebar - File Panel -->
+    <div class="sidebar-panel">
+        <div class="sidebar-header">
+            <div class="project-name">Research Manuscript</div>
+            <div class="sidebar-actions">
+                <button class="sidebar-btn" id="new-file-btn">
+                    <i class="fas fa-plus"></i>
+                </button>
+                <button class="sidebar-btn" id="upload-btn">
+                    <i class="fas fa-upload"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="file-tree">
+            <div class="file-item active" data-file="main.tex">
+                <i class="fas fa-file-code file-icon"></i>
+                <span class="file-name">main.tex</span>
+            </div>
+            <div class="file-item" data-file="references.bib">
+                <i class="fas fa-book file-icon"></i>
+                <span class="file-name">references.bib</span>
+            </div>
+            <div class="file-item" data-file="figures/">
+                <i class="fas fa-folder file-icon"></i>
+                <span class="file-name">figures/</span>
+            </div>
+            <div class="file-item" data-file="sections/">
+                <i class="fas fa-folder file-icon"></i>
+                <span class="file-name">sections/</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Center Panel - Editor -->
+    <div class="editor-panel">
+        <div class="editor-header">
+            <div class="editor-toolbar">
+                <div class="toolbar-group">
+                    <button class="toolbar-btn" id="save-btn">
+                        <i class="fas fa-save"></i> Save
+                    </button>
+                    <button class="toolbar-btn" id="undo-btn">
+                        <i class="fas fa-undo"></i>
+                    </button>
+                    <button class="toolbar-btn" id="redo-btn">
+                        <i class="fas fa-redo"></i>
+                    </button>
+                </div>
+                
+                <div class="toolbar-group">
+                    <button class="toolbar-btn" id="template-btn">
+                        <i class="fas fa-file-alt"></i> Templates
+                    </button>
+                    <button class="toolbar-btn" id="help-btn">
+                        <i class="fas fa-question-circle"></i> Help
+                    </button>
+                </div>
+                
+                <div class="toolbar-group">
+                    <span class="status-indicator status-ready" id="status-indicator"></span>
+                    <span id="status-text" style="font-size: 0.85rem; color: var(--scitex-color-03);">Ready</span>
+                </div>
+                
+                <div class="toolbar-group">
+                    <button class="toolbar-btn primary" id="compile-btn">
+                        <i class="fas fa-play"></i> Compile
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="editor-content">
+            <textarea id="latex-editor" placeholder="Start writing your LaTeX document here...">\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[margin=1in]{geometry}
+
+\title{Quantum Entanglement and Its Applications in Quantum Computing}
+\author{Jane Smith\\University of Science}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This paper explores the phenomenon of quantum entanglement and its role in quantum computing. We discuss the fundamental principles of entanglement, review recent experimental advances, and analyze potential applications in quantum algorithms and information processing.
+\end{abstract}
+
+\section{Introduction}
+Quantum entanglement is a physical phenomenon that occurs when pairs or groups of particles interact in ways such that the quantum state of each particle cannot be described independently of the others. Instead, a quantum state must be described for the system as a whole.
+
+Einstein famously referred to quantum entanglement as "spooky action at a distance" because of its seemingly non-local nature. When particles are entangled, measuring the state of one particle instantaneously affects the state of its entangled partner, regardless of the distance separating them.
+
+\section{Theoretical Framework}
+The mathematical formulation of entanglement relies on the tensor product structure of quantum mechanics. For a system of two qubits, the general state can be written as:
+
+\begin{equation}
+|\psi\rangle = \alpha|00\rangle + \beta|01\rangle + \gamma|10\rangle + \delta|11\rangle
+\end{equation}
+
+where $\alpha, \beta, \gamma, \delta$ are complex coefficients with $|\alpha|^2 + |\beta|^2 + |\gamma|^2 + |\delta|^2 = 1$.
+
+A state is considered entangled if it cannot be written as a product of individual qubit states. The most famous example is the Bell state:
+
+\begin{equation}
+|\Phi^+\rangle = \frac{1}{\sqrt{2}}(|00\rangle + |11\rangle)
+\end{equation}
+
+\section{Experimental Verification}
+Recent experiments have conclusively demonstrated the non-local nature of quantum entanglement, confirming Bell's inequality violations \cite{aspect1982}. These experiments use photon pairs created through spontaneous parametric down-conversion and measured at different polarization angles.
+
+\section{Applications in Quantum Computing}
+Quantum entanglement serves as a fundamental resource for many quantum algorithms:
+
+\begin{itemize}
+\item \textbf{Quantum teleportation}: Transfer of quantum states using entangled particles
+\item \textbf{Quantum cryptography}: Secure communication protocols
+\item \textbf{Quantum error correction}: Protection against decoherence
+\item \textbf{Quantum algorithms}: Speedup in computational tasks
+\end{itemize}
+
+\section{Conclusion}
+Quantum entanglement remains one of the most fascinating and counterintuitive aspects of quantum mechanics. As we continue to develop quantum computing technologies, understanding and harnessing entanglement will be crucial for realizing the full potential of quantum information processing.
+
+\begin{thebibliography}{9}
+\bibitem{aspect1982}
+Aspect, A., Dalibard, J., \& Roger, G. (1982). 
+\textit{Experimental Test of Bell's Inequalities Using Time-Varying Analyzers}. 
+Physical Review Letters, 49(25), 1804-1807.
+\end{thebibliography}
+
+\end{document}</textarea>
+        </div>
+    </div>
+    
+    <!-- Right Panel - Preview -->
+    <div class="preview-panel">
+        <div class="preview-header">
+            <div class="preview-title">PDF Preview</div>
+            <div class="preview-actions">
+                <button class="toolbar-btn" id="download-btn">
+                    <i class="fas fa-download"></i>
+                </button>
+                <button class="toolbar-btn" id="fullscreen-btn">
+                    <i class="fas fa-expand"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="preview-content" id="preview-content">
+            <div class="preview-placeholder">
+                <i class="fas fa-file-pdf"></i>
+                <h5>Click "Compile" to generate PDF</h5>
+                <p>Your compiled document will appear here</p>
+                <div style="margin-top: 2rem; text-align: left; max-width: 400px;">
+                    <h6 style="color: var(--scitex-color-02); margin-bottom: 1rem;">Document Outline:</h6>
+                    <div style="line-height: 1.8; font-size: 0.9rem;">
+                        <div style="margin-bottom: 0.5rem;">📄 <strong>Quantum Entanglement and Its Applications</strong></div>
+                        <div style="margin-left: 1rem; margin-bottom: 0.25rem;">📝 Abstract</div>
+                        <div style="margin-left: 1rem; margin-bottom: 0.25rem;">📚 1. Introduction</div>
+                        <div style="margin-left: 1rem; margin-bottom: 0.25rem;">🔬 2. Theoretical Framework</div>
+                        <div style="margin-left: 1rem; margin-bottom: 0.25rem;">📊 3. Experimental Verification</div>
+                        <div style="margin-left: 1rem; margin-bottom: 0.25rem;">💻 4. Applications in Quantum Computing</div>
+                        <div style="margin-left: 1rem; margin-bottom: 0.25rem;">✅ 5. Conclusion</div>
+                        <div style="margin-left: 1rem; margin-bottom: 0.25rem;">📖 Bibliography</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Compilation Output (hidden by default) -->
+            <div id="compilation-output" class="d-none">
+                <h6 style="color: var(--scitex-color-02); margin-bottom: 1rem;">
+                    <i class="fas fa-terminal"></i> Compilation Log
+                </h6>
+                <div class="compilation-log">
+                    <div id="log-content">Compilation logs will appear here...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Template Modal -->
+<div class="modal fade" id="templateModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Choose a Template</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="template-card" data-template="article">
+                            <h6><i class="fas fa-file-alt"></i> Article</h6>
+                            <p class="small text-muted mb-0">Standard scientific article with abstract, sections, and bibliography</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="template-card" data-template="report">
+                            <h6><i class="fas fa-clipboard"></i> Report</h6>
+                            <p class="small text-muted mb-0">Technical report with title page and chapters</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="template-card" data-template="thesis">
+                            <h6><i class="fas fa-graduation-cap"></i> Thesis</h6>
+                            <p class="small text-muted mb-0">Complete thesis template with chapters and appendices</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="template-card" data-template="letter">
+                            <h6><i class="fas fa-envelope"></i> Letter</h6>
+                            <p class="small text-muted mb-0">Professional letter format</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn" style="background-color: var(--scitex-color-02); color: var(--white);" id="apply-template-btn" disabled>Use Template</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Help Modal -->
+<div class="modal fade" id="helpModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">LaTeX Quick Reference</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Document Structure</h6>
+                        <ul class="list-unstyled">
+                            <li><code>\documentclass{article}</code> - Document type</li>
+                            <li><code>\title{Title}</code> - Document title</li>
+                            <li><code>\author{Name}</code> - Author name</li>
+                            <li><code>\date{\today}</code> - Date</li>
+                            <li><code>\maketitle</code> - Generate title</li>
+                        </ul>
+                        
+                        <h6>Sections</h6>
+                        <ul class="list-unstyled">
+                            <li><code>\section{Title}</code> - Main section</li>
+                            <li><code>\subsection{Title}</code> - Subsection</li>
+                            <li><code>\subsubsection{Title}</code> - Sub-subsection</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Text Formatting</h6>
+                        <ul class="list-unstyled">
+                            <li><code>\textbf{bold}</code> - Bold text</li>
+                            <li><code>\textit{italic}</code> - Italic text</li>
+                            <li><code>\underline{underlined}</code> - Underlined</li>
+                            <li><code>\emph{emphasized}</code> - Emphasized</li>
+                        </ul>
+                        
+                        <h6>Math</h6>
+                        <ul class="list-unstyled">
+                            <li><code>$x^2$</code> - Inline math</li>
+                            <li><code>\begin{equation}...\end{equation}</code> - Numbered equation</li>
+                            <li><code>\begin{align}...\end{align}</code> - Aligned equations</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.12/lib/codemirror.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.12/mode/stex/stex.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.12/addon/edit/matchbrackets.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.12/addon/edit/closebrackets.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize CodeMirror editor
+    const editor = CodeMirror.fromTextArea(document.getElementById('latex-editor'), {
+        mode: 'stex',
+        theme: 'default',
+        lineNumbers: true,
+        matchBrackets: true,
+        autoCloseBrackets: true,
+        lineWrapping: true,
+        tabSize: 2,
+        indentWithTabs: false
+    });
+
+    let isCompiling = false;
+    let currentTemplate = null;
+
+    // File tree functionality
+    document.querySelectorAll('.file-item').forEach(item => {
+        item.addEventListener('click', function() {
+            // Remove active class from all items
+            document.querySelectorAll('.file-item').forEach(f => f.classList.remove('active'));
+            // Add active class to clicked item
+            this.classList.add('active');
+            
+            const fileName = this.getAttribute('data-file');
+            console.log(`Switched to file: ${fileName}`);
+            // In a real app, you'd load the file content here
+        });
+    });
+
+    // Compile PDF functionality
+    document.getElementById('compile-btn').addEventListener('click', function() {
+        if (isCompiling) return;
+        compilePDF();
+    });
+
+    // Save functionality
+    document.getElementById('save-btn').addEventListener('click', function() {
+        const content = editor.getValue();
+        localStorage.setItem('scitex-writer-content', content);
+        
+        // Show feedback
+        const originalText = this.innerHTML;
+        this.innerHTML = '<i class="fas fa-check"></i> Saved';
+        setTimeout(() => {
+            this.innerHTML = originalText;
+        }, 2000);
+    });
+
+    // Template functionality
+    document.getElementById('template-btn').addEventListener('click', function() {
+        new bootstrap.Modal(document.getElementById('templateModal')).show();
+    });
+
+    // Help functionality
+    document.getElementById('help-btn').addEventListener('click', function() {
+        new bootstrap.Modal(document.getElementById('helpModal')).show();
+    });
+
+    // Template selection
+    document.querySelectorAll('.template-card').forEach(card => {
+        card.addEventListener('click', function() {
+            // Deselect all
+            document.querySelectorAll('.template-card').forEach(c => c.classList.remove('selected'));
+            
+            // Select this one
+            this.classList.add('selected');
+            currentTemplate = this.getAttribute('data-template');
+            
+            // Enable apply button
+            document.getElementById('apply-template-btn').disabled = false;
+        });
+    });
+
+    // Apply template
+    document.getElementById('apply-template-btn').addEventListener('click', function() {
+        if (currentTemplate) {
+            loadTemplate(currentTemplate);
+            bootstrap.Modal.getInstance(document.getElementById('templateModal')).hide();
+        }
+    });
+
+    // Load saved content on page load
+    const savedContent = localStorage.getItem('scitex-writer-content');
+    if (savedContent) {
+        editor.setValue(savedContent);
+    }
+
+    function compilePDF() {
+        isCompiling = true;
+        
+        // Update UI
+        updateStatus('compiling', 'Compiling PDF...');
+        document.getElementById('compile-btn').disabled = true;
+        document.getElementById('compile-btn').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Compiling...';
+        
+        // Show compilation output
+        document.querySelector('.preview-placeholder').style.display = 'none';
+        document.getElementById('compilation-output').classList.remove('d-none');
+        
+        const logContent = document.getElementById('log-content');
+        logContent.innerHTML = 'Starting LaTeX compilation...\n';
+        
+        // Get current content
+        const content = editor.getValue();
+        
+        // Make real compilation request
+        fetch('/writer/api/compile/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                content: content,
+                title: 'Research Manuscript'
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                logContent.innerHTML += `Compilation job started: ${data.job_id}\n`;
+                checkCompilationStatus(data.job_id);
+            } else {
+                showCompilationError(data.error || 'Unknown error occurred');
+            }
+        })
+        .catch(error => {
+            console.error('Compilation error:', error);
+            showCompilationError('Network error: ' + error.message);
+        });
+    }
+    
+    function checkCompilationStatus(jobId) {
+        fetch(`/writer/api/status/${jobId}/`)
+        .then(response => response.json())
+        .then(data => {
+            const logContent = document.getElementById('log-content');
+            logContent.innerHTML += `Status: ${data.status} (${data.progress}%)\n`;
+            logContent.scrollTop = logContent.scrollHeight;
+            
+            if (data.status === 'completed') {
+                showCompilationSuccess(data.pdf_url);
+            } else if (data.status === 'failed') {
+                showCompilationError(data.error || 'Compilation failed');
+            } else {
+                // Still running, check again
+                setTimeout(() => checkCompilationStatus(jobId), 2000);
+            }
+        })
+        .catch(error => {
+            console.error('Status check error:', error);
+            showCompilationError('Status check failed: ' + error.message);
+        });
+    }
+
+    function showCompilationSuccess(pdfUrl) {
+        isCompiling = false;
+        currentPdfUrl = pdfUrl;
+        
+        // Update UI
+        updateStatus('ready', 'PDF Ready');
+        document.getElementById('compile-btn').disabled = false;
+        document.getElementById('compile-btn').innerHTML = '<i class="fas fa-play"></i> Compile';
+        
+        // Show success message
+        document.querySelector('.preview-placeholder').innerHTML = `
+            <div style="text-align: center;">
+                <i class="fas fa-check-circle" style="font-size: 3rem; color: var(--success-color); margin-bottom: 1rem;"></i>
+                <h5 style="color: var(--scitex-color-02);">PDF Compiled Successfully!</h5>
+                <p style="color: var(--scitex-color-04);">Your document has been generated</p>
+                <div style="margin-top: 2rem;">
+                    <button class="toolbar-btn primary" onclick="downloadPDF()" style="margin-right: 0.5rem;">
+                        <i class="fas fa-download"></i> Download PDF
+                    </button>
+                    <button class="toolbar-btn" onclick="previewPDF()">
+                        <i class="fas fa-eye"></i> Preview
+                    </button>
+                </div>
+                <div style="margin-top: 1rem;">
+                    <small style="color: var(--scitex-color-04);">
+                        <i class="fas fa-info-circle"></i> 
+                        LaTeX compilation completed successfully!
+                    </small>
+                </div>
+            </div>
+        `;
+        
+        document.querySelector('.preview-placeholder').style.display = 'block';
+        document.getElementById('compilation-output').classList.add('d-none');
+    }
+    
+    function showCompilationError(errorMessage) {
+        isCompiling = false;
+        
+        // Update UI
+        updateStatus('error', 'Compilation Failed');
+        document.getElementById('compile-btn').disabled = false;
+        document.getElementById('compile-btn').innerHTML = '<i class="fas fa-play"></i> Compile';
+        
+        const logContent = document.getElementById('log-content');
+        logContent.innerHTML += `\nERROR: ${errorMessage}\n`;
+        logContent.scrollTop = logContent.scrollHeight;
+        
+        // Show error in preview area
+        document.querySelector('.preview-placeholder').innerHTML = `
+            <div style="text-align: center;">
+                <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: var(--error-color); margin-bottom: 1rem;"></i>
+                <h5 style="color: var(--error-color);">Compilation Failed</h5>
+                <p style="color: var(--scitex-color-04);">Please check the compilation log for details</p>
+                <div style="margin-top: 1rem;">
+                    <small style="color: var(--scitex-color-04)">${errorMessage}</small>
+                </div>
+            </div>
+        `;
+        
+        document.querySelector('.preview-placeholder').style.display = 'block';
+    }
+
+    function updateStatus(status, text) {
+        const indicator = document.getElementById('status-indicator');
+        const statusText = document.getElementById('status-text');
+        
+        indicator.className = `status-indicator status-${status}`;
+        statusText.textContent = text;
+    }
+
+    function loadTemplate(templateName) {
+        const templates = {
+            article: `\\documentclass{article}
+\\usepackage[utf8]{inputenc}
+\\usepackage{amsmath}
+\\usepackage{graphicx}
+
+\\title{Your Article Title}
+\\author{Your Name}
+\\date{\\today}
+
+\\begin{document}
+
+\\maketitle
+
+\\begin{abstract}
+Your abstract goes here.
+\\end{abstract}
+
+\\section{Introduction}
+Introduction content...
+
+\\section{Methods}
+Methods content...
+
+\\section{Results}
+Results content...
+
+\\section{Discussion}
+Discussion content...
+
+\\section{Conclusion}
+Conclusion content...
+
+\\bibliographystyle{plain}
+\\bibliography{references}
+
+\\end{document}`,
+            
+            report: `\\documentclass{report}
+\\usepackage[utf8]{inputenc}
+\\usepackage{amsmath}
+\\usepackage{graphicx}
+
+\\title{Technical Report}
+\\author{Your Name}
+\\date{\\today}
+
+\\begin{document}
+
+\\maketitle
+\\tableofcontents
+
+\\chapter{Introduction}
+Introduction content...
+
+\\chapter{Background}
+Background content...
+
+\\chapter{Methodology}
+Methodology content...
+
+\\chapter{Results}
+Results content...
+
+\\chapter{Conclusion}
+Conclusion content...
+
+\\end{document}`,
+            
+            thesis: `\\documentclass[12pt]{report}
+\\usepackage[utf8]{inputenc}
+\\usepackage{amsmath}
+\\usepackage{graphicx}
+
+\\title{Thesis Title}
+\\author{Your Name}
+\\date{\\today}
+
+\\begin{document}
+
+\\maketitle
+\\tableofcontents
+\\listoffigures
+\\listoftables
+
+\\chapter{Introduction}
+Introduction content...
+
+\\chapter{Literature Review}
+Literature review content...
+
+\\chapter{Methodology}
+Methodology content...
+
+\\chapter{Results}
+Results content...
+
+\\chapter{Discussion}
+Discussion content...
+
+\\chapter{Conclusion}
+Conclusion content...
+
+\\appendix
+\\chapter{Additional Material}
+Appendix content...
+
+\\bibliographystyle{plain}
+\\bibliography{references}
+
+\\end{document}`,
+            
+            letter: `\\documentclass{letter}
+\\usepackage[utf8]{inputenc}
+
+\\signature{Your Name}
+\\address{Your Address \\\\ City, State ZIP}
+
+\\begin{document}
+
+\\begin{letter}{Recipient Name \\\\ Recipient Address \\\\ City, State ZIP}
+
+\\opening{Dear Sir or Madam,}
+
+Letter content goes here...
+
+\\closing{Sincerely,}
+
+\\end{letter}
+
+\\end{document}`
+        };
+
+        if (templates[templateName]) {
+            editor.setValue(templates[templateName]);
+        }
+    }
+
+    // Global variables
+    let currentPdfUrl = null;
+    
+    // Helper function to get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // Global functions for PDF actions
+    window.downloadPDF = function() {
+        if (currentPdfUrl) {
+            const link = document.createElement('a');
+            link.href = currentPdfUrl;
+            link.download = 'document.pdf';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } else {
+            alert('No PDF available. Please compile your document first.');
+        }
+    };
+
+    window.previewPDF = function() {
+        if (currentPdfUrl) {
+            window.open(currentPdfUrl, '_blank');
+        } else {
+            alert('No PDF available. Please compile your document first.');
+        }
+    };
+});
+</script>
+{% endblock %}

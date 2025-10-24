@@ -20,11 +20,11 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods, require_POST
 from django.views.generic import ListView, TemplateView
 
-from .arxiv_services import (
+from ..services.arxiv import (
     ArxivAccountService, ArxivAPIException, ArxivCategoryService,
     ArxivIntegrationService, ArxivSubmissionService
 )
-from .models import (
+from ..models import (
     ArxivAccount, ArxivCategory, ArxivSubmission, ArxivSubmissionHistory,
     ArxivValidationResult, Manuscript
 )

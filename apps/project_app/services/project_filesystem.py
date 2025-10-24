@@ -42,7 +42,7 @@ from ..models import Project
 # from apps.document_app.models import Document  # Removed - document_app not installed
 
 
-class UserDirectoryManager:
+class ProjectFilesystemManager:
     """Manages user-specific directory structures for SciTeX Cloud."""
     
     # Standardized scientific research project structure
@@ -157,7 +157,7 @@ class UserDirectoryManager:
             template_type: Type of template ('research', 'pip_project', or 'singularity')
         """
         try:
-            project_path = self.get_project_path(project)
+            project_path = self.get_project_root_path(project)
             if not project_path:
                 return False, None
 
@@ -209,8 +209,8 @@ class UserDirectoryManager:
             print(f"Error creating project from template: {e}")
             return False, None
     
-    def get_project_path(self, project: Project) -> Optional[Path]:
-        """Get the directory path for a project.
+    def get_project_root_path(self, project: Project) -> Optional[Path]:
+        """Get the root directory path for a project.
 
         Always uses filesystem as the source of truth (data/users/{username}/{project-slug}/).
         This ensures Django always shows the actual filesystem state in real-time.
@@ -229,7 +229,7 @@ class UserDirectoryManager:
                 # Store in temp if no project
                 file_path = self.base_path / 'temp' / f"{document.id}_{document.title}.txt"
             else:
-                project_path = self.get_project_path(document.project)
+                project_path = self.get_project_root_path(document.project)
                 if not project_path:
                     return False, None
                 
@@ -259,7 +259,7 @@ class UserDirectoryManager:
                   filename: str, category: str = 'data') -> Tuple[bool, Optional[Path]]:
         """Store a file in the project directory."""
         try:
-            project_path = self.get_project_path(project)
+            project_path = self.get_project_root_path(project)
             if not project_path:
                 return False, None
             
@@ -284,7 +284,7 @@ class UserDirectoryManager:
                           category: Optional[str] = None) -> List[Dict]:
         """List files in a project directory."""
         try:
-            project_path = self.get_project_path(project)
+            project_path = self.get_project_root_path(project)
             if not project_path or not project_path.exists():
                 return []
             
@@ -311,7 +311,7 @@ class UserDirectoryManager:
     def get_project_structure(self, project: Project) -> Dict:
         """Get the complete directory structure for a project."""
         try:
-            project_path = self.get_project_path(project)
+            project_path = self.get_project_root_path(project)
             if not project_path or not project_path.exists():
                 return {}
             
@@ -343,7 +343,7 @@ class UserDirectoryManager:
     def delete_project_directory(self, project: Project) -> bool:
         """Delete a project directory and all its contents."""
         try:
-            project_path = self.get_project_path(project)
+            project_path = self.get_project_root_path(project)
             if project_path and project_path.exists():
                 shutil.rmtree(project_path)
             return True
@@ -811,7 +811,7 @@ sphinx-rtd-theme>=0.5.0
     def create_script_execution_tracker(self, project: Project, script_name: str) -> Tuple[bool, Optional[Path]]:
         """Create execution tracking for a script with RUNNING/FINISHED_SUCCESS markers."""
         try:
-            project_path = self.get_project_path(project)
+            project_path = self.get_project_root_path(project)
             if not project_path:
                 return False, None
             
@@ -916,7 +916,7 @@ Error: {error_msg or 'None'}
             import subprocess
             import tempfile
 
-            project_path = self.get_project_path(project)
+            project_path = self.get_project_root_path(project)
             if not project_path or not project_path.exists():
                 return False, "Project directory not found"
 
@@ -985,7 +985,7 @@ Error: {error_msg or 'None'}
     def get_script_executions(self, project: Project, script_name: str = None) -> List[Dict]:
         """Get execution history for scripts in the project."""
         try:
-            project_path = self.get_project_path(project)
+            project_path = self.get_project_root_path(project)
             if not project_path:
                 return []
             
@@ -1040,9 +1040,9 @@ Error: {error_msg or 'None'}
             return []
 
 
-def get_user_directory_manager(user: User) -> UserDirectoryManager:
-    """Get or create a UserDirectoryManager for the user."""
-    manager = UserDirectoryManager(user)
+def get_project_filesystem_manager(user: User) -> ProjectFilesystemManager:
+    """Get or create a ProjectFilesystemManager for the user."""
+    manager = ProjectFilesystemManager(user)
     
     # Initialize workspace if it doesn't exist
     if not manager.base_path.exists():
@@ -1053,10 +1053,10 @@ def get_user_directory_manager(user: User) -> UserDirectoryManager:
 
 def ensure_project_directory(project: Project) -> bool:
     """Ensure a project has a directory structure."""
-    manager = get_user_directory_manager(project.owner)
+    manager = get_project_filesystem_manager(project.owner)
     
     # Check if project already has a directory
-    if not manager.get_project_path(project):
+    if not manager.get_project_root_path(project):
         success, path = manager.create_project_directory(project)
         return success
     

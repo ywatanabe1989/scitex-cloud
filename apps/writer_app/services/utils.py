@@ -21,7 +21,7 @@ def compile_latex_document(compilation_job):
     Args:
         compilation_job: CompilationJob instance
     """
-    from .models import CompilationJob
+    from ..models import CompilationJob
     
     # Update job status
     compilation_job.status = 'running'

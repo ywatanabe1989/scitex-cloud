@@ -8,6 +8,9 @@ urlpatterns = [
     # These are accessed via /project/ prefix (configured in config/urls.py)
     path('', views.project_list, name='list'),
 
+    # GitHub-style project creation at /project/new/
+    path('new/', views.project_create, name='create'),
+
     # API endpoints (keep numeric IDs for API)
     path('api/check-name/', views.api_check_name_availability, name='api_check_name'),
     path('api/list/', views.api_project_list, name='api_list'),
