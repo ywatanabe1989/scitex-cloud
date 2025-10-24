@@ -282,3 +282,208 @@
 .hero-landing {
   border-bottom: none;
 }
+
+/* =========================
+   Extended Hero Variants
+   (Extracted from page-specific CSS)
+   ========================= */
+
+/* Landing Hero with Grid Layout */
+.hero--landing-grid {
+  padding: 5rem 0 3rem;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 0;
+  border-bottom: none;
+}
+
+.hero--landing-grid .hero-wrapper {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  align-items: center;
+  gap: 3rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.hero--landing-grid .hero-content {
+  text-align: left;
+}
+
+.hero--landing-grid .hero-title {
+  font-size: 3.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: var(--scitex-color-01);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+[data-theme="dark"] .hero--landing-grid .hero-title {
+  color: var(--scitex-color-07);
+}
+
+.hero--landing-grid .hero-subtitle {
+  font-size: 1.25rem;
+  font-weight: 400;
+  margin-bottom: 2rem;
+  color: var(--scitex-color-01);
+  max-width: 540px;
+  line-height: 1.6;
+  letter-spacing: -0.01em;
+}
+
+[data-theme="dark"] .hero--landing-grid .hero-subtitle {
+  color: var(--scitex-color-07);
+}
+
+/* Hero Badges */
+.hero-badges {
+  margin-top: 1.5rem;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.hero-badge {
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hero-badge--success {
+  background: var(--success-color, #28a745);
+  color: white;
+}
+
+.hero-badge--primary {
+  background: var(--primary-color, #0366d6);
+  color: white;
+}
+
+.hero-badge--secondary {
+  background: var(--scitex-color-02);
+  color: white;
+}
+
+/* Hero Actions (Button Group) */
+.hero-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+
+.hero--landing-grid .hero-actions {
+  justify-content: flex-start;
+}
+
+/* Hero Bullet Points */
+.hero-bullet-point {
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+  color: var(--scitex-color-01);
+  line-height: 1.5;
+}
+
+[data-theme="dark"] .hero-bullet-point {
+  color: var(--scitex-color-07);
+}
+
+/* CTA Hero Section */
+.hero--cta {
+  text-align: center;
+  padding: var(--spacing-xxl) 0;
+  background: var(--scitex-color-07);
+  border-radius: var(--border-radius-lg);
+  margin-top: var(--spacing-xxl);
+}
+
+.hero--cta h2 {
+  color: var(--scitex-color-01);
+  margin-bottom: var(--spacing-md);
+}
+
+.hero--cta p {
+  color: var(--scitex-color-02);
+  margin-bottom: var(--spacing-lg);
+  font-size: 1.1rem;
+}
+
+.cta-buttons {
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Repository Header Hero */
+.hero--repo {
+  background-color: var(--silver-light);
+  background-image: linear-gradient(135deg, var(--silver-light) 0%, var(--light-color) 100%);
+  padding: var(--spacing-xxl) 0;
+  margin-bottom: var(--spacing-xxl);
+  border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg);
+  box-shadow: var(--box-shadow-md);
+}
+
+.hero--repo h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-bottom: var(--spacing-md);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.hero--repo p.lead {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--text-color);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Responsive Hero Grid */
+@media (max-width: 992px) {
+  .hero--landing-grid .hero-wrapper {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .hero--landing-grid .hero-content {
+    text-align: center;
+  }
+
+  .hero--landing-grid .hero-actions {
+    justify-content: center;
+  }
+
+  .hero--landing-grid .hero-title {
+    font-size: 2.5rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .hero--landing-grid .hero-title {
+    font-size: 2rem;
+  }
+
+  .hero-badges {
+    justify-content: flex-start;
+  }
+
+  .cta-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .cta-buttons .btn {
+    width: 100%;
+    max-width: 300px;
+  }
+}
