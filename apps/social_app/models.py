@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import User
-from apps.project_app.models import Project
 
 
 class UserFollow(models.Model):
@@ -65,7 +64,7 @@ class RepositoryStar(models.Model):
         help_text="User who starred the repository"
     )
     project = models.ForeignKey(
-        Project,
+        'project_app.Project',
         on_delete=models.CASCADE,
         related_name='stars',
         help_text="Repository that was starred"
@@ -135,7 +134,7 @@ class Activity(models.Model):
         help_text="Target user (for follow actions)"
     )
     target_project = models.ForeignKey(
-        Project,
+        'project_app.Project',
         on_delete=models.CASCADE,
         null=True,
         blank=True,
