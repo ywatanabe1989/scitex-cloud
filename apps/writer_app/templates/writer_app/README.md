@@ -16,8 +16,8 @@ writer_app/templates/writer_app/
 ├── collaborative_editor.html      # Real-time collaborative editing
 ├── compilation_view.html          # Compilation status and logs
 ├── default_workspace.html         # Default workspace for users without projects
-├── mvp_dashboard.html            # MVP simplified dashboard
-├── mvp_editor.html               # MVP simplified editor
+├── latex_editor.html              # Overleaf-style LaTeX editor
+├── writer_dashboard.html          # Writer dashboard with manuscript management
 └── version_control_dashboard.html # Version control interface
 ```
 
@@ -30,13 +30,13 @@ writer_app/templates/writer_app/
 - **URL**: `/writer/`
 - **Note**: Previously named `project_writer.html`, renamed to follow scholar_app convention (2025-10-24)
 
-### mvp_editor.html
-- **Purpose**: Simplified Overleaf-style editor
+### latex_editor.html
+- **Purpose**: Overleaf-style LaTeX editor
 - **Features**: CodeMirror editor, PDF preview, compilation
 - **URL**: `/writer/advanced/`
 
-### mvp_dashboard.html
-- **Purpose**: Simplified dashboard for authenticated users
+### writer_dashboard.html
+- **Purpose**: Writer dashboard for authenticated users
 - **Features**: Manuscript list, compilation history, metrics
 - **URL**: `/writer/advanced/dashboard/`
 
@@ -50,7 +50,7 @@ Following scholar_app structure:
 ## Template Accessibility
 
 - **Public** (no login required): `index.html` (with guest mode)
-- **Authenticated** (login required): `mvp_dashboard.html`, `mvp_editor.html`
+- **Authenticated** (login required): `writer_dashboard.html`, `latex_editor.html`
 - **Collaborative**: `collaborative_editor.html`
 
 ## Recent Changes (2025-10-24)
@@ -59,5 +59,10 @@ Following scholar_app structure:
 - Moved old `index.html` → `legacy/index_landing.html`
 - Moved `index_partials/` → `legacy/index_partials/`
 - Simplified structure: ONE main page (`index.html`) for `/writer/`
+- Cleaned up "MVP" naming:
+  - `mvp_editor.html` → `latex_editor.html` (more descriptive)
+  - `mvp_dashboard.html` → `writer_dashboard.html` (clearer purpose)
+  - Updated view functions: `mvp_editor()` → `latex_editor_view()`, `mvp_dashboard()` → `writer_dashboard_view()`
+  - Updated URL names: `advanced-editor` → `latex-editor`, `dashboard` → `writer-dashboard`
 
 Last updated: 2025-10-24

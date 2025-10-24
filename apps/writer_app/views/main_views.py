@@ -31,14 +31,13 @@ from django.utils import timezone
 
 
 def index(request):
-    """SciTeX Writer MVP editor - accessible to all users."""
+    """SciTeX Writer editor - accessible to all users."""
     # For anonymous users, provide a demo manuscript
     if not request.user.is_authenticated:
         # Create demo context for anonymous users
         context = {
             'manuscript': None,
             'recent_jobs': [],
-            'is_mvp': True,
             'is_anonymous': True,
         }
         return render(request, 'writer_app/index.html', context)
@@ -49,7 +48,7 @@ def index(request):
         title="Draft Manuscript",
         defaults={
             'slug': f"draft-{request.user.username}-{uuid.uuid4().hex[:8]}",
-            'content': """% SciTeX Writer MVP - Quick Start Template
+            'content': """% SciTeX Writer - Quick Start Template
 \\documentclass[12pt]{article}
 \\usepackage[utf8]{inputenc}
 \\usepackage{amsmath}
@@ -1476,7 +1475,7 @@ def get_manuscript_stats(request, project_id):
 
 @login_required
 def quick_compile(request):
-    """MVP quick compile endpoint."""
+    """Quick compile endpoint."""
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
