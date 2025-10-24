@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-24 18:13:34
+!-- Timestamp: 2025-10-24 21:20:20
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/CLAUDE.md
 !-- --- -->
@@ -11,7 +11,7 @@
 ## GITIGNORE THIS FILE. NEVER UPLOAD TO GITHUB.
 
 ## Subagents
-Time is money. Use 8 agents when useful.
+Time is more than money. Launch up to eight agents in parallel when beneficial.
 
 ## Autonomous Development
 Based on the following conditions, please proceed development autonomously
