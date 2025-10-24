@@ -92,15 +92,15 @@
 .form-control {
   display: block;
   width: 100%;
-  padding: 0.75rem var(--spacing-md);
+  padding: 0.75rem 1rem;
   font-size: 1rem;
   line-height: 1.5;
-  color: var(--text-900);
-  background-color: var(--bg-100);
+  color: var(--text-primary);
+  background-color: var(--bg-page);
   background-clip: padding-box;
-  border: 2px solid var(--border-400);
-  border-radius: var(--border-radius);
-  transition: border-color var(--transition-normal), box-shadow var(--transition-normal);
+  border: 2px solid var(--border-default);
+  border-radius: 6px;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
@@ -113,9 +113,9 @@
 }
 
 .form-control:focus {
-  border-color: var(--btn-primary-bg);
+  border-color: var(--scitex-color-04);
   outline: 0;
-  box-shadow: 0 0 0 3px rgba(74, 107, 175, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 0 3px rgba(108, 139, 160, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 /* Dark mode focus state - bluish glow */
@@ -137,7 +137,7 @@
 
 .form-control:disabled,
 .form-control[readonly] {
-  background-color: var(--color-canvas-subtle);
+  background-color: var(--bg-surface);
   opacity: 0.7;
 }
 
@@ -172,7 +172,7 @@ select.form-control {
 
 /* Select hover state for better interactivity */
 select.form-control:hover:not(:disabled) {
-  border-color: var(--btn-primary-bg);
+  border-color: var(--scitex-color-04);
   cursor: pointer;
 }
 
@@ -228,15 +228,15 @@ select.form-control:hover:not(:disabled) {
 .input-group-text {
   display: flex;
   align-items: center;
-  padding: 0.75rem var(--spacing-md);
+  padding: 0.75rem 1rem;
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.5;
-  color: var(--text-800);
+  color: var(--text-primary);
   text-align: center;
   white-space: nowrap;
-  background-color: var(--bg-200);
-  border: 2px solid var(--border-400);
+  background-color: var(--bg-surface);
+  border: 2px solid var(--border-default);
 }
 
 /* Dark mode input group text - bluish theme */
@@ -278,7 +278,7 @@ select.form-control:hover:not(:disabled) {
   display: block;
   margin-top: 0.25rem;
   font-size: 0.875rem;
-  color: var(--text-600);
+  color: var(--text-secondary);
   line-height: 1.4;
 }
 

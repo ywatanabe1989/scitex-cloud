@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Tuple, Any, Optional
 from django.utils import timezone
 from django.contrib.auth.models import User
-from .models import (
+from ..models import (
     Manuscript, ManuscriptVersion, ManuscriptBranch, 
     DiffResult, MergeRequest, ManuscriptSection
 )

@@ -20,7 +20,7 @@ from django.core.files.storage import default_storage
 from django.utils import timezone
 from django.utils.text import slugify
 
-from .models import (
+from ...models import (
     ArxivAccount, ArxivApiResponse, ArxivCategory, ArxivSubmission,
     ArxivSubmissionHistory, ArxivValidationResult, Manuscript
 )
