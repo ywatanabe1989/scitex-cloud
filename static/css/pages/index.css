@@ -3,6 +3,7 @@
 /* Import Common CSS */
 @import '../common/variables.css';
 @import '../common/reset.css';
+@import '../common/utilities.css'; /* NEW: Utility classes for rapid development */
 @import '../common/layout.css';
 @import '../common/typography.css';
 @import '../common/buttons.css';
