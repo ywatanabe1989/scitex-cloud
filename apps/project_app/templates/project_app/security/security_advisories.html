@@ -1,0 +1,45 @@
+{% extends 'project_app/project_detail.html' %}
+
+{% block title %}Security Advisories - {{ project.name }}{% endblock %}
+
+{% block project_content %}
+<div class="container-fluid mt-4">
+    <h2 class="mb-3">Security Advisories</h2>
+
+    <nav class="nav nav-tabs mb-4">
+        <a class="nav-link" href="{% url 'user_projects:security_overview' project.owner.username project.slug %}">Overview</a>
+        <a class="nav-link" href="{% url 'user_projects:security_alerts' project.owner.username project.slug %}">Alerts</a>
+        <a class="nav-link" href="{% url 'user_projects:security_policy' project.owner.username project.slug %}">Security policy</a>
+        <a class="nav-link active" href="{% url 'user_projects:security_advisories' project.owner.username project.slug %}">Advisories</a>
+        <a class="nav-link" href="{% url 'user_projects:dependency_graph' project.owner.username project.slug %}">Dependencies</a>
+    </nav>
+
+    {% if page_obj %}
+        {% for advisory in page_obj %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5>
+                    {{ advisory.title }}
+                    <span class="badge bg-{{ advisory.severity }}">{{ advisory.get_severity_display }}</span>
+                    {% if advisory.cve_id %}
+                    <span class="badge bg-secondary">{{ advisory.cve_id }}</span>
+                    {% endif %}
+                </h5>
+                <p>{{ advisory.description }}</p>
+                {% if advisory.affected_versions %}
+                <p><strong>Affected:</strong> {{ advisory.affected_versions }}</p>
+                {% endif %}
+                {% if advisory.patched_versions %}
+                <p><strong>Patched:</strong> {{ advisory.patched_versions }}</p>
+                {% endif %}
+                <p class="text-muted small">Published {{ advisory.published_at|timesince }} ago</p>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+    <div class="text-center p-5 text-muted">
+        <p>No published security advisories</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

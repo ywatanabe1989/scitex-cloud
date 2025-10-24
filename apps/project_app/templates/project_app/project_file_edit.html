@@ -148,10 +148,10 @@
                 {% if file_name|slice:"-3:" == ".md" %}
                 <div class="btn-group btn-group-sm" role="group">
                     <button type="button" class="btn btn-outline-secondary active" id="editBtn" onclick="showEdit()">
-                        ✏️ Edit
+                        <img src="{% static 'project_app/icons/edit.svg' %}" alt="" style="width: 16px; height: 16px; vertical-align: text-bottom; margin-right: 4px;">Edit
                     </button>
                     <button type="button" class="btn btn-outline-secondary" id="previewBtn" onclick="showPreview()">
-                        👁️ Preview
+                        <img src="{% static 'project_app/icons/eye.svg' %}" alt="" style="width: 16px; height: 16px; vertical-align: text-bottom; margin-right: 4px;">Preview
                     </button>
                 </div>
                 {% endif %}

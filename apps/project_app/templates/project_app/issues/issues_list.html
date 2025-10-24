@@ -1,0 +1,479 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Issues - {{ project.name }} - SciTeX Cloud{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/common/buttons.css' %}">
+<style>
+/* GitHub-style issues list - Theme-aware */
+.issues-header {
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--color-border-default);
+}
+
+.issues-header-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-fg-default);
+    margin-bottom: 0.5rem;
+}
+
+.issues-search {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.issues-search input {
+    flex: 1;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    background: var(--color-canvas-default);
+    color: var(--color-fg-default);
+    font-size: 14px;
+}
+
+.issues-filters {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--color-border-default);
+}
+
+.filter-group {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.filter-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-fg-muted);
+    text-transform: uppercase;
+}
+
+.filter-dropdown {
+    position: relative;
+}
+
+.filter-btn {
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    background: var(--color-canvas-default);
+    color: var(--color-fg-default);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.filter-btn:hover {
+    background: var(--color-canvas-subtle);
+    border-color: var(--color-fg-muted);
+}
+
+.issues-tabs {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--color-border-default);
+}
+
+.issues-tab {
+    padding: 0.5rem 1rem;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-fg-muted);
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.issues-tab:hover {
+    color: var(--color-fg-default);
+    text-decoration: none;
+}
+
+.issues-tab.active {
+    color: var(--color-fg-default);
+    border-bottom-color: var(--color-accent-fg);
+}
+
+.issues-stats {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    font-size: 14px;
+    color: var(--color-fg-muted);
+}
+
+.issue-list {
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-top: 1rem;
+}
+
+.issue-item {
+    padding: 1rem;
+    border-bottom: 1px solid var(--color-border-default);
+    transition: background-color 0.1s ease;
+}
+
+.issue-item:last-child {
+    border-bottom: none;
+}
+
+.issue-item:hover {
+    background: var(--color-canvas-subtle);
+}
+
+.issue-main {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+}
+
+.issue-icon {
+    width: 16px;
+    height: 16px;
+    margin-top: 4px;
+    flex-shrink: 0;
+}
+
+.issue-icon.open {
+    color: var(--color-success-fg);
+}
+
+.issue-icon.closed {
+    color: var(--color-done-fg);
+}
+
+.issue-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.issue-title-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.issue-title {
+    color: var(--color-fg-default);
+    font-weight: 600;
+    font-size: 16px;
+    text-decoration: none;
+}
+
+.issue-title:hover {
+    color: var(--color-accent-fg);
+}
+
+.issue-labels {
+    display: flex;
+    gap: 0.25rem;
+    flex-wrap: wrap;
+}
+
+.issue-label {
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    color: white;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
+}
+
+.issue-meta {
+    margin-top: 0.5rem;
+    font-size: 12px;
+    color: var(--color-fg-muted);
+}
+
+.issue-meta a {
+    color: var(--color-fg-muted);
+    text-decoration: none;
+}
+
+.issue-meta a:hover {
+    color: var(--color-accent-fg);
+}
+
+.new-issue-btn {
+    padding: 8px 16px;
+    background: var(--color-success-emphasis);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.new-issue-btn:hover {
+    background: var(--color-success-emphasis);
+    opacity: 0.9;
+    color: white;
+    text-decoration: none;
+}
+
+.empty-state {
+    padding: 3rem;
+    text-align: center;
+    background: var(--color-canvas-default);
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    margin-top: 1rem;
+}
+
+.empty-state-icon {
+    font-size: 48px;
+    color: var(--color-fg-muted);
+    margin-bottom: 1rem;
+}
+
+.empty-state-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-fg-default);
+    margin-bottom: 0.5rem;
+}
+
+.empty-state-description {
+    color: var(--color-fg-muted);
+    margin-bottom: 1.5rem;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 2rem;
+    padding: 1rem 0;
+}
+
+.pagination a {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    background: var(--color-canvas-default);
+    color: var(--color-fg-default);
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.pagination a:hover {
+    background: var(--color-canvas-subtle);
+    border-color: var(--color-accent-fg);
+}
+
+.pagination .current {
+    background: var(--color-accent-emphasis);
+    color: white;
+    border-color: var(--color-accent-emphasis);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="max-width: 1280px;">
+    <!-- Repository Header -->
+    <div style="padding: 1.5rem 0; border-bottom: 1px solid var(--color-border-default);">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <a href="/{{ project.owner.username }}/" style="color: var(--color-accent-fg); text-decoration: none; font-weight: 400;">
+                {{ project.owner.username }}
+            </a>
+            <span style="color: var(--color-fg-muted);">/</span>
+            <a href="/{{ project.owner.username }}/{{ project.slug }}/" style="font-size: 1.25rem; font-weight: 600; color: var(--color-accent-fg); text-decoration: none;">
+                {{ project.name }}
+            </a>
+        </div>
+        {% if project.description %}
+        <div style="color: var(--color-fg-muted); margin-top: 0.5rem;">{{ project.description }}</div>
+        {% endif %}
+    </div>
+
+    <!-- Repository Tab Navigation (GitHub-style) -->
+    <div style="margin-bottom: 1.5rem;">
+        <div class="scitex-tabs">
+            <a href="/{{ project.owner.username }}/{{ project.slug }}/"
+               class="scitex-tab">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="display: inline-block; vertical-align: text-bottom;">
+                    <path d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 0 1 0-1.5h1.75v-2h-8a1 1 0 0 0-.714 1.7.75.75 0 1 1-1.072 1.05A2.495 2.495 0 0 1 2 11.5Zm10.5-1h-8a1 1 0 0 0-1 1v6.708A2.486 2.486 0 0 1 4.5 9h8ZM5 12.25a.25.25 0 0 1 .25-.25h3.5a.25.25 0 0 1 .25.25v3.25a.25.25 0 0 1-.4.2l-1.45-1.087a.249.249 0 0 0-.3 0L5.4 15.7a.25.25 0 0 1-.4-.2Z"/>
+                </svg>
+                Code
+            </a>
+            <a href="/{{ project.owner.username }}/{{ project.slug }}/issues/"
+               class="scitex-tab scitex-tab-active"
+               title="Track issues and bugs">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="display: inline-block; vertical-align: text-bottom;">
+                    <path d="M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"/>
+                    <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Z"/>
+                </svg>
+                Issues
+            </a>
+            <a href="/{{ project.owner.username }}/{{ project.slug }}/pulls/"
+               class="scitex-tab"
+               title="Review code changes">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="display: inline-block; vertical-align: text-bottom;">
+                    <path d="M1.5 3.25a2.25 2.25 0 1 1 3 2.122v5.256a2.251 2.251 0 1 1-1.5 0V5.372A2.25 2.25 0 0 1 1.5 3.25Zm5.677-.177L9.573.677A.25.25 0 0 1 10 .854V2.5h1A2.5 2.5 0 0 1 13.5 5v5.628a2.251 2.251 0 1 1-1.5 0V5a1 1 0 0 0-1-1h-1v1.646a.25.25 0 0 1-.427.177L7.177 3.427a.25.25 0 0 1 0-.354ZM3.75 2.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Zm0 9.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Zm8.25.75a.75.75 0 1 0 1.5 0 .75.75 0 0 0-1.5 0Z"/>
+                </svg>
+                Pull requests
+            </a>
+            <a href="/{{ project.owner.username }}/{{ project.slug }}/settings/"
+               class="scitex-tab"
+               title="Repository settings">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="display: inline-block; vertical-align: text-bottom;">
+                    <path d="M8 0a8.2 8.2 0 0 1 .701.031C9.444.095 9.99.645 10.16 1.29l.288 1.107c.018.066.079.158.212.224.231.114.454.243.668.386.123.082.233.09.299.071l1.103-.303c.644-.176 1.392.021 1.82.63.27.385.506.792.704 1.218.315.675.111 1.422-.364 1.891l-.814.806c-.049.048-.098.147-.088.294.016.257.016.515 0 .772-.01.147.038.246.088.294l.814.806c.475.469.679 1.216.364 1.891a7.977 7.977 0 0 1-.704 1.217c-.428.61-1.176.807-1.82.63l-1.102-.302c-.067-.019-.177-.011-.3.071a5.909 5.909 0 0 1-.668.386c-.133.066-.194.158-.211.224l-.29 1.106c-.168.646-.715 1.196-1.458 1.26a8.006 8.006 0 0 1-1.402 0c-.743-.064-1.289-.614-1.458-1.26l-.289-1.106c-.018-.066-.079-.158-.212-.224a5.738 5.738 0 0 1-.668-.386c-.123-.082-.233-.09-.299-.071l-1.103.303c-.644.176-1.392-.021-1.82-.63a8.12 8.12 0 0 1-.704-1.218c-.315-.675-.111-1.422.363-1.891l.815-.806c.05-.048.098-.147.088-.294a6.214 6.214 0 0 1 0-.772c.01-.147-.038-.246-.088-.294l-.815-.806C.635 6.045.431 5.298.746 4.623a7.92 7.92 0 0 1 .704-1.217c.428-.61 1.176-.807 1.82-.63l1.102.302c.067.019.177.011.3-.071.214-.143.437-.272.668-.386.133-.066.194-.158.211-.224l.29-1.106C6.009.645 6.556.095 7.299.03 7.53.01 7.764 0 8 0Zm-.571 1.525c-.036.003-.108.036-.137.146l-.289 1.105c-.147.561-.549.967-.998 1.189-.173.086-.36.159-.558.217-.473.138-.96.072-1.384-.234l-1.103-.303c-.109-.03-.175.016-.195.045-.22.312-.412.644-.573.99-.014.031-.021.11.059.19l.815.806c.411.406.562.957.53 1.456a4.709 4.709 0 0 0 0 .582c.032.499-.119 1.05-.53 1.456l-.815.806c-.081.08-.073.159-.059.19.162.346.353.677.573.989.02.03.085.076.195.046l1.102-.303c.424-.306.91-.372 1.383-.234.198.058.386.131.559.217.449.222.851.628.998 1.189l.289 1.105c.029.109.101.143.137.146a6.6 6.6 0 0 0 1.142 0c.036-.003.108-.036.137-.146l.289-1.105c.147-.561.549-.967.998-1.189.173-.086.36-.159.558-.217.473-.138.96-.072 1.384.234l1.103.303c.109.029.175-.016.195-.045.22-.313.411-.644.573-.990.014-.031.021-.11-.059-.19l-.815-.806c-.411-.406-.562-.957-.53-1.456a4.709 4.709 0 0 0 0-.582c-.032-.499.119-1.05.53-1.456l.815-.806c.081-.08.073-.159.059-.19a6.464 6.464 0 0 0-.573-.989c-.02-.03-.085-.076-.195-.046l-1.102.303c-.424.306-.91.372-1.383.234a4.97 4.97 0 0 0-.559-.217c-.449-.222-.851-.628-.998-1.189l-.289-1.105c-.029-.11-.101-.143-.137-.146a6.6 6.6 0 0 0-1.142 0ZM11 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM9.5 8a1.5 1.5 0 1 0-3.001.001A1.5 1.5 0 0 0 9.5 8Z"/>
+                </svg>
+                Settings
+            </a>
+        </div>
+    </div>
+
+    <!-- Issues Header -->
+    <div class="issues-header">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="issues-stats">
+                <a href="?state=open" class="issues-tab {% if state_filter == 'open' %}active{% endif %}">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="display: inline-block; vertical-align: text-bottom;">
+                        <path d="M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"/>
+                        <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Z"/>
+                    </svg>
+                    {{ open_count }} Open
+                </a>
+                <a href="?state=closed" class="issues-tab {% if state_filter == 'closed' %}active{% endif %}">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="display: inline-block; vertical-align: text-bottom;">
+                        <path d="M11.28 6.78a.75.75 0 0 0-1.06-1.06L7.25 8.69 5.78 7.22a.75.75 0 0 0-1.06 1.06l2 2a.75.75 0 0 0 1.06 0l3.5-3.5Z"/>
+                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0Zm-1.5 0a6.5 6.5 0 1 0-13 0 6.5 6.5 0 0 0 13 0Z"/>
+                    </svg>
+                    {{ closed_count }} Closed
+                </a>
+            </div>
+            <a href="{% url 'user_projects:issue_create' username=project.owner.username slug=project.slug %}" class="new-issue-btn">
+                New issue
+            </a>
+        </div>
+
+        <!-- Search bar -->
+        <form method="GET" class="issues-search" style="margin-top: 1rem;">
+            <input type="search" name="q" value="{{ search_query }}" placeholder="Search all issues..." />
+            <input type="hidden" name="state" value="{{ state_filter }}" />
+            <button type="submit" class="btn btn-sm btn-primary">Search</button>
+        </form>
+    </div>
+
+    <!-- Issues List -->
+    {% if issues %}
+    <div class="issue-list">
+        {% for issue in issues %}
+        <div class="issue-item">
+            <div class="issue-main">
+                <div class="issue-icon {% if issue.state == 'open' %}open{% else %}closed{% endif %}">
+                    {% if issue.state == 'open' %}
+                    <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor">
+                        <path d="M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"/>
+                        <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Z"/>
+                    </svg>
+                    {% else %}
+                    <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor">
+                        <path d="M11.28 6.78a.75.75 0 0 0-1.06-1.06L7.25 8.69 5.78 7.22a.75.75 0 0 0-1.06 1.06l2 2a.75.75 0 0 0 1.06 0l3.5-3.5Z"/>
+                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0Zm-1.5 0a6.5 6.5 0 1 0-13 0 6.5 6.5 0 0 0 13 0Z"/>
+                    </svg>
+                    {% endif %}
+                </div>
+                <div class="issue-content">
+                    <div class="issue-title-row">
+                        <a href="{% url 'user_projects:issue_detail' username=project.owner.username slug=project.slug issue_number=issue.number %}" class="issue-title">
+                            {{ issue.title }}
+                        </a>
+                        {% if issue.labels.all %}
+                        <div class="issue-labels">
+                            {% for label in issue.labels.all %}
+                            <span class="issue-label" style="background-color: {{ label.color }};">
+                                {{ label.name }}
+                            </span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="issue-meta">
+                        #{{ issue.number }} opened {{ issue.created_at|timesince }} ago by
+                        <a href="/{{ issue.author.username }}/">{{ issue.author.username }}</a>
+                        {% if issue.get_comment_count > 0 %}
+                        <span style="margin-left: 1rem;">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="display: inline-block; vertical-align: text-bottom;">
+                                <path d="M0 2.75C0 1.784.784 1 1.75 1h12.5c.966 0 1.75.784 1.75 1.75v8.5A1.75 1.75 0 0 1 14.25 13H8.06l-2.573 2.573A1.458 1.458 0 0 1 3 14.543V13H1.75A1.75 1.75 0 0 1 0 11.25Zm1.75-.25a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h2a.75.75 0 0 1 .75.75v2.19l2.72-2.72a.749.749 0 0 1 .53-.22h6.5a.25.25 0 0 0 .25-.25v-8.5a.25.25 0 0 0-.25-.25Z"/>
+                            </svg>
+                            {{ issue.get_comment_count }}
+                        </span>
+                        {% endif %}
+                        {% if issue.milestone %}
+                        <span style="margin-left: 1rem;">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="display: inline-block; vertical-align: text-bottom;">
+                                <path d="M7.75 0a.75.75 0 0 1 .75.75V3h3.634c.414 0 .814.147 1.13.414l2.07 1.75a1.75 1.75 0 0 1 0 2.672l-2.07 1.75a1.75 1.75 0 0 1-1.13.414H8.5v5.25a.75.75 0 1 1-1.5 0V10H2.75A1.75 1.75 0 0 1 1 8.25v-3.5C1 3.784 1.784 3 2.75 3H7V.75A.75.75 0 0 1 7.75 0Z"/>
+                            </svg>
+                            {{ issue.milestone.title }}
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if issues.has_other_pages %}
+    <div class="pagination">
+        {% if issues.has_previous %}
+        <a href="?page=1&state={{ state_filter }}&q={{ search_query }}">First</a>
+        <a href="?page={{ issues.previous_page_number }}&state={{ state_filter }}&q={{ search_query }}">Previous</a>
+        {% endif %}
+
+        <span class="current">Page {{ issues.number }} of {{ issues.paginator.num_pages }}</span>
+
+        {% if issues.has_next %}
+        <a href="?page={{ issues.next_page_number }}&state={{ state_filter }}&q={{ search_query }}">Next</a>
+        <a href="?page={{ issues.paginator.num_pages }}&state={{ state_filter }}&q={{ search_query }}">Last</a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <!-- Empty State -->
+    <div class="empty-state">
+        <div class="empty-state-icon">
+            <svg width="48" height="48" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"/>
+                <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Z"/>
+            </svg>
+        </div>
+        <h3 class="empty-state-title">No issues found</h3>
+        <p class="empty-state-description">
+            {% if search_query %}
+            No issues matched your search. Try adjusting your filters or search terms.
+            {% elif state_filter == 'closed' %}
+            There are no closed issues yet.
+            {% else %}
+            There are no open issues yet. Create a new issue to get started.
+            {% endif %}
+        </p>
+        <a href="{% url 'user_projects:issue_create' username=project.owner.username slug=project.slug %}" class="new-issue-btn">
+            New issue
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

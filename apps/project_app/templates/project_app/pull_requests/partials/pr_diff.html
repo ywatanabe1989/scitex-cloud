@@ -1,0 +1,62 @@
+<!-- File Changes Summary -->
+<div class="card mb-3">
+    <div class="card-body">
+        <h6>
+            <i class="bi bi-file-earmark-diff"></i>
+            {{ changed_files|length }} file{% if changed_files|length != 1 %}s{% endif %} changed
+        </h6>
+    </div>
+</div>
+
+<!-- Changed Files -->
+{% if changed_files %}
+<div class="mb-3">
+    {% for file in changed_files %}
+    <div class="diff-file">
+        <div class="diff-header d-flex justify-content-between align-items-center">
+            <div>
+                {% if file.status == 'A' %}
+                <span class="badge bg-success me-2">Added</span>
+                {% elif file.status == 'M' %}
+                <span class="badge bg-warning me-2">Modified</span>
+                {% elif file.status == 'D' %}
+                <span class="badge bg-danger me-2">Deleted</span>
+                {% endif %}
+                <strong>{{ file.path }}</strong>
+            </div>
+            <div>
+                <a href="{% url 'user_projects:file_view' project.owner.username project.slug file.path %}"
+                   class="btn btn-sm btn-outline-secondary" target="_blank">
+                    <i class="bi bi-eye"></i> View file
+                </a>
+            </div>
+        </div>
+
+        <!-- Diff content (simplified - would need proper diff parsing) -->
+        <div class="p-3 bg-light">
+            <code class="text-muted">
+                Diff view for {{ file.path }}
+            </code>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Full diff (if available) -->
+{% if diff_data %}
+<div class="card">
+    <div class="card-header">
+        <h6 class="mb-0">Full diff</h6>
+    </div>
+    <div class="card-body">
+        <pre class="mb-0" style="max-height: 600px; overflow-y: auto;"><code>{{ diff_data }}</code></pre>
+    </div>
+</div>
+{% endif %}
+
+{% else %}
+<div class="text-center py-5">
+    <i class="bi bi-file-earmark" style="font-size: 3rem; color: #ccc;"></i>
+    <p class="text-muted mt-3">No files changed</p>
+</div>
+{% endif %}

@@ -1,0 +1,351 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Commit {{ commit.short_hash }} - {{ project.name }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/common/buttons.css' %}">
+<style>
+/* GitHub-style commit detail page */
+.commit-header {
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--color-border-default);
+}
+
+.commit-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--color-fg-default);
+    margin-bottom: 0.5rem;
+}
+
+.commit-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    color: var(--color-fg-muted);
+    font-size: 14px;
+}
+
+.commit-author {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.commit-hash-badge {
+    font-family: ui-monospace, monospace;
+    background: var(--color-canvas-subtle);
+    color: var(--color-fg-default);
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.commit-actions {
+    margin-top: 1rem;
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* File changes summary */
+.file-changes-summary {
+    margin: 1.5rem 0;
+    padding: 1rem;
+    background: var(--color-canvas-subtle);
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.file-count {
+    font-weight: 600;
+    color: var(--color-fg-default);
+}
+
+.changes-stats {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.additions {
+    color: #2ea043;
+    font-weight: 600;
+}
+
+.deletions {
+    color: #d1242f;
+    font-weight: 600;
+}
+
+/* File diff container */
+.file-diff-container {
+    margin: 2rem 0;
+}
+
+.file-diff {
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    margin-bottom: 2rem;
+    overflow: hidden;
+    background: var(--color-canvas-default);
+}
+
+.file-diff-header {
+    background: var(--color-canvas-subtle);
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--color-border-default);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.file-path {
+    font-family: ui-monospace, monospace;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-fg-default);
+}
+
+.file-stats {
+    font-size: 12px;
+    color: var(--color-fg-muted);
+}
+
+.file-diff-body {
+    overflow-x: auto;
+}
+
+/* Diff table */
+.diff-table {
+    width: 100%;
+    font-family: ui-monospace, monospace;
+    font-size: 12px;
+    border-collapse: collapse;
+    margin: 0;
+}
+
+.diff-table td {
+    padding: 0;
+    vertical-align: top;
+    white-space: pre;
+}
+
+.diff-line-num {
+    width: 40px;
+    text-align: right;
+    padding: 0 0.5rem;
+    color: var(--color-fg-muted);
+    user-select: none;
+    background: var(--color-canvas-subtle);
+    border-right: 1px solid var(--color-border-default);
+}
+
+.diff-line-content {
+    padding: 0 0.5rem;
+    color: var(--color-fg-default);
+}
+
+/* Diff line types */
+.diff-line.addition {
+    background: #dafbe133;
+}
+
+.diff-line.addition .diff-line-content {
+    color: #24292f;
+}
+
+[data-theme="dark"] .diff-line.addition .diff-line-content {
+    color: #c9d1d9;
+}
+
+.diff-line.deletion {
+    background: #ffebe933;
+}
+
+.diff-line.deletion .diff-line-content {
+    color: #24292f;
+}
+
+[data-theme="dark"] .diff-line.deletion .diff-line-content {
+    color: #c9d1d9;
+}
+
+.diff-line.hunk {
+    background: var(--color-canvas-subtle);
+}
+
+.diff-line.hunk .diff-line-content {
+    color: var(--color-accent-fg);
+    font-weight: 600;
+}
+
+.diff-line.header {
+    background: var(--color-canvas-default);
+    display: none;  /* Hide +++ and --- lines */
+}
+
+.diff-line.context {
+    background: var(--color-canvas-default);
+}
+
+/* Breadcrumb navigation */
+.breadcrumb-nav {
+    padding: 1rem 0;
+    font-size: 14px;
+}
+
+.breadcrumb-nav a {
+    color: var(--color-accent-fg);
+    text-decoration: none;
+}
+
+.breadcrumb-nav a:hover {
+    text-decoration: underline;
+}
+
+.breadcrumb-separator {
+    color: var(--color-fg-muted);
+    margin: 0 0.5rem;
+}
+
+/* Empty state */
+.empty-state {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: var(--color-fg-muted);
+}
+
+.commit-body-section {
+    margin: 1.5rem 0;
+    padding: 1rem;
+    background: var(--color-canvas-subtle);
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+}
+
+.commit-body-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-fg-default);
+    margin-bottom: 0.75rem;
+}
+
+.commit-body-content {
+    font-size: 14px;
+    color: var(--color-fg-default);
+    white-space: pre-wrap;
+    font-family: ui-monospace, monospace;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="max-width: 1280px;">
+    <!-- Breadcrumb Navigation -->
+    <div class="breadcrumb-nav">
+        <a href="/{{ project.owner.username }}/">{{ project.owner.username }}</a>
+        <span class="breadcrumb-separator">/</span>
+        <a href="/{{ project.owner.username }}/{{ project.slug }}/">{{ project.name }}</a>
+        <span class="breadcrumb-separator">/</span>
+        <span style="color: var(--color-fg-muted);">commit</span>
+        <span class="breadcrumb-separator">/</span>
+        <span style="color: var(--color-fg-default);">{{ commit.short_hash }}</span>
+    </div>
+
+    <!-- Commit Header -->
+    <div class="commit-header">
+        <h1 class="commit-title">{{ commit.subject }}</h1>
+
+        {% if commit.body %}
+        <div class="commit-body-section">
+            <div class="commit-body-title">Extended Description</div>
+            <div class="commit-body-content">{{ commit.body }}</div>
+        </div>
+        {% endif %}
+
+        <div class="commit-meta">
+            <div class="commit-author">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Zm7-3.25v2.992l2.028.812a.75.75 0 0 1-.557 1.392l-2.5-1A.751.751 0 0 1 7 8.25v-3.5a.75.75 0 0 1 1.5 0Z"/>
+                </svg>
+                <strong>{{ commit.author_name }}</strong>
+                <span>&lt;{{ commit.author_email }}&gt;</span>
+                committed
+                <span>{{ commit.date|date:"F j, Y, g:i a" }}</span>
+            </div>
+            <div class="commit-hash-badge" title="{{ commit.full_hash }}">
+                {{ commit.short_hash }}
+            </div>
+        </div>
+
+        <div class="commit-actions">
+            {% if commit.parent_hash %}
+            <a href="/{{ project.owner.username }}/{{ project.slug }}/commit/{{ commit.parent_hash }}/" class="btn btn-sm btn-outline-primary">
+                View Parent Commit
+            </a>
+            {% endif %}
+            <a href="/{{ project.owner.username }}/{{ project.slug }}/" class="btn btn-sm btn-outline-primary">
+                Browse Repository
+            </a>
+        </div>
+    </div>
+
+    <!-- File Changes Summary -->
+    {% if changed_files %}
+    <div class="file-changes-summary">
+        <div class="file-count">
+            {{ changed_files|length }} file{{ changed_files|length|pluralize }} changed
+        </div>
+        <div class="changes-stats">
+            <span class="additions">+{{ total_additions }} addition{{ total_additions|pluralize }}</span>
+            <span class="deletions">-{{ total_deletions }} deletion{{ total_deletions|pluralize }}</span>
+        </div>
+    </div>
+
+    <!-- File Diffs -->
+    <div class="file-diff-container">
+        {% for file in changed_files %}
+        <div class="file-diff">
+            <div class="file-diff-header">
+                <div class="file-path">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="display: inline-block; vertical-align: text-bottom; margin-right: 0.25rem;">
+                        <path d="M2 1.75C2 .784 2.784 0 3.75 0h6.586c.464 0 .909.184 1.237.513l2.914 2.914c.329.328.513.773.513 1.237v9.586A1.75 1.75 0 0 1 13.25 16h-9.5A1.75 1.75 0 0 1 2 14.25Zm1.75-.25a.25.25 0 0 0-.25.25v12.5c0 .138.112.25.25.25h9.5a.25.25 0 0 0 .25-.25V6h-2.75A1.75 1.75 0 0 1 9 4.25V1.5Zm6.75.062V4.25c0 .138.112.25.25.25h2.688l-.011-.013-2.914-2.914-.013-.011Z"></path>
+                    </svg>
+                    {{ file.path }}
+                </div>
+                <div class="file-stats">
+                    <span class="additions">+{{ file.additions }}</span>
+                    <span class="deletions">-{{ file.deletions }}</span>
+                </div>
+            </div>
+            <div class="file-diff-body">
+                <table class="diff-table">
+                    <tbody>
+                        {% for line in file.diff %}
+                        {% if line.type != 'header' %}
+                        <tr class="diff-line {{ line.type }}">
+                            <td class="diff-line-num"></td>
+                            <td class="diff-line-num"></td>
+                            <td class="diff-line-content">{{ line.content }}</td>
+                        </tr>
+                        {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p>No file changes found in this commit.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

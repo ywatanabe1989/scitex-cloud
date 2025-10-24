@@ -1,0 +1,51 @@
+{% extends 'project_app/project_detail.html' %}
+
+{% block title %}Security Policy - {{ project.name }}{% endblock %}
+
+{% block project_content %}
+<div class="container-fluid mt-4">
+    <h2 class="mb-3">Security Policy</h2>
+
+    <nav class="nav nav-tabs mb-4">
+        <a class="nav-link" href="{% url 'user_projects:security_overview' project.owner.username project.slug %}">Overview</a>
+        <a class="nav-link" href="{% url 'user_projects:security_alerts' project.owner.username project.slug %}">Alerts</a>
+        <a class="nav-link active" href="{% url 'user_projects:security_policy' project.owner.username project.slug %}">Security policy</a>
+        <a class="nav-link" href="{% url 'user_projects:security_advisories' project.owner.username project.slug %}">Advisories</a>
+        <a class="nav-link" href="{% url 'user_projects:dependency_graph' project.owner.username project.slug %}">Dependencies</a>
+    </nav>
+
+    {% if project.can_edit user %}
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="content" class="form-label">Policy Content (Markdown)</label>
+            <textarea name="content" id="content" class="form-control" rows="20" style="font-family: monospace;">{{ policy.content }}</textarea>
+            <small class="form-text text-muted">This will be saved to SECURITY.md in your repository</small>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="contact_email" class="form-label">Contact Email</label>
+                <input type="email" name="contact_email" id="contact_email" class="form-control" value="{{ policy.contact_email }}">
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="contact_url" class="form-label">Contact URL</label>
+                <input type="url" name="contact_url" id="contact_url" class="form-control" value="{{ policy.contact_url }}">
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Save Security Policy</button>
+    </form>
+    {% else %}
+    <div class="card">
+        <div class="card-body">
+            <div class="markdown-body">
+                {{ policy.content|linebreaks }}
+            </div>
+            {% if policy.contact_email %}
+            <hr>
+            <p><strong>Contact:</strong> <a href="mailto:{{ policy.contact_email }}">{{ policy.contact_email }}</a></p>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
