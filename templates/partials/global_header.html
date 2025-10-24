@@ -5,7 +5,7 @@
     <!-- Left: Logo + Main Navigation -->
     <div class="header-left">
       <!-- Logo -->
-      <a href="/" class="header-logo">
+      <a href="{% if user.is_authenticated %}/{{ user.username }}/{% else %}/{% endif %}" class="header-logo">
         <img src="{% static 'images/scitex-logo-cropped.png' %}" alt="SciTeX" class="header-logo-img">
       </a>
 

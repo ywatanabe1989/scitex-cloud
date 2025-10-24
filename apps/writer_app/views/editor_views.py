@@ -97,11 +97,19 @@ def ensure_writer_directory(project):
     """
     from scitex.template import create_writer_directory
     from apps.writer_app.models import Manuscript
-    from apps.workspace_app.services.directory_service import get_user_directory_manager
+    from apps.project_app.services.project_filesystem import get_project_filesystem_manager
 
-    # Check if writer directory already exists
-    if project.data_location and Path(project.data_location).exists():
-        logger.info(f"Writer directory already exists: {project.data_location}")
+    # Get workspace manager (needed for both existing and new directories)
+    manager = get_project_filesystem_manager(project.owner)
+
+    # Calculate expected writer directory path
+    base_dir = manager.base_path / project.slug
+    scitex_dir = base_dir / "scitex"
+    writer_dir = scitex_dir / "writer"
+
+    # Check if writer directory already exists (must check the actual writer dir, not just data_location)
+    if writer_dir.exists() and (writer_dir / "01_manuscript").exists():
+        logger.info(f"Writer directory already exists: {writer_dir}")
 
         # Ensure manuscript exists
         manuscript, created = Manuscript.objects.get_or_create(
@@ -116,25 +124,29 @@ def ensure_writer_directory(project):
         if created:
             logger.info(f"Created manuscript: {manuscript.title}")
 
-        return Path(project.data_location)
+        # Ensure project.data_location points to project root (not writer workspace)
+        expected_project_path = project.slug
+        if not project.data_location or project.data_location != expected_project_path:
+            project.data_location = expected_project_path
+            project.save()
+            logger.info(f"Corrected project data_location to project root: {expected_project_path}")
+
+        return writer_dir  # Return absolute path to writer directory
 
     # Create writer directory on-demand using workspace manager
     logger.info(f"Creating writer directory on-demand for project: {project.name}")
 
-    # Use workspace manager to get correct base directory (local, not NAS)
-    manager = get_user_directory_manager(project.owner)
-    base_dir = manager.base_path / project.slug
-    scitex_dir = base_dir / "scitex"
-    writer_dir = scitex_dir / "writer"
-
+    # Paths already calculated above, now create the directories
     try:
         scitex_dir.mkdir(parents=True, exist_ok=True)
         create_writer_directory("writer", str(scitex_dir))
         logger.info(f"✓ Created writer directory: {writer_dir}")
 
-        # Update project data_location
-        project.data_location = str(writer_dir)
-        project.save()
+        # Ensure project.data_location points to project root (not writer workspace)
+        if not project.data_location:
+            project.data_location = project.slug
+            project.save()
+            logger.info(f"Set project data_location to project root: {project.slug}")
 
         # Create manuscript
         manuscript = Manuscript.objects.create(
@@ -198,10 +210,17 @@ def index(request):
     writer_path = None
     writer_initialized = False
 
-    if current_project.data_location and Path(current_project.data_location).exists():
-        writer_path = Path(current_project.data_location)
-        writer_initialized = True
-        logger.info(f"Writer directory exists: {writer_path}")
+    # Use workspace manager to get correct base directory
+    from apps.project_app.services.project_filesystem import get_project_filesystem_manager
+    manager = get_project_filesystem_manager(current_project.owner)
+
+    if current_project.data_location:
+        # data_location is a relative path from user's base directory
+        full_writer_path = manager.base_path / current_project.data_location
+        if full_writer_path.exists():
+            writer_path = full_writer_path
+            writer_initialized = True
+            logger.info(f"Writer directory exists: {writer_path}")
 
     # Load sections from project's writer directory
     sections_data = {}
@@ -251,15 +270,18 @@ def index(request):
         def __init__(self):
             self.title = 'Untitled Manuscript'
             self.word_count = 0
+            self.word_count_abstract = 0
+            self.word_count_introduction = 0
+            self.word_count_methods = 0
+            self.word_count_results = 0
+            self.word_count_discussion = 0
             self.section_word_counts = {}
             self.is_modular = True
             self.id = None
 
     manuscript = DemoManuscript()
 
-    # Calculate correct writer path for display (use workspace manager)
-    from apps.workspace_app.services.directory_service import get_user_directory_manager
-    manager = get_user_directory_manager(current_project.owner)
+    # Calculate correct writer path for display (manager already created above)
     expected_writer_path = manager.base_path / current_project.slug / "scitex" / "writer"
 
     context = {
@@ -276,7 +298,7 @@ def index(request):
 
     logger.info(f"Rendering writer page - is_demo={is_guest}, writer_initialized={writer_initialized}, project={current_project.name if current_project else None}")
 
-    return render(request, 'writer_app/project_writer.html', context)
+    return render(request, 'writer_app/index.html', context)
 
 
 def _get_default_sections():
@@ -302,7 +324,7 @@ def modular_editor(request):
 
 
 def simple_editor(request):
-    """Simple MVP LaTeX editor interface."""
+    """Simple LaTeX editor interface."""
     return render(request, 'writer_app/simple_editor.html')
 
 

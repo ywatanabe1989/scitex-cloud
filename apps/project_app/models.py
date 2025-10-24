@@ -478,12 +478,12 @@ class Project(models.Model):
         """
         import subprocess
         from pathlib import Path
-        from apps.project_app.services.directory_service import get_user_directory_manager
+        from apps.project_app.services.project_filesystem import get_project_filesystem_manager
 
         if not self.git_url:
             return False, "No git URL configured"
 
-        manager = get_user_directory_manager(self.owner)
+        manager = get_project_filesystem_manager(self.owner)
         clone_path = manager.base_path / self.slug
 
         # Remove existing directory if empty
@@ -664,14 +664,14 @@ class Project(models.Model):
             int: Updated storage size in bytes
         """
         from pathlib import Path
-        from apps.project_app.services.directory_service import get_user_directory_manager
+        from apps.project_app.services.project_filesystem import get_project_filesystem_manager
 
         if not self.directory_created:
             return 0
 
         try:
-            manager = get_user_directory_manager(self.owner)
-            project_path = manager.get_project_path(self)
+            manager = get_project_filesystem_manager(self.owner)
+            project_path = manager.get_project_root_path(self)
 
             if not project_path or not project_path.exists():
                 return 0
@@ -713,8 +713,8 @@ class Project(models.Model):
 
         if not self.local_path:
             # Default location
-            from apps.project_app.services.directory_service import get_user_directory_manager
-            manager = get_user_directory_manager(self.owner)
+            from apps.project_app.services.project_filesystem import get_project_filesystem_manager
+            manager = get_project_filesystem_manager(self.owner)
             return manager.base_path / self.slug
         return Path(self.local_path)
 

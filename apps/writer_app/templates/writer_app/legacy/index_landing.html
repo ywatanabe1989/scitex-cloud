@@ -190,7 +190,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/addon/edit/matchbrackets.min.js"></script>
 {% endblock %}
 
-{% block doc_content %}
+{% block writer_content %}
 <div class="mvp-container">
   <!-- Sidebar -->
   <div class="mvp-sidebar">
@@ -208,9 +208,11 @@
         <i class="fas fa-save me-2"></i>Save Draft
       </button>
       
-      <a href="{% url 'writer:mvp-dashboard' %}" class="btn btn-outline-secondary">
+      {% if not is_anonymous %}
+      <a href="{% url 'writer:dashboard' %}" class="btn btn-outline-secondary">
         <i class="fas fa-home me-2"></i>Dashboard
       </a>
+      {% endif %}
     </div>
     
     <!-- Template Selector -->
@@ -536,7 +538,7 @@ Your letter content here...
     statusCheckInterval = setInterval(function() {
       if (!currentJobId) return;
 
-      fetch(`{% url "writer:compilation-status" job_id="__JOB_ID__" %}`.replace('__JOB_ID__', currentJobId))
+      fetch('/writer/api/status/' + currentJobId + '/')
         .then(response => response.json())
         .then(data => {
           updateJobStatus(data);
