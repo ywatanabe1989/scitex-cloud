@@ -916,3 +916,160 @@ class ProjectPermission(models.Model):
         
     def __str__(self):
         return f"{self.membership.user.username} - {self.resource_type}: {self.permission_level}"
+
+
+# =============================================================================
+# Social Interaction Models (Watch, Star, Fork)
+# =============================================================================
+
+class ProjectWatch(models.Model):
+    """
+    Model to track users watching a project for notifications
+    Similar to GitHub's watch feature
+    """
+    NOTIFICATION_CHOICES = [
+        ('all', 'All Activity'),
+        ('participating', 'Participating and @mentions'),
+        ('ignoring', 'Ignore'),
+    ]
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='project_watches'
+    )
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.CASCADE,
+        related_name='project_watchers'
+    )
+    notification_settings = models.CharField(
+        max_length=20,
+        choices=NOTIFICATION_CHOICES,
+        default='all',
+        help_text="Notification preference for this project"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'project')
+        verbose_name = 'Project Watch'
+        verbose_name_plural = 'Project Watches'
+        indexes = [
+            models.Index(fields=['user', 'project']),
+            models.Index(fields=['project', 'created_at']),
+        ]
+
+    def __str__(self):
+        return f"{self.user.username} watches {self.project.name}"
+
+
+class ProjectStar(models.Model):
+    """
+    Model to track users starring a project
+    Similar to GitHub's star feature - indicates interest/bookmarking
+    """
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='project_stars'
+    )
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.CASCADE,
+        related_name='project_stars_set'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'project')
+        verbose_name = 'Project Star'
+        verbose_name_plural = 'Project Stars'
+        indexes = [
+            models.Index(fields=['user', 'project']),
+            models.Index(fields=['project', 'created_at']),
+        ]
+
+    def __str__(self):
+        return f"{self.user.username} starred {self.project.name}"
+
+
+class ProjectFork(models.Model):
+    """
+    Model to track project forks
+    Similar to GitHub's fork feature - creates a copy of a project
+    """
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='project_forks',
+        help_text="User who created the fork"
+    )
+    original_project = models.ForeignKey(
+        Project,
+        on_delete=models.CASCADE,
+        related_name='project_forks_set',
+        help_text="The original project that was forked"
+    )
+    forked_project = models.ForeignKey(
+        Project,
+        on_delete=models.CASCADE,
+        related_name='forked_from',
+        help_text="The new forked project"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    # Optional: Track if fork is synced with original
+    last_sync_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Last time fork was synced with original"
+    )
+
+    class Meta:
+        unique_together = ('user', 'original_project', 'forked_project')
+        verbose_name = 'Project Fork'
+        verbose_name_plural = 'Project Forks'
+        indexes = [
+            models.Index(fields=['user', 'original_project']),
+            models.Index(fields=['original_project', 'created_at']),
+            models.Index(fields=['forked_project']),
+        ]
+
+    def __str__(self):
+        return f"{self.user.username} forked {self.original_project.name} to {self.forked_project.name}"
+
+
+# =============================================================================
+# Import Issue models from models_issues.py
+# =============================================================================
+# Note: Issue models are defined in models_issues.py but imported here for consistency
+try:
+    from apps.project_app.models_issues import (
+        Issue,
+        IssueComment,
+        IssueLabel,
+        IssueMilestone,
+        IssueAssignment,
+        IssueEvent,
+    )
+except ImportError:
+    # models_issues.py hasn't been created yet or has import issues
+    pass
+
+# =============================================================================
+# Import Pull Request models from models_pull_requests.py
+# =============================================================================
+# Note: PR models are defined in models_pull_requests.py but imported here for consistency
+try:
+    from apps.project_app.models_pull_requests import (
+        PullRequest,
+        PullRequestReview,
+        PullRequestComment,
+        PullRequestCommit,
+        PullRequestLabel,
+        PullRequestEvent,
+    )
+except ImportError:
+    # models_pull_requests.py hasn't been created yet or has import issues
+    pass

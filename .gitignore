@@ -5,6 +5,8 @@ TODOS/90_COMPARISON_TABLE.md
 ### Source: /home/ywatanabe/.git-templates/.gitignore-templates/Custom/Claude.gitignore ###
 .claude
 docs/to_claude/
+CLAUDE.md
+**/TODO.md
 
 ### Source: /home/ywatanabe/.git-templates/.gitignore-templates/Custom/Secrets.gitignore ###
 .git-crypt/keys
