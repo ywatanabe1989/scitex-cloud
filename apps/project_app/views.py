@@ -279,7 +279,7 @@ def project_create(request):
 
         # Initialize directory manager for all init types
         from apps.project_app.services.project_filesystem import (
-            get_user_directory_manager,
+            get_project_filesystem_manager,
         )
 
         manager = get_project_filesystem_manager(request.user)
@@ -600,7 +600,7 @@ def project_create_from_template(request, username, slug):
     if request.method == "POST":
         # Create template structure
         from apps.project_app.services.project_filesystem import (
-            get_user_directory_manager,
+            get_project_filesystem_manager,
         )
 
         manager = get_project_filesystem_manager(project.owner)
@@ -873,7 +873,7 @@ def api_file_tree(request, username, slug):
 
     # Get project directory
     from apps.project_app.services.project_filesystem import (
-        get_user_directory_manager,
+        get_project_filesystem_manager,
     )
 
     manager = get_project_filesystem_manager(project.owner)
@@ -1075,7 +1075,7 @@ def api_concatenate_directory(request, username, slug, directory_path=""):
 
     # Get directory path
     from apps.project_app.services.project_filesystem import (
-        get_user_directory_manager,
+        get_project_filesystem_manager,
     )
 
     manager = get_project_filesystem_manager(project.owner)
@@ -1256,7 +1256,7 @@ def project_directory_dynamic(request, username, slug, directory_path):
 
     # Get project path
     from apps.project_app.services.project_filesystem import (
-        get_user_directory_manager,
+        get_project_filesystem_manager,
     )
 
     manager = get_project_filesystem_manager(project.owner)
@@ -1395,7 +1395,7 @@ def project_file_view(request, username, slug, file_path):
 
     # Get file path
     from apps.project_app.services.project_filesystem import (
-        get_user_directory_manager,
+        get_project_filesystem_manager,
     )
 
     manager = get_project_filesystem_manager(project.owner)
@@ -1660,7 +1660,7 @@ def project_directory(request, username, slug, directory, subpath=None):
 
     # Get the project directory manager
     from apps.project_app.services.project_filesystem import (
-        get_user_directory_manager,
+        get_project_filesystem_manager,
     )
 
     manager = get_project_filesystem_manager(project.owner)
