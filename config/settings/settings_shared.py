@@ -112,7 +112,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "apps.workspace_app.middleware.GuestSessionMiddleware",
+    "apps.project_app.middleware.GuestSessionMiddleware",
 ]
 
 WSGI_APPLICATION = "config.wsgi.application"
@@ -133,8 +133,8 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "apps.workspace_app.context_processors.version_context",
-                "apps.workspace_app.context_processors.project_context",
+                "apps.project_app.context_processors.version_context",
+                "apps.project_app.context_processors.project_context",
             ],
         },
     },

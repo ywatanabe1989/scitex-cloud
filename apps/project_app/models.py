@@ -478,7 +478,7 @@ class Project(models.Model):
         """
         import subprocess
         from pathlib import Path
-        from apps.workspace_app.services.directory_service import get_user_directory_manager
+        from apps.project_app.services.directory_service import get_user_directory_manager
 
         if not self.git_url:
             return False, "No git URL configured"
@@ -664,7 +664,7 @@ class Project(models.Model):
             int: Updated storage size in bytes
         """
         from pathlib import Path
-        from apps.workspace_app.services.directory_service import get_user_directory_manager
+        from apps.project_app.services.directory_service import get_user_directory_manager
 
         if not self.directory_created:
             return 0
@@ -713,7 +713,7 @@ class Project(models.Model):
 
         if not self.local_path:
             # Default location
-            from apps.workspace_app.services.directory_service import get_user_directory_manager
+            from apps.project_app.services.directory_service import get_user_directory_manager
             manager = get_user_directory_manager(self.owner)
             return manager.base_path / self.slug
         return Path(self.local_path)

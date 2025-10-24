@@ -17,7 +17,7 @@ from .models import UserProfile
 def signup(request):
     """User signup view with email verification required."""
     import logging
-    from apps.workspace_app.email_service import EmailService
+    from apps.project_app.email_service import EmailService
 
     logger = logging.getLogger(__name__)
 
@@ -46,7 +46,7 @@ def signup(request):
 
             # Migrate anonymous session data if exists
             if request.session.session_key:
-                from apps.workspace_app.services.anonymous_storage import migrate_to_user_storage
+                from apps.project_app.services.anonymous_storage import migrate_to_user_storage
                 migrated = migrate_to_user_storage(request.session.session_key, user)
                 if migrated:
                     logger.info(f"Migrated anonymous session data for new user {username}")
@@ -123,7 +123,7 @@ def login_view(request):
             if user is not None:
                 # Migrate anonymous session data before login if exists
                 if request.session.session_key:
-                    from apps.workspace_app.services.anonymous_storage import migrate_to_user_storage
+                    from apps.project_app.services.anonymous_storage import migrate_to_user_storage
                     migrated = migrate_to_user_storage(request.session.session_key, user)
                     if migrated:
                         import logging

@@ -155,7 +155,7 @@ def _clone_gitea_repo_to_data_dir(project):
             )
 
             # Configure git credentials for push (embed token in URL)
-            from apps.workspace_app.services.git_service import configure_git_credentials
+            from apps.project_app.services.git_service import configure_git_credentials
             configure_git_credentials(
                 project_dir=project_dir,
                 username=project.owner.username,

@@ -210,14 +210,15 @@ class UserDirectoryManager:
             return False, None
     
     def get_project_path(self, project: Project) -> Optional[Path]:
-        """Get the directory path for a project."""
-        if project.data_location:
-            return self.base_path / project.data_location
-        else:
-            # Simple lookup: ./data/users/{username}/{project-slug}/
-            project_path = self.base_path / project.slug
-            if project_path.exists():
-                return project_path
+        """Get the directory path for a project.
+
+        Always uses filesystem as the source of truth (data/users/{username}/{project-slug}/).
+        This ensures Django always shows the actual filesystem state in real-time.
+        """
+        # Always use project slug - filesystem is the single source of truth
+        project_path = self.base_path / project.slug
+        if project_path.exists():
+            return project_path
         return None
     
     def store_document(self, document, content: str,

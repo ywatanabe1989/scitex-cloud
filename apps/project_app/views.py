@@ -203,7 +203,7 @@ def project_detail(request, username, slug):
 
     # Default mode: overview - GitHub-style file browser with README
     # Get project directory and file list
-    from apps.workspace_app.services.directory_service import (
+    from apps.project_app.services.directory_service import (
         get_user_directory_manager,
     )
 
@@ -278,7 +278,7 @@ def project_create(request):
         git_url = request.POST.get("git_url", "").strip()
 
         # Initialize directory manager for all init types
-        from apps.workspace_app.services.directory_service import (
+        from apps.project_app.services.directory_service import (
             get_user_directory_manager,
         )
 
@@ -599,7 +599,7 @@ def project_create_from_template(request, username, slug):
 
     if request.method == "POST":
         # Create template structure
-        from apps.workspace_app.services.directory_service import (
+        from apps.project_app.services.directory_service import (
             get_user_directory_manager,
         )
 
@@ -872,7 +872,7 @@ def api_file_tree(request, username, slug):
         return JsonResponse({"success": False, "error": "Permission denied"})
 
     # Get project directory
-    from apps.workspace_app.services.directory_service import (
+    from apps.project_app.services.directory_service import (
         get_user_directory_manager,
     )
 
@@ -1074,7 +1074,7 @@ def api_concatenate_directory(request, username, slug, directory_path=""):
         return JsonResponse({"success": False, "error": "Permission denied"})
 
     # Get directory path
-    from apps.workspace_app.services.directory_service import (
+    from apps.project_app.services.directory_service import (
         get_user_directory_manager,
     )
 
@@ -1255,7 +1255,7 @@ def project_directory_dynamic(request, username, slug, directory_path):
             )
 
     # Get project path
-    from apps.workspace_app.services.directory_service import (
+    from apps.project_app.services.directory_service import (
         get_user_directory_manager,
     )
 
@@ -1394,7 +1394,7 @@ def project_file_view(request, username, slug, file_path):
         return redirect("user_projects:detail", username=username, slug=slug)
 
     # Get file path
-    from apps.workspace_app.services.directory_service import (
+    from apps.project_app.services.directory_service import (
         get_user_directory_manager,
     )
 
@@ -1659,7 +1659,7 @@ def project_directory(request, username, slug, directory, subpath=None):
             return redirect("project_app:detail", username=username, slug=slug)
 
     # Get the project directory manager
-    from apps.workspace_app.services.directory_service import (
+    from apps.project_app.services.directory_service import (
         get_user_directory_manager,
     )
 
