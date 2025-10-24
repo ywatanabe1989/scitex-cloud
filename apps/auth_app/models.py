@@ -79,7 +79,37 @@ class UserProfile(models.Model):
     # Preferences
     email_notifications = models.BooleanField(default=True)
     weekly_digest = models.BooleanField(default=True)
-    
+
+    # Theme preferences
+    theme_preference = models.CharField(
+        max_length=10,
+        choices=[('light', 'Light'), ('dark', 'Dark')],
+        default='dark',
+        help_text="Site theme preference (light/dark)"
+    )
+    code_theme_light = models.CharField(
+        max_length=50,
+        default='atom-one-light',
+        help_text="Code highlighting theme for light mode"
+    )
+    code_theme_dark = models.CharField(
+        max_length=50,
+        default='nord',
+        help_text="Code highlighting theme for dark mode"
+    )
+
+    # Editor (CodeMirror) theme preferences for writer app
+    editor_theme_light = models.CharField(
+        max_length=50,
+        default='neat',
+        help_text="Editor theme for light mode (CodeMirror)"
+    )
+    editor_theme_dark = models.CharField(
+        max_length=50,
+        default='nord',
+        help_text="Editor theme for dark mode (CodeMirror)"
+    )
+
     # Profile completion tracking
     profile_completed = models.BooleanField(default=False)
     profile_completion_date = models.DateTimeField(null=True, blank=True)

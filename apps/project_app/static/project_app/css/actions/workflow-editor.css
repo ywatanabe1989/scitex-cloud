@@ -1,0 +1,101 @@
+/* ============================================================================= */
+/* ACTIONS / WORKFLOW_EDITOR */
+/* ============================================================================= */
+
+
+.editor-container {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.templates-sidebar {
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    padding: 1rem;
+    background: var(--color-canvas-default);
+    height: fit-content;
+}
+
+.template-item {
+    padding: 0.75rem;
+    border: 1px solid var(--color-border-default);
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.template-item:hover {
+    border-color: var(--color-accent-fg);
+    background: var(--color-accent-subtle);
+}
+
+.template-item.selected {
+    border-color: var(--color-accent-fg);
+    background: var(--color-accent-subtle);
+}
+
+.template-name {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.template-description {
+    font-size: 0.875rem;
+    color: var(--color-fg-muted);
+}
+
+.editor-main {
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    background: var(--color-canvas-default);
+}
+
+.editor-header {
+    padding: 1rem;
+    border-bottom: 1px solid var(--color-border-default);
+    background: var(--color-canvas-subtle);
+}
+
+.editor-body {
+    padding: 1rem;
+}
+
+.form-label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.form-control {
+    border: 1px solid var(--color-border-default);
+    border-radius: 4px;
+    padding: 0.5rem;
+    background: var(--color-canvas-default);
+    color: var(--color-fg-default);
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--color-accent-fg);
+    box-shadow: 0 0 0 3px var(--color-accent-subtle);
+}
+
+#yaml-editor {
+    font-family: 'Monaco', 'Courier New', monospace;
+    font-size: 0.875rem;
+    min-height: 400px;
+    resize: vertical;
+}
+
+.editor-actions {
+    padding: 1rem;
+    border-top: 1px solid var(--color-border-default);
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+
+

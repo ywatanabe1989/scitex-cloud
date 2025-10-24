@@ -1,0 +1,39 @@
+{% load static %}
+<!-- Single Repository List Item -->
+<article class="repo-item">
+    <div class="repo-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <a href="{{ project.get_absolute_url }}" class="repo-name">
+                {{ project.name }}
+            </a>
+            <span class="repo-visibility">
+                {% if project.visibility == 'private' %}
+                    <img src="{% static 'project_app/icons/lock.svg' %}" alt="" style="width: 14px; height: 14px; vertical-align: text-bottom; margin-right: 4px;">Private
+                {% else %}
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="14" height="14" style="vertical-align: text-bottom; margin-right: 4px;"><path fill="#6c8ba0" d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Zm6.5-3a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 8 5Zm0-2.5a.875.875 0 1 1 0 1.75.875.875 0 0 1 0-1.75Z"/></svg>Public
+                {% endif %}
+            </span>
+        </div>
+        {% if user.is_authenticated %}
+        <button class="star-btn" data-username="{{ project.owner.username }}" data-slug="{{ project.slug }}" onclick="toggleStar(this)" style="background: transparent; border: 1px solid var(--color-border-default); color: var(--color-fg-default); padding: 4px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: all 0.2s;">
+            <img src="{% static 'project_app/icons/star.svg' %}" alt="" style="width: 14px; height: 14px; vertical-align: text-bottom; margin-right: 4px;">Star
+        </button>
+        {% endif %}
+    </div>
+
+    {% if project.description %}
+    <p class="repo-description">
+        {{ project.description|truncatewords:30 }}
+    </p>
+    {% endif %}
+
+    <div class="repo-meta">
+        <span class="repo-meta-item">
+            <span class="language-dot" style="background-color: #3572A5;"></span>
+            <span>Python</span>
+        </span>
+        <span class="repo-meta-item">
+            Updated {{ project.updated_at|timesince }} ago
+        </span>
+    </div>
+</article>

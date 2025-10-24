@@ -1,0 +1,37 @@
+<!-- Commit Header -->
+<div class="commit-header">
+    <h1 class="commit-title">{{ commit.subject }}</h1>
+
+    {% if commit.body %}
+    <div class="commit-body-section">
+        <div class="commit-body-title">Extended Description</div>
+        <div class="commit-body-content">{{ commit.body }}</div>
+    </div>
+    {% endif %}
+
+    <div class="commit-meta">
+        <div class="commit-author">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Zm7-3.25v2.992l2.028.812a.75.75 0 0 1-.557 1.392l-2.5-1A.751.751 0 0 1 7 8.25v-3.5a.75.75 0 0 1 1.5 0Z"/>
+            </svg>
+            <strong>{{ commit.author_name }}</strong>
+            <span>&lt;{{ commit.author_email }}&gt;</span>
+            committed
+            <span>{{ commit.date|date:"F j, Y, g:i a" }}</span>
+        </div>
+        <div class="commit-hash-badge" title="{{ commit.full_hash }}">
+            {{ commit.short_hash }}
+        </div>
+    </div>
+
+    <div class="commit-actions">
+        {% if commit.parent_hash %}
+        <a href="/{{ project.owner.username }}/{{ project.slug }}/commit/{{ commit.parent_hash }}/" class="btn btn-sm btn-outline-primary">
+            View Parent Commit
+        </a>
+        {% endif %}
+        <a href="/{{ project.owner.username }}/{{ project.slug }}/" class="btn btn-sm btn-outline-primary">
+            Browse Repository
+        </a>
+    </div>
+</div>

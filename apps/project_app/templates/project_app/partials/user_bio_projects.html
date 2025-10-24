@@ -1,0 +1,43 @@
+<!-- Pinned Projects -->
+{% if projects %}
+<div class="readme-section">
+    <h2>📌 Featured Projects</h2>
+    <div class="pinned-projects">
+        {% for project in projects %}
+        <div class="project-card">
+            <a href="/{{ profile_user.username }}/{{ project.slug }}/" class="project-card-title">
+                {{ project.name }}
+            </a>
+            {% if project.description %}
+            <div class="project-card-description">
+                {{ project.description|truncatewords:20 }}
+            </div>
+            {% endif %}
+            <div class="project-card-meta">
+                Updated {{ project.updated_at|date:"M j, Y" }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% if total_projects > 6 %}
+    <div style="text-align: center; margin-top: 1.5rem;">
+        <a href="/{{ profile_user.username }}/?tab=repositories" class="btn btn-outline-primary">
+            View all {{ total_projects }} projects
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+<!-- Empty State for Own Profile -->
+{% if is_own_profile and not profile.bio and not profile.research_interests %}
+<div class="readme-section">
+    <div class="empty-state">
+        <h3 style="color: var(--color-fg-default); margin-bottom: 1rem;">👋 Welcome to your profile!</h3>
+        <p>This is your special profile page. Add information about yourself to make it shine!</p>
+        <a href="/profile/edit/" class="btn btn-primary" style="margin-top: 1rem;">
+            <i class="fas fa-edit"></i> Complete Your Profile
+        </a>
+    </div>
+</div>
+{% endif %}

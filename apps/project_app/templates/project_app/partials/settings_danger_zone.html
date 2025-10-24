@@ -1,0 +1,21 @@
+<!-- Danger Zone Section -->
+<div class="settings-section danger-zone" id="danger">
+    <div class="settings-section-header">
+        <h2 class="settings-title">Danger Zone</h2>
+        <p class="settings-description">Irreversible, destructive actions</p>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px; background: var(--color-canvas-default); border: 1px solid var(--color-danger-emphasis); border-radius: 6px;">
+        <div>
+            <div style="font-weight: 600; color: var(--color-fg-default); margin-bottom: 4px;">
+                Delete this repository
+            </div>
+            <div style="font-size: 12px; color: var(--color-fg-muted);">
+                Once you delete a repository, there is no going back. Please be certain.
+            </div>
+        </div>
+        <button type="button" class="btn-danger" onclick="showDeleteModal()">
+            Delete repository
+        </button>
+    </div>
+</div>

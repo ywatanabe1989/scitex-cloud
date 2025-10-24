@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ breadcrumb_path }} - {{ project.name }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'project_app/css/project_app.css' %}">
+<link rel="stylesheet" href="{% static 'css/common/buttons.css' %}">
+
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="max-width: 1280px;">
+    {% include "project_app/partials/_breadcrumb.html" %}
+
+    {% include "project_app/partials/_tab_navigation.html" %}
+
+    {% include "project_app/partials/_toolbar.html" %}
+
+    <!-- Main Content Area with Sidebar -->
+    <div class="repo-layout">
+        {% include "project_app/partials/_sidebar.html" %}
+
+        <!-- Main Content (RIGHT side) -->
+        <div class="repo-main">
+            {% include "project_app/partials/_file_list.html" %}
+        </div>
+    </div>
+</div>
+
+{% include "project_app/partials/_scripts.html" %}
+{% endblock %}

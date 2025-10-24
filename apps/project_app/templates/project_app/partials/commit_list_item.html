@@ -1,0 +1,56 @@
+<!-- Single Commit Item -->
+<div class="commit-item">
+    <div class="commit-timeline">
+        <div class="commit-dot"></div>
+        {% if not forloop.last %}
+        <div class="commit-line"></div>
+        {% endif %}
+    </div>
+
+    <div class="commit-avatar" title="{{ commit.author_name }}">
+        {{ commit.author_name|slice:":1"|upper }}
+    </div>
+
+    <div class="commit-content">
+        <div class="commit-message">
+            <a href="/{{ project.owner.username }}/{{ project.slug }}/commit/{{ commit.hash }}">
+                {{ commit.subject }}
+            </a>
+        </div>
+        <div class="commit-meta">
+            <a href="/{{ project.owner.username }}/{{ project.slug }}/commits/{{ branch }}/{{ file_path }}?author={{ commit.author_name }}"
+               class="commit-author" title="{{ commit.author_email }}">
+                {{ commit.author_name }}
+            </a>
+            <span>committed {{ commit.relative_time }}</span>
+            <a href="/{{ project.owner.username }}/{{ project.slug }}/commit/{{ commit.hash }}"
+               class="commit-hash" title="{{ commit.hash }}">
+                {{ commit.short_hash }}
+            </a>
+        </div>
+    </div>
+
+    <div class="commit-stats">
+        {% if commit.additions > 0 or commit.deletions > 0 %}
+        <div style="display: flex; align-items: center; gap: 4px; font-size: 12px;">
+            {% if commit.additions > 0 %}
+            <span class="stat-additions">+{{ commit.additions }}</span>
+            {% endif %}
+            {% if commit.deletions > 0 %}
+            <span class="stat-deletions">-{{ commit.deletions }}</span>
+            {% endif %}
+        </div>
+        <div class="stat-bar">
+            {% if commit.additions > 0 and commit.deletions > 0 %}
+                {% widthratio commit.additions commit.additions|add:commit.deletions 100 as add_percent %}
+                <div class="stat-bar-add" style="width: {{ add_percent }}%;"></div>
+                <div class="stat-bar-del" style="width: {{ 100|add:"-"|add:add_percent }}%;"></div>
+            {% elif commit.additions > 0 %}
+                <div class="stat-bar-add" style="width: 100%;"></div>
+            {% elif commit.deletions > 0 %}
+                <div class="stat-bar-del" style="width: 100%;"></div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>

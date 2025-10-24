@@ -1,0 +1,23 @@
+<!-- General Settings Section -->
+<div class="settings-section" id="general">
+    <div class="settings-section-header">
+        <h2 class="settings-title">General</h2>
+        <p class="settings-description">Basic repository information and settings</p>
+    </div>
+
+    <div class="form-group">
+        <label for="name">Repository name</label>
+        <input type="text" id="name" name="name" value="{{ project.name }}" required>
+        <p class="form-help">Used in URLs: /{{ project.owner.username }}/{{ project.slug }}/</p>
+    </div>
+
+    <div class="form-group">
+        <label for="description">Description</label>
+        <textarea id="description" name="description" rows="3">{{ project.description }}</textarea>
+        <p class="form-help">Brief description of your research project</p>
+    </div>
+
+    <button type="submit" name="action" value="update_general" class="btn-save">
+        Save changes
+    </button>
+</div>

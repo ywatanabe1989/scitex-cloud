@@ -1,0 +1,773 @@
+/* ============================================================================= */
+/* PROJECT_DETAIL */
+/* ============================================================================= */
+
+
+/* GitHub-style repository header - Theme-aware */
+.repo-header {
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--color-border-default);
+}
+
+.repo-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-accent-fg);  /* SciTeX brand color */
+    text-decoration: none;
+}
+
+.repo-title:hover {
+    text-decoration: underline;
+}
+
+.repo-description {
+    color: var(--color-fg-muted);
+    margin-top: 0.5rem;
+}
+
+/* Tab navigation now uses standardized .scitex-tabs component from design system */
+.repo-tabs {
+    margin-bottom: 1.5rem;
+}
+
+/* File browser table - GitHub style with visible edges */
+.file-browser {
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+    background: var(--color-canvas-default);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.file-browser table {
+    width: 100%;
+    margin: 0;
+    border-collapse: collapse;
+}
+
+.file-browser th {
+    background: var(--color-neutral-muted);
+    padding: 6px 12px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--color-fg-muted);
+    border-bottom: 1px solid var(--color-border-default);
+}
+
+.file-browser tbody tr {
+    cursor: pointer;
+    transition: background-color 0.05s ease;
+    border-top: 1px solid var(--color-border-default);
+}
+
+.file-browser tbody tr:hover {
+    background: var(--color-neutral-muted);
+}
+
+.file-browser td {
+    padding: 6px 12px;
+    font-size: 14px;
+    color: var(--color-fg-default);
+    vertical-align: middle;
+}
+
+.file-name {
+    color: var(--color-accent-fg);
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.file-name:hover {
+    text-decoration: underline;
+}
+
+
+
+
+
+
+
+
+
+
+.file-browser .commit-message {
+    color: var(--color-fg-default);
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.file-browser .commit-message a {
+    color: var(--color-fg-default);
+    text-decoration: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+}
+
+.file-browser .commit-message a:hover {
+    color: var(--color-accent-fg);
+    text-decoration: underline;
+}
+
+.file-browser .commit-hash {
+    font-family: ui-monospace, 'Cascadia Code', monospace;
+    font-size: 12px;
+    color: var(--color-fg-muted);
+    background: var(--color-neutral-muted);
+    padding: 2px 6px;
+    border-radius: 6px;
+    text-decoration: none;
+    white-space: nowrap;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.file-browser .commit-hash:hover {
+    color: var(--color-accent-fg);
+    background: var(--color-accent-subtle);
+}
+
+.file-browser .commit-hash::before {
+    content: attr(data-hash);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--color-canvas-overlay);
+    color: var(--color-fg-on-emphasis);
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    white-space: nowrap;
+    z-index: 1000;
+    border: 1px solid var(--color-border-default);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.file-browser .commit-hash:hover::before {
+    opacity: 1;
+}
+
+.file-browser .commit-hash::after {
+    content: '';
+    position: absolute;
+    bottom: calc(100% + 2px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid var(--color-canvas-overlay);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.file-browser .commit-hash:hover::after {
+    opacity: 1;
+}
+
+.file-browser .commit-time {
+    color: var(--color-fg-muted);
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.file-browser td:first-child {
+    width: 40%;
+}
+
+.file-browser td:nth-child(2) {
+    width: 45%;
+}
+
+.file-browser td:last-child {
+    width: 15%;
+    text-align: right;
+}
+
+
+/* README rendering - Theme-aware */
+.readme-container {
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    padding: 2rem;
+    background: var(--color-canvas-default);
+    color: var(--color-fg-default);
+}
+
+.readme-header {
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--color-border-default);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-fg-default);
+}
+
+.readme-content {
+    line-height: 1.6;
+}
+
+.readme-content h1,
+.readme-content h2,
+.readme-content h3 {
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    line-height: 1.25;
+    color: var(--color-fg-default);
+}
+
+.readme-content h1 {
+    font-size: 2em;
+    padding-bottom: 0.3em;
+}
+
+.readme-content h2 {
+    font-size: 1.5em;
+    padding-bottom: 0.3em;
+    margin-top: 2rem;
+}
+
+.readme-content code {
+    background: var(--color-neutral-muted);
+    color: var(--color-fg-default);
+    padding: 0.2em 0.4em;
+    border-radius: 6px;
+    font-family: ui-monospace, monospace;
+    font-size: 85%;
+}
+
+.readme-content pre {
+    background: var(--color-neutral-muted);
+    padding: 1rem;
+    border-radius: 6px;
+    overflow-x: auto;
+}
+
+.readme-content pre code {
+    background: none;
+    padding: 0;
+}
+
+/* Lists and directory structures - no borders */
+.readme-content ul,
+.readme-content ol {
+    padding-left: 2em;
+    margin: 0.5em 0;
+}
+
+.readme-content li {
+    margin: 0.25em 0;
+    border: none !important;  /* Remove any borders from list items */
+}
+
+.readme-content p {
+    margin: 1em 0;
+    color: var(--color-fg-default);
+}
+
+.readme-content a {
+    color: var(--color-accent-fg);
+}
+
+.readme-content a:hover {
+    text-decoration: underline;
+}
+
+/* Remove borders from h3, h4, h5, h6 */
+.readme-content h3,
+.readme-content h4,
+.readme-content h5,
+.readme-content h6 {
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    color: var(--color-fg-default);
+    border: none !important;  /* No borders for smaller headings */
+}
+
+/* Button overrides for theme support */
+.btn-outline-primary {
+    color: var(--color-accent-fg) !important;
+    border-color: var(--color-accent-fg) !important;
+    background: transparent !important;
+}
+
+.btn-outline-primary:hover {
+    color: #ffffff !important;
+    background: var(--color-accent-fg) !important;
+    border-color: var(--color-accent-fg) !important;
+}
+
+[data-theme="dark"] .btn-outline-primary {
+    color: var(--scitex-color-06) !important;  /* Light bluish */
+    border-color: var(--scitex-color-05) !important;
+}
+
+[data-theme="dark"] .btn-outline-primary:hover {
+    color: #ffffff !important;
+    background: var(--scitex-color-04) !important;
+    border-color: var(--scitex-color-04) !important;
+}
+
+/* Text muted helper */
+.text-muted {
+    color: var(--color-fg-muted) !important;
+}
+
+/* GitHub-style repo action buttons */
+.repo-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 20px;
+    white-space: nowrap;
+    background: var(--color-canvas-default);
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    color: var(--color-fg-default);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* Fix dropdown positioning */
+.btn-group {
+    position: relative;
+    display: inline-block;
+}
+
+.repo-action-btn:hover {
+    background: var(--color-neutral-muted);
+    border-color: var(--color-fg-muted);
+}
+
+.repo-action-btn:active {
+    background: var(--color-canvas-default);
+    transform: scale(0.97);
+}
+
+.repo-action-btn.active {
+    background: var(--color-accent-emphasis);
+    color: #ffffff;
+    border-color: var(--color-accent-emphasis);
+}
+
+.repo-action-icon {
+    fill: currentColor;
+    vertical-align: text-bottom;
+}
+
+.repo-action-count {
+    display: inline-flex;
+    min-width: 20px;
+    padding: 0 6px;
+    font-size: 12px;
+    font-weight: 500;
+    background: var(--color-neutral-muted);
+    border: 1px solid var(--color-border-default);
+    border-radius: 2em;
+    margin-left: 2px;
+}
+
+/* GitHub-style layout with sidebar on LEFT */
+.repo-layout {
+    display: grid;
+    grid-template-columns: 296px 1fr;  /* Sidebar first, then main content */
+    gap: 24px;
+    margin-top: 1.5rem;
+    transition: grid-template-columns 0.3s ease;
+}
+
+.repo-layout.sidebar-collapsed {
+    grid-template-columns: 48px 1fr;  /* Collapsed width */
+}
+
+.repo-layout.sidebar-expanded {
+    grid-template-columns: 380px 1fr;  /* Expanded width - larger than default */
+}
+
+.repo-main {
+    min-width: 0;
+}
+
+.repo-sidebar {
+    position: sticky;
+    top: 80px;
+    align-self: start;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.repo-sidebar.collapsed {
+    width: 48px;
+}
+
+.repo-sidebar.expanded {
+    width: 380px;
+}
+
+/* Sidebar toggle button */
+.sidebar-toggle-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    background: var(--color-canvas-default);
+    color: var(--color-fg-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+
+.sidebar-toggle-btn:hover {
+    background: var(--color-neutral-muted);
+    color: var(--color-accent-fg);
+    border-color: var(--color-accent-fg);
+    transform: scale(1.05);
+}
+
+.sidebar-toggle-btn:active {
+    transform: scale(0.95);
+}
+
+.sidebar-toggle-icon {
+    transition: transform 0.3s ease;
+    font-size: 14px;
+}
+
+.repo-sidebar.collapsed .sidebar-toggle-icon {
+    transform: rotate(180deg);
+}
+
+/* Sidebar sections */
+.sidebar-section {
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    padding: 16px;
+    margin-bottom: 16px;
+    background: var(--color-canvas-default);
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.repo-sidebar.collapsed .sidebar-section {
+    padding: 8px;
+    border: none;
+    background: transparent;
+}
+
+.sidebar-section.collapsible {
+    cursor: pointer;
+}
+
+.sidebar-section.collapsible:hover {
+    border-color: var(--color-accent-fg);
+    background: var(--color-neutral-muted);
+}
+
+.sidebar-section.section-collapsed .sidebar-content {
+    display: none;
+}
+
+.sidebar-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-fg-default);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.2s ease;
+}
+
+.sidebar-title:hover {
+    color: var(--color-accent-fg);
+}
+
+.repo-sidebar.collapsed .sidebar-title {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    margin: 0;
+    font-size: 10px;
+}
+
+.sidebar-section-chevron {
+    font-size: 10px;
+    transition: transform 0.2s ease;
+    color: var(--color-fg-muted);
+}
+
+.sidebar-section.section-collapsed .sidebar-section-chevron {
+    transform: rotate(-90deg);
+}
+
+.repo-sidebar.collapsed .sidebar-section-chevron {
+    display: none;
+}
+
+.sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    font-size: 14px;
+    color: var(--color-fg-muted);
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    margin: 2px 0;
+}
+
+.sidebar-item:hover {
+    background: var(--color-neutral-muted);
+    color: var(--color-fg-default);
+}
+
+.sidebar-item strong {
+    color: var(--color-fg-default);
+}
+
+.repo-sidebar.collapsed .sidebar-item {
+    display: none;
+}
+
+.sidebar-link {
+    color: var(--color-accent-fg);
+    text-decoration: none;
+    font-size: 14px;
+    display: block;
+    padding: 6px 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.sidebar-link:hover {
+    text-decoration: none;
+    background: var(--color-neutral-muted);
+    color: var(--color-accent-fg);
+    transform: translateX(2px);
+}
+
+.repo-sidebar.collapsed .sidebar-link {
+    display: none;
+}
+
+.sidebar-content {
+    transition: opacity 0.3s ease;
+}
+
+.repo-sidebar.collapsed .sidebar-content {
+    opacity: 0;
+    display: none;
+}
+
+/* File tree styles */
+.file-tree-item {
+    padding: 4px 6px;
+    cursor: pointer;
+    color: var(--color-fg-default);
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    margin: 1px 0;
+}
+
+.file-tree-item:hover {
+    background: var(--color-neutral-muted);
+}
+
+.file-tree-item.active {
+    background: var(--color-accent-subtle);
+    font-weight: 600;
+}
+
+.repo-sidebar.collapsed .file-tree-item {
+    display: none;
+}
+
+.file-tree-folder {
+    color: var(--color-fg-default);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s ease;
+}
+
+.file-tree-folder:hover {
+    color: var(--color-accent-fg);
+    transform: translateX(2px);
+}
+
+.file-tree-file {
+    color: var(--color-fg-muted);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s ease;
+}
+
+.file-tree-file:hover {
+    color: var(--color-accent-fg);
+    transform: translateX(2px);
+}
+
+.file-tree-icon {
+    width: 18px;
+    height: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.file-tree-icon svg,
+.icon-folder,
+.icon-file {
+    width: 18px;
+    height: 18px;
+}
+
+.icon-folder,
+.file-tree-folder .file-tree-icon {
+    color: var(--scitex-color-04);
+}
+
+.icon-file,
+.file-tree-file .file-tree-icon {
+    color: var(--text-secondary);
+}
+}
+
+.file-tree-chevron {
+    width: 12px;
+    height: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: var(--color-fg-muted);
+    transition: transform 0.2s;
+    cursor: pointer;
+}
+
+.file-tree-chevron.expanded {
+    transform: rotate(90deg);
+}
+
+.file-tree-children {
+    display: none;
+}
+
+.file-tree-children.expanded {
+    display: block;
+}
+
+/* Split button dropdown fix */
+.btn-group {
+    position: relative;
+}
+
+.btn-group .dropdown-menu {
+    z-index: 9999 !important;
+    background: var(--color-canvas-default);
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    min-width: 200px;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 4px;
+}
+
+.btn-group .dropdown-item {
+    color: var(--color-fg-default);
+    padding: 6px 12px;
+    white-space: nowrap;
+}
+
+.btn-group .dropdown-item:hover {
+    background: var(--color-neutral-muted);
+    color: var(--color-fg-default);
+}
+
+@media (max-width: 1024px) {
+    .repo-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .repo-layout.sidebar-collapsed,
+    .repo-layout.sidebar-expanded {
+        grid-template-columns: 1fr;
+    }
+
+    .repo-sidebar {
+        position: static;
+        width: 100% !important;
+    }
+
+    .repo-sidebar.collapsed {
+        display: none;
+    }
+
+    .sidebar-toggle-btn {
+        position: fixed;
+        top: 80px;
+        left: 16px;
+        z-index: 1000;
+    }
+}
+
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+
+

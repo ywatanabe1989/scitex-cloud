@@ -1,0 +1,180 @@
+/* ============================================================================= */
+/* PARTIALS / USER_BIO_STYLES */
+/* ============================================================================= */
+
+
+/* GitHub-style profile page */
+.profile-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 2rem;
+    padding: 2rem 0;
+    border-bottom: 1px solid var(--color-border-default);
+}
+
+.profile-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 2px solid var(--color-border-default);
+    object-fit: cover;
+    background: var(--color-canvas-subtle);
+}
+
+.profile-info {
+    flex: 1;
+}
+
+.profile-name {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--color-fg-default);
+    margin-bottom: 0.5rem;
+}
+
+.profile-username {
+    font-size: 1.25rem;
+    color: var(--color-fg-muted);
+    margin-bottom: 1rem;
+}
+
+.profile-bio {
+    font-size: 1rem;
+    color: var(--color-fg-default);
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+
+.profile-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    font-size: 0.875rem;
+    color: var(--color-fg-muted);
+    margin-bottom: 1rem;
+}
+
+.profile-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.profile-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.profile-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    color: var(--color-fg-default);
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+}
+
+.profile-link:hover {
+    background: var(--color-canvas-subtle);
+    border-color: var(--color-fg-muted);
+}
+
+.readme-section {
+    margin-top: 2rem;
+    padding: 2rem;
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    background: var(--color-canvas-default);
+}
+
+.readme-section h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--color-fg-default);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--color-border-default);
+}
+
+.pinned-projects {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.project-card {
+    padding: 1rem;
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    background: var(--color-canvas-default);
+    transition: all 0.2s;
+}
+
+.project-card:hover {
+    border-color: var(--color-accent-fg);
+}
+
+.project-card-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-accent-fg);
+    text-decoration: none;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.project-card-title:hover {
+    text-decoration: underline;
+}
+
+.project-card-description {
+    font-size: 0.875rem;
+    color: var(--color-fg-muted);
+    margin-bottom: 0.75rem;
+    line-height: 1.4;
+}
+
+.project-card-meta {
+    font-size: 0.75rem;
+    color: var(--color-fg-muted);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: var(--color-fg-muted);
+}
+
+.stats-row {
+    display: flex;
+    gap: 2rem;
+    margin: 1rem 0;
+    flex-wrap: wrap;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--color-fg-default);
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--color-fg-muted);
+}
+
+
+

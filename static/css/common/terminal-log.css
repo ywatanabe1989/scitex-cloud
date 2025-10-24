@@ -16,7 +16,7 @@
   max-height: 150px;
   overflow-y: auto;
   font-size: 0.85rem;
-  font-family: 'Courier New', 'Consolas', 'Monaco', monospace;
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
   white-space: pre-wrap;
   word-wrap: break-word;
   border: 1px solid var(--border-300);

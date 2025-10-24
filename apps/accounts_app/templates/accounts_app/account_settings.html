@@ -6,86 +6,7 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/common/settings-layout.css' %}">
 <style>
-/* Account settings page-specific styles */
-.form-section {
-    background: var(--color-canvas-default);
-    border: 1px solid var(--color-border-default);
-    border-radius: 6px;
-    padding: 24px;
-    margin-bottom: 24px;
-}
-
-.section-header {
-    margin-bottom: 16px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--color-border-default);
-}
-
-.section-title {
-    font-size: 20px;
-    font-weight: 600;
-    color: var(--color-fg-default);
-    margin-bottom: 4px;
-}
-
-.section-subtitle {
-    font-size: 14px;
-    color: var(--color-fg-muted);
-}
-
-.form-group {
-    margin-bottom: 16px;
-}
-
-.form-group label {
-    display: block;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--color-fg-default);
-    margin-bottom: 6px;
-}
-
-.form-group input[type="email"],
-.form-group input[type="password"] {
-    width: 100%;
-    padding: 8px 12px;
-    border: 1px solid var(--color-border-default);
-    border-radius: 6px;
-    background: var(--color-canvas-default);
-    color: var(--color-fg-default);
-    font-size: 14px;
-}
-
-.form-group input:focus {
-    outline: none;
-    border-color: var(--color-accent-fg);
-    box-shadow: 0 0 0 3px rgba(var(--scitex-color-05-rgb), 0.1);
-}
-
-.form-help {
-    font-size: 12px;
-    color: var(--color-fg-muted);
-    margin-top: 6px;
-}
-
-.btn-save {
-    background: var(--color-btn-primary-bg);
-    color: var(--color-btn-primary-text);
-    border: 1px solid var(--color-btn-primary-border);
-    padding: 8px 16px;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.btn-save:hover {
-    background: var(--color-btn-primary-hover-bg);
-}
-
+/* Account settings danger zone styling */
 .danger-zone {
     border: 1px solid var(--color-danger-emphasis);
     background: var(--color-canvas-default);
@@ -132,7 +53,7 @@
                 </div>
                 <div class="form-group">
                     <label for="new_email">New email address</label>
-                    <input type="email" id="new_email" name="new_email" required placeholder="new@example.com">
+                    <input type="email" id="new_email" name="new_email" class="form-control" required placeholder="new@example.com">
                 </div>
                 <button type="submit" class="btn-save">
                     <i class="fas fa-check"></i>
@@ -150,16 +71,16 @@
                 </div>
                 <div class="form-group">
                     <label for="current_password">Current password</label>
-                    <input type="password" id="current_password" name="current_password" required>
+                    <input type="password" id="current_password" name="current_password" class="form-control" required>
                 </div>
                 <div class="form-group">
                     <label for="new_password">New password</label>
-                    <input type="password" id="new_password" name="new_password" required minlength="8">
+                    <input type="password" id="new_password" name="new_password" class="form-control" required minlength="8">
                     <p class="form-help">At least 8 characters</p>
                 </div>
                 <div class="form-group">
                     <label for="confirm_password">Confirm new password</label>
-                    <input type="password" id="confirm_password" name="confirm_password" required minlength="8">
+                    <input type="password" id="confirm_password" name="confirm_password" class="form-control" required minlength="8">
                 </div>
                 <button type="submit" class="btn-save">
                     <i class="fas fa-check"></i>
