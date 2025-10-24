@@ -1,0 +1,496 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}History for {{ file_name }} - {{ project.name }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/common/buttons.css' %}">
+<style>
+/* GitHub-style file history page */
+.repo-header {
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--color-border-default);
+}
+
+.repo-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-accent-fg);
+    text-decoration: none;
+}
+
+.history-header {
+    background: var(--color-canvas-subtle);
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    padding: 16px;
+    margin: 16px 0;
+}
+
+.history-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-fg-default);
+    margin-bottom: 8px;
+}
+
+.history-stats {
+    font-size: 14px;
+    color: var(--color-fg-muted);
+}
+
+/* Filter bar */
+.filter-bar {
+    background: var(--color-canvas-default);
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.filter-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-fg-default);
+}
+
+.filter-select {
+    background: var(--color-canvas-default);
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 14px;
+    color: var(--color-fg-default);
+    min-width: 200px;
+}
+
+/* Commit list */
+.commit-list {
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.commit-item {
+    background: var(--color-canvas-default);
+    border-bottom: 1px solid var(--color-border-default);
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: background 0.15s ease;
+}
+
+.commit-item:last-child {
+    border-bottom: none;
+}
+
+.commit-item:hover {
+    background: var(--color-canvas-subtle);
+}
+
+.commit-timeline {
+    width: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.commit-dot {
+    width: 16px;
+    height: 16px;
+    background: var(--color-accent-emphasis);
+    border: 2px solid var(--color-canvas-default);
+    border-radius: 50%;
+    position: relative;
+    z-index: 1;
+}
+
+.commit-line {
+    width: 2px;
+    flex: 1;
+    background: var(--color-border-default);
+    margin-top: -2px;
+}
+
+.commit-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--color-accent-emphasis);
+    color: var(--color-fg-on-emphasis);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.commit-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.commit-message {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-fg-default);
+    margin-bottom: 4px;
+}
+
+.commit-message a {
+    color: var(--color-fg-default);
+    text-decoration: none;
+}
+
+.commit-message a:hover {
+    color: var(--color-accent-fg);
+    text-decoration: underline;
+}
+
+.commit-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 12px;
+    color: var(--color-fg-muted);
+    flex-wrap: wrap;
+}
+
+.commit-author {
+    font-weight: 600;
+    color: var(--color-fg-default);
+    text-decoration: none;
+}
+
+.commit-author:hover {
+    color: var(--color-accent-fg);
+    text-decoration: underline;
+}
+
+.commit-hash {
+    font-family: ui-monospace, monospace;
+    background: var(--color-canvas-subtle);
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid var(--color-border-default);
+    text-decoration: none;
+    color: var(--color-fg-muted);
+}
+
+.commit-hash:hover {
+    color: var(--color-accent-fg);
+    border-color: var(--color-accent-emphasis);
+}
+
+.commit-stats {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.stat-additions {
+    color: #2ea043;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.stat-deletions {
+    color: #d73a49;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.stat-bar {
+    display: flex;
+    height: 4px;
+    border-radius: 2px;
+    overflow: hidden;
+    width: 60px;
+}
+
+.stat-bar-add {
+    background: #2ea043;
+}
+
+.stat-bar-del {
+    background: #d73a49;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--color-fg-muted);
+}
+
+.empty-state svg {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+/* Pagination */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    padding: 2rem 0;
+}
+
+.pagination {
+    display: flex;
+    gap: 4px;
+}
+
+.page-link {
+    padding: 6px 12px;
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    background: var(--color-canvas-default);
+    color: var(--color-fg-default);
+    text-decoration: none;
+    font-size: 14px;
+    transition: all 0.15s ease;
+}
+
+.page-link:hover {
+    background: var(--color-canvas-subtle);
+    border-color: var(--color-accent-emphasis);
+    color: var(--color-accent-fg);
+}
+
+.page-link.active {
+    background: var(--color-accent-emphasis);
+    color: var(--color-fg-on-emphasis);
+    border-color: var(--color-accent-emphasis);
+}
+
+.page-link.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+@media (max-width: 768px) {
+    .commit-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .commit-timeline {
+        display: none;
+    }
+
+    .commit-stats {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filter-select {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="max-width: 1280px;">
+    <!-- Repository Header with Breadcrumb -->
+    <div class="repo-header">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <a href="/{{ project.owner.username }}/" style="color: var(--color-accent-fg); text-decoration: none; font-weight: 400;">
+                {{ project.owner.username }}
+            </a>
+            <span style="color: var(--color-fg-muted);">/</span>
+            <a href="/{{ project.owner.username }}/{{ project.slug }}/" class="repo-title">
+                {{ project.name }}
+            </a>
+            {% for breadcrumb in breadcrumbs %}
+                {% if breadcrumb.name != project.name %}
+                    <span style="color: var(--color-fg-muted);">/</span>
+                    {% if breadcrumb.url %}
+                        <a href="{{ breadcrumb.url }}" style="color: var(--color-accent-fg); text-decoration: none;">
+                            {{ breadcrumb.name }}
+                        </a>
+                    {% else %}
+                        <span style="font-weight: 600; color: var(--color-fg-default);">{{ breadcrumb.name }}</span>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- History Header -->
+    <div class="history-header">
+        <div class="history-title">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path fill-rule="evenodd" d="M1.643 3.143L.427 1.927A.25.25 0 000 2.104V5.75c0 .138.112.25.25.25h3.646a.25.25 0 00.177-.427L2.715 4.215a6.5 6.5 0 11-1.18 4.458.75.75 0 10-1.493.154 8.001 8.001 0 101.6-5.684zM7.75 4a.75.75 0 01.75.75v2.992l2.028.812a.75.75 0 01-.557 1.392l-2.5-1A.75.75 0 017 8.25v-3.5A.75.75 0 017.75 4z"></path>
+            </svg>
+            History for {{ file_name }}
+        </div>
+        <div class="history-stats">
+            {{ total_commits }} commit{{ total_commits|pluralize }} on {{ branch }} branch
+            {% if author_filter %}
+                · Filtered by author: <strong>{{ author_filter }}</strong>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Filter Bar -->
+    {% if unique_authors|length > 1 %}
+    <div class="filter-bar">
+        <label class="filter-label" for="author-filter">Filter by author:</label>
+        <select id="author-filter" class="filter-select" onchange="filterByAuthor(this.value)">
+            <option value="">All authors</option>
+            {% for author in unique_authors %}
+            <option value="{{ author }}" {% if author == author_filter %}selected{% endif %}>
+                {{ author }}
+            </option>
+            {% endfor %}
+        </select>
+        {% if author_filter %}
+        <a href="?page=1" class="btn btn-sm btn-outline-secondary">Clear filter</a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Commit List -->
+    {% if commits %}
+    <div class="commit-list">
+        {% for commit in commits %}
+        <div class="commit-item">
+            <div class="commit-timeline">
+                <div class="commit-dot"></div>
+                {% if not forloop.last %}
+                <div class="commit-line"></div>
+                {% endif %}
+            </div>
+
+            <div class="commit-avatar" title="{{ commit.author_name }}">
+                {{ commit.author_name|slice:":1"|upper }}
+            </div>
+
+            <div class="commit-content">
+                <div class="commit-message">
+                    <a href="/{{ project.owner.username }}/{{ project.slug }}/commit/{{ commit.hash }}">
+                        {{ commit.subject }}
+                    </a>
+                </div>
+                <div class="commit-meta">
+                    <a href="/{{ project.owner.username }}/{{ project.slug }}/commits/{{ branch }}/{{ file_path }}?author={{ commit.author_name }}"
+                       class="commit-author" title="{{ commit.author_email }}">
+                        {{ commit.author_name }}
+                    </a>
+                    <span>committed {{ commit.relative_time }}</span>
+                    <a href="/{{ project.owner.username }}/{{ project.slug }}/commit/{{ commit.hash }}"
+                       class="commit-hash" title="{{ commit.hash }}">
+                        {{ commit.short_hash }}
+                    </a>
+                </div>
+            </div>
+
+            <div class="commit-stats">
+                {% if commit.additions > 0 or commit.deletions > 0 %}
+                <div style="display: flex; align-items: center; gap: 4px; font-size: 12px;">
+                    {% if commit.additions > 0 %}
+                    <span class="stat-additions">+{{ commit.additions }}</span>
+                    {% endif %}
+                    {% if commit.deletions > 0 %}
+                    <span class="stat-deletions">-{{ commit.deletions }}</span>
+                    {% endif %}
+                </div>
+                <div class="stat-bar">
+                    {% if commit.additions > 0 and commit.deletions > 0 %}
+                        {% widthratio commit.additions commit.additions|add:commit.deletions 100 as add_percent %}
+                        <div class="stat-bar-add" style="width: {{ add_percent }}%;"></div>
+                        <div class="stat-bar-del" style="width: {{ 100|add:"-"|add:add_percent }}%;"></div>
+                    {% elif commit.additions > 0 %}
+                        <div class="stat-bar-add" style="width: 100%;"></div>
+                    {% elif commit.deletions > 0 %}
+                        <div class="stat-bar-del" style="width: 100%;"></div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if commits.has_other_pages %}
+    <div class="pagination-container">
+        <div class="pagination">
+            {% if commits.has_previous %}
+            <a href="?page=1{% if author_filter %}&author={{ author_filter }}{% endif %}" class="page-link">
+                « First
+            </a>
+            <a href="?page={{ commits.previous_page_number }}{% if author_filter %}&author={{ author_filter }}{% endif %}" class="page-link">
+                ‹ Previous
+            </a>
+            {% else %}
+            <span class="page-link disabled">« First</span>
+            <span class="page-link disabled">‹ Previous</span>
+            {% endif %}
+
+            {% for num in commits.paginator.page_range %}
+                {% if commits.number == num %}
+                    <span class="page-link active">{{ num }}</span>
+                {% elif num > commits.number|add:'-3' and num < commits.number|add:'3' %}
+                    <a href="?page={{ num }}{% if author_filter %}&author={{ author_filter }}{% endif %}" class="page-link">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if commits.has_next %}
+            <a href="?page={{ commits.next_page_number }}{% if author_filter %}&author={{ author_filter }}{% endif %}" class="page-link">
+                Next ›
+            </a>
+            <a href="?page={{ commits.paginator.num_pages }}{% if author_filter %}&author={{ author_filter }}{% endif %}" class="page-link">
+                Last »
+            </a>
+            {% else %}
+            <span class="page-link disabled">Next ›</span>
+            <span class="page-link disabled">Last »</span>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="empty-state">
+        <svg viewBox="0 0 16 16" fill="currentColor">
+            <path fill-rule="evenodd" d="M1.643 3.143L.427 1.927A.25.25 0 000 2.104V5.75c0 .138.112.25.25.25h3.646a.25.25 0 00.177-.427L2.715 4.215a6.5 6.5 0 11-1.18 4.458.75.75 0 10-1.493.154 8.001 8.001 0 101.6-5.684zM7.75 4a.75.75 0 01.75.75v2.992l2.028.812a.75.75 0 01-.557 1.392l-2.5-1A.75.75 0 017 8.25v-3.5A.75.75 0 017.75 4z"></path>
+        </svg>
+        <h3>No commits found</h3>
+        <p>This file has no commit history{% if author_filter %} for {{ author_filter }}{% endif %}.</p>
+        {% if author_filter %}
+        <a href="?page=1" class="btn btn-primary">View all commits</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function filterByAuthor(author) {
+    if (author) {
+        window.location.href = '?page=1&author=' + encodeURIComponent(author);
+    } else {
+        window.location.href = '?page=1';
+    }
+}
+</script>
+{% endblock %}

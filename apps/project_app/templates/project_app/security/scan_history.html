@@ -1,0 +1,60 @@
+{% extends 'project_app/project_detail.html' %}
+
+{% block title %}Scan History - {{ project.name }}{% endblock %}
+
+{% block project_content %}
+<div class="container-fluid mt-4">
+    <h2 class="mb-3">Security Scan History</h2>
+
+    <div class="card">
+        <div class="card-body p-0">
+            {% if page_obj %}
+            <table class="table mb-0">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Critical</th>
+                        <th>High</th>
+                        <th>Medium</th>
+                        <th>Low</th>
+                        <th>Duration</th>
+                        <th>Started</th>
+                        <th>Triggered By</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for scan in page_obj %}
+                    <tr>
+                        <td>{{ scan.get_scan_type_display }}</td>
+                        <td>
+                            {% if scan.status == 'completed' %}
+                            <span class="badge bg-success">Completed</span>
+                            {% elif scan.status == 'failed' %}
+                            <span class="badge bg-danger">Failed</span>
+                            {% elif scan.status == 'running' %}
+                            <span class="badge bg-primary">Running</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Pending</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-danger">{{ scan.critical_count }}</td>
+                        <td class="text-danger">{{ scan.high_count }}</td>
+                        <td class="text-warning">{{ scan.medium_count }}</td>
+                        <td class="text-info">{{ scan.low_count }}</td>
+                        <td>{% if scan.scan_duration %}{{ scan.scan_duration|floatformat:2 }}s{% else %}-{% endif %}</td>
+                        <td>{{ scan.started_at|date:"Y-m-d H:i" }}</td>
+                        <td>{{ scan.triggered_by.username|default:"-" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="p-5 text-center text-muted">
+                <p>No scan history</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
