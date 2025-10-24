@@ -332,31 +332,32 @@ document.getElementById('profileForm').addEventListener('submit', async function
 });
 
 // Handle privacy settings
-document.querySelectorAll('.form-check-input').forEach(checkbox => {
-  checkbox.addEventListener('change', async function() {
-    const setting = this.id;
-    const value = this.checked;
-    
-    try {
-      const response = await fetch('{% url "workspace_app:api-user-profile" %}', {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': '{{ csrf_token }}',
-          'X-Requested-With': 'XMLHttpRequest'
-        },
-        body: JSON.stringify({
-          [setting]: value
-        })
-      });
-      
-      if (response.ok) {
-        console.log('Privacy setting updated');
-      }
-    } catch (error) {
-      console.error('Error updating privacy setting:', error);
-    }
-  });
-});
+// TODO: Re-enable when API endpoint is created
+// document.querySelectorAll('.form-check-input').forEach(checkbox => {
+//   checkbox.addEventListener('change', async function() {
+//     const setting = this.id;
+//     const value = this.checked;
+//
+//     try {
+//       const response = await fetch('{% url "accounts_app:profile_edit" %}', {
+//         method: 'PATCH',
+//         headers: {
+//           'Content-Type': 'application/json',
+//           'X-CSRFToken': '{{ csrf_token }}',
+//           'X-Requested-With': 'XMLHttpRequest'
+//         },
+//         body: JSON.stringify({
+//           [setting]: value
+//         })
+//       });
+//
+//       if (response.ok) {
+//         console.log('Privacy setting updated');
+//       }
+//     } catch (error) {
+//       console.error('Error updating privacy setting:', error);
+//     }
+//   });
+// });
 </script>
 {% endblock %}
