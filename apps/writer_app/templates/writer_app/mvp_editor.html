@@ -6,112 +6,112 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/theme/github.min.css">
 <style>
   .mvp-container {
-    height: calc(100vh - 80px);
-    display: flex;
-    background-color: #f8f9fa;
+  height: calc(100vh - 80px);
+  display: flex;
+  background-color: #f8f9fa;
   }
   
   .mvp-sidebar {
-    width: 280px;
-    background-color: white;
-    border-right: 1px solid #dee2e6;
-    padding: 1rem;
-    overflow-y: auto;
+  width: 280px;
+  background-color: white;
+  border-right: 1px solid #dee2e6;
+  padding: 1rem;
+  overflow-y: auto;
   }
   
   .mvp-main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   }
   
   .mvp-toolbar {
-    background-color: white;
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid #dee2e6;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+  background-color: white;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #dee2e6;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   }
   
   .mvp-editor {
-    flex: 1;
-    display: flex;
+  flex: 1;
+  display: flex;
   }
   
   .latex-editor {
-    flex: 1;
-    border: none;
+  flex: 1;
+  border: none;
   }
   
   .CodeMirror {
-    height: 100%;
-    font-family: 'Fira Code', 'Monaco', monospace;
-    font-size: 14px;
+  height: 100%;
+  font-family: 'Fira Code', 'Monaco', monospace;
+  font-size: 14px;
   }
   
   .preview-panel {
-    width: 400px;
-    background-color: white;
-    border-left: 1px solid #dee2e6;
-    display: flex;
-    flex-direction: column;
+  width: 400px;
+  background-color: white;
+  border-left: 1px solid #dee2e6;
+  display: flex;
+  flex-direction: column;
   }
   
   .preview-header {
-    padding: 1rem;
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #dee2e6;
-    font-weight: 600;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+  font-weight: 600;
   }
   
   .preview-content {
-    flex: 1;
-    padding: 1rem;
-    overflow-y: auto;
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
   }
   
   .compile-status {
-    padding: 0.5rem 1rem;
-    background-color: #e9ecef;
-    border-top: 1px solid #dee2e6;
-    font-size: 0.9rem;
+  padding: 0.5rem 1rem;
+  background-color: #e9ecef;
+  border-top: 1px solid #dee2e6;
+  font-size: 0.9rem;
   }
   
   .compile-status.success {
-    background-color: #d1e7dd;
-    color: #0f5132;
+  background-color: #d1e7dd;
+  color: #0f5132;
   }
   
   .compile-status.error {
-    background-color: #f8d7da;
-    color: #721c24;
+  background-color: #f8d7da;
+  color: #721c24;
   }
   
   .compile-status.running {
-    background-color: #d1ecf1;
-    color: #055160;
+  background-color: #d1ecf1;
+  color: #055160;
   }
   
   .job-item {
-    padding: 0.5rem;
-    margin-bottom: 0.5rem;
-    border: 1px solid #dee2e6;
-    border-radius: 0.375rem;
-    cursor: pointer;
-    font-size: 0.9rem;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  border: 1px solid #dee2e6;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-size: 0.9rem;
   }
   
   .job-item:hover {
-    background-color: #f8f9fa;
+  background-color: #f8f9fa;
   }
   
   .job-status {
-    padding: 0.125rem 0.5rem;
-    border-radius: 1rem;
-    font-size: 0.75rem;
-    font-weight: 500;
-    text-transform: uppercase;
+  padding: 0.125rem 0.5rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
   }
   
   .job-status.completed { background-color: #d1e7dd; color: #0f5132; }
@@ -120,65 +120,65 @@
   .job-status.queued { background-color: #fff3cd; color: #664d03; }
   
   .quick-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
   }
   
   .template-selector {
-    margin-bottom: 1rem;
+  margin-bottom: 1rem;
   }
   
   .btn-mvp {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border: none;
-    color: white;
-    font-weight: 500;
-    padding: 0.5rem 1rem;
-    border-radius: 0.375rem;
-    transition: all 0.2s ease;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  color: white;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  transition: all 0.2s ease;
   }
   
   .btn-mvp:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-    color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  color: white;
   }
   
   .mvp-logo {
-    font-weight: 700;
-    color: #667eea;
-    font-size: 1.1rem;
+  font-weight: 700;
+  color: #667eea;
+  font-size: 1.1rem;
   }
   
   .progress-bar-mvp {
-    height: 4px;
-    background-color: #e9ecef;
-    border-radius: 2px;
-    overflow: hidden;
-    margin: 0.5rem 0;
+  height: 4px;
+  background-color: #e9ecef;
+  border-radius: 2px;
+  overflow: hidden;
+  margin: 0.5rem 0;
   }
   
   .progress-fill-mvp {
-    height: 100%;
-    background: linear-gradient(90deg, #667eea, #764ba2);
-    transition: width 0.3s ease;
+  height: 100%;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  transition: width 0.3s ease;
   }
   
   @media (max-width: 768px) {
-    .mvp-container {
-      flex-direction: column;
-    }
-    
-    .mvp-sidebar {
-      width: 100%;
-      height: 200px;
-    }
-    
-    .preview-panel {
-      display: none;
-    }
+  .mvp-container {
+  flex-direction: column;
+  }
+  
+  .mvp-sidebar {
+  width: 100%;
+  height: 200px;
+  }
+  
+  .preview-panel {
+  display: none;
+  }
   }
 </style>
 {% endblock %}
@@ -298,16 +298,16 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', function() {
   // Initialize CodeMirror
   const editor = CodeMirror.fromTextArea(document.getElementById('latex-editor'), {
-    mode: 'stex',
-    theme: 'github',
-    lineNumbers: true,
-    autoCloseBrackets: true,
-    matchBrackets: true,
-    lineWrapping: true,
-    indentUnit: 2
+  mode: 'stex',
+  theme: 'github',
+  lineNumbers: true,
+  autoCloseBrackets: true,
+  matchBrackets: true,
+  lineWrapping: true,
+  indentUnit: 2
   });
 
   // Elements
@@ -327,279 +327,279 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Template content
   const templates = {
-    article: `\\documentclass[12pt]{article}
-\\usepackage[utf8]{inputenc}
-\\usepackage{amsmath}
-\\usepackage{graphicx}
-\\usepackage[margin=1in]{geometry}
-\\usepackage{cite}
+  article: `\\documentclass[12pt]{article}
+  \\usepackage[utf8]{inputenc}
+  \\usepackage{amsmath}
+  \\usepackage{graphicx}
+  \\usepackage[margin=1in]{geometry}
+  \\usepackage{cite}
 
-\\title{Your Article Title}
-\\author{Your Name\\\\Your Institution}
-\\date{\\today}
+  \\title{Your Article Title}
+  \\author{Your Name\\\\Your Institution}
+  \\date{\\today}
 
-\\begin{document}
+  \\begin{document}
 
-\\maketitle
+  \\maketitle
 
-\\begin{abstract}
-Write your abstract here...
-\\end{abstract}
+  \\begin{abstract}
+  Write your abstract here...
+  \\end{abstract}
 
-\\section{Introduction}
-Introduction content...
+  \\section{Introduction}
+  Introduction content...
 
-\\section{Related Work}
-Related work...
+  \\section{Related Work}
+  Related work...
 
-\\section{Methodology}
-Methodology...
+  \\section{Methodology}
+  Methodology...
 
-\\section{Results}
-Results...
+  \\section{Results}
+  Results...
 
-\\section{Conclusion}
-Conclusion...
+  \\section{Conclusion}
+  Conclusion...
 
-\\bibliographystyle{plain}
-\\bibliography{references}
+  \\bibliographystyle{plain}
+  \\bibliography{references}
 
-\\end{document}`,
-    
-    conference: `\\documentclass[conference]{IEEEtran}
-\\usepackage{amsmath}
-\\usepackage{graphicx}
-\\usepackage{cite}
+  \\end{document}`,
+  
+  conference: `\\documentclass[conference]{IEEEtran}
+  \\usepackage{amsmath}
+  \\usepackage{graphicx}
+  \\usepackage{cite}
 
-\\title{Your Conference Paper Title}
-\\author{\\IEEEauthorblockN{Your Name}
-\\IEEEauthorblockA{Your Institution\\\\
-Email: your.email@institution.edu}}
+  \\title{Your Conference Paper Title}
+  \\author{\\IEEEauthorblockN{Your Name}
+  \\IEEEauthorblockA{Your Institution\\\\
+  Email: your.email@institution.edu}}
 
-\\begin{document}
+  \\begin{document}
 
-\\maketitle
+  \\maketitle
 
-\\begin{abstract}
-Conference paper abstract...
-\\end{abstract}
+  \\begin{abstract}
+  Conference paper abstract...
+  \\end{abstract}
 
-\\section{Introduction}
-Introduction...
+  \\section{Introduction}
+  Introduction...
 
-\\section{Related Work}
-Related work...
+  \\section{Related Work}
+  Related work...
 
-\\section{Approach}
-Your approach...
+  \\section{Approach}
+  Your approach...
 
-\\section{Evaluation}
-Evaluation...
+  \\section{Evaluation}
+  Evaluation...
 
-\\section{Conclusion}
-Conclusion...
+  \\section{Conclusion}
+  Conclusion...
 
-\\bibliographystyle{IEEEtran}
-\\bibliography{references}
+  \\bibliographystyle{IEEEtran}
+  \\bibliography{references}
 
-\\end{document}`,
-    
-    thesis: `\\documentclass[12pt]{report}
-\\usepackage[utf8]{inputenc}
-\\usepackage{amsmath}
-\\usepackage{graphicx}
-\\usepackage[margin=1in]{geometry}
+  \\end{document}`,
+  
+  thesis: `\\documentclass[12pt]{report}
+  \\usepackage[utf8]{inputenc}
+  \\usepackage{amsmath}
+  \\usepackage{graphicx}
+  \\usepackage[margin=1in]{geometry}
 
-\\title{Chapter Title}
-\\author{Your Name}
-\\date{\\today}
+  \\title{Chapter Title}
+  \\author{Your Name}
+  \\date{\\today}
 
-\\begin{document}
+  \\begin{document}
 
-\\chapter{Chapter Title}
+  \\chapter{Chapter Title}
 
-\\section{Introduction}
-Chapter introduction...
+  \\section{Introduction}
+  Chapter introduction...
 
-\\section{Background}
-Background information...
+  \\section{Background}
+  Background information...
 
-\\section{Main Content}
-Main content...
+  \\section{Main Content}
+  Main content...
 
-\\section{Summary}
-Chapter summary...
+  \\section{Summary}
+  Chapter summary...
 
-\\end{document}`,
-    
-    letter: `\\documentclass{letter}
-\\usepackage[utf8]{inputenc}
+  \\end{document}`,
+  
+  letter: `\\documentclass{letter}
+  \\usepackage[utf8]{inputenc}
 
-\\signature{Your Name}
-\\address{Your Address\\\\City, State ZIP}
+  \\signature{Your Name}
+  \\address{Your Address\\\\City, State ZIP}
 
-\\begin{document}
+  \\begin{document}
 
-\\begin{letter}{Recipient Name\\\\Recipient Address\\\\City, State ZIP}
+  \\begin{letter}{Recipient Name\\\\Recipient Address\\\\City, State ZIP}
 
-\\opening{Dear Sir/Madam,}
+  \\opening{Dear Sir/Madam,}
 
-Your letter content here...
+  Your letter content here...
 
-\\closing{Sincerely,}
+  \\closing{Sincerely,}
 
-\\end{letter}
+  \\end{letter}
 
-\\end{document}`
+  \\end{document}`
   };
 
   // Template selection
   templateSelect.addEventListener('change', function() {
-    const template = this.value;
-    if (template && templates[template]) {
-      if (confirm('This will replace your current content. Continue?')) {
-        editor.setValue(templates[template]);
-        documentTitle.value = template.charAt(0).toUpperCase() + template.slice(1) + ' Document';
-      } else {
-        this.value = '';
-      }
-    }
+  const template = this.value;
+  if (template && templates[template]) {
+  if (confirm('This will replace your current content. Continue?')) {
+  editor.setValue(templates[template]);
+  documentTitle.value = template.charAt(0).toUpperCase() + template.slice(1) + ' Document';
+  } else {
+  this.value = '';
+  }
+  }
   });
 
   // Toggle preview panel
   togglePreviewBtn.addEventListener('click', function() {
-    previewVisible = !previewVisible;
-    previewPanel.style.display = previewVisible ? 'flex' : 'none';
-    this.innerHTML = previewVisible ? 
-      '<i class="fas fa-eye-slash me-1"></i>Hide Preview' : 
-      '<i class="fas fa-eye me-1"></i>Show Preview';
+  previewVisible = !previewVisible;
+  previewPanel.style.display = previewVisible ? 'flex' : 'none';
+  this.innerHTML = previewVisible ? 
+  '<i class="fas fa-eye-slash me-1"></i>Hide Preview' : 
+  '<i class="fas fa-eye me-1"></i>Show Preview';
   });
 
   // Save draft
   saveBtn.addEventListener('click', function() {
-    // Auto-save functionality
-    updateStatus('Saving...', 'text-warning');
-    setTimeout(() => {
-      updateStatus('Saved', 'text-success');
-      setTimeout(() => updateStatus('Ready', 'text-success'), 2000);
-    }, 500);
+  // Auto-save functionality
+  updateStatus('Saving...', 'text-warning');
+  setTimeout(() => {
+  updateStatus('Saved', 'text-success');
+  setTimeout(() => updateStatus('Ready', 'text-success'), 2000);
+  }, 500);
   });
 
   // Compile document
   compileBtn.addEventListener('click', function() {
-    const content = editor.getValue().trim();
-    const title = documentTitle.value.trim() || 'Quick Document';
-    
-    if (!content) {
-      alert('Please enter some LaTeX content to compile.');
-      return;
-    }
+  const content = editor.getValue().trim();
+  const title = documentTitle.value.trim() || 'Quick Document';
+  
+  if (!content) {
+  alert('Please enter some LaTeX content to compile.');
+  return;
+  }
 
-    // Update UI
-    compileBtn.disabled = true;
-    compileBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Compiling...';
-    updateStatus('Compiling...', 'text-warning');
-    updateCompileStatus('Compilation started...', 'running');
+  // Update UI
+  compileBtn.disabled = true;
+  compileBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Compiling...';
+  updateStatus('Compiling...', 'text-warning');
+  updateCompileStatus('Compilation started...', 'running');
 
-    // Send compile request
-    fetch('{% url "writer:quick-compile" %}', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-      },
-      body: JSON.stringify({
-        content: content,
-        title: title
-      })
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        currentJobId = data.job_id;
-        startStatusChecking();
-      } else {
-        handleError(data.error || 'Compilation failed');
-      }
-    })
-    .catch(error => {
-      handleError('Network error: ' + error.message);
-    });
+  // Send compile request
+  fetch('{% url "writer:quick-compile" %}', {
+  method: 'POST',
+  headers: {
+  'Content-Type': 'application/json',
+  'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+  },
+  body: JSON.stringify({
+  content: content,
+  title: title
+  })
+  })
+  .then(response => response.json())
+  .then(data => {
+  if (data.success) {
+  currentJobId = data.job_id;
+  startStatusChecking();
+  } else {
+  handleError(data.error || 'Compilation failed');
+  }
+  })
+  .catch(error => {
+  handleError('Network error: ' + error.message);
+  });
   });
 
   // Status checking
   function startStatusChecking() {
-    if (statusCheckInterval) {
-      clearInterval(statusCheckInterval);
-    }
+  if (statusCheckInterval) {
+  clearInterval(statusCheckInterval);
+  }
 
-    statusCheckInterval = setInterval(function() {
-      if (!currentJobId) return;
+  statusCheckInterval = setInterval(function() {
+  if (!currentJobId) return;
 
-      fetch(`{% url "writer:compilation-status" job_id="__JOB_ID__" %}`.replace('__JOB_ID__', currentJobId))
-        .then(response => response.json())
-        .then(data => {
-          updateJobStatus(data);
-          
-          if (data.status === 'completed' || data.status === 'failed') {
-            clearInterval(statusCheckInterval);
-            resetCompileUI();
-            
-            if (data.status === 'completed' && data.pdf_url) {
-              showPDFPreview(data.pdf_url);
-              updateCompileStatus('✓ Compilation successful!', 'success');
-              updateStatus('Compiled', 'text-success');
-            }
-          }
-        })
-        .catch(error => {
-          console.error('Status check error:', error);
-        });
-    }, 1000);
+  fetch(`{% url "writer:compilation-status" job_id="__JOB_ID__" %}`.replace('__JOB_ID__', currentJobId))
+  .then(response => response.json())
+  .then(data => {
+  updateJobStatus(data);
+  
+  if (data.status === 'completed' || data.status === 'failed') {
+  clearInterval(statusCheckInterval);
+  resetCompileUI();
+  
+  if (data.status === 'completed' && data.pdf_url) {
+  showPDFPreview(data.pdf_url);
+  updateCompileStatus('✓ Compilation successful!', 'success');
+  updateStatus('Compiled', 'text-success');
+  }
+  }
+  })
+  .catch(error => {
+  console.error('Status check error:', error);
+  });
+  }, 1000);
   }
 
   function updateJobStatus(data) {
-    const message = `${data.status} (${data.progress}%)`;
-    updateCompileStatus(message, data.status);
+  const message = `${data.status} (${data.progress}%)`;
+  updateCompileStatus(message, data.status);
   }
 
   function showPDFPreview(pdfUrl) {
-    previewContent.innerHTML = `
-      <iframe src="${pdfUrl}" width="100%" height="100%" style="border: none;"></iframe>
-    `;
+  previewContent.innerHTML = `
+  <iframe src="${pdfUrl}" width="100%" height="100%" style="border: none;"></iframe>
+  `;
   }
 
   function resetCompileUI() {
-    compileBtn.disabled = false;
-    compileBtn.innerHTML = '<i class="fas fa-play me-2"></i>Compile PDF';
-    currentJobId = null;
+  compileBtn.disabled = false;
+  compileBtn.innerHTML = '<i class="fas fa-play me-2"></i>Compile PDF';
+  currentJobId = null;
   }
 
   function handleError(message) {
-    updateStatus('Error', 'text-danger');
-    updateCompileStatus('✗ ' + message, 'error');
-    resetCompileUI();
+  updateStatus('Error', 'text-danger');
+  updateCompileStatus('✗ ' + message, 'error');
+  resetCompileUI();
   }
 
   function updateStatus(text, className) {
-    statusIndicator.innerHTML = `<i class="fas fa-circle ${className} me-1"></i>${text}`;
+  statusIndicator.innerHTML = `<i class="fas fa-circle ${className} me-1"></i>${text}`;
   }
 
   function updateCompileStatus(text, type) {
-    compileStatus.textContent = text;
-    compileStatus.className = `compile-status ${type}`;
+  compileStatus.textContent = text;
+  compileStatus.className = `compile-status ${type}`;
   }
 
   // Auto-save on content change
   let saveTimeout;
   editor.on('change', function() {
-    clearTimeout(saveTimeout);
-    updateStatus('Unsaved changes', 'text-warning');
-    saveTimeout = setTimeout(() => {
-      updateStatus('Ready', 'text-success');
-    }, 3000);
+  clearTimeout(saveTimeout);
+  updateStatus('Unsaved changes', 'text-warning');
+  saveTimeout = setTimeout(() => {
+  updateStatus('Ready', 'text-success');
+  }, 3000);
   });
-});
+  });
 </script>
 
 <!-- CSRF token -->

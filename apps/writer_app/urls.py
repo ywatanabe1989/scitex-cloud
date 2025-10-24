@@ -1,11 +1,11 @@
 from django.urls import path
-from . import views, simple_views, arxiv_views, default_workspace_views
+from . import views
 
 app_name = 'writer'
 
 urlpatterns = [
     # Default workspace for logged-in users without project
-    path('workspace/', default_workspace_views.user_default_workspace, name='user_default_workspace'),
+    path('workspace/', views.user_default_workspace, name='user_default_workspace'),
 
     # Project-linked Writer (Primary Interface)
     path('project/<int:project_id>/', views.project_writer, name='project-writer'),
@@ -20,21 +20,22 @@ urlpatterns = [
     path('project/<int:project_id>/pdf/', views.download_compiled_pdf, name='compiled-pdf'),
     
     # Modular Editor Interface (Standalone)
-    path('', simple_views.index, name='index'),  # Main writer page with hero section at /writer/
+    path('', views.index, name='index'),  # Main writer page with hero section at /writer/
     path('collaborative/<int:manuscript_id>/', views.collaborative_editor, name='collaborative-editor'),  # Collaborative editor
-    path('features/', simple_views.features, name='features'),
-    path('pricing/', simple_views.pricing, name='pricing'),
-    
+    path('features/', views.features, name='features'),
+    path('pricing/', views.pricing, name='pricing'),
+
     # Editor interfaces
-    path('modular/', simple_views.modular_editor, name='modular-editor'),  # Modular editor
-    path('simple/', simple_views.simple_editor, name='simple-editor'),  # Raw LaTeX editor
+    path('modular/', views.modular_editor, name='modular-editor'),  # Modular editor
+    path('simple/', views.simple_editor, name='simple-editor'),  # Raw LaTeX editor
     path('advanced/', views.mvp_editor, name='advanced-editor'),  # Overleaf-style editor
     
     # API endpoints - Real compilation
     path('api/compile/', views.quick_compile, name='real-compile'),
     path('api/status/<uuid:job_id>/', views.compilation_status, name='compilation-status'),
     # path('api/test-compilation/', views.test_compilation, name='test-compilation'),  # Temporarily disabled
-    path('api/save/', simple_views.mock_save, name='mock-save'),
+    path('api/save/', views.mock_save, name='mock-save'),
+    path('api/initialize-workspace/', views.initialize_workspace, name='initialize-workspace'),
     
     # Collaborative editing API endpoints
     path('api/collaborate/manuscript/<int:manuscript_id>/sessions/', views.collaborative_sessions, name='collaborative-sessions'),
@@ -59,22 +60,22 @@ urlpatterns = [
     path('advanced/compile/', views.quick_compile, name='quick-compile'),
     
     # arXiv Integration URLs
-    path('arxiv/', arxiv_views.ArxivDashboardView.as_view(), name='arxiv-dashboard'),
-    path('arxiv/account/setup/', arxiv_views.arxiv_account_setup, name='arxiv-account-setup'),
-    path('arxiv/submissions/', arxiv_views.SubmissionListView.as_view(), name='arxiv-submission-list'),
-    path('arxiv/submit/<int:manuscript_id>/', arxiv_views.manuscript_submission_form, name='arxiv-submit-manuscript'),
-    path('arxiv/submission/<str:submission_id>/', arxiv_views.submission_detail, name='arxiv-submission-detail'),
-    path('arxiv/submission/<str:submission_id>/validate/', arxiv_views.validate_submission, name='arxiv-validate-submission'),
-    path('arxiv/submission/<str:submission_id>/prepare-files/', arxiv_views.prepare_submission_files, name='arxiv-prepare-files'),
-    path('arxiv/submission/<str:submission_id>/submit/', arxiv_views.submit_to_arxiv, name='arxiv-submit-to-arxiv'),
-    path('arxiv/submission/<str:submission_id>/check-status/', arxiv_views.check_submission_status, name='arxiv-check-status'),
-    path('arxiv/submission/<str:submission_id>/withdraw/', arxiv_views.withdraw_submission, name='arxiv-withdraw-submission'),
-    path('arxiv/submission/<str:submission_id>/replace/', arxiv_views.create_replacement, name='arxiv-create-replacement'),
-    path('arxiv/submission/<str:submission_id>/history/', arxiv_views.submission_history_api, name='arxiv-submission-history'),
-    
+    path('arxiv/', views.ArxivDashboardView.as_view(), name='arxiv-dashboard'),
+    path('arxiv/account/setup/', views.arxiv_account_setup, name='arxiv-account-setup'),
+    path('arxiv/submissions/', views.SubmissionListView.as_view(), name='arxiv-submission-list'),
+    path('arxiv/submit/<int:manuscript_id>/', views.manuscript_submission_form, name='arxiv-submit-manuscript'),
+    path('arxiv/submission/<str:submission_id>/', views.submission_detail, name='arxiv-submission-detail'),
+    path('arxiv/submission/<str:submission_id>/validate/', views.validate_submission, name='arxiv-validate-submission'),
+    path('arxiv/submission/<str:submission_id>/prepare-files/', views.prepare_submission_files, name='arxiv-prepare-files'),
+    path('arxiv/submission/<str:submission_id>/submit/', views.submit_to_arxiv, name='arxiv-submit-to-arxiv'),
+    path('arxiv/submission/<str:submission_id>/check-status/', views.check_submission_status, name='arxiv-check-status'),
+    path('arxiv/submission/<str:submission_id>/withdraw/', views.withdraw_submission, name='arxiv-withdraw-submission'),
+    path('arxiv/submission/<str:submission_id>/replace/', views.create_replacement, name='arxiv-create-replacement'),
+    path('arxiv/submission/<str:submission_id>/history/', views.submission_history_api, name='arxiv-submission-history'),
+
     # arXiv API endpoints
-    path('arxiv/api/categories/', arxiv_views.categories_api, name='arxiv-categories-api'),
-    path('arxiv/api/suggest-categories/<int:manuscript_id>/', arxiv_views.suggest_categories_api, name='arxiv-suggest-categories'),
-    path('arxiv/api/status/', arxiv_views.arxiv_status_check, name='arxiv-status-check'),
-    path('arxiv/api/initialize-categories/', arxiv_views.initialize_categories, name='arxiv-initialize-categories'),
+    path('arxiv/api/categories/', views.categories_api, name='arxiv-categories-api'),
+    path('arxiv/api/suggest-categories/<int:manuscript_id>/', views.suggest_categories_api, name='arxiv-suggest-categories'),
+    path('arxiv/api/status/', views.arxiv_status_check, name='arxiv-status-check'),
+    path('arxiv/api/initialize-categories/', views.initialize_categories, name='arxiv-initialize-categories'),
 ]

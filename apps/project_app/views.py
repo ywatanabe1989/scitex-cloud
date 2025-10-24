@@ -203,12 +203,12 @@ def project_detail(request, username, slug):
 
     # Default mode: overview - GitHub-style file browser with README
     # Get project directory and file list
-    from apps.project_app.services.directory_service import (
+    from apps.project_app.services.project_filesystem import (
         get_user_directory_manager,
     )
 
-    manager = get_user_directory_manager(project.owner)
-    project_path = manager.get_project_path(project)
+    manager = get_project_filesystem_manager(project.owner)
+    project_path = manager.get_project_root_path(project)
 
     # Get root directory files (like GitHub)
     files = []
@@ -278,11 +278,11 @@ def project_create(request):
         git_url = request.POST.get("git_url", "").strip()
 
         # Initialize directory manager for all init types
-        from apps.project_app.services.directory_service import (
+        from apps.project_app.services.project_filesystem import (
             get_user_directory_manager,
         )
 
-        manager = get_user_directory_manager(request.user)
+        manager = get_project_filesystem_manager(request.user)
 
         # If importing from Git and no name provided, extract from URL
         if not name and git_url and init_type in ["github", "git"]:
@@ -599,11 +599,11 @@ def project_create_from_template(request, username, slug):
 
     if request.method == "POST":
         # Create template structure
-        from apps.project_app.services.directory_service import (
+        from apps.project_app.services.project_filesystem import (
             get_user_directory_manager,
         )
 
-        manager = get_user_directory_manager(project.owner)
+        manager = get_project_filesystem_manager(project.owner)
 
         success, path = manager.create_project_from_template(project)
 
@@ -872,12 +872,12 @@ def api_file_tree(request, username, slug):
         return JsonResponse({"success": False, "error": "Permission denied"})
 
     # Get project directory
-    from apps.project_app.services.directory_service import (
+    from apps.project_app.services.project_filesystem import (
         get_user_directory_manager,
     )
 
-    manager = get_user_directory_manager(project.owner)
-    project_path = manager.get_project_path(project)
+    manager = get_project_filesystem_manager(project.owner)
+    project_path = manager.get_project_root_path(project)
 
     if not project_path or not project_path.exists():
         return JsonResponse(
@@ -1074,12 +1074,12 @@ def api_concatenate_directory(request, username, slug, directory_path=""):
         return JsonResponse({"success": False, "error": "Permission denied"})
 
     # Get directory path
-    from apps.project_app.services.directory_service import (
+    from apps.project_app.services.project_filesystem import (
         get_user_directory_manager,
     )
 
-    manager = get_user_directory_manager(project.owner)
-    project_path = manager.get_project_path(project)
+    manager = get_project_filesystem_manager(project.owner)
+    project_path = manager.get_project_root_path(project)
 
     if not project_path or not project_path.exists():
         return JsonResponse(
@@ -1255,12 +1255,12 @@ def project_directory_dynamic(request, username, slug, directory_path):
             )
 
     # Get project path
-    from apps.project_app.services.directory_service import (
+    from apps.project_app.services.project_filesystem import (
         get_user_directory_manager,
     )
 
-    manager = get_user_directory_manager(project.owner)
-    project_path = manager.get_project_path(project)
+    manager = get_project_filesystem_manager(project.owner)
+    project_path = manager.get_project_root_path(project)
 
     if not project_path or not project_path.exists():
         messages.error(request, "Project directory not found.")
@@ -1394,12 +1394,12 @@ def project_file_view(request, username, slug, file_path):
         return redirect("user_projects:detail", username=username, slug=slug)
 
     # Get file path
-    from apps.project_app.services.directory_service import (
+    from apps.project_app.services.project_filesystem import (
         get_user_directory_manager,
     )
 
-    manager = get_user_directory_manager(project.owner)
-    project_path = manager.get_project_path(project)
+    manager = get_project_filesystem_manager(project.owner)
+    project_path = manager.get_project_root_path(project)
 
     if not project_path or not project_path.exists():
         messages.error(request, "Project directory not found.")
@@ -1659,12 +1659,12 @@ def project_directory(request, username, slug, directory, subpath=None):
             return redirect("project_app:detail", username=username, slug=slug)
 
     # Get the project directory manager
-    from apps.project_app.services.directory_service import (
+    from apps.project_app.services.project_filesystem import (
         get_user_directory_manager,
     )
 
-    manager = get_user_directory_manager(project.owner)
-    project_path = manager.get_project_path(project)
+    manager = get_project_filesystem_manager(project.owner)
+    project_path = manager.get_project_root_path(project)
 
     if not project_path or not project_path.exists():
         messages.error(request, "Project directory not found.")

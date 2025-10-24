@@ -17,7 +17,7 @@ from .models import UserProfile
 def signup(request):
     """User signup view with email verification required."""
     import logging
-    from apps.project_app.email_service import EmailService
+    from apps.project_app.services.email_service import EmailService
 
     logger = logging.getLogger(__name__)
 
