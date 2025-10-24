@@ -1,0 +1,59 @@
+/**
+ * SciTeX Project App CSS - Main Import File
+ * 
+ * This file imports all modular CSS files in the correct order.
+ * Import order matters for CSS specificity!
+ * 
+ * Structure:
+ * 1. Common/base styles
+ * 2. Components (reusable UI elements)
+ * 3. Pages (page-specific styles)
+ * 4. Feature modules (filer, commits, users, etc.)
+ */
+
+
+/* BASE */
+@import url("common.css");
+
+/* COMPONENTS */
+@import url("components/sidebar.css");
+@import url("components/file-tree.css");
+
+/* PAGES */
+@import url("pages/list.css");
+@import url("pages/detail.css");
+@import url("pages/detail-extra.css");
+@import url("pages/create.css");
+@import url("pages/edit.css");
+@import url("pages/delete.css");
+@import url("pages/settings.css");
+
+/* FILER */
+@import url("filer/browser.css");
+@import url("filer/view.css");
+@import url("filer/edit.css");
+@import url("filer/history.css");
+
+/* COMMITS */
+@import url("commits/detail.css");
+
+/* USERS */
+@import url("users/bio.css");
+@import url("users/profile.css");
+
+/* ISSUES */
+@import url("issues/list.css");
+@import url("issues/detail.css");
+
+/* PULL_REQUESTS */
+@import url("pull_requests/pr-list.css");
+@import url("pull_requests/pr-detail.css");
+
+/* ACTIONS */
+@import url("actions/list.css");
+@import url("actions/workflow-detail.css");
+@import url("actions/workflow-editor.css");
+@import url("actions/workflow-run-detail.css");
+
+/* SECURITY */
+@import url("security/security.css");

@@ -1,0 +1,119 @@
+/* SIDEBAR IMPROVEMENTS (from existing sidebar_improvements.css) */
+/* ============================================================================= */
+
+/* =============================================================================
+   SIDEBAR IMPROVEMENTS - Apply these CSS changes to project_detail.html
+   ============================================================================= */
+
+/* Enhanced sidebar item hover effects */
+.sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    font-size: 12px;
+    color: var(--color-fg-muted);
+    border-radius: 6px;  /* Changed from 4px */
+    transition: all 0.2s ease;
+    margin: 2px 0;
+    cursor: pointer;  /* Added */
+}
+
+.sidebar-item:hover {
+    background: var(--color-accent-subtle);  /* Changed from canvas-subtle */
+    color: var(--color-accent-fg);  /* Changed from fg-default */
+    transform: translateX(2px);  /* Added */
+}
+
+.sidebar-item strong {
+    color: var(--color-fg-default);
+}
+
+.repo-sidebar.collapsed .sidebar-item {
+    display: none;
+}
+
+/* Enhanced sidebar link hover effects */
+.sidebar-link {
+    color: var(--color-accent-fg);
+    text-decoration: none;
+    font-size: 12px;
+    display: block;
+    padding: 8px 12px;  /* Changed from 6px 8px */
+    border-radius: 6px;  /* Changed from 4px */
+    transition: all 0.2s ease;
+    font-weight: 500;  /* Added */
+}
+
+.sidebar-link:hover {
+    text-decoration: none;
+    background: var(--color-accent-subtle);  /* Changed from canvas-subtle */
+    color: var(--color-accent-fg);
+    transform: translateX(4px);  /* Changed from 2px */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);  /* Added */
+}
+
+.repo-sidebar.collapsed .sidebar-link {
+    display: none;
+}
+
+/* Enhanced file tree item hover effects */
+.file-tree-item {
+    padding: 6px 8px;  /* Changed from 4px 6px */
+    cursor: pointer;
+    color: var(--color-fg-default);
+    border-radius: 6px;  /* Changed from 4px */
+    transition: all 0.2s ease;
+    margin: 2px 0;  /* Changed from 1px */
+}
+
+.file-tree-item:hover {
+    background: var(--color-accent-subtle);  /* Changed from canvas-subtle */
+    transform: translateX(2px);  /* Added */
+}
+
+.file-tree-item.active {
+    background: var(--color-accent-emphasis);  /* Changed from accent-subtle */
+    color: #ffffff;  /* Added */
+    font-weight: 600;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);  /* Added */
+}
+
+.repo-sidebar.collapsed .file-tree-item {
+    display: none;
+}
+
+/* Enhanced file tree folder hover effects */
+.file-tree-folder {
+    color: var(--color-fg-default);
+    display: flex;
+    align-items: center;
+    gap: 6px;  /* Changed from 4px */
+    transition: all 0.2s ease;
+    font-weight: 500;  /* Added */
+}
+
+.file-tree-folder:hover {
+    color: var(--color-accent-fg);
+    transform: translateX(3px);  /* Changed from 2px */
+}
+
+/* Enhanced file tree file hover effects */
+.file-tree-file {
+    color: var(--color-fg-muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;  /* Changed from 4px */
+    transition: all 0.2s ease;
+}
+
+.file-tree-file:hover {
+    color: var(--color-accent-fg);
+    transform: translateX(3px);  /* Changed from 2px */
+}
+
+/* =============================================================================
+   END OF SIDEBAR IMPROVEMENTS
+   ============================================================================= */
+
+

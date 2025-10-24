@@ -1,0 +1,1002 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ project.name }} - SciTeX Cloud{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/common/buttons.css' %}">
+<style>
+/* GitHub-style repository header - Theme-aware */
+.repo-header {
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--color-border-default);
+}
+
+.repo-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-accent-fg);  /* SciTeX brand color */
+    text-decoration: none;
+}
+
+.repo-title:hover {
+    text-decoration: underline;
+}
+
+.repo-description {
+    color: var(--color-fg-muted);
+    margin-top: 0.5rem;
+}
+
+/* Tab navigation now uses standardized .scitex-tabs component from design system */
+.repo-tabs {
+    margin-bottom: 1.5rem;
+}
+
+/* File browser table - Theme-aware */
+.file-browser {
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+    background: var(--color-canvas-default);
+}
+
+.file-browser table {
+    width: 100%;
+    margin: 0;
+    border-collapse: collapse;
+}
+
+.file-browser .commit-message {
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 400px;
+}
+
+.file-browser .commit-author {
+    color: var(--color-fg-muted);
+    font-size: 0.85rem;
+}
+
+.file-browser .text-monospace {
+    font-family: monospace;
+    font-size: 0.85rem;
+}
+
+.file-browser th {
+    background: var(--color-canvas-subtle);
+    padding: 0.5rem 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: var(--color-fg-default);
+    border-bottom: 1px solid var(--color-border-default);
+}
+
+.file-browser td {
+    padding: 0.5rem 1rem;
+    border-top: 1px solid var(--color-border-default);
+    color: var(--color-fg-default);
+}
+
+.file-browser tr:hover {
+    background: var(--color-canvas-subtle);
+}
+
+.file-icon {
+    width: 16px;
+    height: 16px;
+    margin-right: 0.5rem;
+}
+
+.file-name {
+    color: var(--color-accent-fg);  /* SciTeX brand link color */
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.file-name:hover {
+    text-decoration: underline;
+}
+
+/* README rendering - Theme-aware */
+.readme-container {
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    padding: 2rem;
+    background: var(--color-canvas-default);
+    color: var(--color-fg-default);
+}
+
+.readme-header {
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--color-border-default);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-fg-default);
+}
+
+.readme-content {
+    line-height: 1.6;
+}
+
+.readme-content h1,
+.readme-content h2,
+.readme-content h3 {
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    line-height: 1.25;
+    color: var(--color-fg-default);
+}
+
+.readme-content h1 {
+    font-size: 2em;
+    padding-bottom: 0.3em;
+}
+
+.readme-content h2 {
+    font-size: 1.5em;
+    padding-bottom: 0.3em;
+}
+
+.readme-content code {
+    background: var(--color-canvas-subtle);
+    color: var(--color-fg-default);
+    padding: 0.2em 0.4em;
+    border-radius: 6px;
+    font-family: ui-monospace, monospace;
+    font-size: 85%;
+}
+
+.readme-content pre {
+    background: var(--color-canvas-subtle);
+    padding: 1rem;
+    border-radius: 6px;
+    overflow-x: auto;
+}
+
+.readme-content pre code {
+    background: none;
+    padding: 0;
+}
+
+/* Lists and directory structures - no borders */
+.readme-content ul,
+.readme-content ol {
+    padding-left: 2em;
+    margin: 0.5em 0;
+}
+
+.readme-content li {
+    margin: 0.25em 0;
+    border: none !important;  /* Remove any borders from list items */
+}
+
+.readme-content p {
+    margin: 1em 0;
+    color: var(--color-fg-default);
+}
+
+.readme-content a {
+    color: var(--color-accent-fg);
+}
+
+.readme-content a:hover {
+    text-decoration: underline;
+}
+
+/* Remove borders from h3, h4, h5, h6 */
+.readme-content h3,
+.readme-content h4,
+.readme-content h5,
+.readme-content h6 {
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    color: var(--color-fg-default);
+    border: none !important;  /* No borders for smaller headings */
+}
+
+/* Button overrides for theme support */
+.btn-outline-primary {
+    color: var(--color-accent-fg) !important;
+    border-color: var(--color-accent-fg) !important;
+    background: transparent !important;
+}
+
+.btn-outline-primary:hover {
+    color: #ffffff !important;
+    background: var(--color-accent-fg) !important;
+    border-color: var(--color-accent-fg) !important;
+}
+
+[data-theme="dark"] .btn-outline-primary {
+    color: var(--scitex-color-06) !important;  /* Light bluish */
+    border-color: var(--scitex-color-05) !important;
+}
+
+[data-theme="dark"] .btn-outline-primary:hover {
+    color: #ffffff !important;
+    background: var(--scitex-color-04) !important;
+    border-color: var(--scitex-color-04) !important;
+}
+
+/* Text muted helper */
+.text-muted {
+    color: var(--color-fg-muted) !important;
+}
+
+/* GitHub-style layout with sidebar on LEFT */
+.repo-layout {
+    display: grid;
+    grid-template-columns: 296px 1fr;  /* Sidebar first, then main content */
+    gap: 24px;
+    margin-top: 1.5rem;
+    transition: grid-template-columns 0.3s ease;
+}
+
+.repo-layout.sidebar-collapsed {
+    grid-template-columns: 48px 1fr;  /* Collapsed width */
+}
+
+.repo-layout.sidebar-expanded {
+    grid-template-columns: 380px 1fr;  /* Expanded width - larger than default */
+}
+
+.repo-main {
+    min-width: 0;
+}
+
+.repo-sidebar {
+    position: sticky;
+    top: 80px;
+    align-self: start;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.repo-sidebar.collapsed {
+    width: 48px;
+}
+
+.repo-sidebar.expanded {
+    width: 380px;
+}
+
+/* Sidebar toggle button */
+.sidebar-toggle-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    background: var(--color-canvas-default);
+    color: var(--color-fg-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+
+.sidebar-toggle-btn:hover {
+    background: var(--color-canvas-subtle);
+    color: var(--color-accent-fg);
+    border-color: var(--color-accent-fg);
+    transform: scale(1.05);
+}
+
+.sidebar-toggle-btn:active {
+    transform: scale(0.95);
+}
+
+.sidebar-toggle-icon {
+    transition: transform 0.3s ease;
+    font-size: 14px;
+}
+
+.repo-sidebar.collapsed .sidebar-toggle-icon {
+    transform: rotate(180deg);
+}
+
+/* Sidebar sections */
+.sidebar-section {
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    padding: 16px;
+    margin-bottom: 16px;
+    background: var(--color-canvas-default);
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.repo-sidebar.collapsed .sidebar-section {
+    padding: 8px;
+    border: none;
+    background: transparent;
+}
+
+.sidebar-section.collapsible {
+    cursor: pointer;
+}
+
+.sidebar-section.collapsible:hover {
+    border-color: var(--color-accent-fg);
+    background: var(--color-canvas-subtle);
+}
+
+.sidebar-section.section-collapsed .sidebar-content {
+    display: none;
+}
+
+.sidebar-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-fg-default);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.2s ease;
+}
+
+.sidebar-title:hover {
+    color: var(--color-accent-fg);
+}
+
+.repo-sidebar.collapsed .sidebar-title {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    margin: 0;
+    font-size: 10px;
+}
+
+.sidebar-section-chevron {
+    font-size: 10px;
+    transition: transform 0.2s ease;
+    color: var(--color-fg-muted);
+}
+
+.sidebar-section.section-collapsed .sidebar-section-chevron {
+    transform: rotate(-90deg);
+}
+
+.repo-sidebar.collapsed .sidebar-section-chevron {
+    display: none;
+}
+
+.sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    font-size: 12px;
+    color: var(--color-fg-muted);
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    margin: 2px 0;
+}
+
+.sidebar-item:hover {
+    background: var(--color-canvas-subtle);
+    color: var(--color-fg-default);
+}
+
+.sidebar-item strong {
+    color: var(--color-fg-default);
+}
+
+.repo-sidebar.collapsed .sidebar-item {
+    display: none;
+}
+
+.sidebar-link {
+    color: var(--color-accent-fg);
+    text-decoration: none;
+    font-size: 12px;
+    display: block;
+    padding: 6px 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.sidebar-link:hover {
+    text-decoration: none;
+    background: var(--color-canvas-subtle);
+    color: var(--color-accent-fg);
+    transform: translateX(2px);
+}
+
+.repo-sidebar.collapsed .sidebar-link {
+    display: none;
+}
+
+.sidebar-content {
+    transition: opacity 0.3s ease;
+}
+
+.repo-sidebar.collapsed .sidebar-content {
+    opacity: 0;
+    display: none;
+}
+
+/* File tree styles */
+.file-tree-item {
+    padding: 2px 0;
+    cursor: pointer;
+    color: var(--color-fg-default);
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.file-tree-item:hover {
+    background: var(--color-canvas-subtle);
+}
+
+.file-tree-item.active {
+    background: var(--color-accent-subtle);
+    font-weight: 600;
+}
+
+.file-tree-folder {
+    color: var(--color-fg-default);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.file-tree-file {
+    color: var(--color-fg-muted);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.file-tree-icon {
+    width: 16px;
+    display: inline-block;
+}
+
+.file-tree-chevron {
+    width: 12px;
+    height: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: var(--color-fg-muted);
+    transition: transform 0.2s;
+    cursor: pointer;
+}
+
+.file-tree-chevron.expanded {
+    transform: rotate(90deg);
+}
+
+.file-tree-children {
+    display: none;
+}
+
+.file-tree-children.expanded {
+    display: block;
+}
+
+/* Split button dropdown fix */
+.btn-group {
+    position: relative;
+}
+
+.btn-group .dropdown-menu {
+    z-index: 9999 !important;
+    background: var(--color-canvas-default);
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    min-width: 200px;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 4px;
+}
+
+.btn-group .dropdown-item {
+    color: var(--color-fg-default);
+    padding: 8px 16px;
+    white-space: nowrap;
+}
+
+.btn-group .dropdown-item:hover {
+    background: var(--color-canvas-subtle);
+    color: var(--color-fg-default);
+}
+
+@media (max-width: 1024px) {
+    .repo-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .repo-sidebar {
+        position: static;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="max-width: 1280px;">
+    <!-- Repository Header -->
+    <div class="repo-header">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <a href="/{{ project.owner.username }}/" style="color: var(--color-accent-fg); text-decoration: none; font-weight: 400;">
+                {{ project.owner.username }}
+            </a>
+            <span style="color: var(--color-fg-muted);">/</span>
+            <a href="/{{ project.owner.username }}/{{ project.slug }}/" class="repo-title">
+                {{ project.name }}
+            </a>
+        </div>
+        {% if project.description %}
+        <div class="repo-description">{{ project.description }}</div>
+        {% endif %}
+    </div>
+
+    <!-- Tab Navigation - Simple GitHub-style tabs -->
+    <div class="repo-tabs" style="justify-content: space-between;">
+        <div class="scitex-tabs">
+            <a href="/{{ project.owner.username }}/{{ project.slug }}/"
+               class="scitex-tab {% if mode == 'overview' %}scitex-tab-active{% endif %}">
+                Code
+            </a>
+            <a href="/{{ project.owner.username }}/{{ project.slug }}/settings/"
+               class="scitex-tab">
+                Settings
+            </a>
+        </div>
+        <div class="btn-group" style="margin: 0.25rem;">
+            <button onclick="copyProjectToClipboard()" class="btn btn-sm btn-outline-primary" id="copy-project-btn">
+                📋 Copy Concatenated Text
+            </button>
+            <button class="btn btn-sm btn-outline-primary dropdown-toggle dropdown-toggle-split" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <span class="visually-hidden">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); copyProjectToClipboard();">📋 Copy Concatenated Text</a></li>
+                <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); downloadProjectAsFile();">💾 Download Concatenated Text</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Main Content Area with Sidebar -->
+    <div class="repo-layout" id="repo-layout">
+        <!-- Sidebar (LEFT side like GitHub) - File Tree Navigation -->
+        <aside class="repo-sidebar collapsed" id="repo-sidebar">
+            <!-- Toggle Button -->
+            <button class="sidebar-toggle-btn" id="sidebar-toggle" onclick="toggleSidebar()" title="Toggle sidebar">
+                <span class="sidebar-toggle-icon">◀</span>
+            </button>
+
+            <!-- File Tree -->
+            <div class="sidebar-section" id="file-tree-section">
+                <div class="sidebar-title" onclick="toggleSidebarSection('file-tree-section')">
+                    <a href="/{{ project.owner.username }}/{{ project.slug }}/" style="color: var(--color-fg-default); text-decoration: none;">
+                        {{ project.name }}
+                    </a>
+                    <span class="sidebar-section-chevron">▼</span>
+                </div>
+                <div class="sidebar-content">
+                    <div id="file-tree" style="font-size: 12px;">
+                        <!-- File tree will be loaded here -->
+                        <div class="tree-loading" style="color: var(--color-fg-muted); padding: 1rem;">
+                            <i class="fas fa-spinner fa-spin"></i> Loading file tree...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- About Section -->
+            <div class="sidebar-section collapsible" id="about-section">
+                <div class="sidebar-title" onclick="toggleSidebarSection('about-section')">
+                    <span>About</span>
+                    <span class="sidebar-section-chevron">▼</span>
+                </div>
+                <div class="sidebar-content">
+                    {% if project.description %}
+                    <p style="font-size: 12px; color: var(--color-fg-default); margin-bottom: 12px;">
+                        {{ project.description }}
+                    </p>
+                    {% endif %}
+                    <div class="sidebar-item">
+                        <i class="fas fa-user" style="color: var(--color-fg-muted);"></i>
+                        <a href="/{{ project.owner.username }}/" class="sidebar-link" style="padding: 0;">{{ project.owner.username }}</a>
+                    </div>
+                    <div class="sidebar-item">
+                        <i class="fas fa-calendar" style="color: var(--color-fg-muted);"></i>
+                        <span>Created {{ project.created_at|date:"M j, Y" }}</span>
+                    </div>
+                    <div class="sidebar-item">
+                        <i class="fas fa-clock" style="color: var(--color-fg-muted);"></i>
+                        <span>Updated {{ project.updated_at|date:"M j, Y" }}</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content (RIGHT side) -->
+        <div class="repo-main">
+            <!-- Empty State with Create from Template button -->
+            {% if not directories and not files and not readme_html %}
+            <div class="readme-container" style="text-align: center; padding: 3rem 2rem;">
+                <h3 style="color: var(--color-fg-default); margin-bottom: 1rem;">📁 Empty Project</h3>
+                <p style="color: var(--color-fg-muted); margin-bottom: 2rem;">
+                    This project doesn't have any files yet. Get started by creating a template structure or uploading your files.
+                </p>
+                <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                    <form method="POST" action="/{{ project.owner.username }}/{{ project.slug }}/create-from-template/" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary">
+                            🚀 Create from Template
+                        </button>
+                    </form>
+                    <a href="/{{ project.owner.username }}/{{ project.slug }}/settings/" class="btn btn-outline-primary">
+                        ⚙️ Project Settings
+                    </a>
+                </div>
+                <p style="color: var(--color-fg-muted); margin-top: 2rem; font-size: 0.875rem;">
+                    The template will create a complete SciTeX research project structure with directories for scripts, data, docs, results, and configuration files.
+                </p>
+            </div>
+            {% endif %}
+
+            <!-- File Browser - GitHub Style -->
+            {% if directories or files %}
+            <div class="file-browser">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 40%;">Name</th>
+                            <th style="width: 45%;">Last commit message</th>
+                            <th style="width: 15%;">Last commit date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for dir in directories %}
+                        <tr>
+                            <td>
+                                <a href="/{{ project.owner.username }}/{{ project.slug }}/{{ dir.path }}/" class="file-name">
+                                    📁 {{ dir.name }}
+                                </a>
+                            </td>
+                            <td class="text-muted commit-message">
+                                {% if dir.message %}
+                                    <span title="{{ dir.message }}">{{ dir.message }}</span>
+                                    {% if dir.author %}<span class="commit-author"> by {{ dir.author }}</span>{% endif %}
+                                {% endif %}
+                            </td>
+                            <td class="text-muted text-monospace">
+                                {% if dir.time_ago %}{{ dir.time_ago }}{% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% for file in files %}
+                        <tr>
+                            <td>
+                                <a href="/{{ project.owner.username }}/{{ project.slug }}/blob/{{ file.path }}" class="file-name">
+                                    📄 {{ file.name }}
+                                </a>
+                            </td>
+                            <td class="text-muted commit-message">
+                                {% if file.message %}
+                                    <span title="{{ file.message }}">{{ file.message }}</span>
+                                    {% if file.author %}<span class="commit-author"> by {{ file.author }}</span>{% endif %}
+                                {% endif %}
+                            </td>
+                            <td class="text-muted text-monospace">
+                                {% if file.time_ago %}{{ file.time_ago }}{% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+
+            <!-- README.md -->
+            {% if readme_html %}
+            <div class="readme-container">
+                <div class="readme-header">
+                    📖 README.md
+                </div>
+                <div class="readme-content">
+                    {{ readme_html|safe }}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+// Sidebar state management
+const SIDEBAR_STATE_KEY = 'scitex-sidebar-state';
+const SIDEBAR_SECTIONS_KEY = 'scitex-sidebar-sections';
+
+// Initialize sidebar state from localStorage
+function initializeSidebar() {
+    const sidebar = document.getElementById('repo-sidebar');
+    const repoLayout = document.getElementById('repo-layout');
+    const savedState = localStorage.getItem(SIDEBAR_STATE_KEY);
+
+    // Start collapsed by default, or use saved state
+    if (savedState === 'expanded') {
+        sidebar.classList.remove('collapsed');
+        sidebar.classList.add('expanded');
+        repoLayout.classList.remove('sidebar-collapsed');
+        repoLayout.classList.add('sidebar-expanded');
+    } else {
+        // Default: collapsed
+        sidebar.classList.add('collapsed');
+        repoLayout.classList.add('sidebar-collapsed');
+    }
+
+    // Restore section states
+    const savedSections = localStorage.getItem(SIDEBAR_SECTIONS_KEY);
+    if (savedSections) {
+        try {
+            const sections = JSON.parse(savedSections);
+            Object.keys(sections).forEach(sectionId => {
+                const section = document.getElementById(sectionId);
+                if (section && sections[sectionId] === 'collapsed') {
+                    section.classList.add('section-collapsed');
+                }
+            });
+        } catch (e) {
+            console.error('Error restoring section states:', e);
+        }
+    }
+}
+
+// Toggle entire sidebar
+function toggleSidebar() {
+    const sidebar = document.getElementById('repo-sidebar');
+    const repoLayout = document.getElementById('repo-layout');
+
+    if (sidebar.classList.contains('collapsed')) {
+        // Expand sidebar
+        sidebar.classList.remove('collapsed');
+        sidebar.classList.add('expanded');
+        repoLayout.classList.remove('sidebar-collapsed');
+        repoLayout.classList.add('sidebar-expanded');
+        localStorage.setItem(SIDEBAR_STATE_KEY, 'expanded');
+    } else {
+        // Collapse sidebar
+        sidebar.classList.remove('expanded');
+        sidebar.classList.add('collapsed');
+        repoLayout.classList.remove('sidebar-expanded');
+        repoLayout.classList.add('sidebar-collapsed');
+        localStorage.setItem(SIDEBAR_STATE_KEY, 'collapsed');
+    }
+}
+
+// Toggle individual sidebar section
+function toggleSidebarSection(sectionId) {
+    const sidebar = document.getElementById('repo-sidebar');
+
+    // Don't toggle sections when sidebar is collapsed
+    if (sidebar.classList.contains('collapsed')) {
+        return;
+    }
+
+    const section = document.getElementById(sectionId);
+    if (!section) return;
+
+    section.classList.toggle('section-collapsed');
+
+    // Save section states
+    saveSectionStates();
+}
+
+// Save all section states to localStorage
+function saveSectionStates() {
+    const sections = {
+        'file-tree-section': document.getElementById('file-tree-section').classList.contains('section-collapsed') ? 'collapsed' : 'expanded',
+        'about-section': document.getElementById('about-section').classList.contains('section-collapsed') ? 'collapsed' : 'expanded'
+    };
+    localStorage.setItem(SIDEBAR_SECTIONS_KEY, JSON.stringify(sections));
+}
+
+// Build file tree for sidebar
+async function loadFileTree() {
+    try {
+        const response = await fetch('/{{ project.owner.username }}/{{ project.slug }}/api/file-tree/');
+        const data = await response.json();
+
+        if (data.success) {
+            const treeContainer = document.getElementById('file-tree');
+            treeContainer.innerHTML = buildTreeHTML(data.tree, '{{ project.owner.username }}', '{{ project.slug }}');
+        } else {
+            document.getElementById('file-tree').innerHTML = '<div style="color: var(--color-fg-muted); padding: 0.5rem;">Error loading file tree</div>';
+        }
+    } catch (err) {
+        console.error('Failed to load file tree:', err);
+        document.getElementById('file-tree').innerHTML = '<div style="color: var(--color-fg-muted); padding: 0.5rem;">Error loading file tree</div>';
+    }
+}
+
+function buildTreeHTML(items, username, slug, level = 0) {
+    let html = '';
+    const indent = level * 16;
+    const currentPath = window.location.pathname;
+
+    items.forEach((item, index) => {
+        const itemPath = `/${username}/${slug}/${item.path}${item.type === 'directory' ? '/' : ''}`;
+        const isActive = currentPath.includes(item.path);
+        const icon = item.type === 'directory' ? '📁' : '📄';
+        const hasChildren = item.children && item.children.length > 0;
+        const itemId = `tree-${item.path.replace(/\//g, '-')}`;  // Unique ID based on path
+
+        // Item row
+        html += `<div class="file-tree-item ${isActive ? 'active' : ''}" style="padding-left: ${indent}px;">`;
+
+        if (item.type === 'directory') {
+            html += `<a href="${itemPath}" class="file-tree-folder" style="text-decoration: none; color: var(--color-fg-default);">`;
+
+            // Chevron for folders with children
+            if (hasChildren) {
+                html += `<span class="file-tree-chevron ${level === 0 ? 'expanded' : ''}" onclick="toggleFolder('${itemId}'); return false;">▸</span>`;
+            } else {
+                html += `<span style="width: 12px; display: inline-block;"></span>`;
+            }
+
+            html += `<span class="file-tree-icon">${icon}</span><span>${item.name}</span>`;
+            html += `</a>`;
+        } else {
+            html += `<a href="/${username}/${slug}/blob/${item.path}" class="file-tree-file" style="text-decoration: none; color: var(--color-fg-muted);">`;
+            html += `<span style="width: 12px; display: inline-block;"></span>`;
+            html += `<span class="file-tree-icon">${icon}</span><span>${item.name}</span>`;
+            html += `</a>`;
+        }
+
+        html += `</div>`;
+
+        // Children container - render ALL children
+        if (hasChildren) {
+            const isExpanded = level === 0;  // Auto-expand root level only
+            html += `<div id="${itemId}" class="file-tree-children ${isExpanded ? 'expanded' : ''}">`;
+            html += buildTreeHTML(item.children, username, slug, level + 1);  // Recursively build all children
+            html += `</div>`;
+        }
+    });
+
+    return html;
+}
+
+function toggleFolder(folderId) {
+    const folder = document.getElementById(folderId);
+    const chevron = event.target;
+
+    if (folder.classList.contains('expanded')) {
+        folder.classList.remove('expanded');
+        chevron.classList.remove('expanded');
+    } else {
+        folder.classList.add('expanded');
+        chevron.classList.add('expanded');
+    }
+
+    event.stopPropagation();
+    event.preventDefault();
+}
+
+// Load file tree on page load
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Page loaded - initializing file tree and dropdown');
+    loadFileTree();
+
+    // Manual dropdown toggle for split button
+    const dropdownToggle = document.querySelector('.dropdown-toggle-split');
+    const dropdownMenu = document.querySelector('.dropdown-menu');
+
+    if (dropdownToggle && dropdownMenu) {
+        console.log('Dropdown elements found - setting up manual toggle');
+
+        dropdownToggle.addEventListener('click', function(e) {
+            console.log('Dropdown toggle clicked!');
+            e.preventDefault();
+            e.stopPropagation();
+
+            const isVisible = dropdownMenu.style.display === 'block';
+            dropdownMenu.style.display = isVisible ? 'none' : 'block';
+            console.log('Dropdown visibility toggled to:', dropdownMenu.style.display);
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!dropdownToggle.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                dropdownMenu.style.display = 'none';
+            }
+        });
+    } else {
+        console.warn('Dropdown elements not found:', {dropdownToggle, dropdownMenu});
+    }
+});
+
+async function copyProjectToClipboard() {
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '⏳ Loading...';
+    btn.disabled = true;
+
+    try {
+        const response = await fetch('/{{ project.owner.username }}/{{ project.slug }}/api/concatenate/');
+        const data = await response.json();
+
+        if (data.success) {
+            await navigator.clipboard.writeText(data.content);
+            btn.innerHTML = `✓ Copied ${data.file_count} files!`;
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }, 3000);
+        } else {
+            alert('Error: ' + data.error);
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    } catch (err) {
+        alert('Failed to copy: ' + err);
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+}
+
+async function downloadProjectAsFile() {
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '⏳ Preparing download...';
+    btn.disabled = true;
+
+    try {
+        const response = await fetch('/{{ project.owner.username }}/{{ project.slug }}/api/concatenate/');
+        const data = await response.json();
+
+        if (data.success) {
+            // Create a blob and download it
+            const blob = new Blob([data.content], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `{{ project.slug }}_all_files.txt`;
+
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+
+            btn.innerHTML = `✓ Downloaded ${data.file_count} files!`;
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }, 3000);
+        } else {
+            alert('Error: ' + data.error);
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    } catch (err) {
+        alert('Failed to download: ' + err);
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+}
+</script>
+{% endblock %}

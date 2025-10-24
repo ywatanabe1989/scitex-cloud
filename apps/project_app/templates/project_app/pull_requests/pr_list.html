@@ -3,6 +3,10 @@
 
 {% block title %}Pull Requests - {{ project.name }}{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'project_app/css/project_app.css' %}">
+{% endblock %}
+
 {% block content %}
 <div class="container-fluid" style="max-width: 1280px;">
     <!-- Repository Header -->
@@ -269,13 +273,5 @@
     </div>
 </div>
 
-<style>
-.list-group-item:hover {
-    background-color: #f8f9fa;
-}
 
-.badge {
-    font-size: 0.75rem;
-}
-</style>
 {% endblock %}

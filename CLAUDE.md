@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-24 12:46:10
+!-- Timestamp: 2025-10-24 18:13:34
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/CLAUDE.md
 !-- --- -->
@@ -9,6 +9,9 @@
 
 ## THE USER IS ONLY ALLOWED TO EDIT THIS FILE. DO NOT MODIFY THIS FILE UNLESS EXPLICITLY ASKED.
 ## GITIGNORE THIS FILE. NEVER UPLOAD TO GITHUB.
+
+## Subagents
+Time is money. Use 8 agents when useful.
 
 ## Autonomous Development
 Based on the following conditions, please proceed development autonomously
@@ -61,21 +64,6 @@ See `/dev/design/`
 Add console.log for debugging
 
 # Requests
-## scitex-writer
-- [ ] Initialization of workspace creation for writer app fails for new projects for account ywatanabe
-  - [ ] Initialize Writer Workspace button does not work in ywatanabe account
-    - [ ] 1. create new project, like test-XXX
-    - [ ] 2. Navigate to /writer/
-    - [ ] 3. Click the Initialize ... button
-- [ ] Please fix this. You can login with password "Yusuke8939.".
-- [ ] it should create http://127.0.0.1:8000/ywatanabe/scitex/writer/shared
-- [ ] The height of the latex code area should be the same as the right side of space
-- [ ] This problem is partially due to unorganized directory structure of the writer_app
-  - [ ] Organize writer_app as scholar_app
-  - [ ] Maybe current mvp_editor.html is the main page; rename it as index.html, just as in scholar_app
-  - [ ] See `./apps/README.md`
-
-- [ ] Project directory model and verification:
-  - [ ] ~/proj/scitex-code/src/scitex/project
+Work on this: /home/ywatanabe/proj/scitex-cloud/apps/project_app/TODO.md
 
 <!-- EOF -->

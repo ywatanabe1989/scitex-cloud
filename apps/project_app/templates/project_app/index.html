@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ project.name }} - SciTeX Cloud{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'project_app/css/project_app.css' %}">
+<link rel="stylesheet" href="{% static 'css/common/buttons.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="max-width: 1280px;">
+    {% include 'project_app/partials/_project_header.html' %}
+
+    {% include 'project_app/partials/_project_tabs.html' %}
+
+    {% include 'project_app/partials/_project_toolbar.html' %}
+
+    <!-- Main Content Area -->
+    <div class="repo-layout" id="repo-layout" style="display: block;">
+        <div class="repo-main">
+            {% include 'project_app/partials/_project_empty_state.html' %}
+
+            {% include 'project_app/partials/_project_file_browser.html' %}
+
+            {% include 'project_app/partials/_project_readme.html' %}
+        </div>
+    </div>
+</div>
+
+{% include 'project_app/partials/_project_scripts.html' %}
+{% endblock %}

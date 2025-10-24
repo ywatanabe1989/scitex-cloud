@@ -1,0 +1,92 @@
+/* ============================================================================= */
+/* PARTIALS / PROJECT_CREATE_STYLES */
+/* ============================================================================= */
+
+
+/* Container centering */
+.create-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+/* Form card */
+.create-form {
+    background: var(--bg-page);
+    border: 2px solid var(--border-default);
+    border-radius: 8px;
+    padding: 2rem;
+}
+
+[data-theme="dark"] .create-form {
+    background: var(--bg-surface);
+    border-color: var(--border-default);
+}
+
+/* Textarea sizing */
+textarea.form-control {
+    resize: vertical;
+    min-height: 120px;
+}
+
+/* Breadcrumb */
+.breadcrumb {
+    margin-bottom: 1.5rem;
+    color: var(--text-secondary);
+}
+
+.breadcrumb a {
+    color: var(--scitex-color-04);
+    text-decoration: none;
+}
+
+.breadcrumb a:hover {
+    text-decoration: underline;
+    color: var(--scitex-color-03);
+}
+
+/* Form actions */
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+/* Help text */
+.help-text {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-top: 0.25rem;
+}
+
+[data-theme="dark"] .help-text {
+    color: var(--scitex-color-05);
+}
+
+/* Page title */
+h1 {
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+}
+
+/* Code tags in help text */
+.help-text code {
+    background: var(--bg-surface);
+    padding: 0.2rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.85rem;
+    color: var(--scitex-color-04);
+}
+
+[data-theme="dark"] .help-text code {
+    background: var(--scitex-color-01);
+    color: var(--scitex-color-05);
+}
+
+/* Availability message colors */
+#name-availability {
+    font-size: 0.9rem;
+}
+
+
+

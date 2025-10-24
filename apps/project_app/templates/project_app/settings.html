@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Settings - {{ project.name }} - SciTeX{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'project_app/css/project_app.css' %}">
+<link rel="stylesheet" href="{% static 'css/common/buttons.css' %}">
+
+{% endblock %}
+
+{% block content %}
+<div class="settings-container">
+    <!-- Breadcrumb -->
+    <div style="margin-bottom: 24px;">
+        <a href="/{{ project.owner.username }}/" style="color: var(--color-accent-fg);">{{ project.owner.username }}</a>
+        <span style="color: var(--color-fg-muted);"> / </span>
+        <a href="{{ project.get_absolute_url }}" style="color: var(--color-accent-fg);">{{ project.name }}</a>
+        <span style="color: var(--color-fg-muted);"> / </span>
+        <span style="color: var(--color-fg-default); font-weight: 600;">Settings</span>
+    </div>
+
+    <div class="settings-layout">
+        <!-- Left Navigation -->
+        {% include 'project_app/partials/settings_navigation.html' %}
+
+        <!-- Main Content -->
+        <main class="settings-main">
+            <form method="post">
+                {% csrf_token %}
+
+                <!-- General Settings -->
+                {% include 'project_app/partials/settings_general.html' %}
+
+                <!-- Access & Visibility -->
+                {% include 'project_app/partials/settings_visibility.html' %}
+
+                <!-- Collaborators -->
+                {% include 'project_app/partials/settings_collaborators.html' %}
+            </form>
+
+            <!-- Danger Zone -->
+            {% include 'project_app/partials/settings_danger_zone.html' %}
+        </main>
+    </div>
+</div>
+
+{% include 'project_app/partials/settings_scripts.html' %}
+{% include 'project_app/partials/settings_delete_modal.html' %}
+
+{% endblock %}

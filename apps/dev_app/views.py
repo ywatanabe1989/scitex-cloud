@@ -57,6 +57,16 @@ class DesignSectionView(View):
                 "description": "Typography system and font guidelines.",
                 "partial": "dev_app/design_partial/typography.html",
             },
+            "code-blocks": {
+                "title": "Code Blocks",
+                "description": "Code syntax highlighting and code block styles.",
+                "partial": "dev_app/design_partial/code.html",
+            },
+            "terminal-log": {
+                "title": "Terminal Log",
+                "description": "Terminal-style log display for process monitoring.",
+                "partial": "dev_app/design_partial/terminal-log.html",
+            },
             "spacing": {
                 "title": "Spacing",
                 "description": "Spacing system and layout guidelines.",
@@ -151,6 +161,11 @@ class DesignTypographyView(DesignSectionView):
         return super().get(request, "typography")
 
 
+class DesignCodeBlocksView(DesignSectionView):
+    def get(self, request):
+        return super().get(request, "code-blocks")
+
+
 class DesignSpacingView(DesignSectionView):
     def get(self, request):
         return super().get(request, "spacing")
@@ -164,5 +179,10 @@ class DesignThemeView(DesignSectionView):
 class DesignGuidelinesView(DesignSectionView):
     def get(self, request):
         return super().get(request, "guidelines")
+
+
+class DesignTerminalLogView(DesignSectionView):
+    def get(self, request):
+        return super().get(request, "terminal-log")
 
 # EOF

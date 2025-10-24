@@ -1,0 +1,20 @@
+<!-- Sidebar (LEFT side like GitHub) - File Tree Navigation -->
+<aside class="repo-sidebar">
+    <!-- File Tree -->
+    <div class="sidebar-section">
+        <div class="sidebar-title">
+            <a href="/{{ project.owner.username }}/{{ project.slug }}/" style="color: var(--color-fg-default); text-decoration: none;">
+                {{ project.name }}
+            </a>
+        </div>
+        <div id="file-tree" style="font-size: 12px;">
+            <!-- File tree will be loaded here -->
+            <div class="tree-loading" style="color: var(--color-fg-muted); padding: 1rem;">
+                <i class="fas fa-spinner fa-spin"></i> Loading file tree...
+            </div>
+        </div>
+    </div>
+
+    <!-- About Section - Hidden by default to match GitHub style -->
+    <!-- Metadata can be accessed via project settings or a collapsible section if needed -->
+</aside>

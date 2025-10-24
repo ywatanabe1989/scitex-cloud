@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Commit {{ commit.short_hash }} - {{ project.name }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'project_app/css/project_app.css' %}">
+<link rel="stylesheet" href="{% static 'css/common/buttons.css' %}">
+
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="max-width: 1280px;">
+    <!-- Breadcrumb Navigation -->
+    <div class="breadcrumb-nav">
+        <a href="/{{ project.owner.username }}/">{{ project.owner.username }}</a>
+        <span class="breadcrumb-separator">/</span>
+        <a href="/{{ project.owner.username }}/{{ project.slug }}/">{{ project.name }}</a>
+        <span class="breadcrumb-separator">/</span>
+        <span style="color: var(--color-fg-muted);">commit</span>
+        <span class="breadcrumb-separator">/</span>
+        <span style="color: var(--color-fg-default);">{{ commit.short_hash }}</span>
+    </div>
+
+    {% include 'project_app/partials/commit_detail_header.html' %}
+
+    <!-- File Changes Summary -->
+    {% if changed_files %}
+    <div class="file-changes-summary">
+        <div class="file-count">
+            {{ changed_files|length }} file{{ changed_files|length|pluralize }} changed
+        </div>
+        <div class="changes-stats">
+            <span class="additions">+{{ total_additions }} addition{{ total_additions|pluralize }}</span>
+            <span class="deletions">-{{ total_deletions }} deletion{{ total_deletions|pluralize }}</span>
+        </div>
+    </div>
+
+    {% include 'project_app/partials/commit_detail_file_diff.html' %}
+    {% else %}
+    <div class="empty-state">
+        <p>No file changes found in this commit.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

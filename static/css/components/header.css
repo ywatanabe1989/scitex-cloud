@@ -4,6 +4,7 @@
 .site-header {
   background-color: var(--bg-surface);
   padding: var(--spacing-md) 0;
+  margin-bottom: var(--spacing-lg);
   color: var(--text-primary);
   box-shadow: var(--box-shadow-sm);
 }

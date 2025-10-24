@@ -11,7 +11,7 @@
     const THEME_DARK = 'dark';
 
     /**
-     * Get the current theme preference from localStorage
+     * Get the current theme preference from localStorage or database
      */
     function getThemePreference() {
         const stored = localStorage.getItem(STORAGE_KEY);
@@ -27,6 +27,63 @@
             return stored;
         }
         return THEME_DARK; // Default to dark theme for new visitors
+    }
+
+    /**
+     * Load theme preference from database (for authenticated users)
+     */
+    async function loadThemeFromDatabase() {
+        try {
+            const response = await fetch('/auth/api/get-theme/');
+            const data = await response.json();
+            if (data.theme) {
+                return data.theme;
+            }
+        } catch (error) {
+            console.warn('Failed to load theme from database:', error);
+        }
+        return null;
+    }
+
+    /**
+     * Save theme preference to database (for authenticated users)
+     */
+    async function saveThemeToDatabase(theme) {
+        try {
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+            const response = await fetch('/auth/api/save-theme/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken || getCookie('csrftoken')
+                },
+                body: JSON.stringify({ theme: theme })
+            });
+            const data = await response.json();
+            if (data.success) {
+                console.log('Theme saved to database:', theme);
+            }
+        } catch (error) {
+            console.warn('Failed to save theme to database:', error);
+        }
+    }
+
+    /**
+     * Helper function to get CSRF token from cookies
+     */
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
     }
 
     /**
@@ -51,6 +108,8 @@
     function setThemePreference(preference) {
         localStorage.setItem(STORAGE_KEY, preference);
         applyTheme(preference);
+        // Save to database for authenticated users (async, don't wait)
+        saveThemeToDatabase(preference);
     }
 
     /**
@@ -110,9 +169,21 @@
     /**
      * Initialize theme on page load
      */
-    function initTheme() {
+    async function initTheme() {
+        // Try to load from database first (for authenticated users)
+        const dbTheme = await loadThemeFromDatabase();
+        let theme;
+
+        if (dbTheme) {
+            // Use database theme and sync to localStorage
+            theme = dbTheme;
+            localStorage.setItem(STORAGE_KEY, dbTheme);
+        } else {
+            // Fallback to localStorage
+            theme = getThemePreference();
+        }
+
         // Apply theme immediately to prevent flash
-        const theme = getThemePreference();
         applyTheme(theme);
 
         // Set up toggle button - handle both pre-loaded and post-loaded states

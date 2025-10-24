@@ -2,12 +2,11 @@ from django.urls import path
 from . import views
 from .api_views_module import api_views
 from .views import security_views
-# TODO: Uncomment when Issue models are implemented
-# from .views import issues_views, api_issues_views
+from .views import issues_views, api_issues_views
 # TODO: Uncomment when Workflow models are implemented
 # from .views import actions_views
-# TODO: Uncomment when PullRequest models are implemented
-# from .views import pr_views
+# PullRequest models are implemented
+from .views import pr_views
 
 app_name = 'user_projects'
 
@@ -107,24 +106,23 @@ urlpatterns = [
     path('<slug:slug>/api/security/alerts/<int:alert_id>/fix/', security_views.create_fix_pr, name='api_create_fix_pr'),
     path('<slug:slug>/api/security/dependencies/<int:dependency_id>/tree/', security_views.api_dependency_tree, name='api_dependency_tree'),
 
-    # TODO: Uncomment when Issue models are implemented
-    # # Issue tracking URLs
-    # path('<slug:slug>/issues/', issues_views.issues_list, name='issues_list'),
-    # path('<slug:slug>/issues/new/', issues_views.issue_create, name='issue_create'),
-    # path('<slug:slug>/issues/<int:issue_number>/', issues_views.issue_detail, name='issue_detail'),
-    # path('<slug:slug>/issues/<int:issue_number>/edit/', issues_views.issue_edit, name='issue_edit'),
-    # path('<slug:slug>/issues/<int:issue_number>/comment/', issues_views.issue_comment_create, name='issue_comment_create'),
-    # path('<slug:slug>/issues/labels/', issues_views.issue_label_manage, name='issue_label_manage'),
-    # path('<slug:slug>/issues/milestones/', issues_views.issue_milestone_manage, name='issue_milestone_manage'),
+    # Issue tracking URLs
+    path('<slug:slug>/issues/', issues_views.issues_list, name='issues_list'),
+    path('<slug:slug>/issues/new/', issues_views.issue_create, name='issue_create'),
+    path('<slug:slug>/issues/<int:issue_number>/', issues_views.issue_detail, name='issue_detail'),
+    path('<slug:slug>/issues/<int:issue_number>/edit/', issues_views.issue_edit, name='issue_edit'),
+    path('<slug:slug>/issues/<int:issue_number>/comment/', issues_views.issue_comment_create, name='issue_comment_create'),
+    path('<slug:slug>/issues/labels/', issues_views.issue_label_manage, name='issue_label_manage'),
+    path('<slug:slug>/issues/milestones/', issues_views.issue_milestone_manage, name='issue_milestone_manage'),
 
-    # # Issue API endpoints
-    # path('<slug:slug>/api/issues/search/', api_issues_views.api_issue_search, name='api_issue_search'),
-    # path('<slug:slug>/api/issues/<int:issue_number>/comment/', api_issues_views.api_issue_comment, name='api_issue_comment'),
-    # path('<slug:slug>/api/issues/<int:issue_number>/close/', api_issues_views.api_issue_close, name='api_issue_close'),
-    # path('<slug:slug>/api/issues/<int:issue_number>/reopen/', api_issues_views.api_issue_reopen, name='api_issue_reopen'),
-    # path('<slug:slug>/api/issues/<int:issue_number>/assign/', api_issues_views.api_issue_assign, name='api_issue_assign'),
-    # path('<slug:slug>/api/issues/<int:issue_number>/label/', api_issues_views.api_issue_label, name='api_issue_label'),
-    # path('<slug:slug>/api/issues/<int:issue_number>/milestone/', api_issues_views.api_issue_milestone, name='api_issue_milestone'),
+    # Issue API endpoints
+    path('<slug:slug>/api/issues/search/', api_issues_views.api_issue_search, name='api_issue_search'),
+    path('<slug:slug>/api/issues/<int:issue_number>/comment/', api_issues_views.api_issue_comment, name='api_issue_comment'),
+    path('<slug:slug>/api/issues/<int:issue_number>/close/', api_issues_views.api_issue_close, name='api_issue_close'),
+    path('<slug:slug>/api/issues/<int:issue_number>/reopen/', api_issues_views.api_issue_reopen, name='api_issue_reopen'),
+    path('<slug:slug>/api/issues/<int:issue_number>/assign/', api_issues_views.api_issue_assign, name='api_issue_assign'),
+    path('<slug:slug>/api/issues/<int:issue_number>/label/', api_issues_views.api_issue_label, name='api_issue_label'),
+    path('<slug:slug>/api/issues/<int:issue_number>/milestone/', api_issues_views.api_issue_milestone, name='api_issue_milestone'),
 
     # TODO: Uncomment when Workflow models are implemented
     # # CI/CD Actions URLs (GitHub-style /actions/ pattern)
@@ -137,19 +135,18 @@ urlpatterns = [
     # path('<slug:slug>/actions/workflows/<int:workflow_id>/toggle/', actions_views.workflow_enable_disable, name='workflow_enable_disable'),
     # path('<slug:slug>/actions/runs/<int:run_id>/', actions_views.workflow_run_detail, name='workflow_run_detail'),
 
-    # TODO: Uncomment when PullRequest models are implemented
-    # # Pull Request URLs (GitHub-style /pull/ pattern)
-    # path('<slug:slug>/pulls/', pr_views.pr_list, name='pr_list'),
-    # path('<slug:slug>/pull/new/', pr_views.pr_create, name='pr_create'),
-    # path('<slug:slug>/pull/<int:pr_number>/', pr_views.pr_detail, name='pr_detail'),
-    # path('<slug:slug>/compare/<str:compare>/', pr_views.pr_compare, name='pr_compare'),
+    # Pull Request URLs (GitHub-style /pull/ pattern)
+    path('<slug:slug>/pulls/', pr_views.pr_list, name='pr_list'),
+    path('<slug:slug>/pull/new/', pr_views.pr_create, name='pr_create'),
+    path('<slug:slug>/pull/<int:pr_number>/', pr_views.pr_detail, name='pr_detail'),
+    path('<slug:slug>/compare/<str:compare>/', pr_views.pr_compare, name='pr_compare'),
 
-    # # Pull Request API endpoints
-    # path('<slug:slug>/pull/<int:pr_number>/merge/', pr_views.pr_merge, name='pr_merge'),
-    # path('<slug:slug>/pull/<int:pr_number>/close/', pr_views.pr_close, name='pr_close'),
-    # path('<slug:slug>/pull/<int:pr_number>/reopen/', pr_views.pr_reopen, name='pr_reopen'),
-    # path('<slug:slug>/pull/<int:pr_number>/review/', pr_views.pr_review_submit, name='pr_review_submit'),
-    # path('<slug:slug>/pull/<int:pr_number>/comment/', pr_views.pr_comment_create, name='pr_comment_create'),
+    # Pull Request API endpoints
+    path('<slug:slug>/pull/<int:pr_number>/merge/', pr_views.pr_merge, name='pr_merge'),
+    path('<slug:slug>/pull/<int:pr_number>/close/', pr_views.pr_close, name='pr_close'),
+    path('<slug:slug>/pull/<int:pr_number>/reopen/', pr_views.pr_reopen, name='pr_reopen'),
+    path('<slug:slug>/pull/<int:pr_number>/review/', pr_views.pr_review_submit, name='pr_review_submit'),
+    path('<slug:slug>/pull/<int:pr_number>/comment/', pr_views.pr_comment_create, name='pr_comment_create'),
 
     # File viewer - GitHub-style /blob/ for viewing files
     # /<username>/<slug>/blob/<file-path> - default view

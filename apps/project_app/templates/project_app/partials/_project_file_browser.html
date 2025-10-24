@@ -1,0 +1,66 @@
+<!-- File Browser - GitHub Style -->
+{% if directories or files %}
+<div class="file-browser" style="border: 1px solid var(--color-border-default); border-radius: 6px; overflow: hidden;">
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Last commit message</th>
+                <th>Last commit date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for dir in directories %}
+            <tr data-href="/{{ project.owner.username }}/{{ project.slug }}/{{ dir.path }}/" class="clickable-row">
+                <td>
+                    <a href="/{{ project.owner.username }}/{{ project.slug }}/{{ dir.path }}/" class="file-name" onclick="event.stopPropagation();">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" class="icon-folder"><path fill="currentColor" d="M1.75 1A1.75 1.75 0 0 0 0 2.75v10.5C0 14.216.784 15 1.75 15h12.5A1.75 1.75 0 0 0 16 13.25v-8.5A1.75 1.75 0 0 0 14.25 3H7.5a.25.25 0 0 1-.2-.1l-.9-1.2C6.07 1.26 5.55 1 5 1H1.75Z"></path></svg>
+                        {{ dir.name }}
+                    </a>
+                </td>
+                <td class="commit-message">
+                    {% if dir.message %}
+                        {% if dir.hash %}
+                            <a href="/{{ project.owner.username }}/{{ project.slug }}/commit/{{ dir.hash }}/" onclick="event.stopPropagation();" title="{{ dir.message }}">{{ dir.message }}</a>
+                            <a href="/{{ project.owner.username }}/{{ project.slug }}/commit/{{ dir.hash }}/" class="commit-hash" data-hash="{{ dir.hash }}" onclick="event.stopPropagation();">{{ dir.hash|slice:":7" }}</a>
+                        {% else %}
+                            {{ dir.message }}
+                        {% endif %}
+                    {% else %}
+                        <span style="color: var(--color-fg-muted);">No commit message</span>
+                    {% endif %}
+                </td>
+                <td class="commit-time">
+                    {% if dir.time_ago %}{{ dir.time_ago }}{% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            {% for file in files %}
+            <tr data-href="/{{ project.owner.username }}/{{ project.slug }}/blob/{{ file.path }}" class="clickable-row">
+                <td>
+                    <a href="/{{ project.owner.username }}/{{ project.slug }}/blob/{{ file.path }}" class="file-name" onclick="event.stopPropagation();">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" class="icon-file"><path fill="currentColor" d="M2 1.75C2 .784 2.784 0 3.75 0h6.586c.464 0 .909.184 1.237.513l2.914 2.914c.329.328.513.773.513 1.237v9.586A1.75 1.75 0 0 1 13.25 16h-9.5A1.75 1.75 0 0 1 2 14.25Zm1.75-.25a.25.25 0 0 0-.25.25v12.5c0 .138.112.25.25.25h9.5a.25.25 0 0 0 .25-.25V6h-2.75A1.75 1.75 0 0 1 9 4.25V1.5Zm6.75.062V4.25c0 .138.112.25.25.25h2.688l-.011-.013-2.914-2.914-.013-.011Z"></path></svg>
+                        {{ file.name }}
+                    </a>
+                </td>
+                <td class="commit-message">
+                    {% if file.message %}
+                        {% if file.hash %}
+                            <a href="/{{ project.owner.username }}/{{ project.slug }}/commit/{{ file.hash }}/" onclick="event.stopPropagation();" title="{{ file.message }}">{{ file.message }}</a>
+                            <a href="/{{ project.owner.username }}/{{ project.slug }}/commit/{{ file.hash }}/" class="commit-hash" data-hash="{{ file.hash }}" onclick="event.stopPropagation();">{{ file.hash|slice:":7" }}</a>
+                        {% else %}
+                            {{ file.message }}
+                        {% endif %}
+                    {% else %}
+                        <span style="color: var(--color-fg-muted);">No commit message</span>
+                    {% endif %}
+                </td>
+                <td class="commit-time">
+                    {% if file.time_ago %}{{ file.time_ago }}{% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}

@@ -124,7 +124,7 @@ def user_project_list(request, username):
         # Note: 'user' is automatically available as request.user in templates
         # Don't override it here - it should always be the logged-in user
     }
-    return render(request, "project_app/user_project_list.html", context)
+    return render(request, "project_app/users/projects.html", context)
 
 
 def user_bio_page(request, username):
@@ -152,7 +152,7 @@ def user_bio_page(request, username):
         "total_projects": Project.objects.filter(owner=user).count(),
     }
 
-    return render(request, "project_app/user_bio.html", context)
+    return render(request, "project_app/users/bio.html", context)
 
 
 @project_access_required
@@ -308,7 +308,7 @@ def project_detail(request, username, slug):
         "readme_html": readme_html,
         "mode": mode,
     }
-    return render(request, "project_app/project_detail.html", context)
+    return render(request, "project_app/index.html", context)
 
 
 @login_required
@@ -342,7 +342,7 @@ def project_create(request):
             except ImportError:
                 available_templates = []
             context = {"available_templates": available_templates}
-            return render(request, "project_app/project_create.html", context)
+            return render(request, "project_app/create.html", context)
 
         # Validate repository name
         is_valid, error_message = Project.validate_repository_name(name)
@@ -362,7 +362,7 @@ def project_create(request):
                 "init_type": init_type,
                 "git_url": git_url,
             }
-            return render(request, "project_app/project_create.html", context)
+            return render(request, "project_app/create.html", context)
 
         # Check if name already exists for this user
         if Project.objects.filter(name=name, owner=request.user).exists():
@@ -382,7 +382,7 @@ def project_create(request):
                 "name": name,
                 "description": description,
             }
-            return render(request, "project_app/project_create.html", context)
+            return render(request, "project_app/create.html", context)
 
         # Generate slug from name
         from django.utils.text import slugify
@@ -453,7 +453,7 @@ def project_create(request):
                         "error": f"Clone failed: {result}",
                     }
                     return render(
-                        request, "project_app/project_create.html", context
+                        request, "project_app/create.html", context
                     )
 
             except Exception as e:
@@ -483,7 +483,7 @@ def project_create(request):
                     "error": error_msg,
                 }
                 return render(
-                    request, "project_app/project_create.html", context
+                    request, "project_app/create.html", context
                 )
 
         elif init_type == "github":
@@ -508,7 +508,7 @@ def project_create(request):
                     "git_url": git_url,
                 }
                 return render(
-                    request, "project_app/project_create.html", context
+                    request, "project_app/create.html", context
                 )
 
             try:
@@ -625,7 +625,7 @@ def project_create(request):
         ]
 
     context = {"available_templates": available_templates}
-    return render(request, "project_app/project_create.html", context)
+    return render(request, "project_app/create.html", context)
 
 
 @login_required
@@ -694,7 +694,7 @@ def project_edit(request, username, slug):
         )
 
     context = {"project": project}
-    return render(request, "project_app/project_edit.html", context)
+    return render(request, "project_app/edit.html", context)
 
 
 @login_required
@@ -791,7 +791,7 @@ def project_settings(request, username, slug):
     context = {
         "project": project,
     }
-    return render(request, "project_app/project_settings.html", context)
+    return render(request, "project_app/settings.html", context)
 
 
 @login_required
@@ -819,7 +819,7 @@ def project_delete(request, username, slug):
             )
             return render(
                 request,
-                "project_app/project_delete.html",
+                "project_app/delete.html",
                 {"project": project},
             )
 
@@ -831,7 +831,7 @@ def project_delete(request, username, slug):
         return redirect("project_app:list")
 
     context = {"project": project}
-    return render(request, "project_app/project_delete.html", context)
+    return render(request, "project_app/delete.html", context)
 
 
 @login_required
@@ -1398,7 +1398,74 @@ def project_directory_dynamic(request, username, slug, directory_path):
         or project.collaborators.filter(id=request.user.id).exists(),
     }
 
-    return render(request, "project_app/project_directory.html", context)
+    return render(request, "project_app/filer/directory.html", context)
+
+
+def _detect_language(file_ext, file_name):
+    """
+    Detect language for syntax highlighting based on file extension.
+    Returns language identifier for highlight.js.
+    """
+    language_map = {
+        '.py': 'python',
+        '.js': 'javascript',
+        '.ts': 'typescript',
+        '.jsx': 'javascript',
+        '.tsx': 'typescript',
+        '.html': 'html',
+        '.css': 'css',
+        '.scss': 'scss',
+        '.sass': 'sass',
+        '.json': 'json',
+        '.xml': 'xml',
+        '.yaml': 'yaml',
+        '.yml': 'yaml',
+        '.md': 'markdown',
+        '.sh': 'bash',
+        '.bash': 'bash',
+        '.zsh': 'bash',
+        '.fish': 'bash',
+        '.c': 'c',
+        '.cpp': 'cpp',
+        '.cc': 'cpp',
+        '.cxx': 'cpp',
+        '.h': 'c',
+        '.hpp': 'cpp',
+        '.java': 'java',
+        '.rb': 'ruby',
+        '.php': 'php',
+        '.go': 'go',
+        '.rs': 'rust',
+        '.swift': 'swift',
+        '.kt': 'kotlin',
+        '.scala': 'scala',
+        '.r': 'r',
+        '.R': 'r',
+        '.sql': 'sql',
+        '.tex': 'latex',
+        '.bib': 'bibtex',
+        '.dockerfile': 'dockerfile',
+        '.makefile': 'makefile',
+        '.txt': 'plaintext',
+        '.log': 'plaintext',
+        '.csv': 'plaintext',
+        '.toml': 'toml',
+        '.ini': 'ini',
+        '.cfg': 'ini',
+        '.conf': 'ini',
+    }
+
+    # Check by extension first
+    if file_ext.lower() in language_map:
+        return language_map[file_ext.lower()]
+
+    # Check by filename patterns
+    filename_lower = file_name.lower()
+    if filename_lower in ['dockerfile', 'makefile', 'rakefile', 'gemfile']:
+        return language_map.get(f'.{filename_lower}', 'plaintext')
+
+    # Default to plaintext
+    return 'plaintext'
 
 
 def project_file_view(request, username, slug, file_path):
@@ -1555,7 +1622,7 @@ def project_file_view(request, username, slug, file_path):
     file_size = full_file_path.stat().st_size
 
     # Handle raw mode - serve file directly
-    if mode == "raw":
+    if mode == "raw" or mode == "download":
         # Determine content type based on file extension
         content_type = "text/plain; charset=utf-8"
         if file_ext == ".pdf":
@@ -1569,7 +1636,9 @@ def project_file_view(request, username, slug, file_path):
 
         with open(full_file_path, "rb") as f:
             response = HttpResponse(f.read(), content_type=content_type)
-            response["Content-Disposition"] = f'inline; filename="{file_name}"'
+            # For download mode, force download instead of inline display
+            disposition = "attachment" if mode == "download" else "inline"
+            response["Content-Disposition"] = f'{disposition}; filename="{file_name}"'
             return response
 
     # Handle edit mode - show editor
@@ -1632,91 +1701,93 @@ def project_file_view(request, username, slug, file_path):
             "breadcrumbs": breadcrumbs,
             "mode": "edit",
         }
-        return render(request, "project_app/project_file_edit.html", context)
+        return render(request, "project_app/filer/edit.html", context)
 
     # Read file content
     try:
         # Check if binary file
-        is_binary = file_ext in [
-            ".png",
-            ".jpg",
-            ".jpeg",
-            ".gif",
-            ".pdf",
-            ".zip",
-            ".tar",
-            ".gz",
-        ]
-
-        if is_binary:
-            # For images, show inline
-            if file_ext in [".png", ".jpg", ".jpeg", ".gif"]:
-                render_type = "image"
-                file_content = None
-                file_html = None
-            # For PDFs, use PDF.js viewer
-            elif file_ext == ".pdf":
-                render_type = "pdf"
-                file_content = None
-                file_html = None
-            else:
-                render_type = "binary"
-                file_content = f"Binary file ({file_size} bytes)"
-                file_html = None
+        # File size limit: 1MB for display
+        MAX_DISPLAY_SIZE = 1024 * 1024  # 1MB
+        if file_size > MAX_DISPLAY_SIZE:
+            render_type = "binary"
+            file_content = f"File too large to display ({file_size:,} bytes). Maximum size: {MAX_DISPLAY_SIZE:,} bytes."
+            file_html = None
+            language = None
         else:
-            # Read text file
-            with open(
-                full_file_path, "r", encoding="utf-8", errors="ignore"
-            ) as f:
-                file_content = f.read()
+            # Check if file is binary by extension first
+            is_binary = file_ext in [
+                ".png",
+                ".jpg",
+                ".jpeg",
+                ".gif",
+                ".pdf",
+                ".zip",
+                ".tar",
+                ".gz",
+                ".ico",
+                ".woff",
+                ".woff2",
+                ".ttf",
+                ".eot",
+            ]
 
-            # Render based on file type
-            if file_ext == ".md":
-                import markdown
-
-                file_html = markdown.markdown(
-                    file_content,
-                    extensions=[
-                        "fenced_code",
-                        "tables",
-                        "nl2br",
-                        "codehilite",
-                    ],
-                )
-                render_type = "markdown"
-            elif file_ext in [
-                ".py",
-                ".yaml",
-                ".yml",
-                ".json",
-                ".txt",
-                ".sh",
-                ".bash",
-                ".tex",
-                ".bib",
-            ]:
-                # Use Pygments for syntax highlighting
-                try:
-                    from pygments import highlight
-                    from pygments.lexers import get_lexer_for_filename
-                    from pygments.formatters import HtmlFormatter
-
-                    lexer = get_lexer_for_filename(file_name)
-                    formatter = HtmlFormatter(
-                        linenos="table",
-                        cssclass="highlight",
-                        style="default",
-                        noclasses=False,
-                    )
-                    file_html = highlight(file_content, lexer, formatter)
-                    render_type = "code"
-                except Exception as e:
-                    print(f"Pygments error: {e}")
+            if is_binary:
+                # For images, show inline
+                if file_ext in [".png", ".jpg", ".jpeg", ".gif"]:
+                    render_type = "image"
+                    file_content = None
                     file_html = None
-                    render_type = "text"
+                    language = None
+                # For PDFs, use PDF.js viewer
+                elif file_ext == ".pdf":
+                    render_type = "pdf"
+                    file_content = None
+                    file_html = None
+                    language = None
+                else:
+                    render_type = "binary"
+                    file_content = f"Binary file ({file_size:,} bytes)"
+                    file_html = None
+                    language = None
             else:
-                file_html = None
-                render_type = "text"
+                # Try to read as text file
+                try:
+                    with open(
+                        full_file_path, "r", encoding="utf-8"
+                    ) as f:
+                        file_content = f.read()
+
+                    # Detect language for syntax highlighting
+                    language = _detect_language(file_ext, file_name)
+
+                    # Render based on file type
+                    if file_ext == ".md":
+                        import markdown
+
+                        file_html = markdown.markdown(
+                            file_content,
+                            extensions=[
+                                "fenced_code",
+                                "tables",
+                                "nl2br",
+                                "codehilite",
+                            ],
+                        )
+                        render_type = "markdown"
+                    elif language:
+                        # Use highlight.js on frontend
+                        render_type = "code"
+                        file_html = None
+                    else:
+                        file_html = None
+                        render_type = "text"
+
+                except UnicodeDecodeError:
+                    # File is binary but wasn't caught by extension check
+                    render_type = "binary"
+                    file_content = f"Binary file ({file_size:,} bytes)"
+                    file_html = None
+                    language = None
 
     except Exception as e:
         messages.error(request, f"Error reading file: {e}")
@@ -1746,12 +1817,13 @@ def project_file_view(request, username, slug, file_path):
         "file_content": file_content,
         "file_html": file_html,
         "render_type": render_type,
+        "language": language if 'language' in locals() else None,
         "breadcrumbs": breadcrumbs,
         "can_edit": project.owner == request.user,
         "git_info": git_info,
     }
 
-    return render(request, "project_app/project_file_view.html", context)
+    return render(request, "project_app/filer/view.html", context)
 
 
 def project_directory(request, username, slug, directory, subpath=None):
@@ -1924,7 +1996,7 @@ def project_directory(request, username, slug, directory, subpath=None):
         or project.collaborators.filter(id=request.user.id).exists(),
     }
 
-    return render(request, "project_app/project_directory.html", context)
+    return render(request, "project_app/filer/directory.html", context)
 
 
 def user_overview(request, username):
@@ -1958,7 +2030,7 @@ def user_overview(request, username):
         "is_following": is_following,
         "active_tab": "overview",
     }
-    return render(request, "project_app/user_overview.html", context)
+    return render(request, "project_app/users/overview.html", context)
 
 
 def user_projects_board(request, username):
@@ -1985,7 +2057,7 @@ def user_projects_board(request, username):
         "is_following": is_following,
         "active_tab": "projects",
     }
-    return render(request, "project_app/user_projects_board.html", context)
+    return render(request, "project_app/users/board.html", context)
 
 
 def user_stars(request, username):
@@ -2025,7 +2097,7 @@ def user_stars(request, username):
         "is_following": is_following,
         "active_tab": "stars",
     }
-    return render(request, "project_app/user_stars.html", context)
+    return render(request, "project_app/users/stars.html", context)
 
 
 def file_history_view(request, username, slug, branch, file_path):
@@ -2190,7 +2262,7 @@ def file_history_view(request, username, slug, branch, file_path):
         "total_commits": len(commits),
     }
 
-    return render(request, "project_app/file_history.html", context)
+    return render(request, "project_app/filer/history.html", context)
 
 # EOF
 
@@ -2357,4 +2429,4 @@ def commit_detail(request, username, slug, commit_hash):
         'total_deletions': sum(int(f['deletions']) if isinstance(f['deletions'], (int, str)) and str(f['deletions']).isdigit() else 0 for f in changed_files),
     }
 
-    return render(request, 'project_app/commit_detail.html', context)
+    return render(request, 'project_app/commits/detail.html', context)

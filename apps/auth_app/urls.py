@@ -34,6 +34,10 @@ urlpatterns = [
     # API endpoints for email verification
     path("api/verify-email/", api_views.verify_email_api, name="api-verify-email"),
     path("api/resend-otp/", api_views.resend_otp_api, name="api-resend-otp"),
+
+    # API endpoints for theme preferences
+    path("api/save-theme/", views.api_save_theme_preference, name="api-save-theme"),
+    path("api/get-theme/", views.api_get_theme_preference, name="api-get-theme"),
 ]
 
 # EOF

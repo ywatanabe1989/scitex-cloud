@@ -12,15 +12,14 @@ from django.utils import timezone
 from django.core.paginator import Paginator
 
 from apps.project_app.models import Project
-# TODO: Uncomment when Issue models are available
-# from apps.project_app.models import (
-#     Issue,
-#     IssueComment,
-#     IssueLabel,
-#     IssueMilestone,
-#     IssueAssignment,
-#     IssueEvent,
-# )
+from apps.project_app.models import (
+    Issue,
+    IssueComment,
+    IssueLabel,
+    IssueMilestone,
+    IssueAssignment,
+    IssueEvent,
+)
 
 
 # =============================================================================

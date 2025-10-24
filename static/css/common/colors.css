@@ -76,6 +76,31 @@
   --warning-color: var(--_warning);
   --error-color: var(--_error);
   --info-color: var(--_info);
+
+  /* GitHub Primer-style aliases for compatibility */
+  --color-fg-default: var(--text-primary);
+  --color-fg-muted: var(--text-muted);
+  --color-fg-on-emphasis: var(--text-inverse);
+  --color-canvas-default: var(--bg-page);
+  --color-canvas-subtle: var(--bg-surface);
+  --color-canvas-inset: var(--bg-muted);
+  --color-border-default: var(--border-default);
+  --color-border-muted: var(--border-muted);
+  --color-accent-fg: var(--text-primary);
+  --color-accent-emphasis: var(--text-primary);
+  --color-accent-subtle: var(--bg-muted);
+  --color-danger-fg: var(--status-error);
+  --color-danger-emphasis: var(--status-error);
+  --color-danger-subtle: var(--status-error);
+  --color-success-fg: var(--status-success);
+  --color-btn-primary-bg: var(--_scitex-04);
+  --color-btn-primary-text: var(--_white);
+  --color-btn-primary-border: var(--_scitex-04);
+  --color-btn-primary-hover-bg: var(--_scitex-03);
+  --color-btn-bg: var(--bg-surface);
+  --color-btn-text: var(--text-primary);
+  --color-btn-border: var(--border-default);
+  --color-btn-hover-bg: var(--bg-muted);
 }
 
 [data-theme="dark"] {
@@ -93,4 +118,29 @@
   /* Border */
   --border-default: var(--_scitex-03);
   --border-muted: var(--_scitex-02);
+
+  /* GitHub Primer-style aliases for dark mode */
+  --color-fg-default: var(--text-primary);
+  --color-fg-muted: var(--text-muted);
+  --color-fg-on-emphasis: var(--text-inverse);
+  --color-canvas-default: var(--bg-page);
+  --color-canvas-subtle: var(--bg-surface);
+  --color-canvas-inset: var(--bg-muted);
+  --color-border-default: var(--border-default);
+  --color-border-muted: var(--border-muted);
+  --color-accent-fg: var(--text-primary);
+  --color-accent-emphasis: var(--text-primary);
+  --color-accent-subtle: var(--bg-muted);
+  --color-danger-fg: var(--status-error);
+  --color-danger-emphasis: var(--status-error);
+  --color-danger-subtle: var(--status-error);
+  --color-success-fg: var(--status-success);
+  --color-btn-primary-bg: var(--_scitex-04);
+  --color-btn-primary-text: var(--_white);
+  --color-btn-primary-border: var(--_scitex-04);
+  --color-btn-primary-hover-bg: var(--_scitex-05);
+  --color-btn-bg: var(--bg-surface);
+  --color-btn-text: var(--text-primary);
+  --color-btn-border: var(--border-default);
+  --color-btn-hover-bg: var(--bg-muted);
 }

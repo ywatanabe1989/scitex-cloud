@@ -1,0 +1,183 @@
+/* ============================================================================= */
+/* ACTIONS / ACTIONS_LIST */
+/* ============================================================================= */
+
+
+/* GitHub Actions-style layout */
+.actions-header {
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--color-border-default);
+}
+
+.actions-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--color-fg-default);
+}
+
+.actions-stats {
+    display: flex;
+    gap: 2rem;
+    margin-top: 1rem;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--color-fg-default);
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--color-fg-muted);
+}
+
+/* Workflow list */
+.workflow-list {
+    margin-top: 1.5rem;
+}
+
+.workflow-item {
+    padding: 1rem;
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    background: var(--color-canvas-default);
+    transition: border-color 0.2s;
+}
+
+.workflow-item:hover {
+    border-color: var(--color-accent-fg);
+}
+
+.workflow-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.workflow-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-fg-default);
+    text-decoration: none;
+}
+
+.workflow-name:hover {
+    color: var(--color-accent-fg);
+}
+
+.workflow-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.workflow-status.enabled {
+    background: var(--color-success-emphasis);
+    color: white;
+}
+
+.workflow-status.disabled {
+    background: var(--color-neutral-muted);
+    color: var(--color-fg-muted);
+}
+
+.workflow-meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.875rem;
+    color: var(--color-fg-muted);
+}
+
+.workflow-triggers {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.trigger-badge {
+    padding: 0.25rem 0.5rem;
+    background: var(--color-accent-subtle);
+    color: var(--color-accent-fg);
+    border-radius: 4px;
+    font-size: 0.75rem;
+}
+
+/* Recent runs */
+.recent-runs {
+    margin-top: 2rem;
+}
+
+.runs-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    overflow: hidden;
+    background: var(--color-canvas-default);
+}
+
+.runs-table th {
+    background: var(--color-canvas-subtle);
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: var(--color-fg-default);
+    border-bottom: 1px solid var(--color-border-default);
+}
+
+.runs-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--color-border-default);
+}
+
+.run-status-icon {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+}
+
+.run-status-icon.success {
+    background: var(--color-success-emphasis);
+}
+
+.run-status-icon.failure {
+    background: var(--color-danger-emphasis);
+}
+
+.run-status-icon.in_progress {
+    background: var(--color-accent-fg);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: var(--color-fg-muted);
+}
+
+.empty-state-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+
+

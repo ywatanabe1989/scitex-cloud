@@ -1,0 +1,632 @@
+/* ============================================================================= */
+/* PROJECT_FILE_VIEW */
+/* ============================================================================= */
+
+
+/* GitHub-style file viewer with dark mode support */
+.repo-header {
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--color-border-default);
+}
+
+.repo-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-accent-fg);
+    text-decoration: none;
+}
+
+/* Branch selector */
+.branch-selector {
+    position: relative;
+    display: inline-block;
+}
+
+.branch-button {
+    background: var(--color-canvas-default);
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-fg-default);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.2s;
+}
+
+.branch-button:hover {
+    background: var(--color-canvas-subtle);
+}
+
+.branch-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 8px;
+    background: var(--color-canvas-overlay);
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    min-width: 200px;
+    z-index: 100;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.branch-dropdown.show {
+    display: block;
+}
+
+.branch-dropdown-item {
+    padding: 8px 16px;
+    cursor: pointer;
+    color: var(--color-fg-default);
+    transition: background 0.1s;
+    font-size: 14px;
+}
+
+.branch-dropdown-item:hover {
+    background: var(--color-accent-subtle);
+}
+
+.branch-dropdown-item.active {
+    background: var(--color-accent-emphasis);
+    color: var(--color-fg-on-emphasis);
+    font-weight: 600;
+}
+
+/* Commit info bar */
+.commit-info-bar {
+    background: var(--color-canvas-subtle);
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin: 16px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.commit-info-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+}
+
+.commit-info-center {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 2;
+    min-width: 0;
+}
+
+.commit-info-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.commit-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--color-accent-emphasis);
+    color: var(--color-fg-on-emphasis);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 11px;
+    flex-shrink: 0;
+}
+
+.commit-author {
+    font-weight: 600;
+    color: var(--color-fg-default);
+    font-size: 14px;
+    text-decoration: none;
+    flex-shrink: 0;
+}
+
+.commit-author:hover {
+    color: var(--color-accent-fg);
+    text-decoration: underline;
+}
+
+.commit-message {
+    color: var(--color-fg-default);
+    font-size: 14px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-decoration: none;
+    flex: 1;
+    min-width: 0;
+}
+
+.commit-message:hover {
+    color: var(--color-accent-fg);
+    text-decoration: underline;
+}
+
+.commit-hash {
+    font-family: ui-monospace, monospace;
+    font-size: 12px;
+    color: var(--color-fg-muted);
+    background: var(--color-canvas-default);
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--color-border-default);
+    text-decoration: none;
+    flex-shrink: 0;
+}
+
+.commit-hash:hover {
+    color: var(--color-accent-fg);
+    border-color: var(--color-accent-emphasis);
+}
+
+.commit-time {
+    color: var(--color-fg-muted);
+    font-size: 12px;
+    flex-shrink: 0;
+}
+
+.history-button {
+    background: var(--color-canvas-default);
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 14px;
+    color: var(--color-fg-default);
+    cursor: pointer;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: background 0.2s;
+    flex-shrink: 0;
+}
+
+.history-button:hover {
+    background: var(--color-canvas-subtle);
+    color: var(--color-fg-default);
+}
+
+@media (max-width: 768px) {
+    .commit-info-bar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .commit-info-left,
+    .commit-info-center,
+    .commit-info-right {
+        width: 100%;
+    }
+
+    .commit-message {
+        white-space: normal;
+    }
+}
+
+.file-header {
+    background: var(--color-canvas-subtle);
+    border: 1px solid var(--color-border-default);
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    padding: 0.75rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.file-info {
+    font-size: 0.875rem;
+    color: var(--color-fg-muted);
+}
+
+.file-container {
+    border: 1px solid var(--color-border-default);
+    border-top: none;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+.file-content {
+    background: var(--color-canvas-default);
+    padding: 0;
+    overflow-x: auto;
+    border: none;
+    border-top: 1px solid var(--color-border-default);
+}
+
+.file-content pre {
+    margin: 0;
+    padding: 0;
+    background: none;
+    font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--color-fg-default);
+}
+
+.file-content code {
+    background: none;
+    padding: 0;
+    color: var(--color-fg-default);
+}
+
+/* Markdown rendering */
+.markdown-body {
+    padding: 2rem;
+    line-height: 1.6;
+    color: var(--color-fg-default);
+    border-top: 1px solid var(--color-border-default);
+}
+
+.markdown-body h1 {
+    font-size: 2em;
+    border-bottom: 1px solid var(--color-border-default);
+    padding-bottom: 0.3em;
+    margin-bottom: 1em;
+    color: var(--color-fg-default);
+}
+
+.markdown-body h2 {
+    font-size: 1.5em;
+    border-bottom: 1px solid var(--color-border-default);
+    padding-bottom: 0.3em;
+    margin-top: 2em;
+    margin-bottom: 1em;
+    color: var(--color-fg-default);
+}
+
+.markdown-body code {
+    background: var(--color-canvas-subtle);
+    padding: 0.2em 0.4em;
+    border-radius: 6px;
+    font-family: ui-monospace, monospace;
+    font-size: 85%;
+    color: var(--color-fg-default);
+}
+
+.markdown-body pre {
+    background: var(--color-canvas-subtle);
+    padding: 1rem;
+    border-radius: 6px;
+    overflow-x: auto;
+}
+
+.markdown-body pre code {
+    background: none;
+    padding: 0;
+}
+
+/* Syntax highlighting (Pygments) - Light mode */
+.highlight {
+    font-size: 13px;
+    background: var(--color-canvas-default);
+    border: none;
+}
+
+.highlight table {
+    border-spacing: 0;
+    width: 100%;
+    border: none;
+}
+
+.highlight .linenos {
+    background: var(--color-canvas-subtle);
+    color: var(--color-fg-muted);
+    padding: 0 1rem;
+    text-align: right;
+    user-select: none;
+    border-right: 1px solid var(--color-border-default);
+    vertical-align: top;
+}
+
+.highlight .code {
+    padding-left: 1rem;
+    width: 100%;
+}
+
+.highlight pre {
+    margin: 0;
+    padding: 0;
+}
+
+/* Pygments syntax colors - Light mode */
+:root {
+    --syntax-bg: var(--color-canvas-default);
+    --syntax-comment: #6a737d;
+    --syntax-error: #f97583;
+    --syntax-keyword: #d73a49;
+    --syntax-text: #24292e;
+    --syntax-number: #005cc5;
+    --syntax-string: #032f62;
+    --syntax-class: #6f42c1;
+    --syntax-function: #6f42c1;
+    --syntax-tag: #22863a;
+    --syntax-variable: #e36209;
+}
+
+/* Dark mode syntax colors */
+[data-theme="dark"] {
+    --syntax-bg: var(--color-canvas-default);
+    --syntax-comment: #8b949e;
+    --syntax-error: #ff7b72;
+    --syntax-keyword: #ff7b72;
+    --syntax-text: #c9d1d9;
+    --syntax-number: #79c0ff;
+    --syntax-string: #a5d6ff;
+    --syntax-class: #d2a8ff;
+    --syntax-function: #d2a8ff;
+    --syntax-tag: #7ee787;
+    --syntax-variable: #ffa657;
+}
+
+.highlight { background: var(--syntax-bg); }
+.highlight .hll { background-color: rgba(255, 255, 204, 0.3) }
+.highlight .c { color: var(--syntax-comment); font-style: italic } /* Comment */
+.highlight .err { color: var(--syntax-error) } /* Error */
+.highlight .k { color: var(--syntax-keyword); font-weight: bold } /* Keyword */
+.highlight .o { color: var(--syntax-text) } /* Operator */
+.highlight .p { color: var(--syntax-text) } /* Punctuation */
+.highlight .cm { color: var(--syntax-comment); font-style: italic } /* Comment.Multiline */
+.highlight .cp { color: var(--syntax-comment); font-style: italic } /* Comment.Preproc */
+.highlight .c1 { color: var(--syntax-comment); font-style: italic } /* Comment.Single */
+.highlight .cs { color: var(--syntax-comment); font-style: italic } /* Comment.Special */
+.highlight .kc { color: var(--syntax-number) } /* Keyword.Constant */
+.highlight .kd { color: var(--syntax-keyword) } /* Keyword.Declaration */
+.highlight .kn { color: var(--syntax-keyword) } /* Keyword.Namespace */
+.highlight .kp { color: var(--syntax-keyword) } /* Keyword.Pseudo */
+.highlight .kr { color: var(--syntax-keyword) } /* Keyword.Reserved */
+.highlight .kt { color: var(--syntax-keyword) } /* Keyword.Type */
+.highlight .m { color: var(--syntax-number) } /* Literal.Number */
+.highlight .s { color: var(--syntax-string) } /* Literal.String */
+.highlight .na { color: var(--syntax-text) } /* Name.Attribute */
+.highlight .nb { color: var(--syntax-number) } /* Name.Builtin */
+.highlight .nc { color: var(--syntax-class) } /* Name.Class */
+.highlight .no { color: var(--syntax-number) } /* Name.Constant */
+.highlight .nd { color: var(--syntax-class) } /* Name.Decorator */
+.highlight .ni { color: var(--syntax-text) } /* Name.Entity */
+.highlight .ne { color: var(--syntax-class) } /* Name.Exception */
+.highlight .nf { color: var(--syntax-function) } /* Name.Function */
+.highlight .nl { color: var(--syntax-text) } /* Name.Label */
+.highlight .nn { color: var(--syntax-text) } /* Name.Namespace */
+.highlight .nt { color: var(--syntax-tag) } /* Name.Tag */
+.highlight .nv { color: var(--syntax-variable) } /* Name.Variable */
+.highlight .ow { color: var(--syntax-keyword) } /* Operator.Word */
+.highlight .mb { color: var(--syntax-number) } /* Literal.Number.Bin */
+.highlight .mf { color: var(--syntax-number) } /* Literal.Number.Float */
+.highlight .mh { color: var(--syntax-number) } /* Literal.Number.Hex */
+.highlight .mi { color: var(--syntax-number) } /* Literal.Number.Integer */
+.highlight .mo { color: var(--syntax-number) } /* Literal.Number.Oct */
+.highlight .sb { color: var(--syntax-string) } /* Literal.String.Backtick */
+.highlight .sc { color: var(--syntax-string) } /* Literal.String.Char */
+.highlight .sd { color: var(--syntax-string) } /* Literal.String.Doc */
+.highlight .s2 { color: var(--syntax-string) } /* Literal.String.Double */
+.highlight .se { color: var(--syntax-string) } /* Literal.String.Escape */
+.highlight .sh { color: var(--syntax-string) } /* Literal.String.Heredoc */
+.highlight .si { color: var(--syntax-string) } /* Literal.String.Interpol */
+.highlight .sx { color: var(--syntax-string) } /* Literal.String.Other */
+.highlight .sr { color: var(--syntax-string) } /* Literal.String.Regex */
+.highlight .s1 { color: var(--syntax-string) } /* Literal.String.Single */
+.highlight .ss { color: var(--syntax-string) } /* Literal.String.Symbol */
+
+/* Plain text with line numbers */
+.line-numbers {
+    display: table;
+    width: 100%;
+}
+
+.line-numbers .line {
+    display: table-row;
+}
+
+.line-numbers .line-number {
+    display: table-cell;
+    background: var(--color-canvas-subtle);
+    color: var(--color-fg-muted);
+    padding: 0 1rem;
+    text-align: right;
+    user-select: none;
+    width: 1%;
+    border-right: 1px solid var(--color-border-default);
+}
+
+.line-numbers .line-content {
+    display: table-cell;
+    padding: 0 1rem;
+    white-space: pre;
+    color: var(--color-fg-default);
+}
+
+.btn-group .active {
+    background-color: var(--color-btn-primary-bg);
+    color: var(--color-btn-primary-text);
+    border-color: var(--color-btn-primary-border);
+}
+
+/* Remove borders from inner elements except line number separator */
+.file-content table,
+.highlight table {
+    border: none !important;
+}
+
+.file-content table td,
+.highlight table td {
+    border: none !important;
+}
+
+/* Keep only the line number separator */
+.highlight .linenos,
+.line-numbers .line-number {
+    border-right: 1px solid var(--color-border-default) !important;
+    border-top: none !important;
+    border-bottom: none !important;
+    border-left: none !important;
+}
+
+/* PDF viewer styles */
+.pdf-controls {
+    background: var(--color-canvas-subtle);
+    border-bottom: 1px solid var(--color-border-default);
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.pdf-sidebar {
+    width: 280px;
+    background: var(--color-canvas-default);
+    border-right: 1px solid var(--color-border-default);
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
+    max-height: 100vh;
+}
+
+@media (max-width: 768px) {
+    .pdf-sidebar {
+        position: fixed;
+        left: -300px;
+        top: 0;
+        width: 300px;
+        height: 100vh;
+        z-index: 1000;
+        transition: left 0.3s ease;
+    }
+
+    .pdf-sidebar.open {
+        left: 0;
+    }
+}
+
+.pdf-sidebar-header {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--color-border-default);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--color-canvas-subtle);
+    height: 57px;
+    flex-shrink: 0;
+}
+
+.pdf-outline {
+    padding: 0.5rem;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.pdf-outline-item {
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 0.2s;
+    color: var(--color-fg-default);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.pdf-outline-item:hover {
+    background: var(--color-canvas-subtle);
+}
+
+.pdf-outline-item.active {
+    background: var(--color-accent-emphasis);
+    color: var(--color-fg-on-emphasis);
+    font-weight: 600;
+}
+
+.pdf-outline-item.level-1 {
+    padding-left: 0.75rem;
+}
+
+.pdf-outline-item.level-2 {
+    padding-left: 2rem;
+}
+
+.pdf-outline-item.level-3 {
+    padding-left: 3rem;
+}
+
+.pdf-outline-item.level-4 {
+    padding-left: 4rem;
+}
+
+.outline-toggle {
+    width: 16px;
+    height: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    transition: transform 0.2s;
+    flex-shrink: 0;
+}
+
+.outline-toggle.collapsed {
+    transform: rotate(-90deg);
+}
+
+.outline-children {
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.outline-children.collapsed {
+    max-height: 0 !important;
+}
+
+.outline-title {
+    flex: 1;
+    user-select: none;
+}
+
+.pdf-viewer-container {
+    display: flex;
+    position: relative;
+}
+
+.pdf-main-content {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.pdf-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    z-index: 999;
+}
+
+.pdf-overlay.open {
+    display: block;
+}
+
+
+
