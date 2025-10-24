@@ -69,7 +69,7 @@ def appearance_settings(request):
 @login_required
 def ssh_keys(request):
     """SSH key management page."""
-    from apps.workspace_app.ssh_manager import SSHKeyManager
+    from apps.project_app.services.ssh_service import SSHKeyManager
 
     ssh_manager = SSHKeyManager(request.user)
     profile, _ = UserProfile.objects.get_or_create(user=request.user)
@@ -169,7 +169,7 @@ def api_keys(request):
 @require_http_methods(["POST"])
 def api_generate_ssh_key(request):
     """API endpoint to generate SSH key."""
-    from apps.workspace_app.ssh_manager import SSHKeyManager
+    from apps.project_app.services.ssh_service import SSHKeyManager
 
     ssh_manager = SSHKeyManager(request.user)
     success, public_key, error = ssh_manager.get_or_create_user_key()

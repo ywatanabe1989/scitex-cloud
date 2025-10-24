@@ -752,7 +752,7 @@ def _process_bibtex_job(job):
         # Gitea Integration: Auto-commit enriched .bib file to project repository
         if job.project and job.project.git_clone_path:
             try:
-                from apps.workspace_app.services.git_service import auto_commit_file
+                from apps.project_app.services.git_service import auto_commit_file
                 from datetime import datetime
 
                 # Create scitex/scholar/bib_files directory (no __init__.py, no Python conflict)
@@ -1094,7 +1094,7 @@ def bibtex_save_to_project(request, job_id):
         }, status=400)
 
     try:
-        from apps.workspace_app.services.git_service import auto_commit_file
+        from apps.project_app.services.git_service import auto_commit_file
 
         # Create directory
         project_bib_dir = Path(project.git_clone_path) / 'scitex' / 'scholar' / 'bib_files'
