@@ -28,7 +28,7 @@ urlpatterns = [
     # Editor interfaces
     path('modular/', views.modular_editor, name='modular-editor'),  # Modular editor
     path('simple/', views.simple_editor, name='simple-editor'),  # Raw LaTeX editor
-    path('advanced/', views.mvp_editor, name='advanced-editor'),  # Overleaf-style editor
+    path('advanced/', views.latex_editor_view, name='latex-editor'),  # Overleaf-style LaTeX editor
     
     # API endpoints - Real compilation
     path('api/compile/', views.quick_compile, name='real-compile'),
@@ -54,8 +54,8 @@ urlpatterns = [
     path('api/merge/<int:manuscript_id>/create/', views.create_merge_request, name='create-merge-request'),
     path('version-control/<int:manuscript_id>/', views.version_control_dashboard, name='version-control-dashboard'),
     
-    # Advanced features (for future implementation)
-    path('advanced/dashboard/', views.dashboard, name='dashboard'),
+    # Advanced features
+    path('advanced/dashboard/', views.writer_dashboard_view, name='writer-dashboard'),
     path('advanced/manuscripts/', views.manuscript_list, name='manuscript-list'),
     path('advanced/compile/', views.quick_compile, name='quick-compile'),
     

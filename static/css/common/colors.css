@@ -70,6 +70,12 @@
   --status-warning: var(--_warning);
   --status-error: var(--_error);
   --status-info: var(--_info);
+
+  /* Aliases for forms and other components */
+  --success-color: var(--_success);
+  --warning-color: var(--_warning);
+  --error-color: var(--_error);
+  --info-color: var(--_info);
 }
 
 [data-theme="dark"] {

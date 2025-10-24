@@ -324,7 +324,7 @@ def modular_editor(request):
 
 
 def simple_editor(request):
-    """Simple MVP LaTeX editor interface."""
+    """Simple LaTeX editor interface."""
     return render(request, 'writer_app/simple_editor.html')
 
 

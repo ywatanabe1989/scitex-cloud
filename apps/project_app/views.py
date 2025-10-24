@@ -204,7 +204,7 @@ def project_detail(request, username, slug):
     # Default mode: overview - GitHub-style file browser with README
     # Get project directory and file list
     from apps.project_app.services.project_filesystem import (
-        get_user_directory_manager,
+        get_project_filesystem_manager,
     )
 
     manager = get_project_filesystem_manager(project.owner)
