@@ -727,3 +727,5 @@ static/css/legacy
 TODOS/99_COMPARISON_TABLE.md
 tmp/
 django-gitea-demo/
+containers/docker/.env.prod
+containers/docker/.env.prod
