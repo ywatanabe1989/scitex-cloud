@@ -1,3 +1,9 @@
+<!-- ---
+!-- Timestamp: 2025-10-20 17:57:44
+!-- Author: ywatanabe
+!-- File: /ssh:scitex:/home/ywatanabe/proj/scitex-cloud/deployment/README.md
+!-- --- -->
+
 # SciTeX Cloud Deployment
 
 Production and development deployment configurations
@@ -16,6 +22,22 @@ source ./deployment/dotenvs/setup_env.sh -e dev
 
 # 3. Run Django
 python manage.py runserver
+```
+
+### Development using uwsgi, nginx, and gitea
+```bash
+# 1. Setup all services
+sudo ./deployment/postgres/setup_postgres.sh -e dev
+sudo ./deployment/uwsgi/setup_uwsgi.sh -e dev
+sudo ./deployment/nginx/setup_nginx.sh -e dev
+sudo ./deployment/gitea/setup_gitea.sh -e dev
+
+# 2. Get SSL certificates
+sudo certbot --nginx -d scitex.ai
+sudo certbot --nginx -d git.scitex.ai
+
+# 3. Start services
+sudo systemctl start uwsgi_dev gitea_dev nginx
 ```
 
 ### Production

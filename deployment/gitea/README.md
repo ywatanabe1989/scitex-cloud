@@ -1,3 +1,9 @@
+<!-- ---
+!-- Timestamp: 2025-10-20 18:34:09
+!-- Author: ywatanabe
+!-- File: /ssh:scitex:/home/ywatanabe/proj/scitex-cloud/deployment/gitea/README.md
+!-- --- -->
+
 # Gitea Deployment for SciTeX Cloud
 
 Git hosting service integrated with Django at `git.scitex.ai`
@@ -204,6 +210,38 @@ deployment/gitea/
 │   └── gitea_check_dns.sh      # DNS/SSL check tool
 └── archive/                     # Old documentation
 ```
+
+## 127.0.0.1:3001 not working?
+The reason 127.0.0.1:3001 doesn't work but 172.19.33.56:3001 does is because Gitea is listening only on IPv6 (:::3001).
+
+``` bash
+# 1. Edit the Gitea configuration
+sudo nano /etc/gitea/app_dev.ini
+
+# # 2. Find the [server] section and add this line after HTTP_PORT:
+# HTTP_ADDR = 0.0.0.0
+#  
+# # It should look like:
+# # [server]
+# # APP_NAME = SciTeX Git Hosting (dev)
+# # DOMAIN = localhost
+# # SSH_DOMAIN = localhost
+# # HTTP_PORT = 3001
+# # HTTP_ADDR = 0.0.0.0    # <-- Add this line
+# # ROOT_URL = http://localhost:3001/
+# # ...
+
+sudo systemctl restart gitea_dev
+```
+
+## git clone 
+git clone ssh://git@localhost:2223/username/repo.git
+- Port 8000 = Django (not Gitea)
+- Port 3001 = Gitea HTTP
+- Port 2223 = Gitea SSH ✅ (this is what you want for git clone)
+
+
+
 
 ---
 
