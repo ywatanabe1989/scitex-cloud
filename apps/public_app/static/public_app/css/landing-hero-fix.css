@@ -1,0 +1,50 @@
+/* ============================================================================
+ * Landing Page - Hero Section Layout Fixes
+ * ============================================================================
+ * Override styles to fix hero alignment and layout issues
+ * ========================================================================== */
+
+/* Fix hero wrapper alignment - align content with PDF top */
+.hero-landing .hero-wrapper {
+  align-items: start !important; /* Align title top with PDF top */
+}
+
+/* Fix hero content alignment - left-align text */
+.hero-landing .hero-content {
+  text-align: left !important;
+}
+
+/* Fix hero title spacing and color */
+.hero-landing .hero-title {
+  margin-top: 0 !important;
+  margin-bottom: 1.5rem !important;
+  letter-spacing: -0.02em;
+}
+
+/* Fix hero badges alignment */
+.hero-landing .hero-badges {
+  justify-content: flex-start !important;
+}
+
+/* Warning Banner styles moved to /static/css/components/alerts.css */
+
+/* Demonstration Section Background */
+.section-demos {
+  background: linear-gradient(180deg, var(--scitex-color-07) 0%, var(--scitex-color-06) 50%, var(--bg-page) 100%);
+  padding: var(--spacing-xxl) 0;
+}
+
+[data-theme="dark"] .section-demos {
+  background: linear-gradient(180deg, var(--scitex-color-02) 0%, var(--scitex-color-01) 50%, var(--bg-page) 100%);
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  .hero-landing .hero-content {
+    text-align: center !important;
+  }
+
+  .hero-landing .hero-badges {
+    justify-content: center !important;
+  }
+}

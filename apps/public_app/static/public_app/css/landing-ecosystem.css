@@ -1,0 +1,296 @@
+/* ============================================================================
+ * Landing Page - Ecosystem Section Styles
+ * ============================================================================
+ * Enhanced styling for the SciTeX Ecosystem module cards
+ * Responsive, accessible, and theme-aware
+ * ========================================================================== */
+
+/* Section Background and Layout */
+.section-ecosystem {
+  background: linear-gradient(180deg, var(--bg-page) 0%, var(--bg-muted) 100%);
+  padding: var(--spacing-xxl) 0;
+}
+
+[data-theme="dark"] .section-ecosystem {
+  background: linear-gradient(180deg, var(--bg-page) 0%, var(--scitex-color-01) 100%);
+}
+
+/* Section Heading */
+.section-ecosystem .section-heading h2 {
+  text-align: center;
+  margin-bottom: 1rem;
+  font-size: 2.5rem;
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.section-ecosystem .section-heading p {
+  text-align: center;
+  color: var(--text-secondary);
+  margin-bottom: 3rem;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 1.125rem;
+  line-height: 1.6;
+}
+
+/* Module Grid Layout */
+.ecosystem-modules-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto 4rem;
+}
+
+/* Deployment Section */
+.ecosystem-deployment-simple {
+  margin-top: 3rem;
+}
+
+.deployment-intro {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.deployment-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+/* Module Cards - Enhanced Design */
+.module-card-simple {
+  background-color: var(--_white);
+  border: 2px solid var(--border-muted);
+  border-radius: 12px;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 280px;
+}
+
+.module-card-simple h3 {
+  font-size: 1.5rem;
+  color: var(--scitex-color-01);
+  margin: 1rem 0 0.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.module-card-simple .module-tagline {
+  font-size: 0.95rem;
+  color: var(--scitex-color-03);
+  line-height: 1.5;
+  margin-bottom: 1.25rem;
+  flex-grow: 1;
+}
+
+.module-card-simple:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+  border-color: var(--scitex-color-04);
+  background-color: var(--_white);
+}
+
+/* Module Card Links */
+.module-card-link {
+  text-decoration: none;
+  display: block;
+  margin-bottom: var(--spacing-md);
+}
+
+/* Disabled Module Cards */
+.module-card-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.module-card-disabled:hover {
+  transform: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border-color: var(--border-muted);
+  background-color: var(--_white);
+}
+
+[data-theme="dark"] .module-card-disabled:hover {
+  background-color: var(--scitex-color-02);
+  border-color: var(--scitex-color-03);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.module-card-link-disabled {
+  text-decoration: none;
+  display: block;
+  margin-bottom: var(--spacing-md);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.module-card-disabled .module-icon img {
+  opacity: 0.5;
+}
+
+.module-card-disabled:hover .module-icon img {
+  opacity: 0.5;
+  transform: none;
+}
+
+/* GitHub button stays clickable in disabled cards */
+.module-card-disabled .module-github-btn {
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+/* Module Icons */
+.module-icon {
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0.5rem auto 0;
+}
+
+.module-icon img {
+  width: 56px;
+  height: 56px;
+  filter: none;
+  opacity: 0.85;
+  transition: all 0.3s ease;
+}
+
+.module-card-simple:hover .module-icon img {
+  opacity: 1;
+  transform: scale(1.15) rotate(5deg);
+}
+
+/* Module Tagline */
+.module-tagline {
+  margin-top: var(--spacing-xs);
+  margin-bottom: var(--spacing-md);
+}
+
+/* GitHub Button */
+.module-github-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.25rem;
+  background-color: var(--scitex-color-01);
+  color: var(--_white);
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-top: auto;
+}
+
+.module-github-btn:hover {
+  background-color: var(--scitex-color-02);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.module-github-btn i {
+  font-size: 1.1rem;
+}
+
+/* ============================================================================
+ * DARK THEME SUPPORT
+ * ========================================================================== */
+
+[data-theme="dark"] .module-card-simple {
+  background-color: var(--scitex-color-02);
+  border-color: var(--scitex-color-03);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .module-card-simple h3 {
+  color: var(--scitex-color-07);
+}
+
+[data-theme="dark"] .module-card-simple .module-tagline {
+  color: var(--scitex-color-05);
+}
+
+[data-theme="dark"] .module-card-simple:hover {
+  background-color: var(--scitex-color-03);
+  border-color: var(--scitex-color-04);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .module-icon img {
+  opacity: 0.8;
+}
+
+[data-theme="dark"] .module-card-simple:hover .module-icon img {
+  opacity: 1;
+}
+
+[data-theme="dark"] .module-github-btn {
+  background-color: var(--scitex-color-05);
+  color: var(--scitex-color-01);
+  font-weight: 600;
+}
+
+[data-theme="dark"] .module-github-btn:hover {
+  background-color: var(--scitex-color-06);
+  color: var(--scitex-color-01);
+}
+
+/* ============================================================================
+ * RESPONSIVE DESIGN
+ * ========================================================================== */
+
+@media (max-width: 1024px) {
+  .ecosystem-modules-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .section-ecosystem .section-heading h2 {
+    font-size: 2rem;
+  }
+
+  .section-ecosystem .section-heading p {
+    font-size: 1rem;
+  }
+
+  .deployment-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .module-card-simple {
+    min-height: 240px;
+    padding: 1.5rem 1rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .ecosystem-modules-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .module-card-simple h3 {
+    font-size: 1.25rem;
+  }
+
+  .module-icon img {
+    width: 48px;
+    height: 48px;
+  }
+}

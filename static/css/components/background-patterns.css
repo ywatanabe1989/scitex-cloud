@@ -1,0 +1,228 @@
+/* ============================================================================
+ * Background Pattern System - SciTeX Brand
+ * ============================================================================
+ * Subtle dot and gradient patterns using SciTeX color palette
+ * Apply to sections for visual interest
+ * ========================================================================== */
+
+/* Base Pattern Container */
+.bg-pattern {
+    position: relative;
+    overflow: hidden;
+}
+
+.bg-pattern::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    opacity: 0.4;
+    z-index: 0;
+}
+
+/* Ensure content stays above pattern */
+.bg-pattern > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* ============================================================================
+ * DOT PATTERNS - Light Mode
+ * ========================================================================== */
+
+/* Small Dots Pattern */
+.bg-pattern-dots-sm::before {
+    background-image: radial-gradient(circle, var(--_scitex-03) 1px, transparent 1px);
+    background-size: 20px 20px;
+}
+
+/* Medium Dots Pattern */
+.bg-pattern-dots-md::before {
+    background-image: radial-gradient(circle, var(--_scitex-04) 2px, transparent 2px);
+    background-size: 30px 30px;
+}
+
+/* Large Dots Pattern */
+.bg-pattern-dots-lg::before {
+    background-image: radial-gradient(circle, var(--_scitex-05) 3px, transparent 3px);
+    background-size: 40px 40px;
+}
+
+/* Scattered Dots (Mixed Sizes) */
+.bg-pattern-dots-scattered::before {
+    background-image:
+        radial-gradient(circle at 20% 30%, var(--_scitex-04) 2px, transparent 2px),
+        radial-gradient(circle at 60% 70%, var(--_scitex-05) 3px, transparent 3px),
+        radial-gradient(circle at 80% 20%, var(--_scitex-03) 1.5px, transparent 1.5px),
+        radial-gradient(circle at 40% 80%, var(--_scitex-04) 2.5px, transparent 2.5px),
+        radial-gradient(circle at 10% 60%, var(--_scitex-05) 2px, transparent 2px);
+    background-size: 100px 100px, 150px 150px, 80px 80px, 120px 120px, 90px 90px;
+    background-position: 0 0, 40px 60px, 130px 270px, 70px 100px, 150px 30px;
+}
+
+/* Grid Pattern */
+.bg-pattern-grid::before {
+    background-image:
+        linear-gradient(var(--_scitex-05) 1px, transparent 1px),
+        linear-gradient(90deg, var(--_scitex-05) 1px, transparent 1px);
+    background-size: 50px 50px;
+}
+
+/* Diagonal Stripes */
+.bg-pattern-stripes::before {
+    background-image: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 35px,
+        var(--_scitex-06) 35px,
+        var(--_scitex-06) 70px
+    );
+}
+
+/* Circuit Board Pattern */
+.bg-pattern-circuit::before {
+    background-image:
+        radial-gradient(circle at 25% 25%, var(--_scitex-05) 2px, transparent 2px),
+        radial-gradient(circle at 75% 75%, var(--_scitex-04) 2px, transparent 2px),
+        linear-gradient(var(--_scitex-06) 1px, transparent 1px),
+        linear-gradient(90deg, var(--_scitex-06) 1px, transparent 1px);
+    background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
+    background-position: 0 0, 50px 50px, 0 0, 0 0;
+}
+
+/* Gradient Dots (Radial) */
+.bg-pattern-dots-radial::before {
+    background-image:
+        radial-gradient(circle at 50% 50%, var(--_scitex-06) 0%, transparent 70%),
+        radial-gradient(circle, var(--_scitex-05) 2px, transparent 2px);
+    background-size: 100% 100%, 40px 40px;
+}
+
+/* ============================================================================
+ * DARK MODE PATTERNS
+ * ========================================================================== */
+
+[data-theme="dark"] .bg-pattern::before {
+    opacity: 0.3;
+}
+
+[data-theme="dark"] .bg-pattern-dots-sm::before {
+    background-image: radial-gradient(circle, var(--_scitex-04) 1px, transparent 1px);
+}
+
+[data-theme="dark"] .bg-pattern-dots-md::before {
+    background-image: radial-gradient(circle, var(--_scitex-05) 2px, transparent 2px);
+}
+
+[data-theme="dark"] .bg-pattern-dots-lg::before {
+    background-image: radial-gradient(circle, var(--_scitex-06) 3px, transparent 3px);
+}
+
+[data-theme="dark"] .bg-pattern-dots-scattered::before {
+    background-image:
+        radial-gradient(circle at 20% 30%, var(--_scitex-05) 2px, transparent 2px),
+        radial-gradient(circle at 60% 70%, var(--_scitex-06) 3px, transparent 3px),
+        radial-gradient(circle at 80% 20%, var(--_scitex-04) 1.5px, transparent 1.5px),
+        radial-gradient(circle at 40% 80%, var(--_scitex-05) 2.5px, transparent 2.5px),
+        radial-gradient(circle at 10% 60%, var(--_scitex-06) 2px, transparent 2px);
+}
+
+[data-theme="dark"] .bg-pattern-grid::before {
+    background-image:
+        linear-gradient(var(--_scitex-03) 1px, transparent 1px),
+        linear-gradient(90deg, var(--_scitex-03) 1px, transparent 1px);
+}
+
+[data-theme="dark"] .bg-pattern-stripes::before {
+    background-image: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 35px,
+        var(--_scitex-02) 35px,
+        var(--_scitex-02) 70px
+    );
+}
+
+[data-theme="dark"] .bg-pattern-circuit::before {
+    background-image:
+        radial-gradient(circle at 25% 25%, var(--_scitex-05) 2px, transparent 2px),
+        radial-gradient(circle at 75% 75%, var(--_scitex-04) 2px, transparent 2px),
+        linear-gradient(var(--_scitex-03) 1px, transparent 1px),
+        linear-gradient(90deg, var(--_scitex-03) 1px, transparent 1px);
+}
+
+/* ============================================================================
+ * UTILITY MODIFIERS
+ * ========================================================================== */
+
+/* Opacity Variants */
+.bg-pattern-subtle::before {
+    opacity: 0.2;
+}
+
+.bg-pattern-medium::before {
+    opacity: 0.4;
+}
+
+.bg-pattern-strong::before {
+    opacity: 0.6;
+}
+
+[data-theme="dark"] .bg-pattern-subtle::before {
+    opacity: 0.15;
+}
+
+[data-theme="dark"] .bg-pattern-medium::before {
+    opacity: 0.3;
+}
+
+[data-theme="dark"] .bg-pattern-strong::before {
+    opacity: 0.45;
+}
+
+/* Animated Patterns */
+.bg-pattern-animated::before {
+    animation: patternMove 60s linear infinite;
+}
+
+@keyframes patternMove {
+    0% {
+        background-position: 0 0, 0 0;
+    }
+    100% {
+        background-position: 100px 100px, -100px -100px;
+    }
+}
+
+/* ============================================================================
+ * USAGE EXAMPLES
+ * ========================================================================== */
+
+/*
+Apply to any section:
+
+<!-- Small dots, subtle -->
+<section class="bg-pattern bg-pattern-dots-sm bg-pattern-subtle">
+    <div class="container">
+        Content here
+    </div>
+</section>
+
+<!-- Scattered dots, medium opacity -->
+<section class="bg-pattern bg-pattern-dots-scattered bg-pattern-medium">
+    Content here
+</section>
+
+<!-- Grid pattern, animated -->
+<section class="bg-pattern bg-pattern-grid bg-pattern-animated">
+    Content here
+</section>
+
+<!-- Circuit board pattern -->
+<section class="bg-pattern bg-pattern-circuit bg-pattern-subtle">
+    Content here
+</section>
+*/
