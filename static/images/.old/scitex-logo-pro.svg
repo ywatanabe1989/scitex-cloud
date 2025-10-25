@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="130" height="40" viewBox="0 0 130 40" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Clean blue gradient -->
+    <linearGradient id="blueGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#0ea5e9;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0284c7;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Abstract scientific mark - represents data/knowledge flow -->
+  <g transform="translate(8, 12)">
+    <!-- Three dots forming a triangle - representing scientific method -->
+    <circle cx="8" cy="4" r="2" fill="#0ea5e9"/>
+    <circle cx="2" cy="12" r="2" fill="#0284c7"/>
+    <circle cx="14" cy="12" r="2" fill="#0369a1"/>
+    
+    <!-- Connecting lines suggesting flow/connection -->
+    <path d="M 8,6 L 4,11 M 8,6 L 12,11" 
+          stroke="#0ea5e9" 
+          stroke-width="1.5" 
+          stroke-linecap="round"
+          opacity="0.4"/>
+  </g>
+  
+  <!-- Clean, modern typography -->
+  <g transform="translate(32, 26)">
+    <text font-family="'Inter', -apple-system, BlinkMacSystemFont, sans-serif" 
+          font-size="22" 
+          font-weight="500">
+      <tspan fill="#0f172a">Sci</tspan><tspan 
+             fill="url(#blueGrad)" 
+             font-weight="600">TeX</tspan>
+    </text>
+  </g>
+</svg>

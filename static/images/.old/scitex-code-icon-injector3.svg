@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background code window -->
+  <rect x="8" y="10" width="48" height="44" rx="4" stroke="#4a6baf" stroke-width="2" fill="#f0f5ff"/>
+  
+  <!-- Injector body -->
+  <rect x="20" y="38" width="24" height="12" rx="2" fill="#4a6baf" fill-opacity="0.9"/>
+  
+  <!-- Injector barrel -->
+  <rect x="26" y="14" width="12" height="24" rx="2" fill="#4a6baf" fill-opacity="0.8"/>
+  
+  <!-- Needle -->
+  <path d="M32 50L32 56" stroke="#4a6baf" stroke-width="2" stroke-linecap="round"/>
+  
+  <!-- Liquid in syringe -->
+  <rect x="28" y="18" width="8" height="16" rx="1" fill="#90b1e2" fill-opacity="0.7"/>
+  
+  <!-- Plunger -->
+  <rect x="26" y="12" width="12" height="4" rx="2" fill="#4a6baf"/>
+  <circle cx="32" cy="12" r="1.5" fill="white"/>
+  
+  <!-- Code brackets -->
+  <path d="M20 34L14 28L20 22" stroke="#4a6baf" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M44 34L50 28L44 22" stroke="#4a6baf" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Code dots/binary -->
+  <circle cx="14" cy="44" r="1.5" fill="#4a6baf"/>
+  <circle cx="18" cy="44" r="1.5" fill="#4a6baf"/>
+  <circle cx="22" cy="44" r="1.5" fill="#4a6baf" fill-opacity="0.5"/>
+  <circle cx="26" cy="44" r="1.5" fill="#4a6baf"/>
+  <circle cx="38" cy="44" r="1.5" fill="#4a6baf" fill-opacity="0.5"/>
+  <circle cx="42" cy="44" r="1.5" fill="#4a6baf"/>
+  <circle cx="46" cy="44" r="1.5" fill="#4a6baf" fill-opacity="0.5"/>
+  <circle cx="50" cy="44" r="1.5" fill="#4a6baf"/>
+</svg>
