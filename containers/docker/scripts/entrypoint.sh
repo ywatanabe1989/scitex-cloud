@@ -1,6 +1,13 @@
 #!/bin/bash
 set -e
 
+# Install scitex package (editable mode)
+if [ -d "/scitex-code" ]; then
+    echo "Installing scitex package..."
+    pip install --user -e /scitex-code
+    echo "Scitex package installed!"
+fi
+
 # Wait for database to be ready
 echo "Waiting for database..."
 while ! nc -z db 5432; do
