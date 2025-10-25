@@ -1,0 +1,14 @@
+<!-- Demo/Anonymous Banner -->
+{% if is_demo %}
+<div class="alert alert-{% if is_anonymous %}info{% else %}warning{% endif %} mb-0 rounded-0 text-center" role="alert">
+    {% if is_anonymous %}
+        <i class="fas fa-info-circle me-2"></i>
+        <strong>Demo Mode:</strong> You're using a temporary workspace.
+        <a href="{% url 'auth_app:signup' %}" class="alert-link">Sign up</a> to save your work or
+        <a href="{% url 'auth_app:login' %}" class="alert-link">log in</a> if you have an account.
+    {% else %}
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <strong>Temporary Workspace:</strong>
+        <a href="/new/" class="alert-link">Create a project</a> to save your manuscripts permanently.
+    {% endif %}
+</div>

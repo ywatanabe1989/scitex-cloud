@@ -1,0 +1,30 @@
+<!-- Writer Workspace Initialization Prompt -->
+{% if not writer_initialized and not is_demo %}
+<div id="writer-init-prompt" class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-body text-center p-5">
+                    <i class="fas fa-folder-plus fa-3x text-primary mb-3"></i>
+                    <h3 class="mb-3">Initialize Writer Workspace</h3>
+                    <p class="text-muted mb-4">
+                        Set up your LaTeX manuscript workspace with the SciTeX-Writer structure:
+                    </p>
+                    <ul class="list-unstyled text-start mb-4">
+                        <li><i class="fas fa-check text-success me-2"></i>01_manuscript/ - Main manuscript sections</li>
+                        <li><i class="fas fa-check text-success me-2"></i>02_supplementary/ - Supplementary materials</li>
+                        <li><i class="fas fa-check text-success me-2"></i>03_revision/ - Revision responses</li>
+                        <li><i class="fas fa-check text-success me-2"></i>shared/ - Title, authors, bibliography</li>
+                    </ul>
+                    <p class="text-muted small mb-4">
+                        Directory will be created at:<br>
+                        <code>{{ writer_path }}/</code>
+                    </p>
+                    <button id="init-writer-btn" class="btn btn-success btn-lg" onclick="initializeWriterWorkspace(this)">
+                        <i class="fas fa-rocket me-2"></i>Initialize Writer Workspace
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
