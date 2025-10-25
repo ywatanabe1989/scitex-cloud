@@ -5,6 +5,6 @@
 !-- --- -->
 
 ## Python Environment
-Ensure python environment is actiavted by: `source .venv/bin/activate`
+Ensure python environment is actiavted by: `source .env/bin/activate`
 
 <!-- EOF -->

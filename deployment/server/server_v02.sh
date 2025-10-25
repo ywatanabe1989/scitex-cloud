@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-10-25 16:21:48 (ywatanabe)"
+# Timestamp: "2025-10-25 08:49:16 (ywatanabe)"
 # File: ./deployment/server/server.sh
 
 ORIG_DIR="$(pwd)"
@@ -71,16 +71,8 @@ usage() {
 # Ensure proper file permissions
 ensure_permissions() {
     echo_header "Ensure permissions..."
-    sudo chmod 755 "$APP_HOME/scripts"/*.sh 2>/dev/null || true
-    sudo chmod 755 "$APP_HOME/manage.py" 2>/dev/null || true
-    sudo chmod 775 $HOME/.logs 2>/dev/null || true
-
-    # Note: For production deployment with www-data user, run these commands once:
-    sudo chmod o+x /home/ywatanabe 2>/dev/null || true
-    sudo rm -f /home/ywatanabe/.scitex/logs/*
-    sudo chown -R www-data:www-data /home/ywatanabe/.scitex 2>/dev/null || true
-    sudo chmod -R 777 /home/ywatanabe/.scitex 2>/dev/null || true
-
+    chmod 755 "$APP_HOME/scripts"/*.sh 2>/dev/null || true
+    chmod 755 "$APP_HOME/manage.py" 2>/dev/null || true
     echo "Done"
 }
 
@@ -103,86 +95,53 @@ collect_static() {
 stop_existing() {
     echo_header "Stopping existing processes..."
 
-    local STOPPED_SOMETHING=false
+    {
+        # Sudo check; if not sudo, exit
+        sudo echo "Sudo needed" || exit
 
-    # Kill auto-collectstatic process if exists
-    local COLLECT_PID_FILE="$APP_HOME/run/collectstatic.pid"
-    if [ -f "$COLLECT_PID_FILE" ]; then
-        COLLECT_PID=$(cat "$COLLECT_PID_FILE")
-        if kill -0 $COLLECT_PID 2>/dev/null; then
-            echo_info "    Stopping auto-collectstatic (PID: $COLLECT_PID)..."
-            kill -TERM $COLLECT_PID 2>/dev/null || true
-            STOPPED_SOMETHING=true
-        fi
-        rm -f "$COLLECT_PID_FILE"
-    fi
-
-    # Stop uwsgi using PID file
-    if [ -f "$PID_FILE" ]; then
-        SERVER_PID=$(cat "$PID_FILE")
-        if kill -0 $SERVER_PID 2>/dev/null; then
-            if ps -p $SERVER_PID -o comm= | grep -q uwsgi; then
-                echo_info "    Stopping uwsgi (PID: $SERVER_PID)..."
-                kill -INT $SERVER_PID 2>/dev/null || kill -TERM $SERVER_PID 2>/dev/null || true
-
-                # Wait for graceful shutdown
-                for i in {1..5}; do
-                    if ! kill -0 $SERVER_PID 2>/dev/null; then
-                        break
-                    fi
-                    sleep 1
-                done
-
-                # Force if needed
-                if kill -0 $SERVER_PID 2>/dev/null; then
-                    kill -9 $SERVER_PID 2>/dev/null || true
-                fi
-                STOPPED_SOMETHING=true
-            else
-                echo_info "    Stopping Django server (PID: $SERVER_PID)..."
-                kill -TERM $SERVER_PID 2>/dev/null || kill -9 $SERVER_PID 2>/dev/null || true
-                STOPPED_SOMETHING=true
+        # Kill auto-collectstatic process if exists
+        local COLLECT_PID_FILE="$APP_HOME/run/collectstatic.pid"
+        if [ -f "$COLLECT_PID_FILE" ]; then
+            COLLECT_PID=$(cat "$COLLECT_PID_FILE")
+            if kill -0 $COLLECT_PID 2>/dev/null; then
+                kill -9 $COLLECT_PID 2>/dev/null || true
             fi
+            rm -f "$COLLECT_PID_FILE"
         fi
-        rm -f "$PID_FILE"
-    fi
 
-    # Fallback: kill any Django/uwsgi processes
-    if pkill -0 -f "uwsgi.*scitex" 2>/dev/null; then
-        echo_info "    Cleaning up stray uwsgi processes..."
-        pkill -TERM -f "uwsgi.*scitex" 2>/dev/null || true
-        sleep 2
-        pkill -9 -f "uwsgi.*scitex" 2>/dev/null || true
-        STOPPED_SOMETHING=true
-    fi
-
-    if pkill -0 -f "runserver" 2>/dev/null; then
-        echo_info "    Cleaning up Django runserver..."
-        pkill -TERM -f "runserver" 2>/dev/null || true
-        sleep 1
+        # Kill all Django runserver processes (with and without sudo)
         pkill -9 -f "runserver" 2>/dev/null || true
-        STOPPED_SOMETHING=true
-    fi
+        sudo pkill -9 -f "runserver" 2>/dev/null || true
 
-    # Clean up sockets
-    rm -f "$APP_HOME/run/scitex_cloud.sock" "$APP_HOME/run/uwsgi.sock" 2>/dev/null || true
+        # Kill all Python processes running manage.py
+        pkill -9 -f "python.*manage.py" 2>/dev/null || true
+        sudo pkill -9 -f "python.*manage.py" 2>/dev/null || true
 
-    # Kill processes on port 8000 (dev mode)
-    if fuser 8000/tcp 2>/dev/null; then
-        echo_info "    Freeing port 8000..."
-        fuser -k -TERM 8000/tcp 2>/dev/null || true
-        sleep 1
+        # Kill processes using port 8000
+        sudo fuser -k -9 8000/tcp 2>/dev/null || true
         fuser -k -9 8000/tcp 2>/dev/null || true
-        STOPPED_SOMETHING=true
-    fi
 
-    if $STOPPED_SOMETHING; then
-        echo_success "    Existing processes stopped"
-    else
-        echo_info "    No running processes found"
-    fi
+        # Kill any processes listening on port 8000 using lsof
+        if command -v lsof &> /dev/null; then
+            lsof -ti:8000 2>/dev/null | xargs -r kill -9 2>/dev/null || true
+            sudo lsof -ti:8000 2>/dev/null | xargs -r sudo kill -9 2>/dev/null || true
+        fi
 
-    sleep 1
+        # Kill existing uwsgi processes
+        pkill -9 -f "uwsgi.*scitex" 2>/dev/null || true
+        sudo pkill -9 -f "uwsgi.*scitex" 2>/dev/null || true
+
+        # Remove PID file
+        rm -f "$PID_FILE" 2>/dev/null || true
+
+        # Remove uwsgi socket
+        rm -f "$APP_HOME/run/uwsgi.sock" 2>/dev/null || true
+
+        # Wait a moment for processes to fully terminate
+        sleep 1
+    } 2>&1 | grep -v "Killed" || true
+
+    echo_success "Done"
 }
 
 # Continuous static collection for development (runs every 10 seconds)
@@ -234,13 +193,9 @@ start_dev() {
 start_prod() {
     echo_header "Starting SciTeX-Cloud production server..."
 
-    # Setup required directories
-    echo_info "    Setting up directories..."
-    mkdir -p /home/ywatanabe/.scitex/logs
-    mkdir -p "$APP_HOME/run"
-    mkdir -p "$APP_HOME/logs"
-
-    # Then uncomment uid/gid in uwsgi_prod.ini
+    sudo chmod o+x /home/ywatanabe
+    sudo chown -R www-data:www-data /home/ywatanabe/.scitex
+    # source ./deployment/dotenvs/dot_env_prod
 
     # Ensure nginx is configured
     if ! nginx -t 2>/dev/null; then
@@ -254,24 +209,12 @@ start_prod() {
         --daemonize "$LOG_DIR/uwsgi.log" \
         --pidfile "$PID_FILE"
 
-    # Wait for uwsgi to start and verify
-    sleep 3
-    if [ -f "$PID_FILE" ] && kill -0 $(cat "$PID_FILE") 2>/dev/null; then
-        echo_success "    Production server started with uwsgi (PID: $(cat $PID_FILE))"
-        echo_info "    Socket: $APP_HOME/run/scitex_cloud.sock"
-        echo_info "    Logs: tail -f $LOG_DIR/uwsgi.log"
-        echo_info "    Stop with: ./server -s"
-    else
-        echo_error "    Failed to start uwsgi - check logs:"
-        tail -50 /var/log/uwsgi/scitex_cloud.log 2>/dev/null || tail -50 "$LOG_DIR/uwsgi.log"
-        return 1
-    fi
+    echo_info "    Production server started with uwsgi"
+    echo_info "    Logs: tail -f $LOG_DIR/uwsgi.log"
 }
 
 # Main function
 main() {
-    rm ./logs/*.log -f
-
     local do_migrate=false
     local do_collect_static=false
     local do_stop=false
@@ -313,18 +256,10 @@ main() {
     # If stop flag is set, stop and exit
     if $do_stop; then
         stop_existing
-        exit 0
     fi
 
-    # # Rotate logs instead of deleting (keep last 5 files)
-    # for logfile in $LOG_DIR/*.log; do
-    #     if [ -f "$logfile" ] && [ $(stat -f%z "$logfile" 2>/dev/null || stat -c%s "$logfile" 2>/dev/null) -gt 10485760 ]; then
-    #         # Archive logs > 10MB
-    #         mv "$logfile" "$logfile.$(date +%Y%m%d_%H%M%S)" 2>/dev/null || true
-    #         # Keep only last 5 archived logs
-    #         ls -t "$logfile".* 2>/dev/null | tail -n +6 | xargs rm -f 2>/dev/null || true
-    #     fi
-    # done
+    # Cleanup Logs
+    rm $LOG_DIR/*.log -f
 
     # In production, always migrate and collect static (no skip allowed)
     if $is_prod; then
@@ -355,7 +290,7 @@ main() {
     fi
 }
 
-# Cleanup function for Ctrl+C and graceful shutdown
+# Cleanup function for Ctrl+C
 cleanup() {
     echo
     echo_header "Shutting down SciTeX-Cloud..."
@@ -376,46 +311,22 @@ cleanup() {
         rm -f "$COLLECT_PID_FILE"
     fi
 
-    # Handle server shutdown (both dev and prod)
+    # Kill Django server if PID file exists
     if [ -f "$PID_FILE" ]; then
-        SERVER_PID=$(cat "$PID_FILE")
-        if kill -0 $SERVER_PID 2>/dev/null; then
-            # Check if it's uwsgi or Django runserver
-            if ps -p $SERVER_PID -o comm= | grep -q uwsgi; then
-                echo_info "    Stopping uwsgi server (PID: $SERVER_PID)..."
-                # Graceful shutdown for uwsgi
-                kill -INT $SERVER_PID 2>/dev/null || true
-
-                # Wait up to 10 seconds for graceful shutdown
-                for i in {1..10}; do
-                    if ! kill -0 $SERVER_PID 2>/dev/null; then
-                        break
-                    fi
-                    sleep 1
-                done
-
-                # Force kill if still running
-                if kill -0 $SERVER_PID 2>/dev/null; then
-                    echo_warning "    Graceful shutdown timeout, forcing..."
-                    kill -9 $SERVER_PID 2>/dev/null || true
-                fi
-
-                # Clean up socket
-                rm -f "$APP_HOME/run/scitex_cloud.sock" 2>/dev/null || true
-            else
-                echo_info "    Stopping Django server (PID: $SERVER_PID)..."
-                kill -TERM $SERVER_PID 2>/dev/null || true
-                sleep 2
-                # Force kill if still running
-                if kill -0 $SERVER_PID 2>/dev/null; then
-                    kill -9 $SERVER_PID 2>/dev/null || true
-                fi
+        DJANGO_PID=$(cat "$PID_FILE")
+        if kill -0 $DJANGO_PID 2>/dev/null; then
+            echo_info "    Stopping Django server (PID: $DJANGO_PID)..."
+            kill -TERM $DJANGO_PID 2>/dev/null || true
+            sleep 2
+            # Force kill if still running
+            if kill -0 $DJANGO_PID 2>/dev/null; then
+                kill -9 $DJANGO_PID 2>/dev/null || true
             fi
         fi
         rm -f "$PID_FILE"
     fi
 
-    # Kill any remaining processes on port 8000 (dev mode)
+    # Kill any remaining processes on port 8000
     fuser -k 8000/tcp 2>/dev/null || true
 
     echo_success "    ✓ SciTeX-Cloud stopped"
@@ -427,30 +338,18 @@ tail_log(){
     sleep 3
     echo_header "Tailing logs (Ctrl+C to stop)..."
 
-    # Determine which log to tail based on what's running
+    # If not daemon mode, tail logs and wait for Django server
     if [ -f "$PID_FILE" ]; then
-        SERVER_PID=$(cat "$PID_FILE")
+        DJANGO_PID=$(cat "$PID_FILE")
 
-        # Check if it's uwsgi or Django runserver
-        if ps -p $SERVER_PID -o comm= 2>/dev/null | grep -q uwsgi; then
-            # For production uwsgi, tail both uwsgi and Django logs
-            echo_info "    Following production logs..."
-            tail -f "$LOG_DIR/uwsgi.log" /var/log/uwsgi/scitex_cloud.log "$LOG_DIR/error.log" 2>/dev/null &
-            TAIL_PID=$!
+        tail -f $LOG_DIR/*.log &
+        TAIL_PID=$!
 
-            # Keep tailing until interrupted
-            wait $TAIL_PID 2>/dev/null || true
-        else
-            # For dev server, tail all logs
-            tail -f $LOG_DIR/*.log &
-            TAIL_PID=$!
+        # Wait for Django server process
+        wait $DJANGO_PID 2>/dev/null || true
 
-            # Wait for Django server process
-            wait $SERVER_PID 2>/dev/null || true
-
-            # Kill tail when Django stops
-            kill $TAIL_PID 2>/dev/null || true
-        fi
+        # Kill tail when Django stops
+        kill $TAIL_PID 2>/dev/null || true
     fi
 }
 
@@ -460,7 +359,7 @@ trap cleanup SIGINT SIGTERM
 # Run main function with all arguments
 main "$@"
 
-# # tail_log
 # tail_log
+tail_log
 
 # EOF
