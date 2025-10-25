@@ -1,56 +1,125 @@
-<!-- File Header -->
-<div class="file-header">
-    <div style="display: flex; align-items: center; gap: 1rem;">
-        <span style="font-weight: 600; color: var(--color-fg-default);">{{ file_name }}</span>
-        <span style="color: var(--color-fg-muted); font-weight: 400; font-size: 0.875rem;">{{ file_size|filesizeformat }}</span>
+<!-- File Header with Commit Info (GitHub-style) -->
+<div class="file-header-enhanced">
+    <!-- Top section: File info with action buttons -->
+    <div class="file-header-main">
+        <div class="file-header-left">
+            <span class="file-name">{{ file_name }}</span>
+            <span class="file-size">{{ file_size|filesizeformat }}</span>
 
-        {% if render_type == 'markdown' %}
-        <div class="btn-group btn-group-sm" role="group">
-            <button type="button" class="btn btn-outline-secondary active" id="previewBtn" onclick="showPreview()">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="vertical-align: text-bottom; margin-right: 4px;">
-                    <path d="M8 2c1.981 0 3.671.992 4.933 2.078 1.27 1.091 2.187 2.345 2.637 3.023a1.62 1.62 0 010 1.798c-.45.678-1.367 1.932-2.637 3.023C11.67 13.008 9.981 14 8 14c-1.981 0-3.671-.992-4.933-2.078C1.797 10.83.88 9.576.43 8.898a1.62 1.62 0 010-1.798c.45-.677 1.367-1.931 2.637-3.022C4.33 2.992 6.019 2 8 2zM1.679 7.932a.12.12 0 000 .136c.411.622 1.241 1.75 2.366 2.717C5.176 11.758 6.527 12.5 8 12.5c1.473 0 2.825-.742 3.955-1.715 1.124-.967 1.954-2.096 2.366-2.717a.12.12 0 000-.136c-.412-.621-1.242-1.75-2.366-2.717C10.824 4.242 9.473 3.5 8 3.5c-1.473 0-2.825.742-3.955 1.715-1.124.967-1.954 2.096-2.366 2.717zM8 10a2 2 0 100-4 2 2 0 000 4z"></path>
-                </svg>
-                Preview
-            </button>
-            <button type="button" class="btn btn-outline-secondary" id="codeBtn" onclick="showCode()">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="vertical-align: text-bottom; margin-right: 4px;">
-                    <path fill-rule="evenodd" d="M4.72 3.22a.75.75 0 011.06 1.06L2.06 8l3.72 3.72a.75.75 0 11-1.06 1.06L.47 8.53a.75.75 0 010-1.06l4.25-4.25zm6.56 0a.75.75 0 10-1.06 1.06L13.94 8l-3.72 3.72a.75.75 0 101.06 1.06l4.25-4.25a.75.75 0 000-1.06l-4.25-4.25z"></path>
-                </svg>
-                Code
-            </button>
+            {% if render_type == 'markdown' %}
+            <div class="btn-group btn-group-sm" role="group">
+                <button type="button" class="btn btn-outline-secondary active" id="previewBtn" onclick="showPreview()">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="vertical-align: text-bottom; margin-right: 4px;">
+                        <path d="M8 2c1.981 0 3.671.992 4.933 2.078 1.27 1.091 2.187 2.345 2.637 3.023a1.62 1.62 0 010 1.798c-.45.678-1.367 1.932-2.637 3.023C11.67 13.008 9.981 14 8 14c-1.981 0-3.671-.992-4.933-2.078C1.797 10.83.88 9.576.43 8.898a1.62 1.62 0 010-1.798c.45-.677 1.367-1.931 2.637-3.022C4.33 2.992 6.019 2 8 2zM1.679 7.932a.12.12 0 000 .136c.411.622 1.241 1.75 2.366 2.717C5.176 11.758 6.527 12.5 8 12.5c1.473 0 2.825-.742 3.955-1.715 1.124-.967 1.954-2.096 2.366-2.717a.12.12 0 000-.136c-.412-.621-1.242-1.75-2.366-2.717C10.824 4.242 9.473 3.5 8 3.5c-1.473 0-2.825.742-3.955 1.715-1.124.967-1.954 2.096-2.366 2.717zM8 10a2 2 0 100-4 2 2 0 000 4z"></path>
+                    </svg>
+                    Preview
+                </button>
+                <button type="button" class="btn btn-outline-secondary" id="codeBtn" onclick="showCode()">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="vertical-align: text-bottom; margin-right: 4px;">
+                        <path fill-rule="evenodd" d="M4.72 3.22a.75.75 0 011.06 1.06L2.06 8l3.72 3.72a.75.75 0 11-1.06 1.06L.47 8.53a.75.75 0 010-1.06l4.25-4.25zm6.56 0a.75.75 0 10-1.06 1.06L13.94 8l-3.72 3.72a.75.75 0 101.06 1.06l4.25-4.25a.75.75 0 000-1.06l-4.25-4.25z"></path>
+                    </svg>
+                    Code
+                </button>
+            </div>
+            {% endif %}
         </div>
-        {% endif %}
+
+        <div class="file-header-actions">
+            <a href="/{{ project.owner.username }}/{{ project.slug }}/blob/{{ file_path }}?mode=raw" class="btn btn-sm btn-outline-secondary" target="_blank" title="View raw file">
+                Raw
+            </a>
+            {% if render_type == 'code' or render_type == 'text' %}
+            <a href="#" class="btn btn-sm btn-outline-secondary" title="View blame (coming soon)" onclick="alert('Blame view coming soon!'); return false;">
+                Blame
+            </a>
+            {% endif %}
+            <button onclick="copyToClipboard()" class="btn btn-sm btn-outline-secondary" title="Copy file contents">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="vertical-align: text-bottom;">
+                    <path fill-rule="evenodd" d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"></path>
+                    <path fill-rule="evenodd" d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"></path>
+                </svg>
+            </button>
+            <a href="/{{ project.owner.username }}/{{ project.slug }}/blob/{{ file_path }}?mode=download" class="btn btn-sm btn-outline-secondary" title="Download file">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="vertical-align: text-bottom;">
+                    <path d="M2.75 14A1.75 1.75 0 011 12.25v-2.5a.75.75 0 011.5 0v2.5c0 .138.112.25.25.25h10.5a.25.25 0 00.25-.25v-2.5a.75.75 0 011.5 0v2.5A1.75 1.75 0 0113.25 14H2.75z"></path>
+                    <path d="M7.25 7.689V2a.75.75 0 011.5 0v5.689l1.97-1.969a.75.75 0 111.06 1.06l-3.25 3.25a.75.75 0 01-1.06 0L4.22 6.78a.75.75 0 111.06-1.06l1.97 1.969z"></path>
+                </svg>
+            </a>
+            {% if can_edit %}
+            <a href="/{{ project.owner.username }}/{{ project.slug }}/blob/{{ file_path }}?mode=edit" class="btn btn-sm btn-primary" title="Edit file">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="vertical-align: text-bottom; margin-right: 4px;">
+                    <path fill-rule="evenodd" d="M11.013 1.427a1.75 1.75 0 012.474 0l1.086 1.086a1.75 1.75 0 010 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 01-.927-.928l.929-3.25a1.75 1.75 0 01.445-.758l8.61-8.61zm1.414 1.06a.25.25 0 00-.354 0L10.811 3.75l1.439 1.44 1.263-1.263a.25.25 0 000-.354l-1.086-1.086zM11.189 6.25L9.75 4.81l-6.286 6.287a.25.25 0 00-.064.108l-.558 1.953 1.953-.558a.249.249 0 00.108-.064l6.286-6.286z"></path>
+                </svg>
+                Edit
+            </a>
+            {% endif %}
+        </div>
     </div>
-    <div style="display: flex; gap: 0.5rem;">
-        <a href="/{{ project.owner.username }}/{{ project.slug }}/blob/{{ file_path }}?mode=raw" class="btn btn-sm btn-outline-secondary" target="_blank" title="View raw file">
-            Raw
-        </a>
-        {% if render_type == 'code' or render_type == 'text' %}
-        <a href="#" class="btn btn-sm btn-outline-secondary" title="View blame (coming soon)" onclick="alert('Blame view coming soon!'); return false;">
-            Blame
-        </a>
-        {% endif %}
-        <button onclick="copyToClipboard()" class="btn btn-sm btn-outline-secondary" title="Copy file contents">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="vertical-align: text-bottom; margin-right: 4px;">
-                <path fill-rule="evenodd" d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"></path>
-                <path fill-rule="evenodd" d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"></path>
-            </svg>
-            Copy
-        </button>
-        <a href="/{{ project.owner.username }}/{{ project.slug }}/blob/{{ file_path }}?mode=download" class="btn btn-sm btn-outline-secondary" title="Download file">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="vertical-align: text-bottom; margin-right: 4px;">
-                <path d="M2.75 14A1.75 1.75 0 011 12.25v-2.5a.75.75 0 011.5 0v2.5c0 .138.112.25.25.25h10.5a.25.25 0 00.25-.25v-2.5a.75.75 0 011.5 0v2.5A1.75 1.75 0 0113.25 14H2.75z"></path>
-                <path d="M7.25 7.689V2a.75.75 0 011.5 0v5.689l1.97-1.969a.75.75 0 111.06 1.06l-3.25 3.25a.75.75 0 01-1.06 0L4.22 6.78a.75.75 0 111.06-1.06l1.97 1.969z"></path>
-            </svg>
-            Download
-        </a>
-        {% if can_edit %}
-        <a href="/{{ project.owner.username }}/{{ project.slug }}/blob/{{ file_path }}?mode=edit" class="btn btn-sm btn-primary" title="Edit file">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="vertical-align: text-bottom; margin-right: 4px;">
-                <path fill-rule="evenodd" d="M11.013 1.427a1.75 1.75 0 012.474 0l1.086 1.086a1.75 1.75 0 010 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 01-.927-.928l.929-3.25a1.75 1.75 0 01.445-.758l8.61-8.61zm1.414 1.06a.25.25 0 00-.354 0L10.811 3.75l1.439 1.44 1.263-1.263a.25.25 0 000-.354l-1.086-1.086zM11.189 6.25L9.75 4.81l-6.286 6.287a.25.25 0 00-.064.108l-.558 1.953 1.953-.558a.249.249 0 00.108-.064l6.286-6.286z"></path>
-            </svg>
-            Edit
-        </a>
-        {% endif %}
+
+    <!-- Bottom section: Git commit metadata (GitHub-style) -->
+    {% if git_info %}
+    <div class="file-header-commit">
+        <!-- Left: Branch selector -->
+        <div class="file-commit-left">
+            <div class="branch-selector">
+                <button class="branch-button" onclick="toggleBranchDropdown(event)">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                        <path fill-rule="evenodd" d="M11.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122V6A2.5 2.5 0 0110 8.5H6a1 1 0 00-1 1v1.128a2.251 2.251 0 11-1.5 0V5.372a2.25 2.25 0 111.5 0v1.836A2.492 2.492 0 016 7h4a1 1 0 001-1v-.628A2.25 2.25 0 019.5 3.25zM4.25 12a.75.75 0 100 1.5.75.75 0 000-1.5zM3.5 3.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0z"></path>
+                    </svg>
+                    <span>{{ git_info.current_branch }}</span>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M4.427 7.427l3.396 3.396a.25.25 0 00.354 0l3.396-3.396A.25.25 0 0011.396 7H4.604a.25.25 0 00-.177.427z"></path>
+                    </svg>
+                </button>
+                <div class="branch-dropdown" id="branchDropdown">
+                    {% for branch in git_info.branches %}
+                    <div class="branch-dropdown-item {% if branch == git_info.current_branch %}active{% endif %}"
+                         onclick="switchBranch('{{ branch }}')">
+                        {{ branch }}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Center: Last commit info -->
+        <div class="file-commit-center">
+            {% if git_info.author_name %}
+            <div class="commit-avatar" title="{{ git_info.author_name }}">
+                {{ git_info.author_name|slice:":1"|upper }}
+            </div>
+            <a href="/{{ project.owner.username }}/{{ project.slug }}/commits/{{ git_info.full_hash }}"
+               class="commit-author" title="{{ git_info.author_email }}">
+                {{ git_info.author_name }}
+            </a>
+            <a href="/{{ project.owner.username }}/{{ project.slug }}/commit/{{ git_info.full_hash }}"
+               class="commit-message" title="{{ git_info.message }}">
+                {{ git_info.message }}
+            </a>
+            {% else %}
+            <span class="no-commits-text">No commits yet</span>
+            {% endif %}
+        </div>
+
+        <!-- Right: Hash, time, and history -->
+        <div class="file-commit-right">
+            {% if git_info.short_hash %}
+            <a href="/{{ project.owner.username }}/{{ project.slug }}/commit/{{ git_info.full_hash }}"
+               class="commit-hash" title="{{ git_info.full_hash }}">
+                {{ git_info.short_hash }}
+            </a>
+            {% endif %}
+            {% if git_info.time_ago %}
+            <span class="commit-time">{{ git_info.time_ago }}</span>
+            {% endif %}
+            <a href="/{{ project.owner.username }}/{{ project.slug }}/commits/{{ git_info.current_branch }}/{{ file_path }}"
+               class="history-button" title="View file history">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                    <path fill-rule="evenodd" d="M1.643 3.143L.427 1.927A.25.25 0 000 2.104V5.75c0 .138.112.25.25.25h3.646a.25.25 0 00.177-.427L2.715 4.215a6.5 6.5 0 11-1.18 4.458.75.75 0 10-1.493.154 8.001 8.001 0 101.6-5.684zM7.75 4a.75.75 0 01.75.75v2.992l2.028.812a.75.75 0 01-.557 1.392l-2.5-1A.75.75 0 017 8.25v-3.5A.75.75 0 017.75 4z"></path>
+                </svg>
+                History
+            </a>
+        </div>
     </div>
+    {% endif %}
 </div>

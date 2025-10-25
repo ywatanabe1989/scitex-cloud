@@ -1,0 +1,20 @@
+<!-- PR filters and new button -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="btn-group" role="group">
+        <a href="?state=open" class="btn btn-sm {% if state_filter == 'open' %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+            <i class="bi bi-circle"></i> Open <span class="badge bg-secondary">{{ open_count }}</span>
+        </a>
+        <a href="?state=closed" class="btn btn-sm {% if state_filter == 'closed' %}btn-outline-secondary{% endif %}">
+            <i class="bi bi-x-circle"></i> Closed <span class="badge bg-secondary">{{ closed_count }}</span>
+        </a>
+        <a href="?state=merged" class="btn btn-sm {% if state_filter == 'merged' %}btn-outline-secondary{% endif %}">
+            <i class="bi bi-check2-circle"></i> Merged <span class="badge bg-secondary">{{ merged_count }}</span>
+        </a>
+    </div>
+
+    {% if can_create %}
+    <a href="{% url 'user_projects:pr_create' project.owner.username project.slug %}" class="btn btn-success">
+        <i class="bi bi-plus-lg"></i> New pull request
+    </a>
+    {% endif %}
+</div>

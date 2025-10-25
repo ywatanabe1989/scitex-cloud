@@ -6,101 +6,143 @@
 
 {% block extra_css %}
 {% load static %}
-<link rel="stylesheet" href="{% static 'css/common.css' %}">
+<link rel="stylesheet" href="{% static 'dev_app/css/design-demo.css' %}">
 <link rel="stylesheet" href="{% static 'css/common/code-blocks.css' %}">
 <link rel="stylesheet" href="{% static 'dev_app/styles/design.css' %}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/zenburn.min.css">
-<style>
-  .toggle-checkbox {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    border: 1px solid var(--border-default);
-    border-radius: 4px;
-    background-color: var(--bg-surface);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    user-select: none;
-  }
-  .toggle-checkbox:hover {
-    background-color: var(--bg-muted);
-    border-color: var(--text-link);
-  }
-  .toggle-checkbox input[type="checkbox"] {
-    cursor: pointer;
-  }
-  .component-demo {
-    background-color: var(--bg-surface);
-    border: 1px solid var(--border-default);
-    border-radius: 8px;
-    padding: 2rem;
-    margin: 1rem 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
-</style>
 {% endblock %}
 
 {% block content %}
-<section style="background-color: var(--header-bg); color: var(--header-text); padding: 3rem 0; box-shadow: var(--shadow-md);">
-  <div class="container" style="text-align: center;">
-    <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem; font-weight: 700;">Toggle Button (Checkbox)</h1>
-    <p style="font-size: 1.125rem; color: var(--header-text); opacity: 0.9;">Button-style checkbox toggles with checkbox square indicator for on/off states</p>
+<section class="design-header">
+  <div class="container">
+    <h1>Toggle Button (Checkbox)</h1>
+    <p class="design-subtitle">Button-style checkbox toggles with checkbox square indicator for on/off states</p>
   </div>
 </section>
 
 <div class="container py-5">
-  <div style="display: flex; gap: 2rem;">
+  <div class="design-layout">
     {% include 'dev_app/design_partial/sidebar.html' %}
-    
-    <main style="flex: 1; min-width: 0;">
+
+    <main class="design-main">
       <section>
         <h2>Overview</h2>
         <p>Button-style checkbox toggles with checkbox square indicator for on/off states. Distinct from simple checkboxes by having a button-like container with borders.</p>
         <p><strong>Category:</strong> Form and Selection</p>
         <p><strong>Dark Mode Support:</strong> Yes</p>
+        <p><strong>Production Classes:</strong> <code>.scitex-toggle</code>, <code>.scitex-toggle-label</code>, <code>.scitex-toggle-wrapper</code></p>
       </section>
 
-      <section style="margin-top: 2rem;">
+      <section class="design-section">
         <h2>Component Demo</h2>
         <div class="component-demo">
-          <label class="toggle-checkbox">
-            <input type="checkbox" checked>
-            <span>Option 1</span>
-          </label>
-          <label class="toggle-checkbox">
-            <input type="checkbox">
-            <span>Option 2</span>
-          </label>
-          <label class="toggle-checkbox">
-            <input type="checkbox" checked>
-            <span>Option 3</span>
-          </label>
-          <label class="toggle-checkbox" style="opacity: 0.6; cursor: not-allowed;">
-            <input type="checkbox" disabled>
-            <span>Disabled</span>
-          </label>
+          <div class="scitex-toggle-wrapper">
+            <input type="checkbox" id="toggle1" class="scitex-toggle" checked>
+            <label for="toggle1" class="scitex-toggle-label">Feature Enabled</label>
+          </div>
+
+          <div class="scitex-toggle-wrapper">
+            <input type="checkbox" id="toggle2" class="scitex-toggle">
+            <label for="toggle2" class="scitex-toggle-label">Feature Disabled</label>
+          </div>
+
+          <div class="scitex-toggle-wrapper">
+            <input type="checkbox" id="toggle3" class="scitex-toggle" checked>
+            <label for="toggle3" class="scitex-toggle-label">Auto-save</label>
+          </div>
+
+          <div class="scitex-toggle-wrapper">
+            <input type="checkbox" id="toggle4" class="scitex-toggle">
+            <label for="toggle4" class="scitex-toggle-label">Notifications</label>
+          </div>
+
+          <div class="scitex-toggle-wrapper">
+            <input type="checkbox" id="toggle5" class="scitex-toggle" checked disabled>
+            <label for="toggle5" class="scitex-toggle-label">Disabled (Checked)</label>
+          </div>
+
+          <div class="scitex-toggle-wrapper">
+            <input type="checkbox" id="toggle6" class="scitex-toggle" disabled>
+            <label for="toggle6" class="scitex-toggle-label">Disabled (Unchecked)</label>
+          </div>
         </div>
       </section>
 
-      <section style="margin-top: 2rem;">
+      <section class="design-section">
         <h2>States</h2>
         <ul>
-          <li><strong>off</strong> - Unchecked state, checkbox square is empty</li>
-          <li><strong>on</strong> - Checked state, checkbox square shows checkmark</li>
-          <li><strong>hover</strong> - Background color changes on hover</li>
-          <li><strong>disabled</strong> - Disabled state with reduced opacity</li>
+          <li><strong>off</strong> - Unchecked state, checkbox square is empty with border</li>
+          <li><strong>on</strong> - Checked state, checkbox square filled with checkmark (✓)</li>
+          <li><strong>hover-off</strong> - Border color changes when hovering over unchecked toggle</li>
+          <li><strong>hover-on</strong> - Background color changes when hovering over checked toggle</li>
+          <li><strong>disabled</strong> - Non-interactive state (can be checked or unchecked)</li>
         </ul>
       </section>
 
-      <section style="margin-top: 2rem;">
+      <section class="design-section">
         <h2>HTML Example</h2>
-        <pre><code>&lt;label class="toggle-checkbox"&gt;
-  &lt;input type="checkbox" checked&gt;
-  &lt;span&gt;Option 1&lt;/span&gt;
-&lt;/label&gt;</code></pre>
+        <pre><code class="language-html">&lt;!-- Basic Toggle --&gt;
+&lt;div class="scitex-toggle-wrapper"&gt;
+  &lt;input type="checkbox" id="feature1" class="scitex-toggle"&gt;
+  &lt;label for="feature1" class="scitex-toggle-label"&gt;Enable Feature&lt;/label&gt;
+&lt;/div&gt;
+
+&lt;!-- Checked Toggle --&gt;
+&lt;div class="scitex-toggle-wrapper"&gt;
+  &lt;input type="checkbox" id="feature2" class="scitex-toggle" checked&gt;
+  &lt;label for="feature2" class="scitex-toggle-label"&gt;Feature Enabled&lt;/label&gt;
+&lt;/div&gt;
+
+&lt;!-- Disabled Toggle --&gt;
+&lt;div class="scitex-toggle-wrapper"&gt;
+  &lt;input type="checkbox" id="feature3" class="scitex-toggle" disabled&gt;
+  &lt;label for="feature3" class="scitex-toggle-label"&gt;Disabled Feature&lt;/label&gt;
+&lt;/div&gt;</code></pre>
+      </section>
+
+      <section class="design-section">
+        <h2>CSS Classes</h2>
+        <table class="design-table">
+          <thead>
+            <tr>
+              <th>Class</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>.scitex-toggle-wrapper</code></td>
+              <td>Optional wrapper for positioning</td>
+            </tr>
+            <tr>
+              <td><code>.scitex-toggle</code></td>
+              <td>Hidden checkbox input (controls toggle state)</td>
+            </tr>
+            <tr>
+              <td><code>.scitex-toggle-label</code></td>
+              <td>Button-style toggle label with checkbox square</td>
+            </tr>
+            <tr>
+              <td><code>.scitex-toggle:checked</code></td>
+              <td>Checked state selector</td>
+            </tr>
+            <tr>
+              <td><code>.scitex-toggle:disabled</code></td>
+              <td>Disabled state selector</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="design-section">
+        <h2>Usage Notes</h2>
+        <ul>
+          <li>Always use a unique <code>id</code> for the checkbox input</li>
+          <li>Match the <code>for</code> attribute of the label to the checkbox <code>id</code></li>
+          <li>The wrapper is optional but helps with positioning</li>
+          <li>Checkmark (✓) automatically appears when checked</li>
+          <li>Use <code>disabled</code> attribute to prevent interaction</li>
+        </ul>
       </section>
     </main>
   </div>

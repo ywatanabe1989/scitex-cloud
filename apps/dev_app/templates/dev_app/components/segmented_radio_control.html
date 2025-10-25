@@ -6,120 +6,169 @@
 
 {% block extra_css %}
 {% load static %}
-<link rel="stylesheet" href="{% static 'css/common.css' %}">
+<link rel="stylesheet" href="{% static 'dev_app/css/design-demo.css' %}">
 <link rel="stylesheet" href="{% static 'css/common/code-blocks.css' %}">
 <link rel="stylesheet" href="{% static 'dev_app/styles/design.css' %}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/zenburn.min.css">
-<style>
-  .segmented-control {
-    display: inline-flex;
-    background-color: var(--bg-muted);
-    border: 1px solid var(--border-default);
-    border-radius: 6px;
-    padding: 4px;
-    gap: 4px;
-  }
-  .segmented-control label {
-    display: flex;
-    align-items: center;
-    padding: 0.5rem 1rem;
-    cursor: pointer;
-    border-radius: 4px;
-    background-color: transparent;
-    transition: all 0.2s ease;
-    user-select: none;
-    font-size: 0.875rem;
-  }
-  .segmented-control label:hover {
-    background-color: var(--bg-page);
-  }
-  .segmented-control input[type="radio"] {
-    display: none;
-  }
-  .segmented-control input[type="radio"]:checked + label {
-    background-color: var(--bg-page);
-    color: var(--text-link);
-    font-weight: 600;
-  }
-  .component-demo {
-    background-color: var(--bg-surface);
-    border: 1px solid var(--border-default);
-    border-radius: 8px;
-    padding: 2rem;
-    margin: 1rem 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 2rem;
-  }
-</style>
 {% endblock %}
 
 {% block content %}
-<section style="background-color: var(--header-bg); color: var(--header-text); padding: 3rem 0; box-shadow: var(--shadow-md);">
-  <div class="container" style="text-align: center;">
-    <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem; font-weight: 700;">Segmented Radio Control</h1>
-    <p style="font-size: 1.125rem; color: var(--header-text); opacity: 0.9;">Toggle buttons organized in a segmented control for mutually exclusive selections</p>
+<section class="design-header">
+  <div class="container">
+    <h1>Segmented Radio Control</h1>
+    <p class="design-subtitle">Toggle buttons organized in a segmented control for mutually exclusive selections</p>
   </div>
 </section>
 
 <div class="container py-5">
-  <div style="display: flex; gap: 2rem;">
+  <div class="design-layout">
     {% include 'dev_app/design_partial/sidebar.html' %}
-    
-    <main style="flex: 1; min-width: 0;">
+
+    <main class="design-main">
       <section>
         <h2>Overview</h2>
-        <p>Segmented controls allow users to select one option from a group of mutually exclusive choices. They are visually grouped together and provide clear feedback about which option is selected.</p>
+        <p>Segmented radio controls allow users to select one option from a group of mutually exclusive choices. They feature circular radio indicators (iOS-style) and are visually grouped together in a unified control.</p>
         <p><strong>Category:</strong> Form and Selection</p>
         <p><strong>Dark Mode Support:</strong> Yes</p>
+        <p><strong>Production Classes:</strong> <code>.scitex-radio</code>, <code>.scitex-radio-label</code>, <code>.scitex-radio-group</code></p>
       </section>
 
-      <section style="margin-top: 2rem;">
+      <section class="design-section">
         <h2>Component Demo</h2>
         <div class="component-demo">
           <div>
-            <h4 style="margin-top: 0;">Size Options</h4>
-            <div class="segmented-control">
-              <input type="radio" id="size-small" name="size" checked>
-              <label for="size-small">Small</label>
-              <input type="radio" id="size-medium" name="size">
-              <label for="size-medium">Medium</label>
-              <input type="radio" id="size-large" name="size">
-              <label for="size-large">Large</label>
+            <h4>Default Size</h4>
+            <div class="scitex-radio-group">
+              <input type="radio" id="size-small" name="size" class="scitex-radio" checked>
+              <label for="size-small" class="scitex-radio-label">Small</label>
+              <input type="radio" id="size-medium" name="size" class="scitex-radio">
+              <label for="size-medium" class="scitex-radio-label">Medium</label>
+              <input type="radio" id="size-large" name="size" class="scitex-radio">
+              <label for="size-large" class="scitex-radio-label">Large</label>
             </div>
           </div>
 
           <div>
-            <h4 style="margin-top: 0;">View Options</h4>
-            <div class="segmented-control">
-              <input type="radio" id="view-list" name="view" checked>
-              <label for="view-list">List</label>
-              <input type="radio" id="view-grid" name="view">
-              <label for="view-grid">Grid</label>
-              <input type="radio" id="view-table" name="view">
-              <label for="view-table">Table</label>
+            <h4>View Options</h4>
+            <div class="scitex-radio-group">
+              <input type="radio" id="view-list" name="view" class="scitex-radio" checked>
+              <label for="view-list" class="scitex-radio-label">List</label>
+              <input type="radio" id="view-grid" name="view" class="scitex-radio">
+              <label for="view-grid" class="scitex-radio-label">Grid</label>
+              <input type="radio" id="view-table" name="view" class="scitex-radio">
+              <label for="view-table" class="scitex-radio-label">Table</label>
+            </div>
+          </div>
+
+          <div>
+            <h4>Small Size Variant</h4>
+            <div class="scitex-radio-group scitex-radio-group-sm">
+              <input type="radio" id="opt1" name="small" class="scitex-radio" checked>
+              <label for="opt1" class="scitex-radio-label">Option 1</label>
+              <input type="radio" id="opt2" name="small" class="scitex-radio">
+              <label for="opt2" class="scitex-radio-label">Option 2</label>
+              <input type="radio" id="opt3" name="small" class="scitex-radio">
+              <label for="opt3" class="scitex-radio-label">Option 3</label>
+            </div>
+          </div>
+
+          <div>
+            <h4>Multiple Options</h4>
+            <div class="scitex-radio-group">
+              <input type="radio" id="all" name="sources" class="scitex-radio" checked>
+              <label for="all" class="scitex-radio-label">All Sources</label>
+              <input type="radio" id="pubmed" name="sources" class="scitex-radio">
+              <label for="pubmed" class="scitex-radio-label">PubMed</label>
+              <input type="radio" id="scholar" name="sources" class="scitex-radio">
+              <label for="scholar" class="scitex-radio-label">Google Scholar</label>
+              <input type="radio" id="arxiv" name="sources" class="scitex-radio">
+              <label for="arxiv" class="scitex-radio-label">arXiv</label>
             </div>
           </div>
         </div>
       </section>
 
-      <section style="margin-top: 2rem;">
+      <section class="design-section">
         <h2>States</h2>
         <ul>
-          <li><strong>default</strong> - Unselected state</li>
-          <li><strong>selected</strong> - Active/selected state with highlight</li>
-          <li><strong>hover</strong> - Hover state with background change</li>
+          <li><strong>default</strong> - Unchecked with empty circle indicator</li>
+          <li><strong>checked</strong> - Circle filled with primary color and inner dot</li>
+          <li><strong>hover</strong> - Background highlight and border color change on hover</li>
+          <li><strong>mobile</strong> - Stacks vertically on mobile devices (&lt;768px)</li>
         </ul>
       </section>
 
-      <section style="margin-top: 2rem;">
+      <section class="design-section">
+        <h2>Size Variants</h2>
+        <ul>
+          <li><strong>.scitex-radio-group</strong> - Default size with standard padding</li>
+          <li><strong>.scitex-radio-group-sm</strong> - Smaller size variant with reduced padding and font size</li>
+        </ul>
+      </section>
+
+      <section class="design-section">
         <h2>HTML Example</h2>
-        <pre><code>&lt;div class="segmented-control"&gt;
-  &lt;input type="radio" id="opt-small" name="option" checked&gt;
-  &lt;label for="opt-small"&gt;Small&lt;/label&gt;
-  &lt;input type="radio" id="opt-large" name="option"&gt;
-  &lt;label for="opt-large"&gt;Large&lt;/label&gt;
+        <pre><code class="language-html">&lt;div class="scitex-radio-group"&gt;
+  &lt;input type="radio" id="all" name="sources" class="scitex-radio" checked&gt;
+  &lt;label for="all" class="scitex-radio-label"&gt;All Sources&lt;/label&gt;
+  &lt;input type="radio" id="pubmed" name="sources" class="scitex-radio"&gt;
+  &lt;label for="pubmed" class="scitex-radio-label"&gt;PubMed&lt;/label&gt;
+  &lt;input type="radio" id="scholar" name="sources" class="scitex-radio"&gt;
+  &lt;label for="scholar" class="scitex-radio-label"&gt;Scholar&lt;/label&gt;
+&lt;/div&gt;
+
+&lt;!-- Small Size Variant --&gt;
+&lt;div class="scitex-radio-group scitex-radio-group-sm"&gt;
+  &lt;input type="radio" id="opt1" name="small" class="scitex-radio" checked&gt;
+  &lt;label for="opt1" class="scitex-radio-label"&gt;Option 1&lt;/label&gt;
+  &lt;input type="radio" id="opt2" name="small" class="scitex-radio"&gt;
+  &lt;label for="opt2" class="scitex-radio-label"&gt;Option 2&lt;/label&gt;
 &lt;/div&gt;</code></pre>
+      </section>
+
+      <section class="design-section">
+        <h2>CSS Classes</h2>
+        <table class="design-table">
+          <thead>
+            <tr>
+              <th>Class</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>.scitex-radio</code></td>
+              <td>Hidden native radio input (visually hidden but accessible)</td>
+            </tr>
+            <tr>
+              <td><code>.scitex-radio-label</code></td>
+              <td>Button-style label with circular radio indicator</td>
+            </tr>
+            <tr>
+              <td><code>.scitex-radio-group</code></td>
+              <td>Container creating segmented control layout</td>
+            </tr>
+            <tr>
+              <td><code>.scitex-radio-group-sm</code></td>
+              <td>Small size variant modifier</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="design-section">
+        <h2>Accessibility</h2>
+        <ul>
+          <li>Native radio inputs remain in the DOM for keyboard navigation and screen readers</li>
+          <li>Labels are properly associated with inputs via <code>for</code> and <code>id</code> attributes</li>
+          <li>Circular indicators provide visual feedback of selection state</li>
+          <li>Radio buttons are grouped by <code>name</code> attribute for proper mutual exclusivity</li>
+        </ul>
+      </section>
+
+      <section class="design-section">
+        <h2>Responsive Behavior</h2>
+        <p>On mobile devices (screens below 768px), the segmented control automatically stacks vertically for better touch targets and readability.</p>
       </section>
     </main>
   </div>

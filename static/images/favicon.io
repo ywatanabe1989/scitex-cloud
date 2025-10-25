@@ -1,0 +1,1 @@
+vectorstock_38853699/vectorstock_38853699-navy-inverted.svg

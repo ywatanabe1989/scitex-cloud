@@ -6,127 +6,159 @@
 
 {% block extra_css %}
 {% load static %}
-<link rel="stylesheet" href="{% static 'css/common.css' %}">
+<link rel="stylesheet" href="{% static 'dev_app/css/design-demo.css' %}">
 <link rel="stylesheet" href="{% static 'css/common/code-blocks.css' %}">
 <link rel="stylesheet" href="{% static 'dev_app/styles/design.css' %}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/zenburn.min.css">
-<style>
-  .dropdown-container {
-    position: relative;
-    display: inline-block;
-  }
-  .dropdown-button {
-    padding: 0.75rem 1rem;
-    background-color: var(--bg-muted);
-    border: 1px solid var(--border-default);
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-  .dropdown-button:hover {
-    background-color: var(--bg-surface);
-  }
-  .dropdown-menu {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    margin-top: 0.5rem;
-    background-color: var(--bg-page);
-    border: 1px solid var(--border-default);
-    border-radius: 4px;
-    box-shadow: var(--shadow-lg);
-    min-width: 200px;
-    z-index: 1000;
-  }
-  .dropdown-menu a {
-    display: block;
-    padding: 0.75rem 1rem;
-    color: var(--text-primary);
-    text-decoration: none;
-    transition: all 0.2s ease;
-  }
-  .dropdown-menu a:hover {
-    background-color: var(--bg-muted);
-  }
-  .dropdown-divider {
-    border-top: 1px solid var(--border-default);
-    margin: 0.5rem 0;
-  }
-  .component-demo {
-    background-color: var(--bg-surface);
-    border: 1px solid var(--border-default);
-    border-radius: 8px;
-    padding: 2rem;
-    margin: 1rem 0;
-  }
-</style>
 {% endblock %}
 
 {% block content %}
-<section style="background-color: var(--header-bg); color: var(--header-text); padding: 3rem 0; box-shadow: var(--shadow-md);">
-  <div class="container" style="text-align: center;">
-    <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem; font-weight: 700;">Dropdown Menu</h1>
-    <p style="font-size: 1.125rem; color: var(--header-text); opacity: 0.9;">Dropdown menu component for displaying related actions or navigation options</p>
+<section class="design-header">
+  <div class="container">
+    <h1>Dropdown Menu</h1>
+    <p class="design-subtitle">Dropdown menu component for displaying related actions or navigation options</p>
   </div>
 </section>
 
 <div class="container py-5">
-  <div style="display: flex; gap: 2rem;">
+  <div class="design-layout">
     {% include 'dev_app/design_partial/sidebar.html' %}
-    
-    <main style="flex: 1; min-width: 0;">
+
+    <main class="design-main">
       <section>
         <h2>Overview</h2>
         <p>Dropdown menus present a list of actions or options that appear when triggered. They are useful for hiding secondary actions and keeping interfaces clean.</p>
         <p><strong>Category:</strong> Navigation</p>
         <p><strong>Dark Mode Support:</strong> Yes</p>
+        <p><strong>Production Classes:</strong> <code>.dropdown</code>, <code>.dropdown-toggle</code>, <code>.dropdown-menu</code>, <code>.dropdown-item</code></p>
       </section>
 
-      <section style="margin-top: 2rem;">
+      <section class="design-section">
         <h2>Component Demo</h2>
         <div class="component-demo">
-          <div class="dropdown-container">
-            <button class="dropdown-button">Actions ▼</button>
-            <div class="dropdown-menu" style="display: block;">
-              <a href="#edit">Edit</a>
-              <a href="#duplicate">Duplicate</a>
-              <a href="#share">Share</a>
+          <div class="dropdown">
+            <a href="#" class="dropdown-toggle">Actions</a>
+            <div class="dropdown-menu show">
+              <a href="#edit" class="dropdown-item">Edit</a>
+              <a href="#duplicate" class="dropdown-item">Duplicate</a>
+              <a href="#share" class="dropdown-item">Share</a>
               <div class="dropdown-divider"></div>
-              <a href="#delete" style="color: var(--status-error);">Delete</a>
+              <a href="#delete" class="dropdown-item">Delete</a>
             </div>
           </div>
 
-          <div class="dropdown-container" style="margin-left: 3rem;">
-            <button class="dropdown-button">File ▼</button>
-            <div class="dropdown-menu" style="display: block;">
-              <a href="#new">New</a>
-              <a href="#open">Open</a>
-              <a href="#save">Save</a>
-              <a href="#export">Export</a>
+          <div class="dropdown" style="margin-left: 3rem;">
+            <a href="#" class="dropdown-toggle">File Menu</a>
+            <div class="dropdown-menu show">
+              <a href="#new" class="dropdown-item">New</a>
+              <a href="#open" class="dropdown-item">Open</a>
+              <a href="#save" class="dropdown-item">Save</a>
+              <div class="dropdown-divider"></div>
+              <a href="#export" class="dropdown-item">Export</a>
+            </div>
+          </div>
+
+          <div class="dropdown" style="margin-left: 3rem;">
+            <a href="#" class="dropdown-toggle">User Menu</a>
+            <div class="dropdown-menu dropdown-menu-end show">
+              <a href="#profile" class="dropdown-item">Profile</a>
+              <a href="#settings" class="dropdown-item">Settings</a>
+              <div class="dropdown-divider"></div>
+              <a href="#logout" class="dropdown-item">Logout</a>
             </div>
           </div>
         </div>
       </section>
 
-      <section style="margin-top: 2rem;">
+      <section class="design-section">
         <h2>States</h2>
         <ul>
-          <li><strong>default</strong> - Collapsed dropdown button</li>
-          <li><strong>open</strong> - Menu is visible with all options</li>
-          <li><strong>hover</strong> - Menu items highlight on hover</li>
-          <li><strong>focused</strong> - Button is focused with blue border</li>
+          <li><strong>closed</strong> - Menu hidden (default state)</li>
+          <li><strong>open</strong> - Menu is visible with all options (.show class)</li>
+          <li><strong>hover</strong> - Menu items highlight on hover with background change</li>
+          <li><strong>mobile</strong> - Simplified mobile view (&lt;768px)</li>
+          <li><strong>desktop</strong> - Hover-triggered view (&gt;768px)</li>
         </ul>
       </section>
 
-      <section style="margin-top: 2rem;">
+      <section class="design-section">
+        <h2>Variants</h2>
+        <ul>
+          <li><strong>.dropdown</strong> - Base container for dropdown component</li>
+          <li><strong>.dropdown-toggle</strong> - Clickable trigger element with caret</li>
+          <li><strong>.dropdown-menu</strong> - Hidden menu that appears on hover/click</li>
+          <li><strong>.dropdown-menu-end</strong> - Right-aligned dropdown menu</li>
+          <li><strong>.dropdown-item</strong> - Individual menu item link</li>
+          <li><strong>.dropdown-divider</strong> - Horizontal divider between items</li>
+        </ul>
+      </section>
+
+      <section class="design-section">
         <h2>HTML Example</h2>
-        <pre><code>&lt;div class="dropdown-container"&gt;
-  &lt;button class="dropdown-button"&gt;Actions ▼&lt;/button&gt;
-  &lt;div class="dropdown-menu"&gt;
-    &lt;a href="#edit"&gt;Edit&lt;/a&gt;
-    &lt;a href="#delete"&gt;Delete&lt;/a&gt;
+        <pre><code class="language-html">&lt;div class="dropdown"&gt;
+  &lt;a href="#" class="dropdown-toggle"&gt;Actions&lt;/a&gt;
+  &lt;div class="dropdown-menu show"&gt;
+    &lt;a href="#edit" class="dropdown-item"&gt;Edit&lt;/a&gt;
+    &lt;a href="#delete" class="dropdown-item"&gt;Delete&lt;/a&gt;
+    &lt;div class="dropdown-divider"&gt;&lt;/div&gt;
+    &lt;a href="#share" class="dropdown-item"&gt;Share&lt;/a&gt;
   &lt;/div&gt;
 &lt;/div&gt;</code></pre>
+      </section>
+
+      <section class="design-section">
+        <h2>Right-Aligned Example</h2>
+        <pre><code class="language-html">&lt;div class="dropdown"&gt;
+  &lt;a href="#" class="dropdown-toggle"&gt;User Menu&lt;/a&gt;
+  &lt;div class="dropdown-menu dropdown-menu-end"&gt;
+    &lt;a href="#profile" class="dropdown-item"&gt;Profile&lt;/a&gt;
+    &lt;a href="#settings" class="dropdown-item"&gt;Settings&lt;/a&gt;
+    &lt;div class="dropdown-divider"&gt;&lt;/div&gt;
+    &lt;a href="#logout" class="dropdown-item"&gt;Logout&lt;/a&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+      </section>
+
+      <section class="design-section">
+        <h2>CSS Classes</h2>
+        <table class="design-table">
+          <thead>
+            <tr>
+              <th>Class</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>.dropdown</code></td>
+              <td>Container for dropdown component (position: relative)</td>
+            </tr>
+            <tr>
+              <td><code>.dropdown-toggle</code></td>
+              <td>Trigger element with automatic caret arrow</td>
+            </tr>
+            <tr>
+              <td><code>.dropdown-menu</code></td>
+              <td>Hidden menu container (display: none by default)</td>
+            </tr>
+            <tr>
+              <td><code>.dropdown-menu.show</code></td>
+              <td>Visible state for dropdown menu</td>
+            </tr>
+            <tr>
+              <td><code>.dropdown-menu-end</code></td>
+              <td>Right-aligned dropdown menu variant</td>
+            </tr>
+            <tr>
+              <td><code>.dropdown-item</code></td>
+              <td>Individual menu item with hover effect</td>
+            </tr>
+            <tr>
+              <td><code>.dropdown-divider</code></td>
+              <td>Horizontal line separator between items</td>
+            </tr>
+          </tbody>
+        </table>
       </section>
     </main>
   </div>

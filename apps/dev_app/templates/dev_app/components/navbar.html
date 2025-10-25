@@ -6,105 +6,235 @@
 
 {% block extra_css %}
 {% load static %}
-<link rel="stylesheet" href="{% static 'css/common.css' %}">
+<link rel="stylesheet" href="{% static 'dev_app/css/design-demo.css' %}">
 <link rel="stylesheet" href="{% static 'css/common/code-blocks.css' %}">
 <link rel="stylesheet" href="{% static 'dev_app/styles/design.css' %}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/zenburn.min.css">
-<style>
-  .navbar {
-    background-color: var(--header-bg);
-    color: var(--header-text);
-    padding: 1rem 2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: var(--shadow-md);
-  }
-  .navbar-brand {
-    font-size: 1.25rem;
-    font-weight: 700;
-    text-decoration: none;
-    color: var(--header-text);
-  }
-  .navbar-nav {
-    display: flex;
-    gap: 2rem;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  .navbar-nav a {
-    color: var(--header-text);
-    text-decoration: none;
-    transition: all 0.2s ease;
-  }
-  .navbar-nav a:hover {
-    opacity: 0.8;
-  }
-  .component-demo {
-    background-color: var(--bg-surface);
-    border: 1px solid var(--border-default);
-    border-radius: 8px;
-    margin: 1rem 0;
-    overflow: hidden;
-  }
-</style>
 {% endblock %}
 
 {% block content %}
-<section style="background-color: var(--header-bg); color: var(--header-text); padding: 3rem 0; box-shadow: var(--shadow-md);">
-  <div class="container" style="text-align: center;">
-    <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem; font-weight: 700;">Navbar</h1>
-    <p style="font-size: 1.125rem; color: var(--header-text); opacity: 0.9;">Navigation bar component for top-level site navigation and branding</p>
+<section class="design-header">
+  <div class="container">
+    <h1>Navbar</h1>
+    <p class="design-subtitle">Navigation bar component for top-level site navigation and branding</p>
   </div>
 </section>
 
 <div class="container py-5">
-  <div style="display: flex; gap: 2rem;">
+  <div class="design-layout">
     {% include 'dev_app/design_partial/sidebar.html' %}
-    
-    <main style="flex: 1; min-width: 0;">
+
+    <main class="design-main">
       <section>
         <h2>Overview</h2>
         <p>Navigation bars are typically placed at the top of pages and contain the site logo/branding on the left and main navigation links on the right.</p>
-        <p><strong>Category:</strong> Navigation</p>
+        <p><strong>Category:</strong> Navigation Components</p>
         <p><strong>Dark Mode Support:</strong> Yes</p>
+        <p><strong>Production Classes:</strong> <code>.navbar</code>, <code>.navbar-brand</code>, <code>.brand-logo</code>, <code>.navbar-nav</code>, <code>.nav-item</code>, <code>.nav-link</code></p>
       </section>
 
-      <section style="margin-top: 2rem;">
+      <section class="design-section">
         <h2>Component Demo</h2>
+
+        <h3>Standard Navbar</h3>
         <div class="component-demo">
           <nav class="navbar">
-            <a href="#" class="navbar-brand">🔬 SciTeX</a>
+            <div class="navbar-brand">
+              <a href="#" class="brand-logo">SciTeX</a>
+            </div>
             <ul class="navbar-nav">
-              <li><a href="#explore">Explore</a></li>
-              <li><a href="#scholar">Scholar</a></li>
-              <li><a href="#code">Code</a></li>
-              <li><a href="#viz">Viz</a></li>
-              <li><a href="#docs">Docs</a></li>
+              <li class="nav-item"><a href="#explore" class="nav-link active">Explore</a></li>
+              <li class="nav-item"><a href="#scholar" class="nav-link">Scholar</a></li>
+              <li class="nav-item"><a href="#code" class="nav-link">Code</a></li>
+              <li class="nav-item"><a href="#viz" class="nav-link">Viz</a></li>
+              <li class="nav-item"><a href="#docs" class="nav-link">Docs</a></li>
+            </ul>
+          </nav>
+        </div>
+
+        <h3>Navbar with Mobile Toggle</h3>
+        <div class="component-demo">
+          <nav class="navbar">
+            <div class="navbar-brand">
+              <a href="#" class="brand-logo">SciTeX Cloud</a>
+            </div>
+            <button class="navbar-toggler" onclick="this.nextElementSibling.classList.toggle('show')">☰</button>
+            <div class="navbar-collapse">
+              <ul class="navbar-nav">
+                <li class="nav-item"><a href="#dashboard" class="nav-link">Dashboard</a></li>
+                <li class="nav-item"><a href="#projects" class="nav-link active">Projects</a></li>
+                <li class="nav-item"><a href="#settings" class="nav-link">Settings</a></li>
+              </ul>
+            </div>
+          </nav>
+        </div>
+
+        <h3>Navbar with Multiple Items</h3>
+        <div class="component-demo">
+          <nav class="navbar">
+            <div class="navbar-brand">
+              <a href="#" class="brand-logo">Research Platform</a>
+            </div>
+            <ul class="navbar-nav">
+              <li class="nav-item"><a href="#home" class="nav-link">Home</a></li>
+              <li class="nav-item"><a href="#features" class="nav-link">Features</a></li>
+              <li class="nav-item"><a href="#pricing" class="nav-link">Pricing</a></li>
+              <li class="nav-item"><a href="#docs" class="nav-link">Docs</a></li>
+              <li class="nav-item"><a href="#about" class="nav-link">About</a></li>
+              <li class="nav-item"><a href="#contact" class="nav-link">Contact</a></li>
+            </ul>
+          </nav>
+        </div>
+
+        <h3>Compact Navbar</h3>
+        <div class="component-demo">
+          <nav class="navbar">
+            <div class="navbar-brand">
+              <a href="#" class="brand-logo">Logo</a>
+            </div>
+            <ul class="navbar-nav">
+              <li class="nav-item"><a href="#home" class="nav-link active">Home</a></li>
+              <li class="nav-item"><a href="#about" class="nav-link">About</a></li>
+              <li class="nav-item"><a href="#contact" class="nav-link">Contact</a></li>
             </ul>
           </nav>
         </div>
       </section>
 
-      <section style="margin-top: 2rem;">
-        <h2>States</h2>
+      <section class="design-section">
+        <h2>Elements</h2>
         <ul>
-          <li><strong>default</strong> - Normal navigation state</li>
-          <li><strong>hover</strong> - Links fade slightly on hover</li>
-          <li><strong>active</strong> - Can highlight current page</li>
+          <li><strong>.navbar</strong> - Main navbar container with flex layout</li>
+          <li><strong>.navbar-brand</strong> - Brand/logo container area</li>
+          <li><strong>.brand-logo</strong> - Logo link with large, bold text</li>
+          <li><strong>.navbar-nav</strong> - Navigation links container (flex list)</li>
+          <li><strong>.nav-item</strong> - Individual navigation item wrapper</li>
+          <li><strong>.nav-link</strong> - Navigation link with hover and active states</li>
+          <li><strong>.navbar-toggler</strong> - Mobile menu toggle button</li>
+          <li><strong>.navbar-collapse</strong> - Collapsible navbar content on mobile</li>
         </ul>
       </section>
 
-      <section style="margin-top: 2rem;">
+      <section class="design-section">
+        <h2>States</h2>
+        <ul>
+          <li><strong>default</strong> - Normal navigation state</li>
+          <li><strong>hover</strong> - Links change color and get background on hover</li>
+          <li><strong>active</strong> - Current page link with distinct styling (.nav-link.active)</li>
+          <li><strong>collapsed</strong> - Mobile collapsed state (hidden menu)</li>
+          <li><strong>expanded</strong> - Mobile expanded state (visible menu with .show class)</li>
+        </ul>
+      </section>
+
+      <section class="design-section">
+        <h2>Responsive Behavior</h2>
+        <ul>
+          <li>On desktop (>768px): Horizontal layout with inline navigation links</li>
+          <li>On mobile (≤768px): Toggle button appears, menu collapses vertically</li>
+          <li>Mobile menu expands full-width when toggle is clicked</li>
+          <li>Navigation items stack vertically on mobile for easy touch access</li>
+        </ul>
+      </section>
+
+      <section class="design-section">
         <h2>HTML Example</h2>
-        <pre><code>&lt;nav class="navbar"&gt;
-  &lt;a href="#" class="navbar-brand"&gt;Logo&lt;/a&gt;
+        <pre><code class="language-html">&lt;!-- Basic Navbar --&gt;
+&lt;nav class="navbar"&gt;
+  &lt;div class="navbar-brand"&gt;
+    &lt;a href="/" class="brand-logo"&gt;SciTeX&lt;/a&gt;
+  &lt;/div&gt;
   &lt;ul class="navbar-nav"&gt;
-    &lt;li&gt;&lt;a href="#"&gt;Home&lt;/a&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;a href="#"&gt;About&lt;/a&gt;&lt;/li&gt;
+    &lt;li class="nav-item"&gt;&lt;a href="#" class="nav-link active"&gt;Home&lt;/a&gt;&lt;/li&gt;
+    &lt;li class="nav-item"&gt;&lt;a href="#" class="nav-link"&gt;About&lt;/a&gt;&lt;/li&gt;
+    &lt;li class="nav-item"&gt;&lt;a href="#" class="nav-link"&gt;Contact&lt;/a&gt;&lt;/li&gt;
   &lt;/ul&gt;
-&lt;/nav&gt;</code></pre>
+&lt;/nav&gt;
+
+&lt;!-- Navbar with Mobile Toggle --&gt;
+&lt;nav class="navbar"&gt;
+  &lt;div class="navbar-brand"&gt;
+    &lt;a href="/" class="brand-logo"&gt;SciTeX Cloud&lt;/a&gt;
+  &lt;/div&gt;
+  &lt;button class="navbar-toggler" onclick="toggleMenu()"&gt;☰&lt;/button&gt;
+  &lt;div class="navbar-collapse"&gt;
+    &lt;ul class="navbar-nav"&gt;
+      &lt;li class="nav-item"&gt;&lt;a href="#" class="nav-link"&gt;Dashboard&lt;/a&gt;&lt;/li&gt;
+      &lt;li class="nav-item"&gt;&lt;a href="#" class="nav-link"&gt;Projects&lt;/a&gt;&lt;/li&gt;
+      &lt;li class="nav-item"&gt;&lt;a href="#" class="nav-link"&gt;Settings&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/div&gt;
+&lt;/nav&gt;
+
+&lt;script&gt;
+function toggleMenu() {
+  document.querySelector('.navbar-collapse').classList.toggle('show');
+}
+&lt;/script&gt;</code></pre>
+      </section>
+
+      <section class="design-section">
+        <h2>CSS Classes</h2>
+        <table class="design-table">
+          <thead>
+            <tr>
+              <th>Class</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>.navbar</code></td>
+              <td>Main navbar container with flex layout</td>
+            </tr>
+            <tr>
+              <td><code>.navbar-brand</code></td>
+              <td>Brand/logo container area</td>
+            </tr>
+            <tr>
+              <td><code>.brand-logo</code></td>
+              <td>Logo link with large, bold text (1.5rem, weight 700)</td>
+            </tr>
+            <tr>
+              <td><code>.navbar-nav</code></td>
+              <td>Navigation links container (flex list)</td>
+            </tr>
+            <tr>
+              <td><code>.nav-item</code></td>
+              <td>Individual navigation item wrapper</td>
+            </tr>
+            <tr>
+              <td><code>.nav-link</code></td>
+              <td>Navigation link with hover and active states</td>
+            </tr>
+            <tr>
+              <td><code>.nav-link.active</code></td>
+              <td>Active/current page link state</td>
+            </tr>
+            <tr>
+              <td><code>.navbar-toggler</code></td>
+              <td>Mobile menu toggle button (hidden on desktop)</td>
+            </tr>
+            <tr>
+              <td><code>.navbar-collapse</code></td>
+              <td>Collapsible navbar content on mobile</td>
+            </tr>
+            <tr>
+              <td><code>.navbar-collapse.show</code></td>
+              <td>Expanded mobile menu state</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="design-section">
+        <h2>Dark Mode Support</h2>
+        <p>The navbar automatically adapts to dark mode with the <code>[data-theme="dark"]</code> attribute:</p>
+        <ul>
+          <li>Background changes to dark color (scitex-color-01-light)</li>
+          <li>Text colors adjust for proper contrast</li>
+          <li>Hover and active states use appropriate dark theme colors</li>
+          <li>Border colors adapt to maintain visibility</li>
+        </ul>
       </section>
     </main>
   </div>

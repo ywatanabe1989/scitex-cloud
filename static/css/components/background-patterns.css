@@ -63,12 +63,12 @@
     background-position: 0 0, 40px 60px, 130px 270px, 70px 100px, 150px 30px;
 }
 
-/* Grid Pattern */
+/* Grid Pattern - Balanced */
 .bg-pattern-grid::before {
     background-image:
-        linear-gradient(var(--_scitex-05) 1px, transparent 1px),
-        linear-gradient(90deg, var(--_scitex-05) 1px, transparent 1px);
-    background-size: 50px 50px;
+        linear-gradient(rgba(143, 164, 176, 0.25) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(143, 164, 176, 0.25) 1px, transparent 1px);
+    background-size: 60px 60px;
 }
 
 /* Diagonal Stripes */
@@ -132,8 +132,9 @@
 
 [data-theme="dark"] .bg-pattern-grid::before {
     background-image:
-        linear-gradient(var(--_scitex-03) 1px, transparent 1px),
-        linear-gradient(90deg, var(--_scitex-03) 1px, transparent 1px);
+        linear-gradient(rgba(80, 107, 122, 0.2) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(80, 107, 122, 0.2) 1px, transparent 1px);
+    background-size: 60px 60px;
 }
 
 [data-theme="dark"] .bg-pattern-stripes::before {

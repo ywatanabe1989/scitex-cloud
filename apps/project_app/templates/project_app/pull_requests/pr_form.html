@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "global_base.html" %}
 {% load static %}
 
 {% block title %}Create Pull Request - {{ project.name }}{% endblock %}
@@ -148,15 +148,8 @@
     </div>
     {% endif %}
 </div>
+{% endblock %}
 
-<script>
-function updateComparison() {
-    const base = document.getElementById('baseSelect').value;
-    const head = document.getElementById('headSelect').value;
-
-    if (base && head) {
-        window.location.href = `?base=${base}&head=${head}`;
-    }
-}
-</script>
+{% block extra_js %}
+<script src="{% static 'project_app/js/pr_form.js' %}"></script>
 {% endblock %}

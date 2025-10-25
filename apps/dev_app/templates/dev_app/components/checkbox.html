@@ -1,165 +1,254 @@
 {% extends "global_base.html" %}
 
+{% block title %}Checkbox - SciTeX Design System{% endblock %}
+
+{% block meta_description %}Custom-styled checkboxes with theme support for multiple selection inputs.{% endblock %}
+
+{% block extra_css %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'dev_app/css/design-demo.css' %}">
+<link rel="stylesheet" href="{% static 'css/common/code-blocks.css' %}">
+<link rel="stylesheet" href="{% static 'dev_app/styles/design.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/zenburn.min.css">
+{% endblock %}
+
 {% block content %}
-<div class="dev-design-layout">
-  {% include "dev_app/design_partial/sidebar.html" %}
+<section class="design-header">
+  <div class="container">
+    <h1>Checkbox</h1>
+    <p class="design-subtitle">Custom-styled checkboxes with theme support for multiple selection inputs</p>
+  </div>
+</section>
 
-  <main class="design-content">
-    <div class="design-header">
-      <h1>Checkbox</h1>
-      <p class="design-subtitle">Multiple selection input component</p>
-    </div>
+<div class="container py-5">
+  <div class="design-layout">
+    {% include 'dev_app/design_partial/sidebar.html' %}
 
-    <style>
-      .checkbox-demo {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-        padding: 2rem;
-        background-color: var(--bg-secondary);
-        border-radius: 8px;
-        margin-bottom: 2rem;
-      }
+    <main class="design-main">
+      <section>
+        <h2>Overview</h2>
+        <p>Checkboxes allow users to select multiple options from a list. The SciTeX design system provides custom-styled checkboxes with full theme support.</p>
+        <p><strong>Category:</strong> Form and Selection</p>
+        <p><strong>Dark Mode Support:</strong> Yes</p>
+        <p><strong>Production Class:</strong> <code>.scitex-checkbox</code>, <code>.scitex-checkbox-label</code></p>
+      </section>
 
-      .checkbox-group {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-      }
+      <section class="design-section">
+        <h2>Component Demo</h2>
+        <div class="component-demo">
+          <h3>Basic Checkboxes</h3>
+          <div style="display: flex; flex-direction: column; gap: 1rem; margin: 1.5rem 0;">
+            <div class="scitex-checkbox-wrapper">
+              <input type="checkbox" id="checkbox1" class="scitex-checkbox">
+              <label for="checkbox1" class="scitex-checkbox-label">Unchecked checkbox</label>
+            </div>
 
-      .checkbox-label {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        cursor: pointer;
-        font-size: 1rem;
-      }
+            <div class="scitex-checkbox-wrapper">
+              <input type="checkbox" id="checkbox2" class="scitex-checkbox" checked>
+              <label for="checkbox2" class="scitex-checkbox-label">Checked checkbox</label>
+            </div>
 
-      .checkbox-group-label {
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-        color: var(--text-primary);
-      }
+            <div class="scitex-checkbox-wrapper">
+              <input type="checkbox" id="checkbox3" class="scitex-checkbox" disabled>
+              <label for="checkbox3" class="scitex-checkbox-label">Disabled unchecked (not fully implemented)</label>
+            </div>
 
-      input[type="checkbox"] {
-        width: 18px;
-        height: 18px;
-        cursor: pointer;
-        accent-color: #007AFF;
-      }
+            <div class="scitex-checkbox-wrapper">
+              <input type="checkbox" id="checkbox4" class="scitex-checkbox" checked disabled>
+              <label for="checkbox4" class="scitex-checkbox-label">Disabled checked (not fully implemented)</label>
+            </div>
+          </div>
 
-      input[type="checkbox"]:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-      }
+          <h3>Checkbox Group</h3>
+          <div style="display: flex; flex-direction: column; gap: 1rem; margin: 1.5rem 0;">
+            <div style="font-weight: 600; color: var(--text-primary);">Notification Preferences</div>
 
-      .checkbox-description {
-        font-size: 0.85rem;
-        color: var(--text-secondary);
-        margin-left: 1.75rem;
-      }
-    </style>
+            <div class="scitex-checkbox-wrapper">
+              <input type="checkbox" id="email-notif" class="scitex-checkbox" checked>
+              <label for="email-notif" class="scitex-checkbox-label">Email notifications</label>
+            </div>
 
-    <section class="design-section">
-      <h2>Overview</h2>
-      <div class="section-info">
-        <p><strong>Category:</strong> Form & Selection</p>
-        <p><strong>Dark mode:</strong> Supported</p>
-        <p>Checkboxes allow users to select multiple options from a list. They can be used individually or in groups.</p>
-      </div>
-    </section>
+            <div class="scitex-checkbox-wrapper">
+              <input type="checkbox" id="push-notif" class="scitex-checkbox" checked>
+              <label for="push-notif" class="scitex-checkbox-label">Push notifications</label>
+            </div>
 
-    <section class="design-section">
-      <h2>Component Demo</h2>
-      <div class="checkbox-demo">
-        <!-- Standard Checkboxes -->
-        <div class="checkbox-group">
-          <div class="checkbox-group-label">Subscribe to Notifications</div>
-          <label class="checkbox-label">
-            <input type="checkbox" checked>
-            <span>Email notifications</span>
-          </label>
-          <label class="checkbox-label">
-            <input type="checkbox" checked>
-            <span>Push notifications</span>
-          </label>
-          <label class="checkbox-label">
-            <input type="checkbox">
-            <span>SMS notifications</span>
-          </label>
+            <div class="scitex-checkbox-wrapper">
+              <input type="checkbox" id="sms-notif" class="scitex-checkbox">
+              <label for="sms-notif" class="scitex-checkbox-label">SMS notifications</label>
+            </div>
+
+            <div class="scitex-checkbox-wrapper">
+              <input type="checkbox" id="weekly-digest" class="scitex-checkbox">
+              <label for="weekly-digest" class="scitex-checkbox-label">Weekly digest</label>
+            </div>
+          </div>
+
+          <h3>With Descriptions</h3>
+          <div style="display: flex; flex-direction: column; gap: 1.5rem; margin: 1.5rem 0;">
+            <div>
+              <div class="scitex-checkbox-wrapper">
+                <input type="checkbox" id="auto-save" class="scitex-checkbox" checked>
+                <label for="auto-save" class="scitex-checkbox-label">Auto-save</label>
+              </div>
+              <div style="font-size: 0.875rem; color: var(--text-secondary); margin-left: 2rem; margin-top: 0.25rem;">
+                Automatically save your work in progress every 30 seconds
+              </div>
+            </div>
+
+            <div>
+              <div class="scitex-checkbox-wrapper">
+                <input type="checkbox" id="analytics" class="scitex-checkbox">
+                <label for="analytics" class="scitex-checkbox-label">Analytics and tracking</label>
+              </div>
+              <div style="font-size: 0.875rem; color: var(--text-secondary); margin-left: 2rem; margin-top: 0.25rem;">
+                Help us improve by sharing anonymous usage data
+              </div>
+            </div>
+
+            <div>
+              <div class="scitex-checkbox-wrapper">
+                <input type="checkbox" id="beta-features" class="scitex-checkbox">
+                <label for="beta-features" class="scitex-checkbox-label">Beta features</label>
+              </div>
+              <div style="font-size: 0.875rem; color: var(--text-secondary); margin-left: 2rem; margin-top: 0.25rem;">
+                Get early access to experimental features (may be unstable)
+              </div>
+            </div>
+          </div>
         </div>
+      </section>
 
-        <!-- Disabled State -->
-        <div class="checkbox-group">
-          <div class="checkbox-group-label">Disabled Options</div>
-          <label class="checkbox-label">
-            <input type="checkbox" checked disabled>
-            <span>Option 1 (locked)</span>
-          </label>
-          <label class="checkbox-label">
-            <input type="checkbox" disabled>
-            <span>Option 2 (locked)</span>
-          </label>
-        </div>
-
-        <!-- With Descriptions -->
-        <div class="checkbox-group">
-          <div class="checkbox-group-label">Features</div>
-          <label class="checkbox-label">
-            <input type="checkbox" checked>
-            <span>Dark Mode</span>
-          </label>
-          <div class="checkbox-description">Enable dark theme for comfortable viewing</div>
-          <label class="checkbox-label">
-            <input type="checkbox">
-            <span>Auto-save</span>
-          </label>
-          <div class="checkbox-description">Automatically save your work in progress</div>
-        </div>
-      </div>
-    </section>
-
-    <section class="design-section">
-      <h2>Variants & States</h2>
-      <div class="variants-list">
+      <section class="design-section">
+        <h2>States</h2>
         <ul>
-          <li><strong>Unchecked:</strong> Default state, ready for selection</li>
-          <li><strong>Checked:</strong> Selected state with checkmark</li>
-          <li><strong>Disabled:</strong> Unavailable for interaction (can be checked or unchecked)</li>
-          <li><strong>With Label:</strong> Checkbox paired with descriptive text</li>
-          <li><strong>In Group:</strong> Multiple checkboxes for multi-select</li>
+          <li><strong>default</strong> - Unchecked state with border</li>
+          <li><strong>checked</strong> - Checked with white checkmark icon on primary background</li>
+          <li><strong>hover</strong> - Background highlight on label hover</li>
+          <li><strong>disabled</strong> - Reduced opacity (not yet fully implemented)</li>
         </ul>
-      </div>
-    </section>
+      </section>
 
-    <section class="design-section">
-      <h2>HTML Code Example</h2>
-      <pre><code class="language-html">&lt;!-- Single Checkbox --&gt;
-&lt;label class="checkbox-label"&gt;
-  &lt;input type="checkbox"&gt;
-  &lt;span&gt;Accept terms and conditions&lt;/span&gt;
-&lt;/label&gt;
+      <section class="design-section">
+        <h2>Variants</h2>
+        <ul>
+          <li><strong>.scitex-checkbox</strong> - Hidden native checkbox input</li>
+          <li><strong>.scitex-checkbox-label</strong> - Custom styled label with visual checkbox</li>
+          <li><strong>.scitex-checkbox-wrapper</strong> - Optional wrapper for positioning</li>
+        </ul>
+      </section>
 
-&lt;!-- Checkbox Group --&gt;
-&lt;div class="checkbox-group"&gt;
-  &lt;div class="checkbox-group-label"&gt;Preferences&lt;/div&gt;
-  &lt;label class="checkbox-label"&gt;
-    &lt;input type="checkbox" checked&gt;
-    &lt;span&gt;Option 1&lt;/span&gt;
-  &lt;/label&gt;
-  &lt;label class="checkbox-label"&gt;
-    &lt;input type="checkbox"&gt;
-    &lt;span&gt;Option 2&lt;/span&gt;
-  &lt;/label&gt;
+      <section class="design-section">
+        <h2>HTML Example</h2>
+        <pre><code class="language-html">&lt;!-- Single Checkbox --&gt;
+&lt;div class="scitex-checkbox-wrapper"&gt;
+  &lt;input type="checkbox" id="option1" class="scitex-checkbox"&gt;
+  &lt;label for="option1" class="scitex-checkbox-label"&gt;Option 1&lt;/label&gt;
 &lt;/div&gt;
 
-&lt;!-- Disabled Checkbox --&gt;
-&lt;label class="checkbox-label"&gt;
-  &lt;input type="checkbox" disabled&gt;
-  &lt;span&gt;Unavailable option&lt;/span&gt;
-&lt;/label&gt;</code></pre>
-      <script>hljs.highlightAll();</script>
-    </section>
-  </main>
+&lt;!-- Checked Checkbox --&gt;
+&lt;div class="scitex-checkbox-wrapper"&gt;
+  &lt;input type="checkbox" id="option2" class="scitex-checkbox" checked&gt;
+  &lt;label for="option2" class="scitex-checkbox-label"&gt;Option 2 (Checked)&lt;/label&gt;
+&lt;/div&gt;
+
+&lt;!-- Checkbox Group --&gt;
+&lt;div style="display: flex; flex-direction: column; gap: 1rem;"&gt;
+  &lt;div style="font-weight: 600;"&gt;Preferences&lt;/div&gt;
+
+  &lt;div class="scitex-checkbox-wrapper"&gt;
+    &lt;input type="checkbox" id="pref1" class="scitex-checkbox" checked&gt;
+    &lt;label for="pref1" class="scitex-checkbox-label"&gt;Preference 1&lt;/label&gt;
+  &lt;/div&gt;
+
+  &lt;div class="scitex-checkbox-wrapper"&gt;
+    &lt;input type="checkbox" id="pref2" class="scitex-checkbox"&gt;
+    &lt;label for="pref2" class="scitex-checkbox-label"&gt;Preference 2&lt;/label&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- With Description --&gt;
+&lt;div&gt;
+  &lt;div class="scitex-checkbox-wrapper"&gt;
+    &lt;input type="checkbox" id="feature1" class="scitex-checkbox"&gt;
+    &lt;label for="feature1" class="scitex-checkbox-label"&gt;Feature Name&lt;/label&gt;
+  &lt;/div&gt;
+  &lt;div style="font-size: 0.875rem; color: var(--text-secondary); margin-left: 2rem;"&gt;
+    Description of what this feature does
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+      </section>
+
+      <section class="design-section">
+        <h2>CSS Classes</h2>
+        <table class="design-table">
+          <thead>
+            <tr>
+              <th>Class</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>.scitex-checkbox</code></td>
+              <td>Hidden native checkbox input (required)</td>
+            </tr>
+            <tr>
+              <td><code>.scitex-checkbox-label</code></td>
+              <td>Custom styled label with visual checkbox (required)</td>
+            </tr>
+            <tr>
+              <td><code>.scitex-checkbox-wrapper</code></td>
+              <td>Optional wrapper for positioning</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="design-section">
+        <h2>Design Notes</h2>
+        <div style="background-color: var(--bg-surface); padding: 1.5rem; border-radius: 8px; border-left: 4px solid var(--primary-color);">
+          <h4 style="margin-top: 0;">Visual Design</h4>
+          <ul>
+            <li>The custom checkbox is created using the <code>::before</code> pseudo-element on the label</li>
+            <li>Checked state uses an SVG checkmark icon embedded in CSS</li>
+            <li>Hover effect provides subtle background highlighting</li>
+            <li>Dark mode changes colors to bluish theme using SciTeX color variables</li>
+          </ul>
+
+          <h4>Implementation Status</h4>
+          <ul>
+            <li>Disabled state is partially implemented (opacity reduction on input)</li>
+            <li>Consider adding visual disabled styles to the label and ::before element</li>
+            <li>May need additional ARIA attributes for accessibility</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="design-section">
+        <h2>Accessibility</h2>
+        <ul>
+          <li>Always associate labels with inputs using the <code>for</code> attribute</li>
+          <li>Provide clear, descriptive label text</li>
+          <li>Group related checkboxes with a visible heading or legend</li>
+          <li>Consider adding descriptions for complex options</li>
+          <li>Ensure sufficient color contrast for both light and dark themes</li>
+        </ul>
+      </section>
+    </main>
+  </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+{% load static %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('pre code').forEach((block) => {
+      hljs.highlightElement(block);
+    });
+  });
+</script>
+<script src="{% static 'js/code-blocks.js' %}"></script>
 {% endblock %}

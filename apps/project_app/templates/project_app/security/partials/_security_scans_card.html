@@ -1,0 +1,50 @@
+<!-- Recent Scans -->
+<div class="card mt-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Recent security scans</h5>
+        <a href="{% url 'user_projects:scan_history' project.owner.username project.slug %}" class="text-decoration-none">View history</a>
+    </div>
+    <div class="card-body p-0">
+        {% if recent_scans %}
+            <table class="table table-sm mb-0">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Alerts</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for scan in recent_scans %}
+                    <tr>
+                        <td>{{ scan.get_scan_type_display }}</td>
+                        <td>
+                            {% if scan.status == 'completed' %}
+                                <span class="badge bg-success">{{ scan.get_status_display }}</span>
+                            {% elif scan.status == 'failed' %}
+                                <span class="badge bg-danger">{{ scan.get_status_display }}</span>
+                            {% elif scan.status == 'running' %}
+                                <span class="badge bg-primary">{{ scan.get_status_display }}</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ scan.get_status_display }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="severity-critical">{{ scan.critical_count }}</span> /
+                            <span class="severity-high">{{ scan.high_count }}</span> /
+                            <span class="severity-medium">{{ scan.medium_count }}</span> /
+                            <span class="severity-low">{{ scan.low_count }}</span>
+                        </td>
+                        <td>{{ scan.started_at|timesince }} ago</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+        <div class="p-4 text-center text-muted">
+            No security scans yet
+        </div>
+        {% endif %}
+    </div>
+</div>

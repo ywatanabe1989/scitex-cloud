@@ -9,16 +9,9 @@
 {% endblock %}
 
 {% block content %}
-<div class="container">
-    <!-- Breadcrumbs -->
-    <nav aria-label="breadcrumb" style="margin-top: 1rem;">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'user_projects:detail' project.owner.username project.slug %}">{{ project.name }}</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'user_projects:actions_list' project.owner.username project.slug %}">Actions</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'user_projects:workflow_detail' project.owner.username project.slug workflow.id %}">{{ workflow.name }}</a></li>
-            <li class="breadcrumb-item active">Run #{{ run.run_number }}</li>
-        </ol>
-    </nav>
+<div class="container-fluid" style="max-width: 1280px;" data-run-status="{{ run.status }}">
+    {% include 'project_app/partials/_project_header.html' %}
+    {% include 'project_app/partials/_repo_tabs.html' with active_tab='actions' %}
 
     <!-- Run Header -->
     <div class="run-header">
@@ -138,43 +131,8 @@
         {% endif %}
     </div>
 </div>
+{% endblock %}
 
-<script>
-function toggleJob(jobId) {
-    const stepsDiv = document.getElementById(`job-${jobId}-steps`);
-    const chevron = document.getElementById(`job-${jobId}-chevron`);
-
-    stepsDiv.classList.toggle('show');
-
-    if (stepsDiv.classList.contains('show')) {
-        chevron.classList.remove('bi-chevron-down');
-        chevron.classList.add('bi-chevron-up');
-    } else {
-        chevron.classList.remove('bi-chevron-up');
-        chevron.classList.add('bi-chevron-down');
-    }
-}
-
-function toggleStep(stepId) {
-    const outputDiv = document.getElementById(`step-${stepId}-output`);
-    const chevron = document.getElementById(`step-${stepId}-chevron`);
-
-    outputDiv.classList.toggle('show');
-
-    if (outputDiv.classList.contains('show')) {
-        chevron.classList.remove('bi-chevron-down');
-        chevron.classList.add('bi-chevron-up');
-    } else {
-        chevron.classList.remove('bi-chevron-up');
-        chevron.classList.add('bi-chevron-down');
-    }
-}
-
-// Auto-refresh for in-progress runs
-{% if run.status == 'in_progress' %}
-setTimeout(function() {
-    location.reload();
-}, 5000); // Refresh every 5 seconds
-{% endif %}
-</script>
+{% block extra_js %}
+<script src="{% static 'project_app/js/workflow_run_detail.js' %}"></script>
 {% endblock %}

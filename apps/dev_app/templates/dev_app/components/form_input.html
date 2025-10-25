@@ -6,162 +6,213 @@
 
 {% block extra_css %}
 {% load static %}
-<link rel="stylesheet" href="{% static 'css/common.css' %}">
+<link rel="stylesheet" href="{% static 'dev_app/css/design-demo.css' %}">
 <link rel="stylesheet" href="{% static 'css/common/code-blocks.css' %}">
 <link rel="stylesheet" href="{% static 'dev_app/styles/design.css' %}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/zenburn.min.css">
-<style>
-  .form-group {
-    margin-bottom: 1.5rem;
-  }
-  .form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-    color: var(--text-primary);
-  }
-  .form-group input[type="text"],
-  .form-group input[type="email"],
-  .form-group input[type="password"],
-  .form-group input[type="number"],
-  .form-group textarea {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid var(--border-default);
-    border-radius: 4px;
-    background-color: var(--bg-page);
-    color: var(--text-primary);
-    font-size: 1rem;
-    transition: all 0.2s ease;
-  }
-  .form-group input:focus,
-  .form-group textarea:focus {
-    outline: none;
-    border-color: var(--text-link);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
-  .form-group input:disabled {
-    background-color: var(--bg-muted);
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-  .form-group input.error {
-    border-color: var(--status-error);
-  }
-  .form-group input.success {
-    border-color: var(--status-success);
-  }
-  .form-help {
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-    margin-top: 0.25rem;
-  }
-  .form-error {
-    font-size: 0.875rem;
-    color: var(--status-error);
-    margin-top: 0.25rem;
-  }
-  .component-demo {
-    background-color: var(--bg-surface);
-    border: 1px solid var(--border-default);
-    border-radius: 8px;
-    padding: 2rem;
-    margin: 1rem 0;
-  }
-</style>
 {% endblock %}
 
 {% block content %}
-<section style="background-color: var(--header-bg); color: var(--header-text); padding: 3rem 0; box-shadow: var(--shadow-md);">
-  <div class="container" style="text-align: center;">
-    <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem; font-weight: 700;">Form Input</h1>
-    <p style="font-size: 1.125rem; color: var(--header-text); opacity: 0.9;">Text input fields with various states, sizes, and validation states</p>
+<section class="design-header">
+  <div class="container">
+    <h1>Form Input</h1>
+    <p class="design-subtitle">Text input fields with various states, sizes, and validation states</p>
   </div>
 </section>
 
 <div class="container py-5">
-  <div style="display: flex; gap: 2rem;">
+  <div class="design-layout">
     {% include 'dev_app/design_partial/sidebar.html' %}
-    
-    <main style="flex: 1; min-width: 0;">
+
+    <main class="design-main">
       <section>
         <h2>Overview</h2>
-        <p>Form input fields are fundamental form elements for capturing user text input. They support various states including focused, disabled, and validation states (success/error).</p>
+        <p>Form input fields are fundamental form elements for capturing user text input. They support various states including focused, disabled, and validation states (success/error/warning).</p>
         <p><strong>Category:</strong> Form and Selection</p>
         <p><strong>Dark Mode Support:</strong> Yes</p>
+        <p><strong>Production Classes:</strong> <code>.form-control</code>, <code>.form-group</code>, <code>.form-label</code></p>
       </section>
 
-      <section style="margin-top: 2rem;">
+      <section class="design-section">
         <h2>Component Demo</h2>
-        <div class="component-demo" style="max-width: 600px;">
+        <div class="component-demo">
           <div class="form-group">
-            <label>Default Input</label>
-            <input type="text" placeholder="Enter text here...">
-            <div class="form-help">This is a helper text</div>
+            <label class="form-label">Default Input</label>
+            <input type="text" class="form-control" placeholder="Enter text here...">
+            <div class="form-text">This is helper text to assist the user</div>
           </div>
 
           <div class="form-group">
-            <label>Focused Input</label>
-            <input type="text" placeholder="This input is focused" autofocus>
+            <label class="form-label">Email Input</label>
+            <input type="email" class="form-control" placeholder="your@email.com">
           </div>
 
           <div class="form-group">
-            <label>Success State</label>
-            <input type="text" class="success" value="Valid input" placeholder="Success">
-            <div class="form-help" style="color: var(--status-success);">✓ Input is valid</div>
+            <label class="form-label">Password Input</label>
+            <input type="password" class="form-control" placeholder="Enter password">
           </div>
 
           <div class="form-group">
-            <label>Error State</label>
-            <input type="text" class="error" placeholder="Invalid input">
-            <div class="form-error">✗ This field is required</div>
+            <label class="form-label">Number Input</label>
+            <input type="number" class="form-control" placeholder="Enter a number" value="42">
           </div>
 
           <div class="form-group">
-            <label>Disabled Input</label>
-            <input type="text" disabled value="Disabled input" placeholder="You cannot edit this">
+            <label class="form-label">Valid State</label>
+            <input type="text" class="form-control is-valid" value="Valid input">
+            <div class="valid-feedback">Looks good!</div>
           </div>
 
           <div class="form-group">
-            <label>Email Input</label>
-            <input type="email" placeholder="your@email.com">
+            <label class="form-label">Invalid State</label>
+            <input type="text" class="form-control is-invalid" placeholder="Invalid input">
+            <div class="invalid-feedback">This field is required</div>
           </div>
 
           <div class="form-group">
-            <label>Password Input</label>
-            <input type="password" placeholder="Enter password">
+            <label class="form-label">Warning State</label>
+            <input type="text" class="form-control is-warning" value="Short password">
+            <div class="warning-feedback">Password should be at least 8 characters</div>
           </div>
 
           <div class="form-group">
-            <label>Number Input</label>
-            <input type="number" placeholder="Enter a number" value="42">
+            <label class="form-label">Disabled Input</label>
+            <input type="text" class="form-control" disabled value="Disabled input">
           </div>
 
           <div class="form-group">
-            <label>Textarea</label>
-            <textarea placeholder="Enter multiple lines of text..." rows="4"></textarea>
+            <label class="form-label">Readonly Input</label>
+            <input type="text" class="form-control" readonly value="Read-only value">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Small Size</label>
+            <input type="text" class="form-control form-control-sm" placeholder="Small input">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Large Size</label>
+            <input type="text" class="form-control form-control-lg" placeholder="Large input">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Textarea</label>
+            <textarea class="form-control" placeholder="Enter multiple lines of text..." rows="4"></textarea>
           </div>
         </div>
       </section>
 
-      <section style="margin-top: 2rem;">
+      <section class="design-section">
         <h2>States</h2>
         <ul>
-          <li><strong>default</strong> - Default input state</li>
-          <li><strong>focus</strong> - Input is focused with blue border and shadow</li>
-          <li><strong>success</strong> - Validation success with green border</li>
-          <li><strong>error</strong> - Validation error with red border</li>
-          <li><strong>disabled</strong> - Input is disabled and cannot be edited</li>
+          <li><strong>default</strong> - Normal interactive state</li>
+          <li><strong>focus</strong> - Highlighted border and shadow when focused</li>
+          <li><strong>valid</strong> - Valid input state with green border and checkmark</li>
+          <li><strong>invalid</strong> - Invalid input state with red border and error icon</li>
+          <li><strong>warning</strong> - Warning state with yellow border and warning icon</li>
+          <li><strong>disabled</strong> - Non-interactive disabled state</li>
+          <li><strong>readonly</strong> - Read-only state (not editable)</li>
         </ul>
       </section>
 
-      <section style="margin-top: 2rem;">
+      <section class="design-section">
+        <h2>Sizes</h2>
+        <ul>
+          <li><strong>.form-control-sm</strong> - Small input field</li>
+          <li><strong>.form-control</strong> - Default size</li>
+          <li><strong>.form-control-lg</strong> - Large input field</li>
+        </ul>
+      </section>
+
+      <section class="design-section">
         <h2>HTML Example</h2>
-        <pre><code>&lt;div class="form-group"&gt;
-  &lt;label&gt;Email Address&lt;/label&gt;
-  &lt;input type="email" placeholder="your@email.com"&gt;
-  &lt;div class="form-help"&gt;We'll never share your email&lt;/div&gt;
+        <pre><code class="language-html">&lt;div class="form-group"&gt;
+  &lt;label class="form-label" for="email"&gt;Email Address&lt;/label&gt;
+  &lt;input type="email" id="email" class="form-control" placeholder="you@example.com"&gt;
+  &lt;div class="form-text"&gt;We'll never share your email&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Valid input --&gt;
+&lt;div class="form-group"&gt;
+  &lt;label class="form-label" for="username"&gt;Username&lt;/label&gt;
+  &lt;input type="text" id="username" class="form-control is-valid" value="john_doe"&gt;
+  &lt;div class="valid-feedback"&gt;Looks good!&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Invalid input --&gt;
+&lt;div class="form-group"&gt;
+  &lt;label class="form-label" for="password"&gt;Password&lt;/label&gt;
+  &lt;input type="password" id="password" class="form-control is-invalid"&gt;
+  &lt;div class="invalid-feedback"&gt;Password is required&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Textarea --&gt;
+&lt;div class="form-group"&gt;
+  &lt;label class="form-label" for="message"&gt;Message&lt;/label&gt;
+  &lt;textarea id="message" class="form-control" rows="4"&gt;&lt;/textarea&gt;
 &lt;/div&gt;</code></pre>
+      </section>
+
+      <section class="design-section">
+        <h2>CSS Classes</h2>
+        <table class="design-table">
+          <thead>
+            <tr>
+              <th>Class</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>.form-control</code></td>
+              <td>Base input/textarea/select class</td>
+            </tr>
+            <tr>
+              <td><code>.form-control-sm</code></td>
+              <td>Small size variant</td>
+            </tr>
+            <tr>
+              <td><code>.form-control-lg</code></td>
+              <td>Large size variant</td>
+            </tr>
+            <tr>
+              <td><code>.form-group</code></td>
+              <td>Container for label + input with spacing</td>
+            </tr>
+            <tr>
+              <td><code>.form-label</code></td>
+              <td>Label styling for form fields</td>
+            </tr>
+            <tr>
+              <td><code>.form-text</code></td>
+              <td>Helper text below input</td>
+            </tr>
+            <tr>
+              <td><code>.is-valid</code></td>
+              <td>Valid state with green border</td>
+            </tr>
+            <tr>
+              <td><code>.is-invalid</code></td>
+              <td>Invalid state with red border</td>
+            </tr>
+            <tr>
+              <td><code>.is-warning</code></td>
+              <td>Warning state with yellow border</td>
+            </tr>
+            <tr>
+              <td><code>.valid-feedback</code></td>
+              <td>Success message (shown with .is-valid)</td>
+            </tr>
+            <tr>
+              <td><code>.invalid-feedback</code></td>
+              <td>Error message (shown with .is-invalid)</td>
+            </tr>
+            <tr>
+              <td><code>.warning-feedback</code></td>
+              <td>Warning message (shown with .is-warning)</td>
+            </tr>
+          </tbody>
+        </table>
       </section>
     </main>
   </div>

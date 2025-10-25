@@ -1,3 +1,9 @@
+<!-- ---
+!-- Timestamp: 2025-10-25 06:06:10
+!-- Author: ywatanabe
+!-- File: /home/ywatanabe/proj/scitex-cloud/static/css/docs/CSS_REFACTORING_PLAN.md
+!-- --- -->
+
 # CSS Architecture Refactoring Plan
 
 **Branch:** `refactor/css-architecture`
@@ -232,3 +238,5 @@ Update HTML templates to use new utility-first approach:
 ---
 
 *This refactoring will make our CSS maintainable, scalable, and a joy to work with.*
+
+<!-- EOF -->

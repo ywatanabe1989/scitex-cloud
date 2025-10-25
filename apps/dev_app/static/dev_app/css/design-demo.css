@@ -1,0 +1,141 @@
+/* Design System Demo Page Utilities
+ *
+ * This file contains ONLY layout/presentation utilities for the design system demo pages.
+ * It does NOT override component styles - components use production CSS from /static/css/
+ */
+
+/* Page Header */
+.design-header {
+  background-color: var(--bg-surface);
+  padding: 3rem 0;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--border-default);
+}
+
+.design-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.design-subtitle {
+  font-size: 1.125rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Page Layout */
+.design-layout {
+  display: flex;
+  gap: 2rem;
+}
+
+.design-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.design-section {
+  /* margin-top: 2rem; */
+}
+
+/* Demo Containers */
+.component-demo {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  padding: 2rem;
+  margin: 1rem 0;
+  max-width: 100%;
+}
+
+.button-demo {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  padding: 2rem;
+  margin: 1rem 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+}
+
+.card-demo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  padding: 2rem;
+  background-color: var(--bg-muted);
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+/* Design System Table */
+.design-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.design-table th,
+.design-table td {
+  text-align: left;
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--border-default);
+}
+
+.design-table th {
+  font-weight: 600;
+  background-color: var(--bg-muted);
+  color: var(--text-primary);
+}
+
+.design-table td {
+  color: var(--text-secondary);
+}
+
+.design-table code {
+  background-color: var(--bg-muted);
+  padding: 0.2rem 0.4rem;
+  border-radius: 3px;
+  font-size: 0.875rem;
+}
+
+/* Dark Mode */
+[data-theme="dark"] .design-header {
+  background-color: var(--scitex-color-01-light);
+  border-bottom-color: var(--scitex-color-03);
+}
+
+[data-theme="dark"] .design-header h1 {
+  color: var(--scitex-color-07);
+}
+
+[data-theme="dark"] .design-subtitle {
+  color: var(--scitex-color-05);
+}
+
+[data-theme="dark"] .component-demo,
+[data-theme="dark"] .button-demo {
+  background-color: var(--scitex-color-01-light);
+  border-color: var(--scitex-color-03);
+}
+
+[data-theme="dark"] .card-demo {
+  background-color: var(--scitex-color-01);
+}
+
+[data-theme="dark"] .design-table th {
+  background-color: var(--scitex-color-01);
+}
+
+[data-theme="dark"] .design-table th,
+[data-theme="dark"] .design-table td {
+  border-bottom-color: var(--scitex-color-03);
+}
+
+[data-theme="dark"] .design-table code {
+  background-color: var(--scitex-color-01);
+}

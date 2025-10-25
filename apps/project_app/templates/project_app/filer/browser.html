@@ -45,7 +45,12 @@
         <div class="file-manager-content">
             <!-- File Upload Zone -->
             <div class="upload-zone" id="upload-zone">
-                <div class="upload-icon">📤</div>
+                <div class="upload-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="48" height="48">
+                        <path fill="var(--color-fg-muted)" d="M2.75 14A1.75 1.75 0 0 1 1 12.25v-2.5a.75.75 0 0 1 1.5 0v2.5c0 .138.112.25.25.25h10.5a.25.25 0 0 0 .25-.25v-2.5a.75.75 0 0 1 1.5 0v2.5A1.75 1.75 0 0 1 13.25 14H2.75Z"/>
+                        <path fill="var(--color-fg-muted)" d="M11.78 4.72a.749.749 0 1 1-1.06 1.06L8.75 3.811V9.5a.75.75 0 0 1-1.5 0V3.811L5.28 5.78a.749.749 0 1 1-1.06-1.06l3.25-3.25a.749.749 0 0 1 1.06 0l3.25 3.25Z"/>
+                    </svg>
+                </div>
                 <p><strong>Drag and drop files here</strong> or click "Upload Files" button</p>
                 <p class="text-muted">Supports documents, images, code files, and data files</p>
             </div>
@@ -89,61 +94,8 @@
         </div>
     </div>
 </div>
+{% endblock %}
 
-<script>
-// File manager functionality
-function handleFileUpload(event) {
-    const files = event.target.files;
-    if (files.length > 0) {
-        // In a real implementation, this would upload files via AJAX
-        alert(`Selected ${files.length} file(s) for upload. Upload functionality to be implemented.`);
-    }
-}
-
-function createFolder() {
-    const folderName = prompt('Enter folder name:');
-    if (folderName && folderName.trim()) {
-        // In a real implementation, this would create a folder via AJAX
-        alert(`Creating folder: ${folderName}`);
-    }
-}
-
-function refreshFiles() {
-    // In a real implementation, this would refresh the file list via AJAX
-    location.reload();
-}
-
-function openFile(fileName) {
-    // In a real implementation, this would open or download the file
-    alert(`Opening: ${fileName}`);
-}
-
-// Drag and drop functionality
-const uploadZone = document.getElementById('upload-zone');
-
-uploadZone.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    uploadZone.classList.add('dragover');
-});
-
-uploadZone.addEventListener('dragleave', (e) => {
-    e.preventDefault();
-    uploadZone.classList.remove('dragover');
-});
-
-uploadZone.addEventListener('drop', (e) => {
-    e.preventDefault();
-    uploadZone.classList.remove('dragover');
-    
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-        // In a real implementation, this would upload files via AJAX
-        alert(`Dropped ${files.length} file(s). Upload functionality to be implemented.`);
-    }
-});
-
-uploadZone.addEventListener('click', () => {
-    document.getElementById('file-upload').click();
-});
-</script>
+{% block extra_js %}
+<script src="{% static 'project_app/js/file_browser.js' %}"></script>
 {% endblock %}

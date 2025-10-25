@@ -30,62 +30,120 @@
     margin-bottom: 1.5rem;
 }
 
-/* File browser table - GitHub style with visible edges */
+/* ============================================================================= */
+/* FILE BROWSER TABLE - GITHUB STYLE */
+/* ============================================================================= */
+
+/* Container with border and rounded corners */
 .file-browser {
     border: 1px solid var(--color-border-default);
     border-radius: 6px;
     overflow: hidden;
     margin-bottom: 1.5rem;
     background: var(--color-canvas-default);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
 }
 
-.file-browser table {
+.file-browser-table {
     width: 100%;
     margin: 0;
     border-collapse: collapse;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
-.file-browser th {
+/* Table Header */
+.file-browser-header {
     background: var(--color-neutral-muted);
-    padding: 6px 12px;
+    padding: 8px 16px;
     text-align: left;
     font-weight: 600;
     font-size: 12px;
     color: var(--color-fg-muted);
     border-bottom: 1px solid var(--color-border-default);
+    line-height: 1.5;
 }
 
-.file-browser tbody tr {
+.file-browser-name-col {
+    width: 40%;
+}
+
+.file-browser-message-col {
+    width: 45%;
+}
+
+.file-browser-time-col {
+    width: 15%;
+    text-align: right;
+}
+
+/* Table Rows - Full row hover and clickability */
+.file-browser-row {
     cursor: pointer;
-    transition: background-color 0.05s ease;
+    transition: background-color 0.08s ease-out;
     border-top: 1px solid var(--color-border-default);
 }
 
-.file-browser tbody tr:hover {
+.file-browser-row:first-child {
+    border-top: none;
+}
+
+.file-browser-row:hover {
     background: var(--color-neutral-muted);
 }
 
-.file-browser td {
-    padding: 6px 12px;
+/* Table Cells */
+.file-browser-cell {
+    padding: 8px 16px;
     font-size: 14px;
     color: var(--color-fg-default);
     vertical-align: middle;
+    line-height: 20px;
 }
 
-.file-name {
+/* Name Cell with Icon and Text */
+.file-browser-name-cell {
+    width: 40%;
+}
+
+.file-browser-link {
     color: var(--color-accent-fg);
     text-decoration: none;
     font-weight: 600;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
 }
 
-.file-name:hover {
+.file-browser-link:hover {
     text-decoration: underline;
 }
 
+.file-browser-link:hover .file-browser-name {
+    text-decoration: underline;
+}
+
+/* SVG Icons - Octicons */
+.file-browser-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    vertical-align: text-bottom;
+}
+
+.octicon-directory {
+    fill: #54aeff;
+}
+
+.octicon-file {
+    fill: var(--color-fg-muted);
+}
+
+[data-theme="dark"] .octicon-directory {
+    fill: #58a6ff;
+}
+
+.file-browser-name {
+    color: var(--color-accent-fg);
+}
 
 
 
@@ -95,75 +153,82 @@
 
 
 
-.file-browser .commit-message {
-    color: var(--color-fg-default);
+
+/* Commit Message Cell */
+.file-browser-message-cell {
+    width: 45%;
+    color: var(--color-fg-muted);
     font-size: 12px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
-    display: flex;
-    align-items: center;
-    gap: 6px;
 }
 
-.file-browser .commit-message a {
-    color: var(--color-fg-default);
+.file-browser-commit-message {
+    color: var(--color-fg-muted);
     text-decoration: none;
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
-    flex: 1;
+    display: inline-block;
+    max-width: calc(100% - 80px);
+    vertical-align: middle;
 }
 
-.file-browser .commit-message a:hover {
+.file-browser-commit-message:hover {
     color: var(--color-accent-fg);
     text-decoration: underline;
 }
 
-.file-browser .commit-hash {
-    font-family: ui-monospace, 'Cascadia Code', monospace;
+.file-browser-no-commit {
+    color: var(--color-fg-muted);
+    font-style: italic;
+}
+
+/* Commit Hash Badge */
+.file-browser-commit-hash {
+    font-family: ui-monospace, 'Cascadia Code', 'Courier New', monospace;
     font-size: 12px;
     color: var(--color-fg-muted);
-    background: var(--color-neutral-muted);
+    background: rgba(175, 184, 193, 0.2);
     padding: 2px 6px;
     border-radius: 6px;
     text-decoration: none;
     white-space: nowrap;
-    flex-shrink: 0;
+    margin-left: 8px;
+    display: inline-block;
+    vertical-align: middle;
     position: relative;
 }
 
-.file-browser .commit-hash:hover {
+.file-browser-commit-hash:hover {
     color: var(--color-accent-fg);
     background: var(--color-accent-subtle);
 }
 
-.file-browser .commit-hash::before {
+/* Tooltip for full commit hash */
+.file-browser-commit-hash::before {
     content: attr(data-hash);
     position: absolute;
     bottom: calc(100% + 8px);
     left: 50%;
     transform: translateX(-50%);
-    background: var(--color-canvas-overlay);
-    color: var(--color-fg-on-emphasis);
+    background: #24292f;
+    color: #ffffff;
     padding: 6px 10px;
     border-radius: 6px;
     font-size: 11px;
     white-space: nowrap;
     z-index: 1000;
-    border: 1px solid var(--color-border-default);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 24px rgba(31, 35, 40, 0.45);
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.2s ease;
 }
 
-.file-browser .commit-hash:hover::before {
+.file-browser-commit-hash:hover::before {
     opacity: 1;
 }
 
-.file-browser .commit-hash::after {
+/* Tooltip arrow */
+.file-browser-commit-hash::after {
     content: '';
     position: absolute;
     bottom: calc(100% + 2px);
@@ -173,33 +238,36 @@
     height: 0;
     border-left: 6px solid transparent;
     border-right: 6px solid transparent;
-    border-top: 6px solid var(--color-canvas-overlay);
+    border-top: 6px solid #24292f;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.2s ease;
 }
 
-.file-browser .commit-hash:hover::after {
+.file-browser-commit-hash:hover::after {
     opacity: 1;
 }
 
-.file-browser .commit-time {
+[data-theme="dark"] .file-browser-commit-hash {
+    background: rgba(110, 118, 129, 0.4);
+}
+
+[data-theme="dark"] .file-browser-commit-hash::before {
+    background: #c9d1d9;
+    color: #0d1117;
+}
+
+[data-theme="dark"] .file-browser-commit-hash::after {
+    border-top-color: #c9d1d9;
+}
+
+/* Time Cell */
+.file-browser-time-cell {
+    width: 15%;
+    text-align: right;
     color: var(--color-fg-muted);
     font-size: 12px;
     white-space: nowrap;
-}
-
-.file-browser td:first-child {
-    width: 40%;
-}
-
-.file-browser td:nth-child(2) {
-    width: 45%;
-}
-
-.file-browser td:last-child {
-    width: 15%;
-    text-align: right;
 }
 
 
@@ -392,21 +460,21 @@
     margin-left: 2px;
 }
 
-/* GitHub-style layout with sidebar on LEFT */
+/* GitHub-style layout with sidebar on LEFT - COLLAPSED BY DEFAULT */
 .repo-layout {
     display: grid;
-    grid-template-columns: 296px 1fr;  /* Sidebar first, then main content */
+    grid-template-columns: 60px 1fr;  /* Start collapsed by default - slightly wider for icons */
     gap: 24px;
     margin-top: 1.5rem;
     transition: grid-template-columns 0.3s ease;
 }
 
 .repo-layout.sidebar-collapsed {
-    grid-template-columns: 48px 1fr;  /* Collapsed width */
+    grid-template-columns: 60px 1fr;  /* Collapsed width - wider for larger icons */
 }
 
 .repo-layout.sidebar-expanded {
-    grid-template-columns: 380px 1fr;  /* Expanded width - larger than default */
+    grid-template-columns: 420px 1fr;  /* Expanded width - LARGER than before (was 380px) */
 }
 
 .repo-main {
@@ -419,14 +487,15 @@
     align-self: start;
     overflow: hidden;
     transition: all 0.3s ease;
+    width: 60px;  /* Default collapsed width */
 }
 
 .repo-sidebar.collapsed {
-    width: 48px;
+    width: 60px;  /* Wider for larger icons */
 }
 
 .repo-sidebar.expanded {
-    width: 380px;
+    width: 420px;  /* LARGER when expanded */
 }
 
 /* Sidebar toggle button */

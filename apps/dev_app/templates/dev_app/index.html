@@ -6,71 +6,7 @@
 {% block meta_description %}Developer tools and resources for the SciTeX platform{% endblock %}
 
 {% block extra_css %}
-<style>
-  .dev-hero {
-    background: linear-gradient(135deg, var(--scitex-color-01) 0%, var(--scitex-color-02) 50%, var(--scitex-color-03) 100%);
-    color: white;
-    padding: 4rem 0;
-    text-align: center;
-  }
-
-  .dev-card {
-    background: var(--color-canvas-default);
-    border: 1px solid var(--color-border-default);
-    border-radius: 12px;
-    padding: 2rem;
-    margin-bottom: 1.5rem;
-    transition: all 0.3s ease;
-    height: 100%;
-  }
-
-  .dev-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-    border-color: var(--scitex-color-04);
-  }
-
-  .dev-card h3 {
-    color: var(--color-fg-default);
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  .dev-card p {
-    color: var(--color-fg-muted);
-    margin-bottom: 1.5rem;
-  }
-
-  .dev-card .btn {
-    width: 100%;
-  }
-
-  .dev-icon {
-    font-size: 2rem;
-    color: var(--scitex-color-04);
-  }
-
-  /* Quick links styling */
-  .dev-card a.btn {
-    margin-top: auto;
-  }
-
-  /* Link colors in lists */
-  ul li a {
-    color: var(--color-accent-fg);
-    text-decoration: none;
-  }
-
-  ul li a:hover {
-    text-decoration: underline;
-  }
-
-  [data-theme="dark"] .dev-icon {
-    color: var(--scitex-color-06);  /* Lighter icon in dark mode */
-  }
-</style>
+<link rel="stylesheet" href="{% static 'dev_app/css/dev-index.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -175,14 +111,14 @@
   <!-- Quick Links -->
   <div class="row mt-5">
     <div class="col-12">
-      <div style="background: var(--color-canvas-subtle); border-radius: 12px; padding: 2rem;">
-        <h2 class="mb-4" style="color: var(--color-fg-default);">
+      <div class="dev-quick-links">
+        <h2 class="mb-4">
           <i class="fas fa-link"></i> Quick Links
         </h2>
         <div class="row">
           <div class="col-md-6">
-            <h4 style="color: var(--color-fg-default); font-size: 1.1rem;">Design Resources</h4>
-            <ul style="color: var(--color-fg-muted);">
+            <h4>Design Resources</h4>
+            <ul>
               <li><a href="/dev/design/#colors">Color Palette</a></li>
               <li><a href="/dev/design/#typography">Typography</a></li>
               <li><a href="/dev/design/#spacing">Spacing System</a></li>
@@ -190,8 +126,8 @@
             </ul>
           </div>
           <div class="col-md-6">
-            <h4 style="color: var(--color-fg-default); font-size: 1.1rem;">Developer Resources</h4>
-            <ul style="color: var(--color-fg-muted);">
+            <h4>Developer Resources</h4>
+            <ul>
               <li><a href="https://github.com/SciTeX-AI" target="_blank">GitHub Organization</a></li>
               <li><a href="/api-docs/">API Documentation</a></li>
               <li><a href="/dev/design/#guidelines">Usage Guidelines</a></li>

@@ -26,6 +26,7 @@
 
   --_white: #ffffff;
   --_gray-subtle: #f6f8fa;
+  --_warm-white: #fafbfc;  /* Professional warm off-white for page background */
 
   /* Status colors */
   --_success: #4a9b7e;
@@ -50,20 +51,20 @@
    * SEMANTIC TOKENS (public API - use these in components)
    * =========================================================================== */
 
-  /* Text */
-  --text-primary: var(--_scitex-01);
-  --text-secondary: var(--_scitex-03);
-  --text-muted: var(--_scitex-04);
+  /* Text - Richer, more professional */
+  --text-primary: var(--_scitex-01);      /* Deep bluish-gray for excellent readability */
+  --text-secondary: var(--_scitex-02);    /* Medium for secondary text (was 03, now richer) */
+  --text-muted: var(--_scitex-04);        /* Light for muted text */
   --text-inverse: var(--_white);
 
-  /* Background */
-  --bg-page: var(--_white);
-  --bg-surface: var(--_gray-subtle);
-  --bg-muted: var(--_scitex-07);
+  /* Background - Professional warm tones */
+  --bg-page: var(--_warm-white);          /* Soft warm off-white (was pure white) */
+  --bg-surface: var(--_white);            /* Crisp white for cards (was gray-subtle) */
+  --bg-muted: var(--_gray-subtle);        /* Subtle gray for secondary surfaces */
 
-  /* Border */
-  --border-default: var(--_scitex-06);
-  --border-muted: var(--_scitex-07);
+  /* Border - Slightly stronger for definition */
+  --border-default: var(--_scitex-05);    /* Medium border (was 06, now stronger) */
+  --border-muted: var(--_scitex-06);      /* Subtle border */
 
   /* Status */
   --status-success: var(--_success);

@@ -1,18 +1,20 @@
-{% extends 'project_app/project_detail.html' %}
+{% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Dependency Graph - {{ project.name }}{% endblock %}
 
-{% block project_content %}
-<div class="container-fluid mt-4">
-    <h2 class="mb-3">Dependencies</h2>
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'project_app/css/project_app.css' %}">
+<link rel="stylesheet" href="{% static 'css/common/buttons.css' %}">
+{% endblock %}
 
-    <nav class="nav nav-tabs mb-4">
-        <a class="nav-link" href="{% url 'user_projects:security_overview' project.owner.username project.slug %}">Overview</a>
-        <a class="nav-link" href="{% url 'user_projects:security_alerts' project.owner.username project.slug %}">Alerts</a>
-        <a class="nav-link" href="{% url 'user_projects:security_policy' project.owner.username project.slug %}">Security policy</a>
-        <a class="nav-link" href="{% url 'user_projects:security_advisories' project.owner.username project.slug %}">Advisories</a>
-        <a class="nav-link active" href="{% url 'user_projects:dependency_graph' project.owner.username project.slug %}">Dependencies</a>
-    </nav>
+{% block content %}
+<div class="container-fluid" style="max-width: 1280px;">
+    {% include 'project_app/partials/_project_header.html' %}
+    {% include 'project_app/partials/_repo_tabs.html' with active_tab='security' %}
+    {% include 'project_app/security/partials/_security_tabs.html' with active_tab='dependencies' %}
+
+    <h2 class="mb-3">Dependencies</h2>
 
     <div class="row mb-3">
         <div class="col-md-3">

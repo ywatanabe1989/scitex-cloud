@@ -279,63 +279,14 @@
   border-bottom: 4px solid var(--scitex-color-05);
 }
 
-.hero-landing {
-  border-bottom: none;
-}
+/* .hero-landing is page-specific - defined in /apps/public_app/static/public_app/css/landing.css */
 
 /* =========================
    Extended Hero Variants
-   (Extracted from page-specific CSS)
    ========================= */
 
-/* Landing Hero with Grid Layout */
-.hero--landing-grid {
-  padding: 5rem 0 3rem;
-  position: relative;
-  overflow: hidden;
-  margin-bottom: 0;
-  border-bottom: none;
-}
-
-.hero--landing-grid .hero-wrapper {
-  display: grid;
-  grid-template-columns: 1.5fr 1fr;
-  align-items: center;
-  gap: 3rem;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.hero--landing-grid .hero-content {
-  text-align: left;
-}
-
-.hero--landing-grid .hero-title {
-  font-size: 3.5rem;
-  font-weight: 700;
-  margin-bottom: 1.5rem;
-  color: var(--scitex-color-01);
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-}
-
-[data-theme="dark"] .hero--landing-grid .hero-title {
-  color: var(--scitex-color-07);
-}
-
-.hero--landing-grid .hero-subtitle {
-  font-size: 1.25rem;
-  font-weight: 400;
-  margin-bottom: 2rem;
-  color: var(--scitex-color-01);
-  max-width: 540px;
-  line-height: 1.6;
-  letter-spacing: -0.01em;
-}
-
-[data-theme="dark"] .hero--landing-grid .hero-subtitle {
-  color: var(--scitex-color-07);
-}
+/* Note: Landing-specific hero styles (.hero-landing, .hero--landing-grid)
+   are now in /apps/public_app/static/public_app/css/landing.css */
 
 /* Hero Badges */
 .hero-badges {
@@ -343,32 +294,53 @@
   display: flex;
   gap: 1rem;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .hero-badge {
   padding: 0.5rem 1rem;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 0.9rem;
-  font-weight: 500;
+  font-weight: 600;
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
 }
 
-.hero-badge--success {
+.hero-badge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Badge color variants with both naming conventions for compatibility */
+.hero-badge--success,
+.hero-badge.badge-success {
   background: var(--success-color, #28a745);
   color: white;
 }
 
-.hero-badge--primary {
-  background: var(--primary-color, #0366d6);
+.hero-badge--primary,
+.hero-badge.badge-primary {
+  background: var(--scitex-color-01);
   color: white;
 }
 
-.hero-badge--secondary {
-  background: var(--scitex-color-02);
+.hero-badge--secondary,
+.hero-badge.badge-secondary {
+  background: var(--scitex-color-03);
   color: white;
+}
+
+/* Dark theme badge adjustments */
+[data-theme="dark"] .hero-badge.badge-primary {
+  background: var(--scitex-color-04);
+}
+
+[data-theme="dark"] .hero-badge.badge-secondary {
+  background: var(--scitex-color-05);
+  color: var(--scitex-color-01);
 }
 
 /* Hero Actions (Button Group) */
@@ -379,16 +351,15 @@
   flex-wrap: wrap;
 }
 
-.hero--landing-grid .hero-actions {
-  justify-content: flex-start;
-}
+/* Landing-specific hero actions moved to landing.css */
 
 /* Hero Bullet Points */
 .hero-bullet-point {
-  font-size: 1.3rem;
-  margin-bottom: 1rem;
-  color: var(--scitex-color-01);
-  line-height: 1.5;
+  font-size: 1.2rem;
+  margin-bottom: 0.75rem;
+  color: var(--scitex-color-01); /* Dark blue-gray for good contrast on light gradient */
+  line-height: 1.6;
+  font-weight: 500;
 }
 
 [data-theme="dark"] .hero-bullet-point {
@@ -448,31 +419,8 @@
   margin: 0 auto;
 }
 
-/* Responsive Hero Grid */
-@media (max-width: 992px) {
-  .hero--landing-grid .hero-wrapper {
-    grid-template-columns: 1fr;
-    gap: 2rem;
-  }
-
-  .hero--landing-grid .hero-content {
-    text-align: center;
-  }
-
-  .hero--landing-grid .hero-actions {
-    justify-content: center;
-  }
-
-  .hero--landing-grid .hero-title {
-    font-size: 2.5rem;
-  }
-}
-
+/* Landing-specific responsive styles moved to landing.css */
 @media (max-width: 576px) {
-  .hero--landing-grid .hero-title {
-    font-size: 2rem;
-  }
-
   .hero-badges {
     justify-content: flex-start;
   }

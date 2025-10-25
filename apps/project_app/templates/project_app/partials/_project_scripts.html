@@ -7,18 +7,32 @@ const SIDEBAR_SECTIONS_KEY = 'scitex-sidebar-sections';
 function initializeSidebar() {
     const sidebar = document.getElementById('repo-sidebar');
     const repoLayout = document.getElementById('repo-layout');
+    const toggleBtn = document.getElementById('sidebar-toggle');
     const savedState = localStorage.getItem(SIDEBAR_STATE_KEY);
 
     console.log('Initializing sidebar. Saved state:', savedState);
 
-    // Always start collapsed by default (per GitHub style), ignore saved state initially
-    sidebar.classList.add('collapsed');
-    repoLayout.classList.add('sidebar-collapsed');
-    console.log('Sidebar initialized as collapsed (default)');
-
-    // Clear the expanded state if it was saved
+    // Start collapsed by default, but respect localStorage if user explicitly expanded it
     if (savedState === 'expanded') {
-        localStorage.setItem(SIDEBAR_STATE_KEY, 'collapsed');
+        sidebar.classList.remove('collapsed');
+        sidebar.classList.add('expanded');
+        if (repoLayout) {
+            repoLayout.classList.remove('sidebar-collapsed');
+            repoLayout.classList.add('sidebar-expanded');
+        }
+        if (toggleBtn) {
+            toggleBtn.setAttribute('title', 'Collapse sidebar');
+        }
+        console.log('Sidebar initialized as expanded (from localStorage)');
+    } else {
+        sidebar.classList.add('collapsed');
+        if (repoLayout) {
+            repoLayout.classList.add('sidebar-collapsed');
+        }
+        if (toggleBtn) {
+            toggleBtn.setAttribute('title', 'Expand sidebar');
+        }
+        console.log('Sidebar initialized as collapsed (default)');
     }
 
     // Restore section states
@@ -42,22 +56,33 @@ function initializeSidebar() {
 function toggleSidebar() {
     const sidebar = document.getElementById('repo-sidebar');
     const repoLayout = document.getElementById('repo-layout');
+    const toggleBtn = document.getElementById('sidebar-toggle');
 
     if (sidebar.classList.contains('collapsed')) {
         // Expand sidebar
         sidebar.classList.remove('collapsed');
         sidebar.classList.add('expanded');
-        repoLayout.classList.remove('sidebar-collapsed');
-        repoLayout.classList.add('sidebar-expanded');
+        if (repoLayout) {
+            repoLayout.classList.remove('sidebar-collapsed');
+            repoLayout.classList.add('sidebar-expanded');
+        }
         localStorage.setItem(SIDEBAR_STATE_KEY, 'expanded');
+        if (toggleBtn) {
+            toggleBtn.setAttribute('title', 'Collapse sidebar');
+        }
         console.log('Sidebar expanded');
     } else {
         // Collapse sidebar
         sidebar.classList.remove('expanded');
         sidebar.classList.add('collapsed');
-        repoLayout.classList.remove('sidebar-expanded');
-        repoLayout.classList.add('sidebar-collapsed');
+        if (repoLayout) {
+            repoLayout.classList.remove('sidebar-expanded');
+            repoLayout.classList.add('sidebar-collapsed');
+        }
         localStorage.setItem(SIDEBAR_STATE_KEY, 'collapsed');
+        if (toggleBtn) {
+            toggleBtn.setAttribute('title', 'Expand sidebar');
+        }
         console.log('Sidebar collapsed');
     }
 }
@@ -182,8 +207,8 @@ document.addEventListener('DOMContentLoaded', function() {
     loadFileTree();
 
     // Make table rows clickable
-    const clickableRows = document.querySelectorAll('.clickable-row');
-    clickableRows.forEach(row => {
+    const fileBrowserRows = document.querySelectorAll('.file-browser-row');
+    fileBrowserRows.forEach(row => {
         row.addEventListener('click', function(e) {
             // Don't navigate if clicking on a link directly
             if (e.target.tagName === 'A' || e.target.closest('a')) {
@@ -236,7 +261,8 @@ async function copyProjectToClipboard() {
 
         if (data.success) {
             await navigator.clipboard.writeText(data.content);
-            btn.innerHTML = `✓ Copied ${data.file_count} files!`;
+            const checkIcon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" class="octicon octicon-16" style="vertical-align: text-bottom; margin-right: 4px;"><path fill="currentColor" d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"></path></svg>';
+            btn.innerHTML = `${checkIcon} Copied ${data.file_count} files!`;
             setTimeout(() => {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -276,7 +302,8 @@ async function downloadProjectAsFile() {
             document.body.removeChild(a);
             window.URL.revokeObjectURL(url);
 
-            btn.innerHTML = `✓ Downloaded ${data.file_count} files!`;
+            const checkIcon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" class="octicon octicon-16" style="vertical-align: text-bottom; margin-right: 4px;"><path fill="currentColor" d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"></path></svg>';
+            btn.innerHTML = `${checkIcon} Downloaded ${data.file_count} files!`;
             setTimeout(() => {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -492,14 +519,51 @@ function getCookie(name) {
 // =============================================================================
 
 function toggleBranchDropdown() {
-    const dropdown = document.getElementById('branch-dropdown-menu');
-    const isVisible = dropdown.style.display === 'block';
+    const dropdown = document.getElementById('branch-dropdown');
+    const isVisible = dropdown && dropdown.style.display === 'block';
 
     // Close all other dropdowns
     closeAllDropdowns();
 
-    dropdown.style.display = isVisible ? 'none' : 'block';
-    console.log('Branch dropdown toggled:', dropdown.style.display);
+    if (dropdown) {
+        dropdown.style.display = isVisible ? 'none' : 'block';
+        console.log('Branch dropdown toggled:', dropdown.style.display);
+    }
+}
+
+function switchBranch(branchName) {
+    console.log('Switching to branch:', branchName);
+    document.getElementById('current-branch').textContent = branchName;
+
+    // Update active state in dropdown
+    document.querySelectorAll('.branch-item').forEach(item => {
+        if (item.dataset.branch === branchName) {
+            item.classList.add('active');
+            item.querySelector('svg').style.opacity = '1';
+        } else {
+            item.classList.remove('active');
+            item.querySelector('svg').style.opacity = '0';
+        }
+    });
+
+    // Close dropdown
+    document.getElementById('branch-dropdown').style.display = 'none';
+
+    // TODO: Reload page with selected branch
+    // window.location.href = `/{{ project.owner.username }}/{{ project.slug }}/?branch=${branchName}`;
+}
+
+// Simple wrapper functions for toolbar buttons
+function toggleWatch() {
+    handleWatch({ currentTarget: document.getElementById('watch-btn') });
+}
+
+function toggleStar() {
+    handleStar({ currentTarget: document.getElementById('star-btn') });
+}
+
+function forkProject() {
+    handleFork({ currentTarget: document.getElementById('fork-btn') });
 }
 
 function toggleAddFileDropdown() {

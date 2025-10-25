@@ -105,7 +105,7 @@ apps/dev_app/
 
 ### Option 3: Load Static Tags Separately
 ```django
-{% extends "global_base.html" %}
+{% extends "public_base.html" %}
 {% load static %}
 
 {% block extra_js %}
@@ -189,7 +189,7 @@ To add a new design system section:
 
 - View implementation: `apps/dev_app/views.py`
 - URL routing: `apps/dev_app/urls.py`
-- Global base template: `templates/global_base.html`
+- Global base template: `templates/public_base.html`
 
 ---
 

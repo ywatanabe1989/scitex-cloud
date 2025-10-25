@@ -77,12 +77,13 @@
   flex-direction: column;
   min-width: 0;
   word-wrap: break-word;
-  background-color: white;
+  background-color: var(--bg-surface);
   background-clip: border-box;
-  border: var(--border-width) solid var(--border-color);
-  border-radius: var(--border-radius);
-  box-shadow: var(--box-shadow-sm);
+  border: var(--border-width) solid var(--border-default);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--box-shadow-card);
   overflow: hidden;
+  transition: all var(--transition-normal);
 }
 
 /* Card Body */

@@ -7,31 +7,18 @@
 {% block meta_description %}SciTeX - The complete scientific research platform for researchers and academics{% endblock %}
 
 {% block extra_css %}
-<!-- Page-specific CSS removed - now using utilities and components -->
+<!-- Landing page-specific styles -->
+<link rel="stylesheet" href="{% static 'public_app/css/landing.css' %}">
+<link rel="stylesheet" href="{% static 'public_app/css/landing-enhanced.css' %}">
+<link rel="stylesheet" href="{% static 'public_app/css/landing-ecosystem.css' %}">
+<link rel="stylesheet" href="{% static 'public_app/css/landing-hero-fix.css' %}">
 {% endblock %}
 
 {% block content %}
 
 {% include 'public_app/landing_partials/landing_hero.html' %}
 
-<!-- Development Warning Banner -->
-<div style="background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%); border-bottom: 3px solid #e65100; padding: 1rem 0; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
-  <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 0 1rem;">
-    <div style="display: flex; align-items: flex-start; justify-content: center; gap: 1rem; color: white;">
-      <svg width="24" height="24" viewBox="0 0 16 16" fill="currentColor" style="flex-shrink: 0; margin-top: 2px;">
-        <path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"/>
-      </svg>
-      <div style="font-size: 0.95rem; line-height: 1.6; max-width: 900px;">
-        <div style="margin-bottom: 0.5rem;">
-          <strong>⚠️ SciTeX Cloud (v{{ SCITEX_VERSION }})</strong> This website is under active development.
-        </div>
-        <div style="font-size: 0.9rem; opacity: 0.95;">
-          Not all functionalities are implemented. Any data may be lost until stable version is released. <strong>Modules may work locally better.</strong>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+{% include 'public_app/landing_partials/landing_warning_bunner.html' %}
 
 {% include 'public_app/landing_partials/landing_ecosystem.html' %}
 

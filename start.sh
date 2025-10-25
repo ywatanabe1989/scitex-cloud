@@ -1,1 +1,0 @@
-deployment/server/start.sh

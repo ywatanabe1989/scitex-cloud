@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "global_base.html" %}
 {% load static %}
 
 {% block title %}{{ file_name }} - {{ project.name }}{% endblock %}
@@ -14,7 +14,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/monokai.min.css" data-theme-name="monokai" class="hljs-theme" disabled>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/nord.min.css" data-theme-name="nord" class="hljs-theme" disabled>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" data-theme-name="atom-one-dark" class="hljs-theme" disabled>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" data-theme-name="github-dark" class="hljs-theme" disabled>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" data-theme-name="github-dark" class="hljs-theme">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/vs2015.min.css" data-theme-name="vs2015" class="hljs-theme" disabled>
 
 <!-- Light Themes -->
@@ -26,37 +26,81 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/xcode.min.css" data-theme-name="xcode" class="hljs-theme" disabled>
 
 <style>
-    /* Line numbers styling */
+    /* Line numbers styling - GitHub style */
     .hljs-ln-numbers {
         text-align: right;
-        padding-right: 24px;
-        padding-left: 16px;
+        padding-right: 16px;
+        padding-left: 10px;
         user-select: none;
         width: 1%;
+        min-width: 50px;
         vertical-align: top;
-        border-right: 1px solid var(--color-border-muted);
-        font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
-        font-size: 14px;
-        font-weight: 400;
+        border-right: 1px solid var(--color-border-default);
+        font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+        font-size: 12px;
+        line-height: 20px;
+        color: var(--color-fg-muted);
+        background-color: var(--color-canvas-default);
     }
 
     .hljs-ln-code {
-        padding-left: 24px;
+        padding-left: 16px;
+        padding-right: 16px;
     }
 
+    /* Main code block styling */
     pre code.hljs {
         padding: 0;
         display: block;
-        font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
-        font-size: 14px;
+        font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+        font-size: 12px;
+        line-height: 20px;
         font-weight: 400;
-        line-height: 1.6;
+        background: var(--color-canvas-default);
+    }
+
+    /* Code container with scroll shadows */
+    .file-content {
+        position: relative;
+        max-height: 80vh;
+        overflow-y: auto;
     }
 
     .file-content pre {
         margin: 0;
         border-radius: 0 0 6px 6px;
         overflow-x: auto;
+        background: var(--color-canvas-default);
+    }
+
+    /* Scroll shadows - top shadow when scrolled */
+    .file-content.scrolled-top::before {
+        content: '';
+        position: sticky;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 8px;
+        background: linear-gradient(to bottom,
+            rgba(0, 0, 0, 0.15) 0%,
+            rgba(0, 0, 0, 0) 100%);
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    /* Bottom shadow when more content below */
+    .file-content.scrolled-bottom::after {
+        content: '';
+        position: sticky;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 8px;
+        background: linear-gradient(to top,
+            rgba(0, 0, 0, 0.15) 0%,
+            rgba(0, 0, 0, 0) 100%);
+        z-index: 1;
+        pointer-events: none;
     }
 
     /* Theme selector styling */
@@ -66,6 +110,8 @@
         color: var(--color-fg-default);
         background-color: var(--color-canvas-subtle);
         transition: border-color 0.2s, background-color 0.2s;
+        padding: 5px 12px;
+        font-size: 14px;
     }
 
     #code-theme-selector:hover {
@@ -81,11 +127,27 @@
     /* Ensure proper rendering for all themes */
     .hljs {
         overflow-x: auto;
+        background: var(--color-canvas-default);
     }
 
     /* Override some theme defaults for consistency */
     .hljs-ln-line {
         white-space: pre;
+    }
+
+    /* Line number table styling */
+    .hljs-ln {
+        border-spacing: 0;
+        width: 100%;
+    }
+
+    .hljs-ln tbody {
+        display: table;
+        width: 100%;
+    }
+
+    .hljs-ln-n {
+        text-align: right;
     }
 </style>
 {% endblock %}
@@ -94,7 +156,6 @@
 <div class="container-fluid" style="max-width: 1280px;">
     {% include "project_app/partials/_file_view_breadcrumb.html" %}
     {% include "project_app/partials/_file_view_tabs.html" %}
-    {% include "project_app/partials/_file_view_commit_info.html" %}
     {% include "project_app/partials/_file_view_header.html" %}
 
     <!-- File Content -->

@@ -1,0 +1,22 @@
+<!-- Templates Sidebar -->
+{% if not edit_mode %}
+<div class="templates-sidebar">
+    <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 1rem;">Templates</h3>
+
+    <div class="template-item" onclick="selectTemplate('blank')">
+        <div class="template-name">
+            <i class="bi bi-file-earmark"></i> Blank
+        </div>
+        <div class="template-description">Start from scratch</div>
+    </div>
+
+    {% for template in templates %}
+    <div class="template-item" onclick="selectTemplate('{{ template.id }}')">
+        <div class="template-name">
+            <i class="bi bi-{{ template.icon }}"></i> {{ template.name }}
+        </div>
+        <div class="template-description">{{ template.description }}</div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}

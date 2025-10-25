@@ -1,0 +1,53 @@
+<!-- PR Header -->
+<div class="pr-header">
+    <div class="d-flex align-items-start justify-content-between">
+        <div class="flex-grow-1">
+            <h2 class="mb-2">
+                {{ pr.title }}
+                <span class="text-muted">#{{ pr.number }}</span>
+            </h2>
+
+            <!-- PR State -->
+            <div class="d-flex align-items-center gap-2">
+                {% if pr.state == 'open' %}
+                <span class="pr-state-badge badge bg-success">
+                    <i class="bi bi-circle"></i> Open
+                </span>
+                {% elif pr.state == 'merged' %}
+                <span class="pr-state-badge badge bg-primary">
+                    <i class="bi bi-check2-circle"></i> Merged
+                </span>
+                {% else %}
+                <span class="pr-state-badge badge bg-danger">
+                    <i class="bi bi-x-circle"></i> Closed
+                </span>
+                {% endif %}
+
+                {% if pr.is_draft %}
+                <span class="badge bg-secondary">Draft</span>
+                {% endif %}
+
+                <span class="text-muted">
+                    <strong>{{ pr.author.username }}</strong> wants to merge
+                    <strong>{{ pr.commits.count }}</strong> commit{% if pr.commits.count != 1 %}s{% endif %}
+                    into <code>{{ pr.target_branch }}</code> from <code>{{ pr.source_branch }}</code>
+                </span>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        {% if can_edit %}
+        <div class="btn-group">
+            {% if pr.is_open %}
+            <button type="button" class="btn btn-outline-secondary" onclick="closePR()">
+                <i class="bi bi-x-circle"></i> Close PR
+            </button>
+            {% elif pr.is_closed %}
+            <button type="button" class="btn btn-outline-success" onclick="reopenPR()">
+                <i class="bi bi-arrow-clockwise"></i> Reopen PR
+            </button>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>

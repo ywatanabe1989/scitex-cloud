@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "global_base.html" %}
 {% load static %}
 
 {% block title %}History for {{ file_name }} - {{ project.name }}{% endblock %}
@@ -67,13 +67,8 @@
     {% endif %}
 </div>
 
-<script>
-function filterByAuthor(author) {
-    if (author) {
-        window.location.href = '?page=1&author=' + encodeURIComponent(author);
-    } else {
-        window.location.href = '?page=1';
-    }
-}
-</script>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'project_app/js/file_history.js' %}"></script>
 {% endblock %}
