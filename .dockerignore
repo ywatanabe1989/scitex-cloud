@@ -1,0 +1,74 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+.env-3.11/
+ENV/
+env.bak/
+venv.bak/
+
+# Django
+*.log
+*.pot
+*.pyc
+db.sqlite3
+db.sqlite3-journal
+/staticfiles/
+/media/
+
+# Development
+.env
+.env.local
+*.swp
+*.swo
+*~
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+*.sublime-*
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Documentation
+docs/
+docs/_build/
+
+# Node
+node_modules/
+npm-debug.log
+
+# Large directories not needed in Docker
+data/
+externals/
+tmp/
+TODOS/
+project_management/
+
+# Deployment (old)
+deployment/
+_old_deployment/
+run/
+logs/
+
+# Backup
+*.bak
+*.backup
+
+# Docker env files
+containers/docker/.env
+containers/docker/.env.prod
