@@ -5,16 +5,19 @@ services:
     build:
       context: ../..
       dockerfile: containers/docker/Dockerfile
-    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 6 --threads 2 --timeout 120 --access-logfile - --error-logfile - --log-level warning
+    entrypoint: ["/app/containers/docker/scripts/entrypoint.sh"]
+    command: ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "6", "--threads", "2", "--timeout", "120", "--access-logfile", "-", "--error-logfile", "-", "--log-level", "warning"]
     volumes:
       - static_volume:/app/staticfiles
       - media_volume:/app/media
+      - /home/ywatanabe/proj/scitex-code:/scitex-code
     expose:
       - "8000"
     env_file:
-      - .env.prod
+      - .env
     environment:
       - DJANGO_SETTINGS_MODULE=config.settings.settings_prod
+      - PYTHONPATH=/home/scitex/.local/lib/python3.11/site-packages:/app
     depends_on:
       db:
         condition: service_healthy
