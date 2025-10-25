@@ -138,7 +138,9 @@
 {% if user.is_authenticated and project.can_view user %}
 <div class="mt-4">
     <h5>Leave a comment</h5>
-    <form id="commentForm">
+    <form id="commentForm"
+          data-comment-url="{% url 'user_projects:pr_comment_create' project.owner.username project.slug pr.number %}"
+          data-review-url="{% url 'user_projects:pr_review_submit' project.owner.username project.slug pr.number %}">
         <textarea name="content" class="form-control mb-2" rows="4"
                   placeholder="Add your comment here..."></textarea>
         <div class="d-flex justify-content-between">
@@ -161,47 +163,5 @@
 </div>
 {% endif %}
 
-<script>
-function submitComment() {
-    const form = document.getElementById('commentForm');
-    const formData = new FormData(form);
-
-    fetch('{% url "user_projects:pr_comment_create" project.owner.username project.slug pr.number %}', {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': '{{ csrf_token }}',
-        },
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            window.location.reload();
-        } else {
-            alert('Error: ' + data.error);
-        }
-    });
-}
-
-function submitReview(state) {
-    const form = document.getElementById('commentForm');
-    const formData = new FormData(form);
-    formData.append('state', state);
-
-    fetch('{% url "user_projects:pr_review_submit" project.owner.username project.slug pr.number %}', {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': '{{ csrf_token }}',
-        },
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            window.location.reload();
-        } else {
-            alert('Error: ' + data.error);
-        }
-    });
-}
-</script>
+{% load static %}
+<script src="{% static 'project_app/js/pr_conversation.js' %}"></script>

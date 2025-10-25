@@ -1,235 +1,35 @@
-{% extends 'project_app/project_detail.html' %}
+{% extends 'base.html' %}
 {% load static %}
 
 {% block title %}Security - {{ project.name }}{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'project_app/css/project_app.css' %}">
-
+<link rel="stylesheet" href="{% static 'css/common/buttons.css' %}">
 {% endblock %}
 
-{% block project_content %}
-<div class="container-fluid mt-4">
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="mb-1">Security</h2>
-            <p class="text-muted mb-0">Security alerts and vulnerability management for {{ project.name }}</p>
-        </div>
-        <div>
-            <button id="runScanBtn" class="scan-button">
-                <svg class="octicon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                    <path d="M1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0zM8 0a8 8 0 100 16A8 8 0 008 0zm.75 4.75a.75.75 0 00-1.5 0v2.5h-2.5a.75.75 0 000 1.5h2.5v2.5a.75.75 0 001.5 0v-2.5h2.5a.75.75 0 000-1.5h-2.5v-2.5z"></path>
-                </svg>
-                Run security scan
-            </button>
-        </div>
-    </div>
+{% block content %}
+<div class="container-fluid" style="max-width: 1280px;">
+    {% include 'project_app/partials/_project_header.html' %}
+    {% include 'project_app/partials/_repo_tabs.html' with active_tab='security' %}
 
-    <!-- Navigation Tabs -->
-    <nav class="nav nav-tabs mb-4">
-        <a class="nav-link active" href="{% url 'user_projects:security_overview' project.owner.username project.slug %}">Overview</a>
-        <a class="nav-link" href="{% url 'user_projects:security_alerts' project.owner.username project.slug %}">Alerts ({{ stats.open_alerts }})</a>
-        <a class="nav-link" href="{% url 'user_projects:security_policy' project.owner.username project.slug %}">Security policy</a>
-        <a class="nav-link" href="{% url 'user_projects:security_advisories' project.owner.username project.slug %}">Advisories</a>
-        <a class="nav-link" href="{% url 'user_projects:dependency_graph' project.owner.username project.slug %}">Dependencies</a>
-    </nav>
+    {% include 'project_app/security/partials/_security_tabs.html' with active_tab='overview' %}
 
     <div class="row">
         <!-- Left Column: Stats -->
         <div class="col-md-4">
-            <!-- Open Alerts Summary -->
-            <div class="security-stat-card">
-                <h3>Open alerts</h3>
-                <div class="security-stat-number">{{ stats.open_alerts }}</div>
-                <div class="mt-2">
-                    <span class="severity-critical"><strong>{{ stats.critical }}</strong> Critical</span> &nbsp;
-                    <span class="severity-high"><strong>{{ stats.high }}</strong> High</span> &nbsp;
-                    <span class="severity-medium"><strong>{{ stats.medium }}</strong> Medium</span> &nbsp;
-                    <span class="severity-low"><strong>{{ stats.low }}</strong> Low</span>
-                </div>
-            </div>
-
-            <!-- Closed Alerts -->
-            <div class="security-stat-card">
-                <h3>Closed alerts</h3>
-                <div class="security-stat-number">{{ stats.fixed }}</div>
-                <div class="mt-2 text-muted">
-                    <small>{{ stats.dismissed }} dismissed</small>
-                </div>
-            </div>
-
-            <!-- Dependencies -->
-            <div class="security-stat-card">
-                <h3>Dependencies</h3>
-                <div class="security-stat-number">{{ total_dependencies }}</div>
-                {% if vulnerable_dependencies > 0 %}
-                <div class="mt-2 severity-high">
-                    <strong>{{ vulnerable_dependencies }}</strong> with vulnerabilities
-                </div>
-                {% else %}
-                <div class="mt-2 text-success">
-                    <small>No known vulnerabilities</small>
-                </div>
-                {% endif %}
-            </div>
-
-            <!-- Security Policy -->
-            <div class="security-stat-card">
-                <h3>Security policy</h3>
-                {% if has_policy %}
-                <div class="text-success">
-                    <svg class="octicon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                        <path fill-rule="evenodd" d="M13.78 4.22a.75.75 0 010 1.06l-7.25 7.25a.75.75 0 01-1.06 0L2.22 9.28a.75.75 0 011.06-1.06L6 10.94l6.72-6.72a.75.75 0 011.06 0z"></path>
-                    </svg>
-                    Security policy defined
-                </div>
-                <div class="mt-2">
-                    <a href="{% url 'user_projects:security_policy' project.owner.username project.slug %}" class="text-decoration-none">View policy</a>
-                </div>
-                {% else %}
-                <div class="text-muted">
-                    <svg class="octicon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                        <path fill-rule="evenodd" d="M3.72 3.72a.75.75 0 011.06 0L8 6.94l3.22-3.22a.75.75 0 111.06 1.06L9.06 8l3.22 3.22a.75.75 0 11-1.06 1.06L8 9.06l-3.22 3.22a.75.75 0 01-1.06-1.06L6.94 8 3.72 4.78a.75.75 0 010-1.06z"></path>
-                    </svg>
-                    No security policy
-                </div>
-                <div class="mt-2">
-                    <a href="{% url 'user_projects:security_policy' project.owner.username project.slug %}" class="text-decoration-none">Create policy</a>
-                </div>
-                {% endif %}
-            </div>
+            {% include 'project_app/security/partials/_security_stats.html' %}
         </div>
 
         <!-- Right Column: Recent Alerts -->
         <div class="col-md-8">
-            <!-- Recent Open Alerts -->
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Recent open alerts</h5>
-                    <a href="{% url 'user_projects:security_alerts' project.owner.username project.slug %}" class="text-decoration-none">View all</a>
-                </div>
-                <div class="card-body p-0">
-                    {% if recent_alerts %}
-                        {% for alert in recent_alerts %}
-                        <div class="alert-item">
-                            <div class="alert-icon">
-                                <svg width="16" height="16" viewBox="0 0 16 16" fill="#cf222e">
-                                    <path fill-rule="evenodd" d="M8.22 1.754a.25.25 0 00-.44 0L1.698 13.132a.25.25 0 00.22.368h12.164a.25.25 0 00.22-.368L8.22 1.754zm-1.763-.707c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0114.082 15H1.918a1.75 1.75 0 01-1.543-2.575L6.457 1.047zM9 11a1 1 0 11-2 0 1 1 0 012 0zm-.25-5.25a.75.75 0 00-1.5 0v2.5a.75.75 0 001.5 0v-2.5z"></path>
-                                </svg>
-                            </div>
-                            <div class="alert-content">
-                                <div class="alert-title">
-                                    <a href="{% url 'user_projects:security_alert_detail' project.owner.username project.slug alert.id %}" class="text-decoration-none text-dark">
-                                        {{ alert.title }}
-                                    </a>
-                                    <span class="badge badge-{{ alert.get_severity_badge_class }} ms-2">{{ alert.get_severity_display }}</span>
-                                </div>
-                                <div class="alert-meta">
-                                    {% if alert.affected_package %}
-                                        {{ alert.affected_package }} {{ alert.affected_version }}
-                                    {% endif %}
-                                    • {{ alert.get_alert_type_display }}
-                                    • Opened {{ alert.created_at|timesince }} ago
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    {% else %}
-                    <div class="p-4 text-center text-muted">
-                        <svg class="octicon mb-2" width="48" height="48" viewBox="0 0 16 16" fill="currentColor">
-                            <path d="M8 1.5c-2.363 0-4 1.69-4 3.75 0 .984.424 1.625.984 2.304l.214.253c.223.264.47.556.673.848.284.411.537.896.621 1.49a.75.75 0 01-1.484.211c-.04-.282-.163-.547-.37-.847a8.695 8.695 0 00-.542-.68c-.084-.1-.173-.205-.268-.32C3.201 7.75 2.5 6.766 2.5 5.25 2.5 2.31 4.863 0 8 0s5.5 2.31 5.5 5.25c0 1.516-.701 2.5-1.328 3.259-.095.115-.184.22-.268.319-.207.245-.383.453-.541.681-.208.3-.33.565-.37.847a.75.75 0 01-1.485-.212c.084-.593.337-1.078.621-1.489.203-.292.45-.584.673-.848.075-.088.147-.173.213-.253.561-.679.985-1.32.985-2.304 0-2.06-1.637-3.75-4-3.75zM6 15.25a.75.75 0 01.75-.75h2.5a.75.75 0 010 1.5h-2.5a.75.75 0 01-.75-.75zM5.75 12.5a.75.75 0 000 1.5h4.5a.75.75 0 000-1.5h-4.5z"></path>
-                        </svg>
-                        <p>No open security alerts</p>
-                        <p class="small">Run a security scan to check for vulnerabilities</p>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-
-            <!-- Recent Scans -->
-            <div class="card mt-4">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Recent security scans</h5>
-                    <a href="{% url 'user_projects:scan_history' project.owner.username project.slug %}" class="text-decoration-none">View history</a>
-                </div>
-                <div class="card-body p-0">
-                    {% if recent_scans %}
-                        <table class="table table-sm mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Type</th>
-                                    <th>Status</th>
-                                    <th>Alerts</th>
-                                    <th>Date</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for scan in recent_scans %}
-                                <tr>
-                                    <td>{{ scan.get_scan_type_display }}</td>
-                                    <td>
-                                        {% if scan.status == 'completed' %}
-                                            <span class="badge bg-success">{{ scan.get_status_display }}</span>
-                                        {% elif scan.status == 'failed' %}
-                                            <span class="badge bg-danger">{{ scan.get_status_display }}</span>
-                                        {% elif scan.status == 'running' %}
-                                            <span class="badge bg-primary">{{ scan.get_status_display }}</span>
-                                        {% else %}
-                                            <span class="badge bg-secondary">{{ scan.get_status_display }}</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <span class="severity-critical">{{ scan.critical_count }}</span> /
-                                        <span class="severity-high">{{ scan.high_count }}</span> /
-                                        <span class="severity-medium">{{ scan.medium_count }}</span> /
-                                        <span class="severity-low">{{ scan.low_count }}</span>
-                                    </td>
-                                    <td>{{ scan.started_at|timesince }} ago</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    {% else %}
-                    <div class="p-4 text-center text-muted">
-                        No security scans yet
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
+            {% include 'project_app/security/partials/_security_alerts_card.html' %}
+            {% include 'project_app/security/partials/_security_scans_card.html' %}
         </div>
     </div>
 </div>
+{% endblock %}
 
-<script>
-document.getElementById('runScanBtn').addEventListener('click', function() {
-    const btn = this;
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Scanning...';
-
-    fetch('{% url "user_projects:api_trigger_scan" project.owner.username project.slug %}', {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': '{{ csrf_token }}',
-            'Content-Type': 'application/json',
-        },
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert(`Scan completed!\nCritical: ${data.alerts.critical}\nHigh: ${data.alerts.high}\nMedium: ${data.alerts.medium}\nLow: ${data.alerts.low}`);
-            location.reload();
-        } else {
-            alert('Scan failed: ' + (data.error || 'Unknown error'));
-            btn.disabled = false;
-            btn.innerHTML = 'Run security scan';
-        }
-    })
-    .catch(error => {
-        alert('Error running scan: ' + error);
-        btn.disabled = false;
-        btn.innerHTML = 'Run security scan';
-    });
-});
-</script>
+{% block extra_js %}
+<script src="{% static 'project_app/js/security_scan.js' %}"></script>
 {% endblock %}

@@ -10,16 +10,11 @@
 {% endblock %}
 
 {% block content %}
-<div class="container">
-    <!-- Breadcrumbs -->
-    <nav aria-label="breadcrumb" style="margin-top: 1rem;">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'user_projects:detail' project.owner.username project.slug %}">{{ project.name }}</a></li>
-            <li class="breadcrumb-item active">Actions</li>
-        </ol>
-    </nav>
+<div class="container-fluid" style="max-width: 1280px;">
+    {% include 'project_app/partials/_project_header.html' %}
+    {% include 'project_app/partials/_repo_tabs.html' with active_tab='actions' %}
 
-    <!-- Header -->
+    <!-- Actions Header -->
     <div class="actions-header">
         <div class="d-flex justify-content-between align-items-center">
             <h1 class="actions-title">Actions</h1>

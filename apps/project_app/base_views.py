@@ -299,6 +299,50 @@ def project_detail(request, username, slug):
     dirs.sort(key=lambda x: x["name"].lower())
     files.sort(key=lambda x: x["name"].lower())
 
+    # Get branches for branch selector
+    branches = []
+    current_branch = project.current_branch or 'develop'
+    if project_path and project_path.exists():
+        try:
+            import subprocess
+            result = subprocess.run(
+                ['git', 'branch', '-a'],
+                cwd=project_path,
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+            if result.returncode == 0:
+                for line in result.stdout.split('\n'):
+                    line = line.strip()
+                    if line:
+                        # Remove * prefix and remotes/origin/ prefix
+                        branch = line.replace('*', '').strip()
+                        branch = branch.replace('remotes/origin/', '')
+                        if branch and branch not in branches:
+                            branches.append(branch)
+                        # Check if this is the current branch
+                        if line.startswith('*'):
+                            current_branch = branch
+        except Exception as e:
+            logger.debug(f"Error getting branches: {e}")
+
+    if not branches:
+        branches = [current_branch]
+
+    # Get social interaction counts
+    from apps.project_app.models import ProjectWatch, ProjectStar, ProjectFork
+    watch_count = ProjectWatch.objects.filter(project=project).count()
+    star_count = ProjectStar.objects.filter(project=project).count()
+    fork_count = ProjectFork.objects.filter(original_project=project).count()
+
+    # Check if current user has watched/starred the project
+    is_watching = False
+    is_starred = False
+    if request.user.is_authenticated:
+        is_watching = ProjectWatch.objects.filter(user=request.user, project=project).exists()
+        is_starred = ProjectStar.objects.filter(user=request.user, project=project).exists()
+
     context = {
         "project": project,
         "user": request.user,
@@ -307,6 +351,13 @@ def project_detail(request, username, slug):
         "readme_content": readme_content,
         "readme_html": readme_html,
         "mode": mode,
+        "branches": branches,
+        "current_branch": current_branch,
+        "watch_count": watch_count,
+        "star_count": star_count,
+        "fork_count": fork_count,
+        "is_watching": is_watching,
+        "is_starred": is_starred,
     }
     return render(request, "project_app/index.html", context)
 

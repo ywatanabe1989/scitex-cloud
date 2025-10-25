@@ -6,100 +6,149 @@
 
 {% block extra_css %}
 {% load static %}
-<link rel="stylesheet" href="{% static 'css/common.css' %}">
+<link rel="stylesheet" href="{% static 'dev_app/css/design-demo.css' %}">
 <link rel="stylesheet" href="{% static 'css/common/code-blocks.css' %}">
 <link rel="stylesheet" href="{% static 'dev_app/styles/design.css' %}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/zenburn.min.css">
-<style>
-  .breadcrumb {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-    font-size: 0.875rem;
-  }
-  .breadcrumb a {
-    color: var(--text-link);
-    text-decoration: none;
-  }
-  .breadcrumb a:hover {
-    text-decoration: underline;
-  }
-  .breadcrumb span {
-    color: var(--text-secondary);
-  }
-  .component-demo {
-    background-color: var(--bg-surface);
-    border: 1px solid var(--border-default);
-    border-radius: 8px;
-    padding: 2rem;
-    margin: 1rem 0;
-  }
-</style>
 {% endblock %}
 
 {% block content %}
-<section style="background-color: var(--header-bg); color: var(--header-text); padding: 3rem 0; box-shadow: var(--shadow-md);">
-  <div class="container" style="text-align: center;">
-    <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem; font-weight: 700;">Breadcrumb</h1>
-    <p style="font-size: 1.125rem; color: var(--header-text); opacity: 0.9;">Breadcrumb navigation component for showing the current page location</p>
+<section class="design-header">
+  <div class="container">
+    <h1>Breadcrumb</h1>
+    <p class="design-subtitle">Breadcrumb navigation component for showing the current page location</p>
   </div>
 </section>
 
 <div class="container py-5">
-  <div style="display: flex; gap: 2rem;">
+  <div class="design-layout">
     {% include 'dev_app/design_partial/sidebar.html' %}
-    
-    <main style="flex: 1; min-width: 0;">
+
+    <main class="design-main">
       <section>
         <h2>Overview</h2>
         <p>Breadcrumbs show the current page location within a website's hierarchy. They provide a trail of links back to the homepage and improve navigation usability.</p>
         <p><strong>Category:</strong> Navigation</p>
         <p><strong>Dark Mode Support:</strong> Yes</p>
+        <p><strong>Production Classes:</strong> <code>.breadcrumb</code>, <code>.breadcrumb-item</code>, <code>.breadcrumb-separator</code></p>
       </section>
 
-      <section style="margin-top: 2rem;">
+      <section class="design-section">
         <h2>Component Demo</h2>
         <div class="component-demo">
           <nav class="breadcrumb">
-            <a href="/">Home</a>
-            <span>/</span>
-            <a href="/projects">Projects</a>
-            <span>/</span>
-            <a href="/projects/scitex">SciTeX</a>
-            <span>/</span>
-            <span style="color: var(--text-primary);">Design System</span>
+            <a href="/" class="breadcrumb-item">Home</a>
+            <span class="breadcrumb-separator">/</span>
+            <a href="/projects" class="breadcrumb-item">Projects</a>
+            <span class="breadcrumb-separator">/</span>
+            <a href="/projects/scitex" class="breadcrumb-item">SciTeX</a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-item active">Design System</span>
           </nav>
+        </div>
 
-          <nav class="breadcrumb" style="margin-top: 2rem;">
-            <a href="/">Home</a>
-            <span>/</span>
-            <a href="/scholar">Scholar</a>
-            <span>/</span>
-            <a href="/scholar/libraries">Libraries</a>
-            <span>/</span>
-            <span style="color: var(--text-primary);">Machine Learning Papers</span>
+        <div class="component-demo">
+          <nav class="breadcrumb">
+            <a href="/" class="breadcrumb-item">Home</a>
+            <span class="breadcrumb-separator">/</span>
+            <a href="/scholar" class="breadcrumb-item">Scholar</a>
+            <span class="breadcrumb-separator">/</span>
+            <a href="/scholar/libraries" class="breadcrumb-item">Libraries</a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-item active">Machine Learning Papers</span>
+          </nav>
+        </div>
+
+        <div class="component-demo">
+          <nav class="breadcrumb">
+            <a href="/" class="breadcrumb-item">Home</a>
+            <span class="breadcrumb-separator">›</span>
+            <a href="/docs" class="breadcrumb-item">Documentation</a>
+            <span class="breadcrumb-separator">›</span>
+            <span class="breadcrumb-item active">Getting Started</span>
           </nav>
         </div>
       </section>
 
-      <section style="margin-top: 2rem;">
+      <section class="design-section">
         <h2>States</h2>
         <ul>
-          <li><strong>default</strong> - Normal breadcrumb trail</li>
-          <li><strong>active</strong> - Current page (last item, not a link)</li>
-          <li><strong>hover</strong> - Breadcrumb link on hover underlines</li>
+          <li><strong>default</strong> - Normal breadcrumb link (clickable)</li>
+          <li><strong>active</strong> - Current page (last item, not a link, has .active class)</li>
+          <li><strong>hover</strong> - Breadcrumb link on hover (background color change)</li>
         </ul>
       </section>
 
-      <section style="margin-top: 2rem;">
+      <section class="design-section">
+        <h2>Variants</h2>
+        <ul>
+          <li><strong>.breadcrumb</strong> - Container for breadcrumb navigation</li>
+          <li><strong>.breadcrumb-item</strong> - Individual breadcrumb item (link or text)</li>
+          <li><strong>.breadcrumb-item.active</strong> - Current page item (non-clickable)</li>
+          <li><strong>.breadcrumb-separator</strong> - Visual separator between items (/, ›, etc.)</li>
+        </ul>
+      </section>
+
+      <section class="design-section">
         <h2>HTML Example</h2>
-        <pre><code>&lt;nav class="breadcrumb"&gt;
-  &lt;a href="/"&gt;Home&lt;/a&gt;
-  &lt;span&gt;/&lt;/span&gt;
-  &lt;a href="/projects"&gt;Projects&lt;/a&gt;
-  &lt;span&gt;/&lt;/span&gt;
-  &lt;span&gt;Current Page&lt;/span&gt;
+        <pre><code class="language-html">&lt;nav class="breadcrumb"&gt;
+  &lt;a href="/" class="breadcrumb-item"&gt;Home&lt;/a&gt;
+  &lt;span class="breadcrumb-separator"&gt;/&lt;/span&gt;
+  &lt;a href="/projects" class="breadcrumb-item"&gt;Projects&lt;/a&gt;
+  &lt;span class="breadcrumb-separator"&gt;/&lt;/span&gt;
+  &lt;span class="breadcrumb-item active"&gt;Current Page&lt;/span&gt;
 &lt;/nav&gt;</code></pre>
+      </section>
+
+      <section class="design-section">
+        <h2>Alternative Separator Example</h2>
+        <pre><code class="language-html">&lt;nav class="breadcrumb"&gt;
+  &lt;a href="/" class="breadcrumb-item"&gt;Home&lt;/a&gt;
+  &lt;span class="breadcrumb-separator"&gt;›&lt;/span&gt;
+  &lt;a href="/docs" class="breadcrumb-item"&gt;Docs&lt;/a&gt;
+  &lt;span class="breadcrumb-separator"&gt;›&lt;/span&gt;
+  &lt;span class="breadcrumb-item active"&gt;Getting Started&lt;/span&gt;
+&lt;/nav&gt;</code></pre>
+      </section>
+
+      <section class="design-section">
+        <h2>CSS Classes</h2>
+        <table class="design-table">
+          <thead>
+            <tr>
+              <th>Class</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>.breadcrumb</code></td>
+              <td>Container for breadcrumb navigation with flex layout</td>
+            </tr>
+            <tr>
+              <td><code>.breadcrumb-item</code></td>
+              <td>Individual breadcrumb item (link or text)</td>
+            </tr>
+            <tr>
+              <td><code>.breadcrumb-item.active</code></td>
+              <td>Current page item with bold text and surface background</td>
+            </tr>
+            <tr>
+              <td><code>.breadcrumb-separator</code></td>
+              <td>Visual separator between items (/, ›, etc.)</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="design-section">
+        <h2>Responsive Behavior</h2>
+        <p>On mobile devices (&lt;768px):</p>
+        <ul>
+          <li>Font size is reduced for better fit</li>
+          <li>Horizontal scrolling is enabled if breadcrumb is too long</li>
+          <li>Custom scrollbar styling for better appearance</li>
+        </ul>
       </section>
     </main>
   </div>

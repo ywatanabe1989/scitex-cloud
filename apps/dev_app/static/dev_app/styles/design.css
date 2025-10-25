@@ -6,7 +6,7 @@
 
 /* Component Library-specific Classes */
 .component-section {
-  margin-bottom: 5rem;
+  /* margin-bottom: 5rem; */
   scroll-margin-top: 100px;
 }
 
@@ -251,7 +251,7 @@
 /* Text Utilities */
 .text-intro {
   color: var(--text-secondary);
-  margin-bottom: 3rem;
+  margin-bottom: 1rem;
   font-size: 1.1rem;
 }
 
@@ -346,7 +346,7 @@
   background-color: var(--bg-200);
   border: 1px solid var(--border-300);
   border-radius: 12px;
-  padding: 2.5rem;
+  padding: 1rem;
   box-shadow: var(--shadow-sm);
   transition: box-shadow 0.2s ease-in-out;
 }

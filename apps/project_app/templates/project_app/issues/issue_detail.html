@@ -10,7 +10,9 @@
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid" style="max-width: 1280px;">
+<div class="container-fluid" style="max-width: 1280px;"
+     data-issue-close-url="{% url 'user_projects:api_issue_close' username=project.owner.username slug=project.slug issue_number=issue.number %}"
+     data-issue-reopen-url="{% url 'user_projects:api_issue_reopen' username=project.owner.username slug=project.slug issue_number=issue.number %}">
     <!-- Breadcrumb -->
     <div style="padding: 1rem 0;">
         <a href="/{{ project.owner.username }}/" style="color: var(--color-accent-fg); text-decoration: none;">
@@ -107,55 +109,8 @@
         {% endif %}
     </div>
 </div>
+{% endblock %}
 
-<script>
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-
-async function closeIssue() {
-    if (!confirm('Are you sure you want to close this issue?')) return;
-
-    const response = await fetch('{% url "user_projects:api_issue_close" username=project.owner.username slug=project.slug issue_number=issue.number %}', {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken')
-        }
-    });
-
-    const data = await response.json();
-    if (data.success) {
-        location.reload();
-    } else {
-        alert(data.error || 'Failed to close issue');
-    }
-}
-
-async function reopenIssue() {
-    const response = await fetch('{% url "user_projects:api_issue_reopen" username=project.owner.username slug=project.slug issue_number=issue.number %}', {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken')
-        }
-    });
-
-    const data = await response.json();
-    if (data.success) {
-        location.reload();
-    } else {
-        alert(data.error || 'Failed to reopen issue');
-    }
-}
-</script>
+{% block extra_js %}
+<script src="{% static 'project_app/js/issue_detail.js' %}"></script>
 {% endblock %}

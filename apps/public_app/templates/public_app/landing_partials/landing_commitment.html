@@ -1,7 +1,7 @@
 {% load static %}
 
 <!-- Our Commitment Section -->
-<section class="landing-section section-commitment" id="commitment">
+  <section class="landing-section section-commitment bg-pattern bg-pattern-circuit bg-pattern-subtle" style="border-radius: 12px; padding: 2rem; margin-bottom: 3rem;" id="commitment">  
     <div class="container commitment-container">
         <div class="commitment-card bg-pattern bg-pattern-grid bg-pattern-subtle">
             <h2 class="commitment-title">Our Commitment to Science</h2>
@@ -60,6 +60,46 @@
         border-radius: 12px;
         padding: 4rem 2rem;
         color: white;
+        position: relative;
+        overflow: hidden;
+        box-shadow: var(--box-shadow-lg);
+    }
+
+    /* Grid pattern overlay on commitment card - balanced */
+    .commitment-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        pointer-events: none;
+        z-index: 0;
+        opacity: 0.2;
+        background-image:
+            linear-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+        background-size: 70px 70px;
+    }
+
+    /* Dark mode commitment card */
+    [data-theme="dark"] .commitment-card {
+        background: linear-gradient(135deg, var(--_scitex-02) 0%, var(--_scitex-03) 50%, var(--_scitex-04) 100%);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    [data-theme="dark"] .commitment-card::before {
+        opacity: 0.15;
+        background-image:
+            linear-gradient(rgba(181, 199, 209, 0.1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(181, 199, 209, 0.1) 1px, transparent 1px);
+        background-size: 70px 70px;
+    }
+
+    /* Ensure content stays above pattern */
+    .commitment-card > * {
+        position: relative;
+        z-index: 1;
     }
 
     .commitment-title {

@@ -47,10 +47,9 @@
 
 /* File browser table - GitHub style */
 .file-browser {
-    border: 2px solid var(--color-border-default);
+    border: 1px solid var(--color-border-default);
     border-radius: 6px;
     overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
 }
 
 .file-browser table {
@@ -61,7 +60,7 @@
 
 .file-browser th {
     background: var(--color-canvas-subtle);
-    padding: 6px 12px;
+    padding: 8px 16px;
     text-align: left;
     font-weight: 600;
     font-size: 12px;
@@ -71,16 +70,21 @@
 
 .file-browser tbody tr {
     cursor: pointer;
-    transition: box-shadow 0.2s ease;
-    border-top: 1px solid var(--color-border-default);
+    transition: background-color 0.1s ease-in-out;
+    border-bottom: 1px solid var(--color-border-muted);
+    background-color: transparent;
 }
 
 .file-browser tbody tr:hover {
-    box-shadow: inset 0 0 0 2px var(--color-accent-emphasis);
+    background-color: var(--color-canvas-subtle);
+}
+
+.file-browser tbody tr:last-child {
+    border-bottom: none;
 }
 
 .file-browser td {
-    padding: 6px 12px;
+    padding: 8px 16px;
     font-size: 14px;
     vertical-align: middle;
 }

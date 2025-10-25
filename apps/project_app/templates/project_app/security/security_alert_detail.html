@@ -1,9 +1,20 @@
-{% extends 'project_app/project_detail.html' %}
+{% extends 'base.html' %}
+{% load static %}
 
 {% block title %}{{ alert.title }} - Security - {{ project.name }}{% endblock %}
 
-{% block project_content %}
-<div class="container-fluid mt-4">
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'project_app/css/project_app.css' %}">
+<link rel="stylesheet" href="{% static 'css/common/buttons.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="max-width: 1280px;"
+     data-alert-dismiss-url="{% url 'user_projects:api_dismiss_alert' project.owner.username project.slug alert.id %}"
+     data-alert-reopen-url="{% url 'user_projects:api_reopen_alert' project.owner.username project.slug alert.id %}">
+    {% include 'project_app/partials/_project_header.html' %}
+    {% include 'project_app/partials/_repo_tabs.html' with active_tab='security' %}
+
     <a href="{% url 'user_projects:security_alerts' project.owner.username project.slug %}" class="btn btn-sm btn-outline-secondary mb-3">← Back to alerts</a>
 
     <div class="card">
@@ -75,49 +86,8 @@
         </div>
     </div>
 </div>
+{% endblock %}
 
-<script>
-function dismissAlert() {
-    const reason = prompt('Reason for dismissing this alert (optional):');
-    if (reason !== null) {
-        fetch('{% url "user_projects:api_dismiss_alert" project.owner.username project.slug alert.id %}', {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': '{{ csrf_token }}',
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: 'reason=' + encodeURIComponent(reason)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                location.reload();
-            } else {
-                alert('Failed to dismiss alert: ' + (data.error || 'Unknown error'));
-            }
-        });
-    }
-}
-
-function reopenAlert() {
-    fetch('{% url "user_projects:api_reopen_alert" project.owner.username project.slug alert.id %}', {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': '{{ csrf_token }}',
-        },
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            location.reload();
-        } else {
-            alert('Failed to reopen alert: ' + (data.error || 'Unknown error'));
-        }
-    });
-}
-
-function createFixPR() {
-    alert('Automatic fix PR creation is not yet implemented');
-}
-</script>
+{% block extra_js %}
+<script src="{% static 'project_app/js/security_alert_detail.js' %}"></script>
 {% endblock %}

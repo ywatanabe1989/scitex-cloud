@@ -1,0 +1,159 @@
+/* =============================================================================
+ * BADGES - GitHub-style label/badge components
+ * =============================================================================
+ *
+ * Badge variants:
+ * - .badge: Base badge styles
+ * - .badge--primary: Primary/default badge
+ * - .badge--success: Success state badge
+ * - .badge--warning: Warning state badge
+ * - .badge--danger: Error/danger state badge
+ * - .badge--info: Info state badge
+ *
+ * Badge sizes:
+ * - .badge--sm: Small badge
+ * - .badge--md: Default medium badge
+ * - .badge--lg: Large badge
+ *
+ * ============================================================================= */
+
+/* Base badge styles */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0 var(--space-2);
+  height: var(--badge-height);
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  line-height: 1;
+  color: var(--color-fg-default);
+  background-color: var(--color-neutral-muted);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--badge-border-radius);
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.badge:hover {
+  text-decoration: none;
+}
+
+/* Badge variants */
+.badge--primary {
+  color: var(--color-accent-fg);
+  background-color: var(--color-accent-subtle);
+  border-color: var(--color-accent-emphasis);
+}
+
+.badge--success {
+  color: #ffffff;
+  background-color: var(--color-success-fg);
+  border-color: var(--color-success-fg);
+}
+
+.badge--warning {
+  color: #ffffff;
+  background-color: var(--color-warning-fg);
+  border-color: var(--color-warning-fg);
+}
+
+.badge--danger {
+  color: #ffffff;
+  background-color: var(--color-danger-fg);
+  border-color: var(--color-danger-fg);
+}
+
+.badge--info {
+  color: #ffffff;
+  background-color: var(--color-info-fg);
+  border-color: var(--color-info-fg);
+}
+
+/* Badge sizes */
+.badge--sm {
+  height: 16px;
+  font-size: 10px;
+  padding: 0 var(--space-1);
+}
+
+.badge--md {
+  /* Uses base badge styles */
+}
+
+.badge--lg {
+  height: 24px;
+  font-size: var(--font-size-sm);
+  padding: 0 var(--space-3);
+}
+
+/* Badge with icon */
+.badge__icon {
+  width: 12px;
+  height: 12px;
+}
+
+/* Badge with counter */
+.badge--counter {
+  min-width: var(--badge-height);
+  padding: 0 var(--space-1);
+  text-align: center;
+}
+
+/* Label-style badges (GitHub issue labels) */
+.label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  line-height: 1;
+  border-radius: var(--border-radius-pill);
+  text-decoration: none;
+}
+
+.label:hover {
+  text-decoration: none;
+  filter: brightness(0.9);
+}
+
+/* Status badges */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--border-radius-2);
+}
+
+.status-badge::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: currentColor;
+}
+
+.status-badge--open {
+  color: var(--color-success-fg);
+  background-color: rgba(74, 155, 126, 0.1);
+}
+
+.status-badge--closed {
+  color: var(--color-danger-fg);
+  background-color: rgba(166, 115, 115, 0.1);
+}
+
+.status-badge--merged {
+  color: var(--color-accent-fg);
+  background-color: var(--color-accent-subtle);
+}
+
+.status-badge--draft {
+  color: var(--color-fg-muted);
+  background-color: var(--color-neutral-muted);
+}

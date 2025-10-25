@@ -6,97 +6,175 @@
 
 {% block extra_css %}
 {% load static %}
-<link rel="stylesheet" href="{% static 'css/common.css' %}">
+<link rel="stylesheet" href="{% static 'dev_app/css/design-demo.css' %}">
 <link rel="stylesheet" href="{% static 'css/common/code-blocks.css' %}">
 <link rel="stylesheet" href="{% static 'dev_app/styles/design.css' %}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/zenburn.min.css">
-<style>
-  .sidebar-nav {
-    width: 200px;
-    background-color: var(--bg-muted);
-    border-right: 1px solid var(--border-default);
-    padding: 1rem 0;
-  }
-  .sidebar-nav a {
-    display: block;
-    padding: 0.75rem 1rem;
-    color: var(--text-primary);
-    text-decoration: none;
-    transition: all 0.2s ease;
-  }
-  .sidebar-nav a:hover {
-    background-color: var(--bg-surface);
-    border-left: 3px solid var(--text-link);
-    padding-left: calc(1rem - 3px);
-  }
-  .sidebar-nav a.active {
-    background-color: var(--bg-page);
-    border-left: 3px solid var(--text-link);
-    padding-left: calc(1rem - 3px);
-    color: var(--text-link);
-    font-weight: 600;
-  }
-  .component-demo {
-    background-color: var(--bg-surface);
-    border: 1px solid var(--border-default);
-    border-radius: 8px;
-    margin: 1rem 0;
-    display: flex;
-  }
-</style>
 {% endblock %}
 
 {% block content %}
-<section style="background-color: var(--header-bg); color: var(--header-text); padding: 3rem 0; box-shadow: var(--shadow-md);">
-  <div class="container" style="text-align: center;">
-    <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem; font-weight: 700;">Sidebar Navigation</h1>
-    <p style="font-size: 1.125rem; color: var(--header-text); opacity: 0.9;">Sidebar navigation component for main site navigation</p>
+<section class="design-header">
+  <div class="container">
+    <h1>Sidebar Navigation</h1>
+    <p class="design-subtitle">Sidebar navigation component for main site navigation</p>
   </div>
 </section>
 
 <div class="container py-5">
-  <div style="display: flex; gap: 2rem;">
+  <div class="design-layout">
     {% include 'dev_app/design_partial/sidebar.html' %}
-    
-    <main style="flex: 1; min-width: 0;">
+
+    <main class="design-main">
       <section>
         <h2>Overview</h2>
-        <p>Sidebar navigation provides a vertical menu for primary site navigation. It offers a persistent way for users to navigate between major sections.</p>
-        <p><strong>Category:</strong> Navigation</p>
+        <p>Sidebar navigation provides a vertical menu for primary site navigation. It offers a persistent way for users to navigate between major sections with sticky positioning and smooth hover effects.</p>
+        <p><strong>Category:</strong> Navigation Components</p>
         <p><strong>Dark Mode Support:</strong> Yes</p>
+        <p><strong>Production Classes:</strong> <code>.sidebar</code>, <code>.sidebar-nav</code>, <code>.sidebar-nav-item</code></p>
       </section>
 
-      <section style="margin-top: 2rem;">
+      <section class="design-section">
         <h2>Component Demo</h2>
         <div class="component-demo">
-          <nav class="sidebar-nav">
-            <a href="#home">Home</a>
-            <a href="#projects" class="active">Projects</a>
-            <a href="#scholar">Scholar</a>
-            <a href="#code">Code</a>
-            <a href="#viz">Visualization</a>
-            <a href="#writer">Writer</a>
-            <a href="#settings">Settings</a>
-          </nav>
+          <div style="display: flex; gap: 2rem;">
+            <nav class="sidebar" style="width: 250px;">
+              <div class="sidebar-heading">Main Navigation</div>
+              <ul class="sidebar-nav">
+                <li><a href="#home" class="sidebar-nav-item">Home</a></li>
+                <li><a href="#projects" class="sidebar-nav-item sidebar-nav-item-active">Projects</a></li>
+                <li><a href="#scholar" class="sidebar-nav-item">Scholar</a></li>
+                <li><a href="#code" class="sidebar-nav-item">Code</a></li>
+                <li><a href="#viz" class="sidebar-nav-item">Visualization</a></li>
+              </ul>
+
+              <div class="sidebar-divider"></div>
+
+              <div class="sidebar-heading">Resources</div>
+              <ul class="sidebar-nav">
+                <li><a href="#docs" class="sidebar-nav-item">Documentation</a></li>
+                <li><a href="#settings" class="sidebar-nav-item">Settings</a></li>
+              </ul>
+            </nav>
+
+            <div style="flex: 1; padding: 2rem; background: var(--bg-muted); border-radius: 8px;">
+              <h3>Main Content Area</h3>
+              <p>This demonstrates how the sidebar works alongside main content. The sidebar has a sticky position that stays in view during scrolling.</p>
+            </div>
+          </div>
         </div>
       </section>
 
-      <section style="margin-top: 2rem;">
+      <section class="design-section">
         <h2>States</h2>
         <ul>
-          <li><strong>default</strong> - Normal sidebar link</li>
-          <li><strong>hover</strong> - Link highlights with left border accent</li>
-          <li><strong>active</strong> - Current page with blue accent and highlight</li>
+          <li><strong>default</strong> - Normal sidebar link with standard styling</li>
+          <li><strong>hover</strong> - Link highlights with background color and subtle left border</li>
+          <li><strong>active</strong> - Current page with blue accent border and bold font weight</li>
+          <li><strong>sticky</strong> - Sidebar remains fixed at top: 80px during scroll</li>
         </ul>
       </section>
 
-      <section style="margin-top: 2rem;">
-        <h2>HTML Example</h2>
-        <pre><code>&lt;nav class="sidebar-nav"&gt;
-  &lt;a href="#home"&gt;Home&lt;/a&gt;
-  &lt;a href="#projects" class="active"&gt;Projects&lt;/a&gt;
-  &lt;a href="#settings"&gt;Settings&lt;/a&gt;
+      <section class="design-section">
+        <h2>Variants</h2>
+        <ul>
+          <li><strong>.sidebar</strong> - Main sidebar container with sticky positioning</li>
+          <li><strong>.sidebar-heading</strong> - Section heading within sidebar (uppercase, small text)</li>
+          <li><strong>.sidebar-nav</strong> - Navigation list container</li>
+          <li><strong>.sidebar-nav-item</strong> - Individual navigation link item</li>
+          <li><strong>.sidebar-nav-item-active</strong> - Active/current section indicator</li>
+          <li><strong>.sidebar-divider</strong> - Horizontal divider between sections</li>
+          <li><strong>.sidebar-nav-submenu</strong> - Nested submenu for hierarchical navigation</li>
+        </ul>
+      </section>
+
+      <section class="design-section">
+        <h2>HTML Example - Basic Sidebar</h2>
+        <pre><code class="language-html">&lt;nav class="sidebar"&gt;
+  &lt;div class="sidebar-heading"&gt;Navigation&lt;/div&gt;
+  &lt;ul class="sidebar-nav"&gt;
+    &lt;li&gt;&lt;a href="#home" class="sidebar-nav-item"&gt;Home&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href="#projects" class="sidebar-nav-item sidebar-nav-item-active"&gt;Projects&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href="#settings" class="sidebar-nav-item"&gt;Settings&lt;/a&gt;&lt;/li&gt;
+  &lt;/ul&gt;
 &lt;/nav&gt;</code></pre>
+      </section>
+
+      <section class="design-section">
+        <h2>HTML Example - With Sections and Divider</h2>
+        <pre><code class="language-html">&lt;nav class="sidebar"&gt;
+  &lt;div class="sidebar-heading"&gt;Main Menu&lt;/div&gt;
+  &lt;ul class="sidebar-nav"&gt;
+    &lt;li&gt;&lt;a href="#dashboard" class="sidebar-nav-item sidebar-nav-item-active"&gt;Dashboard&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href="#projects" class="sidebar-nav-item"&gt;Projects&lt;/a&gt;&lt;/li&gt;
+  &lt;/ul&gt;
+
+  &lt;div class="sidebar-divider"&gt;&lt;/div&gt;
+
+  &lt;div class="sidebar-heading"&gt;Tools&lt;/div&gt;
+  &lt;ul class="sidebar-nav"&gt;
+    &lt;li&gt;&lt;a href="#scholar" class="sidebar-nav-item"&gt;Scholar&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href="#code" class="sidebar-nav-item"&gt;Code&lt;/a&gt;&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/nav&gt;</code></pre>
+      </section>
+
+      <section class="design-section">
+        <h2>CSS Classes</h2>
+        <table class="design-table">
+          <thead>
+            <tr>
+              <th>Class</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>.sidebar</code></td>
+              <td>Main sidebar container with sticky positioning and scrollbar</td>
+            </tr>
+            <tr>
+              <td><code>.sidebar-heading</code></td>
+              <td>Section heading (uppercase, small, bold)</td>
+            </tr>
+            <tr>
+              <td><code>.sidebar-nav</code></td>
+              <td>Navigation list container (removes default list styles)</td>
+            </tr>
+            <tr>
+              <td><code>.sidebar-nav-item</code></td>
+              <td>Individual navigation link with border-left transitions</td>
+            </tr>
+            <tr>
+              <td><code>.sidebar-nav-item-active</code></td>
+              <td>Active/current section indicator with bold font</td>
+            </tr>
+            <tr>
+              <td><code>.sidebar-nav-item.active</code></td>
+              <td>Alternative active class syntax</td>
+            </tr>
+            <tr>
+              <td><code>.sidebar-divider</code></td>
+              <td>Horizontal divider line between sections</td>
+            </tr>
+            <tr>
+              <td><code>.sidebar-nav-toggle</code></td>
+              <td>Collapsible section toggle button</td>
+            </tr>
+            <tr>
+              <td><code>.sidebar-nav-submenu</code></td>
+              <td>Nested submenu container for hierarchical navigation</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="design-section">
+        <h2>Responsive Behavior</h2>
+        <ul>
+          <li><strong>Desktop (>992px)</strong> - Sticky sidebar with full height and scroll</li>
+          <li><strong>Tablet (768-992px)</strong> - Static position, horizontal layout possible</li>
+          <li><strong>Mobile (<768px)</strong> - Reduced padding, smaller font size, border-bottom instead of border-right</li>
+        </ul>
       </section>
     </main>
   </div>

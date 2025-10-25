@@ -1,0 +1,101 @@
+/**
+ * @component Alerts & Warning Banners
+ * @description Alert and warning banner components
+ * @category UI Components
+ * @file /static/css/components/alerts.css
+ */
+
+/* =========================
+   Warning Banner Styles
+   ========================= */
+
+.warning-banner {
+  background: linear-gradient(135deg, #ff9500 0%, #ff6b00 100%);
+  border-bottom: 3px solid #cc5500;
+  padding: 1.25rem 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  margin-bottom: 0;
+}
+
+.warning-banner-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-lg);
+}
+
+.warning-banner-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  color: #000;
+}
+
+.warning-banner-icon {
+  flex-shrink: 0;
+  margin-top: 0.2rem;
+  width: 24px;
+  height: 24px;
+  color: #000;
+}
+
+.warning-banner-text {
+  flex: 1;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.warning-banner-title {
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #000;
+}
+
+.warning-banner-title strong {
+  font-weight: 800;
+}
+
+.warning-banner-description {
+  font-size: 0.9rem;
+  color: #1a1a1a;
+  line-height: 1.5;
+}
+
+/* Alert Variants */
+.alert-banner {
+  padding: 1rem 0;
+  margin-bottom: var(--spacing-md);
+}
+
+.alert-banner-info {
+  background: var(--info-color);
+  border-bottom: 3px solid var(--info-color);
+}
+
+.alert-banner-success {
+  background: var(--success-color);
+  border-bottom: 3px solid var(--success-color);
+}
+
+.alert-banner-danger {
+  background: var(--danger-color);
+  border-bottom: 3px solid var(--danger-color);
+}
+
+.alert-banner-warning {
+  background: var(--warning-color);
+  border-bottom: 3px solid var(--warning-color);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .warning-banner-content {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .warning-banner-icon {
+    margin-top: 0;
+  }
+}

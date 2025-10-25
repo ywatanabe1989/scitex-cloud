@@ -1,0 +1,184 @@
+/* =============================================================================
+ * TABLES - GitHub-style table components
+ * =============================================================================
+ *
+ * Table components:
+ * - .table: Base table styles
+ * - .table--bordered: Table with borders
+ * - .table--striped: Table with striped rows
+ * - .table--hover: Table with row hover effect
+ * - .table--compact: Compact table with reduced padding
+ *
+ * ============================================================================= */
+
+/* Base table styles */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-default);
+}
+
+/* Table header */
+.table thead {
+  background-color: var(--color-canvas-subtle);
+}
+
+.table th {
+  padding: var(--space-2) var(--space-3);
+  text-align: left;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-xs);
+  color: var(--color-fg-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid var(--color-border-default);
+}
+
+/* Table body */
+.table tbody tr {
+  border-bottom: 1px solid var(--color-border-default);
+  transition: background-color var(--transition-duration-fast) var(--transition-timing-default);
+}
+
+.table td {
+  padding: var(--space-3);
+  vertical-align: middle;
+}
+
+/* Table variants */
+.table--bordered {
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--border-radius-2);
+  overflow: hidden;
+}
+
+.table--bordered th,
+.table--bordered td {
+  border-right: 1px solid var(--color-border-default);
+}
+
+.table--bordered th:last-child,
+.table--bordered td:last-child {
+  border-right: none;
+}
+
+.table--striped tbody tr:nth-child(odd) {
+  background-color: var(--color-canvas-subtle);
+}
+
+.table--hover tbody tr:hover {
+  background-color: var(--color-neutral-muted);
+  cursor: pointer;
+}
+
+.table--compact th,
+.table--compact td {
+  padding: var(--space-2);
+}
+
+/* Responsive table wrapper */
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--border-radius-2);
+}
+
+.table-wrapper .table {
+  margin: 0;
+  border: none;
+}
+
+/* Table cell alignment */
+.table td.text-right,
+.table th.text-right {
+  text-align: right;
+}
+
+.table td.text-center,
+.table th.text-center {
+  text-align: center;
+}
+
+/* Table actions column */
+.table__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Table empty state */
+.table__empty {
+  padding: var(--space-8) var(--space-4);
+  text-align: center;
+  color: var(--color-fg-muted);
+  font-size: var(--font-size-base);
+}
+
+/* File browser table (GitHub-style) */
+.file-table {
+  width: 100%;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--border-radius-2);
+  overflow: hidden;
+}
+
+.file-table thead {
+  background-color: var(--color-canvas-subtle);
+}
+
+.file-table th {
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-muted);
+  border-bottom: 1px solid var(--color-border-default);
+}
+
+.file-table tbody tr {
+  border-top: 1px solid var(--color-border-default);
+  transition: background-color var(--transition-duration-fast);
+}
+
+.file-table tbody tr:hover {
+  background-color: var(--color-canvas-subtle);
+  cursor: pointer;
+}
+
+.file-table td {
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-base);
+}
+
+.file-table__icon {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.file-table__name {
+  color: var(--color-accent-fg);
+  text-decoration: none;
+  font-weight: var(--font-weight-semibold);
+}
+
+.file-table__name:hover {
+  text-decoration: underline;
+}
+
+.file-table__message {
+  color: var(--color-fg-muted);
+  font-size: var(--font-size-sm);
+}
+
+.file-table__commit {
+  color: var(--color-accent-fg);
+  text-decoration: none;
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+}
+
+.file-table__commit:hover {
+  text-decoration: underline;
+}

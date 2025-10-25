@@ -1,135 +1,216 @@
 {% extends "global_base.html" %}
 
+{% block title %}Badge - SciTeX Design System{% endblock %}
+
+{% block meta_description %}Small count and labeling component for status indicators and labels.{% endblock %}
+
+{% block extra_css %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'dev_app/css/design-demo.css' %}">
+<link rel="stylesheet" href="{% static 'css/common/code-blocks.css' %}">
+<link rel="stylesheet" href="{% static 'dev_app/styles/design.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/zenburn.min.css">
+{% endblock %}
+
 {% block content %}
-<div class="dev-design-layout">
-  {% include "dev_app/design_partial/sidebar.html" %}
+<section class="design-header">
+  <div class="container">
+    <h1>Badge</h1>
+    <p class="design-subtitle">Small labels for categorization and status indication</p>
+  </div>
+</section>
 
-  <main class="design-content">
-    <div class="design-header">
-      <h1>Badge</h1>
-      <p class="design-subtitle">Small labels for categorization and status indication</p>
-    </div>
+<div class="container py-5">
+  <div class="design-layout">
+    {% include 'dev_app/design_partial/sidebar.html' %}
 
-    <style>
-      .badge-demo {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1rem;
-        padding: 2rem;
-        background-color: var(--bg-secondary);
-        border-radius: 8px;
-        margin-bottom: 2rem;
-      }
-
-      .badge {
-        display: inline-block;
-        padding: 0.25rem 0.75rem;
-        border-radius: 12px;
-        font-size: 0.85rem;
-        font-weight: 500;
-        white-space: nowrap;
-      }
-
-      .badge-primary {
-        background-color: #007AFF;
-        color: white;
-      }
-
-      .badge-secondary {
-        background-color: #5AC8FA;
-        color: white;
-      }
-
-      .badge-success {
-        background-color: #34C759;
-        color: white;
-      }
-
-      .badge-warning {
-        background-color: #FF9500;
-        color: white;
-      }
-
-      .badge-danger {
-        background-color: #FF3B30;
-        color: white;
-      }
-
-      .badge-neutral {
-        background-color: #8E8E93;
-        color: white;
-      }
-
-      .badge-light {
-        background-color: #F2F2F7;
-        color: #333;
-        border: 1px solid #E5E5EA;
-      }
-
-      .badge-outline {
-        background-color: transparent;
-        border: 1px solid #007AFF;
-        color: #007AFF;
-      }
-    </style>
-
-    <section class="design-section">
-      <h2>Overview</h2>
-      <div class="section-info">
-        <p><strong>Category:</strong> Status & Labels</p>
-        <p><strong>Dark mode:</strong> Supported</p>
+    <main class="design-main">
+      <section>
+        <h2>Overview</h2>
         <p>Badges are compact labels used to display status, count, or category information. They can be used in various colors to indicate different states or meanings.</p>
-      </div>
-    </section>
+        <p><strong>Category:</strong> Visual Identity</p>
+        <p><strong>Dark Mode Support:</strong> Yes</p>
+        <p><strong>Production Classes:</strong> <code>.badge</code>, <code>.badge-primary</code>, <code>.badge-success</code></p>
+      </section>
 
-    <section class="design-section">
-      <h2>Component Demo</h2>
-      <div class="badge-demo">
-        <span class="badge badge-primary">Primary</span>
-        <span class="badge badge-secondary">Secondary</span>
-        <span class="badge badge-success">Success</span>
-        <span class="badge badge-warning">Warning</span>
-        <span class="badge badge-danger">Danger</span>
-        <span class="badge badge-neutral">Neutral</span>
-        <span class="badge badge-light">Light</span>
-        <span class="badge badge-outline">Outline</span>
-      </div>
-    </section>
+      <section class="design-section">
+        <h2>Component Demo</h2>
 
-    <section class="design-section">
-      <h2>Variants & States</h2>
-      <div class="variants-list">
+        <h3>Badge Variants</h3>
+        <div class="component-demo">
+          <span class="badge badge-primary">Primary</span>
+          <span class="badge badge-secondary">Secondary</span>
+          <span class="badge badge-success">Success</span>
+          <span class="badge badge-warning">Warning</span>
+          <span class="badge badge-error">Error</span>
+          <span class="badge badge-info">Info</span>
+          <span class="badge badge-light">Light</span>
+        </div>
+
+        <h3>Badges with Counts</h3>
+        <div class="component-demo">
+          <span class="badge badge-primary">5</span>
+          <span class="badge badge-secondary">12</span>
+          <span class="badge badge-success">23</span>
+          <span class="badge badge-warning">8</span>
+          <span class="badge badge-error">3</span>
+        </div>
+
+        <h3>Badges in Context</h3>
+        <div class="component-demo">
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <div>
+              <button class="btn btn-primary">
+                Messages <span class="badge badge-light">4</span>
+              </button>
+            </div>
+            <div>
+              <button class="btn btn-secondary">
+                Notifications <span class="badge badge-light">12</span>
+              </button>
+            </div>
+            <div>
+              <h3 style="margin: 0;">Feature Request <span class="badge badge-success">New</span></h3>
+            </div>
+            <div>
+              <h3 style="margin: 0;">Bug Report <span class="badge badge-error">Critical</span></h3>
+            </div>
+          </div>
+        </div>
+
+        <h3>Status Badges</h3>
+        <div class="component-demo">
+          <span class="badge badge-success">Active</span>
+          <span class="badge badge-warning">Pending</span>
+          <span class="badge badge-error">Failed</span>
+          <span class="badge badge-info">In Progress</span>
+          <span class="badge badge-light">Draft</span>
+        </div>
+      </section>
+
+      <section class="design-section">
+        <h2>Variants</h2>
         <ul>
-          <li><strong>Primary:</strong> Default badge for general use</li>
-          <li><strong>Secondary:</strong> Lighter blue variant</li>
-          <li><strong>Success:</strong> Green badge for positive states</li>
-          <li><strong>Warning:</strong> Orange badge for warnings</li>
-          <li><strong>Danger:</strong> Red badge for errors/danger</li>
-          <li><strong>Neutral:</strong> Gray badge for neutral states</li>
-          <li><strong>Light:</strong> Light background with border</li>
-          <li><strong>Outline:</strong> Transparent with colored border</li>
+          <li><code>.badge-primary</code> - Primary color badge</li>
+          <li><code>.badge-secondary</code> - Secondary color badge</li>
+          <li><code>.badge-success</code> - Success/positive badge (green)</li>
+          <li><code>.badge-warning</code> - Warning badge (yellow/orange)</li>
+          <li><code>.badge-error</code> - Error/danger badge (red)</li>
+          <li><code>.badge-info</code> - Informational badge (blue)</li>
+          <li><code>.badge-light</code> - Light background badge with border</li>
         </ul>
-      </div>
-    </section>
+      </section>
 
-    <section class="design-section">
-      <h2>HTML Code Example</h2>
-      <pre><code class="language-html">&lt;!-- Primary Badge --&gt;
+      <section class="design-section">
+        <h2>States</h2>
+        <ul>
+          <li><strong>default</strong> - Normal display state</li>
+          <li><strong>responsive</strong> - Smaller on mobile devices (&lt;768px)</li>
+        </ul>
+      </section>
+
+      <section class="design-section">
+        <h2>HTML Examples</h2>
+        <pre><code class="language-html">&lt;!-- Basic Badges --&gt;
 &lt;span class="badge badge-primary"&gt;Primary&lt;/span&gt;
-
-&lt;!-- Success Badge --&gt;
 &lt;span class="badge badge-success"&gt;Success&lt;/span&gt;
+&lt;span class="badge badge-warning"&gt;Warning&lt;/span&gt;
+&lt;span class="badge badge-error"&gt;Error&lt;/span&gt;
 
-&lt;!-- Danger Badge --&gt;
-&lt;span class="badge badge-danger"&gt;Danger&lt;/span&gt;
+&lt;!-- Count Badges --&gt;
+&lt;span class="badge badge-primary"&gt;5&lt;/span&gt;
+&lt;span class="badge badge-secondary"&gt;12&lt;/span&gt;
 
-&lt;!-- Outline Badge --&gt;
-&lt;span class="badge badge-outline"&gt;Outline&lt;/span&gt;
+&lt;!-- Status Badges --&gt;
+&lt;span class="badge badge-success"&gt;Active&lt;/span&gt;
+&lt;span class="badge badge-warning"&gt;Pending&lt;/span&gt;
+&lt;span class="badge badge-error"&gt;Failed&lt;/span&gt;
 
-&lt;!-- With Count --&gt;
-&lt;span class="badge badge-primary"&gt;5&lt;/span&gt;</code></pre>
-      <script>hljs.highlightAll();</script>
-    </section>
-  </main>
+&lt;!-- Badges in Context --&gt;
+&lt;button class="btn btn-primary"&gt;
+  Messages &lt;span class="badge badge-light"&gt;4&lt;/span&gt;
+&lt;/button&gt;
+
+&lt;h3&gt;Bug Report &lt;span class="badge badge-error"&gt;Critical&lt;/span&gt;&lt;/h3&gt;</code></pre>
+      </section>
+
+      <section class="design-section">
+        <h2>CSS Classes</h2>
+        <table class="design-table">
+          <thead>
+            <tr>
+              <th>Class</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>.badge</code></td>
+              <td>Base badge class (required)</td>
+            </tr>
+            <tr>
+              <td><code>.badge-primary</code></td>
+              <td>Primary color badge</td>
+            </tr>
+            <tr>
+              <td><code>.badge-secondary</code></td>
+              <td>Secondary color badge</td>
+            </tr>
+            <tr>
+              <td><code>.badge-success</code></td>
+              <td>Success/positive badge (green)</td>
+            </tr>
+            <tr>
+              <td><code>.badge-warning</code></td>
+              <td>Warning badge (yellow/orange)</td>
+            </tr>
+            <tr>
+              <td><code>.badge-error</code></td>
+              <td>Error/danger badge (red)</td>
+            </tr>
+            <tr>
+              <td><code>.badge-info</code></td>
+              <td>Informational badge (blue)</td>
+            </tr>
+            <tr>
+              <td><code>.badge-light</code></td>
+              <td>Light background with border</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="design-section">
+        <h2>Usage Guidelines</h2>
+        <ul>
+          <li>Use badges to draw attention to new or important information</li>
+          <li>Keep badge text short - ideally one word or a small number</li>
+          <li>Use color consistently across your application:
+            <ul>
+              <li>Green (success) for active, completed, or positive states</li>
+              <li>Yellow (warning) for pending, cautionary states</li>
+              <li>Red (error) for failed, critical, or negative states</li>
+              <li>Blue (info) for informational or in-progress states</li>
+            </ul>
+          </li>
+          <li>Badges automatically resize on mobile devices for better readability</li>
+          <li>Combine with buttons, headings, or other elements to provide context</li>
+        </ul>
+      </section>
+    </main>
+  </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+{% load static %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('pre code').forEach((block) => {
+      hljs.highlightElement(block);
+    });
+  });
+</script>
+<script src="{% static 'js/code-blocks.js' %}"></script>
 {% endblock %}

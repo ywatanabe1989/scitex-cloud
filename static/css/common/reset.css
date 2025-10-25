@@ -38,6 +38,7 @@ html {
 }
 
 /* Set core body defaults */
+html,
 body {
   min-height: 100vh;
   text-rendering: optimizeSpeed;
@@ -45,6 +46,11 @@ body {
   line-height: var(--base-line-height);
   color: var(--text-color);
   background-color: white;
+}
+
+/* Ensure all elements inherit sans-serif */
+* {
+  font-family: inherit;
 }
 
 /* Remove list styles */

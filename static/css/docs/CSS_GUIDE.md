@@ -1,7 +1,7 @@
 <!-- ---
-!-- Timestamp: 2025-10-24 21:09:19
+!-- Timestamp: 2025-10-25 06:06:12
 !-- Author: ywatanabe
-!-- File: /home/ywatanabe/proj/scitex-cloud/static/css/CSS_GUIDE.md
+!-- File: /home/ywatanabe/proj/scitex-cloud/static/css/docs/CSS_GUIDE.md
 !-- --- -->
 
 # Scitex Git - CSS Modules Guide

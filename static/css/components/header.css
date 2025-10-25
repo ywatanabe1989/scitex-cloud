@@ -3,8 +3,9 @@
 
 /* Header Container - Light Mode with scattered dots (matches ecosystem) */
 .github-header {
-    background-color: var(--_gray-subtle);  /* Slightly darker gray in light mode */
-    border-bottom: 1px solid var(--scitex-color-06);
+    background-color: var(--_white);  /* Crisp white for professional look */
+    border-bottom: 1px solid var(--border-default);
+    box-shadow: 0 1px 3px rgba(26, 35, 50, 0.04);
     padding: 0;
     position: sticky;
     top: 0;

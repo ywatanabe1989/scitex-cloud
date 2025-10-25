@@ -1,0 +1,15 @@
+<!-- Repository Header -->
+<div style="padding: 1.5rem 0; border-bottom: 1px solid var(--color-border-default);">
+    <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <a href="/{{ project.owner.username }}/" style="color: var(--color-accent-fg); text-decoration: none; font-weight: 400;">
+            {{ project.owner.username }}
+        </a>
+        <span style="color: var(--color-fg-muted);">/</span>
+        <a href="/{{ project.owner.username }}/{{ project.slug }}/" style="font-size: 1.25rem; font-weight: 600; color: var(--color-accent-fg); text-decoration: none;">
+            {{ project.name }}
+        </a>
+    </div>
+    {% if project.description %}
+    <div style="color: var(--color-fg-muted); margin-top: 0.5rem;">{{ project.description }}</div>
+    {% endif %}
+</div>

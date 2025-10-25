@@ -1,0 +1,30 @@
+<!-- PR Tabs Navigation -->
+<ul class="nav pr-tabs mb-4">
+    <li class="nav-item">
+        <a class="nav-link {% if active_tab == 'conversation' %}active{% endif %}"
+           href="?tab=conversation">
+            <i class="bi bi-chat-dots"></i> Conversation
+            <span class="badge bg-secondary">{{ pr.comments.count }}</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if active_tab == 'commits' %}active{% endif %}"
+           href="?tab=commits">
+            <i class="bi bi-git"></i> Commits
+            <span class="badge bg-secondary">{{ pr.commits.count }}</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if active_tab == 'files' %}active{% endif %}"
+           href="?tab=files">
+            <i class="bi bi-file-earmark-diff"></i> Files changed
+            <span class="badge bg-secondary">{{ changed_files|length }}</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if active_tab == 'checks' %}active{% endif %}"
+           href="?tab=checks">
+            <i class="bi bi-check-circle"></i> Checks
+        </a>
+    </li>
+</ul>

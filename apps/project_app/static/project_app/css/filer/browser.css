@@ -68,6 +68,130 @@
     color: #666;
 }
 
+/* ============================================================================= */
+/* GITHUB-STYLE TABLE LAYOUT */
+/* ============================================================================= */
+
+/* File table container */
+.file-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid var(--color-border-default, #d0d7de);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+/* Table header */
+.file-table thead {
+    background-color: var(--color-canvas-subtle, #f6f8fa);
+}
+
+.file-table thead th {
+    padding: 8px 16px;
+    text-align: left;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-fg-muted, #57606a);
+    border-bottom: 1px solid var(--color-border-default, #d0d7de);
+}
+
+/* Table body */
+.file-table tbody tr {
+    border-bottom: 1px solid var(--color-border-muted, #d0d7de);
+    transition: background-color 0.1s ease;
+}
+
+.file-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+/* Row hover effect - entire row changes background color */
+.file-table tbody tr:hover {
+    background-color: var(--color-canvas-subtle, #f6f8fa);
+}
+
+/* Table cells */
+.file-table tbody td {
+    padding: 8px 16px;
+    vertical-align: middle;
+    font-size: 14px;
+}
+
+/* File icon cell */
+.file-table-icon {
+    width: 24px;
+    padding-right: 8px;
+}
+
+.file-table-icon svg,
+.file-table-icon img {
+    width: 16px;
+    height: 16px;
+    vertical-align: text-bottom;
+}
+
+/* File name cell */
+.file-table-name {
+    font-weight: 500;
+    color: var(--color-accent-fg, #0969da);
+    cursor: pointer;
+}
+
+.file-table-name:hover {
+    text-decoration: underline;
+}
+
+/* File metadata cell */
+.file-table-meta {
+    color: var(--color-fg-muted, #57606a);
+    font-size: 12px;
+    width: 200px;
+}
+
+/* File size cell */
+.file-table-size {
+    color: var(--color-fg-muted, #57606a);
+    font-size: 12px;
+    width: 100px;
+    text-align: right;
+}
+
+/* Make entire row clickable */
+.file-table tbody tr {
+    cursor: pointer;
+}
+
+/* Dark theme support */
+[data-theme="dark"] .file-table {
+    border-color: var(--color-border-default, #30363d);
+}
+
+[data-theme="dark"] .file-table thead {
+    background-color: var(--color-canvas-subtle, #161b22);
+}
+
+[data-theme="dark"] .file-table thead th {
+    color: var(--color-fg-muted, #8b949e);
+    border-bottom-color: var(--color-border-default, #30363d);
+}
+
+[data-theme="dark"] .file-table tbody tr {
+    border-bottom-color: var(--color-border-muted, #21262d);
+}
+
+[data-theme="dark"] .file-table tbody tr:hover {
+    background-color: var(--color-canvas-subtle, #161b22);
+}
+
+[data-theme="dark"] .file-table-name {
+    color: var(--color-accent-fg, #58a6ff);
+}
+
+[data-theme="dark"] .file-table-meta,
+[data-theme="dark"] .file-table-size {
+    color: var(--color-fg-muted, #8b949e);
+}
+
 .breadcrumb {
     margin-bottom: 1.5rem;
 }

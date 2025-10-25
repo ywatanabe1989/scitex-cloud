@@ -10,7 +10,9 @@
 {% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="container"
+     data-workflow-trigger-url="{% url 'user_projects:workflow_trigger' project.owner.username project.slug workflow.id %}"
+     data-workflow-toggle-url="{% url 'user_projects:workflow_enable_disable' project.owner.username project.slug workflow.id %}">
     <!-- Breadcrumbs -->
     <nav aria-label="breadcrumb" style="margin-top: 1rem;">
         <ol class="breadcrumb">
@@ -162,52 +164,8 @@
         </div>
     </div>
 </div>
+{% endblock %}
 
-<script>
-function triggerWorkflow() {
-    if (!confirm('Run this workflow now?')) {
-        return;
-    }
-
-    fetch("{% url 'user_projects:workflow_trigger' project.owner.username project.slug workflow.id %}", {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': '{{ csrf_token }}',
-            'X-Requested-With': 'XMLHttpRequest',
-        },
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            window.location.href = data.run_url;
-        } else {
-            alert('Error: ' + data.error);
-        }
-    })
-    .catch(error => {
-        alert('Error triggering workflow: ' + error);
-    });
-}
-
-function toggleWorkflow() {
-    fetch("{% url 'user_projects:workflow_enable_disable' project.owner.username project.slug workflow.id %}", {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': '{{ csrf_token }}',
-            'X-Requested-With': 'XMLHttpRequest',
-        },
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            window.location.reload();
-        } else {
-            alert('Error: ' + data.error);
-        }
-    })
-    .catch(error => {
-        alert('Error toggling workflow: ' + error);
-    });
-}
-</script>
+{% block extra_js %}
+<script src="{% static 'project_app/js/workflow_detail.js' %}"></script>
 {% endblock %}

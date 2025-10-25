@@ -140,7 +140,8 @@
 .form-group input[type="email"],
 .form-group input[type="url"],
 .form-group input[type="password"],
-.form-group textarea {
+.form-group textarea,
+.form-control {
     width: 100%;
     padding: 8px 12px;
     border: 1px solid var(--color-border-default);
@@ -148,6 +149,36 @@
     background: var(--color-canvas-default);
     color: var(--text-primary);
     font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-control:focus,
+.form-select:focus {
+    outline: none;
+    border-color: var(--color-accent-fg);
+    box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.1);
+}
+
+[data-theme="dark"] .form-group input:focus,
+[data-theme="dark"] .form-group textarea:focus,
+[data-theme="dark"] .form-control:focus,
+[data-theme="dark"] .form-select:focus {
+    box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1);
+}
+
+/* Select elements */
+.form-select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    background: var(--color-canvas-default);
+    color: var(--text-primary);
+    font-size: 14px;
+    transition: all 0.2s ease;
+    cursor: pointer;
 }
 
 .form-help {

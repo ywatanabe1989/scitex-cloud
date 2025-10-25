@@ -1,247 +1,199 @@
 {% extends "global_base.html" %}
 
+{% block title %}Tabs - SciTeX Design System{% endblock %}
+
+{% block meta_description %}Tabbed interface for organizing content into separate views.{% endblock %}
+
+{% block extra_css %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'dev_app/css/design-demo.css' %}">
+<link rel="stylesheet" href="{% static 'css/common/code-blocks.css' %}">
+<link rel="stylesheet" href="{% static 'dev_app/styles/design.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/zenburn.min.css">
+{% endblock %}
+
 {% block content %}
-<div class="dev-design-layout">
-  {% include "dev_app/design_partial/sidebar.html" %}
+<section class="design-header">
+  <div class="container">
+    <h1>Tabs</h1>
+    <p class="design-subtitle">Tabbed interface for organizing content into separate views</p>
+  </div>
+</section>
 
-  <main class="design-content">
-    <div class="design-header">
-      <h1>Tabs</h1>
-      <p class="design-subtitle">Navigate between related sections of content</p>
-    </div>
+<div class="container py-5">
+  <div class="design-layout">
+    {% include 'dev_app/design_partial/sidebar.html' %}
 
-    <style>
-      .tabs-demo {
-        padding: 2rem;
-        background-color: var(--bg-secondary);
-        border-radius: 8px;
-        margin-bottom: 2rem;
-      }
+    <main class="design-main">
 
-      .tabs-container {
-        margin-bottom: 2rem;
-      }
-
-      .tabs-nav {
-        display: flex;
-        gap: 0;
-        border-bottom: 2px solid var(--border-color);
-        margin-bottom: 0;
-        list-style: none;
-        padding: 0;
-      }
-
-      .tabs-nav-item {
-        margin: 0;
-        padding: 0;
-      }
-
-      .tabs-nav-link {
-        display: block;
-        padding: 1rem 1.5rem;
-        color: var(--text-secondary);
-        text-decoration: none;
-        border-bottom: 3px solid transparent;
-        margin-bottom: -2px;
-        cursor: pointer;
-        transition: all 0.2s;
-        font-weight: 500;
-      }
-
-      .tabs-nav-link:hover {
-        color: var(--text-primary);
-        background-color: rgba(0, 122, 255, 0.05);
-      }
-
-      .tabs-nav-link.active {
-        color: #007AFF;
-        border-bottom-color: #007AFF;
-      }
-
-      .tabs-content {
-        padding: 1.5rem 0;
-      }
-
-      .tabs-panel {
-        display: none;
-      }
-
-      .tabs-panel.active {
-        display: block;
-      }
-
-      .tabs-panel h3 {
-        margin-top: 0;
-        color: var(--text-primary);
-      }
-
-      .tabs-panel p {
-        color: var(--text-secondary);
-        line-height: 1.6;
-      }
-
-      /* Variant: Pills style tabs */
-      .tabs-nav.tabs-pills {
-        border-bottom: none;
-        gap: 0.5rem;
-      }
-
-      .tabs-pills .tabs-nav-link {
-        border-radius: 6px;
-        border-bottom: none;
-        background-color: transparent;
-        padding: 0.75rem 1rem;
-        margin-bottom: 0;
-      }
-
-      .tabs-pills .tabs-nav-link.active {
-        background-color: #007AFF;
-        color: white;
-        border-bottom: none;
-      }
-
-      .tabs-pills .tabs-nav-link:hover {
-        background-color: rgba(0, 122, 255, 0.1);
-      }
-    </style>
-
-    <section class="design-section">
-      <h2>Overview</h2>
-      <div class="section-info">
-        <p><strong>Category:</strong> Navigation</p>
-        <p><strong>Dark mode:</strong> Supported</p>
+      <section>
+        <h2>Overview</h2>
         <p>Tabs organize content into separate views within the same context. Users can switch between tabs to access different content categories.</p>
-      </div>
-    </section>
+        <p><strong>Category:</strong> Navigation Components</p>
+        <p><strong>Dark Mode Support:</strong> Yes</p>
+        <p><strong>Production Classes:</strong> <code>.tabs</code>, <code>.tab-item</code>, <code>.tab-content</code>, <code>.tab-pane</code></p>
+      </section>
 
-    <section class="design-section">
-      <h2>Component Demo</h2>
-      <div class="tabs-demo">
-        <!-- Standard Tabs -->
-        <div class="tabs-container">
-          <div class="tabs-nav">
-            <div class="tabs-nav-item">
-              <a class="tabs-nav-link active" onclick="switchTab(event, 'tab1')">Overview</a>
+      <section class="design-section">
+        <h2>Component Demo</h2>
+        <div class="component-demo">
+          <!-- Standard Tabs -->
+          <div style="margin-bottom: 3rem;">
+            <h3>Standard Tabs</h3>
+            <div class="tabs">
+              <button class="tab-item active" onclick="switchTab(event, 'tab1', 'tabs1')">Overview</button>
+              <button class="tab-item" onclick="switchTab(event, 'tab2', 'tabs1')">Documentation</button>
+              <button class="tab-item" onclick="switchTab(event, 'tab3', 'tabs1')">Examples</button>
+              <button class="tab-item" disabled>Disabled</button>
             </div>
-            <div class="tabs-nav-item">
-              <a class="tabs-nav-link" onclick="switchTab(event, 'tab2')">Documentation</a>
-            </div>
-            <div class="tabs-nav-item">
-              <a class="tabs-nav-link" onclick="switchTab(event, 'tab3')">Examples</a>
+            <div class="tab-content" id="tabs1">
+              <div id="tab1" class="tab-pane active">
+                <h4>Overview</h4>
+                <p>This is the overview section. Tabs help organize content when there's too much to show at once. Click on the other tabs to see how the content switches.</p>
+              </div>
+              <div id="tab2" class="tab-pane">
+                <h4>Documentation</h4>
+                <p>Documentation for using tabs in your application. Tabs maintain state and can be customized with different styles and behaviors.</p>
+              </div>
+              <div id="tab3" class="tab-pane">
+                <h4>Examples</h4>
+                <p>Real-world examples of tabs being used in various contexts. Check the code examples section below for HTML and CSS implementation details.</p>
+              </div>
             </div>
           </div>
-          <div class="tabs-content">
-            <div id="tab1" class="tabs-panel active">
-              <h3>Overview</h3>
-              <p>This is the overview section. Tabs help organize content when there's too much to show at once. Click on the other tabs to see how the content switches.</p>
+
+          <!-- With Icons -->
+          <div>
+            <h3>Tabs with Icons</h3>
+            <div class="tabs">
+              <button class="tab-item active" onclick="switchTab(event, 'icon1', 'tabs2')">📊 Analytics</button>
+              <button class="tab-item" onclick="switchTab(event, 'icon2', 'tabs2')">📁 Files</button>
+              <button class="tab-item" onclick="switchTab(event, 'icon3', 'tabs2')">⚙️ Settings</button>
             </div>
-            <div id="tab2" class="tabs-panel">
-              <h3>Documentation</h3>
-              <p>Documentation for using tabs in your application. Tabs maintain state and can be customized with different styles and behaviors.</p>
-            </div>
-            <div id="tab3" class="tabs-panel">
-              <h3>Examples</h3>
-              <p>Real-world examples of tabs being used in various contexts. Check the code examples section below for HTML and CSS implementation details.</p>
+            <div class="tab-content" id="tabs2">
+              <div id="icon1" class="tab-pane active">
+                <p>Analytics content showing data visualizations and metrics.</p>
+              </div>
+              <div id="icon2" class="tab-pane">
+                <p>Files section with document management tools.</p>
+              </div>
+              <div id="icon3" class="tab-pane">
+                <p>Settings configuration options and preferences.</p>
+              </div>
             </div>
           </div>
         </div>
+      </section>
 
-        <!-- Pills Style Tabs -->
-        <div class="tabs-container" style="margin-top: 3rem;">
-          <div class="tabs-nav tabs-pills">
-            <div class="tabs-nav-item">
-              <a class="tabs-nav-link active" onclick="switchTab(event, 'pill1')">Active</a>
-            </div>
-            <div class="tabs-nav-item">
-              <a class="tabs-nav-link" onclick="switchTab(event, 'pill2')">Inactive</a>
-            </div>
-            <div class="tabs-nav-item">
-              <a class="tabs-nav-link" onclick="switchTab(event, 'pill3')">Inactive</a>
-            </div>
-          </div>
-          <div class="tabs-content">
-            <div id="pill1" class="tabs-panel active">
-              <h3>Pills Style</h3>
-              <p>This is an alternative tab style using pill-shaped buttons. This style works well for smaller tab sets or when you want a more modern appearance.</p>
-            </div>
-            <div id="pill2" class="tabs-panel">
-              <h3>Alternative Style</h3>
-              <p>Pills provide a different visual approach compared to the underline style above. Both are equally valid depending on your design needs.</p>
-            </div>
-            <div id="pill3" class="tabs-panel">
-              <h3>Customizable</h3>
-              <p>Tabs can be fully customized to match your application's design system. Colors, spacing, and interaction patterns can all be adjusted.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="design-section">
-      <h2>Variants & States</h2>
-      <div class="variants-list">
+      <section class="design-section">
+        <h2>States</h2>
         <ul>
-          <li><strong>Standard Tabs:</strong> Underline style with border indicator</li>
-          <li><strong>Pills Style:</strong> Button-like tabs with background fill</li>
-          <li><strong>Active State:</strong> Currently selected tab is highlighted</li>
-          <li><strong>Hover State:</strong> Visual feedback on tab hover</li>
-          <li><strong>Disabled State:</strong> Inactive tabs can be disabled</li>
+          <li><strong>default</strong> - Inactive tab with secondary text color</li>
+          <li><strong>active</strong> - Currently selected tab with primary text and border</li>
+          <li><strong>hover</strong> - Hover state with highlighted border and text</li>
+          <li><strong>disabled</strong> - Non-interactive disabled tab with reduced opacity</li>
         </ul>
-      </div>
-    </section>
+      </section>
 
-    <section class="design-section">
-      <h2>HTML Code Example</h2>
-      <pre><code class="language-html">&lt;!-- Standard Tabs --&gt;
-&lt;div class="tabs-nav"&gt;
-  &lt;div class="tabs-nav-item"&gt;
-    &lt;a class="tabs-nav-link active"&gt;Tab 1&lt;/a&gt;
-  &lt;/div&gt;
-  &lt;div class="tabs-nav-item"&gt;
-    &lt;a class="tabs-nav-link"&gt;Tab 2&lt;/a&gt;
-  &lt;/div&gt;
+      <section class="design-section">
+        <h2>HTML Example</h2>
+        <pre><code class="language-html">&lt;div class="tabs"&gt;
+  &lt;button class="tab-item active"&gt;Overview&lt;/button&gt;
+  &lt;button class="tab-item"&gt;Details&lt;/button&gt;
+  &lt;button class="tab-item"&gt;Settings&lt;/button&gt;
+  &lt;button class="tab-item" disabled&gt;Locked&lt;/button&gt;
 &lt;/div&gt;
 
-&lt;div class="tabs-content"&gt;
-  &lt;div id="tab1" class="tabs-panel active"&gt;
-    &lt;h3&gt;Tab 1 Content&lt;/h3&gt;
-    &lt;p&gt;Content for tab 1&lt;/p&gt;
+&lt;div class="tab-content"&gt;
+  &lt;div class="tab-pane active"&gt;
+    &lt;h3&gt;Overview Content&lt;/h3&gt;
+    &lt;p&gt;Overview content here&lt;/p&gt;
   &lt;/div&gt;
-  &lt;div id="tab2" class="tabs-panel"&gt;
-    &lt;h3&gt;Tab 2 Content&lt;/h3&gt;
-    &lt;p&gt;Content for tab 2&lt;/p&gt;
+  &lt;div class="tab-pane"&gt;
+    &lt;h3&gt;Details Content&lt;/h3&gt;
+    &lt;p&gt;Details content here&lt;/p&gt;
   &lt;/div&gt;
-&lt;/div&gt;
-
-&lt;!-- Pills Style --&gt;
-&lt;div class="tabs-nav tabs-pills"&gt;
-  &lt;div class="tabs-nav-item"&gt;
-    &lt;a class="tabs-nav-link active"&gt;Active&lt;/a&gt;
-  &lt;/div&gt;
-  &lt;div class="tabs-nav-item"&gt;
-    &lt;a class="tabs-nav-link"&gt;Inactive&lt;/a&gt;
+  &lt;div class="tab-pane"&gt;
+    &lt;h3&gt;Settings Content&lt;/h3&gt;
+    &lt;p&gt;Settings content here&lt;/p&gt;
   &lt;/div&gt;
 &lt;/div&gt;</code></pre>
-      <script>hljs.highlightAll();</script>
-    </section>
+      </section>
 
-    <script>
-      function switchTab(event, tabName) {
-        event.preventDefault();
-        
-        // Hide all panels
-        const panels = event.target.closest('.tabs-container').querySelectorAll('.tabs-panel');
-        panels.forEach(panel => panel.classList.remove('active'));
-        
-        // Remove active from all links
-        const links = event.target.closest('.tabs-container').querySelectorAll('.tabs-nav-link');
-        links.forEach(link => link.classList.remove('active'));
-        
-        // Show selected panel and mark as active
-        document.getElementById(tabName).classList.add('active');
-        event.target.classList.add('active');
-      }
-    </script>
-  </main>
+      <section class="design-section">
+        <h2>CSS Classes</h2>
+        <table class="design-table">
+          <thead>
+            <tr>
+              <th>Class</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>.tabs</code></td>
+              <td>Tab navigation container</td>
+            </tr>
+            <tr>
+              <td><code>.tab-item</code></td>
+              <td>Individual tab button</td>
+            </tr>
+            <tr>
+              <td><code>.tab-item.active</code></td>
+              <td>Active/selected tab state</td>
+            </tr>
+            <tr>
+              <td><code>.tab-item:disabled</code></td>
+              <td>Disabled tab state</td>
+            </tr>
+            <tr>
+              <td><code>.tab-content</code></td>
+              <td>Content container for tab panels</td>
+            </tr>
+            <tr>
+              <td><code>.tab-pane</code></td>
+              <td>Individual tab panel content</td>
+            </tr>
+            <tr>
+              <td><code>.tab-pane.active</code></td>
+              <td>Visible tab panel</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+{% load static %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('pre code').forEach((block) => {
+      hljs.highlightElement(block);
+    });
+  });
+
+  function switchTab(event, tabName, containerId) {
+    event.preventDefault();
+
+    const container = document.getElementById(containerId);
+
+    // Hide all panels in this container
+    const panels = container.querySelectorAll('.tab-pane');
+    panels.forEach(panel => panel.classList.remove('active'));
+
+    // Remove active from all tabs in the same tabs group
+    const tabsGroup = event.target.closest('.tabs');
+    const tabs = tabsGroup.querySelectorAll('.tab-item');
+    tabs.forEach(tab => tab.classList.remove('active'));
+
+    // Show selected panel and mark tab as active
+    document.getElementById(tabName).classList.add('active');
+    event.target.classList.add('active');
+  }
+</script>
+<script src="{% static 'js/code-blocks.js' %}"></script>
 {% endblock %}

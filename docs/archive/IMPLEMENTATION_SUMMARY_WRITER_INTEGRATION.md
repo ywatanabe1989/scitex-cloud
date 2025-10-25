@@ -61,7 +61,7 @@
 - ✅ Clear call-to-action buttons
 
 **Files Updated**:
-- `templates/global_base.html` - Added messages display
+- `templates/public_base.html` - Added messages display
 - `templates/partials/global_header.html` - Context-aware navigation
 - All module `default_workspace.html` templates - Consistent hero design
 
@@ -132,7 +132,7 @@
 15. `apps/viz_app/views.py` - Login required, messages
 
 ### Templates
-16. `templates/global_base.html` - Messages display
+16. `templates/public_base.html` - Messages display
 17. `templates/partials/global_header.html` - Context-aware navigation
 
 ## Documentation Created

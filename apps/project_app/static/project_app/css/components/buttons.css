@@ -1,0 +1,186 @@
+/* =============================================================================
+ * BUTTONS - GitHub-style button components
+ * =============================================================================
+ *
+ * Button variants:
+ * - .btn: Base button styles
+ * - .btn--primary: Primary action button
+ * - .btn--secondary: Secondary/default button
+ * - .btn--danger: Destructive action button
+ * - .btn--link: Link-style button
+ *
+ * Button sizes:
+ * - .btn--sm: Small button
+ * - .btn--md: Default medium button
+ * - .btn--lg: Large button
+ *
+ * Button states:
+ * - .btn--disabled: Disabled state
+ * - .btn:hover: Hover state
+ * - .btn:active: Active/pressed state
+ *
+ * ============================================================================= */
+
+/* Base button styles */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-4);
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-condensed);
+  color: var(--color-fg-default);
+  background-color: var(--color-canvas-subtle);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--border-radius-2);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color var(--transition-duration-fast) var(--transition-timing-default),
+              border-color var(--transition-duration-fast) var(--transition-timing-default);
+  user-select: none;
+  white-space: nowrap;
+}
+
+.btn:hover {
+  background-color: var(--color-canvas-default);
+  border-color: var(--color-fg-muted);
+  text-decoration: none;
+}
+
+.btn:active {
+  background-color: var(--color-canvas-inset);
+  border-color: var(--color-fg-muted);
+}
+
+.btn:focus {
+  outline: 2px solid var(--color-accent-emphasis);
+  outline-offset: 2px;
+}
+
+/* Button variants */
+.btn--primary {
+  color: var(--color-btn-primary-text);
+  background-color: var(--color-btn-primary-bg);
+  border-color: var(--color-btn-primary-border);
+}
+
+.btn--primary:hover {
+  background-color: var(--color-btn-primary-hover-bg);
+  border-color: var(--color-btn-primary-hover-bg);
+}
+
+.btn--secondary {
+  /* Uses base button styles */
+}
+
+.btn--danger {
+  color: var(--color-danger-fg);
+  background-color: var(--color-canvas-subtle);
+  border-color: var(--color-danger-fg);
+}
+
+.btn--danger:hover {
+  color: #ffffff;
+  background-color: var(--color-danger-emphasis);
+  border-color: var(--color-danger-emphasis);
+}
+
+.btn--link {
+  color: var(--color-accent-fg);
+  background-color: transparent;
+  border: none;
+  padding: var(--space-1) var(--space-2);
+}
+
+.btn--link:hover {
+  text-decoration: underline;
+  background-color: transparent;
+}
+
+/* Button sizes */
+.btn--sm {
+  padding: 3px var(--space-3);
+  font-size: var(--font-size-sm);
+  height: var(--btn-height-sm);
+}
+
+.btn--md {
+  height: var(--btn-height-md);
+}
+
+.btn--lg {
+  padding: var(--space-3) var(--space-6);
+  font-size: var(--font-size-md);
+  height: var(--btn-height-lg);
+}
+
+/* Button states */
+.btn--disabled,
+.btn:disabled {
+  color: var(--color-fg-muted);
+  background-color: var(--color-canvas-subtle);
+  border-color: var(--color-border-muted);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.btn--disabled:hover,
+.btn:disabled:hover {
+  background-color: var(--color-canvas-subtle);
+  border-color: var(--color-border-muted);
+}
+
+/* Icon buttons */
+.btn--icon {
+  padding: var(--space-1);
+  width: var(--btn-height-md);
+  height: var(--btn-height-md);
+}
+
+.btn--icon.btn--sm {
+  width: var(--btn-height-sm);
+  height: var(--btn-height-sm);
+}
+
+.btn--icon.btn--lg {
+  width: var(--btn-height-lg);
+  height: var(--btn-height-lg);
+}
+
+/* Button groups */
+.btn-group {
+  display: inline-flex;
+  gap: var(--space-2);
+}
+
+.btn-group .btn {
+  flex: 0 0 auto;
+}
+
+.btn-group--attached {
+  gap: 0;
+}
+
+.btn-group--attached .btn {
+  border-radius: 0;
+  margin-left: -1px;
+}
+
+.btn-group--attached .btn:first-child {
+  border-top-left-radius: var(--border-radius-2);
+  border-bottom-left-radius: var(--border-radius-2);
+  margin-left: 0;
+}
+
+.btn-group--attached .btn:last-child {
+  border-top-right-radius: var(--border-radius-2);
+  border-bottom-right-radius: var(--border-radius-2);
+}
+
+.btn-group--attached .btn:hover,
+.btn-group--attached .btn:focus {
+  z-index: 1;
+}

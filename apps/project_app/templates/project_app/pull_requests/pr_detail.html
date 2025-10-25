@@ -1,111 +1,23 @@
-{% extends "base.html" %}
+{% extends "global_base.html" %}
 {% load static %}
 
 {% block title %}PR #{{ pr.number }}: {{ pr.title }} - {{ project.name }}{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'project_app/css/project_app.css' %}">
-
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid mt-4">
-    <!-- Breadcrumb -->
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'user_projects:user_profile' project.owner.username %}">{{ project.owner.username }}</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'user_projects:detail' project.owner.username project.slug %}">{{ project.name }}</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'user_projects:pr_list' project.owner.username project.slug %}">Pull requests</a></li>
-            <li class="breadcrumb-item active">#{{ pr.number }}</li>
-        </ol>
-    </nav>
+<div class="container-fluid mt-4"
+     data-pr-close-url="{% url 'user_projects:pr_close' project.owner.username project.slug pr.number %}"
+     data-pr-reopen-url="{% url 'user_projects:pr_reopen' project.owner.username project.slug pr.number %}">
 
-    <!-- PR Header -->
-    <div class="pr-header">
-        <div class="d-flex align-items-start justify-content-between">
-            <div class="flex-grow-1">
-                <h2 class="mb-2">
-                    {{ pr.title }}
-                    <span class="text-muted">#{{ pr.number }}</span>
-                </h2>
-
-                <!-- PR State -->
-                <div class="d-flex align-items-center gap-2">
-                    {% if pr.state == 'open' %}
-                    <span class="pr-state-badge badge bg-success">
-                        <i class="bi bi-circle"></i> Open
-                    </span>
-                    {% elif pr.state == 'merged' %}
-                    <span class="pr-state-badge badge bg-primary">
-                        <i class="bi bi-check2-circle"></i> Merged
-                    </span>
-                    {% else %}
-                    <span class="pr-state-badge badge bg-danger">
-                        <i class="bi bi-x-circle"></i> Closed
-                    </span>
-                    {% endif %}
-
-                    {% if pr.is_draft %}
-                    <span class="badge bg-secondary">Draft</span>
-                    {% endif %}
-
-                    <span class="text-muted">
-                        <strong>{{ pr.author.username }}</strong> wants to merge
-                        <strong>{{ pr.commits.count }}</strong> commit{% if pr.commits.count != 1 %}s{% endif %}
-                        into <code>{{ pr.target_branch }}</code> from <code>{{ pr.source_branch }}</code>
-                    </span>
-                </div>
-            </div>
-
-            <!-- Action Buttons -->
-            {% if can_edit %}
-            <div class="btn-group">
-                {% if pr.is_open %}
-                <button type="button" class="btn btn-outline-secondary" onclick="closePR()">
-                    <i class="bi bi-x-circle"></i> Close PR
-                </button>
-                {% elif pr.is_closed %}
-                <button type="button" class="btn btn-outline-success" onclick="reopenPR()">
-                    <i class="bi bi-arrow-clockwise"></i> Reopen PR
-                </button>
-                {% endif %}
-            </div>
-            {% endif %}
-        </div>
-    </div>
+    {% include 'project_app/pull_requests/partials/_pr_breadcrumb.html' %}
+    {% include 'project_app/pull_requests/partials/_pr_header.html' %}
 
     <div class="row">
         <div class="col-lg-9">
-            <!-- Tabs -->
-            <ul class="nav pr-tabs mb-4">
-                <li class="nav-item">
-                    <a class="nav-link {% if active_tab == 'conversation' %}active{% endif %}"
-                       href="?tab=conversation">
-                        <i class="bi bi-chat-dots"></i> Conversation
-                        <span class="badge bg-secondary">{{ pr.comments.count }}</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if active_tab == 'commits' %}active{% endif %}"
-                       href="?tab=commits">
-                        <i class="bi bi-git"></i> Commits
-                        <span class="badge bg-secondary">{{ pr.commits.count }}</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if active_tab == 'files' %}active{% endif %}"
-                       href="?tab=files">
-                        <i class="bi bi-file-earmark-diff"></i> Files changed
-                        <span class="badge bg-secondary">{{ changed_files|length }}</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if active_tab == 'checks' %}active{% endif %}"
-                       href="?tab=checks">
-                        <i class="bi bi-check-circle"></i> Checks
-                    </a>
-                </li>
-            </ul>
+            {% include 'project_app/pull_requests/partials/_pr_tabs.html' %}
 
             <!-- Tab Content -->
             {% if active_tab == 'conversation' %}
@@ -121,220 +33,16 @@
 
         <!-- Sidebar -->
         <div class="col-lg-3">
-            <div class="card">
-                <div class="card-body">
-                    <!-- Reviewers -->
-                    <div class="mb-3">
-                        <h6 class="text-muted mb-2">Reviewers</h6>
-                        {% if pr.reviewers.all %}
-                        <ul class="list-unstyled">
-                            {% for reviewer in pr.reviewers.all %}
-                            <li class="mb-1">
-                                <i class="bi bi-person-circle"></i> {{ reviewer.username }}
-                            </li>
-                            {% endfor %}
-                        </ul>
-                        {% else %}
-                        <p class="text-muted small">No reviewers assigned</p>
-                        {% endif %}
-                    </div>
-
-                    <hr>
-
-                    <!-- Assignees -->
-                    <div class="mb-3">
-                        <h6 class="text-muted mb-2">Assignees</h6>
-                        {% if pr.assignees.all %}
-                        <ul class="list-unstyled">
-                            {% for assignee in pr.assignees.all %}
-                            <li class="mb-1">
-                                <i class="bi bi-person-circle"></i> {{ assignee.username }}
-                            </li>
-                            {% endfor %}
-                        </ul>
-                        {% else %}
-                        <p class="text-muted small">No one assigned</p>
-                        {% endif %}
-                    </div>
-
-                    <hr>
-
-                    <!-- Labels -->
-                    <div class="mb-3">
-                        <h6 class="text-muted mb-2">Labels</h6>
-                        {% if pr.labels %}
-                        <div class="d-flex flex-wrap gap-1">
-                            {% for label in pr.labels %}
-                            <span class="badge" style="background-color: #0969da">{{ label }}</span>
-                            {% endfor %}
-                        </div>
-                        {% else %}
-                        <p class="text-muted small">None yet</p>
-                        {% endif %}
-                    </div>
-
-                    <hr>
-
-                    <!-- Stats -->
-                    <div class="mb-3">
-                        <h6 class="text-muted mb-2">Statistics</h6>
-                        <ul class="list-unstyled small">
-                            <li><strong>{{ pr.commits.count }}</strong> commits</li>
-                            <li><strong>{{ changed_files|length }}</strong> files changed</li>
-                            <li><strong>{{ pr.comments.count }}</strong> comments</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Merge Status -->
-            {% if pr.is_open %}
-            <div class="card mt-3">
-                <div class="card-body">
-                    <h6 class="mb-3">Merge Status</h6>
-
-                    <!-- Approval status -->
-                    <div class="approval-status">
-                        {% if approval_status.is_approved %}
-                        <i class="bi bi-check-circle-fill text-success"></i>
-                        <span class="text-success">Approved</span>
-                        {% else %}
-                        <i class="bi bi-x-circle-fill text-warning"></i>
-                        <span class="text-warning">
-                            {{ approval_status.approved_count }}/{{ pr.required_approvals }} approvals
-                        </span>
-                        {% endif %}
-                    </div>
-
-                    <!-- Conflicts -->
-                    {% if pr.has_conflicts %}
-                    <div class="alert alert-danger small mb-2">
-                        <i class="bi bi-exclamation-triangle"></i>
-                        This branch has conflicts that must be resolved
-                    </div>
-                    {% else %}
-                    <div class="alert alert-success small mb-2">
-                        <i class="bi bi-check-circle"></i>
-                        This branch has no conflicts with the base branch
-                    </div>
-                    {% endif %}
-
-                    <!-- Merge button -->
-                    {% if can_merge %}
-                    <button type="button" class="btn btn-success w-100" data-bs-toggle="modal" data-bs-target="#mergeModal">
-                        <i class="bi bi-check2-circle"></i> Merge pull request
-                    </button>
-                    {% else %}
-                    <button type="button" class="btn btn-secondary w-100" disabled title="{{ merge_reason }}">
-                        <i class="bi bi-lock"></i> Merge pull request
-                    </button>
-                    <small class="text-muted mt-1 d-block">{{ merge_reason }}</small>
-                    {% endif %}
-                </div>
-            </div>
-            {% endif %}
+            {% include 'project_app/pull_requests/partials/_pr_sidebar.html' %}
         </div>
     </div>
 </div>
 
-<!-- Merge Modal -->
-<div class="modal fade" id="mergeModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Merge pull request</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="mergeForm">
-                    <div class="mb-3">
-                        <label class="form-label">Merge strategy</label>
-                        <select name="strategy" class="form-select">
-                            <option value="merge">Create a merge commit</option>
-                            <option value="squash">Squash and merge</option>
-                            <option value="rebase">Rebase and merge</option>
-                        </select>
-                        <div class="form-text">
-                            Choose how to merge these commits
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Commit message (optional)</label>
-                        <textarea name="commit_message" class="form-control" rows="3"
-                                  placeholder="Enter custom commit message"></textarea>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-success" onclick="submitMerge()">
-                    <i class="bi bi-check2-circle"></i> Confirm merge
-                </button>
-            </div>
-        </div>
-    </div>
+<div id="mergeModal" data-merge-url="{% url 'user_projects:pr_merge' project.owner.username project.slug pr.number %}">
+    {% include 'project_app/pull_requests/partials/_pr_merge_modal.html' %}
 </div>
+{% endblock %}
 
-<script>
-function submitMerge() {
-    const form = document.getElementById('mergeForm');
-    const formData = new FormData(form);
-
-    fetch('{% url "user_projects:pr_merge" project.owner.username project.slug pr.number %}', {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': '{{ csrf_token }}',
-        },
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            window.location.reload();
-        } else {
-            alert('Error: ' + data.error);
-        }
-    })
-    .catch(error => {
-        alert('Error: ' + error);
-    });
-}
-
-function closePR() {
-    if (!confirm('Are you sure you want to close this pull request?')) return;
-
-    fetch('{% url "user_projects:pr_close" project.owner.username project.slug pr.number %}', {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': '{{ csrf_token }}',
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            window.location.reload();
-        } else {
-            alert('Error: ' + data.error);
-        }
-    });
-}
-
-function reopenPR() {
-    fetch('{% url "user_projects:pr_reopen" project.owner.username project.slug pr.number %}', {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': '{{ csrf_token }}',
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            window.location.reload();
-        } else {
-            alert('Error: ' + data.error);
-        }
-    });
-}
-</script>
+{% block extra_js %}
+<script src="{% static 'project_app/js/pr_detail.js' %}"></script>
 {% endblock %}

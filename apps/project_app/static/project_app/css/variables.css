@@ -1,0 +1,270 @@
+/* =============================================================================
+ * Project App CSS Variables
+ * =============================================================================
+ *
+ * This file defines CSS custom properties (variables) for the project_app.
+ * These variables inherit from the global SciTeX theme but can be overridden
+ * for app-specific needs.
+ *
+ * Import order:
+ * 1. Global theme (/static/css/theme.css and common/)
+ * 2. This file (app-specific overrides)
+ * 3. Component and page styles
+ *
+ * ============================================================================= */
+
+:root {
+  /* ===========================================================================
+   * COLOR PALETTE
+   * ===========================================================================
+   * Uses GitHub Primer design tokens for consistency
+   * Inherits from global theme: /static/css/common/colors.css
+   * =========================================================================== */
+
+  /* Primary colors - inherited from global theme */
+  /* --color-fg-default: Text color (defined in global theme) */
+  /* --color-fg-muted: Muted text (defined in global theme) */
+  /* --color-canvas-default: Background (defined in global theme) */
+  /* --color-canvas-subtle: Subtle background (defined in global theme) */
+  /* --color-border-default: Border color (defined in global theme) */
+
+  /* Accent/Brand colors - SciTeX brand */
+  /* --color-accent-fg: SciTeX primary (#1a2332) */
+  /* --color-accent-emphasis: Emphasis color */
+  /* --color-accent-subtle: Subtle accent background */
+
+  /* Status colors */
+  /* --color-success-fg: Success green */
+  /* --color-warning-fg: Warning yellow/orange */
+  /* --color-danger-fg: Error/danger red */
+  /* --color-info-fg: Info blue */
+
+  /* Neutral grays - for borders, dividers, etc. */
+  --color-neutral-muted: #f6f8fa;
+  --color-neutral-emphasis: #6e7781;
+
+  /* ===========================================================================
+   * TYPOGRAPHY
+   * ===========================================================================
+   * Font families, sizes, weights, and line heights
+   * =========================================================================== */
+
+  /* Font families */
+  --font-family-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                      "Helvetica Neue", Arial, sans-serif;
+  --font-family-mono: "SF Mono", Monaco, Inconsolata, "Fira Mono",
+                      "Droid Sans Mono", "Source Code Pro", monospace;
+
+  /* Font sizes */
+  --font-size-xs: 11px;
+  --font-size-sm: 12px;
+  --font-size-base: 14px;
+  --font-size-md: 16px;
+  --font-size-lg: 20px;
+  --font-size-xl: 24px;
+  --font-size-2xl: 32px;
+  --font-size-3xl: 40px;
+
+  /* Font weights */
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* Line heights */
+  --line-height-condensed: 1.25;
+  --line-height-default: 1.5;
+  --line-height-relaxed: 1.75;
+
+  /* ===========================================================================
+   * SPACING SCALE
+   * ===========================================================================
+   * Based on 8px grid system (common in GitHub Primer)
+   * =========================================================================== */
+
+  --space-0: 0;
+  --space-1: 4px;   /* 0.25rem */
+  --space-2: 8px;   /* 0.5rem */
+  --space-3: 12px;  /* 0.75rem */
+  --space-4: 16px;  /* 1rem */
+  --space-5: 20px;  /* 1.25rem */
+  --space-6: 24px;  /* 1.5rem */
+  --space-7: 28px;  /* 1.75rem */
+  --space-8: 32px;  /* 2rem */
+  --space-10: 40px; /* 2.5rem */
+  --space-12: 48px; /* 3rem */
+  --space-16: 64px; /* 4rem */
+  --space-20: 80px; /* 5rem */
+
+  /* ===========================================================================
+   * BORDER RADII
+   * ===========================================================================
+   * Consistent corner rounding across components
+   * =========================================================================== */
+
+  --border-radius-0: 0;
+  --border-radius-1: 3px;
+  --border-radius-2: 6px;
+  --border-radius-3: 8px;
+  --border-radius-4: 12px;
+  --border-radius-round: 50%;
+  --border-radius-pill: 999px;
+
+  /* ===========================================================================
+   * SHADOWS
+   * ===========================================================================
+   * Box shadows for elevation and depth
+   * =========================================================================== */
+
+  --shadow-sm: 0 1px 0 rgba(31, 35, 40, 0.04);
+  --shadow-md: 0 3px 6px rgba(149, 157, 165, 0.15);
+  --shadow-lg: 0 8px 24px rgba(149, 157, 165, 0.2);
+  --shadow-xl: 0 12px 48px rgba(149, 157, 165, 0.3);
+
+  /* Component-specific shadows */
+  --shadow-card: var(--shadow-sm);
+  --shadow-dropdown: var(--shadow-md);
+  --shadow-modal: var(--shadow-xl);
+
+  /* ===========================================================================
+   * Z-INDEX SCALE
+   * ===========================================================================
+   * Layering system for overlapping elements
+   * =========================================================================== */
+
+  --z-base: 0;
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+
+  /* ===========================================================================
+   * TRANSITIONS
+   * ===========================================================================
+   * Animation durations and easing functions
+   * =========================================================================== */
+
+  --transition-duration-fast: 80ms;
+  --transition-duration-normal: 200ms;
+  --transition-duration-slow: 300ms;
+
+  --transition-timing-default: cubic-bezier(0.33, 1, 0.68, 1);
+  --transition-timing-linear: linear;
+
+  /* ===========================================================================
+   * BREAKPOINTS
+   * ===========================================================================
+   * Responsive design breakpoints (for reference in media queries)
+   * Note: CSS variables cannot be used directly in @media queries
+   * =========================================================================== */
+
+  --breakpoint-xs: 0;
+  --breakpoint-sm: 544px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1012px;
+  --breakpoint-xl: 1280px;
+
+  /* ===========================================================================
+   * LAYOUT
+   * ===========================================================================
+   * Container widths and layout constraints
+   * =========================================================================== */
+
+  --container-width-sm: 544px;
+  --container-width-md: 768px;
+  --container-width-lg: 1012px;
+  --container-width-xl: 1280px;
+
+  /* ===========================================================================
+   * COMPONENT-SPECIFIC VARIABLES
+   * ===========================================================================
+   * Variables for specific components
+   * =========================================================================== */
+
+  /* Sidebar */
+  --sidebar-width: 296px;
+  --sidebar-width-collapsed: 60px;
+
+  /* File tree */
+  --file-tree-indent: var(--space-4);
+  --file-tree-icon-size: 16px;
+
+  /* Buttons */
+  --btn-height-sm: 28px;
+  --btn-height-md: 32px;
+  --btn-height-lg: 40px;
+
+  /* Form inputs */
+  --input-height-sm: 28px;
+  --input-height-md: 32px;
+  --input-height-lg: 40px;
+
+  /* Badges */
+  --badge-height: 20px;
+  --badge-border-radius: var(--border-radius-pill);
+
+  /* Avatars */
+  --avatar-size-sm: 20px;
+  --avatar-size-md: 32px;
+  --avatar-size-lg: 48px;
+  --avatar-size-xl: 64px;
+}
+
+/* =============================================================================
+ * DARK MODE OVERRIDES
+ * =============================================================================
+ * Adjust variables for dark theme
+ * Most colors inherit from global theme, but shadows need adjustment
+ * ============================================================================= */
+
+[data-theme="dark"] {
+  /* Adjust shadows for dark background */
+  --shadow-sm: 0 1px 0 rgba(0, 0, 0, 0.12);
+  --shadow-md: 0 3px 6px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --shadow-xl: 0 12px 48px rgba(0, 0, 0, 0.5);
+
+  /* Neutral grays for dark mode */
+  --color-neutral-muted: #161b22;
+  --color-neutral-emphasis: #8b949e;
+}
+
+/* =============================================================================
+ * UTILITY CLASSES
+ * =============================================================================
+ * Common utility classes using variables
+ * ============================================================================= */
+
+/* Spacing utilities */
+.m-0 { margin: var(--space-0); }
+.m-1 { margin: var(--space-1); }
+.m-2 { margin: var(--space-2); }
+.m-3 { margin: var(--space-3); }
+.m-4 { margin: var(--space-4); }
+
+.p-0 { padding: var(--space-0); }
+.p-1 { padding: var(--space-1); }
+.p-2 { padding: var(--space-2); }
+.p-3 { padding: var(--space-3); }
+.p-4 { padding: var(--space-4); }
+
+/* Text utilities */
+.text-sm { font-size: var(--font-size-sm); }
+.text-base { font-size: var(--font-size-base); }
+.text-md { font-size: var(--font-size-md); }
+.text-lg { font-size: var(--font-size-lg); }
+
+.text-bold { font-weight: var(--font-weight-bold); }
+.text-semibold { font-weight: var(--font-weight-semibold); }
+.text-normal { font-weight: var(--font-weight-normal); }
+
+/* Color utilities */
+.text-muted { color: var(--color-fg-muted); }
+.text-default { color: var(--color-fg-default); }
+.text-success { color: var(--color-success-fg); }
+.text-warning { color: var(--color-warning-fg); }
+.text-danger { color: var(--color-danger-fg); }

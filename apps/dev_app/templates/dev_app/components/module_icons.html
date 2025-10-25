@@ -6,115 +6,398 @@
 
 {% block extra_css %}
 {% load static %}
-<link rel="stylesheet" href="{% static 'css/common.css' %}">
+<link rel="stylesheet" href="{% static 'dev_app/css/design-demo.css' %}">
 <link rel="stylesheet" href="{% static 'css/common/code-blocks.css' %}">
 <link rel="stylesheet" href="{% static 'dev_app/styles/design.css' %}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/zenburn.min.css">
-<style>
-  .icon-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 2rem;
-    margin: 1rem 0;
-  }
-  .icon-item {
-    text-align: center;
-  }
-  .icon-display {
-    font-size: 3rem;
-    margin-bottom: 0.5rem;
-  }
-  .icon-label {
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-  }
-  .component-demo {
-    background-color: var(--bg-surface);
-    border: 1px solid var(--border-default);
-    border-radius: 8px;
-    padding: 2rem;
-    margin: 1rem 0;
-  }
-</style>
 {% endblock %}
 
 {% block content %}
-<section style="background-color: var(--header-bg); color: var(--header-text); padding: 3rem 0; box-shadow: var(--shadow-md);">
-  <div class="container" style="text-align: center;">
-    <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem; font-weight: 700;">Module Icons</h1>
-    <p style="font-size: 1.125rem; color: var(--header-text); opacity: 0.9;">SciTeX ecosystem module icons for visual identity across applications</p>
+<section class="design-header">
+  <div class="container">
+    <h1>Module Icons</h1>
+    <p class="design-subtitle">SciTeX ecosystem module icons for visual identity across applications</p>
   </div>
 </section>
 
 <div class="container py-5">
-  <div style="display: flex; gap: 2rem;">
+  <div class="design-layout">
     {% include 'dev_app/design_partial/sidebar.html' %}
-    
-    <main style="flex: 1; min-width: 0;">
+
+    <main class="design-main">
       <section>
         <h2>Overview</h2>
-        <p>Module icons provide consistent visual identity across the SciTeX ecosystem. Each module has a distinctive icon used in navigation and branding.</p>
+        <p>Module icons provide consistent visual identity across the SciTeX ecosystem. Each module has a distinctive icon available in both SVG (professional) and emoji (friendly) variants, supporting dark mode and multiple size options.</p>
         <p><strong>Category:</strong> Visual Identity</p>
         <p><strong>Dark Mode Support:</strong> Yes</p>
+        <p><strong>Production Classes:</strong> <code>.module-icon</code>, <code>.emoji-icon</code>, <code>.nav-icon</code></p>
       </section>
 
-      <section style="margin-top: 2rem;">
-        <h2>Component Demo</h2>
+      <section class="design-section">
+        <h2>SVG Module Icons</h2>
+        <p>Professional vector icons for production use in navigation and features.</p>
         <div class="component-demo">
-          <div class="icon-grid">
-            <div class="icon-item">
-              <div class="icon-display">🔬</div>
-              <div class="icon-label">Engine</div>
+          <div class="module-icons-grid">
+            <div class="icon-showcase">
+              <div class="module-icon">
+                <img src="{% static 'images/scitex-engine-icon.svg' %}" alt="SciTeX Engine" width="56" height="56">
+              </div>
+              <h5>Engine</h5>
+              <p>Emacs orchestration</p>
+              <code>scitex-engine-icon.svg</code>
             </div>
-            <div class="icon-item">
-              <div class="icon-display">📚</div>
-              <div class="icon-label">Scholar</div>
+
+            <div class="icon-showcase">
+              <div class="module-icon">
+                <img src="{% static 'images/scitex-scholar-icon.svg' %}" alt="SciTeX Scholar" width="56" height="56">
+              </div>
+              <h5>Scholar</h5>
+              <p>Literature discovery</p>
+              <code>scitex-scholar-icon.svg</code>
             </div>
-            <div class="icon-item">
-              <div class="icon-display">📝</div>
-              <div class="icon-label">Writer</div>
+
+            <div class="icon-showcase">
+              <div class="module-icon">
+                <img src="{% static 'images/scitex-writer-icon.svg' %}" alt="SciTeX Writer" width="56" height="56">
+              </div>
+              <h5>Writer</h5>
+              <p>Scientific writing</p>
+              <code>scitex-writer-icon.svg</code>
             </div>
-            <div class="icon-item">
-              <div class="icon-display">💻</div>
-              <div class="icon-label">Code</div>
+
+            <div class="icon-showcase">
+              <div class="module-icon">
+                <img src="{% static 'images/scitex-code-icon.svg' %}" alt="SciTeX Code" width="56" height="56">
+              </div>
+              <h5>Code</h5>
+              <p>Data analysis</p>
+              <code>scitex-code-icon.svg</code>
             </div>
-            <div class="icon-item">
-              <div class="icon-display">📊</div>
-              <div class="icon-label">Viz</div>
+
+            <div class="icon-showcase">
+              <div class="module-icon">
+                <img src="{% static 'images/scitex-viz-icon.svg' %}" alt="SciTeX Viz" width="56" height="56">
+              </div>
+              <h5>Viz</h5>
+              <p>Publication graphics</p>
+              <code>scitex-viz-icon.svg</code>
             </div>
-            <div class="icon-item">
-              <div class="icon-display">☁️</div>
-              <div class="icon-label">Cloud</div>
+
+            <div class="icon-showcase">
+              <div class="module-icon">
+                <img src="{% static 'images/scitex-cloud-icon.svg' %}" alt="SciTeX Cloud" width="56" height="56">
+              </div>
+              <h5>Cloud</h5>
+              <p>Platform & infrastructure</p>
+              <code>scitex-cloud-icon.svg</code>
             </div>
-            <div class="icon-item">
-              <div class="icon-display">🛠️</div>
-              <div class="icon-label">Developer</div>
-            </div>
-            <div class="icon-item">
-              <div class="icon-display">🔍</div>
-              <div class="icon-label">Explore</div>
+
+            <div class="icon-showcase">
+              <div class="module-icon">
+                <img src="{% static 'images/scitex-developer-icon.svg' %}" alt="SciTeX Developer" width="56" height="56">
+              </div>
+              <h5>Developer</h5>
+              <p>Development tools</p>
+              <code>scitex-developer-icon.svg</code>
             </div>
           </div>
         </div>
       </section>
 
-      <section style="margin-top: 2rem;">
-        <h2>Variations</h2>
-        <ul>
-          <li><strong>SVG Icons</strong> - Professional vector icons for app navigation</li>
-          <li><strong>Emoji Variants</strong> - Friendly emoji versions for informal contexts</li>
-          <li><strong>Dark Mode</strong> - Icons adapt to dark theme</li>
-        </ul>
+      <section class="design-section">
+        <h2>Emoji Module Icons</h2>
+        <p>Friendly emoji variants for informal contexts and quick recognition.</p>
+        <div class="component-demo">
+          <div class="emoji-icons-grid">
+            <div class="emoji-showcase">
+              <div class="emoji-icon">⚙️</div>
+              <h5>Engine</h5>
+              <p>Gear - settings & configuration</p>
+              <code>⚙️ U+2699</code>
+            </div>
+
+            <div class="emoji-showcase">
+              <div class="emoji-icon">🔍</div>
+              <h5>Scholar</h5>
+              <p>Magnifying glass - search</p>
+              <code>🔍 U+1F50D</code>
+            </div>
+
+            <div class="emoji-showcase">
+              <div class="emoji-icon">✍️</div>
+              <h5>Writer</h5>
+              <p>Writing hand - authoring</p>
+              <code>✍️ U+270D</code>
+            </div>
+
+            <div class="emoji-showcase">
+              <div class="emoji-icon">💻</div>
+              <h5>Code</h5>
+              <p>Laptop - development</p>
+              <code>💻 U+1F4BB</code>
+            </div>
+
+            <div class="emoji-showcase">
+              <div class="emoji-icon">📊</div>
+              <h5>Viz</h5>
+              <p>Bar chart - visualization</p>
+              <code>📊 U+1F4CA</code>
+            </div>
+
+            <div class="emoji-showcase">
+              <div class="emoji-icon">☁️</div>
+              <h5>Cloud</h5>
+              <p>Cloud - infrastructure</p>
+              <code>☁️ U+2601</code>
+            </div>
+
+            <div class="emoji-showcase">
+              <div class="emoji-icon">👨‍💻</div>
+              <h5>Developer</h5>
+              <p>Technologist - dev tools</p>
+              <code>👨‍💻 U+1F468+200D+1F4BB</code>
+            </div>
+          </div>
+        </div>
       </section>
 
-      <section style="margin-top: 2rem;">
-        <h2>HTML Example</h2>
-        <pre><code>&lt;div class="icon-grid"&gt;
-  &lt;div class="icon-item"&gt;
-    &lt;img src="/icons/scholar.svg" alt="Scholar"&gt;
-    &lt;div&gt;Scholar&lt;/div&gt;
+      <section class="design-section">
+        <h2>Icon Sizes</h2>
+        <p>Standard icon sizes for different contexts:</p>
+        <div class="component-demo">
+          <div style="display: flex; gap: 2rem; align-items: flex-start; flex-wrap: wrap;">
+            <div style="text-align: center;">
+              <div class="module-icon-hero">
+                <img src="{% static 'images/scitex-scholar-icon.svg' %}" alt="Scholar" width="64" height="64">
+              </div>
+              <div style="margin-top: 0.5rem; font-size: 0.875rem;">Hero (64px)</div>
+              <code>.module-icon-hero</code>
+            </div>
+
+            <div style="text-align: center;">
+              <div class="module-icon-card">
+                <img src="{% static 'images/scitex-scholar-icon.svg' %}" alt="Scholar" width="48" height="48">
+              </div>
+              <div style="margin-top: 0.5rem; font-size: 0.875rem;">Card (48px)</div>
+              <code>.module-icon-card</code>
+            </div>
+
+            <div style="text-align: center;">
+              <div class="module-icon-list">
+                <img src="{% static 'images/scitex-scholar-icon.svg' %}" alt="Scholar" width="32" height="32">
+              </div>
+              <div style="margin-top: 0.5rem; font-size: 0.875rem;">List (32px)</div>
+              <code>.module-icon-list</code>
+            </div>
+
+            <div style="text-align: center;">
+              <div class="module-icon-inline">
+                <img src="{% static 'images/scitex-scholar-icon.svg' %}" alt="Scholar" width="24" height="24">
+              </div>
+              <div style="margin-top: 0.5rem; font-size: 0.875rem;">Inline (24px)</div>
+              <code>.module-icon-inline</code>
+            </div>
+
+            <div style="text-align: center;">
+              <div class="nav-icon">
+                <img src="{% static 'images/scitex-scholar-icon.svg' %}" alt="Scholar" class="nav-icon">
+              </div>
+              <div style="margin-top: 0.5rem; font-size: 0.875rem;">Nav (20px)</div>
+              <code>.nav-icon</code>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="design-section">
+        <h2>Navigation Usage</h2>
+        <p>Icons in navigation headers with hover effects:</p>
+        <div class="component-demo">
+          <a href="/scholar" class="header-nav-item" title="Literature review" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; transition: all 0.2s;">
+            <img src="{% static 'images/scitex-scholar-icon.svg' %}" alt="" class="nav-icon">
+            <span class="nav-label">Scholar</span>
+          </a>
+        </div>
+      </section>
+
+      <section class="design-section">
+        <h2>HTML Example - SVG Icons Grid</h2>
+        <pre><code class="language-html">&lt;div class="module-icons-grid"&gt;
+  &lt;div class="icon-showcase"&gt;
+    &lt;div class="module-icon"&gt;
+      &lt;img src="{% static 'images/scitex-scholar-icon.svg' %}" alt="SciTeX Scholar" width="56" height="56"&gt;
+    &lt;/div&gt;
+    &lt;h5&gt;Scholar&lt;/h5&gt;
+    &lt;p&gt;Literature discovery&lt;/p&gt;
+    &lt;code&gt;scitex-scholar-icon.svg&lt;/code&gt;
   &lt;/div&gt;
 &lt;/div&gt;</code></pre>
+      </section>
+
+      <section class="design-section">
+        <h2>HTML Example - Emoji Icons</h2>
+        <pre><code class="language-html">&lt;div class="emoji-icons-grid"&gt;
+  &lt;div class="emoji-showcase"&gt;
+    &lt;div class="emoji-icon"&gt;🔍&lt;/div&gt;
+    &lt;h5&gt;Scholar&lt;/h5&gt;
+    &lt;p&gt;Magnifying glass - search & discovery&lt;/p&gt;
+    &lt;code&gt;🔍 U+1F50D&lt;/code&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+      </section>
+
+      <section class="design-section">
+        <h2>HTML Example - Navigation Icon</h2>
+        <pre><code class="language-html">&lt;a href="/scholar" class="header-nav-item"&gt;
+  &lt;img src="{% static 'images/scitex-scholar-icon.svg' %}" alt="" class="nav-icon"&gt;
+  &lt;span class="nav-label"&gt;Scholar&lt;/span&gt;
+&lt;/a&gt;</code></pre>
+      </section>
+
+      <section class="design-section">
+        <h2>HTML Example - Sized Icons</h2>
+        <pre><code class="language-html">&lt;!-- Hero size (64px) --&gt;
+&lt;div class="module-icon-hero"&gt;
+  &lt;img src="{% static 'images/scitex-scholar-icon.svg' %}" alt="Scholar"&gt;
+&lt;/div&gt;
+
+&lt;!-- Card size (48px) --&gt;
+&lt;div class="module-icon-card"&gt;
+  &lt;img src="{% static 'images/scitex-scholar-icon.svg' %}" alt="Scholar"&gt;
+&lt;/div&gt;
+
+&lt;!-- List size (32px) --&gt;
+&lt;div class="module-icon-list"&gt;
+  &lt;img src="{% static 'images/scitex-scholar-icon.svg' %}" alt="Scholar"&gt;
+&lt;/div&gt;</code></pre>
+      </section>
+
+      <section class="design-section">
+        <h2>CSS Classes</h2>
+        <table class="design-table">
+          <thead>
+            <tr>
+              <th>Class</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>.module-icons-grid</code></td>
+              <td>Grid layout for displaying SVG module icon cards</td>
+            </tr>
+            <tr>
+              <td><code>.icon-showcase</code></td>
+              <td>Individual SVG module icon card container</td>
+            </tr>
+            <tr>
+              <td><code>.emoji-icons-grid</code></td>
+              <td>Grid layout for displaying emoji icon cards</td>
+            </tr>
+            <tr>
+              <td><code>.emoji-showcase</code></td>
+              <td>Individual emoji icon card container</td>
+            </tr>
+            <tr>
+              <td><code>.module-icon</code></td>
+              <td>Container for SVG module icons (display: inline-block)</td>
+            </tr>
+            <tr>
+              <td><code>.emoji-icon</code></td>
+              <td>Container for emoji module icons (3.5rem font size)</td>
+            </tr>
+            <tr>
+              <td><code>.nav-icon</code></td>
+              <td>Navigation header icon (20px, with opacity transitions)</td>
+            </tr>
+            <tr>
+              <td><code>.nav-icon-svg</code></td>
+              <td>SVG navigation icon with theme color support</td>
+            </tr>
+            <tr>
+              <td><code>.module-icon-hero</code></td>
+              <td>Hero section icons (64px)</td>
+            </tr>
+            <tr>
+              <td><code>.module-icon-card</code></td>
+              <td>Card icons (48px)</td>
+            </tr>
+            <tr>
+              <td><code>.module-icon-list</code></td>
+              <td>List item icons (32px)</td>
+            </tr>
+            <tr>
+              <td><code>.module-icon-inline</code></td>
+              <td>Inline text icons (24px)</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="design-section">
+        <h2>Module Reference</h2>
+        <table class="design-table">
+          <thead>
+            <tr>
+              <th>Module</th>
+              <th>Emoji</th>
+              <th>SVG File</th>
+              <th>Purpose</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Engine</strong></td>
+              <td>⚙️</td>
+              <td><code>scitex-engine-icon.svg</code></td>
+              <td>Emacs orchestration</td>
+            </tr>
+            <tr>
+              <td><strong>Scholar</strong></td>
+              <td>🔍</td>
+              <td><code>scitex-scholar-icon.svg</code></td>
+              <td>Literature discovery</td>
+            </tr>
+            <tr>
+              <td><strong>Writer</strong></td>
+              <td>✍️</td>
+              <td><code>scitex-writer-icon.svg</code></td>
+              <td>Scientific writing</td>
+            </tr>
+            <tr>
+              <td><strong>Code</strong></td>
+              <td>💻</td>
+              <td><code>scitex-code-icon.svg</code></td>
+              <td>Data analysis</td>
+            </tr>
+            <tr>
+              <td><strong>Viz</strong></td>
+              <td>📊</td>
+              <td><code>scitex-viz-icon.svg</code></td>
+              <td>Publication graphics</td>
+            </tr>
+            <tr>
+              <td><strong>Cloud</strong></td>
+              <td>☁️</td>
+              <td><code>scitex-cloud-icon.svg</code></td>
+              <td>Platform & infrastructure</td>
+            </tr>
+            <tr>
+              <td><strong>Developer</strong></td>
+              <td>👨‍💻</td>
+              <td><code>scitex-developer-icon.svg</code></td>
+              <td>Development tools & docs</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="design-section">
+        <h2>Responsive Behavior</h2>
+        <ul>
+          <li><strong>Desktop (>768px)</strong> - Full grid layout with 180px minimum column width</li>
+          <li><strong>Mobile (<768px)</strong> - Smaller grid columns (140px min), reduced padding, smaller emoji icons (2.5rem)</li>
+        </ul>
       </section>
     </main>
   </div>
