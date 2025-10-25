@@ -1,0 +1,299 @@
+/* =============================================================================
+ * SciTeX Design Token System
+ * =============================================================================
+ *
+ * ARCHITECTURE:
+ * 1. PRIMITIVE TOKENS (prefixed with _) - Internal use ONLY in this file
+ * 2. SEMANTIC TOKENS (no prefix) - Public API for components
+ *
+ * RULES:
+ * - Components MUST ONLY use semantic tokens (no _ prefix)
+ * - Primitive tokens (_) are ONLY referenced inside this colors.css file
+ * - All theme switching happens via semantic token remapping
+ *
+ * ============================================================================= */
+
+:root,
+[data-theme="light"] {
+  /* ===========================================================================
+   * PRIMITIVE TOKENS - INTERNAL USE ONLY
+   * DO NOT USE THESE DIRECTLY IN COMPONENTS!
+   * =========================================================================== */
+
+  /* Brand color primitives - Bluish Dark Gray palette */
+  --_scitex-900: #0a0f1a; /* Darkest - Near Black */
+  --_scitex-800: #0f1419; /* Very Dark Bluish Gray */
+  --_scitex-color-01: #1a2332; /* Dark Bluish Gray (Primary) */
+  --_scitex-color-01-rgb: 26, 35, 50;
+  --_scitex-color-01-light: #2d3748;
+  --_scitex-color-01-dark: #0f1419;
+
+  --_scitex-color-02: #34495e; /* Medium Bluish Gray */
+  --_scitex-color-02-rgb: 52, 73, 94;
+  --_scitex-color-02-light: #4a6074;
+  --_scitex-color-02-dark: #243342;
+
+  --_scitex-color-03: #506b7a; /* Light Bluish Gray */
+  --_scitex-color-03-rgb: 80, 107, 122;
+  --_scitex-color-03-light: #627d8a;
+  --_scitex-color-03-dark: #3e5560;
+
+  --_scitex-color-04: #6c8ba0; /* Lighter Bluish Gray */
+  --_scitex-color-04-rgb: 108, 139, 160;
+  --_scitex-color-04-light: #7f9bb0;
+  --_scitex-color-04-dark: #5a7588;
+
+  --_scitex-color-05: #8fa4b0; /* Very Light Bluish Gray */
+  --_scitex-color-05-rgb: 143, 164, 176;
+  --_scitex-color-05-light: #a1b6c0;
+  --_scitex-color-05-dark: #7b8f9a;
+
+  --_scitex-color-06: #b5c7d1; /* Pale Bluish Gray */
+  --_scitex-color-06-rgb: 181, 199, 209;
+  --_scitex-color-06-light: #c5d5dd;
+  --_scitex-color-06-dark: #a1b3bd;
+
+  --_scitex-color-07: #d4e1e8; /* Very Pale Bluish Gray */
+  --_scitex-color-07-rgb: 212, 225, 232;
+  --_scitex-color-07-light: #e0ebf0;
+  --_scitex-color-07-dark: #c2d1da;
+
+  /* Status color primitives */
+  --_success-base: #4a9b7e; /* Grayish Green */
+  --_success-light: #5fb98c;
+  --_success-dark: #3d8169;
+  --_success-subtle: #e8f5f0;
+  --_success-subtle-dark: #1f3a2e;
+
+  --_warning-base: #b8956a; /* Grayish Orange */
+  --_warning-light: #c9a67a;
+  --_warning-dark: #a07d52;
+
+  --_error-base: #a67373; /* Grayish Red */
+  --_error-light: #c99090;
+  --_error-dark: #8f5c5c;
+  --_error-subtle: #f5e8e8;
+  --_error-subtle-dark: #3a2020;
+
+  --_info-base: #6b8fb3; /* Grayish Blue */
+
+  /* Neutral primitives */
+  --_white: #ffffff;
+  --_white-rgb: 255, 255, 255;
+  --_black: #1a1a1a;
+  --_black-rgb: 26, 26, 26;
+  --_gray-subtle: #f6f8fa;
+
+  /* ===========================================================================
+   * SEMANTIC TOKENS - PUBLIC API FOR COMPONENTS
+   * Use these in all HTML/CSS - they automatically switch with themes
+   * =========================================================================== */
+
+  /* --- Text Colors --- */
+  --text-primary: var(--_scitex-color-01); /* Main body text - highest contrast */
+  --text-secondary: var(--_scitex-color-03); /* Secondary text - medium contrast */
+  --text-tertiary: var(--_scitex-color-04); /* Tertiary text - lower contrast */
+  --text-inverse: var(--_white); /* Text on dark backgrounds */
+  --text-disabled: var(--_scitex-color-05); /* Disabled state text */
+
+  /* --- Background Colors --- */
+  --bg-primary: var(--_white); /* Main page background */
+  --bg-secondary: var(--_gray-subtle); /* Secondary surface (cards, panels) */
+  --bg-tertiary: var(--_scitex-color-07); /* Tertiary surface (hover states) */
+  --bg-inverse: var(--_scitex-color-01); /* Dark backgrounds (header, footer) */
+  --bg-overlay: rgba(var(--_scitex-color-01-rgb), 0.8); /* Modal overlays */
+
+  /* --- Border Colors --- */
+  --border-primary: var(--_scitex-color-06); /* Default borders */
+  --border-secondary: var(--_scitex-color-05); /* Subtle borders */
+  --border-focus: var(--_scitex-color-02); /* Focus state borders */
+  --border-hover: var(--_scitex-color-04); /* Hover state borders */
+
+  /* --- Interactive Element Colors (Buttons, Links, etc.) --- */
+  --interactive-primary-bg: var(--_scitex-color-01); /* Primary button background */
+  --interactive-primary-bg-hover: var(--_scitex-color-02); /* Primary button hover */
+  --interactive-primary-text: var(--_white); /* Primary button text */
+  --interactive-primary-border: var(--_scitex-color-01); /* Primary button border */
+
+  --interactive-secondary-bg: var(--_scitex-color-07); /* Secondary button background */
+  --interactive-secondary-bg-hover: var(--_scitex-color-06); /* Secondary button hover */
+  --interactive-secondary-text: var(--_scitex-color-01); /* Secondary button text */
+  --interactive-secondary-border: var(--_scitex-color-05); /* Secondary button border */
+
+  --interactive-accent-bg: var(--_scitex-color-03); /* Accent button background */
+  --interactive-accent-bg-hover: var(--_scitex-color-04); /* Accent button hover */
+  --interactive-accent-text: var(--_white); /* Accent button text */
+
+  --link-primary: var(--_scitex-color-02); /* Primary links */
+  --link-hover: var(--_scitex-color-01); /* Link hover state */
+  --link-visited: var(--_scitex-color-03); /* Visited links */
+
+  /* --- Form Element Colors --- */
+  --input-bg: var(--_white); /* Input background */
+  --input-border: var(--_scitex-color-05); /* Input border */
+  --input-border-focus: var(--_scitex-color-02); /* Input focus border */
+  --input-text: var(--_scitex-color-01); /* Input text */
+  --input-placeholder: var(--_scitex-color-05); /* Placeholder text */
+  --input-disabled-bg: var(--_gray-subtle); /* Disabled input background */
+  --input-disabled-text: var(--_scitex-color-06); /* Disabled input text */
+
+  /* --- Status/Semantic Colors --- */
+  --status-success-fg: var(--_success-base); /* Success text */
+  --status-success-bg: var(--_success-subtle); /* Success background */
+  --status-success-border: var(--_success-dark); /* Success border */
+
+  --status-warning-fg: var(--_warning-base); /* Warning text */
+  --status-warning-bg: rgba(184, 149, 106, 0.1); /* Warning background */
+  --status-warning-border: var(--_warning-dark); /* Warning border */
+
+  --status-error-fg: var(--_error-base); /* Error text */
+  --status-error-bg: var(--_error-subtle); /* Error background */
+  --status-error-border: var(--_error-dark); /* Error border */
+
+  --status-info-fg: var(--_info-base); /* Info text */
+  --status-info-bg: rgba(107, 143, 179, 0.1); /* Info background */
+  --status-info-border: var(--_info-base); /* Info border */
+
+  /* --- Component-Specific Tokens --- */
+  --card-bg: var(--_white); /* Card background */
+  --card-border: var(--_scitex-color-06); /* Card border */
+  --card-hover-bg: var(--_gray-subtle); /* Card hover state */
+  --card-hover-border: var(--_scitex-color-05); /* Card hover border */
+
+  --header-bg: var(--_scitex-color-01); /* Header background */
+  --header-text: var(--_white); /* Header text */
+  --header-border: var(--_scitex-color-02); /* Header bottom border */
+
+  --footer-bg: var(--_scitex-color-01-light); /* Footer background */
+  --footer-text: var(--_white); /* Footer text */
+
+  --sidebar-bg: var(--_white); /* Sidebar background */
+  --sidebar-text: var(--_scitex-color-01); /* Sidebar text */
+  --sidebar-item-hover-bg: var(--_gray-subtle); /* Sidebar item hover */
+  --sidebar-item-active-bg: var(--_scitex-color-06); /* Sidebar active item */
+  --sidebar-item-active-text: var(--_scitex-color-01); /* Sidebar active text */
+  --sidebar-border: var(--_scitex-color-06); /* Sidebar border */
+
+  --dropdown-bg: var(--_white); /* Dropdown background */
+  --dropdown-border: var(--_scitex-color-06); /* Dropdown border */
+  --dropdown-item-hover-bg: var(--_gray-subtle); /* Dropdown item hover */
+  --dropdown-text: var(--_scitex-color-01); /* Dropdown text */
+
+  --badge-primary-bg: var(--_scitex-color-01); /* Primary badge background */
+  --badge-primary-text: var(--_white); /* Primary badge text */
+  --badge-secondary-bg: var(--_scitex-color-06); /* Secondary badge background */
+  --badge-secondary-text: var(--_scitex-color-01); /* Secondary badge text */
+
+  /* --- Shadow Colors --- */
+  --shadow-sm: 0 1px 2px 0 rgba(var(--_scitex-color-01-rgb), 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(var(--_scitex-color-01-rgb), 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(var(--_scitex-color-01-rgb), 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(var(--_scitex-color-01-rgb), 0.1);
+}
+
+/* ===========================================================================
+ * DARK MODE THEME - Semantic Token Remapping
+ * Same semantic tokens, different primitive assignments
+ * =========================================================================== */
+[data-theme="dark"] {
+  /* --- Text Colors --- */
+  --text-primary: var(--_scitex-color-07); /* Light text on dark background */
+  --text-secondary: var(--_scitex-color-05); /* Medium contrast */
+  --text-tertiary: var(--_scitex-color-04); /* Lower contrast */
+  --text-inverse: var(--_scitex-color-01); /* Dark text on light backgrounds */
+  --text-disabled: var(--_scitex-color-03); /* Disabled state */
+
+  /* --- Background Colors --- */
+  --bg-primary: var(--_scitex-color-01-dark); /* Main dark background */
+  --bg-secondary: var(--_scitex-color-01); /* Secondary surface */
+  --bg-tertiary: var(--_scitex-color-01-light); /* Tertiary surface */
+  --bg-inverse: var(--_scitex-color-07); /* Light backgrounds */
+  --bg-overlay: rgba(0, 0, 0, 0.8); /* Dark modal overlays */
+
+  /* --- Border Colors --- */
+  --border-primary: var(--_scitex-color-02); /* Default borders */
+  --border-secondary: var(--_scitex-color-01-light); /* Subtle borders */
+  --border-focus: var(--_scitex-color-04); /* Focus state */
+  --border-hover: var(--_scitex-color-03); /* Hover state */
+
+  /* --- Interactive Element Colors --- */
+  --interactive-primary-bg: var(--_scitex-color-03); /* Primary button */
+  --interactive-primary-bg-hover: var(--_scitex-color-04); /* Hover */
+  --interactive-primary-text: var(--_scitex-color-07); /* Button text */
+  --interactive-primary-border: var(--_scitex-color-04); /* Border */
+
+  --interactive-secondary-bg: var(--_scitex-color-01-light); /* Secondary button */
+  --interactive-secondary-bg-hover: var(--_scitex-color-02); /* Hover */
+  --interactive-secondary-text: var(--_scitex-color-07); /* Text */
+  --interactive-secondary-border: var(--_scitex-color-03); /* Border */
+
+  --interactive-accent-bg: var(--_scitex-color-04); /* Accent button */
+  --interactive-accent-bg-hover: var(--_scitex-color-05); /* Hover */
+  --interactive-accent-text: var(--_scitex-color-01); /* Text */
+
+  --link-primary: var(--_scitex-color-06); /* Links */
+  --link-hover: var(--_scitex-color-07); /* Link hover */
+  --link-visited: var(--_scitex-color-05); /* Visited links */
+
+  /* --- Form Element Colors --- */
+  --input-bg: var(--_scitex-color-01-light); /* Input background */
+  --input-border: var(--_scitex-color-03); /* Border */
+  --input-border-focus: var(--_scitex-color-04); /* Focus border */
+  --input-text: var(--_scitex-color-07); /* Input text */
+  --input-placeholder: var(--_scitex-color-04); /* Placeholder */
+  --input-disabled-bg: var(--_scitex-color-01); /* Disabled background */
+  --input-disabled-text: var(--_scitex-color-03); /* Disabled text */
+
+  /* --- Status Colors --- */
+  --status-success-fg: var(--_success-light); /* Success text */
+  --status-success-bg: var(--_success-subtle-dark); /* Success background */
+  --status-success-border: var(--_success-base); /* Success border */
+
+  --status-warning-fg: var(--_warning-light); /* Warning text */
+  --status-warning-bg: rgba(184, 149, 106, 0.15); /* Warning background */
+  --status-warning-border: var(--_warning-base); /* Warning border */
+
+  --status-error-fg: var(--_error-light); /* Error text */
+  --status-error-bg: var(--_error-subtle-dark); /* Error background */
+  --status-error-border: var(--_error-base); /* Error border */
+
+  --status-info-fg: var(--_scitex-color-06); /* Info text */
+  --status-info-bg: rgba(107, 143, 179, 0.15); /* Info background */
+  --status-info-border: var(--_info-base); /* Info border */
+
+  /* --- Component-Specific Tokens --- */
+  --card-bg: var(--_scitex-color-01); /* Card background */
+  --card-border: var(--_scitex-color-02); /* Card border */
+  --card-hover-bg: var(--_scitex-color-01-light); /* Hover state */
+  --card-hover-border: var(--_scitex-color-03); /* Hover border */
+
+  --header-bg: var(--_scitex-color-01); /* Header background */
+  --header-text: var(--_scitex-color-07); /* Header text */
+  --header-border: var(--_scitex-color-02); /* Header border */
+
+  --footer-bg: var(--_scitex-color-01-light); /* Footer background */
+  --footer-text: var(--_scitex-color-07); /* Footer text */
+
+  --sidebar-bg: var(--_scitex-color-01-light); /* Sidebar background */
+  --sidebar-text: var(--_scitex-color-06); /* Sidebar text */
+  --sidebar-item-hover-bg: var(--_scitex-color-01); /* Item hover */
+  --sidebar-item-active-bg: var(--_scitex-color-04); /* Active item */
+  --sidebar-item-active-text: var(--_scitex-color-01); /* Active text */
+  --sidebar-border: var(--_scitex-color-02); /* Sidebar border */
+
+  --dropdown-bg: var(--_scitex-color-01); /* Dropdown background */
+  --dropdown-border: var(--_scitex-color-02); /* Dropdown border */
+  --dropdown-item-hover-bg: var(--_scitex-color-01-light); /* Item hover */
+  --dropdown-text: var(--_scitex-color-07); /* Dropdown text */
+
+  --badge-primary-bg: var(--_scitex-color-04); /* Primary badge */
+  --badge-primary-text: var(--_scitex-color-01-dark); /* Badge text */
+  --badge-secondary-bg: var(--_scitex-color-02); /* Secondary badge */
+  --badge-secondary-text: var(--_scitex-color-07); /* Badge text */
+
+  /* --- Shadow Colors --- */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6);
+}

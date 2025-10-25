@@ -1,0 +1,335 @@
+/* SciTeX Hero Gradient System */
+/* Enhanced gradient variants using SciTeX brand colors */
+/* Primary Colors: #1a2332, #34495e, #506b7a, #6c8ba0 */
+/* Accent Colors: #8fa4b0, #b5c7d1, #d4e1e8 */
+
+/* Base Hero Styles */
+.hero-section {
+    padding: 4rem 2rem;
+    text-align: center;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+/* === SILVERISH AI GRADIENT VARIANTS === */
+
+/* Original Silverish AI Gradient - Diagonal Right */
+.hero-silverish-ai {
+    background: linear-gradient(135deg, #1a2332 0%, #34495e 30%, #506b7a 70%, #8fa4b0 100%);
+    color: #1a2332;
+    text-shadow: 0 0 10px rgba(255,255,255,0.3);
+}
+
+.hero-silverish-ai .hero-subtitle {
+    color: #1a2332;
+    text-shadow: 0 1px 3px rgba(255,255,255,0.8);
+    font-weight: 600;
+}
+
+/* Silverish AI Light - Lighter Tones, Better Text Visibility */
+.hero-silverish-ai-light {
+    background: linear-gradient(135deg, #506b7a 0%, #6c8ba0 30%, #8fa4b0 60%, #b5c7d1 100%);
+    color: #1a2332;
+    text-shadow: 0 1px 2px rgba(255,255,255,0.5);
+}
+
+.hero-silverish-ai-light .hero-subtitle {
+    color: #1a2332;
+    text-shadow: 0 1px 3px rgba(255,255,255,0.9);
+    font-weight: 600;
+}
+
+/* Silverish AI Dark - Darker for High Contrast */
+.hero-silverish-ai-dark {
+    background: linear-gradient(135deg, #0f1419 0%, #1a2332 40%, #34495e 80%, #506b7a 100%);
+    color: #d4e1e8;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.hero-silverish-ai-dark .hero-subtitle {
+    color: #f8f9fa;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+    font-weight: 500;
+}
+
+/* === DIRECTIONAL VARIANTS === */
+
+/* Silverish AI Vertical - Top to Bottom */
+.hero-silverish-ai-vertical {
+    background: linear-gradient(180deg, #1a2332 0%, #34495e 30%, #6c8ba0 70%, #8fa4b0 100%);
+    color: #1a2332;
+    text-shadow: 0 0 8px rgba(255,255,255,0.4);
+}
+
+/* Silverish AI Horizontal - Left to Right */
+.hero-silverish-ai-horizontal {
+    background: linear-gradient(90deg, #1a2332 0%, #506b7a 50%, #8fa4b0 100%);
+    color: #1a2332;
+    text-shadow: 0 1px 2px rgba(255,255,255,0.3);
+}
+
+/* Silverish AI Diagonal Left */
+.hero-silverish-ai-diagonal-left {
+    background: linear-gradient(45deg, #1a2332 0%, #34495e 40%, #6c8ba0 80%, #b5c7d1 100%);
+    color: #1a2332;
+    text-shadow: 0 0 6px rgba(255,255,255,0.4);
+}
+
+/* === RADIAL VARIANTS === */
+
+/* Silverish AI Radial Center */
+.hero-silverish-ai-radial {
+    background: radial-gradient(ellipse at center, #8fa4b0 0%, #6c8ba0 30%, #506b7a 60%, #34495e 80%, #1a2332 100%);
+    color: #1a2332;
+    text-shadow: 0 0 10px rgba(255,255,255,0.5);
+}
+
+/* Silverish AI Radial Top-Left */
+.hero-silverish-ai-radial-tl {
+    background: radial-gradient(ellipse at top left, #b5c7d1 0%, #8fa4b0 25%, #6c8ba0 50%, #506b7a 75%, #34495e 100%);
+    color: #1a2332;
+    text-shadow: 0 1px 3px rgba(255,255,255,0.4);
+}
+
+/* === MULTI-STOP GRADIENTS === */
+
+/* Silverish AI Extended - More Color Stops */
+.hero-silverish-ai-extended {
+    background: linear-gradient(135deg, 
+        #1a2332 0%, 
+        #2d3748 15%, 
+        #34495e 30%, 
+        #506b7a 50%, 
+        #6c8ba0 70%, 
+        #8fa4b0 85%, 
+        #b5c7d1 100%);
+    color: #1a2332;
+    text-shadow: 0 1px 2px rgba(255,255,255,0.3);
+}
+
+/* Silverish AI Soft - Gentle Transitions */
+.hero-silverish-ai-soft {
+    background: linear-gradient(135deg, #6c8ba0 0%, #8fa4b0 35%, #b5c7d1 65%, #d4e1e8 100%);
+    color: #1a2332;
+    text-shadow: 0 1px 2px rgba(255,255,255,0.6);
+}
+
+.hero-silverish-ai-soft .hero-subtitle {
+    color: #1a2332;
+    text-shadow: 0 1px 3px rgba(255,255,255,1.0);
+    font-weight: 600;
+}
+
+/* === OVERLAY ENHANCED VARIANTS === */
+
+/* Silverish AI with Pattern Overlay */
+.hero-silverish-ai-pattern {
+    background: linear-gradient(135deg, #1a2332 0%, #506b7a 50%, #8fa4b0 100%);
+    color: #1a2332;
+    text-shadow: 0 1px 3px rgba(255,255,255,0.4);
+    position: relative;
+}
+
+.hero-silverish-ai-pattern::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.03) 50%, transparent 60%),
+        linear-gradient(-45deg, transparent 40%, rgba(255,255,255,0.03) 50%, transparent 60%);
+    background-size: 60px 60px;
+    pointer-events: none;
+}
+
+/* Silverish AI with Shine Effect */
+.hero-silverish-ai-shine {
+    background: linear-gradient(135deg, #1a2332 0%, #34495e 30%, #6c8ba0 70%, #8fa4b0 100%);
+    color: #1a2332;
+    text-shadow: 0 1px 3px rgba(255,255,255,0.4);
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-silverish-ai-shine::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, 
+        transparent 0%, 
+        transparent 40%, 
+        rgba(255,255,255,0.1) 50%, 
+        transparent 60%, 
+        transparent 100%);
+    animation: shine 6s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes shine {
+    0%, 100% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+    50% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+}
+
+/* === ACCESSIBILITY OPTIMIZED VARIANTS === */
+
+/* High Contrast Silverish AI */
+.hero-silverish-ai-contrast {
+    background: linear-gradient(135deg, #0f1419 0%, #1a2332 40%, #506b7a 100%);
+    color: #f8f9fa;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+}
+
+/* Low Contrast Silverish AI - Subtle */
+.hero-silverish-ai-subtle {
+    background: linear-gradient(135deg, #8fa4b0 0%, #b5c7d1 50%, #d4e1e8 100%);
+    color: #34495e;
+    text-shadow: 0 1px 2px rgba(255,255,255,0.8);
+}
+
+/* Radial Scientific Focus */
+.hero-radial-focus {
+    background: radial-gradient(ellipse at center, var(--darkgray-600) 0%, var(--darkgray-800) 50%, var(--darkgray-900) 100%);
+    color: white;
+}
+
+.hero-radial-focus::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 30% 40%, rgba(255,255,255,0.1) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+/* Multi-Layer Depth */
+.hero-multi-depth {
+    background: linear-gradient(135deg, var(--darkgray-900) 0%, var(--darkgray-700) 25%, var(--darkgray-500) 50%, var(--darkgray-400) 75%, var(--darkgray-300) 100%);
+    color: white;
+    position: relative;
+}
+
+.hero-multi-depth::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent 0%, rgba(255,255,255,0.05) 50%, transparent 100%);
+    pointer-events: none;
+}
+
+/* Animated Scientific Gradient */
+.hero-animated {
+    background: linear-gradient(-45deg, var(--darkgray-900), var(--darkgray-700), var(--darkgray-500), var(--darkgray-600));
+    background-size: 400% 400%;
+    animation: gradientShift 8s ease infinite;
+    color: white;
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Scientific Pattern Overlay */
+.hero-pattern-overlay {
+    background: linear-gradient(135deg, var(--darkgray-800) 0%, var(--darkgray-600) 100%);
+    color: white;
+    position: relative;
+}
+
+.hero-pattern-overlay::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0.1;
+    background-image: 
+        linear-gradient(var(--darkgray-400) 1px, transparent 1px),
+        linear-gradient(90deg, var(--darkgray-400) 1px, transparent 1px);
+    background-size: 20px 20px;
+    pointer-events: none;
+}
+
+/* Hero Content Styles */
+.hero-title {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+    position: relative;
+    z-index: 2;
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+    color: #2c3e50;
+    opacity: 1.0;
+    position: relative;
+    z-index: 2;
+    font-weight: 500;
+    text-shadow: 0 1px 2px rgba(255,255,255,0.8);
+}
+
+.hero-cta {
+    position: relative;
+    z-index: 2;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 3rem 1.5rem;
+    }
+    
+    .hero-title {
+        font-size: 2.5rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .hero-section {
+        padding: 2rem 1rem;
+    }
+    
+    .hero-title {
+        font-size: 2rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1rem;
+    }
+}
+
+/* Module-Specific Hero Variations */
+.hero-scholar {
+    /* Scholar uses silverish AI gradient for literature intelligence */
+}
+
+.hero-writer {
+    /* Writer uses silverish AI gradient for AI-enhanced writing */
+}
+
+.hero-viz {
+    /* Viz can use multi-depth for data complexity */
+}
+
+.hero-code {
+    /* Code can use pattern overlay for systematic computation */
+}

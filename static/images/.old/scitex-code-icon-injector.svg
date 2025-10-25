@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Injector body -->
+  <rect x="20" y="40" width="24" height="14" rx="2" fill="#4a6baf" fill-opacity="0.8"/>
+  
+  <!-- Injector barrel -->
+  <rect x="26" y="10" width="12" height="30" rx="2" fill="#4a6baf" fill-opacity="0.8"/>
+  
+  <!-- Injector plunger top -->
+  <circle cx="32" cy="8" r="4" fill="#4a6baf"/>
+  
+  <!-- Injector needle -->
+  <path d="M32 54L32 60" stroke="#4a6baf" stroke-width="2" stroke-linecap="round"/>
+  
+  <!-- Measurement marks on barrel -->
+  <path d="M26 15L38 15" stroke="white" stroke-width="1" stroke-opacity="0.8"/>
+  <path d="M26 20L38 20" stroke="white" stroke-width="1" stroke-opacity="0.8"/>
+  <path d="M26 25L38 25" stroke="white" stroke-width="1" stroke-opacity="0.8"/>
+  <path d="M26 30L38 30" stroke="white" stroke-width="1" stroke-opacity="0.8"/>
+  <path d="M26 35L38 35" stroke="white" stroke-width="1" stroke-opacity="0.8"/>
+  
+  <!-- Code brackets in the background -->
+  <path d="M18 36L10 28L18 20" stroke="#90b1e2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.6"/>
+  <path d="M46 36L54 28L46 20" stroke="#90b1e2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.6"/>
+  
+  <!-- Liquid inside barrel -->
+  <rect x="28" y="14" width="8" height="24" rx="1" fill="#90b1e2" fill-opacity="0.6"/>
+</svg>

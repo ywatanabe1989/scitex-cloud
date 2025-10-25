@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-10-25 14:18:14 (ywatanabe)"
+# Timestamp: "2025-10-25 14:21:37 (ywatanabe)"
 # File: ./static/rsync_static_files.sh
 
 ORIG_DIR="$(pwd)"
@@ -20,6 +20,12 @@ echo_success() { echo -e "${GREEN}$1${NC}"; }
 echo_warning() { echo -e "${YELLOW}$1${NC}"; }
 echo_error() { echo -e "${RED}$1${NC}"; }
 # ---------------------------------------
+
+  rsync -avz --delete \
+    /home/ywatanabe/proj/scitex-cloud/static/ \
+    ywatanabe@162.43.35.139:/home/ywatanabe/proj/scitex-cloud/static/ \
+    2>&1 | grep -v "protocol version
+  mismatch\|bash.d\|completion.src\|decrypt" || true
 
 # Create a tarball locally
 cd /home/ywatanabe/proj/scitex-cloud

@@ -1,0 +1,88 @@
+/* SciTeX Web - Main CSS File
+   This file serves as the main entry point for all CSS in the project.
+   It follows an app-centric structure for better organization and maintainability.
+*/
+
+/* Import Variables and Reset */
+@import 'variables.css';
+@import 'reset.css';
+
+/* Import Base Styles */
+@import 'layout.css';
+@import 'typography.css';
+@import 'buttons.css';
+@import 'forms.css';
+@import 'cards.css';
+
+/* Import Components (consolidated) */
+@import 'components.css';
+
+/* Import Utilities */
+@import 'darkmode.css';
+
+/* Global styles */
+html {
+  height: 100%;
+}
+
+body {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  font-family: var(--base-font-family);
+  font-size: var(--base-font-size);
+  line-height: var(--base-line-height);
+  color: var(--text-color);
+  background-color: var(--white);
+}
+
+.container {
+  width: var(--container-width);
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+}
+
+.section {
+  padding: var(--spacing-xxl) 0;
+}
+
+.section-alt {
+  background-color: var(--light-gray);
+}
+
+.text-center {
+  text-align: center;
+}
+
+.mb-1 { margin-bottom: var(--spacing-xs); }
+.mb-2 { margin-bottom: var(--spacing-sm); }
+.mb-3 { margin-bottom: var(--spacing-md); }
+.mb-4 { margin-bottom: var(--spacing-lg); }
+.mb-5 { margin-bottom: var(--spacing-xl); }
+
+.mt-1 { margin-top: var(--spacing-xs); }
+.mt-2 { margin-top: var(--spacing-sm); }
+.mt-3 { margin-top: var(--spacing-md); }
+.mt-4 { margin-top: var(--spacing-lg); }
+.mt-5 { margin-top: var(--spacing-xl); }
+
+/* Accessibility enhancements */
+a:focus, button:focus, input:focus, textarea:focus, select:focus {
+  outline: 2px solid var(--secondary-color) !important;
+  outline-offset: 2px !important;
+}
+
+.skip-to-content {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--secondary-color);
+  color: var(--white);
+  padding: 8px;
+  z-index: 100;
+  transition: top 0.3s;
+}
+
+.skip-to-content:focus {
+  top: 0;
+}
