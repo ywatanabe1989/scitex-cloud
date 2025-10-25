@@ -1,0 +1,2261 @@
+function getCsrfToken() {
+    // Try to get CSRF token from form input
+    const tokenElement = document.querySelector('[name=csrfmiddlewaretoken]');
+    if (tokenElement) {
+        return tokenElement.value;
+    }
+
+    // Fallback: try to get from cookie
+    const cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+        const [name, value] = cookie.trim().split('=');
+        if (name === 'csrftoken') {
+            return decodeURIComponent(value);
+        }
+    }
+
+    // If no CSRF token found, return empty string and let Django handle it
+    console.warn('[Writer] CSRF token not found in form or cookies');
+    return '';
+}
+
+function initializeWriterWorkspace(btn) {
+    console.log('[Writer] Initializing workspace via onclick...');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Creating workspace...';
+
+    const projectId = {{ project.id|default:'null' }};
+
+    fetch('/writer/api/initialize-workspace/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCsrfToken()
+        },
+        body: JSON.stringify({
+            project_id: projectId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log('[Writer] Workspace initialized successfully');
+            window.location.reload();
+        } else {
+            console.error('[Writer] Initialization failed:', data.error);
+            alert('Failed to initialize workspace: ' + (data.error || 'Unknown error'));
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-rocket me-2"></i>Initialize Writer Workspace';
+        }
+    })
+    .catch(error => {
+        console.error('[Writer] Initialization error:', error);
+        alert('Error initializing workspace: ' + error.message);
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-rocket me-2"></i>Initialize Writer Workspace';
+    });
+}
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('[Writer] Initializing project writer interface');
+    const projectId = {% if project %}{{ project.id }}{% else %}null{% endif %};
+    const isDemo = {% if is_demo %}true{% else %}false{% endif %};
+    const isAnonymous = {% if is_anonymous %}true{% else %}false{% endif %};
+    const writerInitialized = {% if writer_initialized %}true{% else %}false{% endif %};
+    console.log('[Writer] Project ID:', projectId, 'Demo mode:', isDemo, 'Anonymous:', isAnonymous, 'Initialized:', writerInitialized);
+
+    // Handle writer workspace initialization
+    const initWriterBtn = document.getElementById('init-writer-btn');
+    if (initWriterBtn) {
+        initWriterBtn.addEventListener('click', function() {
+            console.log('[Writer] Initializing workspace...');
+            this.disabled = true;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Creating workspace...';
+
+            fetch(`/writer/api/initialize-workspace/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify({
+                    project_id: projectId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('[Writer] Workspace initialized successfully');
+                    // Reload page to show the editor
+                    window.location.reload();
+                } else {
+                    console.error('[Writer] Initialization failed:', data.error);
+                    alert('Failed to initialize workspace: ' + (data.error || 'Unknown error'));
+                    this.disabled = false;
+                    this.innerHTML = '<i class="fas fa-rocket me-2"></i>Initialize Writer Workspace';
+                }
+            })
+            .catch(error => {
+                console.error('[Writer] Initialization error:', error);
+                alert('Error initializing workspace: ' + error.message);
+                this.disabled = false;
+                this.innerHTML = '<i class="fas fa-rocket me-2"></i>Initialize Writer Workspace';
+            });
+        });
+    }
+
+    // Skip editor initialization if not initialized yet
+    if (!writerInitialized && !isDemo) {
+        console.log('[Writer] Workspace not initialized - skipping editor setup');
+        return;
+    }
+
+    let currentSection = 'abstract';
+    let currentDocType = 'manuscript';
+    let liveCompileTimeout;
+    let currentlyCompiling = false;
+    let liveCompilationEnabled = true; // Enable live compilation by default
+
+    // Server-provided word counts (from database)
+    const serverWordCounts = {
+        manuscript: {
+            abstract: {{ manuscript.word_count_abstract|default:0 }},
+            introduction: {{ manuscript.word_count_introduction|default:0 }},
+            methods: {{ manuscript.word_count_methods|default:0 }},
+            results: {{ manuscript.word_count_results|default:0 }},
+            discussion: {{ manuscript.word_count_discussion|default:0 }}
+        }
+    };
+
+    // Undo/Redo History - Store last 30 save points per section
+    const MAX_HISTORY = 30;
+    let undoHistory = {}; // { section: [{content, timestamp, wordCount}] }
+    let currentHistoryIndex = {}; // { section: index }
+
+    function initializeHistory(section) {
+        if (!undoHistory[section]) {
+            undoHistory[section] = [];
+            currentHistoryIndex[section] = -1;
+        }
+    }
+
+    function addToHistory(section, content, wordCount) {
+        initializeHistory(section);
+
+        // Remove any "future" history if we're in the middle of undo stack
+        if (currentHistoryIndex[section] < undoHistory[section].length - 1) {
+            undoHistory[section] = undoHistory[section].slice(0, currentHistoryIndex[section] + 1);
+        }
+
+        // Add new save point
+        undoHistory[section].push({
+            content: content,
+            timestamp: new Date().toISOString(),
+            wordCount: wordCount
+        });
+
+        // Keep only last 30 save points
+        if (undoHistory[section].length > MAX_HISTORY) {
+            undoHistory[section].shift();
+        } else {
+            currentHistoryIndex[section]++;
+        }
+
+        // Persist to localStorage
+        saveHistoryToLocalStorage();
+        updateUndoRedoButtons();
+    }
+
+    function undo() {
+        const section = currentSection;
+        initializeHistory(section);
+
+        if (currentHistoryIndex[section] > 0) {
+            currentHistoryIndex[section]--;
+            const historyPoint = undoHistory[section][currentHistoryIndex[section]];
+
+            // Temporarily disable change tracking to avoid triggering markAsUnsaved
+            const tempContent = historyPoint.content;
+            codeMirrorEditor.setValue(tempContent);
+
+            // Update preview and word count
+            const textContent = convertFromLatex(section, tempContent);
+            textPreview.textContent = textContent;
+            updateWordCount();
+
+            // Mark as saved since we're restoring a saved state
+            markAsSaved(section);
+
+            updateUndoRedoButtons();
+            showToast(`Restored to ${new Date(historyPoint.timestamp).toLocaleTimeString()}`, 'info');
+        }
+    }
+
+    function redo() {
+        const section = currentSection;
+        initializeHistory(section);
+
+        if (currentHistoryIndex[section] < undoHistory[section].length - 1) {
+            currentHistoryIndex[section]++;
+            const historyPoint = undoHistory[section][currentHistoryIndex[section]];
+
+            // Temporarily disable change tracking to avoid triggering markAsUnsaved
+            const tempContent = historyPoint.content;
+            codeMirrorEditor.setValue(tempContent);
+
+            // Update preview and word count
+            const textContent = convertFromLatex(section, tempContent);
+            textPreview.textContent = textContent;
+            updateWordCount();
+
+            // Mark as saved since we're restoring a saved state
+            markAsSaved(section);
+
+            updateUndoRedoButtons();
+            showToast(`Restored to ${new Date(historyPoint.timestamp).toLocaleTimeString()}`, 'info');
+        }
+    }
+
+    function updateUndoRedoButtons() {
+        const section = currentSection;
+        initializeHistory(section);
+
+        const undoBtn = document.getElementById('undo-btn');
+        const redoBtn = document.getElementById('redo-btn');
+
+        if (undoBtn) {
+            undoBtn.disabled = currentHistoryIndex[section] <= 0;
+        }
+        if (redoBtn) {
+            redoBtn.disabled = currentHistoryIndex[section] >= undoHistory[section].length - 1;
+        }
+    }
+
+    function saveHistoryToLocalStorage() {
+        try {
+            localStorage.setItem(`history_${projectId}`, JSON.stringify({
+                undoHistory: undoHistory,
+                currentHistoryIndex: currentHistoryIndex
+            }));
+        } catch (e) {
+            console.warn('Failed to save history to localStorage:', e);
+        }
+    }
+
+    function loadHistoryFromLocalStorage() {
+        try {
+            const saved = localStorage.getItem(`history_${projectId}`);
+            if (saved) {
+                const data = JSON.parse(saved);
+                undoHistory = data.undoHistory || {};
+                currentHistoryIndex = data.currentHistoryIndex || {};
+                updateUndoRedoButtons();
+            }
+        } catch (e) {
+            console.warn('Failed to load history from localStorage:', e);
+        }
+    }
+
+    // All available sections by document type (pool)
+    const allAvailableSections = {
+        shared: ['title', 'authors', 'keywords', 'journal_name'],
+        manuscript: ['abstract', 'highlights', 'introduction', 'methods', 'results', 'discussion', 'conclusion', 'figures', 'tables'],
+        supplementary: ['methods', 'results', 'figures', 'tables', 'references'],
+        revision: ['introduction', 'editor', 'reviewer1', 'reviewer2', 'conclusion']
+    };
+
+    // Active sections per document type
+    let activeSections = {
+        shared: ['title', 'authors', 'keywords', 'journal_name'],
+        manuscript: ['abstract', 'introduction', 'methods', 'results', 'discussion'],
+        supplementary: ['methods', 'results'],
+        revision: ['introduction', 'editor', 'reviewer1', 'reviewer2', 'conclusion']
+    };
+
+    // Section data by document type
+    const sectionsData = {
+        shared: {
+            title: '',
+            authors: '',
+            keywords: '',
+            journal_name: ''
+        },
+        manuscript: {
+            abstract: `{{ sections.abstract|default:""|escapejs }}`,
+            highlights: `{{ sections.highlights|default:""|escapejs }}`,
+            introduction: `{{ sections.introduction|default:""|escapejs }}`,
+            methods: `{{ sections.methods|default:""|escapejs }}`,
+            results: `{{ sections.results|default:""|escapejs }}`,
+            discussion: `{{ sections.discussion|default:""|escapejs }}`,
+            conclusion: `{{ sections.conclusion|default:""|escapejs }}`,
+            figures: '',
+            tables: ''
+        },
+        supplementary: {
+            methods: '',
+            results: '',
+            figures: '',
+            tables: '',
+            references: ''
+        },
+        revision: {
+            introduction: '',
+            editor: '',
+            reviewer1: '',
+            reviewer2: '',
+            conclusion: ''
+        }
+    };
+    
+    // Section titles by document type
+    const sectionTitles = {
+        shared: {
+            title: 'Manuscript Title',
+            authors: 'Authors',
+            keywords: 'Keywords',
+            journal_name: 'Target Journal'
+        },
+        manuscript: {
+            abstract: 'Abstract',
+            highlights: 'Highlights',
+            introduction: 'Introduction',
+            methods: 'Methods',
+            results: 'Results',
+            discussion: 'Discussion',
+            conclusion: 'Conclusion',
+            figures: 'Figures',
+            tables: 'Tables'
+        },
+        supplementary: {
+            methods: 'Supplementary Methods',
+            results: 'Supplementary Results',
+            figures: 'Supplementary Figures',
+            tables: 'Supplementary Tables',
+            references: 'Supplementary References'
+        },
+        revision: {
+            introduction: 'Introduction',
+            editor: 'Editor Comments',
+            reviewer1: 'Reviewer #1',
+            reviewer2: 'Reviewer #2',
+            conclusion: 'Conclusion'
+        }
+    };
+    
+    // Section placeholders by document type
+    const sectionPlaceholders = {
+        shared: {
+            title: 'Enter the full title of your manuscript',
+            authors: 'List all authors with their affiliations in LaTeX format (e.g., \\author{First Author\\inst{1}, Second Author\\inst{2}})',
+            keywords: 'Enter 3-7 keywords separated by commas',
+            journal_name: 'Enter the target journal name (e.g., Nature Neuroscience, Science, Cell)'
+        },
+        manuscript: {
+            abstract: 'Write a concise summary of your research objectives, methods, key findings, and conclusions. Typically 150-300 words.',
+            highlights: 'List 3-5 key bullet points highlighting the main contributions and novel findings of your research.',
+            introduction: 'Provide background context, literature review, and clearly state your research question or hypothesis.',
+            methods: 'Describe your experimental design, data collection methods, and analytical approaches in sufficient detail for replication.',
+            results: 'Present your findings objectively with appropriate statistical analysis. Use figures and tables to support key results.',
+            discussion: 'Interpret your results, discuss limitations, compare with existing literature, and suggest future research directions.',
+            conclusion: 'Summarize key findings and their broader implications.',
+            figures: 'Figure captions and descriptions for main manuscript figures.',
+            tables: 'Table captions and data for main manuscript tables.'
+        },
+        supplementary: {
+            methods: 'Additional methodological details not included in the main manuscript.',
+            results: 'Extended results, additional figures, and supporting data.',
+            figures: 'Supplementary figure captions and descriptions.',
+            tables: 'Supplementary table captions and data.',
+            references: 'Complete bibliography for supplementary material.'
+        },
+        revision: {
+            introduction: 'Brief introduction to the revision letter.',
+            editor: 'Editor comments/responses (managed as comment-response pairs in subdirectory)',
+            reviewer1: 'Reviewer #1 comments/responses (managed as R1_XX_comments.tex, R1_XX_response.tex, R1_XX_revision.tex)',
+            reviewer2: 'Reviewer #2 comments/responses (managed as R2_XX_comments.tex, R2_XX_response.tex, R2_XX_revision.tex)',
+            conclusion: 'Summary of key revisions and improvements made.'
+        }
+    };
+    
+    // Initialize CodeMirror editor
+    let codeMirrorEditor = null;
+    const latexEditorTextarea = document.getElementById('latex-editor-textarea');
+    const textPreview = document.getElementById('text-preview');
+
+    // Load saved theme preferences for each mode
+    const savedDarkTheme = localStorage.getItem(`codemirror_theme_dark_${projectId}`) || 'dracula';
+    const savedLightTheme = localStorage.getItem(`codemirror_theme_light_${projectId}`) || 'neat';
+
+    // Determine current site theme
+    const currentSiteTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    const initialTheme = currentSiteTheme === 'dark' ? savedDarkTheme : savedLightTheme;
+
+    // Create CodeMirror instance
+    codeMirrorEditor = CodeMirror.fromTextArea(latexEditorTextarea, {
+        mode: 'stex',
+        theme: initialTheme,
+        lineNumbers: true,
+        lineWrapping: true,
+        indentUnit: 2,
+        tabSize: 2,
+        indentWithTabs: false,
+        autofocus: true,
+        styleActiveLine: true
+    });
+    const saveBtn = document.getElementById('save-btn');
+    const compileBtn = document.getElementById('compile-btn');
+    const liveCompileToggle = document.getElementById('live-compile-toggle');
+    const exportBtn = document.getElementById('export-btn');
+    const saveStatus = document.getElementById('save-status');
+    const currentWordCount = document.getElementById('current-word-count');
+    const doctypeSelector = document.getElementById('doctype-selector');
+    const themeSelector = document.getElementById('theme-selector');
+
+    // Set theme selector to current theme
+    if (themeSelector) {
+        themeSelector.value = initialTheme;
+    }
+
+    // Theme switcher - save preference per light/dark mode
+    themeSelector.addEventListener('change', function() {
+        const newTheme = this.value;
+        const currentSiteTheme = document.documentElement.getAttribute('data-theme') || 'light';
+
+        codeMirrorEditor.setOption('theme', newTheme);
+
+        // Save theme preference for current mode (light or dark)
+        if (currentSiteTheme === 'dark') {
+            localStorage.setItem(`codemirror_theme_dark_${projectId}`, newTheme);
+        } else {
+            localStorage.setItem(`codemirror_theme_light_${projectId}`, newTheme);
+        }
+    });
+
+    // Update theme selector options based on current mode
+    function updateThemeSelectorOptions() {
+        const currentSiteTheme = document.documentElement.getAttribute('data-theme') || 'light';
+        const isDarkMode = currentSiteTheme === 'dark';
+
+        // Show/hide optgroups based on mode
+        const darkGroup = themeSelector.querySelector('optgroup[label="Dark Themes"]');
+        const lightGroup = themeSelector.querySelector('optgroup[label="Light Themes"]');
+
+        if (isDarkMode) {
+            darkGroup.style.display = '';
+            lightGroup.style.display = 'none';
+        } else {
+            darkGroup.style.display = 'none';
+            lightGroup.style.display = '';
+        }
+    }
+
+    // Initial update
+    updateThemeSelectorOptions();
+
+    // Listen for site theme changes and switch CodeMirror theme accordingly
+    const themeObserver = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.attributeName === 'data-theme') {
+                const newSiteTheme = document.documentElement.getAttribute('data-theme') || 'light';
+
+                // Get current saved preference for this mode
+                const preferredTheme = newSiteTheme === 'dark'
+                    ? localStorage.getItem(`codemirror_theme_dark_${projectId}`) || 'zenburn'
+                    : localStorage.getItem(`codemirror_theme_light_${projectId}`) || 'eclipse';
+
+                codeMirrorEditor.setOption('theme', preferredTheme);
+                themeSelector.value = preferredTheme;
+
+                // Update dropdown options
+                updateThemeSelectorOptions();
+
+                console.log(`Site theme changed to ${newSiteTheme}, CodeMirror theme: ${preferredTheme}`);
+            }
+        });
+    });
+
+    // Observe data-theme attribute changes on <html>
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['data-theme']
+    });
+    const sectionsTitle = document.getElementById('sections-title');
+    const sectionList = document.querySelector('.section-list');
+    const manageSectionsBtn = document.getElementById('manage-sections-btn');
+    const sectionPool = document.getElementById('section-pool');
+    const availableSectionsContainer = document.getElementById('available-sections');
+    const sectionTitleLatex = document.getElementById('section-title-latex');
+    const sectionTitlePreview = document.getElementById('section-title-preview');
+    const compilationProgress = document.getElementById('compilation-progress');
+    const progressBar = document.getElementById('progress-bar');
+    const compilationLog = document.getElementById('compilation-log');
+    const pdfViewerContainer = document.getElementById('pdf-viewer-container');
+    const pdfViewer = document.getElementById('pdf-viewer');
+    const pdfViewLink = document.getElementById('pdf-view-link');
+    const pdfDownloadLink = document.getElementById('pdf-download-link');
+    const diffPdfViewer = document.getElementById('diff-pdf-viewer');
+    const diffPdfViewLink = document.getElementById('diff-pdf-view-link');
+    const diffPdfDownloadLink = document.getElementById('diff-pdf-download-link');
+    const mainPdfContainer = document.getElementById('main-pdf-container');
+    const diffPdfContainer = document.getElementById('diff-pdf-container');
+    const showMainPdfBtn = document.getElementById('show-main-pdf');
+    const showDiffPdfBtn = document.getElementById('show-diff-pdf');
+
+    // Debug: Log which elements are null
+    console.log('[Writer] Element check:', {
+        sectionList: !!sectionList,
+        manageSectionsBtn: !!manageSectionsBtn,
+        sectionPool: !!sectionPool,
+        sectionTitleLatex: !!sectionTitleLatex,
+        sectionTitlePreview: !!sectionTitlePreview
+    });
+
+    let hasUnsavedChanges = false;
+    let logExpanded = false;
+    let hasDiffPdf = false;
+    let mainPdfDoc = null;
+    let diffPdfDoc = null;
+    let compilationStartTime = null;
+    let timerInterval = null;
+
+    // Load state from localStorage
+    function loadState() {
+        const savedState = localStorage.getItem(`writer_state_${projectId}`);
+        if (savedState) {
+            try {
+                const state = JSON.parse(savedState);
+                if (state.activeSections) {
+                    activeSections = state.activeSections;
+                }
+                if (state.currentDocType) {
+                    currentDocType = state.currentDocType;
+                    doctypeSelector.value = currentDocType;
+                }
+                if (state.currentSection && activeSections[currentDocType].includes(state.currentSection)) {
+                    currentSection = state.currentSection;
+                } else {
+                    currentSection = activeSections[currentDocType][0];
+                }
+            } catch (e) {
+                console.error('Error loading state:', e);
+            }
+        }
+    }
+
+    // Save state to localStorage
+    function saveState() {
+        const state = {
+            activeSections: activeSections,
+            currentDocType: currentDocType,
+            currentSection: currentSection
+        };
+        localStorage.setItem(`writer_state_${projectId}`, JSON.stringify(state));
+    }
+
+    // Initialize
+    console.log('[Writer] Starting initialization...');
+    loadState();
+    console.log('[Writer] State loaded, rendering sections for:', currentDocType);
+    renderSections(currentDocType);
+    console.log('[Writer] Sections rendered, loading word counts');
+    loadAllWordCountsFromLocalStorage(); // Load cached word counts from localStorage
+    loadHistoryFromLocalStorage(); // Load undo/redo history
+    console.log('[Writer] Loading section:', currentSection);
+    loadLatexSection(currentSection);
+    updateWordCount();
+    console.log('[Writer] Initialization complete');
+
+    // Setup compilation panel toggle (after DOM is ready)
+    setupCompilationPanelToggle();
+
+    // Undo/Redo button event listeners
+    document.getElementById('undo-btn').addEventListener('click', undo);
+    document.getElementById('redo-btn').addEventListener('click', redo);
+
+    // Keyboard shortcuts for undo/redo
+    document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+            e.preventDefault();
+            undo();
+        } else if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+            e.preventDefault();
+            redo();
+        }
+    });
+
+    // Repository switching (dropdown)
+    const repositorySelector = document.getElementById('repository-selector');
+    repositorySelector.addEventListener('change', function() {
+        const newProjectId = this.value;
+        const currentUsername = '{{ request.user.username }}';
+        // Redirect to the new project's writer page
+        window.location.href = `/${currentUsername}/${newProjectId}/?mode=writer`;
+    });
+
+    // Document type switching (dropdown)
+    doctypeSelector.addEventListener('change', function() {
+        const newDocType = this.value;
+        switchDocumentType(newDocType);
+    });
+
+    // Manage sections toggle
+    manageSectionsBtn.addEventListener('click', function() {
+        const isVisible = sectionPool.style.display !== 'none';
+        sectionPool.style.display = isVisible ? 'none' : 'block';
+        if (!isVisible) {
+            renderAvailableSections();
+        }
+    });
+
+    // Manual save button
+    saveBtn.addEventListener('click', function() {
+        saveCurrentSectionManually();
+    });
+
+    // Section switching (delegated event listener)
+    if (sectionList) {
+        sectionList.addEventListener('click', function(e) {
+            const sectionItem = e.target.closest('.section-item');
+            if (sectionItem && !e.target.closest('.section-remove-btn')) {
+                const section = sectionItem.dataset.section;
+
+            // If we are viewing compilation panel, switch back to editor first
+            const compilationPanel = document.getElementById('compilation-panel');
+            const splitEditor = document.getElementById('split-editor');
+            const toggleCompilationBtn = document.getElementById('toggle-compilation-panel');
+
+            if (compilationPanel && compilationPanel.style.display !== 'none') {
+                // Switch back to editor
+                splitEditor.style.display = 'flex';
+                compilationPanel.style.display = 'none';
+                toggleCompilationBtn.innerHTML = '<i class="fas fa-file-pdf me-2"></i>View PDF';
+                toggleCompilationBtn.classList.remove('btn-info');
+                toggleCompilationBtn.classList.add('btn-primary');
+            }
+
+            if (section !== currentSection) {
+                // Warn if there are unsaved changes
+                if (hasUnsavedChanges) {
+                    if (!confirm(`You have unsaved changes in ${sectionTitles[currentDocType][currentSection]}. Switch anyway? (Changes will be lost)`)) {
+                        return;
+                    }
+                }
+
+                // Switch to new section
+                switchToSection(section);
+            }
+        });
+    } else {
+        console.error('[Writer] sectionList element not found!');
+    }
+
+    // Update preview and mark as unsaved on CodeMirror change
+    codeMirrorEditor.on('change', function(editor) {
+        // Update preview in real-time
+        const latexContent = editor.getValue();
+        const textContent = convertFromLatex(currentSection, latexContent);
+        textPreview.textContent = textContent;
+
+        // Update word count
+        updateWordCount();
+
+        // For demo mode, save to sectionsData immediately
+        if (isDemo || !projectId) {
+            sectionsData[currentDocType][currentSection] = latexContent;
+            console.log('[Writer] Saved to sectionsData:', currentSection);
+        }
+
+        // Mark as unsaved
+        markAsUnsaved();
+    });
+    
+    // Compile manuscript
+    compileBtn.addEventListener('click', function() {
+        if (hasUnsavedChanges) {
+            if (confirm('You have unsaved changes. Save before compiling?')) {
+                saveCurrentSectionManually();
+                // Wait a moment for save to complete before compiling
+                setTimeout(() => compileManuscript(), 500);
+            } else {
+                compileManuscript();
+            }
+        } else {
+            compileManuscript();
+        }
+    });
+    
+    // Live compilation toggle
+    liveCompileToggle.addEventListener('click', function() {
+        liveCompilationEnabled = !liveCompilationEnabled;
+        this.classList.toggle('active', liveCompilationEnabled);
+        this.classList.toggle('btn-outline-success', liveCompilationEnabled);
+        this.classList.toggle('btn-outline-secondary', !liveCompilationEnabled);
+        
+        if (liveCompilationEnabled) {
+            this.innerHTML = '<i class="fas fa-magic me-2"></i>Live Compile';
+            showToast('Live compilation enabled', 'success');
+        } else {
+            this.innerHTML = '<i class="fas fa-magic me-2"></i>Manual Only';
+            showToast('Live compilation disabled', 'info');
+            clearTimeout(liveCompileTimeout);
+        }
+    });
+    
+    // Export functionality
+    exportBtn.addEventListener('click', function() {
+        exportManuscript();
+    });
+
+    function setupCompilationPanelToggle() {
+        const toggleCompilationBtn = document.getElementById('toggle-compilation-panel');
+        const splitEditor = document.getElementById('split-editor');
+        const compilationPanel = document.getElementById('compilation-panel');
+
+        console.log('Setting up compilation panel...', {
+            toggleBtn: !!toggleCompilationBtn,
+            splitEditor: !!splitEditor,
+            compilationPanel: !!compilationPanel
+        });
+
+        if (toggleCompilationBtn && splitEditor && compilationPanel) {
+            console.log('✓ Compilation panel toggle button initialized');
+
+            toggleCompilationBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('✓ Toggle compilation panel clicked');
+                const isShowingCompilation = compilationPanel.style.display !== 'none';
+
+                if (isShowingCompilation) {
+                    // Switch back to editor
+                    splitEditor.style.display = 'flex';
+                    compilationPanel.style.display = 'none';
+                    this.innerHTML = '<i class="fas fa-file-pdf me-2"></i>View PDF';
+                    this.classList.remove('btn-info');
+                    this.classList.add('btn-primary');
+                } else {
+                    // Switch to compilation view
+                    splitEditor.style.display = 'none';
+                    compilationPanel.style.display = 'flex';
+                    this.innerHTML = '<i class="fas fa-code me-2"></i>Back to Editor';
+                    this.classList.remove('btn-primary');
+                    this.classList.add('btn-info');
+
+                    // Load PDFs if they exist
+                    checkForExistingPDFsPanel();
+                }
+            });
+
+            // Compile button in panel
+            const compileBtnPanel = document.getElementById('compile-btn-panel');
+            console.log('Looking for compile-btn-panel:', !!compileBtnPanel);
+
+            if (compileBtnPanel) {
+                console.log('✓ Compile button in panel found');
+                compileBtnPanel.addEventListener('click', function() {
+                    console.log('✓ Compile button clicked in panel');
+
+                    // Inline compilation start
+                    const stopBtn = document.getElementById('stop-compile-btn');
+                    const logPanel = document.getElementById('compilation-log-panel');
+
+                    this.disabled = true;
+                    this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Compiling...';
+                    if (stopBtn) stopBtn.style.display = 'block';
+                    logPanel.textContent = 'Starting compilation...\n';
+
+                    fetch(`/writer/project/${projectId}/compile/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': getCsrfToken()
+                        }
+                    })
+                    .then(response => {
+                        console.log('[COMPILE] Response status:', response.status);
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('[COMPILE] Response data:', data);
+                        if (data.success) {
+                            localStorage.setItem(`last_compile_job_${projectId}`, data.job_id);
+                            logPanel.textContent += `Email notification sent.\nJob ID: ${data.job_id}\nMonitoring progress...\n`;
+                            showToast('Compilation started! Email notification sent.', 'success');
+                            pollCompilationStatusPanel(data.job_id);
+                        } else {
+                            logPanel.textContent += `\nError: ${data.error}`;
+                            showToast('Compilation failed: ' + (data.error || 'Unknown error'), 'danger');
+                            this.disabled = false;
+                            this.innerHTML = '<i class="fas fa-file-pdf me-2"></i>Compile PDF';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('[COMPILE] Fetch error:', error);
+                        logPanel.textContent += `\nFetch error: ${error.message}`;
+                        this.disabled = false;
+                        this.innerHTML = '<i class="fas fa-file-pdf me-2"></i>Compile PDF';
+                    });
+                });
+            } else {
+                console.error('✗ Compile button panel NOT FOUND');
+            }
+
+            // Quick Compile button in panel
+            const quickCompileBtnPanel = document.getElementById('quick-compile-btn-panel');
+            if (quickCompileBtnPanel) {
+                console.log('✓ Quick compile button in panel found');
+                quickCompileBtnPanel.addEventListener('click', function() {
+                    console.log('✓ Quick compile button clicked in panel');
+
+                    const stopBtn = document.getElementById('stop-compile-btn');
+                    const logPanel = document.getElementById('compilation-log-panel');
+
+                    this.disabled = true;
+                    this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Quick compiling...';
+                    compileBtnPanel.disabled = true;  // Disable regular compile too
+                    if (stopBtn) stopBtn.style.display = 'block';
+                    logPanel.textContent = 'Starting quick compilation (text only, no figures)...\n';
+
+                    fetch(`/writer/project/${projectId}/compile/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': getCsrfToken(),
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: 'quick=true'
+                    })
+                    .then(response => {
+                        console.log('[QUICK-COMPILE] Response status:', response.status);
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('[QUICK-COMPILE] Response data:', data);
+                        if (data.success) {
+                            localStorage.setItem(`last_compile_job_${projectId}`, data.job_id);
+                            logPanel.textContent += `Email notification sent.\nJob ID: ${data.job_id}\nMonitoring progress...\n`;
+                            showToast('Quick compilation started!', 'success');
+                            pollCompilationStatusPanel(data.job_id);
+                        } else {
+                            logPanel.textContent += `\nError: ${data.error}`;
+                            showToast('Quick compilation failed: ' + (data.error || 'Unknown error'), 'danger');
+                            this.disabled = false;
+                            compileBtnPanel.disabled = false;
+                            this.innerHTML = '<i class="fas fa-bolt me-2"></i>Quick Compile (text only)';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('[QUICK-COMPILE] Fetch error:', error);
+                        logPanel.textContent += `\nFetch error: ${error.message}`;
+                        this.disabled = false;
+                        compileBtnPanel.disabled = false;
+                        this.innerHTML = '<i class="fas fa-bolt me-2"></i>Quick Compile (text only)';
+                    });
+                });
+            } else {
+                console.error('✗ Quick compile button panel NOT FOUND');
+            }
+
+            // Removed: Toggle log size (no longer needed)
+
+        } else {
+            console.error('✗ Compilation panel elements not found:', {
+                toggleCompilationBtn: !!toggleCompilationBtn,
+                splitEditor: !!splitEditor,
+                compilationPanel: !!compilationPanel
+            });
+        }
+    }
+    
+    function switchToSection(section) {
+        currentSection = section;
+
+        // Save state
+        saveState();
+
+        // Update UI - use querySelectorAll to get current items
+        const currentItems = document.querySelectorAll('.section-item');
+        currentItems.forEach(item => {
+            item.classList.toggle('active', item.dataset.section === section);
+        });
+
+        // Update section titles in headers
+        const sectionTitle = sectionTitles[currentDocType][section];
+        sectionTitleLatex.textContent = `${sectionTitle} - LaTeX`;
+        sectionTitlePreview.textContent = `${sectionTitle} - Preview`;
+
+        // Load section LaTeX content
+        loadLatexSection(section);
+    }
+
+    function loadLatexSection(section) {
+        console.log('[Writer] Loading section:', section, 'for doc type:', currentDocType);
+
+        // Update section titles in headers
+        const sectionTitle = sectionTitles[currentDocType][section];
+        sectionTitleLatex.textContent = `${sectionTitle} - LaTeX`;
+        sectionTitlePreview.textContent = `${sectionTitle} - Preview`;
+
+        // For demo/guest users without projectId, load from local sectionsData
+        if (!projectId || isDemo) {
+            console.log('[Writer] Demo mode - loading from sectionsData');
+            const content = sectionsData[currentDocType][section] || `% ${sectionTitle}\n\n`;
+            codeMirrorEditor.setValue(content);
+
+            // Update preview
+            const textContent = convertFromLatex(section, content);
+            textPreview.textContent = textContent;
+
+            // Update word count
+            updateWordCount();
+
+            // Mark as saved
+            markAsSaved();
+            return;
+        }
+
+        // Load actual LaTeX content from server for project users
+        console.log('[Writer] Loading from server for project:', projectId);
+        fetch(`/writer/project/${projectId}/load-latex/?section=${section}&doc_type=${currentDocType}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                codeMirrorEditor.setValue(data.latex_content);
+
+                // Update preview
+                const textContent = convertFromLatex(section, data.latex_content);
+                textPreview.textContent = textContent;
+
+                // Update word count
+                updateWordCount();
+
+                // Mark as saved (just loaded from server)
+                markAsSaved();
+            } else {
+                console.error('Failed to load LaTeX content:', data.error);
+                codeMirrorEditor.setValue(`% ${sectionTitles[currentDocType][section]}\n\n`);
+                textPreview.textContent = '';
+                markAsSaved();
+            }
+        })
+        .catch(error => {
+            console.error('Load LaTeX error:', error);
+            codeMirrorEditor.setValue(`% ${sectionTitles[currentDocType][section]}\n\n`);
+            textPreview.textContent = '';
+            markAsSaved();
+        });
+    }
+    
+    function switchDocumentType(docType) {
+        // Warn if there are unsaved changes
+        if (hasUnsavedChanges) {
+            if (!confirm(`You have unsaved changes in ${sectionTitles[currentDocType][currentSection]}. Switch document type anyway? (Changes will be lost)`)) {
+                // Revert selector to current doctype
+                doctypeSelector.value = currentDocType;
+                return;
+            }
+        }
+
+        currentDocType = docType;
+
+        // Save state
+        saveState();
+
+        // Keep title as "Active Sections" - no need to change per doc type
+        sectionsTitle.textContent = 'Active Sections';
+
+        // Render new sections
+        renderSections(docType);
+
+        // Update available sections pool if visible
+        if (sectionPool.style.display !== 'none') {
+            renderAvailableSections();
+        }
+
+        // Switch to first active section of new document type
+        const firstSection = activeSections[docType][0];
+        currentSection = firstSection;
+        loadLatexSection(firstSection);
+    }
+    
+    function renderSections(docType) {
+        const sectionsContainer = sectionList.querySelector('.section-items');
+        if (!sectionsContainer) return;
+
+        // Clear existing sections
+        sectionsContainer.innerHTML = '';
+
+        // Render only active sections for current document type
+        const activeList = activeSections[docType];
+        activeList.forEach((section, index) => {
+            const sectionDiv = document.createElement('div');
+            const isCurrentSection = section === currentSection;
+            sectionDiv.className = `section-item ${isCurrentSection ? 'active' : ''}`;
+            sectionDiv.dataset.section = section;
+            sectionDiv.draggable = true;
+
+            sectionDiv.innerHTML = `
+                <span class="section-drag-handle">
+                    <i class="fas fa-grip-vertical"></i>
+                </span>
+                <div class="d-flex justify-content-between align-items-start" style="padding-left: 1.5rem;">
+                    <div class="flex-grow-1">
+                        <div class="section-name">${sectionTitles[docType][section]}</div>
+                        <div class="section-stats">
+                            <div class="word-count">
+                                <span id="words-${section}">0</span> words
+                            </div>
+                        </div>
+                        <div class="section-actions mt-1" style="display: flex; align-items: center; gap: 0.5rem;">
+                            <button class="btn btn-sm btn-primary section-save-btn" data-section="${section}" style="font-size: 0.7rem; padding: 0.15rem 0.5rem;">
+                                <i class="fas fa-save me-1"></i>Save
+                            </button>
+                            <span class="section-save-status text-muted" id="save-status-${section}" style="font-size: 0.7rem;">
+                                <i class="fas fa-check-circle text-success me-1"></i>Saved
+                            </span>
+                        </div>
+                    </div>
+                    <button class="section-remove-btn" data-section="${section}" title="Move to pool">
+                        <i class="fas fa-minus-circle"></i>
+                    </button>
+                </div>
+                <div class="completion-indicator" style="margin-left: 1.5rem;">
+                    <div class="completion-fill" style="width: 0%;"></div>
+                </div>
+            `;
+
+            // Drag and drop event listeners
+            sectionDiv.addEventListener('dragstart', handleDragStart);
+            sectionDiv.addEventListener('dragend', handleDragEnd);
+            sectionDiv.addEventListener('dragover', handleDragOver);
+            sectionDiv.addEventListener('drop', handleDrop);
+            sectionDiv.addEventListener('dragleave', handleDragLeave);
+
+            sectionsContainer.appendChild(sectionDiv);
+        });
+
+        // Add event listeners to remove buttons
+        sectionsContainer.querySelectorAll('.section-remove-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const section = this.dataset.section;
+                removeSection(section);
+            });
+        });
+
+        // Add event listeners to section save buttons
+        sectionsContainer.querySelectorAll('.section-save-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const section = this.dataset.section;
+                // If this is the current section, save it
+                if (section === currentSection) {
+                    saveCurrentSectionManually();
+                } else {
+                    // Switch to that section first, then save
+                    switchToSection(section);
+                    setTimeout(() => saveCurrentSectionManually(), 100);
+                }
+            });
+        });
+    }
+
+    let draggedElement = null;
+    let dragSource = null; // 'active' or 'pool'
+
+    function handleDragStart(e) {
+        draggedElement = this;
+        dragSource = 'active';
+        this.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', this.dataset.section);
+    }
+
+    function handleDragEnd(e) {
+        this.classList.remove('dragging');
+        document.querySelectorAll('.section-item').forEach(item => {
+            item.classList.remove('drag-over');
+        });
+        document.querySelectorAll('.drop-zone-active').forEach(el => {
+            el.classList.remove('drop-zone-active');
+        });
+        dragSource = null;
+    }
+
+    function handleDragOver(e) {
+        if (e.preventDefault) {
+            e.preventDefault();
+        }
+        e.dataTransfer.dropEffect = 'move';
+        return false;
+    }
+
+    function handleDrop(e) {
+        if (e.stopPropagation) {
+            e.stopPropagation();
+        }
+        if (e.preventDefault) {
+            e.preventDefault();
+        }
+
+        if (draggedElement !== this) {
+            const activeList = activeSections[currentDocType];
+            const draggedSection = draggedElement.dataset.section;
+            const targetSection = this.dataset.section;
+
+            const draggedIndex = activeList.indexOf(draggedSection);
+            const targetIndex = activeList.indexOf(targetSection);
+
+            if (draggedIndex > -1 && targetIndex > -1) {
+                // Reordering within active sections
+                activeList.splice(draggedIndex, 1);
+                activeList.splice(targetIndex, 0, draggedSection);
+
+                saveState();
+                renderSections(currentDocType);
+                showToast('Section order updated', 'info');
+            }
+        }
+
+        this.classList.remove('drag-over');
+        return false;
+    }
+
+    function handleDragLeave(e) {
+        this.classList.remove('drag-over');
+    }
+
+    function setupDropZones() {
+        const sectionsContainer = sectionList.querySelector('.section-items');
+
+        // Drop zone for active sections (to add from pool)
+        sectionsContainer.addEventListener('dragover', function(e) {
+            if (dragSource === 'pool') {
+                e.preventDefault();
+                this.classList.add('drop-zone-active');
+            }
+        });
+
+        sectionsContainer.addEventListener('dragleave', function(e) {
+            this.classList.remove('drop-zone-active');
+        });
+
+        sectionsContainer.addEventListener('drop', function(e) {
+            if (dragSource === 'pool' && draggedElement) {
+                e.preventDefault();
+                e.stopPropagation();
+                const section = draggedElement.dataset.section;
+                addSection(section);
+                this.classList.remove('drop-zone-active');
+            }
+        });
+
+        // Drop zone for pool (to remove from active)
+        availableSectionsContainer.addEventListener('dragover', function(e) {
+            if (dragSource === 'active') {
+                e.preventDefault();
+                this.classList.add('drop-zone-active');
+            }
+        });
+
+        availableSectionsContainer.addEventListener('dragleave', function(e) {
+            this.classList.remove('drop-zone-active');
+        });
+
+        availableSectionsContainer.addEventListener('drop', function(e) {
+            if (dragSource === 'active' && draggedElement) {
+                e.preventDefault();
+                e.stopPropagation();
+                const section = draggedElement.dataset.section;
+                removeSection(section);
+                this.classList.remove('drop-zone-active');
+            }
+        });
+    }
+
+    function renderAvailableSections() {
+        availableSectionsContainer.innerHTML = '';
+
+        // Get sections not currently active
+        const allSections = allAvailableSections[currentDocType];
+        const activeList = activeSections[currentDocType];
+        const availableSectionsList = allSections.filter(s => !activeList.includes(s));
+
+        if (availableSectionsList.length === 0) {
+            availableSectionsContainer.innerHTML = '<p class="text-muted small mb-0">All sections are active</p>';
+            return;
+        }
+
+        availableSectionsList.forEach(section => {
+            const sectionDiv = document.createElement('div');
+            sectionDiv.className = 'available-section-item';
+            sectionDiv.dataset.section = section;
+            sectionDiv.draggable = true;
+
+            sectionDiv.innerHTML = `
+                <span>${sectionTitles[currentDocType][section]}</span>
+                <span class="section-add-btn">
+                    <i class="fas fa-plus-circle"></i>
+                </span>
+            `;
+
+            // Click to add
+            sectionDiv.addEventListener('click', function() {
+                addSection(section);
+            });
+
+            // Drag from pool to active
+            sectionDiv.addEventListener('dragstart', function(e) {
+                draggedElement = this;
+                this.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', section);
+                e.dataTransfer.setData('source', 'pool');
+            });
+
+            sectionDiv.addEventListener('dragend', function(e) {
+                this.classList.remove('dragging');
+                document.querySelectorAll('.drop-zone-active').forEach(el => {
+                    el.classList.remove('drop-zone-active');
+                });
+            });
+
+            availableSectionsContainer.appendChild(sectionDiv);
+        });
+
+        // Make active sections container a drop zone for pool items
+        setupDropZones();
+    }
+
+    function addSection(section) {
+        if (!activeSections[currentDocType].includes(section)) {
+            activeSections[currentDocType].push(section);
+
+            // Initialize section data if not exists (preserve existing data)
+            if (sectionsData[currentDocType][section] === undefined) {
+                sectionsData[currentDocType][section] = '';
+            }
+
+            // Save state
+            saveState();
+
+            // Re-render sections
+            renderSections(currentDocType);
+            renderAvailableSections();
+
+            const wordCount = sectionsData[currentDocType][section] ?
+                sectionsData[currentDocType][section].trim().split(/\s+/).filter(w => w.length > 0).length : 0;
+            const statusMsg = wordCount > 0 ?
+                ` (${wordCount} words preserved)` : '';
+            showToast(`Activated: ${sectionTitles[currentDocType][section]}${statusMsg}`, 'success');
+        }
+    }
+
+    function removeSection(section) {
+        const activeList = activeSections[currentDocType];
+        const index = activeList.indexOf(section);
+
+        if (index > -1 && activeList.length > 1) {  // Keep at least one section
+            // Save current content before removing
+            if (currentSection === section) {
+                const latexContent = latexEditorTextarea.value;
+                saveCurrentSectionFromLatex();
+            }
+
+            // Remove from active list (data retained in sectionsData)
+            activeList.splice(index, 1);
+
+            // If we're currently viewing this section, switch to first available
+            if (currentSection === section) {
+                currentSection = activeList[0];
+                loadLatexSection(currentSection);
+            }
+
+            // Save state
+            saveState();
+
+            // Re-render sections
+            renderSections(currentDocType);
+            renderAvailableSections();
+
+            showToast(`Moved to pool: ${sectionTitles[currentDocType][section]}`, 'info');
+        } else if (activeList.length === 1) {
+            showToast('Cannot remove the last section', 'warning');
+        }
+    }
+    
+    function markAsUnsaved(section = currentSection) {
+        hasUnsavedChanges = true;
+
+        // Update section-specific save button and status
+        const sectionSaveBtn = document.querySelector(`.section-save-btn[data-section="${section}"]`);
+        const sectionStatus = document.getElementById(`save-status-${section}`);
+
+        if (sectionSaveBtn) {
+            sectionSaveBtn.classList.add('btn-warning');
+            sectionSaveBtn.classList.remove('btn-primary');
+            sectionSaveBtn.innerHTML = '<i class="fas fa-save me-1"></i>Save *';
+        }
+
+        if (sectionStatus) {
+            sectionStatus.innerHTML = '<i class="fas fa-exclamation-circle text-warning me-1"></i>Unsaved';
+        }
+    }
+
+    function markAsSaved(section = currentSection) {
+        hasUnsavedChanges = false;
+
+        // Update section-specific save button and status
+        const sectionSaveBtn = document.querySelector(`.section-save-btn[data-section="${section}"]`);
+        const sectionStatus = document.getElementById(`save-status-${section}`);
+
+        if (sectionSaveBtn) {
+            sectionSaveBtn.classList.remove('btn-warning');
+            sectionSaveBtn.classList.add('btn-primary');
+            sectionSaveBtn.innerHTML = '<i class="fas fa-save me-1"></i>Save';
+        }
+
+        if (sectionStatus) {
+            sectionStatus.innerHTML = '<i class="fas fa-check-circle text-success me-1"></i>Saved';
+        }
+    }
+
+    function saveCurrentSectionManually() {
+        console.log('[Writer] Manual save triggered');
+
+        // Check if in demo mode - show guidance message
+        if (isDemo) {
+            console.log('[Writer] Demo mode - showing guidance');
+            if (isAnonymous) {
+                showToast('Demo Mode: Sign up to save your work permanently. <a href="/auth/signup/" class="alert-link">Sign Up</a> or <a href="/auth/login/" class="alert-link">Log In</a>', 'info', 5000);
+            } else {
+                showToast('Create a project to save your work permanently. <a href="/new/" class="alert-link">Create Project</a>', 'warning', 5000);
+            }
+            // Still save to localStorage for demo users
+            const latexContent = codeMirrorEditor.getValue();
+            sectionsData[currentDocType][currentSection] = latexContent;
+            markAsSaved();
+            return;
+        }
+
+        const latexContent = codeMirrorEditor.getValue();
+        const sectionToSave = currentSection;  // Capture current section
+
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Saving...';
+        saveStatus.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Saving...';
+
+        // Save LaTeX content directly to file
+        fetch(`/writer/project/${projectId}/save-latex/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken()
+            },
+            body: JSON.stringify({
+                section: sectionToSave,
+                doc_type: currentDocType,
+                latex_content: latexContent
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                updateSectionWordCount(sectionToSave, data.word_count);
+                updateTotalWordCount(data.total_words);
+                markAsSaved();
+
+                // Add to undo/redo history
+                addToHistory(sectionToSave, latexContent, data.word_count);
+
+                showToast(`${sectionTitles[currentDocType][sectionToSave]} saved successfully`, 'success');
+            } else {
+                saveStatus.innerHTML = '<i class="fas fa-times-circle text-danger me-1"></i>Error saving';
+                showToast('Error saving: ' + (data.error || 'Unknown error'), 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Save error:', error);
+            saveStatus.innerHTML = '<i class="fas fa-times-circle text-danger me-1"></i>Save failed';
+            showToast('Save failed: ' + error.message, 'danger');
+        })
+        .finally(() => {
+            saveBtn.disabled = false;
+        });
+    }
+    
+    
+    function scheduleLiveCompilation() {
+        clearTimeout(liveCompileTimeout);
+        liveCompileTimeout = setTimeout(() => {
+            performLiveCompilation();
+        }, 5000); // Compile 5 seconds after last change
+    }
+    
+    function performLiveCompilation() {
+        if (currentlyCompiling) return;
+        
+        currentlyCompiling = true;
+        showSaveStatus('Auto-compiling...', 'info');
+        
+        fetch(`/writer/project/${projectId}/compile/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCsrfToken()
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showSaveStatus('Auto-compiled successfully', 'success');
+                checkCompilationStatus(data.job_id);
+            } else {
+                showSaveStatus('Auto-compile failed', 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Live compilation error:', error);
+            showSaveStatus('Auto-compile error', 'danger');
+        })
+        .finally(() => {
+            currentlyCompiling = false;
+        });
+    }
+    
+    function checkCompilationStatus(jobId) {
+        fetch(`/writer/api/status/${jobId}/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'completed') {
+                showSaveStatus('PDF ready', 'success');
+                // Could update a preview here
+            } else if (data.status === 'failed') {
+                showSaveStatus('Compilation failed', 'danger');
+            } else if (data.status === 'running') {
+                // Check again in 2 seconds
+                setTimeout(() => checkCompilationStatus(jobId), 2000);
+            }
+        })
+        .catch(error => {
+            console.error('Status check error:', error);
+        });
+    }
+    
+    
+    function convertToLatex(section, content) {
+        if (section === 'abstract') {
+            return `% Abstract\n\\begin{abstract}\n${content}\n\\end{abstract}\n`;
+        } else {
+            return `% ${sectionTitles[section]}\n\\section{${sectionTitles[section]}}\n${content}\n`;
+        }
+    }
+    
+    function convertFromLatex(section, latexContent) {
+        let content = latexContent;
+        
+        // Remove LaTeX comments
+        content = content.replace(/^%.*$/gm, '');
+        
+        if (section === 'abstract') {
+            // Extract content from \begin{abstract}...\end{abstract}
+            const abstractMatch = content.match(/\\begin\{abstract\}([\s\S]*?)\\end\{abstract\}/);
+            if (abstractMatch) {
+                content = abstractMatch[1];
+            }
+        } else {
+            // Remove \section{...} command
+            content = content.replace(/\\section\{[^}]*\}\s*/g, '');
+        }
+        
+        // Remove common LaTeX commands while preserving text
+        content = content
+            // Remove simple commands like \textbf{}, \emph{}, \cite{}
+            .replace(/\\(?:textbf|emph|textit|texttt|cite)\{([^}]*)\}/g, '$1')
+            // Remove \label{} commands
+            .replace(/\\label\{[^}]*\}/g, '')
+            // Convert \\ to line breaks
+            .replace(/\\\\/g, '\n')
+            // Remove remaining single backslashes (but keep escaped characters)
+            .replace(/\\(?![\\{}])/g, '')
+            // Clean up extra whitespace
+            .replace(/\n\s*\n/g, '\n\n')
+            .trim();
+        
+        return content;
+    }
+    
+    function updateWordCount() {
+        // Convert LaTeX to plain text for word counting
+        const latexContent = codeMirrorEditor.getValue();
+        const content = convertFromLatex(currentSection, latexContent);
+        const words = content.trim().split(/\s+/).filter(word => word.length > 0).length;
+        currentWordCount.textContent = words;
+
+        // Also update the section card's word count in real-time
+        updateSectionWordCount(currentSection, words);
+
+        // Save to localStorage for persistence
+        saveWordCountToLocalStorage(currentSection, currentDocType, words);
+    }
+
+    function updateSectionWordCount(section, count) {
+        const wordElement = document.getElementById(`words-${section}`);
+        if (wordElement) {
+            wordElement.textContent = count;
+        }
+
+        // Update completion indicator
+        const completionFill = document.querySelector(`[data-section="${section}"] .completion-fill`);
+        if (completionFill) {
+            completionFill.style.width = count > 0 ? '100%' : '0%';
+        }
+    }
+
+    function saveWordCountToLocalStorage(section, docType, count) {
+        const key = `wordcount_${projectId}_${docType}_${section}`;
+        localStorage.setItem(key, count);
+    }
+
+    function loadWordCountFromLocalStorage(section, docType) {
+        const key = `wordcount_${projectId}_${docType}_${section}`;
+        const count = localStorage.getItem(key);
+
+        if (count !== null) {
+            return parseInt(count, 10);
+        }
+
+        // Fallback to server data if localStorage is empty (e.g., after hard refresh)
+        if (serverWordCounts[docType] && serverWordCounts[docType][section] !== undefined) {
+            return serverWordCounts[docType][section];
+        }
+
+        return 0;
+    }
+
+    function loadAllWordCountsFromLocalStorage() {
+        // Load word counts for all sections from localStorage
+        Object.keys(sectionTitles).forEach(docType => {
+            Object.keys(sectionTitles[docType]).forEach(section => {
+                const count = loadWordCountFromLocalStorage(section, docType);
+                if (count > 0) {
+                    updateSectionWordCount(section, count);
+                }
+            });
+        });
+    }
+    
+    function updateTotalWordCount(total) {
+        document.getElementById('total-words').textContent = total;
+    }
+    
+    function compileManuscript() {
+        compileBtn.disabled = true;
+        compileBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Compiling...';
+
+        // Show progress UI
+        compilationProgress.style.display = 'block';
+        progressBar.style.width = '10%';
+        progressBar.textContent = '10%';
+        compilationLog.textContent = 'Starting compilation...';
+
+        fetch(`/writer/project/${projectId}/compile/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCsrfToken()
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Store job ID in localStorage for persistence
+                localStorage.setItem(`last_compile_job_${projectId}`, data.job_id);
+
+                compilationLog.textContent += '\nEmail notification sent.\nMonitoring progress...';
+                showToast('Compilation started! Email notification sent.', 'success');
+                // Poll for completion status
+                pollCompilationStatus(data.job_id);
+            } else {
+                compilationLog.textContent += `\nError: ${data.error}`;
+                showToast('Compilation failed: ' + (data.error || 'Unknown error'), 'danger');
+                compileBtn.disabled = false;
+                compileBtn.innerHTML = '<i class="fas fa-file-pdf me-2"></i>Compile PDF';
+                progressBar.classList.add('bg-danger');
+            }
+        })
+        .catch(error => {
+            compilationLog.textContent += `\nError: ${error.message}`;
+            showToast('Compilation error: ' + error.message, 'danger');
+            compileBtn.disabled = false;
+            compileBtn.innerHTML = '<i class="fas fa-file-pdf me-2"></i>Compile PDF';
+            progressBar.classList.add('bg-danger');
+        });
+    }
+
+    function pollCompilationStatus(jobId, attempts = 0) {
+        if (attempts > 60) {  // Max 60 attempts (2 minutes)
+            compilationLog.textContent += '\nTimeout - compilation may still be running';
+            showToast('Compilation timeout - please refresh to check status', 'warning');
+            compileBtn.disabled = false;
+            compileBtn.innerHTML = '<i class="fas fa-file-pdf me-2"></i>Compile PDF';
+            progressBar.classList.add('bg-warning');
+            return;
+        }
+
+        fetch(`/writer/api/status/${jobId}/`)
+        .then(response => response.json())
+        .then(data => {
+            // Update progress bar
+            const progress = data.progress || 50;
+            progressBar.style.width = `${progress}%`;
+            progressBar.textContent = `${progress}%`;
+
+            // Always show the full log if available (not just preview)
+            if (data.log) {
+                compilationLog.textContent = data.log;
+                compilationLog.scrollTop = compilationLog.scrollHeight;
+            } else if (data.log_preview) {
+                compilationLog.textContent = data.log_preview;
+                compilationLog.scrollTop = compilationLog.scrollHeight;
+            }
+
+            if (data.status === 'completed') {
+                progressBar.style.width = '100%';
+                progressBar.textContent = '100%';
+                progressBar.classList.remove('progress-bar-animated');
+                progressBar.classList.add('bg-success');
+                compileBtn.innerHTML = '<i class="fas fa-check me-2"></i>Compiled!';
+
+                // Ensure full log is displayed
+                if (data.log) {
+                    compilationLog.textContent = data.log;
+                    compilationLog.scrollTop = compilationLog.scrollHeight;
+                }
+
+                // Show PDF viewer
+                const pdfUrl = `/writer/project/${projectId}/pdf/`;
+                pdfViewer.src = pdfUrl;
+                pdfViewLink.href = pdfUrl;
+                pdfDownloadLink.href = `${pdfUrl}?mode=download`;
+                pdfViewerContainer.style.display = 'block';
+
+                // Check for diff PDF and load it too
+                checkForDiffPDF();
+
+                showToast('PDF compiled successfully!', 'success');
+
+                setTimeout(() => {
+                    compileBtn.disabled = false;
+                    compileBtn.innerHTML = '<i class="fas fa-file-pdf me-2"></i>Compile PDF';
+                }, 3000);
+            } else if (data.status === 'failed') {
+                progressBar.classList.add('bg-danger');
+                progressBar.classList.remove('progress-bar-animated');
+
+                const errorMsg = data.error || 'Unknown error';
+                compilationLog.textContent = `ERROR: ${errorMsg}\n\n${data.error_details || data.log || ''}`;
+                compilationLog.scrollTop = compilationLog.scrollHeight;
+
+                showToast(`Compilation failed: ${errorMsg}`, 'danger');
+                compileBtn.disabled = false;
+                compileBtn.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>Failed';
+
+                setTimeout(() => {
+                    compileBtn.innerHTML = '<i class="fas fa-file-pdf me-2"></i>Compile PDF';
+                }, 3000);
+            } else {
+                // Still running or queued - poll again
+                compileBtn.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>${progress}%`;
+                setTimeout(() => pollCompilationStatus(jobId, attempts + 1), 2000);
+            }
+        })
+        .catch(error => {
+            console.error('Status check error:', error);
+            // Retry polling on error
+            setTimeout(() => pollCompilationStatus(jobId, attempts + 1), 2000);
+        });
+    }
+    
+    function exportManuscript() {
+        console.log('[Writer] Exporting manuscript');
+        // Create export data
+        const exportData = {
+            project: {% if project %}'{{ project.name }}'{% else %}'Demo Project'{% endif %},
+            manuscript: '{{ manuscript.title }}',
+            sections: sectionsData,
+            stats: {
+                totalWords: document.getElementById('total-words').textContent,
+                citations: document.getElementById('citation-count').textContent
+            },
+            exported: new Date().toISOString()
+        };
+        
+        // Download as JSON
+        const blob = new Blob([JSON.stringify(exportData, null, 2)], {type: 'application/json'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${exportData.project.replace(/\s+/g, '_')}_manuscript.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        
+        showToast('Manuscript exported successfully!', 'success');
+    }
+    
+    function showSaveStatus(message, type) {
+        const icon = type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'times-circle';
+        const color = type === 'success' ? 'success' : type === 'warning' ? 'warning' : 'danger';
+        
+        autoSaveStatus.innerHTML = `<i class="fas fa-${icon} text-${color} me-1"></i>${message}`;
+    }
+    
+    function showToast(message, type, duration = 5000) {
+        console.log('[Writer] Showing toast:', type, message);
+        const toast = document.createElement('div');
+        toast.className = `alert alert-${type} alert-dismissible fade show`;
+        toast.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+
+        let container = document.querySelector('.toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.className = 'toast-container';
+            document.body.appendChild(container);
+        }
+
+        container.appendChild(toast);
+
+        setTimeout(() => {
+            toast.remove();
+        }, duration);
+    }
+    
+    function checkForExistingPDF() {
+        // Check if main PDF exists
+        fetch(`/writer/project/${projectId}/pdf/`)
+        .then(response => {
+            if (response.ok) {
+                // Main PDF exists - show the viewer
+                const pdfUrl = `/writer/project/${projectId}/pdf/`;
+                pdfViewer.src = pdfUrl;
+                pdfViewLink.href = pdfUrl;
+                pdfDownloadLink.href = `${pdfUrl}?mode=download`;
+                pdfViewerContainer.style.display = 'block';
+
+                // Check if diff PDF also exists
+                checkForDiffPDF();
+            }
+        })
+        .catch(error => {
+            // No PDF exists yet - that's fine
+            console.log('No compiled PDF found yet');
+        });
+    }
+
+    function checkForDiffPDF() {
+        // Check if diff PDF exists
+        fetch(`/writer/project/${projectId}/pdf/?type=diff`)
+        .then(response => {
+            if (response.ok) {
+                // Diff PDF exists - enable the diff button
+                hasDiffPdf = true;
+                showDiffPdfBtn.disabled = false;
+                showDiffPdfBtn.classList.remove('disabled');
+
+                // Set up diff PDF viewer
+                const diffPdfUrl = `/writer/project/${projectId}/pdf/?type=diff`;
+                diffPdfViewer.src = diffPdfUrl;
+                diffPdfViewLink.href = diffPdfUrl;
+                diffPdfDownloadLink.href = `${diffPdfUrl}&mode=download`;
+            } else {
+                // No diff PDF yet
+                hasDiffPdf = false;
+                showDiffPdfBtn.disabled = true;
+                showDiffPdfBtn.classList.add('disabled');
+                showDiffPdfBtn.title = 'Diff PDF not available yet (compile again after changes)';
+            }
+        })
+        .catch(error => {
+            hasDiffPdf = false;
+            console.log('No diff PDF found');
+        });
+    }
+
+    window.showPDF = function(type) {
+        if (type === 'main') {
+            mainPdfContainer.style.display = 'block';
+            diffPdfContainer.style.display = 'none';
+            showMainPdfBtn.classList.add('active');
+            showMainPdfBtn.classList.remove('btn-outline-primary');
+            showMainPdfBtn.classList.add('btn-primary');
+            showDiffPdfBtn.classList.remove('active', 'btn-primary');
+            showDiffPdfBtn.classList.add('btn-outline-secondary');
+        } else if (type === 'diff') {
+            if (hasDiffPdf) {
+                mainPdfContainer.style.display = 'none';
+                diffPdfContainer.style.display = 'block';
+                showDiffPdfBtn.classList.add('active');
+                showDiffPdfBtn.classList.remove('btn-outline-secondary');
+                showDiffPdfBtn.classList.add('btn-primary');
+                showMainPdfBtn.classList.remove('active', 'btn-primary');
+                showMainPdfBtn.classList.add('btn-outline-primary');
+            }
+        }
+    }
+
+    function checkForRunningCompilation() {
+        // Check if there's a recent compilation job
+        // Get the last job ID from localStorage
+        const lastJobId = localStorage.getItem(`last_compile_job_${projectId}`);
+        if (lastJobId) {
+            fetch(`/writer/api/status/${lastJobId}/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'running' || data.status === 'queued') {
+                    // Resume showing progress
+                    compilationProgress.style.display = 'block';
+                    showToast('Resuming compilation monitoring...', 'info');
+                    pollCompilationStatus(lastJobId);
+                } else if (data.status === 'completed' && data.log) {
+                    // Show completed status with logs
+                    compilationProgress.style.display = 'block';
+                    progressBar.style.width = '100%';
+                    progressBar.textContent = '100%';
+                    progressBar.classList.remove('progress-bar-animated');
+                    progressBar.classList.add('bg-success');
+                    compilationLog.textContent = data.log;
+                }
+            })
+            .catch(error => {
+                // Job not found or error - clear the stored ID
+                localStorage.removeItem(`last_compile_job_${projectId}`);
+            });
+        }
+    }
+
+    function checkForExistingPDFsPanel() {
+        // Load PDF.js if not already loaded
+        if (typeof pdfjsLib === 'undefined') {
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+            script.onload = function() {
+                pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+                loadPDFsPanel();
+            };
+            document.head.appendChild(script);
+        } else {
+            loadPDFsPanel();
+        }
+    }
+
+    function loadPDFsPanel() {
+        console.log('[Writer] Loading PDF panel');
+        {% if not project %}
+        console.log('[Writer] No project - skipping PDF load');
+        const pdfViewerPanel = document.getElementById('pdf-viewer-panel');
+        pdfViewerPanel.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--color-fg-muted);">{% if is_anonymous %}Sign up to compile PDFs{% else %}Create a project to compile PDFs{% endif %}</div>';
+        return;
+        {% endif %}
+
+        const username = '{{ project.owner.username }}';
+        const slug = '{{ project.slug }}';
+
+        // Load main PDF
+        const pdfBlobUrl = `/${username}/${slug}/blob/paper/01_manuscript/manuscript.pdf?mode=raw`;
+        const pdfViewerPanel = document.getElementById('pdf-viewer-panel');
+        const pdfViewLinkPanel = document.getElementById('pdf-view-link-panel');
+        const pdfDownloadLinkPanel = document.getElementById('pdf-download-link-panel');
+
+        pdfViewLinkPanel.href = `/${username}/${slug}/blob/paper/01_manuscript/manuscript.pdf`;
+        pdfDownloadLinkPanel.href = pdfBlobUrl;
+
+        pdfViewerPanel.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--color-fg-muted);"><i class="fas fa-spinner fa-spin me-2"></i>Loading PDF...</div>';
+
+        pdfjsLib.getDocument({
+            url: pdfBlobUrl,
+            withCredentials: true  // Include cookies for authentication
+        }).promise.then(function(pdf) {
+            mainPdfDoc = pdf;
+            renderPDFWithOutline(pdf, pdfViewerPanel, 'pdf-outline-items-main', 1.2);
+        }).catch(function(error) {
+            pdfViewerPanel.innerHTML = `<div style="padding: 2rem; text-align: center; color: var(--color-fg-muted);">
+                <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+                <p>PDF not found or error loading</p>
+                <small>Error: ${error.message}</small>
+                <p class="mt-3"><a href="${pdfBlobUrl}" target="_blank" class="btn btn-sm btn-primary">Open PDF Directly</a></p>
+            </div>`;
+            console.error('Error loading main PDF:', error, 'URL:', pdfBlobUrl);
+        });
+
+        // Load diff PDF
+        const diffPdfBlobUrl = `/${username}/${slug}/blob/paper/01_manuscript/manuscript_diff.pdf?mode=raw`;
+        const diffPdfViewerPanel = document.getElementById('diff-pdf-viewer-panel');
+        const diffPdfViewLinkPanel = document.getElementById('diff-pdf-view-link-panel');
+        const diffPdfDownloadLinkPanel = document.getElementById('diff-pdf-download-link-panel');
+        const diffPdfPlaceholder = document.getElementById('diff-pdf-placeholder');
+        const toggleOutlineDiff = document.getElementById('toggle-outline-diff');
+
+        diffPdfViewLinkPanel.href = `/${username}/${slug}/blob/paper/01_manuscript/manuscript_diff.pdf`;
+        diffPdfDownloadLinkPanel.href = diffPdfBlobUrl;
+
+        pdfjsLib.getDocument({
+            url: diffPdfBlobUrl,
+            withCredentials: true  // Include cookies for authentication
+        }).promise.then(function(pdf) {
+            diffPdfDoc = pdf;
+            renderPDFWithOutline(pdf, diffPdfViewerPanel, 'pdf-outline-items-diff', 1.2);
+            diffPdfPlaceholder.style.display = 'none';
+            diffPdfViewerPanel.style.display = 'block';
+            toggleOutlineDiff.style.display = 'inline-block';
+        }).catch(function(error) {
+            // Diff PDF doesn't exist yet - that's OK
+            console.log('Diff PDF not available yet:', error.message);
+        });
+
+        // Setup outline toggle buttons
+        document.getElementById('toggle-outline-main').addEventListener('click', function() {
+            const outline = document.getElementById('pdf-outline-main');
+            outline.style.display = outline.style.display === 'none' ? 'block' : 'none';
+        });
+
+        const toggleOutlineDiffBtn = document.getElementById('toggle-outline-diff');
+        if (toggleOutlineDiffBtn) {
+            toggleOutlineDiffBtn.addEventListener('click', function() {
+                const outline = document.getElementById('pdf-outline-diff');
+                outline.style.display = outline.style.display === 'none' ? 'block' : 'none';
+            });
+        }
+    }
+
+    function renderPDFWithOutline(pdf, container, outlineContainerId, scale) {
+        // Render pages
+        container.innerHTML = '';
+        container.style.overflowY = 'auto';
+        container.style.padding = '0.5rem';
+
+        // Calculate scale to fit container width while maintaining A4 ratio
+        // A4: 210mm x 297mm (1:1.414 ratio)
+        // PDF.js default: 595pt x 842pt
+        const containerWidth = container.clientWidth - 40; // Account for padding
+        const a4Width = 595; // PDF points
+        const calculatedScale = containerWidth / a4Width;
+
+        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+            const pageContainer = document.createElement('div');
+            pageContainer.style.cssText = 'margin: 0.5rem auto; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: relative;';
+            pageContainer.id = `page-${outlineContainerId}-${pageNum}`;
+            pageContainer.dataset.pageNum = pageNum;
+
+            container.appendChild(pageContainer);
+
+            pdf.getPage(pageNum).then(function(page) {
+                const viewport = page.getViewport({ scale: calculatedScale });
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+
+                // Maintain A4 aspect ratio
+                canvas.style.cssText = 'display: block; width: 100%; height: auto;';
+
+                pageContainer.appendChild(canvas);
+
+                page.render({
+                    canvasContext: context,
+                    viewport: viewport
+                });
+            });
+        }
+
+        // Load and render outline
+        pdf.getOutline().then(function(outline) {
+            if (outline && outline.length > 0) {
+                const outlineContainer = document.getElementById(outlineContainerId);
+                outlineContainer.innerHTML = '';
+
+                function renderOutlineItem(item) {
+                    const div = document.createElement('div');
+                    div.className = 'pdf-outline-item-writer';
+                    div.textContent = item.title;
+
+                    div.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        if (item.dest) {
+                            pdf.getDestination(item.dest).then(function(dest) {
+                                if (dest) {
+                                    pdf.getPageIndex(dest[0]).then(function(pageIndex) {
+                                        const pageNum = pageIndex + 1;
+                                        const pageElement = document.getElementById(`page-${outlineContainerId}-${pageNum}`);
+                                        if (pageElement && container) {
+                                            // Scroll within PDF container only, not the page
+                                            const elementTop = pageElement.offsetTop - container.offsetTop;
+                                            container.scrollTop = elementTop;
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    });
+
+                    outlineContainer.appendChild(div);
+
+                    // Render children with indentation
+                    if (item.items && item.items.length > 0) {
+                        item.items.forEach(function(childItem) {
+                            const childDiv = document.createElement('div');
+                            childDiv.className = 'pdf-outline-item-writer pdf-outline-child-writer';
+                            childDiv.textContent = childItem.title;
+
+                            childDiv.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                if (childItem.dest) {
+                                    pdf.getDestination(childItem.dest).then(function(dest) {
+                                        if (dest) {
+                                            pdf.getPageIndex(dest[0]).then(function(pageIndex) {
+                                                const pageNum = pageIndex + 1;
+                                                const pageElement = document.getElementById(`page-${outlineContainerId}-${pageNum}`);
+                                                if (pageElement && container) {
+                                                    // Scroll within PDF container only, not the page
+                                                    const elementTop = pageElement.offsetTop - container.offsetTop;
+                                                    container.scrollTop = elementTop;
+                                                }
+                                            });
+                                        }
+                                    });
+                                }
+                            });
+
+                            outlineContainer.appendChild(childDiv);
+                        });
+                    }
+                }
+
+                outline.forEach(renderOutlineItem);
+            }
+        }).catch(function() {
+            console.log('No outline available for this PDF');
+        });
+    }
+
+    function compileManuscriptPanel() {
+        const compileBtnPanel = document.getElementById('compile-btn-panel');
+        const stopBtn = document.getElementById('stop-compile-btn');
+        const progressPanel = document.getElementById('compilation-progress-panel');
+        const progressBarPanel = document.getElementById('progress-bar-panel');
+        const logPanel = document.getElementById('compilation-log-panel');
+        const timerDisplay = document.getElementById('compilation-timer');
+
+        compileBtnPanel.disabled = true;
+        compileBtnPanel.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Compiling... (0:00)';
+        stopBtn.style.display = 'block';
+        progressPanel.style.display = 'block';
+        progressBarPanel.style.width = '10%';
+        progressBarPanel.textContent = '10%';
+        logPanel.textContent = 'Starting compilation...\n';
+
+        // Start timer (updates button text)
+        compilationStartTime = Date.now();
+        startTimerInButton();
+
+        fetch(`/writer/project/${projectId}/compile/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCsrfToken()
+            }
+        })
+        .then(response => {
+            console.log('[COMPILE] Response status:', response.status);
+            return response.json();
+        })
+        .then(data => {
+            console.log('[COMPILE] Response data:', data);
+            if (data.success) {
+                localStorage.setItem(`last_compile_job_${projectId}`, data.job_id);
+                logPanel.textContent += `Email notification sent.\nJob ID: ${data.job_id}\nMonitoring progress...\n`;
+                showToast('Compilation started! Email notification sent.', 'success');
+                pollCompilationStatusPanel(data.job_id);
+            } else {
+                logPanel.textContent += `\nError: ${data.error}`;
+                showToast('Compilation failed: ' + (data.error || 'Unknown error'), 'danger');
+                compileBtnPanel.disabled = false;
+                compileBtnPanel.innerHTML = '<i class="fas fa-file-pdf me-2"></i>Compile PDF';
+            }
+        })
+        .catch(error => {
+            console.error('[COMPILE] Fetch error:', error);
+            logPanel.textContent += `\nFetch error: ${error.message}`;
+            compileBtnPanel.disabled = false;
+            compileBtnPanel.innerHTML = '<i class="fas fa-file-pdf me-2"></i>Compile PDF';
+        });
+    }
+
+    function pollCompilationStatusPanel(jobId, attempts = 0) {
+        console.log(`[POLL] Attempt ${attempts}, Job ID: ${jobId}`);
+
+        if (attempts > 90) {
+            document.getElementById('compilation-log-panel').textContent += '\nTimeout';
+            return;
+        }
+
+        const logPanel = document.getElementById('compilation-log-panel');
+        const compileBtnPanel = document.getElementById('compile-btn-panel');
+
+        fetch(`/writer/api/status/${jobId}/`)
+        .then(response => response.json())
+        .then(data => {
+            console.log(`[POLL] Status: ${data.status}, Has log: ${!!data.log}`);
+
+            // Update log immediately if available
+            if (data.log) {
+                logPanel.textContent = data.log;
+                logPanel.scrollTop = logPanel.scrollHeight;
+                console.log(`[POLL] Updated log, length: ${data.log.length}`);
+            } else {
+                console.log('[POLL] No log in response');
+            }
+
+            if (data.status === 'completed') {
+                const stopBtn = document.getElementById('stop-compile-btn');
+                if (stopBtn) stopBtn.style.display = 'none';
+                compileBtnPanel.innerHTML = '<i class="fas fa-check me-2"></i>Compiled!';
+
+                // Load the PDFs
+                checkForExistingPDFsPanel();
+
+                showToast('PDF compiled successfully!', 'success');
+
+                setTimeout(() => {
+                    compileBtnPanel.disabled = false;
+                    compileBtnPanel.innerHTML = '<i class="fas fa-file-pdf me-2"></i>Compile PDF';
+                    const quickCompileBtnPanel = document.getElementById('quick-compile-btn-panel');
+                    if (quickCompileBtnPanel) {
+                        quickCompileBtnPanel.disabled = false;
+                        quickCompileBtnPanel.innerHTML = '<i class="fas fa-bolt me-2"></i>Quick Compile (text only)';
+                    }
+                }, 3000);
+            } else if (data.status === 'failed') {
+                logPanel.textContent = `ERROR: ${data.error}\n\n${data.log || ''}`;
+                compileBtnPanel.disabled = false;
+                compileBtnPanel.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>Failed';
+                const quickCompileBtnPanel = document.getElementById('quick-compile-btn-panel');
+                if (quickCompileBtnPanel) {
+                    quickCompileBtnPanel.disabled = false;
+                    quickCompileBtnPanel.innerHTML = '<i class="fas fa-bolt me-2"></i>Quick Compile (text only)';
+                }
+            } else {
+                setTimeout(() => pollCompilationStatusPanel(jobId, attempts + 1), 2000);
+            }
+        });
+    }
+
+    function startTimerInButton() {
+        const compileBtnPanel = document.getElementById('compile-btn-panel');
+        if (timerInterval) clearInterval(timerInterval);
+
+        timerInterval = setInterval(function() {
+            if (compilationStartTime) {
+                const elapsed = Math.floor((Date.now() - compilationStartTime) / 1000);
+                const minutes = Math.floor(elapsed / 60);
+                const seconds = elapsed % 60;
+                const timeStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                compileBtnPanel.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Compiling... (${timeStr})`;
+            }
+        }, 1000);
+    }
+
+    function stopTimer() {
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+    }
+
+    function getCsrfToken() {
+        return document.querySelector('[name=csrfmiddlewaretoken]').value;
+    }
+
+    // Initialize Writer Workspace function (called from inline onclick)
+    function initializeWriterWorkspace(btn) {
+        console.log('[Writer] Initializing workspace...');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Creating workspace...';
+
+        const projectId = {% if project %}{{ project.id }}{% else %}null{% endif %};
+
+        fetch('/writer/api/initialize-workspace/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken()
+            },
+            body: JSON.stringify({
+                project_id: projectId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log('[Writer] Workspace initialized successfully');
+                // Reload page to show the editor
+                window.location.reload();
+            } else {
+                console.error('[Writer] Initialization failed:', data.error);
+                alert('Failed to initialize workspace: ' + (data.error || 'Unknown error'));
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-rocket me-2"></i>Initialize Writer Workspace';
+            }
+        })
+        .catch(error => {
+            console.error('[Writer] Initialization error:', error);
+            alert('Error initializing workspace: ' + error.message);
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-rocket me-2"></i>Initialize Writer Workspace';
+        });
+    }
+
+    // Stop button handler
+    const stopCompileBtn = document.getElementById('stop-compile-btn');
+    if (stopCompileBtn) {
+        stopCompileBtn.addEventListener('click', function() {
+            if (confirm('Stop monitoring compilation? (Process will continue in background)')) {
+                stopTimer();
+                this.style.display = 'none';
+                document.getElementById('compile-btn-panel').disabled = false;
+                document.getElementById('compile-btn-panel').innerHTML = '<i class="fas fa-file-pdf me-2"></i>Compile PDF';
+                showToast('Stopped monitoring. Check back later for results.', 'info');
+            }
+        });
+    }
+
+    // Warn before leaving if there are unsaved changes
+    window.addEventListener('beforeunload', function(e) {
+        if (hasUnsavedChanges) {
+            e.preventDefault();
+            e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+            return e.returnValue;
+        }
+    });
+
+    // Keyboard shortcut: Ctrl+S or Cmd+S to save
+    document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+            e.preventDefault();
+            if (hasUnsavedChanges) {
+                saveCurrentSectionManually();
+            }
+        }
+    });
+
+    // Initialize real-time collaboration (Phase 1.1 - WebSocket)
+    {% if user.is_authenticated and project %}
+    console.log('[Writer] Initializing collaboration');
+    const collaboration = new WriterCollaboration(
+        {{ project.id }},
+        {{ user.id }},
+        '{{ user.username|escapejs }}'
+    );
+    window.collaboration = collaboration;
+
+    // Integrate with Writer UI
+    collaboration.integrateWithWriter();
+    
+    console.log('✓ Real-time collaboration initialized with section locking');
+    {% endif %}
+}); // Close DOMContentLoaded
