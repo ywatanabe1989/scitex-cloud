@@ -1,23 +1,40 @@
 <!-- Sidebar Navigation -->
 <nav class="sidebar" style="width: 280px; flex-shrink: 0;">
-  <div class="sidebar-heading">Navigation</div>
   <ul class="sidebar-nav">
-    <!-- Design Foundations -->
-    <li><a href="{% url 'dev_app:design_colors' %}" class="sidebar-nav-item">Colors</a></li>
-    <li><a href="{% url 'dev_app:design_typography' %}" class="sidebar-nav-item">Typography</a></li>
-    <li><a href="{% url 'dev_app:design_code_blocks' %}" class="sidebar-nav-item">Code Blocks</a></li>
-    <li><a href="{% url 'dev_app:design_terminal_log' %}" class="sidebar-nav-item">Terminal Log</a></li>
-    <li><a href="{% url 'dev_app:design_spacing' %}" class="sidebar-nav-item">Spacing</a></li>
-    <li><a href="{% url 'dev_app:design_theme' %}" class="sidebar-nav-item">Theme</a></li>
-
-    <!-- Components - Flattened List (no header, all at same level) -->
-    {% if components %}
-      {% for component in components %}
-      <li><a href="{% url 'dev_app:design_component_detail' component_id=component.id|slugify %}" class="sidebar-nav-item">{{ component.name }}</a></li>
-      {% endfor %}
-    {% endif %}
-
+    
     <!-- Usage Guidelines -->
     <li><a href="{% url 'dev_app:design_guidelines' %}" class="sidebar-nav-item">Usage Guidelines</a></li>
+
+    <!-- Design Foundations -->
+    <div class="sidebar-heading">-- Design --</div>        
+    <li><a href="{% url 'dev_app:design_typography' %}" class="sidebar-nav-item">Typography</a></li>
+    <li><a href="{% url 'dev_app:design_spacing' %}" class="sidebar-nav-item">Spacing</a></li>        
+    <li><a href="{% url 'dev_app:design_colors' %}" class="sidebar-nav-item">Colors</a></li>
+    <li><a href="{% url 'dev_app:design_theme' %}" class="sidebar-nav-item">Theme</a></li>    
+    <li><a href="{% url 'dev_app:design_code_blocks' %}" class="sidebar-nav-item">Code Blocks</a></li>
+    <li><a href="{% url 'dev_app:design_terminal_log' %}" class="sidebar-nav-item">Terminal Log</a></li>
+
+    <!-- Components -->
+    <div class="sidebar-heading">-- Components --</div>
+    <div class="sidebar-heading"></div>
+    <li><a href="{% url 'dev_app:design_form_input' %}" class="sidebar-nav-item">Form Input</a></li>
+    <div class="sidebar-heading"></div>    
+    <li><a href="{% url 'dev_app:design_button' %}" class="sidebar-nav-item">Button</a></li>
+    <li><a href="{% url 'dev_app:design_checkbox' %}" class="sidebar-nav-item">Checkbox</a></li>
+    <li><a href="{% url 'dev_app:design_toggle_button_checkbox' %}" class="sidebar-nav-item">Toggle Button</a></li>
+    <li><a href="{% url 'dev_app:design_select_dropdown' %}" class="sidebar-nav-item">Select Dropdown</a></li>
+    <li><a href="{% url 'dev_app:design_segmented_radio_control' %}" class="sidebar-nav-item">Segmented Radio</a></li>
+    <li><a href="{% url 'dev_app:design_file_upload' %}" class="sidebar-nav-item">File Upload</a></li>    
+    <div class="sidebar-heading"></div>
+    <li><a href="{% url 'dev_app:design_card' %}" class="sidebar-nav-item">Card</a></li>
+    <li><a href="{% url 'dev_app:design_tabs' %}" class="sidebar-nav-item">Tabs</a></li>
+    <div class="sidebar-heading"></div>
+    <li><a href="{% url 'dev_app:design_badge' %}" class="sidebar-nav-item">Badge</a></li>        
+    <li><a href="{% url 'dev_app:design_breadcrumb' %}" class="sidebar-nav-item">Breadcrumb</a></li>
+    <li><a href="{% url 'dev_app:design_alerts' %}" class="sidebar-nav-item">Alerts</a></li>    
+    <div class="sidebar-heading"></div>                
+    <li><a href="{% url 'dev_app:design_dropdown_menu' %}" class="sidebar-nav-item">Dropdown Menu</a></li>    
+    <li><a href="{% url 'dev_app:design_navbar' %}" class="sidebar-nav-item">Navbar</a></li>
+
   </ul>
 </nav>

@@ -6,11 +6,55 @@
   padding: var(--spacing-xl) 0;
   margin-top: var(--spacing-xl);
   margin-bottom: var(--spacing-md);
+  position: relative;
 }
 
+.site-footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+  /* Scattered dots pattern - same as ecosystem section and header */
+  background-image:
+    radial-gradient(circle at 20% 30%, var(--_scitex-04) 2px, transparent 2px),
+    radial-gradient(circle at 60% 70%, var(--_scitex-05) 3px, transparent 3px),
+    radial-gradient(circle at 80% 20%, var(--_scitex-03) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 40% 80%, var(--_scitex-04) 2.5px, transparent 2.5px),
+    radial-gradient(circle at 10% 60%, var(--_scitex-05) 2px, transparent 2px);
+  background-size: 100px 100px, 150px 150px, 80px 80px, 120px 120px, 90px 90px;
+  background-position: 0 0, 40px 60px, 130px 270px, 70px 100px, 150px 30px;
+}
+
+/* Dark theme footer - scattered dots matching header and ecosystem */
+[data-theme="dark"] .site-footer::before {
+  opacity: 0.3;
+  /* Scattered dots pattern - same as ecosystem section */
+  background-image:
+    radial-gradient(circle at 20% 30%, var(--_scitex-05) 2px, transparent 2px),
+    radial-gradient(circle at 60% 70%, var(--_scitex-06) 3px, transparent 3px),
+    radial-gradient(circle at 80% 20%, var(--_scitex-04) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 40% 80%, var(--_scitex-05) 2.5px, transparent 2.5px),
+    radial-gradient(circle at 10% 60%, var(--_scitex-06) 2px, transparent 2px);
+  background-size: 100px 100px, 150px 150px, 80px 80px, 120px 120px, 90px 90px;
+  background-position: 0 0, 40px 60px, 130px 270px, 70px 100px, 150px 30px;
+}
+
+/* Ensure footer content stays above pattern */
 .footer-content {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  position: relative;
+  z-index: 1;
+}
+
+.footer-bottom {
+  position: relative;
+  z-index: 1;
   gap: var(--spacing-xl);
 }
 
@@ -40,6 +84,9 @@
   color: var(--text-secondary);
   text-decoration: none;
   transition: color var(--transition-normal);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .footer-links a:hover {
@@ -48,6 +95,34 @@
   padding-left: 3px;
   border-left: 2px solid var(--border-default);
   transition: all 0.2s ease;
+}
+
+/* Footer Icons - matching header nav-icon style */
+.footer-icon {
+  height: 16px;
+  width: 16px;
+  opacity: 0.85;
+  transition: opacity 0.2s ease, transform 0.2s ease, filter 0.2s ease;
+  display: inline-block;
+  vertical-align: middle;
+  filter: none;
+}
+
+/* Dark mode: Apply bluish filter to footer icons */
+[data-theme="dark"] .footer-icon {
+  filter: brightness(1.2) sepia(0.3) saturate(1.5) hue-rotate(180deg);
+  opacity: 0.9;
+}
+
+/* Hover state for footer icons */
+.footer-links a:hover .footer-icon {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+[data-theme="dark"] .footer-links a:hover .footer-icon {
+  filter: brightness(1.4) sepia(0.4) saturate(1.8) hue-rotate(180deg);
+  opacity: 1;
 }
 
 .footer-social {

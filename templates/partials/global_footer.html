@@ -1,177 +1,269 @@
 {% load static %}
 <footer class="site-footer">
-  <div class="container">
-    <div class="footer-content">
-      <div class="footer-section">
-        <h3>SciTeX</h3>
-        <p class="footer-text" data-key="tagline">Accelerating scientific research through integrated tools and workflows.</p>
-        <div class="footer-social">
-          <a href="https://github.com/SciTeX-AI" aria-label="GitHub - SciTeX organization"><i class="fab fa-github" aria-hidden="true"></i></a>
-          <a href="https://scitexworkspace.slack.com" aria-label="Slack workspace - Join our community"><i class="fab fa-slack" aria-hidden="true"></i></a>
-          <a href="https://twitter.com/scitex_ai" aria-label="X (Twitter) - Follow SciTeX"><i class="fab fa-twitter" aria-hidden="true"></i></a>
-          <a href="https://linkedin.com/company/scitex-ai" aria-label="LinkedIn - Connect with SciTeX"><i class="fab fa-linkedin" aria-hidden="true"></i></a>
-          <a href="https://instagram.com/scitex_ai" aria-label="Instagram - Follow SciTeX"><i class="fab fa-instagram" aria-hidden="true"></i></a>
-          <a href="https://youtube.com/@scitex_ai" aria-label="YouTube - Subscribe to SciTeX"><i class="fab fa-youtube" aria-hidden="true"></i></a>
-          <a href="https://tiktok.com/@scitex_ai" aria-label="TikTok - Follow SciTeX"><i class="fab fa-tiktok" aria-hidden="true"></i></a>
-          <a href="https://twitch.tv/scitex_ai" aria-label="Twitch - Watch SciTeX streams"><i class="fab fa-twitch" aria-hidden="true"></i></a>
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>SciTeX</h3>
+                <p class="footer-text" data-key="tagline">
+                    Accelerating scientific research through integrated tools and workflows.
+                </p>
+                <div class="footer-social">
+                    <a href="https://github.com/SciTeX-AI" aria-label="GitHub - SciTeX organization">
+                        <i class="fab fa-github" aria-hidden="true"></i>
+                    </a>
+                    <a href="https://scitexworkspace.slack.com" aria-label="Slack workspace - Join our community">
+                        <i class="fab fa-slack" aria-hidden="true"></i>
+                    </a>
+                    <a href="https://twitter.com/scitex_ai" aria-label="X (Twitter) - Follow SciTeX">
+                        <i class="fab fa-twitter" aria-hidden="true"></i>
+                    </a>
+                    <a href="https://linkedin.com/company/scitex-ai" aria-label="LinkedIn - Connect with SciTeX">
+                        <i class="fab fa-linkedin" aria-hidden="true"></i>
+                    </a>
+                    <a href="https://instagram.com/scitex_ai" aria-label="Instagram - Follow SciTeX">
+                        <i class="fab fa-instagram" aria-hidden="true"></i>
+                    </a>
+                    <a href="https://youtube.com/@scitex_ai" aria-label="YouTube - Subscribe to SciTeX">
+                        <i class="fab fa-youtube" aria-hidden="true"></i>
+                    </a>
+                    <a href="https://tiktok.com/@scitex_ai" aria-label="TikTok - Follow SciTeX">
+                        <i class="fab fa-tiktok" aria-hidden="true"></i>
+                    </a>
+                    <a href="https://twitch.tv/scitex_ai" aria-label="Twitch - Watch SciTeX streams">
+                        <i class="fab fa-twitch" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="footer-section">
+                <h3 class="footer-text" data-key="souce-code">GitHub</h3>
+                <ul class="footer-links">
+                    <li>
+                        <a href="https://github.com/scitex-ai/scitex-code/tree/develop/src/scitex/scholar">
+                            <img src="{% static 'images/scitex-scholar-icon.svg' %}" alt="" class="footer-icon">
+                            Scholar
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://github.com/scitex-ai/scitex-code/">
+                            <img src="{% static 'images/scitex-code-icon.svg' %}" alt="" class="footer-icon">
+                            Code
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://github.com/scitex-ai/scitex-viz/">
+                            <img src="{% static 'images/scitex-viz-icon.svg' %}" alt="" class="footer-icon">
+                            Viz
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://github.com/scitex-ai/scitex-writer/">
+                            <img src="{% static 'images/scitex-writer-icon.svg' %}" alt="" class="footer-icon">
+                            Writer
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://github.com/scitex-ai/emacs-claude-code/">
+                            <img src="{% static 'images/scitex-explore-icon.svg' %}" alt="" class="footer-icon">
+                            Engine
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://github.com/scitex-ai/scitex-cloud/">
+                            <img src="{% static 'images/scitex-logo-cropped.png' %}" alt="" class="footer-icon">
+                            Cloud
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h3 class="footer-text" data-key="community">Community</h3>
+                <ul class="footer-links">
+                    <li>
+                        <a href="{% url 'public_app:vision' %}">
+                            <span class="footer-text" data-key="about">About Us</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'public_app:contributors' %}">
+                            <span class="footer-text" data-key="contributors">Contributors</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'public_app:publications' %}">
+                            <span class="footer-text" data-key="publications">Publications</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'public_app:donate' %}" class="text-success">
+                            <i class="fas fa-heart"></i>
+                            <span class="footer-text" data-key="donate">Donate</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h3 class="footer-text" data-key="legal">Legal</h3>
+                <ul class="footer-links">
+                    <li>
+                        <a href="{% url 'public_app:terms' %}">
+                            <span class="footer-text" data-key="terms">Terms of Use</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'public_app:privacy' %}">
+                            <span class="footer-text" data-key="privacy">Privacy Policy</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'public_app:cookies' %}">
+                            <span class="footer-text" data-key="cookies">Cookie Policy</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
         </div>
-      </div>
 
-      <div class="footer-section">
-        <h3 class="footer-text" data-key="tools">Tools</h3>
-        <ul class="footer-links">
-          <li><a href="/scholar/">🔍 Scholar</a></li>
-          <li><a href="/code/">💻 Code</a></li>
-          <li><a href="/viz/">📊 Viz</a></li>
-          <li><a href="/writer/">📝 Writer</a></li>
-          <!-- <li><a href="/engine/">⚙️ Engine</a></li> -->
-          <li><a href="/">☁️ Cloud</a></li>
-        </ul>
-      </div>
-
-      <div class="footer-section">
-        <h3 class="footer-text" data-key="community">Community</h3>
-        <ul class="footer-links">
-          <li><a href="{% url 'public_app:vision' %}"><span class="footer-text" data-key="about">About Us</span></a></li>
-          <li><a href="{% url 'public_app:contributors' %}"><span class="footer-text" data-key="contributors">Contributors</span></a></li>
-          <li><a href="{% url 'public_app:publications' %}"><span class="footer-text" data-key="publications">Publications</span></a></li>
-          <li><a href="{% url 'public_app:donate' %}" class="text-success"><i class="fas fa-heart"></i> <span class="footer-text" data-key="donate">Donate</span></a></li>
-        </ul>
-      </div>
-      <div class="footer-section">
-        <h3 class="footer-text" data-key="legal">Legal</h3>
-        <ul class="footer-links">
-          <li><a href="{% url 'public_app:terms' %}"><span class="footer-text" data-key="terms">Terms of Use</span></a></li>
-          <li><a href="{% url 'public_app:privacy' %}"><span class="footer-text" data-key="privacy">Privacy Policy</span></a></li>
-          <li><a href="{% url 'public_app:cookies' %}"><span class="footer-text" data-key="cookies">Cookie Policy</span></a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-        <p style="margin: 0;">&copy; 2025 SciTeX. <span class="footer-text" data-key="rights">All rights reserved</span>.  |  <a href="mailto:support@scitex.ai" class="email-link" aria-label="Email support at support@scitex.ai"><i class="far fa-envelope" aria-hidden="true"></i> support@scitex.ai <i class="far fa-envelope" aria-hidden="true"></i></a></p>
-        <div class="language-selector">
-          <select id="footerLanguage" onchange="changeFooterLanguage(this.value)" style="padding: 4px 8px; border: 1px solid var(--color-border-default); border-radius: 4px; background: var(--color-canvas-default); color: var(--color-fg-default); font-size: 12px;">
-            <option value="en">English</option>
-            <option value="pt">Português (Brasil)</option>
-            <option value="es">Español (América Latina)</option>
-            <option value="ja">日本語</option>
-            <option value="ko">한국어</option>
-          </select>
+        <div class="footer-bottom">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                <p style="margin: 0;">
+                    &copy; 2025 SciTeX.
+                    <span class="footer-text" data-key="rights">All rights reserved</span>.
+                    |
+                    <a href="mailto:support@scitex.ai" class="email-link" aria-label="Email support at support@scitex.ai">
+                        <i class="far fa-envelope" aria-hidden="true"></i>
+                        support@scitex.ai
+                        <i class="far fa-envelope" aria-hidden="true"></i>
+                    </a>
+                </p>
+                <div class="language-selector">
+                    <select
+                        id="footerLanguage"
+                        onchange="changeFooterLanguage(this.value)"
+                        style="padding: 4px 8px; border: 1px solid var(--color-border-default); border-radius: 4px; background: var(--color-canvas-default); color: var(--color-fg-default); font-size: 12px;">
+                        <option value="en">English</option>
+                        <option value="ja">日本語</option>                        
+                        <option value="pt">Português (Brasil)</option>
+                        <option value="es">Español (América Latina)</option>
+                        <option value="ko">한국어</option>
+                    </select>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
-  <style>
-    .footer-bottom .email-link {
-    color: inherit;
-    text-decoration: none;
-    }
 
-    .footer-bottom .email-link:hover {
-    color: #007bff;
-    text-decoration: underline;
-    }
-  </style>
+    <style>
+        .footer-bottom .email-link {
+            color: inherit;
+            text-decoration: none;
+        }
 
-  <script>
-  const footerTranslations = {
-    en: {
-      tagline: "Accelerating scientific research through integrated tools and workflows.",
-      tools: "Tools",
-      community: "Community",
-      about: "About Us",
-      contributors: "Contributors",
-      publications: "Publications",
-      donate: "Donate",
-      legal: "Legal",
-      terms: "Terms of Use",
-      privacy: "Privacy Policy",
-      cookies: "Cookie Policy",
-      rights: "All rights reserved"
-    },
-    pt: {
-      tagline: "Acelerando a pesquisa científica através de ferramentas e fluxos de trabalho integrados.",
-      tools: "Ferramentas",
-      community: "Comunidade",
-      about: "Sobre Nós",
-      contributors: "Contribuidores",
-      publications: "Publicações",
-      donate: "Doar",
-      legal: "Legal",
-      terms: "Termos de Uso",
-      privacy: "Política de Privacidade",
-      cookies: "Política de Cookies",
-      rights: "Todos os direitos reservados"
-    },
-    es: {
-      tagline: "Acelerando la investigación científica a través de herramientas y flujos de trabajo integrados.",
-      tools: "Herramientas",
-      community: "Comunidad",
-      about: "Acerca de Nosotros",
-      contributors: "Contribuyentes",
-      publications: "Publicaciones",
-      donate: "Donar",
-      legal: "Legal",
-      terms: "Términos de Uso",
-      privacy: "Política de Privacidad",
-      cookies: "Política de Cookies",
-      rights: "Todos los derechos reservados"
-    },
-    ja: {
-      tagline: "統合されたツールとワークフローで科学研究を加速します。",
-      tools: "ツール",
-      community: "コミュニティ",
-      about: "私たちについて",
-      contributors: "貢献者",
-      publications: "出版物",
-      donate: "寄付",
-      legal: "法的情報",
-      terms: "利用規約",
-      privacy: "プライバシーポリシー",
-      cookies: "クッキーポリシー",
-      rights: "無断転載禁止"
-    },
-    ko: {
-      tagline: "통합 도구와 워크플로를 통해 과학 연구를 가속화합니다.",
-      tools: "도구",
-      community: "커뮤니티",
-      about: "회사 소개",
-      contributors: "기여자",
-      publications: "출판물",
-      donate: "기부하기",
-      legal: "법률",
-      terms: "이용 약관",
-      privacy: "개인정보 처리방침",
-      cookies: "쿠키 정책",
-      rights: "판권 소유"
-    }
-  };
+        .footer-bottom .email-link:hover {
+            color: #007bff;
+            text-decoration: underline;
+        }
+    </style>
 
-  function changeFooterLanguage(lang) {
-    const translations = footerTranslations[lang];
-    if (!translations) return;
+    <script>
+        const footerTranslations = {
+            en: {
+                tagline: "Accelerating scientific research through integrated tools and workflows.",
+                tools: "Tools",
+                community: "Community",
+                about: "About Us",
+                contributors: "Contributors",
+                publications: "Publications",
+                donate: "Donate",
+                legal: "Legal",
+                terms: "Terms of Use",
+                privacy: "Privacy Policy",
+                cookies: "Cookie Policy",
+                rights: "All rights reserved"
+            },
+            pt: {
+                tagline: "Acelerando a pesquisa científica através de ferramentas e fluxos de trabalho integrados.",
+                tools: "Ferramentas",
+                community: "Comunidade",
+                about: "Sobre Nós",
+                contributors: "Contribuidores",
+                publications: "Publicações",
+                donate: "Doar",
+                legal: "Legal",
+                terms: "Termos de Uso",
+                privacy: "Política de Privacidade",
+                cookies: "Política de Cookies",
+                rights: "Todos os direitos reservados"
+            },
+            es: {
+                tagline: "Acelerando la investigación científica a través de herramientas y flujos de trabajo integrados.",
+                tools: "Herramientas",
+                community: "Comunidad",
+                about: "Acerca de Nosotros",
+                contributors: "Contribuyentes",
+                publications: "Publicaciones",
+                donate: "Donar",
+                legal: "Legal",
+                terms: "Términos de Uso",
+                privacy: "Política de Privacidad",
+                cookies: "Política de Cookies",
+                rights: "Todos los derechos reservados"
+            },
+            ja: {
+                tagline: "統合されたツールとワークフローで科学研究を加速します。",
+                tools: "ツール",
+                community: "コミュニティ",
+                about: "私たちについて",
+                contributors: "貢献者",
+                publications: "出版物",
+                donate: "寄付",
+                legal: "法的情報",
+                terms: "利用規約",
+                privacy: "プライバシーポリシー",
+                cookies: "クッキーポリシー",
+                rights: "無断転載禁止"
+            },
+            ko: {
+                tagline: "통합 도구와 워크플로를 통해 과학 연구를 가속화합니다.",
+                tools: "도구",
+                community: "커뮤니티",
+                about: "회사 소개",
+                contributors: "기여자",
+                publications: "출판물",
+                donate: "기부하기",
+                legal: "법률",
+                terms: "이용 약관",
+                privacy: "개인정보 처리방침",
+                cookies: "쿠키 정책",
+                rights: "판권 소유"
+            }
+        };
 
-    // Update all elements with footer-text class and data-key
-    document.querySelectorAll('.footer-text[data-key]').forEach(element => {
-      const key = element.getAttribute('data-key');
-      if (translations[key]) {
-        element.textContent = translations[key];
-      }
-    });
+        function changeFooterLanguage(lang) {
+            const translations = footerTranslations[lang];
+            if (!translations) return;
 
-    // Save preference to localStorage
-    localStorage.setItem('footerLanguage', lang);
-  }
+            // Update all elements with footer-text class and data-key
+            document.querySelectorAll('.footer-text[data-key]').forEach(element => {
+                const key = element.getAttribute('data-key');
+                if (translations[key]) {
+                    element.textContent = translations[key];
+                }
+            });
 
-  // Load saved language preference on page load
-  document.addEventListener('DOMContentLoaded', function() {
-    const savedLang = localStorage.getItem('footerLanguage') || 'en';
-    const select = document.getElementById('footerLanguage');
-    if (select) {
-      select.value = savedLang;
-      changeFooterLanguage(savedLang);
-    }
-  });
-  </script>
+            // Save preference to localStorage
+            localStorage.setItem('footerLanguage', lang);
+        }
+
+        // Load saved language preference on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedLang = localStorage.getItem('footerLanguage') || 'en';
+            const select = document.getElementById('footerLanguage');
+            if (select) {
+                select.value = savedLang;
+                changeFooterLanguage(savedLang);
+            }
+        });
+    </script>
 </footer>

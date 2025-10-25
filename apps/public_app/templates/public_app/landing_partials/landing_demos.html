@@ -13,23 +13,33 @@
 </style>
 
 <!-- Demo Video Section -->
-<section class="landing-section section-demos" id="demos">
-  <div class="container">
-      <h2 style="text-align: center; margin-bottom: 3rem; font-size: 2.5rem; color: var(--color-fg-default);">Demonstrations</h2>
+<section class="landing-section section-demos bg-pattern bg-pattern-dots-scattered bg-pattern-subtle" id="demos">
+    <div class="container">
+        <h2 style="text-align: center; margin-bottom: 3rem; font-size: 2.5rem; color: var(--color-fg-default);">Demonstrations</h2>
 
-      <!-- Scholar Demo -->
-      {% include 'public_app/landing_partials/components/module_demo.html' with module_name='Scholar' icon_path='images/scitex-scholar-icon.svg' video_path='videos/scholar-demo.mp4' poster='videos/thumbnails/scholar-demo.jpg' docs_url='docs:scholar' github_url='https://github.com/ywatanabe1989/SciTeX-Code/tree/main/src/scitex/scholar' video_position='2fr 1fr' video_first=True margin='0 auto 3rem' features=scholar_features %}
+        <!-- Scholar Demo - Small dots (search/discovery) -->
+        <div class="bg-pattern bg-pattern-dots-sm bg-pattern-subtle" style="border-radius: 12px; padding: 2rem; margin-bottom: 3rem;">
+            {% include 'public_app/landing_partials/components/module_demo.html' with module_name='Scholar' icon_path='images/scitex-scholar-icon.svg' video_path='videos/scholar-demo.mp4' poster='videos/thumbnails/scholar-demo.jpg' docs_url='docs:scholar' github_url='https://github.com/ywatanabe1989/SciTeX-Code/tree/main/src/scitex/scholar' video_position='2fr 1fr' video_first=True margin='0 auto' features=scholar_features %}
+        </div>
 
-      <!-- Writer Demo -->
-      {% include 'public_app/landing_partials/components/module_demo.html' with module_name='Writer' icon_path='images/scitex-writer-icon.svg' video_path='videos/writer-demo.mp4' poster='videos/thumbnails/writer-demo.jpg' docs_url='docs:writer' github_url='https://github.com/ywatanabe1989/SciTeX-Writer' video_position='1fr 2fr' video_first=False object_fit=True margin='3rem auto' features=writer_features %}
+        <!-- Writer Demo - Grid pattern (structured writing) -->
+        <div class="bg-pattern bg-pattern-grid bg-pattern-subtle" style="border-radius: 12px; padding: 2rem; margin-bottom: 3rem;">
+            {% include 'public_app/landing_partials/components/module_demo.html' with module_name='Writer' icon_path='images/scitex-writer-icon.svg' video_path='videos/writer-demo.mp4' poster='videos/thumbnails/writer-demo.jpg' docs_url='docs:writer' github_url='https://github.com/ywatanabe1989/SciTeX-Writer' video_position='1fr 2fr' video_first=False object_fit=True margin='0 auto' features=writer_features %}
+        </div>
 
-      <!-- Code Demo -->
-      {% include 'public_app/landing_partials/components/module_demo.html' with module_name='Code' icon_path='images/scitex-code-icon.svg' video_path='videos/code-demo.mp4' docs_url='docs:code' github_url='https://github.com/ywatanabe1989/SciTeX-Code' video_position='2fr 1fr' video_first=True margin='3rem auto' features=code_features %}
+        <!-- Code Demo - Circuit pattern (technical/code) -->
+        <div class="bg-pattern bg-pattern-circuit bg-pattern-subtle" style="border-radius: 12px; padding: 2rem; margin-bottom: 3rem;">
+            {% include 'public_app/landing_partials/components/module_demo.html' with module_name='Code' icon_path='images/scitex-code-icon.svg' video_path='videos/code-demo.mp4' docs_url='docs:code' github_url='https://github.com/ywatanabe1989/SciTeX-Code' video_position='2fr 1fr' video_first=True margin='0 auto' features=code_features %}
+        </div>
 
-      <!-- Viz Demo -->
-      {% include 'public_app/landing_partials/components/module_demo.html' with module_name='Viz' icon_path='images/scitex-viz-icon.svg' video_path='videos/viz-demo.mp4' docs_url='docs:viz' github_url='https://github.com/ywatanabe1989/SciTeX-Viz' video_position='1fr 2fr' video_first=False extra_note='Also available: PySigMacro, SigMacro templates' margin='3rem auto' features=viz_features %}
+        <!-- Viz Demo - Medium dots (data points) -->
+        <div class="bg-pattern bg-pattern-dots-md bg-pattern-subtle" style="border-radius: 12px; padding: 2rem; margin-bottom: 3rem;">
+            {% include 'public_app/landing_partials/components/module_demo.html' with module_name='Viz' icon_path='images/scitex-viz-icon.svg' video_path='videos/viz-demo.mp4' docs_url='docs:viz' github_url='https://github.com/ywatanabe1989/SciTeX-Viz' video_position='1fr 2fr' video_first=False margin='0 auto' features=viz_features %}
+        </div>
 
-      <!-- Cloud Demo -->
-      {% include 'public_app/landing_partials/components/module_demo.html' with module_name='Cloud' icon_path='images/scitex-cloud-icon.svg' video_path='videos/cloud-demo.mp4' docs_url='public_app:vision' github_url='https://github.com/ywatanabe1989/SciTeX-Cloud' video_position='2fr 1fr' video_first=True extra_note='This website: scitex.ai' margin='3rem auto' features=cloud_features %}
-  </div>
+        <!-- Cloud Demo - Radial dots (cloud/network) -->
+        <div class="bg-pattern bg-pattern-dots-radial bg-pattern-subtle" style="border-radius: 12px; padding: 2rem;">
+            {% include 'public_app/landing_partials/components/module_demo.html' with module_name='Cloud' icon_path='images/scitex-cloud-icon.svg' video_path='videos/cloud-demo.mp4' docs_url='public_app:vision' github_url='https://github.com/ywatanabe1989/SciTeX-Cloud' video_position='2fr 1fr' video_first=True margin='0 auto' features=cloud_features %}
+        </div>
+    </div>
 </section>

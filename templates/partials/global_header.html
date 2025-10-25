@@ -30,18 +30,18 @@
           <img src="{% static 'images/scitex-scholar-icon.svg' %}" alt="" class="nav-icon">
           <span class="nav-label">Scholar</span>
         </a>
-        <a href="/code/"
-           class="header-nav-item {% if 'code' in request.path %}active{% endif %}"
-           title="Code development and analysis">
+        <span class="header-nav-item header-nav-item-disabled"
+              title="Coming soon"
+              data-message="Code module coming soon">
           <img src="{% static 'images/scitex-code-icon.svg' %}" alt="" class="nav-icon">
           <span class="nav-label">Code</span>
-        </a>
-        <a href="/viz/"
-           class="header-nav-item {% if 'viz' in request.path %}active{% endif %}"
-           title="Data visualization">
+        </span>
+        <span class="header-nav-item header-nav-item-disabled"
+              title="Coming soon"
+              data-message="Viz module coming soon">
           <img src="{% static 'images/scitex-viz-icon.svg' %}" alt="" class="nav-icon">
           <span class="nav-label">Viz</span>
-        </a>
+        </span>
         <a href="/writer/"
            class="header-nav-item {% if 'writer' in request.path %}active{% endif %}"
            title="Manuscript writing">
