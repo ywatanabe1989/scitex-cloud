@@ -187,7 +187,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.65rem 1.25rem;
-  background-color: var(--scitex-color-01);
+  background-color: #1a1a1a;
   color: var(--_white);
   border-radius: 8px;
   text-decoration: none;
@@ -199,13 +199,22 @@
 }
 
 .module-github-btn:hover {
-  background-color: var(--scitex-color-02);
+  background-color: #000000;
   transform: translateY(-2px);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
 .module-github-btn i {
   font-size: 1.1rem;
+}
+
+/* Dark mode: GitHub buttons with adjusted contrast */
+[data-theme="dark"] .module-github-btn {
+  background-color: #2d2d2d;
+}
+
+[data-theme="dark"] .module-github-btn:hover {
+  background-color: #404040;
 }
 
 /* ============================================================================
