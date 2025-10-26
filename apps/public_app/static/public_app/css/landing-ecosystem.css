@@ -187,7 +187,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.65rem 1.25rem;
-  background-color: #1a1a1a;
+  background-color: #000000;
   color: var(--_white);
   border-radius: 8px;
   text-decoration: none;
@@ -199,7 +199,7 @@
 }
 
 .module-github-btn:hover {
-  background-color: #000000;
+  background-color: #1a1a1a;
   transform: translateY(-2px);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
