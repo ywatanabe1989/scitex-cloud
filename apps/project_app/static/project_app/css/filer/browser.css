@@ -98,16 +98,17 @@
 /* Table body */
 .file-table tbody tr {
     border-bottom: 1px solid var(--color-border-muted, #d0d7de);
-    transition: background-color 0.1s ease;
+    transition: background-color 0.15s ease-out, box-shadow 0.15s ease-out;
 }
 
 .file-table tbody tr:last-child {
     border-bottom: none;
 }
 
-/* Row hover effect - entire row changes background color */
+/* Row hover effect - GitHub-style subtle background change */
 .file-table tbody tr:hover {
     background-color: var(--color-canvas-subtle, #f6f8fa);
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.03);
 }
 
 /* Table cells */
@@ -181,6 +182,7 @@
 
 [data-theme="dark"] .file-table tbody tr:hover {
     background-color: var(--color-canvas-subtle, #161b22);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
 }
 
 [data-theme="dark"] .file-table-name {

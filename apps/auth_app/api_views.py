@@ -63,6 +63,26 @@ def verify_email_api(request):
             # Mark verification as complete
             verification.verify()
 
+            # Check if this is an email change verification
+            pending_change = request.session.get('pending_email_change')
+            if pending_change and pending_change.get('new_email') == email:
+                # Update user's email
+                user = User.objects.get(id=pending_change['user_id'])
+                old_email = user.email
+                user.email = email
+                user.save()
+
+                # Clear session
+                del request.session['pending_email_change']
+
+                logger.info(f"Email changed from {old_email} to {email} for user {user.username}")
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Email updated successfully!',
+                    'redirect_url': '/accounts/settings/account/'
+                })
+
+            # Regular signup verification
             # Activate the user
             user = verification.user
             user.is_active = True
@@ -81,7 +101,7 @@ def verify_email_api(request):
             return JsonResponse({
                 'success': True,
                 'message': 'Email verified successfully!',
-                'redirect_url': f'/@{user.username}/'
+                'redirect_url': f'/{user.username}/'
             })
 
         except EmailVerification.DoesNotExist:

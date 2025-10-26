@@ -45,7 +45,10 @@
     </div>
 </div>
 
-{% include 'project_app/partials/settings_scripts.html' %}
+<!-- Delete Modal -->
 {% include 'project_app/partials/settings_delete_modal.html' %}
+{% endblock %}
 
+{% block extra_js %}
+<script src="{% static 'project_app/js/settings.js' %}"></script>
 {% endblock %}

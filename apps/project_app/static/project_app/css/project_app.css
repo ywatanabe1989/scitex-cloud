@@ -31,8 +31,7 @@
 
 /* PAGES */
 @import url("pages/list.css");
-@import url("pages/detail.css");
-@import url("pages/detail-extra.css");
+@import url("pages/detail.css");  /* Consolidated from detail.css + detail-extra.css */
 @import url("pages/create.css");
 @import url("pages/edit.css");
 @import url("pages/delete.css");

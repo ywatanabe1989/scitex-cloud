@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-24 08:12:45
+!-- Timestamp: 2025-10-26 08:33:18
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/TODOS/10_SCITEX_WRITER.md
 !-- --- -->
@@ -9,25 +9,9 @@
 ## writer_app
 
 ### URL
-- [ ] /writer/ is not the one we developed
-  - [ ] Maybe old routing used
-  - [ ] We had one with side panel and sections. and two columns main panel
-  - [ ] Please make it accessible from anyone just in the scholar app
-  - [ ] Just as in the scholar app, handle the cases with anonymous users or logged in users without projects
+- [ ] /writer/ is the one we developed
 
-Page not found (404)
-No User matches the given query.
-Request Method:	GET
-Request URL:	http://127.0.0.1:8000/writer/
-Raised by:	apps.project_app.user_urls.user_profile_wrapper
-
-
-### Ease of Use
-- [ ] User experience first
-
-### Examples
-- [ ] Examples as file comments are too much
-- [ ] Prepare examples as templates would be beneficial
+## Future
 
 ### Visual Editor
 - [ ] Implement Overleaf's visual editor
@@ -54,7 +38,12 @@ Raised by:	apps.project_app.user_urls.user_profile_wrapper
 
 ### Word integration
 - ./10_SCITEX_WRITER_WORD.md
-```
+
+## Current
+
+- [ ] Why does multiple triangles exist in the dropbox selectors
+  - [ ] when dark mode
+
 
 ---
 

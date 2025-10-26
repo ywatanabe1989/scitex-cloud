@@ -182,23 +182,25 @@
 
 .header-search input {
     width: 100%;
-    background: var(--scitex-color-07);  /* Light gray in light mode */
-    border: 1px solid var(--scitex-color-05);
+    background: var(--bg-page);
+    border: 2px solid var(--border-default);
     border-radius: 6px;
     padding: 5px 12px 5px 36px;
-    color: var(--scitex-color-01);  /* Dark text */
+    color: var(--text-primary);
     font-size: 14px;
     transition: all 0.2s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .header-search input:focus {
     outline: none;
     border-color: var(--scitex-color-04);
-    box-shadow: 0 0 0 3px rgba(108, 139, 160, 0.15);
+    box-shadow: 0 0 0 3px rgba(108, 139, 160, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .header-search input::placeholder {
-    color: var(--scitex-color-03);  /* Muted dark */
+    color: var(--text-secondary);
+    opacity: 0.7;
 }
 
 .header-search-icon {
@@ -206,7 +208,7 @@
     left: 12px;
     top: 50%;
     transform: translateY(-50%);
-    color: var(--scitex-color-03);  /* Muted dark */
+    color: var(--text-secondary);
     pointer-events: none;
     font-size: 14px;
     height: 16px;
@@ -215,15 +217,14 @@
     transition: filter 0.2s ease;
 }
 
-/* Dark mode search */
+/* Dark mode search - automatically handled by semantic tokens */
 [data-theme="dark"] .header-search input {
-    background: var(--scitex-color-01-dark);  /* Very dark: #0f1419 */
-    border-color: var(--scitex-color-02);
-    color: var(--scitex-color-07);  /* Light text */
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
-[data-theme="dark"] .header-search input::placeholder {
-    color: var(--scitex-color-05);  /* Muted bluish light */
+[data-theme="dark"] .header-search input:focus {
+    border-color: var(--scitex-color-05);
+    box-shadow: 0 0 0 3px rgba(108, 139, 160, 0.2), 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 /* Search icon in dark mode - bluish tint */
@@ -306,11 +307,11 @@
     transform: none;  /* Don't scale up like active items */
 }
 
-/* Action Buttons - Softer edges in dark mode */
+/* Action Buttons - Using semantic tokens */
 .header-btn {
     background: transparent;
-    border: 1px solid var(--scitex-color-05);
-    color: var(--scitex-color-01);  /* Dark text in light mode */
+    border: 2px solid var(--border-default);
+    color: var(--text-primary);
     padding: 5px 16px;
     border-radius: 6px;
     font-size: 14px;
@@ -325,46 +326,39 @@
 }
 
 .header-btn:hover {
-    background: var(--scitex-color-07);
+    background: var(--bg-muted);
     border-color: var(--scitex-color-04);
     text-decoration: none;
 }
 
-/* Dark mode: Softer, less vivid edges */
-[data-theme="dark"] .header-btn {
-    border-color: rgba(143, 164, 176, 0.3);  /* Subtle semi-transparent bluish */
-    color: var(--scitex-color-06);  /* Bluish text */
-}
-
+/* Dark mode automatically handled by semantic tokens */
 [data-theme="dark"] .header-btn:hover {
-    background: var(--scitex-color-01-light);
-    border-color: rgba(143, 164, 176, 0.5);  /* Slightly more visible on hover */
-    color: var(--scitex-color-07);  /* Brighter on hover */
+    border-color: var(--scitex-color-04);
 }
 
 .header-btn-primary {
-    background: var(--scitex-color-02);  /* Medium bluish gray - SciTeX brand */
-    border-color: var(--scitex-color-02);
-    color: #ffffff;
+    background: var(--scitex-color-04);
+    border-color: var(--scitex-color-04);
+    color: var(--text-inverse);
 }
 
 .header-btn-primary:hover {
-    background: var(--scitex-color-01);  /* Darker bluish on hover */
-    border-color: var(--scitex-color-01);
-    color: #ffffff;
+    background: var(--scitex-color-03);
+    border-color: var(--scitex-color-03);
+    color: var(--text-inverse);
 }
 
 [data-theme="dark"] .header-btn-primary {
-    background: var(--scitex-color-03);  /* Lighter bluish for dark mode */
-    border-color: var(--scitex-color-03);
-    color: var(--scitex-color-01-dark);  /* Dark text on light button */
+    background: var(--scitex-color-04);
+    border-color: var(--scitex-color-04);
+    color: var(--text-inverse);
     opacity: 0.9;
 }
 
 [data-theme="dark"] .header-btn-primary:hover {
-    background: var(--scitex-color-04);  /* Even lighter on hover */
-    border-color: var(--scitex-color-04);
-    color: var(--scitex-color-01-dark);
+    background: var(--scitex-color-05);
+    border-color: var(--scitex-color-05);
+    color: var(--text-inverse);
     opacity: 1;
 }
 
@@ -584,58 +578,51 @@
 }
 
 .project-selector-input {
-    background: var(--scitex-color-07);  /* Light gray in light mode */
-    border: 1px solid var(--scitex-color-05);
+    background: var(--bg-page);
+    border: 2px solid var(--border-default);
     border-radius: 6px;
     padding: 5px 8px;
-    color: var(--scitex-color-01);  /* Dark text */
+    color: var(--text-primary);
     font-size: 13px;
     min-width: 160px;
     max-width: 220px;
     transition: all 0.2s ease;
     cursor: pointer;
     flex-shrink: 0;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .project-selector-input:hover {
     border-color: var(--scitex-color-04);
-    background: #f6f8fa;
+    background: var(--bg-surface);
 }
 
 .project-selector-input:focus {
     outline: none;
     border-color: var(--scitex-color-04);
-    box-shadow: 0 0 0 3px rgba(108, 139, 160, 0.15);
-    background: var(--scitex-color-07);
+    box-shadow: 0 0 0 3px rgba(108, 139, 160, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-/* Dark mode project selector */
+/* Dark mode project selector - automatically handled by semantic tokens */
 [data-theme="dark"] .project-selector-input {
-    background: var(--scitex-color-01-dark);  /* Very dark: #0f1419 */
-    border-color: var(--scitex-color-02);
-    color: var(--scitex-color-07);  /* Light text */
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 [data-theme="dark"] .project-selector-input:hover {
-    border-color: var(--scitex-color-03);
-    background: var(--scitex-color-02);
+    border-color: var(--scitex-color-04);
 }
 
 [data-theme="dark"] .project-selector-input:focus {
-    border-color: var(--scitex-color-04);
-    box-shadow: 0 0 0 3px rgba(108, 139, 160, 0.25);
-    background: var(--scitex-color-02);
+    border-color: var(--scitex-color-05);
+    box-shadow: 0 0 0 3px rgba(108, 139, 160, 0.2), 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .project-selector-input option {
-    background: var(--scitex-color-07);
-    color: var(--scitex-color-01);
+    background: var(--bg-surface);
+    color: var(--text-primary);
 }
 
-[data-theme="dark"] .project-selector-input option {
-    background: var(--scitex-color-02);
-    color: var(--scitex-color-07);
-}
+/* Dark mode options inherit from semantic tokens */
 
 /* New Project Button */
 .header-project-new-btn {
@@ -646,9 +633,9 @@
     height: 28px;
     padding: 0;
     border-radius: 6px;
-    color: var(--scitex-color-03);  /* Muted in light mode */
+    color: var(--text-secondary);
     background: transparent;
-    border: 1px solid var(--scitex-color-05);
+    border: 2px solid var(--border-default);
     transition: all 0.2s ease;
     cursor: pointer;
     flex-shrink: 0;
@@ -656,20 +643,14 @@
 }
 
 .header-project-new-btn:hover {
-    background: var(--scitex-color-07);
+    background: var(--bg-muted);
     border-color: var(--scitex-color-04);
-    color: var(--scitex-color-01);
+    color: var(--text-primary);
 }
 
-[data-theme="dark"] .header-project-new-btn {
-    color: var(--scitex-color-05);  /* Muted bluish */
-    border-color: var(--scitex-color-02);
-}
-
+/* Dark mode automatically handled by semantic tokens */
 [data-theme="dark"] .header-project-new-btn:hover {
-    background: var(--scitex-color-01-light);
-    border-color: var(--scitex-color-03);
-    color: var(--scitex-color-06);
+    border-color: var(--scitex-color-04);
 }
 
 /* Responsive Design */

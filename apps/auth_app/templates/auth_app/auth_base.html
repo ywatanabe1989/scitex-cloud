@@ -77,17 +77,6 @@
 
 {% block content %}
   <div class="container">
-    <!-- Django messages -->
-    {% if messages %}
-    <div class="django-messages">
-      {% for message in messages %}
-      <div class="form-message {{ message.tags }}">
-        {{ message }}
-      </div>
-      {% endfor %}
-    </div>
-    {% endif %}
-
     {% block auth_content %}{% endblock %}
   </div>
 {% endblock %}

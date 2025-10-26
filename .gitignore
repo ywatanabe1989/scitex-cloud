@@ -729,3 +729,6 @@ tmp/
 django-gitea-demo/
 containers/docker/.env.prod
 containers/docker/.env.prod
+SECRET/
+containers/docker/.env
+containers/docker/.env.dev

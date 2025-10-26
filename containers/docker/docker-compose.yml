@@ -8,8 +8,7 @@ services:
       dockerfile: containers/docker/Dockerfile
     command: >
       sh -c "pip install --user -e /scitex-code &&
-             /app/containers/docker/scripts/auto_collectstatic.sh &
-             gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 4 --threads 2 --timeout 120 --reload --access-logfile - --error-logfile - --log-level info"
+             python manage.py runserver 0.0.0.0:8000"
     volumes:
       - ../..:/app
       - static_volume:/app/staticfiles

@@ -25,6 +25,7 @@
         <input
             type="text"
             id="deleteConfirmInput"
+            data-confirm-text="{{ user.username }}/{{ project.name }}"
             placeholder="{{ user.username }}/{{ project.name }}"
             oninput="checkDeleteInput()"
             style="width: 100%; padding: 8px 12px; border: 1px solid var(--color-border-default); border-radius: 6px; font-size: 14px; margin-bottom: 16px; background: var(--color-canvas-default); color: var(--color-fg-default);"

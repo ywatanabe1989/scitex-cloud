@@ -15,8 +15,8 @@
             </span>
         </div>
         {% if user.is_authenticated %}
-        <button class="star-btn" data-username="{{ project.owner.username }}" data-slug="{{ project.slug }}" onclick="toggleStar(this)" style="background: transparent; border: 1px solid var(--color-border-default); color: var(--color-fg-default); padding: 4px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: all 0.2s;">
-            <img src="{% static 'project_app/icons/star.svg' %}" alt="" style="width: 14px; height: 14px; vertical-align: text-bottom; margin-right: 4px;">Star
+        <button class="star-btn" data-username="{{ project.owner.username }}" data-slug="{{ project.slug }}" onclick="toggleStar(this)">
+            <img src="{% static 'project_app/icons/star.svg' %}" alt="">Star
         </button>
         {% endif %}
     </div>

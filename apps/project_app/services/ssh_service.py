@@ -120,10 +120,10 @@ class SSHKeyManager:
             from apps.accounts_app.models import UserProfile
             try:
                 profile = UserProfile.objects.get(user=self.user)
-                profile.ssh_public_key = None
-                profile.ssh_key_fingerprint = None
-                profile.ssh_key_created_at = None
-                profile.ssh_key_last_used_at = None
+                profile.ssh_public_key = ''  # CharField with blank=True requires empty string, not None
+                profile.ssh_key_fingerprint = ''  # CharField with blank=True requires empty string, not None
+                profile.ssh_key_created_at = None  # DateTimeField with null=True can be None
+                profile.ssh_key_last_used_at = None  # DateTimeField with null=True can be None
                 profile.save()
             except UserProfile.DoesNotExist:
                 pass

@@ -21,8 +21,7 @@ css/
 │   └── file-tree.css       # File tree component
 ├── pages/                  # Page-specific styles
 │   ├── list.css            # Project list page
-│   ├── detail.css          # Project detail page
-│   ├── detail-extra.css    # Additional detail page styles
+│   ├── detail.css          # Project detail page (consolidated)
 │   ├── create.css          # Project creation form
 │   ├── edit.css            # Project edit form
 │   ├── delete.css          # Project deletion confirmation
@@ -340,7 +339,23 @@ Colors are automatically adjusted through the global theme system (`/static/css/
 
 ## Migration Notes
 
-This structure was created by splitting the monolithic `project_app.css` (5775+ lines) into modular files that mirror the template organization. The refactoring includes:
+This structure was created by splitting the monolithic `project_app.css` (5775+ lines) into modular files that mirror the template organization.
+
+### Recent Refactoring (2025-10-26)
+
+**Consolidated Duplicate Files:**
+- Merged `pages/detail-extra.css` into `pages/detail.css`
+- Removed duplicate `.repo-title`, `.file-browser`, `.readme-container` styles
+- Removed duplicate animation keyframes (now centralized in `common.css`)
+- Fixed syntax errors (extra closing braces)
+- File moved to `pages/detail-extra.css.deprecated` for reference
+
+**Result:**
+- Reduced duplication across CSS files
+- Single source of truth for project detail page styles
+- Easier maintenance and updates
+
+### Original Refactoring
 
 - Added CSS variables for all design tokens
 - Implemented BEM naming convention
