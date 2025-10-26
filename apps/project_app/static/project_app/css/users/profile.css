@@ -204,11 +204,15 @@ body {
     /* Layout preserved */
     display: flex;
     gap: 8px;
+    flex: 1;
+    max-width: 100%;
 }
 
 .repo-search input {
     /* Layout preserved */
     padding: 5px 12px;
+    flex: 1;
+    width: 100%;
     /* Styling moved to central CSS - see static/css/components/forms.css */
     /* background: var(--color-canvas-default); */
     /* border: 1px solid var(--color-border-default); */
@@ -258,7 +262,9 @@ body {
     align-items: flex-start;
     justify-content: space-between;
     gap: 8px;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
+    padding-bottom: 0;
+    border-bottom: none;
 }
 
 /* .repo-name is now deprecated, use .text-link .font-semibold .text-lg instead */
@@ -289,8 +295,7 @@ body {
     margin-bottom: 8px;
     margin-top: 8px;
     line-height: 1.5;
-    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
-    /* color: var(--color-fg-muted); */
+    color: var(--text-secondary);
     /* font-size: 14px; */
 }
 
