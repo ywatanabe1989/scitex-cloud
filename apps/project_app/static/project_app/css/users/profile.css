@@ -230,10 +230,10 @@ body {
 
 /* Repository list */
 .repo-list {
-    /* Changed from flex column to grid for card layout */
+    /* Single-column wide card layout */
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: 1fr;
+    gap: 1rem;
     margin-top: 1rem;
 }
 
@@ -241,7 +241,7 @@ body {
     /* Card styling */
     border: 1px solid var(--border-default);
     border-radius: 8px;
-    padding: 1.5rem;
+    padding: 1rem 1.5rem;
     background: var(--bg-surface);
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
@@ -290,7 +290,8 @@ body {
 
 .repo-description {
     /* Layout preserved */
-    margin-bottom: 12px;
+    margin-bottom: 8px;
+    margin-top: 8px;
     line-height: 1.5;
     /* Styling moved to central CSS - see static/css/common/typography-vars.css */
     /* color: var(--color-fg-muted); */
@@ -302,6 +303,7 @@ body {
     display: flex;
     align-items: center;
     gap: 16px;
+    margin-top: 8px;
     /* Styling moved to central CSS - see static/css/common/typography-vars.css */
     /* font-size: 12px; */
     /* color: var(--color-fg-muted); */
