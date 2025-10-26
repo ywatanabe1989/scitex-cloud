@@ -29,8 +29,6 @@ body {
 /* Left sidebar - Profile info */
 .profile-sidebar {
     /* Layout preserved */
-    position: sticky;
-    top: 24px;
     align-self: start;
 }
 
@@ -232,29 +230,39 @@ body {
 
 /* Repository list */
 .repo-list {
-    /* Layout preserved */
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
+    /* Changed from flex column to grid for card layout */
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
 }
 
 .repo-item {
-    /* Layout preserved */
-    padding-bottom: 24px;
-    /* Styling moved to central CSS - see static/css/components/cards.css */
-    /* border-bottom: 1px solid var(--color-border-muted); */
+    /* Card styling */
+    border: 1px solid var(--border-default);
+    border-radius: 8px;
+    padding: 1.5rem;
+    background: var(--bg-surface);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.repo-item:hover {
+    border-color: var(--primary-color, #007acc);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .repo-item:last-child {
-    border-bottom: none;
+    border-bottom: inherit;
 }
 
 .repo-header {
-    /* Layout preserved */
+    /* Updated for card layout */
     display: flex;
-    align-items: center;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
     gap: 8px;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
 }
 
 /* .repo-name is now deprecated, use .text-link .font-semibold .text-lg instead */
@@ -397,5 +405,15 @@ body {
         height: 150px;
         /* Styling moved to central CSS - see static/css/components/avatars.css */
         /* font-size: 4rem; */
+    }
+
+    /* Stack repo cards on mobile */
+    .repo-list {
+        grid-template-columns: 1fr;
+    }
+
+    .repo-header {
+        flex-direction: column;
+        align-items: flex-start;
     }
 }
