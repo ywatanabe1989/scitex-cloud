@@ -1,3 +1,4 @@
+
 ---
 name: GitHandlerAgent
 description: MUST BE USED. Handle Git operations in any phase. All agents must delegate to this agent for git operations.
@@ -36,3 +37,4 @@ Please create and keep your ID by running this at startup:
 ## Examples
 `./docs/to_claude/guidelines/examples/mgmt/03_ARCHITECTURE_EXAMPLE.md`
 `./docs/to_claude/guidelines/examples/mgmt/99_BULLETIN_BOARD_EXAMPLE.md`
+

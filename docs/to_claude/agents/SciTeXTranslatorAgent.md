@@ -1,3 +1,4 @@
+
 ---
 name: SciTeXTranslatorAgent
 description: MUST BE USED. Knows SciTeX usage with proper formats. Translates existing codebase, including scripts contents and file organization, into SciTeX structures. Not applicable to `src` or `tests` but to `./scripts` and `./examples`. For examples development, please call at the final stage as this agent can translate working python code to be compatible for our ScTeX system.
@@ -53,3 +54,4 @@ Please create and keep your ID by running this at startup:
 `./docs/to_claude/guidelines/USER_PHILOSOPHY/05_PRIORITY_CONFIG.md`
 `./docs/to_claude/guidelines/USER_PHILOSOPHY/06_MULTIPLE_SPECIAL_AGENTS.md`
 `./docs/to_claude/guidelines/USER_PHILOSOPHY/99_BULLETIN_BOARD_EXAMPLE.md`
+

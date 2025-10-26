@@ -1,4 +1,9 @@
 function getCsrfToken() {
+    // First, try to get from WRITER_CONFIG (set in template)
+    if (window.WRITER_CONFIG?.csrfToken) {
+        return window.WRITER_CONFIG.csrfToken;
+    }
+
     // Try to get CSRF token from form input
     const tokenElement = document.querySelector('[name=csrfmiddlewaretoken]');
     if (tokenElement) {
@@ -15,16 +20,17 @@ function getCsrfToken() {
     }
 
     // If no CSRF token found, return empty string and let Django handle it
-    console.warn('[Writer] CSRF token not found in form or cookies');
+    console.warn('[Writer] CSRF token not found in form, config, or cookies');
     return '';
 }
 
 document.addEventListener('DOMContentLoaded', function() {
     console.log('[Writer] Initializing project writer interface');
-    const projectId = {% if project %}{{ project.id }}{% else %}null{% endif %};
-    const isDemo = {% if is_demo %}true{% else %}false{% endif %};
-    const isAnonymous = {% if is_anonymous %}true{% else %}false{% endif %};
-    const writerInitialized = {% if writer_initialized %}true{% else %}false{% endif %};
+    // Use WRITER_CONFIG object passed from Django template
+    const projectId = window.WRITER_CONFIG?.projectId || null;
+    const isDemo = window.WRITER_CONFIG?.isDemo || false;
+    const isAnonymous = window.WRITER_CONFIG?.isAnonymous || false;
+    const writerInitialized = window.WRITER_CONFIG?.writerInitialized || false;
     console.log('[Writer] Project ID:', projectId, 'Demo mode:', isDemo, 'Anonymous:', isAnonymous, 'Initialized:', writerInitialized);
 
     // Handle writer workspace initialization
@@ -107,12 +113,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Server-provided word counts (from database)
     const serverWordCounts = {
-        manuscript: {
-            abstract: {{ manuscript.word_count_abstract|default:0 }},
-            introduction: {{ manuscript.word_count_introduction|default:0 }},
-            methods: {{ manuscript.word_count_methods|default:0 }},
-            results: {{ manuscript.word_count_results|default:0 }},
-            discussion: {{ manuscript.word_count_discussion|default:0 }}
+        manuscript: window.WRITER_CONFIG?.wordCounts || {
+            abstract: 0,
+            introduction: 0,
+            methods: 0,
+            results: 0,
+            discussion: 0
         }
     };
 
@@ -270,13 +276,13 @@ document.addEventListener('DOMContentLoaded', function() {
             journal_name: ''
         },
         manuscript: {
-            abstract: `{{ sections.abstract|default:""|escapejs }}`,
-            highlights: `{{ sections.highlights|default:""|escapejs }}`,
-            introduction: `{{ sections.introduction|default:""|escapejs }}`,
-            methods: `{{ sections.methods|default:""|escapejs }}`,
-            results: `{{ sections.results|default:""|escapejs }}`,
-            discussion: `{{ sections.discussion|default:""|escapejs }}`,
-            conclusion: `{{ sections.conclusion|default:""|escapejs }}`,
+            abstract: window.WRITER_CONFIG?.sections?.abstract || '',
+            highlights: window.WRITER_CONFIG?.sections?.highlights || '',
+            introduction: window.WRITER_CONFIG?.sections?.introduction || '',
+            methods: window.WRITER_CONFIG?.sections?.methods || '',
+            results: window.WRITER_CONFIG?.sections?.results || '',
+            discussion: window.WRITER_CONFIG?.sections?.discussion || '',
+            conclusion: window.WRITER_CONFIG?.sections?.conclusion || '',
             figures: '',
             tables: ''
         },
@@ -574,12 +580,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Repository switching (dropdown)
     const repositorySelector = document.getElementById('repository-selector');
-    repositorySelector.addEventListener('change', function() {
-        const newProjectId = this.value;
-        const currentUsername = '{{ request.user.username }}';
-        // Redirect to the new project's writer page
-        window.location.href = `/${currentUsername}/${newProjectId}/?mode=writer`;
-    });
+    if (repositorySelector) {
+        repositorySelector.addEventListener('change', function() {
+            const newProjectId = this.value;
+            const currentUsername = window.WRITER_CONFIG?.username || 'user';
+            // Redirect to the new project's writer page
+            window.location.href = `/${currentUsername}/${newProjectId}/?mode=writer`;
+        });
+    }
 
     // Document type switching (dropdown)
     doctypeSelector.addEventListener('change', function() {
@@ -1679,8 +1687,8 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('[Writer] Exporting manuscript');
         // Create export data
         const exportData = {
-            project: {% if project %}'{{ project.name }}'{% else %}'Demo Project'{% endif %},
-            manuscript: '{{ manuscript.title }}',
+            project: window.WRITER_CONFIG?.projectName || 'Demo Project',
+            manuscript: window.WRITER_CONFIG?.manuscriptTitle || 'Untitled Manuscript',
             sections: sectionsData,
             stats: {
                 totalWords: document.getElementById('total-words').textContent,
@@ -1851,15 +1859,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function loadPDFsPanel() {
         console.log('[Writer] Loading PDF panel');
-        {% if not project %}
-        console.log('[Writer] No project - skipping PDF load');
-        const pdfViewerPanel = document.getElementById('pdf-viewer-panel');
-        pdfViewerPanel.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--color-fg-muted);">{% if is_anonymous %}Sign up to compile PDFs{% else %}Create a project to compile PDFs{% endif %}</div>';
-        return;
-        {% endif %}
+        if (!window.WRITER_CONFIG?.projectId) {
+            console.log('[Writer] No project - skipping PDF load');
+            const pdfViewerPanel = document.getElementById('pdf-viewer-panel');
+            const message = window.WRITER_CONFIG?.isAnonymous ? 'Sign up to compile PDFs' : 'Create a project to compile PDFs';
+            pdfViewerPanel.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--color-fg-muted);">' + message + '</div>';
+            return;
+        }
 
-        const username = '{{ project.owner.username }}';
-        const slug = '{{ project.slug }}';
+        const username = window.WRITER_CONFIG?.username || 'user';
+        const slug = window.WRITER_CONFIG?.projectSlug || '';
 
         // Load main PDF
         const pdfBlobUrl = `/${username}/${slug}/blob/paper/01_manuscript/manuscript.pdf?mode=raw`;
@@ -2181,7 +2190,7 @@ document.addEventListener('DOMContentLoaded', function() {
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Creating workspace...';
 
-        const projectId = {% if project %}{{ project.id }}{% else %}null{% endif %};
+        const projectId = window.WRITER_CONFIG?.projectId || null;
 
         fetch('/writer/api/initialize-workspace/', {
             method: 'POST',
@@ -2420,18 +2429,18 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     // Initialize real-time collaboration (Phase 1.1 - WebSocket)
-    {% if user.is_authenticated and project %}
-    console.log('[Writer] Initializing collaboration');
-    const collaboration = new WriterCollaboration(
-        {{ project.id }},
-        {{ user.id }},
-        '{{ user.username|escapejs }}'
-    );
-    window.collaboration = collaboration;
+    if (window.WRITER_CONFIG?.isAuthenticated && window.WRITER_CONFIG?.projectId) {
+        console.log('[Writer] Initializing collaboration');
+        const collaboration = new WriterCollaboration(
+            window.WRITER_CONFIG.projectId,
+            window.WRITER_CONFIG.userId,
+            window.WRITER_CONFIG.username
+        );
+        window.collaboration = collaboration;
 
-    // Integrate with Writer UI
-    collaboration.integrateWithWriter();
-    
-    console.log('✓ Real-time collaboration initialized with section locking');
-    {% endif %}
+        // Integrate with Writer UI
+        collaboration.integrateWithWriter();
+
+        console.log('✓ Real-time collaboration initialized with section locking');
+    }
 }); // Close DOMContentLoaded

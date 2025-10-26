@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-26 08:33:18
+!-- Timestamp: 2025-10-27 05:00:13
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/TODOS/10_SCITEX_WRITER.md
 !-- --- -->
@@ -8,8 +8,12 @@
 
 ## writer_app
 
-### URL
-- [ ] /writer/ is the one we developed
+## http:/127.0.0.1/writer/
+- [ ] "Initialize Writer Workspace" button doesnot work
+
+## http://127.0.0.1:8000/wataning11/
+- [ ] http://127.0.0.1:8000/wataning11/
+  - [ ] Welcome back message is too bring. Check css.
 
 ## Future
 

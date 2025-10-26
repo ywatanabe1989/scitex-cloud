@@ -1,3 +1,4 @@
+
 ---
 name: SourceDeveloperAgent
 description: MUST BE USED. Implements code understanding specification intent
@@ -46,3 +47,4 @@ Please create and keep your ID by running this at startup:
 `./docs/to_claude/guidelines/examples/mgmt/03_ARCHITECTURE_EXAMPLE.md`
 `./docs/to_claude/guidelines/examples/mgmt/00_PROJECT_DESCRIPTION_EXAMPLE.md`
 `./docs/to_claude/guidelines/examples/mgmt/99_BULLETIN_BOARD_EXAMPLE.md`
+

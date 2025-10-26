@@ -23,6 +23,45 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/stex/stex.min.js"></script>
 
+<!-- Initialize global variables for writer app -->
+<script>
+    // Pass Django context to JavaScript
+    const WRITER_CONFIG = {
+        projectId: {% if project %}{{ project.id }}{% else %}null{% endif %},
+        projectName: {% if project %}'{{ project.name|escapejs }}'{% else %}'Demo Project'{% endif %},
+        projectSlug: {% if project %}'{{ project.slug|escapejs }}'{% else %}null{% endif %},
+        manuscriptTitle: '{{ manuscript.title|escapejs }}',
+        userId: {% if user.is_authenticated %}{{ user.id }}{% else %}null{% endif %},
+        username: {% if user.is_authenticated %}'{{ user.username|escapejs }}'{% else %}null{% endif %},
+        isDemo: {% if is_demo %}true{% else %}false{% endif %},
+        isAnonymous: {% if is_anonymous %}true{% else %}false{% endif %},
+        isAuthenticated: {% if user.is_authenticated %}true{% else %}false{% endif %},
+        writerInitialized: {% if writer_initialized %}true{% else %}false{% endif %},
+        // Manuscript word counts
+        wordCounts: {
+            abstract: {{ manuscript.word_count_abstract|default:0 }},
+            introduction: {{ manuscript.word_count_introduction|default:0 }},
+            methods: {{ manuscript.word_count_methods|default:0 }},
+            results: {{ manuscript.word_count_results|default:0 }},
+            discussion: {{ manuscript.word_count_discussion|default:0 }}
+        },
+        // Sections content
+        sections: {
+            abstract: `{{ sections.abstract|default:""|escapejs }}`,
+            highlights: `{{ sections.highlights|default:""|escapejs }}`,
+            introduction: `{{ sections.introduction|default:""|escapejs }}`,
+            methods: `{{ sections.methods|default:""|escapejs }}`,
+            results: `{{ sections.results|default:""|escapejs }}`,
+            discussion: `{{ sections.discussion|default:""|escapejs }}`,
+            conclusion: `{{ sections.conclusion|default:""|escapejs }}`
+        },
+        csrfToken: document.querySelector('[name=csrfmiddlewaretoken]')?.value ||
+                   Array.from(document.cookie.split(';'))
+                       .find(c => c.trim().startsWith('csrftoken='))
+                       ?.split('=')[1] || ''
+    };
+</script>
+
 <!-- Writer App JavaScript -->
 <script src="{% static 'writer_app/js/writer_app.js' %}"></script>
 
