@@ -45,20 +45,6 @@
                     <i class="fas fa-compass"></i> Read Full Vision
                 </a>
             </div>
-
-            <!-- Call to Action Section -->
-            <div class="commitment-cta">
-                <h3 class="commitment-cta-title">Ready to accelerate your research?</h3>
-                <p class="commitment-cta-subtitle">Join the SciTeX community and start transforming your research workflow today.</p>
-                <div class="commitment-cta-buttons">
-                    <a href="{% url 'public_app:signup' %}" class="commitment-cta-btn commitment-cta-btn-primary">
-                        <i class="fas fa-user-plus"></i> Sign Up
-                    </a>
-                    <a href="{% url 'public_app:signin' %}" class="commitment-cta-btn commitment-cta-btn-secondary">
-                        <i class="fas fa-sign-in-alt"></i> Sign In
-                    </a>
-                </div>
-            </div>
         </div>
     </div>
 </section>
@@ -203,74 +189,6 @@
         transform: translateY(-2px);
     }
 
-    /* Call to Action Section */
-    .commitment-cta {
-        margin-top: 4rem;
-        padding-top: 3rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.2);
-        text-align: center;
-    }
-
-    .commitment-cta-title {
-        color: white;
-        font-size: 2rem;
-        margin-bottom: 0.75rem;
-        font-weight: 700;
-    }
-
-    .commitment-cta-subtitle {
-        color: rgba(255, 255, 255, 0.9);
-        font-size: 1.05rem;
-        margin-bottom: 2rem;
-        max-width: 600px;
-        margin-left: auto;
-        margin-right: auto;
-    }
-
-    .commitment-cta-buttons {
-        display: flex;
-        gap: 1.5rem;
-        justify-content: center;
-        flex-wrap: wrap;
-    }
-
-    .commitment-cta-btn {
-        padding: 0.85rem 2rem;
-        border-radius: 6px;
-        text-decoration: none;
-        font-weight: 600;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 1rem;
-        transition: all 0.3s ease;
-        border: none;
-        cursor: pointer;
-    }
-
-    .commitment-cta-btn-primary {
-        background: white;
-        color: var(--scitex-color-01);
-    }
-
-    .commitment-cta-btn-primary:hover {
-        background: rgba(255, 255, 255, 0.9);
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
-    }
-
-    .commitment-cta-btn-secondary {
-        background: transparent;
-        color: white;
-        border: 2px solid rgba(255, 255, 255, 0.8);
-    }
-
-    .commitment-cta-btn-secondary:hover {
-        background: rgba(255, 255, 255, 0.15);
-        border-color: white;
-        transform: translateY(-2px);
-    }
-
     @media (max-width: 768px) {
         .commitment-card {
             padding: 3rem 1.5rem;
@@ -297,25 +215,6 @@
 
         .commitment-btn {
             margin-right: 0;
-            width: 100%;
-            max-width: 300px;
-            justify-content: center;
-        }
-
-        .commitment-cta-title {
-            font-size: 1.5rem;
-        }
-
-        .commitment-cta-subtitle {
-            font-size: 0.95rem;
-        }
-
-        .commitment-cta-buttons {
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .commitment-cta-btn {
             width: 100%;
             max-width: 300px;
             justify-content: center;
