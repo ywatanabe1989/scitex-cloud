@@ -115,10 +115,17 @@
                 {% csrf_token %}
 
                 {% if messages %}
-                <div style="margin-bottom: 16px;">
+                <div style="margin-bottom: var(--spacing-md);">
                     {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }}" style="padding: 12px; background: {% if message.tags == 'success' %}var(--scitex-success){% else %}var(--scitex-error){% endif %}; color: white; border-radius: 6px; margin-bottom: 8px;">
-                        {{ message }}
+                    <div class="alert-banner alert-banner-{% if message.tags == 'success' %}success{% else %}danger{% endif %}" style="margin-bottom: var(--spacing-sm);">
+                      <div class="warning-banner-container">
+                        <div class="warning-banner-content">
+                          <i class="warning-banner-icon fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-circle{% endif %}"></i>
+                          <div class="warning-banner-text">
+                            <div class="warning-banner-description">{{ message }}</div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                     {% endfor %}
                 </div>

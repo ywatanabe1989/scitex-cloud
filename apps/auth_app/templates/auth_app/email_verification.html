@@ -12,8 +12,26 @@
           <h3>Verify Your Email</h3>
           <p>Enter the 6-digit code sent to <strong id="user-email"></strong></p>
           
-          <div class="alert alert-success" id="success-msg" style="display:none;"></div>
-          <div class="alert alert-danger" id="error-msg" style="display:none;"></div>
+          <div class="alert-banner alert-banner-success" id="success-msg" style="display:none; margin-bottom: 1rem;">
+            <div class="warning-banner-container">
+              <div class="warning-banner-content">
+                <i class="warning-banner-icon fas fa-check-circle"></i>
+                <div class="warning-banner-text">
+                  <div class="warning-banner-description" id="success-msg-text"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="alert-banner alert-banner-danger" id="error-msg" style="display:none; margin-bottom: 1rem;">
+            <div class="warning-banner-container">
+              <div class="warning-banner-content">
+                <i class="warning-banner-icon fas fa-exclamation-circle"></i>
+                <div class="warning-banner-text">
+                  <div class="warning-banner-description" id="error-msg-text"></div>
+                </div>
+              </div>
+            </div>
+          </div>
           
           <form id="verify-form">
             <div class="otp-input-container mb-4" style="display: flex; justify-content: center; gap: 10px;">
@@ -182,13 +200,13 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   
   function showSuccess(message) {
-    successMsg.textContent = message;
+    document.getElementById('success-msg-text').textContent = message;
     successMsg.style.display = 'block';
     errorMsg.style.display = 'none';
   }
-  
+
   function showError(message) {
-    errorMsg.textContent = message;
+    document.getElementById('error-msg-text').textContent = message;
     errorMsg.style.display = 'block';
     successMsg.style.display = 'none';
   }
