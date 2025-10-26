@@ -96,6 +96,20 @@
   transition: all 0.2s ease;
 }
 
+/* GitHub Section - Two Columns */
+.footer-github-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+@media (max-width: 768px) {
+  .footer-github-columns {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
 /* Footer Icons - matching header nav-icon style */
 .footer-icon {
   height: 16px;
