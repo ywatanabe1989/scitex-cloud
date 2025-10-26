@@ -398,6 +398,12 @@ urlpatterns += [
     path("<str:username>/", include("apps.project_app.user_urls")),
 ]
 
+# Custom error handlers
+def handler404(request, exception):
+    """Custom 404 handler that renders the 404.html template."""
+    from django.shortcuts import render
+    return render(request, '404.html', status=404)
+
 # Serve static and media files during development
 if settings.DEBUG:
     urlpatterns += static(

@@ -86,13 +86,10 @@ def project_access_required(view_func):
             )
 
         if not has_access:
-            if not request.user.is_authenticated:
-                messages.error(request, "This repository is private. Please log in to access it.")
-                from django.contrib.auth.views import redirect_to_login
-                return redirect_to_login(request.get_full_path())
-            else:
-                messages.error(request, "This repository is private. You don't have permission to access it.")
-                return redirect('user_projects:user_profile', username=username)
+            # Treat private projects as non-existent (404) instead of revealing they are private
+            # This prevents leaking information about which projects exist
+            from django.http import Http404
+            raise Http404("Project not found")
 
         # Attach project to request for convenience
         request.project = project

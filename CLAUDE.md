@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-26 19:18:43
+!-- Timestamp: 2025-10-26 19:21:53
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/CLAUDE.md
 !-- --- -->
@@ -73,16 +73,15 @@ Add console.log for debugging
 # Requests
 - [ ] Cannot creat repository
 
-- [ ] http://localhost:8000/wataning11
-  - [ ] On the other hand, user full name might be better to be a bit larger: wataning11, compaired to other text like user id
-
 http://localhost:8000/auth/login/?next=/wataning11/default-project/
 - [ ] Warning message: "This repository is private. Please log in to access it."
   - [ ] This is problematic in security
-  - [ ] Just behave it does not exist
+  - [ ] Just behave as if it did not exist
 
 - [ ] http://localhost:8000/wataning11/default-project/
   - [ ] CSS Refactoring needed
+
+
 
 - [ ] http://localhost:8000/scholar/#bibtex
 - [ ] http://localhost:8000/scholar/#search
