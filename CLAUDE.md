@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-26 19:21:53
+!-- Timestamp: 2025-10-26 19:24:33
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/CLAUDE.md
 !-- --- -->
@@ -80,8 +80,6 @@ http://localhost:8000/auth/login/?next=/wataning11/default-project/
 
 - [ ] http://localhost:8000/wataning11/default-project/
   - [ ] CSS Refactoring needed
-
-
 
 - [ ] http://localhost:8000/scholar/#bibtex
 - [ ] http://localhost:8000/scholar/#search

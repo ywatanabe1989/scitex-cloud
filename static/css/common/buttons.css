@@ -187,12 +187,24 @@
 }
 
 .btn-dark {
-  background-color: var(--scitex-900);
+  background-color: var(--scitex-color-01);
   color: white;
 }
 
 .btn-dark:hover, .btn-dark:focus {
-  background-color: var(--scitex-800);
+  background-color: var(--scitex-color-02);
+  color: white;
+}
+
+/* Dark mode: Keep dark buttons visible */
+[data-theme="dark"] .btn-dark {
+  background-color: var(--scitex-color-02);
+  color: white;
+}
+
+[data-theme="dark"] .btn-dark:hover,
+[data-theme="dark"] .btn-dark:focus {
+  background-color: var(--scitex-color-03);
   color: white;
 }
 
