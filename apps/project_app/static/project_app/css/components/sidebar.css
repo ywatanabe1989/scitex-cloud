@@ -100,9 +100,9 @@
 .sidebar-item {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 10px 12px;
-    font-size: 15px;
+    gap: 14px;
+    padding: 12px 14px;
+    font-size: 16px;
     color: var(--color-fg-muted, #57606a);
     border-radius: 6px;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -119,13 +119,13 @@
 
 .sidebar-item strong {
     color: var(--color-fg-default, #1f2328);
-    font-size: 16px;
+    font-size: 17px;
     font-weight: 600;
 }
 
 .sidebar-item i {
-    font-size: 18px;
-    width: 20px;
+    font-size: 20px;
+    width: 24px;
     text-align: center;
     flex-shrink: 0;
 }
@@ -158,19 +158,19 @@
 .sidebar-link {
     color: var(--color-fg-default, #1f2328);
     text-decoration: none;
-    font-size: 15px;
+    font-size: 16px;
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 10px 12px;
+    gap: 14px;
+    padding: 12px 14px;
     border-radius: 6px;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     font-weight: 500;
 }
 
 .sidebar-link i {
-    font-size: 18px;
-    width: 20px;
+    font-size: 20px;
+    width: 24px;
     text-align: center;
     flex-shrink: 0;
     color: var(--color-fg-muted, #57606a);
@@ -218,13 +218,13 @@
 
 /* Enhanced file tree item hover effects - LARGER SIZE */
 .file-tree-item {
-    padding: 8px 10px;
+    padding: 10px 12px;
     cursor: pointer;
     color: var(--color-fg-default, #1f2328);
     border-radius: 6px;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     margin: 2px 0;
-    font-size: 14px;
+    font-size: 15px;
 }
 
 .file-tree-item:hover {
@@ -262,13 +262,13 @@
     color: var(--color-fg-default, #1f2328);
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     font-weight: 500;
 }
 
 .file-tree-folder .file-tree-icon {
-    font-size: 18px;
+    font-size: 20px;
     color: var(--color-accent-fg, #0969da);
     flex-shrink: 0;
 }
@@ -287,12 +287,12 @@
     color: var(--color-fg-muted, #57606a);
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .file-tree-file .file-tree-icon {
-    font-size: 18px;
+    font-size: 20px;
     flex-shrink: 0;
 }
 
@@ -307,8 +307,8 @@
 
 /* File tree chevron - LARGER SIZE */
 .file-tree-chevron {
-    font-size: 14px;
-    width: 20px;
+    font-size: 16px;
+    width: 24px;
     text-align: center;
     transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     color: var(--color-fg-muted, #57606a);

@@ -302,43 +302,64 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize code preview
     const codePreview = document.getElementById('code-preview');
+    console.log('Looking for code-preview element...');
+    console.log('codePreview:', codePreview);
+
     if (codePreview) {
         originalCodeContent = codePreview.textContent;
-        console.log('Code preview found, original content length:', originalCodeContent.length);
+        console.log('✓ Code preview found, content length:', originalCodeContent.length);
 
         // Wait for highlight.js to be ready
+        let retryCount = 0;
         function initializeHighlighting() {
+            console.log(`Attempt ${retryCount + 1} to initialize highlighting...`);
+
             if (typeof hljs !== 'undefined') {
-                console.log('highlight.js loaded, applying highlighting...');
+                console.log('✓ highlight.js loaded successfully');
 
                 // First, enable the correct theme for current site mode
                 const currentSiteTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+                console.log('Current site theme:', currentSiteTheme);
+
                 const selector = currentSiteTheme === 'dark' ?
                     document.getElementById('code-theme-dark-selector') :
                     document.getElementById('code-theme-light-selector');
 
+                console.log('Theme selector:', selector, 'value:', selector ? selector.value : 'N/A');
+
                 if (selector && selector.value) {
                     // Enable the theme CSS
                     const themeLink = document.querySelector(`.hljs-code-theme[data-code-theme="${selector.value}"]`);
+                    console.log('Theme link for', selector.value, ':', themeLink);
                     if (themeLink) {
                         themeLink.disabled = false;
-                        console.log('Enabled theme:', selector.value);
+                        console.log('✓ Enabled theme:', selector.value);
+                    } else {
+                        console.error('✗ Theme link not found for:', selector.value);
                     }
                 }
 
                 // Apply highlighting to code preview
-                hljs.highlightElement(codePreview);
-                console.log('Highlighting applied');
+                try {
+                    hljs.highlightElement(codePreview);
+                    console.log('✓ Highlighting applied successfully');
+                } catch (e) {
+                    console.error('✗ Error applying highlighting:', e);
+                }
             } else {
-                console.log('Waiting for highlight.js to load...');
-                // Retry after a short delay
-                setTimeout(initializeHighlighting, 50);
+                retryCount++;
+                if (retryCount < 20) {
+                    console.log(`Waiting for highlight.js (attempt ${retryCount}/20)...`);
+                    setTimeout(initializeHighlighting, 100);
+                } else {
+                    console.error('✗ highlight.js failed to load after 20 attempts (2 seconds)');
+                }
             }
         }
 
         initializeHighlighting();
     } else {
-        console.error('Code preview element not found!');
+        console.error('✗ Code preview element not found! Check if id="code-preview" exists in HTML');
     }
 
     // Handle theme selector changes - update preview immediately

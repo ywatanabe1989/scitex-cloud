@@ -1,0 +1,24 @@
+<!-- Delete Confirmation Form Partial -->
+<form method="post" id="deleteForm">
+    {% csrf_token %}
+
+    <div style="margin: 1.5rem 0;">
+        <label for="confirmText" style="display: block; font-weight: 600; margin-bottom: 0.5rem;">
+            Please type <code style="background: #f8f9fa; padding: 0.2rem 0.4rem; border-radius: 3px; color: #dc3545;">{{ project.owner.username}}/{{ project.slug }}</code> to confirm:
+        </label>
+        <input
+            type="text"
+            id="confirmText"
+            name="confirmation"
+            placeholder="{{ project.owner.username }}/{{ project.slug }}"
+            required
+            autocomplete="off"
+            style="width: 100%; padding: 0.75rem; border: 1px solid #ced4da; border-radius: 6px; font-family: monospace;"
+        >
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" id="deleteBtn" class="btn btn-danger" disabled>Delete this project</button>
+        <a href="/{{ project.owner.username }}/{{ project.slug }}/" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>

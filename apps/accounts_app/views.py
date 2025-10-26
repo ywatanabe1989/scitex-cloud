@@ -1,9 +1,12 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import get_user_model
 from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from .models import UserProfile, APIKey
+
+User = get_user_model()
 
 
 @login_required
@@ -243,9 +246,31 @@ def account_settings(request):
                 if User.objects.filter(email=new_email).exclude(pk=request.user.pk).exists():
                     messages.error(request, 'This email is already in use by another account.')
                 else:
-                    request.user.email = new_email
-                    request.user.save()
-                    messages.success(request, 'Email updated successfully!')
+                    # Send verification code to new email
+                    from apps.auth_app.models import EmailVerification
+                    from apps.project_app.services.email_service import EmailService
+                    import secrets
+
+                    # Store current email and pending new email in session
+                    request.session['pending_email_change'] = {
+                        'current_email': request.user.email,
+                        'new_email': new_email,
+                        'user_id': request.user.id
+                    }
+
+                    # Generate and send OTP
+                    otp_code = ''.join([str(secrets.randbelow(10)) for _ in range(6)])
+                    EmailVerification.objects.create(
+                        email=new_email,
+                        otp_code=otp_code
+                    )
+
+                    try:
+                        EmailService.send_verification_email(new_email, otp_code)
+                        messages.success(request, f'Verification code sent to {new_email}. Please check your inbox.')
+                        return redirect(f'/auth/verify-email/?email={new_email}&type=email_change')
+                    except Exception as e:
+                        messages.error(request, f'Failed to send verification email: {str(e)}')
             else:
                 messages.error(request, 'Please enter a valid email address.')
 

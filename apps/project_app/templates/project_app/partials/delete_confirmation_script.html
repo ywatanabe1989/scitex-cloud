@@ -1,0 +1,20 @@
+<!-- Delete Confirmation Script Partial -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const confirmText = document.getElementById('confirmText');
+    const deleteBtn = document.getElementById('deleteBtn');
+    const expectedText = '{{ project.owner.username }}/{{ project.slug }}';
+
+    confirmText.addEventListener('input', function() {
+        if (this.value === expectedText) {
+            deleteBtn.disabled = false;
+            deleteBtn.style.opacity = '1';
+            deleteBtn.style.cursor = 'pointer';
+        } else {
+            deleteBtn.disabled = true;
+            deleteBtn.style.opacity = '0.5';
+            deleteBtn.style.cursor = 'not-allowed';
+        }
+    });
+});
+</script>

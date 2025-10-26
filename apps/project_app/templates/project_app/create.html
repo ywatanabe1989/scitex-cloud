@@ -12,9 +12,7 @@
 {% block content %}
 <div class="create-container">
     <!-- Breadcrumb -->
-    <nav class="breadcrumb">
-        <a href="/{{ user.username }}/projects/">Projects</a> / Create New Project
-    </nav>
+    {% include 'project_app/partials/create_breadcrumb.html' %}
 
     <h1>Create New Repository</h1>
 
@@ -22,29 +20,11 @@
         <form method="post">
             {% csrf_token %}
 
-            <div class="form-group">
-                <label class="form-label" for="name">Repository Name *</label>
-                <input type="text" class="form-control" id="name" name="name" required
-                       placeholder="my-research-project"
-                       autocomplete="off"
-                       autocorrect="off"
-                       autocapitalize="off"
-                       spellcheck="false"
-                       data-form-type="other"
-                       data-lpignore="true"
-                       role="presentation">
-                <div id="name-availability" style="margin-top: 0.5rem; display: none;">
-                    <span id="availability-icon"></span>
-                    <span id="availability-message"></span>
-                </div>
-                <div class="help-text">Choose a clear name (lowercase, hyphens for spaces).</div>
-            </div>
+            <!-- Name Field -->
+            {% include 'project_app/partials/create_name_field.html' %}
 
-            <div class="form-group">
-                <label class="form-label" for="description">Description (Optional)</label>
-                <textarea class="form-control" id="description" name="description" rows="2"
-                          placeholder="Brief description..."></textarea>
-            </div>
+            <!-- Description Field -->
+            {% include 'project_app/partials/create_description_field.html' %}
 
             <div class="form-group">
                 <label class="form-label" style="display: block; margin-bottom: 0.75rem;">
@@ -56,10 +36,8 @@
                 {% include 'project_app/partials/project_create_scripts.html' %}
             </div>
 
-            <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Create Repository</button>
-                <a href="/{{ user.username }}/projects/" class="btn btn-secondary">Cancel</a>
-            </div>
+            <!-- Form Actions -->
+            {% include 'project_app/partials/create_form_actions.html' %}
         </form>
     </div>
 </div>

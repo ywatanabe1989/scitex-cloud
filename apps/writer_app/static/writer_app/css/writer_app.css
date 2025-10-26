@@ -64,12 +64,12 @@
 
 .section-item {
     padding: 0.5rem 0.75rem;
-    border: 1px solid var(--color-border-default);
-    border-radius: var(--border-radius);
+    /* border: 1px solid var(--color-border-default);
+     * border-radius: var(--border-radius); */
     margin-bottom: 0.4rem;
     cursor: move;
-    transition: var(--transition);
-    background: var(--color-canvas-default);
+    /* transition: var(--transition);
+     * background: var(--color-canvas-default); */
     position: relative;
 }
 
@@ -206,8 +206,8 @@
 
 .section-items.drop-zone-active,
 .available-sections.drop-zone-active {
-    background: rgba(80, 107, 122, 0.05);
-    border-radius: var(--border-radius);
+    /* background: rgba(80, 107, 122, 0.05);
+     * border-radius: var(--border-radius); */
     padding: 0.5rem;
     margin: -0.5rem;
 }
@@ -627,7 +627,7 @@
 }
 
 .pdf-outline-item-wrapper:hover {
-    background: var(--scitex-light);
+    /* background: var(--scitex-light); */
 }
 
 .pdf-outline-item-wrapper.level-1 {
@@ -677,7 +677,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5);
+    /* background: rgba(0, 0, 0, 0.5); */
     display: none;
     z-index: 999;
 }
@@ -693,17 +693,17 @@
     border-radius: 4px;
     transition: background 0.2s;
     font-size: 0.8rem;
-    color: var(--color-fg-default);
+    /* color: var(--color-fg-default); */
 }
 
 .pdf-outline-item-writer:hover {
-    background: var(--color-canvas-subtle);
+    /* background: var(--color-canvas-subtle); */
 }
 
 .pdf-outline-child-writer {
     padding-left: 1.5rem;
     font-size: 0.75rem;
-    color: var(--color-fg-muted);
+    /* color: var(--color-fg-muted); */
 }
 
 .action-buttons {
@@ -713,13 +713,13 @@
 }
 
 .btn-primary {
-    background: var(--scitex-primary);
-    border-color: var(--scitex-primary);
+    /* background: var(--scitex-primary);
+     * border-color: var(--scitex-primary); */
 }
 
 .btn-primary:hover {
-    background: var(--scitex-secondary);
-    border-color: var(--scitex-secondary);
+    /* background: var(--scitex-secondary); */
+    /* border-color: var(--scitex-secondary); */
 }
 
 .toast-container {
@@ -733,12 +733,12 @@
     .writer-container {
         flex-direction: column;
     }
-    
+
     .writer-sidebar {
         width: 100%;
         height: 200px;
     }
-    
+
     .text-editor,
     .latex-editor {
         margin: 1rem;

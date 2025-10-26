@@ -60,19 +60,49 @@
 
   .password-rule {
     margin-bottom: 0.4rem;
-    color: var(--color-fg-muted);
+    color: #6c757d;  /* Gray for default/untouched */
     display: flex;
     align-items: center;
+    transition: color 0.3s ease;
+  }
+
+  .password-rule.invalid {
+    color: #dc3545;  /* Red for invalid */
   }
 
   .password-rule.valid {
-    color: var(--scitex-success);
+    color: #28a745;  /* Green for valid */
   }
 
   .password-rule i {
     margin-right: 0.5rem;
     width: 16px;
     font-size: 0.75rem;
+  }
+
+  /* Fix link visibility */
+  a {
+    color: #0d6efd;
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: #0a58ca;
+    text-decoration: underline;
+  }
+
+  /* Ensure input-group button is positioned correctly */
+  .input-group {
+    display: flex;
+  }
+
+  .input-group .form-control {
+    flex: 1;
+  }
+
+  .input-group .btn {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
   }
 </style>
 {% endblock %}
@@ -323,54 +353,40 @@
     const ruleNumber = document.getElementById('rule-number');
     const ruleSpecial = document.getElementById('rule-special');
     
+    // Helper function to update rule state
+    function updatePasswordRule(element, isValid, hasInput) {
+      element.classList.remove('valid', 'invalid');
+      if (isValid) {
+        element.classList.add('valid');
+        element.querySelector('i').className = 'fas fa-check';
+      } else if (hasInput) {
+        element.classList.add('invalid');
+        element.querySelector('i').className = 'fas fa-times';
+      } else {
+        // Default state: gray circle
+        element.querySelector('i').className = 'fas fa-circle';
+      }
+    }
+
     // Check password strength
     passwordInput.addEventListener('input', function() {
       const password = this.value;
-      
+      const hasInput = password.length > 0;
+
       // Check length
-      if (password.length >= 8) {
-        ruleLength.classList.add('valid');
-        ruleLength.querySelector('i').className = 'fas fa-check';
-      } else {
-        ruleLength.classList.remove('valid');
-        ruleLength.querySelector('i').className = 'fas fa-circle';
-      }
-      
+      updatePasswordRule(ruleLength, password.length >= 8, hasInput);
+
       // Check for lowercase letters
-      if (/[a-z]/.test(password)) {
-        ruleLowercase.classList.add('valid');
-        ruleLowercase.querySelector('i').className = 'fas fa-check';
-      } else {
-        ruleLowercase.classList.remove('valid');
-        ruleLowercase.querySelector('i').className = 'fas fa-circle';
-      }
-      
+      updatePasswordRule(ruleLowercase, /[a-z]/.test(password), hasInput);
+
       // Check for uppercase letters
-      if (/[A-Z]/.test(password)) {
-        ruleUppercase.classList.add('valid');
-        ruleUppercase.querySelector('i').className = 'fas fa-check';
-      } else {
-        ruleUppercase.classList.remove('valid');
-        ruleUppercase.querySelector('i').className = 'fas fa-circle';
-      }
-      
+      updatePasswordRule(ruleUppercase, /[A-Z]/.test(password), hasInput);
+
       // Check for numbers
-      if (/\d/.test(password)) {
-        ruleNumber.classList.add('valid');
-        ruleNumber.querySelector('i').className = 'fas fa-check';
-      } else {
-        ruleNumber.classList.remove('valid');
-        ruleNumber.querySelector('i').className = 'fas fa-circle';
-      }
-      
+      updatePasswordRule(ruleNumber, /\d/.test(password), hasInput);
+
       // Check for special characters
-      if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
-        ruleSpecial.classList.add('valid');
-        ruleSpecial.querySelector('i').className = 'fas fa-check';
-      } else {
-        ruleSpecial.classList.remove('valid');
-        ruleSpecial.querySelector('i').className = 'fas fa-circle';
-      }
+      updatePasswordRule(ruleSpecial, /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password), hasInput);
     });
     
     // Form submission validation

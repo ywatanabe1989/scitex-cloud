@@ -16,73 +16,19 @@
     </div>
 
     <!-- Quick Create Project Form -->
-    <div class="create-project-form">
-        <h3>Create New Project</h3>
-        <form method="post" action="{% url 'project_app:create' %}">
-            {% csrf_token %}
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="name">Project Name</label>
-                    <input type="text" class="form-control" id="name" name="name" required>
-                </div>
-                <div class="form-group">
-                    <label for="description">Description</label>
-                    <input type="text" class="form-control" id="description" name="description" placeholder="Brief project description">
-                </div>
-                <div>
-                    <button type="submit" class="btn btn-primary">Create Project</button>
-                </div>
-            </div>
-        </form>
-    </div>
+    {% include 'project_app/partials/list_create_form.html' %}
 
     {% if projects %}
         <div class="project-grid">
             {% for project in projects %}
-            <div class="project-card">
-                <div class="project-title">
-                    <a href="{{ project.get_absolute_url }}">{{ project.name }}</a>
-                </div>
-                <div class="project-description">
-                    {{ project.description|truncatechars:100 }}
-                </div>
-                <div class="project-meta">
-                    Updated: {{ project.updated_at|date:"M j, Y" }}
-                </div>
-                <div class="project-actions">
-                    <a href="{{ project.get_absolute_url }}" class="btn btn-sm btn-primary">Open</a>
-                    <a href="{% url 'user_projects:files' username=project.owner.username slug=project.slug %}" class="btn btn-sm btn-secondary">Files</a>
-                    <a href="{% url 'user_projects:edit' username=project.owner.username slug=project.slug %}" class="btn btn-sm btn-outline-secondary">Edit</a>
-                </div>
-            </div>
+                {% include 'project_app/partials/list_project_card.html' %}
             {% endfor %}
         </div>
 
         <!-- Pagination -->
-        {% if projects.has_other_pages %}
-        <div class="pagination-wrapper" style="margin-top: 2rem; text-align: center;">
-            <span class="page-links">
-                {% if projects.has_previous %}
-                    <a href="?page=1">&laquo; first</a>
-                    <a href="?page={{ projects.previous_page_number }}">previous</a>
-                {% endif %}
-
-                <span class="current">
-                    Page {{ projects.number }} of {{ projects.paginator.num_pages }}
-                </span>
-
-                {% if projects.has_next %}
-                    <a href="?page={{ projects.next_page_number }}">next</a>
-                    <a href="?page={{ projects.paginator.num_pages }}">last &raquo;</a>
-                {% endif %}
-            </span>
-        </div>
-        {% endif %}
+        {% include 'project_app/partials/list_pagination.html' %}
     {% else %}
-        <div class="empty-state">
-            <h3>No Projects Yet</h3>
-            <p>Create your first project to get started with SciTeX Cloud.</p>
-        </div>
+        {% include 'project_app/partials/list_empty_state.html' %}
     {% endif %}
 </div>
 {% endblock %}

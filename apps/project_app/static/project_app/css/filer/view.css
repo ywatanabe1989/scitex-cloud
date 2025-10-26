@@ -9,6 +9,104 @@
     border-bottom: 1px solid var(--color-border-default);
 }
 
+/* Enhanced file header container - GitHub style with proper spacing */
+.file-header-enhanced {
+    margin-top: 16px;
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+/* Main header section with file info and actions */
+.file-header-main {
+    background: var(--color-canvas-subtle);
+    border-bottom: 1px solid var(--color-border-default);
+    padding: 8px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.file-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+}
+
+.file-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.file-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--color-fg-default);
+}
+
+.file-size {
+    font-size: 12px;
+    color: var(--color-fg-muted);
+}
+
+/* Commit info section */
+.file-header-commit {
+    background: var(--color-canvas-subtle);
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.file-commit-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.file-commit-center {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+}
+
+.file-commit-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.no-commits-text {
+    color: var(--color-fg-muted);
+    font-size: 14px;
+    font-style: italic;
+}
+
+@media (max-width: 768px) {
+    .file-header-main,
+    .file-header-commit {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .file-header-left,
+    .file-header-actions,
+    .file-commit-left,
+    .file-commit-center,
+    .file-commit-right {
+        width: 100%;
+    }
+}
+
 .repo-title {
     font-size: 1.25rem;
     font-weight: 600;

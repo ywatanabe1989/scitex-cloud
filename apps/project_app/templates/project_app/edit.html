@@ -12,39 +12,25 @@
 {% block content %}
 <div class="container-fluid">
     <!-- Breadcrumb -->
-    <nav class="breadcrumb">
-        <a href="/{{ project.owner.username }}/projects/">Projects</a> /
-        <a href="/{{ project.owner.username }}/{{ project.slug }}/">{{ project.name }}</a> /
-        Edit
-    </nav>
+    {% include 'project_app/partials/edit_breadcrumb.html' %}
 
     <h1>Edit Project</h1>
 
     <div class="edit-form">
         <form method="post">
             {% csrf_token %}
-            
-            <div class="form-group">
-                <label for="name">Project Name</label>
-                <input type="text" class="form-control" id="name" name="name" value="{{ project.name }}" required>
-            </div>
 
-            <div class="form-group">
-                <label for="description">Description</label>
-                <textarea class="form-control" id="description" name="description" placeholder="Describe your research project...">{{ project.description }}</textarea>
-            </div>
+            <!-- Name Field -->
+            {% include 'project_app/partials/edit_name_field.html' %}
 
+            <!-- Description Field -->
+            {% include 'project_app/partials/edit_description_field.html' %}
 
-            <div class="form-group">
-                <label for="source_code_url">Repository URL (optional)</label>
-                <input type="url" class="form-control" id="source_code_url" name="source_code_url" value="{{ project.source_code_url }}" placeholder="https://github.com/username/repository">
-            </div>
+            <!-- Source Code URL Field -->
+            {% include 'project_app/partials/edit_source_url_field.html' %}
 
-            <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Save Changes</button>
-                <a href="/{{ project.owner.username }}/{{ project.slug }}/" class="btn btn-secondary">Cancel</a>
-                <a href="/{{ project.owner.username }}/{{ project.slug }}/delete/" class="btn btn-danger" style="margin-left: auto;">Delete Project</a>
-            </div>
+            <!-- Form Actions -->
+            {% include 'project_app/partials/edit_form_actions.html' %}
         </form>
     </div>
 </div>

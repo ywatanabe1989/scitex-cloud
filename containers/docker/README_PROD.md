@@ -1,7 +1,7 @@
 <!-- ---
-!-- Timestamp: 2025-10-26 03:26:01
+!-- Timestamp: 2025-10-26 12:30:09
 !-- Author: ywatanabe
-!-- File: /ssh:scitex:/home/ywatanabe/proj/scitex-cloud/containers/docker/README_PROD.md
+!-- File: /home/ywatanabe/proj/scitex-cloud/containers/docker/README_PROD.md
 !-- --- -->
 
 # SciTeX Cloud - Production Deployment
@@ -15,42 +15,152 @@
 ## Quick Deploy (Tested & Working)
 
 ```bash
-SUDO_PASSWORD="YOUR_PASSWORD"
-cd /home/ywatanabe/proj/scitex-cloud/containers/docker
+BLACK='\033[0;30m'
+LIGHT_GRAY='\033[0;37m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
 
-# 1. Prepare environment files
-/bin/cp .env.prod .env
-rm -f /home/ywatanabe/proj/scitex-cloud/.env
-/bin/cp .env /home/ywatanabe/proj/scitex-cloud/.env
+echo_info() { echo -e "${LIGHT_GRAY}INFO: $1${NC}"; }
+echo_success() { echo -e "${GREEN}SUCC: $1${NC}"; }
+echo_warning() { echo -e "${YELLOW}WARN: $1${NC}"; }
+echo_error() { echo -e "${RED}ERRO: $1${NC}"; }
 
-# 2. Stop conflicting services
-echo "$SUDO_PASSWORD" | sudo -S systemctl stop nginx uwsgi_prod 2>/dev/null || true
+# Helper: Wait for web container to be healthy
+wait_for_web_healthy_prod() {
+    echo_info "Waiting for web container to be healthy..."
+    local START_TIME=$SECONDS
+    local TIMEOUT=300
 
-# 3. Clean up old containers (important to avoid ContainerConfig error)
-echo "$SUDO_PASSWORD" | sudo -S docker-compose -f docker-compose.prod.yml down
-echo "$SUDO_PASSWORD" | sudo -S docker rm -f docker_db_1 docker_web_1 docker_redis_1 docker_nginx_1 2>/dev/null || true
+    timeout $TIMEOUT bash -c '
+        while ! echo "$SUDO_PASSWORD" | sudo -S docker-compose -f docker-compose.prod.yml ps | grep docker_web_1 | grep -q "Up (healthy)"; do
+            # Show last 3 lines of logs
+            LAST_LINES=$(echo "$SUDO_PASSWORD" | sudo -S docker logs docker_web_1 2>&1 | tail -3 | tr "\n" " ")
+            ELAPSED=$((SECONDS - START_TIME))
+            printf "\033[0;37m  [%3d s] Status: %s\033[0m\n" "$ELAPSED" "$LAST_LINES"
+            sleep 10
+        done
+    ' || {
+        echo_warning "Timeout after ${TIMEOUT}s"
+        echo_info "Check logs: sudo docker-compose -f docker-compose.prod.yml logs web"
+        return 1
+    }
 
-# 4. Build images (~5 min)
-echo "$SUDO_PASSWORD" | sudo -S docker-compose -f docker-compose.prod.yml build
+    if echo "$SUDO_PASSWORD" | sudo -S docker-compose -f docker-compose.prod.yml ps | grep docker_web_1 | grep -q "Up (healthy)"; then
+        echo_success "Web container is healthy! (took $((SECONDS - START_TIME))s)"
+        return 0
+    fi
+    return 1
+}
 
-# 5. Start all services with force recreate
-echo "$SUDO_PASSWORD" | sudo -S docker-compose -f docker-compose.prod.yml up -d --force-recreate
+start_prod() {
+    SUDO_PASSWORD="YOUR_PASSWORD"
+    cd /home/ywatanabe/proj/scitex-cloud/containers/docker
 
-# 6. Wait for automatic initialization
-# - Scitex package installation
-# - Database migrations
-# - Static files collection (427 files)
-sleep 60
+    # 1. Prepare environment files (from gitignored SECRET directory)
+    /bin/cp ~/proj/scitex-cloud/SECRET/.env.prod .env
+    rm -f /home/ywatanabe/proj/scitex-cloud/.env
+    /bin/cp .env /home/ywatanabe/proj/scitex-cloud/.env
 
-# 7. Verify deployment
-echo "$SUDO_PASSWORD" | sudo -S docker-compose -f docker-compose.prod.yml ps
+    # 2. Stop conflicting services
+    echo "$SUDO_PASSWORD" | \
+        sudo -S systemctl stop nginx uwsgi_prod gitea 2>/dev/null || true
 
-# 8. Test endpoints
-curl -I -k https://localhost
-curl -I -k https://localhost/admin/
+    # 2.1. Verify ports are free
+    lsof -i :${SCITEX_CLOUD_HTTP_PORT_PROD:-80} || echo_success "Port ${SCITEX_CLOUD_HTTP_PORT_PROD:-80} is free (HTTP)"
+    lsof -i :${SCITEX_CLOUD_HTTPS_PORT_PROD:-443} || echo_success "Port ${SCITEX_CLOUD_HTTPS_PORT_PROD:-443} is free (HTTPS)"
+    lsof -i :${SCITEX_CLOUD_GITEA_HTTP_PORT_PROD:-3000} || echo_success "Port ${SCITEX_CLOUD_GITEA_HTTP_PORT_PROD:-3000} is free (Gitea)"
 
-# 9. Create admin user
-echo "$SUDO_PASSWORD" | sudo -S docker-compose -f docker-compose.prod.yml exec web python manage.py createsuperuser
+    # 3. Clean up old containers (preserves database volumes)
+    # Note: Does NOT use -v flag to preserve production database data
+    echo_info "Cleaning up old containers..."
+    echo "$SUDO_PASSWORD" | \
+        sudo -S docker-compose -f docker-compose.prod.yml down
+    echo "$SUDO_PASSWORD" | \
+        sudo -S docker rm -f docker_db_1 docker_web_1 docker_redis_1 docker_nginx_1 docker_gitea_1 \
+        2>/dev/null || true
+
+    # 4. Check database credentials compatibility
+    if docker volume inspect docker_postgres_data >/dev/null 2>&1; then
+        echo_info "Database volume exists, checking credentials..."
+        echo "$SUDO_PASSWORD" | \
+            sudo -S docker-compose -f docker-compose.prod.yml up -d db
+        sleep 3
+        if ! echo "$SUDO_PASSWORD" | sudo -S docker-compose -f docker-compose.prod.yml exec -T db \
+            psql -U "${POSTGRES_USER}" \
+                 -d "${POSTGRES_DB}" \
+                 -c "SELECT 1" >/dev/null 2>&1; then
+            echo_warning "Credentials mismatch detected!"
+            echo_warning "Manually recreate with: docker-compose -f docker-compose.prod.yml down -v"
+            echo "$SUDO_PASSWORD" | \
+                sudo -S docker-compose -f docker-compose.prod.yml down
+            return 1
+        else
+            echo_success "Credentials valid, reusing existing database"
+            echo "$SUDO_PASSWORD" | \
+                sudo -S docker-compose -f docker-compose.prod.yml down
+        fi
+    fi
+
+    # 5. Build images (~5 min)
+    echo_info "Building images..."
+    echo "$SUDO_PASSWORD" | \
+        sudo -S docker-compose -f docker-compose.prod.yml build
+
+    # 6. Start all services with force recreate
+    echo_info "Starting all services..."
+    echo "$SUDO_PASSWORD" | \
+        sudo -S docker-compose -f docker-compose.prod.yml up -d --force-recreate
+
+    # 6.1. Wait for Gitea to be healthy
+    echo_info "Waiting for Gitea to be ready..."
+    timeout 60 bash -c 'until echo "$SUDO_PASSWORD" | sudo -S docker-compose -f docker-compose.prod.yml ps | grep docker_gitea_1 | grep -q "Up (healthy)"; do sleep 2; done' \
+        && echo_success "Gitea is ready!" \
+        || echo_warning "Gitea taking longer than expected, continuing anyway..."
+
+    # 7. Wait for web container to be healthy
+    wait_for_web_healthy_prod
+
+    # 8. Verify deployment
+    echo_info "Deployment status:"
+    echo "$SUDO_PASSWORD" | \
+        sudo -S docker-compose -f docker-compose.prod.yml ps
+
+    # 9. Test endpoints
+    echo_info "Testing endpoints..."
+    curl -I -k https://localhost:${SCITEX_CLOUD_HTTPS_PORT_PROD:-443}
+    curl -I -k https://localhost:${SCITEX_CLOUD_HTTPS_PORT_PROD:-443}/admin/
+    curl -I http://localhost:${SCITEX_CLOUD_GITEA_HTTP_PORT_PROD:-3000}
+
+    # # 10. Create admin user (optional)
+    # echo "$SUDO_PASSWORD" | sudo -S docker-compose -f docker-compose.prod.yml exec web python manage.py createsuperuser
+}
+
+restart_prod() {
+    SUDO_PASSWORD="YOUR_PASSWORD"
+    cd /home/ywatanabe/proj/scitex-cloud/containers/docker
+
+    echo_info "Restarting web container..."
+    echo "$SUDO_PASSWORD" | \
+        sudo -S docker-compose -f docker-compose.prod.yml restart web
+
+    # Wait for web container to be healthy
+    wait_for_web_healthy_prod
+
+    # Show status
+    echo_info "Deployment status:"
+    echo "$SUDO_PASSWORD" | \
+        sudo -S docker-compose -f docker-compose.prod.yml ps
+
+    # Test endpoints
+    echo_info "Testing endpoints..."
+    curl -I -k https://localhost:${SCITEX_CLOUD_HTTPS_PORT_PROD:-443}
+    curl -I -k https://localhost:${SCITEX_CLOUD_HTTPS_PORT_PROD:-443}/admin/
+    curl -I http://localhost:${SCITEX_CLOUD_GITEA_HTTP_PORT_PROD:-3000}
+}
+
+start_prod
 ```
 
 **✅ Deployment successful!**
