@@ -45,9 +45,9 @@ body {
     border-radius: 50%;
     border: 1px solid var(--border-default);
     background: var(--bg-muted);
-    /* font-size: 5rem; */
-    /* font-weight: 300; */
-    /* color: var(--color-accent-fg); */
+    font-size: 3.5rem;
+    font-weight: 500;
+    color: var(--text-primary);
 }
 
 .profile-avatar img {
@@ -245,7 +245,7 @@ body {
     /* Card styling */
     border: 1px solid var(--border-default);
     border-radius: 8px;
-    padding: 1rem 1.5rem;
+    padding: 0.25rem 1.5rem 1rem 1.5rem;
     background: var(--bg-surface);
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
@@ -262,7 +262,7 @@ body {
     align-items: flex-start;
     justify-content: space-between;
     gap: 8px;
-    margin-bottom: 8px;
+    margin: 0 0 4px 0;
     padding-bottom: 0;
     border-bottom: none;
 }
@@ -406,8 +406,7 @@ body {
         /* Layout preserved */
         width: 150px;
         height: 150px;
-        /* Styling moved to central CSS - see static/css/components/avatars.css */
-        /* font-size: 4rem; */
+        font-size: 3rem;
     }
 
     /* Stack repo cards on mobile */
