@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-23 02:11:17
+!-- Timestamp: 2025-10-26 21:46:57
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/TODOS/10_SCITEX_SCHOLAR.md
 !-- --- -->
@@ -27,12 +27,32 @@ Fill checkboxes of this file when implemented and confirmed their functionality 
 
 ### Next Steps (Future Enhancements)
 
-### Search
-- [ ] Exporting and selection
-  - [ ] The color is violeting our theme in dark mode
-    - [ ] /dev/design/
-  - [ ] Export selected as Bibtex
-    - [ ] Failed to export papers. Please try again.
+
+### /scholar/#search (http://127.0.0.1:8000/scholar/#search)
+
+  - [ ] Save selected to: project (button + dropdown, just in the enrichment tab)
+  - [ ] Download selected as Bibtex
+    - [ ] Not working
+  - [ ] Recent History (just in the enrichment tab)
+  - [ ] Abstract should not be truncated but written in a weak color and provide show abstract toggle (all, truncated, none)
+    - [ ] Global only, no-individual toggles
+    - [ ] One toggle button [Abstract All] -> [Abstract Short] -> [Abstract Hide] -> [Abstract All] ...
+
+- [x] Keep the last results rendered even when Ctrl + Shift + R
+- [x] Sort by dropdown is really good for one dimensional sorting.
+  - [x] impact factor
+  - [x] publication year asc
+  - [x] publication year dec
+  - [x] citation count
+- [ ] Left side Panel
+  - [ ] Scroll bar of the serach control should be theme-responsive
+  - [ ] Slider should use scitex color
+  - [ ] Default slide range should be nanmin/nanmax of the samples
+  - [ ] Scatter swarm plots should be renponsive to min/max of the slider
+  - [ ] Citations should be divided by comma by every three digits
+  - [ ] impact factor badges should use the impact-factor-badge color (yellow + black)
+- [ ] After search completed, the UIs not updated (like selection checkbox)
+  - [ ] But when Ctrl + Shift + R, yes, perfect
 
 # Running log
 - [ ] Add hook for ScholarSearchEngines and show counts as in bibtex enrichment
@@ -40,35 +60,6 @@ Fill checkboxes of this file when implemented and confirmed their functionality 
   Google Scholar Loading... 0
   arXiv Loading... 0
   Semantic Scholar Loading... 0
-
-- [ ] After Jounal Name, impact factor should be shown
-
-- [ ] Remove save and cite buttons
-
-- [ ] In dark mode, paper cards should have visible edges
-
-## Filter Range
-- [ ] Once data retrieved, min/max of metrics (year, citation counts, impact factor) should be determined and plots should be maximized in their range
-  - [ ] Cite count is awkward like  Citation Count
-0
-to
-11900
-  - [ ] The lower limit of impact factor should be 0 by default
-
-- [ ] No impact factor data available -> OK I see; just handle as nan
-
-- [ ] Enter key in the search box should call the search functionality
-
-- [ ] Remove these status section
-Search Engine Queue Status
-8:49:45 PM
-Active Searches
-5
-Total Results
-0
-
-
-- [ ] Make journal names inclined
 
 # Open in new tab does not work
 Ctrl + click shows two tabs, one is the page itself and the other is the url associated

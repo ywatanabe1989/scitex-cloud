@@ -154,6 +154,8 @@ def simple_search_with_tab(request, active_tab='search'):
 
     # Calculate dynamic filter ranges from results
     filter_ranges = {
+        'year_min': 1900,
+        'year_max': 2025,
         'citations_min': 0,
         'citations_max': 12000,  # Default fallback
         'impact_factor_min': 0,
@@ -161,6 +163,12 @@ def simple_search_with_tab(request, active_tab='search'):
     }
 
     if results:
+        # Extract publication years (filter out None values)
+        years = [r.get('year') for r in results if r.get('year') is not None]
+        if years:
+            filter_ranges['year_min'] = min(years)
+            filter_ranges['year_max'] = max(years)
+
         # Extract citation counts (filter out None values)
         citation_counts = [r.get('citations', 0) for r in results if r.get('citations') is not None]
         if citation_counts:
@@ -1602,6 +1610,8 @@ def bibtex_enrichment_view(request):
 
     # Default filter ranges (used when no search results)
     filter_ranges = {
+        'year_min': 1900,
+        'year_max': 2025,
         'citations_min': 0,
         'citations_max': 12000,
         'impact_factor_min': 0,

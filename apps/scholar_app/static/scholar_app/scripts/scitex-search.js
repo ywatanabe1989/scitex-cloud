@@ -47,6 +47,9 @@
         init: function() {
             console.log('[SciTeX Search] Initializing...');
 
+            // Load cached results from localStorage on page load
+            this.loadCachedResults();
+
             // Check if SciTeX is available
             this.checkAvailability().then(available => {
                 if (available) {
@@ -59,6 +62,40 @@
                     console.warn('[SciTeX Search] Not available, falling back to default search');
                 }
             });
+        },
+
+        /**
+         * Cache search results to localStorage
+         */
+        cacheResults: function(query, data) {
+            try {
+                const cacheData = {
+                    query: query,
+                    results: data,
+                    timestamp: Date.now()
+                };
+                localStorage.setItem('scitex_search_cache', JSON.stringify(cacheData));
+                console.log('[SciTeX Search] Results cached to localStorage');
+            } catch (error) {
+                console.warn('[SciTeX Search] Failed to cache results:', error);
+            }
+        },
+
+        /**
+         * Load cached results from localStorage
+         */
+        loadCachedResults: function() {
+            try {
+                const cached = localStorage.getItem('scitex_search_cache');
+                if (cached) {
+                    const cacheData = JSON.parse(cached);
+                    console.log('[SciTeX Search] Loaded cached results for query:', cacheData.query);
+                    // The results will be displayed via the server-side rendering
+                    // This just confirms the cache was available
+                }
+            } catch (error) {
+                console.warn('[SciTeX Search] Failed to load cached results:', error);
+            }
         },
 
         /**
@@ -97,6 +134,8 @@
          */
         setupEventListeners: function() {
             const searchForm = document.getElementById('literatureSearchForm');
+            const searchInput = document.querySelector('.search-input');
+            const searchButton = document.getElementById('searchButton');
 
             if (searchForm) {
                 // Intercept form submission
@@ -106,6 +145,18 @@
                 });
 
                 console.log('[SciTeX Search] Event listeners attached');
+            }
+
+            // Add Enter key listener to search input
+            if (searchInput) {
+                searchInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        if (searchButton) {
+                            searchButton.click();
+                        }
+                    }
+                });
             }
         },
 
@@ -192,6 +243,17 @@
             try {
                 // Show loading state
                 this.showLoadingState(query);
+
+                // Show loading spinner in results container
+                const resultsContainer = document.getElementById('scitex-results-container');
+                if (resultsContainer) {
+                    resultsContainer.innerHTML = `
+                        <div class="search-loading">
+                            <div class="search-loading-spinner"></div>
+                            <div class="search-loading-text">Searching for "${query}"...</div>
+                        </div>
+                    `;
+                }
 
                 // Build URL with params
                 const url = new URL(this.endpoints.search, window.location.origin);
@@ -361,11 +423,11 @@
             const enginesUsed = metadata.engines_used || [];
             const engineCounts = metadata.engine_counts || {};
 
-            // Update engine statuses with result counts
-            enginesUsed.forEach(engineName => {
-                const count = engineCounts[engineName] || 0;
-                this.updateEngineStatus(engineName, 'completed', count);
-            });
+            // Cache the results for persistence across hard refreshes
+            this.cacheResults(this.state.currentQuery, data);
+
+            // Note: Engine status updates skipped - progress elements are only needed for
+            // streaming/real-time engine progress tracking. API results are fetched all at once.
 
             // Update active searches count (all completed now)
             const activeSearchCount = document.getElementById('activeSearchCount');

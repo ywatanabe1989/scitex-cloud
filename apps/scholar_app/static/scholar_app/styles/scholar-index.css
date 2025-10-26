@@ -193,10 +193,12 @@
 }
 
 .search-input {
+    /* padding: 0.25rem 0.5rem !important; */
+    /* height: 1.5rem; */
+    /* line-height: 1.5 !important; */
     /* border: 1px solid var(--color-border-default); */
     /* border-radius: 15px; */
-    padding: 1rem 1.5rem;
-    /* font-size: 1.1rem; */
+    font-size: 2.0rem;
     /* box-shadow: 0 2px 10px rgba(0,0,0,0.1); */
     /* background: var(--color-canvas-default); */
     /* color: var(--text-primary); */
@@ -233,6 +235,12 @@
 .search-btn {
     /* border-radius: 15px; */
     padding: 1rem 2rem;
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin: 0 !important;
     /* font-weight: 600; */
     /* background color inherited from .btn-primary in central CSS */
 }
@@ -247,15 +255,15 @@
 }
 
 .result-title {
-    /* color: var(--text-primary); */
-    /* font-weight: 600; */
-    /* font-size: 1.1rem; */
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 1.1rem;
     margin-bottom: 0.5rem;
     text-decoration: none;
 }
 
 .result-title:hover {
-    /* color: var(--scitex-color-02); */
+    color: var(--scitex-color-02);
 }
 
 .result-authors {
@@ -285,6 +293,12 @@
     /* border-radius: 8px; */
     /* font-size: 0.8rem; */
 }
+
+.badge.bg-warning {
+    background-color: #ffc107 !important;
+    color: #000 !important;
+}
+
 
 .open-access {
     /* background: var(--success-color); */
@@ -352,6 +366,60 @@
     /* background: var(--scitex-color-02); */
     /* border-color: #34495e; */
     /* color: white; */
+}
+
+/* Sort Items Container */
+#dragSortContainer {
+    flex-direction: column;
+}
+
+.sort-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: var(--color-canvas-subtle);
+    border: 1px solid var(--border-default);
+    border-radius: 6px;
+    cursor: grab;
+    transition: all 0.2s ease;
+}
+
+.sort-item:hover {
+    background: var(--color-canvas-default);
+    border-color: var(--primary-color);
+}
+
+.sort-item:active {
+    cursor: grabbing;
+}
+
+.sort-label {
+    flex: 1;
+}
+
+/* Sort Indicator - Dynamic Symbol Display */
+.sort-indicator {
+    display: inline-block;
+    width: 1.5rem;
+    text-align: center;
+    min-height: 1em;
+    font-size: 0.9rem;
+}
+
+.sort-indicator[data-state="none"] {
+    visibility: hidden;
+    width: 1.5rem;
+}
+
+.sort-indicator[data-state="asc"]::after {
+    content: '↑';
+    color: var(--text-primary);
+}
+
+.sort-indicator[data-state="desc"]::after {
+    content: '↓';
+    color: var(--text-primary);
 }
 
 /* Enrich Button Hover Effect */
@@ -671,49 +739,43 @@ a.disabled {
     /* border-bottom-color: var(--scitex-color-05); */
 }
 
-/* GitHub-style tab navigation */
+/* GitHub-style tab navigation - Styled like profile-nav for consistency */
 .vertical-tab-btn,
 .tab-link {
-    padding: 0.5rem 1rem;
-    /* color: var(--text-secondary); */
+    padding: 12px 8px;
+    color: var(--text-muted);
     text-decoration: none;
-    /* border-bottom: 2px solid transparent; */
+    border-bottom: 2px solid transparent;
     white-space: nowrap;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 8px;
     transition: all 0.2s ease;
-    /* background: transparent; */
-    /* border: none; */
+    background: transparent;
+    border: none;
 }
 
 .vertical-tab-btn:hover,
 .tab-link:hover {
-    /* color: var(--text-primary); */
-    /* border-bottom-color: var(--color-border-default); */
+    color: var(--text-primary);
+    border-bottom-color: var(--border-default);
 }
 
-/* UPDATED VERSION - 2025-10-23 15:19 */
+/* Active tab state - Uses primary color for border like profile-nav */
 .vertical-tab-btn.active,
 .tab-link.active {
-    /* color: var(--text-primary) !important; */
-    /* border-bottom-color: var(--scitex-color-03) !important; */
-    /* border-left: 0px !important; */
-    /* border-left-style: none !important; */
-    /* box-shadow: none !important; */
-    /* background: transparent !important; */
-    /* font-weight: 600 !important; */
+    color: var(--text-primary) !important;
+    border-bottom-color: var(--primary-color) !important;
+    font-weight: 500 !important;
+    background: transparent !important;
 }
 
 [data-theme="dark"] .vertical-tab-btn.active,
 [data-theme="dark"] .tab-link.active {
-    /* color: var(--text-primary) !important; */
-    /* border-bottom-color: var(--scitex-color-05) !important; */
-    /* border-left: 0px !important; */
-    /* border-left-style: none !important; */
-    /* box-shadow: none !important; */
-    /* background: transparent !important; */
-    /* font-weight: 600 !important; */
+    color: var(--text-primary) !important;
+    border-bottom-color: var(--primary-color) !important;
+    font-weight: 500 !important;
+    background: transparent !important;
 }
 
 /* Compact Paper Cards - Better space usage */
@@ -814,22 +876,22 @@ a.disabled {
 
 /* Result Card Titles - Better visibility in dark mode */
 [data-theme="dark"] .result-title {
-    /* color: var(--white); */
+    color: var(--white);
 }
 
 [data-theme="dark"] .result-title a {
-    /* color: var(--white); */
+    color: var(--white);
 }
 
 [data-theme="dark"] .result-title:hover,
 [data-theme="dark"] .result-title a:hover {
-    /* color: var(--scitex-color-02); */
+    color: var(--scitex-color-02);
 }
 
 /* Impact Factor Badge - Better visibility in dark mode */
 [data-theme="dark"] .badge.bg-warning {
-    /* background-color: #ffc107 !important; */
-    /* color: #000 !important; */
+    background-color: #ffc107 !important;
+    color: #000 !important;
 }
 
 /* Search Results Header - Better visibility in dark mode */
@@ -851,56 +913,56 @@ a.disabled {
 }
 
 .pagination .page-item .page-link {
-    /* color: var(--scitex-color-01); */
-    /* background-color: var(--color-canvas-default); */
-    /* border: 1px solid var(--color-border-default); */
-    /* border-radius: 6px; */
+    color: var(--scitex-color-01);
+    background-color: var(--color-canvas-default);
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
     padding: 0.5rem 0.75rem;
     transition: all 0.2s ease;
 }
 
 .pagination .page-item .page-link:hover {
-    /* color: var(--scitex-color-06); */
-    /* background-color: var(--scitex-color-02-light); */
-    /* border-color: var(--scitex-color-02); */
+    color: var(--scitex-color-06);
+    background-color: var(--scitex-color-02-light);
+    border-color: var(--scitex-color-02);
 }
 
 .pagination .page-item.active .page-link {
-    /* color: var(--scitex-color-06) !important; */
-    /* background-color: var(--scitex-color-01) !important; */
-    /* border-color: var(--scitex-color-01) !important; */
-    /* font-weight: 700; */
+    color: var(--scitex-color-06) !important;
+    background-color: var(--scitex-color-01) !important;
+    border-color: var(--scitex-color-01) !important;
+    font-weight: 700;
 }
 
 .pagination .page-item.disabled .page-link {
-    /* color: var(--text-secondary); */
-    /* background-color: var(--color-canvas-subtle); */
-    /* border-color: var(--color-border-default); */
+    color: var(--text-secondary);
+    background-color: var(--color-canvas-subtle);
+    border-color: var(--color-border-default);
     opacity: 0.6;
 }
 
 [data-theme="dark"] .pagination .page-item .page-link {
-    /* color: var(--scitex-color-05); */
-    /* background-color: var(--scitex-color-01-light); */
-    /* border-color: var(--scitex-color-03); */
+    color: var(--scitex-color-05);
+    background-color: var(--scitex-color-01-light);
+    border-color: var(--scitex-color-03);
 }
 
 [data-theme="dark"] .pagination .page-item .page-link:hover {
-    /* color: var(--scitex-color-06); */
-    /* background-color: var(--scitex-color-02-dark); */
-    /* border-color: var(--scitex-color-04); */
+    color: var(--scitex-color-06);
+    background-color: var(--scitex-color-02-dark);
+    border-color: var(--scitex-color-04);
 }
 
 [data-theme="dark"] .pagination .page-item.active .page-link {
-    /* color: var(--scitex-color-06) !important; */
-    /* background-color: var(--scitex-color-02) !important; */
-    /* border-color: var(--scitex-color-04) !important; */
+    color: var(--scitex-color-06) !important;
+    background-color: var(--scitex-color-02) !important;
+    border-color: var(--scitex-color-04) !important;
 }
 
 [data-theme="dark"] .pagination .page-item.disabled .page-link {
-    /* color: var(--scitex-color-04); */
-    /* background-color: var(--scitex-color-01-dark); */
-    /* border-color: var(--scitex-color-03); */
+    color: var(--scitex-color-04);
+    background-color: var(--scitex-color-01-dark);
+    border-color: var(--scitex-color-03);
 }
 
 /* Accordion row headers - better visibility */
@@ -1074,10 +1136,14 @@ a.disabled {
 }
 
 /* Ensure search input and button heights match */
-.input-group-lg .form-control,
-.input-group-lg .search-btn {
+.input-group-lg .form-control {
     height: auto;
     min-height: 2.5rem;
+}
+
+/* Override for search input specifically */
+.search-container-full-width .input-group-lg .search-input {
+    min-height: 1rem !important;
 }
 
 /* Recent Job Card Removal Button */
@@ -1119,4 +1185,202 @@ a.disabled {
 [data-theme="dark"] .remove-job-btn:hover {
     /* background: var(--error-color) !important; */
     /* color: var(--white) !important; */
+}
+
+/* Loading Spinner for Search Results */
+.search-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    gap: 1rem;
+}
+
+.search-loading-spinner {
+    width: 3rem;
+    height: 3rem;
+    border: 3px solid var(--color-border-default);
+    border-top-color: var(--scitex-color-01);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.search-loading-text {
+    font-size: 1rem;
+    color: var(--text-secondary);
+}
+
+/* Impact Factor Badge */
+.impact-factor-badge {
+    background-color: var(--scitex-color-02) !important;
+    color: var(--scitex-color-06) !important;
+}
+
+/* Abstract Display Modes */
+.abstract-preview {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.abstract-full {
+    display: block;
+}
+
+.abstract-short {
+    display: none;
+}
+
+/* Truncated mode (default) */
+.abstract-preview.mode-truncated .abstract-full {
+    display: none;
+}
+
+.abstract-preview.mode-truncated .abstract-short {
+    display: block;
+}
+
+/* Hidden mode */
+.abstract-preview.mode-none {
+    display: none;
+}
+
+/* Toggle button */
+.abstract-toggle-btn {
+    font-size: 0.8rem;
+    color: var(--scitex-color-01);
+    text-decoration: none;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    display: inline-block;
+}
+
+.abstract-toggle-btn:hover {
+    color: var(--scitex-color-02);
+    text-decoration: underline;
+}
+
+/* Theme-Responsive Scrollbar Styles */
+/* Light mode scrollbar */
+.scholar-side-panel::-webkit-scrollbar {
+    width: 8px;
+}
+
+.scholar-side-panel::-webkit-scrollbar-track {
+    background: var(--color-canvas-subtle);
+    border-radius: 4px;
+}
+
+.scholar-side-panel::-webkit-scrollbar-thumb {
+    background: var(--color-border-default);
+    border-radius: 4px;
+    transition: background 0.2s ease;
+}
+
+.scholar-side-panel::-webkit-scrollbar-thumb:hover {
+    background: var(--scitex-color-03);
+}
+
+/* Dark mode scrollbar - more visible */
+[data-theme="dark"] .scholar-side-panel::-webkit-scrollbar-track {
+    background: var(--scitex-color-01-light);
+}
+
+[data-theme="dark"] .scholar-side-panel::-webkit-scrollbar-thumb {
+    background: var(--scitex-color-03);
+}
+
+[data-theme="dark"] .scholar-side-panel::-webkit-scrollbar-thumb:hover {
+    background: var(--scitex-color-04);
+}
+
+/* Firefox scrollbar styling */
+.scholar-side-panel {
+    scrollbar-color: var(--color-border-default) var(--color-canvas-subtle);
+    scrollbar-width: thin;
+}
+
+[data-theme="dark"] .scholar-side-panel {
+    scrollbar-color: var(--scitex-color-03) var(--scitex-color-01-light);
+}
+
+/* noUiSlider SciTeX Brand Color Customization */
+.noUi-target {
+    /* Overall slider background - inherited from parent */
+}
+
+/* Slider track/rail */
+.noUi-base,
+.noUi-connects {
+    /* Use theme-based styles from central CSS */
+}
+
+/* Range/connection color (the filled portion between handles) */
+.noUi-connect {
+    background: var(--scitex-color-02);
+}
+
+[data-theme="dark"] .noUi-connect {
+    background: var(--scitex-color-03);
+}
+
+/* Handle/thumb styling */
+.noUi-handle {
+    background: var(--scitex-color-01);
+    border: 2px solid var(--scitex-color-02);
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: all 0.2s ease;
+}
+
+.noUi-handle:hover {
+    background: var(--scitex-color-02);
+    border-color: var(--scitex-color-03);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.noUi-handle.noUi-active {
+    background: var(--scitex-color-03);
+    border-color: var(--scitex-color-01);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* Dark mode handle */
+[data-theme="dark"] .noUi-handle {
+    background: var(--scitex-color-03);
+    border-color: var(--scitex-color-04);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .noUi-handle:hover {
+    background: var(--scitex-color-04);
+    border-color: var(--scitex-color-05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] .noUi-handle.noUi-active {
+    background: var(--scitex-color-05);
+    border-color: var(--scitex-color-03);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
+}
+
+/* Tooltip styling on handles */
+.noUi-tooltip {
+    background: var(--scitex-color-01);
+    color: var(--white);
+    border: none;
+    border-radius: 4px;
+    padding: 0.4rem 0.6rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+[data-theme="dark"] .noUi-tooltip {
+    background: var(--scitex-color-03);
+    color: var(--scitex-color-06);
 }

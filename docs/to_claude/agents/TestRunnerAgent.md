@@ -1,3 +1,4 @@
+
 ---
 name: TestRunnerAgent
 description: MUST BE USED. Runs tests. No responsibilities on writing test codes and result reports.
@@ -46,3 +47,4 @@ Please create and keep your ID by running this at startup:
 `./docs/to_claude/guidelines/USER_PHILOSOPHY/01_DEVELOPMENT_CYCLE.md`
 `./docs/to_claude/guidelines/USER_PHILOSOPHY/06_MULTIPLE_SPECIAL_AGENTS.md`
 `./docs/to_claude/guidelines/USER_PHILOSOPHY/99_BULLETIN_BOARD_EXAMPLE.md`
+

@@ -10,19 +10,21 @@ document.addEventListener('DOMContentLoaded', function() {
     const urlParams = new URLSearchParams(window.location.search);
 
     // ============================================
-    // Year Slider (1900-2025)
+    // Year Slider (dynamic range from data attributes)
     // ============================================
     const yearSlider = document.getElementById('yearSlider');
     if (yearSlider) {
-        const yearMin = parseInt(urlParams.get('year_from')) || 1900;
-        const yearMax = parseInt(urlParams.get('year_to')) || 2025;
+        const yearMinRange = parseInt(yearSlider.dataset.min) || 1900;
+        const yearMaxRange = parseInt(yearSlider.dataset.max) || 2025;
+        const yearMin = parseInt(urlParams.get('year_from')) || yearMinRange;
+        const yearMax = parseInt(urlParams.get('year_to')) || yearMaxRange;
 
         noUiSlider.create(yearSlider, {
             start: [yearMin, yearMax],
             connect: true,
             range: {
-                'min': 1900,
-                'max': 2025
+                'min': yearMinRange,
+                'max': yearMaxRange
             },
             step: 1,
             format: {
@@ -46,7 +48,7 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('yearMaxDisplay').textContent = maxValue;
         });
 
-        console.log('[noUiSlider] Year slider initialized:', yearMin, '-', yearMax);
+        console.log('[noUiSlider] Year slider initialized:', yearMin, '-', yearMax, '(range:', yearMinRange, '-', yearMaxRange + ')');
     }
 
     // ============================================

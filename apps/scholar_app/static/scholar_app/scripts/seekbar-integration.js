@@ -5,11 +5,6 @@
  * and the Scholar app's existing filter system. It can work alongside
  * noUiSlider or replace it entirely.
  *
- * Usage:
- *   <!-- In your template -->
- *   <script src="/static/js/components/seekbar.js"></script>
- *   <script src="{% static 'scholar_app/scripts/seekbar-integration.js' %}"></script>
- *
  * @version 1.0.0
  */
 

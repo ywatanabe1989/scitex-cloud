@@ -1434,18 +1434,18 @@ function selectAllPapers() {
 }
 
 function bulkExportCitations(format) {
-    const selectedCheckboxes = document.querySelectorAll('.paper-checkbox:checked');
-    
+    const selectedCheckboxes = document.querySelectorAll('.paper-select-checkbox:checked');
+
     if (selectedCheckboxes.length === 0) {
         alert('Please select at least one paper to export.');
         return;
     }
-    
+
     const paperIds = Array.from(selectedCheckboxes).map(cb => cb.dataset.paperId);
-    
+
     // Show loading state
     showToast(`Exporting ${selectedCheckboxes.length} citations as ${format.toUpperCase()}...`, 'info');
-    
+
     // Export citations in requested format
     fetch(`/scholar/api/export/${format}/`, {
         method: 'POST',
@@ -1469,13 +1469,15 @@ function bulkExportCitations(format) {
             a.download = data.filename;
             a.click();
             window.URL.revokeObjectURL(url);
-            
+
             // Show success message
             showToast(`Successfully exported ${data.count} citations as ${format.toUpperCase()}!`, 'success');
-            
-            // Clear selections
-            document.querySelectorAll('.paper-checkbox:checked').forEach(cb => cb.checked = false);
-            // Bulk actions removed
+
+            // Clear selections and update button state
+            document.querySelectorAll('.paper-select-checkbox:checked').forEach(cb => cb.checked = false);
+            // Trigger change event to update button state
+            const changeEvent = new Event('change', { bubbles: true });
+            document.querySelectorAll('.paper-select-checkbox').forEach(cb => cb.dispatchEvent(changeEvent));
         } else {
             showToast(`Error exporting citations: ${data.error || 'Unknown error'}`, 'danger');
         }
@@ -2099,3 +2101,159 @@ function escapeHtml(text) {
 function closeBibtexDiff() {
     document.getElementById('bibtexDiffModal').style.display = 'none';
 }
+
+// Format Citation Counts with Comma Separators
+function formatCitationCounts() {
+    const citationElements = document.querySelectorAll('.citation-count');
+    citationElements.forEach(element => {
+        const count = parseInt(element.textContent);
+        if (!isNaN(count)) {
+            element.textContent = count.toLocaleString('en-US');
+        }
+    });
+}
+
+// Call formatting on page load
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', formatCitationCounts);
+} else {
+    formatCitationCounts();
+}
+
+// Also format when results are dynamically added (for AJAX results)
+const formatCitationsObserver = new MutationObserver(function(mutations) {
+    formatCitationCounts();
+});
+
+// Observe the results container for changes
+const resultsContainer = document.getElementById('scitex-results-container');
+if (resultsContainer) {
+    formatCitationsObserver.observe(resultsContainer, {
+        childList: true,
+        subtree: true
+    });
+}
+
+// Global Abstract Toggle Management
+document.addEventListener('DOMContentLoaded', function() {
+    // Load saved abstract mode from localStorage
+    const savedMode = localStorage.getItem('global_abstract_mode') || 'truncated';
+
+    // Set initial button state
+    const toggleButtons = document.querySelectorAll('.global-abstract-toggle');
+    toggleButtons.forEach(btn => {
+        if (btn.dataset.mode === savedMode) {
+            btn.classList.remove('btn-outline-secondary');
+            btn.classList.add('btn-primary');
+        }
+    });
+
+    // Apply saved mode to all existing abstracts
+    applyGlobalAbstractMode(savedMode);
+
+    // Add click handlers to toggle buttons
+    toggleButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const mode = this.dataset.mode;
+
+            // Update button states
+            toggleButtons.forEach(b => {
+                b.classList.remove('btn-primary');
+                b.classList.add('btn-outline-secondary');
+            });
+            this.classList.remove('btn-outline-secondary');
+            this.classList.add('btn-primary');
+
+            // Save mode and apply it
+            localStorage.setItem('global_abstract_mode', mode);
+            applyGlobalAbstractMode(mode);
+        });
+    });
+
+    // Function to apply global abstract mode to all papers
+    function applyGlobalAbstractMode(mode) {
+        const abstracts = document.querySelectorAll('.abstract-preview');
+        abstracts.forEach(abstract => {
+            abstract.classList.remove('mode-all', 'mode-truncated', 'mode-none');
+            abstract.classList.add('mode-' + mode);
+        });
+    }
+});
+
+// Paper Selection Management for Bulk Export
+document.addEventListener('DOMContentLoaded', function() {
+    // Paper selection functionality
+    const selectAllBtn = document.getElementById('selectAllResults');
+    const deselectAllBtn = document.getElementById('deselectAllResults');
+    const exportBtn = document.getElementById('exportSelectedBibtex');
+    const selectedCountEl = document.getElementById('selectedCount');
+
+    if (selectAllBtn && deselectAllBtn && exportBtn) {
+        // Select All handler
+        selectAllBtn.addEventListener('click', function() {
+            const checkboxes = document.querySelectorAll('.paper-select-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = true;
+            });
+            updateExportButton();
+        });
+
+        // Deselect All handler
+        deselectAllBtn.addEventListener('click', function() {
+            const checkboxes = document.querySelectorAll('.paper-select-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            updateExportButton();
+        });
+
+        // Individual checkbox change handler
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('paper-select-checkbox')) {
+                updateExportButton();
+            }
+        });
+
+        // Export button click handler
+        exportBtn.addEventListener('click', function() {
+            const selectedCheckboxes = document.querySelectorAll('.paper-select-checkbox:checked');
+            if (selectedCheckboxes.length === 0) {
+                alert('Please select at least one paper to export.');
+                return;
+            }
+
+            // Call the bulk export function
+            bulkExportCitations('bibtex');
+        });
+
+        // Function to update export button state
+        function updateExportButton() {
+            const checkboxes = document.querySelectorAll('.paper-select-checkbox');
+            const selectedCount = document.querySelectorAll('.paper-select-checkbox:checked').length;
+            const totalCount = checkboxes.length;
+
+            // Update selected count display
+            if (selectedCountEl) {
+                selectedCountEl.textContent = `${selectedCount} of ${totalCount} selected`;
+            }
+
+            // Enable/disable export button
+            if (exportBtn) {
+                if (selectedCount > 0) {
+                    exportBtn.disabled = false;
+                    exportBtn.classList.remove('disabled');
+                    exportBtn.style.opacity = '1';
+                    exportBtn.style.cursor = 'pointer';
+                } else {
+                    exportBtn.disabled = true;
+                    exportBtn.classList.add('disabled');
+                    exportBtn.style.opacity = '0.5';
+                    exportBtn.style.cursor = 'not-allowed';
+                }
+            }
+        }
+
+        // Initialize button state on page load
+        updateExportButton();
+    }
+});

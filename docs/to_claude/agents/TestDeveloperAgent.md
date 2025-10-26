@@ -1,3 +1,4 @@
+
 ---
 name: TestDeveloperAgent
 description: MUST BE USED. Creates specification-based, meaningful tests. No responsibilities on running tests.
@@ -46,3 +47,4 @@ Please create and keep your ID by running this at startup:
 `./docs/to_claude/guidelines/USER_PHILOSOPHY/05_PRIORITY_CONFIG.md`
 `./docs/to_claude/guidelines/USER_PHILOSOPHY/06_MULTIPLE_SPECIAL_AGENTS.md`
 `./docs/to_claude/guidelines/USER_PHILOSOPHY/99_BULLETIN_BOARD_EXAMPLE.md`
+

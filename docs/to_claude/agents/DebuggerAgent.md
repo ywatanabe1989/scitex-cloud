@@ -1,3 +1,4 @@
+
 ---
 name: DebuggerAgent
 description: Debugging specialist for errors test failures, and unexpected behavior. Uses screen+ipdb for interactive debugging for collaborating with multiple debugger agents independently and concurrently
@@ -36,3 +37,4 @@ Please create and keep your ID by running this at startup:
 ## Examples
 `./docs/to_claude/guidelines/examples/mgmt/00_PROJECT_DESCRIPTION_EXAMPLE.md`
 `./docs/to_claude/guidelines/examples/mgmt/99_BULLETIN_BOARD_EXAMPLE.md`
+

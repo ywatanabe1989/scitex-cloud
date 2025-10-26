@@ -27,7 +27,6 @@
                 <div class="d-flex align-items-center gap-2">
                     <i class="fas fa-database"></i>
                     <span class="fw-bold">Sources</span>
-                    <span class="badge bg-success">All 5 Enabled</span>
                 </div>
                 <i class="fas fa-chevron-down accordion-arrow"></i>
             </div>
@@ -67,7 +66,6 @@
                 <div class="d-flex align-items-center gap-2">
                     <i class="fas fa-sliders-h"></i>
                     <span class="fw-bold">Filters</span>
-                    <small class="text-muted">(year, citations, impact factor)</small>
                 </div>
                 <i class="fas fa-chevron-down accordion-arrow"></i>
             </div>
@@ -84,14 +82,16 @@
                             <span class="text-muted">to</span>
                             <span id="yearMaxDisplay" class="badge bg-secondary">{{ request.GET.year_to|default:'2025' }}</span>
                         </div>
-                        <!-- noUiSlider Container -->
-                        <div id="yearSlider" class="slider-container"></div>
+                        <!-- noUiSlider Container with Dynamic Range -->
+                        <div id="yearSlider" class="slider-container"
+                             data-min="{{ filter_ranges.year_min|default:'1900' }}"
+                             data-max="{{ filter_ranges.year_max|default:'2025' }}"></div>
                         <!-- Hidden Inputs for Form Submission -->
                         <input type="hidden" id="yearFromInput" name="year_from" value="{{ request.GET.year_from|default:'1900' }}">
                         <input type="hidden" id="yearToInput" name="year_to" value="{{ request.GET.year_to|default:'2025' }}">
                         <div class="d-flex justify-content-between">
-                            <small class="text-muted">1900</small>
-                            <small class="text-muted">2025</small>
+                            <small class="text-muted">{{ filter_ranges.year_min|default:'1900' }}</small>
+                            <small class="text-muted">{{ filter_ranges.year_max|default:'2025' }}</small>
                         </div>
                     </div>
                 </div>
@@ -155,32 +155,24 @@
                 <div class="d-flex align-items-center gap-2">
                     <i class="fas fa-sort"></i>
                     <span class="fw-bold">Sort By</span>
-                    <small class="text-muted">(drag to reorder, click to cycle)</small>
                 </div>
                 <i class="fas fa-chevron-down accordion-arrow"></i>
             </div>
             <div id="sortRow" class="accordion-row-content collapse">
-                <div id="dragSortContainer" class="d-flex flex-wrap gap-2 mb-2">
-                    <div class="sort-item" draggable="true" data-field="year" data-state="none">
-                        <span class="drag-handle"><i class="fas fa-grip-vertical"></i></span>
+                <div id="dragSortContainer" class="d-flex flex-column gap-2 mb-2">
+                    <div class="sort-item" draggable="true" data-field="year" data-state="none" title="Click to sort by year (none → ↑ → ↓)&#10;Drag to reorder priority">
                         <span class="sort-label"><i class="fas fa-calendar"></i> Year</span>
-                        <span class="sort-indicator">○</span>
+                        <span class="sort-indicator" data-state="none"></span>
                     </div>
-                    <div class="sort-item" draggable="true" data-field="citations" data-state="none">
-                        <span class="drag-handle"><i class="fas fa-grip-vertical"></i></span>
+                    <div class="sort-item" draggable="true" data-field="citations" data-state="none" title="Click to sort by citations (none → ↑ → ↓)&#10;Drag to reorder priority">
                         <span class="sort-label"><i class="fas fa-quote-right"></i> Citations</span>
-                        <span class="sort-indicator">○</span>
+                        <span class="sort-indicator" data-state="none"></span>
                     </div>
-                    <div class="sort-item" draggable="true" data-field="impact_factor" data-state="none">
-                        <span class="drag-handle"><i class="fas fa-grip-vertical"></i></span>
+                    <div class="sort-item" draggable="true" data-field="impact_factor" data-state="none" title="Click to sort by impact factor (none → ↑ → ↓)&#10;Drag to reorder priority">
                         <span class="sort-label"><i class="fas fa-star"></i> Impact Factor</span>
-                        <span class="sort-indicator">○</span>
+                        <span class="sort-indicator" data-state="none"></span>
                     </div>
                 </div>
-                <small class="text-muted">
-                    <i class="fas fa-info-circle"></i>
-                    Left = Higher Priority | Click: None (○) → Asc (↑) → Desc (↓)
-                </small>
             </div>
         </div>
 
@@ -190,7 +182,6 @@
                 <div class="d-flex align-items-center gap-2">
                     <i class="fas fa-list-ul"></i>
                     <span class="fw-bold">Details</span>
-                    <small class="text-muted">(authors, journals, document type)</small>
                 </div>
                 <i class="fas fa-chevron-down accordion-arrow"></i>
             </div>
@@ -265,7 +256,7 @@
 
             <!-- Right Main Area: Search Results -->
             <div class="col-lg-9">
-                <div id="searchResultsContainer">
+                <div id="scitex-results-container">
                     {% if show_results and query %}
                         {% include "scholar_app/index_partials/search_results_header.html" %}
                         {% include "scholar_app/index_partials/api_key_alert.html" %}
@@ -278,7 +269,7 @@
                         {% include "scholar_app/index_partials/pagination.html" %}
                     {% elif show_results %}
                         <!-- Empty state when no query -->
-                        <div class="text-center py-5">
+                        <div class="text-center" style="display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 500px;">
                             <i class="fas fa-search fa-3x text-muted mb-3"></i>
                             <h5 class="text-muted">Enter a search query to find literature</h5>
                         </div>
@@ -288,3 +279,81 @@
         </div>
     </form>
 </div>
+
+<script>
+/**
+ * Toggle abstract display mode
+ * @param {HTMLElement} button - The toggle button clicked
+ * @param {string} paperId - The paper ID
+ * @param {string} mode - The mode to switch to: 'all', 'truncated', or 'none'
+ */
+function toggleAbstractMode(button, paperId, mode) {
+    const abstractPreview = document.querySelector(`.abstract-preview[data-abstract-id="${paperId}"]`);
+    if (!abstractPreview) return;
+
+    // Update the data-mode attribute
+    abstractPreview.setAttribute('data-mode', mode);
+
+    // Remove all mode classes
+    abstractPreview.classList.remove('mode-truncated', 'mode-none');
+
+    // Add the appropriate mode class
+    if (mode === 'truncated') {
+        abstractPreview.classList.add('mode-truncated');
+    } else if (mode === 'none') {
+        abstractPreview.classList.add('mode-none');
+    }
+    // mode 'all' has no class (default display)
+}
+
+/**
+ * Handle sort option changes
+ * @param {string} sortBy - The sort option value
+ */
+function handleSortChange(sortBy) {
+    const resultCards = Array.from(document.querySelectorAll('.result-card'));
+
+    // Sort the cards based on selected option
+    resultCards.sort((a, b) => {
+        let aValue, bValue;
+
+        switch(sortBy) {
+            case 'date_desc':
+                // Newest first
+                aValue = parseInt(a.getAttribute('data-year') || '0');
+                bValue = parseInt(b.getAttribute('data-year') || '0');
+                return bValue - aValue;
+
+            case 'date_asc':
+                // Oldest first
+                aValue = parseInt(a.getAttribute('data-year') || '0');
+                bValue = parseInt(b.getAttribute('data-year') || '0');
+                return aValue - bValue;
+
+            case 'citations':
+                // Most cited first
+                aValue = parseInt(a.getAttribute('data-citations') || '0');
+                bValue = parseInt(b.getAttribute('data-citations') || '0');
+                return bValue - aValue;
+
+            case 'impact_factor':
+                // Highest impact factor first
+                aValue = parseFloat(a.getAttribute('data-impact-factor') || '0');
+                bValue = parseFloat(b.getAttribute('data-impact-factor') || '0');
+                return bValue - aValue;
+
+            default:
+                return 0;
+        }
+    });
+
+    // Re-insert sorted cards into the DOM
+    const resultsContainer = document.getElementById('scitex-results-container');
+    if (resultsContainer) {
+        const resultCardsContainer = resultsContainer.querySelector('[class*="result"]');
+        resultCards.forEach(card => {
+            resultsContainer.appendChild(card);
+        });
+    }
+}
+</script>

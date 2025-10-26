@@ -20,9 +20,81 @@
                         Directory will be created at:<br>
                         <code>{{ writer_path }}/</code>
                     </p>
-                    <button id="init-writer-btn" class="btn btn-success btn-lg">
+                    <button id="init-writer-btn" class="btn btn-success btn-lg" onclick="initializeWriterWorkspace(this)">
                         <i class="fas fa-rocket me-2"></i>Initialize Writer Workspace
                     </button>
+
+                    <script>
+                    function initializeWriterWorkspace(btn) {
+                        console.log('[Writer Init] Button clicked!');
+                        btn.disabled = true;
+                        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Creating workspace...';
+
+                        const projectId = {% if project %}{{ project.id }}{% else %}null{% endif %};
+                        console.log('[Writer Init] Project ID:', projectId);
+
+                        if (!projectId) {
+                            console.error('[Writer Init] No project ID');
+                            alert('Error: No project selected');
+                            btn.disabled = false;
+                            btn.innerHTML = '<i class="fas fa-rocket me-2"></i>Initialize Writer Workspace';
+                            return;
+                        }
+
+                        // Get CSRF token
+                        const csrfTokenElem = document.querySelector('[name=csrfmiddlewaretoken]');
+                        let csrfToken = csrfTokenElem ? csrfTokenElem.value : '';
+
+                        if (!csrfToken) {
+                            const cookies = document.cookie.split(';');
+                            for (let cookie of cookies) {
+                                if (cookie.trim().startsWith('csrftoken=')) {
+                                    csrfToken = decodeURIComponent(cookie.trim().split('=')[1]);
+                                    break;
+                                }
+                            }
+                        }
+
+                        console.log('[Writer Init] Sending POST to /writer/api/initialize-workspace/');
+
+                        fetch('/writer/api/initialize-workspace/', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': csrfToken
+                            },
+                            body: JSON.stringify({
+                                project_id: projectId
+                            })
+                        })
+                        .then(response => {
+                            console.log('[Writer Init] Response status:', response.status);
+                            if (!response.ok) {
+                                console.error('[Writer Init] HTTP error:', response.status);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log('[Writer Init] Response data:', data);
+                            if (data.success) {
+                                console.log('[Writer Init] ✓ Workspace initialized successfully');
+                                console.log('[Writer Init] Reloading page...');
+                                window.location.reload();
+                            } else {
+                                console.error('[Writer Init] ✗ Initialization failed:', data.error);
+                                alert('Failed to initialize workspace: ' + (data.error || 'Unknown error'));
+                                btn.disabled = false;
+                                btn.innerHTML = '<i class="fas fa-rocket me-2"></i>Initialize Writer Workspace';
+                            }
+                        })
+                        .catch(error => {
+                            console.error('[Writer Init] ✗ Fetch error:', error);
+                            alert('Error initializing workspace: ' + error.message);
+                            btn.disabled = false;
+                            btn.innerHTML = '<i class="fas fa-rocket me-2"></i>Initialize Writer Workspace';
+                        });
+                    }
+                    </script>
                 </div>
             </div>
         </div>

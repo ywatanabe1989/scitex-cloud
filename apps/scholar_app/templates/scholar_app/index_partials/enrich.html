@@ -48,8 +48,8 @@
           <div class="terminal-log-container">
             <div class="terminal-log-container__header">
               <h4 class="terminal-log-container__title">Processing Log</h4>
-              <button id="copyBibtexLogBtn" style="background: var(--color-btn-bg); border: 1px solid var(--color-border-default); border-radius: 6px; padding: 0.5rem 1rem; cursor: pointer; color: var(--color-fg-default); font-weight: 600; transition: all 0.2s;" title="Copy log to clipboard">
-                <i class="fas fa-copy"></i> Copy Log
+              <button id="copyBibtexLogBtn" class="btn btn-outline-secondary" style="margin: 0;" title="Copy log to clipboard">
+                <i class="fas fa-copy"></i>
               </button>
             </div>
             <pre id="processingLog" class="terminal-log terminal-log--medium">Initializing...</pre>
@@ -58,10 +58,10 @@
           <!-- Download and Save Actions -->
           <div id="downloadArea" style="display: flex; flex-direction: column; gap: 1rem;">
             <!-- Action Buttons Row (always visible, disabled until ready) -->
-            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; align-items: flex-start;">
               <!-- Save to Project - Leftmost, green button + dropdown -->
               <div style="display: flex; align-items: stretch; border-radius: 8px; overflow: hidden; height: 56px;">
-                <button type="button" id="saveToProjectBtn" onclick="handleSaveToProject()" disabled style="display: flex; align-items: center; gap: 0.5rem; padding: 0 1.5rem; background: var(--success-color); color: var(--white); font-weight: 600; white-space: nowrap; border: none; cursor: not-allowed; opacity: 0.5; transition: opacity 0.3s;">
+                <button type="button" id="saveToProjectBtn" onclick="handleSaveToProject()" disabled class="btn btn-primary" style="display: flex; align-items: center; gap: 0.5rem; padding: 0 1.5rem; height: 56px; margin: 0; border-radius: 8px 0 0 8px; white-space: nowrap;">
                   <i class="fas fa-folder"></i> Save to
                 </button>
                 {% if user.is_authenticated and user_projects %}
@@ -78,14 +78,17 @@
                 {% endif %}
               </div>
 
-              <button id="downloadBtn" onclick="handleDownload()" disabled style="display: inline-block; padding: 1rem 2rem; background: var(--success-color); color: var(--white); border: none; border-radius: 8px; font-weight: 600; opacity: 0.5; cursor: not-allowed; transition: opacity 0.3s;">
+              <button id="downloadBtn" onclick="handleDownload()" disabled class="btn btn-primary" style="display: flex; align-items: center; gap: 0.5rem; height: 56px; padding: 0 2rem; margin: 0;">
                 <i class="fas fa-download"></i> Download
               </button>
-              <button id="showDiffBtn" onclick="showBibtexDiff()" disabled style="display: inline-block; padding: 1rem 2rem; background: var(--scitex-color-02); color: var(--white); border: none; border-radius: 8px; font-weight: 600; opacity: 0.5; cursor: not-allowed; transition: opacity 0.3s;">
+              <button id="showDiffBtn" onclick="showBibtexDiff()" disabled class="btn btn-outline-secondary" style="display: flex; align-items: center; gap: 0.5rem; height: 56px; margin: 0;">
                 <i class="fas fa-code-branch"></i> Show Diff
               </button>
-              <button id="openUrlsBtn" onclick="openAllPaperUrls()" disabled style="display: inline-block; padding: 1rem 2rem; background: var(--scitex-color-04); color: var(--white); border: none; border-radius: 8px; font-weight: 600; opacity: 0.5; cursor: not-allowed; transition: opacity 0.3s;">
+              <button id="openUrlsBtn" onclick="openAllPaperUrls()" disabled class="btn btn-outline-secondary" style="display: flex; align-items: center; gap: 0.5rem; height: 56px; margin: 0;">
                 <i class="fas fa-external-link-alt"></i> Open URLs (<span id="urlCount">0</span>)
+              </button>
+              <button onclick="showApiDocumentation()" class="btn btn-outline-secondary" style="display: flex; align-items: center; gap: 0.5rem; height: 56px; margin: 0;">
+                <i class="fas fa-book"></i> View API
               </button>
             </div>
 
@@ -125,7 +128,7 @@
       <div id="resourceMonitorPanel" style="background: var(--color-canvas-default); border: 1px solid var(--color-border-default); border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
           <h3 style="color: var(--color-fg-default); font-size: 1.1rem; font-weight: 600; margin: 0;">
-            <i class="fas fa-tasks"></i> Queue Status
+            <i class="fas fa-server"></i> Server Status
           </h3>
           <span id="resourceRefreshTime" style="color: var(--color-fg-muted); font-size: 0.75rem;">Loading...</span>
         </div>
@@ -179,20 +182,6 @@
         </label>
       </div>
 
-      <!-- Quick Links -->
-      {% if user.is_authenticated %}
-      <div style="background: var(--color-canvas-subtle); border: 1px solid var(--color-border-default); border-radius: 8px; padding: 1.5rem;">
-        <h3 style="color: var(--color-fg-default); margin-bottom: 1rem; font-size: 1.1rem; font-weight: 600;">
-          <i class="fas fa-link"></i> Quick Links
-        </h3>
-        <a href="{% url 'public_app:scitex_api_keys' %}" style="display: block; padding: 0.75rem; background: var(--color-canvas-default); border: 1px solid var(--color-border-default); border-radius: 6px; text-decoration: none; color: var(--color-fg-default); margin-bottom: 0.75rem; transition: all 0.2s;">
-          <i class="fas fa-key"></i> API Keys
-        </a>
-        <button onclick="showApiDocumentation()" style="display: block; width: 100%; padding: 0.75rem; background: var(--color-canvas-default); border: 1px solid var(--color-border-default); border-radius: 6px; color: var(--color-fg-default); cursor: pointer; transition: all 0.2s; text-align: left;">
-          <i class="fas fa-book"></i> API Docs
-        </button>
-      </div>
-      {% endif %}
     </div>
   </div>
 </div>

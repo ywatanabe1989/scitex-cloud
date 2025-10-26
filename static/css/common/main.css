@@ -10,22 +10,10 @@
 @import url('/static/css/common/cards.css');
 
 /* Components */
-@import url('/static/css/components/header.css');
 @import url('/static/css/components/footer.css');
 @import url('/static/css/components/hero.css');
 @import url('/static/css/components/features.css');
 @import url('/static/css/components/dropdown.css');
-@import url('/static/css/components/modern-header.css');
-@import url('/static/css/components/modern-footer.css');
-
-/* Theme overrides */
-@import url('/static/css/navy-theme.css');
-@import url('/static/css/darkmode.css');
-@import url('/static/css/typography-fixes.css');
-
-/* Page-specific styles */
-@import url('/static/css/pages/landing.css');
-@import url('/static/css/pages/repository.css');
 
 /* Utils */
 html {
