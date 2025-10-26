@@ -31,9 +31,16 @@
         <div class="row justify-content-center">
             <div class="col-lg-8">
                 {% if is_guest_session %}
-                <div class="alert alert-info text-center">
-                    <h5><i class="fas fa-info-circle me-2"></i>Guest Session</h5>
-                    <p class="mb-0">Execute and analyze code. <strong>Sign up</strong> to save your work.</p>
+                <div class="alert-banner alert-banner-info" style="margin-bottom: var(--spacing-md);">
+                  <div class="warning-banner-container">
+                    <div class="warning-banner-content" style="justify-content: center; text-align: center;">
+                      <i class="warning-banner-icon fas fa-info-circle"></i>
+                      <div class="warning-banner-text">
+                        <div class="warning-banner-title">Guest Session</div>
+                        <div class="warning-banner-description">Execute and analyze code. <strong>Sign up</strong> to save your work.</div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 <div class="text-center mt-4">
@@ -46,9 +53,16 @@
                 </div>
 
                 {% else %}
-                <div class="alert alert-warning text-center">
-                    <h5><i class="fas fa-exclamation-triangle me-2"></i>Temporary Workspace</h5>
-                    <p class="mb-0"><strong>Create a project</strong> to organize your code and analysis.</p>
+                <div class="alert-banner alert-banner-warning" style="margin-bottom: var(--spacing-md);">
+                  <div class="warning-banner-container">
+                    <div class="warning-banner-content" style="justify-content: center; text-align: center;">
+                      <i class="warning-banner-icon fas fa-exclamation-triangle"></i>
+                      <div class="warning-banner-text">
+                        <div class="warning-banner-title">Temporary Workspace</div>
+                        <div class="warning-banner-description"><strong>Create a project</strong> to organize your code and analysis.</div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 <div class="text-center mt-4">

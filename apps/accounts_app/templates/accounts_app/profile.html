@@ -315,13 +315,20 @@ document.getElementById('profileForm').addEventListener('submit', async function
         
         // Show success message
         const alert = document.createElement('div');
-        alert.className = 'alert alert-success alert-dismissible fade show';
+        alert.className = 'alert-banner alert-banner-success';
+        alert.style.marginBottom = 'var(--spacing-md)';
         alert.innerHTML = `
-          Profile updated successfully!
-          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          <div class="warning-banner-container">
+            <div class="warning-banner-content">
+              <i class="warning-banner-icon fas fa-check-circle"></i>
+              <div class="warning-banner-text">
+                <div class="warning-banner-description">Profile updated successfully!</div>
+              </div>
+            </div>
+          </div>
         `;
         document.querySelector('.profile-section').prepend(alert);
-        
+
         // Remove alert after 3 seconds
         setTimeout(() => alert.remove(), 3000);
       }
