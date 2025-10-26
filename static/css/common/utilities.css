@@ -288,6 +288,30 @@
 .line-through { text-decoration: line-through !important; }
 .no-underline { text-decoration: none !important; }
 
+/* Text Links */
+.text-link {
+  color: var(--primary-color) !important;
+  text-decoration: underline !important;
+  transition: color var(--transition-normal);
+  font-weight: 500;
+}
+
+.text-link:hover,
+.text-link:focus {
+  color: var(--secondary-color) !important;
+}
+
+/* Dark mode text links */
+[data-theme="dark"] .text-link {
+  color: var(--scitex-color-06) !important;
+}
+
+[data-theme="dark"] .text-link:hover,
+[data-theme="dark"] .text-link:focus {
+  color: var(--scitex-color-07) !important;
+  text-decoration: underline !important;
+}
+
 /* ========================================================================
    WIDTH & HEIGHT UTILITIES
    ======================================================================== */

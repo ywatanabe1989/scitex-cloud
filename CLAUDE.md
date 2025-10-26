@@ -1,29 +1,35 @@
 <!-- ---
-!-- Timestamp: 2025-10-24 21:20:20
+!-- Timestamp: 2025-10-26 19:18:43
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/CLAUDE.md
 !-- --- -->
 
 
-# General Rules
-
+## AGENTS DO NEVER EDIT THIS FILE
 ## THE USER IS ONLY ALLOWED TO EDIT THIS FILE. DO NOT MODIFY THIS FILE UNLESS EXPLICITLY ASKED.
 ## GITIGNORE THIS FILE. NEVER UPLOAD TO GITHUB.
 
-## Subagents
-Time is more than money. Launch up to eight agents in parallel when beneficial.
+---
 
+## Subagents
+Time is more than money.
+Launch up to eight agents in parallel when beneficial.
 ## Autonomous Development
 Based on the following conditions, please proceed development autonomously
 ### Test user
 Create and use this user for testing purposes as you want:
-- Username: test-user, Password: test
+- Username: test-user, Password: Test-user.
 - Username: ywatanabe, Password: Yusuke8939.
-
 ### Playwright
 - [ ] MCP available
 - [ ] Screenshot available
+## No fake data
+When error raised, show them as alert on the website. Fake operations will raise critical issues.
+## No comprehensive
+- When you say comprehensive, it can be translated into "I will create xxx which is really hard for humans to undersntad"
+- Keep documents necessary and sufficient. Too much information may do more harm than good.
 
+---
 
 ## SciTeX principal
 SciTeX is designed to work everywhere; local, cloud, and self-hosting
@@ -32,24 +38,23 @@ So, scitex python package should implement core logics and provide simple APIs w
 Especially, ~/proj/scitex-code/{cli,cloud,scholar,writer,project,template} will be highly related
 It would be better to place .env file in project root and load it to specify SCITEX_ environment variables
 
-## No comprehensive
-- When you say comprehensive, it can be translated into "I will create xxx which is really hard for humans to undersntad"
-## Simple Documents
-- Keep documents necessary and sufficient. Too much information may do more harm than good.
-
 ## Research proposal for this project, SciTeX
-See `./docs/BOOST_応募済み申請書_26151429_oubo_20250626.pdf`
-However, we are also thinking monetization strategies. `./docs/MONETIZATION_STRATEGY_IMPLEMENTATION.md`
+`./docs/BOOST_応募済み申請書_26151429_oubo_20250626.pdf`
+`./docs/MONETIZATION_STRATEGY_IMPLEMENTATION.md`
 
 ## Project-centric application
 The SciTeX ecosystem is project-centric; scholar, code, viz, writer should be linked to a project of the user or a group. However, basic functionalities should be offered to anonymous users or users with no projects associated.
 
 ## Environmental Variables
-You can check environmental variables by `env | grep SCITEX_` and use them, including passwords and auth info, as you want. Also, you can export new ones. `.venv` or `./deployment/dotenvs/dotenv_{dev,prod}` will be useful
-`/home/ywatanabe/proj/scitex-cloud/.venv`
+`./SECRETS/.env.{dev,prod}` will be useful
+`env | grep SCITEX_`
 
-## No fake data
-When error raised, show them as alert on the website. Fake operations will raise critical issues.
+## Python Env
+`/home/ywatanabe/proj/scitex-cloud/.venv`
+When change directory from `.`, deactivate automatically called.
+
+## CSS - Common vs Specific
+`./static/css/CSS_RULES.md`
 
 ## Django Directory Structure
 Use `./apps/XXX_app/` format
@@ -63,7 +68,34 @@ See `/dev/design/`
 ## Debugging Javascripts
 Add console.log for debugging
 
+---
+
 # Requests
-Work on this: /home/ywatanabe/proj/scitex-cloud/apps/project_app/TODO.md
+- [ ] Cannot creat repository
+
+- [ ] http://localhost:8000/wataning11
+  - [ ] On the other hand, user full name might be better to be a bit larger: wataning11, compaired to other text like user id
+
+http://localhost:8000/auth/login/?next=/wataning11/default-project/
+- [ ] Warning message: "This repository is private. Please log in to access it."
+  - [ ] This is problematic in security
+  - [ ] Just behave it does not exist
+
+- [ ] http://localhost:8000/wataning11/default-project/
+  - [ ] CSS Refactoring needed
+
+- [ ] http://localhost:8000/scholar/#bibtex
+- [ ] http://localhost:8000/scholar/#search
+  - [ ] CSS Refactoring needed
+    - [ ] When selected, tab should be visible
+  - [ ] Respect default colors
+  - [ ] The edge of double-edged seekbars are a bit too large
+  - [ ] The double-edged seekbar should be implemented as a central comopnent
+
+- [ ] http://localhost:8000/writer/
+  - [ ] CSS Refactoring needed
+  - [ ] Tex files should be linked to the repository
+  - [ ] View PDF button not working
+  - [ ] Initialize writer workspace button not working
 
 <!-- EOF -->

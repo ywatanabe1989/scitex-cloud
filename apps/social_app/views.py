@@ -194,7 +194,7 @@ def explore(request):
         users = User.objects.filter(
             is_active=True
         ).annotate(
-            repo_count=Count('owned_projects'),
+            repo_count=Count('project_app_owned_projects'),
             follower_count=Count('followers')
         ).order_by('-follower_count', '-repo_count')[:20]
 

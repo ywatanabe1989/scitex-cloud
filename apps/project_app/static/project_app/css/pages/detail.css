@@ -1,18 +1,25 @@
 /* ============================================================================= */
 /* PROJECT_DETAIL */
 /* ============================================================================= */
+/* REFACTORED: Styling CSS commented out, layout CSS preserved */
+/* Styling provided by: static/css/common/*.css and static/css/components/*.css */
+/* ============================================================================= */
 
 
 /* GitHub-style repository header - Theme-aware */
 .repo-header {
+    /* Layout preserved */
     padding: 1.5rem 0;
-    border-bottom: 1px solid var(--color-border-default);
+    /* Styling moved to central CSS - see static/css/components/header.css */
+    /* border-bottom: 1px solid var(--color-border-default); */
 }
 
 .repo-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--color-accent-fg);  /* SciTeX brand color */
+    /* Layout preserved */
+    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+    /* font-size: 1.25rem; */
+    /* font-weight: 600; */
+    /* color: var(--color-accent-fg); */
     text-decoration: none;
 }
 
@@ -21,12 +28,15 @@
 }
 
 .repo-description {
-    color: var(--color-fg-muted);
+    /* Layout preserved */
     margin-top: 0.5rem;
+    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+    /* color: var(--color-fg-muted); */
 }
 
 /* Tab navigation now uses standardized .scitex-tabs component from design system */
 .repo-tabs {
+    /* Layout preserved */
     margin-bottom: 1.5rem;
 }
 
@@ -36,34 +46,41 @@
 
 /* Container with border and rounded corners */
 .file-browser {
-    border: 1px solid var(--color-border-default);
-    border-radius: 6px;
-    overflow: hidden;
+    /* Layout preserved */
     margin-bottom: 1.5rem;
-    background: var(--color-canvas-default);
+    overflow: hidden;
+    /* Styling moved to central CSS - see static/css/components/cards.css */
+    /* border: 1px solid var(--color-border-default); */
+    /* border-radius: 6px; */
+    /* background: var(--color-canvas-default); */
 }
 
 .file-browser-table {
+    /* Layout preserved */
     width: 100%;
     margin: 0;
     border-collapse: collapse;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+    /* font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; */
 }
 
 /* Table Header */
 .file-browser-table thead {
-    background: var(--color-canvas-subtle);
+    /* Styling moved to central CSS - see static/css/components/tables.css */
+    /* background: var(--color-canvas-subtle); */
 }
 
 .file-browser-header {
-    background: var(--color-canvas-subtle);
+    /* Layout preserved */
     padding: 8px 16px;
     text-align: left;
-    font-weight: 600;
-    font-size: 12px;
-    color: var(--color-fg-muted);
-    border-bottom: 1px solid var(--color-border-default);
     line-height: 1.5;
+    /* Styling moved to central CSS - see static/css/components/tables.css */
+    /* background: var(--color-canvas-subtle); */
+    /* font-weight: 600; */
+    /* font-size: 12px; */
+    /* color: var(--color-fg-muted); */
+    /* border-bottom: 1px solid var(--color-border-default); */
 }
 
 .file-browser-name-col {
@@ -81,31 +98,37 @@
 
 /* Table Rows - Full row hover and clickability */
 .file-browser-table tbody tr {
-    border-top: 1px solid var(--color-border-default);
+    /* Styling moved to central CSS - see static/css/components/tables.css */
+    /* border-top: 1px solid var(--color-border-default); */
 }
 
 .file-browser-table tbody tr:first-child {
-    border-top: none;
+    /* Styling moved to central CSS - see static/css/components/tables.css */
+    /* border-top: none; */
 }
 
 .file-browser-row {
     cursor: pointer;
-    transition: background-color 0.15s ease-out, box-shadow 0.15s ease-out;
+    /* Styling moved to central CSS - see static/css/components/tables.css */
+    /* transition: background-color 0.15s ease-out, box-shadow 0.15s ease-out; */
 }
 
 /* GitHub-style subtle hover - light background change */
 .file-browser-row:hover {
-    background: var(--color-neutral-muted);
-    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.03);
+    /* Styling moved to central CSS - see static/css/components/tables.css */
+    /* background: var(--color-neutral-muted); */
+    /* box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.03); */
 }
 
 /* Table Cells */
 .file-browser-cell {
+    /* Layout preserved */
     padding: 8px 16px;
-    font-size: 14px;
-    color: var(--color-fg-default);
     vertical-align: middle;
     line-height: 20px;
+    /* Styling moved to central CSS - see static/css/components/tables.css */
+    /* font-size: 14px; */
+    /* color: var(--color-fg-default); */
 }
 
 /* Name Cell with Icon and Text */
@@ -114,12 +137,14 @@
 }
 
 .file-browser-link {
-    color: var(--color-accent-fg);
-    text-decoration: none;
-    font-weight: 600;
+    /* Layout preserved */
     display: inline-flex;
     align-items: center;
     gap: 8px;
+    text-decoration: none;
+    /* Styling moved to central CSS - see static/css/components/buttons.css */
+    /* color: var(--color-accent-fg); */
+    /* font-weight: 600; */
 }
 
 .file-browser-link:hover {
@@ -132,6 +157,7 @@
 
 /* SVG Icons - Octicons */
 .file-browser-icon {
+    /* Layout preserved */
     width: 16px;
     height: 16px;
     flex-shrink: 0;
@@ -139,97 +165,103 @@
 }
 
 .octicon-directory {
-    fill: #54aeff;
+    /* Styling moved to central CSS - see static/css/components/icons.css */
+    /* fill: #54aeff; */
 }
 
 .octicon-file {
-    fill: var(--color-fg-muted);
+    /* Styling moved to central CSS - see static/css/components/icons.css */
+    /* fill: var(--color-fg-muted); */
 }
 
 [data-theme="dark"] .octicon-directory {
-    fill: #58a6ff;
+    /* Styling moved to central CSS - see static/css/components/icons.css */
+    /* fill: #58a6ff; */
 }
 
 .file-browser-name {
-    color: var(--color-accent-fg);
+    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+    /* color: var(--color-accent-fg); */
 }
-
-
-
-
-
-
-
-
-
 
 /* Commit Message Cell */
 .file-browser-message-cell {
+    /* Layout preserved */
     width: 45%;
-    color: var(--color-fg-muted);
-    font-size: 12px;
+    /* Styling moved to central CSS - see static/css/components/tables.css */
+    /* color: var(--color-fg-muted); */
+    /* font-size: 12px; */
 }
 
 .file-browser-commit-message {
-    color: var(--color-fg-muted);
-    text-decoration: none;
+    /* Layout preserved */
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     display: inline-block;
     max-width: calc(100% - 80px);
     vertical-align: middle;
+    text-decoration: none;
+    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+    /* color: var(--color-fg-muted); */
 }
 
 .file-browser-commit-message:hover {
-    color: var(--color-accent-fg);
+    /* Styling moved to central CSS - see static/css/components/buttons.css */
+    /* color: var(--color-accent-fg); */
     text-decoration: underline;
 }
 
 .file-browser-no-commit {
-    color: var(--color-fg-muted);
-    font-style: italic;
+    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+    /* color: var(--color-fg-muted); */
+    /* font-style: italic; */
 }
 
 /* Commit Hash Badge */
 .file-browser-commit-hash {
-    font-family: ui-monospace, 'Cascadia Code', 'Courier New', monospace;
-    font-size: 12px;
-    color: var(--color-fg-muted);
-    background: rgba(175, 184, 193, 0.2);
+    /* Layout preserved */
     padding: 2px 6px;
-    border-radius: 6px;
-    text-decoration: none;
     white-space: nowrap;
     margin-left: 8px;
     display: inline-block;
     vertical-align: middle;
     position: relative;
+    text-decoration: none;
+    /* Styling moved to central CSS - see static/css/components/badges.css */
+    /* font-family: ui-monospace, 'Cascadia Code', 'Courier New', monospace; */
+    /* font-size: 12px; */
+    /* color: var(--color-fg-muted); */
+    /* background: rgba(175, 184, 193, 0.2); */
+    /* border-radius: 6px; */
 }
 
 .file-browser-commit-hash:hover {
-    color: var(--color-accent-fg);
-    background: var(--color-accent-subtle);
+    /* Styling moved to central CSS - see static/css/components/badges.css */
+    /* color: var(--color-accent-fg); */
+    /* background: var(--color-accent-subtle); */
 }
 
 /* Tooltip for full commit hash */
 .file-browser-commit-hash::before {
     content: attr(data-hash);
+    /* Layout preserved */
     position: absolute;
     bottom: calc(100% + 8px);
     left: 50%;
     transform: translateX(-50%);
-    background: #24292f;
-    color: #ffffff;
     padding: 6px 10px;
-    border-radius: 6px;
-    font-size: 11px;
     white-space: nowrap;
     z-index: 1000;
-    box-shadow: 0 8px 24px rgba(31, 35, 40, 0.45);
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.2s ease;
+    /* Styling moved to central CSS - see static/css/components/tooltips.css */
+    /* background: #24292f; */
+    /* color: #ffffff; */
+    /* border-radius: 6px; */
+    /* font-size: 11px; */
+    /* box-shadow: 0 8px 24px rgba(31, 35, 40, 0.45); */
+    /* transition: opacity 0.2s ease; */
 }
 
 .file-browser-commit-hash:hover::before {
@@ -239,18 +271,20 @@
 /* Tooltip arrow */
 .file-browser-commit-hash::after {
     content: '';
+    /* Layout preserved */
     position: absolute;
     bottom: calc(100% + 2px);
     left: 50%;
     transform: translateX(-50%);
     width: 0;
     height: 0;
-    border-left: 6px solid transparent;
-    border-right: 6px solid transparent;
-    border-top: 6px solid #24292f;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.2s ease;
+    /* Styling moved to central CSS - see static/css/components/tooltips.css */
+    /* border-left: 6px solid transparent; */
+    /* border-right: 6px solid transparent; */
+    /* border-top: 6px solid #24292f; */
+    /* transition: opacity 0.2s ease; */
 }
 
 .file-browser-commit-hash:hover::after {
@@ -258,119 +292,147 @@
 }
 
 [data-theme="dark"] .file-browser-commit-hash {
-    background: rgba(110, 118, 129, 0.4);
+    /* Styling moved to central CSS - see static/css/components/badges.css */
+    /* background: rgba(110, 118, 129, 0.4); */
 }
 
 [data-theme="dark"] .file-browser-commit-hash::before {
-    background: #c9d1d9;
-    color: #0d1117;
+    /* Styling moved to central CSS - see static/css/components/tooltips.css */
+    /* background: #c9d1d9; */
+    /* color: #0d1117; */
 }
 
 [data-theme="dark"] .file-browser-commit-hash::after {
-    border-top-color: #c9d1d9;
+    /* Styling moved to central CSS - see static/css/components/tooltips.css */
+    /* border-top-color: #c9d1d9; */
 }
 
 /* Dark mode row hover - slightly lighter than background */
 [data-theme="dark"] .file-browser-row:hover {
-    background: var(--color-neutral-muted);
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+    /* Styling moved to central CSS - see static/css/components/tables.css */
+    /* background: var(--color-neutral-muted); */
+    /* box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05); */
 }
 
 /* Time Cell */
 .file-browser-time-cell {
+    /* Layout preserved */
     width: 15%;
     text-align: right;
-    color: var(--color-fg-muted);
-    font-size: 12px;
     white-space: nowrap;
+    /* Styling moved to central CSS - see static/css/components/tables.css */
+    /* color: var(--color-fg-muted); */
+    /* font-size: 12px; */
 }
 
 
 /* README rendering - Theme-aware */
 .readme-container {
-    border: 1px solid var(--color-border-default);
-    border-radius: 6px;
+    /* Layout preserved */
     padding: 2rem;
-    background: var(--color-canvas-default);
-    color: var(--color-fg-default);
+    /* Styling moved to central CSS - see static/css/components/cards.css */
+    /* border: 1px solid var(--color-border-default); */
+    /* border-radius: 6px; */
+    /* background: var(--color-canvas-default); */
+    /* color: var(--color-fg-default); */
 }
 
 .readme-header {
+    /* Layout preserved */
     padding-bottom: 0.5rem;
     margin-bottom: 1rem;
-    border-bottom: 1px solid var(--color-border-default);
-    font-weight: 600;
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    color: var(--color-fg-default);
+    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+    /* border-bottom: 1px solid var(--color-border-default); */
+    /* font-weight: 600; */
+    /* color: var(--color-fg-default); */
 }
 
 .readme-content {
+    /* Layout preserved */
     line-height: 1.6;
 }
 
 .readme-content h1,
 .readme-content h2,
 .readme-content h3 {
+    /* Layout preserved */
     margin-top: 1.5rem;
     margin-bottom: 1rem;
-    font-weight: 600;
     line-height: 1.25;
-    color: var(--color-fg-default);
+    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+    /* font-weight: 600; */
+    /* color: var(--color-fg-default); */
 }
 
 .readme-content h1 {
-    font-size: 2em;
+    /* Layout preserved */
     padding-bottom: 0.3em;
+    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+    /* font-size: 2em; */
 }
 
 .readme-content h2 {
-    font-size: 1.5em;
+    /* Layout preserved */
     padding-bottom: 0.3em;
     margin-top: 2rem;
+    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+    /* font-size: 1.5em; */
 }
 
 .readme-content code {
-    background: var(--color-neutral-muted);
-    color: var(--color-fg-default);
+    /* Layout preserved */
     padding: 0.2em 0.4em;
-    border-radius: 6px;
-    font-family: ui-monospace, monospace;
-    font-size: 85%;
+    /* Styling moved to central CSS - see static/css/common/code-blocks.css */
+    /* background: var(--color-neutral-muted); */
+    /* color: var(--color-fg-default); */
+    /* border-radius: 6px; */
+    /* font-family: ui-monospace, monospace; */
+    /* font-size: 85%; */
 }
 
 .readme-content pre {
-    background: var(--color-neutral-muted);
+    /* Layout preserved */
     padding: 1rem;
-    border-radius: 6px;
     overflow-x: auto;
+    /* Styling moved to central CSS - see static/css/common/code-blocks.css */
+    /* background: var(--color-neutral-muted); */
+    /* border-radius: 6px; */
 }
 
 .readme-content pre code {
-    background: none;
+    /* Layout preserved */
     padding: 0;
+    /* Styling moved to central CSS - see static/css/common/code-blocks.css */
+    /* background: none; */
 }
 
 /* Lists and directory structures - no borders */
 .readme-content ul,
 .readme-content ol {
+    /* Layout preserved */
     padding-left: 2em;
     margin: 0.5em 0;
 }
 
 .readme-content li {
+    /* Layout preserved */
     margin: 0.25em 0;
     border: none !important;  /* Remove any borders from list items */
 }
 
 .readme-content p {
+    /* Layout preserved */
     margin: 1em 0;
-    color: var(--color-fg-default);
+    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+    /* color: var(--color-fg-default); */
 }
 
 .readme-content a {
-    color: var(--color-accent-fg);
+    /* Styling moved to central CSS - see static/css/components/buttons.css */
+    /* color: var(--color-accent-fg); */
 }
 
 .readme-content a:hover {
@@ -382,106 +444,124 @@
 .readme-content h4,
 .readme-content h5,
 .readme-content h6 {
+    /* Layout preserved */
     margin-top: 1.5rem;
     margin-bottom: 1rem;
-    font-weight: 600;
-    color: var(--color-fg-default);
     border: none !important;  /* No borders for smaller headings */
+    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+    /* font-weight: 600; */
+    /* color: var(--color-fg-default); */
 }
 
 /* Button overrides for theme support */
 .btn-outline-primary {
-    color: var(--color-accent-fg) !important;
-    border-color: var(--color-accent-fg) !important;
-    background: transparent !important;
+    /* Styling moved to central CSS - see static/css/components/buttons.css */
+    /* color: var(--color-accent-fg) !important; */
+    /* border-color: var(--color-accent-fg) !important; */
+    /* background: transparent !important; */
 }
 
 .btn-outline-primary:hover {
-    color: #ffffff !important;
-    background: var(--color-accent-fg) !important;
-    border-color: var(--color-accent-fg) !important;
+    /* Styling moved to central CSS - see static/css/components/buttons.css */
+    /* color: #ffffff !important; */
+    /* background: var(--color-accent-fg) !important; */
+    /* border-color: var(--color-accent-fg) !important; */
 }
 
 [data-theme="dark"] .btn-outline-primary {
-    color: var(--scitex-color-06) !important;  /* Light bluish */
-    border-color: var(--scitex-color-05) !important;
+    /* Styling moved to central CSS - see static/css/components/buttons.css */
+    /* color: var(--scitex-color-06) !important; */
+    /* border-color: var(--scitex-color-05) !important; */
 }
 
 [data-theme="dark"] .btn-outline-primary:hover {
-    color: #ffffff !important;
-    background: var(--scitex-color-04) !important;
-    border-color: var(--scitex-color-04) !important;
+    /* Styling moved to central CSS - see static/css/components/buttons.css */
+    /* color: #ffffff !important; */
+    /* background: var(--scitex-color-04) !important; */
+    /* border-color: var(--scitex-color-04) !important; */
 }
 
 /* Text muted helper */
 .text-muted {
-    color: var(--color-fg-muted) !important;
+    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+    /* color: var(--color-fg-muted) !important; */
 }
 
 /* GitHub-style repo action buttons */
 .repo-action-btn {
+    /* Layout preserved */
     display: inline-flex;
     align-items: center;
     gap: 4px;
     padding: 5px 12px;
-    font-size: 12px;
-    font-weight: 500;
-    line-height: 20px;
     white-space: nowrap;
-    background: var(--color-canvas-default);
-    border: 1px solid var(--color-border-default);
-    border-radius: 6px;
-    color: var(--color-fg-default);
     cursor: pointer;
-    transition: all 0.2s ease;
+    /* Styling moved to central CSS - see static/css/components/buttons.css */
+    /* font-size: 12px; */
+    /* font-weight: 500; */
+    /* line-height: 20px; */
+    /* background: var(--color-canvas-default); */
+    /* border: 1px solid var(--color-border-default); */
+    /* border-radius: 6px; */
+    /* color: var(--color-fg-default); */
+    /* transition: all 0.2s ease; */
 }
 
 /* Fix dropdown positioning */
 .btn-group {
+    /* Layout preserved */
     position: relative;
     display: inline-block;
 }
 
 .repo-action-btn:hover {
-    background: var(--color-neutral-muted);
-    border-color: var(--color-fg-muted);
+    /* Styling moved to central CSS - see static/css/components/buttons.css */
+    /* background: var(--color-neutral-muted); */
+    /* border-color: var(--color-fg-muted); */
 }
 
 .repo-action-btn:active {
-    background: var(--color-canvas-default);
+    /* Styling moved to central CSS - see static/css/components/buttons.css */
+    /* background: var(--color-canvas-default); */
     transform: scale(0.97);
 }
 
 .repo-action-btn.active {
-    background: var(--color-accent-emphasis);
-    color: #ffffff;
-    border-color: var(--color-accent-emphasis);
+    /* Styling moved to central CSS - see static/css/components/buttons.css */
+    /* background: var(--color-accent-emphasis); */
+    /* color: #ffffff; */
+    /* border-color: var(--color-accent-emphasis); */
 }
 
 .repo-action-icon {
-    fill: currentColor;
+    /* Styling moved to central CSS - see static/css/components/icons.css */
+    /* fill: currentColor; */
     vertical-align: text-bottom;
 }
 
 .repo-action-count {
+    /* Layout preserved */
     display: inline-flex;
     min-width: 20px;
     padding: 0 6px;
-    font-size: 12px;
-    font-weight: 500;
-    background: var(--color-neutral-muted);
-    border: 1px solid var(--color-border-default);
-    border-radius: 2em;
     margin-left: 2px;
+    /* Styling moved to central CSS - see static/css/components/badges.css */
+    /* font-size: 12px; */
+    /* font-weight: 500; */
+    /* background: var(--color-neutral-muted); */
+    /* border: 1px solid var(--color-border-default); */
+    /* border-radius: 2em; */
 }
 
 /* GitHub-style layout with sidebar on LEFT - COLLAPSED BY DEFAULT */
 .repo-layout {
+    /* Layout preserved */
     display: grid;
     grid-template-columns: 60px 1fr;  /* Start collapsed by default - slightly wider for icons */
     gap: 24px;
     margin-top: 1.5rem;
-    transition: grid-template-columns 0.3s ease;
+    /* Styling moved to central CSS - see static/css/common/layout.css */
+    /* transition: grid-template-columns 0.3s ease; */
 }
 
 .repo-layout.sidebar-collapsed {
@@ -497,12 +577,14 @@
 }
 
 .repo-sidebar {
+    /* Layout preserved */
     position: sticky;
     top: 80px;
     align-self: start;
     overflow: hidden;
-    transition: all 0.3s ease;
     width: 60px;  /* Default collapsed width */
+    /* Styling moved to central CSS - see static/css/components/sidebar.css */
+    /* transition: all 0.3s ease; */
 }
 
 .repo-sidebar.collapsed {
@@ -515,28 +597,31 @@
 
 /* Sidebar toggle button */
 .sidebar-toggle-btn {
+    /* Layout preserved */
     position: absolute;
     top: 12px;
     right: 12px;
     width: 28px;
     height: 28px;
-    border: 1px solid var(--color-border-default);
-    border-radius: 6px;
-    background: var(--color-canvas-default);
-    color: var(--color-fg-muted);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s ease;
     z-index: 10;
+    /* Styling moved to central CSS - see static/css/components/buttons.css */
+    /* border: 1px solid var(--color-border-default); */
+    /* border-radius: 6px; */
+    /* background: var(--color-canvas-default); */
+    /* color: var(--color-fg-muted); */
+    /* transition: all 0.2s ease; */
 }
 
 .sidebar-toggle-btn:hover {
-    background: var(--color-neutral-muted);
-    color: var(--color-accent-fg);
-    border-color: var(--color-accent-fg);
     transform: scale(1.05);
+    /* Styling moved to central CSS - see static/css/components/buttons.css */
+    /* background: var(--color-neutral-muted); */
+    /* color: var(--color-accent-fg); */
+    /* border-color: var(--color-accent-fg); */
 }
 
 .sidebar-toggle-btn:active {
@@ -544,8 +629,9 @@
 }
 
 .sidebar-toggle-icon {
-    transition: transform 0.3s ease;
-    font-size: 14px;
+    /* Styling moved to central CSS - see static/css/components/icons.css */
+    /* transition: transform 0.3s ease; */
+    /* font-size: 14px; */
 }
 
 .repo-sidebar.collapsed .sidebar-toggle-icon {
@@ -554,19 +640,23 @@
 
 /* Sidebar sections */
 .sidebar-section {
-    border: 1px solid var(--color-border-default);
-    border-radius: 6px;
+    /* Layout preserved */
     padding: 16px;
     margin-bottom: 16px;
-    background: var(--color-canvas-default);
     position: relative;
-    transition: all 0.3s ease;
+    /* Styling moved to central CSS - see static/css/components/sidebar.css */
+    /* border: 1px solid var(--color-border-default); */
+    /* border-radius: 6px; */
+    /* background: var(--color-canvas-default); */
+    /* transition: all 0.3s ease; */
 }
 
 .repo-sidebar.collapsed .sidebar-section {
+    /* Layout preserved */
     padding: 8px;
-    border: none;
-    background: transparent;
+    /* Styling moved to central CSS - see static/css/components/sidebar.css */
+    /* border: none; */
+    /* background: transparent; */
 }
 
 .sidebar-section.collapsible {
@@ -574,8 +664,9 @@
 }
 
 .sidebar-section.collapsible:hover {
-    border-color: var(--color-accent-fg);
-    background: var(--color-neutral-muted);
+    /* Styling moved to central CSS - see static/css/components/sidebar.css */
+    /* border-color: var(--color-accent-fg); */
+    /* background: var(--color-neutral-muted); */
 }
 
 .sidebar-section.section-collapsed .sidebar-content {
@@ -583,33 +674,39 @@
 }
 
 .sidebar-title {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--color-fg-default);
-    text-transform: uppercase;
+    /* Layout preserved */
     margin-bottom: 12px;
-    letter-spacing: 0.5px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    transition: all 0.2s ease;
+    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+    /* font-size: 12px; */
+    /* font-weight: 600; */
+    /* color: var(--color-fg-default); */
+    /* text-transform: uppercase; */
+    /* letter-spacing: 0.5px; */
+    /* transition: all 0.2s ease; */
 }
 
 .sidebar-title:hover {
-    color: var(--color-accent-fg);
+    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+    /* color: var(--color-accent-fg); */
 }
 
 .repo-sidebar.collapsed .sidebar-title {
+    /* Layout preserved */
     writing-mode: vertical-rl;
     text-orientation: mixed;
     margin: 0;
-    font-size: 10px;
+    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+    /* font-size: 10px; */
 }
 
 .sidebar-section-chevron {
-    font-size: 10px;
-    transition: transform 0.2s ease;
-    color: var(--color-fg-muted);
+    /* Styling moved to central CSS - see static/css/components/icons.css */
+    /* font-size: 10px; */
+    /* transition: transform 0.2s ease; */
+    /* color: var(--color-fg-muted); */
 }
 
 .sidebar-section.section-collapsed .sidebar-section-chevron {
@@ -621,25 +718,29 @@
 }
 
 .sidebar-item {
+    /* Layout preserved */
     display: flex;
     align-items: center;
     gap: 14px;
     padding: 12px 14px;
-    font-size: 16px;
-    color: var(--color-fg-muted);
-    border-radius: 6px;
-    transition: all 0.2s ease;
     margin: 3px 0;
+    /* Styling moved to central CSS - see static/css/components/sidebar.css */
+    /* font-size: 16px; */
+    /* color: var(--color-fg-muted); */
+    /* border-radius: 6px; */
+    /* transition: all 0.2s ease; */
 }
 
 .sidebar-item:hover {
-    background: var(--color-neutral-muted);
-    color: var(--color-fg-default);
+    /* Styling moved to central CSS - see static/css/components/sidebar.css */
+    /* background: var(--color-neutral-muted); */
+    /* color: var(--color-fg-default); */
 }
 
 .sidebar-item strong {
-    color: var(--color-fg-default);
-    font-size: 17px;
+    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+    /* color: var(--color-fg-default); */
+    /* font-size: 17px; */
 }
 
 .repo-sidebar.collapsed .sidebar-item {
@@ -647,20 +748,23 @@
 }
 
 .sidebar-link {
-    color: var(--color-accent-fg);
-    text-decoration: none;
-    font-size: 16px;
+    /* Layout preserved */
     display: block;
     padding: 12px 14px;
-    border-radius: 6px;
-    transition: all 0.2s ease;
+    text-decoration: none;
+    /* Styling moved to central CSS - see static/css/components/buttons.css */
+    /* color: var(--color-accent-fg); */
+    /* font-size: 16px; */
+    /* border-radius: 6px; */
+    /* transition: all 0.2s ease; */
 }
 
 .sidebar-link:hover {
-    text-decoration: none;
-    background: var(--color-neutral-muted);
-    color: var(--color-accent-fg);
     transform: translateX(3px);
+    text-decoration: none;
+    /* Styling moved to central CSS - see static/css/components/buttons.css */
+    /* background: var(--color-neutral-muted); */
+    /* color: var(--color-accent-fg); */
 }
 
 .repo-sidebar.collapsed .sidebar-link {
@@ -668,32 +772,39 @@
 }
 
 .sidebar-content {
-    transition: opacity 0.3s ease;
+    /* Styling moved to central CSS - see static/css/components/sidebar.css */
+    /* transition: opacity 0.3s ease; */
 }
 
 .repo-sidebar.collapsed .sidebar-content {
-    opacity: 0;
+    /* Layout preserved */
     display: none;
+    /* Styling moved to central CSS - see static/css/components/sidebar.css */
+    /* opacity: 0; */
 }
 
 /* File tree styles */
 .file-tree-item {
+    /* Layout preserved */
     padding: 10px 12px;
     cursor: pointer;
-    color: var(--color-fg-default);
-    border-radius: 6px;
-    transition: all 0.2s ease;
     margin: 2px 0;
-    font-size: 15px;
+    /* Styling moved to central CSS - see static/css/components/file-tree.css */
+    /* color: var(--color-fg-default); */
+    /* border-radius: 6px; */
+    /* transition: all 0.2s ease; */
+    /* font-size: 15px; */
 }
 
 .file-tree-item:hover {
-    background: var(--color-neutral-muted);
+    /* Styling moved to central CSS - see static/css/components/file-tree.css */
+    /* background: var(--color-neutral-muted); */
 }
 
 .file-tree-item.active {
-    background: var(--color-accent-subtle);
-    font-weight: 600;
+    /* Styling moved to central CSS - see static/css/components/file-tree.css */
+    /* background: var(--color-accent-subtle); */
+    /* font-weight: 600; */
 }
 
 .repo-sidebar.collapsed .file-tree-item {
@@ -701,32 +812,39 @@
 }
 
 .file-tree-folder {
-    color: var(--color-fg-default);
+    /* Layout preserved */
     display: flex;
     align-items: center;
     gap: 4px;
-    transition: all 0.2s ease;
+    /* Styling moved to central CSS - see static/css/components/file-tree.css */
+    /* color: var(--color-fg-default); */
+    /* transition: all 0.2s ease; */
 }
 
 .file-tree-folder:hover {
-    color: var(--color-accent-fg);
     transform: translateX(2px);
+    /* Styling moved to central CSS - see static/css/components/file-tree.css */
+    /* color: var(--color-accent-fg); */
 }
 
 .file-tree-file {
-    color: var(--color-fg-muted);
+    /* Layout preserved */
     display: flex;
     align-items: center;
     gap: 4px;
-    transition: all 0.2s ease;
+    /* Styling moved to central CSS - see static/css/components/file-tree.css */
+    /* color: var(--color-fg-muted); */
+    /* transition: all 0.2s ease; */
 }
 
 .file-tree-file:hover {
-    color: var(--color-accent-fg);
     transform: translateX(2px);
+    /* Styling moved to central CSS - see static/css/components/file-tree.css */
+    /* color: var(--color-accent-fg); */
 }
 
 .file-tree-icon {
+    /* Layout preserved */
     width: 18px;
     height: 18px;
     display: inline-flex;
@@ -737,6 +855,7 @@
 .file-tree-icon svg,
 .icon-folder,
 .icon-file {
+    /* Layout preserved */
     width: 18px;
     height: 18px;
 }
@@ -747,20 +866,22 @@
 
 .icon-file,
 .file-tree-file .file-tree-icon {
-    color: var(--text-secondary);
-}
+    /* Styling moved to central CSS - see static/css/components/icons.css */
+    /* color: var(--text-secondary); */
 }
 
 .file-tree-chevron {
+    /* Layout preserved */
     width: 12px;
     height: 12px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 10px;
-    color: var(--color-fg-muted);
-    transition: transform 0.2s;
     cursor: pointer;
+    /* Styling moved to central CSS - see static/css/components/icons.css */
+    /* font-size: 10px; */
+    /* color: var(--color-fg-muted); */
+    /* transition: transform 0.2s; */
 }
 
 .file-tree-chevron.expanded {
@@ -781,27 +902,32 @@
 }
 
 .btn-group .dropdown-menu {
-    z-index: 9999 !important;
-    background: var(--color-canvas-default);
-    border: 1px solid var(--color-border-default);
-    border-radius: 6px;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    /* Layout preserved */
     min-width: 200px;
     position: absolute;
     top: 100%;
     right: 0;
     margin-top: 4px;
+    /* Styling moved to central CSS - see static/css/components/buttons.css */
+    /* z-index: 9999 !important; */
+    /* background: var(--color-canvas-default); */
+    /* border: 1px solid var(--color-border-default); */
+    /* border-radius: 6px; */
+    /* box-shadow: 0 8px 16px rgba(0,0,0,0.2); */
 }
 
 .btn-group .dropdown-item {
-    color: var(--color-fg-default);
+    /* Layout preserved */
     padding: 6px 12px;
     white-space: nowrap;
+    /* Styling moved to central CSS - see static/css/components/buttons.css */
+    /* color: var(--color-fg-default); */
 }
 
 .btn-group .dropdown-item:hover {
-    background: var(--color-neutral-muted);
-    color: var(--color-fg-default);
+    /* Styling moved to central CSS - see static/css/components/buttons.css */
+    /* background: var(--color-neutral-muted); */
+    /* color: var(--color-fg-default); */
 }
 
 @media (max-width: 1024px) {
@@ -815,6 +941,7 @@
     }
 
     .repo-sidebar {
+        /* Layout preserved */
         position: static;
         width: 100% !important;
     }
@@ -824,8 +951,8 @@
     }
 
     .sidebar-toggle-btn {
+        /* Layout preserved */
         position: fixed;
         top: 80px;
     }
-
-
+}

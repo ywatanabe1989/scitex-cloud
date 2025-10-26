@@ -31,4 +31,15 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     }
   });
+
+  // Ensure logout/signout navigates in same tab (not new tab)
+  const logoutLink = document.querySelector('a[href*="/logout/"]');
+  if (logoutLink) {
+    logoutLink.removeAttribute('target');
+    logoutLink.addEventListener('click', function(e) {
+      // Ensure default behavior (navigate in same tab)
+      window.location.href = this.href;
+      return false;
+    });
+  }
 });

@@ -8,17 +8,17 @@
             <!-- Split LaTeX editor with preview -->
             <div id="split-editor" class="split-editor">
                 <div class="latex-panel">
-                    <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <div class="panel-header flex-center-between">
                         <span><i class="fas fa-code me-1"></i><span id="section-title-latex">LaTeX Source</span></span>
-                        <div style="display: flex; align-items: center; gap: 0.5rem;">
-                            <button id="undo-btn" class="btn btn-sm btn-secondary" title="Undo (Ctrl+Z)" style="font-size: 0.7rem; padding: 0.15rem 0.5rem;">
+                        <div class="flex-row-gap">
+                            <button id="undo-btn" class="btn btn-sm btn-secondary btn-toolbar" title="Undo (Ctrl+Z)">
                                 <i class="fas fa-undo"></i>
                             </button>
-                            <button id="redo-btn" class="btn btn-sm btn-secondary" title="Redo (Ctrl+Y)" style="font-size: 0.7rem; padding: 0.15rem 0.5rem;">
+                            <button id="redo-btn" class="btn btn-sm btn-secondary btn-toolbar" title="Redo (Ctrl+Y)">
                                 <i class="fas fa-redo"></i>
                             </button>
-                            <span style="font-size: 0.75rem; color: var(--color-fg-muted); margin-left: 0.5rem;">Color:</span>
-                            <select id="theme-selector" class="form-select form-select-sm" style="width: auto; font-size: 0.75rem; padding: 0.25rem 0.5rem;">
+                            <span class="small-label">Color:</span>
+                            <select id="theme-selector" class="form-select form-select-sm small-select">
                                 <optgroup label="Dark Themes">
                                     <option value="zenburn">Zenburn</option>
                                     <option value="monokai">Monokai</option>
@@ -43,11 +43,11 @@
             </div>
 
             <!-- Compilation Panel (hidden by default) -->
-            <div id="compilation-panel" class="split-editor" style="display: none; flex-direction: column; padding: 2rem;">
+            <div id="compilation-panel" class="split-editor" style="display: none;">
                 <!-- Horizontal: Compile Button & Log -->
-                <div style="display: grid; grid-template-columns: 250px 1fr; gap: 1rem; margin-bottom: 1.5rem; height: 150px;">
+                <div class="compilation-grid">
                     <!-- Left: Compile/Stop Button -->
-                    <div style="display: flex; flex-direction: column; justify-content: flex-start;">
+                    <div class="compilation-buttons">
                         <button id="compile-btn-panel" class="btn btn-primary w-100 btn-lg mb-2">
                             <i class="fas fa-file-pdf me-2"></i>Compile PDF
                         </button>
@@ -60,14 +60,14 @@
                     </div>
 
                     <!-- Right: Log Viewer (fills available space) -->
-                    <div id="compilation-log-panel" style="padding: 0.75rem; background: #0a0f1a; color: #00ff00; border-radius: 4px; font-size: 0.7rem; overflow-y: auto; font-family: 'Courier New', monospace; white-space: pre-wrap; line-height: 1.3;">Click "Compile PDF" to start compilation...</div>
+                    <div id="compilation-log-panel" class="compilation-log-panel">Click "Compile PDF" to start compilation...</div>
                 </div>
 
                 <!-- Side-by-Side PDFs with Outlines -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; flex: 1;">
+                <div class="pdf-comparison-grid">
                     <!-- Manuscript PDF (Left) -->
-                    <div style="display: flex; flex-direction: column;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <div class="flex-column">
+                        <div class="flex-center-between mb-2">
                             <h6 style="color: var(--color-fg-default); margin: 0;">
                                 <i class="fas fa-file-pdf text-danger me-2"></i>Manuscript
                             </h6>
@@ -83,13 +83,13 @@
                                 </a>
                             </div>
                         </div>
-                        <div style="display: flex; gap: 0.5rem; height: calc(100vh - 450px); min-height: 800px;">
-                            <div id="pdf-outline-main" style="width: 200px; border: 1px solid var(--color-border-default); border-radius: 4px; background: var(--color-canvas-subtle); overflow-y: auto; padding: 0.5rem; flex-shrink: 0;">
-                                <div style="font-weight: 600; font-size: 0.85rem; margin-bottom: 0.5rem; color: var(--color-fg-default);">Outline</div>
+                        <div class="pdf-pdf-container">
+                            <div id="pdf-outline-main" class="pdf-outline-panel">
+                                <div class="pdf-outline-title">Outline</div>
                                 <div id="pdf-outline-items-main"></div>
                             </div>
                             <div id="pdf-viewer-panel" style="flex: 1; border: 1px solid var(--color-border-default); border-radius: 4px; background: white;">
-                                <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--color-fg-muted);">
+                                <div class="pdf-viewer-loading">
                                     <i class="fas fa-spinner fa-spin me-2"></i>Loading PDF...
                                 </div>
                             </div>
@@ -97,8 +97,8 @@
                     </div>
 
                     <!-- Diff PDF (Right) -->
-                    <div style="display: flex; flex-direction: column;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <div class="flex-column">
+                        <div class="flex-center-between mb-2">
                             <h6 style="color: var(--color-fg-default); margin: 0;">
                                 <i class="fas fa-code-branch text-info me-2"></i>Diff PDF (Changes)
                             </h6>
@@ -114,9 +114,9 @@
                                 </a>
                             </div>
                         </div>
-                        <div style="display: flex; gap: 0.5rem; height: calc(100vh - 450px); min-height: 800px;">
-                            <div id="pdf-outline-diff" style="width: 200px; border: 1px solid var(--color-border-default); border-radius: 4px; background: var(--color-canvas-subtle); overflow-y: auto; padding: 0.5rem; flex-shrink: 0;">
-                                <div style="font-weight: 600; font-size: 0.85rem; margin-bottom: 0.5rem; color: var(--color-fg-default);">Outline</div>
+                        <div class="pdf-pdf-container">
+                            <div id="pdf-outline-diff" class="pdf-outline-panel">
+                                <div class="pdf-outline-title">Outline</div>
                                 <div id="pdf-outline-items-diff"></div>
                             </div>
                             <div style="flex: 1; position: relative;">

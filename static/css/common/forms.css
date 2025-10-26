@@ -79,7 +79,7 @@
 .form-label {
   display: inline-block;
   margin-bottom: var(--spacing-xs);
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-primary);
 }
 
@@ -96,7 +96,7 @@
   font-size: 1rem;
   line-height: 1.5;
   color: var(--text-primary);
-  background-color: var(--bg-page);
+  background-color: var(--color-canvas-default);
   background-clip: padding-box;
   border: 2px solid var(--border-default);
   border-radius: 6px;
@@ -223,7 +223,7 @@ select.form-control:hover:not(:disabled) {
 .input-group-text {
   display: flex;
   align-items: center;
-  padding: 0.75rem 1rem;
+  padding: 8px 16px;
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.5;

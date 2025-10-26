@@ -1,0 +1,51 @@
+# Timestamp: "2025-08-27 18:24:16 (ywatanabe)"
+# File: /home/ywatanabe/proj/semantic-search-engine/mgmt/USER_PHILOSOPHY/99_BULLETIN_BOARD_EXAMPLE.org
+
+#+TITLE: Bulletin Board Communication
+#+AUTHOR: ywatanabe
+#+DATE: 2025-08-27
+#+UPDATE: Lightweight message-based coordination
+
+* Agents List
+- AGENT_NAME_01 
+- AGENT_NAME_02 
+...
+
+* Expectations
+Agents communicate asynchronously through *lightweight* bulletin board messages:
+- No direct coupling between agents
+- Natural workflow emerges from message patterns
+- Each agent works independently based on their role
+
+* Clean Design Principles
+- Messages contain *file paths*, not data
+- Large data (test results, specs, architecture) stored as external files
+- Message size limited to ~1KB for efficiency
+
+* Example Messages
+#+BEGIN_SRC yaml
+message:
+  timestamp: YYYY-MMDD-hh:mm
+  from:    "TestDeveloperAgent"
+  to:      "ArchitectAgent", "SourceDeveloperAgent"
+  subject: "PHASE 01: TEST_RESULTS"
+  message:
+    message: "3/5 tests passed"
+    results_file: "mgmt/test_results/test_report.json"
+    coverage_file: "mgmt/test_results/coverage.json"
+    status: "RED"
+#+END_SRC
+
+#+BEGIN_SRC yaml
+message:
+  timestamp: YYYY-MMDD-hh:mm
+  from:    "TestDeveloperAgent"
+  to:      "ArchitectAgent", "SourceDeveloperAgent"
+  subject: "PHASE 01: TEST_RESULTS"
+  message:
+    message: "3/5 tests passed"
+    results_file: "mgmt/test_results/test_report.json"
+    coverage_file: "mgmt/test_results/coverage.json"
+    status: "RED"
+#+END_SRC
+

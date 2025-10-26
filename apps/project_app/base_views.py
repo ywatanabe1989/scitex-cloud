@@ -371,6 +371,7 @@ def project_create(request):
         init_type = request.POST.get("init_type", "empty")
         template_type = request.POST.get("template_type", "research")
         git_url = request.POST.get("git_url", "").strip()
+        init_scitex_writer = request.POST.get("init_scitex_writer") == "true"
 
         # Initialize directory manager for all init types
         from apps.project_app.services.project_filesystem import (
@@ -643,6 +644,20 @@ def project_create(request):
                 messages.error(request, f"Failed to create project directory")
                 project.delete()
                 return redirect("project_app:list")
+
+        # Initialize SciTeX Writer template if requested
+        if init_scitex_writer:
+            success, writer_path = manager.initialize_scitex_writer_template(project)
+            if success:
+                messages.success(
+                    request,
+                    f'SciTeX Writer template initialized at scitex/writer/'
+                )
+            else:
+                messages.warning(
+                    request,
+                    f'Project created but SciTeX Writer template initialization failed'
+                )
 
         return redirect(
             "user_projects:detail",

@@ -24,6 +24,7 @@ from .main_views import (
     save_section,
     load_latex_section,
     save_latex_section,
+    list_tex_files,
     get_manuscript_stats,
     toggle_editing_mode,
 
@@ -125,6 +126,7 @@ __all__ = [
     'save_section',
     'load_latex_section',
     'save_latex_section',
+    'list_tex_files',
     'get_manuscript_stats',
     'toggle_editing_mode',
     'compile_modular_manuscript',

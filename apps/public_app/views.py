@@ -603,7 +603,7 @@ def login_view(request):
     context = {
         "form": form,
     }
-    return render(request, "public_app/login.html", context)
+    return render(request, "public_app/signin.html", context)
 
 
 def forgot_password(request):

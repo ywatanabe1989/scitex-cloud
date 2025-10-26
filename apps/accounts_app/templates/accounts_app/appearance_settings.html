@@ -6,6 +6,8 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/common/settings-layout.css' %}">
 <link rel="stylesheet" href="{% static 'css/common/theme-cards.css' %}">
+<link rel="stylesheet" href="{% static 'accounts_app/css/account-modals.css' %}">
+<link rel="stylesheet" href="{% static 'accounts_app/css/appearance.css' %}">
 
 <!-- Highlight.js themes for code preview -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/tokyo-night-dark.min.css" data-code-theme="tokyo-night-dark" class="hljs-code-theme" disabled>
@@ -42,7 +44,7 @@
 
             <div class="theme-options">
                 <h2 class="theme-section-title">Theme mode</h2>
-                <p style="color: var(--color-fg-muted); font-size: 14px; margin-bottom: 16px;">
+                <p class="appearance-description">
                     Choose how SciTeX looks to you. Select between light and dark themes.
                 </p>
 
@@ -71,18 +73,18 @@
             </div>
 
             <!-- Code Highlighting Themes Section -->
-            <div class="theme-options" style="margin-top: 24px;">
+            <div class="theme-options code-theme-section">
                 <h2 class="theme-section-title">Code highlighting themes</h2>
-                <p style="color: var(--color-fg-muted); font-size: 14px; margin-bottom: 16px;">
+                <p class="appearance-description">
                     Choose syntax highlighting themes for code viewing. You can select different themes for light and dark modes.
                 </p>
 
                 <!-- Dark Mode Code Theme -->
-                <div style="margin-bottom: 24px;">
-                    <label for="code-theme-dark-selector" style="display: block; font-weight: 600; margin-bottom: 8px; color: var(--color-fg-default);">
+                <div class="code-theme-section">
+                    <label for="code-theme-dark-selector" class="code-theme-label">
                         Dark mode code theme
                     </label>
-                    <select id="code-theme-dark-selector" class="form-select" style="max-width: 400px;">
+                    <select id="code-theme-dark-selector" class="form-select code-theme-selector">
                         <option value="nord">Nord (Default)</option>
                         <option value="tokyo-night-dark">Tokyo Night Dark</option>
                         <option value="dracula">Dracula</option>
@@ -95,10 +97,10 @@
 
                 <!-- Light Mode Code Theme -->
                 <div>
-                    <label for="code-theme-light-selector" style="display: block; font-weight: 600; margin-bottom: 8px; color: var(--color-fg-default);">
+                    <label for="code-theme-light-selector" class="code-theme-label">
                         Light mode code theme
                     </label>
-                    <select id="code-theme-light-selector" class="form-select" style="max-width: 400px;">
+                    <select id="code-theme-light-selector" class="form-select code-theme-selector">
                         <option value="tokyo-night-light">Tokyo Night Light</option>
                         <option value="atom-one-light">Atom One Light</option>
                         <option value="github">GitHub Light</option>
@@ -109,16 +111,16 @@
                 </div>
 
                 <!-- Code Preview -->
-                <div style="margin-top: 24px;">
-                    <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: var(--color-fg-default);">Preview</h3>
-                    <p style="color: var(--color-fg-muted); font-size: 14px; margin-bottom: 12px;">
+                <div class="code-theme-section">
+                    <h3 class="code-preview-header">Preview</h3>
+                    <p class="code-preview-description">
                         This preview shows how code will appear with your selected theme. Try changing themes to see the difference.
                     </p>
-                    <div style="position: relative;">
-                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: var(--color-canvas-subtle); border: 1px solid var(--color-border-default); border-bottom: none; border-radius: 6px 6px 0 0;">
-                            <span style="font-size: 12px; font-weight: 600; color: var(--color-fg-muted); font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;">Python</span>
+                    <div class="code-preview-container">
+                        <div class="code-preview-lang-bar">
+                            <span class="code-preview-lang">Python</span>
                         </div>
-                        <pre style="margin: 0; border-radius: 0 0 6px 6px; overflow-x: auto; border: 1px solid var(--color-border-default);"><code id="code-preview" class="language-python" style="font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace; font-size: 14px; font-weight: 400; line-height: 1.6;">def calculate_statistics(data):
+                        <pre class="code-preview-pre"><code id="code-preview" class="language-python code-preview-code">def calculate_statistics(data):
     """Calculate mean and variance from dataset."""
     n = len(data)
     mean = sum(data) / n
@@ -134,10 +136,11 @@
 dataset = [1.2, 2.5, 3.7, 4.1, 5.9]
 stats = calculate_statistics(dataset)
 print(f"Mean: {stats['mean']:.2f}")</code></pre>
-                </div>
+                    </div>
 
-                <div style="margin-top: 16px;">
-                    <span id="save-status" style="color: var(--color-fg-muted); font-size: 14px;"></span>
+                    <div class="code-preview-status">
+                        <span id="save-status" class="code-save-status"></span>
+                    </div>
                 </div>
             </div>
         </main>
@@ -255,10 +258,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load preferences on page load
     loadCodeThemePreferences();
 
-    // Auto-save when dropdowns change
-    document.getElementById('code-theme-dark-selector').addEventListener('change', saveCodeThemePreferences);
-    document.getElementById('code-theme-light-selector').addEventListener('change', saveCodeThemePreferences);
-
     // Code theme preview functionality
     let originalCodeContent = null;
 
@@ -368,6 +367,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (currentSiteTheme === 'dark') {
             switchCodeThemePreview(this.value);
         }
+        saveCodeThemePreferences();
     });
 
     document.getElementById('code-theme-light-selector').addEventListener('change', function() {
@@ -375,6 +375,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (currentSiteTheme === 'light') {
             switchCodeThemePreview(this.value);
         }
+        saveCodeThemePreferences();
     });
 
     // Watch for site theme changes (light/dark toggle)

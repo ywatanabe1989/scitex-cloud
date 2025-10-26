@@ -1,72 +1,86 @@
 /* ============================================================================= */
-/* PARTIALS / PROFILE_STYLES */
+/* USERS / PROFILE_STYLES */
 /* ============================================================================= */
-
+/* REFACTORED: Styling CSS commented out, layout CSS preserved */
+/* Styling provided by: static/css/common/*.css and static/css/components/*.css */
+/* ============================================================================= */
 
 /* GitHub-inspired layout */
 body {
-    background-color: var(--color-canvas-default);
-    color: var(--color-fg-default);
+    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+    /* background-color: var(--color-canvas-default); */
+    /* color: var(--color-fg-default); */
 }
 
 .profile-page {
+    /* Layout preserved */
     max-width: 1280px;
     margin: 0 auto;
     padding: 32px 16px;
 }
 
 .profile-layout {
+    /* Layout preserved */
     display: grid;
-    grid-template-columns: 296px 1fr;
+    grid-template-columns: 160px 1fr;
     gap: 24px;
 }
 
 /* Left sidebar - Profile info */
 .profile-sidebar {
+    /* Layout preserved */
     position: sticky;
     top: 24px;
     align-self: start;
 }
 
 .profile-avatar {
-    width: 296px;
-    height: 296px;
-    border-radius: 50%;
-    border: 1px solid var(--color-border-default);
-    background: var(--color-canvas-subtle);
+    /* Layout preserved */
+    width: 160px;
+    height: 160px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 8rem;
-    font-weight: 300;
-    color: var(--color-accent-fg);
     margin-bottom: 16px;
     overflow: hidden;
+    /* Styling moved to central CSS - see static/css/components/avatars.css */
+    border-radius: 50%;
+    border: 1px solid var(--border-default);
+    background: var(--bg-muted);
+    /* font-size: 5rem; */
+    /* font-weight: 300; */
+    /* color: var(--color-accent-fg); */
 }
 
 .profile-avatar img {
+    /* Layout preserved */
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 
 .profile-names {
+    /* Layout preserved */
     margin-bottom: 16px;
 }
 
 .profile-fullname {
-    font-size: 26px;
-    font-weight: 600;
+    /* Layout preserved */
     line-height: 1.25;
-    color: var(--color-fg-default);
     margin-bottom: 4px;
+    /* Styling - enhanced to be more prominent than other text */
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
 }
 
 .profile-username {
-    font-size: 20px;
-    font-weight: 300;
+    /* Layout preserved */
     line-height: 24px;
-    color: var(--color-fg-muted);
+    /* Keep default text size (not oversized) */
+    font-size: 1rem;
+    font-weight: 400;
+    color: var(--text-secondary);
 }
 
 .profile-username::before {
@@ -74,13 +88,16 @@ body {
 }
 
 .profile-bio {
+    /* Layout preserved */
     margin-bottom: 16px;
-    font-size: 14px;
     line-height: 1.5;
-    color: var(--color-fg-default);
+    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+    /* font-size: 14px; */
+    /* color: var(--color-fg-default); */
 }
 
 .profile-meta {
+    /* Layout preserved */
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -88,32 +105,40 @@ body {
 }
 
 .profile-meta-item {
+    /* Layout preserved */
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 14px;
-    color: var(--color-fg-muted);
+    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+    /* font-size: 14px; */
+    /* color: var(--color-fg-muted); */
 }
 
 .profile-meta-item i {
+    /* Layout preserved */
     width: 16px;
-    color: var(--color-fg-muted);
+    /* Styling moved to central CSS - see static/css/components/icons.css */
+    /* color: var(--color-fg-muted); */
 }
 
 .profile-stats {
+    /* Layout preserved */
     display: flex;
     gap: 16px;
     margin-top: 16px;
-    font-size: 14px;
+    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+    /* font-size: 14px; */
 }
 
 .profile-stat {
-    color: var(--color-fg-muted);
+    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+    /* color: var(--color-fg-muted); */
 }
 
 .profile-stat strong {
-    color: var(--color-fg-default);
-    font-weight: 600;
+    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+    /* color: var(--color-fg-default); */
+    /* font-weight: 600; */
 }
 
 /* Right content area */
@@ -123,37 +148,46 @@ body {
 
 /* Navigation tabs */
 .profile-nav {
+    /* Layout preserved */
     display: flex;
     gap: 16px;
-    border-bottom: 1px solid var(--color-border-muted);
     margin-bottom: 24px;
+    /* Styling restored for visibility */
+    border-bottom: 1px solid var(--border-muted);
 }
 
 .profile-nav-item {
-    padding: 12px 8px;
-    color: var(--color-fg-muted);
     text-decoration: none;
-    border-bottom: 2px solid transparent;
-    transition: all 0.2s ease;
+    /* Layout preserved */
+    padding: 12px 8px;
     display: flex;
     align-items: center;
     gap: 8px;
+    /* Styling restored for visibility */
+    color: var(--text-muted);
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
 }
 
 .profile-nav-item:hover {
-    color: var(--color-fg-default);
-    border-bottom-color: var(--color-border-default);
+    /* Styling restored for visibility */
+    color: var(--text-primary);
+    border-bottom-color: var(--border-default);
 }
 
 .profile-nav-item.active {
-    color: var(--color-fg-default);
-    border-bottom-color: var(--tab-active-border);
+    /* Styling restored for visibility */
+    color: var(--text-primary);
+    border-bottom-color: var(--primary-color);
+    font-weight: 500;
 }
 
 .nav-counter {
-    background: var(--color-canvas-subtle);
-    color: var(--color-fg-default);
+    /* Layout preserved */
     padding: 2px 8px;
+    /* Styling restored for visibility */
+    background: var(--bg-muted);
+    color: var(--text-muted);
     border-radius: 12px;
     font-size: 12px;
     font-weight: 600;
@@ -161,6 +195,7 @@ body {
 
 /* Repository section */
 .repo-section-header {
+    /* Layout preserved */
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -168,38 +203,46 @@ body {
 }
 
 .repo-search {
+    /* Layout preserved */
     display: flex;
     gap: 8px;
 }
 
 .repo-search input {
-    background: var(--color-canvas-default);
-    border: 1px solid var(--color-border-default);
-    border-radius: 6px;
+    /* Layout preserved */
     padding: 5px 12px;
-    color: var(--color-fg-default);
-    font-size: 14px;
+    /* Styling moved to central CSS - see static/css/components/forms.css */
+    /* background: var(--color-canvas-default); */
+    /* border: 1px solid var(--color-border-default); */
+    /* border-radius: 6px; */
+    /* color: var(--color-fg-default); */
+    /* font-size: 14px; */
 }
 
 .repo-search input::placeholder {
-    color: var(--color-fg-muted);
+    /* Styling moved to central CSS - see static/css/components/forms.css */
+    /* color: var(--color-fg-muted); */
 }
 
 .repo-search input:focus {
     outline: none;
-    border-color: var(--color-accent-fg);
+    /* Styling moved to central CSS - see static/css/components/forms.css */
+    /* border-color: var(--color-accent-fg); */
 }
 
 /* Repository list */
 .repo-list {
+    /* Layout preserved */
     display: flex;
     flex-direction: column;
     gap: 24px;
 }
 
 .repo-item {
-    border-bottom: 1px solid var(--color-border-muted);
+    /* Layout preserved */
     padding-bottom: 24px;
+    /* Styling moved to central CSS - see static/css/components/cards.css */
+    /* border-bottom: 1px solid var(--color-border-muted); */
 }
 
 .repo-item:last-child {
@@ -207,153 +250,135 @@ body {
 }
 
 .repo-header {
+    /* Layout preserved */
     display: flex;
     align-items: center;
     gap: 8px;
     margin-bottom: 8px;
 }
 
-.repo-name {
-    font-size: 20px;
-    font-weight: 600;
-    color: var(--color-accent-fg);
-    text-decoration: none;
-    transition: text-decoration 0.1s ease;
-}
-
-.repo-name:hover {
-    text-decoration: underline;
-}
+/* .repo-name is now deprecated, use .text-link .font-semibold .text-lg instead */
 
 .repo-visibility {
-    font-size: 12px;
+    /* Layout preserved */
+    display: inline-flex;
+    align-items: center;
     padding: 2px 8px;
-    border-radius: 12px;
-    border: 1px solid var(--color-border-default);
-    color: var(--color-fg-muted);
-    font-weight: 500;
+    /* Styling moved to central CSS - see static/css/components/badges.css */
+    /* font-size: 12px; */
+    /* border-radius: 12px; */
+    /* border: 1px solid var(--color-border-default); */
+    /* color: var(--color-fg-muted); */
+    /* font-weight: 500; */
+}
+
+/* .star-btn is now deprecated, use .btn .btn-outline-secondary .btn-sm instead */
+
+.star-btn img {
+    /* Layout preserved */
+    width: 14px;
+    height: 14px;
 }
 
 .repo-description {
-    color: var(--color-fg-muted);
-    font-size: 14px;
+    /* Layout preserved */
     margin-bottom: 12px;
     line-height: 1.5;
+    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+    /* color: var(--color-fg-muted); */
+    /* font-size: 14px; */
 }
 
 .repo-meta {
+    /* Layout preserved */
     display: flex;
     align-items: center;
     gap: 16px;
-    font-size: 12px;
-    color: var(--color-fg-muted);
+    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+    /* font-size: 12px; */
+    /* color: var(--color-fg-muted); */
 }
 
 .repo-meta-item {
+    /* Layout preserved */
     display: flex;
     align-items: center;
     gap: 4px;
 }
 
 .language-dot {
+    /* Layout preserved */
     width: 12px;
     height: 12px;
-    border-radius: 50%;
     display: inline-block;
+    /* Styling moved to central CSS - see static/css/components/badges.css */
+    /* border-radius: 50%; */
 }
 
 /* Empty state */
 .empty-state {
+    /* Layout preserved */
     text-align: center;
     padding: 48px 24px;
-    background: var(--color-canvas-default);
-    border: 1px solid var(--color-border-muted);
-    border-radius: 6px;
     margin-top: 24px;
+    /* Styling moved to central CSS - see static/css/components/cards.css */
+    /* background: var(--color-canvas-default); */
+    /* border: 1px solid var(--color-border-muted); */
+    /* border-radius: 6px; */
 }
 
 .empty-state-icon {
-    font-size: 48px;
-    color: var(--color-border-default);
+    /* Layout preserved */
     margin-bottom: 16px;
+    /* Styling moved to central CSS - see static/css/components/icons.css */
+    /* font-size: 48px; */
+    /* color: var(--color-border-default); */
 }
 
 .empty-state h3 {
-    color: var(--color-fg-default);
-    font-size: 24px;
+    /* Layout preserved */
     margin-bottom: 8px;
+    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+    /* color: var(--color-fg-default); */
+    /* font-size: 24px; */
 }
 
 .empty-state p {
-    color: var(--color-fg-muted);
-    font-size: 14px;
+    /* Layout preserved */
     margin-bottom: 24px;
+    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+    /* color: var(--color-fg-muted); */
+    /* font-size: 14px; */
 }
 
 /* Buttons */
-.btn-edit-profile {
-    width: 100%;
-    background: var(--color-btn-bg);
-    color: var(--color-btn-text);
-    border: 1px solid var(--color-btn-border);
-    padding: 8px 16px;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 500;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    transition: all 0.2s ease;
-    margin-bottom: 16px;
-}
+/* .btn-edit-profile is now deprecated, use .btn .btn-primary instead */
 
-.btn-edit-profile:hover {
-    background: var(--color-btn-hover-bg);
-    border-color: var(--color-btn-hover-border);
-    text-decoration: none;
-    color: var(--color-btn-text);
-}
-
-.btn-new-repo {
-    background: var(--color-btn-primary-bg);
-    color: var(--color-btn-primary-text);
-    border: 1px solid var(--color-btn-primary-border);
-    padding: 5px 16px;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 500;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: background 0.2s ease;
-}
-
-.btn-new-repo:hover {
-    background: var(--color-btn-primary-hover-bg);
-    color: var(--color-btn-primary-text);
-}
+/* .btn-new-repo is now deprecated, use .btn .btn-primary instead */
 
 /* Pagination */
 .pagination-link {
-    padding: 8px 16px;
-    background: var(--color-btn-bg);
-    color: var(--color-fg-default);
-    border-radius: 6px;
     text-decoration: none;
-    transition: all 0.2s ease;
+    /* Layout preserved */
+    padding: 8px 16px;
+    /* Styling moved to central CSS - see static/css/components/pagination.css */
+    /* background: var(--color-btn-bg); */
+    /* color: var(--color-fg-default); */
+    /* border-radius: 6px; */
+    /* transition: all 0.2s ease; */
 }
 
 .pagination-link:hover {
-    background: var(--color-btn-hover-bg);
     text-decoration: none;
+    /* Styling moved to central CSS - see static/css/components/pagination.css */
+    /* background: var(--color-btn-hover-bg); */
 }
 
 .pagination-info {
+    /* Layout preserved */
     padding: 8px 16px;
-    color: var(--color-fg-muted);
+    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+    /* color: var(--color-fg-muted); */
 }
 
 /* Responsive */
@@ -367,11 +392,10 @@ body {
     }
 
     .profile-avatar {
-        width: 200px;
-        height: 200px;
-        font-size: 5rem;
+        /* Layout preserved */
+        width: 150px;
+        height: 150px;
+        /* Styling moved to central CSS - see static/css/components/avatars.css */
+        /* font-size: 4rem; */
     }
 }
-
-
-

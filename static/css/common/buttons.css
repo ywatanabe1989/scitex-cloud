@@ -112,6 +112,18 @@
   color: var(--white);
 }
 
+/* Dark mode: Make primary button bright and prominent */
+[data-theme="dark"] .btn-primary {
+  background-color: var(--scitex-color-04);  /* Bright blue accent */
+  color: white;
+}
+
+[data-theme="dark"] .btn-primary:hover,
+[data-theme="dark"] .btn-primary:focus {
+  background-color: var(--scitex-color-05);  /* Even brighter on hover */
+  color: white;
+}
+
 .btn-secondary {
   background-color: var(--secondary-color);
   color: var(--white);

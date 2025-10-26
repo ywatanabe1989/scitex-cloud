@@ -198,3 +198,71 @@ def resend_otp_api(request):
             'success': False,
             'error': 'An error occurred. Please try again.'
         }, status=500)
+
+
+@require_http_methods(["POST"])
+def check_username_availability(request):
+    """API endpoint to check if a username is available for registration"""
+    try:
+        data = json.loads(request.body)
+        username = data.get('username', '').strip()
+
+        if not username:
+            return JsonResponse({
+                'available': False,
+                'error': 'Username is required.'
+            }, status=400)
+
+        # Check if username is too short
+        if len(username) < 1:
+            return JsonResponse({
+                'available': False,
+                'error': 'Username must be at least 1 character.'
+            })
+
+        # Check if username is too long
+        if len(username) > 39:
+            return JsonResponse({
+                'available': False,
+                'error': 'Username cannot exceed 39 characters.'
+            })
+
+        # Reserved usernames (must match forms.py)
+        reserved_usernames = [
+            'admin', 'administrator', 'api', 'auth', 'billing', 'blog', 'cloud',
+            'code', 'core', 'dashboard', 'dev', 'docs', 'help', 'login', 'logout',
+            'project', 'projects', 'scholar', 'signup', 'static', 'support',
+            'terms', 'privacy', 'about', 'contact', 'settings', 'user', 'users',
+            'viz', 'writer', 'root', 'system', 'scitex'
+        ]
+
+        if username.lower() in reserved_usernames:
+            return JsonResponse({
+                'available': False,
+                'error': 'This username is reserved.'
+            })
+
+        # Check if username already exists (case-insensitive)
+        if User.objects.filter(username__iexact=username).exists():
+            return JsonResponse({
+                'available': False,
+                'error': 'This username is already taken.'
+            })
+
+        # If we get here, username is available
+        return JsonResponse({
+            'available': True,
+            'message': 'Username is available!'
+        })
+
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'available': False,
+            'error': 'Invalid JSON data.'
+        }, status=400)
+    except Exception as e:
+        logger.error(f"Error checking username availability: {str(e)}")
+        return JsonResponse({
+            'available': False,
+            'error': 'An error occurred. Please try again.'
+        }, status=500)

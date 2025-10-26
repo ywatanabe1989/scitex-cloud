@@ -12,6 +12,7 @@ urlpatterns = [
     path('project/<int:project_id>/save-section/', views.save_section, name='save-section'),
     path('project/<int:project_id>/load-latex/', views.load_latex_section, name='load-latex'),
     path('project/<int:project_id>/save-latex/', views.save_latex_section, name='save-latex'),
+    path('project/<int:project_id>/list-tex-files/', views.list_tex_files, name='list-tex-files'),
     path('project/<int:project_id>/compile/', views.compile_modular_manuscript, name='compile-modular'),
     path('project/<int:project_id>/stats/', views.get_manuscript_stats, name='manuscript-stats'),
     path('project/<int:project_id>/toggle-mode/', views.toggle_editing_mode, name='toggle-mode'),

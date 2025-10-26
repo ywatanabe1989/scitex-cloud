@@ -1,0 +1,21 @@
+# Timestamp: "2025-08-27 10:27:30 (ywatanabe)"
+# File: /home/ywatanabe/proj/semantic-search-engine/mgmt/00_PROJECT_DESCRIPTION.org
+
+* Project Name: Pip Project Template
+
+** Project Goals:
+- Provide a modern Python package template featuring FastMCP 2.0 servers
+- Enable agentic coding with plan and test-driven development methodology
+- Support multiple CI/CD approaches (GitHub Actions, containers, local)
+- Achieve comprehensive test coverage with meaningful quality gates
+- Create reusable foundation for Python packages with MCP integration
+
+** Milestones:
+1. [COMPLETED] Core project structure with src layout
+2. [COMPLETED] FastMCP 2.0 server implementations (basic + advanced)
+3. [COMPLETED] Comprehensive test suite with 100% coverage for core modules
+4. [IN PROGRESS] CLI interface with argument parsing
+5. [PENDING] Documentation and examples
+6. [PENDING] GitHub Actions workflows for CI/CD
+7. [PENDING] Publishing to PyPI
+

@@ -154,20 +154,19 @@ def login_view(request):
     context = {
         "form": form,
     }
-    return render(request, "auth_app/login.html", context)
+    return render(request, "auth_app/signin.html", context)
 
 
 def logout_view(request):
-    """User logout view - clears all session data for fresh start."""
+    """User logout view - clears all session data and redirects immediately."""
     # Clear all session data before logout
-    # This ensures no "last visited" or other data persists
     request.session.flush()
 
     # Logout user
     logout(request)
 
-    messages.success(request, "You have been logged out successfully.")
-    return render(request, "auth_app/logout.html")
+    # Redirect immediately without message (cleaner UX)
+    return redirect('/')
 
 
 def forgot_password(request):

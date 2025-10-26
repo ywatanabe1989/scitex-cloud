@@ -16,12 +16,12 @@
     </div>
 
     {% if user.is_authenticated and user == profile_user %}
-    <a href="{% url 'accounts_app:profile_edit' %}" class="btn-edit-profile">
+    <a href="{% url 'accounts_app:profile_edit' %}" class="btn btn-primary w-full">
         <i class="fas fa-cog"></i>
         Edit profile
     </a>
     {% elif user.is_authenticated %}
-    <button id="follow-btn" class="btn-edit-profile" onclick="toggleFollow()">
+    <button id="follow-btn" class="btn btn-primary w-full" onclick="toggleFollow()">
         {% if is_following %}
             <i class="fas fa-user-check"></i>
             Following

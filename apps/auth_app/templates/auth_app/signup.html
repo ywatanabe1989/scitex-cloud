@@ -5,120 +5,9 @@
 
 {% block meta_description %}Join SciTeX - the open-source platform for scientific research. Create your free account to get started with managing, analyzing, and publishing your research.{% endblock %}
 
-{% block auth_extra_css %}
-<style>
-  .benefits-list {
-    margin-top: 3rem;
-  }
-
-  .col-lg-5 h3 {
-    color: var(--text-800);
-  }
-  
-  .benefit-item {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-    align-items: flex-start;
-  }
-
-  .benefit-item h4 {
-    color: var(--text-800);
-  }
-
-  .benefit-item p {
-    color: var(--text-700);
-  }
-  
-  .benefit-icon {
-    font-size: 1.5rem;
-    color: var(--btn-primary-bg);
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: var(--bg-300);
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-  
-  .password-rules {
-    background-color: var(--color-canvas-subtle);
-    border: 1px solid var(--color-border-default);
-    border-radius: 8px;
-    padding: 1rem;
-    font-size: 0.9rem;
-  }
-
-  .password-rules-title {
-    font-weight: 600;
-    color: var(--color-fg-default);
-    margin-bottom: 0.5rem;
-    font-size: 0.95rem;
-  }
-
-  .password-rule {
-    margin-bottom: 0.4rem;
-    color: #6c757d;  /* Gray for default/untouched */
-    display: flex;
-    align-items: center;
-    transition: color 0.3s ease;
-  }
-
-  .password-rule.invalid {
-    color: #dc3545;  /* Red for invalid */
-  }
-
-  .password-rule.valid {
-    color: #28a745;  /* Green for valid */
-  }
-
-  .password-rule i {
-    margin-right: 0.5rem;
-    width: 16px;
-    font-size: 0.75rem;
-  }
-
-  /* Fix link visibility */
-  a {
-    color: #0d6efd;
-    text-decoration: none;
-  }
-
-  a:hover {
-    color: #0a58ca;
-    text-decoration: underline;
-  }
-
-  /* Ensure input-group button is positioned correctly */
-  .input-group {
-    display: flex;
-  }
-
-  .input-group .form-control {
-    flex: 1;
-  }
-
-  .input-group .btn {
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-  }
-</style>
-{% endblock %}
-
 {% block auth_content %}
-<div class="auth-header">
-  <div class="container">
-    <h1 class="display-4 text-center">Create Your SciTeX Account</h1>
-    <p class="lead text-center">Join our open-source scientific research platform - completely free</p>
-  </div>
-</div>
-
-<div class="container auth-container" style="max-width: 900px;">
-  <div class="row">
-    <div class="col-lg-7">
-      <div class="auth-form">
+<div class="container auth-container">
+  <div class="auth-form">
         <h2 class="mb-4">Sign Up</h2>
         
         <div class="form-message success">
@@ -154,11 +43,16 @@
           {% csrf_token %}
           <div class="form-group mb-3">
             <label for="{{ form.username.id_for_label }}" class="form-label">Username <span class="text-danger">*</span></label>
-            {{ form.username }}
+            <div class="input-group">
+              {{ form.username }}
+              <span class="input-group-text" id="username-status" style="display: none;">
+                <i class="fas fa-circle" id="username-status-icon"></i>
+              </span>
+            </div>
             <div class="form-text">
-              <strong>Choose a unique username</strong> (like GitHub: letters, numbers, hyphens, underscores).<br>
               <small class="text-muted">Your profile URL will be: scitex.ai/<span id="username-preview">username</span></small>
             </div>
+            <div id="username-feedback" class="small" style="display: none; margin-top: 0.5rem;"></div>
             {% if form.username.errors %}
               <div class="text-danger small">{{ form.username.errors.0 }}</div>
             {% endif %}
@@ -167,7 +61,6 @@
           <div class="form-group mb-3">
             <label for="{{ form.email.id_for_label }}" class="form-label">Email <span class="text-danger">*</span></label>
             {{ form.email }}
-            <div class="form-text">We'll never share your email with anyone else.</div>
             {% if form.email.errors %}
               <div class="text-danger small">{{ form.email.errors.0 }}</div>
             {% endif %}
@@ -229,7 +122,7 @@
           <div class="form-check mb-3">
             {{ form.agree_terms }}
             <label class="form-check-label" for="{{ form.agree_terms.id_for_label }}">
-              I agree to the <a href="/terms/" target="_blank">Terms of Use</a> and <a href="/privacy/" target="_blank">Privacy Policy</a>
+              I agree to the <a href="/terms/" target="_blank" class="text-link">Terms of Use</a> and <a href="/privacy/" target="_blank" class="text-link">Privacy Policy</a>
             </label>
             {% if form.agree_terms.errors %}
               <div class="text-danger small">{{ form.agree_terms.errors.0 }}</div>
@@ -240,47 +133,8 @@
         </form>
         
         <div class="text-center mt-3">
-          <p>Already have an account? <a href="{% url 'auth_app:login' %}">Log In</a></p>
+          <p>Already have an account? <a href="{% url 'auth_app:signin' %}" class="text-link">Sign In</a></p>
         </div>
-      </div>
-    </div>
-    
-    <div class="col-lg-5">
-      <h3>Why Join SciTeX?</h3>
-      <div class="benefits-list">
-        <div class="benefit-item">
-          <div class="benefit-icon"><i class="fas fa-infinity"></i></div>
-          <div>
-            <h4>100% Free & Open Source</h4>
-            <p>SciTeX is completely free to use and all our code is open source. No hidden fees or paid tiers.</p>
-          </div>
-        </div>
-        
-        <div class="benefit-item">
-          <div class="benefit-icon"><i class="fas fa-tools"></i></div>
-          <div>
-            <h4>Complete Research Toolkit</h4>
-            <p>Access our integrated suite of tools for document management, data analysis, and publishing.</p>
-          </div>
-        </div>
-        
-        <div class="benefit-item">
-          <div class="benefit-icon"><i class="fas fa-users"></i></div>
-          <div>
-            <h4>Join the Community</h4>
-            <p>Become part of a growing community of researchers sharing knowledge and collaborating.</p>
-          </div>
-        </div>
-        
-        <div class="benefit-item">
-          <div class="benefit-icon"><i class="fas fa-code-branch"></i></div>
-          <div>
-            <h4>Contribute & Customize</h4>
-            <p>Help shape the platform by contributing or customize it to fit your specific research needs.</p>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </div>
 {% endblock %}
@@ -298,11 +152,78 @@
     const errorText = document.getElementById('error-message');
     const academicBenefits = document.querySelector('.academic-benefits');
     const usernamePreview = document.getElementById('username-preview');
+    const usernameStatus = document.getElementById('username-status');
+    const usernameStatusIcon = document.getElementById('username-status-icon');
+    const usernameFeedback = document.getElementById('username-feedback');
 
-    // Update username preview as user types
+    // Debounce function to avoid excessive API calls
+    function debounce(func, delay) {
+      let timeout;
+      return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), delay);
+      };
+    }
+
+    // Check username availability with real-time validation
+    const checkUsernameAvailability = debounce(async function(username) {
+      if (!username || username.length === 0) {
+        usernameStatus.style.display = 'none';
+        usernameFeedback.style.display = 'none';
+        return;
+      }
+
+      try {
+        const response = await fetch('/auth/api/check-username/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+          },
+          body: JSON.stringify({ username: username })
+        });
+
+        const data = await response.json();
+
+        // Show status indicator
+        usernameStatus.style.display = 'block';
+        usernameFeedback.style.display = 'block';
+
+        if (data.available) {
+          // Username is available - show green check
+          usernameStatusIcon.className = 'fas fa-check';
+          usernameStatusIcon.style.color = 'var(--status-success-text)';
+          usernameStatus.style.borderColor = 'var(--status-success-text)';
+          usernameFeedback.textContent = data.message;
+          usernameFeedback.className = 'small text-success';
+        } else {
+          // Username is taken or invalid - show red X
+          usernameStatusIcon.className = 'fas fa-times';
+          usernameStatusIcon.style.color = 'var(--status-error-text)';
+          usernameStatus.style.borderColor = 'var(--status-error-text)';
+          usernameFeedback.textContent = data.error;
+          usernameFeedback.className = 'small text-danger';
+        }
+      } catch (error) {
+        console.error('Error checking username:', error);
+        // Silently fail - allow user to continue
+        usernameStatus.style.display = 'none';
+        usernameFeedback.style.display = 'none';
+      }
+    }, 500); // Wait 500ms after user stops typing before checking
+
+    // Update username preview and check availability as user types
     usernameInput.addEventListener('input', function() {
       const username = this.value || 'username';
       usernamePreview.textContent = username;
+
+      // Only check availability if username has content and is not empty
+      if (this.value.trim()) {
+        checkUsernameAvailability(this.value.trim());
+      } else {
+        usernameStatus.style.display = 'none';
+        usernameFeedback.style.display = 'none';
+      }
     });
     
     // Japanese academic domains (synced with backend)

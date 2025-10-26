@@ -49,7 +49,7 @@ Individual product landing pages for SciTeX modules:
 ## Moved Templates
 
 ### Authentication (→ apps/auth_app/templates/auth_app/)
-- login.html
+- signin.html
 - signup.html
 - logout.html
 - forgot_password.html

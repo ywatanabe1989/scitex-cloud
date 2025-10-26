@@ -1,0 +1,442 @@
+/**
+ * SciTeX Seekbar Component
+ *
+ * A reusable range slider component for single and dual-handle sliders.
+ * Supports both native HTML5 range inputs and JavaScript-enhanced dual-range.
+ *
+ * Features:
+ * - Single-handle range slider (HTML5 native)
+ * - Dual-handle range slider (JavaScript-enhanced)
+ * - Customizable colors via CSS variables
+ * - Responsive and accessible
+ * - Dark mode support
+ *
+ * Usage:
+ *   <!-- Single Handle -->
+ *   <div class="scitex-seekbar">
+ *     <input type="range" class="scitex-seekbar-input" min="0" max="100" value="50">
+ *   </div>
+ *
+ *   <!-- Dual Handle (requires seekbar.js) -->
+ *   <div class="scitex-seekbar scitex-seekbar-dual"
+ *        data-min="0"
+ *        data-max="100"
+ *        data-value-min="25"
+ *        data-value-max="75">
+ *   </div>
+ *
+ * @version 1.0.0
+ * @author SciTeX Development Team
+ */
+
+/* ============================================
+   CSS Variables (Customizable)
+   ============================================ */
+:root {
+    /* Track colors */
+    --seekbar-track-bg: #e0e0e0;
+    --seekbar-track-active-bg: var(--scitex-color-03, #506b7a);
+
+    /* Thumb colors */
+    --seekbar-thumb-bg: var(--scitex-color-01, #2c3e50);
+    --seekbar-thumb-hover-bg: var(--scitex-color-02, #34495e);
+    --seekbar-thumb-active-bg: var(--scitex-color-03, #506b7a);
+
+    /* Dimensions */
+    --seekbar-track-height: 6px;
+    --seekbar-thumb-size: 18px;
+    --seekbar-thumb-border: 2px;
+
+    /* Spacing */
+    --seekbar-margin: 20px 0;
+}
+
+/* Dark mode overrides */
+[data-theme="dark"] {
+    --seekbar-track-bg: #2a2a2a;
+    --seekbar-track-active-bg: var(--scitex-color-04, #6c8ba0);
+    --seekbar-thumb-bg: var(--scitex-color-05, #9eb8c8);
+    --seekbar-thumb-hover-bg: var(--scitex-color-06, #c8d8e4);
+}
+
+/* ============================================
+   Base Seekbar Container
+   ============================================ */
+.scitex-seekbar {
+    position: relative;
+    width: 100%;
+    margin: var(--seekbar-margin);
+    padding: 10px 0;
+}
+
+/* ============================================
+   Single-Handle Slider (HTML5 Native)
+   ============================================ */
+.scitex-seekbar-input {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: var(--seekbar-track-height);
+    background: var(--seekbar-track-bg);
+    border-radius: calc(var(--seekbar-track-height) / 2);
+    outline: none;
+    transition: background 0.2s ease;
+}
+
+/* Track - Webkit (Chrome, Safari, Edge) */
+.scitex-seekbar-input::-webkit-slider-track {
+    width: 100%;
+    height: var(--seekbar-track-height);
+    background: var(--seekbar-track-bg);
+    border-radius: calc(var(--seekbar-track-height) / 2);
+}
+
+.scitex-seekbar-input::-webkit-slider-runnable-track {
+    width: 100%;
+    height: var(--seekbar-track-height);
+    background: var(--seekbar-track-bg);
+    border-radius: calc(var(--seekbar-track-height) / 2);
+}
+
+/* Track - Firefox */
+.scitex-seekbar-input::-moz-range-track {
+    width: 100%;
+    height: var(--seekbar-track-height);
+    background: var(--seekbar-track-bg);
+    border-radius: calc(var(--seekbar-track-height) / 2);
+    border: none;
+}
+
+/* Track - IE/Edge (legacy) */
+.scitex-seekbar-input::-ms-track {
+    width: 100%;
+    height: var(--seekbar-track-height);
+    background: transparent;
+    border-color: transparent;
+    color: transparent;
+}
+
+.scitex-seekbar-input::-ms-fill-lower {
+    background: var(--seekbar-track-active-bg);
+    border-radius: calc(var(--seekbar-track-height) / 2);
+}
+
+.scitex-seekbar-input::-ms-fill-upper {
+    background: var(--seekbar-track-bg);
+    border-radius: calc(var(--seekbar-track-height) / 2);
+}
+
+/* Thumb - Webkit */
+.scitex-seekbar-input::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: var(--seekbar-thumb-size);
+    height: var(--seekbar-thumb-size);
+    background: var(--seekbar-thumb-bg);
+    border: var(--seekbar-thumb-border) solid #ffffff;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.scitex-seekbar-input::-webkit-slider-thumb:hover {
+    background: var(--seekbar-thumb-hover-bg);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.scitex-seekbar-input::-webkit-slider-thumb:active {
+    background: var(--seekbar-thumb-active-bg);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    transform: scale(1.05);
+}
+
+/* Thumb - Firefox */
+.scitex-seekbar-input::-moz-range-thumb {
+    width: var(--seekbar-thumb-size);
+    height: var(--seekbar-thumb-size);
+    background: var(--seekbar-thumb-bg);
+    border: var(--seekbar-thumb-border) solid #ffffff;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.scitex-seekbar-input::-moz-range-thumb:hover {
+    background: var(--seekbar-thumb-hover-bg);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.scitex-seekbar-input::-moz-range-thumb:active {
+    background: var(--seekbar-thumb-active-bg);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    transform: scale(1.05);
+}
+
+/* Thumb - IE/Edge (legacy) */
+.scitex-seekbar-input::-ms-thumb {
+    width: var(--seekbar-thumb-size);
+    height: var(--seekbar-thumb-size);
+    background: var(--seekbar-thumb-bg);
+    border: var(--seekbar-thumb-border) solid #ffffff;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.scitex-seekbar-input::-ms-thumb:hover {
+    background: var(--seekbar-thumb-hover-bg);
+}
+
+/* Focus states for accessibility */
+.scitex-seekbar-input:focus {
+    outline: none;
+}
+
+.scitex-seekbar-input:focus::-webkit-slider-thumb {
+    box-shadow: 0 0 0 3px rgba(var(--scitex-color-03-rgb, 80, 107, 122), 0.3);
+}
+
+.scitex-seekbar-input:focus::-moz-range-thumb {
+    box-shadow: 0 0 0 3px rgba(var(--scitex-color-03-rgb, 80, 107, 122), 0.3);
+}
+
+/* ============================================
+   Dual-Handle Slider (JavaScript-Enhanced)
+   ============================================ */
+.scitex-seekbar-dual {
+    height: 40px;
+    display: flex;
+    align-items: center;
+}
+
+.scitex-seekbar-dual-container {
+    position: relative;
+    width: 100%;
+    height: var(--seekbar-track-height);
+}
+
+/* Track background */
+.scitex-seekbar-dual-track {
+    position: absolute;
+    width: 100%;
+    height: var(--seekbar-track-height);
+    background: var(--seekbar-track-bg);
+    border-radius: calc(var(--seekbar-track-height) / 2);
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* Active range between handles */
+.scitex-seekbar-dual-range {
+    position: absolute;
+    height: var(--seekbar-track-height);
+    background: var(--seekbar-track-active-bg);
+    border-radius: calc(var(--seekbar-track-height) / 2);
+    top: 50%;
+    transform: translateY(-50%);
+    transition: all 0.1s ease;
+}
+
+/* Individual handle wrappers */
+.scitex-seekbar-dual-handle {
+    position: absolute;
+    width: var(--seekbar-thumb-size);
+    height: var(--seekbar-thumb-size);
+    background: var(--seekbar-thumb-bg);
+    border: var(--seekbar-thumb-border) solid #ffffff;
+    border-radius: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+}
+
+.scitex-seekbar-dual-handle:hover {
+    background: var(--seekbar-thumb-hover-bg);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+    transform: translate(-50%, -50%) scale(1.1);
+    z-index: 2;
+}
+
+.scitex-seekbar-dual-handle:active {
+    background: var(--seekbar-thumb-active-bg);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    transform: translate(-50%, -50%) scale(1.05);
+    z-index: 3;
+}
+
+.scitex-seekbar-dual-handle:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(var(--scitex-color-03-rgb, 80, 107, 122), 0.3);
+    z-index: 3;
+}
+
+/* Handle labels (value display) */
+.scitex-seekbar-dual-handle-label {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--scitex-color-01, #2c3e50);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+}
+
+.scitex-seekbar-dual-handle:hover .scitex-seekbar-dual-handle-label,
+.scitex-seekbar-dual-handle:active .scitex-seekbar-dual-handle-label {
+    opacity: 1;
+}
+
+/* Dark mode handle labels */
+[data-theme="dark"] .scitex-seekbar-dual-handle-label {
+    background: var(--scitex-color-05, #9eb8c8);
+    color: var(--scitex-color-01, #2c3e50);
+}
+
+/* ============================================
+   Value Display (Optional)
+   ============================================ */
+.scitex-seekbar-values {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    font-size: 0.875rem;
+    color: var(--text-secondary, #666);
+}
+
+.scitex-seekbar-value {
+    padding: 4px 8px;
+    background: var(--color-canvas-subtle, #f5f5f5);
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+[data-theme="dark"] .scitex-seekbar-value {
+    background: var(--scitex-color-01-light, #1a2332);
+    color: var(--scitex-color-05, #9eb8c8);
+}
+
+/* ============================================
+   Range Labels (Min/Max indicators)
+   ============================================ */
+.scitex-seekbar-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 4px;
+    font-size: 0.75rem;
+    color: var(--text-secondary, #666);
+}
+
+[data-theme="dark"] .scitex-seekbar-labels {
+    color: var(--scitex-color-05, #9eb8c8);
+}
+
+/* ============================================
+   Disabled State
+   ============================================ */
+.scitex-seekbar-input:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.scitex-seekbar-input:disabled::-webkit-slider-thumb {
+    cursor: not-allowed;
+    background: #999;
+}
+
+.scitex-seekbar-input:disabled::-moz-range-thumb {
+    cursor: not-allowed;
+    background: #999;
+}
+
+.scitex-seekbar.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+/* ============================================
+   Size Variants
+   ============================================ */
+.scitex-seekbar-sm {
+    --seekbar-track-height: 4px;
+    --seekbar-thumb-size: 14px;
+    --seekbar-margin: 15px 0;
+}
+
+.scitex-seekbar-lg {
+    --seekbar-track-height: 8px;
+    --seekbar-thumb-size: 22px;
+    --seekbar-margin: 25px 0;
+}
+
+/* ============================================
+   Color Variants
+   ============================================ */
+.scitex-seekbar-primary {
+    --seekbar-track-active-bg: var(--scitex-color-01, #2c3e50);
+    --seekbar-thumb-bg: var(--scitex-color-01, #2c3e50);
+}
+
+.scitex-seekbar-success {
+    --seekbar-track-active-bg: #28a745;
+    --seekbar-thumb-bg: #28a745;
+}
+
+.scitex-seekbar-warning {
+    --seekbar-track-active-bg: #ffc107;
+    --seekbar-thumb-bg: #ffc107;
+}
+
+.scitex-seekbar-danger {
+    --seekbar-track-active-bg: #dc3545;
+    --seekbar-thumb-bg: #dc3545;
+}
+
+/* ============================================
+   Responsive Design
+   ============================================ */
+@media (max-width: 768px) {
+    .scitex-seekbar {
+        --seekbar-thumb-size: 20px;
+        --seekbar-track-height: 8px;
+    }
+
+    .scitex-seekbar-dual-handle-label {
+        font-size: 0.7rem;
+        padding: 3px 6px;
+    }
+}
+
+/* ============================================
+   Integration with noUiSlider (Optional)
+   ============================================ */
+.scitex-seekbar-nouislider .noUi-connect {
+    background: var(--seekbar-track-active-bg);
+}
+
+.scitex-seekbar-nouislider .noUi-handle {
+    background: var(--seekbar-thumb-bg);
+    border: var(--seekbar-thumb-border) solid #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.scitex-seekbar-nouislider .noUi-handle:hover {
+    background: var(--seekbar-thumb-hover-bg);
+}
+
+.scitex-seekbar-nouislider .noUi-handle:active {
+    background: var(--seekbar-thumb-active-bg);
+}

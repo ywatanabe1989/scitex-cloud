@@ -11,7 +11,7 @@
     overflow: hidden;
 }
 
-/* Sidebar Toggle Button */
+/* Sidebar Toggle Button - ENHANCED */
 .sidebar-toggle {
     position: absolute;
     top: 12px;
@@ -19,7 +19,7 @@
     background: var(--color-canvas-default, #ffffff);
     border: 1px solid var(--color-border-default, #d0d7de);
     border-radius: 6px;
-    padding: 8px 10px;
+    padding: 10px 12px; /* Increased padding */
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -27,6 +27,11 @@
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 10;
     box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+}
+
+.sidebar-toggle svg {
+    width: 20px; /* Larger icon */
+    height: 20px;
 }
 
 .sidebar-toggle:hover {
@@ -101,33 +106,39 @@
     display: flex;
     align-items: center;
     gap: 14px;
-    padding: 12px 14px;
-    font-size: 16px;
+    padding: 14px 16px; /* Increased padding */
+    font-size: 17px; /* Larger font */
     color: var(--color-fg-muted, #57606a);
     border-radius: 6px;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    margin: 3px 0;
+    margin: 4px 0; /* Increased margin */
     cursor: pointer;
 }
 
 .sidebar-item:hover {
     background: var(--color-accent-subtle, #ddf4ff);
     color: var(--color-accent-fg, #0969da);
-    transform: translateX(3px);
+    transform: translateX(4px); /* More pronounced movement */
     box-shadow: inset 3px 0 0 var(--color-accent-emphasis, #0969da);
 }
 
 .sidebar-item strong {
     color: var(--color-fg-default, #1f2328);
-    font-size: 17px;
+    font-size: 18px; /* Larger font */
     font-weight: 600;
 }
 
 .sidebar-item i {
-    font-size: 20px;
-    width: 24px;
+    font-size: 22px; /* Larger icons */
+    width: 26px; /* Wider icon container */
     text-align: center;
     flex-shrink: 0;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s ease;
+}
+
+.sidebar-item:hover i {
+    transform: scale(1.1); /* Icon grows on hover */
+    color: var(--color-accent-fg, #0969da);
 }
 
 .repo-sidebar.collapsed .sidebar-item {
@@ -158,22 +169,23 @@
 .sidebar-link {
     color: var(--color-fg-default, #1f2328);
     text-decoration: none;
-    font-size: 16px;
+    font-size: 17px; /* Larger font */
     display: flex;
     align-items: center;
     gap: 14px;
-    padding: 12px 14px;
+    padding: 14px 16px; /* Increased padding */
     border-radius: 6px;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     font-weight: 500;
 }
 
 .sidebar-link i {
-    font-size: 20px;
-    width: 24px;
+    font-size: 22px; /* Larger icons */
+    width: 26px; /* Wider icon container */
     text-align: center;
     flex-shrink: 0;
     color: var(--color-fg-muted, #57606a);
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s ease;
 }
 
 .sidebar-link:hover {
@@ -186,6 +198,7 @@
 
 .sidebar-link:hover i {
     color: var(--color-accent-fg, #0969da);
+    transform: scale(1.1); /* Icon grows on hover */
 }
 
 .repo-sidebar.collapsed .sidebar-link {
@@ -218,18 +231,19 @@
 
 /* Enhanced file tree item hover effects - LARGER SIZE */
 .file-tree-item {
-    padding: 10px 12px;
+    padding: 12px 14px; /* Increased padding */
     cursor: pointer;
     color: var(--color-fg-default, #1f2328);
     border-radius: 6px;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    margin: 2px 0;
-    font-size: 15px;
+    margin: 3px 0; /* Increased margin */
+    font-size: 16px; /* Larger font */
 }
 
 .file-tree-item:hover {
     background: var(--color-neutral-subtle, #f6f8fa);
-    transform: translateX(3px);
+    transform: translateX(4px); /* More pronounced movement */
+    box-shadow: inset 2px 0 0 var(--color-border-default, #d0d7de);
 }
 
 .file-tree-item.active {
@@ -262,24 +276,26 @@
     color: var(--color-fg-default, #1f2328);
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px; /* Increased gap */
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     font-weight: 500;
 }
 
 .file-tree-folder .file-tree-icon {
-    font-size: 20px;
+    font-size: 22px; /* Larger icon */
     color: var(--color-accent-fg, #0969da);
     flex-shrink: 0;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s ease;
 }
 
 .file-tree-folder:hover {
     color: var(--color-accent-fg, #0969da);
-    transform: translateX(3px);
+    transform: translateX(4px);
 }
 
 .file-tree-folder:hover .file-tree-icon {
     color: var(--color-accent-emphasis, #0550ae);
+    transform: scale(1.1); /* Icon grows on hover */
 }
 
 /* Enhanced file tree file hover effects - LARGER SIZE */
@@ -287,31 +303,37 @@
     color: var(--color-fg-muted, #57606a);
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px; /* Increased gap */
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .file-tree-file .file-tree-icon {
-    font-size: 20px;
+    font-size: 22px; /* Larger icon */
     flex-shrink: 0;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s ease;
 }
 
 .file-tree-file:hover {
     color: var(--color-fg-default, #1f2328);
-    transform: translateX(3px);
+    transform: translateX(4px);
 }
 
 .file-tree-file:hover .file-tree-icon {
     color: var(--color-accent-fg, #0969da);
+    transform: scale(1.1); /* Icon grows on hover */
 }
 
 /* File tree chevron - LARGER SIZE */
 .file-tree-chevron {
-    font-size: 16px;
-    width: 24px;
+    font-size: 18px; /* Larger chevron */
+    width: 26px; /* Wider container */
     text-align: center;
-    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s ease;
     color: var(--color-fg-muted, #57606a);
+}
+
+.file-tree-item:hover .file-tree-chevron {
+    color: var(--color-accent-fg, #0969da);
 }
 
 .file-tree-chevron.expanded {
@@ -349,6 +371,10 @@
 
 [data-theme="dark"] .file-tree-chevron {
     color: var(--color-fg-muted, #8b949e);
+}
+
+[data-theme="dark"] .file-tree-item:hover .file-tree-chevron {
+    color: var(--color-accent-fg, #58a6ff);
 }
 
 /* =============================================================================

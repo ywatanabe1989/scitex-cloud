@@ -472,7 +472,7 @@ python manage.py runserver 0.0.0.0:8000
 ### Adding a New Page
 1. Create template with unified components:
 ```django
-{% extends 'base.html' %}
+{% extends 'global_base.html' %}
 {% load static %}
 
 {% block content %}
