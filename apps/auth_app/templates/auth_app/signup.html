@@ -10,33 +10,53 @@
   <div class="auth-form">
         <h2 class="mb-4">Sign Up</h2>
         
-        <div class="form-message success">
-          <p><strong>Account created successfully!</strong> You can now log in and start using SciTeX.</p>
-        </div>
-        
         {% if form.errors %}
-        <div class="form-message error" style="display: block;">
-          <p><strong>Error:</strong></p>
-          <ul class="mb-0">
-            {% for field, errors in form.errors.items %}
-              {% for error in errors %}
-                <li>{{ error }}</li>
-              {% endfor %}
-            {% endfor %}
-          </ul>
+        <div class="alert-banner alert-banner-danger" style="margin-bottom: var(--spacing-md);">
+          <div class="warning-banner-container">
+            <div class="warning-banner-content">
+              <i class="warning-banner-icon fas fa-exclamation-circle"></i>
+              <div class="warning-banner-text">
+                <div class="warning-banner-title">Form Errors</div>
+                <div class="warning-banner-description">
+                  <ul class="mb-0" style="margin-left: 1rem;">
+                    {% for field, errors in form.errors.items %}
+                      {% for error in errors %}
+                        <li>{{ error }}</li>
+                      {% endfor %}
+                    {% endfor %}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         {% endif %}
-        
+
         {% if messages %}
           {% for message in messages %}
-            <div class="form-message {% if message.tags == 'error' %}error{% else %}success{% endif %}" style="display: block;">
-              <p>{{ message }}</p>
+            <div class="alert-banner alert-banner-{% if message.tags == 'error' %}danger{% else %}success{% endif %}" style="margin-bottom: var(--spacing-md);">
+              <div class="warning-banner-container">
+                <div class="warning-banner-content">
+                  <i class="warning-banner-icon fas fa-{% if message.tags == 'error' %}exclamation-circle{% else %}check-circle{% endif %}"></i>
+                  <div class="warning-banner-text">
+                    <div class="warning-banner-description">{{ message }}</div>
+                  </div>
+                </div>
+              </div>
             </div>
           {% endfor %}
         {% endif %}
-        
-        <div class="form-message error" id="js-error-message">
-          <p><strong>Error:</strong> <span id="error-message">Something went wrong. Please try again.</span></p>
+
+        <div class="alert-banner alert-banner-danger" id="js-error-message" style="margin-bottom: var(--spacing-md); display: none;">
+          <div class="warning-banner-container">
+            <div class="warning-banner-content">
+              <i class="warning-banner-icon fas fa-exclamation-circle"></i>
+              <div class="warning-banner-text">
+                <div class="warning-banner-title">Error</div>
+                <div class="warning-banner-description"><span id="error-message">Something went wrong. Please try again.</span></div>
+              </div>
+            </div>
+          </div>
         </div>
         
         <form id="signup-form" method="post" action="{% url 'auth_app:signup' %}" autocomplete="on">

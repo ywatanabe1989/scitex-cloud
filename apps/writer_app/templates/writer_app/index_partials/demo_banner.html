@@ -1,15 +1,28 @@
 <!-- Demo/Anonymous Banner -->
 {% if is_demo %}
-<div class="alert alert-{% if is_anonymous %}info{% else %}warning{% endif %} mb-0 rounded-0 text-center" role="alert">
-    {% if is_anonymous %}
-        <i class="fas fa-info-circle me-2"></i>
-        <strong>Demo Mode:</strong> You're using a temporary workspace.
-        <a href="{% url 'auth_app:signup' %}" class="alert-link">Sign up</a> to save your work or
-        <a href="{% url 'auth_app:login' %}" class="alert-link">log in</a> if you have an account.
-    {% else %}
-        <i class="fas fa-exclamation-triangle me-2"></i>
-        <strong>Temporary Workspace:</strong>
-        <a href="/new/" class="alert-link">Create a project</a> to save your manuscripts permanently.
-    {% endif %}
+<div class="alert-banner alert-banner-{% if is_anonymous %}info{% else %}warning{% endif %}" style="margin-bottom: 0;">
+  <div class="warning-banner-container" style="text-align: center;">
+    <div class="warning-banner-content" style="justify-content: center;">
+      {% if is_anonymous %}
+        <i class="warning-banner-icon fas fa-info-circle"></i>
+        <div class="warning-banner-text">
+          <div class="warning-banner-title">Demo Mode</div>
+          <div class="warning-banner-description">
+            You're using a temporary workspace.
+            <a href="{% url 'auth_app:signup' %}">Sign up</a> to save your work or
+            <a href="{% url 'auth_app:login' %}">log in</a> if you have an account.
+          </div>
+        </div>
+      {% else %}
+        <i class="warning-banner-icon fas fa-exclamation-triangle"></i>
+        <div class="warning-banner-text">
+          <div class="warning-banner-title">Temporary Workspace</div>
+          <div class="warning-banner-description">
+            <a href="/new/">Create a project</a> to save your manuscripts permanently.
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
 </div>
 {% endif %}

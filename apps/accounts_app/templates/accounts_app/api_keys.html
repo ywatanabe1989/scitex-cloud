@@ -53,13 +53,6 @@
     color: #721c24;
 }
 
-.new-key-alert {
-    background: #fff3cd;
-    border: 1px solid #ffc107;
-    border-radius: 6px;
-    padding: 1.5rem;
-    margin-bottom: 2rem;
-}
 
 .new-key-display {
     background: #000;
@@ -153,13 +146,22 @@
 
         <!-- New Key Alert (shown once after creation) -->
         {% if new_api_key %}
-        <div class="new-key-alert">
-            <h3 style="margin-top: 0;">✓ API Key Created: {{ new_api_key_name }}</h3>
-            <p style="margin-bottom: 0.5rem;"><strong>⚠️ Important:</strong> Copy this key now. You won't be able to see it again!</p>
-            <div class="new-key-display" id="new-api-key">{{ new_api_key }}</div>
-            <button onclick="copyNewAPIKey(event)" class="btn btn-sm btn-primary">
-                📋 Copy Key
-            </button>
+        <div class="alert-banner alert-banner-success" style="margin-bottom: 2rem;">
+          <div class="warning-banner-container">
+            <div class="warning-banner-content">
+              <i class="warning-banner-icon fas fa-check-circle"></i>
+              <div class="warning-banner-text">
+                <div class="warning-banner-title">API Key Created: {{ new_api_key_name }}</div>
+                <div class="warning-banner-description">
+                  Copy this key now. You won't be able to see it again!
+                  <div class="new-key-display" id="new-api-key" style="margin: 1rem 0;">{{ new_api_key }}</div>
+                  <button onclick="copyNewAPIKey(event)" class="btn btn-sm btn-primary">
+                    <i class="fas fa-copy"></i> Copy Key
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         {% endif %}
 

@@ -58,8 +58,15 @@
 
     {% if messages %}
       {% for message in messages %}
-        <div class="form-message {% if message.tags == 'error' %}error{% else %}success{% endif %}" style="display: block;">
-          <p>{{ message }}</p>
+        <div class="alert-banner alert-banner-{% if message.tags == 'error' %}danger{% else %}success{% endif %}" style="margin-bottom: var(--spacing-md);">
+          <div class="warning-banner-container">
+            <div class="warning-banner-content">
+              <i class="warning-banner-icon fas fa-{% if message.tags == 'error' %}exclamation-circle{% else %}check-circle{% endif %}"></i>
+              <div class="warning-banner-text">
+                <div class="warning-banner-description">{{ message }}</div>
+              </div>
+            </div>
+          </div>
         </div>
       {% endfor %}
     {% endif %}
@@ -76,14 +83,23 @@
       </ul>
     </div>
 
-    <div class="alert alert-warning">
-      <strong><i class="fas fa-info-circle me-2"></i>Important:</strong>
-      <ul class="mb-0 mt-2">
-        <li>This action is <strong>permanent</strong> and cannot be reversed</li>
-        <li>You will be logged out immediately</li>
-        <li>Your username <code>{{ user.username }}</code> may become available for others to use</li>
-        <li>Export any data you want to keep before deleting</li>
-      </ul>
+    <div class="alert-banner alert-banner-warning" style="margin-bottom: var(--spacing-md);">
+      <div class="warning-banner-container">
+        <div class="warning-banner-content">
+          <i class="warning-banner-icon fas fa-exclamation-triangle"></i>
+          <div class="warning-banner-text">
+            <div class="warning-banner-title">Important</div>
+            <div class="warning-banner-description">
+              <ul style="margin-left: 1rem; margin-bottom: 0;">
+                <li>This action is <strong>permanent</strong> and cannot be reversed</li>
+                <li>You will be logged out immediately</li>
+                <li>Your username <code>{{ user.username }}</code> may become available for others to use</li>
+                <li>Export any data you want to keep before deleting</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="danger-zone">

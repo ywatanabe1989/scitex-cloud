@@ -12,9 +12,15 @@
 
     {% if messages %}
       {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-          {{ message }}
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <div class="alert-banner alert-banner-{% if message.tags == 'error' %}danger{% elif message.tags == 'success' %}success{% elif message.tags == 'warning' %}warning{% else %}info{% endif %}" style="margin-bottom: var(--spacing-md);">
+          <div class="warning-banner-container">
+            <div class="warning-banner-content">
+              <i class="warning-banner-icon fas fa-{% if message.tags == 'error' %}exclamation-circle{% elif message.tags == 'success' %}check-circle{% elif message.tags == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+              <div class="warning-banner-text">
+                <div class="warning-banner-description">{{ message }}</div>
+              </div>
+            </div>
+          </div>
         </div>
       {% endfor %}
     {% endif %}
