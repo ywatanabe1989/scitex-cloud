@@ -12,7 +12,7 @@
 {% include "writer_app/index_partials/demo_banner.html" %}
 {% include "writer_app/index_partials/init_prompt.html" %}
 
-<div class="writer-container" {% if not writer_initialized and not is_demo %}style="display: none;"{% endif %}>
+<div class="writer-container" {% if not writer_initialized and not is_demo %}hidden{% endif %}>
     {% include "writer_app/index_partials/sidebar.html" %}
     {% include "writer_app/index_partials/main_editor.html" %}
 </div>

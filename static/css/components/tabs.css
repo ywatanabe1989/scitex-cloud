@@ -45,7 +45,7 @@
   gap: 0;
   border-bottom: 2px solid var(--border-default);
   margin-bottom: 1.5rem;
-  overflow-x: auto;
+  overflow-x: hidden;
   scrollbar-width: thin;
 }
 
@@ -145,16 +145,104 @@
 }
 
 /* =========================
+   SciTeX Tab Aliases (for backward compatibility)
+   ========================= */
+
+/* Container aliases */
+.scitex-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--border-default);
+  margin-bottom: 1.5rem;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+}
+
+.scitex-tabs::-webkit-scrollbar {
+  height: 4px;
+}
+
+.scitex-tabs::-webkit-scrollbar-thumb {
+  background-color: var(--border-default);
+  border-radius: 2px;
+}
+
+/* Individual tab aliases */
+.scitex-tab {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+  position: relative;
+  margin-bottom: -2px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.scitex-tab:hover:not(.active):not(.scitex-tab-active):not(:disabled) {
+  color: var(--text-primary);
+  border-bottom-color: var(--border-default);
+  text-decoration: none;
+}
+
+.scitex-tab.active,
+.scitex-tab.scitex-tab-active {
+  color: var(--text-primary);
+  border-bottom-color: var(--text-primary);
+  font-weight: 600;
+}
+
+.scitex-tab:disabled {
+  color: var(--text-muted);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Dark mode for SciTeX tabs */
+[data-theme="dark"] .scitex-tabs {
+  border-bottom-color: var(--scitex-color-03);
+}
+
+[data-theme="dark"] .scitex-tab {
+  color: var(--scitex-color-05);
+}
+
+[data-theme="dark"] .scitex-tab:hover:not(.active):not(.scitex-tab-active):not(:disabled) {
+  color: var(--scitex-color-07);
+  border-bottom-color: var(--scitex-color-04);
+}
+
+[data-theme="dark"] .scitex-tab.active,
+[data-theme="dark"] .scitex-tab.scitex-tab-active {
+  color: var(--scitex-color-06);
+  border-bottom-color: var(--scitex-color-05);
+}
+
+[data-theme="dark"] .scitex-tab:disabled {
+  color: var(--scitex-color-03);
+}
+
+/* =========================
    Responsive Design
    ========================= */
 
 @media (max-width: 768px) {
-  .tab-item {
+  .tab-item,
+  .scitex-tab {
     padding: 0.625rem 1rem;
     font-size: 0.875rem;
   }
 
-  .tabs {
+  .tabs,
+  .scitex-tabs {
     margin-bottom: 1rem;
   }
 }

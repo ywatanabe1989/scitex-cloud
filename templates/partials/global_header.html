@@ -1,7 +1,7 @@
 {% load static %}
 <!-- GitHub-Style Global Header -->
-<header class="github-header">
-  <div class="github-header-inner">
+<header class="global-header">
+  <div class="global-header-inner">
     <!-- Left: Logo + Main Navigation -->
     <div class="header-left">
       <!-- Logo -->
@@ -182,11 +182,8 @@
         </div>
       {% else %}
         <!-- Not logged in -->
-        <a href="{% url 'auth_app:login' %}" class="header-btn">
+        <a href="{% url 'auth_app:signin' %}" class="header-btn">
           Sign in
-        </a>
-        <a href="{% url 'auth_app:signup' %}" class="header-btn header-btn-primary">
-          Sign up
         </a>
       {% endif %}
     </div>

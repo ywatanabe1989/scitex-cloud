@@ -208,7 +208,11 @@
 
 /* Landing Sections */
 .landing-section {
-  padding: var(--spacing-xxl) 0;
+  padding: 0;
+}
+
+.landing-section .container {
+  padding: var(--spacing-xxl) var(--spacing-lg);
 }
 
 .section-ecosystem {
@@ -299,6 +303,38 @@
   text-decoration: none;
   display: block;
   margin-bottom: var(--spacing-md);
+}
+
+.module-card-link-disabled {
+  text-decoration: none;
+  display: block;
+  margin-bottom: var(--spacing-md);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Disabled card - darker background */
+.module-card-simple:has(.module-card-link-disabled) {
+  background-color: var(--bg-200);  /* Darker than active cards */
+  opacity: 0.75;
+}
+
+/* Disabled card - no hover effects */
+.module-card-simple:has(.module-card-link-disabled):hover {
+  transform: none;
+  box-shadow: var(--box-shadow-sm);
+  border-color: var(--border-default);
+  background-color: var(--bg-200);
+}
+
+/* Disabled card - dimmed icon */
+.module-card-simple:has(.module-card-link-disabled) .module-icon img {
+  opacity: 0.5;
+}
+
+.module-card-simple:has(.module-card-link-disabled):hover .module-icon img {
+  opacity: 0.5;  /* Don't brighten on hover */
+  transform: none;  /* Don't scale on hover */
 }
 
 .module-icon {

@@ -7,7 +7,7 @@
             <input type="text" name="q" class="form-control search-input"
                    placeholder="Search literature..."
                    value="{{ query }}" autofocus>
-            <button type="submit" class="btn search-btn" id="searchButton">
+            <button type="submit" class="btn btn-primary search-btn" id="searchButton">
                 <i class="fas fa-search"></i> Search
             </button>
         </div>
@@ -85,7 +85,7 @@
                             <span id="yearMaxDisplay" class="badge bg-secondary">{{ request.GET.year_to|default:'2025' }}</span>
                         </div>
                         <!-- noUiSlider Container -->
-                        <div id="yearSlider" style="margin: 20px 0;"></div>
+                        <div id="yearSlider" class="slider-container"></div>
                         <!-- Hidden Inputs for Form Submission -->
                         <input type="hidden" id="yearFromInput" name="year_from" value="{{ request.GET.year_from|default:'1900' }}">
                         <input type="hidden" id="yearToInput" name="year_to" value="{{ request.GET.year_to|default:'2025' }}">
@@ -109,7 +109,7 @@
                             <span id="citationsMaxDisplay" class="badge bg-secondary">{{ request.GET.max_citations|default:filter_ranges.citations_max|default:'12000' }}</span>
                         </div>
                         <!-- noUiSlider Container -->
-                        <div id="citationsSlider" style="margin: 20px 0;"
+                        <div id="citationsSlider" class="slider-container"
                              data-max="{{ filter_ranges.citations_max|default:'12000' }}"></div>
                         <!-- Hidden Inputs for Form Submission -->
                         <input type="hidden" id="citationsMinInput" name="min_citations" value="{{ request.GET.min_citations|default:'0' }}">
@@ -134,7 +134,7 @@
                             <span id="impactFactorMaxDisplay" class="badge bg-secondary">{{ request.GET.max_impact_factor|default:filter_ranges.impact_factor_max|default:'50.0' }}</span>
                         </div>
                         <!-- noUiSlider Container -->
-                        <div id="impactFactorSlider" style="margin: 20px 0;"
+                        <div id="impactFactorSlider" class="slider-container"
                              data-max="{{ filter_ranges.impact_factor_max|default:'50.0' }}"></div>
                         <!-- Hidden Inputs for Form Submission -->
                         <input type="hidden" id="impactFactorMinInput" name="min_impact_factor" value="{{ request.GET.min_impact_factor|default:'0' }}">

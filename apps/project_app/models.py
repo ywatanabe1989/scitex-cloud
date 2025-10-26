@@ -136,6 +136,14 @@ class Project(models.Model):
     analysis_completed = models.BooleanField(default=False, help_text="Code analysis completed")
     figures_generated = models.BooleanField(default=False, help_text="Visualizations generated")
     manuscript_generated = models.BooleanField(default=False, help_text="Manuscript generated")
+
+    # Language detection
+    primary_language = models.CharField(
+        max_length=50,
+        blank=True,
+        default='',
+        help_text="Auto-detected primary programming language"
+    )
     
     class Meta:
         ordering = ['-updated_at']
@@ -373,6 +381,39 @@ class Project(models.Model):
             return membership.permission_level in ['write', 'admin']
         except ProjectMembership.DoesNotExist:
             return False
+
+    # ----------------------------------------
+    # Language Detection
+    # ----------------------------------------
+
+    def detect_and_save_language(self):
+        """
+        Auto-detect the primary programming language from project files
+        and save it to the database.
+        """
+        from pathlib import Path
+        from .services.language_detector import detect_language_from_files
+
+        if not self.data_location:
+            return None
+
+        try:
+            project_path = Path(self.data_location)
+            if not project_path.exists():
+                return None
+
+            detected_language = detect_language_from_files(project_path)
+            if detected_language:
+                self.primary_language = detected_language
+                self.save(update_fields=['primary_language'])
+                return detected_language
+
+            return None
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.warning(f"Failed to detect language for project {self.slug}: {e}")
+            return None
 
     # ----------------------------------------
     # Gitea Integration Methods

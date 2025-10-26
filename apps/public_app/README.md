@@ -89,7 +89,7 @@ public_app/
 │
 ├── templates/cloud_app/       # HTML templates
 │   ├── landing.html           # Main landing page
-│   ├── login.html             # Login page
+│   ├── signin.html             # Login page
 │   ├── signup.html            # Signup/registration page
 │   ├── premium_subscription.html  # Pricing page
 │   ├── donate.html            # Donation page

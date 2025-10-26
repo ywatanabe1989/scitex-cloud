@@ -5,6 +5,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/common/settings-layout.css' %}">
+<link rel="stylesheet" href="{% static 'accounts_app/css/account-modals.css' %}">
 <style>
 /* Account settings danger zone styling */
 .danger-zone {
@@ -14,6 +15,79 @@
 
 .danger-zone .section-title {
     color: var(--color-danger-fg);
+}
+
+/* Password toggle button styling (matching signup page) */
+.input-group {
+    display: flex;
+}
+
+.input-group .form-control {
+    flex: 1;
+}
+
+.input-group .btn {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.input-group .toggle-password {
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--border-default);
+    border-left: 0;
+    background-color: var(--bg-surface);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s ease-in-out;
+}
+
+.input-group .toggle-password:hover {
+    background-color: var(--color-canvas-subtle);
+    color: var(--text-primary);
+}
+
+.input-group .toggle-password:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(108, 139, 160, 0.15);
+}
+
+/* Password requirements styling (matching signup page) */
+.password-rules {
+    background-color: var(--color-canvas-subtle);
+    border: 1px solid var(--color-border-default);
+    border-radius: 8px;
+    padding: 1rem;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}
+
+.password-rules-title {
+    font-weight: 600;
+    color: var(--color-fg-default);
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.password-rule {
+    margin-bottom: 0.4rem;
+    color: #6c757d;  /* Gray for default/untouched */
+    display: flex;
+    align-items: center;
+    transition: color 0.3s ease;
+}
+
+.password-rule.invalid {
+    color: #dc3545;  /* Red for invalid */
+}
+
+.password-rule.valid {
+    color: #28a745;  /* Green for valid */
+}
+
+.password-rule i {
+    margin-right: 0.5rem;
+    width: 16px;
+    font-size: 0.75rem;
 }
 </style>
 {% endblock %}
@@ -29,9 +103,9 @@
         <!-- Right Content -->
         <main class="settings-content">
             {% if messages %}
-            <div style="margin-bottom: 16px;">
+            <div class="settings-messages">
                 {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}" style="padding: 12px; background: {% if message.tags == 'success' %}var(--scitex-success){% else %}var(--scitex-error){% endif %}; color: white; border-radius: 6px; margin-bottom: 8px;">
+                <div class="settings-alert settings-alert-{{ message.tags }}">
                     {{ message }}
                 </div>
                 {% endfor %}
@@ -47,8 +121,8 @@
                     <p class="section-subtitle">Update your email address</p>
                 </div>
                 <div style="margin-bottom: 16px;">
-                    <p style="color: var(--color-fg-muted); font-size: 14px; margin-bottom: 12px;">
-                        Current email: <strong style="color: var(--color-fg-default);">{{ user.email }}</strong>
+                    <p class="current-email-text">
+                        Current email: <strong class="current-email-value">{{ user.email }}</strong>
                     </p>
                 </div>
                 <div class="form-group">
@@ -71,16 +145,30 @@
                 </div>
                 <div class="form-group">
                     <label for="current_password">Current password</label>
-                    <input type="password" id="current_password" name="current_password" class="form-control" required>
+                    <div class="input-group">
+                        <input type="password" id="current_password" name="current_password" class="form-control" required>
+                        <button class="btn btn-outline-secondary toggle-password" type="button" data-target="current_password">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="new_password">New password</label>
-                    <input type="password" id="new_password" name="new_password" class="form-control" required minlength="8">
-                    <p class="form-help">At least 8 characters</p>
+                    <div class="input-group">
+                        <input type="password" id="new_password" name="new_password" class="form-control" required minlength="8">
+                        <button class="btn btn-outline-secondary toggle-password" type="button" data-target="new_password">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="confirm_password">Confirm new password</label>
-                    <input type="password" id="confirm_password" name="confirm_password" class="form-control" required minlength="8">
+                    <div class="input-group">
+                        <input type="password" id="confirm_password" name="confirm_password" class="form-control" required minlength="8">
+                        <button class="btn btn-outline-secondary toggle-password" type="button" data-target="confirm_password">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
                 </div>
                 <button type="submit" class="btn-save">
                     <i class="fas fa-check"></i>
@@ -90,13 +178,13 @@
 
             <div class="form-section danger-zone">
                 <div class="section-header">
-                    <h2 class="section-title" style="color: var(--color-danger-fg);">Delete Account</h2>
+                    <h2 class="section-title danger-zone-title">Delete Account</h2>
                     <p class="section-subtitle">Permanently delete your SciTeX account</p>
                 </div>
-                <p style="color: var(--color-fg-muted); font-size: 14px;">
+                <p class="danger-zone-description">
                     Once you delete your account, there is no going back. Please be certain.
                 </p>
-                <button type="button" class="btn" onclick="showDeleteAccountModal()" style="background: var(--color-danger-emphasis); color: white; border: none; padding: 8px 16px; border-radius: 6px; margin-top: 12px;">
+                <button type="button" class="danger-zone-button" onclick="showDeleteAccountModal()">
                     Delete account
                 </button>
             </div>
@@ -105,26 +193,26 @@
 </div>
 
 <!-- Delete Account Modal -->
-<div id="deleteAccountModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 10000; align-items: center; justify-content: center;">
-    <div style="background: var(--color-canvas-default); border-radius: 12px; max-width: 600px; width: 90%; padding: 24px; box-shadow: 0 8px 32px rgba(0,0,0,0.4);">
-        <div style="display: flex; align-items: center; margin-bottom: 16px;">
-            <svg width="48" height="48" viewBox="0 0 16 16" fill="#d73a49" style="margin-right: 12px;">
+<div id="deleteAccountModal" class="delete-account-modal">
+    <div class="delete-account-modal-content">
+        <div class="delete-account-modal-header">
+            <svg width="48" height="48" viewBox="0 0 16 16" fill="#d73a49" class="delete-account-modal-icon">
                 <path d="M6.5 1.75a.25.25 0 01.25-.25h2.5a.25.25 0 01.25.25V3h-3V1.75zm4.5 0V3h2.25a.75.75 0 110 1.5H2.75a.75.75 0 010-1.5H5V1.75C5 .784 5.784 0 6.75 0h2.5C10.216 0 11 .784 11 1.75zM4.496 6.675a.75.75 0 10-1.492.15l.66 6.6A1.75 1.75 0 005.405 15h5.19c.9 0 1.652-.681 1.741-1.576l.66-6.6a.75.75 0 00-1.492-.149l-.66 6.6a.25.25 0 01-.249.225h-5.19a.25.25 0 01-.249-.225l-.66-6.6z"/>
             </svg>
-            <h2 style="margin: 0; color: var(--color-fg-default); font-size: 20px; font-weight: 600;">Delete your account</h2>
+            <h2 class="delete-account-modal-title">Delete your account</h2>
         </div>
 
-        <div style="padding: 16px; background: var(--color-danger-subtle); border: 1px solid var(--color-danger-emphasis); border-radius: 6px; margin-bottom: 16px;">
-            <p style="margin: 0 0 12px 0; color: var(--color-fg-default); font-weight: 600;">
+        <div class="delete-account-warning">
+            <p class="delete-account-warning-title">
                 Warning: This action cannot be undone!
             </p>
-            <p style="margin: 0; color: var(--color-fg-default); font-size: 14px;">
+            <p class="delete-account-warning-text">
                 This will permanently delete your account <strong>{{ user.username }}</strong>, all your projects, files, and data. All collaborator associations will be removed.
             </p>
         </div>
 
-        <p style="color: var(--color-fg-default); margin-bottom: 8px; font-size: 14px;">
-            Please type <strong style="color: var(--color-danger-fg);">{{ user.username }}</strong> to confirm.
+        <p class="delete-account-confirm-text">
+            Please type <strong class="delete-account-username">{{ user.username }}</strong> to confirm.
         </p>
 
         <input
@@ -133,14 +221,14 @@
             data-username="{{ user.username }}"
             placeholder="{{ user.username }}"
             oninput="checkDeleteAccountInput()"
-            style="width: 100%; padding: 8px 12px; border: 1px solid var(--color-border-default); border-radius: 6px; font-size: 14px; margin-bottom: 16px; background: var(--color-canvas-default); color: var(--color-fg-default);"
+            class="delete-account-confirm-input"
         >
 
-        <div style="display: flex; gap: 12px; justify-content: flex-end;">
+        <div class="delete-account-modal-actions">
             <button
                 type="button"
                 onclick="hideDeleteAccountModal()"
-                style="padding: 8px 16px; border: 1px solid var(--color-border-default); border-radius: 6px; background: var(--color-canvas-default); color: var(--color-fg-default); cursor: pointer; font-size: 14px;"
+                class="delete-account-cancel-btn"
             >
                 Cancel
             </button>
@@ -151,7 +239,7 @@
                 data-username="{{ user.username }}"
                 onclick="submitDeleteAccount()"
                 disabled
-                style="padding: 8px 16px; border: none; border-radius: 6px; background: #d73a49; color: white; cursor: pointer; font-size: 14px; font-weight: 600; opacity: 0.5;"
+                class="delete-account-confirm-btn"
             >
                 I understand the consequences, delete my account
             </button>

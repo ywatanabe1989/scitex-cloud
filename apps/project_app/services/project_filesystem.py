@@ -592,11 +592,127 @@ This project directory is managed by SciTeX Cloud. You can:
             'directory_created_at': datetime.now().isoformat(),
             'structure_version': '1.0'
         }
-        
+
         metadata_path = project_path / '.scitex_project.json'
         with open(metadata_path, 'w') as f:
             json.dump(metadata, f, indent=2)
-    
+
+    def initialize_scitex_writer_template(self, project: Project) -> Tuple[bool, Optional[Path]]:
+        """
+        Initialize SciTeX Writer template structure for a project.
+
+        Creates the directory structure:
+        scitex/writer/01_manuscript/contents/
+
+        Also creates a sample .tex file and optional settings.yaml
+
+        Args:
+            project: Project instance
+
+        Returns:
+            Tuple of (success: bool, path: Optional[Path])
+        """
+        try:
+            project_path = self.get_project_root_path(project)
+            if not project_path:
+                return False, None
+
+            # Create scitex/writer/01_manuscript/contents/ directory structure
+            writer_base = project_path / 'scitex' / 'writer'
+            manuscript_dir = writer_base / '01_manuscript'
+            contents_dir = manuscript_dir / 'contents'
+
+            # Ensure all directories exist
+            if not self._ensure_directory(contents_dir):
+                return False, None
+
+            # Create sample .tex file in contents/
+            sample_tex_path = contents_dir / 'main.tex'
+            sample_tex_content = r"""\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{amsmath}
+
+\title{""" + project.name + r"""}
+\author{""" + (project.owner.get_full_name() or project.owner.username) + r"""}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+""" + (project.description or 'Write your abstract here.') + r"""
+\end{abstract}
+
+\section{Introduction}
+
+Write your introduction here.
+
+\section{Methods}
+
+Describe your methods here.
+
+\section{Results}
+
+Present your results here.
+
+\section{Conclusion}
+
+Conclude your work here.
+
+\end{document}
+"""
+
+            with open(sample_tex_path, 'w', encoding='utf-8') as f:
+                f.write(sample_tex_content)
+
+            # Create optional settings.yaml (if YAML is available)
+            if HAS_YAML:
+                settings_path = writer_base / 'settings.yaml'
+                settings_content = {
+                    'project': project.name,
+                    'manuscript': '01_manuscript',
+                    'compiler': 'pdflatex',
+                    'output_dir': 'build',
+                    'main_file': 'contents/main.tex',
+                    'bibliography': None,
+                    'created_at': datetime.now().isoformat()
+                }
+
+                with open(settings_path, 'w', encoding='utf-8') as f:
+                    yaml.dump(settings_content, f, default_flow_style=False)
+
+            # Create a README in writer directory
+            readme_path = writer_base / 'README.md'
+            readme_content = f"""# SciTeX Writer - {project.name}
+
+This directory contains LaTeX manuscript files for your project.
+
+## Structure
+
+- `01_manuscript/contents/` - Your LaTeX source files
+- `settings.yaml` - Writer configuration (optional)
+
+## Usage
+
+1. Edit your LaTeX files in `01_manuscript/contents/`
+2. Use the SciTeX Writer interface to compile and preview
+3. Generated PDFs will be available in the build directory
+
+## Example
+
+The `main.tex` file has been created as a starting template. Feel free to modify it or add more files.
+"""
+
+            with open(readme_path, 'w', encoding='utf-8') as f:
+                f.write(readme_content)
+
+            return True, writer_base
+        except Exception as e:
+            print(f"Error initializing SciTeX Writer template: {e}")
+            return False, None
+
     def _get_file_extension(self, doc_type: str) -> str:
         """Get appropriate file extension for document type."""
         extensions = {

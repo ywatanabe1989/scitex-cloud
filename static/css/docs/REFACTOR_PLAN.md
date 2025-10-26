@@ -84,7 +84,7 @@
 │   ├── dropdown.css
 │   ├── features.css
 │   ├── logo.css
-│   └── github-header.css             # 🔄 Moved from root
+│   └── global-header.css             # 🔄 Moved from root
 │
 ├── pages/                            # Page-specific styles
 │   ├── index.css
@@ -235,7 +235,7 @@ scitex-components.css:
 ### Phase 4: Reorganize Misplaced Files
 
 **Tasks:**
-1. [ ] Move `github_header.css` → `components/github-header.css`
+1. [ ] Move `github_header.css` → `components/global-header.css`
 2. [ ] Update imports in templates
 3. [ ] Verify `products/products-common.css` usage
    - If unused: move to `legacy/`
@@ -248,7 +248,7 @@ scitex-components.css:
 <link rel="stylesheet" href="{% static 'css/github_header.css' %}">
 
 <!-- NEW -->
-<link rel="stylesheet" href="{% static 'css/components/github-header.css' %}">
+<link rel="stylesheet" href="{% static 'css/components/global-header.css' %}">
 ```
 
 ---

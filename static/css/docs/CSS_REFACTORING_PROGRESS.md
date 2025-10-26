@@ -1,8 +1,8 @@
 # CSS Architecture Refactoring - Progress Report
 
 **Branch:** `refactor/css-architecture`
-**Date:** 2025-10-24
-**Status:** Phase 2 Complete ✅
+**Date:** 2025-10-26 (Updated)
+**Status:** Phase 2 Complete ✅ | auth_app Refactored ✅
 
 ---
 
@@ -145,7 +145,26 @@
 
 ## Next Steps
 
-### Phase 3: Template Migration (Pending)
+### Phase 3: App-Specific CSS Refactoring (In Progress)
+
+**Goal:** Refactor app-specific inline CSS to use central CSS variables
+
+**Apps refactored:**
+1. ✅ **auth_app** (2025-10-26) - Refactored inline CSS to use central CSS variables
+   - Created `/apps/auth_app/static/auth_app/css/auth.css` (layout-only)
+   - Updated `auth_base.html` to use CSS variables
+   - Updated `signup.html` to use CSS variables
+   - Replaced 20+ hardcoded colors with semantic variables
+   - See: `/docs/from_agents/AUTH_APP_CSS_REFACTORING_2025-10-26.md`
+
+**Apps pending:**
+2. ⏳ **accounts_app** - Account settings pages
+3. ⏳ **project_app** - Project management pages
+4. ⏳ **scholar_app** - Scholar pages
+5. ⏳ **writer_app** - Writer pages
+6. ⏳ **public_app** - Landing pages
+
+### Phase 4: Template Migration (Pending)
 
 **Goal:** Update HTML templates to use new utilities and components
 
@@ -155,7 +174,7 @@
 3. ⏳ Product page templates - Replace products.css classes
 4. ⏳ Repository page templates - Replace repository.css classes
 
-### Phase 4: Delete Page-Specific CSS (Pending)
+### Phase 5: Delete Page-Specific CSS (Pending)
 
 **Files to delete after migration:**
 - `/static/css/pages/landing.css` (2,094 lines)

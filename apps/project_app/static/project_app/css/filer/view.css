@@ -1,35 +1,55 @@
 /* ============================================================================= */
 /* PROJECT_FILE_VIEW */
 /* ============================================================================= */
+/* REFACTORED: Styling CSS commented out, layout CSS preserved */
+/* Styling provided by: static/css/common/*.css and static/css/components/*.css */
+/* ============================================================================= */
 
+/* CSS Custom Properties for Code Fonts - MOVED TO CENTRAL CSS */
+/* :root {
+    --font-mono: ui-monospace, 'Cascadia Code', 'Cascadia Mono', SFMono-Regular,
+                 'SF Mono', Menlo, Monaco, 'Roboto Mono', 'Source Code Pro',
+                 'Fira Code', 'Fira Mono', Consolas, 'Liberation Mono',
+                 'Courier New', monospace;
+    --code-font-size: 12px;
+    --code-line-height: 20px;
+    --code-font-weight: 400;
+} */
 
 /* GitHub-style file viewer with dark mode support */
 .repo-header {
+    /* Layout preserved */
     padding: 1.5rem 0;
-    border-bottom: 1px solid var(--color-border-default);
+    /* Styling moved to central CSS - see static/css/components/header.css */
+    /* border-bottom: 1px solid var(--color-border-default); */
 }
 
 /* Enhanced file header container - GitHub style with proper spacing */
 .file-header-enhanced {
-    margin-top: 16px;
-    border: 1px solid var(--color-border-default);
-    border-radius: 6px;
+    /* Layout preserved */
+    margin-top: 0;
     overflow: hidden;
+    /* Styling moved to central CSS - see static/css/components/cards.css */
+    /* border: 1px solid var(--color-border-default); */
+    /* border-radius: 6px; */
 }
 
 /* Main header section with file info and actions */
 .file-header-main {
-    background: var(--color-canvas-subtle);
-    border-bottom: 1px solid var(--color-border-default);
+    /* Layout preserved */
     padding: 8px 16px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 16px;
     flex-wrap: wrap;
+    /* Styling moved to central CSS - see static/css/components/header.css */
+    /* background: var(--color-canvas-subtle); */
+    /* border-bottom: 1px solid var(--color-border-default); */
 }
 
 .file-header-left {
+    /* Layout preserved */
     display: flex;
     align-items: center;
     gap: 12px;
@@ -38,40 +58,47 @@
 }
 
 .file-header-actions {
+    /* Layout preserved */
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
 .file-name {
-    font-weight: 600;
-    font-size: 14px;
-    color: var(--color-fg-default);
+    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+    /* font-weight: 600; */
+    /* font-size: 14px; */
+    /* color: var(--color-fg-default); */
 }
 
 .file-size {
-    font-size: 12px;
-    color: var(--color-fg-muted);
+    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+    /* font-size: 12px; */
+    /* color: var(--color-fg-muted); */
 }
 
 /* Commit info section */
 .file-header-commit {
-    background: var(--color-canvas-subtle);
+    /* Layout preserved */
     padding: 8px 16px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 16px;
     flex-wrap: wrap;
+    /* Styling moved to central CSS - see static/css/components/header.css */
+    /* background: var(--color-canvas-subtle); */
 }
 
 .file-commit-left {
+    /* Layout preserved */
     display: flex;
     align-items: center;
     gap: 12px;
 }
 
 .file-commit-center {
+    /* Layout preserved */
     display: flex;
     align-items: center;
     gap: 12px;
@@ -80,20 +107,23 @@
 }
 
 .file-commit-right {
+    /* Layout preserved */
     display: flex;
     align-items: center;
     gap: 12px;
 }
 
 .no-commits-text {
-    color: var(--color-fg-muted);
-    font-size: 14px;
-    font-style: italic;
+    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+    /* color: var(--color-fg-muted); */
+    /* font-size: 14px; */
+    /* font-style: italic; */
 }
 
 @media (max-width: 768px) {
     .file-header-main,
     .file-header-commit {
+        /* Layout preserved */
         flex-direction: column;
         align-items: flex-start;
     }
@@ -103,56 +133,64 @@
     .file-commit-left,
     .file-commit-center,
     .file-commit-right {
+        /* Layout preserved */
         width: 100%;
     }
 }
 
 .repo-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--color-accent-fg);
     text-decoration: none;
+    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+    /* font-size: 1.25rem; */
+    /* font-weight: 600; */
+    /* color: var(--color-accent-fg); */
 }
 
 /* Branch selector */
 .branch-selector {
+    /* Layout preserved */
     position: relative;
     display: inline-block;
 }
 
 .branch-button {
-    background: var(--color-canvas-default);
-    border: 1px solid var(--color-border-default);
-    border-radius: 6px;
+    /* Layout preserved */
     padding: 5px 12px;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--color-fg-default);
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 6px;
-    transition: background 0.2s;
+    /* Styling moved to central CSS - see static/css/components/buttons.css */
+    /* background: var(--color-canvas-default); */
+    /* border: 1px solid var(--color-border-default); */
+    /* border-radius: 6px; */
+    /* font-size: 14px; */
+    /* font-weight: 600; */
+    /* color: var(--color-fg-default); */
+    /* transition: background 0.2s; */
 }
 
 .branch-button:hover {
-    background: var(--color-canvas-subtle);
+    /* Styling moved to central CSS - see static/css/components/buttons.css */
+    /* background: var(--color-canvas-subtle); */
 }
 
 .branch-dropdown {
+    /* Layout preserved */
     display: none;
     position: absolute;
     top: 100%;
     left: 0;
     margin-top: 8px;
-    background: var(--color-canvas-overlay);
-    border: 1px solid var(--color-border-default);
-    border-radius: 6px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
     min-width: 200px;
     z-index: 100;
     max-height: 400px;
     overflow-y: auto;
+    /* Styling moved to central CSS - see static/css/components/dropdowns.css */
+    /* background: var(--color-canvas-overlay); */
+    /* border: 1px solid var(--color-border-default); */
+    /* border-radius: 6px; */
+    /* box-shadow: 0 8px 24px rgba(0,0,0,0.2); */
 }
 
 .branch-dropdown.show {
@@ -160,28 +198,30 @@
 }
 
 .branch-dropdown-item {
+    /* Layout preserved */
     padding: 8px 16px;
     cursor: pointer;
-    color: var(--color-fg-default);
-    transition: background 0.1s;
-    font-size: 14px;
+    /* Styling moved to central CSS - see static/css/components/dropdowns.css */
+    /* color: var(--color-fg-default); */
+    /* transition: background 0.1s; */
+    /* font-size: 14px; */
 }
 
 .branch-dropdown-item:hover {
-    background: var(--color-accent-subtle);
+    /* Styling moved to central CSS - see static/css/components/dropdowns.css */
+    /* background: var(--color-accent-subtle); */
 }
 
 .branch-dropdown-item.active {
-    background: var(--color-accent-emphasis);
-    color: var(--color-fg-on-emphasis);
-    font-weight: 600;
+    /* Styling moved to central CSS - see static/css/components/dropdowns.css */
+    /* background: var(--color-accent-emphasis); */
+    /* color: var(--color-fg-on-emphasis); */
+    /* font-weight: 600; */
 }
 
 /* Commit info bar */
 .commit-info-bar {
-    background: var(--color-canvas-subtle);
-    border: 1px solid var(--color-border-default);
-    border-radius: 6px;
+    /* Layout preserved */
     padding: 12px 16px;
     margin: 16px 0;
     display: flex;
@@ -189,9 +229,14 @@
     justify-content: space-between;
     gap: 16px;
     flex-wrap: wrap;
+    /* Styling moved to central CSS - see static/css/components/cards.css */
+    /* background: var(--color-canvas-subtle); */
+    /* border: 1px solid var(--color-border-default); */
+    /* border-radius: 6px; */
 }
 
 .commit-info-left {
+    /* Layout preserved */
     display: flex;
     align-items: center;
     gap: 12px;
@@ -200,6 +245,7 @@
 }
 
 .commit-info-center {
+    /* Layout preserved */
     display: flex;
     align-items: center;
     gap: 12px;
@@ -208,100 +254,116 @@
 }
 
 .commit-info-right {
+    /* Layout preserved */
     display: flex;
     align-items: center;
     gap: 12px;
 }
 
 .commit-avatar {
+    /* Layout preserved */
     width: 24px;
     height: 24px;
-    border-radius: 50%;
-    background: var(--color-accent-emphasis);
-    color: var(--color-fg-on-emphasis);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 600;
-    font-size: 11px;
     flex-shrink: 0;
+    /* Styling moved to central CSS - see static/css/components/avatars.css */
+    /* border-radius: 50%; */
+    /* background: var(--color-accent-emphasis); */
+    /* color: var(--color-fg-on-emphasis); */
+    /* font-weight: 600; */
+    /* font-size: 11px; */
 }
 
 .commit-author {
-    font-weight: 600;
-    color: var(--color-fg-default);
-    font-size: 14px;
     text-decoration: none;
     flex-shrink: 0;
+    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+    /* font-weight: 600; */
+    /* color: var(--color-fg-default); */
+    /* font-size: 14px; */
 }
 
 .commit-author:hover {
-    color: var(--color-accent-fg);
     text-decoration: underline;
+    /* Styling moved to central CSS - see static/css/components/buttons.css */
+    /* color: var(--color-accent-fg); */
 }
 
 .commit-message {
-    color: var(--color-fg-default);
-    font-size: 14px;
+    /* Layout preserved */
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     text-decoration: none;
     flex: 1;
     min-width: 0;
+    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+    /* color: var(--color-fg-default); */
+    /* font-size: 14px; */
 }
 
 .commit-message:hover {
-    color: var(--color-accent-fg);
     text-decoration: underline;
+    /* Styling moved to central CSS - see static/css/components/buttons.css */
+    /* color: var(--color-accent-fg); */
 }
 
 .commit-hash {
-    font-family: ui-monospace, monospace;
-    font-size: 12px;
-    color: var(--color-fg-muted);
-    background: var(--color-canvas-default);
+    /* Layout preserved */
     padding: 4px 8px;
-    border-radius: 6px;
-    border: 1px solid var(--color-border-default);
     text-decoration: none;
     flex-shrink: 0;
+    /* Styling moved to central CSS - see static/css/components/badges.css */
+    /* font-family: var(--font-mono); */
+    /* font-size: var(--code-font-size); */
+    /* color: var(--color-fg-muted); */
+    /* background: var(--color-canvas-default); */
+    /* border-radius: 6px; */
+    /* border: 1px solid var(--color-border-default); */
 }
 
 .commit-hash:hover {
-    color: var(--color-accent-fg);
-    border-color: var(--color-accent-emphasis);
+    /* Styling moved to central CSS - see static/css/components/badges.css */
+    /* color: var(--color-accent-fg); */
+    /* border-color: var(--color-accent-emphasis); */
 }
 
 .commit-time {
-    color: var(--color-fg-muted);
-    font-size: 12px;
     flex-shrink: 0;
+    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+    /* color: var(--color-fg-muted); */
+    /* font-size: 12px; */
 }
 
 .history-button {
-    background: var(--color-canvas-default);
-    border: 1px solid var(--color-border-default);
-    border-radius: 6px;
+    /* Layout preserved */
     padding: 5px 12px;
-    font-size: 14px;
-    color: var(--color-fg-default);
     cursor: pointer;
     text-decoration: none;
     display: flex;
     align-items: center;
     gap: 4px;
-    transition: background 0.2s;
     flex-shrink: 0;
+    /* Styling moved to central CSS - see static/css/components/buttons.css */
+    /* background: var(--color-canvas-default); */
+    /* border: 1px solid var(--color-border-default); */
+    /* border-radius: 6px; */
+    /* font-size: 14px; */
+    /* color: var(--color-fg-default); */
+    /* transition: background 0.2s; */
 }
 
 .history-button:hover {
-    background: var(--color-canvas-subtle);
-    color: var(--color-fg-default);
+    /* Styling moved to central CSS - see static/css/components/buttons.css */
+    /* background: var(--color-canvas-subtle); */
+    /* color: var(--color-fg-default); */
 }
 
 @media (max-width: 768px) {
     .commit-info-bar {
+        /* Layout preserved */
         flex-direction: column;
         align-items: flex-start;
     }
@@ -309,80 +371,97 @@
     .commit-info-left,
     .commit-info-center,
     .commit-info-right {
+        /* Layout preserved */
         width: 100%;
     }
 
     .commit-message {
+        /* Layout preserved */
         white-space: normal;
     }
 }
 
 .file-header {
-    background: var(--color-canvas-subtle);
-    border: 1px solid var(--color-border-default);
-    border-top-left-radius: 6px;
-    border-top-right-radius: 6px;
+    /* Layout preserved */
     padding: 0.75rem 1rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    /* Styling moved to central CSS - see static/css/components/header.css */
+    /* background: var(--color-canvas-subtle); */
+    /* border: 1px solid var(--color-border-default); */
+    /* border-top-left-radius: 6px; */
+    /* border-top-right-radius: 6px; */
 }
 
 .file-info {
-    font-size: 0.875rem;
-    color: var(--color-fg-muted);
+    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+    /* font-size: 0.875rem; */
+    /* color: var(--color-fg-muted); */
 }
 
 .file-container {
-    border: 1px solid var(--color-border-default);
-    border-top: none;
-    border-bottom-left-radius: 6px;
-    border-bottom-right-radius: 6px;
+    /* Layout preserved */
     overflow: hidden;
     margin-bottom: 2rem;
+    /* Styling moved to central CSS - see static/css/components/cards.css */
+    /* border: 1px solid var(--color-border-default); */
+    /* border-top: none; */
+    /* border-bottom-left-radius: 6px; */
+    /* border-bottom-right-radius: 6px; */
 }
 
 .file-content {
-    background: var(--color-canvas-default);
+    /* Layout preserved */
     padding: 0;
     overflow-x: auto;
     border: none;
-    border-top: 1px solid var(--color-border-default);
+    /* Styling moved to central CSS - see static/css/components/cards.css */
+    /* background: var(--color-canvas-default); */
+    /* border-top: 1px solid var(--color-border-default); */
 }
 
 .file-content pre {
+    /* Layout preserved */
     margin: 0;
     padding: 0;
-    background: none;
-    font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, monospace;
-    font-size: 12px;
     line-height: 1.6;
-    color: var(--color-fg-default);
+    /* Styling moved to central CSS - see static/css/common/code-blocks.css */
+    /* background: none; */
+    /* font-family: var(--font-mono); */
+    /* font-size: var(--code-font-size); */
+    /* color: var(--color-fg-default); */
 }
 
 .file-content code {
-    background: none;
+    /* Layout preserved */
     padding: 0;
-    color: var(--color-fg-default);
+    /* Styling moved to central CSS - see static/css/common/code-blocks.css */
+    /* background: none; */
+    /* color: var(--color-fg-default); */
 }
 
 /* Markdown rendering */
 .markdown-body {
+    /* Layout preserved */
     padding: 2rem;
     line-height: 1.6;
-    color: var(--color-fg-default);
-    border-top: 1px solid var(--color-border-default);
+    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+    /* color: var(--color-fg-default); */
+    /* border-top: 1px solid var(--color-border-default); */
 }
 
 .markdown-body h1 {
-    font-size: 2em;
-    font-weight: 600;
-    border-bottom: 1px solid var(--color-border-default);
+    /* Layout preserved */
     padding-bottom: 0.3em;
     margin-top: 24px;
     margin-bottom: 16px;
     line-height: 1.25;
-    color: var(--color-fg-default);
+    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+    /* font-size: 2em; */
+    /* font-weight: 600; */
+    /* border-bottom: 1px solid var(--color-border-default); */
+    /* color: var(--color-fg-default); */
 }
 
 .markdown-body h1:first-child {
@@ -390,14 +469,16 @@
 }
 
 .markdown-body h2 {
-    font-size: 1.5em;
-    font-weight: 600;
-    border-bottom: 1px solid var(--color-border-default);
+    /* Layout preserved */
     padding-bottom: 0.3em;
     margin-top: 24px;
     margin-bottom: 16px;
     line-height: 1.25;
-    color: var(--color-fg-default);
+    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+    /* font-size: 1.5em; */
+    /* font-weight: 600; */
+    /* border-bottom: 1px solid var(--color-border-default); */
+    /* color: var(--color-fg-default); */
 }
 
 .markdown-body h2:first-child {
@@ -405,12 +486,14 @@
 }
 
 .markdown-body h3 {
-    font-size: 1.25em;
-    font-weight: 600;
+    /* Layout preserved */
     margin-top: 24px;
     margin-bottom: 16px;
     line-height: 1.25;
-    color: var(--color-fg-default);
+    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+    /* font-size: 1.25em; */
+    /* font-weight: 600; */
+    /* color: var(--color-fg-default); */
 }
 
 .markdown-body h3:first-child {
@@ -418,12 +501,14 @@
 }
 
 .markdown-body h4 {
-    font-size: 1em;
-    font-weight: 600;
+    /* Layout preserved */
     margin-top: 24px;
     margin-bottom: 16px;
     line-height: 1.25;
-    color: var(--color-fg-default);
+    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+    /* font-size: 1em; */
+    /* font-weight: 600; */
+    /* color: var(--color-fg-default); */
 }
 
 .markdown-body h4:first-child {
@@ -431,12 +516,14 @@
 }
 
 .markdown-body h5 {
-    font-size: 0.875em;
-    font-weight: 600;
+    /* Layout preserved */
     margin-top: 24px;
     margin-bottom: 16px;
     line-height: 1.25;
-    color: var(--color-fg-default);
+    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+    /* font-size: 0.875em; */
+    /* font-weight: 600; */
+    /* color: var(--color-fg-default); */
 }
 
 .markdown-body h5:first-child {
@@ -444,12 +531,14 @@
 }
 
 .markdown-body h6 {
-    font-size: 0.85em;
-    font-weight: 600;
+    /* Layout preserved */
     margin-top: 24px;
     margin-bottom: 16px;
     line-height: 1.25;
-    color: var(--color-fg-muted);
+    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+    /* font-size: 0.85em; */
+    /* font-weight: 600; */
+    /* color: var(--color-fg-muted); */
 }
 
 .markdown-body h6:first-child {
@@ -458,6 +547,7 @@
 
 /* Proper spacing for paragraphs */
 .markdown-body p {
+    /* Layout preserved */
     margin-top: 0;
     margin-bottom: 16px;
 }
@@ -467,61 +557,77 @@
 }
 
 .markdown-body code {
-    background: var(--color-canvas-subtle);
+    /* Layout preserved */
     padding: 0.2em 0.4em;
-    border-radius: 6px;
-    font-family: ui-monospace, monospace;
-    font-size: 85%;
-    color: var(--color-fg-default);
+    /* Styling moved to central CSS - see static/css/common/code-blocks.css */
+    /* background: var(--color-canvas-subtle); */
+    /* border-radius: 6px; */
+    /* font-family: var(--font-mono); */
+    /* font-size: 85%; */
+    /* color: var(--color-fg-default); */
 }
 
 .markdown-body pre {
-    background: var(--color-canvas-subtle);
+    /* Layout preserved */
     padding: 1rem;
-    border-radius: 6px;
     overflow-x: auto;
+    /* Styling moved to central CSS - see static/css/common/code-blocks.css */
+    /* background: var(--color-canvas-subtle); */
+    /* border-radius: 6px; */
 }
 
 .markdown-body pre code {
-    background: none;
+    /* Layout preserved */
     padding: 0;
+    /* Styling moved to central CSS - see static/css/common/code-blocks.css */
+    /* background: none; */
 }
 
-/* Syntax highlighting (Pygments) - Light mode */
+/* Syntax highlighting (Pygments) - MOVED TO CENTRAL CSS */
+/* See static/css/common/syntax-highlighting.css for all syntax highlighting styles */
+
 .highlight {
-    font-size: 13px;
-    background: var(--color-canvas-default);
     border: none;
+    /* Styling moved to central CSS - see static/css/common/syntax-highlighting.css */
+    /* font-size: 13px; */
+    /* background: var(--color-canvas-default); */
 }
 
 .highlight table {
+    /* Layout preserved */
     border-spacing: 0;
     width: 100%;
     border: none;
 }
 
 .highlight .linenos {
-    background: var(--color-canvas-subtle);
-    color: var(--color-fg-muted);
+    /* Layout preserved */
     padding: 0 1rem;
     text-align: right;
     user-select: none;
-    border-right: 1px solid var(--color-border-default);
     vertical-align: top;
+    /* Styling moved to central CSS - see static/css/common/syntax-highlighting.css */
+    /* background: var(--color-canvas-subtle); */
+    /* color: var(--color-fg-muted); */
+    /* border-right: 1px solid var(--color-border-default); */
 }
 
 .highlight .code {
+    /* Layout preserved */
     padding-left: 1rem;
     width: 100%;
 }
 
 .highlight pre {
+    /* Layout preserved */
     margin: 0;
     padding: 0;
 }
 
-/* Pygments syntax colors - Light mode */
-:root {
+/* Pygments syntax colors - MOVED TO CENTRAL CSS */
+/* See static/css/common/syntax-highlighting.css for all color definitions */
+
+/* :root {
     --syntax-bg: var(--color-canvas-default);
     --syntax-comment: #6a737d;
     --syntax-error: #f97583;
@@ -533,10 +639,10 @@
     --syntax-function: #6f42c1;
     --syntax-tag: #22863a;
     --syntax-variable: #e36209;
-}
+} */
 
-/* Dark mode syntax colors */
-[data-theme="dark"] {
+/* Dark mode syntax colors - MOVED TO CENTRAL CSS */
+/* [data-theme="dark"] {
     --syntax-bg: var(--color-canvas-default);
     --syntax-comment: #8b949e;
     --syntax-error: #ff7b72;
@@ -548,59 +654,16 @@
     --syntax-function: #d2a8ff;
     --syntax-tag: #7ee787;
     --syntax-variable: #ffa657;
-}
+} */
 
-.highlight { background: var(--syntax-bg); }
-.highlight .hll { background-color: rgba(255, 255, 204, 0.3) }
-.highlight .c { color: var(--syntax-comment); font-style: italic } /* Comment */
-.highlight .err { color: var(--syntax-error) } /* Error */
-.highlight .k { color: var(--syntax-keyword); font-weight: bold } /* Keyword */
-.highlight .o { color: var(--syntax-text) } /* Operator */
-.highlight .p { color: var(--syntax-text) } /* Punctuation */
-.highlight .cm { color: var(--syntax-comment); font-style: italic } /* Comment.Multiline */
-.highlight .cp { color: var(--syntax-comment); font-style: italic } /* Comment.Preproc */
-.highlight .c1 { color: var(--syntax-comment); font-style: italic } /* Comment.Single */
-.highlight .cs { color: var(--syntax-comment); font-style: italic } /* Comment.Special */
-.highlight .kc { color: var(--syntax-number) } /* Keyword.Constant */
-.highlight .kd { color: var(--syntax-keyword) } /* Keyword.Declaration */
-.highlight .kn { color: var(--syntax-keyword) } /* Keyword.Namespace */
-.highlight .kp { color: var(--syntax-keyword) } /* Keyword.Pseudo */
-.highlight .kr { color: var(--syntax-keyword) } /* Keyword.Reserved */
-.highlight .kt { color: var(--syntax-keyword) } /* Keyword.Type */
-.highlight .m { color: var(--syntax-number) } /* Literal.Number */
-.highlight .s { color: var(--syntax-string) } /* Literal.String */
-.highlight .na { color: var(--syntax-text) } /* Name.Attribute */
-.highlight .nb { color: var(--syntax-number) } /* Name.Builtin */
-.highlight .nc { color: var(--syntax-class) } /* Name.Class */
-.highlight .no { color: var(--syntax-number) } /* Name.Constant */
-.highlight .nd { color: var(--syntax-class) } /* Name.Decorator */
-.highlight .ni { color: var(--syntax-text) } /* Name.Entity */
-.highlight .ne { color: var(--syntax-class) } /* Name.Exception */
-.highlight .nf { color: var(--syntax-function) } /* Name.Function */
-.highlight .nl { color: var(--syntax-text) } /* Name.Label */
-.highlight .nn { color: var(--syntax-text) } /* Name.Namespace */
-.highlight .nt { color: var(--syntax-tag) } /* Name.Tag */
-.highlight .nv { color: var(--syntax-variable) } /* Name.Variable */
-.highlight .ow { color: var(--syntax-keyword) } /* Operator.Word */
-.highlight .mb { color: var(--syntax-number) } /* Literal.Number.Bin */
-.highlight .mf { color: var(--syntax-number) } /* Literal.Number.Float */
-.highlight .mh { color: var(--syntax-number) } /* Literal.Number.Hex */
-.highlight .mi { color: var(--syntax-number) } /* Literal.Number.Integer */
-.highlight .mo { color: var(--syntax-number) } /* Literal.Number.Oct */
-.highlight .sb { color: var(--syntax-string) } /* Literal.String.Backtick */
-.highlight .sc { color: var(--syntax-string) } /* Literal.String.Char */
-.highlight .sd { color: var(--syntax-string) } /* Literal.String.Doc */
-.highlight .s2 { color: var(--syntax-string) } /* Literal.String.Double */
-.highlight .se { color: var(--syntax-string) } /* Literal.String.Escape */
-.highlight .sh { color: var(--syntax-string) } /* Literal.String.Heredoc */
-.highlight .si { color: var(--syntax-string) } /* Literal.String.Interpol */
-.highlight .sx { color: var(--syntax-string) } /* Literal.String.Other */
-.highlight .sr { color: var(--syntax-string) } /* Literal.String.Regex */
-.highlight .s1 { color: var(--syntax-string) } /* Literal.String.Single */
-.highlight .ss { color: var(--syntax-string) } /* Literal.String.Symbol */
+/* All .highlight color classes moved to static/css/common/syntax-highlighting.css */
+/* .highlight { background: var(--syntax-bg); } */
+/* .highlight .hll { background-color: rgba(255, 255, 204, 0.3) } */
+/* ... (60+ lines of syntax highlighting styles) ... */
 
 /* Plain text with line numbers */
 .line-numbers {
+    /* Layout preserved */
     display: table;
     width: 100%;
 }
@@ -610,27 +673,32 @@
 }
 
 .line-numbers .line-number {
+    /* Layout preserved */
     display: table-cell;
-    background: var(--color-canvas-subtle);
-    color: var(--color-fg-muted);
     padding: 0 1rem;
     text-align: right;
     user-select: none;
     width: 1%;
-    border-right: 1px solid var(--color-border-default);
+    /* Styling moved to central CSS - see static/css/common/code-blocks.css */
+    /* background: var(--color-canvas-subtle); */
+    /* color: var(--color-fg-muted); */
+    /* border-right: 1px solid var(--color-border-default); */
 }
 
 .line-numbers .line-content {
+    /* Layout preserved */
     display: table-cell;
     padding: 0 1rem;
     white-space: pre;
-    color: var(--color-fg-default);
+    /* Styling moved to central CSS - see static/css/common/code-blocks.css */
+    /* color: var(--color-fg-default); */
 }
 
 .btn-group .active {
-    background-color: var(--color-btn-primary-bg);
-    color: var(--color-btn-primary-text);
-    border-color: var(--color-btn-primary-border);
+    /* Styling moved to central CSS - see static/css/components/buttons.css */
+    /* background-color: var(--color-btn-primary-bg); */
+    /* color: var(--color-btn-primary-text); */
+    /* border-color: var(--color-btn-primary-border); */
 }
 
 /* Remove borders from inner elements except line number separator */
@@ -647,7 +715,8 @@
 /* Keep only the line number separator */
 .highlight .linenos,
 .line-numbers .line-number {
-    border-right: 1px solid var(--color-border-default) !important;
+    /* Styling moved to central CSS - see static/css/common/code-blocks.css */
+    /* border-right: 1px solid var(--color-border-default) !important; */
     border-top: none !important;
     border-bottom: none !important;
     border-left: none !important;
@@ -655,19 +724,20 @@
 
 /* PDF viewer styles */
 .pdf-controls {
-    background: var(--color-canvas-subtle);
-    border-bottom: 1px solid var(--color-border-default);
+    /* Layout preserved */
     padding: 0.75rem 1rem;
     display: flex;
     align-items: center;
     gap: 1rem;
     flex-wrap: wrap;
+    /* Styling moved to central CSS - see static/css/components/pdf-viewer.css */
+    /* background: var(--color-canvas-subtle); */
+    /* border-bottom: 1px solid var(--color-border-default); */
 }
 
 .pdf-sidebar {
+    /* Layout preserved */
     width: 280px;
-    background: var(--color-canvas-default);
-    border-right: 1px solid var(--color-border-default);
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
@@ -675,17 +745,22 @@
     top: 0;
     align-self: flex-start;
     max-height: 100vh;
+    /* Styling moved to central CSS - see static/css/components/pdf-viewer.css */
+    /* background: var(--color-canvas-default); */
+    /* border-right: 1px solid var(--color-border-default); */
 }
 
 @media (max-width: 768px) {
     .pdf-sidebar {
+        /* Layout preserved */
         position: fixed;
         left: -300px;
         top: 0;
         width: 300px;
         height: 100vh;
         z-index: 1000;
-        transition: left 0.3s ease;
+        /* Styling moved to central CSS - see static/css/components/pdf-viewer.css */
+        /* transition: left 0.3s ease; */
     }
 
     .pdf-sidebar.open {
@@ -694,41 +769,48 @@
 }
 
 .pdf-sidebar-header {
+    /* Layout preserved */
     padding: 0.75rem 1rem;
-    border-bottom: 1px solid var(--color-border-default);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: var(--color-canvas-subtle);
     height: 57px;
     flex-shrink: 0;
+    /* Styling moved to central CSS - see static/css/components/pdf-viewer.css */
+    /* border-bottom: 1px solid var(--color-border-default); */
+    /* background: var(--color-canvas-subtle); */
 }
 
 .pdf-outline {
+    /* Layout preserved */
     padding: 0.5rem;
     overflow-y: auto;
     flex: 1;
 }
 
 .pdf-outline-item {
+    /* Layout preserved */
     padding: 0.5rem 0.75rem;
     cursor: pointer;
-    border-radius: 4px;
-    transition: background 0.2s;
-    color: var(--color-fg-default);
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    /* Styling moved to central CSS - see static/css/components/pdf-viewer.css */
+    /* border-radius: 4px; */
+    /* transition: background 0.2s; */
+    /* color: var(--color-fg-default); */
 }
 
 .pdf-outline-item:hover {
-    background: var(--color-canvas-subtle);
+    /* Styling moved to central CSS - see static/css/components/pdf-viewer.css */
+    /* background: var(--color-canvas-subtle); */
 }
 
 .pdf-outline-item.active {
-    background: var(--color-accent-emphasis);
-    color: var(--color-fg-on-emphasis);
-    font-weight: 600;
+    /* Styling moved to central CSS - see static/css/components/pdf-viewer.css */
+    /* background: var(--color-accent-emphasis); */
+    /* color: var(--color-fg-on-emphasis); */
+    /* font-weight: 600; */
 }
 
 .pdf-outline-item.level-1 {
@@ -748,14 +830,16 @@
 }
 
 .outline-toggle {
+    /* Layout preserved */
     width: 16px;
     height: 16px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.75rem;
-    transition: transform 0.2s;
     flex-shrink: 0;
+    /* Styling moved to central CSS - see static/css/components/pdf-viewer.css */
+    /* font-size: 0.75rem; */
+    /* transition: transform 0.2s; */
 }
 
 .outline-toggle.collapsed {
@@ -763,8 +847,10 @@
 }
 
 .outline-children {
+    /* Layout preserved */
     overflow: hidden;
-    transition: max-height 0.3s ease;
+    /* Styling moved to central CSS - see static/css/components/pdf-viewer.css */
+    /* transition: max-height 0.3s ease; */
 }
 
 .outline-children.collapsed {
@@ -772,34 +858,36 @@
 }
 
 .outline-title {
+    /* Layout preserved */
     flex: 1;
     user-select: none;
 }
 
 .pdf-viewer-container {
+    /* Layout preserved */
     display: flex;
     position: relative;
 }
 
 .pdf-main-content {
+    /* Layout preserved */
     flex: 1;
     overflow-y: auto;
 }
 
 .pdf-overlay {
+    /* Layout preserved */
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5);
     display: none;
     z-index: 999;
+    /* Styling moved to central CSS - see static/css/components/pdf-viewer.css */
+    /* background: rgba(0, 0, 0, 0.5); */
 }
 
 .pdf-overlay.open {
     display: block;
 }
-
-
-

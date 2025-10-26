@@ -1,0 +1,76 @@
+# Timestamp: "2025-08-27 09:18:53 (ywatanabe)"
+# File: /home/ywatanabe/proj/pip-project-template/mgmt/ARCHITECTURE.org
+
+* Agreed Architecture
+
+#+BEGIN_SRC text
+src/pip_project_template/
+├── __init__.py
+├── __version__.py
+├── __main__.py                     # Entry point: python -m pip_project_template
+│
+├── cli/                            # Command-line interface with dynamic discovery
+│   ├── __init__.py
+│   │   └── main() -> int           # Dynamic CLI dispatcher with importlib
+│   │
+│   ├── _GlobalArgumentParser.py  # Automated command discovery via pkgutil
+│   │   └── class GlobalArgumentParser:
+│   │       ├── @classmethod get_command_parsers(cls) -> Tuple[Dict, Dict]
+│   │       └── @classmethod get_main_parser(cls) -> Tuple[ArgumentParser, Dict]
+│   │
+│   ├── calculate.py               # Command: calculate
+│   │   ├── create_parser() -> ArgumentParser  # add_help=False
+│   │   └── main(args: Optional[List[str]] = None) -> int
+│   │
+│   ├── serve01.py                 # Command: serve01 (FastMCP Server 01)
+│   │   ├── create_parser() -> ArgumentParser  # --port=8081, --host="localhost", --transport="stdio"
+│   │   └── main(args: Optional[List[str]] = None) -> int
+│   │
+│   ├── serve02.py                 # Command: serve02 (FastMCP Server 02)  
+│   │   ├── create_parser() -> ArgumentParser  # --port=8082, --host="localhost", --transport="stdio"
+│   │   └── main(args: Optional[List[str]] = None) -> int
+│   │
+│   └── info.py                    # Command: info
+│       ├── create_parser() -> ArgumentParser  # add_help=False
+│       └── main(args: Optional[List[str]] = None) -> int
+│
+├── mcp_servers/                    # FastMCP 2.0 server implementations
+│   ├── __init__.py
+│   ├── McpServer01.py             # Basic FastMCP server
+│   │   ├── mcp = FastMCP("mcp-server-01")
+│   │   ├── @mcp.tool calculate(a: float, b: float, operation: str = "add") -> Dict[str, Any]
+│   │   ├── @mcp.tool get_server_info() -> Dict[str, Any]
+│   │   ├── @mcp.resource("server://status") server_status() -> Dict[str, Any]
+│   │   ├── run_server(transport: str = "stdio", host: str = "localhost", port: int = 8081) -> None
+│   │   └── main() -> None          # STDIO mode entry point
+│   │
+│   └── McpServer02.py             # Enhanced FastMCP server with Context
+│       ├── mcp = FastMCP("mcp-server-02")
+│       ├── @mcp.tool async calculate_advanced(a: float, b: float, operation: str = "add", ctx: Context = None) -> Dict[str, Any]
+│       ├── @mcp.tool batch_calculate(operations: List[Dict[str, Any]]) -> List[Dict[str, Any]]
+│       ├── @mcp.tool get_server_info() -> Dict[str, Any]
+│       ├── @mcp.resource("server://metrics") server_metrics() -> Dict[str, Any]
+│       ├── @mcp.resource("calculations://history") calculation_history() -> Dict[str, Any]
+│       ├── run_server(transport: str = "stdio", host: str = "localhost", port: int = 8082) -> None
+│       └── main() -> None          # STDIO mode entry point
+│
+├── core/                          # Core business logic
+│   ├── __init__.py
+│   └── _Calculator.py             # Private file, public class
+│       └── class Calculator:
+│           └── calculate(self, a: float, b: float, operation: str) -> float
+│
+├── types/                         # Type definitions with @dataclass
+│   ├── __init__.py
+│   └── _DataContainer.py
+│       └── @dataclass class DataContainer:
+│           ├── name: str               # Field declaration
+│           ├── value: int              # Field declaration  
+│           └── to_dict(self) -> Dict[str, Any]
+│
+└── utils/                         # Atomic utility functions
+    ├── __init__.py
+    ├── _add.py                    # add(a: float, b: float) -> float
+    └── _multiply.py               # multiply(a: float, b: float) -> float
+#+END_SRC
+

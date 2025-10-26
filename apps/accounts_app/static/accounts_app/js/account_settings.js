@@ -14,6 +14,33 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+// Password Toggle Functionality (matching signup page)
+document.addEventListener('DOMContentLoaded', function() {
+    const toggleButtons = document.querySelectorAll('.toggle-password');
+
+    toggleButtons.forEach(function(button) {
+        button.addEventListener('click', function() {
+            const targetId = this.getAttribute('data-target');
+            const passwordInput = document.getElementById(targetId);
+            const icon = this.querySelector('i');
+
+            if (passwordInput) {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+
+                // Toggle the eye icon
+                if (type === 'password') {
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                } else {
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                }
+            }
+        });
+    });
+});
+
 // Password Validation (same as signup page)
 document.addEventListener('DOMContentLoaded', function() {
     const newPasswordInput = document.getElementById('new_password');
@@ -24,32 +51,22 @@ document.addEventListener('DOMContentLoaded', function() {
         // Add password requirements display
         const requirementsDiv = document.createElement('div');
         requirementsDiv.className = 'password-rules';
-        requirementsDiv.style.cssText = 'background-color: var(--color-canvas-subtle); border: 1px solid var(--color-border-default); border-radius: 8px; padding: 1rem; font-size: 0.9rem; margin-top: 0.5rem;';
         requirementsDiv.innerHTML = `
-            <div style="font-weight: 600; color: var(--color-fg-default); margin-bottom: 0.5rem; font-size: 0.95rem;">Password Requirements:</div>
-            <div class="password-rule" id="rule-length" style="margin-bottom: 0.4rem; color: #dc3545; display: flex; align-items: center; transition: color 0.3s ease;">
-                <i class="fas fa-circle" style="margin-right: 0.5rem; width: 16px; font-size: 0.75rem;"></i> At least 8 characters
-            </div>
-            <div class="password-rule" id="rule-lowercase" style="margin-bottom: 0.4rem; color: #dc3545; display: flex; align-items: center; transition: color 0.3s ease;">
-                <i class="fas fa-circle" style="margin-right: 0.5rem; width: 16px; font-size: 0.75rem;"></i> At least one lowercase letter
-            </div>
-            <div class="password-rule" id="rule-uppercase" style="margin-bottom: 0.4rem; color: #dc3545; display: flex; align-items: center; transition: color 0.3s ease;">
-                <i class="fas fa-circle" style="margin-right: 0.5rem; width: 16px; font-size: 0.75rem;"></i> At least one uppercase letter
-            </div>
-            <div class="password-rule" id="rule-number" style="margin-bottom: 0.4rem; color: #dc3545; display: flex; align-items: center; transition: color 0.3s ease;">
-                <i class="fas fa-circle" style="margin-right: 0.5rem; width: 16px; font-size: 0.75rem;"></i> At least one number
-            </div>
-            <div class="password-rule" id="rule-special" style="margin-bottom: 0.4rem; color: #dc3545; display: flex; align-items: center; transition: color 0.3s ease;">
-                <i class="fas fa-circle" style="margin-right: 0.5rem; width: 16px; font-size: 0.75rem;"></i> At least one special character (!@#$%^&*)
-            </div>
+            <div class="password-rules-title">Password Requirements:</div>
+            <div class="password-rule" id="rule-length"><i class="fas fa-circle"></i> At least 8 characters</div>
+            <div class="password-rule" id="rule-lowercase"><i class="fas fa-circle"></i> At least one lowercase letter</div>
+            <div class="password-rule" id="rule-uppercase"><i class="fas fa-circle"></i> At least one uppercase letter</div>
+            <div class="password-rule" id="rule-number"><i class="fas fa-circle"></i> At least one number</div>
+            <div class="password-rule" id="rule-special"><i class="fas fa-circle"></i> At least one special character (!@#$%^&*)</div>
         `;
 
-        // Insert after new password input
-        newPasswordInput.parentElement.appendChild(requirementsDiv);
+        // Insert after new password input group (parent is .input-group, parent.parent is .form-group)
+        newPasswordInput.parentElement.parentElement.appendChild(requirementsDiv);
 
         // Real-time validation
         newPasswordInput.addEventListener('input', function() {
             const password = this.value;
+            const hasInput = password.length > 0;
 
             const ruleLength = document.getElementById('rule-length');
             const ruleLowercase = document.getElementById('rule-lowercase');
@@ -58,32 +75,37 @@ document.addEventListener('DOMContentLoaded', function() {
             const ruleSpecial = document.getElementById('rule-special');
 
             // Check length
-            updateRule(ruleLength, password.length >= 8, password.length > 0);
+            updatePasswordRule(ruleLength, password.length >= 8, hasInput);
 
             // Check lowercase
-            updateRule(ruleLowercase, /[a-z]/.test(password), password.length > 0);
+            updatePasswordRule(ruleLowercase, /[a-z]/.test(password), hasInput);
 
             // Check uppercase
-            updateRule(ruleUppercase, /[A-Z]/.test(password), password.length > 0);
+            updatePasswordRule(ruleUppercase, /[A-Z]/.test(password), hasInput);
 
             // Check number
-            updateRule(ruleNumber, /\d/.test(password), password.length > 0);
+            updatePasswordRule(ruleNumber, /\d/.test(password), hasInput);
 
             // Check special character
-            updateRule(ruleSpecial, /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password), password.length > 0);
+            updatePasswordRule(ruleSpecial, /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password), hasInput);
         });
     }
 });
 
-function updateRule(element, isValid, hasInput) {
+// Helper function to update password rule state (matching signup page)
+function updatePasswordRule(element, isValid, hasInput) {
+    element.classList.remove('valid', 'invalid');
     if (isValid) {
         element.style.color = '#28a745';  // Green
         element.classList.add('valid');
         element.querySelector('i').className = 'fas fa-check';
-    } else {
+    } else if (hasInput) {
         element.style.color = '#dc3545';  // Red
-        element.classList.remove('valid');
-        element.querySelector('i').className = hasInput ? 'fas fa-times' : 'fas fa-circle';
+        element.classList.add('invalid');
+        element.querySelector('i').className = 'fas fa-times';
+    } else {
+        element.style.color = '#6c757d';  // Gray
+        element.querySelector('i').className = 'fas fa-circle';
     }
 }
 

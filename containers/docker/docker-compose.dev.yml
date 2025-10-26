@@ -7,7 +7,7 @@ services:
       context: ../..
       dockerfile: containers/docker/Dockerfile
     command: >
-      sh -c "pip install --user -e /scitex-code &&
+      sh -c "pip install --user -e '/scitex-code[all]' &&
              python -m playwright install chromium &&
              python manage.py migrate --noinput &&
              python manage.py collectstatic --noinput &&
@@ -87,6 +87,8 @@ services:
     environment:
       - USER_UID=1000
       - USER_GID=1000
+      - GITEA_ADMIN_USER=admin
+      - GITEA_ADMIN_PASSWD=admin
       - GITEA__database__DB_TYPE=postgres
       - GITEA__database__HOST=db:5432
       - GITEA__database__NAME=${POSTGRES_DB:-scitex_cloud_dev}

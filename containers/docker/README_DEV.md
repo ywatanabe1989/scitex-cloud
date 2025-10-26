@@ -1,16 +1,10 @@
 <!-- ---
-!-- Timestamp: 2025-10-26 13:22:12
+!-- Timestamp: 2025-10-26 18:22:03
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/containers/docker/README_DEV.md
 !-- --- -->
 
 # SciTeX Cloud - Local Development with Docker
-
-**Environment:** Local Development (WSL/Linux)
-**Docker:** docker-compose
-**Database:** PostgreSQL (port 5433 on host)
-
----
 
 ## Quick Start (Tested & Working)
 
@@ -214,7 +208,7 @@ if not User.objects.filter(username='ywatanabe').exists():
     user = User.objects.create_user(
         username='ywatanabe',
         email='ywatanabe@scitex.ai',
-        password=os.getenv('SCITEX_YWATANABE_PASSWORD', 'REDACTED'),
+        password=os.getenv('SCITEX_YWATANABE_PASSWORD', 'Ywatanabe2025!'),
         is_active=True
     )
     print('✓ Created ywatanabe')
@@ -228,7 +222,7 @@ EOF
 wait_for_web_healthy() {
     echo_info "Waiting for web container to be healthy..."
     local START_TIME=$SECONDS
-    local TIMEOUT=300
+    local TIMEOUT=1800
 
     timeout $TIMEOUT bash -c '
         while ! docker-compose -f docker-compose.dev.yml ps | grep docker_web_1 | grep -q "Up (healthy)"; do
@@ -256,6 +250,11 @@ wait_for_web_healthy() {
 
 start_dev() {
     # SUDO_PASSWORD="YOUR_PASSWORD"
+    
+    if [ -z "$SUDO_PASSWORD" ]; then
+        echo "\$SUDO_PASSWORD not found. Aborted."
+        return 1
+    fi
 
     cd /home/ywatanabe/proj/scitex-cloud/containers/docker
 
@@ -293,29 +292,41 @@ restart_dev() {
     curl -I http://localhost:${SCITEX_CLOUD_GITEA_HTTP_PORT_DEV:-3000}
 }
 
-start_dev
+# start_dev
+# restart_dev
 ```
 
-**✅ Development environment ready!**
+## Maintainance
+``` bash
+# Makemigartions
+docker exec docker_web_1 python manage.py makemigrations
+```
 
 **Access site:**
 - http://localhost:8000
-- http://localhost:8000/admin/
+- http://localhost:3000
 
----
 
-## What Happens Automatically
+## Gitea
+- Create first Gitea user
+  - http://localhost:3000/user/settings/applications
+  - Gitea API access
+    ```
+    SciTeX Git
+    Repository and Organization Access: All (public, private, and limited)
 
-The entrypoint script handles:
+    Permissions:
 
-1. ✅ **Scitex package installation** - Mounts `/scitex-code` and installs editable mode
-2. ✅ **Database connection wait** - Waits for PostgreSQL to be ready
-3. ✅ **Database migrations** - Runs `python manage.py migrate --noinput`
-4. ✅ **Static files** - Collects static files to `/app/staticfiles`
-5. ✅ **Application startup** - Starts Gunicorn with auto-reload
-6. ✅ **Auto-collectstatic** - Runs every 10 seconds (development only)
-
-**No manual migrations or collectstatic needed!**
+    write:activitypub
+    write:misc
+    write:notification
+    write:organization
+    write:package
+    write:issue
+    write:repository
+    write:user
+    ```
+  - Get Access Token and set to .env.dev
 
 ---
 
@@ -339,13 +350,5 @@ docker_redis_1 (redis:7-alpine)
   - Cache layer
   - Port 6379
 ```
-
----
-
-
-**Development environment ready! Access at http://localhost:8000** 🚀
-
-**Production deployment:** `README_PROD.md`
-**Docker setup guide:** `DOCKER_SETUP.md`
 
 <!-- EOF -->

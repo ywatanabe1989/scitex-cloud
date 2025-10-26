@@ -19,42 +19,6 @@ function getCsrfToken() {
     return '';
 }
 
-function initializeWriterWorkspace(btn) {
-    console.log('[Writer] Initializing workspace via onclick...');
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Creating workspace...';
-
-    const projectId = {{ project.id|default:'null' }};
-
-    fetch('/writer/api/initialize-workspace/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCsrfToken()
-        },
-        body: JSON.stringify({
-            project_id: projectId
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            console.log('[Writer] Workspace initialized successfully');
-            window.location.reload();
-        } else {
-            console.error('[Writer] Initialization failed:', data.error);
-            alert('Failed to initialize workspace: ' + (data.error || 'Unknown error'));
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-rocket me-2"></i>Initialize Writer Workspace';
-        }
-    })
-    .catch(error => {
-        console.error('[Writer] Initialization error:', error);
-        alert('Error initializing workspace: ' + error.message);
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-rocket me-2"></i>Initialize Writer Workspace';
-    });
-}
 document.addEventListener('DOMContentLoaded', function() {
     console.log('[Writer] Initializing project writer interface');
     const projectId = {% if project %}{{ project.id }}{% else %}null{% endif %};
@@ -65,11 +29,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Handle writer workspace initialization
     const initWriterBtn = document.getElementById('init-writer-btn');
+    console.log('[Writer Init] Looking for init-writer-btn button...', initWriterBtn);
+
     if (initWriterBtn) {
-        initWriterBtn.addEventListener('click', function() {
-            console.log('[Writer] Initializing workspace...');
+        console.log('[Writer Init] ✓ Button found, adding click listener');
+        console.log('[Writer Init] Project ID available:', projectId);
+
+        initWriterBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('[Writer Init] ✓ Button clicked!');
+            console.log('[Writer Init] Project ID:', projectId);
+
+            if (!projectId) {
+                console.error('[Writer Init] ✗ No project ID');
+                alert('Error: No project selected');
+                return;
+            }
+
             this.disabled = true;
             this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Creating workspace...';
+            console.log('[Writer Init] Sending POST to /writer/api/initialize-workspace/');
 
             fetch(`/writer/api/initialize-workspace/`, {
                 method: 'POST',
@@ -81,26 +60,37 @@ document.addEventListener('DOMContentLoaded', function() {
                     project_id: projectId
                 })
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('[Writer Init] Response status:', response.status);
+                if (!response.ok) {
+                    console.error('[Writer Init] ✗ HTTP error:', response.status);
+                }
+                return response.json();
+            })
             .then(data => {
+                console.log('[Writer Init] Response data:', data);
                 if (data.success) {
-                    console.log('[Writer] Workspace initialized successfully');
-                    // Reload page to show the editor
+                    console.log('[Writer Init] ✓ Workspace initialized successfully');
+                    console.log('[Writer Init] Reloading page...');
                     window.location.reload();
                 } else {
-                    console.error('[Writer] Initialization failed:', data.error);
+                    console.error('[Writer Init] ✗ Initialization failed:', data.error);
                     alert('Failed to initialize workspace: ' + (data.error || 'Unknown error'));
                     this.disabled = false;
                     this.innerHTML = '<i class="fas fa-rocket me-2"></i>Initialize Writer Workspace';
                 }
             })
             .catch(error => {
-                console.error('[Writer] Initialization error:', error);
+                console.error('[Writer Init] ✗ Fetch error:', error);
                 alert('Error initializing workspace: ' + error.message);
                 this.disabled = false;
                 this.innerHTML = '<i class="fas fa-rocket me-2"></i>Initialize Writer Workspace';
             });
         });
+
+        console.log('[Writer Init] ✓ Click listener attached successfully');
+    } else {
+        console.warn('[Writer Init] ⚠ init-writer-btn button not found in DOM');
     }
 
     // Skip editor initialization if not initialized yet
@@ -710,19 +700,33 @@ document.addEventListener('DOMContentLoaded', function() {
         const splitEditor = document.getElementById('split-editor');
         const compilationPanel = document.getElementById('compilation-panel');
 
-        console.log('Setting up compilation panel...', {
+        console.log('[PDF TOGGLE] Setting up compilation panel...', {
             toggleBtn: !!toggleCompilationBtn,
+            toggleBtnElement: toggleCompilationBtn,
             splitEditor: !!splitEditor,
             compilationPanel: !!compilationPanel
         });
 
-        if (toggleCompilationBtn && splitEditor && compilationPanel) {
-            console.log('✓ Compilation panel toggle button initialized');
+        if (!toggleCompilationBtn) {
+            console.error('[PDF TOGGLE] ✗ toggle-compilation-panel button not found!');
+            return;
+        }
+        if (!splitEditor) {
+            console.error('[PDF TOGGLE] ✗ split-editor div not found!');
+            return;
+        }
+        if (!compilationPanel) {
+            console.error('[PDF TOGGLE] ✗ compilation-panel div not found!');
+            return;
+        }
 
-            toggleCompilationBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                console.log('✓ Toggle compilation panel clicked');
-                const isShowingCompilation = compilationPanel.style.display !== 'none';
+        console.log('[PDF TOGGLE] ✓ All elements found, adding click listener...');
+
+        toggleCompilationBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('[PDF TOGGLE] ✓ Button clicked!');
+            const isShowingCompilation = compilationPanel.style.display !== 'none';
+            console.log('[PDF TOGGLE] Current state - showing compilation:', isShowingCompilation);
 
                 if (isShowingCompilation) {
                     // Switch back to editor
@@ -2242,6 +2246,178 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+
+    // ========================================
+    // TeX Files Browser
+    // ========================================
+
+    let texFilesList = [];
+    let currentTexFile = null;
+    const texFilesListContainer = document.getElementById('tex-files-list');
+    const refreshFilesBtn = document.getElementById('refresh-files-btn');
+
+    function loadTexFilesList() {
+        if (!projectId) {
+            console.log('[TeX Browser] No project ID, skipping file list');
+            return;
+        }
+
+        console.log('[TeX Browser] Loading TeX files list for project', projectId);
+
+        texFilesListContainer.innerHTML = '<div class="text-muted text-center py-3" style="font-size: 0.85rem;"><i class="fas fa-spinner fa-spin me-2"></i>Loading files...</div>';
+
+        fetch(`/writer/project/${projectId}/list-tex-files/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    texFilesList = data.files || [];
+                    renderTexFilesList();
+                    console.log(`[TeX Browser] Loaded ${texFilesList.length} TeX files`);
+                } else {
+                    texFilesListContainer.innerHTML = '<div class="text-muted text-center py-3" style="font-size: 0.85rem;"><i class="fas fa-exclamation-triangle me-2"></i>Failed to load files</div>';
+                    console.error('[TeX Browser] Failed to load files:', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('[TeX Browser] Error loading files:', error);
+                texFilesListContainer.innerHTML = '<div class="text-muted text-center py-3" style="font-size: 0.85rem;"><i class="fas fa-exclamation-triangle me-2"></i>Error loading files</div>';
+            });
+    }
+
+    function renderTexFilesList() {
+        if (!texFilesList || texFilesList.length === 0) {
+            texFilesListContainer.innerHTML = '<div class="text-muted text-center py-3" style="font-size: 0.85rem;"><i class="fas fa-folder-open me-2"></i>No TeX files found</div>';
+            return;
+        }
+
+        // Group files by doc_type
+        const groupedFiles = {};
+        texFilesList.forEach(file => {
+            if (!groupedFiles[file.doc_type]) {
+                groupedFiles[file.doc_type] = [];
+            }
+            groupedFiles[file.doc_type].push(file);
+        });
+
+        let html = '';
+        const docTypeOrder = ['manuscript', 'supplementary', 'revision', 'shared'];
+
+        docTypeOrder.forEach(docType => {
+            if (groupedFiles[docType]) {
+                groupedFiles[docType].forEach(file => {
+                    const isActive = currentTexFile && currentTexFile.section === file.section && currentTexFile.doc_type === file.doc_type;
+                    const modifiedClass = ''; // Will be updated based on save status
+
+                    html += `
+                        <div class="tex-file-item ${isActive ? 'active' : ''} ${modifiedClass}"
+                             data-section="${file.section}"
+                             data-doc-type="${file.doc_type}"
+                             data-file-name="${file.name}">
+                            <div class="tex-file-info">
+                                <div class="tex-file-name">${file.name}</div>
+                                <div class="tex-file-meta">
+                                    <span class="tex-file-doc-type">${file.doc_type}</span>
+                                    <span>${file.word_count} words</span>
+                                </div>
+                            </div>
+                            <div class="tex-file-status saved" title="Saved"></div>
+                        </div>
+                    `;
+                });
+            }
+        });
+
+        texFilesListContainer.innerHTML = html;
+
+        // Add click handlers
+        document.querySelectorAll('.tex-file-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const section = item.dataset.section;
+                const docType = item.dataset.docType;
+                switchToTexFile(section, docType);
+            });
+        });
+    }
+
+    function switchToTexFile(section, docType) {
+        console.log(`[TeX Browser] Switching to ${docType}/${section}`);
+
+        // Check for unsaved changes
+        if (hasUnsavedChanges) {
+            if (!confirm('You have unsaved changes. Do you want to switch files? (Changes will be lost)')) {
+                return;
+            }
+        }
+
+        // Update current file
+        currentTexFile = {section, doc_type: docType};
+
+        // Switch document type if needed
+        if (currentDocType !== docType) {
+            const doctypeSelector = document.getElementById('doctype-selector');
+            if (doctypeSelector) {
+                doctypeSelector.value = docType;
+                currentDocType = docType;
+            }
+        }
+
+        // Switch section
+        currentSection = section;
+
+        // Load the section content
+        loadSection(section);
+
+        // Update UI
+        renderTexFilesList();
+        updateSectionList();
+    }
+
+    function updateFileStatus(section, docType, status) {
+        const fileItem = texFilesListContainer.querySelector(
+            `.tex-file-item[data-section="${section}"][data-doc-type="${docType}"]`
+        );
+
+        if (fileItem) {
+            const statusIndicator = fileItem.querySelector('.tex-file-status');
+            if (statusIndicator) {
+                statusIndicator.classList.remove('saved', 'modified');
+                statusIndicator.classList.add(status);
+                statusIndicator.title = status === 'saved' ? 'Saved' : 'Modified';
+            }
+
+            if (status === 'modified') {
+                fileItem.classList.add('modified');
+            } else {
+                fileItem.classList.remove('modified');
+            }
+        }
+    }
+
+    // Refresh button handler
+    if (refreshFilesBtn) {
+        refreshFilesBtn.addEventListener('click', () => {
+            console.log('[TeX Browser] Refreshing file list');
+            loadTexFilesList();
+        });
+    }
+
+    // Load files on initialization
+    if (writerInitialized || isDemo) {
+        loadTexFilesList();
+    }
+
+    // Hook into save/load to update file status
+    const originalMarkAsUnsaved = markAsUnsaved;
+    markAsUnsaved = function(section) {
+        originalMarkAsUnsaved(section);
+        updateFileStatus(section, currentDocType, 'modified');
+    };
+
+    const originalMarkAsSaved = markAsSaved;
+    markAsSaved = function(section) {
+        originalMarkAsSaved(section);
+        updateFileStatus(section, currentDocType, 'saved');
+    };
 
     // Initialize real-time collaboration (Phase 1.1 - WebSocket)
     {% if user.is_authenticated and project %}

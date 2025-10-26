@@ -267,7 +267,7 @@ static/project_app/icons/ (16 icons)
 
 All main templates extend from the global base template:
 ```django
-{% extends 'base.html' %}
+{% extends 'global_base.html' %}
 ```
 
 **Note:** Per the SciTeX apps architecture, a `project_app_base.html` template could be created to establish app-specific base styling and structure. However, the current implementation directly extends `base.html` which is acceptable for this app.

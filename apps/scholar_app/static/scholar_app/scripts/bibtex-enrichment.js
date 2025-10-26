@@ -62,6 +62,21 @@ function handleFileSelect(e) {
     // Show file name in UI
     const fileName = file.name;
     console.log('Selected file:', fileName);
+
+    // Update UI to show selected file
+    const fileNameDisplay = document.getElementById('fileNameDisplay');
+    const fileNameSpan = document.getElementById('fileName');
+    if (fileNameDisplay && fileNameSpan) {
+        fileNameSpan.textContent = fileName;
+        fileNameDisplay.style.display = 'block';
+    }
+
+    // Auto-submit the form to start enrichment
+    const form = document.getElementById('bibtexEnrichmentForm');
+    if (form) {
+        console.log('Auto-submitting form for file:', fileName);
+        form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    }
 }
 
 /**
@@ -1069,8 +1084,11 @@ function displayRecentJobs(jobs) {
         const activeStyle = isActive ? 'border-color: var(--scitex-color-03); background: var(--color-canvas-subtle);' : '';
 
         html += `
-            <div style="margin-bottom: 0.75rem; border-left: 3px solid ${statusColor}; padding: 0.75rem; background: var(--color-canvas-subtle); border-radius: 4px;">
-                <div style="font-weight: 600; color: var(--color-fg-default); font-size: 0.9rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+            <div class="recent-job-card" data-job-id="${job.id}" style="margin-bottom: 0.75rem; border-left: 3px solid ${statusColor}; padding: 0.75rem; background: var(--color-canvas-subtle); border-radius: 4px; position: relative;">
+                <button class="remove-job-btn" onclick="removeJobCard('${job.id}')" style="position: absolute; top: 0.5rem; right: 0.5rem; background: transparent; border: none; color: var(--color-fg-muted); cursor: pointer; font-size: 1rem; padding: 0.25rem; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 4px; opacity: 0.5; transition: all 0.2s;" onmouseover="this.style.opacity='1'; this.style.background='var(--error-color)'; this.style.color='var(--white)';" onmouseout="this.style.opacity='0.5'; this.style.background='transparent'; this.style.color='var(--color-fg-muted)';" title="Remove from list">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div style="font-weight: 600; color: var(--color-fg-default); font-size: 0.9rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; padding-right: 1.5rem;">
                     <i class="fas ${statusIcon}" style="color: ${statusColor}; font-size: 0.85rem;"></i>
                     <span style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(job.original_filename)}">${escapeHtml(job.original_filename)}</span>
                 </div>
@@ -1111,6 +1129,43 @@ window.handleDownload = function() {
 window.downloadJob = function(jobId) {
     console.log('Downloading job:', jobId);
     window.location.href = `/scholar/api/bibtex/job/${jobId}/download/`;
+};
+
+/**
+ * Remove job card from recent jobs list
+ * @param {string} jobId - Job UUID to remove
+ */
+window.removeJobCard = function(jobId) {
+    console.log('Removing job card:', jobId);
+
+    // Find the card element
+    const card = document.querySelector(`.recent-job-card[data-job-id="${jobId}"]`);
+
+    if (!card) {
+        console.warn('Job card not found:', jobId);
+        return;
+    }
+
+    // Add fade-out animation
+    card.style.transition = 'all 0.3s ease-out';
+    card.style.opacity = '0';
+    card.style.transform = 'translateX(20px)';
+
+    // Remove card after animation completes
+    setTimeout(() => {
+        card.remove();
+        console.log('Job card removed from DOM:', jobId);
+
+        // Check if there are any remaining job cards
+        const remainingCards = document.querySelectorAll('.recent-job-card');
+        if (remainingCards.length === 0) {
+            // Show "no jobs" message
+            const container = document.getElementById('recentJobsContainer');
+            if (container) {
+                container.innerHTML = '<div style="text-align: center; color: var(--color-fg-muted); padding: 1rem; font-size: 0.9rem;">No recent jobs</div>';
+            }
+        }
+    }, 300);
 };
 
 /**

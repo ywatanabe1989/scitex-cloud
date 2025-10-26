@@ -924,6 +924,66 @@ def save_latex_section(request, project_id):
 
 
 @login_required
+def list_tex_files(request, project_id):
+    """List all .tex files in the project's writer directory with metadata."""
+    if request.method != 'GET':
+        return JsonResponse({'error': 'GET required'}, status=405)
+
+    try:
+        project = Project.objects.get(id=project_id, owner=request.user)
+        manuscript = Manuscript.objects.get(project=project, owner=request.user)
+    except (Project.DoesNotExist, Manuscript.DoesNotExist):
+        return JsonResponse({'error': 'Project or manuscript not found'}, status=404)
+
+    paper_path = manuscript.get_project_paper_path()
+    if not paper_path or not paper_path.exists():
+        return JsonResponse({'files': [], 'message': 'Writer directory not initialized'})
+
+    # Define the directory structure to scan
+    directories_to_scan = [
+        ('manuscript', paper_path / '01_manuscript' / 'contents'),
+        ('revision', paper_path / '03_revision' / 'contents'),
+        ('supplementary', paper_path / '02_supplementary' / 'contents'),
+        ('shared', paper_path / 'shared'),
+    ]
+
+    files_info = []
+
+    for doc_type, dir_path in directories_to_scan:
+        if not dir_path.exists():
+            continue
+
+        for tex_file in dir_path.glob('*.tex'):
+            try:
+                stat = tex_file.stat()
+                with open(tex_file, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                    word_count = len(content.split())
+
+                files_info.append({
+                    'name': tex_file.name,
+                    'section': tex_file.stem,  # filename without extension
+                    'doc_type': doc_type,
+                    'path': str(tex_file.relative_to(paper_path)),
+                    'size': stat.st_size,
+                    'modified': stat.st_mtime,
+                    'word_count': word_count,
+                })
+            except Exception as e:
+                logging.error(f"Error reading {tex_file}: {e}")
+                continue
+
+    # Sort by doc_type and name
+    files_info.sort(key=lambda x: (x['doc_type'], x['name']))
+
+    return JsonResponse({
+        'success': True,
+        'files': files_info,
+        'total': len(files_info)
+    })
+
+
+@login_required
 def manuscript_compile(request, slug):
     """Compile a manuscript to PDF."""
     # Get manuscript and check permissions

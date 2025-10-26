@@ -1,0 +1,193 @@
+/* =============================================================================
+ * SciTeX Auth App - Layout-Only CSS
+ * =============================================================================
+ *
+ * PURPOSE: This file contains ONLY layout and positioning rules for auth_app.
+ * All colors, backgrounds, borders, shadows, and typography are handled by
+ * central CSS files in /static/css/common/ and /static/css/components/
+ *
+ * STRATEGY: Following CSS refactoring best practices
+ * - Keep: display, flex, grid, position, width, height, padding, margin, gap
+ * - Use central CSS for: colors, backgrounds, borders, shadows, font-styles
+ *
+ * CENTRAL CSS FILES USED:
+ * - /static/css/common/colors.css - Color variables and theme support
+ * - /static/css/common/forms.css - Form styling
+ * - /static/css/common/buttons.css - Button styling
+ * - /static/css/components/hero.css - Hero/header sections
+ * - /static/css/common/cards.css - Card components
+ * - /static/css/common/badges.css - Badge components
+ *
+ * ============================================================================= */
+
+/* =========================
+   Auth Container Layout
+   ========================= */
+
+.auth-container {
+  max-width: 500px;
+  margin: 0 auto;
+  padding-bottom: 4rem;
+}
+
+/* Wider layout for signup page with benefits sidebar */
+.auth-container.wide {
+  max-width: 900px;
+}
+
+/* Remove max-width constraint on larger screens */
+@media (min-width: 992px) {
+  .auth-container.wide {
+    max-width: 1000px;
+  }
+}
+
+/* =========================
+   Auth Header Layout
+   ========================= */
+
+.auth-header {
+  /* Layout only - styling from central CSS */
+  padding: 3rem 0;
+  margin-bottom: 3rem;
+  /* background, color, border-radius, text-shadow - use central CSS hero component */
+}
+
+.auth-header h1 {
+  /* Layout only - color from central CSS */
+  /* color, font-weight - use central CSS typography */
+}
+
+.auth-header .lead {
+  /* Layout only - color/opacity from central CSS */
+  /* color, opacity - use central CSS typography */
+}
+
+/* =========================
+   Auth Form Layout
+   ========================= */
+
+.auth-form {
+  /* Layout */
+  padding: 2rem;
+  margin-bottom: 2rem;
+  /* background-color, border-radius, box-shadow, border - use central CSS card component */
+}
+
+/* =========================
+   Form Message Layout
+   ========================= */
+
+.form-message {
+  /* Layout */
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  /* border-radius, background-color, color, border - use central CSS alert component */
+}
+
+/* Django messages integration */
+.django-messages {
+  margin-bottom: 1.5rem;
+}
+
+/* =========================
+   Signup Page - Benefits Section Layout
+   ========================= */
+
+.benefits-list {
+  margin-top: 3rem;
+}
+
+.benefit-item {
+  /* Layout */
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  align-items: flex-start;
+}
+
+.benefit-icon {
+  /* Layout/sizing */
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  /* font-size, color, background-color, border-radius - use central CSS */
+}
+
+/* =========================
+   Password Rules Layout
+   ========================= */
+
+.password-rules {
+  /* Layout */
+  padding: 1rem;
+  /* background-color, border, border-radius, font-size - use central CSS */
+}
+
+.password-rules-title {
+  /* Layout */
+  margin-bottom: 0.5rem;
+  /* font-weight, color, font-size - use central CSS */
+}
+
+.password-rule {
+  /* Layout */
+  margin-bottom: 0.4rem;
+  display: flex;
+  align-items: center;
+  /* color, transition - use central CSS */
+}
+
+.password-rule i {
+  /* Layout */
+  margin-right: 0.5rem;
+  width: 16px;
+  /* font-size - use central CSS */
+}
+
+/* =========================
+   Input Group Layout
+   ========================= */
+
+.input-group {
+  /* Layout - ensure flexbox behavior */
+  display: flex;
+}
+
+.input-group .form-control {
+  /* Layout */
+  flex: 1;
+}
+
+.input-group .btn {
+  /* Layout - remove left border radius for attached appearance */
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+/* =========================
+   Academic Benefits Alert Layout
+   ========================= */
+
+.academic-benefits {
+  /* Layout */
+  margin-top: 0.75rem;
+}
+
+.academic-benefits h6 {
+  /* Layout */
+  margin-bottom: 0.5rem;
+}
+
+.academic-benefits ul {
+  /* Layout */
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+/* =========================
+   END OF AUTH.CSS
+   ========================= */

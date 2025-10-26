@@ -1,0 +1,145 @@
+{% load static %}
+<!-- Alternative implementation using SciTeX Seekbar component instead of noUiSlider -->
+<!-- To use this version, replace the filters section in search.html with this partial -->
+
+<!-- Include SciTeX Seekbar Component -->
+<link rel="stylesheet" href="{% static 'css/components/seekbar.css' %}">
+<script src="{% static 'js/components/seekbar.js' %}"></script>
+<script src="{% static 'scholar_app/scripts/seekbar-integration.js' %}"></script>
+
+<!-- Mark this page to use SciTeX Seekbar -->
+<div data-use-scitex-seekbar="true" style="display: none;"></div>
+
+<!-- Row 2: Filters (Collapsed by default) -->
+<div class="accordion-row mb-3">
+    <div class="accordion-row-header collapsed" data-bs-toggle="collapse" data-bs-target="#filtersRow" aria-expanded="false" aria-controls="filtersRow">
+        <div class="d-flex align-items-center gap-2">
+            <i class="fas fa-sliders-h"></i>
+            <span class="fw-bold">Filters</span>
+            <small class="text-muted">(year, citations, impact factor)</small>
+        </div>
+        <i class="fas fa-chevron-down accordion-arrow"></i>
+    </div>
+    <div id="filtersRow" class="accordion-row-content collapse">
+        <!-- Year Range - SciTeX Seekbar Implementation -->
+        <div class="mb-4">
+            <label class="form-label fw-bold">
+                <i class="fas fa-calendar-alt text-primary"></i> Publication Year
+            </label>
+            <div class="range-filter-container">
+                <!-- Display Values -->
+                <div class="d-flex gap-2 align-items-center mb-3">
+                    <span id="yearMinDisplay" class="badge bg-secondary">{{ request.GET.year_from|default:'1900' }}</span>
+                    <span class="text-muted">to</span>
+                    <span id="yearMaxDisplay" class="badge bg-secondary">{{ request.GET.year_to|default:'2025' }}</span>
+                </div>
+
+                <!-- SciTeX Seekbar Container (will be populated by JavaScript) -->
+                <div id="yearSlider" class="slider-container"></div>
+
+                <!-- Hidden Inputs for Form Submission -->
+                <input type="hidden" id="yearFromInput" name="year_from" value="{{ request.GET.year_from|default:'1900' }}">
+                <input type="hidden" id="yearToInput" name="year_to" value="{{ request.GET.year_to|default:'2025' }}">
+
+                <!-- Range Labels -->
+                <div class="d-flex justify-content-between">
+                    <small class="text-muted">1900</small>
+                    <small class="text-muted">2025</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Citation Count Range - SciTeX Seekbar Implementation -->
+        <div class="mb-4">
+            <label class="form-label fw-bold">
+                <i class="fas fa-quote-right text-success"></i> Citation Count
+            </label>
+            <div class="range-filter-container">
+                <!-- Display Values -->
+                <div class="d-flex gap-2 align-items-center mb-3">
+                    <span id="citationsMinDisplay" class="badge bg-secondary">{{ request.GET.min_citations|default:'0' }}</span>
+                    <span class="text-muted">to</span>
+                    <span id="citationsMaxDisplay" class="badge bg-secondary">{{ request.GET.max_citations|default:filter_ranges.citations_max|default:'12000' }}</span>
+                </div>
+
+                <!-- SciTeX Seekbar Container (will be populated by JavaScript) -->
+                <div id="citationsSlider" class="slider-container"
+                     data-max="{{ filter_ranges.citations_max|default:'12000' }}"></div>
+
+                <!-- Hidden Inputs for Form Submission -->
+                <input type="hidden" id="citationsMinInput" name="min_citations" value="{{ request.GET.min_citations|default:'0' }}">
+                <input type="hidden" id="citationsMaxInput" name="max_citations" value="{{ request.GET.max_citations|default:filter_ranges.citations_max|default:'12000' }}">
+
+                <!-- Range Labels -->
+                <div class="d-flex justify-content-between">
+                    <small class="text-muted">0</small>
+                    <small class="text-muted">{{ filter_ranges.citations_max|default:'12000' }}+</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Impact Factor Range - SciTeX Seekbar Implementation -->
+        <div class="mb-4">
+            <label class="form-label fw-bold">
+                <i class="fas fa-star text-warning"></i> Impact Factor
+            </label>
+            <div class="range-filter-container">
+                <!-- Display Values -->
+                <div class="d-flex gap-2 align-items-center mb-3">
+                    <span id="impactFactorMinDisplay" class="badge bg-secondary">{{ request.GET.min_impact_factor|default:'0.0' }}</span>
+                    <span class="text-muted">to</span>
+                    <span id="impactFactorMaxDisplay" class="badge bg-secondary">{{ request.GET.max_impact_factor|default:filter_ranges.impact_factor_max|default:'50.0' }}</span>
+                </div>
+
+                <!-- SciTeX Seekbar Container (will be populated by JavaScript) -->
+                <div id="impactFactorSlider" class="slider-container"
+                     data-max="{{ filter_ranges.impact_factor_max|default:'50.0' }}"></div>
+
+                <!-- Hidden Inputs for Form Submission -->
+                <input type="hidden" id="impactFactorMinInput" name="min_impact_factor" value="{{ request.GET.min_impact_factor|default:'0' }}">
+                <input type="hidden" id="impactFactorMaxInput" name="max_impact_factor" value="{{ request.GET.max_impact_factor|default:filter_ranges.impact_factor_max|default:'50' }}">
+
+                <!-- Range Labels -->
+                <div class="d-flex justify-content-between">
+                    <small class="text-muted">0.0</small>
+                    <small class="text-muted">{{ filter_ranges.impact_factor_max|default:'50.0' }}+</small>
+                </div>
+
+                <small class="text-muted">
+                    <i class="fas fa-external-link-alt"></i>
+                    <a href="https://www.scimagojr.com/journalrank.php" target="_blank" class="text-decoration-none">ScimagoJR</a>
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Additional styles for SciTeX Seekbar integration */
+.range-filter-container .slider-container {
+    margin: 20px 0;
+    padding: 10px 0;
+}
+
+/* Ensure proper spacing */
+.scitex-seekbar-container {
+    padding: 5px 0;
+}
+
+/* Dark mode compatibility */
+[data-theme="dark"] #yearMinDisplay,
+[data-theme="dark"] #yearMaxDisplay,
+[data-theme="dark"] #citationsMinDisplay,
+[data-theme="dark"] #citationsMaxDisplay,
+[data-theme="dark"] #impactFactorMinDisplay,
+[data-theme="dark"] #impactFactorMaxDisplay {
+    background-color: var(--scitex-color-03) !important;
+    color: var(--scitex-color-06) !important;
+}
+</style>
+
+<!-- Debug Info (remove in production) -->
+<script>
+console.log('[SciTeX Seekbar] Alternative filter template loaded');
+console.log('[SciTeX Seekbar] Using SciTeX Seekbar component instead of noUiSlider');
+</script>
