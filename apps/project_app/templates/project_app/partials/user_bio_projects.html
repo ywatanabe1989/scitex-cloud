@@ -29,15 +29,22 @@
 </div>
 {% endif %}
 
-<!-- Empty State for Own Profile -->
+<!-- Welcome Alert for Own Profile -->
 {% if is_own_profile and not profile.bio and not profile.research_interests %}
-<div class="readme-section">
-    <div class="empty-state">
-        <h3 class="empty-state-title">👋 Welcome to your profile!</h3>
-        <p>This is your special profile page. Add information about yourself to make it shine!</p>
-        <a href="/profile/edit/" class="btn btn-primary" style="margin-top: 1rem;">
-            <i class="fas fa-edit"></i> Complete Your Profile
-        </a>
+<div class="alert-banner alert-banner-success" style="margin-bottom: var(--spacing-md);">
+    <div class="warning-banner-container">
+        <div class="warning-banner-content">
+            <i class="warning-banner-icon fas fa-check-circle"></i>
+            <div class="warning-banner-text">
+                <div class="warning-banner-title">👋 Welcome to your profile!</div>
+                <div class="warning-banner-description">
+                    This is your special profile page. Add information about yourself to make it shine!
+                    <a href="/profile/edit/" class="btn btn-primary btn-sm" style="margin-top: 0.75rem; display: inline-block;">
+                        <i class="fas fa-edit"></i> Complete Your Profile
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endif %}
