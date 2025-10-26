@@ -12,6 +12,8 @@
  * @variant btn-success - Success/confirmation button (green)
  * @variant btn-warning - Warning button (yellow)
  * @variant btn-info - Informational button (blue)
+ * @variant btn-dark - Dark button for secondary actions
+ * @variant btn-black - Black button for GitHub and prominent external links
  * @variant btn-text - Text-only button (tertiary/low emphasis)
  * @variant btn-outline-primary - Outlined primary button
  * @variant btn-outline-secondary - Outlined secondary button
@@ -205,6 +207,29 @@
 [data-theme="dark"] .btn-dark:hover,
 [data-theme="dark"] .btn-dark:focus {
   background-color: var(--scitex-color-03);
+  color: white;
+}
+
+/* Black Button - For GitHub and prominent links */
+.btn-black {
+  background-color: #1a1a1a;
+  color: white;
+}
+
+.btn-black:hover, .btn-black:focus {
+  background-color: #000000;
+  color: white;
+}
+
+/* Dark mode: Keep black buttons prominent */
+[data-theme="dark"] .btn-black {
+  background-color: #2d2d2d;
+  color: white;
+}
+
+[data-theme="dark"] .btn-black:hover,
+[data-theme="dark"] .btn-black:focus {
+  background-color: #404040;
   color: white;
 }
 
