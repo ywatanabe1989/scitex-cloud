@@ -14,6 +14,12 @@ function initializeSidebar() {
 
     console.log('Initializing sidebar. Saved state:', savedState);
 
+    // Check if sidebar element exists before trying to manipulate it
+    if (!sidebar) {
+        console.log('Sidebar element not found on this page, skipping sidebar initialization');
+        return;
+    }
+
     // Start collapsed by default, but respect localStorage if user explicitly expanded it
     if (savedState === 'expanded') {
         sidebar.classList.remove('collapsed');

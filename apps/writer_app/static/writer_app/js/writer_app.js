@@ -616,30 +616,31 @@ document.addEventListener('DOMContentLoaded', function() {
             if (sectionItem && !e.target.closest('.section-remove-btn')) {
                 const section = sectionItem.dataset.section;
 
-            // If we are viewing compilation panel, switch back to editor first
-            const compilationPanel = document.getElementById('compilation-panel');
-            const splitEditor = document.getElementById('split-editor');
-            const toggleCompilationBtn = document.getElementById('toggle-compilation-panel');
+                // If we are viewing compilation panel, switch back to editor first
+                const compilationPanel = document.getElementById('compilation-panel');
+                const splitEditor = document.getElementById('split-editor');
+                const toggleCompilationBtn = document.getElementById('toggle-compilation-panel');
 
-            if (compilationPanel && compilationPanel.style.display !== 'none') {
-                // Switch back to editor
-                splitEditor.style.display = 'flex';
-                compilationPanel.style.display = 'none';
-                toggleCompilationBtn.innerHTML = '<i class="fas fa-file-pdf me-2"></i>View PDF';
-                toggleCompilationBtn.classList.remove('btn-info');
-                toggleCompilationBtn.classList.add('btn-primary');
-            }
-
-            if (section !== currentSection) {
-                // Warn if there are unsaved changes
-                if (hasUnsavedChanges) {
-                    if (!confirm(`You have unsaved changes in ${sectionTitles[currentDocType][currentSection]}. Switch anyway? (Changes will be lost)`)) {
-                        return;
-                    }
+                if (compilationPanel && compilationPanel.style.display !== 'none') {
+                    // Switch back to editor
+                    splitEditor.style.display = 'flex';
+                    compilationPanel.style.display = 'none';
+                    toggleCompilationBtn.innerHTML = '<i class="fas fa-file-pdf me-2"></i>View PDF';
+                    toggleCompilationBtn.classList.remove('btn-info');
+                    toggleCompilationBtn.classList.add('btn-primary');
                 }
 
-                // Switch to new section
-                switchToSection(section);
+                if (section !== currentSection) {
+                    // Warn if there are unsaved changes
+                    if (hasUnsavedChanges) {
+                        if (!confirm(`You have unsaved changes in ${sectionTitles[currentDocType][currentSection]}. Switch anyway? (Changes will be lost)`)) {
+                            return;
+                        }
+                    }
+
+                    // Switch to new section
+                    switchToSection(section);
+                }
             }
         });
     } else {
@@ -736,143 +737,133 @@ document.addEventListener('DOMContentLoaded', function() {
             const isShowingCompilation = compilationPanel.style.display !== 'none';
             console.log('[PDF TOGGLE] Current state - showing compilation:', isShowingCompilation);
 
-                if (isShowingCompilation) {
-                    // Switch back to editor
-                    splitEditor.style.display = 'flex';
-                    compilationPanel.style.display = 'none';
-                    this.innerHTML = '<i class="fas fa-file-pdf me-2"></i>View PDF';
-                    this.classList.remove('btn-info');
-                    this.classList.add('btn-primary');
-                } else {
-                    // Switch to compilation view
-                    splitEditor.style.display = 'none';
-                    compilationPanel.style.display = 'flex';
-                    this.innerHTML = '<i class="fas fa-code me-2"></i>Back to Editor';
-                    this.classList.remove('btn-primary');
-                    this.classList.add('btn-info');
+            if (isShowingCompilation) {
+                // Switch back to editor
+                splitEditor.style.display = 'flex';
+                compilationPanel.style.display = 'none';
+                this.innerHTML = '<i class="fas fa-file-pdf me-2"></i>View PDF';
+                this.classList.remove('btn-info');
+                this.classList.add('btn-primary');
+            } else {
+                // Switch to compilation view
+                splitEditor.style.display = 'none';
+                compilationPanel.style.display = 'flex';
+                this.innerHTML = '<i class="fas fa-code me-2"></i>Back to Editor';
+                this.classList.remove('btn-primary');
+                this.classList.add('btn-info');
 
-                    // Load PDFs if they exist
-                    checkForExistingPDFsPanel();
-                }
-            });
+                // Load PDFs if they exist
+                checkForExistingPDFsPanel();
 
-            // Compile button in panel
-            const compileBtnPanel = document.getElementById('compile-btn-panel');
-            console.log('Looking for compile-btn-panel:', !!compileBtnPanel);
+                // Compile button in panel
+                const compileBtnPanel = document.getElementById('compile-btn-panel');
+                console.log('Looking for compile-btn-panel:', !!compileBtnPanel);
 
-            if (compileBtnPanel) {
-                console.log('✓ Compile button in panel found');
-                compileBtnPanel.addEventListener('click', function() {
-                    console.log('✓ Compile button clicked in panel');
+                if (compileBtnPanel) {
+                    console.log('✓ Compile button in panel found');
+                    compileBtnPanel.addEventListener('click', function() {
+                        console.log('✓ Compile button clicked in panel');
 
-                    // Inline compilation start
-                    const stopBtn = document.getElementById('stop-compile-btn');
-                    const logPanel = document.getElementById('compilation-log-panel');
+                        // Inline compilation start
+                        const stopBtn = document.getElementById('stop-compile-btn');
+                        const logPanel = document.getElementById('compilation-log-panel');
 
-                    this.disabled = true;
-                    this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Compiling...';
-                    if (stopBtn) stopBtn.style.display = 'block';
-                    logPanel.textContent = 'Starting compilation...\n';
+                        this.disabled = true;
+                        this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Compiling...';
+                        if (stopBtn) stopBtn.style.display = 'block';
+                        logPanel.textContent = 'Starting compilation...\n';
 
-                    fetch(`/writer/project/${projectId}/compile/`, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRFToken': getCsrfToken()
-                        }
-                    })
-                    .then(response => {
-                        console.log('[COMPILE] Response status:', response.status);
-                        return response.json();
-                    })
-                    .then(data => {
-                        console.log('[COMPILE] Response data:', data);
-                        if (data.success) {
-                            localStorage.setItem(`last_compile_job_${projectId}`, data.job_id);
-                            logPanel.textContent += `Email notification sent.\nJob ID: ${data.job_id}\nMonitoring progress...\n`;
-                            showToast('Compilation started! Email notification sent.', 'success');
-                            pollCompilationStatusPanel(data.job_id);
-                        } else {
-                            logPanel.textContent += `\nError: ${data.error}`;
-                            showToast('Compilation failed: ' + (data.error || 'Unknown error'), 'danger');
+                        fetch(`/writer/project/${projectId}/compile/`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRFToken': getCsrfToken()
+                            }
+                        })
+                        .then(response => {
+                            console.log('[COMPILE] Response status:', response.status);
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log('[COMPILE] Response data:', data);
+                            if (data.success) {
+                                localStorage.setItem(`last_compile_job_${projectId}`, data.job_id);
+                                logPanel.textContent += `Email notification sent.\nJob ID: ${data.job_id}\nMonitoring progress...\n`;
+                                showToast('Compilation started! Email notification sent.', 'success');
+                                pollCompilationStatusPanel(data.job_id);
+                            } else {
+                                logPanel.textContent += `\nError: ${data.error}`;
+                                showToast('Compilation failed: ' + (data.error || 'Unknown error'), 'danger');
+                                this.disabled = false;
+                                this.innerHTML = '<i class="fas fa-file-pdf me-2"></i>Compile PDF';
+                            }
+                        })
+                        .catch(error => {
+                            console.error('[COMPILE] Fetch error:', error);
+                            logPanel.textContent += `\nFetch error: ${error.message}`;
                             this.disabled = false;
                             this.innerHTML = '<i class="fas fa-file-pdf me-2"></i>Compile PDF';
-                        }
-                    })
-                    .catch(error => {
-                        console.error('[COMPILE] Fetch error:', error);
-                        logPanel.textContent += `\nFetch error: ${error.message}`;
-                        this.disabled = false;
-                        this.innerHTML = '<i class="fas fa-file-pdf me-2"></i>Compile PDF';
+                        });
                     });
-                });
-            } else {
-                console.error('✗ Compile button panel NOT FOUND');
-            }
+                } else {
+                    console.error('✗ Compile button panel NOT FOUND');
+                }
 
-            // Quick Compile button in panel
-            const quickCompileBtnPanel = document.getElementById('quick-compile-btn-panel');
-            if (quickCompileBtnPanel) {
-                console.log('✓ Quick compile button in panel found');
-                quickCompileBtnPanel.addEventListener('click', function() {
-                    console.log('✓ Quick compile button clicked in panel');
+                // Quick Compile button in panel
+                const quickCompileBtnPanel = document.getElementById('quick-compile-btn-panel');
+                if (quickCompileBtnPanel) {
+                    console.log('✓ Quick compile button in panel found');
+                    quickCompileBtnPanel.addEventListener('click', function() {
+                        console.log('✓ Quick compile button clicked in panel');
 
-                    const stopBtn = document.getElementById('stop-compile-btn');
-                    const logPanel = document.getElementById('compilation-log-panel');
+                        const stopBtn = document.getElementById('stop-compile-btn');
+                        const logPanel = document.getElementById('compilation-log-panel');
 
-                    this.disabled = true;
-                    this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Quick compiling...';
-                    compileBtnPanel.disabled = true;  // Disable regular compile too
-                    if (stopBtn) stopBtn.style.display = 'block';
-                    logPanel.textContent = 'Starting quick compilation (text only, no figures)...\n';
+                        this.disabled = true;
+                        this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Quick compiling...';
+                        compileBtnPanel.disabled = true;  // Disable regular compile too
+                        if (stopBtn) stopBtn.style.display = 'block';
+                        logPanel.textContent = 'Starting quick compilation (text only, no figures)...\n';
 
-                    fetch(`/writer/project/${projectId}/compile/`, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRFToken': getCsrfToken(),
-                            'Content-Type': 'application/x-www-form-urlencoded'
-                        },
-                        body: 'quick=true'
-                    })
-                    .then(response => {
-                        console.log('[QUICK-COMPILE] Response status:', response.status);
-                        return response.json();
-                    })
-                    .then(data => {
-                        console.log('[QUICK-COMPILE] Response data:', data);
-                        if (data.success) {
-                            localStorage.setItem(`last_compile_job_${projectId}`, data.job_id);
-                            logPanel.textContent += `Email notification sent.\nJob ID: ${data.job_id}\nMonitoring progress...\n`;
-                            showToast('Quick compilation started!', 'success');
-                            pollCompilationStatusPanel(data.job_id);
-                        } else {
-                            logPanel.textContent += `\nError: ${data.error}`;
-                            showToast('Quick compilation failed: ' + (data.error || 'Unknown error'), 'danger');
+                        fetch(`/writer/project/${projectId}/compile/`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRFToken': getCsrfToken(),
+                                'Content-Type': 'application/x-www-form-urlencoded'
+                            },
+                            body: 'quick=true'
+                        })
+                        .then(response => {
+                            console.log('[QUICK-COMPILE] Response status:', response.status);
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log('[QUICK-COMPILE] Response data:', data);
+                            if (data.success) {
+                                localStorage.setItem(`last_compile_job_${projectId}`, data.job_id);
+                                logPanel.textContent += `Email notification sent.\nJob ID: ${data.job_id}\nMonitoring progress...\n`;
+                                showToast('Quick compilation started!', 'success');
+                                pollCompilationStatusPanel(data.job_id);
+                            } else {
+                                logPanel.textContent += `\nError: ${data.error}`;
+                                showToast('Quick compilation failed: ' + (data.error || 'Unknown error'), 'danger');
+                                this.disabled = false;
+                                compileBtnPanel.disabled = false;
+                                this.innerHTML = '<i class="fas fa-bolt me-2"></i>Quick Compile (text only)';
+                            }
+                        })
+                        .catch(error => {
+                            console.error('[QUICK-COMPILE] Fetch error:', error);
+                            logPanel.textContent += `\nFetch error: ${error.message}`;
                             this.disabled = false;
                             compileBtnPanel.disabled = false;
                             this.innerHTML = '<i class="fas fa-bolt me-2"></i>Quick Compile (text only)';
-                        }
-                    })
-                    .catch(error => {
-                        console.error('[QUICK-COMPILE] Fetch error:', error);
-                        logPanel.textContent += `\nFetch error: ${error.message}`;
-                        this.disabled = false;
-                        compileBtnPanel.disabled = false;
-                        this.innerHTML = '<i class="fas fa-bolt me-2"></i>Quick Compile (text only)';
+                        });
                     });
-                });
-            } else {
-                console.error('✗ Quick compile button panel NOT FOUND');
+                } else {
+                    console.error('✗ Quick compile button panel NOT FOUND');
+                }
             }
-
-            // Removed: Toggle log size (no longer needed)
-
-        } else {
-            console.error('✗ Compilation panel elements not found:', {
-                toggleCompilationBtn: !!toggleCompilationBtn,
-                splitEditor: !!splitEditor,
-                compilationPanel: !!compilationPanel
-            });
-        }
+        });
     }
     
     function switchToSection(section) {
