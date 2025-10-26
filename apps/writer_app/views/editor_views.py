@@ -94,8 +94,8 @@ def ensure_writer_directory(project):
 
     Pattern: data/users/username/project-slug/scitex/writer/01_manuscript/...
     Uses workspace directory manager for consistent project storage.
+    Creates directory structure directly without git cloning for reliability.
     """
-    from scitex.template import create_writer_directory
     from apps.writer_app.models import Manuscript
     from apps.project_app.services.project_filesystem import get_project_filesystem_manager
 
@@ -133,14 +133,34 @@ def ensure_writer_directory(project):
 
         return writer_dir  # Return absolute path to writer directory
 
-    # Create writer directory on-demand using workspace manager
+    # Create writer directory on-demand with minimal structure
     logger.info(f"Creating writer directory on-demand for project: {project.name}")
 
-    # Paths already calculated above, now create the directories
     try:
+        # Create main writer directory structure
         scitex_dir.mkdir(parents=True, exist_ok=True)
-        create_writer_directory("writer", str(scitex_dir))
-        logger.info(f"✓ Created writer directory: {writer_dir}")
+        writer_dir.mkdir(parents=True, exist_ok=True)
+
+        # Create required subdirectories
+        directories = [
+            writer_dir / "01_manuscript" / "contents",
+            writer_dir / "02_supplementary" / "contents",
+            writer_dir / "03_revision" / "contents",
+            writer_dir / "shared",
+        ]
+
+        for directory in directories:
+            directory.mkdir(parents=True, exist_ok=True)
+            logger.debug(f"Created directory: {directory}")
+
+        # Create minimal .gitkeep files to ensure directories are committed
+        for directory in [writer_dir / "01_manuscript", writer_dir / "02_supplementary",
+                         writer_dir / "03_revision", writer_dir / "shared"]:
+            gitkeep_file = directory / ".gitkeep"
+            gitkeep_file.touch()
+            logger.debug(f"Created .gitkeep in {directory}")
+
+        logger.info(f"✓ Created writer directory structure: {writer_dir}")
 
         # Ensure project.data_location points to project root (not writer workspace)
         if not project.data_location:
