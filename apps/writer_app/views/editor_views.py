@@ -94,8 +94,9 @@ def ensure_writer_directory(project):
 
     Pattern: data/users/username/project-slug/scitex/writer/01_manuscript/...
     Uses workspace directory manager for consistent project storage.
-    Creates directory structure directly without git cloning for reliability.
+    Uses scitex template create_writer_directory with fallback directory structure.
     """
+    from scitex.template import create_writer_directory
     from apps.writer_app.models import Manuscript
     from apps.project_app.services.project_filesystem import get_project_filesystem_manager
 
@@ -133,34 +134,26 @@ def ensure_writer_directory(project):
 
         return writer_dir  # Return absolute path to writer directory
 
-    # Create writer directory on-demand with minimal structure
+    # Create writer directory on-demand using scitex create_writer_directory
     logger.info(f"Creating writer directory on-demand for project: {project.name}")
 
     try:
-        # Create main writer directory structure
+        # First ensure scitex directory exists
         scitex_dir.mkdir(parents=True, exist_ok=True)
-        writer_dir.mkdir(parents=True, exist_ok=True)
 
-        # Create required subdirectories
-        directories = [
-            writer_dir / "01_manuscript" / "contents",
-            writer_dir / "02_supplementary" / "contents",
-            writer_dir / "03_revision" / "contents",
-            writer_dir / "shared",
-        ]
+        # Try to use scitex's create_writer_directory function
+        success = create_writer_directory("writer", str(scitex_dir))
 
-        for directory in directories:
-            directory.mkdir(parents=True, exist_ok=True)
-            logger.debug(f"Created directory: {directory}")
-
-        # Create minimal .gitkeep files to ensure directories are committed
-        for directory in [writer_dir / "01_manuscript", writer_dir / "02_supplementary",
-                         writer_dir / "03_revision", writer_dir / "shared"]:
-            gitkeep_file = directory / ".gitkeep"
-            gitkeep_file.touch()
-            logger.debug(f"Created .gitkeep in {directory}")
-
-        logger.info(f"✓ Created writer directory structure: {writer_dir}")
+        if success and writer_dir.exists():
+            logger.info(f"✓ Created writer directory using scitex template: {writer_dir}")
+        elif not success:
+            # Fallback: create minimal directory structure if git clone fails
+            logger.warning("create_writer_directory failed, using fallback directory structure")
+            _create_writer_directory_fallback(writer_dir)
+            logger.info(f"✓ Created writer directory with fallback: {writer_dir}")
+        else:
+            logger.error(f"Writer directory not found after create_writer_directory call")
+            return None
 
         # Ensure project.data_location points to project root (not writer workspace)
         if not project.data_location:
@@ -182,7 +175,40 @@ def ensure_writer_directory(project):
 
     except Exception as e:
         logger.error(f"Failed to create writer directory: {e}", exc_info=True)
-        return None
+        # Try fallback as last resort
+        try:
+            _create_writer_directory_fallback(writer_dir)
+            logger.info(f"✓ Created writer directory with emergency fallback: {writer_dir}")
+            return writer_dir
+        except Exception as fallback_error:
+            logger.error(f"Fallback also failed: {fallback_error}", exc_info=True)
+            return None
+
+
+def _create_writer_directory_fallback(writer_dir: Path) -> None:
+    """Create minimal writer directory structure as fallback.
+
+    Used when scitex create_writer_directory fails (e.g., git SSH issues).
+    Creates the essential directory structure needed for the writer app.
+    """
+    # Create required subdirectories
+    directories = [
+        writer_dir / "01_manuscript" / "contents",
+        writer_dir / "02_supplementary" / "contents",
+        writer_dir / "03_revision" / "contents",
+        writer_dir / "shared",
+    ]
+
+    for directory in directories:
+        directory.mkdir(parents=True, exist_ok=True)
+        logger.debug(f"Created directory: {directory}")
+
+    # Create minimal .gitkeep files to ensure directories are committed
+    for directory in [writer_dir / "01_manuscript", writer_dir / "02_supplementary",
+                     writer_dir / "03_revision", writer_dir / "shared"]:
+        gitkeep_file = directory / ".gitkeep"
+        gitkeep_file.touch()
+        logger.debug(f"Created .gitkeep in {directory}")
 
 
 def index(request):
