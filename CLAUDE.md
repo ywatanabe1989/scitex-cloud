@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-26 19:24:33
+!-- Timestamp: 2025-10-26 19:28:19
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/CLAUDE.md
 !-- --- -->
@@ -73,18 +73,11 @@ Add console.log for debugging
 # Requests
 - [ ] Cannot creat repository
 
-http://localhost:8000/auth/login/?next=/wataning11/default-project/
-- [ ] Warning message: "This repository is private. Please log in to access it."
-  - [ ] This is problematic in security
-  - [ ] Just behave as if it did not exist
-
 - [ ] http://localhost:8000/wataning11/default-project/
   - [ ] CSS Refactoring needed
 
 - [ ] http://localhost:8000/scholar/#bibtex
 - [ ] http://localhost:8000/scholar/#search
-  - [ ] CSS Refactoring needed
-    - [ ] When selected, tab should be visible
   - [ ] Respect default colors
   - [ ] The edge of double-edged seekbars are a bit too large
   - [ ] The double-edged seekbar should be implemented as a central comopnent
