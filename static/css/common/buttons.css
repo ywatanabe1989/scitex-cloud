@@ -75,6 +75,7 @@
 .btn {
   display: inline-block;
   padding: 0.8rem 1.5rem;
+  margin: var(--spacing-sm);
   border: none;
   border-radius: var(--border-radius-lg);
   font-size: 1rem;
