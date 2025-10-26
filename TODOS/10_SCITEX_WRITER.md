@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-27 05:00:13
+!-- Timestamp: 2025-10-27 05:40:22
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/TODOS/10_SCITEX_WRITER.md
 !-- --- -->
@@ -14,6 +14,11 @@
 ## http://127.0.0.1:8000/wataning11/
 - [ ] http://127.0.0.1:8000/wataning11/
   - [ ] Welcome back message is too bring. Check css.
+
+## http://127.0.0.1:8000/scholar/#search
+I know this concept but now, remove the message
+Improve Your Search Performance!
+Missing API keys for: Pubmed, Google_Scholar, Semantic_Scholar, Crossref. Add them for higher rate limits and more comprehensive results. 
 
 ## Future
 
