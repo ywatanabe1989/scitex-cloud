@@ -1,7 +1,7 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-10-27 15:10:27 (ywatanabe)"
-# File: ./containers/docker/start_dev.sh
+# Timestamp: "2025-10-27 16:22:07 (ywatanabe)"
+# File: ./start_dev.sh
 
 ORIG_DIR="$(pwd)"
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
@@ -23,17 +23,6 @@ echo_error() { echo -e "${RED}ERRO: $1${NC}"; }
 echo_header() { echo_info "=== $1 ==="; }
 # ---------------------------------------
 
-# Auto-detect Docker Compose version (V2 with plugin or V1 standalone)
-if docker compose version &>/dev/null; then
-    DOCKER_COMPOSE="docker compose"
-elif command -v docker compose &>/dev/null; then
-    DOCKER_COMPOSE="docker compose"
-    echo_warning "Using deprecated docker compose V1. Please upgrade to Docker Compose V2"
-else
-    echo_error "Docker Compose not found! Please install docker compose-plugin"
-    exit 1
-fi
-
 verify_env_setup() {
     echo_header "Verifying .env setup..."
 
@@ -49,13 +38,13 @@ verify_env_setup() {
         echo_error ".env is not a symlink!"
         return 1
     fi
-    echo_success ".env is a symlink"
+    echo_info ".env is a symlink"
 
     if [ ! -L "$GIT_ROOT"/containers/docker/.env ]; then
         echo_error "containers/docker/.env is not a symlink!"
         return 1
     fi
-    echo_success "containers/docker/.env is a symlink"
+    echo_info "containers/docker/.env is a symlink"
 
     # Verify symlinks point to correct target
     local root_target=$(readlink "$GIT_ROOT"/.env)
@@ -65,13 +54,13 @@ verify_env_setup() {
         echo_error ".env symlink points to wrong target: $root_target"
         return 1
     fi
-    echo_success ".env -> SECRET/.env.dev"
+    echo_info ".env -> SECRET/.env.dev"
 
     if [ "$docker_target" != "../../SECRET/.env.dev" ]; then
         echo_error "containers/docker/.env symlink points to wrong target: $docker_target"
         return 1
     fi
-    echo_success "containers/docker/.env -> ../../SECRET/.env.dev"
+    echo_info "containers/docker/.env -> ../../SECRET/.env.dev"
 
     # Verify critical environment variables
     source "$GIT_ROOT"/containers/docker/.env 2>/dev/null
@@ -181,9 +170,7 @@ detect_wsl_environment() {
         )"
         echo_info "WSL detected. Windows host IP: ${WINDOWS_HOST_IP}"
         echo_info \
-            "Access: http://localhost:8000 or " \
-            "http://127.0.0.1:8000 or " \
-            "http://${WINDOWS_HOST_IP}:8000"
+            "Access either of:\n    http://localhost:8000\n    http://127.0.0.1:8000\n    http://${WINDOWS_HOST_IP}:8000"
     fi
 }
 
@@ -201,11 +188,11 @@ check_docker_setup() {
     fi
 
     # Check Docker Compose
-    if ! command -v docker compose &> /dev/null; then
-        echo_error "Docker Compose not installed. Run: sudo apt install -y docker compose"
+    if ! docker compose version &>/dev/null; then
+        echo_error "Docker Compose not installed. Run: sudo apt install -y docker-compose-plugin"
         all_good=false
-    elif docker compose --version &>/dev/null; then
-        echo_success "Docker Compose installed: $(docker compose --version)"
+    else
+        echo_success "Docker Compose installed"
     fi
 
     # Check Docker daemon
@@ -337,7 +324,6 @@ check_database_credentials() {
     fi
 }
 
-
 rebuild_and_nuclear_cleanup() {
     echo_info "Rebuilding web image..."
     DOCKER_BUILDKIT=1 docker compose -f docker-compose.dev.yml build web
@@ -391,8 +377,8 @@ rebuild_and_nuclear_cleanup() {
 cleanup_corrupted_containers() {
     echo_header "Cleaning up any corrupted containers..."
 
-    # Remove any containers in a bad state (exit code != 0)
-    local bad_containers=$(docker ps -a --filter "status=exited" --filter "exited!=0" --format "{{.Names}}" | grep "^docker_")
+    # Remove any containers in a bad state (exited status)
+    local bad_containers=$(docker ps -a --filter "status=exited" --format "{{.Names}}" | grep "^docker_")
 
     if [ -n "$bad_containers" ]; then
         echo_warning "Found corrupted containers, removing: $bad_containers"
@@ -419,7 +405,7 @@ wait_for_services_healthy() {
     timeout 60 bash -c \
         'until docker compose -f docker-compose.dev.yml ps | \
         grep docker-gitea-1 | \
-        grep -q "Up (healthy)"; do \
+        grep -q "(healthy)"; do \
         sleep 2; \
         done' \
         && echo_success "Gitea is ready!" \
@@ -440,18 +426,89 @@ verify_and_test_endpoints() {
         http://localhost:${SCITEX_CLOUD_HTTP_PORT_DEV:-8000}/admin/
     curl -I \
         http://localhost:${SCITEX_CLOUD_GITEA_HTTP_PORT_DEV:-3000}
+
+    echo ""
+    echo_success "Access Information:"
+    echo_success "Django:  http://localhost:${SCITEX_CLOUD_HTTP_PORT_DEV:-8000}"
+    echo_success "Gitea:   http://localhost:${SCITEX_CLOUD_GITEA_HTTP_PORT_DEV:-3000}"
+    echo ""
+    echo_success "Gitea Admin Login:"
+    echo_success "  Username: ${SCITEX_CLOUD_GITEA_ADMIN_USERNAME:-scitex_admin}"
+    echo_success "  Password: ${SCITEX_CLOUD_GITEA_ADMIN_PASSWORD:-scitex_admin_2025}"
+}
+
+setup_gitea_token() {
+    echo_header "Setting up Gitea API token..."
+
+    # Use localhost for host machine access
+    local GITEA_API_URL="http://127.0.0.1:${SCITEX_CLOUD_GITEA_HTTP_PORT_DEV:-3000}"
+
+    # Check if token already exists in .env (single source of truth)
+    if [ -n "$SCITEX_CLOUD_GITEA_TOKEN_DEV" ]; then
+        echo_info "Token found in .env"
+
+        # Verify token still works
+        if curl -s -f -H "Authorization: token $SCITEX_CLOUD_GITEA_TOKEN_DEV" \
+            "${GITEA_API_URL}/api/v1/user" >/dev/null 2>&1; then
+            echo_success "Existing token is valid"
+            return 0
+        else
+            echo_warning "Existing token in .env is invalid, generating new one..."
+        fi
+    fi
+
+    # Generate new token
+    echo_info "Generating new Gitea admin token..."
+
+    # Get admin credentials from environment
+    local ADMIN_USERNAME="${SCITEX_CLOUD_GITEA_ADMIN_USERNAME:-scitex_admin}"
+    local ADMIN_PASSWORD="${SCITEX_CLOUD_GITEA_ADMIN_PASSWORD:-scitex_admin_2025}"
+    local ADMIN_EMAIL="${SCITEX_CLOUD_GITEA_ADMIN_EMAIL:-admin@scitex.local}"
+
+    # Check if admin user exists, create if not
+    if ! docker exec -u git docker-gitea-1 gitea admin user list 2>/dev/null | grep -q "$ADMIN_USERNAME"; then
+        echo_info "Creating Gitea admin user: $ADMIN_USERNAME"
+        docker exec -u git docker-gitea-1 gitea admin user create \
+            --username "$ADMIN_USERNAME" \
+            --password "$ADMIN_PASSWORD" \
+            --email "$ADMIN_EMAIL" \
+            --admin \
+            --must-change-password=false 2>/dev/null || true
+        echo_success "Admin user created:\n    Username: $ADMIN_USERNAME\n    Password: $ADMIN_PASSWORD"
+    fi
+
+    # Generate token for admin user
+    local NEW_TOKEN=$(docker exec -u git docker-gitea-1 gitea admin user generate-access-token \
+        --username "$ADMIN_USERNAME" \
+        --token-name "scitex-dev-$(date +%Y%m%d)" \
+        --scopes "write:repository,write:user,write:admin" \
+        2>/dev/null | grep -oE '[a-f0-9]{40}' | head -1)
+
+    if [ -n "$NEW_TOKEN" ]; then
+        # Update .env (single source of truth)
+        mkdir -p "$GIT_ROOT/SECRET"
+        if grep -q "SCITEX_CLOUD_GITEA_TOKEN_DEV=" "$GIT_ROOT/SECRET/.env.dev"; then
+            sed -i "s|SCITEX_CLOUD_GITEA_TOKEN_DEV=.*|SCITEX_CLOUD_GITEA_TOKEN_DEV=$NEW_TOKEN|" "$GIT_ROOT/SECRET/.env.dev"
+        else
+            echo "SCITEX_CLOUD_GITEA_TOKEN_DEV=$NEW_TOKEN" >> "$GIT_ROOT/SECRET/.env.dev"
+        fi
+        echo_success "Token saved to SECRET/.env.dev"
+
+        # Reload environment
+        source "$GIT_ROOT/SECRET/.env.dev"
+        return 0
+    else
+        echo_error "Failed to generate Gitea token"
+        return 1
+    fi
 }
 
 verify_gitea_api() {
     echo_header "Verifying Gitea API..."
 
-    GITEA_URL="${SCITEX_CLOUD_GITEA_URL_DEV:-http://127.0.0.1:3000}"
+    # Use localhost for host machine access
+    local GITEA_URL="${SCITEX_CLOUD_GITEA_URL_IN_HOST_DEV:-http://127.0.0.1:3000}"
     GITEA_TOKEN="${SCITEX_CLOUD_GITEA_TOKEN_DEV}"
-
-    if [ -z "$GITEA_TOKEN" ]; then
-        echo_warning "SCITEX_CLOUD_GITEA_TOKEN_DEV not set"
-        return 1
-    fi
 
     # Test Gitea API version
     if curl -f -s "${GITEA_URL}/api/v1/version" >/dev/null 2>&1; then
@@ -477,58 +534,44 @@ verify_gitea_api() {
     return 0
 }
 
-create_gitea_users() {
-    echo_header "Creating Gitea users..."
+recreate_test_user() {
+    echo_header "Recreating test user to test Django-to-Gitea pipeline..."
 
-    GITEA_URL="${SCITEX_CLOUD_GITEA_URL_DEV:-http://127.0.0.1:3000}"
-    GITEA_TOKEN="${SCITEX_CLOUD_GITEA_TOKEN_DEV}"
+    local USERNAME="test-user"
+    local EMAIL="test@example.com"
+    local PASSWORD="${SCITEX_CLOUD_TEST_USER_PASSWORD:-Test-user!}"
+    local GITEA_URL="${SCITEX_CLOUD_GITEA_URL_IN_HOST_DEV:-http://127.0.0.1:3000}"
+    local GITEA_TOKEN="${SCITEX_CLOUD_GITEA_TOKEN_DEV}"
 
-    if [ -z "$GITEA_TOKEN" ]; then
-        echo_warning "Gitea token not set, skipping user creation"
-        return 1
+    # Step 1: Delete from Django (will trigger signal to delete from Gitea)
+    echo_info "Deleting test user from Django..."
+    docker compose -f docker-compose.dev.yml exec -T web \
+        python manage.py shell << EOH
+from django.contrib.auth import get_user_model
+User = get_user_model()
+try:
+    user = User.objects.get(username='${USERNAME}')
+    user.delete()
+    print('✓ Deleted ${USERNAME} from Django')
+except User.DoesNotExist:
+    print('✓ User does not exist in Django')
+EOH
+
+    # Step 2: Verify deletion from Gitea (check via API)
+    echo_info "Verifying deletion from Gitea..."
+    sleep 2  # Give signal time to propagate
+
+    GITEA_CHECK=$(curl -s -H "Authorization: token ${GITEA_TOKEN}" \
+        "${GITEA_URL}/api/v1/users/${USERNAME}" 2>/dev/null)
+
+    if echo "$GITEA_CHECK" | grep -q '"message"'; then
+        echo_success "✓ User deleted from Gitea"
+    else
+        echo_warning "User may still exist in Gitea, continuing anyway..."
     fi
 
-    # Create test users in Gitea
-    USERS=("wataning11:wataning11@example.com" "ywatanabe:ywatanabe@scitex.ai")
-
-    for user_info in "${USERS[@]}"; do
-        USERNAME=$(echo "$user_info" | cut -d':' -f1)
-        EMAIL=$(echo "$user_info" | cut -d':' -f2)
-
-        # Check if user exists
-        USER_CHECK=$(curl -s -H "Authorization: token ${GITEA_TOKEN}" \
-            "${GITEA_URL}/api/v1/users/${USERNAME}" 2>/dev/null)
-
-        if echo "$USER_CHECK" | grep -q '"login"'; then
-            echo_success "Gitea user '$USERNAME' already exists"
-        else
-            # Create user via Gitea admin API
-            CREATE_RESPONSE=$(curl -s -X POST \
-                -H "Authorization: token ${GITEA_TOKEN}" \
-                -H "Content-Type: application/json" \
-                -d "{
-                    \"username\": \"${USERNAME}\",
-                    \"email\": \"${EMAIL}\",
-                    \"password\": \"${SCITEX_CLOUD_TEST_USER_PASSWORD:-Test-user!}\",
-                    \"must_change_password\": false,
-                    \"send_notify\": false
-                }" \
-                "${GITEA_URL}/api/v1/admin/users" 2>/dev/null)
-
-            if echo "$CREATE_RESPONSE" | grep -q '"login"'; then
-                echo_success "Created Gitea user: $USERNAME"
-            else
-                echo_warning "Failed to create Gitea user: $USERNAME"
-                echo_info "Response: $CREATE_RESPONSE"
-            fi
-        fi
-    done
-
-    echo_success "Gitea user verification complete"
-}
-
-create_test_user() {
-    echo_header "Creating test users..."
+    # Step 3: Create user via Django (will trigger signal to create in Gitea)
+    echo_info "Creating test user via Django User.objects.create_user()..."
     docker compose -f docker-compose.dev.yml exec -T web \
         python manage.py shell << EOH
 import os
@@ -536,22 +579,101 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
-if not User.objects.filter(username='test-user').exists():
-    user = User.objects.create_user(
-        username='test-user',
-        email='test@example.com',
-        password=os.getenv(
-            'SCITEX_CLOUD_TEST_USER_PASSWORD',
-            'Test-user!'
-        ),
-        is_active=True
-    )
-    print('✓ Created test-user')
-else:
-    print('✓ test-user already exists')
+user = User.objects.create_user(
+    username='${USERNAME}',
+    email='${EMAIL}',
+    password='${PASSWORD}',
+    is_active=True
+)
+print('✓ Created ${USERNAME} via Django')
+print(f'  - Username: {user.username}')
+print(f'  - Email: {user.email}')
+print(f'  - Active: {user.is_active}')
 EOH
 
-    echo_success "Test users ready!"
+    # Step 4: Wait for signal to propagate
+    echo_info "Waiting for Django signal to create Gitea user..."
+    sleep 3
+
+    # Step 5: Verify user exists in both Django and Gitea
+    echo ""
+    verify_test_user
+}
+
+verify_test_user() {
+    echo_header "Verifying test user in Django and Gitea..."
+
+    local USERNAME="test-user"
+    local EMAIL="test@example.com"
+    local GITEA_URL="${SCITEX_CLOUD_GITEA_URL_IN_HOST_DEV:-http://127.0.0.1:3000}"
+    local GITEA_TOKEN="${SCITEX_CLOUD_GITEA_TOKEN_DEV}"
+
+    local django_ok=false
+    local gitea_ok=false
+
+    # Check Django
+    echo_info "Checking Django..."
+    local django_check=$(docker compose -f docker-compose.dev.yml exec -T web \
+        python manage.py shell << EOH
+import json
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+try:
+    user = User.objects.get(username='${USERNAME}')
+    print(json.dumps({
+        'exists': True,
+        'username': user.username,
+        'email': user.email,
+        'is_active': user.is_active
+    }))
+except User.DoesNotExist:
+    print(json.dumps({'exists': False}))
+EOH
+)
+
+    if echo "$django_check" | grep -q '"exists": true'; then
+        echo_success "✓ Django user exists: $USERNAME"
+        local django_email=$(echo "$django_check" | grep -o '"email": "[^"]*"' | cut -d'"' -f4)
+        echo_info "  Email: $django_email"
+        django_ok=true
+    else
+        echo_error "✗ Django user not found: $USERNAME"
+    fi
+
+    # Check Gitea
+    echo_info "Checking Gitea..."
+    if [ -n "$GITEA_TOKEN" ]; then
+        local gitea_check=$(curl -s -H "Authorization: token ${GITEA_TOKEN}" \
+            "${GITEA_URL}/api/v1/users/${USERNAME}" 2>/dev/null)
+
+        if echo "$gitea_check" | grep -q '"login"'; then
+            echo_success "✓ Gitea user exists: $USERNAME"
+            local gitea_email=$(echo "$gitea_check" | grep -o '"email":"[^"]*"' | cut -d'"' -f4)
+            echo_info "  Email: $gitea_email"
+            gitea_ok=true
+        else
+            echo_error "✗ Gitea user not found: $USERNAME"
+        fi
+    else
+        echo_warning "Gitea token not set, skipping Gitea check"
+    fi
+
+    # Summary
+    echo ""
+    if $django_ok && $gitea_ok; then
+        echo_success "Test user verified in both Django and Gitea!"
+        return 0
+    elif $django_ok; then
+        echo_warning "Test user exists in Django but not in Gitea"
+        return 1
+    elif $gitea_ok; then
+        echo_warning "Test user exists in Gitea but not in Django"
+        return 1
+    else
+        echo_error "Test user not found in Django or Gitea"
+        return 1
+    fi
 }
 
 wait_for_web_healthy() {
@@ -559,35 +681,41 @@ wait_for_web_healthy() {
     local START_TIME=$SECONDS
     local TIMEOUT=1800
 
-    timeout $TIMEOUT bash -c \
-        'while ! docker compose -f docker-compose.dev.yml ps | \
-        grep docker-web-1 | \
-        grep -q "Up (healthy)"; do
-            LAST_LINES=$(
-                docker logs docker-web-1 2>&1 | \
-                tail -3 | \
-                tr "\n" " "
-            )
-            ELAPSED=$((SECONDS - START_TIME))
-            printf "\033[0;37m  [%3d s] Installing: %s\033[0m\n" \
-                "$ELAPSED" "$LAST_LINES"
-            sleep 10
-        done' || {
-        echo_warning "Timeout after ${TIMEOUT}s"
-        echo_info \
-            "Check logs: " \
-            "docker compose -f docker-compose.dev.yml logs web"
-        return 1
-    }
+    while [ $((SECONDS - START_TIME)) -lt $TIMEOUT ]; do
+        # Check if container is healthy (matches "Up ... (healthy)" format)
+        if docker compose -f docker-compose.dev.yml ps | \
+            grep docker-web-1 | \
+            grep -q "(healthy)"; then
+            echo ""
+            echo_success \
+                "Web container is healthy! " \
+                "(took $((SECONDS - START_TIME))s)"
+            return 0
+        fi
 
-    if docker compose -f docker-compose.dev.yml ps | \
-        grep docker-web-1 | \
-        grep -q "Up (healthy)"; then
-        echo_success \
-            "Web container is healthy! " \
-            "(took $((SECONDS - START_TIME))s)"
-        return 0
-    fi
+        # Show progress (overwrite same line with \r)
+        LAST_LINES=$(
+            docker logs docker-web-1 2>&1 | \
+            grep -E "Downloading|Installing|packages|Starting|Watching" | \
+            tail -1 | \
+            cut -c1-80
+        )
+
+        # If no relevant log line, show generic message
+        if [ -z "$LAST_LINES" ]; then
+            LAST_LINES="Starting up..."
+        fi
+
+        ELAPSED=$((SECONDS - START_TIME))
+        printf "\033[0;37m  [%3d s] %s%-80s\033[0m\r" \
+            "$ELAPSED" "" "$LAST_LINES"
+        sleep 10
+    done
+
+    # Timeout reached
+    echo ""
+    echo_warning "Timeout after ${TIMEOUT}s"
+    echo_info "Check logs: docker compose -f docker-compose.dev.yml logs web"
     return 1
 }
 
@@ -616,11 +744,13 @@ start_dev() {
 
     # Verification
     verify_and_test_endpoints
+
+    # Gitea
+    setup_gitea_token
     verify_gitea_api
 
     # Necessary setup
-    create_gitea_users
-    create_test_user
+    recreate_test_user
 }
 
 restart_dev() {
