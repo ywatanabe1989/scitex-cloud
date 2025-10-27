@@ -132,6 +132,19 @@ class GiteaClient:
         response = self._request('GET', '/user')
         return response.json()
 
+    def delete_user(self, username: str) -> bool:
+        """
+        Delete a Gitea user (requires admin token)
+
+        Args:
+            username: Username to delete
+
+        Returns:
+            True if successful
+        """
+        self._request('DELETE', f'/admin/users/{username}')
+        return True
+
     # ----------------------------------------
     # Repository Operations
     # ----------------------------------------
@@ -157,7 +170,7 @@ class GiteaClient:
     def create_repository(self, name: str, description: str = '',
                          private: bool = False, auto_init: bool = True,
                          gitignores: str = '', license: str = '',
-                         readme: str = 'Default') -> Dict:
+                         readme: str = 'Default', owner: str = None) -> Dict:
         """
         Create a new repository
 
@@ -169,6 +182,7 @@ class GiteaClient:
             gitignores: Gitignore template (e.g., 'Python')
             license: License template (e.g., 'MIT')
             readme: README template (e.g., 'Default')
+            owner: Username to create repo for (requires admin token, defaults to authenticated user)
 
         Returns:
             Created repository object
@@ -187,7 +201,13 @@ class GiteaClient:
         if readme:
             data['readme'] = readme
 
-        response = self._request('POST', '/user/repos', json=data)
+        # Use admin endpoint to create repo for specific user
+        if owner:
+            endpoint = f'/admin/users/{owner}/repos'
+        else:
+            endpoint = '/user/repos'
+
+        response = self._request('POST', endpoint, json=data)
         return response.json()
 
     def get_repository(self, owner: str, repo: str) -> Dict:
