@@ -130,8 +130,6 @@ pre {
   background-attachment: scroll !important;
   background-image: none !important;
   box-shadow: none !important;
-  border-top: none !important;
-  border-bottom: none !important;
 }
 
 /* Explicit removal of any line decorations - critical fix */
@@ -139,10 +137,18 @@ pre code {
   text-shadow: none !important;
 }
 
-/* Remove any ::selection pseudo-elements that might add borders */
-pre code::selection {
-  background: rgba(255, 255, 255, 0.1) !important;
-  text-shadow: none !important;
+/* Selection styling for code blocks */
+pre code::selection,
+pre code span::selection {
+  background: var(--bg-selected, rgba(79, 195, 247, 0.25));
+  color: inherit;
+}
+
+/* Webkit browsers selection styling */
+pre code::-webkit-selection,
+pre code span::-webkit-selection {
+  background: var(--bg-selected, rgba(79, 195, 247, 0.25));
+  color: inherit;
 }
 
 /* Zenburn theme colors - explicit rules to override inheritance */
@@ -311,4 +317,36 @@ pre[data-language="diff"]::before {
 [data-theme="dark"] pre {
   border: 1px solid var(--border-muted);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* =========================================
+   LINE NUMBERS STYLING (Highlight.js)
+   ========================================= */
+
+/* Line numbers container */
+.hljs-ln-numbers {
+  text-align: right;
+  padding-right: 32px;
+  padding-left: 12px;
+  color: var(--text-muted);
+  font-family: var(--font-mono, 'SF Mono', Monaco, 'Cascadia Code', monospace);
+  font-size: 0.85em;
+  font-weight: 400;
+  user-select: none;
+  margin-right: 16px;
+}
+
+/* Line code */
+.hljs-ln-code {
+  padding-left: 0;
+}
+
+/* Line wrapper */
+.hljs-ln {
+  display: flex;
+}
+
+/* Dark mode line numbers - automatically handled by semantic tokens */
+[data-theme="dark"] .hljs-ln-numbers {
+  color: var(--text-muted);
 }

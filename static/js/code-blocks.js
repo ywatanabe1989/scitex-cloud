@@ -1,6 +1,7 @@
 /**
  * Code Block Copy Button Handler
  * Adds copy-to-clipboard functionality to all code blocks
+ * Also applies syntax highlighting and line numbers
  */
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -8,6 +9,15 @@ document.addEventListener('DOMContentLoaded', function() {
   const preElements = document.querySelectorAll('pre code');
 
   preElements.forEach(function(codeBlock) {
+    // Apply syntax highlighting if hljs is available
+    if (typeof hljs !== 'undefined' && !codeBlock.dataset.highlighted) {
+      hljs.highlightElement(codeBlock);
+    }
+
+    // Apply line numbers if available
+    if (typeof hljs !== 'undefined' && hljs.lineNumbersBlock) {
+      hljs.lineNumbersBlock(codeBlock);
+    }
     const preElement = codeBlock.parentElement;
 
     // Skip if copy button already exists
