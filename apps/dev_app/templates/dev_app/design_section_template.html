@@ -43,11 +43,13 @@
 {% block extra_js %}
 {% load static %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlightjs-line-numbers.js/2.8.0/highlightjs-line-numbers.min.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     // Highlight all code blocks on page load
     document.querySelectorAll('pre code').forEach((block) => {
       hljs.highlightElement(block);
+      hljs.lineNumbersBlock(block);
     });
 
     // Live preview functionality for code blocks design page
@@ -79,6 +81,7 @@
             // Clear the highlighted flag so hljs will re-highlight it
             delete codePreview.dataset.highlighted;
             hljs.highlightElement(codePreview);
+            hljs.lineNumbersBlock(codePreview);
             console.log('Re-highlighted code block');
           }
         }
