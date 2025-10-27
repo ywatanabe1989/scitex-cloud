@@ -44,7 +44,7 @@ pre::after {
 /* Copy button */
 .code-copy-button {
   position: absolute;
-  top: 0.6rem;
+  top: 0.4rem;
   right: 0.75rem;
   background-color: transparent;
   color: var(--text-secondary);
@@ -230,15 +230,15 @@ pre code::selection {
 /* Language label badges using ::before on pre element */
 pre[data-language]::before {
   position: absolute;
-  top: 0.65rem;
+  top: 0.45rem;
   left: 1.25rem;
   background-color: transparent;
-  color: var(--text-secondary);
+  color: var(--text-muted);
   padding: 0.25rem 0.5rem;
   border-radius: 0;
   border: none;
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.7rem;
+  font-weight: 500;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   pointer-events: none;
