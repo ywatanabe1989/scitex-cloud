@@ -68,16 +68,25 @@ document.addEventListener('DOMContentLoaded', function() {
     preElement.insertBefore(copyButton, codeBlock);
 
     // Handle Ctrl+A to select only code content
-    preElement.addEventListener('keydown', function(e) {
+    // Use document-level listener to catch Ctrl+A regardless of focus
+    document.addEventListener('keydown', function(e) {
       if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
-        e.preventDefault();
-
-        // Select only the code element's content
+        // Check if cursor is inside this code block
         const selection = window.getSelection();
-        const range = document.createRange();
-        range.selectNodeContents(codeBlock);
-        selection.removeAllRanges();
-        selection.addRange(range);
+        const selectedNode = selection.anchorNode;
+
+        // Check if selection is within the current code block
+        if (selectedNode && preElement.contains(selectedNode)) {
+          e.preventDefault();
+
+          // Select only the code element's content
+          const range = document.createRange();
+          range.selectNodeContents(codeBlock);
+          selection.removeAllRanges();
+          selection.addRange(range);
+
+          console.log('Ctrl+A: Selected code block content only');
+        }
       }
     });
   });
