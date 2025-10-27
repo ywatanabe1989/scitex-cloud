@@ -57,7 +57,7 @@
 }
 
 .scitex-checkbox-label:hover {
-    background-color: var(--light-gray);
+    background-color: var(--bg-muted);
 }
 
 /* Custom checkbox visual (::before pseudo-element) */
@@ -65,12 +65,12 @@
     content: '';
     width: 18px;
     height: 18px;
-    border: 2px solid var(--mid-gray);
+    border: 2px solid var(--border-default);
     border-radius: 4px;
     margin-right: 0.5rem;
     display: inline-block;
     transition: var(--transition-fast);
-    background-color: white;
+    background-color: var(--bg-surface);
 }
 
 /* =========================
@@ -78,8 +78,8 @@
    ========================= */
 
 .scitex-checkbox:checked + .scitex-checkbox-label::before {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
+    background-color: var(--status-success);
+    border-color: var(--status-success);
     background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="white"><path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/></svg>');
     background-repeat: no-repeat;
     background-position: center;
@@ -90,23 +90,23 @@
    Dark Mode
    ========================= */
 
-/* Dark mode checkbox label - bluish color */
-[data-theme="dark"] .scitex-checkbox-label {
-    color: var(--scitex-color-06);
+/* =========================
+   Disabled State
+   ========================= */
+
+.scitex-checkbox:disabled + .scitex-checkbox-label {
+    opacity: 0.6;
+    cursor: not-allowed;
+    color: var(--text-muted);
 }
 
-[data-theme="dark"] .scitex-checkbox-label:hover {
-    background-color: var(--scitex-color-01);
+.scitex-checkbox:disabled + .scitex-checkbox-label:hover {
+    background-color: transparent;
 }
 
-/* Dark mode checkbox visual - bluish theme */
-[data-theme="dark"] .scitex-checkbox-label::before {
-    border-color: var(--scitex-color-04);
-    background-color: var(--scitex-color-01-light);
-}
+/* =========================
+   Theme Support
+   ========================= */
 
-/* Dark mode checked state - bluish accent */
-[data-theme="dark"] .scitex-checkbox:checked + .scitex-checkbox-label::before {
-    background-color: var(--scitex-color-04);
-    border-color: var(--scitex-color-04);
-}
+/* Semantic tokens automatically handle light/dark mode switching.
+   All colors adapt dynamically to the active theme! */

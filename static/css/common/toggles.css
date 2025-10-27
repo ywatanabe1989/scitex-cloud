@@ -51,10 +51,10 @@
     gap: 0.5rem;
     cursor: pointer;
     padding: 0.5rem 0.75rem;
-    border: 1px solid var(--border-300);
+    border: 1px solid var(--border-default);
     border-radius: 6px;
-    background-color: var(--bg-100);
-    color: var(--text-800);
+    background-color: var(--bg-surface);
+    color: var(--text-primary);
     font-weight: 500;
     transition: var(--transition-fast);
     user-select: none;
@@ -67,20 +67,20 @@
     display: inline-block;
     width: 18px;
     height: 18px;
-    border: 2px solid var(--border-400);
+    border: 2px solid var(--border-default);
     border-radius: 4px;
-    background-color: var(--bg-100);
+    background-color: var(--bg-surface);
     transition: var(--transition-fast);
     flex-shrink: 0;
 }
 
 .scitex-toggle-label:hover {
-    border-color: var(--border-400);
-    background-color: var(--bg-200);
+    border-color: var(--border-muted);
+    background-color: var(--bg-muted);
 }
 
 .scitex-toggle-label:hover::before {
-    border-color: var(--btn-primary-bg);
+    border-color: var(--status-success);
 }
 
 /* =========================
@@ -88,15 +88,15 @@
    ========================= */
 
 .scitex-toggle:checked + .scitex-toggle-label {
-    background-color: var(--bg-200);
-    border-color: var(--btn-primary-bg);
-    color: var(--text-900);
+    background-color: var(--bg-muted);
+    border-color: var(--status-success);
+    color: var(--text-primary);
 }
 
 /* Checkmark in the square when checked */
 .scitex-toggle:checked + .scitex-toggle-label::before {
-    background-color: var(--btn-primary-bg);
-    border-color: var(--btn-primary-bg);
+    background-color: var(--status-success);
+    border-color: var(--status-success);
     content: '✓';
     color: white;
     font-size: 14px;
@@ -108,17 +108,36 @@
 }
 
 .scitex-toggle:checked + .scitex-toggle-label:hover {
-    background-color: var(--bg-300);
-    border-color: var(--btn-primary-bg-hover);
+    background-color: var(--bg-page);
+    border-color: var(--status-success);
 }
 
 .scitex-toggle:checked + .scitex-toggle-label:hover::before {
-    background-color: var(--btn-primary-bg-hover);
-    border-color: var(--btn-primary-bg-hover);
+    background-color: var(--status-success);
+    border-color: var(--status-success);
+}
+
+/* =========================
+   Disabled State
+   ========================= */
+
+.scitex-toggle:disabled + .scitex-toggle-label {
+    opacity: 0.6;
+    cursor: not-allowed;
+    color: var(--text-muted);
+}
+
+.scitex-toggle:disabled + .scitex-toggle-label:hover {
+    background-color: var(--bg-surface);
+    border-color: var(--border-default);
+}
+
+.scitex-toggle:disabled + .scitex-toggle-label:hover::before {
+    border-color: var(--border-default);
 }
 
 /* =========================
    Theme Support
    ========================= */
 /* Semantic tokens automatically handle light/dark mode switching.
-   No manual theme-specific styles needed! */
+   All colors adapt dynamically to the active theme! */
