@@ -56,6 +56,11 @@ urlpatterns = [
     ),
     # Component pages
     path(
+        "design/hero/",
+        views.DesignHeroView.as_view(),
+        name="design_hero",
+    ),
+    path(
         "design/badge/",
         views.DesignBadgeView.as_view(),
         name="design_badge",
