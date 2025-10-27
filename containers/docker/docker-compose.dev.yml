@@ -16,7 +16,7 @@ services:
       - ../..:/app
       - static_volume:/app/staticfiles
       - media_volume:/app/media
-      - logs_volume:/app/logs  # Use Docker volume for logs to avoid permission issues
+      - ../../logs:/app/logs  # Bind mount logs to host for easy access
       - /home/ywatanabe/proj/scitex-code:/scitex-code  # Mount scitex package (writable for pip install -e)
       - uv_cache:/root/.cache/uv  # Cache uv downloads for faster rebuilds
     ports:
@@ -130,6 +130,5 @@ volumes:
   redis_data:
   static_volume:
   media_volume:
-  logs_volume:
   gitea_data:
   uv_cache:

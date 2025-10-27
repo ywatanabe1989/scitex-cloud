@@ -1265,8 +1265,15 @@ function handleSortChange(sortBy) {
 
 // Initialize functions when results are displayed
 document.addEventListener('DOMContentLoaded', function() {
+    let isSettingUp = false; // Guard flag to prevent infinite loop
+
     // Watch for changes to the results container
     const observer = new MutationObserver(function(mutations) {
+        // Prevent infinite loop by checking guard flag
+        if (isSettingUp) {
+            return;
+        }
+
         mutations.forEach(function(mutation) {
             if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
                 // Check if paper cards were added
@@ -1275,8 +1282,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 );
 
                 if (hasCards || document.querySelector('.result-card')) {
+                    isSettingUp = true; // Set guard flag
                     setupPaperSelection();
                     setupGlobalAbstractToggle();
+                    // Reset guard flag after a short delay
+                    setTimeout(() => { isSettingUp = false; }, 100);
                 }
             }
         });
