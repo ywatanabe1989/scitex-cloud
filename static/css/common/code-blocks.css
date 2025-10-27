@@ -326,14 +326,14 @@ pre[data-language="diff"]::before {
 /* Line numbers container */
 .hljs-ln-numbers {
   text-align: right;
-  padding-right: 32px;
-  padding-left: 12px;
+  min-width: 3ch;
+  padding-right: 1rem;
+  padding-left: 0.5rem;
   color: var(--text-muted);
   font-family: var(--font-mono, 'SF Mono', Monaco, 'Cascadia Code', monospace);
   font-size: 0.85em;
   font-weight: 400;
   user-select: none;
-  margin-right: 16px;
 }
 
 /* Line code */
