@@ -124,8 +124,9 @@ else:
 # Integration
 # ---------------------------------------
 # Gitea
+# Use container URL for Django (http://gitea:3000) for inter-container communication
 GITEA_URL = os.environ.get(
-    "SCITEX_CLOUD_GITEA_URL_DEV", "http://localhost:3001"
+    "SCITEX_CLOUD_GITEA_URL_IN_CONTAINER_DEV", "http://gitea:3000"
 )
 GITEA_API_URL = f"{GITEA_URL}/api/v1"
 GITEA_TOKEN = os.environ.get("SCITEX_CLOUD_GITEA_TOKEN_DEV", "")
@@ -217,5 +218,11 @@ LOGGING.update(
         },
     }
 )
+
+# ---------------------------------------
+# Email - Development
+# ---------------------------------------
+# Always use actual email sending (not console)
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 
 # EOF

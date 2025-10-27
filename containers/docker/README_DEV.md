@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-26 18:22:03
+!-- Timestamp: 2025-10-27 06:35:53
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/containers/docker/README_DEV.md
 !-- --- -->
@@ -185,7 +185,7 @@ verify_and_test_endpoints() {
 
 create_test_users() {
     echo_info "Creating test users..."
-    # Passwords from CLAUDE.md: test-user / Test-user!, ywatanabe / Yusuke8939.
+    # Passwords from CLAUDE.md: test-user / Test-user!
     docker-compose -f docker-compose.dev.yml exec -T web python manage.py shell << EOF
 import os
 from django.contrib.auth import get_user_model
@@ -196,25 +196,12 @@ if not User.objects.filter(username='test-user').exists():
     user = User.objects.create_user(
         username='test-user',
         email='test@example.com',
-        password=os.getenv('SCITEX_TEST_USER_PASSWORD', 'Test-user!'),
+        password=os.getenv('SCITEX_CLOUD_TEST_USER_PASSWORD', 'Test-user!'),
         is_active=True
     )
     print('✓ Created test-user')
 else:
     print('✓ test-user already exists')
-
-# Test user 2
-if not User.objects.filter(username='ywatanabe').exists():
-    user = User.objects.create_user(
-        username='ywatanabe',
-        email='ywatanabe@scitex.ai',
-        password=os.getenv('SCITEX_YWATANABE_PASSWORD', 'Ywatanabe2025!'),
-        is_active=True
-    )
-    print('✓ Created ywatanabe')
-else:
-    print('✓ ywatanabe already exists')
-EOF
 
     echo_success "Test users ready!"
 }
