@@ -37,15 +37,15 @@ pre::after {
   background-color: var(--bg-muted);
   border-bottom: 1px solid var(--border-default);
   border-radius: 6px 6px 0 0;
-  z-index: 9;
+  z-index: 1;
   pointer-events: none;
 }
 
 /* Copy button */
 .code-copy-button {
   position: absolute;
-  top: 0.6rem;
-  right: 1rem;
+  top: 0.5rem;
+  right: 0.75rem;
   background-color: transparent;
   color: var(--text-secondary);
   border: none;
@@ -53,7 +53,7 @@ pre::after {
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s ease;
-  z-index: 11;
+  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -121,11 +121,6 @@ pre code span {
 /* Remove box-shadow and other decorative effects from code lines */
 pre code::before,
 pre code::after {
-  display: none !important;
-}
-
-pre::before,
-pre::after {
   display: none !important;
 }
 
@@ -235,20 +230,21 @@ pre code::selection {
 /* Language label badges using ::before on pre element */
 pre[data-language]::before {
   position: absolute;
-  top: 0.65rem;
-  left: 1.5rem;
+  top: 0.55rem;
+  left: 1.25rem;
   background-color: transparent;
   color: var(--text-secondary);
-  padding: 0.35rem 0.75rem;
+  padding: 0.25rem 0.5rem;
   border-radius: 0;
   border: none;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   pointer-events: none;
-  z-index: 10;
+  z-index: 2;
   font-family: var(--font-body);
+  white-space: nowrap;
 }
 
 /* Define content for each language */
