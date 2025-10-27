@@ -3,9 +3,10 @@
  * @description Versatile button component with multiple variants, sizes, and states including loading, icon, and split button variants
  * @category Form and Selection
  * @file /static/css/common/buttons.css
- * @darkmode false
+ * @darkmode true (see buttons-dark.css)
  *
  * @variant btn - Base button class (required)
+ * @variant btn-nav - Navigation button style (like header navigation items: Explore, Scholar, Writer)
  * @variant btn-primary - Primary action button (main CTA)
  * @variant btn-secondary - Secondary action button
  * @variant btn-danger - Destructive action button (red)
@@ -31,6 +32,10 @@
  * @state focus - Highlighted when focused (keyboard navigation)
  * @state disabled - Non-interactive disabled state (opacity reduced)
  * @state loading - Shows spinner, non-interactive
+ *
+ * @example
+ * <button class="btn btn-nav">Navigation Item</button>
+ * <a href="#" class="btn btn-nav">Link as Nav Item</a>
  *
  * @example
  * <button class="btn btn-primary">Primary</button>
@@ -67,33 +72,45 @@
  * </div>
  */
 
-/* =========================
-   Base Button Styles
-   ========================= */
+/* =========================================
+   BASE BUTTON STYLES
+   ========================================= */
 
-/* Base Button */
 .btn {
   display: inline-block;
   padding: 0.8rem 1.5rem;
   margin: var(--spacing-sm);
-  border: none;
+  border: 2px solid var(--border-default);
+  background: transparent;
+  color: var(--text-primary);
   border-radius: var(--border-radius-lg);
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 400;
   cursor: pointer;
   text-align: center;
   text-decoration: none;
   transition: all var(--transition-normal);
   line-height: 1.4;
-  box-shadow: 0 1px 3px rgba(26, 35, 50, 0.08);
 }
 
 .btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(26, 35, 50, 0.12);
+  background: var(--bg-muted);
+  border-color: var(--scitex-color-04);
 }
 
-/* Button Sizes */
+.btn:disabled,
+.btn.disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  background-color: var(--bg-muted) !important;
+  border-color: var(--border-default) !important;
+  color: var(--text-secondary) !important;
+}
+
+/* =========================================
+   BUTTON SIZES
+   ========================================= */
+
 .btn-sm {
   padding: 0.5rem 1rem;
   font-size: 0.875rem;
@@ -104,228 +121,233 @@
   font-size: 1.125rem;
 }
 
-/* Button Variants */
+/* =========================================
+   DEFAULT VARIANTS
+   ========================================= */
+
+/* Text Button - Minimal styling, styled as hyperlink */
+.btn-text {
+  background-color: transparent;
+  color: var(--primary-color);
+  padding: 0.25rem 0.25rem;
+  border: none;
+  border-radius: 0;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.btn-text:hover,
+.btn-text:focus {
+  color: var(--scitex-color-05);
+  text-decoration: underline;
+}
+
+/* =========================================
+   PRIMARY VARIANTS
+   ========================================= */
+
+/* Primary Button - Main action (blue) */
 .btn-primary {
-  background-color: var(--primary-color);
-  color: var(--white);
+  background-color: var(--scitex-color-04);
+  color: white;
+  border: none;
 }
 
-.btn-primary:hover, .btn-primary:focus {
-  background-color: var(--scitex-color-01-dark);
-  color: var(--white);
-}
-
-/* Dark mode: Make primary button bright and prominent */
-[data-theme="dark"] .btn-primary {
-  background-color: var(--scitex-color-04);  /* Bright blue accent */
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: var(--scitex-color-05);
   color: white;
 }
 
-[data-theme="dark"] .btn-primary:hover,
-[data-theme="dark"] .btn-primary:focus {
-  background-color: var(--scitex-color-05);  /* Even brighter on hover */
-  color: white;
-}
-
+/* Secondary Button - Alternative action (slate) */
 .btn-secondary {
-  background-color: var(--secondary-color);
-  color: var(--white);
+  background-color: var(--scitex-color-02);
+  color: white;
+  border: none;
 }
 
-.btn-secondary:hover, .btn-secondary:focus {
-  background-color: var(--scitex-color-02-dark);
-  color: var(--white);
-}
-
-.btn-accent {
-  background-color: var(--accent-color);
+.btn-secondary:hover,
+.btn-secondary:focus {
+  background-color: var(--scitex-color-03);
   color: white;
 }
 
-.btn-accent:hover, .btn-accent:focus {
-  background-color: var(--accent-dark);
-  color: white;
+/* Light Button - Subtle action */
+.btn-light {
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  border: var(--border-width) solid var(--border-default);
 }
 
+.btn-light:hover,
+.btn-light:focus {
+  background-color: var(--bg-muted);
+  border-color: var(--scitex-color-04);
+  color: var(--text-primary);
+}
+
+/* Dark Button - Neutral/Cancel action (dark slate) */
+.btn-dark {
+  background-color: var(--scitex-color-01);
+  color: var(--scitex-color-07);
+  border: none;
+}
+
+.btn-dark:hover,
+.btn-dark:focus {
+  background-color: var(--scitex-color-01-light);
+  color: var(--scitex-color-07);
+}
+
+/* =========================================
+   ALERT VARIANTS
+   ========================================= */
+
+/* Success Button */
 .btn-success {
   background-color: var(--success-color);
   color: white;
+  border: none;
 }
 
-.btn-success:hover, .btn-success:focus {
-  background-color: var(--scitex-color-02);
-  color: var(--white);
-}
-
-.btn-warning {
-  background-color: var(--warning-color);
+.btn-success:hover,
+.btn-success:focus {
+  background-color: #3a8066;
   color: white;
 }
 
-.btn-warning:hover, .btn-warning:focus {
-  background-color: var(--scitex-color-03);
-  color: var(--white);
+/* Warning Button */
+.btn-warning {
+  background-color: var(--warning-color);
+  color: white;
+  border: none;
 }
 
+.btn-warning:hover,
+.btn-warning:focus {
+  background-color: #a07a55;
+  color: white;
+}
+
+/* Danger/Error Button */
 .btn-error,
 .btn-danger {
   background-color: var(--error-color);
   color: white;
+  border: none;
 }
 
-.btn-error:hover, .btn-error:focus,
-.btn-danger:hover, .btn-danger:focus {
-  background-color: var(--accent-dark);
+.btn-error:hover,
+.btn-error:focus,
+.btn-danger:hover,
+.btn-danger:focus {
+  background-color: #8f5f5f;
   color: white;
 }
 
+/* Info Button */
 .btn-info {
   background-color: var(--info-color);
   color: white;
+  border: none;
 }
 
-.btn-info:hover, .btn-info:focus {
-  background-color: var(--secondary-dark);
+.btn-info:hover,
+.btn-info:focus {
+  background-color: #577399;
   color: white;
 }
 
-.btn-dark {
-  background-color: var(--scitex-color-01);
-  color: white;
-}
+/* =========================================
+   OUTLINE VARIANTS
+   ========================================= */
 
-.btn-dark:hover, .btn-dark:focus {
-  background-color: var(--scitex-color-02);
-  color: white;
-}
-
-/* Dark mode: Keep dark buttons visible */
-[data-theme="dark"] .btn-dark {
-  background-color: var(--scitex-color-02);
-  color: white;
-}
-
-[data-theme="dark"] .btn-dark:hover,
-[data-theme="dark"] .btn-dark:focus {
-  background-color: var(--scitex-color-03);
-  color: white;
-}
-
-/* Black Button - For GitHub and prominent links */
-.btn-black {
-  background-color: #000000;
-  color: white;
-}
-
-.btn-black:hover, .btn-black:focus {
-  background-color: #1a1a1a;
-  color: white;
-}
-
-/* Dark mode: Keep black buttons prominent */
-[data-theme="dark"] .btn-black {
-  background-color: #2d2d2d;
-  color: white;
-}
-
-[data-theme="dark"] .btn-black:hover,
-[data-theme="dark"] .btn-black:focus {
-  background-color: #404040;
-  color: white;
-}
-
-/* Outline Buttons */
+/* Outline Primary Button */
 .btn-outline-primary {
   background-color: transparent;
-  color: var(--primary-color);
-  border: var(--border-width) solid var(--primary-color);
+  color: var(--scitex-color-04);
+  border: var(--border-width) solid var(--scitex-color-04);
 }
 
-.btn-outline-primary:hover, .btn-outline-primary:focus {
-  background-color: var(--primary-color);
+.btn-outline-primary:hover,
+.btn-outline-primary:focus {
+  background-color: var(--scitex-color-04);
   color: white;
+  border-color: var(--scitex-color-04);
 }
 
-/* Dark mode: Softer edges for outline buttons */
-[data-theme="dark"] .btn-outline-primary {
-  color: var(--scitex-color-06);  /* Bluish text */
-  border-color: rgba(143, 164, 176, 0.4);  /* Subtle semi-transparent */
-}
-
-[data-theme="dark"] .btn-outline-primary:hover,
-[data-theme="dark"] .btn-outline-primary:focus {
-  background-color: var(--scitex-color-01-light);
-  border-color: rgba(181, 199, 209, 0.6);  /* Slightly more visible */
-  color: var(--scitex-color-07);
-}
-
+/* Outline Secondary Button */
 .btn-outline-secondary {
   background-color: transparent;
-  color: var(--secondary-color);
-  border: var(--border-width) solid var(--secondary-color);
+  color: var(--scitex-color-02);
+  border: var(--border-width) solid var(--scitex-color-02);
 }
 
-.btn-outline-secondary:hover, .btn-outline-secondary:focus {
-  background-color: var(--secondary-color);
-  color: white;
-}
-
-[data-theme="dark"] .btn-outline-secondary {
-  color: var(--scitex-color-05);  /* Bluish text */
-  border-color: rgba(143, 164, 176, 0.35);  /* Subtle semi-transparent */
-}
-
-[data-theme="dark"] .btn-outline-secondary:hover,
-[data-theme="dark"] .btn-outline-secondary:focus {
+.btn-outline-secondary:hover,
+.btn-outline-secondary:focus {
   background-color: var(--scitex-color-02);
-  border-color: rgba(143, 164, 176, 0.5);
-  color: var(--scitex-color-07);
+  color: white;
+  border-color: var(--scitex-color-02);
 }
 
-.btn-outline-accent {
+/* Outline Light Button */
+.btn-outline-light {
   background-color: transparent;
-  color: var(--accent-color);
-  border: var(--border-width) solid var(--accent-color);
+  color: var(--text-primary);
+  border: var(--border-width) solid var(--border-default);
 }
 
-.btn-outline-accent:hover, .btn-outline-accent:focus {
-  background-color: var(--accent-color);
+.btn-outline-light:hover,
+.btn-outline-light:focus {
+  background-color: var(--bg-muted);
+  color: var(--text-primary);
+  border-color: var(--scitex-color-04);
+}
+
+/* Outline Dark Button */
+.btn-outline-dark {
+  background-color: transparent;
+  color: var(--scitex-color-01);
+  border: var(--border-width) solid var(--scitex-color-01);
+}
+
+.btn-outline-dark:hover,
+.btn-outline-dark:focus {
+  background-color: var(--scitex-color-01);
+  color: var(--scitex-color-07);
+  border-color: var(--scitex-color-01);
+}
+
+/* =========================================
+   SPECIAL VARIANTS
+   ========================================= */
+
+/* GitHub Button - Black background with white text */
+.btn-github {
+  background-color: #000000;
+  color: white;
+  border: none;
+  font-weight: 500;
+}
+
+.btn-github:hover,
+.btn-github:focus {
+  background-color: #222222;
   color: white;
 }
 
-[data-theme="dark"] .btn-outline-accent {
-  color: var(--scitex-color-04);
-  border-color: rgba(108, 139, 160, 0.4);
+.btn-github:disabled,
+.btn-github.disabled {
+  background-color: #666666;
+  color: #999999;
+  opacity: 1;
 }
 
-[data-theme="dark"] .btn-outline-accent:hover,
-[data-theme="dark"] .btn-outline-accent:focus {
-  background-color: var(--scitex-color-03);
-  border-color: rgba(108, 139, 160, 0.6);
-  color: var(--scitex-color-07);
-}
+/* =========================================
+   BUTTON LAYOUTS
+   ========================================= */
 
-/* Text Buttons */
-.btn-text {
-  background-color: transparent;
-  color: var(--secondary-color);
-  padding: 0.5rem;
-  border-radius: 0;
-}
-
-.btn-text:hover, .btn-text:focus {
-  background-color: transparent;
-  color: var(--secondary-dark);
-  text-decoration: underline;
-}
-
-/* Button States */
-.btn:disabled, .btn.disabled {
-  opacity: 0.65;
-  cursor: not-allowed;
-}
-
-/* Button Group */
+/* Button Group - Multiple adjacent buttons */
 .btn-group {
   display: inline-flex;
 }
@@ -344,99 +366,15 @@
   border-bottom-right-radius: var(--border-radius);
 }
 
-/* Block Button */
+/* Block Button - Full width */
 .btn-block {
   display: block;
   width: 100%;
 }
 
-/* Navigation Buttons */
-.nav-btn {
-  position: relative;
-  margin: 0 var(--spacing-xs);
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-}
-
-/* Navigation Icons */
-.nav-icon {
-  display: inline-block;
-  opacity: 0.8;
-  filter: grayscale(1);
-  transition: all var(--transition-normal);
-}
-
-.nav-btn:hover .nav-icon,
-.nav-btn.active .nav-icon {
-  opacity: 1;
-  filter: grayscale(0);
-}
-
-.nav-btn.active {
-  background-color: var(--primary-color);
-  color: var(--white);
-  border-color: var(--primary-color);
-}
-
-/* Badge Styles */
-.badge {
-  display: inline-block;
-  padding: 0.25rem 0.5rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  line-height: 1;
-  text-align: center;
-  white-space: nowrap;
-  vertical-align: baseline;
-  border-radius: var(--border-radius);
-}
-
-.badge-primary {
-  color: var(--white);
-  background-color: var(--primary-color);
-}
-
-.badge-secondary {
-  color: var(--white);
-  background-color: var(--secondary-color);
-}
-
-.badge-light {
-  color: var(--text-color);
-  background-color: var(--light-color);
-  border: var(--border-width) solid var(--border-color);
-}
-
-.badge-success {
-  color: var(--white);
-  background-color: var(--success-color);
-}
-
-.badge-warning {
-  color: var(--white);
-  background-color: var(--warning-color);
-}
-
-.badge-error {
-  color: var(--white);
-  background-color: var(--error-color);
-}
-
-.badge-info {
-  color: var(--white);
-  background-color: var(--info-color);
-}
-
-/* Navigation Button Items */
-.nav-button-item {
-  display: inline-block;
-  margin: 0 var(--spacing-xs);
-}
-
-/* =========================
-   Icon Buttons
-   ========================= */
+/* =========================================
+   ICON BUTTONS
+   ========================================= */
 
 /* Icon-only button (no text) */
 .btn-icon {
@@ -471,9 +409,9 @@
   font-size: 1.2em;
 }
 
-/* =========================
-   Loading Button
-   ========================= */
+/* =========================================
+   LOADING BUTTON
+   ========================================= */
 
 .btn-loading {
   position: relative;
@@ -500,13 +438,17 @@
 }
 
 @keyframes btn-spinner {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
-/* =========================
-   Split Button
-   ========================= */
+/* =========================================
+   SPLIT BUTTON
+   ========================================= */
 
 .btn-split {
   display: inline-flex;
@@ -568,33 +510,281 @@
   background-color: var(--bg-200);
 }
 
-[data-theme="dark"] .btn-split .dropdown-menu {
-  background: var(--scitex-color-01-light);
-  border-color: var(--scitex-color-04);
+/* =========================================
+   NAVIGATION BUTTONS
+   ========================================= */
+
+.nav-btn {
+  position: relative;
+  margin: 0 var(--spacing-xs);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
 }
 
-[data-theme="dark"] .btn-split .dropdown-menu .dropdown-item {
-  color: var(--scitex-color-06);
+.nav-icon {
+  display: inline-block;
+  opacity: 0.8;
+  filter: grayscale(1);
+  transition: all var(--transition-normal);
 }
 
-[data-theme="dark"] .btn-split .dropdown-menu .dropdown-item:hover {
-  background-color: var(--scitex-color-01);
+.nav-btn:hover .nav-icon,
+.nav-btn.active .nav-icon {
+  opacity: 1;
+  filter: grayscale(0);
 }
 
-/* Responsive Badge Adjustments */
-@media (max-width: 768px) {
+.nav-btn.active {
+  background-color: var(--primary-color);
+  color: var(--white);
+  border-color: var(--primary-color);
+}
+
+.nav-button-item {
+  display: inline-block;
+  margin: 0 var(--spacing-xs);
+}
+
+/* =========================================
+   BADGE STYLES
+   ========================================= */
+
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: var(--border-radius);
+}
+
+/* Badge Primary */
+.badge-primary {
+  color: var(--white);
+  background-color: var(--primary-color);
+}
+
+/* Badge Secondary */
+.badge-secondary {
+  color: var(--white);
+  background-color: var(--secondary-color);
+}
+
+/* Badge Light */
+.badge-light {
+  color: var(--text-color);
+  background-color: var(--light-color);
+  border: var(--border-width) solid var(--border-color);
+}
+
+/* Badge Success */
+.badge-success {
+  color: var(--white);
+  background-color: var(--success-color);
+}
+
+/* Badge Warning */
+.badge-warning {
+  color: var(--white);
+  background-color: var(--warning-color);
+}
+
+/* Badge Error */
+.badge-error {
+  color: var(--white);
+  background-color: var(--error-color);
+}
+
+/* Badge Info */
+.badge-info {
+  color: var(--white);
+  background-color: var(--info-color);
+}
+
+/* =========================================
+   RESPONSIVE DESIGN
+   ========================================= */
+
+/* Large screens (1024px and up) - Desktop */
+@media (min-width: 1024px) {
+  .btn {
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+  }
+
+  .btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  .btn-lg {
+    padding: 1rem 2rem;
+    font-size: 1.125rem;
+  }
+}
+
+/* Medium screens (768px - 1023px) - Tablets */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .btn {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.95rem;
+  }
+
+  .btn-sm {
+    padding: 0.45rem 0.9rem;
+    font-size: 0.8rem;
+  }
+
+  .btn-lg {
+    padding: 0.9rem 1.75rem;
+    font-size: 1rem;
+  }
+
   .badge {
-    font-size: 0.65rem;
+    font-size: 0.7rem;
     padding: 0.2rem 0.4rem;
   }
 
   .nav-btn {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     padding: 0.4rem 0.8rem;
+  }
+
+  .btn-icon {
+    min-width: 2.35rem;
+    min-height: 2.35rem;
+  }
+}
+
+/* Small screens (480px - 767px) - Mobile landscape */
+@media (max-width: 767px) {
+  .btn {
+    padding: 0.7rem 1rem;
+    font-size: 0.9rem;
+    margin: var(--spacing-xs);
+  }
+
+  .btn-sm {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.75rem;
+  }
+
+  .btn-lg {
+    padding: 0.8rem 1.5rem;
+    font-size: 0.95rem;
+  }
+
+  .btn-block {
+    margin-bottom: 0.5rem;
+  }
+
+  .btn-group {
+    display: flex;
+    width: 100%;
+  }
+
+  .btn-group .btn {
+    flex: 1;
+    margin: 0;
+  }
+
+  .badge {
+    font-size: 0.65rem;
+    padding: 0.15rem 0.3rem;
+  }
+
+  .nav-btn {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.6rem;
   }
 
   .btn-icon {
     min-width: 2.25rem;
     min-height: 2.25rem;
+  }
+
+  .btn-with-icon {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .btn-with-icon .icon {
+    font-size: 1em;
+  }
+}
+
+/* Extra small screens (below 480px) - Mobile portrait */
+@media (max-width: 479px) {
+  .btn {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.85rem;
+    margin: var(--spacing-xs);
+  }
+
+  .btn-sm {
+    padding: 0.35rem 0.6rem;
+    font-size: 0.7rem;
+  }
+
+  .btn-lg {
+    padding: 0.7rem 1.2rem;
+    font-size: 0.9rem;
+  }
+
+  .btn-block {
+    margin-bottom: 0.35rem;
+  }
+
+  .btn-group {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 0.25rem;
+  }
+
+  .btn-group .btn {
+    width: 100%;
+    margin: 0;
+  }
+
+  .badge {
+    font-size: 0.6rem;
+    padding: 0.1rem 0.25rem;
+  }
+
+  .nav-btn {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+  }
+
+  .btn-icon {
+    min-width: 2rem;
+    min-height: 2rem;
+    padding: 0.5rem;
+  }
+
+  .btn-icon.btn-sm {
+    min-width: 1.75rem;
+    min-height: 1.75rem;
+    padding: 0.35rem;
+  }
+
+  .btn-with-icon {
+    flex-direction: column;
+    gap: 0.2rem;
+    padding: 0.5rem 0.6rem;
+  }
+
+  .btn-with-icon .icon {
+    font-size: 0.9em;
+  }
+
+  .btn-text {
+    padding: 0.25rem;
+    font-size: 0.8rem;
   }
 }
