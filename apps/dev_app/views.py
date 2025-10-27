@@ -184,59 +184,6 @@ class DesignSectionView(View):
         return render(request, self.template_name, context)
 
 
-class DesignComponentsView(View):
-    """Components listing page."""
-
-    template_name = "dev_app/design_components.html"
-
-    def get(self, request):
-        components_data = _load_components()
-        context = {
-            "components": components_data.get("components", []),
-            "metadata": components_data.get("metadata", {}),
-            "total_components": len(components_data.get("components", [])),
-        }
-        return render(request, self.template_name, context)
-
-
-class DesignComponentDetailView(View):
-    """Route to individual component pages."""
-
-    def get(self, request, component_id):
-        """Route to the appropriate component template."""
-        # Map component IDs to template names
-        component_map = {
-            "toggle-button-checkbox": "dev_app/components/toggle_button_checkbox.html",
-            "form-input": "dev_app/components/form_input.html",
-            "button": "dev_app/components/button.html",
-            "file-upload": "dev_app/components/file_upload.html",
-            "segmented-radio-control": "dev_app/components/segmented_radio_control.html",
-            "badge": "dev_app/components/badge.html",
-            "checkbox": "dev_app/components/checkbox.html",
-            "select-dropdown": "dev_app/components/select_dropdown.html",
-            "module-icons": "dev_app/components/module_icons.html",
-            "card": "dev_app/components/card.html",
-            "tabs": "dev_app/components/tabs.html",
-            "dropdown-menu": "dev_app/components/dropdown_menu.html",
-            "sidebar-navigation": "dev_app/components/sidebar_navigation.html",
-            "breadcrumb": "dev_app/components/breadcrumb.html",
-            "navbar": "dev_app/components/navbar.html",
-            "hero": "dev_app/components/hero.html",
-        }
-
-        template_name = component_map.get(component_id.lower())
-        if not template_name:
-            raise Http404(f"Component '{component_id}' not found")
-
-        components_data = _load_components()
-        context = {
-            "components": components_data.get("components", []),
-            "metadata": components_data.get("metadata", {}),
-        }
-
-        return render(request, template_name, context)
-
-
 # Backward compatibility views using DesignSectionView
 class DesignColorsView(DesignSectionView):
     def get(self, request):

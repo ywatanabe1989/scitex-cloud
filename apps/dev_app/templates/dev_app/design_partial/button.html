@@ -14,60 +14,68 @@
   <p class="text-intro">Versatile button component with multiple variants, sizes, and states for interactive actions.</p>
 
   <div class="demo-box">
+    <h3 class="mb-4">Default Variants</h3>
+    <div class="component-demo">
+      <button class="btn" style="display: block; margin-bottom: 0.75rem;">btn</button>
+      <button class="btn btn-text" style="display: block; margin-bottom: 0.75rem;">btn btn-text</button>
+    </div>
+  </div>
+
+  <div class="demo-box">
     <h3 class="mb-4">Primary Variants</h3>
-    <div class="component-demo" style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-      <button class="btn btn-primary">Primary</button>
-      <button class="btn btn-secondary">Secondary</button>
-      <button class="btn btn-accent">Accent</button>
-      <button class="btn btn-success">Success</button>
-      <button class="btn btn-warning">Warning</button>
-      <button class="btn btn-danger">Danger</button>
-      <button class="btn btn-info">Info</button>
-      <button class="btn btn-dark">Dark</button>
+    <div class="component-demo">
+      <button class="btn btn-primary" style="display: block; margin-bottom: 0.75rem;">btn btn-primary</button>
+      <button class="btn btn-secondary" style="display: block; margin-bottom: 0.75rem;">btn btn-secondary</button>
+      <button class="btn btn-light" style="display: block; margin-bottom: 0.75rem;">btn btn-light</button>
+      <button class="btn btn-dark" style="display: block; margin-bottom: 0.75rem;">btn btn-dark</button>
+    </div>
+  </div>
+
+  <div class="demo-box">
+    <h3 class="mb-4">Alert Variants</h3>
+    <div class="component-demo">
+      <button class="btn btn-success" style="display: block; margin-bottom: 0.75rem;">btn btn-success</button>
+      <button class="btn btn-warning" style="display: block; margin-bottom: 0.75rem;">btn btn-warning</button>
+      <button class="btn btn-danger" style="display: block; margin-bottom: 0.75rem;">btn btn-danger</button>
+      <button class="btn btn-info" style="display: block; margin-bottom: 0.75rem;">btn btn-info</button>
     </div>
   </div>
 
   <div class="demo-box">
     <h3 class="mb-3">Outline Variants</h3>
-    <div class="component-demo" style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-      <button class="btn btn-outline-primary">Outline Primary</button>
-      <button class="btn btn-outline-secondary">Outline Secondary</button>
-      <button class="btn btn-outline-accent">Outline Accent</button>
-    </div>
-  </div>
-
-  <div class="demo-box">
-    <h3 class="mb-3">Text Button</h3>
     <div class="component-demo">
-      <button class="btn btn-text">Text Button</button>
+      <button class="btn btn-outline-primary" style="display: block; margin-bottom: 0.75rem;">btn btn-outline-primary</button>
+      <button class="btn btn-outline-secondary" style="display: block; margin-bottom: 0.75rem;">btn btn-outline-secondary</button>
+      <button class="btn btn-outline-light" style="display: block; margin-bottom: 0.75rem;">btn btn-outline-light</button>
+      <button class="btn btn-outline-dark" style="display: block; margin-bottom: 0.75rem;">btn btn-outline-dark</button>
     </div>
   </div>
 
   <div class="demo-box">
     <h3 class="mb-3">Button Sizes</h3>
-    <div class="component-demo" style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
-      <button class="btn btn-primary btn-sm">Small</button>
-      <button class="btn btn-primary">Default</button>
-      <button class="btn btn-primary btn-lg">Large</button>
+    <div class="component-demo">
+      <button class="btn btn-primary btn-sm" style="display: block; margin-bottom: 0.75rem;">btn btn-sm</button>
+      <button class="btn btn-primary" style="display: block; margin-bottom: 0.75rem;">btn</button>
+      <button class="btn btn-primary btn-lg" style="display: block; margin-bottom: 0.75rem;">btn btn-lg</button>
     </div>
   </div>
 
   <div class="demo-box">
     <h3 class="mb-3">Button States</h3>
-    <div class="component-demo" style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-      <button class="btn btn-primary">Default</button>
-      <button class="btn btn-primary" disabled>Disabled</button>
-      <button class="btn btn-primary btn-loading"><span class="btn-text">Loading...</span></button>
+    <div class="component-demo">
+      <button class="btn btn-primary" style="display: block; margin-bottom: 0.75rem;">btn</button>
+      <button class="btn btn-primary" disabled style="display: block; margin-bottom: 0.75rem;">btn disabled</button>
+      <button class="btn btn-primary btn-loading" style="display: block; margin-bottom: 0.75rem;"><span class="btn-text">btn btn-loading</span></button>
     </div>
   </div>
 
   <div class="demo-box">
     <h3 class="mb-3">Icon Buttons</h3>
-    <div class="component-demo" style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
-      <button class="btn btn-primary btn-icon">🔍</button>
-      <button class="btn btn-primary btn-with-icon"><span class="icon">📁</span> Upload</button>
-      <button class="btn btn-secondary btn-icon btn-sm">⚙️</button>
-      <button class="btn btn-danger btn-icon btn-lg">🗑️</button>
+    <div class="component-demo">
+      <button class="btn btn-primary btn-icon" title="btn btn-icon" style="display: block; margin-bottom: 0.75rem;">🔍</button>
+      <button class="btn btn-primary btn-with-icon" style="display: block; margin-bottom: 0.75rem;"><span class="icon">📁</span> btn btn-with-icon</button>
+      <button class="btn btn-secondary btn-icon btn-sm" title="btn btn-icon btn-sm" style="display: block; margin-bottom: 0.75rem;">⚙️</button>
+      <button class="btn btn-danger btn-icon btn-lg" title="btn btn-icon btn-lg" style="display: block;">🗑️</button>
     </div>
   </div>
 
@@ -75,17 +83,24 @@
     <h3 class="mb-3">Button Group</h3>
     <div class="component-demo">
       <div class="btn-group">
-        <button class="btn btn-primary">Left</button>
-        <button class="btn btn-primary">Middle</button>
-        <button class="btn btn-primary">Right</button>
+        <button class="btn btn-primary">btn-group</button>
+        <button class="btn btn-primary">btn-group</button>
+        <button class="btn btn-primary">btn-group</button>
       </div>
+    </div>
+  </div>
+
+  <div class="demo-box">
+    <h3 class="mb-3">Special Variants</h3>
+    <div class="component-demo">
+      <button class="btn btn-github" style="display: block; margin-bottom: 0.75rem;">btn btn-github</button>
     </div>
   </div>
 
   <div class="demo-box">
     <h3 class="mb-3">Block Button</h3>
     <div class="component-demo">
-      <button class="btn btn-primary btn-block">Full Width Button</button>
+      <button class="btn btn-primary btn-block">btn btn-block</button>
     </div>
   </div>
 
