@@ -27,7 +27,7 @@
           position: relative;
           width: 100%;
           padding: 2rem;
-          border: 2px dashed var(--color-border-default);
+          border: 2px dotted var(--color-border-default);
           border-radius: 8px;
           background: var(--color-canvas-subtle);
           text-align: center;
@@ -516,7 +516,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Reset border styling
     dropZone.style.borderColor = 'var(--color-border-default)';
-    dropZone.style.borderStyle = 'dashed';
+    dropZone.style.borderStyle = 'dotted';
     dropZone.style.background = 'var(--color-canvas-subtle)';
 
     console.log('File selection cleared');
@@ -552,7 +552,7 @@ document.addEventListener('DOMContentLoaded', function() {
     dropZone.classList.remove('dragging');
     if (!fileInput.files || !fileInput.files[0]) {
       dropZone.style.borderColor = 'var(--color-border-default)';
-      dropZone.style.borderStyle = 'dashed';
+      dropZone.style.borderStyle = 'dotted';
       dropZone.style.background = 'var(--color-canvas-subtle)';
     }
     dropZone.style.transform = 'scale(1)';
