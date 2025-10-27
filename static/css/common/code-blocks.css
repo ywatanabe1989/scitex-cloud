@@ -12,7 +12,7 @@
 /* Base code block container */
 pre {
   position: relative;
-  padding: 2.5rem 1.5rem 1.5rem 1.5rem;
+  padding: 3rem 1.5rem 1.5rem 1.5rem;
   border: 1px solid var(--border-default);
   border-radius: 6px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -33,18 +33,18 @@ pre::after {
   top: 0;
   left: 0;
   right: 0;
-  height: 2rem;
+  height: 2.75rem;
   background-color: var(--bg-muted);
   border-bottom: 1px solid var(--border-default);
   border-radius: 6px 6px 0 0;
-  z-index: 1;
+  z-index: -1;
   pointer-events: none;
 }
 
 /* Copy button */
 .code-copy-button {
   position: absolute;
-  top: 0.5rem;
+  top: 0.6rem;
   right: 0.75rem;
   background-color: transparent;
   color: var(--text-secondary);
@@ -230,7 +230,7 @@ pre code::selection {
 /* Language label badges using ::before on pre element */
 pre[data-language]::before {
   position: absolute;
-  top: 0.55rem;
+  top: 0.65rem;
   left: 1.25rem;
   background-color: transparent;
   color: var(--text-secondary);
