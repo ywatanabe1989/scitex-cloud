@@ -1,11 +1,13 @@
 /*
  * @component Tabs
- * @description Tabbed interface for organizing content into separate views
+ * @description Modern tabbed interface for organizing content into separate views
  * @category Navigation Components
  * @file /static/css/components/tabs.css
  * @darkmode true
  *
- * @variant tabs - Tab navigation container
+ * @variant tabs - Tab navigation container (underline style by default)
+ * @variant tabs.tabs-pill - Pills/buttons style
+ * @variant tabs.tabs-card - Card style with subtle backgrounds
  * @variant tab-item - Individual tab button
  * @variant tab-content - Content container for tab panels
  * @variant tab-pane - Individual tab panel content
@@ -26,27 +28,21 @@
  *   <div class="tab-pane">Details content here</div>
  *   <div class="tab-pane">Settings content here</div>
  * </div>
- *
- * @example
- * <div class="tabs">
- *   <button class="tab-item active">📊 Analytics</button>
- *   <button class="tab-item">📁 Files</button>
- *   <button class="tab-item">⚙️ Config</button>
- *   <button class="tab-item" disabled>🔒 Advanced</button>
- * </div>
  */
 
 /* =========================
-   Base Tabs Styles
+   Base Tabs Styles (Underline)
    ========================= */
 
 .tabs {
   display: flex;
-  gap: 0;
-  border-bottom: 2px solid var(--border-default);
+  gap: 0.5rem;
+  border-bottom: 1px solid var(--border-muted);
   margin-bottom: 1.5rem;
-  overflow-x: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
   scrollbar-width: thin;
+  scroll-behavior: smooth;
 }
 
 .tabs::-webkit-scrollbar {
@@ -58,6 +54,10 @@
   border-radius: 2px;
 }
 
+.tabs::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
 .tab-item {
   background: transparent;
   border: none;
@@ -67,27 +67,135 @@
   font-weight: 500;
   color: var(--text-secondary);
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   white-space: nowrap;
   position: relative;
-  margin-bottom: -2px;
+  margin-bottom: -1px;
+  font-family: inherit;
+  outline: none;
+}
+
+.tab-item:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: -2px;
 }
 
 .tab-item:hover:not(.active):not(:disabled) {
   color: var(--text-primary);
-  border-bottom-color: var(--border-default);
+  background-color: transparent;
+}
+
+.tab-item::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 1.25rem;
+  right: 1.25rem;
+  height: 2px;
+  background-color: transparent;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+.tab-item:hover:not(.active):not(:disabled)::after {
+  background-color: var(--border-default);
+  transform: scaleX(1);
 }
 
 .tab-item.active {
   color: var(--text-primary);
-  border-bottom-color: var(--text-primary);
   font-weight: 600;
+}
+
+.tab-item.active::after {
+  background-color: var(--text-primary);
+  transform: scaleX(1);
 }
 
 .tab-item:disabled {
   color: var(--text-muted);
   cursor: not-allowed;
-  opacity: 0.6;
+  opacity: 0.5;
+}
+
+/* =========================
+   Pills Style Tabs
+   ========================= */
+
+.tabs.tabs-pill {
+  border-bottom: none;
+  gap: 0.5rem;
+}
+
+.tabs.tabs-pill .tab-item {
+  background-color: var(--bg-muted);
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 0.625rem 1rem;
+  margin-bottom: 0;
+  color: var(--text-secondary);
+}
+
+.tabs.tabs-pill .tab-item::after {
+  display: none;
+}
+
+.tabs.tabs-pill .tab-item:hover:not(.active):not(:disabled) {
+  background-color: var(--bg-surface);
+  border-color: var(--border-default);
+}
+
+.tabs.tabs-pill .tab-item.active {
+  background-color: var(--text-primary);
+  color: var(--bg-page);
+  border-color: var(--text-primary);
+  font-weight: 600;
+}
+
+.tabs.tabs-pill .tab-item:disabled {
+  background-color: var(--bg-muted);
+  border-color: transparent;
+}
+
+/* =========================
+   Card Style Tabs
+   ========================= */
+
+.tabs.tabs-card {
+  border-bottom: none;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  background-color: var(--bg-muted);
+  border-radius: 8px;
+}
+
+.tabs.tabs-card .tab-item {
+  background-color: transparent;
+  border: none;
+  border-radius: 6px;
+  padding: 0.75rem 1.25rem;
+  margin-bottom: 0;
+  color: var(--text-secondary);
+}
+
+.tabs.tabs-card .tab-item::after {
+  display: none;
+}
+
+.tabs.tabs-card .tab-item:hover:not(.active):not(:disabled) {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.tabs.tabs-card .tab-item.active {
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.tabs.tabs-card .tab-item:disabled {
+  color: var(--text-muted);
 }
 
 /* =========================
@@ -104,10 +212,10 @@
 
 .tab-pane.active {
   display: block;
-  animation: fadeIn 0.2s ease-in;
+  animation: slideInUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-@keyframes fadeIn {
+@keyframes slideInUp {
   from {
     opacity: 0;
     transform: translateY(4px);
@@ -119,29 +227,72 @@
 }
 
 /* =========================
-   Dark Mode
+   Dark Mode - Underline Style
    ========================= */
 
 [data-theme="dark"] .tabs {
-  border-bottom-color: var(--scitex-color-03);
+  border-bottom-color: var(--border-muted);
 }
 
 [data-theme="dark"] .tab-item {
-  color: var(--scitex-color-05);
+  color: var(--text-secondary);
 }
 
 [data-theme="dark"] .tab-item:hover:not(.active):not(:disabled) {
-  color: var(--scitex-color-07);
-  border-bottom-color: var(--scitex-color-04);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .tab-item:hover:not(.active):not(:disabled)::after {
+  background-color: var(--text-secondary);
 }
 
 [data-theme="dark"] .tab-item.active {
-  color: var(--scitex-color-06);
-  border-bottom-color: var(--scitex-color-05);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .tab-item.active::after {
+  background-color: var(--text-primary);
 }
 
 [data-theme="dark"] .tab-item:disabled {
-  color: var(--scitex-color-03);
+  color: var(--text-muted);
+}
+
+/* =========================
+   Dark Mode - Pills Style
+   ========================= */
+
+[data-theme="dark"] .tabs.tabs-pill .tab-item {
+  background-color: var(--bg-muted);
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .tabs.tabs-pill .tab-item:hover:not(.active):not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: var(--border-default);
+}
+
+[data-theme="dark"] .tabs.tabs-pill .tab-item.active {
+  background-color: var(--text-primary);
+  color: var(--text-inverse);
+}
+
+/* =========================
+   Dark Mode - Card Style
+   ========================= */
+
+[data-theme="dark"] .tabs.tabs-card {
+  background-color: var(--bg-muted);
+}
+
+[data-theme="dark"] .tabs.tabs-card .tab-item:hover:not(.active):not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .tabs.tabs-card .tab-item.active {
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 /* =========================
@@ -151,11 +302,13 @@
 /* Container aliases */
 .scitex-tabs {
   display: flex;
-  gap: 0;
-  border-bottom: 2px solid var(--border-default);
+  gap: 0.5rem;
+  border-bottom: 1px solid var(--border-muted);
   margin-bottom: 1.5rem;
-  overflow-x: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
   scrollbar-width: thin;
+  scroll-behavior: smooth;
 }
 
 .scitex-tabs::-webkit-scrollbar {
@@ -165,6 +318,10 @@
 .scitex-tabs::-webkit-scrollbar-thumb {
   background-color: var(--border-default);
   border-radius: 2px;
+}
+
+.scitex-tabs::-webkit-scrollbar-track {
+  background-color: transparent;
 }
 
 /* Individual tab aliases */
@@ -177,57 +334,84 @@
   font-weight: 500;
   color: var(--text-secondary);
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   white-space: nowrap;
   position: relative;
-  margin-bottom: -2px;
+  margin-bottom: -1px;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  font-family: inherit;
+  outline: none;
+}
+
+.scitex-tab:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: -2px;
+}
+
+.scitex-tab::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 1.25rem;
+  right: 1.25rem;
+  height: 2px;
+  background-color: transparent;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: scaleX(0);
+  transform-origin: left;
 }
 
 .scitex-tab:hover:not(.active):not(.scitex-tab-active):not(:disabled) {
   color: var(--text-primary);
-  border-bottom-color: var(--border-default);
   text-decoration: none;
+}
+
+.scitex-tab:hover:not(.active):not(.scitex-tab-active):not(:disabled)::after {
+  background-color: var(--border-default);
+  transform: scaleX(1);
 }
 
 .scitex-tab.active,
 .scitex-tab.scitex-tab-active {
   color: var(--text-primary);
-  border-bottom-color: var(--text-primary);
   font-weight: 600;
+}
+
+.scitex-tab.active::after,
+.scitex-tab.scitex-tab-active::after {
+  background-color: var(--text-primary);
+  transform: scaleX(1);
 }
 
 .scitex-tab:disabled {
   color: var(--text-muted);
   cursor: not-allowed;
-  opacity: 0.6;
+  opacity: 0.5;
 }
 
 /* Dark mode for SciTeX tabs */
 [data-theme="dark"] .scitex-tabs {
-  border-bottom-color: var(--scitex-color-03);
+  border-bottom-color: var(--border-muted);
 }
 
 [data-theme="dark"] .scitex-tab {
-  color: var(--scitex-color-05);
+  color: var(--text-secondary);
 }
 
 [data-theme="dark"] .scitex-tab:hover:not(.active):not(.scitex-tab-active):not(:disabled) {
-  color: var(--scitex-color-07);
-  border-bottom-color: var(--scitex-color-04);
+  color: var(--text-primary);
 }
 
 [data-theme="dark"] .scitex-tab.active,
 [data-theme="dark"] .scitex-tab.scitex-tab-active {
-  color: var(--scitex-color-06);
-  border-bottom-color: var(--scitex-color-05);
+  color: var(--text-primary);
 }
 
 [data-theme="dark"] .scitex-tab:disabled {
-  color: var(--scitex-color-03);
+  color: var(--text-muted);
 }
 
 /* =========================

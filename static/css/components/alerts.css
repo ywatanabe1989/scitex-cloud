@@ -1,17 +1,18 @@
 /**
  * @component Alerts & Warning Banners
- * @description Alert and warning banner components
+ * @description Alert and warning banner components with color consistency to button variants
  * @category UI Components
  * @file /static/css/components/alerts.css
+ * @darkmode true
  */
 
 /* =========================
-   Warning Banner Styles
+   Warning Banner Styles (Legacy)
    ========================= */
 
 .warning-banner {
-  background: linear-gradient(135deg, #ff9500 0%, #ff6b00 100%);
-  border-bottom: 3px solid #cc5500;
+  background: linear-gradient(135deg, var(--warning-color) 0%, #a07a55 100%);
+  border-bottom: 3px solid var(--warning-color);
   padding: 1.25rem 0;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   margin-bottom: 0;
@@ -27,7 +28,7 @@
   display: flex;
   align-items: flex-start;
   gap: 1rem;
-  color: #000;
+  color: white;
 }
 
 .warning-banner-icon {
@@ -35,7 +36,7 @@
   margin-top: 0.2rem;
   width: 24px;
   height: 24px;
-  color: #000;
+  color: white;
 }
 
 .warning-banner-text {
@@ -48,7 +49,7 @@
   margin-bottom: 0.5rem;
   font-size: 1rem;
   font-weight: 700;
-  color: #000;
+  color: white;
 }
 
 .warning-banner-title strong {
@@ -57,78 +58,134 @@
 
 .warning-banner-description {
   font-size: 0.9rem;
-  color: #1a1a1a;
+  color: rgba(255, 255, 255, 0.95);
   line-height: 1.5;
 }
 
-/* Alert Variants */
+/* =========================
+   Alert Banners - Button-style Semantic Colors (Light Mode)
+   ========================= */
+
 .alert-banner {
-  padding: 1rem 0;
+  padding: 1rem;
   margin-bottom: var(--spacing-md);
+  border-radius: 4px;
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  color: white;
 }
 
-/* Info Alert - Light background with dark info text */
+/* Info Alert - Uses btn-info colors */
 .alert-banner-info {
-  background: #e8f1f8;
-  border-bottom: 3px solid var(--info-color);
+  background-color: var(--info-color);
+  color: white;
 }
 
 .alert-banner-info .warning-banner-title,
 .alert-banner-info .warning-banner-description,
 .alert-banner-info .warning-banner-icon {
-  color: #2c5f7f;
+  color: white;
 }
 
 .alert-banner-info ul li {
-  color: #2c5f7f;
+  color: white;
 }
 
-/* Success Alert - Light background with dark success text */
+/* Success Alert - Uses btn-success colors */
 .alert-banner-success {
-  background: #e8f5ef;
-  border-bottom: 3px solid var(--success-color);
+  background-color: var(--success-color);
+  color: white;
 }
 
 .alert-banner-success .warning-banner-title,
 .alert-banner-success .warning-banner-description,
 .alert-banner-success .warning-banner-icon {
-  color: #2d6650;
+  color: white;
 }
 
 .alert-banner-success ul li {
-  color: #2d6650;
+  color: white;
 }
 
-/* Danger/Error Alert - Light background with dark error text */
+/* Danger/Error Alert - Uses btn-danger colors */
 .alert-banner-danger {
-  background: #f5e8e8;
-  border-bottom: 3px solid var(--error-color);
+  background-color: var(--error-color);
+  color: white;
 }
 
 .alert-banner-danger .warning-banner-title,
 .alert-banner-danger .warning-banner-description,
 .alert-banner-danger .warning-banner-icon {
-  color: #6e4545;
+  color: white;
 }
 
 .alert-banner-danger ul li {
-  color: #6e4545;
+  color: white;
 }
 
-/* Warning Alert - Light background with dark warning text */
+/* Warning Alert - Uses btn-warning colors */
 .alert-banner-warning {
-  background: #f5f0e8;
-  border-bottom: 3px solid var(--warning-color);
+  background-color: var(--warning-color);
+  color: white;
 }
 
 .alert-banner-warning .warning-banner-title,
 .alert-banner-warning .warning-banner-description,
 .alert-banner-warning .warning-banner-icon {
-  color: #6e5c41;
+  color: white;
 }
 
 .alert-banner-warning ul li {
-  color: #6e5c41;
+  color: white;
+}
+
+/* =========================
+   Dark Mode Alert Banners (Same as light mode - uses btn colors)
+   ========================= */
+
+[data-theme="dark"] .alert-banner-info {
+  background-color: var(--info-color);
+  color: white;
+}
+
+[data-theme="dark"] .alert-banner-info .warning-banner-title,
+[data-theme="dark"] .alert-banner-info .warning-banner-description,
+[data-theme="dark"] .alert-banner-info .warning-banner-icon {
+  color: white;
+}
+
+[data-theme="dark"] .alert-banner-success {
+  background-color: var(--success-color);
+  color: white;
+}
+
+[data-theme="dark"] .alert-banner-success .warning-banner-title,
+[data-theme="dark"] .alert-banner-success .warning-banner-description,
+[data-theme="dark"] .alert-banner-success .warning-banner-icon {
+  color: white;
+}
+
+[data-theme="dark"] .alert-banner-danger {
+  background-color: var(--error-color);
+  color: white;
+}
+
+[data-theme="dark"] .alert-banner-danger .warning-banner-title,
+[data-theme="dark"] .alert-banner-danger .warning-banner-description,
+[data-theme="dark"] .alert-banner-danger .warning-banner-icon {
+  color: white;
+}
+
+[data-theme="dark"] .alert-banner-warning {
+  background-color: var(--warning-color);
+  color: white;
+}
+
+[data-theme="dark"] .alert-banner-warning .warning-banner-title,
+[data-theme="dark"] .alert-banner-warning .warning-banner-description,
+[data-theme="dark"] .alert-banner-warning .warning-banner-icon {
+  color: white;
 }
 
 /* Responsive */

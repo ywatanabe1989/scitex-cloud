@@ -24,9 +24,9 @@
   --_scitex-06: #b5c7d1;
   --_scitex-07: #d4e1e8;
 
-  --_white: #ffffff;
+  --_white: #fafbfc;  /* Soft off-white to reduce eye strain */
   --_gray-subtle: #f6f8fa;
-  --_warm-white: #fafbfc;  /* Professional warm off-white for page background */
+  --_warm-white: #fefefe;  /* Professional warm off-white for page background */
 
   /* Status colors */
   --_success: #4a9b7e;
@@ -119,6 +119,18 @@
   /* Border */
   --border-default: var(--_scitex-03);
   --border-muted: var(--_scitex-02);
+
+  /* Status colors - adjust for dark mode readability */
+  --status-success: #6ba89a;
+  --status-warning: #d4a87a;
+  --status-error: #c08888;
+  --status-info: #8fa9cc;
+
+  /* Aliases for forms and other components */
+  --success-color: #6ba89a;
+  --warning-color: #d4a87a;
+  --error-color: #c08888;
+  --info-color: #8fa9cc;
 
   /* GitHub Primer-style aliases for dark mode */
   --color-fg-default: var(--text-primary);
