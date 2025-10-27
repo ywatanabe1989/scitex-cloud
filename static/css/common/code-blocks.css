@@ -327,7 +327,7 @@ pre[data-language="diff"]::before {
 .hljs-ln-numbers {
   text-align: right;
   min-width: 3ch;
-  padding-right: 1rem;
+  padding-right: 1rem !important;  /* Space between line numbers and code */
   padding-left: 0.5rem;
   color: var(--text-muted);
   font-family: var(--font-mono, 'SF Mono', Monaco, 'Cascadia Code', monospace);
@@ -338,7 +338,8 @@ pre[data-language="diff"]::before {
 
 /* Line code */
 .hljs-ln-code {
-  padding-left: 0;
+  padding-left: 2rem;  /* Significant space between numbers and code */
+  padding-right: 0;
 }
 
 /* Line wrapper */
@@ -346,7 +347,8 @@ pre[data-language="diff"]::before {
   display: flex;
 }
 
-/* Dark mode line numbers - automatically handled by semantic tokens */
+/* Dark mode line numbers */
 [data-theme="dark"] .hljs-ln-numbers {
   color: var(--text-muted);
+  border-right-color: var(--border-muted);
 }
