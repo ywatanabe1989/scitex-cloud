@@ -44,6 +44,18 @@ def signup(request):
             # Create user profile (should be auto-created by signal, but ensure it exists)
             UserProfile.objects.get_or_create(user=user)
 
+            # Create Gitea user account (sync with Gitea)
+            try:
+                from apps.gitea_app.services.gitea_sync_service import sync_user_to_gitea
+                sync_success = sync_user_to_gitea(user, password)
+                if sync_success:
+                    logger.info(f"Gitea user created for {username}")
+                else:
+                    logger.warning(f"Failed to create Gitea user for {username}")
+            except Exception as e:
+                logger.warning(f"Gitea sync failed for {username}: {e}")
+                # Don't fail signup if Gitea sync fails
+
             # Migrate anonymous session data if exists
             if request.session.session_key:
                 from apps.project_app.services.anonymous_storage import migrate_to_user_storage
@@ -78,20 +90,26 @@ def signup(request):
                     return redirect(f'{verify_url}?email={email}')
                 else:
                     logger.error(f"Failed to send verification email to {email}: {message}")
-                    # Clean up user if email fails
-                    user.delete()
-                    messages.error(
+                    # Don't delete user - let them retry verification
+                    messages.warning(
                         request,
-                        f"Failed to send verification email: {message}. Please try again."
+                        f"Account created but verification email failed to send. "
+                        f"Please contact support or try logging in later."
                     )
+                    from django.urls import reverse
+                    verify_url = reverse('auth_app:verify-email')
+                    return redirect(f'{verify_url}?email={email}')
             except Exception as e:
                 logger.error(f"Error during signup for {email}: {str(e)}")
-                # Clean up user if there's an error
-                user.delete()
-                messages.error(
+                # Don't delete user - keep the account
+                messages.warning(
                     request,
-                    f"An error occurred during signup. Please try again."
+                    f"Account created but there was an issue sending verification email. "
+                    f"Please contact support or try logging in later."
                 )
+                from django.urls import reverse
+                verify_url = reverse('auth_app:verify-email')
+                return redirect(f'{verify_url}?email={email}')
     else:
         form = SignupForm()
 
@@ -343,7 +361,7 @@ def delete_account(request):
             request,
             f"Account @{username} has been permanently deleted."
         )
-        return redirect("cloud_app:index")
+        return redirect("public_app:landing")
 
     return render(request, "auth_app/delete_account.html")
 
