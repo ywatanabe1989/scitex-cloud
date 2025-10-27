@@ -624,11 +624,11 @@ a.disabled {
 /* Upload zone styling */
 .u-upload-zone {
     position: relative;
-    /* border: 3px dashed var(--scitex-color-03); */
-    /* border-radius: 12px; */
+    border: 2px dotted var(--color-border-default);
+    border-radius: 12px;
     padding: 3rem 2rem;
     text-align: center;
-    /* background: var(--color-canvas-subtle); */
+    background: var(--color-canvas-subtle);
     transition: all 0.3s;
 }
 
