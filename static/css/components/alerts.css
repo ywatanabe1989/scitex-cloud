@@ -67,24 +67,68 @@
   margin-bottom: var(--spacing-md);
 }
 
+/* Info Alert - Light background with dark info text */
 .alert-banner-info {
-  background: var(--info-color);
+  background: #e8f1f8;
   border-bottom: 3px solid var(--info-color);
 }
 
+.alert-banner-info .warning-banner-title,
+.alert-banner-info .warning-banner-description,
+.alert-banner-info .warning-banner-icon {
+  color: #2c5f7f;
+}
+
+.alert-banner-info ul li {
+  color: #2c5f7f;
+}
+
+/* Success Alert - Light background with dark success text */
 .alert-banner-success {
-  background: var(--success-color);
+  background: #e8f5ef;
   border-bottom: 3px solid var(--success-color);
 }
 
-.alert-banner-danger {
-  background: var(--danger-color);
-  border-bottom: 3px solid var(--danger-color);
+.alert-banner-success .warning-banner-title,
+.alert-banner-success .warning-banner-description,
+.alert-banner-success .warning-banner-icon {
+  color: #2d6650;
 }
 
+.alert-banner-success ul li {
+  color: #2d6650;
+}
+
+/* Danger/Error Alert - Light background with dark error text */
+.alert-banner-danger {
+  background: #f5e8e8;
+  border-bottom: 3px solid var(--error-color);
+}
+
+.alert-banner-danger .warning-banner-title,
+.alert-banner-danger .warning-banner-description,
+.alert-banner-danger .warning-banner-icon {
+  color: #6e4545;
+}
+
+.alert-banner-danger ul li {
+  color: #6e4545;
+}
+
+/* Warning Alert - Light background with dark warning text */
 .alert-banner-warning {
-  background: var(--warning-color);
+  background: #f5f0e8;
   border-bottom: 3px solid var(--warning-color);
+}
+
+.alert-banner-warning .warning-banner-title,
+.alert-banner-warning .warning-banner-description,
+.alert-banner-warning .warning-banner-icon {
+  color: #6e5c41;
+}
+
+.alert-banner-warning ul li {
+  color: #6e5c41;
 }
 
 /* Responsive */

@@ -89,12 +89,33 @@
                 const cached = localStorage.getItem('scitex_search_cache');
                 if (cached) {
                     const cacheData = JSON.parse(cached);
-                    console.log('[SciTeX Search] Loaded cached results for query:', cacheData.query);
-                    // The results will be displayed via the server-side rendering
-                    // This just confirms the cache was available
+                    const cacheAge = Date.now() - cacheData.timestamp;
+                    const maxAge = 24 * 60 * 60 * 1000; // 24 hours
+
+                    // Only use cache if it's less than 24 hours old
+                    if (cacheAge < maxAge) {
+                        console.log('[SciTeX Search] Restoring cached results for query:', cacheData.query);
+
+                        // Store results in state
+                        this.state.lastResults = cacheData.results;
+                        this.state.currentQuery = cacheData.query;
+
+                        // Calculate approximate search time
+                        const searchTime = '0.00';
+
+                        // Display the cached results
+                        setTimeout(() => {
+                            this.displayResults(cacheData.results, searchTime);
+                            console.log('[SciTeX Search] Cached results displayed');
+                        }, 500);
+                    } else {
+                        console.log('[SciTeX Search] Cache expired, clearing...');
+                        localStorage.removeItem('scitex_search_cache');
+                    }
                 }
             } catch (error) {
                 console.warn('[SciTeX Search] Failed to load cached results:', error);
+                localStorage.removeItem('scitex_search_cache');
             }
         },
 
@@ -444,27 +465,79 @@
             // Build results HTML
             let html = `
                 <!-- Search Results Header -->
-                <div class="card mb-3" style="background: var(--color-canvas-default); border: 1px solid var(--color-border-default);">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h4 style="color: var(--color-fg-default);">
-                                    Found ${results.length} result${results.length !== 1 ? 's' : ''}
-                                </h4>
-                                <small style="color: var(--color-fg-muted);">
-                                    Search completed in ${searchTime}s using ${enginesUsed.length} engine${enginesUsed.length !== 1 ? 's' : ''}
-                                </small>
-                            </div>
-                            <div class="d-flex flex-wrap gap-2">
-                                ${enginesUsed.map(engine => this.renderEngineSuccessBadge(engine)).join('')}
-                            </div>
-                        </div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <div>
+                    <h5 class="mb-0">Search Results</h5>
+                    <small class="text-muted" id="searchResultsText">
+                      Found ${results.length} result${results.length !== 1 ? 's' : ''} - Search completed in ${searchTime}s using ${enginesUsed.length} engine${enginesUsed.length !== 1 ? 's' : ''}
+                      <span class="ms-2">
+                        ${enginesUsed.map(engine => this.renderEngineSuccessBadge(engine)).join('')}
+                      </span>
+                    </small>
+                  </div>
+                  <div class="d-flex align-items-center gap-3">
+                    <!-- Global Abstract Toggle -->
+                    <div class="d-flex align-items-center gap-2">
+                      <small class="text-muted">Abstract:</small>
+                      <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn btn-outline-secondary global-abstract-toggle" data-mode="all" title="Show full abstracts">
+                          <i class="fas fa-file-alt"></i> All
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary global-abstract-toggle" data-mode="truncated" title="Show truncated abstracts">
+                          <i class="fas fa-ellipsis-h"></i> Truncated
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary global-abstract-toggle" data-mode="none" title="Hide abstracts">
+                          <i class="fas fa-eye-slash"></i> None
+                        </button>
+                      </div>
                     </div>
+
+                    <!-- Sort Dropdown -->
+                    <div>
+                      <small class="text-muted">Sort by:</small>
+                      <select name="sort_by" class="form-select form-select-sm d-inline-block w-auto ms-2" id="sortSelect" onchange="handleSortChange(this.value)">
+                        <option value="relevance">Most Relevant</option>
+                        <option value="date_desc">Publication Year (Newest)</option>
+                        <option value="date_asc">Publication Year (Oldest)</option>
+                        <option value="citations">Citation Count</option>
+                        <option value="impact_factor">Impact Factor</option>
+                      </select>
+                    </div>
+                  </div>
                 </div>
             `;
 
             // Add results
             if (results.length > 0) {
+                // Add selection toolbar
+                html += `
+                    <!-- Paper Selection Toolbar -->
+                    <div class="card mb-3" style="border-color: var(--scitex-color-05);">
+                      <div class="card-body p-2">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                          <div class="d-flex align-items-center gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-primary" id="selectAllResults">
+                              <i class="fas fa-check-double"></i> Select All
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="deselectAllResults">
+                              <i class="fas fa-times"></i> Deselect All
+                            </button>
+                            <span class="text-muted small" id="selectedCount">0 of ${results.length} selected</span>
+                          </div>
+                          <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-sm btn-success" id="exportSelectedBibtex" disabled>
+                              <i class="fas fa-file-download"></i> Download as BibTeX
+                            </button>
+                            <button type="button" class="btn btn-sm btn-warning" id="saveSelectedToProject" disabled>
+                              <i class="fas fa-bookmark"></i> Save to Project
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                `;
+
+                // Add paper cards
                 results.forEach((paper, index) => {
                     html += this.renderPaperCard(paper, index);
                 });
@@ -473,6 +546,18 @@
             }
 
             resultsContainer.innerHTML = html;
+
+            // Setup paper selection and abstract toggle after results are rendered
+            if (results.length > 0) {
+                setTimeout(() => {
+                    if (typeof setupPaperSelection === 'function') {
+                        setupPaperSelection();
+                    }
+                    if (typeof setupGlobalAbstractToggle === 'function') {
+                        setupGlobalAbstractToggle();
+                    }
+                }, 100);
+            }
 
             // Initialize swarm plots with results
             if (window.SwarmPlots && results.length > 0) {
@@ -527,39 +612,61 @@
                 }
             }
 
+            // Create unique ID for the paper
+            const paperId = paper.id || `paper-${paper.doi || paper.title}`.replace(/[^a-z0-9]/gi, '_');
+
             return `
-                <div class="card mb-3" style="background: var(--color-canvas-default); border: 2px solid var(--color-border-default); box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                <div class="card mb-3 result-card" data-paper-id="${this.escapeHtml(paperId)}" data-title="${this.escapeHtml(paper.title || '')}" data-year="${paper.year || ''}" data-citations="${paper.citation_count || 0}" data-impact-factor="${paper.impact_factor || 0}" style="background: var(--color-canvas-default); border: 2px solid var(--color-border-default); box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
                     <div class="card-body">
-                        <!-- Title -->
-                        <h5 class="card-title" style="color: var(--color-fg-default);">
-                            ${index + 1}. ${paperUrl ?
-                                `<a href="${this.escapeHtml(paperUrl)}" target="_blank" style="color: var(--scitex-color-03); text-decoration: none;">
-                                    ${this.escapeHtml(paper.title || 'Untitled')}
-                                    <i class="fas fa-external-link-alt" style="font-size: 0.7em; margin-left: 4px;"></i>
-                                </a>` :
-                                this.escapeHtml(paper.title || 'Untitled')}
-                        </h5>
+                        <!-- Selection Checkbox and Title -->
+                        <div class="d-flex align-items-start gap-2 mb-2">
+                            <input type="checkbox" class="form-check-input paper-select-checkbox mt-1" data-paper-id="${this.escapeHtml(paperId)}" data-doi="${this.escapeHtml(paper.doi || '')}" data-title="${this.escapeHtml(paper.title || '')}">
+                            <div style="flex: 1;">
+                                <!-- Title -->
+                                <h5 class="card-title mb-1" style="color: var(--color-fg-default);">
+                                    ${index + 1}. ${paperUrl ?
+                                        `<a href="${this.escapeHtml(paperUrl)}" target="_blank" style="color: var(--scitex-color-03); text-decoration: none;">
+                                            ${this.escapeHtml(paper.title || 'Untitled')}
+                                            <i class="fas fa-external-link-alt" style="font-size: 0.7em; margin-left: 4px;"></i>
+                                        </a>` :
+                                        this.escapeHtml(paper.title || 'Untitled')}
+                                </h5>
 
-                        <!-- Authors & Year -->
-                        <p class="card-text mb-2" style="color: var(--color-fg-muted);">
-                            <strong>Authors:</strong> ${this.escapeHtml(authors)}${moreAuthors}
-                            ${paper.year ? `<br><strong>Year:</strong> ${paper.year}` : ''}
-                            ${journalInfo}
-                        </p>
+                                <!-- Authors & Year -->
+                                <p class="card-text mb-2" style="color: var(--color-fg-muted);">
+                                    <strong>Authors:</strong> ${this.escapeHtml(authors)}${moreAuthors}
+                                    ${paper.year ? `<br><strong>Year:</strong> ${paper.year}` : ''}
+                                    ${journalInfo}
+                                </p>
 
-                        <!-- Abstract -->
-                        ${paper.abstract ? `
-                            <p class="card-text" style="color: var(--color-fg-default);">
-                                ${this.escapeHtml(paper.abstract.substring(0, 300))}${paper.abstract.length > 300 ? '...' : ''}
-                            </p>
-                        ` : ''}
+                                <!-- Abstract -->
+                                ${paper.abstract ? `
+                                    <div class="result-snippet mt-2">
+                                        <div class="abstract-preview" data-abstract-id="${this.escapeHtml(paperId)}" data-mode="truncated" style="color: var(--color-fg-default);">
+                                            <span class="abstract-full">${this.escapeHtml(paper.abstract)}</span>
+                                            <span class="abstract-short">${this.escapeHtml(paper.abstract.substring(0, 300))}${paper.abstract.length > 300 ? '...' : ''}</span>
+                                        </div>
+                                    </div>
+                                ` : ''}
 
-                        <!-- Metadata Badges -->
-                        <div class="d-flex flex-wrap gap-2 mb-2">
-                            ${paper.is_open_access ? '<span class="badge bg-success"><i class="fas fa-unlock"></i> Open Access</span>' : ''}
-                            ${paper.citation_count ? `<span class="badge bg-info"><i class="fas fa-quote-right"></i> ${paper.citation_count} citations</span>` : ''}
-                            ${paper.doi ? `<span class="badge bg-secondary">DOI: ${this.escapeHtml(paper.doi)}</span>` : ''}
-                            ${(paper.source_engines || []).map(e => `<span class="badge" style="background-color: ${(this.engineStatus[e] || {}).color || '#95a5a6'};">${e}</span>`).join('')}
+                                <!-- Metadata Badges -->
+                                <div class="d-flex flex-wrap gap-2 mt-3">
+                                    ${paper.is_open_access ? '<span class="badge bg-success"><i class="fas fa-unlock"></i> Open Access</span>' : ''}
+                                    ${paper.citation_count ? `<span class="badge bg-info"><i class="fas fa-quote-right"></i> ${paper.citation_count} citations</span>` : ''}
+                                    ${paper.doi ? `<span class="badge bg-secondary">DOI: ${this.escapeHtml(paper.doi)}</span>` : ''}
+                                    ${(paper.source_engines || []).map(e => `<span class="badge" style="background-color: ${(this.engineStatus[e] || {}).color || '#95a5a6'};">${e}</span>`).join('')}
+                                </div>
+
+                                <!-- Action Buttons -->
+                                <div class="d-flex gap-2 mt-3">
+                                    <button class="btn btn-sm btn-outline-primary" onclick="exportCitation(this, 'bibtex')" title="Export as BibTeX">
+                                        <i class="fas fa-quote-right"></i> Export
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-success" onclick="saveToLibrary(this)" title="Save to project library">
+                                        <i class="fas fa-bookmark"></i> Save
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -801,3 +908,382 @@
     }
 
 })();
+
+/**
+ * Global functions for paper selection and export
+ */
+
+/**
+ * Setup paper selection event listeners
+ */
+function setupPaperSelection() {
+    console.log('[SciTeX Search] Setting up paper selection...');
+
+    // Select all checkboxes
+    const selectAllBtn = document.getElementById('selectAllResults');
+    const deselectAllBtn = document.getElementById('deselectAllResults');
+    const exportBtn = document.getElementById('exportSelectedBibtex');
+    const saveBtn = document.getElementById('saveSelectedToProject');
+    const selectedCount = document.getElementById('selectedCount');
+
+    if (!selectAllBtn || !deselectAllBtn) {
+        console.warn('[SciTeX Search] Selection buttons not found');
+        return;
+    }
+
+    // Select all handler
+    selectAllBtn.addEventListener('click', function() {
+        const checkboxes = document.querySelectorAll('.paper-select-checkbox');
+        checkboxes.forEach(cb => cb.checked = true);
+        updateSelectedCount();
+    });
+
+    // Deselect all handler
+    deselectAllBtn.addEventListener('click', function() {
+        const checkboxes = document.querySelectorAll('.paper-select-checkbox');
+        checkboxes.forEach(cb => cb.checked = false);
+        updateSelectedCount();
+    });
+
+    // Export BibTeX handler
+    if (exportBtn) {
+        exportBtn.addEventListener('click', function() {
+            exportSelectedBibtex();
+        });
+    }
+
+    // Save to project handler
+    if (saveBtn) {
+        saveBtn.addEventListener('click', function() {
+            saveSelectedToProject();
+        });
+    }
+
+    // Update count on checkbox change
+    document.addEventListener('change', function(e) {
+        if (e.target.classList.contains('paper-select-checkbox')) {
+            updateSelectedCount();
+        }
+    });
+
+    // Initial count update
+    updateSelectedCount();
+}
+
+/**
+ * Update selected count and enable/disable buttons
+ */
+function updateSelectedCount() {
+    const checkboxes = document.querySelectorAll('.paper-select-checkbox:checked');
+    const selectedCountEl = document.getElementById('selectedCount');
+    const exportBtn = document.getElementById('exportSelectedBibtex');
+    const saveBtn = document.getElementById('saveSelectedToProject');
+    const totalCheckboxes = document.querySelectorAll('.paper-select-checkbox').length;
+
+    if (selectedCountEl) {
+        selectedCountEl.textContent = `${checkboxes.length} of ${totalCheckboxes} selected`;
+    }
+
+    // Enable/disable bulk action buttons
+    const hasSelection = checkboxes.length > 0;
+    if (exportBtn) exportBtn.disabled = !hasSelection;
+    if (saveBtn) saveBtn.disabled = !hasSelection;
+}
+
+/**
+ * Export citation for a single paper
+ */
+function exportCitation(button, format) {
+    const card = button.closest('.result-card');
+    if (!card) {
+        console.error('[SciTeX Search] Cannot find paper card');
+        return;
+    }
+
+    const paperId = card.dataset.paperId;
+    const title = card.dataset.title;
+    const doi = card.querySelector('.paper-select-checkbox')?.dataset?.doi || '';
+
+    console.log('[SciTeX Search] Export citation:', format, paperId);
+
+    // Generate BibTeX for single paper
+    const bibtex = generateBibtex(card);
+
+    if (format === 'bibtex') {
+        // Download as file
+        downloadTextFile(bibtex, `${sanitizeFilename(title)}.bib`);
+    }
+}
+
+/**
+ * Save a single paper to library
+ */
+function saveToLibrary(button) {
+    const card = button.closest('.result-card');
+    if (!card) {
+        console.error('[SciTeX Search] Cannot find paper card');
+        return;
+    }
+
+    const paperId = card.dataset.paperId;
+    const title = card.dataset.title;
+
+    console.log('[SciTeX Search] Save to library:', paperId, title);
+
+    // TODO: Implement save to project functionality
+    alert('Save to project functionality - to be implemented');
+}
+
+/**
+ * Export selected papers as BibTeX
+ */
+function exportSelectedBibtex() {
+    const selectedCheckboxes = document.querySelectorAll('.paper-select-checkbox:checked');
+
+    if (selectedCheckboxes.length === 0) {
+        alert('Please select at least one paper to export');
+        return;
+    }
+
+    console.log('[SciTeX Search] Exporting', selectedCheckboxes.length, 'papers as BibTeX');
+
+    let allBibtex = '';
+
+    selectedCheckboxes.forEach(checkbox => {
+        const card = checkbox.closest('.result-card');
+        if (card) {
+            const bibtex = generateBibtex(card);
+            allBibtex += bibtex + '\n\n';
+        }
+    });
+
+    // Download as file
+    const timestamp = new Date().toISOString().split('T')[0];
+    downloadTextFile(allBibtex, `scitex_export_${timestamp}.bib`);
+}
+
+/**
+ * Save selected papers to project
+ */
+function saveSelectedToProject() {
+    const selectedCheckboxes = document.querySelectorAll('.paper-select-checkbox:checked');
+
+    if (selectedCheckboxes.length === 0) {
+        alert('Please select at least one paper to save');
+        return;
+    }
+
+    console.log('[SciTeX Search] Saving', selectedCheckboxes.length, 'papers to project');
+
+    // Collect paper data
+    const papers = [];
+    selectedCheckboxes.forEach(checkbox => {
+        const card = checkbox.closest('.result-card');
+        if (card) {
+            papers.push({
+                id: card.dataset.paperId,
+                title: card.dataset.title,
+                doi: checkbox.dataset.doi
+            });
+        }
+    });
+
+    // TODO: Implement save to project API call
+    alert(`Save ${papers.length} papers to project - to be implemented`);
+}
+
+/**
+ * Generate BibTeX for a paper card
+ */
+function generateBibtex(card) {
+    const title = card.dataset.title || 'Untitled';
+    const year = card.dataset.year || '';
+    const checkbox = card.querySelector('.paper-select-checkbox');
+    const doi = checkbox?.dataset?.doi || '';
+
+    // Extract more details from the card
+    const cardBody = card.querySelector('.card-body');
+    let authors = '';
+    let journal = '';
+
+    if (cardBody) {
+        const authorText = cardBody.querySelector('.card-text')?.textContent || '';
+        const authorMatch = authorText.match(/Authors:\s*([^\n]+)/);
+        if (authorMatch) {
+            authors = authorMatch[1].trim().split(',').map(a => a.trim()).join(' and ');
+        }
+
+        const journalMatch = authorText.match(/Journal:\s*([^\n]+)/);
+        if (journalMatch) {
+            journal = journalMatch[1].trim();
+        }
+    }
+
+    // Generate BibTeX key (first author last name + year)
+    const firstAuthor = authors.split(' and ')[0] || 'unknown';
+    const lastName = firstAuthor.split(' ').pop().toLowerCase().replace(/[^a-z]/g, '');
+    const bibtexKey = `${lastName}${year || '2024'}`;
+
+    // Build BibTeX entry
+    let bibtex = `@article{${bibtexKey},\n`;
+    if (authors) bibtex += `  author = {${authors}},\n`;
+    bibtex += `  title = {${title}},\n`;
+    if (journal) bibtex += `  journal = {${journal}},\n`;
+    if (year) bibtex += `  year = {${year}},\n`;
+    if (doi) bibtex += `  doi = {${doi}},\n`;
+    bibtex += `}`;
+
+    return bibtex;
+}
+
+/**
+ * Download text as a file
+ */
+function downloadTextFile(text, filename) {
+    const blob = new Blob([text], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+/**
+ * Sanitize filename
+ */
+function sanitizeFilename(filename) {
+    return filename.replace(/[^a-z0-9_\-]/gi, '_').substring(0, 100);
+}
+
+/**
+ * Setup global abstract toggle
+ */
+function setupGlobalAbstractToggle() {
+    console.log('[SciTeX Search] Setting up global abstract toggle...');
+
+    const toggleButtons = document.querySelectorAll('.global-abstract-toggle');
+
+    toggleButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const mode = this.dataset.mode;
+
+            // Update button states
+            toggleButtons.forEach(btn => {
+                btn.classList.remove('active');
+                btn.classList.add('btn-outline-secondary');
+                btn.classList.remove('btn-secondary');
+            });
+
+            this.classList.add('active');
+            this.classList.remove('btn-outline-secondary');
+            this.classList.add('btn-secondary');
+
+            // Update all abstract previews
+            updateAllAbstractPreviews(mode);
+        });
+    });
+
+    // Set initial state to "truncated"
+    const truncatedBtn = document.querySelector('.global-abstract-toggle[data-mode="truncated"]');
+    if (truncatedBtn) {
+        truncatedBtn.click();
+    }
+}
+
+/**
+ * Update all abstract previews based on mode
+ */
+function updateAllAbstractPreviews(mode) {
+    const abstractPreviews = document.querySelectorAll('.abstract-preview');
+
+    abstractPreviews.forEach(preview => {
+        const fullSpan = preview.querySelector('.abstract-full');
+        const shortSpan = preview.querySelector('.abstract-short');
+
+        if (mode === 'all') {
+            // Show full abstract
+            if (fullSpan) fullSpan.style.display = 'inline';
+            if (shortSpan) shortSpan.style.display = 'none';
+            preview.style.display = 'block';
+        } else if (mode === 'truncated') {
+            // Show truncated abstract
+            if (fullSpan) fullSpan.style.display = 'none';
+            if (shortSpan) shortSpan.style.display = 'inline';
+            preview.style.display = 'block';
+        } else if (mode === 'none') {
+            // Hide abstract entirely
+            preview.style.display = 'none';
+        }
+    });
+}
+
+/**
+ * Handle sort change
+ */
+function handleSortChange(sortBy) {
+    console.log('[SciTeX Search] Sorting by:', sortBy);
+
+    const resultsContainer = document.getElementById('scitex-results-container');
+    if (!resultsContainer) return;
+
+    const cards = Array.from(resultsContainer.querySelectorAll('.result-card'));
+
+    // Sort cards based on selected criterion
+    cards.sort((a, b) => {
+        switch (sortBy) {
+            case 'date_desc':
+                return parseInt(b.dataset.year || 0) - parseInt(a.dataset.year || 0);
+            case 'date_asc':
+                return parseInt(a.dataset.year || 0) - parseInt(b.dataset.year || 0);
+            case 'citations':
+                return parseInt(b.dataset.citations || 0) - parseInt(a.dataset.citations || 0);
+            case 'impact_factor':
+                return parseFloat(b.dataset.impactFactor || 0) - parseFloat(a.dataset.impactFactor || 0);
+            case 'relevance':
+            default:
+                return 0; // Keep original order
+        }
+    });
+
+    // Find the container where cards are located (after the selection toolbar)
+    const selectionToolbar = resultsContainer.querySelector('.card.mb-3');
+    const insertPoint = selectionToolbar ? selectionToolbar.nextElementSibling : resultsContainer.firstChild;
+
+    // Re-insert cards in sorted order
+    cards.forEach((card, index) => {
+        // Update numbering
+        const title = card.querySelector('.card-title');
+        if (title) {
+            title.innerHTML = title.innerHTML.replace(/^\d+\./, `${index + 1}.`);
+        }
+        resultsContainer.appendChild(card);
+    });
+}
+
+// Initialize functions when results are displayed
+document.addEventListener('DOMContentLoaded', function() {
+    // Watch for changes to the results container
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                // Check if paper cards were added
+                const hasCards = Array.from(mutation.addedNodes).some(node =>
+                    node.classList && node.classList.contains('result-card')
+                );
+
+                if (hasCards || document.querySelector('.result-card')) {
+                    setupPaperSelection();
+                    setupGlobalAbstractToggle();
+                }
+            }
+        });
+    });
+
+    const resultsContainer = document.getElementById('scitex-results-container');
+    if (resultsContainer) {
+        observer.observe(resultsContainer, { childList: true, subtree: true });
+    }
+});
