@@ -643,8 +643,8 @@ a.disabled {
 }
 
 .u-upload-icon {
-    /* font-size: 3.5rem; */
-    /* color: var(--scitex-color-02); */
+    font-size: 4.5rem;
+    color: var(--color-border-default);
     margin-bottom: 1rem;
 }
 
