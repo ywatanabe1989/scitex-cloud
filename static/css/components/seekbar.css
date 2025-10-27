@@ -33,28 +33,30 @@
    CSS Variables (Customizable)
    ============================================ */
 :root {
-    /* Track colors - use semantic theme tokens */
-    --seekbar-track-bg: var(--border-default, #e0e0e0);
-    --seekbar-track-active-bg: var(--text-secondary, #506b7a);
+    /* Track colors */
+    --seekbar-track-bg: #e0e0e0;
+    --seekbar-track-active-bg: var(--scitex-color-03, #506b7a);
 
-    /* Thumb colors - use semantic theme tokens */
-    --seekbar-thumb-bg: var(--text-primary, #2c3e50);
-    --seekbar-thumb-hover-bg: var(--text-secondary, #34495e);
-    --seekbar-thumb-active-bg: var(--text-primary, #506b7a);
-    --seekbar-thumb-border: var(--bg-page, #ffffff);
+    /* Thumb colors */
+    --seekbar-thumb-bg: var(--scitex-color-01, #2c3e50);
+    --seekbar-thumb-hover-bg: var(--scitex-color-02, #34495e);
+    --seekbar-thumb-active-bg: var(--scitex-color-03, #506b7a);
 
     /* Dimensions */
     --seekbar-track-height: 6px;
     --seekbar-thumb-size: 18px;
-    --seekbar-thumb-border-width: 2px;
+    --seekbar-thumb-border: 2px;
 
     /* Spacing */
     --seekbar-margin: 20px 0;
 }
 
-/* Dark mode overrides - automatically handled by semantic tokens */
+/* Dark mode overrides */
 [data-theme="dark"] {
-    /* No explicit overrides needed - semantic tokens handle theme switching */
+    --seekbar-track-bg: #2a2a2a;
+    --seekbar-track-active-bg: var(--scitex-color-04, #6c8ba0);
+    --seekbar-thumb-bg: var(--scitex-color-05, #9eb8c8);
+    --seekbar-thumb-hover-bg: var(--scitex-color-06, #c8d8e4);
 }
 
 /* ============================================
@@ -131,7 +133,7 @@
     width: var(--seekbar-thumb-size);
     height: var(--seekbar-thumb-size);
     background: var(--seekbar-thumb-bg);
-    border: var(--seekbar-thumb-border-width) solid var(--seekbar-thumb-border);
+    border: var(--seekbar-thumb-border) solid #ffffff;
     border-radius: 50%;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -155,7 +157,7 @@
     width: var(--seekbar-thumb-size);
     height: var(--seekbar-thumb-size);
     background: var(--seekbar-thumb-bg);
-    border: var(--seekbar-thumb-border-width) solid var(--seekbar-thumb-border);
+    border: var(--seekbar-thumb-border) solid #ffffff;
     border-radius: 50%;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -179,7 +181,7 @@
     width: var(--seekbar-thumb-size);
     height: var(--seekbar-thumb-size);
     background: var(--seekbar-thumb-bg);
-    border: var(--seekbar-thumb-border-width) solid var(--seekbar-thumb-border);
+    border: var(--seekbar-thumb-border) solid #ffffff;
     border-radius: 50%;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -246,7 +248,7 @@
     width: var(--seekbar-thumb-size);
     height: var(--seekbar-thumb-size);
     background: var(--seekbar-thumb-bg);
-    border: var(--seekbar-thumb-border-width) solid var(--seekbar-thumb-border);
+    border: var(--seekbar-thumb-border) solid #ffffff;
     border-radius: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
@@ -282,8 +284,8 @@
     bottom: calc(100% + 8px);
     left: 50%;
     transform: translateX(-50%);
-    background: var(--bg-default);
-    color: var(--text-primary);
+    background: var(--scitex-color-01, #2c3e50);
+    color: white;
     padding: 4px 8px;
     border-radius: 4px;
     font-size: 0.75rem;
@@ -291,7 +293,6 @@
     opacity: 0;
     transition: opacity 0.2s ease;
     pointer-events: none;
-    border: 1px solid var(--border-default);
 }
 
 .scitex-seekbar-dual-handle:hover .scitex-seekbar-dual-handle-label,
@@ -299,9 +300,10 @@
     opacity: 1;
 }
 
-/* Dark mode handle labels - automatically handled by semantic tokens */
+/* Dark mode handle labels */
 [data-theme="dark"] .scitex-seekbar-dual-handle-label {
-    /* No explicit overrides needed - semantic tokens handle theme switching */
+    background: var(--scitex-color-05, #9eb8c8);
+    color: var(--scitex-color-01, #2c3e50);
 }
 
 /* ============================================
@@ -312,21 +314,19 @@
     justify-content: space-between;
     margin-top: 8px;
     font-size: 0.875rem;
-    color: var(--text-secondary);
+    color: var(--text-secondary, #666);
 }
 
 .scitex-seekbar-value {
     padding: 4px 8px;
-    background: var(--bg-muted);
+    background: var(--color-canvas-subtle, #f5f5f5);
     border-radius: 4px;
     font-weight: 500;
-    color: var(--text-primary);
-    border: 1px solid var(--border-default);
 }
 
-/* Dark mode values - automatically handled by semantic tokens */
 [data-theme="dark"] .scitex-seekbar-value {
-    /* No explicit overrides needed - semantic tokens handle theme switching */
+    background: var(--scitex-color-01-light, #1a2332);
+    color: var(--scitex-color-05, #9eb8c8);
 }
 
 /* ============================================
@@ -337,12 +337,11 @@
     justify-content: space-between;
     margin-top: 4px;
     font-size: 0.75rem;
-    color: var(--text-secondary);
+    color: var(--text-secondary, #666);
 }
 
-/* Dark mode labels - automatically handled by semantic tokens */
 [data-theme="dark"] .scitex-seekbar-labels {
-    /* No explicit overrides needed - semantic tokens handle theme switching */
+    color: var(--scitex-color-05, #9eb8c8);
 }
 
 /* ============================================
@@ -430,7 +429,7 @@
 
 .scitex-seekbar-nouislider .noUi-handle {
     background: var(--seekbar-thumb-bg);
-    border: var(--seekbar-thumb-border-width) solid var(--seekbar-thumb-border);
+    border: var(--seekbar-thumb-border) solid #ffffff;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 

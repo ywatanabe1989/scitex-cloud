@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const copyButton = document.createElement('button');
     copyButton.className = 'code-copy-button';
     copyButton.setAttribute('aria-label', 'Copy code to clipboard');
-    copyButton.setAttribute('data-tooltip', 'Copy code');
+    copyButton.setAttribute('title', 'Copy code');
 
     // SVG clipboard icon
     const copyIcon = `
@@ -48,13 +48,11 @@ document.addEventListener('DOMContentLoaded', function() {
       navigator.clipboard.writeText(codeText).then(function() {
         // Show success state
         copyButton.classList.add('copied');
-        copyButton.setAttribute('data-tooltip', 'Copied!');
         copyButton.innerHTML = checkIcon;
 
         // Reset after 2 seconds
         setTimeout(function() {
           copyButton.classList.remove('copied');
-          copyButton.setAttribute('data-tooltip', 'Copy code');
           copyButton.innerHTML = copyIcon;
         }, 2000);
       }).catch(function(err) {
