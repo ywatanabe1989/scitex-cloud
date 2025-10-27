@@ -368,6 +368,47 @@
     /* color: white; */
 }
 
+/* Source-Specific Colors for Search Engine Toggles */
+#source_crossref:checked + .scitex-toggle-label {
+    background-color: #3498db !important;
+    border-color: #3498db !important;
+    color: white !important;
+}
+
+#source_pubmed:checked + .scitex-toggle-label {
+    background-color: #e74c3c !important;
+    border-color: #e74c3c !important;
+    color: white !important;
+}
+
+#source_semantic:checked + .scitex-toggle-label {
+    background-color: #9b59b6 !important;
+    border-color: #9b59b6 !important;
+    color: white !important;
+}
+
+#source_arxiv:checked + .scitex-toggle-label {
+    background-color: #f39c12 !important;
+    border-color: #f39c12 !important;
+    color: white !important;
+}
+
+#source_openalex:checked + .scitex-toggle-label {
+    background-color: #1abc9c !important;
+    border-color: #1abc9c !important;
+    color: white !important;
+}
+
+/* Smaller buttons for source engines */
+#source_crossref + .scitex-toggle-label,
+#source_pubmed + .scitex-toggle-label,
+#source_semantic + .scitex-toggle-label,
+#source_arxiv + .scitex-toggle-label,
+#source_openalex + .scitex-toggle-label {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+}
+
 /* Sort Items Container */
 #dragSortContainer {
     flex-direction: column;
