@@ -21,6 +21,7 @@ let resourceMonitorInterval = null;
  * @param {number} config.pollInterval - Polling interval in milliseconds (default: 2000)
  */
 function initQueueManagement(config = {}) {
+    console.log('[Queue Management] initQueueManagement() called');
     const {
         resourceStatusUrl = '/scholar/api/bibtex/resource-status/',
         pollInterval = 2000
@@ -31,8 +32,10 @@ function initQueueManagement(config = {}) {
 
     // Poll every 2 seconds
     if (resourceMonitorInterval) {
+        console.log('[Queue Management] Clearing existing interval');
         clearInterval(resourceMonitorInterval);
     }
+    console.log('[Queue Management] Starting new interval with', pollInterval, 'ms interval');
     resourceMonitorInterval = setInterval(() => {
         updateResourceMonitor(resourceStatusUrl);
     }, pollInterval);
@@ -42,9 +45,11 @@ function initQueueManagement(config = {}) {
  * Stop queue management monitoring
  */
 function stopQueueManagement() {
+    console.log('[Queue Management] stopQueueManagement() called, interval exists:', !!resourceMonitorInterval);
     if (resourceMonitorInterval) {
         clearInterval(resourceMonitorInterval);
         resourceMonitorInterval = null;
+        console.log('[Queue Management] Interval cleared and set to null');
     }
 }
 
@@ -296,9 +301,42 @@ function escapeHtml(text) {
     return text.replace(/[&<>"']/g, m => map[m]);
 }
 
-// Auto-initialize when DOM is ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => initQueueManagement());
-} else {
-    initQueueManagement();
+/**
+ * Check if queue management should be active
+ * @returns {boolean} True if on bibtex tab
+ */
+function shouldRunQueueManagement() {
+    const hash = window.location.hash;
+    const shouldRun = hash.includes('#bibtex');
+    console.log('[Queue Management] Checking if should run. Hash:', hash, 'Should run:', shouldRun);
+    return shouldRun;
 }
+
+// Auto-initialize when DOM is ready - only if on bibtex tab
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        if (shouldRunQueueManagement()) {
+            initQueueManagement();
+        }
+    });
+} else {
+    if (shouldRunQueueManagement()) {
+        initQueueManagement();
+    }
+}
+
+// Cleanup on page unload
+window.addEventListener('beforeunload', () => {
+    stopQueueManagement();
+});
+
+// Start/stop queue management based on hash changes
+window.addEventListener('hashchange', () => {
+    if (shouldRunQueueManagement()) {
+        if (!resourceMonitorInterval) {
+            initQueueManagement();
+        }
+    } else {
+        stopQueueManagement();
+    }
+});
