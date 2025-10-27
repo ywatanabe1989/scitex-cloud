@@ -98,6 +98,11 @@ class DesignSectionView(View):
                 "partial": "dev_app/design_partial/guidelines.html",
             },
             # Component sections
+            "hero-guideline": {
+                "title": "Hero",
+                "description": "Large, attention-grabbing header sections for landing pages.",
+                "partial": "dev_app/design_partial/hero-guideline.html",
+            },
             "badge": {
                 "title": "Badge",
                 "description": "Small labels for categorization and status indication.",
@@ -289,5 +294,10 @@ class DesignNavbarView(DesignSectionView):
 class DesignAlertsView(DesignSectionView):
     def get(self, request):
         return super().get(request, "alerts")
+
+
+class DesignHeroView(DesignSectionView):
+    def get(self, request):
+        return super().get(request, "hero-guideline")
 
 # EOF
