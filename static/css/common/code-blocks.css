@@ -12,7 +12,7 @@
 /* Base code block container */
 pre {
   position: relative;
-  padding: 3rem 1.5rem 1.5rem 1.5rem;
+  padding: 3.25rem 1.5rem 1.5rem 1.5rem;
   border: 1px solid var(--border-default);
   border-radius: 6px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -68,13 +68,40 @@ pre::after {
 }
 
 .code-copy-button.copied {
-  background-color: var(--status-success);
-  color: var(--text-inverse);
+  background-color: var(--bg-default);
+  color: var(--text-primary);
 }
 
 .code-copy-button.error {
   background-color: var(--status-error);
   color: var(--text-inverse);
+}
+
+/* Tooltip styling */
+.code-copy-button::before {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--bg-default);
+  color: var(--text-primary);
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+  z-index: 10;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  margin-bottom: 0.5rem;
+  border: 1px solid var(--border-default);
+}
+
+.code-copy-button:hover::before,
+.code-copy-button:focus::before {
+  opacity: 1;
 }
 
 /* Icon styling */
