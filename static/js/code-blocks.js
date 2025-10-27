@@ -66,5 +66,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Insert button into the pre element
     preElement.insertBefore(copyButton, codeBlock);
+
+    // Handle Ctrl+A to select only code content
+    preElement.addEventListener('keydown', function(e) {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
+        e.preventDefault();
+
+        // Select only the code element's content
+        const selection = window.getSelection();
+        const range = document.createRange();
+        range.selectNodeContents(codeBlock);
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
+    });
   });
 });
