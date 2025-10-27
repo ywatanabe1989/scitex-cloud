@@ -12,10 +12,11 @@
 /* Base code block container */
 pre {
   position: relative;
-  padding-top: 2.5rem;
-  padding-right: 3rem;
-  border: none !important;
-  box-shadow: none !important;
+  padding: 2.5rem 1.5rem 1.5rem 1.5rem;
+  padding-right: calc(3rem + 1.5rem);
+  border: 1px solid var(--border-default);
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   line-height: 1.5 !important;
   overflow-x: auto;
   word-wrap: break-word;
@@ -289,4 +290,13 @@ pre[data-language="markdown"]::before {
 
 pre[data-language="diff"]::before {
   content: "Diff";
+}
+
+/* =========================================
+   DARK MODE STYLING
+   ========================================= */
+
+[data-theme="dark"] pre {
+  border: 1px solid var(--border-muted);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
