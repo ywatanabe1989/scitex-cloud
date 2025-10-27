@@ -26,7 +26,7 @@
   <div class="demo-box mt-4">
     <h3 class="mb-3">Code Block</h3>
     <p>For multi-line code, use <code>&lt;pre&gt;&lt;code&gt;</code> tags:</p>
-    <pre class="code-block mt-3"><code class="language-python">def calculate_metrics(data):
+    <pre class="code-block mt-3" data-language="python"><code class="language-python">def calculate_metrics(data):
     """Calculate statistical metrics from dataset."""
     mean = sum(data) / len(data)
     variance = sum((x - mean) ** 2 for x in data) / len(data)
@@ -80,11 +80,7 @@ line-height: 1.6;</code></pre>
     <div class="mt-4">
       <h4 class="h6 mb-2">Live Preview</h4>
       <p class="text-muted mb-3" style="font-size: 14px;">Change the dropdown above to see how different themes look. The preview updates in real-time.</p>
-      <div class="code-preview-container">
-        <div class="code-preview-header">
-          <span class="code-preview-language">Python</span>
-        </div>
-        <pre style="margin: 0; border-radius: 0 0 6px 6px; overflow-x: auto; border: 1px solid var(--color-border-default);"><code id="design-code-preview" class="language-python" style="font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace; font-size: 14px; font-weight: 400; line-height: 1.6;">def calculate_statistics(data):
+      <pre class="code-block" data-language="python"><code id="design-code-preview" class="language-python">def calculate_statistics(data):
     """Calculate mean and variance from dataset."""
     n = len(data)
     mean = sum(data) / n
@@ -100,7 +96,6 @@ line-height: 1.6;</code></pre>
 dataset = [1.2, 2.5, 3.7, 4.1, 5.9]
 stats = calculate_statistics(dataset)
 print(f"Mean: {stats['mean']:.2f}")</code></pre>
-      </div>
     </div>
 
     <!-- Theme List -->
