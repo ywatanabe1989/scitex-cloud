@@ -76,6 +76,8 @@
           // Re-highlight code
           if (originalCodeContent) {
             codePreview.textContent = originalCodeContent;
+            // Clear the highlighted flag so hljs will re-highlight it
+            delete codePreview.dataset.highlighted;
             hljs.highlightElement(codePreview);
             console.log('Re-highlighted code block');
           }
