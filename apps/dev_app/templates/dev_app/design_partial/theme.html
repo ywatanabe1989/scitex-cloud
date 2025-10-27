@@ -11,60 +11,25 @@
       /static/css/theme.css
     </span>
   </div>
-  <p class="text-intro">
-    SciTeX uses a modular CSS variable system with light/dark theme support. The main theme file is <code>/static/css/theme.css</code> with support files in <code>/static/css/common/</code>.
-  </p>
+  <p class="text-intro">Modular CSS variable system with light/dark theme support using <code>data-theme</code> attribute.</p>
 
   <div class="demo-box">
-    <h4><i class="fas fa-info-circle"></i> Modular CSS Structure</h4>
-    <p style="margin-bottom: 0.5rem;"><strong>Main Theme:</strong> <code>/static/css/theme.css</code> (Light & Dark mode with <code>data-theme</code> attribute)</p>
-    <p style="margin-bottom: 0.5rem;"><strong>Variables Entry Point:</strong> <code>/static/css/common/variables.css</code></p>
-    <p style="margin-bottom: 0.5rem;">Variables are split into focused files:</p>
-    <ul style="margin-bottom: 0;">
-      <li><code>colors.css</code> - All color definitions (brand, status, semantic)</li>
-      <li><code>typography-vars.css</code> - Font families, sizes, line heights</li>
-      <li><code>spacing.css</code> - Spacing scale and layout widths</li>
-      <li><code>effects.css</code> - Borders, shadows, transitions</li>
-      <li><code>z-index.css</code> - Z-index scale</li>
-    </ul>
+    <h3 class="mb-3">Light Mode</h3>
+    <pre class="code-block"><code class="language-html">&lt;html lang="en" data-theme="light"&gt;
+&lt;/html&gt;</code></pre>
+    <div style="background: var(--color-canvas-default); border: 2px solid var(--color-border-default); padding: 1.5rem; border-radius: 8px; margin-top: 1rem;">
+      <p style="color: var(--color-fg-default); margin-bottom: 0.5rem;"><strong>Text:</strong> var(--color-fg-default)</p>
+      <p style="color: var(--color-fg-muted); margin-bottom: 0.5rem;"><strong>Muted:</strong> var(--color-fg-muted)</p>
+    </div>
   </div>
 
   <div class="demo-box">
-    <h3 class="mb-3">Light & Dark Mode Support</h3>
-    <p>SciTeX supports light and dark themes using the <code>data-theme</code> attribute on the <code>&lt;html&gt;</code> tag.</p>
-
-    <div class="row mb-4">
-      <div class="col-md-6">
-        <h4>Light Mode (Default)</h4>
-        <pre class="code-block"><code class="language-html">&lt;html lang="en" data-theme="light"&gt;
-  &lt;!-- Light mode active --&gt;
+    <h3 class="mb-3">Dark Mode</h3>
+    <pre style="background-color: var(--scitex-color-01-dark); color: var(--white); border: 1px solid var(--scitex-color-02); padding: 1rem; border-radius: 8px;"><code class="language-html">&lt;html lang="en" data-theme="dark"&gt;
 &lt;/html&gt;</code></pre>
-        <div style="background: var(--color-canvas-default); border: 2px solid var(--color-border-default); padding: 1.5rem; border-radius: 8px; margin-top: 1rem;">
-          <p style="color: var(--color-fg-default); margin-bottom: 0.5rem;"><strong>Text (--color-fg-default):</strong> Uses actual theme variable</p>
-          <p style="color: var(--color-fg-muted); margin-bottom: 0.5rem;"><strong>Muted (--color-fg-muted):</strong> Uses actual theme variable</p>
-          <p style="background: var(--color-canvas-subtle); padding: 0.5rem; border-radius: 4px; margin: 0; color: var(--color-fg-default);"><strong>Canvas subtle (--color-canvas-subtle)</strong></p>
-        </div>
-      </div>
-
-      <div class="col-md-6">
-        <h4>Dark Mode</h4>
-        <pre style="background-color: var(--scitex-color-01-dark); color: var(--white); border: 1px solid var(--scitex-color-02); padding: 1rem; border-radius: 8px;">
-          &lt;html lang="en" data-theme="dark"&gt;
-          &lt;!-- Dark mode active --&gt;
-          &lt;/html&gt;
-        </pre>
-        <div style="background: var(--scitex-color-01-dark); border: 2px solid var(--scitex-color-02); padding: 1.5rem; border-radius: 8px; margin-top: 1rem;">
-          <p style="color: var(--white); margin-bottom: 0.5rem;"><strong>Text (--color-fg-default):</strong> Pure white in dark mode</p>
-          <p style="color: var(--white); margin-bottom: 0.5rem; opacity: 0.8;"><strong>Muted (--color-fg-muted):</strong> White in dark mode</p>
-          <p style="background: var(--scitex-color-01); padding: 0.5rem; border-radius: 4px; margin: 0; color: var(--white);"><strong>Canvas subtle:</strong> --scitex-color-01</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="alert alert-warning">
-      <strong><i class="fas fa-exclamation-triangle"></i> Important:</strong> Always use theme variables (<code>var(--color-fg-default)</code>) instead of hardcoded colors to ensure proper contrast in both modes.
-      <br><br>
-      <strong>Dark Mode Update:</strong> Text colors now use pure white (<code>var(--white)</code>) for maximum visibility and contrast in dark mode.
+    <div style="background: var(--scitex-color-01-dark); border: 2px solid var(--scitex-color-02); padding: 1.5rem; border-radius: 8px; margin-top: 1rem;">
+      <p style="color: var(--white); margin-bottom: 0.5rem;"><strong>Text:</strong> var(--white)</p>
+      <p style="color: var(--white); margin-bottom: 0.5rem; opacity: 0.8;"><strong>Muted:</strong> var(--white) with opacity</p>
     </div>
   </div>
 
