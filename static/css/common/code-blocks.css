@@ -12,7 +12,7 @@
 /* Base code block container */
 pre {
   position: relative;
-  padding: 3.5rem 1.5rem 1.5rem 1.5rem;
+  padding: 2.5rem 1.5rem 1.5rem 1.5rem;
   border: 1px solid var(--border-default);
   border-radius: 6px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -33,7 +33,7 @@ pre::after {
   top: 0;
   left: 0;
   right: 0;
-  height: 2.5rem;
+  height: 2rem;
   background-color: var(--bg-muted);
   border-bottom: 1px solid var(--border-default);
   border-radius: 6px 6px 0 0;
