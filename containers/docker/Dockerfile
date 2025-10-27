@@ -9,7 +9,8 @@ LABEL description="SciTeX Cloud - Research Collaboration Platform"
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    UV_SYSTEM_PYTHON=1
 
 # Working directory
 WORKDIR /app
@@ -23,17 +24,36 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     netcat-openbsd \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy Python dependencies and install
+# Install uv for faster package installation
+# UV installer installs to /root/.local/bin by default
+# We move binaries to /usr/local/bin for system-wide access
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh && \
+    mv /root/.local/bin/uv /usr/local/bin/uv && \
+    mv /root/.local/bin/uvx /usr/local/bin/uvx && \
+    chmod 755 /usr/local/bin/uv /usr/local/bin/uvx && \
+    uv --version
+
+# Copy Python dependencies and install with uv (much faster than pip)
+# Use cache mount for uv to speed up rebuilds
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt && \
-    pip install --no-cache-dir gunicorn==21.2.0 psycopg2-binary
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv pip install --system -r requirements.txt && \
+    uv pip install --system gunicorn==21.2.0 psycopg2-binary
 
 # Copy application
 COPY . .
 
-# Run as non-root user for security
+# Create non-root user for security (after uv is installed system-wide)
 RUN useradd -m -u 1000 scitex && \
-    chown -R scitex:scitex /app
+    chown -R scitex:scitex /app && \
+    chown -R scitex:scitex /usr/local/lib/python3.11/site-packages && \
+    chown -R scitex:scitex /usr/local/bin && \
+    mkdir -p /usr/local/share/man/man1 /usr/local/etc/jupyter && \
+    chown -R scitex:scitex /usr/local/share /usr/local/etc && \
+    chmod -R u+w /usr/local/lib/python3.11/site-packages && \
+    chmod -R u+w /usr/local/bin && \
+    chmod -R u+w /usr/local/share && \
+    chmod -R u+w /usr/local/etc
 
 # Create directories for static files, media, and logs (after changing ownership)
 RUN mkdir -p staticfiles media logs/uwsgi run && \

@@ -2,6 +2,9 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth.models import User
 from .models import UserProfile
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 @receiver(post_save, sender=User)
@@ -9,6 +12,16 @@ def create_user_profile(sender, instance, created, **kwargs):
     """Create UserProfile when a new User is created (if not already exists)"""
     if created:
         UserProfile.objects.get_or_create(user=instance)
+
+        # Create Gitea user account automatically
+        try:
+            from apps.gitea_app.services.gitea_sync_service import ensure_gitea_user_exists
+            ensure_gitea_user_exists(instance)
+            logger.info(f"Gitea user auto-created for {instance.username}")
+        except Exception as e:
+            logger.warning(f"Failed to auto-create Gitea user for {instance.username}: {e}")
+            # Don't fail user creation if Gitea sync fails
+
         # Create a default project for the new user
         create_default_project_for_user(instance)
 

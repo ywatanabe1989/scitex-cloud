@@ -93,23 +93,49 @@ def sync_all_users_to_gitea():
 def ensure_gitea_user_exists(user: User) -> bool:
     """
     Ensure a Gitea user exists before creating repositories.
-
-    For production, we'll use OAuth so users authenticate with Gitea directly.
-    For development, we check if user exists.
+    Auto-creates the Gitea user if missing.
 
     Args:
         user: Django User instance
 
     Returns:
-        True if user exists in Gitea
+        True if user exists or was created successfully, False otherwise
     """
     try:
         client = GiteaClient()
-        gitea_user = client._request('GET', f'/users/{user.username}').json()
-        return True
-    except GiteaAPIError:
-        logger.warning(f"Gitea user not found: {user.username}")
-        logger.warning(f"User should register at: {settings.GITEA_URL}/user/sign_up")
+
+        # Check if user already exists
+        try:
+            gitea_user = client._request('GET', f'/users/{user.username}').json()
+            logger.info(f"Gitea user already exists: {user.username}")
+            return True
+        except GiteaAPIError:
+            # User doesn't exist, create it
+            logger.info(f"Gitea user not found, creating: {user.username}")
+
+            # Generate a random password for Gitea account
+            # Users don't need to know this password since they authenticate via Django
+            import secrets
+            import string
+            alphabet = string.ascii_letters + string.digits + string.punctuation
+            random_password = ''.join(secrets.choice(alphabet) for _ in range(20))
+
+            # Create Gitea user via admin API
+            user_data = {
+                'username': user.username,
+                'email': user.email,
+                'password': random_password,
+                'full_name': user.get_full_name() or user.username,
+                'send_notify': False,
+                'must_change_password': False,
+            }
+
+            response = client._request('POST', '/admin/users', json=user_data)
+            logger.info(f"✓ Created Gitea user: {user.username}")
+            return True
+
+    except Exception as e:
+        logger.error(f"Failed to ensure Gitea user exists for {user.username}: {e}")
         return False
 
 
