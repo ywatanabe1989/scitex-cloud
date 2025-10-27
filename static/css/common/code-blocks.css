@@ -77,33 +77,6 @@ pre::after {
   color: var(--text-inverse);
 }
 
-/* Tooltip styling */
-.code-copy-button::before {
-  content: attr(data-tooltip);
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: var(--bg-default);
-  color: var(--text-primary);
-  padding: 0.5rem 0.75rem;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  white-space: nowrap;
-  z-index: 10;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease;
-  margin-bottom: 0.5rem;
-  border: 1px solid var(--border-default);
-}
-
-.code-copy-button:hover::before,
-.code-copy-button:focus::before {
-  opacity: 1;
-}
-
 /* Icon styling */
 .code-copy-button svg {
   width: 16px;
