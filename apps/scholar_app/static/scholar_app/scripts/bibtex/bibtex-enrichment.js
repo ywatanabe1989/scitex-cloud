@@ -1336,9 +1336,25 @@ window.saveJobToProject = function(jobId) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert(`✓ Successfully saved to ${data.project}`);
+            // Redirect to show Django message alert
+            window.location.reload();
         } else {
-            alert(`Error: ${data.error}`);
+            // Show error message
+            const message = data.error || 'Failed to save to project';
+            console.error('Save error:', message);
+            // Create temporary alert for errors
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+            alertDiv.innerHTML = `
+                <strong>Error:</strong> ${message}
+                <button type="button" class="btn-close" onclick="this.parentElement.remove()" style="position: absolute; top: 50%; right: 1rem; transform: translateY(-50%);"></button>
+            `;
+            alertDiv.style.position = 'relative';
+            alertDiv.style.padding = '1rem 3rem 1rem 1rem';
+            const container = document.querySelector('.container');
+            if (container) {
+                container.insertBefore(alertDiv, container.firstChild);
+            }
         }
     })
     .catch(error => {
