@@ -1336,7 +1336,7 @@ window.saveJobToProject = function(jobId) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert(`✓ Saved to ${data.project}\n\nFiles:\n- original_<timestamp>.bib\n- enriched_<timestamp>.bib\n\nLocation: scitex/scholar/bib_files/`);
+            alert(`✓ Successfully saved to ${data.project}`);
         } else {
             alert(`Error: ${data.error}`);
         }
