@@ -420,22 +420,26 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Theme switcher - save preference per light/dark mode
-    themeSelector.addEventListener('change', function() {
-        const newTheme = this.value;
-        const currentSiteTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    if (themeSelector) {
+        themeSelector.addEventListener('change', function() {
+            const newTheme = this.value;
+            const currentSiteTheme = document.documentElement.getAttribute('data-theme') || 'light';
 
-        codeMirrorEditor.setOption('theme', newTheme);
+            codeMirrorEditor.setOption('theme', newTheme);
 
-        // Save theme preference for current mode (light or dark)
-        if (currentSiteTheme === 'dark') {
-            localStorage.setItem(`codemirror_theme_dark_${projectId}`, newTheme);
-        } else {
-            localStorage.setItem(`codemirror_theme_light_${projectId}`, newTheme);
-        }
-    });
+            // Save theme preference for current mode (light or dark)
+            if (currentSiteTheme === 'dark') {
+                localStorage.setItem(`codemirror_theme_dark_${projectId}`, newTheme);
+            } else {
+                localStorage.setItem(`codemirror_theme_light_${projectId}`, newTheme);
+            }
+        });
+    }
 
     // Update theme selector options based on current mode
     function updateThemeSelectorOptions() {
+        if (!themeSelector) return;
+
         const currentSiteTheme = document.documentElement.getAttribute('data-theme') || 'light';
         const isDarkMode = currentSiteTheme === 'dark';
 
@@ -443,10 +447,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const darkGroup = themeSelector.querySelector('optgroup[label="Dark Themes"]');
         const lightGroup = themeSelector.querySelector('optgroup[label="Light Themes"]');
 
-        if (isDarkMode) {
+        if (isDarkMode && darkGroup && lightGroup) {
             darkGroup.style.display = '';
             lightGroup.style.display = 'none';
-        } else {
+        } else if (darkGroup && lightGroup) {
             darkGroup.style.display = 'none';
             lightGroup.style.display = '';
         }
@@ -467,7 +471,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     : localStorage.getItem(`codemirror_theme_light_${projectId}`) || 'eclipse';
 
                 codeMirrorEditor.setOption('theme', preferredTheme);
-                themeSelector.value = preferredTheme;
+                if (themeSelector) {
+                    themeSelector.value = preferredTheme;
+                }
 
                 // Update dropdown options
                 updateThemeSelectorOptions();
@@ -600,24 +606,30 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Document type switching (dropdown)
-    doctypeSelector.addEventListener('change', function() {
-        const newDocType = this.value;
-        switchDocumentType(newDocType);
-    });
+    if (doctypeSelector) {
+        doctypeSelector.addEventListener('change', function() {
+            const newDocType = this.value;
+            switchDocumentType(newDocType);
+        });
+    }
 
     // Manage sections toggle
-    manageSectionsBtn.addEventListener('click', function() {
-        const isVisible = sectionPool.style.display !== 'none';
-        sectionPool.style.display = isVisible ? 'none' : 'block';
-        if (!isVisible) {
-            renderAvailableSections();
-        }
-    });
+    if (manageSectionsBtn) {
+        manageSectionsBtn.addEventListener('click', function() {
+            const isVisible = sectionPool.style.display !== 'none';
+            sectionPool.style.display = isVisible ? 'none' : 'block';
+            if (!isVisible) {
+                renderAvailableSections();
+            }
+        });
+    }
 
     // Manual save button
-    saveBtn.addEventListener('click', function() {
-        saveCurrentSectionManually();
-    });
+    if (saveBtn) {
+        saveBtn.addEventListener('click', function() {
+            saveCurrentSectionManually();
+        });
+    }
 
     // Section switching (delegated event listener)
     if (sectionList) {
@@ -678,41 +690,47 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Compile manuscript
-    compileBtn.addEventListener('click', function() {
-        if (hasUnsavedChanges) {
-            if (confirm('You have unsaved changes. Save before compiling?')) {
-                saveCurrentSectionManually();
-                // Wait a moment for save to complete before compiling
-                setTimeout(() => compileManuscript(), 500);
+    if (compileBtn) {
+        compileBtn.addEventListener('click', function() {
+            if (hasUnsavedChanges) {
+                if (confirm('You have unsaved changes. Save before compiling?')) {
+                    saveCurrentSectionManually();
+                    // Wait a moment for save to complete before compiling
+                    setTimeout(() => compileManuscript(), 500);
+                } else {
+                    compileManuscript();
+                }
             } else {
                 compileManuscript();
             }
-        } else {
-            compileManuscript();
-        }
-    });
-    
+        });
+    }
+
     // Live compilation toggle
-    liveCompileToggle.addEventListener('click', function() {
-        liveCompilationEnabled = !liveCompilationEnabled;
-        this.classList.toggle('active', liveCompilationEnabled);
-        this.classList.toggle('btn-outline-success', liveCompilationEnabled);
-        this.classList.toggle('btn-outline-secondary', !liveCompilationEnabled);
-        
-        if (liveCompilationEnabled) {
-            this.innerHTML = '<i class="fas fa-magic me-2"></i>Live Compile';
-            showToast('Live compilation enabled', 'success');
-        } else {
-            this.innerHTML = '<i class="fas fa-magic me-2"></i>Manual Only';
-            showToast('Live compilation disabled', 'info');
-            clearTimeout(liveCompileTimeout);
-        }
-    });
-    
+    if (liveCompileToggle) {
+        liveCompileToggle.addEventListener('click', function() {
+            liveCompilationEnabled = !liveCompilationEnabled;
+            this.classList.toggle('active', liveCompilationEnabled);
+            this.classList.toggle('btn-outline-success', liveCompilationEnabled);
+            this.classList.toggle('btn-outline-secondary', !liveCompilationEnabled);
+
+            if (liveCompilationEnabled) {
+                this.innerHTML = '<i class="fas fa-magic me-2"></i>Live Compile';
+                showToast('Live compilation enabled', 'success');
+            } else {
+                this.innerHTML = '<i class="fas fa-magic me-2"></i>Manual Only';
+                showToast('Live compilation disabled', 'info');
+                clearTimeout(liveCompileTimeout);
+            }
+        });
+    }
+
     // Export functionality
-    exportBtn.addEventListener('click', function() {
-        exportManuscript();
-    });
+    if (exportBtn) {
+        exportBtn.addEventListener('click', function() {
+            exportManuscript();
+        });
+    }
 
     function setupCompilationPanelToggle() {
         const toggleCompilationBtn = document.getElementById('toggle-compilation-panel');
