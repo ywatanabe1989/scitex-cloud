@@ -18,38 +18,45 @@
     <div class="result-authors">
         {{ result.authors }}
     </div>
-    <div class="d-flex align-items-center mt-2 flex-wrap">
-        <span class="year-badge me-2">{{ result.year }}</span>
+
+    <!-- Metadata Row: Year, Journal, Citations -->
+    <div class="result-metadata mt-2">
+        <span class="year-badge">{{ result.year }}</span>
+        <em class="journal-name">{{ result.journal|default:"Unknown Journal" }}</em>
+        {% if result.citation_count and result.citation_count > 0 %}
+            <span class="citation-badge"><span class="citation-count" data-count="{{ result.citation_count }}">{{ result.citation_count|stringformat:"d" }}</span> citations</span>
+        {% elif result.citation_count == 0 %}
+            <span class="citation-badge">0 citations</span>
+        {% endif %}
+    </div>
+
+    <!-- Badge Row: Action & Source Badges -->
+    <div class="result-badges-row mt-2">
         {% if result.is_open_access %}
-        <span class="open-access me-2">Open Access</span>
+            <span class="badge-chip badge-success">
+                <i class="fas fa-lock-open"></i> Open Access
+            </span>
         {% endif %}
         {% if result.impact_factor %}
-        <span class="badge impact-factor-badge me-2 u-text-muted-xs">
-            IF: {{ result.impact_factor }}
-        </span>
+            <span class="badge-chip badge-info">
+                <i class="fas fa-chart-line"></i> IF: {{ result.impact_factor }}
+            </span>
         {% endif %}
-        <small class="text-muted">
-            <em>{{ result.journal|default:"Unknown Journal" }}</em>
-            {% if result.citation_count and result.citation_count > 0 %}
-                • <strong><span class="citation-count" data-count="{{ result.citation_count }}">{{ result.citation_count|stringformat:"d" }}</span> citations</strong>
-                {% if result.citation_source %}
-                    <span class="badge bg-light text-dark" style="font-size: 0.6rem;" title="Citation data source">{{ result.citation_source|upper }}</span>
-                {% endif %}
-            {% elif result.citation_count == 0 %}
-                • <span class="text-muted">0 citations</span>
-            {% else %}
-                • <span class="text-muted">Citations unavailable</span>
-            {% endif %}
-            {% if result.pmid %}
-                • PMID: {{ result.pmid }}
-            {% endif %}
-        </small>
+        {% if result.doi %}
+            <span class="badge-chip badge-secondary">
+                <i class="fas fa-link"></i> DOI
+            </span>
+        {% endif %}
         {% if result.source_engines %}
             {% for engine in result.source_engines %}
-            <span class="badge bg-info ms-1 u-text-muted-xs" title="Found by {{ engine }}">{{ engine|upper }}</span>
+                <span class="badge-chip badge-muted" title="Found by {{ engine }}">
+                    <i class="fas fa-search"></i> {{ engine|upper }}
+                </span>
             {% endfor %}
         {% elif result.source %}
-        <span class="badge bg-info ms-2 u-text-muted-xs" title="Source">{{ result.source|upper }}</span>
+            <span class="badge-chip badge-muted" title="Source">
+                <i class="fas fa-search"></i> {{ result.source|upper }}
+            </span>
         {% endif %}
     </div>
 

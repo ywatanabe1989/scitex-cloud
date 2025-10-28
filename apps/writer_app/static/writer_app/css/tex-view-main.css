@@ -18,12 +18,123 @@
     flex-direction: column;
 }
 
-/* Toolbar */
+/* Sticky Toolbar */
+.writer-toolbar-sticky {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--color-canvas-default);
+    border-bottom: 1px solid var(--color-border-default);
+    padding: 0.75rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.toolbar-left,
+.toolbar-center,
+.toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.toolbar-center {
+    flex: 1;
+    justify-content: center;
+}
+
+/* Horizontal Selector Group */
+.horizontal-selector-group {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.horizontal-selector {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.selector-label {
+    font-size: 0.9rem;
+    color: var(--color-fg-muted);
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+/* Editor View Tabs */
+.editor-view-tabs {
+    display: flex;
+    background: var(--color-canvas-subtle);
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    padding: 0.25rem;
+    gap: 0.25rem;
+}
+
+.view-tab {
+    padding: 0.5rem 1rem;
+    border: none;
+    background: transparent;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+    color: var(--color-fg-default);
+    cursor: pointer;
+}
+
+.view-tab:hover {
+    background: var(--color-canvas-default);
+}
+
+.view-tab.active {
+    background: var(--color-accent-emphasis);
+    color: var(--color-fg-on-emphasis);
+    font-weight: 500;
+}
+
+/* Save Status Indicator */
+.save-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--color-fg-muted);
+}
+
+.save-status i {
+    font-size: 1rem;
+}
+
+.save-status.saving i {
+    color: var(--color-attention-emphasis);
+    animation: spin 1s linear infinite;
+}
+
+.save-status.error i {
+    color: var(--color-danger-emphasis);
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Vertical Divider */
+.vertical-divider {
+    width: 1px;
+    height: 24px;
+    background: var(--color-border-default);
+}
+
+/* Old toolbar - hide it */
 .writer-toolbar {
-    /* background: var(--color-canvas-default); */  /* Styling from central CSS */
-    padding: 0;
-    /* border-bottom: none; */  /* Styling from central CSS */
-    display: none; /* Hide empty toolbar */
+    display: none;
 }
 
 .editing-mode-toggle {
@@ -51,9 +162,111 @@
 .writer-editor {
     flex: 1;
     display: flex;
-    /* background: var(--color-canvas-default); */  /* Styling from central CSS */
+    flex-direction: column;
+    background: var(--color-canvas-default);
+    overflow: hidden;
 }
 
+/* Editor Content Wrapper */
+.editor-content-wrapper {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Editor Views */
+.editor-view {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: none;
+    flex-direction: column;
+    padding: 1.5rem;
+    overflow: hidden;
+}
+
+.editor-view.active {
+    display: flex;
+}
+
+.editor-view-header {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-fg-muted);
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    background: var(--color-canvas-subtle);
+    border-radius: 4px;
+}
+
+/* Split View Layout */
+.editor-view.split-view {
+    flex-direction: row;
+    gap: 1rem;
+}
+
+.latex-panel,
+.preview-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.latex-panel > textarea,
+.latex-panel > .CodeMirror,
+.latex-panel > .CodeMirror-wrap {
+    flex: 1;
+    min-height: 0;
+}
+
+.panel-header {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-fg-muted);
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+    background: var(--color-canvas-subtle);
+    border-radius: 4px;
+}
+
+/* Inline Compilation Output */
+.compilation-output {
+    border-top: 1px solid var(--color-border-default);
+    background: var(--color-canvas-subtle);
+    max-height: 300px;
+    display: flex;
+    flex-direction: column;
+}
+
+.compilation-output-header {
+    padding: 0.75rem 1rem;
+    background: var(--color-canvas-default);
+    border-bottom: 1px solid var(--color-border-default);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-fg-default);
+}
+
+.compilation-log-inline {
+    flex: 1;
+    padding: 1rem;
+    overflow-y: auto;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    background: var(--color-canvas-inset);
+    color: var(--color-fg-default);
+}
+
+/* Old styles kept for backward compatibility */
 .text-editor {
     flex: 1;
     display: flex;
@@ -66,33 +279,7 @@
     display: flex;
     gap: 1rem;
     padding: 2rem;
-    min-height: 0; /* Critical: allows flex to work properly */
-}
-
-.latex-panel,
-.preview-panel {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-height: 0; /* Allow flex children to shrink */
-    max-height: 100%; /* Ensure doesn't overflow parent */
-}
-
-.latex-panel > textarea,
-.latex-panel > .CodeMirror,
-.latex-panel > .CodeMirror-wrap {
-    flex: 1;
-    min-height: 0; /* Allow flex children to shrink */
-}
-
-.panel-header {
-    /* font-size: 0.85rem; */  /* Styling from central CSS */
-    /* font-weight: 600; */  /* Styling from central CSS */
-    /* color: var(--color-fg-muted); */  /* Styling from central CSS */
-    margin-bottom: 0.5rem;
-    padding: 0.5rem;
-    /* background: var(--color-canvas-subtle); */  /* Styling from central CSS */
-    /* border-radius: var(--border-radius); */  /* Styling from central CSS */
+    min-height: 0;
 }
 
 .section-title {
@@ -364,14 +551,72 @@
  * Responsive Design
  * ======================================== */
 
+@media (max-width: 1024px) {
+    .writer-toolbar-sticky {
+        flex-wrap: wrap;
+    }
+
+    .toolbar-left,
+    .toolbar-right {
+        gap: 0.5rem;
+    }
+
+    .horizontal-selector-group {
+        flex-wrap: wrap;
+    }
+
+    .save-status .status-text {
+        display: none;
+    }
+}
+
 @media (max-width: 768px) {
     .writer-container {
         flex-direction: column;
+    }
+
+    .writer-toolbar-sticky {
+        padding: 0.5rem;
+        gap: 0.5rem;
+    }
+
+    .toolbar-center {
+        order: 3;
+        width: 100%;
+        margin-top: 0.5rem;
+    }
+
+    .editor-view-tabs {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .view-tab {
+        flex: 1;
+        padding: 0.5rem 0.5rem;
+        font-size: 0.85rem;
     }
 
     .text-editor,
     .latex-editor {
         margin: 1rem;
         padding: 1rem;
+    }
+
+    .editor-view {
+        padding: 1rem;
+    }
+
+    .editor-view.split-view {
+        flex-direction: column;
+    }
+
+    /* Hide some toolbar items on small screens */
+    .vertical-divider {
+        display: none;
+    }
+
+    #theme-selector {
+        display: none;
     }
 }

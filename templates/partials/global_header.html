@@ -13,7 +13,7 @@
       <nav class="header-nav">
         <a href="/social/explore/"
            class="header-nav-item {% if 'explore' in request.path %}active{% endif %}"
-           title="Explore repositories and projects">
+           data-tooltip="Browse repositories and projects">
           <img src="{% static 'images/scitex-explore-icon.svg' %}" alt="" class="nav-icon">
           <span class="nav-label">Explore</span>
         </a>
@@ -24,27 +24,52 @@
         - /viz/ - Viz module (project-centric via sessionStorage)
         - /writer/ - Writer module (project-centric via sessionStorage)
         {% endcomment %}
-        <a href="/scholar/"
-           class="header-nav-item {% if 'scholar' in request.path %}active{% endif %}"
-           title="Literature review and research">
-          <img src="{% static 'images/scitex-scholar-icon.svg' %}" alt="" class="nav-icon">
-          <span class="nav-label">Scholar</span>
-        </a>
+        <!-- Scholar Module with Dropdown -->
+        <div class="header-scholar-group">
+          <a href="/scholar/"
+             class="header-nav-item {% if 'scholar' in request.path %}active{% endif %}"
+             data-tooltip="Scholar module">
+            <img src="{% static 'images/scitex-scholar-icon.svg' %}" alt="" class="nav-icon">
+            <span class="nav-label">Scholar</span>
+          </a>
+          <button id="scholar-dropdown-toggle" class="header-scholar-dropdown-btn" data-tooltip="Scholar options">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M4 6l4 4 4-4H4z"/>
+            </svg>
+          </button>
+
+          <!-- Scholar Dropdown Menu -->
+          <div id="scholar-dropdown-menu" class="header-scholar-dropdown" style="display: none;">
+
+            <a href="/scholar/bibtex/" class="scholar-dropdown-item">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="margin-right: 8px;">
+                <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.71l-5.223 2.206A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z"/>
+              </svg>
+              <span>BibTeX Enrichment</span>
+              <span class="dropdown-badge">Recommended</span>
+            </a>
+
+            <a href="/scholar/search/" class="scholar-dropdown-item">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="margin-right: 8px;">
+                <path d="M6.5 1a5.5 5.5 0 0 1 4.38 8.98l6.01 6.01a.75.75 0 1 1-1.06 1.06l-6.01-6.01A5.5 5.5 0 1 1 6.5 1zm0 1.5a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/>
+              </svg>
+              <span>Paper Search</span>
+            </a>            
+          </div>
+        </div>
         <span class="header-nav-item header-nav-item-disabled"
-              title="Coming soon"
-              data-message="Code module coming soon">
+              data-tooltip="Code module coming soon">
           <img src="{% static 'images/scitex-code-icon.svg' %}" alt="" class="nav-icon">
           <span class="nav-label">Code</span>
         </span>
         <span class="header-nav-item header-nav-item-disabled"
-              title="Coming soon"
-              data-message="Viz module coming soon">
+              data-tooltip="Viz module coming soon">
           <img src="{% static 'images/scitex-viz-icon.svg' %}" alt="" class="nav-icon">
           <span class="nav-label">Viz</span>
         </span>
         <a href="/writer/"
            class="header-nav-item {% if 'writer' in request.path %}active{% endif %}"
-           title="Manuscript writing">
+           data-tooltip="Manuscript writing">
           <img src="{% static 'images/scitex-writer-icon.svg' %}" alt="" class="nav-icon">
           <span class="nav-label">Writer</span>
         </a>
@@ -123,19 +148,19 @@
 
     <!-- Right: Actions + User Menu -->
     <div class="header-right">
-      <!-- Design System Link (always visible) -->
-      <a href="/dev/design/" class="header-icon-btn" title="Design System">
-        <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor" style="display: inline-block; vertical-align: text-bottom;">
-          <!-- Color palette icon -->
-          <path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zm0 1.5a6.5 6.5 0 0 1 6.429 5.5h-1.286a.5.5 0 1 0 0 1h1.286A6.5 6.5 0 0 1 8 14.5a.5.5 0 0 1-.5-.5v-1.286a.5.5 0 1 0-1 0V14a.5.5 0 0 1-.5.5 6.5 6.5 0 0 1-5.429-7h1.286a.5.5 0 0 0 0-1H.571A6.5 6.5 0 0 1 8 1.5z"/>
-          <circle cx="5" cy="5" r="1.5" fill="currentColor"/>
-          <circle cx="11" cy="5" r="1.5" fill="currentColor"/>
-          <circle cx="8" cy="10" r="1.5" fill="currentColor"/>
-        </svg>
-      </a>
+      <!-- <\!-- Design System Link (always visible) -\->
+       !-- <a href="/dev/design/" class="header-icon-btn" data-tooltip="Design System">
+       !--   <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor" style="display: inline-block; vertical-align: text-bottom;">
+       !--     <\!-- Color palette icon -\->
+       !--     <path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zm0 1.5a6.5 6.5 0 0 1 6.429 5.5h-1.286a.5.5 0 1 0 0 1h1.286A6.5 6.5 0 0 1 8 14.5a.5.5 0 0 1-.5-.5v-1.286a.5.5 0 1 0-1 0V14a.5.5 0 0 1-.5.5 6.5 6.5 0 0 1-5.429-7h1.286a.5.5 0 0 0 0-1H.571A6.5 6.5 0 0 1 8 1.5z"/>
+       !--     <circle cx="5" cy="5" r="1.5" fill="currentColor"/>
+       !--     <circle cx="11" cy="5" r="1.5" fill="currentColor"/>
+       !--     <circle cx="8" cy="10" r="1.5" fill="currentColor"/>
+       !--   </svg>
+       !-- </a> -->
 
       <!-- Theme Toggle (always visible) -->
-      <button id="theme-toggle" class="theme-toggle" title="Toggle theme">
+      <button id="theme-toggle" class="theme-toggle" data-tooltip="Toggle light/dark theme">
         🌓
       </button>
 
@@ -218,10 +243,10 @@
         </div>
       {% else %}
         <!-- Not logged in -->
-        <a href="{% url 'auth_app:signin' %}" class="header-btn">
+        <a href="{% url 'auth_app:signin' %}" class="header-btn" data-tooltip="Sign in to your account">
           Sign in
         </a>
-        <a href="{% url 'auth_app:signup' %}" class="header-btn">
+        <a href="{% url 'auth_app:signup' %}" class="header-btn" data-tooltip="Create a new account">
           Sign up
         </a>
       {% endif %}
@@ -232,6 +257,33 @@
 <!-- JavaScript for dropdown menu -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+  // Scholar dropdown functionality
+  const scholarToggle = document.getElementById('scholar-dropdown-toggle');
+  const scholarDropdown = document.getElementById('scholar-dropdown-menu');
+
+  if (scholarToggle && scholarDropdown) {
+    scholarToggle.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const isVisible = scholarDropdown.style.display !== 'none';
+      scholarDropdown.style.display = isVisible ? 'none' : 'block';
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+      const scholarGroup = document.querySelector('.header-scholar-group');
+      if (scholarGroup && !scholarGroup.contains(e.target)) {
+        scholarDropdown.style.display = 'none';
+      }
+    });
+
+    // Close dropdown when pressing Escape
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        scholarDropdown.style.display = 'none';
+      }
+    });
+  }
+
   const userMenuToggle = document.getElementById('user-menu-toggle');
   const userMenuDropdown = document.getElementById('user-menu-dropdown');
 

@@ -102,36 +102,7 @@
     text-decoration: none;
 }
 
-/* Tooltip for logo */
-.header-logo[data-tooltip]::after {
-    content: attr(data-tooltip);
-    position: absolute;
-    bottom: -28px;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: var(--scitex-color-01);
-    color: white;
-    padding: 4px 12px;
-    border-radius: 4px;
-    font-size: 12px;
-    white-space: nowrap;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s ease;
-    z-index: 10;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-}
-
-.header-logo:hover[data-tooltip]::after {
-    opacity: 1;
-}
-
-/* Dark mode tooltip */
-[data-theme="dark"] .header-logo[data-tooltip]::after {
-    background-color: var(--scitex-color-07);
-    color: var(--scitex-color-01);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-}
+/* Tooltip styling is now handled by common/tooltips.css */
 
 .header-logo-img {
     height: 40px;
@@ -269,6 +240,137 @@
     display: flex;
     gap: 4px;
     align-items: center;
+}
+
+/* Scholar Group (Navigation Item + Dropdown Button) */
+.header-scholar-group {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    position: relative;
+}
+
+/* Navigation Badge - for header nav items */
+.nav-badge {
+    display: inline-block;
+    background: var(--success-color);
+    color: white;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 3px;
+    margin-left: 4px;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+[data-theme="dark"] .nav-badge {
+    background: var(--success-color);
+    color: white;
+}
+
+/* Scholar Dropdown Button */
+.header-scholar-dropdown-btn {
+    background: transparent;
+    border: none;
+    color: var(--scitex-color-01);
+    cursor: pointer;
+    padding: 8px 6px;
+    border-radius: 0 6px 6px 0;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: -4px;
+}
+
+.header-scholar-dropdown-btn:hover {
+    background: var(--scitex-color-07);
+}
+
+[data-theme="dark"] .header-scholar-dropdown-btn {
+    color: var(--scitex-color-07);
+}
+
+[data-theme="dark"] .header-scholar-dropdown-btn:hover {
+    background: var(--scitex-color-01-light);
+}
+
+/* Scholar Dropdown Menu */
+.header-scholar-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    min-width: 200px;
+    background: #ffffff;
+    border: 1px solid var(--scitex-color-06);
+    border-radius: 6px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    z-index: 1001;
+    overflow: hidden;
+}
+
+[data-theme="dark"] .header-scholar-dropdown {
+    background: var(--scitex-color-02);
+    border: 1px solid var(--scitex-color-03);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+}
+
+.scholar-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    color: var(--scitex-color-01);
+    font-size: 14px;
+    text-decoration: none;
+    transition: background 0.2s ease;
+    border-bottom: 1px solid var(--scitex-color-06);
+}
+
+.scholar-dropdown-item:has(.dropdown-badge) {
+    justify-content: space-between;
+}
+
+/* Dropdown Badge - for dropdown menu items */
+.dropdown-badge {
+    display: inline-block;
+    background: var(--success-color);
+    color: white;
+    font-size: 9px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 3px;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    flex-shrink: 0;
+}
+
+[data-theme="dark"] .dropdown-badge {
+    background: var(--success-color);
+    color: white;
+}
+
+.scholar-dropdown-item:last-child {
+    border-bottom: none;
+}
+
+.scholar-dropdown-item:hover {
+    background: var(--scitex-color-07);
+    color: var(--scitex-color-01);
+    text-decoration: none;
+}
+
+[data-theme="dark"] .scholar-dropdown-item {
+    color: #ffffff;
+    border-bottom-color: var(--scitex-color-03);
+}
+
+[data-theme="dark"] .scholar-dropdown-item:hover {
+    background: var(--scitex-color-03);
+    color: #ffffff;
 }
 
 .header-nav-item {

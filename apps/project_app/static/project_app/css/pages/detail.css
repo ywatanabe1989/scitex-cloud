@@ -166,17 +166,12 @@
 
 .octicon-directory {
     /* Styling moved to central CSS - see static/css/components/icons.css */
-    fill: #54aeff;
+    fill: var(--color-accent-fg);
 }
 
 .octicon-file {
     /* Styling moved to central CSS - see static/css/components/icons.css */
     fill: var(--color-fg-muted);
-}
-
-[data-theme="dark"] .octicon-directory {
-    /* Styling moved to central CSS - see static/css/components/icons.css */
-    fill: #58a6ff;
 }
 
 .file-browser-name {

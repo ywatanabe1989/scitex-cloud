@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-28 12:38:12
+!-- Timestamp: 2025-10-28 13:53:45
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/CLAUDE.md
 !-- --- -->
@@ -72,43 +72,40 @@ Add console.log for debugging
 
 # Requests
 - [ ] http://localhost:8000/writer/
-  - [ ] Initialize writer workspace button not working
-    - [ ] Place it as "initialize with template" in the left panel
-  - [ ] Tex files should be linked to the repository
-    - [ ] Where is it finding?
-- [ ] Editor is something is wrong
-  - [ ] Cursor size is x3 height ...
+  - [ ] The UI/UX of writer is quite aweful compaired to their potentials
+    - [ ] Please check it and revise accordingly
+    - [ ] Why the latex editor does not use this default one?
+      http://127.0.0.1:8000/dev/design/code-blocks/
 
-  - [ ] CSS Refactoring needed
-  - [ ] View PDF button not working
+- [ ] http://127.0.0.1:8000/scholar/
+  - [ ] Recommended badges for scholar/enrichment should be "Success" instead of bluish color
+  http://127.0.0.1:8000/dev/design/badge/
 
 - [ ] http://127.0.0.1:8000/scholar/search/
-  - [ ] Save to project does not get current project
-  - [ ] As the logic is now in project_app side, use it
+  - [ ] When save button clicked, it shows "Please enter a search query.", which is annoying
+  - [ ] You don't have any projects yet. Create a project first to save papers.
+  - [ ] To use space effectively, show the Cite, Save, DOI, Engine badges in a row in cards
+  - [ ] Filtering seekbar should use our brand theme colors
+  - [ ] Filtering does not show data in online manner
+    - [ ] Hues for all three scatters should be synced
+    - [ ] Slider selection should apply filtering in the figures immediately (so, colors changed and the same items across figures change colors as well; shared hue)
+    - [ ] 
 
 - [ ] http://127.0.0.1:8000/scholar/bibtex/
-  - [ ] Save to project
-    - [ ] Error: Project has no git repository
+  - [ ] No alert saved to...; just show success alert
 
 - [ ] http://127.0.0.1:8000/new/
   - [ ] Disable cookie to the repository name
 
-- [ ] Project selector in the header
-  - [ ] Drop down should include special selection: Create New Project
-  - [ ] Remove the two new project buttons in the header
-  - [ ] Place a button "Jump" to the dropdown 
-    - [ ] What is better naming than "Jump"? Files?
-      - [ ] I want to prepare a way to quickly jump to /<username>/<project-name>/
+- [ ] Header
+  - [ ] Scholar button should be separated button; the left is okay; right should have dropdown and enable selection whether bibtex or search
 
+## WIP
 - [ ] http://127.0.0.1:8000/wyusuuke/default-project/
-  - [ ] Child directory not shown properly
+  - [ ] Root directory is okay
+  - [ ] Child directory (e.g., http://127.0.0.1:8000/wyusuuke/default-project/.git/) not shown properly
     - [ ] Side panel and main table are corrupted
   - [ ] The folder icon of the main table too bright
     - [ ] Use color-theme-applied svg images instead
-
-- [ ] http://127.0.0.1:8000/
-    - [ ] When hovered, elements have different behaviours in the header
-    - [ ] How do you think? THe rich version of the logo is better?
-    - [ ] Anyway, we need consistency across header eleemnts, and the web app entirely
 
 <!-- EOF -->
