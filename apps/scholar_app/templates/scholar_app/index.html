@@ -59,6 +59,19 @@
   }
   };
 
+  // Set user projects for save functionality
+  window.userProjects = [
+    {% for project in user_projects %}
+    {
+      id: {{ project.id }},
+      name: "{{ project.name|escapejs }}"
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ];
+
+  // Set current project if available
+  window.currentProject = {% if current_project %}{ id: {{ current_project.id }}, name: "{{ current_project.name|escapejs }}" }{% else %}null{% endif %};
+
   {% if query and results %}
   // Serialize Django search results for swarm plots
   window.SCHOLAR_SEARCH_RESULTS = [
