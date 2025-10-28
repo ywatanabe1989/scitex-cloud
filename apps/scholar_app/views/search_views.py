@@ -180,15 +180,34 @@ def simple_search_with_tab(request, active_tab='search', template_name='scholar_
         if impact_factors:
             filter_ranges['impact_factor_max'] = max(impact_factors)
 
-    # Get user projects for BibTeX enrichment form
+    # Get user projects for BibTeX enrichment form and determine current project
     user_projects = []
+    current_project = None
     if request.user.is_authenticated:
         from apps.project_app.models import Project
         user_projects = Project.objects.filter(owner=request.user).order_by('-created_at')
 
+        # Determine current project (use same logic as writer_app and scholar_app elsewhere)
+        # Try session-based project selection first
+        current_project_slug = request.session.get('current_project_slug')
+        if current_project_slug:
+            try:
+                current_project = Project.objects.get(slug=current_project_slug, owner=request.user)
+            except Project.DoesNotExist:
+                pass
+
+        # Fallback: try profile's last active repository
+        if not current_project and hasattr(request.user, 'profile') and request.user.profile.last_active_repository:
+            current_project = request.user.profile.last_active_repository
+
+        # Fallback: use first project if available
+        if not current_project and user_projects.exists():
+            current_project = user_projects.first()
+
     context = {
         'query': query,
         'project': project,
+        'current_project': current_project,  # Add current project for BibTeX save functionality
         'sources': sources,
         'sort_by': sort_by,
         'results': results,
@@ -1927,12 +1946,21 @@ def save_paper(request):
         )
 
         project_name = project.name if project else "your library"
+
+        # Add success message for Django to display
+        from django.contrib import messages
+        messages.success(request, f'✓ Successfully saved to {project_name}')
+
         return JsonResponse({
             'status': 'success',
             'message': f'Paper saved to {project_name}'
         })
 
     except Exception as e:
+        # Add error message for Django to display
+        from django.contrib import messages
+        messages.error(request, f'✗ Failed to save paper: {str(e)}')
+
         return JsonResponse({
             'status': 'error',
             'message': f'Error saving paper: {str(e)}'
@@ -2008,6 +2036,11 @@ def save_papers_bulk(request):
                 continue
 
         project_name = project.name if project else "your library"
+
+        # Add success message for Django to display
+        from django.contrib import messages
+        messages.success(request, f'✓ Successfully saved {saved_count} paper(s) to {project_name}')
+
         return JsonResponse({
             'status': 'success',
             'message': f'{saved_count} papers saved to {project_name}',
@@ -2015,6 +2048,10 @@ def save_papers_bulk(request):
         })
 
     except Exception as e:
+        # Add error message for Django to display
+        from django.contrib import messages
+        messages.error(request, f'✗ Failed to save papers: {str(e)}')
+
         return JsonResponse({
             'status': 'error',
             'message': f'Error saving papers: {str(e)}'

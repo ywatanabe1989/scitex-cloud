@@ -1143,6 +1143,10 @@ def bibtex_save_to_project(request, job_id):
             shutil.copy(input_path, project_media_dir / original_filename)
             shutil.copy(output_path, project_media_dir / enriched_filename)
 
+        # Add success message for Django to display
+        from django.contrib import messages
+        messages.success(request, f'✓ Successfully saved to {project.name}')
+
         return JsonResponse({
             'success': True,
             'message': f'Saved to {project.name}',
@@ -1152,6 +1156,10 @@ def bibtex_save_to_project(request, job_id):
         })
 
     except Exception as e:
+        # Add error message for Django to display
+        from django.contrib import messages
+        messages.error(request, f'✗ Failed to save to project: {str(e)}')
+
         return JsonResponse({
             'success': False,
             'error': f'Save failed: {str(e)}'
