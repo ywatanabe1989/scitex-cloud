@@ -642,10 +642,9 @@
     display: none !important;
 }
 
-/* Minimize init prompt - less prominent */
+/* Hide init prompt - user can initialize from sidebar button */
 #writer-init-prompt {
-    padding: 0.5rem 0 !important;
-    margin: 0 !important;
+    display: none !important;
 }
 
 #writer-init-prompt .alert {
