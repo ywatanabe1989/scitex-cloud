@@ -1,3 +1,4 @@
+{% load static %}
 <!-- CodeMirror for LaTeX syntax highlighting -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
 <!-- Dark Themes -->
@@ -13,3 +14,5 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/neat.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/solarized.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/elegant.min.css">
+<!-- Design System CodeMirror Styling -->
+<link rel="stylesheet" href="{% static 'writer_app/css/codemirror-styling.css' %}">{# applies design system styles to CodeMirror #}

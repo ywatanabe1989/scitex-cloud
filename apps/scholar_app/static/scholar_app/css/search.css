@@ -432,61 +432,75 @@
 /* noUiSlider SciTeX Brand Color Customization */
 .noUi-target {
     /* Overall slider background - inherited from parent */
+    border: none;
+    box-shadow: none;
 }
 
 /* Slider track/rail */
 .noUi-base,
 .noUi-connects {
-    /* Use theme-based styles from central CSS */
+    background: var(--scitex-color-07);
+    border-radius: 4px;
 }
 
-/* Range/connection color (the filled portion between handles) */
-.noUi-connect {
+[data-theme="dark"] .noUi-base,
+[data-theme="dark"] .noUi-connects {
     background: var(--scitex-color-02);
+}
+
+/* Range/connection color (the filled portion between handles) - use brand success green */
+.noUi-connect {
+    background: var(--success-color);
 }
 
 [data-theme="dark"] .noUi-connect {
-    background: var(--scitex-color-03);
+    background: var(--success-color);
 }
 
-/* Handle/thumb styling */
+/* Handle/thumb styling - use brand success green */
 .noUi-handle {
-    background: var(--scitex-color-01);
-    border: 2px solid var(--scitex-color-02);
+    background: white;
+    border: 3px solid var(--success-color);
     border-radius: 50%;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     transition: all 0.2s ease;
+    cursor: grab;
 }
 
 .noUi-handle:hover {
-    background: var(--scitex-color-02);
-    border-color: var(--scitex-color-03);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    background: rgba(40, 167, 69, 0.05);
+    border-color: var(--success-color);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+    cursor: grab;
+}
+
+.noUi-handle:active {
+    cursor: grabbing;
 }
 
 .noUi-handle.noUi-active {
-    background: var(--scitex-color-03);
-    border-color: var(--scitex-color-01);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+    background: rgba(40, 167, 69, 0.1);
+    border-color: var(--success-color);
+    box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4);
 }
 
 /* Dark mode handle */
 [data-theme="dark"] .noUi-handle {
-    background: var(--scitex-color-03);
-    border-color: var(--scitex-color-04);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    background: var(--scitex-color-01);
+    border-color: var(--success-color);
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.2);
 }
 
 [data-theme="dark"] .noUi-handle:hover {
-    background: var(--scitex-color-04);
-    border-color: var(--scitex-color-05);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    background: var(--scitex-color-02);
+    border-color: var(--success-color);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
 }
 
 [data-theme="dark"] .noUi-handle.noUi-active {
-    background: var(--scitex-color-05);
-    border-color: var(--scitex-color-03);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
+    background: var(--scitex-color-02);
+    border-color: var(--success-color);
+    box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4);
 }
 
 /* Tooltip styling on handles */
