@@ -32,6 +32,18 @@
 
     <!-- Badge Row: Action & Source Badges -->
     <div class="result-badges-row mt-2">
+        <!-- Cite Button -->
+        <button type="button" class="badge-chip badge-action" onclick="copyCitation(this, '{{ result.id }}')" title="Copy citation to clipboard">
+            <i class="fas fa-quote-left"></i> Cite
+        </button>
+        
+        <!-- Save Button -->
+        {% if user.is_authenticated %}
+            <button type="button" class="badge-chip badge-action" onclick="saveToProject(this, '{{ result.id }}')" title="Save to project">
+                <i class="fas fa-bookmark"></i> Save
+            </button>
+        {% endif %}
+        
         {% if result.is_open_access %}
             <span class="badge-chip badge-success">
                 <i class="fas fa-lock-open"></i> Open Access

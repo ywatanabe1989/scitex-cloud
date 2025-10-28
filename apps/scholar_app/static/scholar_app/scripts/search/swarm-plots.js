@@ -414,10 +414,6 @@ const SwarmPlots = {
             yearSlider.noUiSlider.on('update', (values) => {
                 this.filters.yearRange = [parseInt(values[0]), parseInt(values[1])];
                 this.updateSwarmPlots();
-                // Only trigger search if sliders are already initialized (not during initial setup)
-                if (!this.initializingSliders) {
-                    this.triggerFilteredSearch();
-                }
             });
         }
 
@@ -427,10 +423,6 @@ const SwarmPlots = {
             citationsSlider.noUiSlider.on('update', (values) => {
                 this.filters.citationsRange = [parseInt(values[0]), parseInt(values[1])];
                 this.updateSwarmPlots();
-                // Only trigger search if sliders are already initialized (not during initial setup)
-                if (!this.initializingSliders) {
-                    this.triggerFilteredSearch();
-                }
             });
         }
 
@@ -440,10 +432,6 @@ const SwarmPlots = {
             impactFactorSlider.noUiSlider.on('update', (values) => {
                 this.filters.impactFactorRange = [parseFloat(values[0]), parseFloat(values[1])];
                 this.updateSwarmPlots();
-                // Only trigger search if sliders are already initialized (not during initial setup)
-                if (!this.initializingSliders) {
-                    this.triggerFilteredSearch();
-                }
             });
         }
 

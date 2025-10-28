@@ -1292,7 +1292,7 @@ window.saveJobToProject = function(jobId) {
             'Note: You can download the enriched file without an account.\n\n' +
             'Would you like to sign up now?'
         )) {
-            window.location.href = '/accounts/signup/?next=' + encodeURIComponent('/scholar/#bibtex');
+            window.location.href = '/auth/signup/?next=' + encodeURIComponent('/scholar/#bibtex');
         }
         return;
     }

@@ -348,7 +348,7 @@ def get_reserved_paths():
 
     # 2. Static system paths
     reserved.update([
-        'admin', 'api', 'new', 'static', 'media',
+        'admin', 'api', 'new', 'static', 'media', 'accounts', 'auth',
         'favicon.ico', 'robots.txt', 'sitemap.xml',
     ])
 
