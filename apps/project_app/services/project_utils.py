@@ -118,8 +118,8 @@ def get_or_create_default_project(user, is_guest=False):
         project_name = f"{user.username}'s Project"
         description = f"Default project for {user.username}"
 
-    # Generate unique slug
-    slug = Project.generate_unique_slug(project_name)
+    # Generate unique slug (per-owner uniqueness)
+    slug = Project.generate_unique_slug(project_name, owner=user)
 
     # Create the project (data_location will be set when writer dir is created)
     project = Project.objects.create(
