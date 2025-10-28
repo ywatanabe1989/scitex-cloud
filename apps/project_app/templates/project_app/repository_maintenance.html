@@ -799,9 +799,7 @@ function getCSRFToken() {
     return document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
 }
 
-// Dialog event listeners
-document.getElementById("dialog-cancel").addEventListener("click", closeDialog);
-document.getElementById("dialog-confirm").addEventListener("click", executeAction);
+// Dialog backdrop click to close
 document.getElementById("confirmation-dialog").addEventListener("click", (e) => {
     if (e.target === document.getElementById("confirmation-dialog")) {
         closeDialog();
