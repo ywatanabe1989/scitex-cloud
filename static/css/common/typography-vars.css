@@ -9,9 +9,9 @@
   --mono-font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro',
                       Menlo, Consolas, Monaco, 'Andale Mono', monospace;
 
-  --base-font-size: 16px;
-  --small-font-size: 0.875rem;
-  --large-font-size: 1.125rem;
+  --base-font-size: 14px;
+  --small-font-size: 0.875rem;  /* 12.25px */
+  --large-font-size: 1.125rem;  /* 15.75px */
 
   --base-line-height: 1.6;
   --heading-line-height: 1.2;

@@ -1,0 +1,102 @@
+{% extends "scholar_app/scholar_base.html" %}
+{% load static %}
+
+{% block title %}SciTeX Scholar - Literature Search{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/common.css' %}">
+<link rel="stylesheet" href="{% static 'scholar_app/css/index.css' %}">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4" style="padding-top: 2rem; padding-bottom: 2rem;">
+  <div class="row">
+    <!-- Main Content -->
+    <div class="col-12">
+      <!-- Page Header -->
+      <div class="page-header mb-4">
+        <h1 class="h3 mb-3">Literature Search</h1>
+        <p class="text-muted">Search across multiple academic databases to find relevant research papers</p>
+      </div>
+
+      <!-- Literature Search Content -->
+      <div class="card">
+        <div class="card-body">
+          {% include "scholar_app/search_partials/search.html" with show_results=True %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Configuration for JavaScript -->
+<script>
+  // Django template variables for JavaScript
+  window.SCHOLAR_CONFIG = {
+    urls: {
+      bibtexUpload: '{% url "scholar_app:bibtex_upload" %}',
+      resourceStatus: '{% url "scholar_app:bibtex_resource_status" %}',
+      scitexSearch: '{% url "scholar_app:api_scitex_search" %}',
+      scitexCapabilities: '{% url "scholar_app:api_scitex_capabilities" %}'
+    },
+    user: {
+      isAuthenticated: {% if user.is_authenticated %}true{% else %}false{% endif %}
+    }
+  };
+
+  {% if query and results %}
+  // Serialize Django search results for swarm plots
+  window.SCHOLAR_SEARCH_RESULTS = [
+    {% for result in results %}
+    {
+      title: "{{ result.title|escapejs }}",
+      year: {% if result.year %}{{ result.year }}{% else %}null{% endif %},
+      citations: {% if result.citations %}{{ result.citations }}{% else %}0{% endif %},
+      impact_factor: {% if result.impact_factor %}{{ result.impact_factor }}{% else %}null{% endif %},
+      authors: "{{ result.authors|escapejs }}",
+      journal: "{{ result.journal|escapejs }}",
+      url: "{{ result.url|escapejs }}"
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ];
+
+  // Initialize swarm plots when DOM is ready
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log('[Scholar Search] Initializing swarm plots with', window.SCHOLAR_SEARCH_RESULTS.length, 'Django results');
+
+    // Wait for SwarmPlots module to load
+    if (window.SwarmPlots) {
+      window.SwarmPlots.init(window.SCHOLAR_SEARCH_RESULTS);
+    } else {
+      // If not loaded yet, wait a bit
+      setTimeout(function() {
+        if (window.SwarmPlots) {
+          window.SwarmPlots.init(window.SCHOLAR_SEARCH_RESULTS);
+        } else {
+          console.warn('[Scholar Search] SwarmPlots module not available');
+        }
+      }, 500);
+    }
+  });
+  {% endif %}
+</script>
+
+{% block extra_js %}
+<!-- Common Scripts -->
+<script src="{% static 'scholar_app/scripts/common/project-selector.js' %}"></script>
+<!-- External Libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.js"></script>
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js" charset="utf-8"></script>
+<!-- Search Scripts -->
+<script src="{% static 'scholar_app/scripts/search/nouislider-init.js' %}"></script>
+<script src="{% static 'scholar_app/scripts/search/panel-toggle.js' %}"></script>
+<script src="{% static 'scholar_app/scripts/search/scitex-search.js' %}?v=20251027-fix-infinite-loop"></script>
+<script src="{% static 'scholar_app/scripts/search/advanced-sorting.js' %}"></script>
+<script src="{% static 'scholar_app/scripts/search/drag-sort.js' %}"></script>
+<script src="{% static 'scholar_app/scripts/search/swarm-plots.js' %}?v=20251022-dynamic"></script>
+<script src="{% static 'scholar_app/scripts/search/scholar-index-main.js' %}"></script>
+<script src="{% static 'scholar_app/scripts/search/seekbar-integration.js' %}"></script>
+{% endblock %}
+
+{% endblock %}

@@ -1,101 +1,20 @@
-<!-- Writer Workspace Initialization Prompt -->
-{% if not writer_initialized and not is_demo %}
-<div id="writer-init-prompt" class="container py-5">
+<!-- Writer Workspace Initialization Button (shown inline in the page) -->
+{% if not writer_initialized %}
+<div id="writer-init-prompt" class="container py-4">
     <div class="row justify-content-center">
-        <div class="col-lg-6">
-            <div class="card shadow-sm">
-                <div class="card-body text-center p-5">
-                    <i class="fas fa-folder-plus fa-3x text-primary mb-3"></i>
-                    <h3 class="mb-3">Initialize Writer Workspace</h3>
-                    <p class="text-muted mb-4">
-                        Set up your LaTeX manuscript workspace with the SciTeX-Writer structure:
+        <div class="col-lg-8">
+            <div class="alert alert-info d-flex align-items-center gap-3" style="border-left: 4px solid #0d6efd;">
+                <div class="flex-grow-1">
+                    <h5 class="mb-2">
+                        <i class="fas fa-folder-plus me-2"></i>Create Writer Workspace
+                    </h5>
+                    <p class="mb-0 small text-muted">
+                        Set up the SciTeX workspace structure with manuscript, supplementary, revision, and shared directories.
                     </p>
-                    <ul class="list-unstyled text-start mb-4">
-                        <li><i class="fas fa-check text-success me-2"></i>01_manuscript/ - Main manuscript sections</li>
-                        <li><i class="fas fa-check text-success me-2"></i>02_supplementary/ - Supplementary materials</li>
-                        <li><i class="fas fa-check text-success me-2"></i>03_revision/ - Revision responses</li>
-                        <li><i class="fas fa-check text-success me-2"></i>shared/ - Title, authors, bibliography</li>
-                    </ul>
-                    <p class="text-muted small mb-4">
-                        Directory will be created at:<br>
-                        <code>{{ writer_path }}/</code>
-                    </p>
-                    <button id="init-writer-btn" class="btn btn-success btn-lg" onclick="initializeWriterWorkspace(this)">
-                        <i class="fas fa-rocket me-2"></i>Initialize Writer Workspace
-                    </button>
-
-                    <script>
-                    function initializeWriterWorkspace(btn) {
-                        console.log('[Writer Init] Button clicked!');
-                        btn.disabled = true;
-                        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Creating workspace...';
-
-                        const projectId = {% if project %}{{ project.id }}{% else %}null{% endif %};
-                        console.log('[Writer Init] Project ID:', projectId);
-
-                        if (!projectId) {
-                            console.error('[Writer Init] No project ID');
-                            alert('Error: No project selected');
-                            btn.disabled = false;
-                            btn.innerHTML = '<i class="fas fa-rocket me-2"></i>Initialize Writer Workspace';
-                            return;
-                        }
-
-                        // Get CSRF token
-                        const csrfTokenElem = document.querySelector('[name=csrfmiddlewaretoken]');
-                        let csrfToken = csrfTokenElem ? csrfTokenElem.value : '';
-
-                        if (!csrfToken) {
-                            const cookies = document.cookie.split(';');
-                            for (let cookie of cookies) {
-                                if (cookie.trim().startsWith('csrftoken=')) {
-                                    csrfToken = decodeURIComponent(cookie.trim().split('=')[1]);
-                                    break;
-                                }
-                            }
-                        }
-
-                        console.log('[Writer Init] Sending POST to /writer/api/initialize-workspace/');
-
-                        fetch('/writer/api/initialize-workspace/', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRFToken': csrfToken
-                            },
-                            body: JSON.stringify({
-                                project_id: projectId
-                            })
-                        })
-                        .then(response => {
-                            console.log('[Writer Init] Response status:', response.status);
-                            if (!response.ok) {
-                                console.error('[Writer Init] HTTP error:', response.status);
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            console.log('[Writer Init] Response data:', data);
-                            if (data.success) {
-                                console.log('[Writer Init] ✓ Workspace initialized successfully');
-                                console.log('[Writer Init] Reloading page...');
-                                window.location.reload();
-                            } else {
-                                console.error('[Writer Init] ✗ Initialization failed:', data.error);
-                                alert('Failed to initialize workspace: ' + (data.error || 'Unknown error'));
-                                btn.disabled = false;
-                                btn.innerHTML = '<i class="fas fa-rocket me-2"></i>Initialize Writer Workspace';
-                            }
-                        })
-                        .catch(error => {
-                            console.error('[Writer Init] ✗ Fetch error:', error);
-                            alert('Error initializing workspace: ' + error.message);
-                            btn.disabled = false;
-                            btn.innerHTML = '<i class="fas fa-rocket me-2"></i>Initialize Writer Workspace';
-                        });
-                    }
-                    </script>
                 </div>
+                <button id="init-writer-btn" class="btn btn-primary btn-sm flex-shrink-0" style="white-space: nowrap;">
+                    <i class="fas fa-rocket me-2"></i>Create
+                </button>
             </div>
         </div>
     </div>

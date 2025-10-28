@@ -13,7 +13,12 @@ import logging
 from typing import Optional
 from django.contrib.auth.models import User
 from django.conf import settings
-from apps.gitea_app.api_client import GiteaClient, GiteaAPIError
+from apps.gitea_app.api_client import GiteaClient
+from apps.gitea_app.exceptions import (
+    GiteaAPIError,
+    GiteaUserCreationError,
+    GiteaConnectionError,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -99,44 +104,57 @@ def ensure_gitea_user_exists(user: User) -> bool:
         user: Django User instance
 
     Returns:
-        True if user exists or was created successfully, False otherwise
+        True if user exists or was created successfully
+
+    Raises:
+        GiteaUserCreationError: If user creation fails
+        GiteaConnectionError: If cannot connect to Gitea
     """
     try:
         client = GiteaClient()
+    except Exception as e:
+        error_msg = f"Cannot initialize Gitea client: {str(e)}"
+        logger.error(error_msg)
+        raise GiteaConnectionError(error_msg)
 
-        # Check if user already exists
+    # Check if user already exists
+    try:
+        gitea_user = client._request('GET', f'/users/{user.username}').json()
+        logger.info(f"Gitea user already exists: {user.username}")
+        return True
+    except GiteaAPIError:
+        # User doesn't exist, create it
+        logger.info(f"Gitea user not found, creating: {user.username}")
+
+        # Generate a random password for Gitea account
+        # Users don't need to know this password since they authenticate via Django
+        import secrets
+        import string
+        alphabet = string.ascii_letters + string.digits + string.punctuation
+        random_password = ''.join(secrets.choice(alphabet) for _ in range(20))
+
+        # Create Gitea user via admin API
+        user_data = {
+            'username': user.username,
+            'email': user.email,
+            'password': random_password,
+            'full_name': user.get_full_name() or user.username,
+            'send_notify': False,
+            'must_change_password': False,
+        }
+
         try:
-            gitea_user = client._request('GET', f'/users/{user.username}').json()
-            logger.info(f"Gitea user already exists: {user.username}")
-            return True
-        except GiteaAPIError:
-            # User doesn't exist, create it
-            logger.info(f"Gitea user not found, creating: {user.username}")
-
-            # Generate a random password for Gitea account
-            # Users don't need to know this password since they authenticate via Django
-            import secrets
-            import string
-            alphabet = string.ascii_letters + string.digits + string.punctuation
-            random_password = ''.join(secrets.choice(alphabet) for _ in range(20))
-
-            # Create Gitea user via admin API
-            user_data = {
-                'username': user.username,
-                'email': user.email,
-                'password': random_password,
-                'full_name': user.get_full_name() or user.username,
-                'send_notify': False,
-                'must_change_password': False,
-            }
-
             response = client._request('POST', '/admin/users', json=user_data)
             logger.info(f"✓ Created Gitea user: {user.username}")
             return True
-
-    except Exception as e:
-        logger.error(f"Failed to ensure Gitea user exists for {user.username}: {e}")
-        return False
+        except GiteaAPIError as e:
+            error_msg = f"Gitea API error during user creation: {str(e)}"
+            logger.error(error_msg)
+            raise GiteaUserCreationError(user.username, error_msg)
+        except Exception as e:
+            error_msg = f"Unexpected error during user creation: {str(e)}"
+            logger.error(error_msg)
+            raise GiteaUserCreationError(user.username, error_msg)
 
 
 # EOF

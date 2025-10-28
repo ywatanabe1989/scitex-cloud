@@ -159,7 +159,7 @@
 }
 
 .cm-s-scitex .CodeMirror-cursor {
-    /* border-left: 2px solid #34495e; */  /* Styling from central CSS */
+    border-left: 1px solid #34495e;
 }
 
 .cm-s-scitex .CodeMirror-selected {
@@ -253,7 +253,7 @@
 }
 
 [data-theme="dark"] .cm-s-scitex .CodeMirror-cursor {
-    /* border-left: 2px solid #b5c7d1; */  /* Styling from central CSS */
+    border-left: 1px solid #b5c7d1;
 }
 
 [data-theme="dark"] .cm-s-scitex .CodeMirror-selected {

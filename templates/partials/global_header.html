@@ -5,7 +5,7 @@
     <!-- Left: Logo + Main Navigation -->
     <div class="header-left">
       <!-- Logo -->
-      <a href="{% if user.is_authenticated %}/{{ user.username }}/{% else %}/{% endif %}" class="header-logo">
+      <a href="{% if user.is_authenticated %}/{{ user.username }}/{% else %}/{% endif %}" class="header-logo" data-tooltip="Go to your repositories">
         <img src="{% static 'images/scitex-logo-cropped.png' %}" alt="SciTeX" class="header-logo-img">
       </a>
 
@@ -51,21 +51,65 @@
       </nav>
     </div>
 
-    <!-- Project Selector (for authenticated users) -->
+    <!-- Project Selector (for authenticated users) - Custom Dropdown Menu -->
     {% if user.is_authenticated %}
     <div class="header-project-selector">
-      <select id="project-selector" class="project-selector-input" title="Switch between your projects">
-        {% for project in user.profile.get_user_projects %}
-          <option value="{{ project.id }}" data-url="{% url 'user_projects:detail' username=project.owner.username slug=project.slug %}" {% if user.profile.last_active_repository and user.profile.last_active_repository.id == project.id %}selected{% endif %}>
-            {{ project.name }}
-          </option>
-        {% endfor %}
-      </select>
-      <a href="/new/" class="header-project-new-btn" title="Create new project">
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="display: inline-block; vertical-align: text-bottom;">
-          <path d="M8 0a1 1 0 0 1 1 1v6h6a1 1 0 1 1 0 2H9v6a1 1 0 1 1-2 0V9H1a1 1 0 0 1 0-2h6V1a1 1 0 0 1 1-1z"/>
+      <!-- Project Dropdown Button -->
+      <button id="project-selector-toggle" class="project-selector-btn" title="Switch projects (Alt+P)">
+        <span id="project-selector-text" class="project-selector-text">
+          {% if user.profile.last_active_repository %}
+            {{ user.profile.last_active_repository.name }}
+          {% else %}
+            {% with projects=user.profile.get_user_projects %}
+              {% if projects|length > 0 %}
+                {% for project in projects %}{% if forloop.first %}{{ project.name }}{% endif %}{% endfor %}
+              {% else %}
+                Projects
+              {% endif %}
+            {% endwith %}
+          {% endif %}
+        </span>
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" style="margin-left: 4px;">
+          <path d="M4 6l4 4 4-4H4z"/>
         </svg>
-      </a>
+      </button>
+
+      <!-- Project Dropdown Menu -->
+      <div id="project-selector-dropdown" class="project-selector-dropdown" style="display: none;">
+        {% if user.profile.get_user_projects %}
+          <div class="dropdown-section">
+            <div class="dropdown-section-title">Your Projects</div>
+            {% for project in user.profile.get_user_projects %}
+              <button type="button" class="dropdown-project-item" data-project-id="{{ project.id }}" data-project-name="{{ project.name }}" data-project-slug="{{ project.slug }}" data-project-owner="{{ project.owner.username }}">
+                <span class="project-item-name">{{ project.name }}</span>
+                <span class="project-item-check" style="display: {% if user.profile.last_active_repository and user.profile.last_active_repository.id == project.id %}inline{% else %}none{% endif %};">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M13.78 4.22a.75.75 0 010 1.06l-7.25 7.25a.75.75 0 11-1.06-1.06L12.72 4.22a.75.75 0 011.06 0z"/>
+                  </svg>
+                </span>
+              </button>
+            {% endfor %}
+          </div>
+          <div class="dropdown-divider"></div>
+
+          <!-- Go to Project Option -->
+          <button type="button" id="dropdown-go-to-project" class="dropdown-project-item dropdown-action" style="display: none;">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="margin-right: 6px;">
+              <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.71l-5.223 2.206A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z"/>
+            </svg>
+            <span id="go-to-project-text">Go to Project</span>
+          </button>
+          <div class="dropdown-divider"></div>
+        {% endif %}
+
+        <!-- Create New Project Option -->
+        <a href="/new/" class="dropdown-project-item dropdown-create-new">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="margin-right: 6px;">
+            <path d="M8 0a1 1 0 0 1 1 1v6h6a1 1 0 1 1 0 2H9v6a1 1 0 1 1-2 0V9H1a1 1 0 0 1 0-2h6V1a1 1 0 0 1 1-1z"/>
+          </svg>
+          <span>Create New Project</span>
+        </a>
+      </div>
     </div>
     {% endif %}
 
@@ -92,18 +136,10 @@
 
       <!-- Theme Toggle (always visible) -->
       <button id="theme-toggle" class="theme-toggle" title="Toggle theme">
-        ☀️
+        🌓
       </button>
 
       {% if user.is_authenticated %}
-        <!-- New Repository Button (GitHub-style: /new) -->
-        <a href="/new/" class="header-btn header-btn-primary" title="Create new repository">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="display: inline-block; vertical-align: text-bottom;">
-            <path d="M8 0a1 1 0 0 1 1 1v6h6a1 1 0 1 1 0 2H9v6a1 1 0 1 1-2 0V9H1a1 1 0 0 1 0-2h6V1a1 1 0 0 1 1-1z"/>
-          </svg>
-          <span class="btn-label">New</span>
-        </a>
-
         <!-- User Menu -->
         <div class="header-user-menu">
           <button class="header-user-toggle" id="user-menu-toggle">
@@ -323,38 +359,111 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Note: Theme toggle functionality is handled by /static/js/theme-switcher.js
 
-  // Project selector functionality
-  const projectSelector = document.getElementById('project-selector');
-  if (projectSelector) {
-    projectSelector.addEventListener('change', function(e) {
-      const selectedOption = this.options[this.selectedIndex];
-      const projectUrl = selectedOption.getAttribute('data-url');
+  // Project selector dropdown functionality
+  const projectToggle = document.getElementById('project-selector-toggle');
+  const projectDropdown = document.getElementById('project-selector-dropdown');
+  const projectItems = document.querySelectorAll('.dropdown-project-item:not(.dropdown-create-new):not(.dropdown-action)');
+  const goToProjectBtn = document.getElementById('dropdown-go-to-project');
+  const goToProjectText = document.getElementById('go-to-project-text');
+  const projectSelectorText = document.getElementById('project-selector-text');
 
-      if (projectUrl) {
-        // Store selected project ID in sessionStorage for Scholar app
-        sessionStorage.setItem('scholar_selected_project_id', this.value);
+  let currentProjectSlug = null;
+  let currentProjectOwner = null;
 
-        // Navigate to the project
-        window.location.href = projectUrl;
+  if (projectToggle && projectDropdown) {
+    // Toggle dropdown visibility
+    projectToggle.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const isVisible = projectDropdown.style.display !== 'none';
+      projectDropdown.style.display = isVisible ? 'none' : 'block';
+    });
+
+    // Handle project selection
+    projectItems.forEach(item => {
+      item.addEventListener('click', function(e) {
+        e.preventDefault();
+        const projectId = this.getAttribute('data-project-id');
+        const projectName = this.getAttribute('data-project-name');
+        const projectSlug = this.getAttribute('data-project-slug');
+        const projectOwner = this.getAttribute('data-project-owner');
+
+        // Update selected state
+        projectItems.forEach(i => i.classList.remove('active'));
+        this.classList.add('active');
+
+        // Update the check marks
+        document.querySelectorAll('.project-item-check').forEach(check => {
+          check.style.display = 'none';
+        });
+        this.querySelector('.project-item-check').style.display = 'inline';
+
+        // Update button text
+        projectSelectorText.textContent = projectName;
+
+        // Store selected project ID, slug, and owner
+        sessionStorage.setItem('scholar_selected_project_id', projectId);
+        currentProjectSlug = projectSlug;
+        currentProjectOwner = projectOwner;
+
+        // Show and update "Go to Project" button
+        if (goToProjectBtn) {
+          goToProjectBtn.style.display = 'flex';
+          goToProjectText.textContent = `Go to ${projectName}`;
+          goToProjectBtn.onclick = (e) => {
+            e.preventDefault();
+            window.location.href = `/${projectOwner}/${projectSlug}/`;
+          };
+        }
+
+        // Close dropdown
+        projectDropdown.style.display = 'none';
+      });
+    });
+
+    // Handle "Go to Project" button click
+    if (goToProjectBtn) {
+      goToProjectBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        if (currentProjectSlug && currentProjectOwner) {
+          window.location.href = `/${currentProjectOwner}/${currentProjectSlug}/`;
+        }
+      });
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+      if (!projectToggle.contains(e.target) && !projectDropdown.contains(e.target)) {
+        projectDropdown.style.display = 'none';
       }
     });
 
-    // Restore selected project from sessionStorage if available and is a valid option
-    const savedProjectId = sessionStorage.getItem('scholar_selected_project_id');
-    if (savedProjectId && projectSelector.value !== savedProjectId) {
-      const option = projectSelector.querySelector(`option[value="${savedProjectId}"]`);
-      if (option && option.hasAttribute('data-url')) {
-        projectSelector.value = savedProjectId;
-      }
-    }
-
-    // Keyboard navigation: Alt+P to focus project selector
+    // Keyboard navigation: Alt+P to toggle project selector
     document.addEventListener('keydown', function(e) {
       if ((e.altKey || e.metaKey) && e.key === 'p') {
         e.preventDefault();
-        projectSelector.focus();
+        projectToggle.click();
       }
     });
+
+    // Initialize "Go to Project" button visibility and text based on selected project
+    const selectedItem = document.querySelector('.dropdown-project-item:not(.dropdown-create-new):not(.dropdown-action).active');
+    if (selectedItem || projectItems.length > 0) {
+      const currentItem = selectedItem || projectItems[0];
+      const projectSlug = currentItem.getAttribute('data-project-slug');
+      const projectName = currentItem.getAttribute('data-project-name');
+      const projectOwner = currentItem.getAttribute('data-project-owner');
+      currentProjectSlug = projectSlug;
+      currentProjectOwner = projectOwner;
+
+      if (goToProjectBtn) {
+        goToProjectBtn.style.display = 'flex';
+        goToProjectText.textContent = `Go to ${projectName}`;
+        goToProjectBtn.onclick = (e) => {
+          e.preventDefault();
+          window.location.href = `/${projectOwner}/${projectSlug}/`;
+        };
+      }
+    }
   }
 });
 </script>

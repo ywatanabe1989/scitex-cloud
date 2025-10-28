@@ -1,18 +1,16 @@
 <!-- ---
-!-- Timestamp: 2025-10-26 21:46:57
+!-- Timestamp: 2025-10-27 17:24:51
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/TODOS/10_SCITEX_SCHOLAR.md
 !-- --- -->
 
+## ATTENTION
 DON'T TELL A LIE
 YOU **MUST** confirm your statement with visual check or user confirmation
 Django server is running with hot reloading
 User is checking the webpage with Ctrl + Shift + R to clear cache
 
-
-### Scholar System TODOs
-
-Fill checkboxes of this file when implemented and confirmed their functionality correctly
+## SciTeX Scholar Module
 
 ## scitex.scholar module is available in ~/proj/scitex_repo/src/scitex/scholar
 
@@ -25,10 +23,8 @@ Fill checkboxes of this file when implemented and confirmed their functionality 
 - [ ] Yes, but your instinct is right; the index html should be index.html instead of index.html
   - [ ] So, after index.html implemented, please 
 
-### Next Steps (Future Enhancements)
-
-
-### /scholar/#search (http://127.0.0.1:8000/scholar/#search)
+### http://127.0.0.1:8000/scholar/#bibtex
+- [ ] Not enriched
 
   - [ ] Save selected to: project (button + dropdown, just in the enrichment tab)
   - [ ] Download selected as Bibtex

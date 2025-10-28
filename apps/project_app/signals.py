@@ -7,10 +7,11 @@
 Django signals for Project app - Gitea integration
 
 Automatically creates Gitea repositories when Django projects are created.
+Automatically deletes Gitea repositories when Django projects are deleted.
 """
 
 import logging
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.conf import settings
 from .models import Project
@@ -74,8 +75,16 @@ def create_gitea_repository(sender, instance, created, **kwargs):
 
         # Ensure Gitea user exists before creating repository
         from apps.gitea_app.services.gitea_sync_service import ensure_gitea_user_exists
-        if not ensure_gitea_user_exists(instance.owner):
-            logger.error(f"Gitea user not found: {instance.owner.username}")
+        from apps.gitea_app.exceptions import GiteaUserCreationError, GiteaConnectionError
+
+        try:
+            ensure_gitea_user_exists(instance.owner)
+        except GiteaConnectionError as e:
+            logger.warning(f"Gitea unavailable when creating user: {e}")
+            logger.info("Project created without Gitea repository. Repository will be created when Gitea becomes available.")
+            return
+        except GiteaUserCreationError as e:
+            logger.error(f"Failed to create Gitea user {instance.owner.username}: {e}")
             logger.error(f"Cannot create repository without Gitea user account")
             return
 
@@ -250,5 +259,56 @@ def track_visibility_change(sender, instance, **kwargs):
             instance._old_visibility = old_instance.visibility
         except Project.DoesNotExist:
             pass
+
+
+@receiver(post_delete, sender=Project)
+def delete_gitea_repository(sender, instance, **kwargs):
+    """
+    Automatically delete Gitea repository when a Django Project is deleted.
+
+    Ensures that deleting a project from SciTeX Cloud also removes the
+    corresponding repository from Gitea to maintain consistency.
+
+    Args:
+        sender: The model class (Project)
+        instance: The Project instance being deleted
+        **kwargs: Additional keyword arguments
+    """
+    # Skip if no Gitea repo associated
+    if not instance.gitea_repo_url or not instance.gitea_repo_id:
+        logger.info(f"No Gitea repository associated with project {instance.slug}, skipping deletion")
+        return
+
+    try:
+        from apps.gitea_app.api_client import GiteaClient, GiteaAPIError
+        import requests.exceptions
+
+        logger.info(f"Deleting Gitea repository for project {instance.slug}")
+
+        # Initialize Gitea client
+        try:
+            client = GiteaClient()
+        except (requests.exceptions.ConnectionError, ConnectionRefusedError) as e:
+            logger.warning(f"Gitea unavailable during project deletion for {instance.slug}: {e}")
+            logger.warning("Gitea repository was NOT deleted. Please manually delete it or use cleanup command.")
+            return
+
+        # Delete repository in Gitea
+        try:
+            client.delete_repository(
+                owner=instance.owner.username,
+                repo=instance.slug
+            )
+            logger.info(f"✓ Gitea repository deleted: {instance.owner.username}/{instance.slug}")
+        except GiteaAPIError as e:
+            logger.warning(f"Gitea repository may not exist or was already deleted: {instance.owner.username}/{instance.slug}")
+            logger.debug(f"Error details: {e}")
+
+    except (requests.exceptions.ConnectionError, ConnectionRefusedError) as e:
+        logger.warning(f"Gitea unavailable for {instance.slug}: Connection refused")
+        logger.warning("Gitea repository was NOT deleted. Please manually delete it or use cleanup command.")
+    except Exception as e:
+        logger.error(f"Failed to delete Gitea repository for {instance.slug}: {e}")
+        logger.exception("Full traceback:")
 
 # EOF

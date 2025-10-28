@@ -11,20 +11,10 @@
       /static/css/common/colors.css
     </span>
   </div>
-  <p class="text-intro">A minimal, semantic color system based on a professional bluish dark gray palette. Simple and consistent across both light and dark modes.</p>
-  
+  <p class="text-intro">Semantic color system with automatic light/dark mode support.</p>
+
   <div class="demo-box">
-    <h3 class="mb-4">SciTeX Color System - Minimal Semantic Tokens</h3>
-    <p>Our simple color system uses theme-aware semantic tokens that automatically adapt to light and dark modes. All token values are mapped to ensure proper contrast and readability.</p>
-
-    <div class="info-box alert alert-info">
-      <strong><i class="fas fa-lightbulb"></i> Simple Approach:</strong>      
-      <span>Two-tier system with primitive tokens (_prefix, internal only) and semantic tokens (public API). Use semantic tokens in your components.</span>
-    </div>
-
-    <!-- Semantic Text Colors -->
-    <h4 class="mt-4 mb-3">Text Colors (Semantic)</h4>
-    <p class="text-muted mb-3">These adapt automatically based on theme (light/dark mode).</p>
+    <h3 class="mb-4">Text Colors</h3>
     <div class="color-palette mb-4">
       <div style="background-color: var(--bg-page); padding: 1rem; border: 1px solid var(--border-default); border-radius: 6px;">
         <strong style="color: var(--text-primary);">--text-primary</strong><br>
@@ -48,9 +38,7 @@
       </div>
     </div>
 
-    <!-- Background Colors -->
-    <h4 class="mt-4 mb-3">Background Colors (Semantic)</h4>
-    <p class="text-muted mb-3">Use these for page backgrounds, surfaces, and containers.</p>
+    <h4 class="mt-4 mb-3">Background Colors</h4>
     <div class="color-palette mb-4" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
       <div style="background-color: var(--bg-page); color: var(--text-primary); padding: 1rem; border: 1px solid var(--border-default); border-radius: 6px;">
         <strong>--bg-page</strong><br>
@@ -69,9 +57,7 @@
       </div>
     </div>
 
-    <!-- Border Colors -->
-    <h4 class="mt-4 mb-3">Border Colors (Semantic)</h4>
-    <p class="text-muted mb-3">Use these for all borders, dividers, and outlines.</p>
+    <h4 class="mt-4 mb-3">Border Colors</h4>
     <div class="color-palette mb-4" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
       <div style="background-color: var(--bg-page); padding: 1rem; border: 2px solid var(--border-default); border-radius: 6px;">
         <strong style="color: var(--text-primary);">--border-default</strong><br>
@@ -83,9 +69,7 @@
       </div>
     </div>
 
-    <!-- Status Colors -->
-    <h4 class="mt-4 mb-3">Status Colors (Semantic)</h4>
-    <p class="text-muted mb-3">For success, warning, error, and info messages.</p>
+    <h4 class="mt-4 mb-3">Status Colors</h4>
     <div class="row">
       <div class="col-md-6 col-lg-3 mb-3">
         <div style="background-color: var(--status-success); color: white; padding: 1.25rem; border-radius: 6px; text-align: center;">
@@ -117,9 +101,7 @@
       </div>
     </div>
 
-    <!-- Brand Colors (Primitives) -->
-    <h4 class="mt-4 mb-3">SciTeX Brand Colors (Bluish Dark Gray Palette)</h4>
-    <p class="text-muted mb-3">These are the foundational primitive colors. Use semantic tokens instead in components.</p>
+    <h4 class="mt-4 mb-3">Brand Colors (Primitives)</h4>
     <div class="color-palette mb-4" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
       <div style="background-color: #1a2332; color: white; padding: 1rem; border-radius: 6px; text-align: center;">
         <strong style="display: block; font-size: 0.9rem;">--_scitex-01</strong>
@@ -159,20 +141,10 @@
       </div>
     </div>
 
-    <!-- Key Principles -->
-    <div style="background-color: var(--bg-surface); border-left: 4px solid var(--border-default); border-radius: 6px; padding: 1.5rem; margin-top: 2rem;">
-      <h5 style="color: var(--text-primary); margin-top: 0; margin-bottom: 1rem; font-size: 1.1rem;">🎯 Key Principles</h5>
-      <ul style="margin-bottom: 0; color: var(--text-secondary); line-height: 1.8;">
-        <li><strong>Use Semantic Tokens:</strong> Always use <code style="background-color: var(--bg-muted); padding: 0.2rem 0.4rem; border-radius: 3px;">--text-primary</code>, <code style="background-color: var(--bg-muted); padding: 0.2rem 0.4rem; border-radius: 3px;">--bg-page</code>, etc. in your components</li>
-        <li><strong>Primitives are Internal:</strong> Tokens with <code style="background-color: var(--bg-muted); padding: 0.2rem 0.4rem; border-radius: 3px;">_</code> prefix are only used in <code>colors.css</code></li>
-        <li><strong>Theme Agnostic:</strong> Same semantic token names work in both light and dark modes automatically</li>
-        <li><strong>Minimal System:</strong> Only use what you need - text, background, border, and status colors</li>
-      </ul>
-    </div>
   </div>
 
-  <div class="demo-box mt-4">
-    <h3 class="mb-3">Current Implementation</h3>
+  <div class="demo-box">
+    <h3 class="mb-3">Usage Guide</h3>
     <pre data-language="css" style="background-color: var(--bg-surface); padding: 1rem; border-radius: 6px; overflow-x: auto;"><code class="language-css">/* Semantic Tokens - use these in components */
 --text-primary           /* Main text */
 --text-secondary         /* Secondary text */

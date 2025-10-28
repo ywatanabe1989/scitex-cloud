@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-27 05:40:22
+!-- Timestamp: 2025-10-27 06:05:58
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/TODOS/10_SCITEX_WRITER.md
 !-- --- -->
@@ -11,14 +11,13 @@
 ## http:/127.0.0.1/writer/
 - [ ] "Initialize Writer Workspace" button doesnot work
 
-## http://127.0.0.1:8000/wataning11/
-- [ ] http://127.0.0.1:8000/wataning11/
-  - [ ] Welcome back message is too bring. Check css.
+## http://127.0.0.1:8000/wataning11/default-project/
+- [ ] CSS not applied
+- [ ] delete file/folder operation not implemented (CRUD operations?)
 
-## http://127.0.0.1:8000/scholar/#search
-I know this concept but now, remove the message
-Improve Your Search Performance!
-Missing API keys for: Pubmed, Google_Scholar, Semantic_Scholar, Crossref. Add them for higher rate limits and more comprehensive results. 
+- [ ] Repository cannot create
+  - [ ] Failed to create repository: Request failed: HTTPConnectionPool(host='localhost', port=3000): Max retries exceeded with url: /api/v1/repos/wataning11/test (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x738f416ec090>: Failed to establish a new connection: [Errno 111] Connection refused'))
+  - [ ] 
 
 ## Future
 

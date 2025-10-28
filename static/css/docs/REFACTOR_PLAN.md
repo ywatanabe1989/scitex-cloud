@@ -69,7 +69,7 @@
 │   ├── typography.css                # Typography styles
 │   ├── buttons.css                   # Button components
 │   ├── forms.css                     # Basic form inputs
-│   ├── checkboxes.css                # 🆕 Checkbox components
+│   ├── checkbox.css                # 🆕 Checkbox components
 │   ├── radios.css                    # 🆕 Radio components
 │   ├── toggles.css                   # 🆕 Toggle switches
 │   ├── cards.css                     # Card components
@@ -119,7 +119,7 @@
 
 /* Import modular components */
 @import './buttons.css';
-@import './checkboxes.css';
+@import './checkbox.css';
 @import './radios.css';
 @import './toggles.css';
 @import './forms.css';
@@ -164,7 +164,7 @@ git checkout -b refactor/css-modular-architecture
 **Tasks:**
 1. ✅ Read and analyze `scitex-components.css` structure
 2. Create modular files:
-   - [ ] `checkboxes.css` - Extract checkbox system (lines 157-233)
+   - [ ] `checkbox.css` - Extract checkbox system (lines 157-233)
    - [ ] `radios.css` - Extract radio system (lines 94-156)
    - [ ] `toggles.css` - Extract toggle system (lines 234-284)
 3. [ ] Update `scitex-components.css` to be an entry point with imports
@@ -175,7 +175,7 @@ git checkout -b refactor/css-modular-architecture
 scitex-components.css:
   Lines 29-93   → buttons.css (already exists, verify consistency)
   Lines 94-156  → radios.css (NEW)
-  Lines 157-233 → checkboxes.css (NEW)
+  Lines 157-233 → checkbox.css (NEW)
   Lines 234-284 → toggles.css (NEW)
   Lines 285-361 → forms.css (verify integration)
   Lines 362-394 → Keep in scitex-components.css (utilities)
@@ -462,7 +462,7 @@ If issues arise:
 - ✅ Buttons (buttons.css) - multiple variants
 - ✅ Forms (forms.css) - inputs, textareas, selects
 - ✅ Cards (cards.css) - basic card system
-- ✅ Checkboxes (checkboxes.css) - custom styled with dark mode
+- ✅ Checkboxes (checkbox.css) - custom styled with dark mode
 - ✅ Radios (radios.css) - segmented control pattern
 - ✅ Toggles (toggles.css) - button-like switches
 - ✅ Badges (in buttons.css)

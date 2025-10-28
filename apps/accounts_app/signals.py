@@ -42,11 +42,13 @@ def create_default_project_for_user(user):
         if Project.objects.filter(owner=user).exists():
             return
 
-        # Create a default project (GitHub-compliant naming: no apostrophes or spaces)
+        # Create a default project for the user
+        # The URL will be /<username>/default-project/ (no numeric suffix needed)
+        # because uniqueness is per-owner, not global
         default_project_name = "default-project"
         default_project = Project.objects.create(
             name=default_project_name,
-            slug=Project.generate_unique_slug(default_project_name),
+            slug=default_project_name,  # Simple slug without numeric suffix
             description=f"Default project for {user.username}",
             owner=user,
             visibility='private'

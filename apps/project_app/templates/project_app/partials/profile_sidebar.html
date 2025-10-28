@@ -16,7 +16,7 @@
     </div>
 
     {% if user.is_authenticated and user == profile_user %}
-    <a href="{% url 'accounts_app:profile_edit' %}" class="btn btn-secondary w-full">
+    <a href="{% url 'accounts_app:profile_edit' %}" class="btn btn-sm">
         <i class="fas fa-cog"></i>
         Edit profile
     </a>
@@ -38,7 +38,7 @@
     </div>
     {% endif %}
 
-    <div class="profile-meta">
+    <div class="profile-meta" style="color: var(--text-secondary);">
         {% if profile_user.profile.institution %}
         <div class="profile-meta-item">
             <i class="fas fa-university"></i>
@@ -59,16 +59,16 @@
         {% endif %}
     </div>
 
-    <div class="profile-stats">
+    <div class="profile-stats" style="color: var(--text-secondary);">
         <div class="profile-stat">
-            <strong>{{ followers_count }}</strong> <a href="#" style="color: var(--color-fg-muted); text-decoration: none;">followers</a>
+            <strong>{{ followers_count }}</strong> <a href="#" style="color: var(--text-secondary); text-decoration: none;">followers</a>
         </div>
         <div class="profile-stat">
-            <strong>{{ following_count }}</strong> <a href="#" style="color: var(--color-fg-muted); text-decoration: none;">following</a>
+            <strong>{{ following_count }}</strong> <a href="#" style="color: var(--text-secondary); text-decoration: none;">following</a>
         </div>
     </div>
 
-    <div class="profile-stats" style="margin-top: 8px;">
+    <div class="profile-stats" style="margin-top: 8px; color: var(--text-secondary);">
         <div class="profile-stat">
             <strong>{{ projects.paginator.count }}</strong> repositories
         </div>

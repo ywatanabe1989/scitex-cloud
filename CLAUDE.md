@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-26 19:28:19
+!-- Timestamp: 2025-10-28 12:38:12
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/CLAUDE.md
 !-- --- -->
@@ -8,7 +8,7 @@
 ## AGENTS DO NEVER EDIT THIS FILE
 ## THE USER IS ONLY ALLOWED TO EDIT THIS FILE. DO NOT MODIFY THIS FILE UNLESS EXPLICITLY ASKED.
 ## GITIGNORE THIS FILE. NEVER UPLOAD TO GITHUB.
-
+## IN DEVELOPMENT (127.0.0.1:8000), DO NOT RUNSERVER. IT IS HANDLED BY ./start_dev.sh and we confirmed auto-hot-reloading enabled.
 ---
 
 ## Subagents
@@ -18,11 +18,11 @@ Launch up to eight agents in parallel when beneficial.
 Based on the following conditions, please proceed development autonomously
 ### Test user
 Create and use this user for testing purposes as you want:
-- Username: test-user, Password: Test-user.
-- Username: ywatanabe, Password: Yusuke8939.
+- Username: test-user, Password: Test-user!
 ### Playwright
-- [ ] MCP available
-- [ ] Screenshot available
+- MCP available
+- Screenshot available
+- However, since this consumes lots of tokens, please use this only when critical
 ## No fake data
 When error raised, show them as alert on the website. Fake operations will raise critical issues.
 ## No comprehensive
@@ -71,21 +71,44 @@ Add console.log for debugging
 ---
 
 # Requests
-- [ ] Cannot creat repository
-
-- [ ] http://localhost:8000/wataning11/default-project/
-  - [ ] CSS Refactoring needed
-
-- [ ] http://localhost:8000/scholar/#bibtex
-- [ ] http://localhost:8000/scholar/#search
-  - [ ] Respect default colors
-  - [ ] The edge of double-edged seekbars are a bit too large
-  - [ ] The double-edged seekbar should be implemented as a central comopnent
-
 - [ ] http://localhost:8000/writer/
-  - [ ] CSS Refactoring needed
-  - [ ] Tex files should be linked to the repository
-  - [ ] View PDF button not working
   - [ ] Initialize writer workspace button not working
+    - [ ] Place it as "initialize with template" in the left panel
+  - [ ] Tex files should be linked to the repository
+    - [ ] Where is it finding?
+- [ ] Editor is something is wrong
+  - [ ] Cursor size is x3 height ...
+
+  - [ ] CSS Refactoring needed
+  - [ ] View PDF button not working
+
+- [ ] http://127.0.0.1:8000/scholar/search/
+  - [ ] Save to project does not get current project
+  - [ ] As the logic is now in project_app side, use it
+
+- [ ] http://127.0.0.1:8000/scholar/bibtex/
+  - [ ] Save to project
+    - [ ] Error: Project has no git repository
+
+- [ ] http://127.0.0.1:8000/new/
+  - [ ] Disable cookie to the repository name
+
+- [ ] Project selector in the header
+  - [ ] Drop down should include special selection: Create New Project
+  - [ ] Remove the two new project buttons in the header
+  - [ ] Place a button "Jump" to the dropdown 
+    - [ ] What is better naming than "Jump"? Files?
+      - [ ] I want to prepare a way to quickly jump to /<username>/<project-name>/
+
+- [ ] http://127.0.0.1:8000/wyusuuke/default-project/
+  - [ ] Child directory not shown properly
+    - [ ] Side panel and main table are corrupted
+  - [ ] The folder icon of the main table too bright
+    - [ ] Use color-theme-applied svg images instead
+
+- [ ] http://127.0.0.1:8000/
+    - [ ] When hovered, elements have different behaviours in the header
+    - [ ] How do you think? THe rich version of the logo is better?
+    - [ ] Anyway, we need consistency across header eleemnts, and the web app entirely
 
 <!-- EOF -->

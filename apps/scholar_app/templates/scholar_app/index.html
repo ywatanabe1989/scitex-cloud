@@ -4,167 +4,9 @@
 {% block title %}SciTeX Scholar - Literature Search{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/components/hero.css' %}">
-<link rel="stylesheet" href="{% static 'css/common/scitex-components.css' %}">
-<link rel="stylesheet" href="{% static 'css/common/terminal-log.css' %}">
 <link rel="stylesheet" href="{% static 'css/common.css' %}">
-<link rel="stylesheet" href="{% static 'css/common/sliders.css' %}">
-<link rel="stylesheet" href="{% static 'scholar_app/styles/scholar-index.css' %}">
-<!-- noUiSlider for proper dual-range sliders -->
+<link rel="stylesheet" href="{% static 'scholar_app/css/index.css' %}">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.css" rel="stylesheet">
-<style>
-    /* Drag-and-Drop Sort Items - Theme Responsive */
-    .sort-item {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px 12px;
-        background: var(--bg-surface);
-        border: 2px solid var(--border-default);
-        border-radius: 6px;
-        cursor: move;
-        user-select: none;
-        transition: all 0.2s ease;
-        font-size: 14px;
-        font-weight: 500;
-        color: var(--text-primary);
-    }
-
-    .sort-item:hover {
-        background: var(--bg-muted);
-        border-color: var(--text-secondary);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        transform: translateY(-1px);
-    }
-
-    .sort-item.dragging {
-        opacity: 0.5;
-        transform: scale(0.95);
-    }
-
-    .sort-item.drag-over {
-        border-color: var(--text-primary);
-        border-style: dashed;
-    }
-
-    .sort-item[data-state="asc"] {
-        background: var(--text-secondary);
-        border-color: var(--text-primary);
-        color: var(--text-inverse);
-    }
-
-    .sort-item[data-state="desc"] {
-        background: var(--text-muted);
-        border-color: var(--text-secondary);
-        color: var(--text-inverse);
-    }
-
-    .sort-item[data-state="none"] {
-        opacity: 0.6;
-    }
-
-    .drag-handle {
-        color: var(--text-secondary);
-        cursor: grab;
-        display: flex;
-        align-items: center;
-    }
-
-    .drag-handle:active {
-        cursor: grabbing;
-    }
-
-    .sort-item[data-state="asc"] .drag-handle,
-    .sort-item[data-state="desc"] .drag-handle {
-        color: var(--text-inverse);
-    }
-
-    .sort-label {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        cursor: pointer;
-    }
-
-    .sort-indicator {
-        font-size: 16px;
-        font-weight: bold;
-        min-width: 20px;
-        text-align: center;
-    }
-
-    .sort-item[data-state="asc"] .sort-indicator::before {
-        content: "↑";
-    }
-
-    .sort-item[data-state="desc"] .sort-indicator::before {
-        content: "↓";
-    }
-
-    .sort-item[data-state="none"] .sort-indicator::before {
-        content: "○";
-    }
-
-    /* Tab navigation now uses standardized .scitex-tabs component from design system */
-
-    .vertical-tab-content-container {
-        padding: 24px;
-        min-height: 400px;
-    }
-
-    .vertical-tab-content {
-        display: none;
-    }
-
-    .vertical-tab-content.active {
-        display: block;
-        animation: fadeIn 0.3s ease-in;
-    }
-
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    /* Enhance search input styling */
-    .scholar-search-input {
-        border: 1px solid var(--color-border-default) !important;
-        border-radius: 6px;
-        transition: all 0.2s ease;
-    }
-
-    .scholar-search-input:focus {
-        border-color: var(--scitex-color-03);
-        box-shadow: 0 0 0 3px rgba(79, 90, 102, 0.1);
-        outline: none;
-    }
-
-    .scholar-search-input:hover:not(:focus) {
-        border-color: var(--color-border-muted);
-    }
-
-    /* Ensure search form has proper styling */
-    .scholar-search-form input[type="text"],
-    .scholar-search-form input[type="search"] {
-        border: 1px solid var(--color-border-default) !important;
-        border-radius: 6px;
-        padding: 8px 12px;
-        transition: all 0.2s ease;
-    }
-
-    .scholar-search-form input[type="text"]:focus,
-    .scholar-search-form input[type="search"]:focus {
-        border-color: var(--scitex-color-03);
-        box-shadow: 0 0 0 3px rgba(79, 90, 102, 0.1);
-        outline: none;
-    }
-</style>
 {% endblock %}
 
 {% block extra_js %}
@@ -173,10 +15,10 @@
 
 {% block content %}
 <!-- Vertical Tab Layout -->
-<div class="u-mt-2 u-mb-3" style="max-width: 100%; padding: 0 2rem;">
-  <div class="vertical-tab-container" style="max-width: 100%;">
+<div class="u-mt-2 u-mb-3">
+  <div class="vertical-tab-container" style="width: 100%;">
     <!-- Vertical Tab Navigation -->
-    <div class="scitex-tabs">
+    <div class="scitex-tabs" style="padding: 0 2rem;">
       <a href="#bibtex" class="scitex-tab tab-link" data-tab="bibtex">
         <i class="fas fa-file-code"></i>
         <span>BibTeX Enrichment</span>
@@ -188,15 +30,15 @@
     </div>
 
     <!-- Tab Content Container -->
-    <div class="vertical-tab-content-container" style="width: 100%; max-width: 100%; overflow: visible;">
+    <div class="vertical-tab-content-container" style="width: 100%; overflow-x: auto; overflow-y: visible;">
       <!-- BibTeX Enrichment Tab -->
-      <div class="vertical-tab-content {% if active_tab == 'bibtex' %}active{% endif %}" id="bibtex-tab" data-tab="bibtex" style="width: 100%; max-width: 100%; overflow: visible;">
-        {% include "scholar_app/index_partials/enrich.html" %}
+      <div class="vertical-tab-content {% if active_tab == 'bibtex' %}active{% endif %}" id="bibtex-tab" data-tab="bibtex" style="width: 100%; overflow: visible;">
+        {% include "scholar_app/bibtex_partials/enrich.html" %}
       </div>
 
       <!-- Literature Search Tab -->
       <div class="vertical-tab-content {% if active_tab == 'search' %}active{% endif %}" id="search-tab" data-tab="search">
-        {% include "scholar_app/index_partials/search.html" with show_results=True %}
+        {% include "scholar_app/search_partials/search.html" with show_results=True %}
       </div>
     </div>
   </div>
@@ -252,144 +94,25 @@
     }
   });
   {% endif %}
-
-  // Project Selector Handler
-  document.addEventListener('DOMContentLoaded', function() {
-    const projectSelector = document.getElementById('project-selector');
-    if (projectSelector) {
-      // Store selected project in sessionStorage for use by save functions
-      projectSelector.addEventListener('change', function() {
-        if (this.value) {
-          sessionStorage.setItem('scholar_selected_project_id', this.value);
-          console.log('[Scholar] Selected project ID:', this.value);
-        } else {
-          sessionStorage.removeItem('scholar_selected_project_id');
-          console.log('[Scholar] Cleared project selection');
-        }
-      });
-
-      // Initialize from sessionStorage on page load
-      const savedProjectId = sessionStorage.getItem('scholar_selected_project_id');
-      if (savedProjectId) {
-        projectSelector.value = savedProjectId;
-      }
-    }
-  });
 </script>
-<!-- noUiSlider JavaScript Library -->
+<!-- Common Scripts -->
+<script src="{% static 'scholar_app/scripts/common/project-selector.js' %}"></script>
+<script src="{% static 'scholar_app/scripts/common/init-tabs.js' %}"></script>
+<!-- External Libraries -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.js"></script>
-<!-- Plotly.js for Interactive Visualizations -->
 <script src="https://cdn.plot.ly/plotly-2.27.0.min.js" charset="utf-8"></script>
-<!-- noUiSlider Initialization -->
-<script src="{% static 'scholar_app/scripts/nouislider-init.js' %}"></script>
-<!-- Panel Toggle Functionality -->
-<script src="{% static 'scholar_app/scripts/panel-toggle.js' %}"></script>
-<!-- SciTeX Search Integration -->
-<script src="{% static 'scholar_app/scripts/scitex-search.js' %}?v=20251027-fix-infinite-loop"></script>
-<!-- BibTeX Enrichment -->
-<script src="{% static 'scholar_app/scripts/bibtex-enrichment.js' %}"></script>
-<!-- Queue Management -->
-<script src="{% static 'scholar_app/scripts/queue-management.js' %}?v=20251027-fix-polling-debug"></script>
-<!-- Advanced Sorting and Selection -->
-<script src="{% static 'scholar_app/scripts/advanced-sorting.js' %}"></script>
-<!-- Drag-and-Drop Sorting -->
-<script src="{% static 'scholar_app/scripts/drag-sort.js' %}"></script>
-<!-- Swarm Plot Visualization -->
-<script src="{% static 'scholar_app/scripts/swarm-plots.js' %}?v=20251022-dynamic"></script>
-<!-- Main Scholar Index Functionality -->
-<script src="{% static 'scholar_app/scripts/scholar-index-main.js' %}"></script>
-
-<!-- Smooth Tab Switching with Hash-Based Navigation -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const tabLinks = document.querySelectorAll('.tab-link');
-    const tabContents = document.querySelectorAll('.vertical-tab-content');
-
-    // Function to switch tabs smoothly
-    function switchTab(targetTab) {
-        // Remove active class from all tabs and contents
-        tabLinks.forEach(link => {
-            link.classList.remove('active');
-            link.classList.remove('scitex-tab-active');
-        });
-        tabContents.forEach(content => content.classList.remove('active'));
-
-        // Add active class to target tab and content
-        const targetLink = document.querySelector(`.tab-link[data-tab="${targetTab}"]`);
-        const targetContent = document.getElementById(`${targetTab}-tab`);
-
-        if (targetLink) {
-            targetLink.classList.add('active');
-            targetLink.classList.add('scitex-tab-active');
-        }
-        if (targetContent) targetContent.classList.add('active');
-
-        // Focus search input when switching to search tab
-        if (targetTab === 'search') {
-            setTimeout(() => {
-                const searchInput = document.querySelector('#search-tab input[name="q"]');
-                if (searchInput) {
-                    searchInput.focus();
-                    console.log('[Tab Switcher] Focused search input');
-                }
-            }, 100); // Small delay to ensure tab is visible
-        }
-
-        console.log('[Tab Switcher] Switched to:', targetTab);
-    }
-
-    // Handle hash changes (browser back/forward, direct hash navigation)
-    window.addEventListener('hashchange', function() {
-        const hash = window.location.hash.substring(1); // Remove the '#'
-        if (hash === 'bibtex' || hash === 'search') {
-            switchTab(hash);
-        }
-    });
-
-    // Initialize correct tab based on hash, query params, or default
-    function initializeTab() {
-        const hash = window.location.hash.substring(1);
-        const urlParams = new URLSearchParams(window.location.search);
-        const hasSearchQuery = urlParams.get('q') !== null && urlParams.get('q').trim() !== '';
-
-        let initialTab = 'bibtex'; // Default tab
-
-        // Priority 1: If there's a search query, always show search tab
-        if (hasSearchQuery) {
-            initialTab = 'search';
-        }
-        // Priority 2: Use hash if valid
-        else if (hash === 'search' || hash === 'bibtex') {
-            initialTab = hash;
-        }
-        // Priority 3: Use Django template context
-        else if ('{{ active_tab }}' && '{{ active_tab }}' !== '') {
-            initialTab = '{{ active_tab }}';
-        }
-
-        // Update hash to match the tab
-        window.location.hash = initialTab;
-
-        switchTab(initialTab);
-    }
-
-    initializeTab();
-
-    // Enable Enter key to submit search form
-    const searchInput = document.querySelector('#search-tab input[name="q"]');
-    const searchForm = document.getElementById('literatureSearchForm');
-
-    if (searchInput && searchForm) {
-        searchInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                searchForm.submit();
-                console.log('[Search] Form submitted via Enter key');
-            }
-        });
-    }
-});
-</script>
+<!-- BibTeX Scripts -->
+<script src="{% static 'scholar_app/scripts/bibtex/bibtex-enrichment.js' %}"></script>
+<script src="{% static 'scholar_app/scripts/bibtex/queue-management.js' %}?v=20251027-fix-polling-debug"></script>
+<!-- Search Scripts -->
+<script src="{% static 'scholar_app/scripts/search/nouislider-init.js' %}"></script>
+<script src="{% static 'scholar_app/scripts/search/panel-toggle.js' %}"></script>
+<script src="{% static 'scholar_app/scripts/search/scitex-search.js' %}?v=20251027-fix-infinite-loop"></script>
+<script src="{% static 'scholar_app/scripts/search/advanced-sorting.js' %}"></script>
+<script src="{% static 'scholar_app/scripts/search/drag-sort.js' %}"></script>
+<script src="{% static 'scholar_app/scripts/search/swarm-plots.js' %}?v=20251022-dynamic"></script>
+<script src="{% static 'scholar_app/scripts/search/scholar-index-main.js' %}"></script>
+<script src="{% static 'scholar_app/scripts/search/seekbar-integration.js' %}"></script>
 
 {% endblock %}
 

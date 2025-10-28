@@ -76,7 +76,6 @@ from .main_views import (
 from .editor_views import (
     index,  # Project-based editor with workspace initialization
     get_or_create_guest_user,
-    get_or_create_default_project,
     ensure_writer_directory,
     simple_editor,
     modular_editor,
@@ -84,6 +83,9 @@ from .editor_views import (
     mock_save,
     initialize_workspace,
 )
+
+# Use centralized project getter from project_app
+from apps.project_app.services import get_or_create_default_project
 
 # Workspace views (default workspace for users)
 from .workspace_views import (

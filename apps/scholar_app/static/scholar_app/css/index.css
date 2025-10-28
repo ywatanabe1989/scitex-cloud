@@ -1,0 +1,27 @@
+/*
+ * Scholar Index Page Styles - Main Entry Point
+ *
+ * Architecture:
+ * - Layout & Positioning: Kept as app-specific CSS (display, flex, spacing)
+ * - Theming & Colors: Commented out to defer to central CSS files
+ *
+ * Central CSS Files Used:
+ * - /static/css/common.css (text colors, backgrounds, borders)
+ * - /static/css/common/*.css (component-specific styles)
+ * - /static/css/components/*.css (buttons, forms, toggles)
+ *
+ * This file imports all Scholar app-specific CSS modules:
+ * 1. Common styles (shared between search and bibtex)
+ * 2. BibTeX-specific styles
+ * 3. Search-specific styles
+ *
+ * CSS Guidelines:
+ * - All color/background/border-radius styles are commented out
+ * - Padding/margin/spacing values are preserved in app CSS
+ * - Layout properties (display, flex, position) are kept uncommented
+ */
+
+/* Import Scholar app CSS modules */
+@import url('common.css');
+@import url('bibtex.css');
+@import url('search.css');

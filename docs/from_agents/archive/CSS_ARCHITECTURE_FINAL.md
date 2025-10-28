@@ -28,7 +28,7 @@
 │   ├── badges.css
 │   ├── toggles.css
 │   ├── radios.css
-│   ├── checkboxes.css
+│   ├── checkbox.css
 │   ├── select.css
 │   ├── sliders.css
 │   ├── file-upload.css

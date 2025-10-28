@@ -32,8 +32,10 @@ urlpatterns = [
     # Default workspace for logged-in users without project
     path('workspace/', workspace_views.user_default_workspace, name='user_default_workspace'),
 
-    # MVP Simple Interface - Hash-based navigation for tabs (#bibtex, #search)
+    # MVP Simple Interface - Separate pages instead of tabs
     path('', search_views.index, name='index'),
+    path('bibtex/', search_views.scholar_bibtex, name='scholar_bibtex'),
+    path('search/', search_views.scholar_search, name='scholar_search'),
     # path('search/', search_views.simple_search, name='simple_search'),
     # path('project/<int:project_id>/search/', search_views.project_search, name='project_search'),
     # path('project/<int:project_id>/library/', search_views.project_library, name='project_library'),
@@ -43,6 +45,8 @@ urlpatterns = [
 
     # MVP API endpoints
     path('api/save-paper/', search_views.save_paper, name='save_paper'),
+    path('api/papers/save/', search_views.save_paper, name='papers_save'),  # RESTful endpoint
+    path('api/papers/save-bulk/', search_views.save_papers_bulk, name='papers_save_bulk'),  # Bulk save endpoint
     path('api/upload-file/', search_views.upload_file, name='upload_file'),
     path('api/get-citation/', search_views.get_citation, name='get_citation'),
 

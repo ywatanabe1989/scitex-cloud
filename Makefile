@@ -1,114 +1,131 @@
-# SciTeX Cloud - Docker Commands
-.PHONY: help build up down restart logs shell migrate collectstatic createsuperuser test clean
+# SciTeX Cloud - Development Commands
+# DOCKER-AWARE: Automatically runs Django commands inside Docker containers
+.PHONY: help setup build restart logs django-migrate django-makemigrations django-shell django-createsuperuser django-collectstatic test clean rebuild docker-exec db-shell db-reset
 
-DOCKER_DIR = containers/docker
-COMPOSE = docker-compose -f $(DOCKER_DIR)/docker-compose.yml
-COMPOSE_PROD = docker-compose -f $(DOCKER_DIR)/docker-compose.prod.yml
+.DEFAULT_GOAL := help
+
+# Detect if Docker is running and containers are active
+DOCKER_RUNNING := $(shell docker ps -q 2>/dev/null | grep -q . && echo 1 || echo 0)
+DOCKER_COMPOSE_DIR := containers/docker
 
 help:
-	@echo "SciTeX Cloud - Docker Commands"
+	@echo "╔═══════════════════════════════════════════════════════╗"
+	@echo "║         SciTeX Cloud - Development Commands           ║"
+	@echo "╚═══════════════════════════════════════════════════════╝"
 	@echo ""
-	@echo "Setup:"
-	@echo "  make setup          - Initial setup (build + migrate + collectstatic)"
+	@echo "🚀 Setup & Build:"
+	@echo "  make setup              - Initial setup (build + django-migrate + django-collectstatic)"
+	@echo "  make build              - Start development environment"
+	@echo "  make restart            - Restart services"
+	@echo "  make rebuild            - Clean rebuild (stops and starts everything)"
 	@echo ""
-	@echo "Development:"
-	@echo "  make build          - Build Docker images"
-	@echo "  make up             - Start all services"
-	@echo "  make down           - Stop all services"
-	@echo "  make restart        - Restart all services"
-	@echo "  make logs           - View logs (all services)"
-	@echo "  make logs-web       - View web logs only"
+	@echo "🐍 Django Management:"
+	@echo "  make django-migrate            - Run database migrations"
+	@echo "  make django-makemigrations     - Create new migrations"
+	@echo "  make django-shell              - Open Django shell"
+	@echo "  make django-createsuperuser    - Create superuser account"
+	@echo "  make django-collectstatic      - Collect static files"
 	@echo ""
-	@echo "Django:"
-	@echo "  make shell          - Django shell"
-	@echo "  make migrate        - Run migrations"
-	@echo "  make makemigrations - Create migrations"
-	@echo "  make collectstatic  - Collect static files"
-	@echo "  make createsuperuser - Create superuser"
+	@echo "🗄️  Database:"
+	@echo "  make db-shell           - PostgreSQL shell (inside Docker)"
+	@echo "  make db-reset           - Reset database (⚠️  DELETES ALL DATA)"
 	@echo ""
-	@echo "Database:"
-	@echo "  make dbshell        - PostgreSQL shell"
-	@echo "  make dbreset        - Reset database (WARNING: deletes data)"
+	@echo "🧪 Testing & Maintenance:"
+	@echo "  make test               - Run test suite"
+	@echo "  make clean              - Clean Python cache files"
+	@echo "  make logs               - View application logs"
 	@echo ""
-	@echo "Maintenance:"
-	@echo "  make test           - Run tests"
-	@echo "  make clean          - Clean volumes and containers"
-	@echo "  make rebuild        - Clean build and restart"
+	@echo "Note: Django commands automatically run inside Docker containers."
+	@echo "      Make sure 'make build' or './start_dev.sh -a start' has been run first."
+	@echo ""
 
-# Initial setup
-setup: build up migrate collectstatic
-	@echo "✅ Setup complete! Access at http://localhost:8000"
-	@echo "Create superuser: make createsuperuser"
+# ═══════════════════════════════════════════════════════════════
+# 🚀 Setup & Build Commands
+# ═══════════════════════════════════════════════════════════════
 
-# Build
+setup: build django-migrate django-collectstatic
+	@echo "✅ Setup complete!"
+
 build:
-	$(COMPOSE) build
+	bash ./containers/docker/start_dev.sh -a start
 
-# Start
-up:
-	$(COMPOSE) up -d
-	@echo "Services started. Logs: make logs"
-
-# Stop
-down:
-	$(COMPOSE) down
-
-# Restart
 restart:
-	$(COMPOSE) restart
+	bash ./containers/docker/start_dev.sh -a restart
 
-# Logs
-logs:
-	$(COMPOSE) logs -f
+rebuild: clean build django-migrate django-collectstatic
+	@echo "✅ Rebuild complete!"
 
-logs-web:
-	$(COMPOSE) logs -f web
+# ═══════════════════════════════════════════════════════════════
+# 🐍 Django Management Commands (run inside Docker)
+# ═══════════════════════════════════════════════════════════════
 
-# Django shell
-shell:
-	$(COMPOSE) exec web python manage.py shell
-
-# Migrations
-migrate:
-	$(COMPOSE) exec web python manage.py migrate
-
-makemigrations:
-	$(COMPOSE) exec web python manage.py makemigrations
-
-# Static files
-collectstatic:
-	$(COMPOSE) exec web python manage.py collectstatic --noinput
-
-# Create superuser
-createsuperuser:
-	$(COMPOSE) exec web python manage.py createsuperuser
-
-# Database shell
-dbshell:
-	$(COMPOSE) exec db psql -U scitex -d scitex_cloud
-
-# Reset database (WARNING: destructive)
-dbreset:
-	@echo "⚠️  WARNING: This will delete all data!"
-	@read -p "Are you sure? [y/N] " -n 1 -r; \
-	echo; \
-	if [[ $$REPLY =~ ^[Yy]$$ ]]; then \
-		$(COMPOSE) down -v; \
-		$(COMPOSE) up -d db; \
-		sleep 5; \
-		$(COMPOSE) exec web python manage.py migrate; \
-		echo "✅ Database reset complete"; \
+# Helper target to verify Docker containers are running
+docker-check-health:
+	@if ! docker ps | grep -q docker-web-1; then \
+		echo "❌ Web container (docker-web-1) is not running!"; \
+		echo "Run 'make build' or './containers/docker/start_dev.sh -a start' first."; \
+		exit 1; \
 	fi
 
-# Testing
-test:
-	$(COMPOSE) exec web python manage.py test
+django-migrate: docker-check-health
+	docker compose -f $(DOCKER_COMPOSE_DIR)/docker-compose.dev.yml exec -T web python manage.py migrate
+	@echo "✅ Migrations applied successfully"
 
-# Clean up
+django-makemigrations: docker-check-health
+	docker compose -f $(DOCKER_COMPOSE_DIR)/docker-compose.dev.yml exec -T web python manage.py makemigrations
+	@echo "✅ Migrations created successfully"
+
+django-shell: docker-check-health
+	docker compose -f $(DOCKER_COMPOSE_DIR)/docker-compose.dev.yml exec web python manage.py shell
+
+django-createsuperuser: docker-check-health
+	docker compose -f $(DOCKER_COMPOSE_DIR)/docker-compose.dev.yml exec web python manage.py createsuperuser
+
+django-collectstatic: docker-check-health
+	docker compose -f $(DOCKER_COMPOSE_DIR)/docker-compose.dev.yml exec -T web python manage.py collectstatic --noinput
+	@echo "✅ Static files collected"
+
+# ═══════════════════════════════════════════════════════════════
+# 🗄️  Database Commands (run inside Docker)
+# ═══════════════════════════════════════════════════════════════
+
+db-shell: docker-check-health
+	docker compose -f $(DOCKER_COMPOSE_DIR)/docker-compose.dev.yml exec db psql -U $$POSTGRES_USER -d $$POSTGRES_DB
+
+db-reset: docker-check-health
+	@echo "⚠️  WARNING: This will DELETE ALL DATA in the database!"
+	@read -p "Are you absolutely sure? Type 'yes' to confirm: " confirm && \
+	[ "$$confirm" = "yes" ] && \
+	(echo "Resetting database..." && \
+	docker compose -f $(DOCKER_COMPOSE_DIR)/docker-compose.dev.yml exec -T web python manage.py migrate zero && \
+	docker compose -f $(DOCKER_COMPOSE_DIR)/docker-compose.dev.yml exec -T web python manage.py migrate && \
+	echo "✅ Database reset complete") || \
+	echo "❌ Database reset cancelled"
+
+# ═══════════════════════════════════════════════════════════════
+# 🧪 Testing & Maintenance
+# ═══════════════════════════════════════════════════════════════
+
+test: docker-check-health
+	docker compose -f $(DOCKER_COMPOSE_DIR)/docker-compose.dev.yml exec -T web python manage.py test
+	@echo "✅ Tests completed"
+
+logs:
+	@echo "📋 Docker Compose Logs:"
+	docker compose -f $(DOCKER_COMPOSE_DIR)/docker-compose.dev.yml logs -f
+
+logs-web:
+	docker compose -f $(DOCKER_COMPOSE_DIR)/docker-compose.dev.yml logs -f web
+
+logs-db:
+	docker compose -f $(DOCKER_COMPOSE_DIR)/docker-compose.dev.yml logs -f db
+
+logs-gitea:
+	docker compose -f $(DOCKER_COMPOSE_DIR)/docker-compose.dev.yml logs -f gitea
+
 clean:
-	$(COMPOSE) down -v
-	docker system prune -f
-
-# Rebuild from scratch
-rebuild: clean build up migrate collectstatic
-	@echo "✅ Rebuild complete!"
+	@echo "🧹 Cleaning up..."
+	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
+	find . -type f -name "*.pyc" -delete
+	find . -type d -name .pytest_cache -exec rm -rf {} + 2>/dev/null || true
+	@echo "✅ Cleanup complete"
