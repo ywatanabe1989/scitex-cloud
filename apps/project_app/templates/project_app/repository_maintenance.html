@@ -654,22 +654,24 @@ function executeAction() {
     if (!pendingAction) return;
 
     const { type, name } = pendingAction;
+    let projectName = pendingAction.projectName || name;
 
     if (type === 'restore') {
-        // Get the project name from the input field
+        // Get the project name from the input field BEFORE closing dialog
         const input = document.getElementById('restore-project-name-input');
         if (input) {
-            pendingAction.projectName = input.value.trim();
+            projectName = input.value.trim();
         }
-        closeDialog();
-        restoreRepository(name, pendingAction.projectName);
-    } else {
-        closeDialog();
-        if (type === 'delete') {
-            deleteRepository(name);
-        } else if (type === 'sync') {
-            syncRepository(name);
-        }
+    }
+
+    closeDialog();
+
+    if (type === 'restore') {
+        restoreRepository(name, projectName);
+    } else if (type === 'delete') {
+        deleteRepository(name);
+    } else if (type === 'sync') {
+        syncRepository(name);
     }
 }
 
