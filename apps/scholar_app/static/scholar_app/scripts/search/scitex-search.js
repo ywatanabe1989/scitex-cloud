@@ -1214,7 +1214,7 @@ function saveToLibrary(button) {
     const isAuthenticated = document.body.dataset.userAuthenticated === 'true';
     if (!isAuthenticated) {
         if (confirm('To save papers to a project, you need to sign in.\n\nWould you like to sign in now?')) {
-            window.location.href = '/accounts/signin/?next=' + encodeURIComponent(window.location.pathname);
+            window.location.href = '/auth/signin/?next=' + encodeURIComponent(window.location.pathname);
         }
         return;
     }
@@ -1282,7 +1282,7 @@ function saveSelectedToProject() {
     const isAuthenticated = document.body.dataset.userAuthenticated === 'true';
     if (!isAuthenticated) {
         if (confirm('To save papers to a project, you need to sign in.\n\nWould you like to sign in now?')) {
-            window.location.href = '/accounts/signin/?next=' + encodeURIComponent(window.location.pathname);
+            window.location.href = '/auth/signin/?next=' + encodeURIComponent(window.location.pathname);
         }
         return;
     }
@@ -1631,12 +1631,10 @@ window.confirmPaperProjectSave = function() {
  */
 async function savePaperToProject(paperData, projectId) {
     try {
-        // Show loading state
-        const saveBtn = event.target;
-        if (saveBtn) {
-            saveBtn.disabled = true;
-            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-        }
+        // Note: event object is not available here since this is called from a modal confirmation
+        // The save button state will be managed by the modal closing instead
+
+        // Show loading indicator (optional - modal will close after save)
 
         // API call to save paper
         const response = await fetch('/scholar/api/papers/save/', {
@@ -1656,6 +1654,8 @@ async function savePaperToProject(paperData, projectId) {
         if (result.success) {
             // Show success message
             alert(`Paper "${paperData.title}" saved to project successfully!`);
+            // Close the modal after successful save
+            window.closePaperProjectModal();
         } else {
             alert('Failed to save paper: ' + (result.error || 'Unknown error'));
         }
@@ -1772,12 +1772,8 @@ window.confirmBulkProjectSave = async function() {
     console.log('[SciTeX Search] Saving', papers.length, 'papers to project:', projectId);
 
     try {
-        // Show loading state
-        const saveBtn = event.target;
-        if (saveBtn) {
-            saveBtn.disabled = true;
-            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-        }
+        // Note: event object is not available here since this is called from a modal confirmation
+        // The save button state will be managed by the modal closing instead
 
         // API call to save papers
         const response = await fetch('/scholar/api/papers/save-bulk/', {

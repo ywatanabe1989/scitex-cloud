@@ -15,10 +15,23 @@ class ScholarSeekbarIntegration {
     }
 
     init() {
+        // Guard against multiple initializations
+        if (window.__scholarSeekbarInitialized) {
+            console.log('[ScholarSeekbar] Already initialized, skipping');
+            return;
+        }
+        window.__scholarSeekbarInitialized = true;
+
         console.log('[ScholarSeekbar] Initializing seekbar integration...');
 
         // Check if we should use ScitexSeekbar or fall back to noUiSlider
         const useScitexSeekbar = document.querySelector('[data-use-scitex-seekbar="true"]');
+
+        // Skip initialization if sliders are already initialized by noUiSlider
+        if (document.getElementById('yearSlider')?.noUiSlider) {
+            console.log('[ScholarSeekbar] noUiSlider already initialized, skipping ScitexSeekbar');
+            return;
+        }
 
         if (useScitexSeekbar && typeof ScitexSeekbar !== 'undefined') {
             this.initScitexSeekbars();

@@ -7,11 +7,11 @@
 
 /* Sidebar Container */
 .writer-sidebar {
-    width: 280px;
-    min-width: 280px;
+    width: 0;
+    min-width: 0;
     background: var(--color-canvas-default);
-    border-right: 1px solid var(--color-border-default);
-    display: flex;
+    border-right: none;
+    display: none;
     flex-direction: column;
     overflow: hidden;
     transition: width 0.3s ease, min-width 0.3s ease;

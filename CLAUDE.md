@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-28 14:11:22
+!-- Timestamp: 2025-10-28 15:00:24
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/CLAUDE.md
 !-- --- -->
@@ -72,19 +72,22 @@ Add console.log for debugging
 
 # Requests
 - [ ] http://localhost:8000/writer/
+  - [ ] Compilation failed
+Compile script not found
+  - [ ] Split view does not apply syntax highlight, and even light/dark theme ignored
+
+
+
   - [ ] The UI/UX of writer is quite aweful compaired to their potentials
     - [ ] Please check it and revise accordingly
-    - [ ] Why the latex editor does not use this default one?
-      http://127.0.0.1:8000/dev/design/code-blocks/
-
-- [ ] http://127.0.0.1:8000/scholar/
-  - [ ] Recommended badges for scholar/enrichment should be "Success" instead of bluish color
-  http://127.0.0.1:8000/dev/design/badge/
 
 - [ ] http://127.0.0.1:8000/scholar/search/
-  - [x] When save button clicked, it shows "Please enter a search query.", which is annoying
-    - [ ] This is solved but why the search results disappear?
-  - [ ] To use space effectively, show the Cite, Save, DOI, Engine badges in a row in cards
+  - [ ] When save button clicked, searched results disappear from the page
+    - [ ] This prompt shown but search results disappear
+Select Project
+Choose a project to save this paper:
+
+  - [ ] To use space effectively, show the Cite, Save, DOI, Engine badges in the same row in each card
   - [ ] Filtering seekbar should use our brand theme colors
   - [ ] Filtering does not show data in online manner
     - [x] Hues for all three scatters should be synced
@@ -103,8 +106,8 @@ Add console.log for debugging
 
 ## WIP
 - [ ] http://127.0.0.1:8000/wyusuuke/default-project/
-  - [ ] Root directory is okay
-  - [ ] Child directory (e.g., http://127.0.0.1:8000/wyusuuke/default-project/.git/) not shown properly
+  - [ ] Layout of Root directory is okay
+  - [ ] Layout of Child directories (e.g., http://127.0.0.1:8000/wyusuuke/default-project/.git/) not shown properly, corrupted
     - [ ] Side panel and main table are corrupted
   - [ ] The folder icon of the main table too bright
     - [ ] Use color-theme-applied svg images instead

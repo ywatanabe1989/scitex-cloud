@@ -184,6 +184,37 @@ html {
     font-size: 0.75rem;
 }
 
+/* Action badge buttons (Cite, Save) */
+.badge-chip.badge-action {
+    background: transparent;
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    padding: 0.35rem 0.65rem;
+}
+
+.badge-chip.badge-action:hover {
+    background: var(--scitex-color-04);
+    color: white;
+    border-color: var(--scitex-color-04);
+}
+
+.badge-chip.badge-action:active {
+    transform: scale(0.95);
+}
+
+[data-theme="dark"] .badge-chip.badge-action {
+    background: transparent;
+    color: var(--text-primary);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="dark"] .badge-chip.badge-action:hover {
+    background: var(--scitex-color-04);
+    color: white;
+    border-color: var(--scitex-color-04);
+}
+
 .badge-chip.badge-success {
     background: rgba(40, 167, 69, 0.1);
     color: #28a745;
