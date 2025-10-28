@@ -26,7 +26,7 @@
   border: 1px solid var(--border-default);
   border-radius: 6px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  line-height: 1.5 !important;
+  line-height: 1.2 !important;
   overflow: hidden; /* Changed from auto to hidden to prevent double scrollbars */
   background: var(--bg-page, #ffffff) !important;
   font-family: var(--mono-font-family, ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, Monaco, monospace) !important;
