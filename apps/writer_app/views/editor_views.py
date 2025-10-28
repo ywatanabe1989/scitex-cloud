@@ -110,11 +110,25 @@ def ensure_writer_directory(project):
 
         return writer_dir  # Return absolute path to writer directory
 
-    # Create writer directory on-demand using scitex.writer.Writer
+    # Create writer directory on-demand
     logger.info(f"Creating writer directory on-demand for project: {project.name}")
 
     try:
-        # Determine git strategy
+        # Create the minimal directory structure needed for writer
+        # (Don't use Writer class directly since we're creating a subdirectory in an existing project)
+        writer_dir.mkdir(parents=True, exist_ok=True)
+        for subdir in ["01_manuscript/contents", "02_supplementary/contents", "03_revision/contents", "shared"]:
+            (writer_dir / subdir).mkdir(parents=True, exist_ok=True)
+
+        logger.info(f"✓ Created writer directory structure: {writer_dir}")
+
+        # Verify the directory was actually created
+        if not writer_dir.exists() or not (writer_dir / "01_manuscript").exists():
+            logger.error(f"Failed to create directories at {writer_dir}")
+            raise Exception(f"Writer initialization failed - directories not created at {writer_dir}")
+
+        # Initialize Writer instance to set up git (if needed)
+        # We pass the writer_dir with git_strategy appropriate for the project
         project_root = base_dir
         has_git = (project_root / '.git').exists()
 
@@ -127,17 +141,16 @@ def ensure_writer_directory(project):
             git_strategy = 'child'
             logger.info(f"Using git_strategy='child' (no parent git found)")
 
-        # Use Writer class to create project structure with appropriate git strategy
-        # Note: Don't pass 'name' - writer_dir already specifies the exact directory to use
-        writer = Writer(writer_dir, git_strategy=git_strategy)
-
-        # Verify the directory was actually created (Writer class may fail silently)
-        if not writer_dir.exists() or not (writer_dir / "01_manuscript").exists():
-            logger.error(f"Writer class failed to create directories at {writer_dir}")
-            raise Exception(f"Writer initialization failed - directories not created at {writer_dir}")
-
-        logger.info(f"✓ Created writer directory using scitex.writer.Writer: {writer_dir}")
-        logger.info(f"✓ Git root: {writer.git_root}")
+        # Initialize Writer to set up git (the directories already exist)
+        try:
+            writer = Writer(writer_dir, git_strategy=git_strategy)
+            logger.info(f"✓ Writer instance initialized with git_strategy='{git_strategy}'")
+            if writer.git_root:
+                logger.info(f"✓ Git root: {writer.git_root}")
+        except Exception as writer_error:
+            # Writer initialization failed, but directories are already created
+            # This is acceptable - the writer can work without git
+            logger.warning(f"Writer git initialization failed (non-fatal): {writer_error}")
 
         # Ensure project.data_location points to project root (not writer workspace)
         if not project.data_location:
@@ -264,14 +277,19 @@ def index(request):
     from apps.project_app.services.project_filesystem import get_project_filesystem_manager
     manager = get_project_filesystem_manager(current_project.owner)
 
+    # Use data_location if set, otherwise use slug as fallback
     if current_project.data_location:
         # data_location is a relative path from user's base directory to project root
         project_path = manager.base_path / current_project.data_location
-        # Writer workspace is at: project_root/scitex/writer/
-        writer_path = project_path / "scitex" / "writer"
-        if writer_path.exists():
-            writer_initialized = True
-            logger.info(f"Writer directory exists: {writer_path}")
+    else:
+        # Fallback to slug if data_location not set
+        project_path = manager.base_path / current_project.slug
+
+    # Writer workspace is at: project_root/scitex/writer/
+    writer_path = project_path / "scitex" / "writer"
+    if writer_path.exists():
+        writer_initialized = True
+        logger.info(f"Writer directory exists: {writer_path}")
 
     # Load sections from project's writer directory
     sections_data = {}
@@ -333,7 +351,9 @@ def index(request):
     manuscript = DemoManuscript()
 
     # Calculate correct writer path for display (manager already created above)
-    expected_writer_path = manager.base_path / current_project.slug / "scitex" / "writer"
+    # Use data_location if set, otherwise use slug as fallback
+    project_dir = current_project.data_location or current_project.slug
+    expected_writer_path = manager.base_path / project_dir / "scitex" / "writer"
 
     context = {
         'project': current_project,
