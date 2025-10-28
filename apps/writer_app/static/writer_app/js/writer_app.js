@@ -403,7 +403,8 @@ document.addEventListener('DOMContentLoaded', function() {
         tabSize: 2,
         indentWithTabs: false,
         autofocus: true,
-        styleActiveLine: true
+        styleActiveLine: true,
+        lineHeight: 1.35
     });
     const saveBtn = document.getElementById('save-btn');
     const compileBtn = document.getElementById('compile-btn');
