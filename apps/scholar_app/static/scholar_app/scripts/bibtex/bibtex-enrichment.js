@@ -54,7 +54,7 @@ function handleFileSelect(e) {
 
     // Validate file type
     if (!file.name.endsWith('.bib')) {
-        alert('Please select a .bib file');
+        showNotification('Please select a .bib file', 'error');
         e.target.value = '';
         return;
     }
@@ -627,7 +627,7 @@ function showDownloadArea(jobId) {
 window.openAllPaperUrls = function() {
     const jobId = window.currentBibtexJobId;
     if (!jobId) {
-        alert('No job ID available.');
+        showNotification('No job ID available.', 'error');
         return;
     }
 
@@ -635,7 +635,7 @@ window.openAllPaperUrls = function() {
         .then(response => response.json())
         .then(data => {
             if (!data.urls || data.urls.length === 0) {
-                alert('No URLs found in the enriched BibTeX file.');
+                showNotification('No URLs found in the enriched BibTeX file.', 'info');
                 return;
             }
 
@@ -652,7 +652,7 @@ window.openAllPaperUrls = function() {
         })
         .catch(error => {
             console.error('Error fetching URLs:', error);
-            alert('Failed to fetch URLs.');
+            showNotification('Failed to fetch URLs.', 'error');
         });
 };
 
@@ -662,7 +662,7 @@ window.openAllPaperUrls = function() {
 window.showBibtexDiff = function() {
     const jobId = window.currentBibtexJobId;
     if (!jobId) {
-        alert('No job ID available.');
+        showNotification('No job ID available.', 'error');
         return;
     }
 
@@ -874,11 +874,43 @@ function resetForm() {
 }
 
 /**
- * Show error
+ * Show notification toast
+ * @param {string} message - Notification message
+ * @param {string} type - Type: 'success', 'error', or 'info'
+ */
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 12px 24px;
+        background: ${type === 'success' ? '#1a7f16' : type === 'error' ? '#da3633' : '#0969da'};
+        color: white;
+        border-radius: 6px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 10000;
+        font-size: 14px;
+        animation: slideIn 0.3s ease;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    `;
+
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
+/**
+ * Show error (convenience wrapper for showNotification)
  * @param {string} message - Error message
  */
 function showError(message) {
-    alert(message);
+    showNotification(message, 'error');
 }
 
 /**
@@ -888,7 +920,7 @@ window.handleSaveToProject = function() {
     const jobId = window.currentBibtexJobId;
 
     if (!jobId) {
-        alert('No job available to save');
+        showNotification('No job available to save', 'error');
         return;
     }
 
@@ -938,7 +970,7 @@ window.confirmProjectSelection = function() {
             projectSelector.value = originalValue;  // Restore original in case of error
         }
     } else {
-        alert('Please select a project');
+        showNotification('Please select a project', 'error');
     }
 };
 
@@ -1342,24 +1374,12 @@ window.saveJobToProject = function(jobId) {
             // Show error message
             const message = data.error || 'Failed to save to project';
             console.error('Save error:', message);
-            // Create temporary alert for errors
-            const alertDiv = document.createElement('div');
-            alertDiv.className = 'alert alert-danger alert-dismissible fade show';
-            alertDiv.innerHTML = `
-                <strong>Error:</strong> ${message}
-                <button type="button" class="btn-close" onclick="this.parentElement.remove()" style="position: absolute; top: 50%; right: 1rem; transform: translateY(-50%);"></button>
-            `;
-            alertDiv.style.position = 'relative';
-            alertDiv.style.padding = '1rem 3rem 1rem 1rem';
-            const container = document.querySelector('.container');
-            if (container) {
-                container.insertBefore(alertDiv, container.firstChild);
-            }
+            showNotification(message, 'error');
         }
     })
     .catch(error => {
         console.error('Save error:', error);
-        alert('Failed to save to project');
+        showNotification('Failed to save to project', 'error');
     });
 };
 
