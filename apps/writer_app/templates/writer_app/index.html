@@ -87,7 +87,7 @@
 </script>
 
 <!-- Writer App JavaScript -->
-<script src="{% static 'writer_app/js/writer_app.js' %}?v={{ writer_initialized|yesno:'1,0' }}{{ project.id|default:'0' }}"></script>
+<script src="{% static 'writer_app/js/writer_app.js' %}?v={{ writer_initialized|yesno:'1,0' }}{{ project.id|default:'0' }}&t={% now 'U' %}"></script>
 
 <!-- Real-Time Collaboration Script -->
 <script src="{% static 'js/writer_collaboration.js' %}"></script>

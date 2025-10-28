@@ -2233,7 +2233,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function loadTexFilesList() {
         if (!projectId) {
-            console.log('[TeX Browser] No project ID, skipping file list');
+            console.log('[TeX Browser] No project ID, showing "no project selected" message');
+            texFilesListContainer.innerHTML = '<div class="text-muted text-center py-3" style="font-size: 0.85rem;"><i class="fas fa-folder-open me-2"></i>No project selected</div>';
             return;
         }
 
@@ -2241,8 +2242,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
         texFilesListContainer.innerHTML = '<div class="text-muted text-center py-3" style="font-size: 0.85rem;"><i class="fas fa-spinner fa-spin me-2"></i>Loading files...</div>';
 
-        fetch(`/writer/project/${projectId}/list-tex-files/`)
-            .then(response => response.json())
+        // Set up timeout to prevent infinite loading
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
+        fetch(`/writer/project/${projectId}/list-tex-files/`, { signal: controller.signal })
+            .then(response => {
+                clearTimeout(timeout);
+                return response.json();
+            })
             .then(data => {
                 if (data.success) {
                     texFilesList = data.files || [];
@@ -2254,6 +2262,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             })
             .catch(error => {
+                clearTimeout(timeout);
                 console.error('[TeX Browser] Error loading files:', error);
                 texFilesListContainer.innerHTML = '<div class="text-muted text-center py-3" style="font-size: 0.85rem;"><i class="fas fa-exclamation-triangle me-2"></i>Error loading files</div>';
             });
