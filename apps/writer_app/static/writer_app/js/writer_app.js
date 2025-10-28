@@ -627,14 +627,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 const section = sectionItem.dataset.section;
 
                 // If we are viewing compilation panel, switch back to editor first
-                const compilationPanel = document.getElementById('compilation-panel');
-                const splitEditor = document.getElementById('split-editor');
+                const compilationOutput = document.getElementById('compilation-output');
+                const editorContentWrapper = document.getElementById('editor-content-wrapper') || document.querySelector('.editor-content-wrapper');
                 const toggleCompilationBtn = document.getElementById('toggle-compilation-panel');
 
-                if (compilationPanel && compilationPanel.style.display !== 'none') {
+                if (compilationOutput && compilationOutput.style.display !== 'none') {
                     // Switch back to editor
-                    splitEditor.style.display = 'flex';
-                    compilationPanel.style.display = 'none';
+                    editorContentWrapper.style.display = 'flex';
+                    compilationOutput.style.display = 'none';
                     toggleCompilationBtn.innerHTML = '<i class="fas fa-file-pdf me-2"></i>View PDF';
                     toggleCompilationBtn.classList.remove('btn-info');
                     toggleCompilationBtn.classList.add('btn-primary');
@@ -716,26 +716,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function setupCompilationPanelToggle() {
         const toggleCompilationBtn = document.getElementById('toggle-compilation-panel');
-        const splitEditor = document.getElementById('split-editor');
-        const compilationPanel = document.getElementById('compilation-panel');
+        const editorContentWrapper = document.getElementById('editor-content-wrapper') || document.querySelector('.editor-content-wrapper');
+        const compilationOutput = document.getElementById('compilation-output');
 
         console.log('[PDF TOGGLE] Setting up compilation panel...', {
             toggleBtn: !!toggleCompilationBtn,
             toggleBtnElement: toggleCompilationBtn,
-            splitEditor: !!splitEditor,
-            compilationPanel: !!compilationPanel
+            editorContentWrapper: !!editorContentWrapper,
+            compilationOutput: !!compilationOutput
         });
 
         if (!toggleCompilationBtn) {
             console.error('[PDF TOGGLE] ✗ toggle-compilation-panel button not found!');
             return;
         }
-        if (!splitEditor) {
-            console.error('[PDF TOGGLE] ✗ split-editor div not found!');
+        if (!editorContentWrapper) {
+            console.error('[PDF TOGGLE] ✗ editor-content-wrapper div not found!');
             return;
         }
-        if (!compilationPanel) {
-            console.error('[PDF TOGGLE] ✗ compilation-panel div not found!');
+        if (!compilationOutput) {
+            console.error('[PDF TOGGLE] ✗ compilation-output div not found!');
             return;
         }
 
@@ -750,20 +750,20 @@ document.addEventListener('DOMContentLoaded', function() {
         toggleCompilationBtn.addEventListener('click', function(e) {
             e.preventDefault();
             console.log('[PDF TOGGLE] ✓ Button clicked!');
-            const isShowingCompilation = compilationPanel.style.display !== 'none';
+            const isShowingCompilation = compilationOutput.style.display !== 'none';
             console.log('[PDF TOGGLE] Current state - showing compilation:', isShowingCompilation);
 
             if (isShowingCompilation) {
                 // Switch back to editor
-                splitEditor.style.display = 'flex';
-                compilationPanel.style.display = 'none';
+                editorContentWrapper.style.display = 'flex';
+                compilationOutput.style.display = 'none';
                 this.innerHTML = '<i class="fas fa-file-pdf me-2"></i>View PDF';
                 this.classList.remove('btn-info');
                 this.classList.add('btn-primary');
             } else {
                 // Switch to compilation view
-                splitEditor.style.display = 'none';
-                compilationPanel.style.display = 'flex';
+                editorContentWrapper.style.display = 'none';
+                compilationOutput.style.display = 'flex';
                 this.innerHTML = '<i class="fas fa-code me-2"></i>Back to Editor';
                 this.classList.remove('btn-primary');
                 this.classList.add('btn-info');
@@ -2468,9 +2468,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // 2. EDITOR VIEW TABS FUNCTIONALITY
     // ========================================================================
     const viewTabs = document.querySelectorAll('.view-tab');
-    const latexOnlyView = document.querySelector('.editor-latex-only');
-    const previewOnlyView = document.querySelector('.editor-preview-only');
-    const splitView = document.querySelector('.editor-split-view');
+    const editorViewLatex = document.getElementById('editor-view-latex');
+    const editorViewPreview = document.getElementById('editor-view-preview');
+    const editorViewSplit = document.getElementById('editor-view-split');
 
     if (viewTabs.length > 0) {
         console.log('[Writer] Initializing view tabs');
@@ -2504,15 +2504,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // Hide all views
-        if (latexOnlyView) latexOnlyView.style.display = 'none';
-        if (previewOnlyView) previewOnlyView.style.display = 'none';
-        if (splitView) splitView.style.display = 'none';
+        if (editorViewLatex) editorViewLatex.style.display = 'none';
+        if (editorViewPreview) editorViewPreview.style.display = 'none';
+        if (editorViewSplit) editorViewSplit.style.display = 'none';
 
         // Show selected view
         switch(view) {
             case 'latex':
-                if (latexOnlyView) {
-                    latexOnlyView.style.display = 'flex';
+                if (editorViewLatex) {
+                    editorViewLatex.style.display = 'flex';
                     // Refresh CodeMirror if it exists
                     if (codeMirrorEditor) {
                         setTimeout(() => codeMirrorEditor.refresh(), 100);
@@ -2520,13 +2520,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 break;
             case 'preview':
-                if (previewOnlyView) {
-                    previewOnlyView.style.display = 'flex';
+                if (editorViewPreview) {
+                    editorViewPreview.style.display = 'flex';
                 }
                 break;
             case 'split':
-                if (splitView) {
-                    splitView.style.display = 'flex';
+                if (editorViewSplit) {
+                    editorViewSplit.style.display = 'flex';
                     // Refresh CodeMirror if it exists
                     if (codeMirrorEditor) {
                         setTimeout(() => codeMirrorEditor.refresh(), 100);
