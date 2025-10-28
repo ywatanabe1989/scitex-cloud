@@ -28,10 +28,12 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('[Writer] Initializing project writer interface');
     // Use WRITER_CONFIG object passed from Django template
     const projectId = window.WRITER_CONFIG?.projectId || null;
+    const username = window.WRITER_CONFIG?.username || null;
+    const projectSlug = window.WRITER_CONFIG?.projectSlug || null;
     const isDemo = window.WRITER_CONFIG?.isDemo || false;
     const isAnonymous = window.WRITER_CONFIG?.isAnonymous || false;
     const writerInitialized = window.WRITER_CONFIG?.writerInitialized || false;
-    console.log('[Writer] Project ID:', projectId, 'Demo mode:', isDemo, 'Anonymous:', isAnonymous, 'Initialized:', writerInitialized);
+    console.log('[Writer] User:', username, 'Project:', projectSlug, 'Demo:', isDemo, 'Anonymous:', isAnonymous, 'Initialized:', writerInitialized);
 
     // Handle writer workspace initialization
     const initWriterBtn = document.getElementById('init-writer-btn');
@@ -39,17 +41,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (initWriterBtn) {
         console.log('[Writer Init] ✓ Button found, adding click listener');
-        console.log('[Writer Init] Project ID available:', projectId);
+        console.log('[Writer Init] Project available:', username, '/', projectSlug);
 
         initWriterBtn.addEventListener('click', function(e) {
             e.preventDefault();
             console.log('[Writer Init] ✓ Button clicked!');
-            console.log('[Writer Init] Project ID:', projectId);
+            console.log('[Writer Init] Project:', username, '/', projectSlug);
 
-            if (!projectId) {
-                console.error('[Writer Init] ✗ No project ID');
+            if (!projectSlug) {
+                console.error('[Writer Init] ✗ No project selected');
                 alert('Error: No project selected');
                 return;
+            }
+
+            // For guest users, username will be null - that's ok
+            if (!username) {
+                console.log('[Writer Init] Guest user (username is null), using project slug only');
             }
 
             this.disabled = true;
@@ -63,7 +70,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     'X-CSRFToken': getCsrfToken()
                 },
                 body: JSON.stringify({
-                    project_id: projectId
+                    username: username,
+                    project_slug: projectSlug
                 })
             })
             .then(response => {
@@ -83,14 +91,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.error('[Writer Init] ✗ Initialization failed:', data.error);
                     alert('Failed to initialize workspace: ' + (data.error || 'Unknown error'));
                     this.disabled = false;
-                    this.innerHTML = '<i class="fas fa-rocket me-2"></i>Initialize Writer Workspace';
+                    this.innerHTML = '<i class="fas fa-rocket me-2"></i>Create';
                 }
             })
             .catch(error => {
                 console.error('[Writer Init] ✗ Fetch error:', error);
                 alert('Error initializing workspace: ' + error.message);
                 this.disabled = false;
-                this.innerHTML = '<i class="fas fa-rocket me-2"></i>Initialize Writer Workspace';
+                this.innerHTML = '<i class="fas fa-rocket me-2"></i>Create';
             });
         });
 
@@ -564,8 +572,10 @@ document.addEventListener('DOMContentLoaded', function() {
     setupCompilationPanelToggle();
 
     // Undo/Redo button event listeners
-    document.getElementById('undo-btn').addEventListener('click', undo);
-    document.getElementById('redo-btn').addEventListener('click', redo);
+    const undoBtn = document.getElementById('undo-btn');
+    const redoBtn = document.getElementById('redo-btn');
+    if (undoBtn) undoBtn.addEventListener('click', undo);
+    if (redoBtn) redoBtn.addEventListener('click', redo);
 
     // Keyboard shortcuts for undo/redo
     document.addEventListener('keydown', function(e) {
@@ -730,6 +740,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         console.log('[PDF TOGGLE] ✓ All elements found, adding click listener...');
+
+        // Make sure the button exists before adding event listener
+        if (!toggleCompilationBtn || typeof toggleCompilationBtn.addEventListener !== 'function') {
+            console.error('[PDF TOGGLE] ✗ Cannot add event listener - button is not valid');
+            return;
+        }
 
         toggleCompilationBtn.addEventListener('click', function(e) {
             e.preventDefault();
@@ -2171,48 +2187,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function getCsrfToken() {
-        return document.querySelector('[name=csrfmiddlewaretoken]').value;
-    }
-
-    // Initialize Writer Workspace function (called from inline onclick)
-    function initializeWriterWorkspace(btn) {
-        console.log('[Writer] Initializing workspace...');
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Creating workspace...';
-
-        const projectId = window.WRITER_CONFIG?.projectId || null;
-
-        fetch('/writer/api/initialize-workspace/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCsrfToken()
-            },
-            body: JSON.stringify({
-                project_id: projectId
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                console.log('[Writer] Workspace initialized successfully');
-                // Reload page to show the editor
-                window.location.reload();
-            } else {
-                console.error('[Writer] Initialization failed:', data.error);
-                alert('Failed to initialize workspace: ' + (data.error || 'Unknown error'));
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-rocket me-2"></i>Initialize Writer Workspace';
-            }
-        })
-        .catch(error => {
-            console.error('[Writer] Initialization error:', error);
-            alert('Error initializing workspace: ' + error.message);
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-rocket me-2"></i>Initialize Writer Workspace';
-        });
-    }
+    // Removed duplicate getCsrfToken and initializeWriterWorkspace - now handled by DOMContentLoaded event listener above
 
     // Stop button handler
     const stopCompileBtn = document.getElementById('stop-compile-btn');
@@ -2308,6 +2283,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     const isActive = currentTexFile && currentTexFile.section === file.section && currentTexFile.doc_type === file.doc_type;
                     const modifiedClass = ''; // Will be updated based on save status
 
+                    // Generate Gitea repository link if available
+                    const giteaLink = file.gitea_url
+                        ? `<a href="${file.gitea_url}" target="_blank" rel="noopener"
+                               class="tex-file-repo-link" title="View in repository"
+                               onclick="event.stopPropagation();">
+                               <i class="fas fa-code-branch"></i>
+                           </a>`
+                        : '';
+
                     html += `
                         <div class="tex-file-item ${isActive ? 'active' : ''} ${modifiedClass}"
                              data-section="${file.section}"
@@ -2320,7 +2304,10 @@ document.addEventListener('DOMContentLoaded', function() {
                                     <span>${file.word_count} words</span>
                                 </div>
                             </div>
-                            <div class="tex-file-status saved" title="Saved"></div>
+                            <div class="tex-file-actions">
+                                ${giteaLink}
+                                <div class="tex-file-status saved" title="Saved"></div>
+                            </div>
                         </div>
                     `;
                 });

@@ -3,7 +3,7 @@
  * @description Flexible content container with optional header, body, and footer sections
  * @category Layout Components
  * @file /static/css/common/cards.css
- * @darkmode false
+ * @darkmode true
  *
  * @variant card - Base card container (required)
  * @variant card-body - Main content area with padding
@@ -28,6 +28,7 @@
  * @state default - Normal display state with shadow
  * @state hover - Elevated shadow and background on hover (clickable/hover variants)
  * @state active - Pressed down effect (clickable variant only)
+ * @state disabled - Reduced opacity and disabled interactions
  *
  * @example
  * <div class="card">
@@ -55,15 +56,6 @@
  *     <p class="card-text">This card has hover and active states.</p>
  *   </div>
  * </div>
- *
- * @example
- * <div class="card">
- *   <img src="image.jpg" class="card-img-top" alt="Card image">
- *   <div class="card-body">
- *     <h5 class="card-title">Card with Image</h5>
- *     <p class="card-text">Text below image.</p>
- *   </div>
- * </div>
  */
 
 /* =========================
@@ -79,61 +71,63 @@
   word-wrap: break-word;
   background-color: var(--bg-surface);
   background-clip: border-box;
-  border: var(--border-width) solid var(--border-default);
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--box-shadow-card);
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   overflow: hidden;
-  transition: all var(--transition-normal);
+  transition: all 0.2s ease-in-out;
 }
 
 /* Card Body */
 .card-body {
   flex: 1 1 auto;
-  padding: var(--spacing-lg);
+  padding: 1.5rem;
 }
 
 /* Card Header */
 .card-header {
-  padding: var(--spacing-md) var(--spacing-lg);
+  padding: 1rem 1.5rem;
   margin-bottom: 0;
-  background-color: var(--light-gray);
-  border-bottom: var(--border-width) solid var(--border-color);
+  background-color: var(--bg-muted);
+  border-bottom: 1px solid var(--border-default);
 }
 
 .card-header:first-child {
-  border-radius: calc(var(--border-radius) - 1px) calc(var(--border-radius) - 1px) 0 0;
+  border-radius: 7px 7px 0 0;
 }
 
 /* Card Footer */
 .card-footer {
-  padding: var(--spacing-md) var(--spacing-lg);
-  background-color: var(--light-gray);
-  border-top: var(--border-width) solid var(--border-color);
+  padding: 1rem 1.5rem;
+  background-color: var(--bg-muted);
+  border-top: 1px solid var(--border-default);
 }
 
 .card-footer:last-child {
-  border-radius: 0 0 calc(var(--border-radius) - 1px) calc(var(--border-radius) - 1px);
+  border-radius: 0 0 7px 7px;
 }
 
 /* Card Title */
 .card-title {
-  margin-bottom: var(--spacing-md);
+  margin-bottom: 0.75rem;
   font-size: 1.25rem;
   font-weight: 600;
+  color: var(--text-primary);
 }
 
 /* Card Subtitle */
 .card-subtitle {
-  margin-top: calc(var(--spacing-sm) * -1);
+  margin-top: -0.375rem;
   margin-bottom: 0;
   font-size: 1rem;
-  color: var(--text-light);
+  color: var(--text-secondary);
 }
 
 /* Card Text */
 .card-text {
   margin-top: 0;
-  margin-bottom: var(--spacing-md);
+  margin-bottom: 0.75rem;
+  color: var(--text-primary);
 }
 
 .card-text:last-child {
@@ -142,7 +136,15 @@
 
 /* Card Link */
 .card-link {
-  margin-right: var(--spacing-md);
+  margin-right: 0.75rem;
+  color: var(--color-btn-primary-bg);
+  text-decoration: none;
+  transition: color 0.2s ease-in-out;
+}
+
+.card-link:hover {
+  color: var(--color-btn-primary-hover-bg);
+  text-decoration: underline;
 }
 
 .card-link + .card-link {
@@ -152,14 +154,14 @@
 /* Card Image */
 .card-img-top {
   width: 100%;
-  border-top-left-radius: calc(var(--border-radius) - 1px);
-  border-top-right-radius: calc(var(--border-radius) - 1px);
+  border-top-left-radius: 7px;
+  border-top-right-radius: 7px;
 }
 
 .card-img-bottom {
   width: 100%;
-  border-bottom-right-radius: calc(var(--border-radius) - 1px);
-  border-bottom-left-radius: calc(var(--border-radius) - 1px);
+  border-bottom-right-radius: 7px;
+  border-bottom-left-radius: 7px;
 }
 
 /* Card with Image Overlay */
@@ -169,7 +171,7 @@
   right: 0;
   bottom: 0;
   left: 0;
-  padding: var(--spacing-lg);
+  padding: 1.5rem;
   background-color: rgba(0, 0, 0, 0.5);
   color: white;
 }
@@ -177,28 +179,28 @@
 /* Card Columns */
 .card-columns {
   column-count: 3;
-  column-gap: var(--spacing-lg);
+  column-gap: 1.5rem;
 }
 
 .card-columns .card {
   display: inline-block;
   width: 100%;
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: 1.5rem;
 }
 
 /* Card Deck */
 .card-deck {
   display: flex;
   flex-flow: row wrap;
-  margin-right: calc(var(--spacing-md) * -1);
-  margin-left: calc(var(--spacing-md) * -1);
+  margin-right: -0.75rem;
+  margin-left: -0.75rem;
 }
 
 .card-deck .card {
   flex: 1 0 0%;
-  margin-right: var(--spacing-md);
-  margin-bottom: var(--spacing-md);
-  margin-left: var(--spacing-md);
+  margin-right: 0.75rem;
+  margin-bottom: 0.75rem;
+  margin-left: 0.75rem;
 }
 
 /* Card Group */
@@ -227,94 +229,118 @@
   border-bottom-left-radius: 0;
 }
 
-/* Card Variants */
+/* =========================
+   Card Variants
+   ========================= */
+
 .card-primary {
-  background-color: var(--primary-color);
-  color: white;
+  background-color: var(--_scitex-06);
+  color: var(--_scitex-01);
+  border-color: var(--_scitex-05);
 }
 
 .card-secondary {
-  background-color: var(--secondary-color);
-  color: white;
+  background-color: var(--_scitex-05);
+  color: var(--_scitex-01);
+  border-color: var(--_scitex-04);
 }
 
 .card-accent {
-  background-color: var(--accent-color);
-  color: white;
+  background-color: var(--color-btn-primary-bg);
+  color: var(--_white);
+  border-color: var(--color-btn-primary-bg);
 }
+
+/* =========================
+   Interactive States
+   ========================= */
 
 /* Clickable and Hoverable Cards */
 .card-clickable,
 .card-hover {
   cursor: pointer;
-  transition: background-color var(--transition-normal), box-shadow var(--transition-normal);
+  transition: all 0.2s ease-in-out;
 }
 
 .card-clickable:hover,
-.card-clickable:active,
 .card-hover:hover {
-  background-color: var(--scitex-color-07);
-  box-shadow: var(--box-shadow-md);
+  background-color: var(--bg-muted);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
 }
 
 .card-clickable:active {
-  transform: translateY(1px);
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 }
 
-/* SciTeX Card Variants with Subtle Hover States */
-.card-primary {
-  background-color: var(--scitex-color-06);
-  color: var(--scitex-color-01);
+/* Card variant hover states */
+.card-primary.card-clickable:hover {
+  background-color: var(--_scitex-05);
+  border-color: var(--_scitex-04);
 }
 
-.card-primary.card-clickable:hover,
 .card-primary.card-clickable:active {
-  background-color: var(--scitex-color-05);
+  background-color: var(--_scitex-06);
 }
 
-.card-secondary {
-  background-color: var(--scitex-color-05);
-  color: var(--scitex-color-01);
+.card-secondary.card-clickable:hover {
+  background-color: var(--_scitex-04);
+  border-color: var(--_scitex-03);
 }
 
-.card-secondary.card-clickable:hover,
 .card-secondary.card-clickable:active {
-  background-color: var(--scitex-color-04);
+  background-color: var(--_scitex-05);
 }
 
-.card-accent {
-  background-color: var(--scitex-color-04);
-  color: var(--white);
+.card-accent.card-clickable:hover {
+  background-color: var(--color-btn-primary-hover-bg);
+  border-color: var(--color-btn-primary-hover-bg);
 }
 
-.card-accent.card-clickable:hover,
 .card-accent.card-clickable:active {
-  background-color: var(--scitex-color-03);
+  background-color: var(--color-btn-primary-bg);
+}
+
+/* Disabled state */
+.card:disabled,
+.card.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.card-clickable:disabled,
+.card-clickable.disabled,
+.card-hover:disabled,
+.card-hover.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 /* =========================
    Extended Card Variants
-   (Extracted from page-specific CSS)
    ========================= */
 
 /* Feature Card - For showcasing features with icons */
 .card--feature {
-  background: white;
-  padding: var(--spacing-lg);
-  border-radius: var(--border-radius-lg);
-  border: 1px solid var(--scitex-color-06);
-  box-shadow: var(--box-shadow-sm);
-  transition: all 0.3s ease;
+  background: var(--bg-surface);
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-default);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
 }
 
 .card--feature:hover {
-  box-shadow: var(--box-shadow-md);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
   transform: translateY(-2px);
 }
 
 .card--feature h3 {
-  color: var(--scitex-color-01);
-  margin-bottom: var(--spacing-md);
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
 }
 
 .card--feature ul {
@@ -324,8 +350,8 @@
 }
 
 .card--feature li {
-  padding: var(--spacing-sm) 0;
-  color: var(--scitex-color-02);
+  padding: 0.375rem 0;
+  color: var(--text-secondary);
   position: relative;
   padding-left: 1.5rem;
 }
@@ -334,34 +360,34 @@
   content: "✓";
   position: absolute;
   left: 0;
-  color: var(--scitex-color-04);
+  color: var(--status-success);
   font-weight: bold;
 }
 
 /* Requirement Card - For displaying system requirements */
 .card--requirement {
-  background: var(--scitex-color-07);
-  padding: var(--spacing-lg);
-  border-radius: var(--border-radius-lg);
-  border: 1px solid var(--scitex-color-06);
-  transition: all 0.3s ease;
+  background: var(--bg-surface);
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-default);
+  transition: all 0.2s ease;
 }
 
 .card--requirement:hover {
-  box-shadow: var(--box-shadow-sm);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   transform: translateY(-2px);
 }
 
 .card--requirement h3 {
-  color: var(--scitex-color-01);
-  margin-bottom: var(--spacing-md);
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: 0.375rem;
 }
 
 .card--requirement h3 i {
-  color: var(--scitex-color-04);
+  color: var(--color-btn-primary-bg);
 }
 
 .card--requirement ul {
@@ -371,74 +397,74 @@
 }
 
 .card--requirement li {
-  padding: var(--spacing-sm) 0;
-  color: var(--scitex-color-02);
+  padding: 0.375rem 0;
+  color: var(--text-secondary);
   line-height: 1.6;
 }
 
 .card--requirement code {
-  background: var(--scitex-color-06);
+  background: var(--bg-muted);
   padding: 0.2rem 0.4rem;
   border-radius: 3px;
-  color: var(--scitex-color-01);
+  color: var(--text-primary);
   font-size: 0.9em;
 }
 
 /* Repository Card - For project/repo listings */
 .card--repo {
-  border: var(--border-width) solid var(--border-color);
-  border-radius: var(--border-radius-lg);
-  padding: var(--spacing-lg);
-  margin-bottom: var(--spacing-lg);
-  transition: all var(--transition-normal) ease;
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  transition: all 0.2s ease;
   height: 100%;
-  background-color: white;
+  background-color: var(--bg-surface);
 }
 
 .card--repo:hover {
   transform: translateY(-5px);
-  box-shadow: var(--box-shadow-lg);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
 }
 
 .card--repo h3 {
   font-size: 1.25rem;
   font-weight: 600;
-  margin: var(--spacing-sm) 0;
-  color: var(--primary-color);
+  margin: 0.375rem 0;
+  color: var(--color-btn-primary-bg);
 }
 
 .card--repo p {
-  color: var(--text-color);
+  color: var(--text-secondary);
   font-weight: 400;
   line-height: 1.5;
 }
 
 /* Module Card - For product/module showcases */
 .card--module {
-  background: var(--scitex-color-07);
-  padding: var(--spacing-lg);
-  border-radius: var(--border-radius);
-  border: 1px solid var(--scitex-color-06);
+  background: var(--bg-surface);
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-default);
 }
 
 .card--module h4 {
-  color: var(--scitex-color-01);
-  margin-bottom: var(--spacing-sm);
+  color: var(--text-primary);
+  margin-bottom: 0.375rem;
 }
 
 .card--module p {
-  color: var(--scitex-color-02);
+  color: var(--text-secondary);
   margin: 0;
 }
 
 /* Compact Module Card with Hover Expansion */
 .card--module-compact {
-  background-color: var(--scitex-color-07);
-  border: 1px solid var(--scitex-color-06);
-  border-radius: var(--border-radius);
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
   padding: 1rem;
   text-align: left;
-  box-shadow: var(--box-shadow-sm);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   height: auto;
   min-height: 180px;
@@ -452,42 +478,22 @@
 .card--module-compact:hover {
   transform: translateY(-5px) scale(1.02);
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
-  background-color: var(--white);
-  border-color: var(--scitex-color-04);
+  background-color: var(--bg-muted);
+  border-color: var(--color-btn-primary-bg);
   z-index: 10;
   padding: 1.5rem;
 }
 
 /* Security Item Card - For security features */
 .card--security {
-  background: var(--scitex-color-07);
-  padding: var(--spacing-md);
-  border-radius: var(--border-radius);
-  border-left: 4px solid var(--scitex-color-04);
+  background: var(--bg-surface);
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 4px solid var(--color-btn-primary-bg);
 }
 
-/* Dark Theme Support */
-[data-theme="dark"] .card {
-  background-color: var(--bg-800);
-  border-color: var(--border-400);
-}
-
-[data-theme="dark"] .card--feature,
-[data-theme="dark"] .card--repo {
-  background-color: var(--bg-700);
-  border-color: var(--border-400);
-}
-
-[data-theme="dark"] .card--feature h3,
-[data-theme="dark"] .card--repo h3,
-[data-theme="dark"] .card--requirement h3,
-[data-theme="dark"] .card--module h4 {
-  color: var(--text-100);
-}
-
-[data-theme="dark"] .card--feature li,
-[data-theme="dark"] .card--repo p,
-[data-theme="dark"] .card--requirement li,
-[data-theme="dark"] .card--module p {
-  color: var(--text-300);
-}
+/* =========================
+   Theme Support
+   ========================= */
+/* Semantic tokens automatically handle light/dark mode switching.
+   No manual theme-specific styles needed! */

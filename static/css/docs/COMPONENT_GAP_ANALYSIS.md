@@ -79,7 +79,7 @@
 
 | Component | Status | Location | Dark Mode | Priority |
 |-----------|--------|----------|-----------|----------|
-| Checkbox (single & grouped) | ✅ Implemented | `checkboxes.css` | ✅ Complete | **Phase 1** |
+| Checkbox (single & grouped) | ✅ Implemented | `checkbox.css` | ✅ Complete | **Phase 1** |
 | Radio Button (single & grouped) | ✅ Implemented | `radios.css` | ⚠️ Partial | **Phase 1** |
 | Toggle Switch | ✅ Implemented | `toggles.css` | ⚠️ Partial | **Phase 1** |
 | Select/Dropdown (single) | ✅ Implemented | `forms.css` | ✅ Complete | **Phase 1** |

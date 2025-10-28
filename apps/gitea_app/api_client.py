@@ -8,11 +8,12 @@ import requests
 import re
 from typing import Optional, Dict, List
 from django.conf import settings
-
-
-class GiteaAPIError(Exception):
-    """Exception raised for Gitea API errors"""
-    pass
+from .exceptions import (
+    GiteaAPIError,
+    GiteaConnectionError,
+    GiteaRepositoryCreationError,
+    GiteaUserCreationError,
+)
 
 
 def convert_git_url_to_https(git_url: str) -> str:

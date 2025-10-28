@@ -47,12 +47,25 @@ def project_directory_wrapper(request, username, slug, directory, subpath=None):
 def commit_detail_wrapper(request, username, slug, commit_hash):
     return views.commit_detail(request, username, slug, commit_hash)
 
+def repository_maintenance_wrapper(request, username):
+    return views.repository_maintenance(request, username)
+
 urlpatterns = [
     # GitHub-style username URLs
     # /<username>/ - Profile/Overview (with ?tab= query params)
     # /<username>?tab=repositories - Projects list (GitHub pattern)
     # /<username>/<project-slug>/ - Project detail
     path('', user_profile_wrapper, name='user_profile'),  # /<username>/ with ?tab support
+
+    # Repository maintenance dashboard
+    path('settings/repositories/', repository_maintenance_wrapper, name='repository_maintenance'),
+
+    # Repository maintenance and health check APIs
+    path('api/repository-health/', views.api_repository_health, name='api_repository_health'),
+    path('api/repository-cleanup/', views.api_repository_cleanup, name='api_repository_cleanup'),
+    path('api/repository-sync/', views.api_repository_sync, name='api_repository_sync'),
+    path('api/repository-restore/', views.api_repository_restore, name='api_repository_restore'),
+
     path('<slug:slug>/', project_detail_wrapper, name='detail'),
     path('<slug:slug>/edit/', project_edit_wrapper, name='edit'),
     path('<slug:slug>/delete/', project_delete_wrapper, name='delete'),

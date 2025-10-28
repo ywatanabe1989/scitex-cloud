@@ -3,144 +3,55 @@
     <div class="container">
         <div class="footer-content">
             <div class="footer-section">
-                <h3>SciTeX</h3>
-                <p class="footer-text" data-key="tagline">
-                    Accelerate scientific research.
+                <div style="display: flex; align-items: center; gap: 10px; padding: 12px 16px; background-color: transparent; border-radius: 8px; margin-bottom: var(--spacing-sm); width: fit-content;">
+                    <img src="{% static 'images/vectorstock_38853699/vectorstock_38853699-navy-inverted-192x192.png' %}" alt="SciTeX Logo" style="width: 40px; height: 40px;">
+                    <h3 style="margin: 0;">SciTeX</h3>
+                </div>
+                <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: var(--spacing-sm);">
+                    <span class="footer-text" data-key="tagline">Research Accelerator</span>
                 </p>
                 <div class="footer-social">
-                    <a href="https://github.com/SciTeX-AI" aria-label="GitHub - SciTeX organization">
-                        <i class="fab fa-github" aria-hidden="true"></i>
-                    </a>
-                    <a href="https://scitexworkspace.slack.com" aria-label="Slack workspace - Join our community">
-                        <i class="fab fa-slack" aria-hidden="true"></i>
-                    </a>
-                    <a href="https://twitter.com/scitex_ai" aria-label="X (Twitter) - Follow SciTeX">
-                        <i class="fab fa-twitter" aria-hidden="true"></i>
-                    </a>
-                    <a href="https://linkedin.com/company/scitex-ai" aria-label="LinkedIn - Connect with SciTeX">
-                        <i class="fab fa-linkedin" aria-hidden="true"></i>
-                    </a>
-                    <a href="https://instagram.com/scitex_ai" aria-label="Instagram - Follow SciTeX">
-                        <i class="fab fa-instagram" aria-hidden="true"></i>
-                    </a>
-                    <a href="https://youtube.com/@scitex_ai" aria-label="YouTube - Subscribe to SciTeX">
-                        <i class="fab fa-youtube" aria-hidden="true"></i>
-                    </a>
-                    <a href="https://tiktok.com/@scitex_ai" aria-label="TikTok - Follow SciTeX">
-                        <i class="fab fa-tiktok" aria-hidden="true"></i>
-                    </a>
-                    <a href="https://twitch.tv/scitex_ai" aria-label="Twitch - Watch SciTeX streams">
-                        <i class="fab fa-twitch" aria-hidden="true"></i>
-                    </a>
-                </div>
-            </div>
-
-            <div class="footer-section footer-github-section">
-                <h3 class="footer-text" data-key="souce-code">GitHub</h3>
-                <div class="footer-github-columns">
-                    <ul class="footer-links">
-                        <li>
-                            <a href="https://github.com/scitex-ai/scitex-code/tree/develop/src/scitex/scholar">
-                                <img src="{% static 'images/scitex-scholar-icon.svg' %}" alt="" class="footer-icon">
-                                Scholar
-                            </a>
-                        </li>
-                        <li>
-                            <a href="https://github.com/scitex-ai/scitex-code/">
-                                <img src="{% static 'images/scitex-code-icon.svg' %}" alt="" class="footer-icon">
-                                Code
-                            </a>
-                        </li>
-                        <li>
-                            <a href="https://github.com/scitex-ai/scitex-viz/">
-                                <img src="{% static 'images/scitex-viz-icon.svg' %}" alt="" class="footer-icon">
-                                Viz
-                            </a>
-                        </li>
-                    </ul>
-                    <ul class="footer-links">
-                        <li>
-                            <a href="https://github.com/scitex-ai/scitex-writer/">
-                                <img src="{% static 'images/scitex-writer-icon.svg' %}" alt="" class="footer-icon">
-                                Writer
-                            </a>
-                        </li>
-                        <li>
-                            <a href="https://github.com/scitex-ai/emacs-claude-code/">
-                                <img src="{% static 'images/scitex-explore-icon.svg' %}" alt="" class="footer-icon">
-                                Engine
-                            </a>
-                        </li>
-                        <li>
-                            <a href="https://github.com/scitex-ai/scitex-cloud/">
-                                <img src="{% static 'images/scitex-logo-cropped.png' %}" alt="" class="footer-icon">
-                                Cloud
-                            </a>
-                        </li>
-                    </ul>
+                    <a href="https://github.com/SciTeX-AI" title="GitHub"><i class="fab fa-github"></i></a>
+                    <a href="https://join.slack.com/t/scitex-ai/shared_invite/zt-2zbwx67n3-L6aaBdGKPMYZbBxl6yjXRA" title="Slack"><i class="fab fa-slack"></i></a>
+                    <a href="https://twitter.com/SciTeX_AI" title="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="https://www.linkedin.com/company/scitex-ai" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                    <a href="https://www.instagram.com/scitex_ai" title="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.youtube.com/@SciTeX-AI" title="YouTube"><i class="fab fa-youtube"></i></a>
+                    <a href="https://www.tiktok.com/@scitex_ai" title="TikTok"><i class="fab fa-tiktok"></i></a>
+                    <a href="https://www.twitch.tv/scitex_ai" title="Twitch"><i class="fab fa-twitch"></i></a>
                 </div>
             </div>
 
             <div class="footer-section">
                 <h3 class="footer-text" data-key="community">Community</h3>
                 <ul class="footer-links">
-                    <li>
-                        <a href="{% url 'public_app:vision' %}">
-                            <span class="footer-text" data-key="about">About Us</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{% url 'public_app:contributors' %}">
-                            <span class="footer-text" data-key="contributors">Contributors</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{% url 'public_app:publications' %}">
-                            <span class="footer-text" data-key="publications">Publications</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{% url 'public_app:donate' %}" class="text-success">
-                            <i class="fas fa-heart"></i>
-                            <span class="footer-text" data-key="donate">Donate</span>
-                        </a>
-                    </li>
+                    <li><a href="{% url 'public_app:vision' %}"><span class="footer-text" data-key="about">About</span></a></li>
+                    <li><a href="{% url 'public_app:contributors' %}"><span class="footer-text" data-key="contributors">Contributors</span></a></li>
                 </ul>
             </div>
 
             <div class="footer-section">
                 <h3 class="footer-text" data-key="legal">Legal</h3>
                 <ul class="footer-links">
-                    <li>
-                        <a href="{% url 'public_app:terms' %}">
-                            <span class="footer-text" data-key="terms">Terms of Use</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{% url 'public_app:privacy' %}">
-                            <span class="footer-text" data-key="privacy">Privacy Policy</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{% url 'public_app:cookies' %}">
-                            <span class="footer-text" data-key="cookies">Cookie Policy</span>
-                        </a>
-                    </li>
+                    <li><a href="{% url 'public_app:terms' %}"><span class="footer-text" data-key="terms">Terms</span></a></li>
+                    <li><a href="{% url 'public_app:privacy' %}"><span class="footer-text" data-key="privacy">Privacy</span></a></li>
+                    <li><a href="{% url 'public_app:cookies' %}"><span class="footer-text" data-key="cookies">Cookies</span></a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h3>Support</h3>
+                <ul class="footer-links">
+                    <li><a href="{% url 'public_app:donate' %}"><i class="fas fa-heart"></i> <span class="footer-text" data-key="donate">Donate</span></a></li>
+                    <li><a href="mailto:support@scitex.ai">Contact</a></li>
                 </ul>
             </div>
         </div>
 
         <div class="footer-bottom">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-                <p style="margin: 0;">
-                    &copy; 2025 SciTeX.
-                    <span class="footer-text" data-key="rights">All rights reserved</span>.
-                    |
-                    <a href="mailto:support@scitex.ai" class="email-link" aria-label="Email support at support@scitex.ai">
-                        <i class="far fa-envelope" aria-hidden="true"></i>
-                        support@scitex.ai
-                        <i class="far fa-envelope" aria-hidden="true"></i>
-                    </a>
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                <p style="margin: 0; font-size: 13px;">
+                    &copy; 2025 SciTeX. <span class="footer-text" data-key="rights">All rights reserved</span>. | <a href="mailto:support@scitex.ai" class="email-link" aria-label="Email support" style="text-decoration: none;">support@scitex.ai</a>
                 </p>
                 <div class="language-selector">
                     <select
@@ -148,7 +59,7 @@
                         onchange="changeFooterLanguage(this.value)"
                         style="padding: 4px 8px; border: 1px solid var(--color-border-default); border-radius: 4px; background: var(--color-canvas-default); color: var(--color-fg-default); font-size: 12px;">
                         <option value="en">English</option>
-                        <option value="ja">日本語</option>                        
+                        <option value="ja">日本語</option>
                         <option value="pt">Português (Brasil)</option>
                         <option value="es">Español (América Latina)</option>
                         <option value="ko">한국어</option>
@@ -173,7 +84,7 @@
     <script>
         const footerTranslations = {
             en: {
-                tagline: "Accelerate scientific research.",
+                tagline: "Research Accelerator",
                 tools: "Tools",
                 community: "Community",
                 about: "About Us",
@@ -187,7 +98,7 @@
                 rights: "All rights reserved"
             },
             pt: {
-                tagline: "Acelere a pesquisa científica.",
+                tagline: "Acelerador de Pesquisa",
                 tools: "Ferramentas",
                 community: "Comunidade",
                 about: "Sobre Nós",
@@ -201,7 +112,7 @@
                 rights: "Todos os direitos reservados"
             },
             es: {
-                tagline: "Acelera la investigación científica.",
+                tagline: "Acelerador de Investigación",
                 tools: "Herramientas",
                 community: "Comunidad",
                 about: "Acerca de Nosotros",
@@ -215,7 +126,7 @@
                 rights: "Todos los derechos reservados"
             },
             ja: {
-                tagline: "科学研究を加速します。",
+                tagline: "研究アクセレーター",
                 tools: "ツール",
                 community: "コミュニティ",
                 about: "私たちについて",
@@ -229,7 +140,7 @@
                 rights: "無断転載禁止"
             },
             ko: {
-                tagline: "과학 연구를 가속화합니다.",
+                tagline: "연구 가속기",
                 tools: "도구",
                 community: "커뮤니티",
                 about: "회사 소개",

@@ -189,7 +189,7 @@ These are internal primitives with `_` prefix - only use in colors.css:
 ### Priority 3: Common Styles (CSS)
 - [ ] `/static/css/common/buttons.css`
 - [ ] `/static/css/common/forms.css`
-- [ ] `/static/css/common/checkboxes.css`
+- [ ] `/static/css/common/checkbox.css`
 - [ ] `/static/css/common/radios.css`
 - [ ] `/static/css/common/toggles.css`
 - [ ] `/static/css/common/select.css`

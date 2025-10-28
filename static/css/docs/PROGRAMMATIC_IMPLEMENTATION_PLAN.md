@@ -33,7 +33,7 @@ Based on `PROGRAMMATIC_DESIGN_SYSTEM.md` analysis, we're implementing a **Custom
 ```
 /dev/design/               # Manual HTML design system page
 /static/css/common/        # Modular CSS components
-  ├── checkboxes.css
+  ├── checkbox.css
   ├── radios.css
   ├── toggles.css
   ├── buttons.css
@@ -45,7 +45,7 @@ COMPONENT_REGISTRY.md      # Manual documentation
 ```
 /dev/design/               # Auto-generated design system
 /static/css/common/        # Modular CSS with structured comments
-  ├── checkboxes.css      # With @component annotations
+  ├── checkbox.css      # With @component annotations
   ├── radios.css          # With @variant annotations
   └── ...
 components.json            # Auto-generated component registry
@@ -66,7 +66,7 @@ Update all component CSS files with parseable annotations:
 /*
  * @component Checkbox
  * @description Custom-styled checkboxes with theme support
- * @file /static/css/common/checkboxes.css
+ * @file /static/css/common/checkbox.css
  * @darkmode true
  *
  * @variant scitex-checkbox - Base checkbox component
@@ -84,7 +84,7 @@ Update all component CSS files with parseable annotations:
 ```
 
 **Files to Update:**
-- ✅ checkboxes.css (already has good header, add @annotations)
+- ✅ checkbox.css (already has good header, add @annotations)
 - ✅ radios.css (already has good header, add @annotations)
 - ✅ toggles.css (already has good header, add @annotations)
 - ⚠️ buttons.css (needs enhancement)
@@ -297,7 +297,7 @@ python manage.py generate_design_docs --verbose
 
 **Expected Output:**
 ```
-Parsing static/css/common/checkboxes.css...
+Parsing static/css/common/checkbox.css...
   ✓ Extracted Checkbox
 Parsing static/css/common/radios.css...
   ✓ Extracted Radio Button
@@ -509,7 +509,7 @@ document.querySelectorAll('.variant-switcher').forEach(switcher => {
 ### How it Connects
 
 1. **Modular CSS Files** (Already done)
-   - checkboxes.css, radios.css, toggles.css
+   - checkbox.css, radios.css, toggles.css
    - Add @annotations to these files
 
 2. **Component Registry** (Already documented)
@@ -529,7 +529,7 @@ document.querySelectorAll('.variant-switcher').forEach(switcher => {
 ## Implementation Checklist
 
 ### Week 1: Foundation
-- [ ] Add @annotations to checkboxes.css
+- [ ] Add @annotations to checkbox.css
 - [ ] Add @annotations to radios.css
 - [ ] Add @annotations to toggles.css
 - [ ] Add @annotations to buttons.css

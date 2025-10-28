@@ -76,7 +76,7 @@
 
 ### Checkboxes (Custom)
 
-**File:** `/static/css/common/checkboxes.css`
+**File:** `/static/css/common/checkbox.css`
 **Dark Mode:** ✅ Full support
 
 **Structure:**

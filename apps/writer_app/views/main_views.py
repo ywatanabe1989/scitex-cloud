@@ -20,6 +20,7 @@ from ..models import (
 from ..services.version_control_service import VersionControlManager
 from apps.project_app.models import Project
 from apps.project_app.services.project_filesystem import get_project_filesystem_manager
+from apps.project_app.services import get_current_project
 import json
 import uuid
 import subprocess
@@ -39,64 +40,98 @@ def index(request):
             'manuscript': None,
             'recent_jobs': [],
             'is_anonymous': True,
+            'is_demo': True,
         }
         return render(request, 'writer_app/index.html', context)
 
-    # For authenticated users, get or create their draft manuscript
+    # For authenticated users, use centralized project getter
+    current_project = get_current_project(request, user=request.user)
+    user_projects = Project.objects.filter(owner=request.user).order_by('name')
+
+    # If user has no projects, show message to create one
+    if not current_project:
+        context = {
+            'manuscript': None,
+            'recent_jobs': [],
+            'is_anonymous': False,
+            'is_demo': False,
+            'no_projects': True,
+            'needs_project_creation': True,
+        }
+        return render(request, 'writer_app/index.html', context)
+
+    # Use the current project context (from header selector)
+    # Get or create manuscript for this project
     manuscript, created = Manuscript.objects.get_or_create(
+        project=current_project,
         owner=request.user,
-        title="Draft Manuscript",
         defaults={
-            'slug': f"draft-{request.user.username}-{uuid.uuid4().hex[:8]}",
-            'content': """% SciTeX Writer - Quick Start Template
-\\documentclass[12pt]{article}
-\\usepackage[utf8]{inputenc}
-\\usepackage{amsmath}
-\\usepackage{graphicx}
-\\usepackage[margin=1in]{geometry}
-
-\\title{Your Manuscript Title}
-\\author{Your Name}
-\\date{\\today}
-
-\\begin{document}
-
-\\maketitle
-
-\\begin{abstract}
-Write your abstract here...
-\\end{abstract}
-
-\\section{Introduction}
-Write your introduction here...
-
-\\section{Methods}
-Describe your methodology...
-
-\\section{Results}
-Present your results...
-
-\\section{Discussion}
-Discuss your findings...
-
-\\section{Conclusion}
-Conclude your work...
-
-\\end{document}"""
+            'title': f'{current_project.name} Manuscript',
+            'slug': f'{current_project.name.lower().replace(" ", "-")}-manuscript-{uuid.uuid4().hex[:8]}',
+            'is_modular': True
         }
     )
 
-    # Get recent compilation jobs
-    recent_jobs = CompilationJob.objects.filter(
-        manuscript__owner=request.user
-    ).order_by('-created_at')[:5]
+    if created:
+        # Create modular structure for new manuscript
+        manuscript.create_modular_structure()
+
+    # Check if writer directory exists (don't auto-create)
+    writer_path = None
+    writer_initialized = False
+
+    # Use workspace manager to get correct base directory
+    manager = get_project_filesystem_manager(request.user)
+
+    if current_project.data_location:
+        # data_location is a relative path from user's base directory
+        full_writer_path = manager.base_path / current_project.data_location
+        if full_writer_path.exists():
+            writer_path = full_writer_path
+            writer_initialized = True
+
+    # Calculate expected writer path for display
+    expected_writer_path = manager.base_path / current_project.slug / "scitex" / "writer"
+
+    # Get sections if modular
+    sections_data = {}
+    if manuscript.is_modular:
+        paper_path = manuscript.get_project_paper_path()
+        if paper_path:
+            # Use actual SciTeX-Writer directory structure: 01_manuscript/contents/
+            section_files = {
+                'abstract': '01_manuscript/contents/abstract.tex',
+                'highlights': '01_manuscript/contents/highlights.tex',
+                'introduction': '01_manuscript/contents/introduction.tex',
+                'methods': '01_manuscript/contents/methods.tex',
+                'results': '01_manuscript/contents/results.tex',
+                'discussion': '01_manuscript/contents/discussion.tex',
+                'conclusion': '01_manuscript/contents/conclusion.tex'
+            }
+
+            for section, file_path in section_files.items():
+                full_path = paper_path / file_path
+                if full_path.exists():
+                    with open(full_path, 'r', encoding='utf-8') as f:
+                        sections_data[section] = f.read()
+                else:
+                    sections_data[section] = ''
+
+    # Update word counts
+    manuscript.update_word_counts()
 
     context = {
+        'project': current_project,
         'manuscript': manuscript,
-        'recent_jobs': recent_jobs,
-        'is_mvp': True,
+        'sections': sections_data,
+        'is_modular': manuscript.is_modular,
+        'user_projects': user_projects,
+        'writer_initialized': writer_initialized,
+        'writer_path': str(expected_writer_path),
+        'is_demo': False,
         'is_anonymous': False,
     }
+
     return render(request, 'writer_app/index.html', context)
 
 
@@ -203,6 +238,23 @@ def project_writer(request, project_id):
         # Create modular structure for new manuscript
         manuscript.create_modular_structure()
 
+    # Check if writer directory exists (don't auto-create)
+    writer_path = None
+    writer_initialized = False
+
+    # Use workspace manager to get correct base directory
+    manager = get_project_filesystem_manager(request.user)
+
+    if project.data_location:
+        # data_location is a relative path from user's base directory
+        full_writer_path = manager.base_path / project.data_location
+        if full_writer_path.exists():
+            writer_path = full_writer_path
+            writer_initialized = True
+
+    # Calculate expected writer path for display
+    expected_writer_path = manager.base_path / project.slug / "scitex" / "writer"
+
     # Get sections if modular
     sections_data = {}
     if manuscript.is_modular:
@@ -238,7 +290,9 @@ def project_writer(request, project_id):
         'manuscript': manuscript,
         'sections': sections_data,
         'is_modular': manuscript.is_modular,
-        'user_projects': user_projects
+        'user_projects': user_projects,
+        'writer_initialized': writer_initialized,
+        'writer_path': str(expected_writer_path),
     }
 
     return render(request, 'writer_app/index.html', context)
@@ -937,7 +991,7 @@ def list_tex_files(request, project_id):
 
     paper_path = manuscript.get_project_paper_path()
     if not paper_path or not paper_path.exists():
-        return JsonResponse({'files': [], 'message': 'Writer directory not initialized'})
+        return JsonResponse({'success': True, 'files': [], 'message': 'Writer directory not initialized'})
 
     # Define the directory structure to scan
     directories_to_scan = [
@@ -960,14 +1014,38 @@ def list_tex_files(request, project_id):
                     content = f.read()
                     word_count = len(content.split())
 
+                # Calculate relative path from writer directory
+                relative_path = str(tex_file.relative_to(paper_path))
+
+                # Check if file has git history (Writer projects have isolated git repos)
+                has_git_history = False
+                git_commits_count = 0
+                if (paper_path / '.git').exists():
+                    try:
+                        # Count commits for this specific file
+                        result = subprocess.run(
+                            ['git', 'rev-list', '--count', 'HEAD', '--', relative_path],
+                            cwd=paper_path,
+                            capture_output=True,
+                            text=True,
+                            timeout=2
+                        )
+                        if result.returncode == 0:
+                            git_commits_count = int(result.stdout.strip() or 0)
+                            has_git_history = git_commits_count > 0
+                    except Exception as git_error:
+                        logging.debug(f"Git check failed for {tex_file.name}: {git_error}")
+
                 files_info.append({
                     'name': tex_file.name,
                     'section': tex_file.stem,  # filename without extension
                     'doc_type': doc_type,
-                    'path': str(tex_file.relative_to(paper_path)),
+                    'path': relative_path,  # Relative to writer directory
                     'size': stat.st_size,
                     'modified': stat.st_mtime,
                     'word_count': word_count,
+                    'has_git_history': has_git_history,  # Whether file has git commits
+                    'git_commits_count': git_commits_count,  # Number of commits for this file
                 })
             except Exception as e:
                 logging.error(f"Error reading {tex_file}: {e}")
@@ -981,6 +1059,115 @@ def list_tex_files(request, project_id):
         'files': files_info,
         'total': len(files_info)
     })
+
+
+def file_git_history(request, project_id):
+    """Get git history for a specific file in the writer workspace.
+
+    Supports both git strategies:
+    - 'child': Git repo in writer directory
+    - 'parent': Git repo in project root
+    """
+    if request.method != 'GET':
+        return JsonResponse({'error': 'GET required'}, status=405)
+
+    try:
+        project = Project.objects.get(id=project_id, owner=request.user)
+        manuscript = Manuscript.objects.get(project=project, owner=request.user)
+    except (Project.DoesNotExist, Manuscript.DoesNotExist):
+        return JsonResponse({'error': 'Project or manuscript not found'}, status=404)
+
+    file_path = request.GET.get('file_path')
+    if not file_path:
+        return JsonResponse({'error': 'file_path parameter required'}, status=400)
+
+    paper_path = manuscript.get_project_paper_path()
+    if not paper_path or not paper_path.exists():
+        return JsonResponse({'error': 'Writer directory not initialized'}, status=404)
+
+    # Find git repository (check writer dir and parent)
+    git_root = None
+    if (paper_path / '.git').exists():
+        # Child strategy - git in writer dir
+        git_root = paper_path
+    else:
+        # Check for parent git
+        try:
+            result = subprocess.run(
+                ['git', 'rev-parse', '--show-toplevel'],
+                cwd=paper_path,
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+            if result.returncode == 0:
+                git_root = Path(result.stdout.strip())
+        except Exception:
+            pass
+
+    if not git_root:
+        return JsonResponse({
+            'success': True,
+            'has_git': False,
+            'message': 'No git repository found'
+        })
+
+    try:
+        # Calculate relative path from git root
+        try:
+            rel_path = paper_path.relative_to(git_root) / file_path
+        except ValueError:
+            # paper_path not relative to git_root
+            rel_path = file_path
+
+        # Get git log for this file (last 20 commits)
+        result = subprocess.run(
+            ['git', 'log', '--pretty=format:%H|%an|%ae|%at|%s', '-n', '20', '--', str(rel_path)],
+            cwd=git_root,
+            capture_output=True,
+            text=True,
+            timeout=5
+        )
+
+        if result.returncode != 0:
+            return JsonResponse({
+                'success': False,
+                'error': f'Git log failed: {result.stderr}'
+            }, status=500)
+
+        # Parse git log output
+        commits = []
+        if result.stdout.strip():
+            for line in result.stdout.strip().split('\n'):
+                parts = line.split('|')
+                if len(parts) == 5:
+                    commits.append({
+                        'hash': parts[0],
+                        'author_name': parts[1],
+                        'author_email': parts[2],
+                        'timestamp': int(parts[3]),
+                        'message': parts[4]
+                    })
+
+        return JsonResponse({
+            'success': True,
+            'has_git': True,
+            'file_path': file_path,
+            'commits': commits,
+            'total_commits': len(commits)
+        })
+
+    except subprocess.TimeoutExpired:
+        return JsonResponse({
+            'success': False,
+            'error': 'Git operation timed out'
+        }, status=500)
+    except Exception as e:
+        logging.error(f"Error getting git history for {file_path}: {e}", exc_info=True)
+        return JsonResponse({
+            'success': False,
+            'error': f'Server error: {str(e)}'
+        }, status=500)
 
 
 @login_required

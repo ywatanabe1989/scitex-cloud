@@ -16,7 +16,7 @@
   <div class="container mt-3">
     {% for message in messages %}
     <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert" style="position: relative; padding: 1rem 3rem 1rem 1rem;">
-      {{ message }}
+      {{ message|safe }}
       <button type="button" class="btn-close" onclick="this.parentElement.remove()" aria-label="Close" style="position: absolute; top: 50%; right: 1rem; transform: translateY(-50%); background: transparent; border: none; font-size: 1.5rem; cursor: pointer; opacity: 0.5; line-height: 1;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.5'">&times;</button>
     </div>
     {% endfor %}

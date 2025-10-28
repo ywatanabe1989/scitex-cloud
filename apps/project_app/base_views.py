@@ -442,6 +442,50 @@ def project_create(request):
         base_slug = slugify(name)
         unique_slug = Project.generate_unique_slug(base_slug)
 
+        # Check if repository exists in Gitea (enforce 1:1 mapping)
+        # This is a final safeguard before creation
+        try:
+            from apps.gitea_app.api_client import GiteaClient, GiteaAPIError
+            from django.utils.safestring import mark_safe
+            client = GiteaClient()
+
+            try:
+                existing_repo = client.get_repository(
+                    owner=request.user.username,
+                    repo=unique_slug
+                )
+                if existing_repo:
+                    # Gitea repo exists - this is a critical conflict
+                    error_msg = (
+                        f'Repository "{unique_slug}" already exists in Gitea. '
+                        f'This is likely an orphaned repository from a previous project. '
+                        f'Please visit your <a href="/{request.user.username}/settings/repositories/">repository maintenance page</a> to clean it up.'
+                    )
+                    messages.error(request, mark_safe(error_msg))
+                    # Get templates for re-rendering form
+                    try:
+                        from scitex.template import get_available_templates_info
+                        available_templates = get_available_templates_info()
+                    except ImportError:
+                        available_templates = []
+                    context = {
+                        "available_templates": available_templates,
+                        "name": name,
+                        "description": description,
+                        "init_type": init_type,
+                    }
+                    return render(request, "project_app/create.html", context)
+            except GiteaAPIError:
+                # Repository doesn't exist in Gitea - this is good, proceed with creation
+                pass
+        except Exception as e:
+            # Log warning but don't fail - Gitea might be temporarily unavailable
+            logger.warning(f"Could not verify Gitea repository availability: {e}")
+            messages.warning(
+                request,
+                "Could not verify repository name with Gitea. Proceeding with caution."
+            )
+
         try:
             project = Project.objects.create(
                 name=name,
@@ -943,6 +987,31 @@ def project_members(request, username, slug):
 
 
 @login_required
+def repository_maintenance(request, username):
+    """
+    Repository health check and maintenance dashboard.
+
+    Shows the health status of all repositories for a user and allows them to:
+    - View repository synchronization status
+    - Delete orphaned Gitea repositories
+    - Re-sync repositories with Gitea
+    """
+    # Only allow users to view their own maintenance dashboard
+    user = get_object_or_404(User, username=username)
+    if user != request.user and not request.user.is_staff:
+        messages.error(request, "You don't have permission to view this page.")
+        return redirect("project_app:list")
+
+    context = {
+        "username": username,
+        "user": user,
+        "page_title": "Repository Maintenance",
+        "active_tab": "repositories"
+    }
+    return render(request, "project_app/repository_maintenance.html", context)
+
+
+@login_required
 def github_integration(request, username, slug):
     """GitHub integration for project"""
     user = get_object_or_404(User, username=username)
@@ -1307,6 +1376,179 @@ def api_project_detail(request, pk):
 
 
 @login_required
+def api_repository_health(request, username):
+    """
+    API endpoint to check repository health for a user.
+
+    GET: Returns list of all repository health issues and statistics
+    """
+    if request.method != 'GET':
+        return JsonResponse({"success": False, "error": "Method not allowed"}, status=405)
+
+    # Only allow users to check their own repository health
+    from django.contrib.auth.models import User
+    user = get_object_or_404(User, username=username)
+    if user != request.user and not request.user.is_staff:
+        return JsonResponse({"success": False, "error": "Access denied"}, status=403)
+
+    try:
+        from apps.project_app.services.repository_health_service import RepositoryHealthChecker
+        checker = RepositoryHealthChecker(user)
+        issues, stats = checker.check_all_repositories()
+
+        return JsonResponse({
+            "success": True,
+            "stats": stats,
+            "issues": [issue.to_dict() for issue in issues],
+        })
+
+    except Exception as e:
+        logger.error(f"Error checking repository health: {e}")
+        return JsonResponse({
+            "success": False,
+            "error": str(e)
+        }, status=500)
+
+
+@login_required
+def api_repository_cleanup(request, username):
+    """
+    API endpoint to cleanup orphaned Gitea repositories.
+
+    POST: Delete an orphaned repository (requires confirmation)
+    """
+    if request.method != 'POST':
+        return JsonResponse({"success": False, "error": "Method not allowed"}, status=405)
+
+    # Only allow users to manage their own repositories
+    from django.contrib.auth.models import User
+    user = get_object_or_404(User, username=username)
+    if user != request.user and not request.user.is_staff:
+        return JsonResponse({"success": False, "error": "Access denied"}, status=403)
+
+    try:
+        import json
+        data = json.loads(request.body)
+        gitea_name = data.get('gitea_name', '').strip()
+
+        if not gitea_name:
+            return JsonResponse({"success": False, "error": "Repository name required"}, status=400)
+
+        from apps.project_app.services.repository_health_service import RepositoryHealthChecker
+        checker = RepositoryHealthChecker(user)
+        success, message = checker.delete_orphaned_repository(gitea_name)
+
+        return JsonResponse({
+            "success": success,
+            "message": message,
+        })
+
+    except json.JSONDecodeError:
+        return JsonResponse({"success": False, "error": "Invalid JSON"}, status=400)
+    except Exception as e:
+        logger.error(f"Error during repository cleanup: {e}")
+        return JsonResponse({
+            "success": False,
+            "error": str(e)
+        }, status=500)
+
+
+@login_required
+def api_repository_sync(request, username):
+    """
+    API endpoint to sync a repository.
+
+    POST: Sync project with Gitea (re-clone if needed)
+    """
+    if request.method != 'POST':
+        return JsonResponse({"success": False, "error": "Method not allowed"}, status=405)
+
+    # Only allow users to manage their own repositories
+    from django.contrib.auth.models import User
+    user = get_object_or_404(User, username=username)
+    if user != request.user and not request.user.is_staff:
+        return JsonResponse({"success": False, "error": "Access denied"}, status=403)
+
+    try:
+        import json
+        data = json.loads(request.body)
+        project_slug = data.get('project_slug', '').strip()
+
+        if not project_slug:
+            return JsonResponse({"success": False, "error": "Project slug required"}, status=400)
+
+        from apps.project_app.services.repository_health_service import RepositoryHealthChecker
+        checker = RepositoryHealthChecker(user)
+        success, message = checker.sync_repository(project_slug)
+
+        return JsonResponse({
+            "success": success,
+            "message": message,
+        })
+
+    except json.JSONDecodeError:
+        return JsonResponse({"success": False, "error": "Invalid JSON"}, status=400)
+    except Exception as e:
+        logger.error(f"Error during repository sync: {e}")
+        return JsonResponse({
+            "success": False,
+            "error": str(e)
+        }, status=500)
+
+
+@login_required
+def api_repository_restore(request, username):
+    """
+    API endpoint to restore an orphaned Gitea repository.
+
+    Recovers a project by creating a Django project linked to an orphaned
+    Gitea repository. This restores the full 1:1:1 mapping.
+
+    POST: Restore orphaned repository as a new project
+    """
+    if request.method != 'POST':
+        return JsonResponse({"success": False, "error": "Method not allowed"}, status=405)
+
+    # Only allow users to manage their own repositories
+    from django.contrib.auth.models import User
+    user = get_object_or_404(User, username=username)
+    if user != request.user and not request.user.is_staff:
+        return JsonResponse({"success": False, "error": "Access denied"}, status=403)
+
+    try:
+        import json
+        data = json.loads(request.body)
+        gitea_name = data.get('gitea_name', '').strip()
+        project_name = data.get('project_name', '').strip()
+
+        if not gitea_name:
+            return JsonResponse({"success": False, "error": "Repository name required"}, status=400)
+
+        # If no project name provided, use the gitea_name
+        if not project_name:
+            project_name = gitea_name
+
+        from apps.project_app.services.repository_health_service import RepositoryHealthChecker
+        checker = RepositoryHealthChecker(user)
+        success, message, project_id = checker.restore_orphaned_repository(gitea_name, project_name)
+
+        return JsonResponse({
+            "success": success,
+            "message": message,
+            "project_id": project_id,  # Return project ID for redirect
+        })
+
+    except json.JSONDecodeError:
+        return JsonResponse({"success": False, "error": "Invalid JSON"}, status=400)
+    except Exception as e:
+        logger.error(f"Error during repository restore: {e}")
+        return JsonResponse({
+            "success": False,
+            "error": str(e)
+        }, status=500)
+
+
+@login_required
 def project_detail_redirect(request, pk=None, slug=None):
     """Redirect old URLs to new username/project URLs for backward compatibility"""
     if pk:
@@ -1441,17 +1683,17 @@ def project_directory_dynamic(request, username, slug, directory_path):
     contents.sort(key=lambda x: (x["type"] == "file", x["name"].lower()))
 
     # Build breadcrumb navigation
-    breadcrumbs = [{"name": project.name, "url": f"/{username}/{slug}/"}]
+    breadcrumbs = [{"name": project.name, "url": f"/{username}/{slug}/", "is_last": False}]
 
     # Add each path component to breadcrumbs
-    path_parts = directory_path.split("/")
+    path_parts = [p for p in directory_path.split("/") if p]  # Filter empty strings
     current_path = ""
-    for part in path_parts:
-        if part:
-            current_path += part + "/"
-            breadcrumbs.append(
-                {"name": part, "url": f"/{username}/{slug}/{current_path}"}
-            )
+    for idx, part in enumerate(path_parts):
+        current_path += part + "/"
+        is_last = (idx == len(path_parts) - 1)  # Last item in the path
+        breadcrumbs.append(
+            {"name": part, "url": f"/{username}/{slug}/{current_path}", "is_last": is_last}
+        )
 
     context = {
         "project": project,

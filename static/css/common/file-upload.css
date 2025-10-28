@@ -114,14 +114,14 @@
 /* Upload text */
 .file-upload-text {
     font-size: 0.9rem;
-    color: var(--text-600);
+    color: var(--text-secondary);
 }
 
 .file-upload-button + .file-upload-text {
     display: inline-block;
     margin-left: 0.75rem;
     font-size: 0.875rem;
-    color: var(--text-700);
+    color: var(--text-primary);
 }
 
 /* =========================
@@ -130,49 +130,22 @@
 
 /* Dragover state */
 .file-upload-label.dragover {
-    border-color: var(--btn-primary-bg);
-    background-color: var(--bg-300);
+    border-color: var(--color-btn-primary-bg);
+    background-color: var(--bg-muted);
 }
 
 /* Focus state (keyboard navigation) */
 .file-upload-input:focus + .file-upload-label,
 .file-upload-input:focus + .file-upload-button {
-    outline: 2px solid var(--btn-primary-bg);
+    outline: 2px solid var(--color-btn-primary-bg);
     outline-offset: 2px;
 }
 
 /* =========================
-   Dark Mode
+   Theme Support
    ========================= */
-
-[data-theme="dark"] .file-upload-label {
-    background-color: var(--scitex-color-01-light);
-    border-color: var(--scitex-color-04);
-    color: var(--scitex-color-06);
-}
-
-[data-theme="dark"] .file-upload-label:hover {
-    background-color: var(--scitex-color-01);
-    border-color: var(--scitex-color-05);
-}
-
-[data-theme="dark"] .file-upload-button {
-    background-color: var(--scitex-color-04);
-    border-color: var(--scitex-color-04);
-}
-
-[data-theme="dark"] .file-upload-button:hover {
-    background-color: var(--scitex-color-05);
-    border-color: var(--scitex-color-05);
-}
-
-[data-theme="dark"] .file-upload-text {
-    color: var(--scitex-color-05);
-}
-
-[data-theme="dark"] .file-upload-button + .file-upload-text {
-    color: var(--scitex-color-06);
-}
+/* Semantic tokens automatically handle light/dark mode switching.
+   No manual theme-specific styles needed! */
 
 /* =========================
    Responsive Design

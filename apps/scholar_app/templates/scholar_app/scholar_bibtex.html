@@ -1,0 +1,56 @@
+{% extends "scholar_app/scholar_base.html" %}
+{% load static %}
+
+{% block title %}SciTeX Scholar - BibTeX Enrichment{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/common.css' %}">
+<link rel="stylesheet" href="{% static 'scholar_app/css/index.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4" style="padding-top: 2rem; padding-bottom: 2rem;">
+  <div class="row">
+    <!-- Main Content -->
+    <div class="col-12">
+      <!-- Page Header -->
+      <div class="page-header mb-4">
+        <h1 class="h3 mb-3">BibTeX Enrichment</h1>
+        <p class="text-muted">Upload your BibTeX files to enrich bibliographic data with additional metadata</p>
+      </div>
+
+      <!-- BibTeX Enrichment Content -->
+      <div class="card">
+        <div class="card-body">
+          {% include "scholar_app/bibtex_partials/enrich.html" %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Configuration for JavaScript -->
+<script>
+  // Django template variables for JavaScript
+  window.SCHOLAR_CONFIG = {
+    urls: {
+      bibtexUpload: '{% url "scholar_app:bibtex_upload" %}',
+      resourceStatus: '{% url "scholar_app:bibtex_resource_status" %}',
+      scitexSearch: '{% url "scholar_app:api_scitex_search" %}',
+      scitexCapabilities: '{% url "scholar_app:api_scitex_capabilities" %}'
+    },
+    user: {
+      isAuthenticated: {% if user.is_authenticated %}true{% else %}false{% endif %}
+    }
+  };
+</script>
+
+{% block extra_js %}
+<!-- Common Scripts -->
+<script src="{% static 'scholar_app/scripts/common/project-selector.js' %}"></script>
+<!-- BibTeX Enrichment Scripts -->
+<script src="{% static 'scholar_app/scripts/bibtex/bibtex-enrichment.js' %}"></script>
+<script src="{% static 'scholar_app/scripts/bibtex/queue-management.js' %}?v=20251027-fix-polling-debug"></script>
+{% endblock %}
+
+{% endblock %}

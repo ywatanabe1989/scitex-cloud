@@ -12,7 +12,7 @@
 /* Base code block container */
 pre {
   position: relative;
-  padding: 3.25rem 1.5rem 1.5rem 1.5rem;
+  padding: 2.5rem 1.5rem 1.5rem 1.5rem !important;
   border: 1px solid var(--border-default);
   border-radius: 6px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);

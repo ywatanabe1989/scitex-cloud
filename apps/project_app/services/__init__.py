@@ -18,6 +18,18 @@ Services are organized by domain:
 # Import EmailService for backward compatibility
 from .email_service import EmailService
 
-__all__ = ['EmailService']
+# Import project utilities for centralized project management
+from .project_utils import (
+    get_current_project,
+    set_current_project,
+    get_or_create_default_project
+)
+
+__all__ = [
+    'EmailService',
+    'get_current_project',
+    'set_current_project',
+    'get_or_create_default_project',
+]
 
 # EOF

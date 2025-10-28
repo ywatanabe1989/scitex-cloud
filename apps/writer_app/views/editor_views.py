@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
 from apps.project_app.models import Project
+from apps.project_app.services import get_or_create_default_project as centralized_get_or_create_default_project
 from django.contrib.auth.models import User
 import uuid
 import os
@@ -53,40 +54,15 @@ def get_or_create_guest_user(request):
     return guest_user
 
 
+# Note: get_or_create_default_project has been moved to apps.project_app.services.project_utils
+# This wrapper function is kept for backward compatibility with any direct imports
 def get_or_create_default_project(user, is_guest=False):
-    """Get or create a default project for a user (including guests).
+    """Wrapper for centralized get_or_create_default_project.
 
     Note: Writer directory is NOT created here - it's created on-demand
     when the user actually uses the writer feature.
     """
-    # Check if user already has projects
-    existing_project = Project.objects.filter(owner=user).first()
-    if existing_project:
-        logger.info(f"Using existing project: {existing_project.name}")
-        return existing_project
-
-    # Create default project (without writer directory - created on-demand)
-    if is_guest:
-        project_name = "Guest Demo Project"
-        description = "Temporary demo project for guest user. Sign up to keep your work!"
-    else:
-        project_name = f"{user.username}'s Project"
-        description = f"Default project for {user.username}"
-
-    # Generate unique slug
-    slug = Project.generate_unique_slug(project_name)
-
-    # Create the project (data_location will be set when writer dir is created)
-    project = Project.objects.create(
-        name=project_name,
-        slug=slug,
-        description=description,
-        owner=user,
-        visibility='private'
-    )
-
-    logger.info(f"Created default project: {project.name} (slug: {slug})")
-    return project
+    return centralized_get_or_create_default_project(user, is_guest=is_guest)
 
 
 def ensure_writer_directory(project):
@@ -94,9 +70,9 @@ def ensure_writer_directory(project):
 
     Pattern: data/users/username/project-slug/scitex/writer/01_manuscript/...
     Uses workspace directory manager for consistent project storage.
-    Uses scitex template create_writer_directory with fallback directory structure.
+    Uses scitex.writer.Writer class for initialization.
     """
-    from scitex.template import create_writer_directory
+    from scitex.writer import Writer
     from apps.writer_app.models import Manuscript
     from apps.project_app.services.project_filesystem import get_project_filesystem_manager
 
@@ -134,26 +110,34 @@ def ensure_writer_directory(project):
 
         return writer_dir  # Return absolute path to writer directory
 
-    # Create writer directory on-demand using scitex create_writer_directory
+    # Create writer directory on-demand using scitex.writer.Writer
     logger.info(f"Creating writer directory on-demand for project: {project.name}")
 
     try:
-        # First ensure scitex directory exists
-        scitex_dir.mkdir(parents=True, exist_ok=True)
+        # Determine git strategy
+        project_root = base_dir
+        has_git = (project_root / '.git').exists()
 
-        # Try to use scitex's create_writer_directory function
-        success = create_writer_directory("writer", str(scitex_dir))
-
-        if success and writer_dir.exists():
-            logger.info(f"✓ Created writer directory using scitex template: {writer_dir}")
-        elif not success:
-            # Fallback: create minimal directory structure if git clone fails
-            logger.warning("create_writer_directory failed, using fallback directory structure")
-            _create_writer_directory_fallback(writer_dir)
-            logger.info(f"✓ Created writer directory with fallback: {writer_dir}")
+        if has_git:
+            # Project has git repository - use parent strategy
+            git_strategy = 'parent'
+            logger.info(f"Using git_strategy='parent' (project has git at {project_root})")
         else:
-            logger.error(f"Writer directory not found after create_writer_directory call")
-            return None
+            # No git - create isolated child repository
+            git_strategy = 'child'
+            logger.info(f"Using git_strategy='child' (no parent git found)")
+
+        # Use Writer class to create project structure with appropriate git strategy
+        # Note: Don't pass 'name' - writer_dir already specifies the exact directory to use
+        writer = Writer(writer_dir, git_strategy=git_strategy)
+
+        # Verify the directory was actually created (Writer class may fail silently)
+        if not writer_dir.exists() or not (writer_dir / "01_manuscript").exists():
+            logger.error(f"Writer class failed to create directories at {writer_dir}")
+            raise Exception(f"Writer initialization failed - directories not created at {writer_dir}")
+
+        logger.info(f"✓ Created writer directory using scitex.writer.Writer: {writer_dir}")
+        logger.info(f"✓ Git root: {writer.git_root}")
 
         # Ensure project.data_location points to project root (not writer workspace)
         if not project.data_location:
@@ -216,7 +200,7 @@ def index(request):
 
     Simplified approach:
     - Anonymous users: Get guest user + default project
-    - Logged-in users: Use their account + default/selected project
+    - Logged-in users: Use their account + selected project from header selector
     """
     # Determine user and project
     is_guest = False
@@ -229,8 +213,28 @@ def index(request):
     else:
         user = request.user
 
-    # Get or create default project for this user
-    current_project = get_or_create_default_project(user, is_guest=is_guest)
+    # Get current project (respect header selector for logged-in users)
+    current_project = None
+    if not is_guest:
+        # For authenticated users, use project from header selector
+        if hasattr(user, 'profile') and user.profile.last_active_repository:
+            current_project = user.profile.last_active_repository
+
+        # Fallback: try session-based project selection
+        if not current_project:
+            current_project_slug = request.session.get('current_project_slug')
+            if current_project_slug:
+                try:
+                    current_project = Project.objects.get(
+                        slug=current_project_slug,
+                        owner=user
+                    )
+                except Project.DoesNotExist:
+                    pass
+
+    # Final fallback: get or create default project
+    if not current_project:
+        current_project = get_or_create_default_project(user, is_guest=is_guest)
 
     # Get all user projects
     user_projects = Project.objects.filter(owner=user).order_by('-created_at')
@@ -261,10 +265,11 @@ def index(request):
     manager = get_project_filesystem_manager(current_project.owner)
 
     if current_project.data_location:
-        # data_location is a relative path from user's base directory
-        full_writer_path = manager.base_path / current_project.data_location
-        if full_writer_path.exists():
-            writer_path = full_writer_path
+        # data_location is a relative path from user's base directory to project root
+        project_path = manager.base_path / current_project.data_location
+        # Writer workspace is at: project_root/scitex/writer/
+        writer_path = project_path / "scitex" / "writer"
+        if writer_path.exists():
             writer_initialized = True
             logger.info(f"Writer directory exists: {writer_path}")
 
@@ -343,6 +348,7 @@ def index(request):
     }
 
     logger.info(f"Rendering writer page - is_demo={is_guest}, writer_initialized={writer_initialized}, project={current_project.name if current_project else None}")
+    logger.info(f"Context check - project type: {type(current_project)}, project id: {current_project.id if current_project else None}, project in context: {'project' in context}")
 
     return render(request, 'writer_app/index.html', context)
 
@@ -412,15 +418,17 @@ def initialize_workspace(request):
     """Initialize writer workspace for a project (opt-in/on-demand).
 
     Handles both authenticated users and guest users via session.
+    Uses username + project_slug instead of project_id for better API design.
     """
     import json
 
     try:
         data = json.loads(request.body)
-        project_id = data.get('project_id')
+        username = data.get('username')
+        project_slug = data.get('project_slug')
 
-        if not project_id:
-            return JsonResponse({'success': False, 'error': 'No project ID provided'}, status=400)
+        if not username or not project_slug:
+            return JsonResponse({'success': False, 'error': 'Username and project_slug are required'}, status=400)
 
         # Determine the user to use for project lookup
         user = None
@@ -429,6 +437,14 @@ def initialize_workspace(request):
         if request.user.is_authenticated:
             user = request.user
             logger.info(f"Initializing workspace for authenticated user: {user.username}")
+
+            # Verify the username matches (security check)
+            if user.username != username:
+                logger.warning(f"Username mismatch: authenticated as {user.username}, requested {username}")
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Username mismatch'
+                }, status=403)
         else:
             # Try to get guest user from session
             guest_user_id = request.session.get('guest_user_id')
@@ -436,6 +452,14 @@ def initialize_workspace(request):
                 try:
                     user = User.objects.get(id=guest_user_id, username__startswith='guest-')
                     logger.info(f"Initializing workspace for guest user: {user.username}")
+
+                    # Verify the username matches
+                    if user.username != username:
+                        logger.warning(f"Guest username mismatch: session user {user.username}, requested {username}")
+                        return JsonResponse({
+                            'success': False,
+                            'error': 'Session mismatch. Please refresh the page.'
+                        }, status=403)
                 except User.DoesNotExist:
                     logger.warning(f"Guest user not found: {guest_user_id}")
                     return JsonResponse({
@@ -455,18 +479,19 @@ def initialize_workspace(request):
                 'error': 'Unable to determine user for workspace initialization'
             }, status=401)
 
-        # Get project
+        # Get project using slug and owner (more robust than project_id)
         try:
-            project = Project.objects.get(id=project_id, owner=user)
+            project = Project.objects.get(slug=project_slug, owner=user)
+            logger.info(f"Found project: {project.name} (slug={project_slug}, owner={user.username})")
         except Project.DoesNotExist:
-            logger.error(f"Project {project_id} not found for user {user.username}")
+            logger.error(f"Project '{project_slug}' not found for user {user.username}")
             return JsonResponse({
                 'success': False,
-                'error': f'Project not found for user {user.username}'
+                'error': f"Project '{project_slug}' not found for user {user.username}"
             }, status=404)
 
         # Initialize writer directory
-        logger.info(f"Creating writer directory for project: {project.name} (id={project_id})")
+        logger.info(f"Creating writer directory for project: {project.name} (slug={project_slug}, owner={username})")
         writer_path = ensure_writer_directory(project)
 
         if writer_path:

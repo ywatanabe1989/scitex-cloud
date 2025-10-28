@@ -51,15 +51,15 @@
     gap: 0;
     border-radius: 8px;
     overflow: hidden;
-    border: 1px solid var(--border-300);
+    border: 1px solid var(--border-default);
 }
 
 /* Radio button labels (with circular radio indicator) */
 .scitex-radio-label {
-    background-color: var(--bg-100);
+    background-color: var(--bg-surface);
     border: none;
-    border-right: 1px solid var(--border-300);
-    color: var(--text-800);
+    border-right: 1px solid var(--border-default);
+    color: var(--text-primary);
     padding: 0.5rem 1rem;
     padding-left: 2.5rem;
     font-weight: 500;
@@ -79,9 +79,9 @@
     left: 0.75rem;
     width: 18px;
     height: 18px;
-    border: 2px solid var(--border-400);
+    border: 2px solid var(--border-default);
     border-radius: 50%;
-    background-color: var(--bg-100);
+    background-color: var(--bg-surface);
     transition: var(--transition-fast);
 }
 
@@ -90,11 +90,11 @@
 }
 
 .scitex-radio-label:hover {
-    background-color: var(--bg-200);
+    background-color: var(--bg-muted);
 }
 
 .scitex-radio-label:hover::before {
-    border-color: var(--btn-primary-bg);
+    border-color: var(--color-btn-primary-bg);
 }
 
 /* =========================
@@ -102,25 +102,25 @@
    ========================= */
 
 .scitex-radio:checked + .scitex-radio-label {
-    background-color: var(--bg-200);
-    color: var(--text-900);
+    background-color: var(--bg-muted);
+    color: var(--text-primary);
     font-weight: 600;
 }
 
 /* Filled circle indicator when checked */
 .scitex-radio:checked + .scitex-radio-label::before {
-    border-color: var(--btn-primary-bg);
-    background-color: var(--btn-primary-bg);
-    box-shadow: inset 0 0 0 4px var(--bg-100);
+    border-color: var(--color-btn-primary-bg);
+    background-color: var(--color-btn-primary-bg);
+    box-shadow: inset 0 0 0 4px var(--bg-surface);
 }
 
 .scitex-radio:checked + .scitex-radio-label:hover {
-    background-color: var(--bg-300);
+    background-color: var(--bg-muted);
 }
 
 .scitex-radio:checked + .scitex-radio-label:hover::before {
-    border-color: var(--btn-primary-bg-hover);
-    background-color: var(--btn-primary-bg-hover);
+    border-color: var(--color-btn-primary-hover-bg);
+    background-color: var(--color-btn-primary-hover-bg);
 }
 
 /* =========================

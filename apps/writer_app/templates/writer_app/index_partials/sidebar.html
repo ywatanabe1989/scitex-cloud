@@ -76,6 +76,11 @@
             </div>
             
             <div class="action-buttons">
+                <!-- Initialize with Template Button (shown only when not initialized) -->
+                <button id="init-writer-btn" class="btn btn-success w-100 mb-2" style="display: {% if writer_initialized %}none{% else %}block{% endif %};">
+                    <i class="fas fa-rocket me-2"></i>Create Workspace
+                </button>
+
                 <button id="toggle-compilation-panel" class="btn btn-primary w-100 mb-2">
                     <i class="fas fa-file-pdf me-2"></i>View PDF
                 </button>

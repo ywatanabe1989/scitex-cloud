@@ -10,6 +10,28 @@
 
 {% block writer_content %}
 {% include "writer_app/index_partials/demo_banner.html" %}
+
+<!-- Show message if user has no projects -->
+{% if needs_project_creation %}
+<div id="no-project-message" class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-body text-center p-5">
+                    <i class="fas fa-folder-open fa-3x text-primary mb-3"></i>
+                    <h3 class="mb-3">No Project Found</h3>
+                    <p class="text-muted mb-4">
+                        SciTeX Writer works with projects. Please create a project first to start writing your manuscript.
+                    </p>
+                    <a href="{% url 'core:dashboard' %}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-plus me-2"></i>Create a Project
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
 {% include "writer_app/index_partials/init_prompt.html" %}
 
 <div class="writer-container" {% if not writer_initialized and not is_demo %}hidden{% endif %}>
@@ -18,19 +40,21 @@
 </div>
 
 {% include "writer_app/index_partials/word_count.html" %}
+{% endif %}
 
 <!-- CodeMirror -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/stex/stex.min.js"></script>
 
+{% if not needs_project_creation %}
 <!-- Initialize global variables for writer app -->
 <script>
-    // Pass Django context to JavaScript
-    const WRITER_CONFIG = {
+    // Pass Django context to JavaScript (must use window. to make it globally accessible)
+    window.WRITER_CONFIG = {
         projectId: {% if project %}{{ project.id }}{% else %}null{% endif %},
         projectName: {% if project %}'{{ project.name|escapejs }}'{% else %}'Demo Project'{% endif %},
         projectSlug: {% if project %}'{{ project.slug|escapejs }}'{% else %}null{% endif %},
-        manuscriptTitle: '{{ manuscript.title|escapejs }}',
+        manuscriptTitle: {% if manuscript %}'{{ manuscript.title|escapejs }}'{% else %}'Untitled'{% endif %},
         userId: {% if user.is_authenticated %}{{ user.id }}{% else %}null{% endif %},
         username: {% if user.is_authenticated %}'{{ user.username|escapejs }}'{% else %}null{% endif %},
         isDemo: {% if is_demo %}true{% else %}false{% endif %},
@@ -39,11 +63,11 @@
         writerInitialized: {% if writer_initialized %}true{% else %}false{% endif %},
         // Manuscript word counts
         wordCounts: {
-            abstract: {{ manuscript.word_count_abstract|default:0 }},
-            introduction: {{ manuscript.word_count_introduction|default:0 }},
-            methods: {{ manuscript.word_count_methods|default:0 }},
-            results: {{ manuscript.word_count_results|default:0 }},
-            discussion: {{ manuscript.word_count_discussion|default:0 }}
+            abstract: {% if manuscript %}{{ manuscript.word_count_abstract|default:0 }}{% else %}0{% endif %},
+            introduction: {% if manuscript %}{{ manuscript.word_count_introduction|default:0 }}{% else %}0{% endif %},
+            methods: {% if manuscript %}{{ manuscript.word_count_methods|default:0 }}{% else %}0{% endif %},
+            results: {% if manuscript %}{{ manuscript.word_count_results|default:0 }}{% else %}0{% endif %},
+            discussion: {% if manuscript %}{{ manuscript.word_count_discussion|default:0 }}{% else %}0{% endif %}
         },
         // Sections content
         sections: {
@@ -56,15 +80,16 @@
             conclusion: `{{ sections.conclusion|default:""|escapejs }}`
         },
         csrfToken: document.querySelector('[name=csrfmiddlewaretoken]')?.value ||
-                   Array.from(document.cookie.split(';'))
+                   (document.cookie ? Array.from(document.cookie.split(';'))
                        .find(c => c.trim().startsWith('csrftoken='))
-                       ?.split('=')[1] || ''
+                       ?.split('=')[1] : null) || ''
     };
 </script>
 
 <!-- Writer App JavaScript -->
-<script src="{% static 'writer_app/js/writer_app.js' %}"></script>
+<script src="{% static 'writer_app/js/writer_app.js' %}?v={{ writer_initialized|yesno:'1,0' }}{{ project.id|default:'0' }}"></script>
 
 <!-- Real-Time Collaboration Script -->
 <script src="{% static 'js/writer_collaboration.js' %}"></script>
+{% endif %}
 {% endblock %}

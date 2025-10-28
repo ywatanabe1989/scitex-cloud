@@ -30,6 +30,7 @@ from datetime import datetime, timedelta
 from django.db.models import Count, Avg, Max, Min, Q
 from django.utils import timezone
 from ..models import SearchIndex, UserLibrary, Author, Journal, Collection, Topic, AuthorPaper, Citation, Annotation, AnnotationReply, AnnotationVote, CollaborationGroup, GroupMembership, AnnotationTag, UserPreference
+from apps.project_app.services import get_current_project
 
 # Set up logger for Scholar module
 logger = logging.getLogger(__name__)
@@ -52,7 +53,7 @@ def simple_search(request):
     return simple_search_with_tab(request, active_tab='search')
 
 
-def simple_search_with_tab(request, active_tab='search'):
+def simple_search_with_tab(request, active_tab='search', template_name='scholar_app/index.html'):
     """Advanced search interface with tab specification."""
     query = request.GET.get('q', '').strip()
     project = request.GET.get('project', '')
@@ -198,7 +199,7 @@ def simple_search_with_tab(request, active_tab='search'):
         'filter_ranges': filter_ranges,  # Add dynamic filter ranges
     }
 
-    return render(request, 'scholar_app/index.html', context)
+    return render(request, template_name, context)
 
 
 def extract_search_filters(request):
@@ -1565,37 +1566,36 @@ def get_paper_authors(paper):
 
 
 def index(request):
-    """Scholar app index view with hash-based tab navigation."""
-    # If there's a search query, use search view logic and set active_tab to 'search'
-    query = request.GET.get('q', '').strip()
-    if query:
-        return simple_search_with_tab(request, active_tab='search')
-
-    # Otherwise, show BibTeX enrichment tab by default
-    return bibtex_enrichment_view(request)
+    """Scholar app index/landing page."""
+    # Simple landing page that shows both features
+    context = {
+        'active_tab': 'overview',
+    }
+    return render(request, 'scholar_app/index_landing.html', context)
 
 
-def bibtex_enrichment_view(request):
+def scholar_bibtex(request):
+    """Dedicated BibTeX enrichment page."""
+    return bibtex_enrichment_view(request, template_name='scholar_app/scholar_bibtex.html')
+
+
+def scholar_search(request):
+    """Dedicated literature search page."""
+    return simple_search_with_tab(request, active_tab='search', template_name='scholar_app/scholar_search.html')
+
+
+def bibtex_enrichment_view(request, template_name='scholar_app/index.html'):
     """BibTeX Enrichment tab view."""
     from apps.scholar_app.models import BibTeXEnrichmentJob
+    from apps.project_app.models import Project
 
-    # Get user projects and current project
+    # Get user projects and current project using centralized getter
     user_projects = []
     current_project = None
     if request.user.is_authenticated:
-        from apps.project_app.models import Project
         user_projects = Project.objects.filter(owner=request.user).order_by('-created_at')
-
-        # Get current project from session
-        current_project_slug = request.session.get('current_project_slug')
-        if current_project_slug:
-            try:
-                current_project = Project.objects.get(
-                    owner=request.user,
-                    slug=current_project_slug
-                )
-            except Project.DoesNotExist:
-                pass
+        # Use centralized project getter
+        current_project = get_current_project(request, user=request.user)
 
     # Get user's recent enrichment jobs
     if request.user.is_authenticated:
@@ -1629,7 +1629,7 @@ def bibtex_enrichment_view(request):
         'filter_ranges': filter_ranges,  # Add default filter ranges
     }
 
-    return render(request, 'scholar_app/index.html', context)
+    return render(request, template_name, context)
 
 
 def literature_search_view(request):
@@ -1936,6 +1936,88 @@ def save_paper(request):
         return JsonResponse({
             'status': 'error',
             'message': f'Error saving paper: {str(e)}'
+        })
+
+
+@require_http_methods(["POST"])
+@csrf_exempt
+def save_papers_bulk(request):
+    """Save multiple papers to user's library and project."""
+    try:
+        # Check if user is authenticated
+        if not request.user.is_authenticated:
+            return JsonResponse({
+                'status': 'signup_required',
+                'message': 'Sign up to save papers to your library!',
+                'signup_url': '/auth/signup/'
+            }, status=401)
+
+        data = json.loads(request.body)
+        papers = data.get('papers', [])
+        project_id = data.get('project_id', '')
+
+        if not papers:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'No papers provided'
+            })
+
+        # Get project if specified
+        project = None
+        if project_id:
+            from apps.project_app.models import Project
+            try:
+                project = Project.objects.get(id=project_id, owner=request.user)
+            except Project.DoesNotExist:
+                pass  # Silently ignore invalid project
+
+        # Save all papers
+        saved_count = 0
+        for paper_data in papers:
+            try:
+                paper_id = paper_data.get('id')
+                paper_title = paper_data.get('title', '')
+
+                # Create or get paper in SearchIndex
+                paper, created = SearchIndex.objects.get_or_create(
+                    id=paper_id,
+                    defaults={
+                        'title': paper_title,
+                        'abstract': paper_data.get('abstract', f'Paper saved from search: {paper_title}'),
+                        'relevance_score': 1.0
+                    }
+                )
+
+                # Check if paper already saved
+                existing = UserLibrary.objects.filter(
+                    user=request.user,
+                    paper=paper
+                ).first()
+
+                if not existing:
+                    # Save to user library
+                    UserLibrary.objects.create(
+                        user=request.user,
+                        paper=paper,
+                        project=project,
+                        personal_notes=f"Saved from search: {paper_title}"
+                    )
+                    saved_count += 1
+            except Exception as e:
+                logger.warning(f"Failed to save paper {paper_data.get('id')}: {str(e)}")
+                continue
+
+        project_name = project.name if project else "your library"
+        return JsonResponse({
+            'status': 'success',
+            'message': f'{saved_count} papers saved to {project_name}',
+            'count': saved_count
+        })
+
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': f'Error saving papers: {str(e)}'
         })
 
 

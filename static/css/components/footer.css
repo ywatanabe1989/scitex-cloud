@@ -3,7 +3,7 @@
 .site-footer {
   background-color: var(--bg-surface);
   color: var(--text-primary);
-  padding: var(--spacing-xl) 0;
+  padding: var(--spacing-md) 0 var(--spacing-sm) 0;
   margin-bottom: 0;
   position: relative;
 }
@@ -46,7 +46,8 @@
 /* Ensure footer content stays above pattern */
 .footer-content {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-lg);
   position: relative;
   z-index: 1;
 }
@@ -59,14 +60,15 @@
 
 .footer-section h3 {
   color: var(--text-primary);
-  font-size: 1.25rem;
-  margin-bottom: var(--spacing-md);
+  font-size: 0.95rem;
+  margin-bottom: var(--spacing-sm);
   border-bottom: 1px solid var(--border-muted);
-  padding-bottom: var(--spacing-sm);
+  padding-bottom: var(--spacing-xs);
 }
 
 .footer-section p {
   margin-bottom: var(--spacing-sm);
+  font-size: 0.8rem;
 }
 
 .footer-links {
@@ -86,6 +88,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  font-size: 0.85rem;
 }
 
 .footer-links a:hover {
@@ -140,28 +143,29 @@
 
 .footer-social {
   display: flex;
-  gap: var(--spacing-md);
-  margin-top: var(--spacing-md);
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  margin-top: 0;
 }
 
 .footer-social a {
-  color: var(--text-primary);
+  color: var(--text-secondary);
   text-decoration: none;
-  font-size: 1.25rem;
+  font-size: 0.95rem;
   transition: color var(--transition-normal);
 }
 
 .footer-social a:hover {
-  color: var(--text-secondary);
+  color: var(--text-primary);
 }
 
 .footer-bottom {
-  margin-top: var(--spacing-xl);
-  padding-top: var(--spacing-md);
+  margin-top: var(--spacing-md);
+  padding-top: var(--spacing-sm);
   border-top: 1px solid var(--border-muted);
-  text-align: center;
-  font-size: 0.875rem;
-  color: var(--text-muted);
+  text-align: left;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
 }
 
 .footer-bottom p {
@@ -171,10 +175,10 @@
 @media (max-width: 768px) {
   .footer-content {
     grid-template-columns: 1fr;
-    gap: var(--spacing-lg);
+    gap: var(--spacing-md);
   }
-  
+
   .footer-section {
-    margin-bottom: var(--spacing-md);
+    margin-bottom: var(--spacing-sm);
   }
 }

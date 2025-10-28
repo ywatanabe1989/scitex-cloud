@@ -661,6 +661,19 @@ def _process_bibtex_job(job):
             asyncio.run(update_job())
 
     try:
+        # Set user-specific SCITEX_DIR to avoid cache conflicts between users
+        import os
+        if job.user:
+            user_scitex_dir = Path(settings.BASE_DIR) / 'data' / 'users' / job.user.username / '.scitex'
+        else:
+            # Anonymous users get session-based directory
+            session_key = job.session_key or 'anonymous'
+            user_scitex_dir = Path(settings.BASE_DIR) / 'data' / 'anonymous' / session_key / '.scitex'
+
+        user_scitex_dir.mkdir(parents=True, exist_ok=True)
+        os.environ['SCITEX_DIR'] = str(user_scitex_dir)
+        logger.info(f"Set SCITEX_DIR to {user_scitex_dir} for job {job.id}")
+
         # Update job status - refresh first to avoid conflicts
         try:
             job.refresh_from_db()
@@ -1087,42 +1100,55 @@ def bibtex_save_to_project(request, job_id):
             'error': 'Project not found'
         }, status=404)
 
-    if not project.git_clone_path:
-        return JsonResponse({
-            'success': False,
-            'error': 'Project has no git repository'
-        }, status=400)
-
     try:
-        from apps.project_app.services.git_service import auto_commit_file
-
-        # Create directory
-        project_bib_dir = Path(project.git_clone_path) / 'scitex' / 'scholar' / 'bib_files'
-        project_bib_dir.mkdir(parents=True, exist_ok=True)
-
         # Generate filenames
         original_name = Path(job.original_filename).stem if job.original_filename else 'references'
         timestamp = datetime.now().strftime('%Y%m%d-%H%M%S')
 
-        # Copy both files
+        # Copy source files
         input_path = Path(settings.MEDIA_ROOT) / job.input_file.name
         output_path = Path(settings.MEDIA_ROOT) / job.output_file.name
 
-        shutil.copy(input_path, project_bib_dir / f"{original_name}_original-{timestamp}.bib")
-        shutil.copy(output_path, project_bib_dir / f"{original_name}_enriched-{timestamp}.bib")
+        original_filename = f"{original_name}_original-{timestamp}.bib"
+        enriched_filename = f"{original_name}_enriched-{timestamp}.bib"
 
-        # Commit
-        success, output = auto_commit_file(
-            project_dir=Path(project.git_clone_path),
-            filepath='scitex/scholar/bib_files/',
-            message=f"Scholar: Added bibliography - {job.processed_papers}/{job.total_papers} papers"
-        )
+        committed = False
+
+        # If project has git repository, save to git and commit
+        if project.git_clone_path:
+            from apps.project_app.services.git_service import auto_commit_file
+
+            # Create directory in git repo
+            project_bib_dir = Path(project.git_clone_path) / 'scitex' / 'scholar' / 'bib_files'
+            project_bib_dir.mkdir(parents=True, exist_ok=True)
+
+            # Copy both files to git directory
+            shutil.copy(input_path, project_bib_dir / original_filename)
+            shutil.copy(output_path, project_bib_dir / enriched_filename)
+
+            # Commit
+            success, output = auto_commit_file(
+                project_dir=Path(project.git_clone_path),
+                filepath='scitex/scholar/bib_files/',
+                message=f"Scholar: Added bibliography - {job.processed_papers}/{job.total_papers} papers"
+            )
+            committed = success
+
+        else:
+            # Fallback: Save to media directory structure for projects without git
+            project_media_dir = Path(settings.MEDIA_ROOT) / 'projects' / str(project.id) / 'scholar' / 'bib_files'
+            project_media_dir.mkdir(parents=True, exist_ok=True)
+
+            # Copy both files to media directory
+            shutil.copy(input_path, project_media_dir / original_filename)
+            shutil.copy(output_path, project_media_dir / enriched_filename)
 
         return JsonResponse({
             'success': True,
             'message': f'Saved to {project.name}',
             'project': project.name,
-            'committed': success
+            'committed': committed,
+            'storage': 'git' if project.git_clone_path else 'media'
         })
 
     except Exception as e:

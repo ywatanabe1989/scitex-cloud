@@ -51,9 +51,12 @@ class Project(models.Model):
     ]
 
     name = models.CharField(max_length=200)
-    slug = models.SlugField(max_length=200, unique=True, default='project')
+    slug = models.SlugField(max_length=200, default='project')
     description = models.TextField()
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='project_app_owned_projects')
+
+    class Meta:
+        unique_together = [('owner', 'slug')]  # Slug is unique per owner, not globally
 
     # Privacy settings
     visibility = models.CharField(
@@ -170,9 +173,9 @@ class Project(models.Model):
         super().save(*args, **kwargs)
     
     @classmethod
-    def generate_unique_slug(cls, name):
+    def generate_unique_slug(cls, name, owner=None):
         """
-        Generate a globally unique slug from project name
+        Generate a unique slug from project name (unique per owner, not globally)
 
         Follows GitHub repository naming rules:
         - Only alphanumeric, hyphens, underscores, periods
@@ -199,17 +202,30 @@ class Project(models.Model):
         # Limit to 100 chars (GitHub limit)
         base_slug = base_slug[:100]
 
-        # Check if slug is unique
-        if not cls.objects.filter(slug=base_slug).exists():
-            return base_slug
+        # Check if slug is unique for this owner (if owner provided)
+        if owner:
+            if not cls.objects.filter(slug=base_slug, owner=owner).exists():
+                return base_slug
 
-        # If base slug exists, try with numbers
-        counter = 1
-        while True:
-            unique_slug = f"{base_slug}-{counter}"
-            if not cls.objects.filter(slug=unique_slug).exists():
-                return unique_slug
-            counter += 1
+            # If base slug exists for this owner, try with numbers
+            counter = 1
+            while True:
+                unique_slug = f"{base_slug}-{counter}"
+                if not cls.objects.filter(slug=unique_slug, owner=owner).exists():
+                    return unique_slug
+                counter += 1
+        else:
+            # Legacy behavior: check globally (for backward compatibility)
+            if not cls.objects.filter(slug=base_slug).exists():
+                return base_slug
+
+            # If base slug exists globally, try with numbers
+            counter = 1
+            while True:
+                unique_slug = f"{base_slug}-{counter}"
+                if not cls.objects.filter(slug=unique_slug).exists():
+                    return unique_slug
+                counter += 1
     
     @classmethod
     def generate_unique_name(cls, base_name, owner):

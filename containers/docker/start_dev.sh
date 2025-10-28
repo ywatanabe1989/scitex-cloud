@@ -1,7 +1,7 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-10-27 16:22:07 (ywatanabe)"
-# File: ./start_dev.sh
+# Timestamp: "2025-10-28 11:06:43 (ywatanabe)"
+# File: ./containers/docker/start_dev.sh
 
 ORIG_DIR="$(pwd)"
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
@@ -22,6 +22,9 @@ echo_warning() { echo -e "${YELLOW}WARN: $1${NC}"; }
 echo_error() { echo -e "${RED}ERRO: $1${NC}"; }
 echo_header() { echo_info "=== $1 ==="; }
 # ---------------------------------------
+
+# Override as the header is auto-insertion
+LOG_PATH="./logs/.$(basename $0).log" && echo > "$LOG_PATH"
 
 verify_env_setup() {
     echo_header "Verifying .env setup..."
@@ -66,7 +69,7 @@ verify_env_setup() {
     source "$GIT_ROOT"/containers/docker/.env 2>/dev/null
 
     local critical_vars=(
-        "SCITEX_CLOUD_GITEA_URL_DEV"
+        "SCITEX_CLOUD_GITEA_URL_IN_CONTAINER_DEV"
         "SCITEX_CLOUD_DB_HOST_DEV"
         "POSTGRES_DB"
         "POSTGRES_USER"
@@ -81,13 +84,13 @@ verify_env_setup() {
     echo_success "All critical variables are set"
 
     # Verify Gitea URL uses Docker networking
-    if [[ "$SCITEX_CLOUD_GITEA_URL_DEV" == *"127.0.0.1"* ]]; then
-        echo_error "SCITEX_CLOUD_GITEA_URL_DEV uses 127.0.0.1 (should use 'gitea' for Docker networking)"
-        echo_info "Current value: $SCITEX_CLOUD_GITEA_URL_DEV"
+    if [[ "$SCITEX_CLOUD_GITEA_URL_IN_CONTAINER_DEV" == *"127.0.0.1"* ]]; then
+        echo_error "SCITEX_CLOUD_GITEA_URL_IN_CONTAINER_DEV uses 127.0.0.1 (should use 'gitea' for Docker networking)"
+        echo_info "Current value: $SCITEX_CLOUD_GITEA_URL_IN_CONTAINER_DEV"
         echo_info "Expected: http://gitea:3000"
         return 1
     fi
-    echo_success "Gitea URL uses Docker networking: $SCITEX_CLOUD_GITEA_URL_DEV"
+    echo_success "Gitea URL uses Docker networking: $SCITEX_CLOUD_GITEA_URL_IN_CONTAINER_DEV"
 
     return 0
 }
@@ -807,10 +810,14 @@ usage() {
 }
 
 main() {
-    sudo -v
-    if [ $? -ne 0 ]; then
-        echo_error "Sudo privileges required. Aborted."
-        exit 1
+    # Check sudo privileges (non-interactive first, then interactive)
+    if ! sudo -n true 2>/dev/null; then
+        echo_error "Sudo privileges required. Please enter your password:"
+        sudo -v
+        if [ $? -ne 0 ]; then
+            echo_error "Failed to obtain sudo privileges. Aborted."
+            exit 1
+        fi
     fi
 
     if ! groups | grep -q docker; then
@@ -861,6 +868,12 @@ main() {
 
 }
 
-main "$@" 2>&1 | tee "$LOG_PATH"
+# Execute main function and always log output, even if it fails
+{
+    main "$@"
+    exit_code=$?
+} 2>&1 | tee -a "$LOG_PATH"
+
+exit ${exit_code:-0}
 
 # EOF

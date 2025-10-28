@@ -127,13 +127,13 @@
 
 .form-control::placeholder {
   color: var(--text-secondary);
-  opacity: 0.7;
+  opacity: 0.85;
 }
 
 /* Dark mode placeholder - bluish muted color */
 [data-theme="dark"] .form-control::placeholder {
   color: var(--scitex-color-05);
-  opacity: 0.6;
+  opacity: 0.75;
 }
 
 .form-control:disabled,
@@ -179,15 +179,18 @@ select.form-control:hover:not(:disabled) {
 /* Checkboxes and Radios */
 .form-check {
   position: relative;
-  display: block;
-  padding-left: 1.25rem;
+  display: flex;
+  align-items: center;
+  padding-left: 0;
   margin-bottom: var(--spacing-sm);
+  gap: 0.5rem;
 }
 
 .form-check-input {
-  position: absolute;
-  margin-top: 0.3rem;
-  margin-left: -1.25rem;
+  position: static;
+  margin-top: 0;
+  margin-left: 0;
+  margin-right: 0;
 }
 
 .form-check-label {

@@ -5,20 +5,22 @@
             {{ project.owner.username }}
         </a>
         <span style="color: var(--color-fg-muted);">/</span>
-        <a href="/{{ project.owner.username }}/{{ project.slug }}/" class="repo-title">
-            {{ project.name }}
+        <a href="/{{ project.owner.username }}/{{ project.slug }}/" style="color: var(--color-accent-fg); text-decoration: none; font-weight: 400;">
+            {{ project.slug }}
         </a>
-        {% for breadcrumb in breadcrumbs %}
-            {% if breadcrumb.name != project.name %}
-                <span style="color: var(--color-fg-muted);">/</span>
-                {% if breadcrumb.url %}
-                    <a href="{{ breadcrumb.url }}" style="color: var(--color-accent-fg); text-decoration: none;">
-                        {{ breadcrumb.name }}
-                    </a>
-                {% else %}
-                    <span style="font-weight: 600; color: var(--color-fg-default);">{{ breadcrumb.name }}</span>
+        {% if breadcrumbs %}
+            {% for breadcrumb in breadcrumbs %}
+                {% if breadcrumb.name != project.name %}
+                    <span style="color: var(--color-fg-muted);">/</span>
+                    {% if not breadcrumb.is_last %}
+                        <a href="{{ breadcrumb.url }}" style="color: var(--color-accent-fg); text-decoration: none;">
+                            {{ breadcrumb.name }}
+                        </a>
+                    {% else %}
+                        <span style="font-weight: 600; color: var(--color-fg-default);">{{ breadcrumb.name }}</span>
+                    {% endif %}
                 {% endif %}
-            {% endif %}
-        {% endfor %}
+            {% endfor %}
+        {% endif %}
     </div>
 </div>

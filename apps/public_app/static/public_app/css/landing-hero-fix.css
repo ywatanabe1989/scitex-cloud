@@ -9,6 +9,11 @@
   align-items: start !important; /* Align title top with PDF top */
 }
 
+/* Add top margin to hero section */
+.hero-landing {
+  margin-top: 3rem; /* Creates space between header and hero section */
+}
+
 /* Fix hero content alignment - left-align text */
 .hero-landing .hero-content {
   text-align: left !important;

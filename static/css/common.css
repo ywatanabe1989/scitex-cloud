@@ -33,6 +33,7 @@
 @import url('common/forms.css');
 @import url('common/autofill.css');
 @import url('common/buttons.css');
+@import url('common/buttons-dark.css');
 @import url('common/toggles.css');
 @import url('common/radios.css');
 @import url('common/checkboxes.css');
@@ -47,6 +48,7 @@
 @import url('common/code-blocks.css');
 @import url('common/terminal-log.css');
 @import url('common/theme-cards.css');
+@import url('common/scrollbars.css');
 @import url('common/module-icons.css');
 
 /* Layout & Specialized */
