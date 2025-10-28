@@ -131,13 +131,13 @@
 
         const theme = getThemePreference();
 
-        // Update title/aria-label
+        // Update aria-label (accessibility)
         const labels = {
             [THEME_LIGHT]: '☀️ Light',
             [THEME_DARK]: '🌙 Dark'
         };
 
-        toggleBtn.setAttribute('title', `Theme: ${labels[theme]}\nClick to toggle theme`);
+        // Note: title attribute removed to avoid duplicate tooltips with data-tooltip
         toggleBtn.setAttribute('aria-label', `Current theme: ${labels[theme]}`);
 
         // Update button content

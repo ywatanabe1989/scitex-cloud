@@ -44,6 +44,7 @@
 /* Display Components */
 @import url('common/cards.css');
 @import url('common/badges.css');
+@import url('common/tooltips.css');
 @import url('common/tooltip-contents.css');
 @import url('common/code-blocks.css');
 @import url('common/terminal-log.css');

@@ -254,10 +254,11 @@ document.addEventListener('DOMContentLoaded', function() {
     if (saveSearchBtn) {
         saveSearchBtn.addEventListener('click', function() {
             const query = searchInput.value.trim();
-            if (!query) {
-                alert('Please enter a search query first.');
-                return;
-            }
+            // Allow saving with empty query - the backend will handle validation if needed
+            // if (!query) {
+            //     alert('Please enter a search query first.');
+            //     return;
+            // }
             
             const searchName = prompt('Enter a name for this saved search:', query.substring(0, 50));
             if (!searchName) return;
@@ -611,12 +612,13 @@ document.addEventListener('DOMContentLoaded', function() {
     if (literatureSearchForm) {
         literatureSearchForm.addEventListener('submit', function(e) {
             e.preventDefault(); // Prevent normal form submission
-            
+
             const query = searchInput.value.trim();
-            if (!query) {
-                alert('Please enter a search query.');
-                return;
-            }
+            // Allow search without explicit query (could be filtering existing results)
+            // if (!query) {
+            //     alert('Please enter a search query.');
+            //     return;
+            // }
             
             // Save current source preferences before starting search
             saveSourcePreferences();
@@ -905,13 +907,14 @@ document.addEventListener('DOMContentLoaded', function() {
         saveSearchButton.addEventListener('click', function() {
             const saveSearchFormElement = document.getElementById('literatureSearchForm');
             const formData = new FormData(saveSearchFormElement);
-            
-            // Get current search query
+
+            // Get current search query - allow empty query
             const query = formData.get('q');
-            if (!query || !query.trim()) {
-                alert('Please enter a search query first');
-                return;
-            }
+            // Allow saving search with empty query
+            // if (!query || !query.trim()) {
+            //     alert('Please enter a search query first');
+            //     return;
+            // }
             
             // Get search name from user
             const searchName = prompt('Enter a name for this saved search:', query.substring(0, 50));
@@ -2222,7 +2225,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            // Call the bulk export function
+            // No need to validate search query - just export selected papers
             bulkExportCitations('bibtex');
         });
 

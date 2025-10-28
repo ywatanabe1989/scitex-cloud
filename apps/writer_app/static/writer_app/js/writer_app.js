@@ -2421,4 +2421,525 @@ document.addEventListener('DOMContentLoaded', function() {
 
         console.log('✓ Real-time collaboration initialized with section locking');
     }
+
+    // ========================================================================
+    // NEW UI IMPROVEMENTS - Sidebar Toggle, View Tabs, Floating Panel, etc.
+    // ========================================================================
+
+    // 1. SIDEBAR TOGGLE FUNCTIONALITY
+    // ========================================================================
+    const toggleSidebarBtn = document.getElementById('toggle-sidebar');
+    const writerSidebar = document.querySelector('.writer-sidebar');
+    const mainEditor = document.querySelector('.writer-main-editor');
+
+    if (toggleSidebarBtn && writerSidebar) {
+        console.log('[Writer] Initializing sidebar toggle');
+
+        // Load saved sidebar state from localStorage
+        const sidebarCollapsed = localStorage.getItem(`sidebar_collapsed_${projectId}`) === 'true';
+        if (sidebarCollapsed) {
+            writerSidebar.classList.add('collapsed');
+            console.log('[Writer] Sidebar restored to collapsed state');
+        }
+
+        // Add click event listener
+        toggleSidebarBtn.addEventListener('click', function() {
+            const isCollapsed = writerSidebar.classList.toggle('collapsed');
+
+            // Save state to localStorage
+            localStorage.setItem(`sidebar_collapsed_${projectId}`, isCollapsed);
+
+            console.log('[Writer] Sidebar toggled:', isCollapsed ? 'collapsed' : 'expanded');
+
+            // Update icon
+            const icon = this.querySelector('i');
+            if (icon) {
+                if (isCollapsed) {
+                    icon.classList.remove('fa-bars');
+                    icon.classList.add('fa-arrow-right');
+                } else {
+                    icon.classList.remove('fa-arrow-right');
+                    icon.classList.add('fa-bars');
+                }
+            }
+        });
+    }
+
+    // 2. EDITOR VIEW TABS FUNCTIONALITY
+    // ========================================================================
+    const viewTabs = document.querySelectorAll('.view-tab');
+    const latexOnlyView = document.querySelector('.editor-latex-only');
+    const previewOnlyView = document.querySelector('.editor-preview-only');
+    const splitView = document.querySelector('.editor-split-view');
+
+    if (viewTabs.length > 0) {
+        console.log('[Writer] Initializing view tabs');
+
+        // Load saved view preference from localStorage
+        const savedView = localStorage.getItem(`editor_view_${projectId}`) || 'split';
+        switchEditorView(savedView);
+
+        // Add click event listeners to all view tabs
+        viewTabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                const view = this.dataset.view;
+                switchEditorView(view);
+
+                // Save preference to localStorage
+                localStorage.setItem(`editor_view_${projectId}`, view);
+
+                console.log('[Writer] View switched to:', view);
+            });
+        });
+    }
+
+    function switchEditorView(view) {
+        // Remove active class from all tabs
+        viewTabs.forEach(tab => tab.classList.remove('active'));
+
+        // Add active class to selected tab
+        const activeTab = document.querySelector(`.view-tab[data-view="${view}"]`);
+        if (activeTab) {
+            activeTab.classList.add('active');
+        }
+
+        // Hide all views
+        if (latexOnlyView) latexOnlyView.style.display = 'none';
+        if (previewOnlyView) previewOnlyView.style.display = 'none';
+        if (splitView) splitView.style.display = 'none';
+
+        // Show selected view
+        switch(view) {
+            case 'latex':
+                if (latexOnlyView) {
+                    latexOnlyView.style.display = 'flex';
+                    // Refresh CodeMirror if it exists
+                    if (codeMirrorEditor) {
+                        setTimeout(() => codeMirrorEditor.refresh(), 100);
+                    }
+                }
+                break;
+            case 'preview':
+                if (previewOnlyView) {
+                    previewOnlyView.style.display = 'flex';
+                }
+                break;
+            case 'split':
+                if (splitView) {
+                    splitView.style.display = 'flex';
+                    // Refresh CodeMirror if it exists
+                    if (codeMirrorEditor) {
+                        setTimeout(() => codeMirrorEditor.refresh(), 100);
+                    }
+                }
+                break;
+        }
+
+        console.log('[Writer] View switched to:', view);
+    }
+
+    // 3. FLOATING SECTION PANEL FUNCTIONALITY
+    // ========================================================================
+    const toggleSectionPanelBtn = document.getElementById('toggle-section-panel');
+    const floatingPanel = document.getElementById('floating-section-panel');
+
+    if (toggleSectionPanelBtn && floatingPanel) {
+        console.log('[Writer] Initializing floating section panel');
+
+        // Load saved panel state and position from localStorage
+        const panelVisible = localStorage.getItem(`section_panel_visible_${projectId}`) === 'true';
+        const panelTop = localStorage.getItem(`section_panel_top_${projectId}`) || '80px';
+        const panelRight = localStorage.getItem(`section_panel_right_${projectId}`) || '2rem';
+
+        if (panelVisible) {
+            floatingPanel.style.display = 'block';
+            floatingPanel.style.top = panelTop;
+            floatingPanel.style.right = panelRight;
+            console.log('[Writer] Section panel restored to visible state');
+        }
+
+        // Toggle panel visibility
+        toggleSectionPanelBtn.addEventListener('click', function() {
+            const isVisible = floatingPanel.style.display !== 'none';
+
+            if (isVisible) {
+                floatingPanel.style.display = 'none';
+                localStorage.setItem(`section_panel_visible_${projectId}`, 'false');
+                console.log('[Writer] Section panel hidden');
+            } else {
+                floatingPanel.style.display = 'block';
+                localStorage.setItem(`section_panel_visible_${projectId}`, 'true');
+                console.log('[Writer] Section panel shown');
+            }
+        });
+
+        // Make panel draggable
+        makeDraggable(floatingPanel);
+    }
+
+    function makeDraggable(element) {
+        let isDragging = false;
+        let currentX;
+        let currentY;
+        let initialX;
+        let initialY;
+        let xOffset = 0;
+        let yOffset = 0;
+
+        const header = element.querySelector('.floating-panel-header');
+        if (!header) return;
+
+        header.style.cursor = 'move';
+
+        header.addEventListener('mousedown', dragStart);
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('mouseup', dragEnd);
+
+        function dragStart(e) {
+            const rect = element.getBoundingClientRect();
+            initialX = e.clientX - rect.left;
+            initialY = e.clientY - rect.top;
+
+            isDragging = true;
+        }
+
+        function drag(e) {
+            if (!isDragging) return;
+
+            e.preventDefault();
+
+            currentX = e.clientX - initialX;
+            currentY = e.clientY - initialY;
+
+            xOffset = currentX;
+            yOffset = currentY;
+
+            // Calculate position from top and right
+            const top = currentY;
+            const right = window.innerWidth - currentX - element.offsetWidth;
+
+            element.style.top = top + 'px';
+            element.style.right = right + 'px';
+        }
+
+        function dragEnd(e) {
+            if (!isDragging) return;
+
+            initialX = currentX;
+            initialY = currentY;
+            isDragging = false;
+
+            // Save position to localStorage
+            localStorage.setItem(`section_panel_top_${projectId}`, element.style.top);
+            localStorage.setItem(`section_panel_right_${projectId}`, element.style.right);
+
+            console.log('[Writer] Section panel position saved:', element.style.top, element.style.right);
+        }
+    }
+
+    // 4. COMPILE TOOLBAR BUTTON FUNCTIONALITY
+    // ========================================================================
+    const compileToolbarBtn = document.getElementById('compile-btn-toolbar');
+    let compileOutputDiv = null;
+
+    if (compileToolbarBtn) {
+        console.log('[Writer] Initializing compile toolbar button');
+
+        compileToolbarBtn.addEventListener('click', function() {
+            console.log('[Writer] Compile button clicked (toolbar)');
+
+            // Check if we're in demo mode or not initialized
+            if (isDemo || !writerInitialized) {
+                console.log('[Writer] Demo mode or not initialized - showing demo message');
+                showCompileDemo();
+                return;
+            }
+
+            // Trigger compilation
+            compileDocument();
+        });
+    }
+
+    function showCompileDemo() {
+        // Create or get compile output div
+        if (!compileOutputDiv) {
+            compileOutputDiv = document.createElement('div');
+            compileOutputDiv.id = 'compile-output';
+            compileOutputDiv.className = 'compile-output';
+            compileOutputDiv.style.cssText = `
+                margin-top: 1rem;
+                padding: 1rem;
+                background: var(--color-canvas-subtle);
+                border: 1px solid var(--color-border-default);
+                border-radius: 0.375rem;
+                font-family: monospace;
+                font-size: 0.875rem;
+            `;
+
+            // Insert after the editor toolbar
+            const toolbar = document.querySelector('.writer-toolbar-sticky');
+            if (toolbar && toolbar.parentNode) {
+                toolbar.parentNode.insertBefore(compileOutputDiv, toolbar.nextSibling);
+            }
+        }
+
+        // Show demo compilation output
+        compileOutputDiv.innerHTML = `
+            <div style="color: var(--color-attention-fg);">
+                <strong>Demo Mode:</strong> LaTeX compilation is available for authenticated users with initialized projects.
+            </div>
+            <div style="margin-top: 0.5rem; color: var(--color-fg-muted);">
+                Create an account and initialize your writer workspace to use this feature.
+            </div>
+        `;
+        compileOutputDiv.style.display = 'block';
+
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+            if (compileOutputDiv) {
+                compileOutputDiv.style.display = 'none';
+            }
+        }, 5000);
+    }
+
+    function compileDocument() {
+        // Show loading state
+        if (compileToolbarBtn) {
+            const originalHtml = compileToolbarBtn.innerHTML;
+            compileToolbarBtn.disabled = true;
+            compileToolbarBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Compiling...';
+
+            // Create or get compile output div
+            if (!compileOutputDiv) {
+                compileOutputDiv = document.createElement('div');
+                compileOutputDiv.id = 'compile-output';
+                compileOutputDiv.className = 'compile-output';
+                compileOutputDiv.style.cssText = `
+                    margin-top: 1rem;
+                    padding: 1rem;
+                    background: var(--color-canvas-subtle);
+                    border: 1px solid var(--color-border-default);
+                    border-radius: 0.375rem;
+                    font-family: monospace;
+                    font-size: 0.875rem;
+                    max-height: 300px;
+                    overflow-y: auto;
+                `;
+
+                // Insert after the editor toolbar
+                const toolbar = document.querySelector('.writer-toolbar-sticky');
+                if (toolbar && toolbar.parentNode) {
+                    toolbar.parentNode.insertBefore(compileOutputDiv, toolbar.nextSibling);
+                }
+            }
+
+            compileOutputDiv.innerHTML = '<div style="color: var(--color-attention-fg);"><i class="fas fa-spinner fa-spin me-2"></i>Starting compilation...</div>';
+            compileOutputDiv.style.display = 'block';
+
+            // Make API call to compile endpoint
+            fetch(`/writer/project/${projectId}/compile/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify({
+                    doc_type: currentDocType
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                compileToolbarBtn.disabled = false;
+                compileToolbarBtn.innerHTML = originalHtml;
+
+                if (data.success) {
+                    console.log('[Writer] Compilation started:', data.job_id);
+                    compileOutputDiv.innerHTML = `
+                        <div style="color: var(--color-success-fg);">
+                            <i class="fas fa-check-circle me-2"></i>Compilation started successfully
+                        </div>
+                        <div style="margin-top: 0.5rem; color: var(--color-fg-muted);">
+                            Job ID: ${data.job_id}
+                        </div>
+                        <div style="margin-top: 0.5rem; color: var(--color-fg-muted);">
+                            Status: ${data.status || 'Processing...'}
+                        </div>
+                    `;
+
+                    // Poll for compilation status
+                    if (data.job_id) {
+                        pollCompilationStatus(data.job_id);
+                    }
+                } else {
+                    console.error('[Writer] Compilation failed:', data.error);
+                    compileOutputDiv.innerHTML = `
+                        <div style="color: var(--color-danger-fg);">
+                            <i class="fas fa-exclamation-circle me-2"></i>Compilation failed
+                        </div>
+                        <div style="margin-top: 0.5rem; color: var(--color-fg-muted);">
+                            ${data.error || 'Unknown error'}
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('[Writer] Compilation error:', error);
+                compileToolbarBtn.disabled = false;
+                compileToolbarBtn.innerHTML = originalHtml;
+
+                compileOutputDiv.innerHTML = `
+                    <div style="color: var(--color-danger-fg);">
+                        <i class="fas fa-exclamation-circle me-2"></i>Error
+                    </div>
+                    <div style="margin-top: 0.5rem; color: var(--color-fg-muted);">
+                        ${error.message}
+                    </div>
+                `;
+            });
+        }
+    }
+
+    function pollCompilationStatus(jobId) {
+        console.log('[Writer] Polling compilation status for job:', jobId);
+
+        const pollInterval = setInterval(() => {
+            fetch(`/writer/project/${projectId}/compile-status/?job_id=${jobId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'completed') {
+                    clearInterval(pollInterval);
+                    compileOutputDiv.innerHTML = `
+                        <div style="color: var(--color-success-fg);">
+                            <i class="fas fa-check-circle me-2"></i>Compilation completed successfully
+                        </div>
+                        <div style="margin-top: 0.5rem;">
+                            <a href="${data.pdf_url}" target="_blank" class="btn btn-sm btn-primary">
+                                <i class="fas fa-file-pdf me-1"></i>View PDF
+                            </a>
+                        </div>
+                    `;
+                    console.log('[Writer] Compilation completed:', data.pdf_url);
+                } else if (data.status === 'failed') {
+                    clearInterval(pollInterval);
+                    compileOutputDiv.innerHTML = `
+                        <div style="color: var(--color-danger-fg);">
+                            <i class="fas fa-exclamation-circle me-2"></i>Compilation failed
+                        </div>
+                        <div style="margin-top: 0.5rem; color: var(--color-fg-muted);">
+                            ${data.error || 'Unknown error'}
+                        </div>
+                    `;
+                    console.error('[Writer] Compilation failed:', data.error);
+                } else {
+                    // Still processing
+                    compileOutputDiv.innerHTML = `
+                        <div style="color: var(--color-attention-fg);">
+                            <i class="fas fa-spinner fa-spin me-2"></i>Compiling...
+                        </div>
+                        <div style="margin-top: 0.5rem; color: var(--color-fg-muted);">
+                            Status: ${data.status || 'Processing...'}
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('[Writer] Error polling status:', error);
+                clearInterval(pollInterval);
+            });
+        }, 2000); // Poll every 2 seconds
+    }
+
+    // 5. SAVE STATUS INDICATOR ENHANCEMENT
+    // ========================================================================
+    const saveStatusIndicator = document.getElementById('save-status');
+
+    if (saveStatusIndicator) {
+        console.log('[Writer] Initializing save status indicator');
+
+        // Override the markAsSaved and markAsUnsaved functions to update toolbar status
+        const originalMarkAsSaved2 = markAsSaved;
+        markAsSaved = function(section) {
+            originalMarkAsSaved2(section);
+            updateSaveStatus('saved', new Date().toLocaleTimeString());
+        };
+
+        const originalMarkAsUnsaved2 = markAsUnsaved;
+        markAsUnsaved = function(section) {
+            originalMarkAsUnsaved2(section);
+            updateSaveStatus('modified');
+        };
+
+        // Also wrap saveCurrentSectionManually to show saving state
+        if (typeof saveCurrentSectionManually !== 'undefined') {
+            const originalSave = saveCurrentSectionManually;
+            saveCurrentSectionManually = function() {
+                updateSaveStatus('saving');
+                return originalSave.apply(this, arguments);
+            };
+        }
+    }
+
+    function updateSaveStatus(status, timestamp = null) {
+        if (!saveStatusIndicator) return;
+
+        // Remove all status classes
+        saveStatusIndicator.classList.remove('saving', 'saved', 'error');
+
+        // Get icon and text elements
+        const icon = saveStatusIndicator.querySelector('i');
+        const statusText = saveStatusIndicator.querySelector('.status-text');
+
+        switch(status) {
+            case 'saving':
+                saveStatusIndicator.classList.add('saving');
+                if (icon) {
+                    icon.className = 'fas fa-spinner fa-spin text-warning';
+                }
+                if (statusText) {
+                    statusText.textContent = 'Saving...';
+                }
+                console.log('[Writer] Save status: saving');
+                break;
+
+            case 'saved':
+                saveStatusIndicator.classList.add('saved');
+                if (icon) {
+                    icon.className = 'fas fa-check-circle text-success';
+                }
+                if (statusText) {
+                    const time = timestamp || new Date().toLocaleTimeString();
+                    statusText.textContent = `Saved ${time}`;
+                }
+                console.log('[Writer] Save status: saved');
+                break;
+
+            case 'modified':
+                // Don't add a specific class, just show modified state
+                if (icon) {
+                    icon.className = 'fas fa-circle text-warning';
+                }
+                if (statusText) {
+                    statusText.textContent = 'Modified';
+                }
+                console.log('[Writer] Save status: modified');
+                break;
+
+            case 'error':
+                saveStatusIndicator.classList.add('error');
+                if (icon) {
+                    icon.className = 'fas fa-exclamation-circle text-danger';
+                }
+                if (statusText) {
+                    statusText.textContent = 'Error saving';
+                }
+                console.log('[Writer] Save status: error');
+                break;
+        }
+    }
+
+    // Expose updateSaveStatus globally so it can be called from save operations
+    window.updateSaveStatus = updateSaveStatus;
+
+    console.log('[Writer] All new UI improvements initialized');
+
 }); // Close DOMContentLoaded

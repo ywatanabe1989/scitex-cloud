@@ -2331,13 +2331,14 @@ def save_search(request):
     try:
         data = json.loads(request.body)
         name = data.get('name')
-        query = data.get('query')
+        query = data.get('query', '')  # Allow empty query
         filters = data.get('filters', {})
         email_alerts = data.get('email_alerts', False)
         alert_frequency = data.get('alert_frequency', 'never')
 
-        if not name or not query:
-            return JsonResponse({'status': 'error', 'message': 'Name and query are required'}, status=400)
+        # Only require name - query can be empty
+        if not name:
+            return JsonResponse({'status': 'error', 'message': 'Search name is required'}, status=400)
 
         # Check if saved search with this name already exists
         if SavedSearch.objects.filter(user=request.user, name=name).exists():

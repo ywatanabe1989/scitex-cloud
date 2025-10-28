@@ -1,44 +1,155 @@
     <!-- Main Editor -->
     <div class="writer-main" id="editor-main">
-        <div class="writer-toolbar">
-            <!-- Toolbar is now minimal - save buttons moved to section cards -->
+        <!-- Sticky Toolbar -->
+        <div class="writer-toolbar-sticky">
+            <div class="toolbar-left">
+                <!-- Sidebar Toggle -->
+                <button id="toggle-sidebar" class="btn btn-sm btn-outline-secondary" title="Toggle sidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+
+                <!-- Repository & Document Type Horizontal Tabs -->
+                <div class="horizontal-selector-group">
+                    <div class="horizontal-selector">
+                        <label class="selector-label"><i class="fas fa-folder-open me-1"></i></label>
+                        <select id="repository-selector" class="form-select form-select-sm" {% if is_demo %}disabled{% endif %}>
+                            {% if project %}
+                                <option value="{{ project.id }}" selected>{{ project.name }}</option>
+                                {% for proj in user_projects %}
+                                    {% if proj.id != project.id %}
+                                        <option value="{{ proj.id }}">{{ proj.name }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                <option value="" selected>{% if is_anonymous %}Demo Workspace{% else %}Create a project{% endif %}</option>
+                            {% endif %}
+                        </select>
+                    </div>
+                    <div class="horizontal-selector">
+                        <label class="selector-label"><i class="fas fa-file-alt me-1"></i></label>
+                        <select id="doctype-selector" class="form-select form-select-sm">
+                            <option value="shared">Shared</option>
+                            <option value="manuscript" selected>Manuscript</option>
+                            <option value="supplementary">Supplementary</option>
+                            <option value="revision">Revision</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Section Panel Toggle -->
+                <button id="toggle-section-panel" class="btn btn-sm btn-outline-primary" title="Sections">
+                    <i class="fas fa-list me-1"></i>Sections
+                </button>
+            </div>
+
+            <div class="toolbar-center">
+                <!-- Editor View Tabs -->
+                <div class="editor-view-tabs">
+                    <button id="view-tab-latex" class="view-tab active" data-view="latex">
+                        <i class="fas fa-code me-1"></i>LaTeX
+                    </button>
+                    <button id="view-tab-preview" class="view-tab" data-view="preview">
+                        <i class="fas fa-eye me-1"></i>Preview
+                    </button>
+                    <button id="view-tab-split" class="view-tab" data-view="split">
+                        <i class="fas fa-columns me-1"></i>Split
+                    </button>
+                </div>
+            </div>
+
+            <div class="toolbar-right">
+                <!-- Editor Tools -->
+                <button id="undo-btn" class="btn btn-sm btn-outline-secondary" title="Undo (Ctrl+Z)">
+                    <i class="fas fa-undo"></i>
+                </button>
+                <button id="redo-btn" class="btn btn-sm btn-outline-secondary" title="Redo (Ctrl+Y)">
+                    <i class="fas fa-redo"></i>
+                </button>
+
+                <div class="vertical-divider"></div>
+
+                <!-- Compile Button -->
+                <button id="compile-btn-toolbar" class="btn btn-sm btn-primary" title="Compile PDF">
+                    <i class="fas fa-file-pdf me-1"></i>Compile
+                </button>
+
+                <!-- View PDF Button -->
+                <button id="toggle-compilation-panel" class="btn btn-sm btn-outline-primary" title="View PDF">
+                    <i class="fas fa-external-link-alt"></i>
+                </button>
+
+                <div class="vertical-divider"></div>
+
+                <!-- Save Status Indicator -->
+                <div id="save-status" class="save-status">
+                    <i class="fas fa-check-circle text-success"></i>
+                    <span class="status-text">Saved</span>
+                </div>
+
+                <!-- Theme Selector -->
+                <select id="theme-selector" class="form-select form-select-sm" style="width: auto;">
+                    <optgroup label="Dark Themes">
+                        <option value="zenburn">Zenburn</option>
+                        <option value="monokai">Monokai</option>
+                        <option value="dracula">Dracula</option>
+                    </optgroup>
+                    <optgroup label="Light Themes">
+                        <option value="eclipse">Eclipse</option>
+                        <option value="neat">Neat</option>
+                        <option value="solarized light">Solarized Light</option>
+                    </optgroup>
+                </select>
+            </div>
         </div>
 
         <div class="writer-editor">
-            <!-- Split LaTeX editor with preview -->
-            <div id="split-editor" class="split-editor">
-                <div class="latex-panel">
-                    <div class="panel-header flex-center-between">
-                        <span><i class="fas fa-code me-1"></i><span id="section-title-latex">LaTeX Source</span></span>
-                        <div class="flex-row-gap">
-                            <button id="undo-btn" class="btn btn-sm btn-secondary btn-toolbar" title="Undo (Ctrl+Z)">
-                                <i class="fas fa-undo"></i>
-                            </button>
-                            <button id="redo-btn" class="btn btn-sm btn-secondary btn-toolbar" title="Redo (Ctrl+Y)">
-                                <i class="fas fa-redo"></i>
-                            </button>
-                            <span class="small-label">Color:</span>
-                            <select id="theme-selector" class="form-select form-select-sm small-select">
-                                <optgroup label="Dark Themes">
-                                    <option value="zenburn">Zenburn</option>
-                                    <option value="monokai">Monokai</option>
-                                    <option value="dracula">Dracula</option>
-                                </optgroup>
-                                <optgroup label="Light Themes">
-                                    <option value="eclipse">Eclipse</option>
-                                    <option value="neat">Neat</option>
-                                    <option value="solarized light">Solarized Light</option>
-                                </optgroup>
-                            </select>
-                        </div>
+            <!-- Tabbed Editor Views -->
+            <div class="editor-content-wrapper">
+                <!-- LaTeX View -->
+                <div id="editor-view-latex" class="editor-view active">
+                    <div class="editor-view-header">
+                        <span id="section-title-latex">LaTeX Source</span>
                     </div>
                     <textarea id="latex-editor-textarea" class="latex-editor-textarea" placeholder="LaTeX code..."></textarea>
                 </div>
-                <div class="preview-panel">
-                    <div class="panel-header">
-                        <i class="fas fa-eye me-1"></i><span id="section-title-preview">Text Preview</span>
+
+                <!-- Preview View -->
+                <div id="editor-view-preview" class="editor-view">
+                    <div class="editor-view-header">
+                        <span id="section-title-preview">Text Preview</span>
                     </div>
                     <div id="text-preview" class="text-preview"></div>
+                </div>
+
+                <!-- Split View -->
+                <div id="editor-view-split" class="editor-view split-view">
+                    <div class="latex-panel">
+                        <div class="panel-header">
+                            <span><i class="fas fa-code me-1"></i>LaTeX Source</span>
+                        </div>
+                        <textarea id="latex-editor-textarea-split" class="latex-editor-textarea" placeholder="LaTeX code..."></textarea>
+                    </div>
+                    <div class="preview-panel">
+                        <div class="panel-header">
+                            <i class="fas fa-eye me-1"></i>Preview
+                        </div>
+                        <div id="text-preview-split" class="text-preview"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inline Compilation Output (Initially Hidden) -->
+            <div id="compilation-output" class="compilation-output" style="display: none;">
+                <div class="compilation-output-header">
+                    <div>
+                        <i class="fas fa-terminal me-2"></i>Compilation Output
+                    </div>
+                    <button id="close-compilation-output" class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="compilation-log-inline" class="compilation-log-inline">
+                    Click "Compile" to start compilation...
                 </div>
             </div>
 
