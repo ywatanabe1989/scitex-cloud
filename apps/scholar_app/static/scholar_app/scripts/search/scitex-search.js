@@ -65,7 +65,8 @@
         },
 
         /**
-         * Cache search results to localStorage
+         * Cache search results to sessionStorage (persists across refresh but not browser close)
+         * Also caches to localStorage for longer persistence
          */
         cacheResults: function(query, data) {
             try {
@@ -74,19 +75,34 @@
                     results: data,
                     timestamp: Date.now()
                 };
-                localStorage.setItem('scitex_search_cache', JSON.stringify(cacheData));
-                console.log('[SciTeX Search] Results cached to localStorage');
+                const cacheJson = JSON.stringify(cacheData);
+
+                // Use sessionStorage for fast refresh recovery
+                sessionStorage.setItem('scitex_search_cache', cacheJson);
+
+                // Also cache to localStorage for persistence across sessions
+                localStorage.setItem('scitex_search_cache', cacheJson);
+                console.log('[SciTeX Search] Results cached to sessionStorage and localStorage');
             } catch (error) {
                 console.warn('[SciTeX Search] Failed to cache results:', error);
             }
         },
 
         /**
-         * Load cached results from localStorage
+         * Load cached results - prioritize sessionStorage (faster), fallback to localStorage
          */
         loadCachedResults: function() {
             try {
-                const cached = localStorage.getItem('scitex_search_cache');
+                // Try sessionStorage first (for quick refresh recovery)
+                let cached = sessionStorage.getItem('scitex_search_cache');
+                let source = 'sessionStorage';
+
+                // Fallback to localStorage if sessionStorage is empty
+                if (!cached) {
+                    cached = localStorage.getItem('scitex_search_cache');
+                    source = 'localStorage';
+                }
+
                 if (cached) {
                     const cacheData = JSON.parse(cached);
                     const cacheAge = Date.now() - cacheData.timestamp;
@@ -94,29 +110,179 @@
 
                     // Only use cache if it's less than 24 hours old
                     if (cacheAge < maxAge) {
-                        console.log('[SciTeX Search] Restoring cached results for query:', cacheData.query);
+                        console.log('[SciTeX Search] Restoring cached results from ' + source + ' for query:', cacheData.query);
 
                         // Store results in state
                         this.state.lastResults = cacheData.results;
                         this.state.currentQuery = cacheData.query;
+
+                        // Set flag to prevent re-searching when displaying cached results
+                        this.state.isLoadingFromCache = true;
 
                         // Calculate approximate search time
                         const searchTime = '0.00';
 
                         // Display the cached results
                         setTimeout(() => {
-                            this.displayResults(cacheData.results, searchTime);
+                            this.displayCachedResults(cacheData.results, searchTime);
+                            // Reset the flag after display is complete
+                            this.state.isLoadingFromCache = false;
                             console.log('[SciTeX Search] Cached results displayed');
                         }, 500);
                     } else {
                         console.log('[SciTeX Search] Cache expired, clearing...');
+                        sessionStorage.removeItem('scitex_search_cache');
                         localStorage.removeItem('scitex_search_cache');
                     }
                 }
             } catch (error) {
                 console.warn('[SciTeX Search] Failed to load cached results:', error);
+                sessionStorage.removeItem('scitex_search_cache');
                 localStorage.removeItem('scitex_search_cache');
             }
+        },
+
+        /**
+         * Display cached results (same as displayResults but without caching again)
+         */
+        displayCachedResults: function(data, searchTime) {
+            const resultsContainer = document.getElementById('scitex-results-container');
+
+            if (!resultsContainer) {
+                console.error('[SciTeX Search] Results container not found');
+                return;
+            }
+
+            const results = data.results || [];
+            const metadata = data.metadata || {};
+            const enginesUsed = metadata.engines_used || [];
+            const engineCounts = metadata.engine_counts || {};
+
+            // Skip caching since these are already cached results
+
+            // Update active searches count (all completed now)
+            const activeSearchCount = document.getElementById('activeSearchCount');
+            if (activeSearchCount) {
+                activeSearchCount.textContent = '0';
+            }
+
+            // Update total results count
+            const totalResultsCount = document.getElementById('totalResultsCount');
+            if (totalResultsCount) {
+                totalResultsCount.textContent = results.length;
+            }
+
+            // Build results HTML (same as displayResults)
+            let html = `
+                <!-- Search Results Header -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <div>
+                    <h5 class="mb-0">Search Results (cached)</h5>
+                    <small class="text-muted" id="searchResultsText">
+                      Found ${results.length} result${results.length !== 1 ? 's' : ''} - Search completed in ${searchTime}s using ${enginesUsed.length} engine${enginesUsed.length !== 1 ? 's' : ''}
+                      <span class="ms-2">
+                        ${enginesUsed.map(engine => this.renderEngineSuccessBadge(engine)).join('')}
+                      </span>
+                    </small>
+                  </div>
+                  <div class="d-flex align-items-center gap-3">
+                    <!-- Global Abstract Toggle -->
+                    <div class="d-flex align-items-center gap-2">
+                      <small class="text-muted">Abstract:</small>
+                      <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn btn-outline-secondary global-abstract-toggle" data-mode="all" title="Show full abstracts">
+                          <i class="fas fa-file-alt"></i> All
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary global-abstract-toggle" data-mode="truncated" title="Show truncated abstracts">
+                          <i class="fas fa-ellipsis-h"></i> Truncated
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary global-abstract-toggle" data-mode="none" title="Hide abstracts">
+                          <i class="fas fa-eye-slash"></i> None
+                        </button>
+                      </div>
+                    </div>
+
+                    <!-- Sort Dropdown -->
+                    <div>
+                      <small class="text-muted">Sort by:</small>
+                      <select name="sort_by" class="form-select form-select-sm d-inline-block w-auto ms-2" id="sortSelect" onchange="handleSortChange(this.value)">
+                        <option value="relevance">Most Relevant</option>
+                        <option value="date_desc">Publication Year (Newest)</option>
+                        <option value="date_asc">Publication Year (Oldest)</option>
+                        <option value="citations">Citation Count</option>
+                        <option value="impact_factor">Impact Factor</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+            `;
+
+            // Add results
+            if (results.length > 0) {
+                // Add selection toolbar
+                html += `
+                    <!-- Paper Selection Toolbar -->
+                    <div class="card mb-3" style="border-color: var(--scitex-color-05);">
+                      <div class="card-body p-2">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                          <div class="d-flex align-items-center gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-primary" id="selectAllResults">
+                              <i class="fas fa-check-double"></i> Select All
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="deselectAllResults">
+                              <i class="fas fa-times"></i> Deselect All
+                            </button>
+                            <span class="text-muted small" id="selectedCount">0 of ${results.length} selected</span>
+                          </div>
+                          <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-sm btn-success" id="exportSelectedBibtex" disabled>
+                              <i class="fas fa-file-download"></i> Download as BibTeX
+                            </button>
+                            <button type="button" class="btn btn-sm btn-warning" id="saveSelectedToProject" disabled>
+                              <i class="fas fa-bookmark"></i> Save to Project
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                `;
+
+                // Add paper cards
+                results.forEach((paper, index) => {
+                    html += this.renderPaperCard(paper, index);
+                });
+            } else {
+                html += this.renderNoResults();
+            }
+
+            resultsContainer.innerHTML = html;
+
+            // Setup paper selection and abstract toggle after results are rendered
+            if (results.length > 0) {
+                setTimeout(() => {
+                    if (typeof setupPaperSelection === 'function') {
+                        setupPaperSelection();
+                    }
+                    if (typeof setupGlobalAbstractToggle === 'function') {
+                        setupGlobalAbstractToggle();
+                    }
+                }, 100);
+            }
+
+            // Initialize swarm plots with results
+            if (window.SwarmPlots && results.length > 0) {
+                // Clear any existing swarm plots
+                window.SwarmPlots.clear();
+
+                // Wait for DOM to update, then initialize swarm plots
+                setTimeout(() => {
+                    window.SwarmPlots.init(results);
+                    console.log('[SciTeX Search] Swarm plots initialized with', results.length, 'papers');
+                }, 100);
+            }
+
+            // Scroll to results - DISABLED to prevent auto-scrolling
+            // resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
         },
 
         /**

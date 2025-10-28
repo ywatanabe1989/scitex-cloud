@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-28 13:53:45
+!-- Timestamp: 2025-10-28 14:11:22
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/CLAUDE.md
 !-- --- -->
@@ -82,20 +82,21 @@ Add console.log for debugging
   http://127.0.0.1:8000/dev/design/badge/
 
 - [ ] http://127.0.0.1:8000/scholar/search/
-  - [ ] When save button clicked, it shows "Please enter a search query.", which is annoying
-  - [ ] You don't have any projects yet. Create a project first to save papers.
+  - [x] When save button clicked, it shows "Please enter a search query.", which is annoying
+    - [ ] This is solved but why the search results disappear?
   - [ ] To use space effectively, show the Cite, Save, DOI, Engine badges in a row in cards
   - [ ] Filtering seekbar should use our brand theme colors
   - [ ] Filtering does not show data in online manner
-    - [ ] Hues for all three scatters should be synced
-    - [ ] Slider selection should apply filtering in the figures immediately (so, colors changed and the same items across figures change colors as well; shared hue)
-    - [ ] 
+    - [x] Hues for all three scatters should be synced
+    - [x] Slider selection should apply filtering in the figures immediately (so, colors changed and the same items across figures change colors as well; shared hue)
+  - [ ] Ctrl + Shift + R should not delete the searched results
+  - [ ] when searched, it restart searching, infinitely
 
 - [ ] http://127.0.0.1:8000/scholar/bibtex/
   - [ ] No alert saved to...; just show success alert
 
 - [ ] http://127.0.0.1:8000/new/
-  - [ ] Disable cookie to the repository name
+  - [ ] Disable auto-filling to the repository name
 
 - [ ] Header
   - [ ] Scholar button should be separated button; the left is okay; right should have dropdown and enable selection whether bibtex or search

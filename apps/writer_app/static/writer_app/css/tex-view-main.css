@@ -325,6 +325,11 @@
     /* font-size: 14px; */  /* Styling from central CSS */
 }
 
+/* Fix excessive line height in CodeMirror */
+.CodeMirror-line {
+    line-height: 1.2 !important;
+}
+
 .CodeMirror-focused {
     /* border-color: var(--scitex-accent); */  /* Styling from central CSS */
     /* box-shadow: 0 0 0 3px rgba(80, 107, 122, 0.1); */  /* Styling from central CSS */
@@ -619,4 +624,42 @@
     #theme-selector {
         display: none;
     }
+}
+
+/* ========================================
+ * Banner and Prompt Styling
+ * ======================================== */
+
+/* Hide demo banner - too obtrusive */
+.alert-banner {
+    display: none !important;
+}
+
+/* Minimize init prompt - less prominent */
+#writer-init-prompt {
+    padding: 0.5rem 0 !important;
+    margin: 0 !important;
+}
+
+#writer-init-prompt .alert {
+    margin-bottom: 0 !important;
+    border-radius: 0 !important;
+    border: none !important;
+    background: var(--bg-subtle, rgba(212, 225, 232, 0.15)) !important;
+    border-bottom: 1px solid var(--border-default) !important;
+    padding: 0.75rem 1rem !important;
+}
+
+#writer-init-prompt .alert h5 {
+    font-size: 0.9rem !important;
+    margin: 0 !important;
+}
+
+#writer-init-prompt .alert p {
+    display: none;
+}
+
+#writer-init-prompt .btn {
+    padding: 0.4rem 0.8rem !important;
+    font-size: 0.85rem !important;
 }

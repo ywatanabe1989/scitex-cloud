@@ -25,6 +25,9 @@ const SwarmPlots = {
         impactFactorRange: [0, 50]
     },
 
+    // Flag to track if sliders are being initialized
+    initializingSliders: true,
+
     /**
      * Initialize swarm plots with search results data
      */
@@ -48,6 +51,8 @@ const SwarmPlots = {
         // Attach filter change listeners
         this.attachFilterListeners();
 
+        // Set flag to indicate initialization is complete - now allow filter-triggered searches
+        this.initializingSliders = false;
         console.log('[Swarm Plots] Initialized successfully');
     },
 
@@ -409,6 +414,10 @@ const SwarmPlots = {
             yearSlider.noUiSlider.on('update', (values) => {
                 this.filters.yearRange = [parseInt(values[0]), parseInt(values[1])];
                 this.updateSwarmPlots();
+                // Only trigger search if sliders are already initialized (not during initial setup)
+                if (!this.initializingSliders) {
+                    this.triggerFilteredSearch();
+                }
             });
         }
 
@@ -418,6 +427,10 @@ const SwarmPlots = {
             citationsSlider.noUiSlider.on('update', (values) => {
                 this.filters.citationsRange = [parseInt(values[0]), parseInt(values[1])];
                 this.updateSwarmPlots();
+                // Only trigger search if sliders are already initialized (not during initial setup)
+                if (!this.initializingSliders) {
+                    this.triggerFilteredSearch();
+                }
             });
         }
 
@@ -427,10 +440,41 @@ const SwarmPlots = {
             impactFactorSlider.noUiSlider.on('update', (values) => {
                 this.filters.impactFactorRange = [parseFloat(values[0]), parseFloat(values[1])];
                 this.updateSwarmPlots();
+                // Only trigger search if sliders are already initialized (not during initial setup)
+                if (!this.initializingSliders) {
+                    this.triggerFilteredSearch();
+                }
             });
         }
 
         console.log('[Swarm Plots] Filter listeners attached');
+    },
+
+    /**
+     * Trigger a new search with current filter values
+     */
+    triggerFilteredSearch: function() {
+        // Get the search form and update hidden inputs
+        const form = document.getElementById('literatureSearchForm');
+        if (!form) return;
+
+        // Update hidden filter inputs
+        const yearFromInput = document.getElementById('yearFromInput');
+        const yearToInput = document.getElementById('yearToInput');
+        const citationsMinInput = document.getElementById('citationsMinInput');
+        const citationsMaxInput = document.getElementById('citationsMaxInput');
+        const impactFactorMinInput = document.getElementById('impactFactorMinInput');
+        const impactFactorMaxInput = document.getElementById('impactFactorMaxInput');
+
+        if (yearFromInput) yearFromInput.value = this.filters.yearRange[0];
+        if (yearToInput) yearToInput.value = this.filters.yearRange[1];
+        if (citationsMinInput) citationsMinInput.value = this.filters.citationsRange[0];
+        if (citationsMaxInput) citationsMaxInput.value = this.filters.citationsRange[1];
+        if (impactFactorMinInput) impactFactorMinInput.value = this.filters.impactFactorRange[0].toFixed(1);
+        if (impactFactorMaxInput) impactFactorMaxInput.value = this.filters.impactFactorRange[1].toFixed(1);
+
+        // Submit the form to trigger a new search with updated filters
+        form.dispatchEvent(new Event('submit'));
     },
 
     /**
