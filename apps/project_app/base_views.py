@@ -440,7 +440,7 @@ def project_create(request):
         from django.utils.text import slugify
 
         base_slug = slugify(name)
-        unique_slug = Project.generate_unique_slug(base_slug)
+        unique_slug = Project.generate_unique_slug(base_slug, owner=request.user)
 
         # Check if repository exists in Gitea (enforce 1:1 mapping)
         # This is a final safeguard before creation

@@ -169,7 +169,7 @@ class Project(models.Model):
     
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = self.generate_unique_slug(self.name)
+            self.slug = self.generate_unique_slug(self.name, owner=self.owner)
         super().save(*args, **kwargs)
     
     @classmethod
