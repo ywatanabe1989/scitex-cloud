@@ -1543,7 +1543,7 @@ function showProjectSelectorForPaper(paperData) {
 function createProjectSelectorModal() {
     const modal = document.createElement('div');
     modal.id = 'paperProjectSelectorModal';
-    modal.style.cssText = 'display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 10000; align-items: center; justify-content: center;';
+    modal.style.cssText = 'display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 10000; align-items: center; justify-content: center; opacity: 1; pointer-events: auto;';
 
     // Get user projects from page data or fetch them
     const userProjects = window.userProjects || [];
@@ -1603,7 +1603,7 @@ window.closePaperProjectModal = function() {
 /**
  * Confirm paper save to project
  */
-window.confirmPaperProjectSave = function() {
+window.confirmPaperProjectSave = async function() {
     const modal = document.getElementById('paperProjectSelectorModal');
     const dropdown = document.getElementById('paperProjectSelectorDropdown');
 
@@ -1619,11 +1619,10 @@ window.confirmPaperProjectSave = function() {
 
     console.log('[SciTeX Search] Saving paper to project:', projectId, paperData);
 
-    // Call API to save paper to project
-    savePaperToProject(paperData, projectId);
+    // Call API to save paper to project (wait for completion)
+    await savePaperToProject(paperData, projectId);
 
-    // Close modal
-    closePaperProjectModal();
+    // Modal will be closed by savePaperToProject after success
 };
 
 /**
