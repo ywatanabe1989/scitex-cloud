@@ -1,10 +1,10 @@
     <!-- Sidebar -->
     <div class="writer-sidebar" id="writer-sidebar">
         <div class="sidebar-content">
-            <!-- TeX Files Browser -->
-            <div class="tex-files-browser mb-4">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 class="fw-bold mb-0">
+            <!-- TeX Files Browser Section -->
+            <div class="tex-files-browser">
+                <div>
+                    <h6>
                         <i class="fas fa-folder-tree me-2"></i>Project Files
                     </h6>
                     <button id="refresh-files-btn" class="btn btn-sm btn-outline-primary" title="Refresh file list">
@@ -12,28 +12,33 @@
                     </button>
                 </div>
 
-                <!-- File list container -->
+                <!-- File tree container -->
                 <div id="tex-files-list" class="tex-files-list">
-                    <div class="text-muted text-center py-4" style="font-size: 0.85rem;">
-                        <i class="fas fa-info-circle me-2" style="opacity: 0.6;"></i>
-                        <div style="margin-top: 0.5rem; font-size: 0.8rem;">Create a workspace to manage project files</div>
+                    <div class="text-muted" style="padding: 1rem 0.5rem;">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <small>Create workspace to browse files</small>
                     </div>
                 </div>
             </div>
 
             <!-- Version History Timeline -->
-            <div class="history-timeline-section mb-4">
+            <div class="history-timeline-section">
+                <h6>
+                    <i class="fas fa-history me-2"></i>History
+                </h6>
                 <div id="history-timeline-container">
-                    <!-- History timeline will be rendered here by history_timeline.js -->
+                    <!-- History timeline will be rendered here -->
                 </div>
             </div>
 
+            <!-- Action Buttons -->
             <div class="action-buttons">
-                <!-- Initialize with Template Button (shown only when not initialized) -->
-                <button id="init-writer-btn" class="btn btn-success w-100 mb-2" style="display: {% if writer_initialized %}none{% else %}block{% endif %};">
+                <!-- Initialize Workspace Button (shown only when not initialized) -->
+                <button id="init-writer-btn" class="btn btn-success w-100" style="display: {% if writer_initialized %}none{% else %}block{% endif %};">
                     <i class="fas fa-rocket me-2"></i>Create Workspace
                 </button>
 
+                <!-- Export Button -->
                 <button id="export-btn" class="btn btn-outline-secondary w-100">
                     <i class="fas fa-download me-2"></i>Export
                 </button>

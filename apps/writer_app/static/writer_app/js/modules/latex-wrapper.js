@@ -1,0 +1,156 @@
+/**
+ * LaTeX Wrapper Module
+ * Wraps section content with proper LaTeX document structure
+ */
+export class LatexWrapper {
+    constructor(options) {
+        this.documentClass = options?.documentClass || 'article';
+        this.packages = options?.packages || this.getDefaultPackages();
+        this.preamble = options?.preamble || '';
+        this.title = options?.title || 'Untitled Manuscript';
+        this.author = options?.author || '';
+        this.includeTableOfContents = options?.includeTableOfContents ?? true;
+    }
+    /**
+     * Get default LaTeX packages
+     */
+    getDefaultPackages() {
+        return [
+            'geometry{margin=1in}',
+            'graphicx',
+            'amsmath',
+            'amssymb',
+            'hyperref',
+            'setspace',
+            'natbib'
+        ];
+    }
+    /**
+     * Get LaTeX preamble
+     */
+    getPreamble() {
+        let preamble = `\\documentclass{${this.documentClass}}\n\n`;
+        // Add packages
+        this.packages.forEach(pkg => {
+            if (pkg.includes('{')) {
+                preamble += `\\usepackage[${pkg}]\n`;
+            }
+            else {
+                preamble += `\\usepackage{${pkg}}\n`;
+            }
+        });
+        preamble += '\n';
+        // Add title and author
+        preamble += `\\title{${this.escapeLatexSpecial(this.title)}}\n`;
+        if (this.author) {
+            preamble += `\\author{${this.escapeLatexSpecial(this.author)}}\n`;
+        }
+        preamble += '\\date{\\today}\n\n';
+        // Add custom preamble
+        if (this.preamble) {
+            preamble += this.preamble + '\n\n';
+        }
+        return preamble;
+    }
+    /**
+     * Get LaTeX document begin
+     */
+    getDocumentBegin() {
+        let doc = '\\begin{document}\n\n';
+        doc += '\\maketitle\n';
+        if (this.includeTableOfContents) {
+            doc += '\\tableofcontents\n\\newpage\n\n';
+        }
+        return doc;
+    }
+    /**
+     * Wrap section content with LaTeX structure
+     */
+    wrapSection(sectionName, content, level = 1) {
+        const sectionCommands = ['section', 'subsection', 'subsubsection'];
+        const command = sectionCommands[Math.min(level, 2)];
+        let wrapped = `\\${command}{${this.escapeLatexSpecial(sectionName)}}\n\n`;
+        wrapped += content + '\n\n';
+        return wrapped;
+    }
+    /**
+     * Wrap multiple sections
+     */
+    wrapSections(sections) {
+        let content = '';
+        sections.forEach(section => {
+            content += this.wrapSection(section.name, section.content, 1);
+        });
+        return content;
+    }
+    /**
+     * Get LaTeX document end
+     */
+    getDocumentEnd() {
+        return '\n\\end{document}\n';
+    }
+    /**
+     * Create complete LaTeX document
+     */
+    createDocument(sections) {
+        let doc = this.getPreamble();
+        doc += this.getDocumentBegin();
+        doc += this.wrapSections(sections);
+        doc += this.getDocumentEnd();
+        return doc;
+    }
+    /**
+     * Escape LaTeX special characters
+     */
+    escapeLatexSpecial(text) {
+        return text
+            .replace(/\\/g, '\\textbackslash{}')
+            .replace(/[&%$#_{}]/g, '\\$&')
+            .replace(/\^/g, '\\textasciicircum{}')
+            .replace(/~/g, '\\textasciitilde{}');
+    }
+    /**
+     * Create minimal LaTeX document for preview
+     */
+    createMinimalDocument(content) {
+        let doc = `\\documentclass{article}\n`;
+        doc += `\\usepackage{geometry}\n`;
+        doc += `\\usepackage[utf8]{inputenc}\n`;
+        doc += `\\geometry{margin=1in}\n`;
+        doc += `\\usepackage{hyperref}\n\n`;
+        doc += `\\begin{document}\n\n`;
+        doc += content;
+        doc += `\n\n\\end{document}\n`;
+        return doc;
+    }
+    /**
+     * Set document title
+     */
+    setTitle(title) {
+        this.title = title;
+    }
+    /**
+     * Set document author
+     */
+    setAuthor(author) {
+        this.author = author;
+    }
+    /**
+     * Add package to preamble
+     */
+    addPackage(packageName) {
+        if (!this.packages.includes(packageName)) {
+            this.packages.push(packageName);
+        }
+    }
+    /**
+     * Remove package from preamble
+     */
+    removePackage(packageName) {
+        const index = this.packages.indexOf(packageName);
+        if (index > -1) {
+            this.packages.splice(index, 1);
+        }
+    }
+}
+//# sourceMappingURL=latex-wrapper.js.map

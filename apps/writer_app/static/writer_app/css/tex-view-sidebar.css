@@ -302,14 +302,13 @@
  * ======================================== */
 
 .tex-files-browser {
-    border-top: 1px solid var(--color-border-default);
-    border-bottom: 1px solid var(--color-border-default);
-    padding-top: 1rem;
-    padding-bottom: 1rem;
+    /* Removed unnecessary colored borders */
+    padding-top: 0;
+    padding-bottom: 0;
 }
 
 .tex-files-list {
-    max-height: 300px;
+    max-height: 50vh;
     overflow-y: auto;
 }
 

@@ -59,11 +59,17 @@ class WriterService:
             from apps.project_app.models import Project
 
             project = Project.objects.get(id=self.project_id)
-            self._writer = Writer(
-                self.project_path,
-                name=project.name,
-                git_strategy="child",  # Isolated git per project
-            )
+            logger.info(f"WriterService: Creating Writer instance for project {self.project_id} at {self.project_path}")
+            try:
+                self._writer = Writer(
+                    self.project_path,
+                    name=project.name,
+                    git_strategy="child",  # Isolated git per project
+                )
+                logger.info(f"WriterService: Writer instance created successfully")
+            except Exception as e:
+                logger.error(f"WriterService: Failed to create Writer instance: {e}", exc_info=True)
+                raise RuntimeError(f"Failed to initialize Writer: {e}") from e
 
         return self._writer
 
@@ -90,7 +96,15 @@ class WriterService:
                 raise ValueError(f"Unknown document type: {doc_type}")
 
             section = getattr(doc.contents, section_name)
-            return section.read()
+            content = section.read()
+
+            # Convert to string if it's a list (from scitex.io.load)
+            if isinstance(content, list):
+                content = '\n'.join(content)
+            elif content is None:
+                content = ""
+
+            return content
         except Exception as e:
             logger.error(f"Error reading section {section_name}: {e}")
             raise
@@ -155,6 +169,88 @@ class WriterService:
 
     # ===== Compilation Operations =====
 
+    def compile_preview(self, latex_content: str, timeout: int = 60) -> dict:
+        """Compile a quick preview of provided LaTeX content (not from workspace).
+
+        This is used for live preview of the current section being edited.
+
+        Args:
+            latex_content: Complete LaTeX document content to compile
+            timeout: Compilation timeout in seconds (default: 60 for quick preview)
+
+        Returns:
+            Compilation result dict with keys:
+                - success: bool
+                - output_pdf: str (path if successful)
+                - log: str (compilation log)
+                - error: str (error message if failed)
+        """
+        try:
+            # Write content to a temporary file in the workspace
+            temp_file = self.project_path / "preview_temp.tex"
+            logger.info(f"WriterService: Creating temporary preview file at {temp_file}")
+            temp_file.write_text(latex_content, encoding='utf-8')
+
+            # Use pdflatex directly to compile the temporary file
+            import subprocess
+            import shutil
+
+            # Create output directory
+            output_dir = self.project_path / "preview_output"
+            output_dir.mkdir(exist_ok=True)
+
+            logger.info(f"WriterService: Compiling preview content ({len(latex_content)} chars) with timeout={timeout}s")
+
+            # Run pdflatex
+            result = subprocess.run(
+                [
+                    "pdflatex",
+                    "-interaction=nonstopmode",
+                    "-output-directory", str(output_dir),
+                    str(temp_file)
+                ],
+                capture_output=True,
+                text=True,
+                timeout=timeout
+            )
+
+            log_content = result.stdout + result.stderr
+            output_pdf = output_dir / "preview_temp.pdf"
+
+            if result.returncode == 0 and output_pdf.exists():
+                logger.info(f"WriterService: Preview compilation succeeded")
+                return {
+                    "success": True,
+                    "output_pdf": str(output_pdf),
+                    "log": log_content,
+                    "error": None,
+                }
+            else:
+                logger.error(f"WriterService: Preview compilation failed with return code {result.returncode}")
+                return {
+                    "success": False,
+                    "output_pdf": None,
+                    "log": log_content,
+                    "error": f"pdflatex returned {result.returncode}",
+                }
+
+        except subprocess.TimeoutExpired:
+            logger.error(f"WriterService: Preview compilation timeout after {timeout}s")
+            return {
+                "success": False,
+                "output_pdf": None,
+                "log": f"Compilation timeout after {timeout} seconds",
+                "error": f"Compilation timeout",
+            }
+        except Exception as e:
+            logger.error(f"WriterService: Preview compilation error: {e}", exc_info=True)
+            return {
+                "success": False,
+                "output_pdf": None,
+                "log": str(e),
+                "error": str(e),
+            }
+
     def compile_manuscript(self, timeout: int = 300) -> dict:
         """Compile manuscript.
 
@@ -170,18 +266,27 @@ class WriterService:
         """
         try:
             result = self.writer.compile_manuscript(timeout=timeout)
+            # Build log from stdout/stderr
+            log_content = ""
+            if hasattr(result, 'stdout') and result.stdout:
+                log_content += result.stdout
+            if hasattr(result, 'stderr') and result.stderr:
+                if log_content:
+                    log_content += "\n"
+                log_content += result.stderr
+
             return {
                 "success": result.success,
                 "output_pdf": str(result.output_pdf) if result.output_pdf else None,
-                "log": result.log,
-                "error": result.error if hasattr(result, "error") else None,
+                "log": log_content,
+                "error": None,  # No error if compilation completed
             }
         except Exception as e:
-            logger.error(f"Compilation error: {e}")
+            logger.error(f"Compilation error: {e}", exc_info=True)
             return {
                 "success": False,
                 "output_pdf": None,
-                "log": "",
+                "log": str(e),
                 "error": str(e),
             }
 
@@ -189,18 +294,27 @@ class WriterService:
         """Compile supplementary material."""
         try:
             result = self.writer.compile_supplementary(timeout=timeout)
+            # Build log from stdout/stderr
+            log_content = ""
+            if hasattr(result, 'stdout') and result.stdout:
+                log_content += result.stdout
+            if hasattr(result, 'stderr') and result.stderr:
+                if log_content:
+                    log_content += "\n"
+                log_content += result.stderr
+
             return {
                 "success": result.success,
                 "output_pdf": str(result.output_pdf) if result.output_pdf else None,
-                "log": result.log,
-                "error": result.error if hasattr(result, "error") else None,
+                "log": log_content,
+                "error": None,  # No error if compilation completed
             }
         except Exception as e:
-            logger.error(f"Supplementary compilation error: {e}")
+            logger.error(f"Supplementary compilation error: {e}", exc_info=True)
             return {
                 "success": False,
                 "output_pdf": None,
-                "log": "",
+                "log": str(e),
                 "error": str(e),
             }
 
@@ -208,18 +322,27 @@ class WriterService:
         """Compile revision response document."""
         try:
             result = self.writer.compile_revision(timeout=timeout, track_changes=track_changes)
+            # Build log from stdout/stderr
+            log_content = ""
+            if hasattr(result, 'stdout') and result.stdout:
+                log_content += result.stdout
+            if hasattr(result, 'stderr') and result.stderr:
+                if log_content:
+                    log_content += "\n"
+                log_content += result.stderr
+
             return {
                 "success": result.success,
                 "output_pdf": str(result.output_pdf) if result.output_pdf else None,
-                "log": result.log,
-                "error": result.error if hasattr(result, "error") else None,
+                "log": log_content,
+                "error": None,  # No error if compilation completed
             }
         except Exception as e:
-            logger.error(f"Revision compilation error: {e}")
+            logger.error(f"Revision compilation error: {e}", exc_info=True)
             return {
                 "success": False,
                 "output_pdf": None,
-                "log": "",
+                "log": str(e),
                 "error": str(e),
             }
 
@@ -326,6 +449,38 @@ class WriterService:
         except Exception as e:
             logger.error(f"Error getting PDF: {e}")
             return None
+
+    def read_tex_file(self, file_path: str) -> str:
+        """Read content of a .tex file from the writer workspace.
+
+        Args:
+            file_path: Relative path to the .tex file (e.g., "main.tex" or "chapters/intro.tex")
+
+        Returns:
+            Content of the file
+
+        Raises:
+            FileNotFoundError: If file doesn't exist
+        """
+        full_path = self.project_path / file_path
+
+        # Security check: ensure the path is within the project directory
+        try:
+            full_path.resolve().relative_to(self.project_path.resolve())
+        except ValueError:
+            raise PermissionError(f"Access denied: path outside project directory")
+
+        if not full_path.exists():
+            raise FileNotFoundError(f"File not found: {file_path}")
+
+        if not full_path.is_file():
+            raise ValueError(f"Not a file: {file_path}")
+
+        try:
+            return full_path.read_text(encoding='utf-8')
+        except Exception as e:
+            logger.error(f"Error reading file {file_path}: {e}")
+            raise
 
     def watch(self, on_compile=None):
         """Start watching for changes and auto-compile.

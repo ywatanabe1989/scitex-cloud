@@ -304,22 +304,23 @@
     flex: 1;
     background: var(--color-canvas-default) !important;
     overflow-y: auto;
-    padding: 1rem;
+    padding: 0;
     color: var(--color-fg-default);
 }
 
 /* Remove padding when displaying PDF preview */
 .text-preview .pdf-preview-container {
-    margin: -1rem;
-    width: calc(100% + 2rem);
-    height: calc(100% + 2rem);
+    margin: 0;
+    width: 100%;
+    height: 100%;
     background: #ffffff;
     padding: 0;
 }
 
-/* Hide the panel header when displaying PDF */
+/* Keep panel header visible for consistency with left panel */
 .preview-panel .panel-header {
-    display: none;
+    display: flex;
+    align-items: center;
 }
 
 .panel-header {
@@ -875,4 +876,97 @@
     /* Prevent render blocking */
     backface-visibility: hidden;
     transform: translateZ(0);
+}
+
+/* ========================================
+ * Theme-Responsive Scrollbar Styling
+ * Scrollbars adapt to current theme
+ * ======================================== */
+
+/* Default scrollbar styling for all scrollable elements */
+.text-preview::-webkit-scrollbar,
+.latex-editor-textarea::-webkit-scrollbar,
+.CodeMirror::-webkit-scrollbar,
+.compilation-log-inline::-webkit-scrollbar,
+.pdf-preview-viewer::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+/* Light mode scrollbar track */
+.text-preview::-webkit-scrollbar-track,
+.latex-editor-textarea::-webkit-scrollbar-track,
+.CodeMirror::-webkit-scrollbar-track,
+.compilation-log-inline::-webkit-scrollbar-track,
+.pdf-preview-viewer::-webkit-scrollbar-track {
+    background: var(--color-canvas-subtle);
+}
+
+/* Light mode scrollbar thumb */
+.text-preview::-webkit-scrollbar-thumb,
+.latex-editor-textarea::-webkit-scrollbar-thumb,
+.CodeMirror::-webkit-scrollbar-thumb,
+.compilation-log-inline::-webkit-scrollbar-thumb,
+.pdf-preview-viewer::-webkit-scrollbar-thumb {
+    background: var(--color-border-default);
+    border-radius: 5px;
+    border: 2px solid var(--color-canvas-subtle);
+}
+
+/* Light mode scrollbar thumb hover state */
+.text-preview::-webkit-scrollbar-thumb:hover,
+.latex-editor-textarea::-webkit-scrollbar-thumb:hover,
+.CodeMirror::-webkit-scrollbar-thumb:hover,
+.compilation-log-inline::-webkit-scrollbar-thumb:hover,
+.pdf-preview-viewer::-webkit-scrollbar-thumb:hover {
+    background: var(--color-fg-muted);
+}
+
+/* Firefox scrollbar styling (applies to all elements globally) */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border-default) var(--color-canvas-subtle);
+}
+
+*::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+    background: var(--color-canvas-subtle);
+}
+
+*::-webkit-scrollbar-thumb {
+    background: var(--color-border-default);
+    border-radius: 5px;
+    border: 2px solid var(--color-canvas-subtle);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background: var(--color-fg-muted);
+}
+
+/* ========================================
+ * Panel Resizer Handle
+ * Draggable divider between editor and preview
+ * ======================================== */
+
+.panel-resizer {
+    width: 4px;
+    background: var(--color-border-default);
+    cursor: col-resize;
+    user-select: none;
+    transition: background-color 0.2s ease;
+    flex-shrink: 0;
+}
+
+.panel-resizer:hover,
+.panel-resizer.active {
+    background: var(--color-accent-emphasis);
+    width: 4px;
+}
+
+.panel-resizer.active {
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.15);
 }
