@@ -126,31 +126,40 @@ export class PDFPreviewManager {
     }
 
     /**
-     * Display PDF in container
+     * Display PDF in container with optimized rendering
+     * Uses requestAnimationFrame to minimize layout thrashing
      */
     private displayPdf(pdfUrl: string): void {
         if (!this.container) return;
 
-        this.container.innerHTML = `
-            <div class="pdf-preview-container">
-                <div class="pdf-preview-viewer">
-                    <embed
-                        src="${pdfUrl}#toolbar=0&navpanes=0&scrollbar=1"
-                        type="application/pdf"
-                        title="PDF Preview">
-                    </embed>
+        // Use requestAnimationFrame to batch DOM updates with browser repaint cycle
+        // This prevents layout thrashing and ensures minimal latency
+        requestAnimationFrame(() => {
+            // Batch all HTML updates in a single operation
+            this.container!.innerHTML = `
+                <div class="pdf-preview-container">
+                    <div class="pdf-preview-viewer">
+                        <embed
+                            src="${pdfUrl}#toolbar=0&navpanes=0&scrollbar=1"
+                            type="application/pdf"
+                            title="PDF Preview">
+                        </embed>
+                    </div>
                 </div>
-            </div>
-        `;
+            `;
 
-        // Update download button in toolbar
-        const downloadBtn = document.getElementById('download-pdf-toolbar') as HTMLAnchorElement;
-        if (downloadBtn) {
-            downloadBtn.href = pdfUrl;
-            downloadBtn.style.display = 'inline-block';
-        }
+            // Update download button in a separate animation frame
+            // This prevents blocking the initial PDF render
+            requestAnimationFrame(() => {
+                const downloadBtn = document.getElementById('download-pdf-toolbar') as HTMLAnchorElement;
+                if (downloadBtn) {
+                    downloadBtn.href = pdfUrl;
+                    downloadBtn.style.display = 'inline-block';
+                }
+            });
 
-        console.log('[PDFPreview] PDF displayed:', pdfUrl);
+            console.log('[PDFPreview] PDF displayed:', pdfUrl);
+        });
     }
 
     /**

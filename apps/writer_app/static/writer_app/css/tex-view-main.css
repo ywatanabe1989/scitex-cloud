@@ -837,7 +837,7 @@
     background-color: var(--color-canvas-subtle);
 }
 
-/* PDF Preview Full-Screen Styling */
+/* PDF Preview Full-Screen Styling - Optimized for Performance */
 .pdf-preview-container {
     display: flex;
     flex-direction: column;
@@ -846,6 +846,9 @@
     background: #ffffff;
     padding: 0;
     margin: 0;
+    /* Optimize for content changes */
+    contain: layout style paint;
+    will-change: contents;
 }
 
 .pdf-preview-viewer {
@@ -857,6 +860,9 @@
     justify-content: center;
     padding: 0;
     margin: 0;
+    /* Optimize for scroll performance */
+    contain: layout style paint;
+    will-change: scroll-position;
 }
 
 .pdf-preview-viewer embed {
@@ -864,4 +870,9 @@
     height: 100%;
     box-shadow: none;
     border: none;
+    /* Optimize embed rendering */
+    will-change: auto;
+    /* Prevent render blocking */
+    backface-visibility: hidden;
+    transform: translateZ(0);
 }
