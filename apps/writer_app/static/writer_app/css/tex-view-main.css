@@ -333,11 +333,11 @@
 }
 
 .panel-header {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     font-weight: 600;
     color: var(--color-fg-default);
     margin-bottom: 0;
-    padding: 0.75rem 1rem;
+    padding: 0.4rem 0.8rem;
     background: var(--color-canvas-subtle);
     border-left: 3px solid var(--color-accent-emphasis);
     border-radius: 0 4px 4px 0;
