@@ -10,6 +10,7 @@ export declare class PanelResizer {
     private isResizing;
     private startX;
     private startLeftWidth;
+    private _initialized;
     constructor(containerId?: string);
     /**
      * Initialize resizer event listeners
