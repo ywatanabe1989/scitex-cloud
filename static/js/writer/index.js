@@ -298,26 +298,9 @@ async function saveSections(sectionsManager, state) {
 /**
  * Handle compilation
  */
-async function handleCompile(_editor, sectionsManager, compilationManager, state) {
-    if (compilationManager.getIsCompiling()) {
-        showToast('Compilation already in progress', 'warning');
-        return;
-    }
-    // Show compilation panel
-    const compilationPanel = document.getElementById('compilation-panel');
-    if (compilationPanel) {
-        compilationPanel.style.display = '';
-    }
-    const config = getWriterConfig();
-    const content = sectionsManager.exportCombined();
-    const job = await compilationManager.compile({
-        projectSlug: config.projectSlug,
-        docType: state.currentDocType,
-        content
-    });
-    if (!job) {
-        showToast('Failed to start compilation', 'error');
-    }
+async function handleCompile(_editor, _sectionsManager, _compilationManager, _state) {
+    // TODO: Implement compilation when backend API is ready
+    showToast('Compilation feature coming soon', 'info');
 }
 /**
  * Setup sidebar button listeners
@@ -426,15 +409,15 @@ function setupSidebarButtons(config) {
             floatingPanel.style.display = 'none';
         });
     }
-    // View/Toggle PDF Compilation Panel Button
-    const toggleCompilationPanelBtn = document.getElementById('toggle-compilation-panel');
-    const compilationPanel = document.getElementById('compilation-panel');
-    if (toggleCompilationPanelBtn && compilationPanel) {
-        toggleCompilationPanelBtn.addEventListener('click', () => {
-            const isHidden = compilationPanel.style.display === 'none';
-            compilationPanel.style.display = isHidden ? '' : 'none';
-        });
-    }
+    // TODO: View/Toggle PDF Compilation Panel Button - disabled until compilation API is implemented
+    // const toggleCompilationPanelBtn = document.getElementById('toggle-compilation-panel');
+    // const compilationPanel = document.getElementById('compilation-panel');
+    // if (toggleCompilationPanelBtn && compilationPanel) {
+    //     toggleCompilationPanelBtn.addEventListener('click', () => {
+    //         const isHidden = compilationPanel.style.display === 'none';
+    //         compilationPanel.style.display = isHidden ? '' : 'none';
+    //     });
+    // }
 }
 /**
  * Open PDF
