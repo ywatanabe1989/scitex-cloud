@@ -258,7 +258,7 @@
 /* Split View Layout */
 .editor-view.split-view {
     flex-direction: row;
-    gap: 1rem;
+    gap: 0;
 }
 
 .latex-panel,
@@ -269,6 +269,10 @@
     min-height: 0;
     overflow: hidden;
     background: var(--color-canvas-default);
+}
+
+.latex-panel {
+    border-right: 1px solid var(--color-border-default);
 }
 
 .latex-panel > textarea,
