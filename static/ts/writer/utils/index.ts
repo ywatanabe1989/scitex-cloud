@@ -20,7 +20,7 @@ export {
   scrollIntoView,
   getScrollPosition,
   setScrollPosition,
-} from './dom.utils';
+} from './dom.utils.js';
 
 // Keyboard utilities
 export {
@@ -29,7 +29,7 @@ export {
   formatShortcut,
   isInputElement,
   type KeyboardShortcut,
-} from './keyboard.utils';
+} from './keyboard.utils.js';
 
 // LaTeX utilities
 export {
@@ -38,7 +38,7 @@ export {
   extractTextFromLatex,
   isLatexContent,
   validateLatexSyntax,
-} from './latex.utils';
+} from './latex.utils.js';
 
 // Timer and timing utilities
 export {
@@ -48,4 +48,4 @@ export {
   SimpleTimer,
   wait,
   createTimeout,
-} from './timer.utils';
+} from './timer.utils.js';

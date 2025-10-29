@@ -105,19 +105,41 @@
     gap: 0.5rem;
     font-size: 0.85rem;
     color: var(--color-fg-muted);
+    padding: 0.4rem 0.8rem;
+    border-radius: 4px;
+    transition: all 0.3s ease;
 }
 
 .save-status i {
     font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.save-status.saved {
+    color: var(--color-success-emphasis);
+    background: rgba(26, 127, 55, 0.1);
+}
+
+.save-status.saved i {
+    animation: checkmark 0.5s ease;
+}
+
+.save-status.saving {
+    color: var(--color-attention-emphasis);
+    background: rgba(191, 144, 0, 0.1);
 }
 
 .save-status.saving i {
-    color: var(--color-attention-emphasis);
     animation: spin 1s linear infinite;
 }
 
-.save-status.error i {
+.save-status.error {
     color: var(--color-danger-emphasis);
+    background: rgba(187, 36, 37, 0.1);
+}
+
+.save-status.error i {
+    animation: pulse 0.5s ease;
 }
 
 @keyframes spin {
@@ -125,11 +147,35 @@
     to { transform: rotate(360deg); }
 }
 
+@keyframes checkmark {
+    0% { transform: scale(0); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
 /* Vertical Divider */
 .vertical-divider {
     width: 1px;
     height: 24px;
     background: var(--color-border-default);
+    margin: 0 0.5rem;
+}
+
+/* Button Groups & Sections */
+.horizontal-selector-group {
+    border-right: 1px solid var(--color-border-default);
+    padding-right: 1rem;
+    margin-right: 0.5rem;
+}
+
+.horizontal-selector .form-select {
+    font-size: 0.85rem;
+    min-width: 140px;
 }
 
 /* Old toolbar - hide it */
@@ -183,7 +229,7 @@
     bottom: 0;
     display: none;
     flex-direction: column;
-    padding: 1.5rem;
+    padding: 1rem;
     overflow: hidden;
 }
 
@@ -192,13 +238,16 @@
 }
 
 .editor-view-header {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     font-weight: 600;
-    color: var(--color-fg-muted);
-    margin-bottom: 1rem;
-    padding: 0.5rem;
-    background: var(--color-canvas-subtle);
-    border-radius: 4px;
+    color: var(--color-fg-default);
+    margin-bottom: 0;
+    padding: 0;
+    background: none;
+    border: none;
+    border-radius: 0;
+    letter-spacing: 0.3px;
+    display: none;
 }
 
 /* Split View Layout */
@@ -224,13 +273,17 @@
 }
 
 .panel-header {
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     font-weight: 600;
-    color: var(--color-fg-muted);
-    margin-bottom: 0.5rem;
-    padding: 0.5rem;
+    color: var(--color-fg-default);
+    margin-bottom: 1rem;
+    padding: 0.75rem 1rem;
     background: var(--color-canvas-subtle);
-    border-radius: 4px;
+    border-left: 3px solid var(--color-accent-emphasis);
+    border-radius: 0 4px 4px 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 /* Inline Compilation Output */
@@ -318,11 +371,12 @@
 .CodeMirror {
     flex: 1;
     height: 100%; /* Ensure CodeMirror fills available height */
-    /* border: 1px solid var(--border-default); */  /* Styling from central CSS */
-    /* border-radius: var(--border-radius); */  /* Styling from central CSS */
-    /* background: var(--bg-page); */  /* Styling from central CSS */
-    /* font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', 'Menlo', 'Courier New', monospace; */  /* Styling from central CSS */
-    /* font-size: 14px; */  /* Styling from central CSS */
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    background: var(--color-canvas-default);
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', 'Menlo', 'Courier New', monospace;
+    font-size: 14px;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 /* Fix excessive line height in CodeMirror */
@@ -338,8 +392,9 @@
 }
 
 .CodeMirror-focused {
-    /* border-color: var(--scitex-accent); */  /* Styling from central CSS */
-    /* box-shadow: 0 0 0 3px rgba(80, 107, 122, 0.1); */  /* Styling from central CSS */
+    border-color: var(--color-accent-emphasis);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05), 0 0 0 3px rgba(80, 107, 122, 0.1);
+    outline: none;
 }
 
 /* Custom SciTeX theme for CodeMirror - Light Mode (Default) */
@@ -668,4 +723,51 @@
 #writer-init-prompt .btn {
     padding: 0.4rem 0.8rem !important;
     font-size: 0.85rem !important;
+}
+
+/* ========================================
+ * Button & Interactive Element Feedback
+ * ======================================== */
+
+/* Primary buttons */
+.btn-primary {
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Outline buttons */
+.btn-outline-primary,
+.btn-outline-secondary {
+    transition: all 0.2s ease;
+}
+
+.btn-outline-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-outline-primary:active,
+.btn-outline-secondary:active {
+    transform: translateY(0);
+}
+
+/* Toolbar button groups */
+.toolbar-right .btn,
+.toolbar-left .btn {
+    transition: all 0.2s ease;
+}
+
+.toolbar-right .btn:hover,
+.toolbar-left .btn:hover {
+    background-color: var(--color-canvas-subtle);
 }

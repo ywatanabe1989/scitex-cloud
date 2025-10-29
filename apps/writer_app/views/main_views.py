@@ -8,10 +8,14 @@ All manuscript operations go through WriterService and REST API endpoints.
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from django.conf import settings
 from ..models import Manuscript
 from apps.project_app.models import Project
 from apps.project_app.services import get_current_project
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def index(request):
@@ -209,7 +213,40 @@ def latex_editor_view(request):
 
 def quick_compile(request):
     """Quick compilation endpoint."""
-    return JsonResponse({'success': False, 'error': 'Use /api/project/<id>/compile/'}, status=410)
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'POST required'}, status=400)
+
+    try:
+        data = json.loads(request.body)
+        content = data.get('content', '')
+        project_slug = data.get('projectSlug')
+        doc_type = data.get('docType', 'manuscript')
+
+        if not project_slug:
+            return JsonResponse({
+                'success': False,
+                'error': 'Project slug required'
+            }, status=400)
+
+        # Get or create project directory
+        from pathlib import Path
+        project_dir = Path(settings.SCITEX_PROJECTS_DIR) / project_slug
+        project_dir.mkdir(parents=True, exist_ok=True)
+
+        # Get compiler and compile
+        from ..services.compiler import get_compiler
+        compiler = get_compiler(project_dir)
+        result = compiler.compile_manuscript(content=content)
+
+        return JsonResponse(result)
+
+    except Exception as e:
+        import traceback
+        logger.error(f"Compilation error: {e}\n{traceback.format_exc()}")
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
 
 
 def compilation_status(request, job_id):

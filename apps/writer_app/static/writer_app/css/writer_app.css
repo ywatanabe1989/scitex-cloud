@@ -11,10 +11,11 @@
 }
 
 .writer-sidebar {
-    width: 320px;
-    /* background: var(--color-canvas-default); */  /* Styling from central CSS */
-    /* border-right: 1px solid var(--color-border-default); */  /* Styling from central CSS */
-    display: flex;
+    width: 280px !important;
+    min-width: 280px !important;
+    background: var(--color-canvas-default) !important;
+    border-right: 1px solid var(--color-border-default) !important;
+    display: flex !important;
     flex-direction: column;
     overflow: hidden;
 }

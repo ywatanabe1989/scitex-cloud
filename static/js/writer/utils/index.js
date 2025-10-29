@@ -3,11 +3,11 @@
  * These utilities are shared across writer components
  */
 // DOM utilities
-export { querySelector, querySelectorAll, setVisibility, toggleClass, addClass, removeClass, hasClass, getComputedStyle, setAttributes, removeElement, clearElement, createElement, scrollIntoView, getScrollPosition, setScrollPosition, } from './dom.utils';
+export { querySelector, querySelectorAll, setVisibility, toggleClass, addClass, removeClass, hasClass, getComputedStyle, setAttributes, removeElement, clearElement, createElement, scrollIntoView, getScrollPosition, setScrollPosition, } from './dom.utils.js';
 // Keyboard utilities
-export { matchesShortcut, registerShortcut, formatShortcut, isInputElement, } from './keyboard.utils';
+export { matchesShortcut, registerShortcut, formatShortcut, isInputElement, } from './keyboard.utils.js';
 // LaTeX utilities
-export { convertToLatex, convertFromLatex, extractTextFromLatex, isLatexContent, validateLatexSyntax, } from './latex.utils';
+export { convertToLatex, convertFromLatex, extractTextFromLatex, isLatexContent, validateLatexSyntax, } from './latex.utils.js';
 // Timer and timing utilities
-export { debounce, throttle, formatElapsedTime, SimpleTimer, wait, createTimeout, } from './timer.utils';
+export { debounce, throttle, formatElapsedTime, SimpleTimer, wait, createTimeout, } from './timer.utils.js';
 //# sourceMappingURL=index.js.map
