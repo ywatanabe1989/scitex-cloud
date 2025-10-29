@@ -234,8 +234,10 @@
     bottom: 0;
     display: none;
     flex-direction: column;
-    padding: 1rem;
+    padding: 0;
     overflow: hidden;
+    width: 100%;
+    height: 100%;
 }
 
 .editor-view.active {
@@ -257,21 +259,25 @@
 
 /* Split View Layout */
 .editor-view.split-view {
-    flex-direction: row;
-    gap: 0;
-    width: 100%;
-    height: 100%;
+    flex-direction: row !important;
+    gap: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    padding: 0 !important;
 }
 
 .latex-panel,
 .preview-panel {
-    flex: 0 0 50%;
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-    overflow: hidden;
-    background: var(--color-canvas-default);
-    height: 100%;
+    flex: 0 0 50% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    background: var(--color-canvas-default) !important;
+    height: 100% !important;
+    width: 50% !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 .latex-panel {
@@ -330,7 +336,7 @@
     font-size: 0.9rem;
     font-weight: 600;
     color: var(--color-fg-default);
-    margin-bottom: 1rem;
+    margin-bottom: 0;
     padding: 0.75rem 1rem;
     background: var(--color-canvas-subtle);
     border-left: 3px solid var(--color-accent-emphasis);
@@ -338,6 +344,7 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    flex-shrink: 0;
 }
 
 /* Inline Compilation Output */
@@ -968,21 +975,33 @@
  * ======================================== */
 
 .panel-resizer {
-    width: 4px;
-    background: var(--color-border-default);
+    width: 0px;
+    background: transparent;
     cursor: col-resize;
     user-select: none;
-    transition: background-color 0.2s ease;
+    transition: all 0.2s ease;
     flex-shrink: 0;
+    margin: 0;
+    position: relative;
+    padding: 0;
 }
 
-.panel-resizer:hover,
-.panel-resizer.active {
+.panel-resizer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1px;
+    background: var(--color-border-default);
+    transition: all 0.2s ease;
+}
+
+.panel-resizer:hover::before,
+.panel-resizer.active::before {
+    width: 3px;
     background: var(--color-accent-emphasis);
-    width: 4px;
-}
-
-.panel-resizer.active {
     box-shadow: 0 0 6px rgba(0, 0, 0, 0.15);
 }
 
