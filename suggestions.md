@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-30 00:39:30
+!-- Timestamp: 2025-10-30 00:42:45
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/suggestions.md
 !-- --- -->
@@ -14,6 +14,8 @@
 
 - [ ] Latex pane and preview pane have 50%:50% widths
   - [ ] Just place splitter between them
+  - [ ] Remove the large space between the left and right panes!
+  - [ ] take screenshot and confirm with your eyes
 
 なるほど!2つの問題がありますね:
 

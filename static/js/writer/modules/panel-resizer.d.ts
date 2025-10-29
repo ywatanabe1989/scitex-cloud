@@ -1,6 +1,6 @@
 /**
  * Panel Resizer Module
- * Handles draggable resizing of split panels (LaTeX editor and PDF preview)
+ * Handles draggable divider between editor and preview panels
  */
 export declare class PanelResizer {
     private resizer;
@@ -10,21 +10,11 @@ export declare class PanelResizer {
     private isResizing;
     private startX;
     private startLeftWidth;
-    private minPanelWidth;
-    private storageKey;
-    constructor();
+    constructor(containerId?: string);
     /**
-     * Initialize the panel resizer with event listeners
+     * Initialize resizer event listeners
      */
-    private initialize;
-    /**
-     * Load previously saved panel widths from localStorage
-     */
-    private loadPanelWidths;
-    /**
-     * Save panel widths to localStorage
-     */
-    private savePanelWidths;
+    private init;
     /**
      * Handle mouse down on resizer
      */
@@ -34,26 +24,19 @@ export declare class PanelResizer {
      */
     private handleMouseMove;
     /**
-     * Handle mouse up to end resize
+     * Handle mouse up
      */
     private handleMouseUp;
     /**
-     * Reset panel widths to equal split (50:50)
+     * Restore saved panel width from localStorage
      */
-    resetToEqualSplit(): void;
+    restoreSavedWidth(): void;
     /**
-     * Set specific panel widths
+     * Reset to default 50:50 split
      */
-    setPanelWidths(leftWidth: number, rightWidth: number): void;
+    resetToDefault(): void;
     /**
-     * Get current panel widths
-     */
-    getPanelWidths(): {
-        leftWidth: number;
-        rightWidth: number;
-    };
-    /**
-     * Check if resizer is initialized
+     * Check if the resizer is properly initialized
      */
     isInitialized(): boolean;
 }

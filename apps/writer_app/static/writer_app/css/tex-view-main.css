@@ -492,7 +492,13 @@
 }
 
 .cm-s-scitex .CodeMirror-activeline-background {
-    /* background: rgba(212, 225, 232, 0.3); */  /* Styling from central CSS */
+    /* Subtle highlight - only cursor line, not full line background */
+    background: transparent !important;
+}
+
+/* Cursor line indicator - very subtle left border instead of full background */
+.CodeMirror-activeline {
+    background: transparent !important;
 }
 
 /* LaTeX syntax highlighting with SciTeX colors - Light Mode */
@@ -586,7 +592,13 @@
 }
 
 [data-theme="dark"] .cm-s-scitex .CodeMirror-activeline-background {
-    /* background: rgba(52, 73, 94, 0.3); */  /* Styling from central CSS */
+    /* Subtle highlight - only cursor line, not full line background */
+    background: transparent !important;
+}
+
+/* Dark mode cursor line indicator */
+[data-theme="dark"] .CodeMirror-activeline {
+    background: transparent !important;
 }
 
 [data-theme="dark"] .cm-s-scitex span.cm-comment {
