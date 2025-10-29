@@ -5,9 +5,14 @@
  * Styling delegated to: /static/css/common.css, /static/css/components/*.css
  * ======================================== */
 
+/* Hide sidebar - keep in DOM for future use */
+.writer-sidebar {
+    display: none !important;
+}
+
 /* Main Container */
 .writer-container {
-    min-height: calc(100vh - 80px);
+    height: calc(100vh - 80px);
     display: flex;
     /* background: var(--scitex-light); */  /* Styling from central CSS */
 }
@@ -263,6 +268,7 @@
     flex-direction: column;
     min-height: 0;
     overflow: hidden;
+    background: var(--color-canvas-default);
 }
 
 .latex-panel > textarea,
@@ -270,6 +276,44 @@
 .latex-panel > .CodeMirror-wrap {
     flex: 1;
     min-height: 0;
+    background: var(--color-canvas-default) !important;
+}
+
+/* LaTeX Editor Textarea Styling */
+.latex-editor-textarea {
+    background: var(--color-canvas-default) !important;
+    color: var(--color-fg-default) !important;
+    border: none !important;
+    padding: 1rem !important;
+    font-family: 'Monaco', 'Menlo', 'Courier New', monospace !important;
+    font-size: 0.95rem !important;
+    line-height: 1.6 !important;
+    resize: none !important;
+}
+
+.latex-editor-textarea::placeholder {
+    color: var(--color-fg-muted) !important;
+}
+
+/* Text Preview Panel Styling */
+.text-preview {
+    flex: 1;
+    background: var(--color-canvas-default) !important;
+    overflow-y: auto;
+    padding: 1rem;
+    color: var(--color-fg-default);
+}
+
+/* Remove padding when displaying PDF preview */
+.text-preview .pdf-preview-container {
+    margin: -1rem;
+    width: calc(100% + 2rem);
+    height: calc(100% + 2rem);
+}
+
+/* Hide the panel header when displaying PDF */
+.preview-panel .panel-header {
+    display: none;
 }
 
 .panel-header {
@@ -363,6 +407,29 @@
     /* box-shadow: 0 0 0 3px rgba(80, 107, 122, 0.1); */  /* Styling from central CSS */
 }
 
+/* LaTeX Editor Textarea */
+.latex-editor-textarea {
+    flex: 1;
+    min-height: 0;
+    padding: 1rem;
+    background: var(--color-canvas-default);
+    color: var(--color-fg-default);
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', 'Menlo', 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.15;
+    border: none;
+    outline: none;
+    resize: none;
+    overflow-y: auto;
+    transition: all 0.2s ease;
+}
+
+.latex-editor-textarea:focus {
+    outline: none;
+    background: var(--color-canvas-default);
+    color: var(--color-fg-default);
+}
+
 /* ========================================
  * CodeMirror Styling
  * ======================================== */
@@ -371,12 +438,9 @@
 .CodeMirror {
     flex: 1;
     height: 100%; /* Ensure CodeMirror fills available height */
-    border: 1px solid var(--color-border-default);
-    border-radius: 6px;
     background: var(--color-canvas-default);
     font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', 'Menlo', 'Courier New', monospace;
     font-size: 14px;
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 /* Fix excessive line height in CodeMirror */
@@ -581,16 +645,11 @@
 /* Text Preview */
 .text-preview {
     flex: 1;
-    /* border: 1px solid var(--border-default); */  /* Styling from central CSS */
-    /* border-radius: var(--border-radius); */  /* Styling from central CSS */
     padding: 1.5rem;
-    /* background: var(--bg-page); */  /* Styling from central CSS */
-    /* color: var(--text-primary); */  /* Styling from central CSS */
     overflow-y: auto;
-    /* font-family: 'Georgia', serif; */  /* Styling from central CSS */
-    /* font-size: 1rem; */  /* Styling from central CSS */
-    /* line-height: 1.6; */  /* Styling from central CSS */
     white-space: pre-wrap;
+    background: var(--color-canvas-default);
+    color: var(--color-fg-default);
 }
 
 /* Word Count Indicator */
@@ -697,9 +756,9 @@
     display: none !important;
 }
 
-/* Hide init prompt - user can initialize from sidebar button */
+/* Show init prompt prominently when workspace not initialized */
 #writer-init-prompt {
-    display: none !important;
+    display: block !important;
 }
 
 #writer-init-prompt .alert {
@@ -770,4 +829,36 @@
 .toolbar-right .btn:hover,
 .toolbar-left .btn:hover {
     background-color: var(--color-canvas-subtle);
+}
+
+/* PDF Preview Full-Screen Styling */
+.pdf-preview-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    background: var(--color-canvas-subtle);
+}
+
+.pdf-preview-toolbar {
+    flex-shrink: 0;
+    padding: 0.5rem;
+    border-bottom: 1px solid var(--color-border-default);
+    display: flex;
+    gap: 0.5rem;
+    background: var(--color-canvas-default);
+}
+
+.pdf-preview-viewer {
+    flex: 1;
+    overflow: auto;
+    background: var(--color-canvas-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pdf-preview-viewer embed {
+    width: 100%;
+    height: 100%;
 }

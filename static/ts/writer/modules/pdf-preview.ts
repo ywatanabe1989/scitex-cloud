@@ -132,8 +132,8 @@ export class PDFPreviewManager {
         if (!this.container) return;
 
         this.container.innerHTML = `
-            <div class="pdf-preview-container" style="width: 100%; height: 100%; display: flex; flex-direction: column;">
-                <div class="pdf-preview-toolbar" style="padding: 0.75rem; border-bottom: 1px solid var(--color-border-default); display: flex; gap: 0.5rem;">
+            <div class="pdf-preview-container">
+                <div class="pdf-preview-toolbar">
                     <a href="${pdfUrl}" target="_blank" class="btn btn-sm btn-outline-primary">
                         <i class="fas fa-external-link-alt me-2"></i>Open in New Tab
                     </a>
@@ -141,11 +141,10 @@ export class PDFPreviewManager {
                         <i class="fas fa-download me-2"></i>Download
                     </a>
                 </div>
-                <div class="pdf-preview-viewer" style="flex: 1; overflow: auto; background: var(--color-canvas-subtle);">
+                <div class="pdf-preview-viewer">
                     <embed
                         src="${pdfUrl}#toolbar=1&navpanes=0&scrollbar=1"
                         type="application/pdf"
-                        style="width: 100%; height: 100%; border: none;"
                         title="PDF Preview">
                     </embed>
                 </div>
