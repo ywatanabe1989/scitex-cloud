@@ -6,9 +6,10 @@ Uses Django 5.2 async ORM for optimal performance.
 from channels.generic.websocket import AsyncWebsocketConsumer
 import json
 from datetime import datetime
-from .models import Manuscript, CollaborativeSession, DocumentChange
-from .ot_coordinator import OTCoordinator
-from .undo_redo import CollaborativeUndoRedoCoordinator
+from .models import Manuscript
+from scitex import logging
+
+logger = logging.getLogger(__name__)
 
 
 class WriterConsumer(AsyncWebsocketConsumer):

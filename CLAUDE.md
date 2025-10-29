@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-28 15:08:11
+!-- Timestamp: 2025-10-29 18:39:25
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/CLAUDE.md
 !-- --- -->
@@ -72,15 +72,7 @@ Add console.log for debugging
 
 # Requests
 - [ ] http://localhost:8000/writer/
-  - [ ] Compilation failed
-Compile script not found
-  - [ ] Split view does not apply syntax highlight, and even light/dark theme ignored
-    - [ ] Is it better to try Monaco Editor + Type script?
-
-
-
-  - [ ] The UI/UX of writer is quite aweful compaired to their potentials
-    - [ ] Please check it and revise accordingly
+- [ ] The UI/UX of writer is quite aweful compaired to their potentials
 
 - [ ] http://127.0.0.1:8000/scholar/search/
   - [ ] When save button clicked, searched results disappear from the page
@@ -105,12 +97,8 @@ Choose a project to save this paper:
 - [ ] Header
   - [ ] Scholar button should be separated button; the left is okay; right should have dropdown and enable selection whether bibtex or search
 
-## WIP
 - [ ] http://127.0.0.1:8000/wyusuuke/default-project/
-  - [ ] Layout of Root directory is okay
-  - [ ] Layout of Child directories (e.g., http://127.0.0.1:8000/wyusuuke/default-project/.git/) not shown properly, corrupted
-    - [ ] Side panel and main table are corrupted
-  - [ ] The folder icon of the main table too bright
-    - [ ] Use color-theme-applied svg images instead
+- [ ] Layout of Root directory is good. However, layout of Child directories (e.g., http://127.0.0.1:8000/wyusuuke/default-project/.git/) not shown properly, corrupted
+- [ ] Side panel and main table are corrupted in child directories
 
 <!-- EOF -->

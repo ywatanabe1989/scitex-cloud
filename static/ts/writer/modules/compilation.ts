@@ -3,8 +3,8 @@
  * Handles LaTeX compilation and PDF generation
  */
 
-import { ApiClient } from '../../utils/api';
-import { CompilationJob } from '../../types';
+import { ApiClient } from '@/utils/api';
+import { CompilationJob } from '@/types';
 
 export interface CompilationOptions {
     projectSlug: string;

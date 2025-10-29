@@ -5,8 +5,8 @@
 
 import { getCsrfToken } from './csrf';
 
-export interface ApiRequestInit extends RequestInit {
-    body?: BodyInit | object;
+export interface ApiRequestInit extends Omit<RequestInit, 'body'> {
+    body?: BodyInit | object | null;
 }
 
 export interface ApiResponse<T = any> {
@@ -94,10 +94,18 @@ export class ApiClient {
         const fullUrl = this.baseUrl ? `${this.baseUrl}${url}` : url;
 
         try {
-            const response = await fetch(fullUrl, {
+            // Build request with proper body handling
+            const requestInit: any = {
                 ...options,
                 headers: this.getHeaders(options.headers)
-            });
+            };
+
+            // Ensure body is properly stringified if it's an object
+            if (options.body && typeof options.body === 'object' && !(options.body instanceof FormData)) {
+                requestInit.body = JSON.stringify(options.body);
+            }
+
+            const response = await fetch(fullUrl, requestInit);
 
             // Handle different response types
             const contentType = response.headers.get('content-type');

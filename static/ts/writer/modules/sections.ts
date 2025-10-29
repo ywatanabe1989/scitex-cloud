@@ -3,8 +3,7 @@
  * Handles document sections (abstract, introduction, methods, results, discussion)
  */
 
-import { StorageManager } from '../../utils/storage';
-import { SectionMetadata } from '../../types';
+import { StorageManager } from '@/utils/storage';
 
 export interface Section {
     id: string;

@@ -807,36 +807,30 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (stopBtn) stopBtn.style.display = 'block';
                         logPanel.textContent = 'Starting compilation...\n';
 
-                        fetch(`/writer/project/${projectId}/compile/`, {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRFToken': getCsrfToken()
-                            }
-                        })
-                        .then(response => {
-                            console.log('[COMPILE] Response status:', response.status);
-                            return response.json();
-                        })
-                        .then(data => {
-                            console.log('[COMPILE] Response data:', data);
-                            if (data.success) {
-                                localStorage.setItem(`last_compile_job_${projectId}`, data.job_id);
-                                logPanel.textContent += `Email notification sent.\nJob ID: ${data.job_id}\nMonitoring progress...\n`;
-                                showToast('Compilation started! Email notification sent.', 'success');
-                                pollCompilationStatusPanel(data.job_id);
-                            } else {
-                                logPanel.textContent += `\nError: ${data.error}`;
-                                showToast('Compilation failed: ' + (data.error || 'Unknown error'), 'danger');
+                        const api = new WriterAPI(projectId, getCsrfToken());
+                        api.compile('manuscript', 300)
+                            .then(data => {
+                                console.log('[COMPILE] Response data:', data);
+                                if (data.success) {
+                                    logPanel.textContent += `Compilation completed successfully!\n\nLog:\n${data.log || ''}`;
+                                    showToast('Compilation completed successfully!', 'success');
+                                    // Refresh PDF viewer
+                                    checkForExistingPDF();
+                                    if (stopBtn) stopBtn.style.display = 'none';
+                                } else {
+                                    logPanel.textContent += `\nCompilation Error:\n${data.error || 'Unknown error'}`;
+                                    showToast('Compilation failed: ' + (data.error || 'Unknown error'), 'danger');
+                                }
                                 this.disabled = false;
                                 this.innerHTML = '<i class="fas fa-file-pdf me-2"></i>Compile PDF';
-                            }
-                        })
-                        .catch(error => {
-                            console.error('[COMPILE] Fetch error:', error);
-                            logPanel.textContent += `\nFetch error: ${error.message}`;
-                            this.disabled = false;
-                            this.innerHTML = '<i class="fas fa-file-pdf me-2"></i>Compile PDF';
-                        });
+                            })
+                            .catch(error => {
+                                console.error('[COMPILE] Error:', error);
+                                logPanel.textContent += `\nError: ${error.message}`;
+                                showToast('Compilation error: ' + error.message, 'danger');
+                                this.disabled = false;
+                                this.innerHTML = '<i class="fas fa-file-pdf me-2"></i>Compile PDF';
+                            });
                     });
                 } else {
                     console.error('✗ Compile button panel NOT FOUND');
@@ -858,40 +852,35 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (stopBtn) stopBtn.style.display = 'block';
                         logPanel.textContent = 'Starting quick compilation (text only, no figures)...\n';
 
-                        fetch(`/writer/project/${projectId}/compile/`, {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRFToken': getCsrfToken(),
-                                'Content-Type': 'application/x-www-form-urlencoded'
-                            },
-                            body: 'quick=true'
-                        })
-                        .then(response => {
-                            console.log('[QUICK-COMPILE] Response status:', response.status);
-                            return response.json();
-                        })
-                        .then(data => {
-                            console.log('[QUICK-COMPILE] Response data:', data);
-                            if (data.success) {
-                                localStorage.setItem(`last_compile_job_${projectId}`, data.job_id);
-                                logPanel.textContent += `Email notification sent.\nJob ID: ${data.job_id}\nMonitoring progress...\n`;
-                                showToast('Quick compilation started!', 'success');
-                                pollCompilationStatusPanel(data.job_id);
-                            } else {
-                                logPanel.textContent += `\nError: ${data.error}`;
-                                showToast('Quick compilation failed: ' + (data.error || 'Unknown error'), 'danger');
+                        const api = new WriterAPI(projectId, getCsrfToken());
+                        api.compile('manuscript', 300)
+                            .then(data => {
+                                console.log('[QUICK-COMPILE] Response data:', data);
+                                if (data.success) {
+                                    logPanel.textContent += `Compilation completed!\n\nLog:\n${data.log || ''}`;
+                                    showToast('Quick compilation completed!', 'success');
+                                    checkForExistingPDF();
+                                    if (stopBtn) stopBtn.style.display = 'none';
+                                    setTimeout(() => {
+                                        this.disabled = false;
+                                        compileBtnPanel.disabled = false;
+                                        this.innerHTML = '<i class="fas fa-bolt me-2"></i>Quick Compile (text only)';
+                                    }, 2000);
+                                } else {
+                                    logPanel.textContent += `\nError: ${data.error}`;
+                                    showToast('Quick compilation failed: ' + (data.error || 'Unknown error'), 'danger');
+                                    this.disabled = false;
+                                    compileBtnPanel.disabled = false;
+                                    this.innerHTML = '<i class="fas fa-bolt me-2"></i>Quick Compile (text only)';
+                                }
+                            })
+                            .catch(error => {
+                                console.error('[QUICK-COMPILE] Error:', error);
+                                logPanel.textContent += `\nError: ${error.message}`;
                                 this.disabled = false;
                                 compileBtnPanel.disabled = false;
                                 this.innerHTML = '<i class="fas fa-bolt me-2"></i>Quick Compile (text only)';
-                            }
-                        })
-                        .catch(error => {
-                            console.error('[QUICK-COMPILE] Fetch error:', error);
-                            logPanel.textContent += `\nFetch error: ${error.message}`;
-                            this.disabled = false;
-                            compileBtnPanel.disabled = false;
-                            this.innerHTML = '<i class="fas fa-bolt me-2"></i>Quick Compile (text only)';
-                        });
+                            });
                     });
                 } else {
                     console.error('✗ Quick compile button panel NOT FOUND');
@@ -949,14 +938,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Load actual LaTeX content from server for project users
         console.log('[Writer] Loading from server for project:', projectId);
-        fetch(`/writer/project/${projectId}/load-latex/?section=${section}&doc_type=${currentDocType}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                codeMirrorEditor.setValue(data.latex_content);
+        const api = new WriterAPI(projectId, getCsrfToken());
+        api.readSection(section, currentDocType)
+            .then(latexContent => {
+                codeMirrorEditor.setValue(latexContent);
 
                 // Update preview
-                const textContent = convertFromLatex(section, data.latex_content);
+                const textContent = convertFromLatex(section, latexContent);
                 textPreview.textContent = textContent;
 
                 // Update word count
@@ -964,19 +952,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // Mark as saved (just loaded from server)
                 markAsSaved();
-            } else {
-                console.error('Failed to load LaTeX content:', data.error);
+            })
+            .catch(error => {
+                console.error('Load LaTeX error:', error);
                 codeMirrorEditor.setValue(`% ${sectionTitles[currentDocType][section]}\n\n`);
                 textPreview.textContent = '';
                 markAsSaved();
-            }
-        })
-        .catch(error => {
-            console.error('Load LaTeX error:', error);
-            codeMirrorEditor.setValue(`% ${sectionTitles[currentDocType][section]}\n\n`);
-            textPreview.textContent = '';
-            markAsSaved();
-        });
+            });
     }
 
     function switchDocumentType(docType) {
@@ -1378,43 +1360,28 @@ document.addEventListener('DOMContentLoaded', function() {
         saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Saving...';
         saveStatus.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Saving...';
 
-        // Save LaTeX content directly to file
-        fetch(`/writer/project/${projectId}/save-latex/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCsrfToken()
-            },
-            body: JSON.stringify({
-                section: sectionToSave,
-                doc_type: currentDocType,
-                latex_content: latexContent
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                updateSectionWordCount(sectionToSave, data.word_count);
-                updateTotalWordCount(data.total_words);
+        // Save LaTeX content directly to file using new API
+        const api = new WriterAPI(projectId, getCsrfToken());
+        api.writeSection(sectionToSave, latexContent, currentDocType)
+            .then(response => {
+                // API returns response with status and word_count
+                updateSectionWordCount(sectionToSave, response.word_count);
+                updateTotalWordCount(response.total_words);
                 markAsSaved();
 
                 // Add to undo/redo history
-                addToHistory(sectionToSave, latexContent, data.word_count);
+                addToHistory(sectionToSave, latexContent, response.word_count);
 
                 showToast(`${sectionTitles[currentDocType][sectionToSave]} saved successfully`, 'success');
-            } else {
-                saveStatus.innerHTML = '<i class="fas fa-times-circle text-danger me-1"></i>Error saving';
-                showToast('Error saving: ' + (data.error || 'Unknown error'), 'danger');
-            }
-        })
-        .catch(error => {
-            console.error('Save error:', error);
-            saveStatus.innerHTML = '<i class="fas fa-times-circle text-danger me-1"></i>Save failed';
-            showToast('Save failed: ' + error.message, 'danger');
-        })
-        .finally(() => {
-            saveBtn.disabled = false;
-        });
+            })
+            .catch(error => {
+                console.error('Save error:', error);
+                saveStatus.innerHTML = '<i class="fas fa-times-circle text-danger me-1"></i>Save failed';
+                showToast('Save failed: ' + error.message, 'danger');
+            })
+            .finally(() => {
+                saveBtn.disabled = false;
+            });
     }
 
 
@@ -1431,47 +1398,24 @@ document.addEventListener('DOMContentLoaded', function() {
         currentlyCompiling = true;
         showSaveStatus('Auto-compiling...', 'info');
 
-        fetch(`/writer/project/${projectId}/compile/`, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': getCsrfToken()
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showSaveStatus('Auto-compiled successfully', 'success');
-                checkCompilationStatus(data.job_id);
-            } else {
-                showSaveStatus('Auto-compile failed', 'danger');
-            }
-        })
-        .catch(error => {
-            console.error('Live compilation error:', error);
-            showSaveStatus('Auto-compile error', 'danger');
-        })
-        .finally(() => {
-            currentlyCompiling = false;
-        });
-    }
-
-    function checkCompilationStatus(jobId) {
-        fetch(`/writer/api/status/${jobId}/`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'completed') {
-                showSaveStatus('PDF ready', 'success');
-                // Could update a preview here
-            } else if (data.status === 'failed') {
-                showSaveStatus('Compilation failed', 'danger');
-            } else if (data.status === 'running') {
-                // Check again in 2 seconds
-                setTimeout(() => checkCompilationStatus(jobId), 2000);
-            }
-        })
-        .catch(error => {
-            console.error('Status check error:', error);
-        });
+        const api = new WriterAPI(projectId, getCsrfToken());
+        api.compile('manuscript', 300)
+            .then(data => {
+                if (data.success) {
+                    showSaveStatus('Auto-compiled successfully', 'success');
+                    // Refresh PDF viewer
+                    checkForExistingPDF();
+                } else {
+                    showSaveStatus('Auto-compile failed', 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Live compilation error:', error);
+                showSaveStatus('Auto-compile error', 'danger');
+            })
+            .finally(() => {
+                currentlyCompiling = false;
+            });
     }
 
 
@@ -1589,39 +1533,51 @@ document.addEventListener('DOMContentLoaded', function() {
         compilationProgress.style.display = 'block';
         progressBar.style.width = '10%';
         progressBar.textContent = '10%';
-        compilationLog.textContent = 'Starting compilation...';
+        progressBar.classList.remove('bg-danger', 'bg-warning', 'bg-success');
+        progressBar.classList.add('progress-bar-animated');
+        compilationLog.textContent = 'Starting compilation...\n';
 
-        fetch(`/writer/project/${projectId}/compile/`, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': getCsrfToken()
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Store job ID in localStorage for persistence
-                localStorage.setItem(`last_compile_job_${projectId}`, data.job_id);
+        const api = new WriterAPI(projectId, getCsrfToken());
+        api.compile('manuscript', 300)
+            .then(data => {
+                progressBar.style.width = '100%';
+                progressBar.textContent = '100%';
+                progressBar.classList.remove('progress-bar-animated');
 
-                compilationLog.textContent += '\nEmail notification sent.\nMonitoring progress...';
-                showToast('Compilation started! Email notification sent.', 'success');
-                // Poll for completion status
-                pollCompilationStatus(data.job_id);
-            } else {
-                compilationLog.textContent += `\nError: ${data.error}`;
-                showToast('Compilation failed: ' + (data.error || 'Unknown error'), 'danger');
+                if (data.success) {
+                    progressBar.classList.add('bg-success');
+                    compilationLog.textContent = data.log || 'Compilation completed successfully!';
+                    compilationLog.scrollTop = compilationLog.scrollHeight;
+                    showToast('PDF compiled successfully!', 'success');
+                    compileBtn.innerHTML = '<i class="fas fa-check me-2"></i>Compiled!';
+
+                    // Show PDF viewer
+                    checkForExistingPDF();
+                    checkForDiffPDF();
+
+                    setTimeout(() => {
+                        compileBtn.disabled = false;
+                        compileBtn.innerHTML = '<i class="fas fa-file-pdf me-2"></i>Compile PDF';
+                    }, 3000);
+                } else {
+                    progressBar.classList.add('bg-danger');
+                    compilationLog.textContent = `Compilation Error:\n${data.error || 'Unknown error'}`;
+                    compilationLog.scrollTop = compilationLog.scrollHeight;
+                    showToast('Compilation failed: ' + (data.error || 'Unknown error'), 'danger');
+                    compileBtn.disabled = false;
+                    compileBtn.innerHTML = '<i class="fas fa-file-pdf me-2"></i>Compile PDF';
+                }
+            })
+            .catch(error => {
+                progressBar.style.width = '100%';
+                progressBar.classList.remove('progress-bar-animated');
+                progressBar.classList.add('bg-danger');
+                compilationLog.textContent = `Compilation Error:\n${error.message}`;
+                compilationLog.scrollTop = compilationLog.scrollHeight;
+                showToast('Compilation error: ' + error.message, 'danger');
                 compileBtn.disabled = false;
                 compileBtn.innerHTML = '<i class="fas fa-file-pdf me-2"></i>Compile PDF';
-                progressBar.classList.add('bg-danger');
-            }
-        })
-        .catch(error => {
-            compilationLog.textContent += `\nError: ${error.message}`;
-            showToast('Compilation error: ' + error.message, 'danger');
-            compileBtn.disabled = false;
-            compileBtn.innerHTML = '<i class="fas fa-file-pdf me-2"></i>Compile PDF';
-            progressBar.classList.add('bg-danger');
-        });
+            });
     }
 
     function pollCompilationStatus(jobId, attempts = 0) {
@@ -2092,36 +2048,44 @@ document.addEventListener('DOMContentLoaded', function() {
         compilationStartTime = Date.now();
         startTimerInButton();
 
-        fetch(`/writer/project/${projectId}/compile/`, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': getCsrfToken()
-            }
-        })
-        .then(response => {
-            console.log('[COMPILE] Response status:', response.status);
-            return response.json();
-        })
-        .then(data => {
-            console.log('[COMPILE] Response data:', data);
-            if (data.success) {
-                localStorage.setItem(`last_compile_job_${projectId}`, data.job_id);
-                logPanel.textContent += `Email notification sent.\nJob ID: ${data.job_id}\nMonitoring progress...\n`;
-                showToast('Compilation started! Email notification sent.', 'success');
-                pollCompilationStatusPanel(data.job_id);
-            } else {
-                logPanel.textContent += `\nError: ${data.error}`;
-                showToast('Compilation failed: ' + (data.error || 'Unknown error'), 'danger');
+        const api = new WriterAPI(projectId, getCsrfToken());
+        api.compile('manuscript', 300)
+            .then(data => {
+                console.log('[COMPILE] Response data:', data);
+                progressBarPanel.style.width = '100%';
+                progressBarPanel.textContent = '100%';
+
+                if (data.success) {
+                    logPanel.textContent = data.log || 'Compilation completed successfully!';
+                    logPanel.scrollTop = logPanel.scrollHeight;
+                    showToast('PDF compiled successfully!', 'success');
+                    compileBtnPanel.innerHTML = '<i class="fas fa-check me-2"></i>Compiled!';
+
+                    // Show PDF viewer
+                    checkForExistingPDFsPanel();
+
+                    setTimeout(() => {
+                        compileBtnPanel.disabled = false;
+                        compileBtnPanel.innerHTML = '<i class="fas fa-file-pdf me-2"></i>Compile PDF';
+                    }, 3000);
+                } else {
+                    logPanel.textContent += `\nCompilation Error:\n${data.error || 'Unknown error'}`;
+                    logPanel.scrollTop = logPanel.scrollHeight;
+                    showToast('Compilation failed: ' + (data.error || 'Unknown error'), 'danger');
+                    compileBtnPanel.disabled = false;
+                    compileBtnPanel.innerHTML = '<i class="fas fa-file-pdf me-2"></i>Compile PDF';
+                }
+                if (stopBtn) stopBtn.style.display = 'none';
+            })
+            .catch(error => {
+                console.error('[COMPILE] Error:', error);
+                logPanel.textContent += `\nError: ${error.message}`;
+                logPanel.scrollTop = logPanel.scrollHeight;
+                showToast('Compilation error: ' + error.message, 'danger');
                 compileBtnPanel.disabled = false;
                 compileBtnPanel.innerHTML = '<i class="fas fa-file-pdf me-2"></i>Compile PDF';
-            }
-        })
-        .catch(error => {
-            console.error('[COMPILE] Fetch error:', error);
-            logPanel.textContent += `\nFetch error: ${error.message}`;
-            compileBtnPanel.disabled = false;
-            compileBtnPanel.innerHTML = '<i class="fas fa-file-pdf me-2"></i>Compile PDF';
-        });
+                if (stopBtn) stopBtn.style.display = 'none';
+            });
     }
 
     function pollCompilationStatusPanel(jobId, attempts = 0) {
