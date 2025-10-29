@@ -3,11 +3,6 @@
         <!-- Sticky Toolbar -->
         <div class="writer-toolbar-sticky">
             <div class="toolbar-left">
-                <!-- Sidebar Toggle -->
-                <button id="toggle-sidebar" class="btn btn-sm btn-outline-secondary" title="Toggle sidebar">
-                    <i class="fas fa-bars"></i>
-                </button>
-
                 <!-- Repository & Document Type Horizontal Tabs -->
                 <div class="horizontal-selector-group">
                     <div class="horizontal-selector">
@@ -35,47 +30,22 @@
                         </select>
                     </div>
                 </div>
-
-                <!-- Section Panel Toggle -->
-                <button id="toggle-section-panel" class="btn btn-sm btn-outline-primary" title="Sections">
-                    <i class="fas fa-list me-1"></i>Sections
-                </button>
             </div>
 
             <div class="toolbar-center">
-                <!-- Editor View Tabs -->
-                <div class="editor-view-tabs">
-                    <button id="view-tab-latex" class="view-tab active" data-view="latex">
-                        <i class="fas fa-code me-1"></i>LaTeX
-                    </button>
-                    <button id="view-tab-preview" class="view-tab" data-view="preview">
-                        <i class="fas fa-eye me-1"></i>Preview
-                    </button>
-                    <button id="view-tab-split" class="view-tab" data-view="split">
-                        <i class="fas fa-columns me-1"></i>Split
-                    </button>
-                </div>
-            </div>
-
-            <div class="toolbar-right">
-                <!-- Editor Tools -->
+                <!-- Editor Tools: Undo/Redo -->
                 <button id="undo-btn" class="btn btn-sm btn-outline-secondary" title="Undo (Ctrl+Z)">
                     <i class="fas fa-undo"></i>
                 </button>
                 <button id="redo-btn" class="btn btn-sm btn-outline-secondary" title="Redo (Ctrl+Y)">
                     <i class="fas fa-redo"></i>
                 </button>
+            </div>
 
-                <div class="vertical-divider"></div>
-
+            <div class="toolbar-right">
                 <!-- Compile Button -->
                 <button id="compile-btn-toolbar" class="btn btn-sm btn-primary" title="Compile PDF">
                     <i class="fas fa-file-pdf me-1"></i>Compile
-                </button>
-
-                <!-- View PDF Button -->
-                <button id="toggle-compilation-panel" class="btn btn-sm btn-outline-primary" title="View PDF">
-                    <i class="fas fa-external-link-alt"></i>
                 </button>
 
                 <div class="vertical-divider"></div>
@@ -103,37 +73,21 @@
         </div>
 
         <div class="writer-editor">
-            <!-- Tabbed Editor Views -->
+            <!-- Split View Only -->
             <div class="editor-content-wrapper">
-                <!-- LaTeX View -->
-                <div id="editor-view-latex" class="editor-view active">
-                    <div class="editor-view-header">
-                        <span id="section-title-latex">LaTeX Source</span>
-                    </div>
-                    <textarea id="latex-editor-textarea" class="latex-editor-textarea" placeholder="LaTeX code..."></textarea>
-                </div>
-
-                <!-- Preview View -->
-                <div id="editor-view-preview" class="editor-view">
-                    <div class="editor-view-header">
-                        <span id="section-title-preview">Text Preview</span>
-                    </div>
-                    <div id="text-preview" class="text-preview"></div>
-                </div>
-
                 <!-- Split View -->
-                <div id="editor-view-split" class="editor-view split-view">
+                <div id="editor-view-split" class="editor-view split-view active">
                     <div class="latex-panel">
                         <div class="panel-header">
                             <span><i class="fas fa-code me-1"></i>LaTeX Source</span>
                         </div>
-                        <textarea id="latex-editor-textarea-split" class="latex-editor-textarea" placeholder="LaTeX code..."></textarea>
+                        <textarea id="latex-editor-textarea" class="latex-editor-textarea" placeholder="LaTeX code..."></textarea>
                     </div>
                     <div class="preview-panel">
                         <div class="panel-header">
                             <i class="fas fa-eye me-1"></i>Preview
                         </div>
-                        <div id="text-preview-split" class="text-preview"></div>
+                        <div id="text-preview" class="text-preview"></div>
                     </div>
                 </div>
             </div>

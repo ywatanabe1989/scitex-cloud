@@ -133,12 +133,10 @@ function initializeEditor(config: any): void {
         editor.setContent(content);
     }
 
-    // Set split view as default
-    const splitViewTab = document.getElementById('view-tab-split');
-    if (splitViewTab) {
-        // Simulate click to activate split view
-        splitViewTab.click();
-    }
+    // Show only split view - all views are split by default in HTML
+    document.querySelectorAll('.editor-view').forEach((view) => {
+        view.classList.add('active');
+    });
 
     console.log('[Writer] Editor initialized successfully');
 }
@@ -183,6 +181,21 @@ function setupEditorListeners(
 
     // Setup save button (Ctrl+S keyboard shortcut is handled below)
     // Note: No explicit save button in toolbar - use keyboard shortcut
+
+    // Setup undo/redo buttons
+    const undoBtn = document.getElementById('undo-btn');
+    if (undoBtn && editor) {
+        undoBtn.addEventListener('click', () => {
+            editor.undo();
+        });
+    }
+
+    const redoBtn = document.getElementById('redo-btn');
+    if (redoBtn && editor) {
+        redoBtn.addEventListener('click', () => {
+            editor.redo();
+        });
+    }
 
     // Setup compile button
     const compileBtn = document.getElementById('compile-btn-toolbar');
@@ -366,33 +379,6 @@ async function handleCompile(
  * Setup sidebar button listeners
  */
 function setupSidebarButtons(config: any): void {
-    // Toggle sidebar button
-    const toggleSidebarBtn = document.getElementById('toggle-sidebar');
-    const sidebar = document.getElementById('writer-sidebar');
-    if (toggleSidebarBtn && sidebar) {
-        toggleSidebarBtn.addEventListener('click', () => {
-            sidebar.classList.toggle('collapsed');
-        });
-    }
-
-    // Refresh files button
-    const refreshBtn = document.getElementById('refresh-files-btn');
-    if (refreshBtn) {
-        refreshBtn.addEventListener('click', () => {
-            showToast('Refreshing files...', 'info');
-            // TODO: Implement file refresh logic
-        });
-    }
-
-    // Export button
-    const exportBtn = document.getElementById('export-btn');
-    if (exportBtn) {
-        exportBtn.addEventListener('click', () => {
-            showToast('Exporting manuscript...', 'info');
-            // TODO: Implement export logic
-        });
-    }
-
     // Initialize workspace button (only shown when not initialized)
     const initBtn = document.getElementById('init-writer-btn');
     if (initBtn && !config.writerInitialized && !config.isDemo) {
@@ -432,57 +418,6 @@ function setupSidebarButtons(config: any): void {
             }
         });
     }
-
-    // View/editor mode buttons (LaTeX, Preview, Split)
-    const viewTabs = document.querySelectorAll('.view-tab');
-    viewTabs.forEach((tab) => {
-        tab.addEventListener('click', (e: Event) => {
-            const target = e.target as HTMLElement;
-            const view = target.getAttribute('data-view');
-            if (view) {
-                // Hide all views
-                document.querySelectorAll('.editor-view').forEach((v) => {
-                    v.classList.remove('active');
-                });
-                // Show selected view
-                const selectedView = document.getElementById(`editor-view-${view}`);
-                if (selectedView) {
-                    selectedView.classList.add('active');
-                }
-                // Update active tab
-                viewTabs.forEach((t) => t.classList.remove('active'));
-                target.classList.add('active');
-            }
-        });
-    });
-
-    // Sections panel toggle button
-    const toggleSectionPanelBtn = document.getElementById('toggle-section-panel');
-    const floatingPanel = document.getElementById('floating-section-panel');
-    if (toggleSectionPanelBtn && floatingPanel) {
-        toggleSectionPanelBtn.addEventListener('click', () => {
-            const isHidden = floatingPanel.style.display === 'none';
-            floatingPanel.style.display = isHidden ? 'flex' : 'none';
-        });
-    }
-
-    // Close section panel button
-    const closePanelBtn = document.getElementById('close-section-panel');
-    if (closePanelBtn && floatingPanel) {
-        closePanelBtn.addEventListener('click', () => {
-            floatingPanel.style.display = 'none';
-        });
-    }
-
-    // TODO: View/Toggle PDF Compilation Panel Button - disabled until compilation API is implemented
-    // const toggleCompilationPanelBtn = document.getElementById('toggle-compilation-panel');
-    // const compilationPanel = document.getElementById('compilation-panel');
-    // if (toggleCompilationPanelBtn && compilationPanel) {
-    //     toggleCompilationPanelBtn.addEventListener('click', () => {
-    //         const isHidden = compilationPanel.style.display === 'none';
-    //         compilationPanel.style.display = isHidden ? '' : 'none';
-    //     });
-    // }
 }
 
 /**
