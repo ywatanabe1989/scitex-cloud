@@ -7,20 +7,20 @@ services:
       cache_from:
         - scitex-cloud-web:latest
     command: >
-      sh -c "
-      if [ ! -f /app/.scitex_deps_installed ]; then
-        echo 'First run - installing dependencies...' &&
-        /usr/local/bin/uv pip install --system -e '/scitex-code[all]' &&
-        python -m playwright install chromium &&
-        touch /app/.scitex_deps_installed &&
-        echo 'Dependencies installed!';
-      else
-        echo 'Dependencies already installed, skipping...';
-      fi &&
+      sh -c '
+      echo "Installing scitex and dependencies..." &&
+      /usr/local/bin/uv pip install --system -e "/scitex-code[all]" &&
+      echo "Installing Playwright..." &&
+      python -m playwright install chromium &&
+      echo "Verifying scitex installation..." &&
+      python -c "import scitex; print(f\"scitex {scitex.__version__} installed at {scitex.__file__}\")" &&
+      echo "Running migrations..." &&
       python manage.py migrate --noinput &&
+      echo "Collecting static files..." &&
       python manage.py collectstatic --noinput &&
+      echo "Starting Django development server..." &&
       python manage.py runserver 0.0.0.0:8000
-      "
+      '
     volumes:
       - ../..:/app
       - static_volume:/app/staticfiles
