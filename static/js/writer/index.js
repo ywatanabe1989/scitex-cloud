@@ -7,7 +7,7 @@
  * - SectionsManager: Section and document structure management
  * - CompilationManager: LaTeX compilation and PDF management
  */
-import { WriterEditor, EnhancedEditor, SectionsManager, CompilationManager, FileTreeManager, PDFPreviewManager, PanelResizer } from './modules/index.js';
+import { WriterEditor, EnhancedEditor, SectionsManager, CompilationManager, FileTreeManager, PDFPreviewManager, PanelResizer, EditorControls } from './modules/index.js';
 import { getCsrfToken } from '@/utils/csrf.js';
 import { writerStorage } from '@/utils/storage.js';
 import { getWriterConfig, createDefaultEditorState } from './helpers.js';
@@ -145,6 +145,12 @@ function initializeEditor(config) {
     if (!panelResizer.isInitialized()) {
         console.warn('[Writer] Panel resizer could not be initialized');
     }
+    // Initialize editor controls (font size, auto-preview, preview button)
+    // @ts-ignore - editorControls is initialized and manages its own event listeners
+    const editorControls = new EditorControls({
+        pdfPreviewManager: pdfPreviewManager,
+        compilationManager: compilationManager
+    });
     // Initialize file tree if project exists
     if (config.projectId) {
         const fileTreeContainer = document.getElementById('tex-files-list');
