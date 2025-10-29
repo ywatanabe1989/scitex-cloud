@@ -45,6 +45,31 @@
                 <button id="redo-btn" class="btn btn-sm btn-outline-secondary" title="Redo (Ctrl+Y)">
                     <i class="fas fa-redo"></i>
                 </button>
+
+                <div class="vertical-divider"></div>
+
+                <!-- Font Size Control -->
+                <div class="font-size-control">
+                    <label for="font-size-slider" class="form-label" style="margin: 0; font-size: 0.85rem;">
+                        <i class="fas fa-text-height me-1"></i><span id="font-size-display">14</span>px
+                    </label>
+                    <input type="range" id="font-size-slider" class="form-range" min="10" max="20" value="14" title="Adjust editor font size">
+                </div>
+
+                <div class="vertical-divider"></div>
+
+                <!-- Auto Preview Checkbox -->
+                <div class="auto-preview-control">
+                    <input type="checkbox" id="auto-preview-checkbox" class="form-check-input" checked>
+                    <label for="auto-preview-checkbox" class="form-check-label" style="margin: 0; font-size: 0.85rem; cursor: pointer;">
+                        <i class="fas fa-magic me-1"></i>Auto (5s)
+                    </label>
+                </div>
+
+                <!-- Preview Button -->
+                <button id="preview-btn-toolbar" class="btn btn-sm btn-outline-primary" title="Compile PDF Preview">
+                    <i class="fas fa-eye me-1"></i>Preview
+                </button>
             </div>
 
             <div class="toolbar-right">

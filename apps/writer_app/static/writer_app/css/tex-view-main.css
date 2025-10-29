@@ -970,3 +970,79 @@
 .panel-resizer.active {
     box-shadow: 0 0 6px rgba(0, 0, 0, 0.15);
 }
+
+/* ========================================
+ * Font Size Control Styling
+ * ======================================== */
+
+.font-size-control {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.5rem;
+}
+
+.font-size-control .form-label {
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.font-size-control .form-range {
+    width: 120px;
+    height: 4px;
+    cursor: pointer;
+    background: var(--color-canvas-subtle);
+    border-radius: 2px;
+}
+
+.font-size-control .form-range::-webkit-slider-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--color-accent-emphasis);
+    cursor: pointer;
+    border: 2px solid var(--color-canvas-default);
+}
+
+.font-size-control .form-range::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--color-accent-emphasis);
+    cursor: pointer;
+    border: 2px solid var(--color-canvas-default);
+}
+
+/* ========================================
+ * Auto Preview Control Styling
+ * ======================================== */
+
+.auto-preview-control {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.5rem;
+}
+
+.auto-preview-control .form-check-input {
+    width: 1rem;
+    height: 1rem;
+    margin: 0;
+    cursor: pointer;
+    border-color: var(--color-border-default);
+    background-color: var(--color-canvas-default);
+}
+
+.auto-preview-control .form-check-input:checked {
+    background-color: var(--color-accent-emphasis);
+    border-color: var(--color-accent-emphasis);
+}
+
+.auto-preview-control .form-check-label {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    white-space: nowrap;
+}
