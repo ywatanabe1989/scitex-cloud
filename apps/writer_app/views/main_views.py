@@ -977,11 +977,14 @@ def save_latex_section(request, project_id):
         return JsonResponse({'error': str(e)}, status=500)
 
 
-@login_required
 def list_tex_files(request, project_id):
     """List all .tex files in the project's writer directory with metadata."""
     if request.method != 'GET':
         return JsonResponse({'error': 'GET required'}, status=405)
+
+    # For anonymous/demo users, return empty list
+    if not request.user.is_authenticated:
+        return JsonResponse({'success': True, 'files': [], 'message': 'Demo mode - no files'})
 
     try:
         project = Project.objects.get(id=project_id, owner=request.user)

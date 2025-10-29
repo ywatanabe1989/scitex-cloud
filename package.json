@@ -1,28 +1,29 @@
 {
-  "name": "scitex-web",
-  "version": "0.1.0",
-  "description": "SciTeX Cloud web interface for researchers",
-  "main": "src/index.js",
+  "name": "scitex-cloud",
+  "version": "1.0.0",
+  "description": "SciTeX Cloud - Collaborative Scientific Writing Platform",
+  "main": "static/js/index.js",
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "nodemon src/index.js",
-    "test": "jest"
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "build:writer": "tsc --rootDir static/ts/writer --outDir apps/writer_app/static/writer_app/js",
+    "build:scholar": "tsc --rootDir static/ts/scholar --outDir apps/scholar_app/static/scholar_app/js",
+    "type-check": "tsc --noEmit",
+    "dev": "tsc --watch --pretty",
+    "lint": "eslint static/ts/**/*.ts",
+    "format": "prettier --write static/ts/**/*.ts"
   },
-  "keywords": [
-    "scitex",
-    "research",
-    "science",
-    "web",
-    "django"
-  ],
-  "author": "ywatanabe",
-  "license": "UNLICENSED",
-  "dependencies": {
-    "express": "^4.17.1"
-  },
+  "dependencies": {},
   "devDependencies": {
-    "jest": "^29.7.0",
-    "jest-environment-jsdom": "^29.7.0",
-    "nodemon": "^2.0.22"
+    "typescript": "^5.2.2",
+    "@types/node": "^20.5.0",
+    "@types/codemirror": "^5.60.11",
+    "eslint": "^8.48.0",
+    "@typescript-eslint/eslint-plugin": "^6.5.0",
+    "@typescript-eslint/parser": "^6.5.0",
+    "prettier": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
   }
 }

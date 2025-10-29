@@ -5,6 +5,7 @@
 <link rel="stylesheet" href="{% static 'writer_app/css/tex-view-sidebar.css' %}">
 <link rel="stylesheet" href="{% static 'writer_app/css/tex-view-main.css' %}">
 <link rel="stylesheet" href="{% static 'writer_app/css/pdf-view-main.css' %}">
+<link rel="stylesheet" href="{% static 'writer_app/css/history_timeline.css' %}">
 {% include "partials/codemirror_css.html" %}
 {% endblock %}
 
@@ -85,6 +86,9 @@
                        ?.split('=')[1] : null) || ''
     };
 </script>
+
+<!-- History Timeline Component -->
+<script src="{% static 'writer_app/js/history_timeline.js' %}"></script>
 
 <!-- Writer App JavaScript -->
 <script src="{% static 'writer_app/js/writer_app.js' %}?v={{ writer_initialized|yesno:'1,0' }}{{ project.id|default:'0' }}&t={% now 'U' %}"></script>

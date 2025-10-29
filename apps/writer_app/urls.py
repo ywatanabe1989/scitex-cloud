@@ -1,11 +1,33 @@
 from django.urls import path
 from . import views
+from .views import api_views
 
 app_name = 'writer'
 
 urlpatterns = [
     # Default workspace for logged-in users without project
     path('workspace/', views.user_default_workspace, name='user_default_workspace'),
+
+    # ===== WRITER API (based on scitex.writer.Writer) =====
+    # Section operations
+    path('api/project/<int:project_id>/section/<str:section_name>/',
+         api_views.section_view, name='api-section'),
+    path('api/project/<int:project_id>/section/<str:section_name>/history/',
+         api_views.section_history_view, name='api-section-history'),
+    path('api/project/<int:project_id>/section/<str:section_name>/diff/',
+         api_views.section_diff_view, name='api-section-diff'),
+    path('api/project/<int:project_id>/section/<str:section_name>/checkout/',
+         api_views.section_checkout_view, name='api-section-checkout'),
+
+    # Compilation operations
+    path('api/project/<int:project_id>/compile/',
+         api_views.compile_view, name='api-compile'),
+    path('api/project/<int:project_id>/pdf/',
+         api_views.pdf_view, name='api-pdf'),
+
+    # Utility endpoints
+    path('api/project/<int:project_id>/sections/',
+         api_views.available_sections_view, name='api-available-sections'),
 
     # Project-linked Writer (Primary Interface)
     path('project/<int:project_id>/', views.project_writer, name='project-writer'),

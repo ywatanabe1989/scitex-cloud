@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-28 15:00:24
+!-- Timestamp: 2025-10-28 15:08:11
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/CLAUDE.md
 !-- --- -->
@@ -75,6 +75,7 @@ Add console.log for debugging
   - [ ] Compilation failed
 Compile script not found
   - [ ] Split view does not apply syntax highlight, and even light/dark theme ignored
+    - [ ] Is it better to try Monaco Editor + Type script?
 
 
 
