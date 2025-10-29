@@ -29,6 +29,11 @@
                             <option value="revision">Revision</option>
                         </select>
                     </div>
+                    <div class="horizontal-selector">
+                        <label class="selector-label"><i class="fas fa-file-code me-1"></i></label>
+                        <select id="texfile-selector" class="form-select form-select-sm">
+                        </select>
+                    </div>
                 </div>
             </div>
 
@@ -47,6 +52,11 @@
                 <button id="compile-btn-toolbar" class="btn btn-sm btn-primary" title="Compile PDF">
                     <i class="fas fa-file-pdf me-1"></i>Compile
                 </button>
+
+                <!-- Download PDF Button -->
+                <a id="download-pdf-toolbar" href="#" download class="btn btn-sm btn-outline-secondary" title="Download PDF" style="display: none;">
+                    <i class="fas fa-download"></i>
+                </a>
 
                 <div class="vertical-divider"></div>
 
