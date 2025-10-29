@@ -7,6 +7,7 @@ export class PanelResizer {
         this.isResizing = false;
         this.startX = 0;
         this.startLeftWidth = 0;
+        this._initialized = false;
         this.container = document.getElementById(containerId);
         this.resizer = document.getElementById('panel-resizer');
         this.leftPanel = document.querySelector('.latex-panel');
@@ -27,6 +28,8 @@ export class PanelResizer {
         this.resizer.addEventListener('mousedown', (e) => this.handleMouseDown(e));
         document.addEventListener('mousemove', (e) => this.handleMouseMove(e));
         document.addEventListener('mouseup', () => this.handleMouseUp());
+        this._initialized = true;
+        this.restoreSavedWidth();
         console.log('[PanelResizer] Initialized');
     }
     /**
@@ -102,7 +105,7 @@ export class PanelResizer {
      * Check if the resizer is properly initialized
      */
     isInitialized() {
-        return !!(this.resizer && this.leftPanel && this.rightPanel && this.container);
+        return this._initialized;
     }
 }
 //# sourceMappingURL=panel-resizer.js.map

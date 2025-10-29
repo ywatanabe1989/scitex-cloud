@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-30 00:42:45
+!-- Timestamp: 2025-10-30 00:44:43
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/suggestions.md
 !-- --- -->
@@ -16,6 +16,7 @@
   - [ ] Just place splitter between them
   - [ ] Remove the large space between the left and right panes!
   - [ ] take screenshot and confirm with your eyes
+  - [ ] Spliters width should be 0 but with slight handle
 
 なるほど!2つの問題がありますね:
 

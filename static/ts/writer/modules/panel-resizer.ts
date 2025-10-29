@@ -42,13 +42,6 @@ export class PanelResizer {
     }
 
     /**
-     * Check if panel resizer is initialized
-     */
-    isInitialized(): boolean {
-        return this._initialized;
-    }
-
-    /**
      * Handle mouse down on resizer
      */
     private handleMouseDown(e: MouseEvent): void {
@@ -138,6 +131,6 @@ export class PanelResizer {
      * Check if the resizer is properly initialized
      */
     isInitialized(): boolean {
-        return !!(this.resizer && this.leftPanel && this.rightPanel && this.container);
+        return this._initialized;
     }
 }
