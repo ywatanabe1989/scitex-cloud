@@ -133,23 +133,22 @@ export class PDFPreviewManager {
 
         this.container.innerHTML = `
             <div class="pdf-preview-container">
-                <div class="pdf-preview-toolbar">
-                    <a href="${pdfUrl}" target="_blank" class="btn btn-sm btn-outline-primary">
-                        <i class="fas fa-external-link-alt me-2"></i>Open in New Tab
-                    </a>
-                    <a href="${pdfUrl}" download class="btn btn-sm btn-outline-secondary">
-                        <i class="fas fa-download me-2"></i>Download
-                    </a>
-                </div>
                 <div class="pdf-preview-viewer">
                     <embed
-                        src="${pdfUrl}#toolbar=1&navpanes=0&scrollbar=1"
+                        src="${pdfUrl}#toolbar=0&navpanes=0&scrollbar=1"
                         type="application/pdf"
                         title="PDF Preview">
                     </embed>
                 </div>
             </div>
         `;
+
+        // Update download button in toolbar
+        const downloadBtn = document.getElementById('download-pdf-toolbar') as HTMLAnchorElement;
+        if (downloadBtn) {
+            downloadBtn.href = pdfUrl;
+            downloadBtn.style.display = 'inline-block';
+        }
 
         console.log('[PDFPreview] PDF displayed:', pdfUrl);
     }
