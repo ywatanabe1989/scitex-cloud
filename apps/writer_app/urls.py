@@ -37,10 +37,24 @@ urlpatterns = [
          api_views.compile_view, name='api-compile'),
     path('api/project/<int:project_id>/pdf/',
          api_views.pdf_view, name='api-pdf'),
+    path('api/project/<int:project_id>/preview-pdf/',
+         api_views.preview_pdf_view, name='api-preview-pdf'),
 
     # Metadata
     path('api/project/<int:project_id>/sections/',
          api_views.available_sections_view, name='api-available-sections'),
+
+    # Bulk save sections
+    path('api/project/<int:project_id>/save-sections/',
+         api_views.save_sections_view, name='api-save-sections'),
+
+    # File tree
+    path('api/project/<int:project_id>/file-tree/',
+         api_views.file_tree_view, name='api-file-tree'),
+
+    # Read .tex file
+    path('api/project/<int:project_id>/read-tex-file/',
+         api_views.read_tex_file_view, name='api-read-tex-file'),
 
     # Initialization
     path('api/initialize-workspace/', views.initialize_workspace, name='initialize-workspace'),
