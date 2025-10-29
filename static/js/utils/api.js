@@ -2,7 +2,7 @@
  * API Client Utility Module
  * Provides reusable fetch wrapper with CSRF token handling
  */
-import { getCsrfToken } from './csrf';
+import { getCsrfToken } from './csrf.js';
 /**
  * API Client class for making requests with automatic CSRF token handling
  */

@@ -2,10 +2,10 @@
  * Shared Utilities Index
  * Centralized export of all utility modules
  */
-export { getCsrfToken, createHeadersWithCsrf } from './csrf';
-export { StorageManager, globalStorage, writerStorage } from './storage';
-export { ApiClient, apiClient } from './api';
-export type { ApiRequestInit, ApiResponse } from './api';
-export { showToast, showStatus, setButtonLoading, showSpinner, Modal, confirm, debounce, throttle } from './ui';
-export type { ToastType } from './ui';
+export { getCsrfToken, createHeadersWithCsrf } from './csrf.js';
+export { StorageManager, globalStorage, writerStorage } from './storage.js';
+export { ApiClient, apiClient } from './api.js';
+export type { ApiRequestInit, ApiResponse } from './api.js';
+export { showToast, showStatus, setButtonLoading, showSpinner, Modal, confirm, debounce, throttle } from './ui.js';
+export type { ToastType } from './ui.js';
 //# sourceMappingURL=index.d.ts.map

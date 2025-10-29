@@ -87,8 +87,27 @@
     };
 </script>
 
+<!-- Import map for module resolution -->
+<script type="importmap">
+{
+  "imports": {
+    "@/types": "{% static 'js/types/index.js' %}",
+    "@/types/": "{% static 'js/types/' %}",
+    "@/utils/csrf": "{% static 'js/utils/csrf.js' %}",
+    "@/utils/storage": "{% static 'js/utils/storage.js' %}",
+    "@/utils/api": "{% static 'js/utils/api.js' %}",
+    "@/utils/": "{% static 'js/utils/' %}",
+    "@/utils": "{% static 'js/utils/index.js' %}",
+    "@/writer/utils": "{% static 'js/writer/utils/index.js' %}",
+    "@/writer/utils/": "{% static 'js/writer/utils/' %}",
+    "@/writer/": "{% static 'js/writer/' %}",
+    "@/": "{% static 'js/' %}"
+  }
+}
+</script>
+
 <!-- TypeScript-compiled Writer Application Bundle -->
-<script src="{% static 'js/writer/index.js' %}"></script>
+<script type="module" src="{% static 'js/writer/index.js' %}"></script>
 
 <!-- API Client for REST endpoints -->
 <script src="{% static 'writer_app/js/api-client.js' %}"></script>

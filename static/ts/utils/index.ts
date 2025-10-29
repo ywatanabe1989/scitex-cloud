@@ -4,14 +4,14 @@
  */
 
 // CSRF utilities
-export { getCsrfToken, createHeadersWithCsrf } from './csrf';
+export { getCsrfToken, createHeadersWithCsrf } from './csrf.js';
 
 // Storage utilities
-export { StorageManager, globalStorage, writerStorage } from './storage';
+export { StorageManager, globalStorage, writerStorage } from './storage.js';
 
 // API client
-export { ApiClient, apiClient } from './api';
-export type { ApiRequestInit, ApiResponse } from './api';
+export { ApiClient, apiClient } from './api.js';
+export type { ApiRequestInit, ApiResponse } from './api.js';
 
 // UI utilities
 export {
@@ -23,5 +23,5 @@ export {
     confirm,
     debounce,
     throttle
-} from './ui';
-export type { ToastType } from './ui';
+} from './ui.js';
+export type { ToastType } from './ui.js';

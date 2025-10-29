@@ -20,6 +20,8 @@ class Manuscript(models.Model):
         'project_app.Project',
         on_delete=models.CASCADE,
         related_name='manuscript',
+        null=True,
+        blank=True,
         help_text="Project this manuscript belongs to"
     )
 

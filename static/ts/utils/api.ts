@@ -3,7 +3,7 @@
  * Provides reusable fetch wrapper with CSRF token handling
  */
 
-import { getCsrfToken } from './csrf';
+import { getCsrfToken } from './csrf.js';
 
 export interface ApiRequestInit extends Omit<RequestInit, 'body'> {
     body?: BodyInit | object | null;

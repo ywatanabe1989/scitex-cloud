@@ -7,11 +7,11 @@
 
 /* Sidebar Container */
 .writer-sidebar {
-    width: 0;
-    min-width: 0;
+    width: 280px;
+    min-width: 280px;
     background: var(--color-canvas-default);
-    border-right: none;
-    display: none;
+    border-right: 1px solid var(--color-border-default);
+    display: flex;
     flex-direction: column;
     overflow: hidden;
     transition: width 0.3s ease, min-width 0.3s ease;
@@ -23,13 +23,15 @@
     min-width: 0;
     border-right: none;
     overflow: hidden;
+    display: none;
 }
 
 /* Sidebar Header */
 .sidebar-header {
     padding: 1.5rem;
-    /* background: var(--color-accent-emphasis); */  /* Styling from central CSS */
-    /* color: var(--color-fg-on-emphasis); */  /* Styling from central CSS */
+    background: linear-gradient(135deg, var(--color-accent-subtle) 0%, var(--color-canvas-subtle) 100%);
+    border-bottom: 2px solid var(--color-accent-emphasis);
+    color: var(--color-fg-default);
 }
 
 .project-info {
@@ -82,23 +84,32 @@
 }
 
 .section-item {
-    padding: 0.5rem 0.75rem;
-    /* border: 1px solid var(--color-border-default); */  /* Styling from central CSS */
-    /* border-radius: var(--border-radius); */  /* Styling from central CSS */
-    margin-bottom: 0.4rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    margin-bottom: 0.6rem;
     cursor: move;
-    /* transition: var(--transition); */  /* Styling from central CSS */
-    /* background: var(--color-canvas-default); */  /* Styling from central CSS */
+    transition: all 0.2s ease;
+    background: var(--color-canvas-default);
     position: relative;
 }
 
+.section-item:hover {
+    border-color: var(--color-accent-emphasis);
+    background: var(--color-canvas-subtle);
+    transform: translateX(2px);
+}
+
 .section-item.dragging {
-    /* opacity: 0.5; */  /* Styling from central CSS */
+    opacity: 0.6;
     cursor: grabbing;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .section-item.drag-over {
-    /* border-top: 3px solid var(--scitex-accent); */  /* Styling from central CSS */
+    border-top: 3px solid var(--color-accent-emphasis);
+    padding-top: calc(0.75rem - 2px);
+    background: rgba(80, 107, 122, 0.05);
 }
 
 .section-drag-handle {
@@ -121,40 +132,44 @@
 }
 
 .section-item.active {
-    /* border-color: var(--color-accent-emphasis); */  /* Styling from central CSS */
-    /* background: var(--color-accent-emphasis); */  /* Styling from central CSS */
-    /* color: var(--color-fg-on-emphasis); */  /* Styling from central CSS */
+    border-color: var(--color-accent-emphasis);
+    background: var(--color-accent-emphasis);
+    color: var(--color-fg-on-emphasis);
+    border-left: 4px solid var(--color-success-emphasis);
+    box-shadow: inset 0 0 0 1px var(--color-accent-emphasis), 0 2px 6px rgba(80, 107, 122, 0.15);
 }
 
 .section-item.active .section-name {
-    /* color: var(--color-fg-on-emphasis); */  /* Styling from central CSS */
+    color: var(--color-fg-on-emphasis);
+    font-weight: 600;
 }
 
 .section-item.active .section-stats {
-    /* color: var(--color-fg-on-emphasis); */  /* Styling from central CSS */
-    /* opacity: 0.9; */  /* Styling from central CSS */
+    color: var(--color-fg-on-emphasis);
+    opacity: 0.95;
 }
 
 /* Locked Sections */
 .section-item.section-locked {
-    /* opacity: 0.6; */  /* Styling from central CSS */
+    opacity: 0.7;
     cursor: not-allowed;
-    /* border-color: var(--color-danger-emphasis); */  /* Styling from central CSS */
-    /* background: var(--color-danger-subtle); */  /* Styling from central CSS */
+    border-color: var(--color-danger-emphasis);
+    background: var(--color-danger-subtle);
     position: relative;
 }
 
 .section-item.section-locked::after {
     content: '🔒';
     position: absolute;
-    right: 0.5rem;
+    right: 0.75rem;
     top: 50%;
     transform: translateY(-50%);
-    /* font-size: 1rem; */  /* Styling from central CSS */
+    font-size: 1rem;
 }
 
 .section-item.section-locked:hover {
-    /* transform: none; */  /* Styling from central CSS */
+    transform: none;
+    opacity: 0.7;
 }
 
 /* Section Content */

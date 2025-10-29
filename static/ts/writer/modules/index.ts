@@ -3,6 +3,6 @@
  * Centralized export of all writer-specific modules
  */
 
-export { WriterEditor, type EditorConfig } from './editor';
-export { SectionsManager, type Section } from './sections';
-export { CompilationManager, type CompilationOptions } from './compilation';
+export { WriterEditor, type EditorConfig } from './editor.js';
+export { SectionsManager, type Section } from './sections.js';
+export { CompilationManager, type CompilationOptions } from './compilation.js';
