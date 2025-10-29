@@ -1,14 +1,13 @@
 """
 Management command to initialize arXiv categories in the database.
 
-This command populates the ArxivCategory model with common arXiv subject
-classifications used for manuscript submissions.
+DEPRECATED: arXiv integration moved to separate service.
+This command is a stub for backward compatibility.
 """
 
-from django.core.management.base import BaseCommand, CommandError
-from django.db import transaction
+from django.core.management.base import BaseCommand
 
-from apps.writer_app.models import ArxivCategory
+# Note: ArxivCategory model removed - arXiv integration delegated to separate service
 
 
 class Command(BaseCommand):

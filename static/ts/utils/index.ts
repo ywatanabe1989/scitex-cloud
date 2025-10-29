@@ -3,10 +3,17 @@
  * Centralized export of all utility modules
  */
 
-export { getCsrfToken } from './csrf';
-export { StorageManager, globalStorage } from './storage';
+// CSRF utilities
+export { getCsrfToken, createHeadersWithCsrf } from './csrf';
+
+// Storage utilities
+export { StorageManager, globalStorage, writerStorage } from './storage';
+
+// API client
 export { ApiClient, apiClient } from './api';
 export type { ApiRequestInit, ApiResponse } from './api';
+
+// UI utilities
 export {
     showToast,
     showStatus,

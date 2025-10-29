@@ -8,10 +8,14 @@
     "outDir": "./static/js",
     "baseUrl": "./static/ts",
     "paths": {
-      "@/*": ["*"],
-      "@types/*": ["types/*"],
-      "@utils/*": ["utils/*"],
-      "@writer/*": ["writer/*"]
+      "@/types": ["types/index.ts"],
+      "@/types/*": ["types/*"],
+      "@/utils": ["utils"],
+      "@/utils/*": ["utils/*"],
+      "@/writer/utils": ["writer/utils"],
+      "@/writer/utils/*": ["writer/utils/*"],
+      "@/writer/*": ["writer/*"],
+      "@/*": ["*"]
     },
     "strict": true,
     "esModuleInterop": true,

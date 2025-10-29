@@ -1,16 +1,12 @@
 """
-Writer App Services
+Writer App Services - Minimal Interface
 
-Business logic layer for the writer application.
-Organized by domain/feature for maintainability.
+All heavy lifting delegated to scitex.writer.Writer.
+WriterService provides Django convenience wrapper.
 """
 
-from .version_control_service import VersionControlManager
-from .ai_service import *
-from .repository_service import *
-from .operational_transform_service import *
-from .utils import *
+from .writer_service import WriterService
 
 __all__ = [
-    'VersionControlManager',
+    'WriterService',
 ]

@@ -1,13 +1,25 @@
 /**
  * SciTeX Writer Application
  * Main entry point for the writer interface
+ *
+ * This module coordinates all writer modules:
+ * - WriterEditor: CodeMirror editor management
+ * - SectionsManager: Section and document structure management
+ * - CompilationManager: LaTeX compilation and PDF management
  */
 
-import { getWriterConfig, createDefaultEditorState } from '../types';
-import { getCsrfToken, showToast, globalStorage } from '../utils';
-import { WriterEditor } from './modules/editor';
-import { SectionsManager } from './modules/sections';
-import { CompilationManager } from './modules/compilation';
+import { WriterEditor, SectionsManager, CompilationManager } from './modules';
+import { getCsrfToken } from '@/utils/csrf';
+import { writerStorage } from '@/utils/storage';
+import { getWriterConfig, createDefaultEditorState } from './helpers';
+
+/**
+ * Show toast notification
+ */
+function showToast(message: string, _type: string = 'info'): void {
+    const fn = (window as any).showToast || ((msg: string) => console.log(msg));
+    fn(message);
+}
 
 // Initialize application
 document.addEventListener('DOMContentLoaded', () => {
@@ -104,18 +116,21 @@ function initializeEditor(config: any): void {
 
     // Setup state management
     const state = createDefaultEditorState();
-    const storage = globalStorage;
 
     // Setup event listeners
-    setupEditorListeners(editor, sectionsManager, compilationManager, state, storage);
-    setupSectionListeners(sectionsManager, editor, state, storage);
+    if (editor) {
+        setupEditorListeners(editor, sectionsManager, compilationManager, state);
+        setupSectionListeners(sectionsManager, editor, state, writerStorage);
+    }
     setupCompilationListeners(compilationManager, config);
     setupThemeListener();
 
     // Load initial content
-    const currentSection = state.currentSection;
+    const currentSection = state.currentSection || 'abstract';
     const content = sectionsManager.getContent(currentSection);
-    editor.setContent(content);
+    if (editor && content) {
+        editor.setContent(content);
+    }
 
     console.log('[Writer] Editor initialized successfully');
 }
@@ -124,12 +139,12 @@ function initializeEditor(config: any): void {
  * Setup editor event listeners
  */
 function setupEditorListeners(
-    editor: WriterEditor,
+    editor: WriterEditor | null,
     sectionsManager: SectionsManager,
     compilationManager: CompilationManager,
-    state: any,
-    storage: any
+    state: any
 ): void {
+    if (!editor) return;
     // Track changes
     editor.onChange((content: string, wordCount: number) => {
         const currentSection = state.currentSection;
@@ -140,7 +155,7 @@ function setupEditorListeners(
         updateWordCountDisplay(currentSection, wordCount);
 
         // Schedule auto-save
-        scheduleSave(editor, sectionsManager, state, storage);
+        scheduleSave(editor, sectionsManager, state);
     });
 
     // Keyboard shortcuts
@@ -182,12 +197,13 @@ function setupSectionListeners(
     sectionsManager: SectionsManager,
     editor: WriterEditor,
     state: any,
-    storage: any
+    _storage: any
 ): void {
     const sectionItems = document.querySelectorAll('.section-tab');
     sectionItems.forEach(item => {
-        item.addEventListener('click', (e) => {
-            const sectionId = (e.target as HTMLElement).dataset.section;
+        item.addEventListener('click', (e: Event) => {
+            const target = e.target as HTMLElement;
+            const sectionId = target.dataset.section;
             if (sectionId) {
                 switchSection(editor, sectionsManager, state, sectionId);
             }
@@ -195,7 +211,7 @@ function setupSectionListeners(
     });
 
     // Listen for section changes
-    sectionsManager.onSectionChange((sectionId) => {
+    sectionsManager.onSectionChange((sectionId: string) => {
         const content = sectionsManager.getContent(sectionId);
         editor.setContent(content);
         state.currentSection = sectionId;
@@ -206,8 +222,8 @@ function setupSectionListeners(
 /**
  * Setup compilation listeners
  */
-function setupCompilationListeners(compilationManager: CompilationManager, config: any): void {
-    compilationManager.onProgress((progress, status) => {
+function setupCompilationListeners(compilationManager: CompilationManager, _config: any): void {
+    compilationManager.onProgress((progress: number, status: string) => {
         const progressBar = document.getElementById('compilation-progress');
         if (progressBar) {
             (progressBar as HTMLInputElement).value = String(progress);
@@ -219,15 +235,17 @@ function setupCompilationListeners(compilationManager: CompilationManager, confi
         }
     });
 
-    compilationManager.onComplete((jobId, pdfUrl) => {
-        showToast('Compilation completed successfully', 'success');
+    compilationManager.onComplete((_jobId: string, pdfUrl: string) => {
+        const showToast = (window as any).showToast || ((msg: string) => console.log(msg));
+        showToast('Compilation completed successfully');
         if (pdfUrl) {
             openPDF(pdfUrl);
         }
     });
 
-    compilationManager.onError((error) => {
-        showToast('Compilation error: ' + error, 'error');
+    compilationManager.onError((error: string) => {
+        const showToast = (window as any).showToast || ((msg: string) => console.error(msg));
+        showToast('Compilation error: ' + error);
     });
 }
 
@@ -241,7 +259,7 @@ function setupThemeListener(): void {
     themeSelector.addEventListener('change', () => {
         const theme = themeSelector.value;
         document.documentElement.setAttribute('data-theme', theme);
-        globalStorage.save('theme', theme);
+        writerStorage.save('theme', theme);
 
         // Apply theme to CodeMirror if available
         const cmEditor = (document.querySelector('.CodeMirror') as any)?.CodeMirror;
@@ -293,8 +311,8 @@ function updateWordCountDisplay(section: string, count: number): void {
 /**
  * Schedule auto-save
  */
-let saveTimeout: NodeJS.Timeout;
-function scheduleSave(editor: WriterEditor, sectionsManager: SectionsManager, state: any, storage: any): void {
+let saveTimeout: ReturnType<typeof setTimeout>;
+function scheduleSave(_editor: WriterEditor | null, sectionsManager: SectionsManager, state: any): void {
     clearTimeout(saveTimeout);
     saveTimeout = setTimeout(() => {
         saveSections(sectionsManager, state);
@@ -332,7 +350,7 @@ async function saveSections(sectionsManager: SectionsManager, state: any): Promi
  * Handle compilation
  */
 async function handleCompile(
-    editor: WriterEditor,
+    _editor: WriterEditor | null,
     sectionsManager: SectionsManager,
     compilationManager: CompilationManager,
     state: any
@@ -362,8 +380,7 @@ async function handleCompile(
 function openPDF(url: string): void {
     const pdfWindow = window.open(url, '_blank');
     if (!pdfWindow) {
-        showToast('Failed to open PDF. Please check popup blocker settings.', 'error');
+        const showToast = (window as any).showToast || ((msg: string) => console.warn(msg));
+        showToast('Failed to open PDF. Please check popup blocker settings.');
     }
 }
-
-export { WriterEditor, SectionsManager, CompilationManager };

@@ -3,8 +3,8 @@
  * Handles CodeMirror editor initialization and management
  */
 
-import { StorageManager } from '../../utils/storage';
-import { HistoryEntry } from '../../types';
+import { StorageManager } from '@/utils/storage';
+import { HistoryEntry } from '@/types';
 
 export interface EditorConfig {
     elementId: string;
@@ -68,7 +68,7 @@ export class WriterEditor {
         });
 
         // Track undo/redo
-        this.editor.on('beforeChange', (editor: any, change: any) => {
+        this.editor.on('beforeChange', (_editor: any, change: any) => {
             if (change.origin === 'undo' || change.origin === 'redo') {
                 // Handle undo/redo
             }
@@ -132,8 +132,10 @@ export class WriterEditor {
         // Add new entry
         this.history.push({
             content,
-            wordCount,
-            timestamp: Date.now()
+            timestamp: new Date().toISOString(),
+            hash: this.generateHash(content + wordCount),
+            message: `${wordCount} words`,
+            author: 'editor',
         });
 
         // Limit history size
@@ -153,7 +155,9 @@ export class WriterEditor {
         if (this.historyIndex > 0) {
             this.historyIndex--;
             const entry = this.history[this.historyIndex];
-            this.setContent(entry.content);
+            if (entry.content !== undefined) {
+                this.setContent(entry.content);
+            }
             return true;
         }
         return false;
@@ -166,7 +170,9 @@ export class WriterEditor {
         if (this.historyIndex < this.history.length - 1) {
             this.historyIndex++;
             const entry = this.history[this.historyIndex];
-            this.setContent(entry.content);
+            if (entry.content !== undefined) {
+                this.setContent(entry.content);
+            }
             return true;
         }
         return false;
@@ -204,6 +210,19 @@ export class WriterEditor {
         const trimmed = text.trim();
         if (!trimmed) return 0;
         return trimmed.split(/\s+/).length;
+    }
+
+    /**
+     * Generate simple hash for content
+     */
+    private generateHash(content: string): string {
+        let hash = 0;
+        for (let i = 0; i < content.length; i++) {
+            const char = content.charCodeAt(i);
+            hash = (hash << 5) - hash + char;
+            hash = hash & hash; // Convert to 32bit integer
+        }
+        return hash.toString(36);
     }
 
     /**

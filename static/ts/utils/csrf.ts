@@ -37,3 +37,15 @@ export function getCsrfToken(): string {
     console.warn('[CSRF] Token not found in config, form, meta, or cookies');
     return '';
 }
+
+/**
+ * Create headers object with CSRF token for API requests
+ */
+export function createHeadersWithCsrf(additionalHeaders: Record<string, string> = {}): Record<string, string> {
+    const csrfToken = getCsrfToken();
+    return {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrfToken,
+        ...additionalHeaders,
+    };
+}
