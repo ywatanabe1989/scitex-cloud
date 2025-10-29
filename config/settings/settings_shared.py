@@ -359,6 +359,32 @@ SCITEX_ENGINES = os.getenv("SCITEX_ENGINES", "CrossRef,PubMed,Semantic_Scholar,a
 SCITEX_DEFAULT_MODE = os.getenv("SCITEX_DEFAULT_MODE", "parallel")
 
 # ---------------------------------------
+# SciTeX Writer Settings
+# ---------------------------------------
+# Writer template path - can be set via environment variable or use default
+# Check common locations for scitex-writer template
+_WRITER_TEMPLATE_LOCATIONS = [
+    Path(os.getenv("SCITEX_WRITER_TEMPLATE_PATH", "")),  # Explicit env var
+    Path.home() / "proj" / "scitex-writer",  # Local clone
+    Path("/tmp/scitex-writer"),  # Temp clone location
+    BASE_DIR / "docs" / "scitex_writer_template",  # Extracted template
+]
+
+SCITEX_WRITER_TEMPLATE_PATH = None
+for location in _WRITER_TEMPLATE_LOCATIONS:
+    if location and location.exists():
+        SCITEX_WRITER_TEMPLATE_PATH = location
+        logger.info(f"Found SciTeX Writer template at: {location}")
+        break
+
+if not SCITEX_WRITER_TEMPLATE_PATH:
+    logger.warning(
+        "SciTeX Writer template not found at any standard location. "
+        "Manuscripts will use fallback compilation scripts. "
+        f"To use templates, clone scitex-writer to one of: {[str(l) for l in _WRITER_TEMPLATE_LOCATIONS[1:]]}"
+    )
+
+# ---------------------------------------
 # REST Framework
 # ---------------------------------------
 REST_FRAMEWORK = {

@@ -309,7 +309,7 @@ document.addEventListener('DOMContentLoaded', function() {
             conclusion: ''
         }
     };
-    
+
     // Section titles by document type
     const sectionTitles = {
         shared: {
@@ -344,7 +344,7 @@ document.addEventListener('DOMContentLoaded', function() {
             conclusion: 'Conclusion'
         }
     };
-    
+
     // Section placeholders by document type
     const sectionPlaceholders = {
         shared: {
@@ -379,7 +379,7 @@ document.addEventListener('DOMContentLoaded', function() {
             conclusion: 'Summary of key revisions and improvements made.'
         }
     };
-    
+
     // Initialize CodeMirror editor
     let codeMirrorEditor = null;
     const latexEditorTextarea = document.getElementById('latex-editor-textarea');
@@ -688,7 +688,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Mark as unsaved
         markAsUnsaved();
     });
-    
+
     // Compile manuscript
     if (compileBtn) {
         compileBtn.addEventListener('click', function() {
@@ -899,7 +899,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-    
+
     function switchToSection(section) {
         currentSection = section;
 
@@ -978,7 +978,7 @@ document.addEventListener('DOMContentLoaded', function() {
             markAsSaved();
         });
     }
-    
+
     function switchDocumentType(docType) {
         // Warn if there are unsaved changes
         if (hasUnsavedChanges) {
@@ -1010,7 +1010,7 @@ document.addEventListener('DOMContentLoaded', function() {
         currentSection = firstSection;
         loadLatexSection(firstSection);
     }
-    
+
     function renderSections(docType) {
         const sectionsContainer = sectionList.querySelector('.section-items');
         if (!sectionsContainer) return;
@@ -1316,7 +1316,7 @@ document.addEventListener('DOMContentLoaded', function() {
             showToast('Cannot remove the last section', 'warning');
         }
     }
-    
+
     function markAsUnsaved(section = currentSection) {
         hasUnsavedChanges = true;
 
@@ -1416,21 +1416,21 @@ document.addEventListener('DOMContentLoaded', function() {
             saveBtn.disabled = false;
         });
     }
-    
-    
+
+
     function scheduleLiveCompilation() {
         clearTimeout(liveCompileTimeout);
         liveCompileTimeout = setTimeout(() => {
             performLiveCompilation();
         }, 5000); // Compile 5 seconds after last change
     }
-    
+
     function performLiveCompilation() {
         if (currentlyCompiling) return;
-        
+
         currentlyCompiling = true;
         showSaveStatus('Auto-compiling...', 'info');
-        
+
         fetch(`/writer/project/${projectId}/compile/`, {
             method: 'POST',
             headers: {
@@ -1454,7 +1454,7 @@ document.addEventListener('DOMContentLoaded', function() {
             currentlyCompiling = false;
         });
     }
-    
+
     function checkCompilationStatus(jobId) {
         fetch(`/writer/api/status/${jobId}/`)
         .then(response => response.json())
@@ -1473,8 +1473,8 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Status check error:', error);
         });
     }
-    
-    
+
+
     function convertToLatex(section, content) {
         if (section === 'abstract') {
             return `% Abstract\n\\begin{abstract}\n${content}\n\\end{abstract}\n`;
@@ -1482,13 +1482,13 @@ document.addEventListener('DOMContentLoaded', function() {
             return `% ${sectionTitles[section]}\n\\section{${sectionTitles[section]}}\n${content}\n`;
         }
     }
-    
+
     function convertFromLatex(section, latexContent) {
         let content = latexContent;
-        
+
         // Remove LaTeX comments
         content = content.replace(/^%.*$/gm, '');
-        
+
         if (section === 'abstract') {
             // Extract content from \begin{abstract}...\end{abstract}
             const abstractMatch = content.match(/\\begin\{abstract\}([\s\S]*?)\\end\{abstract\}/);
@@ -1499,7 +1499,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Remove \section{...} command
             content = content.replace(/\\section\{[^}]*\}\s*/g, '');
         }
-        
+
         // Remove common LaTeX commands while preserving text
         content = content
             // Remove simple commands like \textbf{}, \emph{}, \cite{}
@@ -1513,10 +1513,10 @@ document.addEventListener('DOMContentLoaded', function() {
             // Clean up extra whitespace
             .replace(/\n\s*\n/g, '\n\n')
             .trim();
-        
+
         return content;
     }
-    
+
     function updateWordCount() {
         // Convert LaTeX to plain text for word counting
         const latexContent = codeMirrorEditor.getValue();
@@ -1576,11 +1576,11 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
-    
+
     function updateTotalWordCount(total) {
         document.getElementById('total-words').textContent = total;
     }
-    
+
     function compileManuscript() {
         compileBtn.disabled = true;
         compileBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Compiling...';
@@ -1707,7 +1707,7 @@ document.addEventListener('DOMContentLoaded', function() {
             setTimeout(() => pollCompilationStatus(jobId, attempts + 1), 2000);
         });
     }
-    
+
     function exportManuscript() {
         console.log('[Writer] Exporting manuscript');
         // Create export data
@@ -1721,7 +1721,7 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             exported: new Date().toISOString()
         };
-        
+
         // Download as JSON
         const blob = new Blob([JSON.stringify(exportData, null, 2)], {type: 'application/json'});
         const url = URL.createObjectURL(blob);
@@ -1730,17 +1730,17 @@ document.addEventListener('DOMContentLoaded', function() {
         a.download = `${exportData.project.replace(/\s+/g, '_')}_manuscript.json`;
         a.click();
         URL.revokeObjectURL(url);
-        
+
         showToast('Manuscript exported successfully!', 'success');
     }
-    
+
     function showSaveStatus(message, type) {
         const icon = type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'times-circle';
         const color = type === 'success' ? 'success' : type === 'warning' ? 'warning' : 'danger';
-        
+
         autoSaveStatus.innerHTML = `<i class="fas fa-${icon} text-${color} me-1"></i>${message}`;
     }
-    
+
     function showToast(message, type, duration = 5000) {
         console.log('[Writer] Showing toast:', type, message);
         const toast = document.createElement('div');
@@ -1763,7 +1763,7 @@ document.addEventListener('DOMContentLoaded', function() {
             toast.remove();
         }, duration);
     }
-    
+
     function checkForExistingPDF() {
         // Check if main PDF exists
         fetch(`/writer/project/${projectId}/pdf/`)
@@ -2970,3 +2970,4 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('[Writer] All new UI improvements initialized');
 
 }); // Close DOMContentLoaded
+1
