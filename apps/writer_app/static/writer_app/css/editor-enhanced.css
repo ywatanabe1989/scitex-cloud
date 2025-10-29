@@ -1,0 +1,313 @@
+/**
+ * Enhanced Editor Styles
+ * Improved styling for both CodeMirror and Monaco Editor
+ */
+
+/* Editor Container */
+.latex-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--color-border-default);
+    background: var(--color-canvas-default);
+}
+
+.preview-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--color-canvas-subtle);
+}
+
+/* Panel Headers */
+.panel-header {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--color-border-default);
+    background: var(--color-canvas-subtle);
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--color-fg-default);
+    user-select: none;
+}
+
+/* CodeMirror Enhancements */
+.CodeMirror {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace !important;
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+    height: 100% !important;
+}
+
+.CodeMirror-linenumber {
+    color: var(--color-fg-muted);
+    background: var(--color-canvas-subtle);
+}
+
+.CodeMirror-selected {
+    background: rgba(0, 123, 255, 0.15) !important;
+}
+
+.CodeMirror-cursor {
+    border-left: 2px solid var(--color-accent-fg) !important;
+}
+
+/* LaTeX Editor Textarea */
+.latex-editor-textarea {
+    flex: 1;
+    border: none;
+    padding: 1rem;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    resize: none;
+    background: var(--color-canvas-default);
+    color: var(--color-fg-default);
+}
+
+.latex-editor-textarea:focus {
+    outline: none;
+}
+
+/* Text Preview */
+.text-preview {
+    flex: 1;
+    padding: 1rem;
+    overflow-y: auto;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--color-fg-default);
+}
+
+.text-preview h1,
+.text-preview h2,
+.text-preview h3 {
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    color: var(--color-fg-default);
+    font-weight: 600;
+}
+
+.text-preview h1 {
+    font-size: 1.5rem;
+    border-bottom: 2px solid var(--color-border-default);
+    padding-bottom: 0.5rem;
+}
+
+.text-preview h2 {
+    font-size: 1.25rem;
+}
+
+.text-preview h3 {
+    font-size: 1.1rem;
+}
+
+.text-preview p {
+    margin: 0.5rem 0;
+}
+
+.text-preview code {
+    background: var(--color-canvas-default);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+    font-size: 0.9em;
+    color: var(--color-accent-fg);
+}
+
+.text-preview blockquote {
+    border-left: 3px solid var(--color-accent-fg);
+    padding-left: 1rem;
+    margin-left: 0;
+    color: var(--color-fg-muted);
+    font-style: italic;
+}
+
+/* Split View Layout */
+.editor-content-wrapper {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+}
+
+.split-view {
+    display: none;
+    flex: 1;
+    min-width: 0;
+}
+
+.split-view.active {
+    display: flex;
+}
+
+.split-view {
+    gap: 0;
+}
+
+.split-view > * {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Compilation Output */
+.compilation-output {
+    background: var(--color-canvas-default);
+    border-top: 1px solid var(--color-border-default);
+    padding: 0;
+    max-height: 300px;
+    display: flex;
+    flex-direction: column;
+}
+
+.compilation-output-header {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--color-border-default);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--color-canvas-subtle);
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--color-fg-default);
+}
+
+.compilation-log-inline {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    overflow-y: auto;
+    font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: var(--color-fg-muted);
+    background: var(--color-canvas-default);
+}
+
+.compilation-log-inline .error {
+    color: #dc3545;
+    font-weight: 500;
+}
+
+.compilation-log-inline .warning {
+    color: #ffc107;
+    font-weight: 500;
+}
+
+.compilation-log-inline .success {
+    color: #28a745;
+    font-weight: 500;
+}
+
+/* Toolbar Styling */
+.writer-toolbar-sticky {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+}
+
+.toolbar-left,
+.toolbar-center,
+.toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.toolbar-center {
+    flex: 1;
+    justify-content: center;
+}
+
+/* Button Styling */
+.btn-sm {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.85rem;
+    border-radius: 4px;
+    transition: all 0.15s ease;
+}
+
+.btn-sm:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Save Status Indicator */
+.save-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--color-success-fg);
+}
+
+.save-status.unsaved {
+    color: var(--color-attention-fg);
+}
+
+.save-status i {
+    animation: fadeInOut 0.5s ease-in-out;
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; }
+    50% { opacity: 1; }
+    100% { opacity: 1; }
+}
+
+/* Theme Selector */
+#theme-selector {
+    min-width: 140px;
+    font-size: 0.85rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .latex-panel,
+    .preview-panel {
+        padding: 0;
+    }
+
+    .panel-header {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.8rem;
+    }
+
+    .CodeMirror {
+        font-size: 12px !important;
+    }
+
+    .text-preview {
+        font-size: 13px;
+        padding: 0.75rem;
+    }
+
+    .writer-toolbar-sticky {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        padding: 0.5rem;
+    }
+
+    .toolbar-left,
+    .toolbar-center,
+    .toolbar-right {
+        gap: 0.35rem;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .latex-editor-textarea,
+    .CodeMirror,
+    .writer-toolbar-sticky {
+        display: none !important;
+    }
+
+    .text-preview {
+        padding: 0;
+        background: white;
+        color: black;
+    }
+}

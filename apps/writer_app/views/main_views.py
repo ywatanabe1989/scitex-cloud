@@ -48,6 +48,30 @@ def index(request):
             context['manuscript'] = manuscript
             context['manuscript_id'] = manuscript.id
             context['writer_initialized'] = manuscript.writer_initialized
+
+            # Load section content if Writer is initialized
+            if manuscript.writer_initialized:
+                try:
+                    from ..services.writer_service import WriterService
+                    service = WriterService(current_project.id, request.user.id)
+
+                    # Load all sections
+                    sections = {}
+                    for section_name in ['abstract', 'highlights', 'introduction', 'methods',
+                                       'results', 'discussion', 'conclusion']:
+                        try:
+                            content = service.read_section(section_name, 'manuscript')
+                            sections[section_name] = content
+                        except Exception as e:
+                            logger.warning(f"Could not load section {section_name}: {e}")
+                            sections[section_name] = ""
+
+                    context['sections'] = sections
+                except Exception as e:
+                    logger.error(f"Error loading Writer sections: {e}")
+                    context['sections'] = {}
+            else:
+                context['sections'] = {}
         else:
             # User authenticated but no project selected
             context['needs_project_creation'] = True
@@ -103,6 +127,9 @@ def initialize_workspace(request):
         # Trigger initialization by accessing writer property
         # This creates the directory structure
         writer = service.writer
+
+        # writer_initialized is a computed property based on filesystem state
+        # No need to manually set it - it will automatically return True now
 
         return JsonResponse({
             'success': True,

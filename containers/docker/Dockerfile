@@ -15,14 +15,28 @@ ENV PYTHONUNBUFFERED=1 \
 # Working directory
 WORKDIR /app
 
-# System dependencies (minimal)
+# System dependencies for SciTeX ecosystem
+# Includes: scitex.writer (LaTeX), CLI tools, and browser automation
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    # Build and compilation
     build-essential \
-    libpq-dev \
     git \
+    wget \
     curl \
+    # Database
+    libpq-dev \
+    # Networking
     netcat-openbsd \
     openssh-client \
+    # YAML parsing (required by scitex.writer for configuration)
+    jq \
+    # LaTeX and PDF generation (required by scitex.writer)
+    texlive-latex-base \
+    texlive-latex-extra \
+    texlive-bibtex-extra \
+    texlive-fonts-recommended \
+    latexdiff \
+    # Browser automation libraries
     libglib2.0-0t64 \
     libnspr4 \
     libnss3 \

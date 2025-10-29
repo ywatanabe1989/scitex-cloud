@@ -148,13 +148,20 @@ export class PDFPreviewManager {
                 </div>
             `;
 
-            // Update download button in a separate animation frame
+            // Update download button and panel title in a separate animation frame
             // This prevents blocking the initial PDF render
             requestAnimationFrame(() => {
                 const downloadBtn = document.getElementById('download-pdf-toolbar') as HTMLAnchorElement;
                 if (downloadBtn) {
                     downloadBtn.href = pdfUrl;
                     downloadBtn.style.display = 'inline-block';
+                }
+
+                // Update panel title to show which document type is displayed
+                const previewTitle = document.getElementById('preview-title');
+                if (previewTitle) {
+                    const docTypeLabel = this.docType.charAt(0).toUpperCase() + this.docType.slice(1);
+                    previewTitle.textContent = `${docTypeLabel} PDF`;
                 }
             });
 

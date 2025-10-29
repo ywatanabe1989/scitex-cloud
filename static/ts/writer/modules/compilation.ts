@@ -4,10 +4,11 @@
  */
 
 import { ApiClient } from '@/utils/api';
+import { getCsrfToken } from '@/utils/csrf';
 import { CompilationJob } from '@/types';
 
 export interface CompilationOptions {
-    projectSlug: string;
+    projectId: number;
     docType: string;
     content: string;
     format?: 'pdf' | 'dvi';
@@ -17,8 +18,6 @@ export class CompilationManager {
     private apiClient: ApiClient;
     private currentJob: CompilationJob | null = null;
     private isCompiling: boolean = false;
-    private pollInterval: number = 1000; // 1 second
-    private maxPollAttempts: number = 300; // 5 minutes max
     private onProgressCallback?: (progress: number, status: string) => void;
     private onCompleteCallback?: (jobId: string, pdfUrl: string) => void;
     private onErrorCallback?: (error: string) => void;
@@ -40,32 +39,70 @@ export class CompilationManager {
         this.notifyProgress(0, 'Preparing compilation...');
 
         try {
-            const response = await this.apiClient.post<any>(
-                '/writer/api/compile/',
+            // Add timeout to prevent indefinite waiting (60 seconds for dev)
+            const timeoutMs = 60000; // 60 seconds timeout
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+            const response = await fetch(
+                `/writer/api/project/${options.projectId}/compile/`,
                 {
-                    project_slug: options.projectSlug,
-                    doc_type: options.docType,
-                    content: options.content,
-                    format: options.format || 'pdf'
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCsrfToken()
+                    },
+                    body: JSON.stringify({
+                        doc_type: options.docType,
+                        content: options.content,
+                        format: options.format || 'pdf'
+                    }),
+                    signal: controller.signal
                 }
             );
 
-            if (!response.success || !response.data?.job_id) {
-                throw new Error(response.error || 'Failed to start compilation');
+            clearTimeout(timeoutId);
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
             }
 
-            this.currentJob = {
-                id: response.data.job_id,
-                status: 'pending',
-                progress: 0
-            };
+            const compilationResult = await response.json() as any;
 
-            this.notifyProgress(10, 'Compilation started...');
+            console.log('[Compilation] Response data:', compilationResult);
+            console.log('[Compilation] Response success:', compilationResult?.success);
+            console.log('[Compilation] Response output_pdf:', compilationResult?.output_pdf);
+            console.log('[Compilation] Response error:', compilationResult?.error);
 
-            // Poll for completion
-            await this.pollCompilation(this.currentJob.id);
+            this.notifyProgress(50, 'Compiling...');
 
-            return this.currentJob;
+            if (compilationResult?.success === true) {
+                this.notifyProgress(100, 'Compilation completed');
+
+                this.currentJob = {
+                    id: 'local',
+                    status: 'completed',
+                    progress: 100
+                };
+
+                // Get PDF path (could be output_pdf or pdf_path)
+                const pdfPath = compilationResult.output_pdf || compilationResult.pdf_path;
+                console.log('[Compilation] PDF path:', pdfPath);
+
+                // Notify completion
+                if (this.onCompleteCallback && pdfPath) {
+                    this.onCompleteCallback('local', pdfPath);
+                } else if (!pdfPath) {
+                    console.warn('[Compilation] Compilation successful but no PDF path provided');
+                }
+
+                return this.currentJob;
+            } else {
+                // Detailed error message
+                const errorMsg = compilationResult?.error || compilationResult?.log || 'Compilation failed';
+                console.error('[Compilation] Compilation result:', compilationResult);
+                throw new Error(errorMsg);
+            }
         } catch (error) {
             const message = error instanceof Error ? error.message : 'Compilation failed';
             this.notifyError(message);
@@ -77,73 +114,16 @@ export class CompilationManager {
     }
 
     /**
-     * Poll compilation status
-     */
-    private async pollCompilation(jobId: string, attempts: number = 0): Promise<void> {
-        if (attempts >= this.maxPollAttempts) {
-            throw new Error('Compilation timeout - operation took too long');
-        }
-
-        try {
-            const response = await this.apiClient.get<any>(
-                `/writer/api/compilation-status/${jobId}/`
-            );
-
-            if (!response.success) {
-                throw new Error(response.error || 'Failed to check compilation status');
-            }
-
-            const data = response.data;
-            const status = data.status || 'unknown';
-            const progress = data.progress || 0;
-
-            if (this.currentJob) {
-                this.currentJob.status = status;
-                this.currentJob.progress = progress;
-            }
-
-            this.notifyProgress(Math.min(progress, 99), `Compiling... (${status})`);
-
-            if (status === 'completed') {
-                this.notifyProgress(100, 'Compilation completed');
-                if (this.onCompleteCallback && data.pdf_url) {
-                    this.onCompleteCallback(jobId, data.pdf_url);
-                }
-                return;
-            }
-
-            if (status === 'failed') {
-                throw new Error(data.error || 'Compilation failed');
-            }
-
-            // Continue polling
-            await this.sleep(this.pollInterval);
-            await this.pollCompilation(jobId, attempts + 1);
-        } catch (error) {
-            const message = error instanceof Error ? error.message : 'Polling error';
-            this.notifyError(message);
-            throw error;
-        }
-    }
-
-    /**
      * Get current job status
      */
     async getStatus(jobId: string): Promise<CompilationJob | null> {
         try {
-            const response = await this.apiClient.get<any>(
-                `/writer/api/compilation-status/${jobId}/`
-            );
-
-            if (response.success && response.data) {
-                return {
-                    id: jobId,
-                    status: response.data.status,
-                    progress: response.data.progress,
-                    error: response.data.error
-                };
+            if (jobId === 'local') {
+                // Local synchronous job
+                return this.currentJob;
             }
 
+            // This would be for async job polling (not currently used)
             return null;
         } catch (error) {
             console.error('[Compilation] Failed to get status:', error);
@@ -214,13 +194,6 @@ export class CompilationManager {
         if (this.onErrorCallback) {
             this.onErrorCallback(error);
         }
-    }
-
-    /**
-     * Sleep utility
-     */
-    private sleep(ms: number): Promise<void> {
-        return new Promise(resolve => setTimeout(resolve, ms));
     }
 
     /**

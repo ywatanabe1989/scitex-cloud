@@ -40,10 +40,26 @@ export class SectionsManager {
     private initializeSections(): void {
         const stored = this.storage.load<Section[]>('list');
         const sectionsToUse = stored || this.defaultSections;
-        
+
         sectionsToUse.forEach(section => {
             this.sections.set(section.id, section);
         });
+
+        // Load content from WRITER_CONFIG if available (from Django backend)
+        const writerConfig = (window as any).WRITER_CONFIG;
+        if (writerConfig?.sections) {
+            Object.entries(writerConfig.sections).forEach(([sectionId, content]) => {
+                if (content && this.sections.has(sectionId)) {
+                    const section = this.sections.get(sectionId);
+                    if (section) {
+                        section.content = content as string;
+                        // Also save to storage for offline access
+                        this.storage.save(`content_${sectionId}`, content);
+                    }
+                }
+            });
+            console.log('[Sections] Loaded content from WRITER_CONFIG for', Object.keys(writerConfig.sections).length, 'sections');
+        }
 
         console.log('[Sections] Initialized with', this.sections.size, 'sections');
     }

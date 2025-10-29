@@ -1,0 +1,330 @@
+/**
+ * Sidebar Improved Styles
+ * Modern sidebar with tree-like file selector
+ */
+
+/* Sidebar Container */
+.writer-sidebar {
+    width: 280px;
+    background: var(--color-canvas-default);
+    border-right: 1px solid var(--color-border-default);
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - 80px);
+    overflow-y: auto;
+    box-shadow: inset -1px 0 0 var(--color-border-default);
+}
+
+.sidebar-content {
+    flex: 1;
+    padding: 1rem;
+    overflow-y: auto;
+}
+
+/* File Browser Section */
+.tex-files-browser {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.tex-files-browser > div:first-child {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.tex-files-browser h6 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-fg-default);
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+#refresh-files-btn {
+    padding: 0.35rem 0.5rem;
+    font-size: 0.75rem;
+}
+
+#refresh-files-btn:hover {
+    background-color: var(--color-canvas-subtle);
+}
+
+/* File Tree Container */
+.tex-files-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    background: var(--color-canvas-subtle);
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* File Tree Item */
+.file-tree-item {
+    user-select: none;
+    transition: all 0.15s ease;
+}
+
+.file-tree-item:hover {
+    background: var(--color-canvas-default);
+}
+
+.file-tree-node-content {
+    display: flex;
+    align-items: center;
+    padding: 0.35rem 0.5rem;
+    border-radius: 4px;
+    transition: all 0.15s ease;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: var(--color-fg-default);
+}
+
+.file-tree-node-content:hover {
+    background: rgba(0, 123, 255, 0.05);
+    color: var(--color-accent-fg);
+}
+
+.file-tree-node-content.selected {
+    background: var(--color-accent-emphasis);
+    color: var(--color-fg-on-emphasis);
+    font-weight: 500;
+}
+
+/* File Tree Icons */
+.file-tree-item i {
+    flex-shrink: 0;
+}
+
+.file-tree-item .fa-folder,
+.file-tree-item .fa-folder-open {
+    color: var(--color-attention-fg);
+    font-size: 0.85rem;
+}
+
+.file-tree-item .fa-file-alt {
+    color: var(--color-accent-fg);
+    font-size: 0.8rem;
+}
+
+.file-tree-item .fa-chevron-right,
+.file-tree-item .fa-chevron-down {
+    width: 12px;
+    flex-shrink: 0;
+}
+
+/* Version History Section */
+.history-timeline-section {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--color-border-default);
+}
+
+.history-timeline-section h6 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-fg-default);
+    margin-bottom: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--color-border-default);
+}
+
+.action-buttons .btn {
+    font-size: 0.85rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.action-buttons .btn-success {
+    background: var(--color-success-emphasis);
+    border-color: var(--color-success-emphasis);
+    color: var(--color-fg-on-emphasis);
+}
+
+.action-buttons .btn-success:hover {
+    background: var(--color-success-emphasis-hover);
+    border-color: var(--color-success-emphasis-hover);
+    opacity: 0.9;
+}
+
+.action-buttons .btn-outline-secondary {
+    color: var(--color-fg-muted);
+    border-color: var(--color-border-default);
+}
+
+.action-buttons .btn-outline-secondary:hover {
+    background: var(--color-canvas-subtle);
+    border-color: var(--color-border-muted);
+}
+
+/* Empty State */
+.tex-files-browser .text-muted {
+    font-size: 0.8rem;
+    color: var(--color-fg-muted);
+    text-align: center;
+    padding: 1rem 0.5rem;
+    border: 1px dashed var(--color-border-default);
+    border-radius: 4px;
+    background: var(--color-canvas-subtle);
+}
+
+/* Floating Section Panel */
+.floating-section-panel {
+    position: fixed;
+    right: 1rem;
+    top: 100px;
+    width: 280px;
+    max-height: calc(100vh - 120px);
+    background: var(--color-canvas-default);
+    border: 1px solid var(--color-border-default);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+}
+
+.floating-panel-header {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--color-border-default);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.floating-panel-header h6 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--color-fg-default);
+}
+
+.floating-panel-header .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+}
+
+.floating-panel-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.75rem 1rem;
+}
+
+.section-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.section-items {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.section-tab {
+    padding: 0.5rem 0.75rem;
+    border-radius: 4px;
+    background: var(--color-canvas-subtle);
+    border: 1px solid var(--color-border-default);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-size: 0.85rem;
+    color: var(--color-fg-default);
+    text-align: left;
+}
+
+.section-tab:hover {
+    background: var(--color-canvas-default);
+    border-color: var(--color-accent-fg);
+}
+
+.section-tab.active {
+    background: var(--color-accent-emphasis);
+    border-color: var(--color-accent-emphasis);
+    color: var(--color-fg-on-emphasis);
+    font-weight: 500;
+}
+
+/* Section Pool */
+.section-pool {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.available-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.available-sections .btn {
+    padding: 0.35rem 0.5rem;
+    font-size: 0.75rem;
+    background: var(--color-canvas-subtle);
+    color: var(--color-fg-muted);
+    border-color: var(--color-border-default);
+}
+
+.available-sections .btn:hover {
+    background: var(--color-canvas-default);
+    color: var(--color-fg-default);
+    border-color: var(--color-accent-fg);
+}
+
+/* Scrollbar Styling */
+.tex-files-list::-webkit-scrollbar,
+.floating-panel-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.tex-files-list::-webkit-scrollbar-track,
+.floating-panel-content::-webkit-scrollbar-track {
+    background: var(--color-canvas-subtle);
+}
+
+.tex-files-list::-webkit-scrollbar-thumb,
+.floating-panel-content::-webkit-scrollbar-thumb {
+    background: var(--color-border-default);
+    border-radius: 3px;
+}
+
+.tex-files-list::-webkit-scrollbar-thumb:hover,
+.floating-panel-content::-webkit-scrollbar-thumb:hover {
+    background: var(--color-border-muted);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .writer-sidebar {
+        width: 240px;
+    }
+
+    .sidebar-content {
+        padding: 0.75rem;
+    }
+
+    .floating-section-panel {
+        width: 240px;
+        right: 0.5rem;
+        top: 80px;
+    }
+}
