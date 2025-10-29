@@ -8,6 +8,7 @@ from django.http import JsonResponse, FileResponse
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.clickjacking import xframe_options_exempt
 import json
 import traceback
 from pathlib import Path
@@ -523,6 +524,7 @@ def read_tex_file_view(request, project_id):
         return JsonResponse({"success": False, "error": str(e)}, status=500)
 
 
+@xframe_options_exempt
 @require_http_methods(["GET"])
 def preview_pdf_view(request, project_id):
     """Serve the preview PDF file.
