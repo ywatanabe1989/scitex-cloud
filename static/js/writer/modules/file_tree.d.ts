@@ -75,8 +75,16 @@ export declare class FileTreeManager {
      */
     private sectionsByDocType;
     /**
-     * Populate the section dropdown selector based on document type
+     * Populate the section dropdown selector with hierarchical structure
      */
-    populateTexFileDropdown(docType?: string): void;
+    populateTexFileDropdown(docType?: string): Promise<void>;
+    /**
+     * Add sections to dropdown with optgroup
+     */
+    private addSectionsToDropdown;
+    /**
+     * Fallback population method using legacy structure
+     */
+    private populateTexFileDropdownFallback;
 }
 //# sourceMappingURL=file_tree.d.ts.map

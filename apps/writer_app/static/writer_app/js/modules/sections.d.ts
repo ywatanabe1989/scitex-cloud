@@ -1,27 +1,54 @@
 /**
  * Writer Sections Manager Module
- * Handles document sections (abstract, introduction, methods, results, discussion)
+ * Handles hierarchical document sections (Shared, Manuscript, Supplementary, Revision)
  */
 export interface Section {
     id: string;
     name: string;
     label: string;
-    order: number;
-    visible: boolean;
-    content: string;
+    path?: string;
+    category?: string;
+    order?: number;
+    visible?: boolean;
+    content?: string;
+    optional?: boolean;
+    view_only?: boolean;
+    instruction?: string;
+    is_directory?: boolean;
+}
+export interface SectionCategory {
+    label: string;
+    description: string;
+    sections: Section[];
+    supports_crud?: boolean;
+}
+export interface SectionHierarchy {
+    shared: SectionCategory;
+    manuscript: SectionCategory;
+    supplementary: SectionCategory;
+    revision: SectionCategory;
 }
 export declare class SectionsManager {
     private sections;
+    private hierarchy;
     private storage;
     private currentSection;
     private onSectionChangeCallback?;
     private onSectionsUpdateCallback?;
-    private defaultSections;
+    private onHierarchyLoadCallback?;
     constructor();
     /**
-     * Initialize sections
+     * Initialize sections - loads hierarchical structure from API
      */
     private initializeSections;
+    /**
+     * Load hierarchical section structure from API
+     */
+    loadHierarchy(): Promise<void>;
+    /**
+     * Create fallback structure if API fails
+     */
+    private createFallbackStructure;
     /**
      * Get all sections
      */
@@ -30,6 +57,18 @@ export declare class SectionsManager {
      * Get visible sections
      */
     getVisible(): Section[];
+    /**
+     * Get sections by category
+     */
+    getByCategory(category: string): Section[];
+    /**
+     * Get hierarchy
+     */
+    getHierarchy(): SectionHierarchy | null;
+    /**
+     * Set callback for hierarchy load
+     */
+    onHierarchyLoad(callback: (hierarchy: SectionHierarchy) => void): void;
     /**
      * Get section by id
      */

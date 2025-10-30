@@ -15,6 +15,7 @@ from pathlib import Path
 
 from apps.project_app.models import Project
 from ..services.writer_service import WriterService
+from ..configs.sections_config import SECTION_HIERARCHY, get_all_sections_flat, get_sections_by_category
 from scitex import logging
 
 logger = logging.getLogger(__name__)
@@ -89,10 +90,13 @@ def section_view(request, project_id, section_name):
         return JsonResponse({"success": False, "error": str(e)}, status=500)
 
 
-@login_required
 @require_http_methods(["POST"])
 def compile_view(request, project_id):
     """Compile a manuscript document or quick preview.
+
+    Supports both authenticated and anonymous users:
+    - Authenticated: Compiles from user's project workspace
+    - Anonymous: Compiles provided content directly (demo mode)
 
     POST body:
         {
@@ -103,30 +107,47 @@ def compile_view(request, project_id):
         }
     """
     try:
-        project = Project.objects.get(id=project_id, owner=request.user)
-        service = WriterService(project_id, request.user.id)
-
         data = json.loads(request.body)
-        doc_type = data.get("doc_type", "manuscript")
-        timeout = data.get("timeout", 300)
-        quick_preview_content = data.get("content")  # If provided, use for quick preview
+        quick_preview_content = data.get("content")
 
-        logger.info(f"[Compile] Starting compilation: project={project_id}, doc_type={doc_type}, timeout={timeout}, is_preview={bool(quick_preview_content)}")
+        # Anonymous users can only do quick preview (no workspace compilation)
+        if not request.user.is_authenticated:
+            if not quick_preview_content:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Anonymous users can only compile preview content. Please provide content parameter.'
+                }, status=400)
 
-        # Quick preview mode: compile only the provided content (for live preview)
-        if quick_preview_content:
-            logger.info(f"[Compile] Quick preview mode: compiling provided content ({len(quick_preview_content)} chars)")
-            result = service.compile_preview(quick_preview_content, timeout=timeout)
-        # Full compilation mode: compile the entire document from workspace
-        elif doc_type == "supplementary":
-            logger.info(f"[Compile] Compiling supplementary for project {project_id}")
-            result = service.compile_supplementary(timeout=timeout)
-        elif doc_type == "revision":
-            logger.info(f"[Compile] Compiling revision for project {project_id}")
-            result = service.compile_revision(timeout=timeout)
-        else:  # manuscript
-            logger.info(f"[Compile] Compiling manuscript for project {project_id}")
-            result = service.compile_manuscript(timeout=timeout)
+            # Direct compilation for anonymous users - no WriterService needed
+            logger.info(f"[Compile] Anonymous quick preview: {len(quick_preview_content)} chars")
+            from ..services.compiler import quick_compile_content
+            result = quick_compile_content(quick_preview_content, timeout=data.get("timeout", 300))
+        else:
+            # Authenticated users
+            project = Project.objects.get(id=project_id, owner=request.user)
+            user_id = request.user.id
+            logger.info(f"[Compile] Authenticated user compilation: project={project_id}, user={user_id}")
+
+            service = WriterService(project_id, user_id)
+            doc_type = data.get("doc_type", "manuscript")
+            timeout = data.get("timeout", 300)
+
+            logger.info(f"[Compile] Starting compilation: project={project_id}, doc_type={doc_type}, timeout={timeout}, is_preview={bool(quick_preview_content)}")
+
+            # Quick preview mode: compile only the provided content (for live preview)
+            if quick_preview_content:
+                logger.info(f"[Compile] Quick preview mode: compiling provided content ({len(quick_preview_content)} chars)")
+                result = service.compile_preview(quick_preview_content, timeout=timeout)
+            # Full compilation mode: compile the entire document from workspace
+            elif doc_type == "supplementary":
+                logger.info(f"[Compile] Compiling supplementary for project {project_id}")
+                result = service.compile_supplementary(timeout=timeout)
+            elif doc_type == "revision":
+                logger.info(f"[Compile] Compiling revision for project {project_id}")
+                result = service.compile_revision(timeout=timeout)
+            else:  # manuscript
+                logger.info(f"[Compile] Compiling manuscript for project {project_id}")
+                result = service.compile_manuscript(timeout=timeout)
 
         logger.info(f"[Compile] Compilation result: success={result.get('success')}, output_pdf={result.get('output_pdf')}")
         if not result.get('success'):
@@ -153,7 +174,8 @@ def compile_view(request, project_id):
         })
 
     except Project.DoesNotExist:
-        logger.error(f"Project {project_id} not found")
+        # Only raise error for authenticated users (project should exist)
+        logger.error(f"Project {project_id} not found for authenticated user")
         return JsonResponse({"success": False, "error": "Project not found"}, status=404)
     except Exception as e:
         error_trace = traceback.format_exc()
@@ -304,6 +326,7 @@ def available_sections_view(request, project_id):
         sections = {
             "manuscript": [
                 "abstract",
+                "highlights",
                 "introduction",
                 "methods",
                 "results",
@@ -312,11 +335,16 @@ def available_sections_view(request, project_id):
                 "title",
                 "authors",
                 "keywords",
-                "highlights",
                 "graphical_abstract",
             ],
-            "supplementary": ["content", "methods", "results"],
-            "revision": ["response", "changes"],
+            "supplementary": ["methods", "results", "figures", "tables"],
+            "shared": ["abstract"],
+            "revision": [
+                "cover-letter",
+                "summary-of-changes",
+                # Dynamic triplets (comment, response, revision) will be added via UI
+                # Example: reviewer-01-point-01-comment, reviewer-01-point-01-response, reviewer-01-point-01-revision
+            ],
         }
 
         return JsonResponse({
@@ -536,11 +564,15 @@ def preview_pdf_view(request, project_id):
     Login is optional and only required if users want to save to their account.
     """
     try:
-        # Get project (required to exist)
-        project = Project.objects.get(id=project_id)
+        # For anonymous users (projectId=0), use demo project path
+        if project_id == 0 or not request.user.is_authenticated:
+            project_id = 0
+            user_id = 0
+        else:
+            # Verify project exists for authenticated users
+            project = Project.objects.get(id=project_id)
+            user_id = request.user.id
 
-        # Use authenticated user ID if available, otherwise use dummy ID for path calculation
-        user_id = request.user.id if request.user.is_authenticated else 0
         service = WriterService(project_id, user_id)
 
         # Get the preview PDF path
@@ -562,4 +594,32 @@ def preview_pdf_view(request, project_id):
         return JsonResponse({"success": False, "error": "Project not found"}, status=404)
     except Exception as e:
         logger.error(f"Preview PDF view error: {e}")
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
+
+
+@require_http_methods(["GET"])
+def sections_config_view(request):
+    """Get hierarchical sections configuration for dropdown.
+
+    Returns structured section hierarchy matching scitex.writer backend.
+    No authentication required - configuration is the same for all users.
+
+    Returns:
+        {
+            "success": True,
+            "hierarchy": {
+                "shared": {...},
+                "manuscript": {...},
+                "supplementary": {...},
+                "revision": {...}
+            }
+        }
+    """
+    try:
+        return JsonResponse({
+            "success": True,
+            "hierarchy": SECTION_HIERARCHY
+        })
+    except Exception as e:
+        logger.error(f"Sections config view error: {e}")
         return JsonResponse({"success": False, "error": str(e)}, status=500)

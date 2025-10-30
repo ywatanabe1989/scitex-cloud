@@ -43,6 +43,8 @@ urlpatterns = [
     # Metadata
     path('api/project/<int:project_id>/sections/',
          api_views.available_sections_view, name='api-available-sections'),
+    path('api/sections-config/',
+         api_views.sections_config_view, name='api-sections-config'),
 
     # Bulk save sections
     path('api/project/<int:project_id>/save-sections/',
