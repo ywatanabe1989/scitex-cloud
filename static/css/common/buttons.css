@@ -366,6 +366,14 @@
   border-bottom-right-radius: var(--border-radius);
 }
 
+/* Fix: When dropdown-menu follows button, button is not :last-child
+   Use :last-of-type to ignore non-button elements like dropdown-menu divs */
+.btn-group button:last-of-type,
+.btn-group .btn:last-of-type {
+  border-top-right-radius: var(--border-radius) !important;
+  border-bottom-right-radius: var(--border-radius) !important;
+}
+
 /* Block Button - Full width */
 .btn-block {
   display: block;

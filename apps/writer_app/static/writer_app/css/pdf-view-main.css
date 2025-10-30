@@ -26,7 +26,16 @@
 .pdf-viewer-canvas {
     /* background: var(--scitex-light); */  /* Styling from central CSS */
     overflow-y: auto;
-    padding: 1rem;
+    padding: 0;  /* Remove padding for full-screen PDF display */
+    margin: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* Ensure PDF canvas takes full height when in preview mode */
+.preview-panel .pdf-viewer-canvas {
+    padding: 0 !important;
+    margin: 0 !important;
 }
 
 /* ========================================
@@ -166,4 +175,30 @@
 
 .pdf-overlay.open {
     display: block;
+}
+
+/* ========================================
+ * PDF Preview Embed Styling
+ * Ensure no spacing around embedded PDFs
+ * ======================================== */
+
+.pdf-preview-container embed,
+.pdf-viewer-canvas embed {
+    display: block;
+    width: 100%;
+    height: 100%;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none;
+}
+
+/* Full-screen PDF display */
+.pdf-preview-viewer {
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.pdf-preview-viewer embed {
+    margin: 0 !important;
+    padding: 0 !important;
 }

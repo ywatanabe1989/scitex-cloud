@@ -1,0 +1,17 @@
+{% load static %}
+
+<!-- Highlight.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlightjs-line-numbers.js/2.8.0/highlightjs-line-numbers.min.js"></script>
+
+<!-- Pass Django template variables to JavaScript via data attributes -->
+<script>
+// Make project and file data available globally for JS modules
+window.SCITEX_PROJECT_DATA = {
+    owner: '{{ project.owner.username }}',
+    slug: '{{ project.slug }}'
+};
+</script>
+
+<!-- Load external JavaScript file -->
+<script src="{% static 'project_app/js/file-view.js' %}"></script>

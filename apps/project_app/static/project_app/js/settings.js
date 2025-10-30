@@ -1,43 +1,83 @@
 // Project Settings JavaScript
-// Radio button selection visual feedback
-document.querySelectorAll('.radio-option input[type="radio"]').forEach(radio => {
-    radio.addEventListener('change', function() {
-        document.querySelectorAll('.radio-option').forEach(opt => opt.classList.remove('selected'));
-        this.closest('.radio-option').classList.add('selected');
+
+// Section navigation - show only one section at a time
+function switchSection(sectionId) {
+    // Hide all sections
+    document.querySelectorAll('.settings-section-wrapper').forEach(wrapper => {
+        wrapper.style.display = 'none';
+    });
+
+    // Show the selected section
+    const selectedSection = document.getElementById(`section-${sectionId}`);
+    if (selectedSection) {
+        selectedSection.style.display = 'block';
+    }
+
+    // Update active nav button
+    document.querySelectorAll('.settings-nav-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    const activeBtn = document.querySelector(`[data-section="${sectionId}"]`);
+    if (activeBtn) {
+        activeBtn.classList.add('active');
+    }
+}
+
+// Add click handlers to nav buttons and radio button feedback
+document.addEventListener('DOMContentLoaded', function() {
+    // Section navigation click handlers
+    document.querySelectorAll('.settings-nav-item').forEach(button => {
+        if (!button.disabled) {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const sectionId = this.getAttribute('data-section');
+                switchSection(sectionId);
+            });
+        }
+    });
+
+    // Radio button selection visual feedback
+    document.querySelectorAll('.radio-option input[type="radio"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            document.querySelectorAll('.radio-option').forEach(opt => opt.classList.remove('selected'));
+            this.closest('.radio-option').classList.add('selected');
+        });
     });
 });
 
 // Handle section-specific form submissions
 // This prevents HTML5 validation errors from other sections when submitting one section
 document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('settingsForm');
+    if (!form) return;
+
     // Get all submit buttons with name="action"
-    const submitButtons = document.querySelectorAll('button[type="submit"][name="action"]');
+    const submitButtons = form.querySelectorAll('button[type="submit"][name="action"]');
 
     submitButtons.forEach(button => {
         button.addEventListener('click', function(e) {
             const actionValue = this.value;
 
-            // For visibility and general updates, disable validation on collaborator field
-            if (actionValue === 'update_visibility' || actionValue === 'update_general') {
-                const collaboratorInput = document.getElementById('collaboratorUsername');
-                if (collaboratorInput) {
-                    // Temporarily remove required attribute
-                    collaboratorInput.removeAttribute('required');
+            // Temporarily disable validation on non-active fields
+            const nameInput = document.getElementById('name');
+            const collaboratorInput = document.getElementById('collaboratorUsername');
 
-                    // Re-add it after a short delay (after form submission)
-                    setTimeout(() => {
-                        collaboratorInput.setAttribute('required', 'required');
-                    }, 100);
-                }
+            // Remove required from all fields first
+            if (nameInput) nameInput.removeAttribute('required');
+            if (collaboratorInput) collaboratorInput.removeAttribute('required');
+
+            // Add required back only to the field needed for this action
+            if (actionValue === 'update_general' && nameInput) {
+                nameInput.setAttribute('required', 'required');
+            } else if (actionValue === 'add_collaborator' && collaboratorInput) {
+                collaboratorInput.setAttribute('required', 'required');
             }
 
-            // For add_collaborator, make sure the field is required
-            if (actionValue === 'add_collaborator') {
-                const collaboratorInput = document.getElementById('collaboratorUsername');
-                if (collaboratorInput) {
-                    collaboratorInput.setAttribute('required', 'required');
-                }
-            }
+            // Re-add required attributes after submission
+            setTimeout(() => {
+                if (nameInput) nameInput.setAttribute('required', 'required');
+                if (collaboratorInput) collaboratorInput.setAttribute('required', 'required');
+            }, 100);
         });
     });
 });

@@ -5,6 +5,8 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'project_app/css/project_app.css' %}">
+<link rel="stylesheet" href="{% static 'project_app/css/components/sidebar.css' %}">
+<link rel="stylesheet" href="{% static 'project_app/css/components/file-tree.css' %}">
 <link rel="stylesheet" href="{% static 'css/common/buttons.css' %}">
 
 <!-- Highlight.js for syntax highlighting - Multiple themes loaded -->
@@ -158,21 +160,28 @@
     {% include "project_app/partials/_file_view_tabs.html" %}
     {% include "project_app/partials/_file_view_header.html" %}
 
-    <!-- File Content -->
-    <div class="file-container">
-        {% if render_type == 'markdown' %}
-            {% include "project_app/partials/_file_view_content_markdown.html" %}
-        {% elif render_type == 'code' %}
-            {% include "project_app/partials/_file_view_content_code.html" %}
-        {% elif render_type == 'text' %}
-            {% include "project_app/partials/_file_view_content_text.html" %}
-        {% elif render_type == 'image' %}
-            {% include "project_app/partials/_file_view_content_image.html" %}
-        {% elif render_type == 'pdf' %}
-            {% include "project_app/partials/_file_view_content_pdf.html" %}
-        {% elif render_type == 'binary' %}
-            {% include "project_app/partials/_file_view_content_binary.html" %}
-        {% endif %}
+    <!-- Main Content Area with Sidebar -->
+    <div class="repo-layout" id="repo-layout">
+        {% include 'project_app/browse/partials/_sidebar.html' %}
+
+        <!-- File Content (RIGHT side) -->
+        <div class="repo-main">
+            <div class="file-container">
+                {% if render_type == 'markdown' %}
+                    {% include "project_app/partials/_file_view_content_markdown.html" %}
+                {% elif render_type == 'code' %}
+                    {% include "project_app/partials/_file_view_content_code.html" %}
+                {% elif render_type == 'text' %}
+                    {% include "project_app/partials/_file_view_content_text.html" %}
+                {% elif render_type == 'image' %}
+                    {% include "project_app/partials/_file_view_content_image.html" %}
+                {% elif render_type == 'pdf' %}
+                    {% include "project_app/partials/_file_view_content_pdf.html" %}
+                {% elif render_type == 'binary' %}
+                    {% include "project_app/partials/_file_view_content_binary.html" %}
+                {% endif %}
+            </div>
+        </div>
     </div>
 </div>
 

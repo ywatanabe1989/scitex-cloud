@@ -23,81 +23,17 @@ const SIDEBAR_STATE_KEY = 'scitex-sidebar-state';
 const SIDEBAR_SECTIONS_KEY = 'scitex-sidebar-sections';
 
 /**
- * Initialize sidebar state from localStorage
+ * Initialize sidebar (no toggle functionality - always visible)
  */
 function initializeSidebar() {
     const sidebar = document.getElementById('repo-sidebar');
-    const repoLayout = document.getElementById('repo-layout');
-    const toggleBtn = document.getElementById('sidebar-toggle');
 
-    if (!sidebar || !repoLayout) return;
-
-    const savedState = localStorage.getItem(SIDEBAR_STATE_KEY);
-    console.log('Initializing sidebar. Saved state:', savedState);
-
-    // Always start collapsed by default (per GitHub style)
-    sidebar.classList.add('collapsed');
-    repoLayout.classList.add('sidebar-collapsed');
-    if (toggleBtn) {
-        toggleBtn.setAttribute('title', 'Expand sidebar');
-    }
-    console.log('Sidebar initialized as collapsed (default)');
-
-    // Clear the expanded state if it was saved
-    if (savedState === 'expanded') {
-        localStorage.setItem(SIDEBAR_STATE_KEY, 'collapsed');
+    if (!sidebar) {
+        console.log('Sidebar element not found on this page');
+        return;
     }
 
-    // Restore section states
-    const savedSections = localStorage.getItem(SIDEBAR_SECTIONS_KEY);
-    if (savedSections) {
-        try {
-            const sections = JSON.parse(savedSections);
-            Object.keys(sections).forEach(sectionId => {
-                const section = document.getElementById(sectionId);
-                if (section && sections[sectionId] === 'collapsed') {
-                    section.classList.add('section-collapsed');
-                }
-            });
-        } catch (e) {
-            console.error('Error restoring section states:', e);
-        }
-    }
-}
-
-/**
- * Toggle entire sidebar expansion/collapse
- */
-function toggleSidebar() {
-    const sidebar = document.getElementById('repo-sidebar');
-    const repoLayout = document.getElementById('repo-layout');
-    const toggleBtn = document.getElementById('sidebar-toggle');
-
-    if (!sidebar || !repoLayout) return;
-
-    if (sidebar.classList.contains('collapsed')) {
-        // Expand sidebar
-        sidebar.classList.remove('collapsed');
-        sidebar.classList.add('expanded');
-        repoLayout.classList.remove('sidebar-collapsed');
-        repoLayout.classList.add('sidebar-expanded');
-        localStorage.setItem(SIDEBAR_STATE_KEY, 'expanded');
-        if (toggleBtn) {
-            toggleBtn.setAttribute('title', 'Collapse sidebar');
-        }
-        console.log('Sidebar expanded');
-    } else {
-        // Collapse sidebar
-        sidebar.classList.remove('expanded');
-        sidebar.classList.add('collapsed');
-        repoLayout.classList.remove('sidebar-expanded');
-        repoLayout.classList.add('sidebar-collapsed');
-        localStorage.setItem(SIDEBAR_STATE_KEY, 'collapsed');
-        if (toggleBtn) {
-            toggleBtn.setAttribute('title', 'Expand sidebar');
-        }
-        console.log('Sidebar collapsed');
-    }
+    console.log('Sidebar initialized (always visible)');
 }
 
 /**
@@ -196,9 +132,9 @@ function buildTreeHTML(items, username, slug, level = 0) {
         if (item.type === 'directory') {
             html += `<a href="${itemPath}" class="file-tree-folder" style="text-decoration: none; color: var(--color-fg-default);">`;
 
-            // Chevron for folders with children
+            // Chevron for folders with children (collapsed by default)
             if (hasChildren) {
-                html += `<span class="file-tree-chevron ${level === 0 ? 'expanded' : ''}" onclick="toggleFolder('${itemId}'); return false;">▸</span>`;
+                html += `<span class="file-tree-chevron" onclick="toggleFolder('${itemId}'); return false;">▸</span>`;
             } else {
                 html += `<span style="width: 12px; display: inline-block;"></span>`;
             }
@@ -214,9 +150,9 @@ function buildTreeHTML(items, username, slug, level = 0) {
 
         html += `</div>`;
 
-        // Children container - render ALL children
+        // Children container - render ALL children (collapsed by default)
         if (hasChildren) {
-            const isExpanded = level === 0;  // Auto-expand root level only
+            const isExpanded = false;  // All folders collapsed by default
             html += `<div id="${itemId}" class="file-tree-children ${isExpanded ? 'expanded' : ''}">`;
             html += buildTreeHTML(item.children, username, slug, level + 1);
             html += `</div>`;
@@ -1340,7 +1276,6 @@ document.addEventListener('DOMContentLoaded', function() {
 // =============================================================================
 
 // Make key functions available globally for inline onclick handlers
-window.toggleSidebar = toggleSidebar;
 window.toggleSidebarSection = toggleSidebarSection;
 window.toggleFolder = toggleFolder;
 window.handleWatch = handleWatch;

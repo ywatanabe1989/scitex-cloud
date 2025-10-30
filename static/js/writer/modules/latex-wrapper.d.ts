@@ -59,7 +59,7 @@ export declare class LatexWrapper {
     /**
      * Create minimal LaTeX document for preview
      */
-    createMinimalDocument(content: string): string;
+    createMinimalDocument(content: string, fontSize?: number): string;
     /**
      * Set document title
      */

@@ -22,6 +22,7 @@ export declare class PDFPreviewManager {
     private docType;
     private compileTimeout;
     private currentPdfUrl;
+    private fontSize;
     constructor(options: PDFPreviewOptions);
     /**
      * Setup event listeners for compilation
@@ -94,5 +95,9 @@ export declare class PDFPreviewManager {
      * Set manuscript author
      */
     setAuthor(author: string): void;
+    /**
+     * Set font size for PDF compilation
+     */
+    setFontSize(fontSize: number): void;
 }
 //# sourceMappingURL=pdf-preview.d.ts.map

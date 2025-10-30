@@ -29,38 +29,176 @@ export class EnhancedEditor {
             this.initializeCodeMirror(config);
             return;
         }
-        try {
-            const monaco = window.monaco;
-            // Create editor container if needed
-            const editorContainer = document.createElement('div');
-            editorContainer.id = `${config.elementId}-monaco`;
-            editorContainer.style.cssText = 'width: 100%; height: 100%; border: none;';
-            const textareaElement = element;
-            element.parentElement?.replaceChild(editorContainer, element);
-            this.monacoEditor = monaco.editor.create(editorContainer, {
-                value: textareaElement.value || '',
-                language: 'latex',
-                theme: 'vs-dark',
-                lineNumbers: config.lineNumbers !== false ? 'on' : 'off',
-                wordWrap: config.lineWrapping !== false ? 'on' : 'off',
-                tabSize: 4,
-                insertSpaces: true,
-                autoClosingBrackets: 'always',
-                automaticLayout: true,
-                minimap: { enabled: false },
-                scrollBeyondLastLine: false,
-                fontSize: 13,
-                fontFamily: 'Monaco, Menlo, Ubuntu Mono, Consolas, monospace'
-            });
-            this.editor = this.monacoEditor;
-            this.editorType = 'monaco';
-            this.setupMonacoEditor();
-            console.log('[Editor] Monaco Editor initialized');
-        }
-        catch (error) {
-            console.warn('[Editor] Monaco initialization failed, falling back to CodeMirror', error);
-            this.initializeCodeMirror(config);
-        }
+        // Wait for Monaco to be available
+        const waitForMonaco = () => {
+            if (!window.monaco) {
+                console.log('[Editor] Waiting for Monaco to load...');
+                setTimeout(() => waitForMonaco(), 100);
+                return;
+            }
+            try {
+                const monaco = window.monaco;
+                // Register LaTeX language if not already registered
+                console.log('[Monaco] Available languages:', monaco.languages.getLanguages().map((l) => l.id));
+                const latexExists = monaco.languages.getLanguages().find((l) => l.id === 'latex');
+                console.log('[Monaco] LaTeX language exists:', !!latexExists);
+                if (!latexExists) {
+                    console.log('[Monaco] Registering LaTeX language...');
+                    monaco.languages.register({ id: 'latex' });
+                    // Define LaTeX language configuration
+                    monaco.languages.setLanguageConfiguration('latex', {
+                        comments: {
+                            lineComment: '%'
+                        },
+                        brackets: [
+                            ['{', '}'],
+                            ['[', ']'],
+                            ['(', ')']
+                        ],
+                        autoClosingPairs: [
+                            { open: '{', close: '}' },
+                            { open: '[', close: ']' },
+                            { open: '(', close: ')' },
+                            { open: '$', close: '$' },
+                            { open: '`', close: "'" }
+                        ],
+                        surroundingPairs: [
+                            { open: '{', close: '}' },
+                            { open: '[', close: ']' },
+                            { open: '(', close: ')' },
+                            { open: '$', close: '$' }
+                        ]
+                    });
+                    // Define LaTeX syntax highlighting
+                    monaco.languages.setMonarchTokensProvider('latex', {
+                        tokenizer: {
+                            root: [
+                                [/%.*$/, 'comment'],
+                                [/\\[a-zA-Z@]+/, 'keyword'],
+                                [/\{/, 'delimiter.curly'],
+                                [/\}/, 'delimiter.curly'],
+                                [/\[/, 'delimiter.square'],
+                                [/\]/, 'delimiter.square'],
+                                [/\$\$/, 'string'],
+                                [/\$/, 'string']
+                            ]
+                        }
+                    });
+                    // Register completion provider for LaTeX commands
+                    console.log('[Monaco] Registering LaTeX completion provider...');
+                    monaco.languages.registerCompletionItemProvider('latex', {
+                        triggerCharacters: ['\\'],
+                        provideCompletionItems: (model, position) => {
+                            console.log('[Monaco] Completion requested at position:', position);
+                            const word = model.getWordUntilPosition(position);
+                            console.log('[Monaco] Word at position:', word);
+                            const range = {
+                                startLineNumber: position.lineNumber,
+                                endLineNumber: position.lineNumber,
+                                startColumn: word.startColumn,
+                                endColumn: word.endColumn
+                            };
+                            const suggestions = [
+                                // Document structure
+                                { label: '\\documentclass', kind: monaco.languages.CompletionItemKind.Keyword, insertText: '\\documentclass{article}', documentation: 'Document class' },
+                                { label: '\\begin', kind: monaco.languages.CompletionItemKind.Keyword, insertText: '\\begin{${1:environment}}\n\t$0\n\\end{${1:environment}}', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, documentation: 'Begin environment' },
+                                { label: '\\end', kind: monaco.languages.CompletionItemKind.Keyword, insertText: '\\end{${1:environment}}', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, documentation: 'End environment' },
+                                { label: '\\section', kind: monaco.languages.CompletionItemKind.Keyword, insertText: '\\section{$0}', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, documentation: 'Section' },
+                                { label: '\\subsection', kind: monaco.languages.CompletionItemKind.Keyword, insertText: '\\subsection{$0}', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, documentation: 'Subsection' },
+                                { label: '\\subsubsection', kind: monaco.languages.CompletionItemKind.Keyword, insertText: '\\subsubsection{$0}', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, documentation: 'Subsubsection' },
+                                // Text formatting
+                                { label: '\\textbf', kind: monaco.languages.CompletionItemKind.Keyword, insertText: '\\textbf{$0}', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, documentation: 'Bold text' },
+                                { label: '\\textit', kind: monaco.languages.CompletionItemKind.Keyword, insertText: '\\textit{$0}', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, documentation: 'Italic text' },
+                                { label: '\\emph', kind: monaco.languages.CompletionItemKind.Keyword, insertText: '\\emph{$0}', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, documentation: 'Emphasized text' },
+                                { label: '\\texttt', kind: monaco.languages.CompletionItemKind.Keyword, insertText: '\\texttt{$0}', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, documentation: 'Typewriter text' },
+                                // Math mode
+                                { label: '\\[', kind: monaco.languages.CompletionItemKind.Keyword, insertText: '\\[\n\t$0\n\\]', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, documentation: 'Display math' },
+                                { label: '\\(', kind: monaco.languages.CompletionItemKind.Keyword, insertText: '\\($0\\)', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, documentation: 'Inline math' },
+                                { label: '\\equation', kind: monaco.languages.CompletionItemKind.Keyword, insertText: '\\begin{equation}\n\t$0\n\\end{equation}', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, documentation: 'Equation environment' },
+                                // Figures and tables
+                                { label: '\\figure', kind: monaco.languages.CompletionItemKind.Keyword, insertText: '\\begin{figure}[htbp]\n\t\\centering\n\t\\includegraphics[width=0.8\\textwidth]{$1}\n\t\\caption{$2}\n\t\\label{fig:$3}\n\\end{figure}', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, documentation: 'Figure environment' },
+                                { label: '\\table', kind: monaco.languages.CompletionItemKind.Keyword, insertText: '\\begin{table}[htbp]\n\t\\centering\n\t\\caption{$1}\n\t\\label{tab:$2}\n\t\\begin{tabular}{$3}\n\t\t$0\n\t\\end{tabular}\n\\end{table}', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, documentation: 'Table environment' },
+                                // Citations and references
+                                { label: '\\cite', kind: monaco.languages.CompletionItemKind.Keyword, insertText: '\\cite{$0}', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, documentation: 'Citation' },
+                                { label: '\\ref', kind: monaco.languages.CompletionItemKind.Keyword, insertText: '\\ref{$0}', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, documentation: 'Reference' },
+                                { label: '\\label', kind: monaco.languages.CompletionItemKind.Keyword, insertText: '\\label{$0}', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, documentation: 'Label' },
+                                // Lists
+                                { label: '\\itemize', kind: monaco.languages.CompletionItemKind.Keyword, insertText: '\\begin{itemize}\n\t\\item $0\n\\end{itemize}', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, documentation: 'Itemize list' },
+                                { label: '\\enumerate', kind: monaco.languages.CompletionItemKind.Keyword, insertText: '\\begin{enumerate}\n\t\\item $0\n\\end{enumerate}', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, documentation: 'Enumerate list' },
+                                { label: '\\item', kind: monaco.languages.CompletionItemKind.Keyword, insertText: '\\item $0', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, documentation: 'List item' }
+                            ];
+                            const completions = suggestions.map((s) => ({ ...s, range }));
+                            console.log('[Monaco] Returning', completions.length, 'completions');
+                            return { suggestions: completions };
+                        }
+                    });
+                    console.log('[Monaco] LaTeX completion provider registered successfully');
+                }
+                else {
+                    console.log('[Monaco] LaTeX language already registered, skipping');
+                }
+                // Define custom SciTeX dark theme with consistent background
+                monaco.editor.defineTheme('scitex-dark', {
+                    base: 'vs-dark',
+                    inherit: true,
+                    rules: [],
+                    colors: {
+                        'editor.background': '#1a2332',
+                        'editor.lineHighlightBackground': '#1a2332',
+                        'editorLineNumber.foreground': '#6c8ba0',
+                        'editorLineNumber.activeForeground': '#b5c7d1',
+                        'editor.selectionBackground': '#34495e',
+                        'editor.inactiveSelectionBackground': '#2a3a4a'
+                    }
+                });
+                // Get initial value before replacing element
+                const textareaElement = element;
+                const initialValue = textareaElement.value || '';
+                // Create editor container
+                const editorContainer = document.createElement('div');
+                editorContainer.id = `${config.elementId}-monaco`;
+                editorContainer.style.cssText = 'width: 100%; height: 100%; border: none;';
+                element.parentElement?.replaceChild(editorContainer, element);
+                this.monacoEditor = monaco.editor.create(editorContainer, {
+                    value: initialValue,
+                    language: 'latex',
+                    theme: 'scitex-dark',
+                    lineNumbers: config.lineNumbers !== false ? 'on' : 'off',
+                    wordWrap: config.lineWrapping !== false ? 'on' : 'off',
+                    tabSize: 4,
+                    insertSpaces: true,
+                    autoClosingBrackets: 'always',
+                    automaticLayout: true,
+                    minimap: { enabled: false },
+                    scrollBeyondLastLine: false,
+                    fontSize: 13,
+                    fontFamily: '"JetBrains Mono", Monaco, Menlo, Ubuntu Mono, Consolas, monospace',
+                    renderLineHighlight: 'none',
+                    suggestOnTriggerCharacters: true,
+                    quickSuggestions: true,
+                    wordBasedSuggestions: false,
+                    scrollbar: {
+                        vertical: 'visible',
+                        horizontal: 'visible',
+                        verticalScrollbarSize: 10,
+                        horizontalScrollbarSize: 10,
+                        alwaysConsumeMouseWheel: true
+                    },
+                    mouseWheelScrollSensitivity: 1,
+                    fastScrollSensitivity: 5
+                });
+                this.editor = this.monacoEditor;
+                this.editorType = 'monaco';
+                this.setupMonacoEditor();
+                console.log('[Editor] Monaco Editor initialized with LaTeX support');
+            }
+            catch (error) {
+                console.warn('[Editor] Monaco initialization failed, falling back to CodeMirror', error);
+                this.initializeCodeMirror(config);
+            }
+        };
+        // Start waiting for Monaco
+        waitForMonaco();
     }
     /**
      * Setup Monaco Editor event listeners
@@ -280,6 +418,35 @@ export class EnhancedEditor {
      */
     getEditorType() {
         return this.editorType;
+    }
+    /**
+     * Set editor theme
+     */
+    setTheme(theme) {
+        if (this.editorType === 'monaco' && this.monacoEditor) {
+            console.log('[Editor] Setting Monaco theme to:', theme);
+            // Map common CodeMirror theme names to Monaco themes
+            const monacoThemeMap = {
+                'zenburn': 'vs-dark',
+                'monokai': 'vs-dark',
+                'dracula': 'vs-dark',
+                'eclipse': 'vs',
+                'neat': 'vs',
+                'solarized light': 'vs',
+                'scitex-dark': 'scitex-dark',
+                'default': 'vs'
+            };
+            const monacoTheme = monacoThemeMap[theme.toLowerCase()] || 'scitex-dark';
+            window.monaco.editor.setTheme(monacoTheme);
+        }
+        else {
+            // CodeMirror theme change
+            console.log('[Editor] Setting CodeMirror theme to:', theme);
+            const cmEditor = document.querySelector('.CodeMirror')?.CodeMirror;
+            if (cmEditor) {
+                cmEditor.setOption('theme', theme);
+            }
+        }
     }
 }
 //# sourceMappingURL=monaco-editor.js.map

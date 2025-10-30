@@ -2,19 +2,19 @@
 <nav class="settings-nav">
     <div class="settings-nav-section">
         <div class="settings-nav-title">General</div>
-        <a href="#general" class="settings-nav-item active">General</a>
-        <a href="#access" class="settings-nav-item">Access</a>
-        <a href="#collaborators" class="settings-nav-item">Collaborators</a>
+        <button type="button" class="settings-nav-item active" data-section="general">General</button>
+        <button type="button" class="settings-nav-item" data-section="access">Access</button>
+        <button type="button" class="settings-nav-item" data-section="collaborators">Collaborators</button>
     </div>
 
     <div class="settings-nav-section">
         <div class="settings-nav-title">Integrations</div>
-        <a href="#github" class="settings-nav-item">GitHub</a>
-        <a href="#webhooks" class="settings-nav-item">Webhooks</a>
+        <button type="button" class="settings-nav-item" data-section="github" disabled title="Coming soon">GitHub</button>
+        <button type="button" class="settings-nav-item" data-section="webhooks" disabled title="Coming soon">Webhooks</button>
     </div>
 
     <div class="settings-nav-section">
         <div class="settings-nav-title">Advanced</div>
-        <a href="#danger" class="settings-nav-item">Danger Zone</a>
+        <button type="button" class="settings-nav-item" data-section="danger">Danger Zone</button>
     </div>
 </nav>

@@ -103,6 +103,43 @@ def pr_list(request, username, slug):
     closed_count = PullRequest.objects.filter(project=project, state='closed').count()
     merged_count = PullRequest.objects.filter(project=project, state='merged').count()
 
+    # Get branches for branch selector
+    from apps.project_app.services.project_filesystem import get_project_filesystem_manager
+    import subprocess
+    import logging
+
+    logger = logging.getLogger(__name__)
+    manager = get_project_filesystem_manager(project.owner)
+    project_path = manager.get_project_root_path(project)
+
+    branches = []
+    current_branch = project.current_branch or 'develop'
+    if project_path and project_path.exists():
+        try:
+            result = subprocess.run(
+                ['git', 'branch', '-a'],
+                cwd=project_path,
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+            if result.returncode == 0:
+                for line in result.stdout.split('\n'):
+                    if line.strip():
+                        # Remove * prefix and remotes/origin/ prefix
+                        branch = line.replace('*', '').strip()
+                        branch = branch.replace('remotes/origin/', '')
+                        if branch and branch not in branches:
+                            branches.append(branch)
+                        # Check if this is the current branch
+                        if line.startswith('*'):
+                            current_branch = branch
+        except Exception as e:
+            logger.debug(f"Error getting branches: {e}")
+
+    if not branches:
+        branches = [current_branch]
+
     context = {
         'project': project,
         'page_obj': page_obj,
@@ -118,6 +155,8 @@ def pr_list(request, username, slug):
         'closed_count': closed_count,
         'merged_count': merged_count,
         'can_create': project.can_edit(request.user),
+        'branches': branches,
+        'current_branch': current_branch,
     }
 
     return render(request, 'project_app/pull_requests/pr_list.html', context)

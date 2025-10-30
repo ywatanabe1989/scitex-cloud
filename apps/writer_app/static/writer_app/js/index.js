@@ -7,7 +7,7 @@
  * - SectionsManager: Section and document structure management
  * - CompilationManager: LaTeX compilation and PDF management
  */
-import { WriterEditor, EnhancedEditor, SectionsManager, CompilationManager, FileTreeManager, PDFPreviewManager, PanelResizer } from './modules/index.js';
+import { WriterEditor, EnhancedEditor, SectionsManager, CompilationManager, FileTreeManager, PDFPreviewManager, PanelResizer, EditorControls } from './modules/index.js';
 import { getCsrfToken } from '@/utils/csrf.js';
 import { writerStorage } from '@/utils/storage.js';
 import { getWriterConfig, createDefaultEditorState } from './helpers.js';
@@ -19,7 +19,7 @@ function showToast(message, _type = 'info') {
     fn(message);
 }
 // Initialize application
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     console.log('[Writer] Initializing application');
     const config = getWriterConfig();
     console.log('[Writer] Config:', config);
@@ -29,8 +29,8 @@ document.addEventListener('DOMContentLoaded', () => {
         setupWorkspaceInitialization(config);
         return;
     }
-    // Initialize editor components
-    initializeEditor(config);
+    // Initialize editor components (async to wait for Monaco)
+    await initializeEditor(config);
 });
 /**
  * Setup workspace initialization button
@@ -94,18 +94,74 @@ function setupWorkspaceInitialization(config) {
     });
 }
 /**
+ * Wait for Monaco to load asynchronously
+ */
+async function waitForMonaco(maxWaitMs = 10000) {
+    const startTime = Date.now();
+    console.log('[Writer] Waiting for Monaco to load...');
+    while (Date.now() - startTime < maxWaitMs) {
+        if (window.monacoLoaded && window.monaco) {
+            console.log('[Writer] Monaco loaded successfully');
+            return true;
+        }
+        // Wait 100ms before checking again
+        await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    console.warn('[Writer] Monaco failed to load within timeout, will fallback to CodeMirror');
+    return false;
+}
+/**
+ * Load .tex file content from server
+ */
+async function loadTexFile(filePath, editor) {
+    console.log('[Writer] Loading .tex file:', filePath);
+    const config = getWriterConfig();
+    if (!config.projectId) {
+        console.error('[Writer] Cannot load file: no project ID');
+        showToast('Cannot load file: no project selected', 'error');
+        return;
+    }
+    try {
+        const response = await fetch(`/writer/api/project/${config.projectId}/file-content/?path=${encodeURIComponent(filePath)}`);
+        console.log('[Writer] File API response status:', response.status);
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('[Writer] Failed to load file:', response.status, errorText);
+            showToast(`Failed to load file: ${response.statusText}`, 'error');
+            return;
+        }
+        const data = await response.json();
+        console.log('[Writer] File loaded successfully, length:', data.content?.length || 0);
+        if (data.success && data.content !== undefined) {
+            editor.setContent(data.content);
+            console.log('[Writer] File content set in editor');
+            showToast(`Loaded: ${filePath}`, 'success');
+        }
+        else {
+            console.error('[Writer] Invalid response format:', data);
+            showToast('Failed to load file: invalid response', 'error');
+        }
+    }
+    catch (error) {
+        console.error('[Writer] Error loading file:', error);
+        showToast('Error loading file: ' + (error instanceof Error ? error.message : 'Unknown error'), 'error');
+    }
+}
+/**
  * Initialize editor and its components
  */
-function initializeEditor(config) {
+async function initializeEditor(config) {
     console.log('[Writer] Setting up editor components');
-    // Initialize editor (try Monaco first, fallback to CodeMirror)
+    // Wait for Monaco to load if attempting to use it
+    const monacoReady = await waitForMonaco();
+    // Initialize editor (try Monaco first if ready, fallback to CodeMirror)
     let editor = null;
     try {
         editor = new EnhancedEditor({
             elementId: 'latex-editor-textarea',
             mode: 'text/x-latex',
             theme: 'default',
-            useMonaco: true
+            useMonaco: monacoReady
         });
     }
     catch (error) {
@@ -145,6 +201,12 @@ function initializeEditor(config) {
     if (!panelResizer.isInitialized()) {
         console.warn('[Writer] Panel resizer could not be initialized');
     }
+    // Initialize editor controls (font size, auto-preview, preview button)
+    // @ts-ignore - editorControls is initialized and manages its own event listeners
+    const editorControls = new EditorControls({
+        pdfPreviewManager: pdfPreviewManager,
+        compilationManager: compilationManager
+    });
     // Initialize file tree if project exists
     if (config.projectId) {
         const fileTreeContainer = document.getElementById('tex-files-list');
@@ -154,9 +216,18 @@ function initializeEditor(config) {
                 container: fileTreeContainer,
                 texFileDropdownId: 'texfile-selector',
                 onFileSelect: (sectionId, sectionName) => {
-                    console.log('[Writer] Section selected from dropdown:', sectionName);
-                    // Switch to the selected section
-                    switchSection(editor, sectionsManager, state, sectionId);
+                    console.log('[Writer] File/section selected:', sectionName, 'ID:', sectionId);
+                    // Check if this is a .tex file path or a section ID
+                    if (sectionId.endsWith('.tex') || sectionId.includes('/')) {
+                        // It's a file path - load from disk
+                        console.log('[Writer] Detected .tex file, loading from disk:', sectionId);
+                        loadTexFile(sectionId, editor);
+                    }
+                    else {
+                        // It's a section ID - switch section
+                        console.log('[Writer] Detected section ID, switching section:', sectionId);
+                        switchSection(editor, sectionsManager, state, sectionId);
+                    }
                 }
             });
             // Load file tree
@@ -199,7 +270,7 @@ function initializeEditor(config) {
         setupSectionListeners(sectionsManager, editor, state, writerStorage);
     }
     setupCompilationListeners(compilationManager, config);
-    setupThemeListener();
+    setupThemeListener(editor);
     setupSidebarButtons(config);
     // Display PDF preview placeholder
     pdfPreviewManager.displayPlaceholder();
@@ -352,21 +423,112 @@ function setupCompilationListeners(compilationManager, _config) {
     });
 }
 /**
- * Setup theme listener
+ * Get current global page theme (light or dark)
  */
-function setupThemeListener() {
+function getPageTheme() {
+    const theme = document.documentElement.getAttribute('data-theme');
+    return theme === 'light' ? 'light' : 'dark';
+}
+/**
+ * Filter theme dropdown options based on page theme
+ */
+function filterThemeOptions() {
     const themeSelector = document.getElementById('theme-selector');
     if (!themeSelector)
         return;
-    themeSelector.addEventListener('change', () => {
-        const theme = themeSelector.value;
-        document.documentElement.setAttribute('data-theme', theme);
-        writerStorage.save('theme', theme);
-        // Apply theme to CodeMirror if available
+    const pageTheme = getPageTheme();
+    const optgroups = themeSelector.querySelectorAll('optgroup');
+    optgroups.forEach((optgroup) => {
+        const label = optgroup.label.toLowerCase();
+        const isLightGroup = label.includes('light');
+        const isDarkGroup = label.includes('dark');
+        // Show only matching theme group
+        if (pageTheme === 'light' && isLightGroup) {
+            optgroup.style.display = '';
+        }
+        else if (pageTheme === 'dark' && isDarkGroup) {
+            optgroup.style.display = '';
+        }
+        else {
+            optgroup.style.display = 'none';
+        }
+    });
+    // If current selected option is hidden, select first visible option
+    const currentOption = themeSelector.options[themeSelector.selectedIndex];
+    if (currentOption && currentOption.parentElement instanceof HTMLOptGroupElement) {
+        if (currentOption.parentElement.style.display === 'none') {
+            // Find first visible option
+            for (let i = 0; i < themeSelector.options.length; i++) {
+                const option = themeSelector.options[i];
+                if (option.parentElement instanceof HTMLOptGroupElement &&
+                    option.parentElement.style.display !== 'none') {
+                    themeSelector.selectedIndex = i;
+                    // Trigger change to apply the new theme
+                    themeSelector.dispatchEvent(new Event('change'));
+                    break;
+                }
+            }
+        }
+    }
+}
+/**
+ * Apply code editor theme to Monaco or CodeMirror
+ */
+function applyCodeEditorTheme(theme, editor) {
+    if (!editor)
+        return;
+    const editorType = editor.getEditorType ? editor.getEditorType() : 'codemirror';
+    if (editorType === 'monaco' && editor.setTheme) {
+        console.log('[Writer] Applying Monaco theme:', theme);
+        editor.setTheme(theme);
+    }
+    else {
+        // CodeMirror
         const cmEditor = document.querySelector('.CodeMirror')?.CodeMirror;
         if (cmEditor) {
-            cmEditor.setOption('theme', theme === 'dark' ? 'material-darker' : 'default');
+            console.log('[Writer] Applying CodeMirror theme:', theme);
+            cmEditor.setOption('theme', theme);
         }
+    }
+}
+/**
+ * Setup theme listener
+ */
+function setupThemeListener(editor) {
+    const themeSelector = document.getElementById('theme-selector');
+    if (!themeSelector)
+        return;
+    // Initial filter based on page theme
+    filterThemeOptions();
+    // Load saved theme or use default
+    const savedTheme = writerStorage.load('editor_theme');
+    if (savedTheme && typeof savedTheme === 'string') {
+        themeSelector.value = savedTheme;
+        if (editor) {
+            applyCodeEditorTheme(savedTheme, editor);
+        }
+    }
+    // Listen for code editor theme changes
+    themeSelector.addEventListener('change', () => {
+        const theme = themeSelector.value;
+        writerStorage.save('editor_theme', theme);
+        console.log('[Writer] Code editor theme changed to:', theme);
+        if (editor) {
+            applyCodeEditorTheme(theme, editor);
+        }
+    });
+    // Listen for global page theme changes
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme') {
+                console.log('[Writer] Page theme changed, filtering code editor themes');
+                filterThemeOptions();
+            }
+        });
+    });
+    observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['data-theme']
     });
 }
 /**

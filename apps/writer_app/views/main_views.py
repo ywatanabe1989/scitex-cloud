@@ -76,9 +76,41 @@ def index(request):
             # User authenticated but no project selected
             context['needs_project_creation'] = True
     else:
-        # Anonymous user - show demo banner and init prompt
+        # Anonymous user - create demo project with sample content
         context['is_demo'] = True
-        context['sections'] = {}  # Empty sections for anonymous users
+        context['writer_initialized'] = True
+
+        # Demo project info
+        class DemoProject:
+            id = 0
+            name = 'Demo Project'
+            slug = 'demo-project'
+
+        class DemoManuscript:
+            id = 0
+            title = 'Demo Manuscript'
+            description = 'Try out SciTeX Writer'
+            writer_initialized = True
+            word_count_abstract = 150
+            word_count_introduction = 250
+            word_count_methods = 200
+            word_count_results = 180
+            word_count_discussion = 220
+
+        context['project'] = DemoProject()
+        context['manuscript'] = DemoManuscript()
+        context['manuscript_id'] = 0
+
+        # Demo sections with sample LaTeX content
+        context['sections'] = {
+            'abstract': 'This is a demo abstract. You can edit this text and see live PDF preview. Sign up to save your work permanently.',
+            'highlights': '\\item Key finding one\n\\item Key finding two\n\\item Key finding three',
+            'introduction': 'This is the introduction section. LaTeX commands work here: $E = mc^2$\n\nYou can write multiple paragraphs and use mathematical notation.',
+            'methods': 'Describe your methodology here.\n\n\\subsection{Data Collection}\nExplain how data was collected.\n\n\\subsection{Analysis}\nDescribe analysis methods.',
+            'results': 'Present your results here.\n\nYou can include figures and tables:\n\\begin{equation}\ny = mx + b\n\\end{equation}',
+            'discussion': 'Discuss your findings here and compare with existing literature.',
+            'conclusion': 'Summarize your key conclusions and future work.'
+        }
 
     return render(request, 'writer_app/index.html', context)
 

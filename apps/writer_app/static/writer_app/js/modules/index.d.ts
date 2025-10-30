@@ -10,4 +10,5 @@ export { FileTreeManager, type FileTreeNode, type FileTreeOptions } from './file
 export { LatexWrapper, type LatexWrapperOptions } from './latex-wrapper.js';
 export { PDFPreviewManager, type PDFPreviewOptions } from './pdf-preview.js';
 export { PanelResizer } from './panel-resizer.js';
+export { EditorControls, type EditorControlsOptions } from './editor-controls.js';
 //# sourceMappingURL=index.d.ts.map

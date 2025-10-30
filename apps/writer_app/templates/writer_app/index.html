@@ -46,16 +46,39 @@
 {% include "writer_app/index_partials/word_count.html" %}
 {% endif %}
 
-<!-- CodeMirror -->
+{% if not needs_project_creation %}
+<!-- Monaco Editor - Load early to prevent AMD conflicts -->
+<script>
+    // Configure Monaco environment before loading
+    window.MonacoEnvironment = {
+        getWorkerUrl: function(moduleId, label) {
+            return 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/base/worker/workerMain.js';
+        }
+    };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js" onload="
+    // Immediately load Monaco after loader is ready
+    if (typeof require !== 'undefined' && require.config) {
+        require.config({
+            paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs' },
+            'vs/nls': { availableLanguages: {} }
+        });
+        require(['vs/editor/editor.main'], function() {
+            console.log('[Monaco] Monaco Editor loaded successfully');
+            window.monacoLoaded = true;
+            window.monaco = monaco;
+        });
+    }
+"></script>
+
+<!-- CodeMirror (fallback) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/stex/stex.min.js"></script>
-
-{% if not needs_project_creation %}
 <!-- Initialize global variables for writer app -->
 <script>
     // Pass Django context to JavaScript (must use window. to make it globally accessible)
     window.WRITER_CONFIG = {
-        projectId: {% if project %}{{ project.id }}{% else %}null{% endif %},
+        projectId: {% if project %}{{ project.id }}{% else %}0{% endif %},  // Use 0 for anonymous/demo users
         projectName: {% if project %}'{{ project.name|escapejs }}'{% else %}'Demo Project'{% endif %},
         projectSlug: {% if project %}'{{ project.slug|escapejs }}'{% else %}null{% endif %},
         manuscriptTitle: {% if manuscript %}'{{ manuscript.title|escapejs }}'{% else %}'Untitled'{% endif %},
@@ -110,12 +133,12 @@
 </script>
 
 <!-- TypeScript-compiled Writer Application Bundle -->
-<script type="module" src="{% static 'js/writer/index.js' %}"></script>
+<script type="module" src="{% static 'js/writer/index.js' %}?v={{ build_id|default:'dev' }}"></script>
 
 <!-- API Client for REST endpoints -->
-<script src="{% static 'writer_app/js/api-client.js' %}"></script>
+<script src="{% static 'writer_app/js/api-client.js' %}?v={{ build_id|default:'dev' }}"></script>
 
 <!-- Real-Time Collaboration Script -->
-<script src="{% static 'js/writer_collaboration.js' %}"></script>
+<script src="{% static 'js/writer_collaboration.js' %}?v={{ build_id|default:'dev' }}"></script>
 {% endif %}
 {% endblock %}
