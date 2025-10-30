@@ -315,21 +315,75 @@
     overflow-y: auto;
     padding: 0;
     color: var(--color-fg-default);
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+/* Add padding for text-only preview (not PDF) */
+.text-preview:not(:has(.pdf-preview-container)) {
+    padding: 1.5rem;
+    white-space: pre-wrap;
 }
 
 /* Remove padding when displaying PDF preview */
 .text-preview .pdf-preview-container {
-    margin: 0;
+    margin: 0 !important;
     width: 100%;
     height: 100%;
-    background: #ffffff;
-    padding: 0;
+    background: #525659;  /* Gray background like PDF viewers */
+    padding: 0 !important;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
 }
 
-/* Keep panel header visible for consistency with left panel */
+/* Make preview panel position relative for overlay positioning */
+.preview-panel {
+    position: relative;
+}
+
+/* Convert panel header to overlay when displaying PDF preview */
+.preview-panel:has(.pdf-preview-container) .panel-header {
+    position: absolute !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.92) !important;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    opacity: 1;
+    transform: translateY(0);
+    transition: all 0.3s ease;
+}
+
+/* Enhance overlay on hover */
+.preview-panel:has(.pdf-preview-container):hover .panel-header {
+    background: rgba(255, 255, 255, 0.98) !important;
+    box-shadow: 0 3px 16px rgba(0, 0, 0, 0.12);
+}
+
+/* Dark mode support for overlay */
+[data-theme="dark"] .preview-panel:has(.pdf-preview-container) .panel-header {
+    background: rgba(26, 35, 50, 0.92) !important;
+}
+
+[data-theme="dark"] .preview-panel:has(.pdf-preview-container):hover .panel-header {
+    background: rgba(26, 35, 50, 0.98) !important;
+}
+
+/* Keep panel header visible for text preview */
 .preview-panel .panel-header {
     display: flex;
     align-items: center;
+}
+
+/* Ensure LaTeX panel header stays in normal flow */
+.latex-panel .panel-header {
+    position: relative !important;
 }
 
 .panel-header {
@@ -343,8 +397,61 @@
     border-radius: 0 4px 4px 0;
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 0.5rem;
     flex-shrink: 0;
+}
+
+.panel-header .header-left,
+.panel-header .header-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* Status indicator styling */
+.status-indicator {
+    display: flex;
+    align-items: center;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    background: var(--color-canvas-default);
+    border: 1px solid var(--color-border-default);
+}
+
+/* Countdown indicator styling */
+.countdown-indicator {
+    display: flex;
+    align-items: center;
+}
+
+.countdown-content {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.countdown-circle {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+}
+
+.countdown-text {
+    position: absolute;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--color-accent-emphasis);
+}
+
+.countdown-label {
+    font-size: 0.75rem;
+    color: var(--color-fg-muted);
+    white-space: nowrap;
 }
 
 /* Inline Compilation Output */
@@ -671,16 +778,6 @@
     /* color: #ff6b6b; */  /* Styling from central CSS */
 }
 
-/* Text Preview */
-.text-preview {
-    flex: 1;
-    padding: 1.5rem;
-    overflow-y: auto;
-    white-space: pre-wrap;
-    background: var(--color-canvas-default);
-    color: var(--color-fg-default);
-}
-
 /* Word Count Indicator */
 .word-count-indicator {
     position: fixed;
@@ -867,11 +964,12 @@
     width: 100%;
     height: 100%;
     background: #ffffff;
-    padding: 0;
-    margin: 0;
+    padding: 0 !important;
+    margin: 0 !important;
     /* Optimize for content changes */
     contain: layout style paint;
     will-change: contents;
+    overflow: hidden;  /* Prevent any container scrollbars */
 }
 
 .pdf-preview-viewer {
@@ -879,25 +977,33 @@
     overflow: auto;
     background: #ffffff;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    margin: 0;
+    align-items: flex-start !important; /* Align to top instead of center */
+    justify-content: flex-start;  /* Align to left to maximize width */
+    padding: 0 !important;
+    margin: 0 !important;
     /* Optimize for scroll performance */
     contain: layout style paint;
     will-change: scroll-position;
+    width: 100%;
+    height: 100%;
 }
 
 .pdf-preview-viewer embed {
     width: 100%;
+    min-width: 100%;  /* Force full width */
     height: 100%;
+    min-height: 100%;  /* Force full height */
     box-shadow: none;
     border: none;
+    margin: 0 !important;
+    padding: 0 !important;
     /* Optimize embed rendering */
     will-change: auto;
     /* Prevent render blocking */
     backface-visibility: hidden;
     transform: translateZ(0);
+    display: block;
+    object-fit: fill;  /* Fill available space */
 }
 
 /* ========================================

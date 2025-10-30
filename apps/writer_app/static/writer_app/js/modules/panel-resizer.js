@@ -1,143 +1,111 @@
 /**
  * Panel Resizer Module
- * Handles draggable resizing of split panels (LaTeX editor and PDF preview)
+ * Handles draggable divider between editor and preview panels
  */
 export class PanelResizer {
-    constructor() {
+    constructor(containerId = 'editor-view-split') {
         this.isResizing = false;
         this.startX = 0;
         this.startLeftWidth = 0;
-        this.minPanelWidth = 300; // Minimum width for each panel (px)
-        this.storageKey = 'scitex-panel-widths';
+        this._initialized = false;
+        this.container = document.getElementById(containerId);
         this.resizer = document.getElementById('panel-resizer');
         this.leftPanel = document.querySelector('.latex-panel');
         this.rightPanel = document.querySelector('.preview-panel');
-        this.container = document.getElementById('editor-view-split');
-        if (this.resizer && this.leftPanel && this.rightPanel && this.container) {
-            this.initialize();
+        if (this.resizer && this.container && this.leftPanel && this.rightPanel) {
+            this.init();
+        }
+        else {
+            console.warn('[PanelResizer] Required elements not found');
         }
     }
     /**
-     * Initialize the panel resizer with event listeners
+     * Initialize resizer event listeners
      */
-    initialize() {
-        this.resizer.addEventListener('mousedown', this.handleMouseDown.bind(this));
-        document.addEventListener('mousemove', this.handleMouseMove.bind(this));
-        document.addEventListener('mouseup', this.handleMouseUp.bind(this));
-        // Load saved panel widths from localStorage
-        this.loadPanelWidths();
-        console.log('[PanelResizer] Initialized successfully');
-    }
-    /**
-     * Load previously saved panel widths from localStorage
-     */
-    loadPanelWidths() {
-        const saved = localStorage.getItem(this.storageKey);
-        if (saved) {
-            try {
-                const { leftWidth, rightWidth } = JSON.parse(saved);
-                if (leftWidth && rightWidth) {
-                    this.leftPanel.style.flex = `0 0 ${leftWidth}px`;
-                    this.rightPanel.style.flex = `0 0 ${rightWidth}px`;
-                    console.log(`[PanelResizer] Restored panel widths: ${leftWidth}px / ${rightWidth}px`);
-                }
-            }
-            catch (error) {
-                console.warn('[PanelResizer] Failed to load saved panel widths:', error);
-            }
-        }
-    }
-    /**
-     * Save panel widths to localStorage
-     */
-    savePanelWidths() {
-        const leftWidth = this.leftPanel.getBoundingClientRect().width;
-        const rightWidth = this.rightPanel.getBoundingClientRect().width;
-        localStorage.setItem(this.storageKey, JSON.stringify({ leftWidth, rightWidth }));
+    init() {
+        if (!this.resizer)
+            return;
+        this.resizer.addEventListener('mousedown', (e) => this.handleMouseDown(e));
+        document.addEventListener('mousemove', (e) => this.handleMouseMove(e));
+        document.addEventListener('mouseup', () => this.handleMouseUp());
+        this._initialized = true;
+        this.restoreSavedWidth();
+        console.log('[PanelResizer] Initialized');
     }
     /**
      * Handle mouse down on resizer
      */
-    handleMouseDown(event) {
-        event.preventDefault();
+    handleMouseDown(e) {
         this.isResizing = true;
-        this.startX = event.clientX;
-        this.startLeftWidth = this.leftPanel.getBoundingClientRect().width;
-        // Add active state to resizer
-        this.resizer.classList.add('active');
-        // Prevent text selection during resize
-        document.body.style.userSelect = 'none';
-        document.body.style.cursor = 'col-resize';
-        console.log('[PanelResizer] Resize started');
+        this.startX = e.clientX;
+        if (this.leftPanel && this.container) {
+            this.startLeftWidth = this.leftPanel.getBoundingClientRect().width;
+        }
+        if (this.resizer) {
+            this.resizer.classList.add('active');
+        }
+        e.preventDefault();
     }
     /**
      * Handle mouse move during resize
      */
-    handleMouseMove(event) {
-        if (!this.isResizing)
+    handleMouseMove(e) {
+        if (!this.isResizing || !this.leftPanel || !this.rightPanel || !this.container) {
             return;
-        event.preventDefault();
-        const diff = event.clientX - this.startX;
-        const newLeftWidth = this.startLeftWidth + diff;
+        }
+        const deltaX = e.clientX - this.startX;
         const containerWidth = this.container.getBoundingClientRect().width;
-        const resizerWidth = this.resizer.getBoundingClientRect().width;
-        const newRightWidth = containerWidth - newLeftWidth - resizerWidth;
-        // Enforce minimum panel widths
-        if (newLeftWidth >= this.minPanelWidth && newRightWidth >= this.minPanelWidth) {
-            this.leftPanel.style.flex = `0 0 ${newLeftWidth}px`;
-            this.rightPanel.style.flex = `0 0 ${newRightWidth}px`;
+        const newLeftWidth = this.startLeftWidth + deltaX;
+        // Minimum width for each panel (200px)
+        const minWidth = 200;
+        const maxLeftWidth = containerWidth - minWidth;
+        if (newLeftWidth >= minWidth && newLeftWidth <= maxLeftWidth) {
+            const leftPercent = (newLeftWidth / containerWidth) * 100;
+            const rightPercent = 100 - leftPercent;
+            this.leftPanel.style.flex = `0 0 ${leftPercent}%`;
+            this.rightPanel.style.flex = `0 0 ${rightPercent}%`;
+            // Save preference to localStorage
+            localStorage.setItem('panelLeftWidth', leftPercent.toString());
         }
     }
     /**
-     * Handle mouse up to end resize
+     * Handle mouse up
      */
     handleMouseUp() {
-        if (!this.isResizing)
-            return;
         this.isResizing = false;
-        // Remove active state from resizer
-        this.resizer.classList.remove('active');
-        // Restore default cursor and selection
-        document.body.style.userSelect = '';
-        document.body.style.cursor = '';
-        // Save panel widths to localStorage
-        this.savePanelWidths();
-        console.log('[PanelResizer] Resize ended and saved');
+        if (this.resizer) {
+            this.resizer.classList.remove('active');
+        }
     }
     /**
-     * Reset panel widths to equal split (50:50)
+     * Restore saved panel width from localStorage
      */
-    resetToEqualSplit() {
-        const containerWidth = this.container.getBoundingClientRect().width;
-        const resizerWidth = this.resizer.getBoundingClientRect().width;
-        const panelWidth = (containerWidth - resizerWidth) / 2;
-        this.leftPanel.style.flex = `0 0 ${panelWidth}px`;
-        this.rightPanel.style.flex = `0 0 ${panelWidth}px`;
-        this.savePanelWidths();
-        console.log('[PanelResizer] Reset to equal split');
+    restoreSavedWidth() {
+        const savedWidth = localStorage.getItem('panelLeftWidth');
+        if (savedWidth && this.leftPanel && this.rightPanel) {
+            const leftPercent = parseFloat(savedWidth);
+            const rightPercent = 100 - leftPercent;
+            this.leftPanel.style.flex = `0 0 ${leftPercent}%`;
+            this.rightPanel.style.flex = `0 0 ${rightPercent}%`;
+            console.log('[PanelResizer] Restored panel width:', leftPercent + '%');
+        }
     }
     /**
-     * Set specific panel widths
+     * Reset to default 50:50 split
      */
-    setPanelWidths(leftWidth, rightWidth) {
-        this.leftPanel.style.flex = `0 0 ${leftWidth}px`;
-        this.rightPanel.style.flex = `0 0 ${rightWidth}px`;
-        this.savePanelWidths();
+    resetToDefault() {
+        if (!this.leftPanel || !this.rightPanel)
+            return;
+        this.leftPanel.style.flex = '0 0 50%';
+        this.rightPanel.style.flex = '0 0 50%';
+        localStorage.setItem('panelLeftWidth', '50');
+        console.log('[PanelResizer] Reset to 50:50 split');
     }
     /**
-     * Get current panel widths
-     */
-    getPanelWidths() {
-        return {
-            leftWidth: this.leftPanel.getBoundingClientRect().width,
-            rightWidth: this.rightPanel.getBoundingClientRect().width
-        };
-    }
-    /**
-     * Check if resizer is initialized
+     * Check if the resizer is properly initialized
      */
     isInitialized() {
-        return !!this.resizer && !!this.leftPanel && !!this.rightPanel && !!this.container;
+        return this._initialized;
     }
 }
 //# sourceMappingURL=panel-resizer.js.map

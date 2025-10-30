@@ -60,6 +60,13 @@ class WriterService:
 
             project = Project.objects.get(id=self.project_id)
             logger.info(f"WriterService: Creating Writer instance for project {self.project_id} at {self.project_path}")
+
+            # Ensure parent directories exist before creating Writer
+            # This is necessary because clone_project needs the parent directory to exist
+            parent_dir = self.project_path.parent
+            parent_dir.mkdir(parents=True, exist_ok=True)
+            logger.info(f"WriterService: Ensured parent directory exists at {parent_dir}")
+
             try:
                 self._writer = Writer(
                     self.project_path,

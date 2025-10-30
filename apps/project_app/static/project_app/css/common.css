@@ -273,3 +273,12 @@
     opacity: 1;
 }
 
+/* =============================================================================
+ * TAB NAVIGATION - Shared styling for tab-based navigation across pages
+ * ============================================================================= */
+
+/* Add top margin spacing after repository tabs (code, issues, pulls, settings tabs) */
+.tab-content-spacing {
+    margin-top: 1rem;
+}
+

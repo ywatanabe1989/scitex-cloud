@@ -135,6 +135,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "apps.project_app.context_processors.version_context",
                 "apps.project_app.context_processors.project_context",
+                "config.context_processors.cache_buster",
             ],
         },
     },

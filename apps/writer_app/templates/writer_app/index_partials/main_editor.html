@@ -1,240 +1,248 @@
-    <!-- Main Editor -->
-    <div class="writer-main" id="editor-main">
-        <!-- Sticky Toolbar -->
-        <div class="writer-toolbar-sticky">
-            <div class="toolbar-left">
-                <!-- Repository & Document Type Horizontal Tabs -->
-                <div class="horizontal-selector-group">
-                    <div class="horizontal-selector">
-                        <label class="selector-label"><i class="fas fa-folder-open me-1"></i></label>
-                        <select id="repository-selector" class="form-select form-select-sm" {% if is_demo %}disabled{% endif %}>
-                            {% if project %}
-                                <option value="{{ project.id }}" selected>{{ project.name }}</option>
-                                {% for proj in user_projects %}
-                                    {% if proj.id != project.id %}
-                                        <option value="{{ proj.id }}">{{ proj.name }}</option>
-                                    {% endif %}
-                                {% endfor %}
-                            {% else %}
-                                <option value="" selected>{% if is_anonymous %}Demo Workspace{% else %}Create a project{% endif %}</option>
-                            {% endif %}
-                        </select>
-                    </div>
-                    <div class="horizontal-selector">
-                        <label class="selector-label"><i class="fas fa-file-alt me-1"></i></label>
-                        <select id="doctype-selector" class="form-select form-select-sm">
-                            <option value="shared">Shared</option>
-                            <option value="manuscript" selected>Manuscript</option>
-                            <option value="supplementary">Supplementary</option>
-                            <option value="revision">Revision</option>
-                        </select>
-                    </div>
-                    <div class="horizontal-selector">
-                        <label class="selector-label"><i class="fas fa-file-code me-1"></i></label>
-                        <select id="texfile-selector" class="form-select form-select-sm">
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <div class="toolbar-center">
-                <!-- Editor Tools: Undo/Redo -->
-                <button id="undo-btn" class="btn btn-sm btn-outline-secondary" title="Undo (Ctrl+Z)">
-                    <i class="fas fa-undo"></i>
-                </button>
-                <button id="redo-btn" class="btn btn-sm btn-outline-secondary" title="Redo (Ctrl+Y)">
-                    <i class="fas fa-redo"></i>
-                </button>
-
-                <div class="vertical-divider"></div>
-
-                <!-- Font Size Control -->
-                <div class="font-size-control">
-                    <label for="font-size-slider" class="form-label" style="margin: 0; font-size: 0.85rem;">
-                        <i class="fas fa-text-height me-1"></i><span id="font-size-display">14</span>px
-                    </label>
-                    <input type="range" id="font-size-slider" class="form-range" min="10" max="20" value="14" title="Adjust editor font size">
-                </div>
-
-                <div class="vertical-divider"></div>
-
-                <!-- Auto Preview Checkbox -->
-                <div class="auto-preview-control">
-                    <input type="checkbox" id="auto-preview-checkbox" class="form-check-input" checked>
-                    <label for="auto-preview-checkbox" class="form-check-label" style="margin: 0; font-size: 0.85rem; cursor: pointer;">
-                        <i class="fas fa-magic me-1"></i>Auto (5s)
-                    </label>
-                </div>
-
-                <!-- Preview Button -->
-                <button id="preview-btn-toolbar" class="btn btn-sm btn-outline-primary" title="Compile PDF Preview">
-                    <i class="fas fa-eye me-1"></i>Preview
-                </button>
-            </div>
-
-            <div class="toolbar-right">
-                <!-- Compile Button -->
-                <button id="compile-btn-toolbar" class="btn btn-sm btn-primary" title="Compile PDF">
-                    <i class="fas fa-file-pdf me-1"></i>Compile
-                </button>
-
-                <!-- Download PDF Button -->
-                <a id="download-pdf-toolbar" href="#" download class="btn btn-sm btn-outline-secondary" title="Download PDF" style="display: none;">
-                    <i class="fas fa-download"></i>
-                </a>
-
-                <div class="vertical-divider"></div>
-
-                <!-- Save Status Indicator -->
-                <div id="save-status" class="save-status">
-                    <i class="fas fa-check-circle text-success"></i>
-                    <span class="status-text">Saved</span>
-                </div>
-
-                <!-- Theme Selector -->
-                <select id="theme-selector" class="form-select form-select-sm" style="width: auto;">
-                    <optgroup label="Dark Themes">
-                        <option value="zenburn">Zenburn</option>
-                        <option value="monokai">Monokai</option>
-                        <option value="dracula">Dracula</option>
-                    </optgroup>
-                    <optgroup label="Light Themes">
-                        <option value="eclipse">Eclipse</option>
-                        <option value="neat">Neat</option>
-                        <option value="solarized light">Solarized Light</option>
-                    </optgroup>
-                </select>
-            </div>
+<!-- Main Editor -->
+<div class="writer-main" id="editor-main">
+  <!-- Sticky Toolbar -->
+  <div class="writer-toolbar-sticky">
+    <div class="toolbar-left">
+      <!-- Repository & Document Type Horizontal Tabs -->
+      <div class="horizontal-selector-group">
+        <div class="horizontal-selector">
+          <label class="selector-label"><i class="fas fa-folder-open me-1"></i></label>
+          <select id="repository-selector" class="form-select form-select-sm" {% if is_demo %}disabled{% endif %}>
+            {% if project %}
+            <option value="{{ project.id }}" selected>{{ project.name }}</option>
+            {% for proj in user_projects %}
+            {% if proj.id != project.id %}
+            <option value="{{ proj.id }}">{{ proj.name }}</option>
+            {% endif %}
+            {% endfor %}
+            {% else %}
+            <option value="" selected>{% if is_anonymous %}Demo Workspace{% else %}Create a project{% endif %}</option>
+            {% endif %}
+          </select>
         </div>
-
-        <div class="writer-editor">
-            <!-- Split View Only -->
-            <div class="editor-content-wrapper">
-                <!-- Split View -->
-                <div id="editor-view-split" class="editor-view split-view active">
-                    <div class="latex-panel">
-                        <div class="panel-header">
-                            <span><i class="fas fa-code me-1"></i>LaTeX Source</span>
-                        </div>
-                        <textarea id="latex-editor-textarea" class="latex-editor-textarea" placeholder="LaTeX code..."></textarea>
-                    </div>
-                    <!-- Resizable Panel Divider -->
-                    <div class="panel-resizer" id="panel-resizer" title="Drag to resize panels"></div>
-                    <div class="preview-panel">
-                        <div class="panel-header" id="preview-panel-header">
-                            <i class="fas fa-eye me-1"></i><span id="preview-title">PDF Preview</span>
-                        </div>
-                        <div id="text-preview" class="text-preview"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Inline Compilation Output (Initially Hidden) -->
-            <div id="compilation-output" class="compilation-output" style="display: none;">
-                <div class="compilation-output-header">
-                    <div>
-                        <i class="fas fa-terminal me-2"></i>Compilation Output
-                    </div>
-                    <button id="close-compilation-output" class="btn btn-sm btn-outline-secondary">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <div id="compilation-log-inline" class="compilation-log-inline">
-                    Click "Compile" to start compilation...
-                </div>
-            </div>
-
-            <!-- Compilation Panel (hidden by default) -->
-            <div id="compilation-panel" class="split-editor" style="display: none;">
-                <!-- Horizontal: Compile Button & Log -->
-                <div class="compilation-grid">
-                    <!-- Left: Compile/Stop Button -->
-                    <div class="compilation-buttons">
-                        <button id="compile-btn-panel" class="btn btn-primary w-100 btn-lg mb-2">
-                            <i class="fas fa-file-pdf me-2"></i>Compile PDF
-                        </button>
-                        <button id="quick-compile-btn-panel" class="btn btn-outline-primary w-100 mb-2">
-                            <i class="fas fa-bolt me-2"></i>Quick Compile (text only)
-                        </button>
-                        <button id="stop-compile-btn" class="btn btn-danger w-100" style="display: none;">
-                            <i class="fas fa-stop me-2"></i>Stop
-                        </button>
-                    </div>
-
-                    <!-- Right: Log Viewer (fills available space) -->
-                    <div id="compilation-log-panel" class="compilation-log-panel">Click "Compile PDF" to start compilation...</div>
-                </div>
-
-                <!-- Side-by-Side PDFs with Outlines -->
-                <div class="pdf-comparison-grid">
-                    <!-- Manuscript PDF (Left) -->
-                    <div class="flex-column">
-                        <div class="flex-center-between mb-2">
-                            <h6 style="color: var(--color-fg-default); margin: 0;">
-                                <i class="fas fa-file-pdf text-danger me-2"></i>Manuscript
-                            </h6>
-                            <div>
-                                <button id="toggle-outline-main" class="btn btn-sm btn-outline-secondary me-1" title="Toggle outline">
-                                    <i class="fas fa-list"></i>
-                                </button>
-                                <a id="pdf-view-link-panel" href="#" target="_blank" class="btn btn-sm btn-outline-primary">
-                                    <i class="fas fa-external-link-alt"></i>
-                                </a>
-                                <a id="pdf-download-link-panel" href="#" download class="btn btn-sm btn-outline-secondary">
-                                    <i class="fas fa-download"></i>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="pdf-pdf-container">
-                            <div id="pdf-outline-main" class="pdf-outline-panel">
-                                <div class="pdf-outline-title">Outline</div>
-                                <div id="pdf-outline-items-main"></div>
-                            </div>
-                            <div id="pdf-viewer-panel" style="flex: 1; border: 1px solid var(--color-border-default); border-radius: 4px; background: white;">
-                                <div class="pdf-viewer-loading">
-                                    <i class="fas fa-spinner fa-spin me-2"></i>Loading PDF...
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Diff PDF (Right) -->
-                    <div class="flex-column">
-                        <div class="flex-center-between mb-2">
-                            <h6 style="color: var(--color-fg-default); margin: 0;">
-                                <i class="fas fa-code-branch text-info me-2"></i>Diff PDF (Changes)
-                            </h6>
-                            <div>
-                                <button id="toggle-outline-diff" class="btn btn-sm btn-outline-secondary me-1" title="Toggle outline" style="display: none;">
-                                    <i class="fas fa-list"></i>
-                                </button>
-                                <a id="diff-pdf-view-link-panel" href="#" target="_blank" class="btn btn-sm btn-outline-primary">
-                                    <i class="fas fa-external-link-alt"></i>
-                                </a>
-                                <a id="diff-pdf-download-link-panel" href="#" download class="btn btn-sm btn-outline-secondary">
-                                    <i class="fas fa-download"></i>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="pdf-pdf-container">
-                            <div id="pdf-outline-diff" class="pdf-outline-panel">
-                                <div class="pdf-outline-title">Outline</div>
-                                <div id="pdf-outline-items-diff"></div>
-                            </div>
-                            <div style="flex: 1; position: relative;">
-                                <div id="diff-pdf-placeholder" style="width: 100%; height: 100%; border: 1px solid var(--color-border-default); border-radius: 4px; background: var(--color-canvas-subtle); display: flex; align-items: center; justify-content: center; color: var(--color-fg-muted); position: absolute;">
-                                    <div style="text-align: center;">
-                                        <i class="fas fa-info-circle fa-2x mb-3"></i>
-                                        <p>Diff PDF will appear after compilation</p>
-                                        <small>Shows tracked changes from previous version</small>
-                                    </div>
-                                </div>
-                                <div id="diff-pdf-viewer-panel" style="width: 100%; height: 100%; border: 1px solid var(--color-border-default); border-radius: 4px; background: white; display: none;"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="horizontal-selector">
+          <label class="selector-label"><i class="fas fa-file-alt me-1"></i></label>
+          <select id="doctype-selector" class="form-select form-select-sm">
+            <option value="shared">Shared</option>
+            <option value="manuscript" selected>Manuscript</option>
+            <option value="supplementary">Supplementary</option>
+            <option value="revision">Revision</option>
+          </select>
         </div>
+        <div class="horizontal-selector">
+          <label class="selector-label"><i class="fas fa-file-code me-1"></i></label>
+          <select id="texfile-selector" class="form-select form-select-sm">
+          </select>
+        </div>
+      </div>
     </div>
+
+    <div class="toolbar-center">
+      <!-- Editor Tools: Undo/Redo -->
+      <button id="undo-btn" class="btn btn-sm btn-outline-secondary" title="Undo (Ctrl+Z)">
+        <i class="fas fa-undo"></i>
+      </button>
+      <button id="redo-btn" class="btn btn-sm btn-outline-secondary" title="Redo (Ctrl+Y)">
+        <i class="fas fa-redo"></i>
+      </button>
+
+      <div class="vertical-divider"></div>
+
+      <!-- Font Size Control -->
+      <div class="font-size-control">
+        <label for="font-size-slider" class="form-label" style="margin: 0; font-size: 0.85rem;">
+          <i class="fas fa-text-height me-1"></i><span id="font-size-display">14</span>px
+        </label>
+        <input type="range" id="font-size-slider" class="form-range" min="10" max="20" value="14" title="Adjust editor font size">
+      </div>
+
+      <div class="vertical-divider"></div>
+
+      <!-- Auto Preview Checkbox -->
+      <div class="auto-preview-control">
+        <input type="checkbox" id="auto-preview-checkbox" class="form-check-input" checked>
+        <label for="auto-preview-checkbox" class="form-check-label" style="margin: 0; font-size: 0.85rem; cursor: pointer;">
+          <i class="fas fa-magic me-1"></i>Auto (5s)
+        </label>
+      </div>
+
+      <!-- Preview Button -->
+      <button id="preview-btn-toolbar" class="btn btn-sm btn-outline-primary" title="Compile PDF Preview">
+        <i class="fas fa-eye me-1"></i>Preview
+      </button>
+    </div>
+
+    <div class="toolbar-right">
+      <!-- Compile Button -->
+      <button id="compile-btn-toolbar" class="btn btn-sm btn-primary" title="Compile PDF">
+        <i class="fas fa-file-pdf me-1"></i>Compile
+      </button>
+
+      <!-- Download PDF Button -->
+      <a id="download-pdf-toolbar" href="#" download class="btn btn-sm btn-outline-secondary" title="Download PDF" style="display: none;">
+        <i class="fas fa-download"></i>
+      </a>
+
+      <div class="vertical-divider"></div>
+
+      <!-- Save Status Indicator -->
+      <div id="save-status" class="save-status">
+        <i class="fas fa-check-circle text-success"></i>
+        <span class="status-text">Saved</span>
+      </div>
+
+      <!-- Theme Selector -->
+      <select id="theme-selector" class="form-select form-select-sm" style="width: auto;">
+        <optgroup label="Dark Themes">
+          <option value="zenburn">Zenburn</option>
+          <option value="monokai">Monokai</option>
+          <option value="dracula">Dracula</option>
+        </optgroup>
+        <optgroup label="Light Themes">
+          <option value="eclipse">Eclipse</option>
+          <option value="neat">Neat</option>
+          <option value="solarized light">Solarized Light</option>
+        </optgroup>
+      </select>
+    </div>
+  </div>
+
+  <div class="writer-editor">
+    <!-- Split View Only -->
+    <div class="editor-content-wrapper">
+      <!-- Split View -->
+      <div id="editor-view-split" class="editor-view split-view active">
+        <div class="latex-panel">
+          <div class="panel-header">
+            <span><i class="fas fa-code me-1"></i>LaTeX Source</span>
+          </div>
+          <textarea id="latex-editor-textarea" class="latex-editor-textarea" placeholder="LaTeX code..."></textarea>
+        </div>
+        <!-- Resizable Panel Divider -->
+        <div class="panel-resizer" id="panel-resizer" title="Drag to resize panels"></div>
+        <div class="preview-panel">
+          <div class="panel-header" id="preview-panel-header">
+            <div class="header-left">
+              <i class="fas fa-eye me-1"></i><span id="preview-title">PDF Preview</span>
+            </div>
+            <div class="header-right">
+              <!-- Background compilation status indicator -->
+              <div id="background-compile-status" class="status-indicator" style="opacity: 0; transition: opacity 0.3s;"></div>
+              <!-- Countdown indicator -->
+              <div id="compile-countdown-indicator" class="countdown-indicator" style="opacity: 0; transition: opacity 0.3s;"></div>
+            </div>
+          </div>
+          <div id="text-preview" class="text-preview"></div>
+          </div>
+      </div>
+    </div>
+
+    <!-- Inline Compilation Output (Initially Hidden) -->
+    <div id="compilation-output" class="compilation-output" style="display: none;">
+      <div class="compilation-output-header">
+        <div>
+          <i class="fas fa-terminal me-2"></i>Compilation Output
+        </div>
+        <button id="close-compilation-output" class="btn btn-sm btn-outline-secondary">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div id="compilation-log-inline" class="compilation-log-inline">
+        Click "Compile" to start compilation...
+      </div>
+    </div>
+
+    <!-- Compilation Panel (hidden by default) -->
+    <div id="compilation-panel" class="split-editor" style="display: none;">
+      <!-- Horizontal: Compile Button & Log -->
+      <div class="compilation-grid">
+        <!-- Left: Compile/Stop Button -->
+        <div class="compilation-buttons">
+          <button id="compile-btn-panel" class="btn btn-primary w-100 btn-lg mb-2">
+            <i class="fas fa-file-pdf me-2"></i>Compile PDF
+          </button>
+          <button id="quick-compile-btn-panel" class="btn btn-outline-primary w-100 mb-2">
+            <i class="fas fa-bolt me-2"></i>Quick Compile (text only)
+          </button>
+          <button id="stop-compile-btn" class="btn btn-danger w-100" style="display: none;">
+            <i class="fas fa-stop me-2"></i>Stop
+          </button>
+        </div>
+
+        <!-- Right: Log Viewer (fills available space) -->
+        <div id="compilation-log-panel" class="compilation-log-panel">Click "Compile PDF" to start compilation...</div>
+      </div>
+
+      <!-- Side-by-Side PDFs with Outlines -->
+      <div class="pdf-comparison-grid">
+        <!-- Manuscript PDF (Left) -->
+        <div class="flex-column">
+          <div class="flex-center-between mb-2">
+            <h6 style="color: var(--color-fg-default); margin: 0;">
+              <i class="fas fa-file-pdf text-danger me-2"></i>Manuscript
+            </h6>
+            <div>
+              <button id="toggle-outline-main" class="btn btn-sm btn-outline-secondary me-1" title="Toggle outline">
+                <i class="fas fa-list"></i>
+              </button>
+              <a id="pdf-view-link-panel" href="#" target="_blank" class="btn btn-sm btn-outline-primary">
+                <i class="fas fa-external-link-alt"></i>
+              </a>
+              <a id="pdf-download-link-panel" href="#" download class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-download"></i>
+              </a>
+            </div>
+          </div>
+          <div class="pdf-pdf-container">
+            <div id="pdf-outline-main" class="pdf-outline-panel">
+              <div class="pdf-outline-title">Outline</div>
+              <div id="pdf-outline-items-main"></div>
+            </div>
+            <div id="pdf-viewer-panel" style="flex: 1; border: 1px solid var(--color-border-default); border-radius: 4px; background: white;">
+              <div class="pdf-viewer-loading">
+                <i class="fas fa-spinner fa-spin me-2"></i>Loading PDF...
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Diff PDF (Right) -->
+        <div class="flex-column">
+          <div class="flex-center-between mb-2">
+            <h6 style="color: var(--color-fg-default); margin: 0;">
+              <i class="fas fa-code-branch text-info me-2"></i>Diff PDF (Changes)
+            </h6>
+            <div>
+              <button id="toggle-outline-diff" class="btn btn-sm btn-outline-secondary me-1" title="Toggle outline" style="display: none;">
+                <i class="fas fa-list"></i>
+              </button>
+              <a id="diff-pdf-view-link-panel" href="#" target="_blank" class="btn btn-sm btn-outline-primary">
+                <i class="fas fa-external-link-alt"></i>
+              </a>
+              <a id="diff-pdf-download-link-panel" href="#" download class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-download"></i>
+              </a>
+            </div>
+          </div>
+          <div class="pdf-pdf-container">
+            <div id="pdf-outline-diff" class="pdf-outline-panel">
+              <div class="pdf-outline-title">Outline</div>
+              <div id="pdf-outline-items-diff"></div>
+            </div>
+            <div style="flex: 1; position: relative;">
+              <div id="diff-pdf-placeholder" style="width: 100%; height: 100%; border: 1px solid var(--color-border-default); border-radius: 4px; background: var(--color-canvas-subtle); display: flex; align-items: center; justify-content: center; color: var(--color-fg-muted); position: absolute;">
+                <div style="text-align: center;">
+                  <i class="fas fa-info-circle fa-2x mb-3"></i>
+                  <p>Diff PDF will appear after compilation</p>
+                  <small>Shows tracked changes from previous version</small>
+                </div>
+              </div>
+              <div id="diff-pdf-viewer-panel" style="width: 100%; height: 100%; border: 1px solid var(--color-border-default); border-radius: 4px; background: white; display: none;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 </div>

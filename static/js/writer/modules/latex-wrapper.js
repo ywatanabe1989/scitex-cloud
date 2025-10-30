@@ -112,8 +112,12 @@ export class LatexWrapper {
     /**
      * Create minimal LaTeX document for preview
      */
-    createMinimalDocument(content) {
-        let doc = `\\documentclass{article}\n`;
+    createMinimalDocument(content, fontSize = 11) {
+        // Map editor font size (10-20px) to LaTeX font size (10pt-14pt)
+        // 10px -> 10pt, 14px -> 11pt (default), 20px -> 14pt
+        const latexFontSize = Math.max(10, Math.min(14, Math.round(10 + (fontSize - 10) / 2.5)));
+        const fontSizeOption = `${latexFontSize}pt`;
+        let doc = `\\documentclass[${fontSizeOption}]{article}\n`;
         doc += `\\usepackage{geometry}\n`;
         doc += `\\usepackage[utf8]{inputenc}\n`;
         doc += `\\geometry{margin=1in}\n`;

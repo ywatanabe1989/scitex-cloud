@@ -7,7 +7,7 @@
 .CodeMirror {
     border: 1px solid var(--border-color, #dee2e6);
     border-radius: var(--border-radius-lg, 8px);
-    font-family: var(--font-family-monospace, 'Fira Code', 'Monaco', 'Courier New', monospace);
+    font-family: var(--font-family-monospace, 'JetBrains Mono', 'Fira Code', 'Monaco', 'Courier New', monospace);
     font-size: 14px;
     line-height: 1.5;
 }
@@ -71,9 +71,9 @@
     color: #6a737d;
 }
 
-/* Active line highlight */
+/* Active line highlight - disabled for consistent background */
 .CodeMirror-activeline-background {
-    background-color: var(--color-canvas-subtle, #f6f8fa);
+    background-color: transparent !important;
 }
 
 /* Autocomplete styling */

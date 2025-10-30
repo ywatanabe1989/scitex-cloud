@@ -98,5 +98,9 @@ export declare class EnhancedEditor {
      * Get editor type
      */
     getEditorType(): string;
+    /**
+     * Set editor theme
+     */
+    setTheme(theme: string): void;
 }
 //# sourceMappingURL=monaco-editor.d.ts.map

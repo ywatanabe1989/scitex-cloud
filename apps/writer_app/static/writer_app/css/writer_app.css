@@ -547,17 +547,17 @@
 }
 
 .text-preview {
-    flex: 1;
+    /* flex: 1; */
     /* border: 1px solid var(--border-default); */  /* Styling from central CSS */
     /* border-radius: var(--border-radius); */  /* Styling from central CSS */
-    padding: 1.5rem;
+    /* padding: 1.5rem; */
     /* background: var(--bg-page); */  /* Styling from central CSS */
     /* color: var(--text-primary); */  /* Styling from central CSS */
-    overflow-y: auto;
+    /* overflow-y: auto; */
     /* font-family: 'Georgia', serif; */  /* Styling from central CSS */
     /* font-size: 1rem; */  /* Styling from central CSS */
     /* line-height: 1.6; */  /* Styling from central CSS */
-    white-space: pre-wrap;
+    /* white-space: pre-wrap; */
 }
 
 .word-count-indicator {
@@ -576,10 +576,10 @@
 .pdf-viewer-controls {
     /* background: var(--scitex-light); */  /* Styling from central CSS */
     /* border-bottom: 1px solid #dee2e6; */  /* Styling from central CSS */
-    padding: 0.5rem 1rem;
+    /* padding: 0.5rem 1rem; */
     display: flex;
     align-items: center;
-    gap: 1rem;
+    /* gap: 1rem; */
     flex-wrap: wrap;
 }
 

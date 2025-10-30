@@ -110,6 +110,43 @@ def issues_list(request, username, slug):
     open_count = project.issues.filter(state='open').count()
     closed_count = project.issues.filter(state='closed').count()
 
+    # Get branches for branch selector
+    from apps.project_app.services.project_filesystem import get_project_filesystem_manager
+    import subprocess
+    import logging
+
+    logger = logging.getLogger(__name__)
+    manager = get_project_filesystem_manager(project.owner)
+    project_path = manager.get_project_root_path(project)
+
+    branches = []
+    current_branch = project.current_branch or 'develop'
+    if project_path and project_path.exists():
+        try:
+            result = subprocess.run(
+                ['git', 'branch', '-a'],
+                cwd=project_path,
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+            if result.returncode == 0:
+                for line in result.stdout.split('\n'):
+                    if line.strip():
+                        # Remove * prefix and remotes/origin/ prefix
+                        branch = line.replace('*', '').strip()
+                        branch = branch.replace('remotes/origin/', '')
+                        if branch and branch not in branches:
+                            branches.append(branch)
+                        # Check if this is the current branch
+                        if line.startswith('*'):
+                            current_branch = branch
+        except Exception as e:
+            logger.debug(f"Error getting branches: {e}")
+
+    if not branches:
+        branches = [current_branch]
+
     context = {
         'project': project,
         'issues': page_obj,
@@ -125,7 +162,9 @@ def issues_list(request, username, slug):
             'assignee': assignee_filter,
             'milestone': milestone_filter,
             'author': author_filter,
-        }
+        },
+        'branches': branches,
+        'current_branch': current_branch,
     }
 
     return render(request, 'project_app/issues/issues_list.html', context)

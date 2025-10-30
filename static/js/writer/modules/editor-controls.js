@@ -14,6 +14,7 @@ export class EditorControls {
         this.previewButton = document.getElementById('preview-btn-toolbar');
         this.latexEditor = document.getElementById('latex-editor-textarea');
         this.pdfPreviewManager = options.pdfPreviewManager;
+        this.editor = options.editor;
         this._compilationManager = options.compilationManager;
         if (this.fontSizeSlider || this.autoPreviewCheckbox || this.previewButton) {
             this.initialize();
@@ -52,8 +53,36 @@ export class EditorControls {
     handleFontSizeChange(event) {
         const target = event.target;
         const fontSize = parseInt(target.value, 10);
+        // Update textarea (for CodeMirror fallback)
         if (this.latexEditor) {
             this.latexEditor.style.fontSize = `${fontSize}px`;
+        }
+        // Update Monaco editor if available
+        if (this.editor && this.editor.getEditorType && this.editor.getEditorType() === 'monaco') {
+            const monacoInstance = this.editor.getInstance();
+            if (monacoInstance && monacoInstance.updateOptions) {
+                monacoInstance.updateOptions({ fontSize: fontSize });
+                console.log(`[EditorControls] Monaco font size updated to ${fontSize}px`);
+            }
+        }
+        // Update CodeMirror if available
+        const cmEditor = document.querySelector('.CodeMirror')?.CodeMirror;
+        if (cmEditor && cmEditor.getOption) {
+            const currentSize = cmEditor.getOption('fontSize');
+            if (currentSize !== `${fontSize}px`) {
+                cmEditor.refresh();
+                // Apply font size via CSS for CodeMirror
+                const cmElement = document.querySelector('.CodeMirror');
+                if (cmElement) {
+                    cmElement.style.fontSize = `${fontSize}px`;
+                }
+                console.log(`[EditorControls] CodeMirror font size updated to ${fontSize}px`);
+            }
+        }
+        // Update PDF compilation font size
+        if (this.pdfPreviewManager && this.pdfPreviewManager.setFontSize) {
+            this.pdfPreviewManager.setFontSize(fontSize);
+            console.log(`[EditorControls] PDF font size updated to ${fontSize}px`);
         }
         if (this.fontSizeDisplay) {
             this.fontSizeDisplay.textContent = fontSize.toString();
@@ -71,13 +100,37 @@ export class EditorControls {
         if (this.fontSizeSlider) {
             this.fontSizeSlider.value = fontSize.toString();
         }
-        if (this.latexEditor) {
-            this.latexEditor.style.fontSize = `${fontSize}px`;
-        }
+        // Apply to all editors
+        this.applyFontSizeToAllEditors(fontSize);
         if (this.fontSizeDisplay) {
             this.fontSizeDisplay.textContent = fontSize.toString();
         }
         console.log(`[EditorControls] Loaded font size: ${fontSize}px`);
+    }
+    /**
+     * Apply font size to all editors (Monaco, CodeMirror, PDF)
+     */
+    applyFontSizeToAllEditors(fontSize) {
+        // Update textarea
+        if (this.latexEditor) {
+            this.latexEditor.style.fontSize = `${fontSize}px`;
+        }
+        // Update Monaco editor if available
+        if (this.editor && this.editor.getEditorType && this.editor.getEditorType() === 'monaco') {
+            const monacoInstance = this.editor.getInstance();
+            if (monacoInstance && monacoInstance.updateOptions) {
+                monacoInstance.updateOptions({ fontSize: fontSize });
+            }
+        }
+        // Update CodeMirror if available
+        const cmElement = document.querySelector('.CodeMirror');
+        if (cmElement) {
+            cmElement.style.fontSize = `${fontSize}px`;
+        }
+        // Update PDF compilation font size
+        if (this.pdfPreviewManager && this.pdfPreviewManager.setFontSize) {
+            this.pdfPreviewManager.setFontSize(fontSize);
+        }
     }
     /**
      * Handle auto preview checkbox toggle

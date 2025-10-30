@@ -10,15 +10,15 @@
             <!-- PR State -->
             <div class="d-flex align-items-center gap-2">
                 {% if pr.state == 'open' %}
-                <span class="pr-state-badge badge bg-success">
+                <span class="btn btn-sm btn-success" style="pointer-events: none;">
                     <i class="bi bi-circle"></i> Open
                 </span>
                 {% elif pr.state == 'merged' %}
-                <span class="pr-state-badge badge bg-primary">
+                <span class="btn btn-sm btn-primary" style="pointer-events: none;">
                     <i class="bi bi-check2-circle"></i> Merged
                 </span>
                 {% else %}
-                <span class="pr-state-badge badge bg-danger">
+                <span class="btn btn-sm btn-danger" style="pointer-events: none;">
                     <i class="bi bi-x-circle"></i> Closed
                 </span>
                 {% endif %}
@@ -39,11 +39,11 @@
         {% if can_edit %}
         <div class="btn-group">
             {% if pr.is_open %}
-            <button type="button" class="btn btn-outline-secondary" onclick="closePR()">
+            <button type="button" class="btn btn-secondary" onclick="closePR()">
                 <i class="bi bi-x-circle"></i> Close PR
             </button>
             {% elif pr.is_closed %}
-            <button type="button" class="btn btn-outline-success" onclick="reopenPR()">
+            <button type="button" class="btn btn-success" onclick="reopenPR()">
                 <i class="bi bi-arrow-clockwise"></i> Reopen PR
             </button>
             {% endif %}

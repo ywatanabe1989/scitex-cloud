@@ -359,7 +359,7 @@ def project_detail(request, username, slug):
         "is_watching": is_watching,
         "is_starred": is_starred,
     }
-    return render(request, "project_app/index.html", context)
+    return render(request, "project_app/browse/project_root.html", context)
 
 
 @login_required
@@ -1032,7 +1032,6 @@ def github_integration(request, username, slug):
 
 
 # API Views
-@login_required
 @require_http_methods(["GET"])
 def api_file_tree(request, username, slug):
     """API endpoint to get project file tree for sidebar navigation"""
@@ -1041,11 +1040,15 @@ def api_file_tree(request, username, slug):
     user = get_object_or_404(User, username=username)
     project = get_object_or_404(Project, slug=slug, owner=user)
 
-    # Check access
-    has_access = (
-        project.owner == request.user
-        or project.collaborators.filter(id=request.user.id).exists()
-    )
+    # Check access (allow public access for public projects)
+    if request.user.is_authenticated:
+        has_access = (
+            project.owner == request.user
+            or project.collaborators.filter(id=request.user.id).exists()
+            or project.visibility == 'public'
+        )
+    else:
+        has_access = project.visibility == 'public'
 
     if not has_access:
         return JsonResponse({"success": False, "error": "Permission denied"})
@@ -1070,14 +1073,15 @@ def api_file_tree(request, username, slug):
             for item in sorted(
                 path.iterdir(), key=lambda x: (not x.is_dir(), x.name.lower())
             ):
+                # Skip hidden files except .git directory and .gitignore
                 if item.name.startswith(".") and item.name not in [
-                    ".gitignore"
+                    ".git",
+                    ".gitignore",
                 ]:
                     continue
                 # Skip common non-essential directories
                 if item.name in [
                     "__pycache__",
-                    ".git",
                     "node_modules",
                     ".venv",
                     "venv",
@@ -1706,7 +1710,7 @@ def project_directory_dynamic(request, username, slug, directory_path):
         or project.collaborators.filter(id=request.user.id).exists(),
     }
 
-    return render(request, "project_app/filer/directory.html", context)
+    return render(request, "project_app/browse/subdirectory.html", context)
 
 
 def _detect_language(file_ext, file_name):
@@ -2304,7 +2308,7 @@ def project_directory(request, username, slug, directory, subpath=None):
         or project.collaborators.filter(id=request.user.id).exists(),
     }
 
-    return render(request, "project_app/filer/directory.html", context)
+    return render(request, "project_app/browse/subdirectory.html", context)
 
 
 def user_overview(request, username):

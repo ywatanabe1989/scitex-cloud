@@ -8,15 +8,38 @@
 
 /* GitHub-style repository header - Theme-aware */
 .repo-header {
-    /* Layout preserved */
     padding: 1.5rem 0;
-    /* Styling moved to central CSS - see static/css/components/header.css */
     border-bottom: 1px solid var(--color-border-default);
 }
 
+.repo-header-main {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.repo-header-left {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.repo-header-owner {
+    color: var(--color-accent-fg);
+    text-decoration: none;
+    font-weight: 400;
+}
+
+.repo-header-owner:hover {
+    text-decoration: underline;
+}
+
+.repo-header-separator {
+    color: var(--color-fg-muted);
+}
+
 .repo-title {
-    /* Layout preserved */
-    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
     font-size: 1.25rem;
     font-weight: 600;
     color: var(--color-accent-fg);
@@ -27,17 +50,152 @@
     text-decoration: underline;
 }
 
-.repo-description {
-    /* Layout preserved */
-    margin-top: 0.5rem;
-    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+.repo-breadcrumb-item {
+    color: var(--color-accent-fg);
+    text-decoration: none;
+}
+
+.repo-breadcrumb-item:hover {
+    text-decoration: underline;
+}
+
+.repo-breadcrumb-current {
+    font-weight: 600;
+    color: var(--color-fg-default);
+}
+
+.repo-branch-selector {
+    margin-left: 0.5rem;
+}
+
+.repo-branch-name {
+    font-weight: 600;
+}
+
+.repo-branch-count-links {
+    display: flex;
+    gap: 0.5rem;
+    margin-left: 0.5rem;
+}
+
+.repo-branch-count-link {
     color: var(--color-fg-muted);
+    text-decoration: none;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.repo-branch-count-link:hover {
+    color: var(--color-accent-fg);
+}
+
+.repo-action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.repo-description {
+    margin-top: 0.5rem;
+    color: var(--color-fg-muted);
+}
+
+/* Branch dropdown menu */
+.branch-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 4px;
+    background: var(--color-canvas-default);
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    min-width: 250px;
+    z-index: 1000;
+}
+
+.branch-dropdown-menu.show {
+    display: block;
+}
+
+.branch-search-container {
+    padding: 8px;
+}
+
+.branch-search-input {
+    width: 100%;
+    padding: 5px 12px;
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    background: var(--color-neutral-muted);
+    color: var(--color-fg-default);
+}
+
+.branch-list-container {
+    padding: 8px 0;
+    border-top: 1px solid var(--color-border-default);
+}
+
+.branch-list-header {
+    padding: 4px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-fg-muted);
+}
+
+.branch-item {
+    display: block;
+    padding: 6px 12px;
+    color: var(--color-fg-default);
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.branch-item:hover {
+    background: var(--color-canvas-subtle);
+}
+
+.branch-item-indent {
+    margin-left: 20px;
+}
+
+/* SVG icon utilities */
+.icon-inline {
+    display: inline-block;
+    vertical-align: text-bottom;
+}
+
+.icon-inline-mr {
+    display: inline-block;
+    vertical-align: text-bottom;
+    margin-right: 4px;
+}
+
+.icon-inline-ml {
+    display: inline-block;
+    vertical-align: text-bottom;
+    margin-left: 4px;
+}
+
+.icon-success {
+    color: var(--color-success-fg);
 }
 
 /* Tab navigation now uses standardized .scitex-tabs component from design system */
 .repo-tabs {
-    /* Layout preserved */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0;
     margin-bottom: 1.5rem;
+}
+
+.scitex-tabs {
+    display: flex;
+    gap: 1.5rem;
 }
 
 /* ============================================================================= */
@@ -166,12 +324,50 @@
 
 .octicon-directory {
     /* Styling moved to central CSS - see static/css/components/icons.css */
-    fill: var(--color-accent-fg);
+    fill: var(--color-fg-muted);
+    transition: fill 0.2s ease;
 }
 
 .octicon-file {
     /* Styling moved to central CSS - see static/css/components/icons.css */
     fill: var(--color-fg-muted);
+    transition: fill 0.2s ease;
+}
+
+/* Hover effects for file browser icons */
+.file-browser-row:hover .octicon-directory {
+    fill: var(--color-accent-fg);
+}
+
+.file-browser-row:hover .octicon-file {
+    fill: var(--color-fg-default);
+}
+
+.clickable-row:hover .octicon-directory {
+    fill: var(--color-accent-fg);
+}
+
+.clickable-row:hover .octicon-file {
+    fill: var(--color-fg-default);
+}
+
+/* Dark theme support */
+[data-theme="dark"] .octicon-directory {
+    fill: var(--color-fg-muted, #8b949e);
+}
+
+[data-theme="dark"] .octicon-file {
+    fill: var(--color-fg-muted, #8b949e);
+}
+
+[data-theme="dark"] .file-browser-row:hover .octicon-directory,
+[data-theme="dark"] .clickable-row:hover .octicon-directory {
+    fill: var(--color-accent-fg, #58a6ff);
+}
+
+[data-theme="dark"] .file-browser-row:hover .octicon-file,
+[data-theme="dark"] .clickable-row:hover .octicon-file {
+    fill: var(--color-fg-default, #e6edf3);
 }
 
 .file-browser-name {
@@ -503,10 +699,41 @@
 }
 
 /* Fix dropdown positioning */
-.btn-group {
+.btn-group,
+.dropdown {
     /* Layout preserved */
     position: relative;
-    display: inline-block;
+    display: inline-flex;
+}
+
+/* Split button - connect buttons visually */
+.btn-group .repo-action-btn {
+    margin-left: 0;
+}
+
+.btn-group .repo-action-btn:not(:first-child) {
+    margin-left: -1px;
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+}
+
+.btn-group .repo-action-btn:not(:last-of-type) {
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
+.btn-group .repo-action-btn.dropdown-toggle-split {
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+/* Dropdown menu visibility control */
+.dropdown-menu {
+    display: none;
+}
+
+.dropdown-menu.show {
+    display: block;
 }
 
 .repo-action-btn:hover {
@@ -542,10 +769,8 @@
     margin-left: 2px;
     /* Styling moved to central CSS - see static/css/components/badges.css */
     font-size: 12px;
-    font-weight: 500;
-    background: var(--color-neutral-muted);
-    border: 1px solid var(--color-border-default);
-    border-radius: 2em;
+    font-weight: 600;
+    color: var(--color-fg-muted);
 }
 
 /* GitHub-style layout with sidebar on LEFT - COLLAPSED BY DEFAULT */
@@ -637,13 +862,9 @@
 .sidebar-section {
     /* Layout preserved */
     padding: 16px;
-    margin-bottom: 16px;
+    margin-bottom: 0;
     position: relative;
     /* Styling moved to central CSS - see static/css/components/sidebar.css */
-    border: 1px solid var(--color-border-default);
-    border-radius: 6px;
-    background: var(--color-canvas-default);
-    transition: all 0.3s ease;
 }
 
 .repo-sidebar.collapsed .sidebar-section {
@@ -903,7 +1124,7 @@
     top: 100%;
     right: 0;
     margin-top: 4px;
-    /* Styling moved to central CSS - see static/css/components/buttons.css */
+    /* Styling moved to central CSS - see static/css/common/buttons.css */
     z-index: 9999 !important;
     background: var(--color-canvas-default);
     border: 1px solid var(--color-border-default);

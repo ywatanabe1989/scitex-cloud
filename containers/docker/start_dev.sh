@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-10-28 11:06:43 (ywatanabe)"
+# Timestamp: "2025-10-30 11:13:59 (ywatanabe)"
 # File: ./containers/docker/start_dev.sh
 
 ORIG_DIR="$(pwd)"
@@ -23,8 +23,10 @@ echo_error() { echo -e "${RED}ERRO: $1${NC}"; }
 echo_header() { echo_info "=== $1 ==="; }
 # ---------------------------------------
 
-# Override as the header is auto-insertion
-LOG_PATH="./logs/.$(basename $0).log" && echo > "$LOG_PATH"
+# Set log path relative to git root (consistent with other processes)
+LOG_PATH="$GIT_ROOT/logs/$(basename $0).log"
+mkdir -p "$(dirname "$LOG_PATH")"
+rm ./logs/*.log -f
 
 verify_env_setup() {
     echo_header "Verifying .env setup..."
@@ -683,6 +685,7 @@ wait_for_web_healthy() {
     echo_header "Waiting for web container to be healthy..."
     local START_TIME=$SECONDS
     local TIMEOUT=1800
+    local LAST_LOG_LINE=0
 
     while [ $((SECONDS - START_TIME)) -lt $TIMEOUT ]; do
         # Check if container is healthy (matches "Up ... (healthy)" format)
@@ -696,23 +699,15 @@ wait_for_web_healthy() {
             return 0
         fi
 
-        # Show progress (overwrite same line with \r)
-        LAST_LINES=$(
-            docker logs docker-web-1 2>&1 | \
-            grep -E "Downloading|Installing|packages|Starting|Watching" | \
-            tail -1 | \
-            cut -c1-80
-        )
+        # Stream all new logs from container since last check
+        docker logs docker-web-1 2>&1 | tail -n +$((LAST_LOG_LINE + 1)) | while IFS= read -r line; do
+            echo "  $line"
+        done
 
-        # If no relevant log line, show generic message
-        if [ -z "$LAST_LINES" ]; then
-            LAST_LINES="Starting up..."
-        fi
+        # Update line count for next iteration
+        LAST_LOG_LINE=$(docker logs docker-web-1 2>&1 | wc -l)
 
-        ELAPSED=$((SECONDS - START_TIME))
-        printf "\033[0;37m  [%3d s] %s%-80s\033[0m\r" \
-            "$ELAPSED" "" "$LAST_LINES"
-        sleep 10
+        sleep 2
     done
 
     # Timeout reached
@@ -873,6 +868,8 @@ main() {
     main "$@"
     exit_code=$?
 } 2>&1 | tee -a "$LOG_PATH"
+
+tail -f ./logs/*.log
 
 exit ${exit_code:-0}
 

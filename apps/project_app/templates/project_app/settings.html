@@ -26,21 +26,29 @@
 
         <!-- Main Content -->
         <main class="settings-main">
-            <form method="post">
+            <form method="post" id="settingsForm">
                 {% csrf_token %}
 
                 <!-- General Settings -->
-                {% include 'project_app/partials/settings_general.html' %}
+                <div class="settings-section-wrapper" id="section-general" style="display: block;">
+                    {% include 'project_app/partials/settings_general.html' %}
+                </div>
 
                 <!-- Access & Visibility -->
-                {% include 'project_app/partials/settings_visibility.html' %}
+                <div class="settings-section-wrapper" id="section-access" style="display: none;">
+                    {% include 'project_app/partials/settings_visibility.html' %}
+                </div>
 
                 <!-- Collaborators -->
-                {% include 'project_app/partials/settings_collaborators.html' %}
+                <div class="settings-section-wrapper" id="section-collaborators" style="display: none;">
+                    {% include 'project_app/partials/settings_collaborators.html' %}
+                </div>
             </form>
 
             <!-- Danger Zone -->
-            {% include 'project_app/partials/settings_danger_zone.html' %}
+            <div class="settings-section-wrapper" id="section-danger" style="display: none;">
+                {% include 'project_app/partials/settings_danger_zone.html' %}
+            </div>
         </main>
     </div>
 </div>

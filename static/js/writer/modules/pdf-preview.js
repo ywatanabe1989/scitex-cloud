@@ -8,6 +8,7 @@ export class PDFPreviewManager {
     constructor(options) {
         this.compileTimeout = null;
         this.currentPdfUrl = null;
+        this.fontSize = 14; // Default editor font size
         this.container = document.getElementById(options.containerId);
         this.projectId = options.projectId;
         this.autoCompile = options.autoCompile ?? false;
@@ -78,14 +79,14 @@ export class PDFPreviewManager {
     async compileQuick(content) {
         if (!this.container)
             return;
-        const latexContent = this.latexWrapper.createMinimalDocument(content);
+        const latexContent = this.latexWrapper.createMinimalDocument(content, this.fontSize);
         const options = {
             projectId: this.projectId,
             docType: this.docType,
             content: latexContent,
             format: 'pdf'
         };
-        console.log('[PDFPreview] Quick compile with docType:', this.docType);
+        console.log('[PDFPreview] Quick compile with docType:', this.docType, 'fontSize:', this.fontSize);
         await this.compilationManager.compile(options);
     }
     /**
@@ -215,6 +216,13 @@ export class PDFPreviewManager {
      */
     setAuthor(author) {
         this.latexWrapper.setAuthor(author);
+    }
+    /**
+     * Set font size for PDF compilation
+     */
+    setFontSize(fontSize) {
+        this.fontSize = fontSize;
+        console.log('[PDFPreview] Font size set to:', fontSize);
     }
 }
 //# sourceMappingURL=pdf-preview.js.map
