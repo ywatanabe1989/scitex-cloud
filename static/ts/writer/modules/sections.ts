@@ -1,6 +1,6 @@
 /**
  * Writer Sections Manager Module
- * Handles document sections (abstract, introduction, methods, results, discussion)
+ * Handles hierarchical document sections (Shared, Manuscript, Supplementary, Revision)
  */
 
 import { StorageManager } from '@/utils/storage';
@@ -9,25 +9,39 @@ export interface Section {
     id: string;
     name: string;
     label: string;
-    order: number;
-    visible: boolean;
-    content: string;
+    path?: string;
+    category?: string;
+    order?: number;
+    visible?: boolean;
+    content?: string;
+    optional?: boolean;
+    view_only?: boolean;
+    instruction?: string;
+    is_directory?: boolean;
+}
+
+export interface SectionCategory {
+    label: string;
+    description: string;
+    sections: Section[];
+    supports_crud?: boolean;
+}
+
+export interface SectionHierarchy {
+    shared: SectionCategory;
+    manuscript: SectionCategory;
+    supplementary: SectionCategory;
+    revision: SectionCategory;
 }
 
 export class SectionsManager {
     private sections: Map<string, Section> = new Map();
+    private hierarchy: SectionHierarchy | null = null;
     private storage: StorageManager;
-    private currentSection: string = 'abstract';
+    private currentSection: string = 'manuscript/abstract';
     private onSectionChangeCallback?: (section: string) => void;
     private onSectionsUpdateCallback?: (sections: Section[]) => void;
-
-    private defaultSections: Section[] = [
-        { id: 'abstract', name: 'abstract', label: 'Abstract', order: 0, visible: true, content: '' },
-        { id: 'introduction', name: 'introduction', label: 'Introduction', order: 1, visible: true, content: '' },
-        { id: 'methods', name: 'methods', label: 'Methods', order: 2, visible: true, content: '' },
-        { id: 'results', name: 'results', label: 'Results', order: 3, visible: true, content: '' },
-        { id: 'discussion', name: 'discussion', label: 'Discussion', order: 4, visible: true, content: '' }
-    ];
+    private onHierarchyLoadCallback?: (hierarchy: SectionHierarchy) => void;
 
     constructor() {
         this.storage = new StorageManager('writer_sections_');
@@ -35,40 +49,100 @@ export class SectionsManager {
     }
 
     /**
-     * Initialize sections
+     * Initialize sections - loads hierarchical structure from API
      */
-    private initializeSections(): void {
-        const stored = this.storage.load<Section[]>('list');
-        const sectionsToUse = stored || this.defaultSections;
-
-        sectionsToUse.forEach(section => {
-            this.sections.set(section.id, section);
-        });
+    private async initializeSections(): Promise<void> {
+        // Load hierarchy from API
+        await this.loadHierarchy();
 
         // Load content from WRITER_CONFIG if available (from Django backend)
         const writerConfig = (window as any).WRITER_CONFIG;
         if (writerConfig?.sections) {
+            let loadedCount = 0;
             Object.entries(writerConfig.sections).forEach(([sectionId, content]) => {
-                if (content && this.sections.has(sectionId)) {
-                    const section = this.sections.get(sectionId);
-                    if (section) {
-                        section.content = content as string;
-                        // Also save to storage for offline access
-                        this.storage.save(`content_${sectionId}`, content);
-                    }
+                // Find section in hierarchy and set content
+                const section = this.sections.get(sectionId);
+                if (section && content) {
+                    section.content = content as string;
+                    // Also save to storage for offline access
+                    this.storage.save(`content_${sectionId}`, content);
+                    loadedCount++;
                 }
             });
-            console.log('[Sections] Loaded content from WRITER_CONFIG for', Object.keys(writerConfig.sections).length, 'sections');
+            console.log('[Sections] Loaded content from WRITER_CONFIG for', loadedCount, 'sections');
         }
 
         console.log('[Sections] Initialized with', this.sections.size, 'sections');
     }
 
     /**
+     * Load hierarchical section structure from API
+     */
+    async loadHierarchy(): Promise<void> {
+        try {
+            const response = await fetch('/writer/api/sections-config/');
+            const data = await response.json();
+
+            if (data.success && data.hierarchy) {
+                this.hierarchy = data.hierarchy;
+
+                // Populate sections map from hierarchy
+                this.sections.clear();
+                let order = 0;
+
+                if (this.hierarchy) {
+                    Object.entries(this.hierarchy).forEach(([categoryKey, category]) => {
+                        const cat = category as SectionCategory;
+                        cat.sections.forEach((section: Section) => {
+                            const sectionWithDefaults: Section = {
+                                ...section,
+                                category: categoryKey,
+                                order: order++,
+                                visible: section.visible ?? true,
+                                content: section.content ?? ''
+                            };
+                            this.sections.set(section.id, sectionWithDefaults);
+                        });
+                    });
+                }
+
+                console.log('[Sections] Loaded hierarchy with', this.sections.size, 'sections');
+
+                if (this.onHierarchyLoadCallback && this.hierarchy) {
+                    this.onHierarchyLoadCallback(this.hierarchy);
+                }
+            }
+        } catch (error) {
+            console.error('[Sections] Failed to load hierarchy:', error);
+            // Fall back to basic structure if API fails
+            this.createFallbackStructure();
+        }
+    }
+
+    /**
+     * Create fallback structure if API fails
+     */
+    private createFallbackStructure(): void {
+        const fallbackSections: Section[] = [
+            { id: 'manuscript/abstract', name: 'abstract', label: 'Abstract', category: 'manuscript', order: 0, visible: true, content: '' },
+            { id: 'manuscript/introduction', name: 'introduction', label: 'Introduction', category: 'manuscript', order: 1, visible: true, content: '' },
+            { id: 'manuscript/methods', name: 'methods', label: 'Methods', category: 'manuscript', order: 2, visible: true, content: '' },
+            { id: 'manuscript/results', name: 'results', label: 'Results', category: 'manuscript', order: 3, visible: true, content: '' },
+            { id: 'manuscript/discussion', name: 'discussion', label: 'Discussion', category: 'manuscript', order: 4, visible: true, content: '' }
+        ];
+
+        fallbackSections.forEach(section => {
+            this.sections.set(section.id, section);
+        });
+
+        console.log('[Sections] Using fallback structure');
+    }
+
+    /**
      * Get all sections
      */
     getAll(): Section[] {
-        return Array.from(this.sections.values()).sort((a, b) => a.order - b.order);
+        return Array.from(this.sections.values()).sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
     }
 
     /**
@@ -76,6 +150,27 @@ export class SectionsManager {
      */
     getVisible(): Section[] {
         return this.getAll().filter(s => s.visible);
+    }
+
+    /**
+     * Get sections by category
+     */
+    getByCategory(category: string): Section[] {
+        return this.getAll().filter(s => s.category === category);
+    }
+
+    /**
+     * Get hierarchy
+     */
+    getHierarchy(): SectionHierarchy | null {
+        return this.hierarchy;
+    }
+
+    /**
+     * Set callback for hierarchy load
+     */
+    onHierarchyLoad(callback: (hierarchy: SectionHierarchy) => void): void {
+        this.onHierarchyLoadCallback = callback;
     }
 
     /**
@@ -135,16 +230,16 @@ export class SectionsManager {
      */
     getContent(id: string): string {
         const section = this.sections.get(id);
-        if (section) {
+        if (section && section.content) {
             return section.content;
         }
-        
+
         // Try to load from storage
         const stored = this.storage.load<string>(`content_${id}`);
         if (stored) {
             return stored;
         }
-        
+
         return '';
     }
 
@@ -230,7 +325,7 @@ export class SectionsManager {
      */
     exportCombined(): string {
         return this.getVisible()
-            .map(s => `% ${s.label}\n${s.content}`)
+            .map(s => `% ${s.label}\n${s.content ?? ''}`)
             .join('\n\n');
     }
 
@@ -239,8 +334,9 @@ export class SectionsManager {
      */
     getTotalWordCount(): number {
         return this.getAll().reduce((total, section) => {
+            if (!section.content) return total;
             const words = section.content.trim().split(/\s+/).length;
-            return total + (section.content ? words : 0);
+            return total + words;
         }, 0);
     }
 }
