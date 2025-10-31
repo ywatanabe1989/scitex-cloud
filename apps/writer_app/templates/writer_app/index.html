@@ -2,11 +2,11 @@
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'writer_app/css/tex-view-main.css' %}">
-<link rel="stylesheet" href="{% static 'writer_app/css/editor-enhanced.css' %}">
-<link rel="stylesheet" href="{% static 'writer_app/css/pdf-view-main.css' %}">
-<link rel="stylesheet" href="{% static 'writer_app/css/history_timeline.css' %}">
-<link rel="stylesheet" href="{% static 'writer_app/css/writer-ui-improved.css' %}">
+<link rel="stylesheet" href="{% static 'writer_app/css/tex-view-main.css' %}?v={{ request.timestamp|default:'1' }}">
+<link rel="stylesheet" href="{% static 'writer_app/css/editor-enhanced.css' %}?v={{ request.timestamp|default:'1' }}">
+<link rel="stylesheet" href="{% static 'writer_app/css/pdf-view-main.css' %}?v={{ request.timestamp|default:'1' }}">
+<link rel="stylesheet" href="{% static 'writer_app/css/history_timeline.css' %}?v={{ request.timestamp|default:'1' }}">
+<link rel="stylesheet" href="{% static 'writer_app/css/writer-ui-improved.css' %}?v=2">
 {% include "partials/codemirror_css.html" %}
 {% endblock %}
 

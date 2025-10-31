@@ -268,14 +268,13 @@
 
 .latex-panel,
 .preview-panel {
-    flex: 0 0 50% !important;
+    flex: 1;  /* Removed !important so JS can override */
     display: flex !important;
     flex-direction: column !important;
     min-height: 0 !important;
     overflow: hidden !important;
     background: var(--color-canvas-default) !important;
     height: 100% !important;
-    width: 50% !important;
     margin: 0 !important;
     padding: 0 !important;
 }
@@ -1197,34 +1196,24 @@
  * ======================================== */
 
 .panel-resizer {
-    width: 0px;
-    background: transparent;
+    width: 6px !important;
+    height: 100% !important;
+    background: var(--color-border-default);
     cursor: col-resize;
     user-select: none;
-    transition: all 0.2s ease;
-    flex-shrink: 0;
+    transition: background 0.2s ease;
+    flex: 0 0 4px !important;  /* Fixed 4px width, don't grow or shrink */
     margin: 0;
     position: relative;
     padding: 0;
+    z-index: 1000;
+    pointer-events: all;
+    align-self: stretch;
 }
 
-.panel-resizer::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 1px;
-    background: var(--color-border-default);
-    transition: all 0.2s ease;
-}
-
-.panel-resizer:hover::before,
-.panel-resizer.active::before {
-    width: 3px;
+.panel-resizer:hover,
+.panel-resizer.active {
     background: var(--color-accent-emphasis);
-    box-shadow: 0 0 6px rgba(0, 0, 0, 0.15);
 }
 
 /* ========================================

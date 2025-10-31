@@ -1,3 +1,15 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# Timestamp: "2025-10-31 19:43:58 (ywatanabe)"
+# File: /home/ywatanabe/proj/scitex-cloud/apps/writer_app/urls.py
+# ----------------------------------------
+from __future__ import annotations
+import os
+__FILE__ = (
+    "./apps/writer_app/urls.py"
+)
+__DIR__ = os.path.dirname(__FILE__)
+# ----------------------------------------
 """
 Simplified Writer URLs - REST API focused.
 
@@ -99,8 +111,8 @@ urlpatterns = [
          views.lock_section, name='lock-section'),
     path('api/collaborate/section/<int:section_id>/unlock/',
          views.unlock_section, name='unlock-section'),
-    path('collaborative/<int:manuscript_id>/',
-         views.collaborative_editor, name='collaborative-editor'),
+    # path('collaborative/<int:manuscript_id>/',
+    #      views.collaborative_editor, name='collaborative-editor'),
 
     # Version control (stubs, not yet implemented)
     path('api/version/<int:manuscript_id>/history/',
@@ -142,4 +154,20 @@ urlpatterns = [
     path('arxiv/api/suggest-categories/<int:manuscript_id>/', views.suggest_categories_api, name='arxiv-suggest-categories'),
     path('arxiv/api/status/', views.arxiv_status_check, name='arxiv-status-check'),
     path('arxiv/api/initialize-categories/', views.initialize_categories, name='arxiv-initialize-categories'),
+]ories/<int:manuscript_id>/",
+        views.suggest_categories_api,
+        name="arxiv-suggest-categories",
+    ),
+    path(
+        "arxiv/api/status/",
+        views.arxiv_status_check,
+        name="arxiv-status-check",
+    ),
+    path(
+        "arxiv/api/initialize-categories/",
+        views.initialize_categories,
+        name="arxiv-initialize-categories",
+    ),
 ]
+
+# EOF
