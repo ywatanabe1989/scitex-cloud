@@ -237,7 +237,12 @@ async function populateSectionDropdownDirect(
                     const sectionId = target.value;
                     const selectedOption = target.options[target.selectedIndex];
                     const sectionName = selectedOption.textContent || sectionId;
-                    console.log('[Writer] Section selected from dropdown:', sectionName, 'ID:', sectionId);
+                    console.log('[Writer] Section selected from dropdown:');
+                    console.log('  - Display name:', sectionName);
+                    console.log('  - Section ID:', sectionId);
+                    console.log('  - Selected index:', target.selectedIndex);
+                    console.log('  - Option value:', selectedOption.value);
+                    console.log('  - Option text:', selectedOption.textContent);
                     // Trigger callback with section info
                     onFileSelectCallback(sectionId, sectionName);
                 }
@@ -576,7 +581,10 @@ function setupEditorListeners(
         scheduleSave(editor, sectionsManager, state);
 
         // Schedule auto-compile for live PDF preview
-        if (pdfPreviewManager) {
+        // Skip auto-compile for compiled_pdf section (it should show the actual compiled PDF)
+        const isCompiledPdf = state.currentSection && state.currentSection.endsWith('/compiled_pdf');
+
+        if (pdfPreviewManager && !isCompiledPdf) {
             scheduleAutoCompile(pdfPreviewManager, content);
         }
     });
@@ -949,8 +957,52 @@ function updateSectionUI(sectionId: string): void {
     // Update the section title label in the editor header
     updateSectionTitleLabel(sectionId);
 
+    // Update PDF preview title as well
+    updatePDFPreviewTitle(sectionId);
+
     // Show/hide commit button based on section type (hide for read-only sections)
     updateCommitButtonVisibility(sectionId);
+
+    // Load compiled PDF if this is the compiled_pdf section
+    if (sectionId.endsWith('/compiled_pdf')) {
+        loadCompiledPDF(sectionId);
+    }
+}
+
+/**
+ * Load compiled PDF for display (not quick preview)
+ */
+function loadCompiledPDF(sectionId: string): void {
+    const config = getWriterConfig();
+    if (!config.projectId) return;
+
+    // Extract doc type from sectionId (e.g., "manuscript/compiled_pdf" -> "manuscript")
+    const parts = sectionId.split('/');
+    const docType = parts[0];
+
+    // Use API endpoint for PDF (avoids X-Frame-Options issues)
+    const pdfUrl = `/writer/api/project/${config.projectId}/pdf/?doc_type=${docType}`;
+
+    console.log('[Writer] Loading compiled PDF for section:', sectionId, 'URL:', pdfUrl);
+
+    // Display the PDF directly (bypass quick preview compilation)
+    const textPreview = document.getElementById('text-preview');
+    if (textPreview) {
+        textPreview.innerHTML = `
+            <div class="pdf-preview-container">
+                <div class="pdf-preview-viewer" id="pdf-viewer-pane">
+                    <iframe
+                        src="${pdfUrl}#toolbar=0&navpanes=0&scrollbar=1&view=FitW"
+                        type="application/pdf"
+                        width="100%"
+                        height="100%"
+                        title="Compiled PDF"
+                        frameborder="0">
+                    </iframe>
+                </div>
+            </div>
+        `;
+    }
 }
 
 /**
@@ -971,6 +1023,33 @@ function updateSectionTitleLabel(sectionId: string): void {
         .join(' ');
 
     titleElement.textContent = `${formattedName} Source`;
+}
+
+/**
+ * Update the PDF preview panel title to show current section
+ */
+function updatePDFPreviewTitle(sectionId: string): void {
+    const titleElement = document.getElementById('preview-title');
+    if (!titleElement) return;
+
+    // Extract section name from sectionId
+    const parts = sectionId.split('/');
+    const docType = parts[0];
+    const sectionName = parts[parts.length - 1];
+
+    // Capitalize and format
+    const docTypeLabel = docType.charAt(0).toUpperCase() + docType.slice(1);
+    const formattedName = sectionName
+        .split('_')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+
+    // Special case for compiled_pdf - don't add "PDF" twice
+    if (sectionName === 'compiled_pdf') {
+        titleElement.textContent = `${docTypeLabel} PDF`;
+    } else {
+        titleElement.textContent = `${docTypeLabel} ${formattedName} PDF`;
+    }
 }
 
 /**

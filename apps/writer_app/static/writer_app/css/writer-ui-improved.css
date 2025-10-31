@@ -430,55 +430,32 @@
    ========================================= */
 
 .panel-resizer {
-  width: 6px;
-  background: transparent;
+  width: 6px !important;
+  height: 100% !important;
+  background: var(--color-border-default) !important;
   cursor: col-resize;
   user-select: none;
   position: relative;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
+  flex: 0 0 4px !important;  /* Fixed 4px width */
+  margin: 0;
+  padding: 0;
+  z-index: 1000;
+  pointer-events: all;
+  align-self: stretch;
+  transition: background 0.2s ease;
 }
 
 .panel-resizer::before {
-  content: '';
-  position: absolute;
-  width: 1px;
-  height: 30px;
-  background: var(--color-border-default);
-  transition: all 0.2s ease;
+  display: none; /* Remove decorative elements */
 }
 
 .panel-resizer::after {
-  content: '';
-  position: absolute;
-  width: 0;
-  height: 0;
-  border-left: 4px solid transparent;
-  border-right: 4px solid transparent;
-  border-top: 6px solid var(--color-border-default);
-  opacity: 0;
-  transition: all 0.2s ease;
-  margin-top: 40px;
+  display: none; /* Remove decorative elements */
 }
 
-.panel-resizer:hover::before,
-.panel-resizer.active::before {
-  width: 2px;
-  height: 50px;
-  background: var(--color-accent-emphasis);
-}
-
-.panel-resizer:hover::after,
-.panel-resizer.active::after {
-  opacity: 1;
-  border-top-color: var(--color-accent-emphasis);
-}
-
-.panel-resizer:hover {
-  background: rgba(0, 0, 0, 0.05);
+.panel-resizer:hover,
+.panel-resizer.active {
+  background: var(--color-accent-emphasis) !important;
 }
 
 /* Ensure writer-editor has proper background */
