@@ -86,5 +86,9 @@ export declare class EditorControls {
      * Set auto-preview enabled state
      */
     setAutoPreviewEnabled(enabled: boolean): void;
+    /**
+     * Setup Ctrl+Mouse wheel for font size adjustment
+     */
+    private setupFontSizeDrag;
 }
 //# sourceMappingURL=editor-controls.d.ts.map

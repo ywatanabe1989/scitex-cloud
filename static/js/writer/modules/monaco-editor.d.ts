@@ -106,5 +106,9 @@ export declare class EnhancedEditor {
      * Set editor read-only state
      */
     setReadOnly(readOnly: boolean): void;
+    /**
+     * Set editor keybinding mode
+     */
+    setKeyBinding(mode: string): void;
 }
 //# sourceMappingURL=monaco-editor.d.ts.map

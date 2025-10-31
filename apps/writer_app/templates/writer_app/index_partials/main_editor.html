@@ -70,6 +70,14 @@
                       style="font-size: 0.75rem; padding: 0.25rem 0.5rem;">
                 <i class="fas fa-code-branch me-1"></i>Commit
               </button>
+              <!-- Keyboard Shortcuts Button -->
+              <button id="shortcuts-btn" class="btn btn-sm btn-outline-secondary"
+                      title="View keyboard shortcuts"
+                      data-bs-toggle="modal"
+                      data-bs-target="#shortcuts-modal"
+                      style="font-size: 0.75rem; padding: 0.25rem 0.5rem;">
+                <i class="fas fa-keyboard"></i>
+              </button>
             </div>
             <div class="header-right">
               <!-- Font Size Selector -->
@@ -77,40 +85,34 @@
                 <i class="fas fa-text-height"></i>
                 <span class="visually-hidden">Font Size</span>
               </label>
-              <select id="font-size-selector" class="form-select form-select-sm" style="width: auto; font-size: 0.75rem;" aria-label="Font Size">
+              <select id="font-size-selector" class="form-select form-select-sm" style="min-width: 70px; font-size: 0.75rem;" aria-label="Font Size">
                 <option value="10">10px</option>
+                <option value="11">11px</option>
                 <option value="12">12px</option>
+                <option value="13">13px</option>
                 <option value="14" selected>14px</option>
+                <option value="15">15px</option>
                 <option value="16">16px</option>
+                <option value="17">17px</option>
                 <option value="18">18px</option>
+                <option value="19">19px</option>
                 <option value="20">20px</option>
               </select>
-              <!-- Keybinding Selector -->
-              <label for="keybinding-selector" class="form-label" style="font-size: 0.75rem; margin: 0; display: flex; align-items: center; gap: 0.25rem;">
+              <!-- Keybinding Selector - Hidden (not working with Monaco) -->
+              <label for="keybinding-selector" class="form-label" style="font-size: 0.75rem; margin: 0; display: none; align-items: center; gap: 0.25rem;">
                 <i class="fas fa-keyboard"></i>
                 <span class="visually-hidden">Keybinding</span>
               </label>
-              <select id="keybinding-selector" class="form-select form-select-sm" style="width: auto; font-size: 0.75rem;" aria-label="Keybinding">
+              <select id="keybinding-selector" class="form-select form-select-sm" style="width: auto; font-size: 0.75rem; display: none;" aria-label="Keybinding">
                 <option value="default">Keymap: Default</option>
-                <option value="emacs">Keymap: Emacs</option>
-                <option value="vim">Keymap: Vim</option>
               </select>
-              <!-- Theme Selector -->
-              <label for="theme-selector" class="form-label" style="font-size: 0.75rem; margin: 0; display: flex; align-items: center; gap: 0.25rem;">
+              <!-- Theme Selector - Hidden, using vs-dark -->
+              <label for="theme-selector" class="form-label" style="font-size: 0.75rem; margin: 0; display: none; align-items: center; gap: 0.25rem;">
                 <i class="fas fa-palette"></i>
                 <span class="visually-hidden">Theme</span>
               </label>
-              <select id="theme-selector" class="form-select form-select-sm" style="width: auto; font-size: 0.75rem;" aria-label="Theme">
-                <optgroup label="Dark Themes">
-                  <option value="zenburn">Zenburn</option>
-                  <option value="monokai">Monokai</option>
-                  <option value="dracula">Dracula</option>
-                </optgroup>
-                <optgroup label="Light Themes">
-                  <option value="eclipse">Eclipse</option>
-                  <option value="neat">Neat</option>
-                  <option value="solarized light">Solarized Light</option>
-                </optgroup>
+              <select id="theme-selector" class="form-select form-select-sm" style="width: auto; font-size: 0.75rem; display: none;" aria-label="Theme">
+                <option value="vs-dark" selected>Dark</option>
               </select>
             </div>
           </div>
@@ -314,6 +316,73 @@
         <button type="button" id="confirm-commit-btn" class="btn btn-primary">
           <i class="fas fa-check me-1"></i>Commit
         </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Keyboard Shortcuts Modal -->
+<div class="modal fade" id="shortcuts-modal" tabindex="-1" aria-labelledby="shortcuts-modal-label" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="shortcuts-modal-label">
+          <i class="fas fa-keyboard me-2"></i>Keyboard Shortcuts
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-6">
+            <h6 class="text-primary"><i class="fas fa-save me-2"></i>File Operations</h6>
+            <table class="table table-sm">
+              <tbody>
+                <tr><td><kbd>Ctrl+S</kbd></td><td>Save current section</td></tr>
+                <tr><td><kbd>Ctrl+Shift+X</kbd></td><td>Compile manuscript PDF</td></tr>
+              </tbody>
+            </table>
+
+            <h6 class="text-primary mt-3"><i class="fas fa-edit me-2"></i>Editing</h6>
+            <table class="table table-sm">
+              <tbody>
+                <tr><td><kbd>Ctrl+Z</kbd></td><td>Undo</td></tr>
+                <tr><td><kbd>Ctrl+Y</kbd></td><td>Redo</td></tr>
+                <tr><td><kbd>Ctrl+F</kbd></td><td>Find</td></tr>
+                <tr><td><kbd>Ctrl+H</kbd></td><td>Find and replace</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="col-md-6">
+            <h6 class="text-primary"><i class="fas fa-search me-2"></i>PDF Controls</h6>
+            <table class="table table-sm">
+              <tbody>
+                <tr><td><kbd>Ctrl+Drag</kbd></td><td>Zoom PDF (vertical drag)</td></tr>
+                <tr><td><kbd>Ctrl++</kbd></td><td>Zoom in</td></tr>
+                <tr><td><kbd>Ctrl+-</kbd></td><td>Zoom out</td></tr>
+                <tr><td><kbd>Ctrl+0</kbd></td><td>Reset zoom</td></tr>
+              </tbody>
+            </table>
+
+            <h6 class="text-primary mt-3"><i class="fas fa-text-height me-2"></i>Editor Font Size</h6>
+            <table class="table table-sm">
+              <tbody>
+                <tr><td><kbd>Ctrl+Wheel</kbd></td><td>Adjust font size (over editor)</td></tr>
+                <tr><td><kbd>Ctrl++</kbd></td><td>Increase font size</td></tr>
+                <tr><td><kbd>Ctrl+-</kbd></td><td>Decrease font size</td></tr>
+                <tr><td><kbd>Ctrl+0</kbd></td><td>Reset to default (14px)</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="alert alert-info mt-3" role="alert">
+          <i class="fas fa-info-circle me-2"></i>
+          <strong>Tip:</strong> Use <kbd>Ctrl+Wheel</kbd> over the editor to quickly adjust font size.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
       </div>
     </div>
   </div>

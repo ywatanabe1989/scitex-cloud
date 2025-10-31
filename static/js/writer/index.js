@@ -430,6 +430,7 @@ async function initializeEditor(config) {
     }
     setupCompilationListeners(compilationManager, config);
     setupThemeListener(editor);
+    setupKeybindingListener(editor);
     setupSidebarButtons(config);
     // Setup scroll priority: PDF scrolling takes priority over page scrolling
     setupPDFScrollPriority();
@@ -715,6 +716,31 @@ function setupThemeListener(editor) {
     });
 }
 /**
+ * Setup keybinding listener
+ */
+function setupKeybindingListener(editor) {
+    const keybindingSelector = document.getElementById('keybinding-selector');
+    if (!keybindingSelector)
+        return;
+    // Load saved keybinding
+    const savedKeybinding = writerStorage.load('editor_keybinding');
+    if (savedKeybinding && typeof savedKeybinding === 'string') {
+        keybindingSelector.value = savedKeybinding;
+        if (editor && editor.setKeyBinding) {
+            editor.setKeyBinding(savedKeybinding);
+        }
+    }
+    // Listen for keybinding changes
+    keybindingSelector.addEventListener('change', () => {
+        const keybinding = keybindingSelector.value;
+        writerStorage.save('editor_keybinding', keybinding);
+        console.log('[Writer] Keybinding changed to:', keybinding);
+        if (editor && editor.setKeyBinding) {
+            editor.setKeyBinding(keybinding);
+        }
+    });
+}
+/**
  * Load section content from API
  */
 async function loadSectionContent(editor, sectionsManager, state, sectionId) {
@@ -847,8 +873,8 @@ function updateCommitButtonVisibility(sectionId) {
 /**
  * Update word count display
  */
-function updateWordCountDisplay(section, count) {
-    const display = document.querySelector(`[data-word-count="${section}"]`);
+function updateWordCountDisplay(_section, count) {
+    const display = document.getElementById('current-word-count');
     if (display) {
         display.textContent = String(count);
     }
