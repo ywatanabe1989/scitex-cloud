@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-10-31 19:51:27 (ywatanabe)"
-# File: /home/ywatanabe/proj/scitex-cloud/apps/writer_app/urls.py
+# Timestamp: "2025-10-31 19:54:13 (ywatanabe)"
+# File: /home/ywatanabe/proj/scitex-cloud/apps/writer_app/urls_.py
 # ----------------------------------------
 from __future__ import annotations
 import os
 __FILE__ = (
-    "./apps/writer_app/urls.py"
+    "./apps/writer_app/urls_.py"
 )
 __DIR__ = os.path.dirname(__FILE__)
 # ----------------------------------------
+
 """
 Simplified Writer URLs - REST API focused.
 
@@ -23,7 +24,7 @@ from django.urls import path
 from . import views
 from .views import api_views
 
-app_name = "writer"
+app_name = "writer_app"
 
 urlpatterns = [
     # ===== ESSENTIAL VIEWS =====
@@ -45,7 +46,7 @@ urlpatterns = [
         api_views.section_view,
         name="api-section",
     ),
-    # Git operations (history, diff, checkout)
+    # Git operations (history, diff, checkout, commit)
     path(
         "api/project/<int:project_id>/section/<str:section_name>/history/",
         api_views.section_history_view,
@@ -61,21 +62,16 @@ urlpatterns = [
         api_views.section_checkout_view,
         name="api-section-checkout",
     ),
+    path(
+        "api/project/<int:project_id>/section/<str:section_name>/commit/",
+        api_views.section_commit_view,
+        name="api-section-commit",
+    ),
     # Compilation & PDF
-    path(
-        "api/project/<int:project_id>/compile_preview/",
-        api_views.compile_preview_view,
-        name="api-compile-preview",
-    ),
-    path(
-        "api/project/<int:project_id>/compile_full/",
-        api_views.compile_full_view,
-        name="api-compile-full",
-    ),
     path(
         "api/project/<int:project_id>/compile/",
         api_views.compile_view,
-        name="api-compile",  # DEPRECATED: backward compatibility
+        name="api-compile",
     ),
     path(
         "api/project/<int:project_id>/pdf/", api_views.pdf_view, name="api-pdf"
@@ -212,11 +208,8 @@ urlpatterns = [
         views.unlock_section,
         name="unlock-section",
     ),
-    path(
-        "collaborative/<int:manuscript_id>/",
-        views.collaborative_editor,
-        name="collaborative-editor",
-    ),
+    # path('collaborative/<int:manuscript_id>/',
+    #      views.collaborative_editor, name='collaborative-editor'),
     # Version control (stubs, not yet implemented)
     path(
         "api/version/<int:manuscript_id>/history/",

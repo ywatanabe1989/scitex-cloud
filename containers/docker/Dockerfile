@@ -28,7 +28,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     # Networking
     netcat-openbsd \
     openssh-client \
-    # YAML parsing (required by scitex.writer for configuration)
+    # YAML/JSON parsing (required by scitex.writer for configuration)
     jq \
     # LaTeX and PDF generation (required by scitex.writer)
     texlive-latex-base \
@@ -67,6 +67,14 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | sh && \
     mv /root/.local/bin/uvx /usr/local/bin/uvx && \
     chmod 755 /usr/local/bin/uv /usr/local/bin/uvx && \
     uv --version
+
+# Install yq v4 (Go-based) for YAML processing
+# Required by scitex.writer shell scripts for config parsing
+RUN YQ_VERSION=v4.44.3 && \
+    YQ_BINARY=yq_linux_amd64 && \
+    wget https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/${YQ_BINARY} -O /usr/local/bin/yq && \
+    chmod +x /usr/local/bin/yq && \
+    yq --version
 
 # Copy Python dependencies and install with uv (much faster than pip)
 # Use cache mount for uv to speed up rebuilds

@@ -91,96 +91,73 @@ def section_view(request, project_id, section_name):
 
 
 @require_http_methods(["POST"])
-def compile_view(request, project_id):
-    """Compile a manuscript document or quick preview.
+def compile_preview_view(request, project_id):
+    """Compile preview of LaTeX content (for live editing).
 
-    Supports both authenticated and anonymous users:
-    - Authenticated: Compiles from user's project workspace
-    - Anonymous: Compiles provided content directly (demo mode)
+    Creates a quick preview PDF from provided content without using workspace.
+    Supports both authenticated and anonymous users.
 
     POST body:
         {
-            "doc_type": "manuscript", "supplementary", or "revision" (default: manuscript)
-            "timeout": compilation timeout in seconds (default: 300)
-            "content": LaTeX content to compile for quick preview. If provided, uses this content instead of workspace.
-            "format": output format (ignored, always PDF)
+            "content": LaTeX content to compile (required)
+            "timeout": compilation timeout in seconds (default: 60)
+            "color_mode": PDF color mode - 'light' or 'dark' (default: 'light')
         }
     """
     try:
         data = json.loads(request.body)
-        quick_preview_content = data.get("content")
+        content = data.get("content")
 
-        # Anonymous users can only do quick preview (no workspace compilation)
+        if not content:
+            return JsonResponse({
+                'success': False,
+                'error': 'Content is required for preview compilation'
+            }, status=400)
+
+        timeout = data.get("timeout", 60)  # Shorter timeout for preview
+        color_mode = data.get("color_mode", "light")
+        section_name = data.get("section_name", "preview")  # For output filename
+
+        # Anonymous users: use quick compile
         if not request.user.is_authenticated:
-            if not quick_preview_content:
-                return JsonResponse({
-                    'success': False,
-                    'error': 'Anonymous users can only compile preview content. Please provide content parameter.'
-                }, status=400)
-
-            # Direct compilation for anonymous users - no WriterService needed
-            logger.info(f"[Compile] Anonymous quick preview: {len(quick_preview_content)} chars")
+            logger.info(f"[CompilePreview] Anonymous user: {len(content)} chars")
             from ..services.compiler import quick_compile_content
-            result = quick_compile_content(quick_preview_content, timeout=data.get("timeout", 300))
+            result = quick_compile_content(content, timeout=timeout)
         else:
-            # Authenticated users
+            # Authenticated users: use WriterService for proper workspace handling
             project = Project.objects.get(id=project_id, owner=request.user)
-            user_id = request.user.id
-            logger.info(f"[Compile] Authenticated user compilation: project={project_id}, user={user_id}")
+            logger.info(f"[CompilePreview] Authenticated user: project={project_id}, section={section_name}, content={len(content)} chars")
 
-            service = WriterService(project_id, user_id)
-            doc_type = data.get("doc_type", "manuscript")
-            timeout = data.get("timeout", 300)
-            color_mode = data.get("color_mode", "light")
+            service = WriterService(project_id, request.user.id)
+            result = service.compile_preview(content, timeout=timeout, color_mode=color_mode, section_name=section_name)
 
-            logger.info(f"[Compile] Starting compilation: project={project_id}, doc_type={doc_type}, timeout={timeout}, is_preview={bool(quick_preview_content)}, color_mode={color_mode}")
-
-            # Quick preview mode: compile only the provided content (for live preview)
-            if quick_preview_content:
-                logger.info(f"[Compile] Quick preview mode: compiling provided content ({len(quick_preview_content)} chars)")
-                result = service.compile_preview(quick_preview_content, timeout=timeout, color_mode=color_mode)
-            # Full compilation mode: compile the entire document from workspace
-            elif doc_type == "supplementary":
-                logger.info(f"[Compile] Compiling supplementary for project {project_id}")
-                result = service.compile_supplementary(timeout=timeout)
-            elif doc_type == "revision":
-                logger.info(f"[Compile] Compiling revision for project {project_id}")
-                result = service.compile_revision(timeout=timeout)
-            else:  # manuscript
-                logger.info(f"[Compile] Compiling manuscript for project {project_id}")
-                result = service.compile_manuscript(timeout=timeout)
-
-        logger.info(f"[Compile] Compilation result: success={result.get('success')}, output_pdf={result.get('output_pdf')}")
+        logger.info(f"[CompilePreview] Result: success={result.get('success')}")
         if not result.get('success'):
-            logger.warning(f"[Compile] Compilation failed: {result.get('error')}")
-            logger.warning(f"[Compile] Compilation log: {result.get('log', '')}")
+            logger.warning(f"[CompilePreview] Failed: {result.get('error')}")
 
         # Convert file path to URL for preview PDFs
         pdf_url = None
         if result.get("success") and result.get("output_pdf"):
-            # For preview PDFs, return the API URL instead of file path
             if "preview_output" in result.get("output_pdf", ""):
-                pdf_url = f"/writer/api/project/{project_id}/preview-pdf/"
+                # Return section-specific preview URL
+                pdf_url = f"/writer/api/project/{project_id}/preview-pdf/?section={section_name}"
             else:
-                # For other PDFs, return the file path (may be served differently)
                 pdf_url = result.get("output_pdf")
 
         return JsonResponse({
             "success": result["success"],
-            "doc_type": doc_type,
-            "output_pdf": pdf_url,  # Return URL instead of file path
+            "output_pdf": pdf_url,
             "pdf_path": pdf_url,
             "log": result.get("log", ""),
             "error": result.get("error"),
         })
 
     except Project.DoesNotExist:
-        # Only raise error for authenticated users (project should exist)
-        logger.error(f"Project {project_id} not found for authenticated user")
+        logger.error(f"Project {project_id} not found")
         return JsonResponse({"success": False, "error": "Project not found"}, status=404)
     except Exception as e:
         error_trace = traceback.format_exc()
-        logger.error(f"Compilation view error: {type(e).__name__}: {e}")
+        logger.error(f"Preview compilation error: {type(e).__name__}: {e}")
         logger.error(f"Traceback:\n{error_trace}")
         return JsonResponse({
             "success": False,
@@ -188,6 +165,91 @@ def compile_view(request, project_id):
             "log": str(e),
             "traceback": error_trace
         }, status=500)
+
+
+@require_http_methods(["POST"])
+def compile_full_view(request, project_id):
+    """Compile full manuscript from workspace (NOT preview).
+
+    Uses scitex.writer.Writer to compile the complete manuscript from all sections.
+    Only available for authenticated users with a project workspace.
+
+    POST body:
+        {
+            "doc_type": "manuscript", "supplementary", or "revision" (default: manuscript)
+            "timeout": compilation timeout in seconds (default: 300)
+        }
+    """
+    try:
+        # Only authenticated users can compile from workspace
+        if not request.user.is_authenticated:
+            return JsonResponse({
+                'success': False,
+                'error': 'Full compilation requires authentication. Use /compile_preview/ for anonymous compilation.'
+            }, status=403)
+
+        data = json.loads(request.body)
+        project = Project.objects.get(id=project_id, owner=request.user)
+
+        service = WriterService(project_id, request.user.id)
+        doc_type = data.get("doc_type", "manuscript")
+        timeout = data.get("timeout", 300)
+
+        logger.info(f"[CompileFull] Starting: project={project_id}, doc_type={doc_type}, timeout={timeout}")
+
+        # Compile based on document type
+        if doc_type == "supplementary":
+            logger.info(f"[CompileFull] Compiling supplementary")
+            result = service.compile_supplementary(timeout=timeout)
+        elif doc_type == "revision":
+            logger.info(f"[CompileFull] Compiling revision")
+            result = service.compile_revision(timeout=timeout)
+        else:  # manuscript
+            logger.info(f"[CompileFull] Compiling manuscript")
+            result = service.compile_manuscript(timeout=timeout)
+
+        logger.info(f"[CompileFull] Result: success={result.get('success')}, output_pdf={result.get('output_pdf')}")
+        if not result.get('success'):
+            logger.warning(f"[CompileFull] Failed: {result.get('error')}")
+            logger.warning(f"[CompileFull] Log: {result.get('log', '')[:500]}")  # First 500 chars
+
+        return JsonResponse({
+            "success": result["success"],
+            "doc_type": doc_type,
+            "output_pdf": result.get("output_pdf"),
+            "pdf_path": result.get("output_pdf"),
+            "log": result.get("log", ""),
+            "error": result.get("error"),
+        })
+
+    except Project.DoesNotExist:
+        logger.error(f"Project {project_id} not found")
+        return JsonResponse({"success": False, "error": "Project not found"}, status=404)
+    except Exception as e:
+        error_trace = traceback.format_exc()
+        logger.error(f"Full compilation error: {type(e).__name__}: {e}")
+        logger.error(f"Traceback:\n{error_trace}")
+        return JsonResponse({
+            "success": False,
+            "error": str(e),
+            "log": str(e),
+            "traceback": error_trace
+        }, status=500)
+
+
+@require_http_methods(["POST"])
+def compile_view(request, project_id):
+    """DEPRECATED: Use compile_preview_view or compile_full_view instead.
+
+    This view is kept for backward compatibility but will be removed.
+    """
+    logger.warning("[Compile] Using deprecated compile_view. Use compile_preview_view or compile_full_view instead.")
+
+    data = json.loads(request.body)
+    if data.get("content"):
+        return compile_preview_view(request, project_id)
+    else:
+        return compile_full_view(request, project_id)
 
 
 @login_required
@@ -373,8 +435,9 @@ def section_commit_view(request, project_id, section_name):
 
 @login_required
 @require_http_methods(["GET"])
+@xframe_options_exempt
 def pdf_view(request, project_id):
-    """Get path to compiled PDF.
+    """Serve compiled PDF file.
 
     Query params:
         doc_type: 'manuscript', 'supplementary', or 'revision' (default: manuscript)
@@ -386,11 +449,21 @@ def pdf_view(request, project_id):
         doc_type = request.GET.get("doc_type", "manuscript")
         pdf_path = service.get_pdf(doc_type)
 
-        return JsonResponse({
-            "success": pdf_path is not None,
-            "doc_type": doc_type,
-            "pdf_path": pdf_path,
-        })
+        if pdf_path and Path(pdf_path).exists():
+            logger.info(f"[PDFView] Serving PDF: {pdf_path}")
+            return FileResponse(
+                open(pdf_path, 'rb'),
+                content_type='application/pdf',
+                as_attachment=False,
+                filename=f"{doc_type}.pdf"
+            )
+        else:
+            logger.warning(f"[PDFView] PDF not found: {pdf_path}")
+            return JsonResponse({
+                "success": False,
+                "error": f"PDF not found. Please compile {doc_type} first.",
+                "doc_type": doc_type,
+            }, status=404)
 
     except Project.DoesNotExist:
         return JsonResponse({"success": False, "error": "Project not found"}, status=404)
@@ -639,14 +712,14 @@ def read_tex_file_view(request, project_id):
 
 @xframe_options_exempt
 @require_http_methods(["GET"])
+@xframe_options_exempt
 def preview_pdf_view(request, project_id):
-    """Serve the preview PDF file.
+    """Serve section-specific preview PDF file.
 
     Query params:
-        None - always serves preview_temp.pdf from preview_output directory
+        section: Section name (e.g., 'abstract', 'introduction') - defaults to 'preview'
 
     Note: No login required - users can view previews anonymously.
-    Login is optional and only required if users want to save to their account.
     """
     try:
         # For anonymous users (projectId=0), use demo project path
@@ -660,19 +733,30 @@ def preview_pdf_view(request, project_id):
 
         service = WriterService(project_id, user_id)
 
-        # Get the preview PDF path
-        pdf_path = service.project_path / "preview_output" / "preview_temp.pdf"
+        # Get section name from query params
+        section_name = request.GET.get('section', 'preview')
+        safe_section_name = section_name.replace('/', '-').replace(' ', '-').lower()
+
+        # Get the section-specific preview PDF path
+        pdf_path = service.project_path / "preview_output" / f"preview-{safe_section_name}.pdf"
+
+        logger.info(f"[PreviewPDF] Looking for: {pdf_path}")
 
         if not pdf_path.exists():
-            return JsonResponse({"success": False, "error": "Preview PDF not found"}, status=404)
+            logger.warning(f"[PreviewPDF] Not found: {pdf_path}")
+            return JsonResponse({
+                "success": False,
+                "error": f"Preview PDF not found: {pdf_path.name}. Please edit the section and wait 2 seconds for auto-compile.",
+                "attempted_path": str(pdf_path)
+            }, status=404)
 
         if not pdf_path.is_file():
             return JsonResponse({"success": False, "error": "Invalid PDF path"}, status=400)
 
-        # Serve the file with proper content type
-        logger.info(f"Serving preview PDF: {pdf_path}")
+        # Serve the file
+        logger.info(f"[PreviewPDF] Serving: {pdf_path}")
         response = FileResponse(open(pdf_path, 'rb'), content_type='application/pdf')
-        response['Content-Disposition'] = 'inline; filename="preview.pdf"'
+        response['Content-Disposition'] = f'inline; filename="preview-{safe_section_name}.pdf"'
         return response
 
     except Project.DoesNotExist:
