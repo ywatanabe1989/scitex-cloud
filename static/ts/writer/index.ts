@@ -486,6 +486,7 @@ async function initializeEditor(config: any): Promise<void> {
     }
     setupCompilationListeners(compilationManager, config);
     setupThemeListener(editor);
+    setupKeybindingListener(editor);
     setupSidebarButtons(config);
 
     // Setup scroll priority: PDF scrolling takes priority over page scrolling
@@ -824,6 +825,34 @@ function setupThemeListener(editor: any): void {
 }
 
 /**
+ * Setup keybinding listener
+ */
+function setupKeybindingListener(editor: any): void {
+    const keybindingSelector = document.getElementById('keybinding-selector') as HTMLSelectElement;
+    if (!keybindingSelector) return;
+
+    // Load saved keybinding
+    const savedKeybinding = writerStorage.load('editor_keybinding') as string | null;
+    if (savedKeybinding && typeof savedKeybinding === 'string') {
+        keybindingSelector.value = savedKeybinding;
+        if (editor && editor.setKeyBinding) {
+            editor.setKeyBinding(savedKeybinding);
+        }
+    }
+
+    // Listen for keybinding changes
+    keybindingSelector.addEventListener('change', () => {
+        const keybinding = keybindingSelector.value;
+        writerStorage.save('editor_keybinding', keybinding);
+
+        console.log('[Writer] Keybinding changed to:', keybinding);
+        if (editor && editor.setKeyBinding) {
+            editor.setKeyBinding(keybinding);
+        }
+    });
+}
+
+/**
  * Load section content from API
  */
 async function loadSectionContent(
@@ -986,8 +1015,8 @@ function updateCommitButtonVisibility(sectionId: string): void {
 /**
  * Update word count display
  */
-function updateWordCountDisplay(section: string, count: number): void {
-    const display = document.querySelector(`[data-word-count="${section}"]`);
+function updateWordCountDisplay(_section: string, count: number): void {
+    const display = document.getElementById('current-word-count');
     if (display) {
         display.textContent = String(count);
     }

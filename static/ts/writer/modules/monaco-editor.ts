@@ -527,4 +527,23 @@ export class EnhancedEditor {
             }
         }
     }
+
+    /**
+     * Set editor keybinding mode
+     */
+    setKeyBinding(mode: string): void {
+        if (this.editorType === 'monaco' && this.monacoEditor) {
+            console.log('[Editor] Monaco keybinding change requested:', mode);
+            // Monaco doesn't directly support Vim/Emacs keybindings without extensions
+            // For now, just log - would need monaco-vim or monaco-emacs packages
+            console.warn('[Editor] Monaco Vim/Emacs keybindings require additional packages');
+        } else {
+            // CodeMirror keymap
+            console.log('[Editor] Setting CodeMirror keymap to:', mode);
+            const cmEditor = (document.querySelector('.CodeMirror') as any)?.CodeMirror;
+            if (cmEditor) {
+                cmEditor.setOption('keyMap', mode);
+            }
+        }
+    }
 }
