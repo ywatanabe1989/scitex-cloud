@@ -111,9 +111,14 @@ class WriterService:
             Section content as string
         """
         try:
-            # Special handling for compiled PDF (merged/compiled TeX file)
-            if section_name == "compiled_pdf":
-                return self._read_compiled_tex(doc_type)
+            logger.info(f"[ReadSection] section_name={section_name}, doc_type={doc_type}")
+
+            # Special handling for compiled sections
+            if section_name == "compiled_pdf" or section_name == "compiled_tex":
+                logger.info(f"[ReadSection] Reading compiled tex for {doc_type}")
+                content = self._read_compiled_tex(doc_type)
+                logger.info(f"[ReadSection] Compiled tex length: {len(content)}, first 100 chars: {content[:100]}")
+                return content
 
             if doc_type == "manuscript":
                 doc = self.writer.manuscript
@@ -157,8 +162,8 @@ class WriterService:
         if doc_type not in dir_map:
             raise ValueError(f"Unknown document type: {doc_type}")
 
-        # Path to compiled.tex
-        compiled_tex_path = self.project_path / dir_map[doc_type] / "compiled.tex"
+        # Path to compiled tex file (e.g., manuscript.tex, supplementary.tex, revision.tex)
+        compiled_tex_path = self.project_path / dir_map[doc_type] / f"{doc_type}.tex"
 
         # Check if file exists
         if not compiled_tex_path.exists():
@@ -328,7 +333,7 @@ class WriterService:
 
         return latex_content
 
-    def compile_preview(self, latex_content: str, timeout: int = 60, color_mode: str = 'light') -> dict:
+    def compile_preview(self, latex_content: str, timeout: int = 60, color_mode: str = 'light', section_name: str = 'preview') -> dict:
         """Compile a quick preview of provided LaTeX content (not from workspace).
 
         This is used for live preview of the current section being edited.
@@ -337,6 +342,7 @@ class WriterService:
             latex_content: Complete LaTeX document content to compile
             timeout: Compilation timeout in seconds (default: 60 for quick preview)
             color_mode: PDF color mode - 'light', 'dark', 'sepia', or 'paper'
+            section_name: Section name for output filename (e.g., 'introduction' -> 'preview-introduction.pdf')
 
         Returns:
             Compilation result dict with keys:
@@ -349,9 +355,12 @@ class WriterService:
             # Apply color mode to LaTeX content
             latex_content = self._apply_color_mode_to_latex(latex_content, color_mode)
 
-            # Write content to a temporary file in the workspace
-            temp_file = self.project_path / "preview_temp.tex"
-            logger.info(f"WriterService: Creating temporary preview file at {temp_file} with color_mode={color_mode}")
+            # Sanitize section name for filename (use dash consistently)
+            safe_section_name = section_name.replace('/', '-').replace(' ', '-').replace('_', '-').lower()
+
+            # Write content to a section-specific temporary file
+            temp_file = self.project_path / f"preview-{safe_section_name}-temp.tex"
+            logger.info(f"[CompilePreview] Creating preview file: {temp_file.name} for section: {section_name}")
             temp_file.write_text(latex_content, encoding='utf-8')
 
             # Use pdflatex directly to compile the temporary file
@@ -362,7 +371,7 @@ class WriterService:
             output_dir = self.project_path / "preview_output"
             output_dir.mkdir(exist_ok=True)
 
-            logger.info(f"WriterService: Compiling preview content ({len(latex_content)} chars) with timeout={timeout}s")
+            logger.info(f"[CompilePreview] Compiling preview ({len(latex_content)} chars) timeout={timeout}s")
 
             # Run pdflatex
             result = subprocess.run(
@@ -378,10 +387,18 @@ class WriterService:
             )
 
             log_content = result.stdout + result.stderr
-            output_pdf = output_dir / "preview_temp.pdf"
+            # Section-specific preview PDF name (use dash consistently)
+            output_pdf = output_dir / f"preview-{safe_section_name}.pdf"
+            temp_pdf = output_dir / f"preview-{safe_section_name}-temp.pdf"
+
+            # pdflatex creates preview-{section}-temp.pdf, rename to preview-{section}.pdf
+            logger.info(f"[CompilePreview] Looking for temp PDF: {temp_pdf.name}")
+            if temp_pdf.exists():
+                logger.info(f"[CompilePreview] Moving {temp_pdf.name} -> {output_pdf.name}")
+                shutil.move(str(temp_pdf), str(output_pdf))
 
             if result.returncode == 0 and output_pdf.exists():
-                logger.info(f"WriterService: Preview compilation succeeded")
+                logger.info(f"WriterService: Preview compilation succeeded for {section_name}: {output_pdf}")
                 return {
                     "success": True,
                     "output_pdf": str(output_pdf),

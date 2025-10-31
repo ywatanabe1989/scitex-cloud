@@ -24,12 +24,13 @@ export function getWriterConfig() {
 /**
  * Create default editor state
  */
-export function createDefaultEditorState() {
+export function createDefaultEditorState(config) {
     return {
         content: '',
         currentSection: 'manuscript/compiled_pdf',
         unsavedSections: new Set(),
         currentDocType: 'manuscript',
+        projectId: config?.projectId ? Number(config.projectId) : null,
     };
 }
 /**

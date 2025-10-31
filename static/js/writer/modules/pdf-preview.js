@@ -53,7 +53,7 @@ export class PDFPreviewManager {
         }, this.compileDelay);
     }
     /**
-     * Compile document
+     * Compile document preview (for auto-preview during editing)
      */
     async compile(sections) {
         if (!this.container)
@@ -65,7 +65,8 @@ export class PDFPreviewManager {
             content: latexContent,
             format: 'pdf'
         };
-        await this.compilationManager.compile(options);
+        // Use preview compilation for live editing
+        await this.compilationManager.compilePreview(options);
     }
     /**
      * Set the document type for compilation
@@ -77,19 +78,23 @@ export class PDFPreviewManager {
     /**
      * Compile minimal document for quick preview
      */
-    async compileQuick(content) {
+    async compileQuick(content, sectionId) {
         if (!this.container)
             return;
         const latexContent = this.latexWrapper.createMinimalDocument(content, this.fontSize);
+        // Extract section name from sectionId (e.g., "manuscript/abstract" -> "abstract")
+        const sectionName = sectionId ? sectionId.split('/').pop() : 'preview';
         const options = {
             projectId: this.projectId,
             docType: this.docType,
             content: latexContent,
             format: 'pdf',
-            colorMode: this.colorMode
+            colorMode: this.colorMode,
+            sectionName: sectionName // For section-specific preview files
         };
-        console.log('[PDFPreview] Quick compile with docType:', this.docType, 'fontSize:', this.fontSize, 'colorMode:', this.colorMode);
-        await this.compilationManager.compile(options);
+        console.log('[PDFPreview] Quick compile for section:', sectionName, 'docType:', this.docType, 'fontSize:', this.fontSize, 'colorMode:', this.colorMode);
+        // Use preview compilation for live editing
+        await this.compilationManager.compilePreview(options);
     }
     /**
      * Set PDF color mode
@@ -132,11 +137,12 @@ export class PDFPreviewManager {
                     downloadBtn.style.display = 'inline-block';
                 }
                 // Update panel title to show which document type is displayed
-                const previewTitle = document.getElementById('preview-title');
-                if (previewTitle) {
-                    const docTypeLabel = this.docType.charAt(0).toUpperCase() + this.docType.slice(1);
-                    previewTitle.textContent = `${docTypeLabel} PDF`;
-                }
+                // Note: Don't update here - let updatePDFPreviewTitle() handle it with links
+                // const previewTitle = document.getElementById('preview-title');
+                // if (previewTitle) {
+                //     const docTypeLabel = this.docType.charAt(0).toUpperCase() + this.docType.slice(1);
+                //     previewTitle.textContent = `${docTypeLabel} PDF`;  // This would remove the link!
+                // }
             });
             console.log('[PDFPreview] PDF displayed:', pdfUrl);
         });

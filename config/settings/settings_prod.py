@@ -56,7 +56,7 @@ SECURE_SSL_REDIRECT = (
     os.environ.get("ENABLE_SSL_REDIRECT", "false").lower() == "true"
 )
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-X_FRAME_OPTIONS = "DENY"
+X_FRAME_OPTIONS = "SAMEORIGIN"  # Allow same-site iframes (needed for PDF viewer)
 SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 
 # ---------------------------------------

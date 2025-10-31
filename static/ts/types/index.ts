@@ -96,6 +96,7 @@ export interface EditorState {
     liveCompilationEnabled?: boolean;
     currentlyCompiling?: boolean;
     unsavedSections?: Set<string>;
+    projectId?: number | null;
 }
 
 export interface EditorOptions {

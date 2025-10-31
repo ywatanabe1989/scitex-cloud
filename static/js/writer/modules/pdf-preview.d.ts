@@ -37,7 +37,7 @@ export declare class PDFPreviewManager {
         content: string;
     }[]): void;
     /**
-     * Compile document
+     * Compile document preview (for auto-preview during editing)
      */
     compile(sections: {
         name: string;
@@ -50,7 +50,7 @@ export declare class PDFPreviewManager {
     /**
      * Compile minimal document for quick preview
      */
-    compileQuick(content: string): Promise<void>;
+    compileQuick(content: string, sectionId?: string): Promise<void>;
     /**
      * Set PDF color mode
      */

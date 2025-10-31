@@ -296,6 +296,33 @@ LOGGING = {
         "null": {
             "class": "logging.NullHandler",
         },
+        # SciTeX Console logger (error cascading)
+        "console_file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": str(BASE_DIR / "logs" / "console.log"),
+            "maxBytes": 10485760,  # 10MB
+            "backupCount": 5,
+            "formatter": "standard",
+            "level": "INFO",
+        },
+        # SciTeX Errors logger
+        "error_file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": str(BASE_DIR / "logs" / "errors.log"),
+            "maxBytes": 10485760,  # 10MB
+            "backupCount": 5,
+            "formatter": "standard",
+            "level": "ERROR",
+        },
+        # Git operations logger
+        "git_file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": str(BASE_DIR / "logs" / "git.log"),
+            "maxBytes": 5242880,  # 5MB
+            "backupCount": 3,
+            "formatter": "standard",
+            "level": "INFO",
+        },
     },
     "loggers": {
         "django": {
@@ -327,6 +354,22 @@ LOGGING = {
             "handlers": ["console"],
             "level": "INFO",
             "propagate": True,
+        },
+        # SciTeX error cascading loggers
+        "scitex.console": {
+            "handlers": ["console_file", "console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "scitex.errors": {
+            "handlers": ["error_file", "console"],
+            "level": "ERROR",
+            "propagate": False,
+        },
+        "scitex.git": {
+            "handlers": ["git_file", "console_file"],
+            "level": "INFO",
+            "propagate": False,
         },
     },
 }

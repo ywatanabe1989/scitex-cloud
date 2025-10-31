@@ -305,7 +305,7 @@ async function initializeEditor(config) {
     // Initialize compilation manager
     const compilationManager = new CompilationManager('');
     // Setup state management
-    const state = createDefaultEditorState();
+    const state = createDefaultEditorState(config);
     // Initialize PDF preview manager
     const pdfPreviewManager = new PDFPreviewManager({
         containerId: 'text-preview',
@@ -356,7 +356,7 @@ async function initializeEditor(config) {
         // Check if this is a known section ID pattern or a file path
         // Section IDs follow: {docType}/{sectionName}
         // File paths have .tex extension or are in shared/* directories
-        const sectionPattern = /^(manuscript|supplementary|revision)\/(abstract|introduction|methods|results|discussion|content|figures|tables|response|changes|compiled_pdf)$/;
+        const sectionPattern = /^(manuscript|supplementary|revision)\/(abstract|introduction|methods|results|discussion|content|figures|tables|response|changes|compiled_pdf|compiled_tex)$/;
         const isKnownSection = sectionPattern.test(sectionId);
         if (isKnownSection) {
             // It's a section ID - switch section
@@ -494,6 +494,13 @@ function setupEditorListeners(editor, sectionsManager, compilationManager, state
     // Track changes
     editor.onChange((content, wordCount) => {
         const currentSection = state.currentSection;
+        // Skip tracking changes for compiled sections (read-only)
+        const isCompiledSection = currentSection && (currentSection.endsWith('/compiled_pdf') ||
+            currentSection.endsWith('/compiled_tex'));
+        if (isCompiledSection) {
+            console.log('[Writer] Skipping change tracking for compiled section:', currentSection);
+            return;
+        }
         sectionsManager.setContent(currentSection, content);
         state.unsavedSections.add(currentSection);
         // Update word count display
@@ -501,10 +508,8 @@ function setupEditorListeners(editor, sectionsManager, compilationManager, state
         // Schedule auto-save
         scheduleSave(editor, sectionsManager, state);
         // Schedule auto-compile for live PDF preview
-        // Skip auto-compile for compiled_pdf section (it should show the actual compiled PDF)
-        const isCompiledPdf = state.currentSection && state.currentSection.endsWith('/compiled_pdf');
-        if (pdfPreviewManager && !isCompiledPdf) {
-            scheduleAutoCompile(pdfPreviewManager, content);
+        if (pdfPreviewManager) {
+            scheduleAutoCompile(pdfPreviewManager, content, currentSection);
         }
     });
     // Keyboard shortcuts
@@ -535,11 +540,11 @@ function setupEditorListeners(editor, sectionsManager, compilationManager, state
             editor.redo();
         });
     }
-    // Setup compile button
+    // Setup compile button (full manuscript compilation)
     const compileBtn = document.getElementById('compile-btn-toolbar');
     if (compileBtn) {
         compileBtn.addEventListener('click', () => {
-            handleCompile(editor, sectionsManager, compilationManager, state, pdfPreviewManager);
+            handleCompileFull(compilationManager, state);
         });
     }
     // Setup git commit button
@@ -571,21 +576,7 @@ function setupSectionListeners(sectionsManager, editor, state, _storage) {
             }
         });
     });
-    // Listen for section changes
-    sectionsManager.onSectionChange((sectionId) => {
-        console.log('[Writer] Section change callback triggered for:', sectionId);
-        const content = sectionsManager.getContent(sectionId);
-        console.log('[Writer] Section content length:', content?.length || 0);
-        if (editor && content) {
-            editor.setContent(content);
-            console.log('[Writer] Editor content updated for section:', sectionId);
-        }
-        else {
-            console.warn('[Writer] Failed to update editor - missing editor or content');
-        }
-        state.currentSection = sectionId;
-        updateSectionUI(sectionId);
-    });
+    // NO CALLBACKS - direct error handling only
 }
 /**
  * Setup compilation listeners
@@ -750,7 +741,7 @@ function setupKeybindingListener(editor) {
 /**
  * Load section content from API
  */
-async function loadSectionContent(editor, sectionsManager, state, sectionId) {
+async function loadSectionContent(editor, sectionsManager, _state, sectionId) {
     const config = getWriterConfig();
     if (!config.projectId) {
         console.warn('[Writer] Cannot load section content: no project ID');
@@ -773,45 +764,67 @@ async function loadSectionContent(editor, sectionsManager, state, sectionId) {
             return;
         }
         const data = await response.json();
+        console.log('[Writer] API Response for', sectionId, ':', data);
         if (data.success && data.content !== undefined) {
-            console.log('[Writer] Section content loaded, length:', data.content.length);
+            console.log('[Writer] ✓ Content loaded for:', sectionId, 'length:', data.content.length);
+            console.log('[Writer] First 100 chars:', data.content.substring(0, 100));
             sectionsManager.setContent(sectionId, data.content);
-            if (editor && state.currentSection === sectionId) {
-                editor.setContent(data.content);
-            }
+            editor.setContent(data.content);
         }
         else {
-            console.error('[Writer] Invalid section response:', data);
+            const errorMsg = data.error || 'Unknown error loading section';
+            console.error('[Writer] ✗ API Error:', errorMsg);
+            throw new Error(errorMsg);
         }
     }
     catch (error) {
         console.error('[Writer] Error loading section content:', error);
+        throw error; // Re-throw to let caller handle it
     }
 }
 /**
  * Switch to a section
  */
-function switchSection(editor, sectionsManager, state, sectionId) {
+async function switchSection(editor, sectionsManager, state, sectionId) {
     // Save current section
     const currentContent = editor.getContent();
     sectionsManager.setContent(state.currentSection, currentContent);
-    // Switch to new section
-    const switched = sectionsManager.switchTo(sectionId);
-    if (!switched) {
-        console.warn('[Writer] Failed to switch to section:', sectionId, '- section not found in manager');
-    }
-    else {
-        console.log('[Writer] Successfully switched to section:', sectionId);
-    }
+    // Update current section
     state.currentSection = sectionId;
+    console.log('[Writer] Switching to section:', sectionId);
     updateSectionUI(sectionId);
-    // Sync dropdown to show currently selected section
     syncDropdownToSection(sectionId);
-    // Load content from server if not already cached
-    const cachedContent = sectionsManager.getContent(sectionId);
-    if (!cachedContent) {
-        console.log('[Writer] No cached content for section, loading from API:', sectionId);
-        loadSectionContent(editor, sectionsManager, state, sectionId);
+    // For compiled_pdf sections, load the compiled TeX in editor (read-only)
+    if (sectionId.endsWith('/compiled_pdf')) {
+        console.log('[Writer] Compiled PDF section - loading compiled TeX');
+        // Set editor to read-only
+        if (typeof editor.setReadOnly === 'function') {
+            editor.setReadOnly(true);
+        }
+        // Load compiled_tex content
+        const compiledTexId = sectionId.replace('/compiled_pdf', '/compiled_tex');
+        try {
+            await loadSectionContent(editor, sectionsManager, state, compiledTexId);
+        }
+        catch (error) {
+            const errorMsg = `Failed to load compiled TeX: ${error}`;
+            console.error('[Writer]', errorMsg);
+            editor.setContent(`% ERROR: ${errorMsg}\n% Please check browser console for details`);
+        }
+        return;
+    }
+    // For regular editable sections
+    if (typeof editor.setReadOnly === 'function') {
+        editor.setReadOnly(false);
+    }
+    // Load fresh content from API
+    try {
+        await loadSectionContent(editor, sectionsManager, state, sectionId);
+    }
+    catch (error) {
+        const errorMsg = `Failed to load section ${sectionId}: ${error}`;
+        console.error('[Writer]', errorMsg);
+        editor.setContent(`% ERROR: ${errorMsg}\n% Please check browser console for details`);
     }
 }
 /**
@@ -865,29 +878,64 @@ function loadCompiledPDF(sectionId) {
     }
 }
 /**
- * Update the section title label to show current section name
+ * Update the section title label to show current section name with file link
  */
 function updateSectionTitleLabel(sectionId) {
     const titleElement = document.getElementById('editor-section-title');
     if (!titleElement)
         return;
-    // Extract section name from sectionId (e.g., "manuscript/abstract" -> "Abstract")
+    const config = getWriterConfig();
+    // Extract section info from sectionId (e.g., "manuscript/abstract")
     const parts = sectionId.split('/');
+    const docType = parts[0];
     const sectionName = parts[parts.length - 1];
     // Capitalize and format the section name
     const formattedName = sectionName
         .split('_')
         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
         .join(' ');
-    titleElement.textContent = `${formattedName} Source`;
+    // Build file path for link
+    const docDirMap = {
+        'manuscript': '01_manuscript',
+        'supplementary': '02_supplementary',
+        'revision': '03_revision',
+        'shared': 'shared'
+    };
+    let filePath = '';
+    if (sectionName === 'compiled_pdf' || sectionName === 'compiled_tex') {
+        // For compiled_pdf, link to the TEX file (since that's what shows in editor)
+        // Compiled files are in the root of doc directory
+        filePath = `scitex/writer/${docDirMap[docType]}/${docType}.tex`;
+    }
+    else {
+        // Regular sections are in contents/
+        const ext = sectionName === 'bibliography' || sectionName === 'references' ? 'bib' : 'tex';
+        if (docType === 'shared') {
+            filePath = `scitex/writer/shared/${sectionName}.${ext}`;
+        }
+        else {
+            filePath = `scitex/writer/${docDirMap[docType]}/contents/${sectionName}.${ext}`;
+        }
+    }
+    // Create link to project browser
+    const fileLink = config.username && config.projectSlug
+        ? `/${config.username}/${config.projectSlug}/blob/${filePath}`
+        : '';
+    if (fileLink) {
+        titleElement.innerHTML = `${formattedName} Source <a href="${fileLink}" target="_blank" style="font-size: 0.8em; opacity: 0.7;">📁</a>`;
+    }
+    else {
+        titleElement.textContent = `${formattedName} Source`;
+    }
 }
 /**
- * Update the PDF preview panel title to show current section
+ * Update the PDF preview panel title to show current section with link
  */
 function updatePDFPreviewTitle(sectionId) {
     const titleElement = document.getElementById('preview-title');
     if (!titleElement)
         return;
+    const config = getWriterConfig();
     // Extract section name from sectionId
     const parts = sectionId.split('/');
     const docType = parts[0];
@@ -898,12 +946,35 @@ function updatePDFPreviewTitle(sectionId) {
         .split('_')
         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
         .join(' ');
+    // Build PDF file link
+    let pdfLink = '';
+    if (sectionName === 'compiled_pdf' && config.username && config.projectSlug) {
+        // Link to compiled PDF
+        const docDirMap = {
+            'manuscript': '01_manuscript',
+            'supplementary': '02_supplementary',
+            'revision': '03_revision'
+        };
+        pdfLink = `/${config.username}/${config.projectSlug}/blob/scitex/writer/${docDirMap[docType]}/${docType}.pdf`;
+    }
+    else if (config.username && config.projectSlug) {
+        // Link to preview PDF
+        pdfLink = `/${config.username}/${config.projectSlug}/blob/scitex/writer/preview_output/preview-${sectionName}.pdf`;
+    }
     // Special case for compiled_pdf - don't add "PDF" twice
+    let titleText = '';
     if (sectionName === 'compiled_pdf') {
-        titleElement.textContent = `${docTypeLabel} PDF`;
+        titleText = `${docTypeLabel} PDF`;
     }
     else {
-        titleElement.textContent = `${docTypeLabel} ${formattedName} PDF`;
+        titleText = `${docTypeLabel} ${formattedName} PDF`;
+    }
+    // Add link if available
+    if (pdfLink) {
+        titleElement.innerHTML = `${titleText} <a href="${pdfLink}" target="_blank" style="font-size: 0.8em; opacity: 0.7;">📁</a>`;
+    }
+    else {
+        titleElement.textContent = titleText;
     }
 }
 /**
@@ -963,15 +1034,16 @@ function scheduleSave(_editor, sectionsManager, state) {
  * Schedule auto-compile for live PDF preview
  */
 let compileTimeout;
-function scheduleAutoCompile(pdfPreviewManager, content) {
+function scheduleAutoCompile(pdfPreviewManager, content, sectionId) {
     if (!pdfPreviewManager)
         return;
     // Clear existing timeout
     clearTimeout(compileTimeout);
     // Schedule compilation after user stops typing
     compileTimeout = setTimeout(() => {
-        console.log('[Writer] Auto-compiling for live preview');
-        pdfPreviewManager.compileQuick(content);
+        console.log('[Writer] Auto-compiling for live preview, section:', sectionId);
+        // Pass section ID for section-specific preview
+        pdfPreviewManager.compileQuick(content, sectionId);
     }, 2000); // Wait 2 seconds after user stops typing
 }
 /**
@@ -1033,6 +1105,41 @@ async function saveSections(sectionsManager, state) {
 /**
  * Handle compilation
  */
+/**
+ * Handle full manuscript compilation (no content sent - uses workspace)
+ */
+async function handleCompileFull(compilationManager, state) {
+    if (compilationManager.getIsCompiling()) {
+        showToast('Compilation already in progress', 'warning');
+        return;
+    }
+    try {
+        const projectId = state.projectId;
+        if (!projectId) {
+            showToast('No project ID found', 'error');
+            return;
+        }
+        showToast('Compiling full manuscript from workspace...', 'info');
+        console.log('[Writer] Starting full compilation for project:', projectId);
+        const result = await compilationManager.compileFull({
+            projectId: projectId,
+            docType: 'manuscript'
+        });
+        if (result && result.status === 'completed') {
+            showToast('Manuscript compiled successfully', 'success');
+        }
+        else {
+            showToast('Compilation failed', 'error');
+        }
+    }
+    catch (error) {
+        showToast('Compilation error: ' + (error instanceof Error ? error.message : 'Unknown error'), 'error');
+    }
+}
+/**
+ * @deprecated Use handleCompileFull instead for compile button
+ * Handle preview compilation (sends content - for auto-preview)
+ */
 async function handleCompile(_editor, sectionsManager, _compilationManager, _state, pdfPreviewManager) {
     if (!pdfPreviewManager) {
         showToast('PDF preview not initialized', 'error');
@@ -1048,7 +1155,7 @@ async function handleCompile(_editor, sectionsManager, _compilationManager, _sta
             name: name.charAt(0).toUpperCase() + name.slice(1),
             content: content
         }));
-        showToast('Starting compilation...', 'info');
+        showToast('Starting preview compilation...', 'info');
         await pdfPreviewManager.compile(sectionArray);
     }
     catch (error) {

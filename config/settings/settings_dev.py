@@ -49,6 +49,12 @@ except Exception as e:
     print(e)
 
 # ---------------------------------------
+# Security (Development)
+# ---------------------------------------
+# Allow same-site iframes (needed for PDF viewer in writer app)
+X_FRAME_OPTIONS = "SAMEORIGIN"
+
+# ---------------------------------------
 # Security
 # ---------------------------------------
 DEBUG = True
