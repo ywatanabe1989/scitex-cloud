@@ -34,7 +34,8 @@ export class CompilationManager {
                 body: JSON.stringify({
                     doc_type: options.docType,
                     content: options.content,
-                    format: options.format || 'pdf'
+                    format: options.format || 'pdf',
+                    color_mode: options.colorMode || 'light'
                 }),
                 signal: controller.signal
             });

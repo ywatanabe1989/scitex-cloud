@@ -271,6 +271,14 @@ export class FileTreeManager {
                 return;
             }
             console.log('[FileTree] Populated dropdown with hierarchical sections for', docType);
+            // Select the first option (Compiled PDF) by default if nothing is selected
+            if (dropdown.options.length > 0 && !dropdown.value) {
+                dropdown.selectedIndex = 0;
+                const firstOption = dropdown.options[0];
+                console.log('[FileTree] Auto-selected first section:', firstOption.value);
+                // Trigger the selection to load the content
+                this.selectFile(firstOption.value, firstOption.textContent || '');
+            }
             // Add change event listener if not already attached
             if (!dropdown.dataset.listenerAttached) {
                 dropdown.addEventListener('change', (e) => {

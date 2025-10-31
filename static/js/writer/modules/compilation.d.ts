@@ -8,6 +8,7 @@ export interface CompilationOptions {
     docType: string;
     content: string;
     format?: 'pdf' | 'dvi';
+    colorMode?: 'light' | 'dark';
 }
 export declare class CompilationManager {
     private apiClient;

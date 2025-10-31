@@ -24,13 +24,15 @@ urlpatterns = [
     path('api/project/<int:project_id>/section/<str:section_name>/',
          api_views.section_view, name='api-section'),
 
-    # Git operations (history, diff, checkout)
+    # Git operations (history, diff, checkout, commit)
     path('api/project/<int:project_id>/section/<str:section_name>/history/',
          api_views.section_history_view, name='api-section-history'),
     path('api/project/<int:project_id>/section/<str:section_name>/diff/',
          api_views.section_diff_view, name='api-section-diff'),
     path('api/project/<int:project_id>/section/<str:section_name>/checkout/',
          api_views.section_checkout_view, name='api-section-checkout'),
+    path('api/project/<int:project_id>/section/<str:section_name>/commit/',
+         api_views.section_commit_view, name='api-section-commit'),
 
     # Compilation & PDF
     path('api/project/<int:project_id>/compile/',

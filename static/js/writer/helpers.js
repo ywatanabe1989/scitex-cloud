@@ -27,7 +27,7 @@ export function getWriterConfig() {
 export function createDefaultEditorState() {
     return {
         content: '',
-        currentSection: 'abstract',
+        currentSection: 'manuscript/compiled_pdf',
         unsavedSections: new Set(),
         currentDocType: 'manuscript',
     };

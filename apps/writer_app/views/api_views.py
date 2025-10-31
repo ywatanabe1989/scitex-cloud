@@ -131,13 +131,14 @@ def compile_view(request, project_id):
             service = WriterService(project_id, user_id)
             doc_type = data.get("doc_type", "manuscript")
             timeout = data.get("timeout", 300)
+            color_mode = data.get("color_mode", "light")
 
-            logger.info(f"[Compile] Starting compilation: project={project_id}, doc_type={doc_type}, timeout={timeout}, is_preview={bool(quick_preview_content)}")
+            logger.info(f"[Compile] Starting compilation: project={project_id}, doc_type={doc_type}, timeout={timeout}, is_preview={bool(quick_preview_content)}, color_mode={color_mode}")
 
             # Quick preview mode: compile only the provided content (for live preview)
             if quick_preview_content:
                 logger.info(f"[Compile] Quick preview mode: compiling provided content ({len(quick_preview_content)} chars)")
-                result = service.compile_preview(quick_preview_content, timeout=timeout)
+                result = service.compile_preview(quick_preview_content, timeout=timeout, color_mode=color_mode)
             # Full compilation mode: compile the entire document from workspace
             elif doc_type == "supplementary":
                 logger.info(f"[Compile] Compiling supplementary for project {project_id}")
@@ -284,6 +285,90 @@ def section_checkout_view(request, project_id, section_name):
     except Exception as e:
         logger.error(f"Checkout view error: {e}")
         return JsonResponse({"success": False, "error": str(e)}, status=500)
+
+
+@login_required
+@require_http_methods(["POST"])
+def section_commit_view(request, project_id, section_name):
+    """Commit changes to a section with a user-provided message.
+
+    This creates a git commit for the auto-saved changes.
+    The hybrid approach: auto-save (continuous) + manual commit (user-controlled).
+
+    POST body:
+        {
+            "message": "Updated introduction section",
+            "doc_type": "manuscript"  # (optional, default: manuscript)
+        }
+
+    **NEW**: Uses standardized error handling with full error cascading.
+    Returns stdout, stderr, exit_code for debugging.
+    """
+    from apps.core.responses import api_response, error_response, success_response
+    import logging
+
+    git_logger = logging.getLogger('scitex.git')
+
+    try:
+        project = Project.objects.get(id=project_id, owner=request.user)
+        service = WriterService(project_id, request.user.id)
+
+        data = json.loads(request.body)
+        commit_message = data.get("message", "").strip()
+        doc_type = data.get("doc_type", "manuscript")
+
+        if not commit_message:
+            return error_response(
+                message="Commit message is required",
+                error_type="validation",
+                endpoint=request.path
+            )
+
+        # Log git operation
+        git_logger.info(f"Committing section {section_name} (doc_type={doc_type}): {commit_message}")
+
+        # Commit the section with the provided message
+        success = service.commit_section(section_name, commit_message, doc_type)
+
+        if not success:
+            # No changes to commit
+            git_logger.warning(f"No changes to commit for {section_name}")
+            return error_response(
+                message="No changes to commit. The section has not been modified since the last commit.",
+                error_type="git_no_changes",
+                error_details="Make changes to the section and save before committing.",
+                stderr="nothing to commit, working tree clean",  # Git's message
+                exit_code=1,
+                endpoint=request.path
+            )
+
+        # Success!
+        git_logger.info(f"Successfully committed {section_name}: {commit_message}")
+        return success_response(
+            message=f"Section committed: {commit_message}",
+            data={
+                "section": section_name,
+                "doc_type": doc_type,
+                "commit_message": commit_message
+            },
+            endpoint=request.path
+        )
+
+    except Project.DoesNotExist:
+        return error_response(
+            message="Project not found",
+            error_type="not_found",
+            endpoint=request.path,
+            status_code=404
+        )
+    except Exception as e:
+        logger.error(f"Commit error: {e}", exc_info=True)
+        return error_response(
+            message=str(e),
+            error_type="unexpected",
+            endpoint=request.path,
+            status_code=500
+        )
 
 
 @login_required

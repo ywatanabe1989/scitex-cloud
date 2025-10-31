@@ -230,9 +230,9 @@ export class FileTreeManager {
         return files;
     }
     /**
-     * Populate the section dropdown selector based on document type
+     * Populate the section dropdown selector with hierarchical structure
      */
-    populateTexFileDropdown(docType = 'manuscript') {
+    async populateTexFileDropdown(docType = 'manuscript') {
         if (!this.texFileDropdownId)
             return;
         const dropdown = document.getElementById(this.texFileDropdownId);
@@ -240,11 +240,92 @@ export class FileTreeManager {
             console.warn('[FileTree] Dropdown element not found:', this.texFileDropdownId);
             return;
         }
-        // Clear existing options except the first placeholder
-        while (dropdown.options.length > 1) {
-            dropdown.remove(1);
+        // Clear existing options
+        dropdown.innerHTML = '';
+        try {
+            // Fetch hierarchical sections configuration
+            const response = await fetch('/writer/api/sections-config/');
+            const data = await response.json();
+            if (!data.success || !data.hierarchy) {
+                console.error('[FileTree] Failed to load sections hierarchy');
+                this.populateTexFileDropdownFallback(dropdown, docType);
+                return;
+            }
+            const hierarchy = data.hierarchy;
+            // Populate dropdown based on docType
+            if (docType === 'shared' && hierarchy.shared) {
+                this.addSectionsToDropdown(dropdown, 'Shared', hierarchy.shared.sections);
+            }
+            else if (docType === 'manuscript' && hierarchy.manuscript) {
+                this.addSectionsToDropdown(dropdown, 'Manuscript', hierarchy.manuscript.sections);
+            }
+            else if (docType === 'supplementary' && hierarchy.supplementary) {
+                this.addSectionsToDropdown(dropdown, 'Supplementary', hierarchy.supplementary.sections);
+            }
+            else if (docType === 'revision' && hierarchy.revision) {
+                this.addSectionsToDropdown(dropdown, 'Revision', hierarchy.revision.sections);
+            }
+            else {
+                console.warn('[FileTree] Unknown document type:', docType);
+                this.populateTexFileDropdownFallback(dropdown, docType);
+                return;
+            }
+            console.log('[FileTree] Populated dropdown with hierarchical sections for', docType);
+            // Select the first option (Compiled PDF) by default if nothing is selected
+            if (dropdown.options.length > 0 && !dropdown.value) {
+                dropdown.selectedIndex = 0;
+                const firstOption = dropdown.options[0];
+                console.log('[FileTree] Auto-selected first section:', firstOption.value);
+                // Trigger the selection to load the content
+                this.selectFile(firstOption.value, firstOption.textContent || '');
+            }
+            // Add change event listener if not already attached
+            if (!dropdown.dataset.listenerAttached) {
+                dropdown.addEventListener('change', (e) => {
+                    const target = e.target;
+                    if (target.value) {
+                        const sectionId = target.value;
+                        const selectedOption = target.options[target.selectedIndex];
+                        const sectionName = selectedOption.textContent || sectionId;
+                        // Trigger callback with section info
+                        this.selectFile(sectionId, sectionName);
+                    }
+                });
+                dropdown.dataset.listenerAttached = 'true';
+            }
         }
-        // Get sections for the selected document type
+        catch (error) {
+            console.error('[FileTree] Error loading sections:', error);
+            this.populateTexFileDropdownFallback(dropdown, docType);
+        }
+    }
+    /**
+     * Add sections to dropdown with optgroup
+     */
+    addSectionsToDropdown(dropdown, groupLabel, sections) {
+        if (sections.length === 0)
+            return;
+        const optgroup = document.createElement('optgroup');
+        optgroup.label = groupLabel;
+        sections.forEach(section => {
+            const option = document.createElement('option');
+            option.value = section.id;
+            option.textContent = section.label;
+            if (section.optional) {
+                option.textContent += ' (Optional)';
+            }
+            if (section.view_only) {
+                option.disabled = true;
+                option.textContent += ' (View Only)';
+            }
+            optgroup.appendChild(option);
+        });
+        dropdown.appendChild(optgroup);
+    }
+    /**
+     * Fallback population method using legacy structure
+     */
+    populateTexFileDropdownFallback(dropdown, docType) {
         const sections = this.sectionsByDocType[docType] || [];
         if (sections.length === 0) {
             console.warn('[FileTree] No sections available for document type:', docType);
@@ -256,20 +337,7 @@ export class FileTreeManager {
             option.textContent = this.sectionNames[sectionId] || sectionId.charAt(0).toUpperCase() + sectionId.slice(1);
             dropdown.appendChild(option);
         });
-        console.log('[FileTree] Populated dropdown with', sections.length, 'sections for', docType);
-        // Add change event listener if not already attached
-        if (!dropdown.dataset.listenerAttached) {
-            dropdown.addEventListener('change', (e) => {
-                const target = e.target;
-                if (target.value) {
-                    const sectionId = target.value;
-                    const sectionName = this.sectionNames[sectionId] || sectionId;
-                    // Trigger callback with section info
-                    this.selectFile(sectionId, sectionName);
-                }
-            });
-            dropdown.dataset.listenerAttached = 'true';
-        }
+        console.log('[FileTree] Used fallback to populate dropdown with', sections.length, 'sections');
     }
 }
 //# sourceMappingURL=file_tree.js.map

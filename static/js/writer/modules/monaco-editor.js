@@ -171,8 +171,9 @@ export class EnhancedEditor {
                     automaticLayout: true,
                     minimap: { enabled: false },
                     scrollBeyondLastLine: false,
-                    fontSize: 13,
-                    fontFamily: '"JetBrains Mono", Monaco, Menlo, Ubuntu Mono, Consolas, monospace',
+                    fontSize: 14,
+                    lineHeight: 21, // Fixed: was 19, now 21 (1.5x fontSize for proper cursor alignment)
+                    fontFamily: 'Consolas, "Courier New", monospace', // Fixed: use web-safe monospace fonts
                     renderLineHighlight: 'none',
                     suggestOnTriggerCharacters: true,
                     quickSuggestions: true,
@@ -445,6 +446,23 @@ export class EnhancedEditor {
             const cmEditor = document.querySelector('.CodeMirror')?.CodeMirror;
             if (cmEditor) {
                 cmEditor.setOption('theme', theme);
+            }
+        }
+    }
+    /**
+     * Set editor read-only state
+     */
+    setReadOnly(readOnly) {
+        if (this.editorType === 'monaco' && this.monacoEditor) {
+            console.log('[Editor] Setting Monaco readOnly to:', readOnly);
+            this.monacoEditor.updateOptions({ readOnly: readOnly });
+        }
+        else {
+            // CodeMirror read-only mode
+            console.log('[Editor] Setting CodeMirror readOnly to:', readOnly);
+            const cmEditor = document.querySelector('.CodeMirror')?.CodeMirror;
+            if (cmEditor) {
+                cmEditor.setOption('readOnly', readOnly);
             }
         }
     }

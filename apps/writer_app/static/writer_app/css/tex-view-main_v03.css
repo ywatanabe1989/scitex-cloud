@@ -5,7 +5,7 @@
  * Styling delegated to: /static/css/common.css, /static/css/components/*.css
  * ======================================== */
 
-/* Hide sidebar - keep in DOM for future use */
+/* Hide sidebar - user confirmed dropdowns work beautifully without it */
 .writer-sidebar {
     display: none !important;
 }
@@ -264,6 +264,7 @@
     width: 100% !important;
     height: 100% !important;
     padding: 0 !important;
+    overflow: hidden !important;
 }
 
 .latex-panel,
@@ -278,6 +279,8 @@
     width: 50% !important;
     margin: 0 !important;
     padding: 0 !important;
+    position: relative !important;
+    z-index: 1 !important;
 }
 
 .latex-panel {
@@ -965,21 +968,27 @@
 
 .pdf-preview-viewer {
     flex: 1;
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: auto;
     background: #ffffff;
-    display: flex;
-    align-items: flex-start !important; /* Align to top instead of center */
-    justify-content: center;
+    position: relative;
     padding: 0 !important;
     margin: 0 !important;
     /* Optimize for scroll performance */
     contain: layout style paint;
     will-change: scroll-position;
+    /* Smooth scroll behavior */
+    scroll-behavior: auto;
+    /* Prevent scrollbar from affecting layout */
+    scrollbar-gutter: stable;
+    /* High z-index to capture scroll events */
+    z-index: 10 !important;
 }
 
 .pdf-preview-viewer embed {
     width: 100%;
-    height: 100%;
+    height: auto;
+    display: block;
     box-shadow: none;
     border: none;
     margin: 0 !important;
@@ -988,7 +997,10 @@
     will-change: auto;
     /* Prevent render blocking */
     backface-visibility: hidden;
-    transform: translateZ(0);
+    /* Allow transform for zoom */
+    transform-origin: top center;
+    /* Smooth transitions for filter and color changes */
+    transition: filter 0.3s ease, background-color 0.3s ease;
 }
 
 /* ========================================
@@ -1226,4 +1238,86 @@
 .latex-panel .monaco-editor .current-line,
 .latex-panel .monaco-editor .view-overlays .current-line {
     background: transparent !important;
+}
+
+/* ========================================
+ * PDF Zoom Controls Styling
+ * ======================================== */
+
+.pdf-zoom-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0 0.5rem;
+}
+
+.pdf-zoom-controls .btn {
+    padding: 0.25rem 0.4rem;
+    font-size: 0.75rem;
+    min-width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pdf-zoom-controls .btn i {
+    font-size: 0.8rem;
+}
+
+.pdf-zoom-controls .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+#pdf-zoom-indicator {
+    font-size: 0.75rem;
+    font-weight: 500;
+    min-width: 40px;
+    text-align: center;
+    color: var(--color-fg-default);
+}
+
+/* ========================================
+ * PDF Color Mode Styling
+ * ======================================== */
+
+/* Dark mode specific styles for PDF container */
+.pdf-preview-viewer[data-color-mode="dark"] {
+    background-color: #1a1a1a;
+}
+
+/* Smooth transition for color mode changes */
+.pdf-preview-viewer embed {
+    transition: filter 0.3s ease, background-color 0.3s ease;
+}
+
+/* Color mode button styling */
+#pdf-color-mode-btn {
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    white-space: nowrap;
+}
+
+#pdf-color-mode-btn i {
+    font-size: 0.8rem;
+}
+
+#pdf-color-mode-btn .theme-label {
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+}
+
+#pdf-color-mode-btn:hover {
+    transform: scale(1.05);
+    background-color: var(--color-accent-emphasis);
+    color: var(--color-fg-on-emphasis);
+    border-color: var(--color-accent-emphasis);
+}
+
+#pdf-color-mode-btn:active {
+    transform: scale(0.98);
 }
