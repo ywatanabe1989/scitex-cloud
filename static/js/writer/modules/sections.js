@@ -7,7 +7,7 @@ export class SectionsManager {
     constructor() {
         this.sections = new Map();
         this.hierarchy = null;
-        this.currentSection = 'manuscript/abstract';
+        this.currentSection = 'manuscript/compiled_pdf';
         this.storage = new StorageManager('writer_sections_');
         this.initializeSections();
     }

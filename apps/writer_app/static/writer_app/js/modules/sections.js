@@ -7,7 +7,7 @@ export class SectionsManager {
     constructor() {
         this.sections = new Map();
         this.hierarchy = null;
-        this.currentSection = 'manuscript/abstract';
+        this.currentSection = 'manuscript/compiled_pdf';
         this.storage = new StorageManager('writer_sections_');
         this.initializeSections();
     }
@@ -47,20 +47,23 @@ export class SectionsManager {
                 // Populate sections map from hierarchy
                 this.sections.clear();
                 let order = 0;
-                Object.entries(this.hierarchy).forEach(([categoryKey, category]) => {
-                    category.sections.forEach((section) => {
-                        const sectionWithDefaults = {
-                            ...section,
-                            category: categoryKey,
-                            order: order++,
-                            visible: section.visible ?? true,
-                            content: section.content ?? ''
-                        };
-                        this.sections.set(section.id, sectionWithDefaults);
+                if (this.hierarchy) {
+                    Object.entries(this.hierarchy).forEach(([categoryKey, category]) => {
+                        const cat = category;
+                        cat.sections.forEach((section) => {
+                            const sectionWithDefaults = {
+                                ...section,
+                                category: categoryKey,
+                                order: order++,
+                                visible: section.visible ?? true,
+                                content: section.content ?? ''
+                            };
+                            this.sections.set(section.id, sectionWithDefaults);
+                        });
                     });
-                });
+                }
                 console.log('[Sections] Loaded hierarchy with', this.sections.size, 'sections');
-                if (this.onHierarchyLoadCallback) {
+                if (this.onHierarchyLoadCallback && this.hierarchy) {
                     this.onHierarchyLoadCallback(this.hierarchy);
                 }
             }
@@ -169,7 +172,7 @@ export class SectionsManager {
      */
     getContent(id) {
         const section = this.sections.get(id);
-        if (section) {
+        if (section && section.content) {
             return section.content;
         }
         // Try to load from storage
@@ -253,7 +256,7 @@ export class SectionsManager {
      */
     exportCombined() {
         return this.getVisible()
-            .map(s => `% ${s.label}\n${s.content}`)
+            .map(s => `% ${s.label}\n${s.content ?? ''}`)
             .join('\n\n');
     }
     /**
@@ -261,8 +264,10 @@ export class SectionsManager {
      */
     getTotalWordCount() {
         return this.getAll().reduce((total, section) => {
+            if (!section.content)
+                return total;
             const words = section.content.trim().split(/\s+/).length;
-            return total + (section.content ? words : 0);
+            return total + words;
         }, 0);
     }
 }

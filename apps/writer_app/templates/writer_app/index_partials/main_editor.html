@@ -3,25 +3,10 @@
   <!-- Sticky Toolbar -->
   <div class="writer-toolbar-sticky">
     <div class="toolbar-left">
-      <!-- Repository & Document Type Horizontal Tabs -->
+      <!-- Document Type & Section Selectors (Project selected from global header) -->
       <div class="horizontal-selector-group">
         <div class="horizontal-selector">
-          <label class="selector-label"><i class="fas fa-folder-open me-1"></i></label>
-          <select id="repository-selector" class="form-select form-select-sm" {% if is_demo %}disabled{% endif %}>
-            {% if project %}
-            <option value="{{ project.id }}" selected>{{ project.name }}</option>
-            {% for proj in user_projects %}
-            {% if proj.id != project.id %}
-            <option value="{{ proj.id }}">{{ proj.name }}</option>
-            {% endif %}
-            {% endfor %}
-            {% else %}
-            <option value="" selected>{% if is_anonymous %}Demo Workspace{% else %}Create a project{% endif %}</option>
-            {% endif %}
-          </select>
-        </div>
-        <div class="horizontal-selector">
-          <label class="selector-label"><i class="fas fa-file-alt me-1"></i></label>
+          <label for="doctype-selector" class="selector-label"><i class="fas fa-file-alt me-1"></i></label>
           <select id="doctype-selector" class="form-select form-select-sm">
             <option value="shared">Shared</option>
             <option value="manuscript" selected>Manuscript</option>
@@ -30,7 +15,7 @@
           </select>
         </div>
         <div class="horizontal-selector">
-          <label class="selector-label"><i class="fas fa-file-code me-1"></i></label>
+          <label for="texfile-selector" class="selector-label"><i class="fas fa-file-code me-1"></i></label>
           <select id="texfile-selector" class="form-select form-select-sm">
           </select>
         </div>
@@ -45,65 +30,18 @@
       <button id="redo-btn" class="btn btn-sm btn-outline-secondary" title="Redo (Ctrl+Y)">
         <i class="fas fa-redo"></i>
       </button>
-
-      <div class="vertical-divider"></div>
-
-      <!-- Font Size Control -->
-      <div class="font-size-control">
-        <label for="font-size-slider" class="form-label" style="margin: 0; font-size: 0.85rem;">
-          <i class="fas fa-text-height me-1"></i><span id="font-size-display">14</span>px
-        </label>
-        <input type="range" id="font-size-slider" class="form-range" min="10" max="20" value="14" title="Adjust editor font size">
-      </div>
-
-      <div class="vertical-divider"></div>
-
-      <!-- Auto Preview Checkbox -->
-      <div class="auto-preview-control">
-        <input type="checkbox" id="auto-preview-checkbox" class="form-check-input" checked>
-        <label for="auto-preview-checkbox" class="form-check-label" style="margin: 0; font-size: 0.85rem; cursor: pointer;">
-          <i class="fas fa-magic me-1"></i>Auto (5s)
-        </label>
-      </div>
-
-      <!-- Preview Button -->
-      <button id="preview-btn-toolbar" class="btn btn-sm btn-outline-primary" title="Compile PDF Preview">
-        <i class="fas fa-eye me-1"></i>Preview
-      </button>
     </div>
 
     <div class="toolbar-right">
       <!-- Compile Button -->
-      <button id="compile-btn-toolbar" class="btn btn-sm btn-primary" title="Compile PDF">
-        <i class="fas fa-file-pdf me-1"></i>Compile
+      <button id="compile-btn-toolbar" class="btn btn-sm btn-primary" title="Compile Manuscript PDF">
+        <i class="fas fa-file-pdf me-1"></i><span id="compile-btn-text">Compile Manuscript PDF</span>
       </button>
 
       <!-- Download PDF Button -->
       <a id="download-pdf-toolbar" href="#" download class="btn btn-sm btn-outline-secondary" title="Download PDF" style="display: none;">
         <i class="fas fa-download"></i>
       </a>
-
-      <div class="vertical-divider"></div>
-
-      <!-- Save Status Indicator -->
-      <div id="save-status" class="save-status">
-        <i class="fas fa-check-circle text-success"></i>
-        <span class="status-text">Saved</span>
-      </div>
-
-      <!-- Theme Selector -->
-      <select id="theme-selector" class="form-select form-select-sm" style="width: auto;">
-        <optgroup label="Dark Themes">
-          <option value="zenburn">Zenburn</option>
-          <option value="monokai">Monokai</option>
-          <option value="dracula">Dracula</option>
-        </optgroup>
-        <optgroup label="Light Themes">
-          <option value="eclipse">Eclipse</option>
-          <option value="neat">Neat</option>
-          <option value="solarized light">Solarized Light</option>
-        </optgroup>
-      </select>
     </div>
   </div>
 
@@ -114,7 +52,67 @@
       <div id="editor-view-split" class="editor-view split-view active">
         <div class="latex-panel">
           <div class="panel-header">
-            <span><i class="fas fa-code me-1"></i>LaTeX Source</span>
+            <div class="header-left">
+              <span><i class="fas fa-code me-1"></i><span id="editor-section-title">LaTeX Source</span></span>
+              <!-- Word count indicator -->
+              <div class="word-count-inline">
+                <i class="fas fa-pencil-alt"></i>
+                <span id="current-word-count">0</span>
+              </div>
+              <!-- Save Status Indicator -->
+              <div id="save-status" class="save-status-inline">
+                <i class="fas fa-check-circle text-success"></i>
+                <span class="status-text">Saved</span>
+              </div>
+              <!-- Git Commit Button -->
+              <button id="git-commit-btn" class="btn btn-sm btn-outline-primary"
+                      title="Create git commit for current changes"
+                      style="font-size: 0.75rem; padding: 0.25rem 0.5rem;">
+                <i class="fas fa-code-branch me-1"></i>Commit
+              </button>
+            </div>
+            <div class="header-right">
+              <!-- Font Size Selector -->
+              <label for="font-size-selector" class="form-label" style="font-size: 0.75rem; margin: 0; display: flex; align-items: center; gap: 0.25rem;">
+                <i class="fas fa-text-height"></i>
+                <span class="visually-hidden">Font Size</span>
+              </label>
+              <select id="font-size-selector" class="form-select form-select-sm" style="width: auto; font-size: 0.75rem;" aria-label="Font Size">
+                <option value="10">10px</option>
+                <option value="12">12px</option>
+                <option value="14" selected>14px</option>
+                <option value="16">16px</option>
+                <option value="18">18px</option>
+                <option value="20">20px</option>
+              </select>
+              <!-- Keybinding Selector -->
+              <label for="keybinding-selector" class="form-label" style="font-size: 0.75rem; margin: 0; display: flex; align-items: center; gap: 0.25rem;">
+                <i class="fas fa-keyboard"></i>
+                <span class="visually-hidden">Keybinding</span>
+              </label>
+              <select id="keybinding-selector" class="form-select form-select-sm" style="width: auto; font-size: 0.75rem;" aria-label="Keybinding">
+                <option value="default">Keymap: Default</option>
+                <option value="emacs">Keymap: Emacs</option>
+                <option value="vim">Keymap: Vim</option>
+              </select>
+              <!-- Theme Selector -->
+              <label for="theme-selector" class="form-label" style="font-size: 0.75rem; margin: 0; display: flex; align-items: center; gap: 0.25rem;">
+                <i class="fas fa-palette"></i>
+                <span class="visually-hidden">Theme</span>
+              </label>
+              <select id="theme-selector" class="form-select form-select-sm" style="width: auto; font-size: 0.75rem;" aria-label="Theme">
+                <optgroup label="Dark Themes">
+                  <option value="zenburn">Zenburn</option>
+                  <option value="monokai">Monokai</option>
+                  <option value="dracula">Dracula</option>
+                </optgroup>
+                <optgroup label="Light Themes">
+                  <option value="eclipse">Eclipse</option>
+                  <option value="neat">Neat</option>
+                  <option value="solarized light">Solarized Light</option>
+                </optgroup>
+              </select>
+            </div>
           </div>
           <textarea id="latex-editor-textarea" class="latex-editor-textarea" placeholder="LaTeX code..."></textarea>
         </div>
@@ -123,9 +121,43 @@
         <div class="preview-panel">
           <div class="panel-header" id="preview-panel-header">
             <div class="header-left">
-              <i class="fas fa-eye me-1"></i><span id="preview-title">PDF Preview</span>
+              <i class="fas fa-eye me-1"></i><span id="preview-title">Manuscript Abstract PDF</span>
             </div>
             <div class="header-right">
+              <!-- Zoom Controls (PDF only) -->
+              <div class="pdf-zoom-controls" style="display: none; gap: 0.25rem; align-items: center;">
+                <button id="pdf-zoom-out-btn" class="btn btn-sm btn-outline-secondary" title="Zoom Out (Ctrl+-)">
+                  <i class="fas fa-minus"></i>
+                </button>
+                <span id="pdf-zoom-indicator" style="font-size: 0.75rem; min-width: 35px; text-align: center;">100%</span>
+                <button id="pdf-zoom-in-btn" class="btn btn-sm btn-outline-secondary" title="Zoom In (Ctrl++)">
+                  <i class="fas fa-plus"></i>
+                </button>
+                <div style="width: 1px; height: 20px; background: var(--color-border-default); margin: 0 0.25rem;"></div>
+                <button id="pdf-fit-width-btn" class="btn btn-sm btn-outline-secondary" title="Fit to Width">
+                  <i class="fas fa-arrows-alt-h"></i>
+                </button>
+                <button id="pdf-reset-zoom-btn" class="btn btn-sm btn-outline-secondary" title="Reset Zoom (Ctrl+0)">
+                  <i class="fas fa-search"></i>
+                </button>
+                <div style="width: 1px; height: 20px; background: var(--color-border-default); margin: 0 0.25rem;"></div>
+                <button id="pdf-color-mode-btn" class="btn btn-sm btn-outline-secondary" title="PDF Theme: Light (Click to cycle)">
+                  <i class="fas fa-sun"></i>
+                  <span class="theme-label" style="margin-left: 0.25rem; font-size: 0.7rem;">Light</span>
+                </button>
+              </div>
+
+              <!-- Auto Preview Checkbox -->
+              <div class="auto-preview-control-panel">
+                <input type="checkbox" id="auto-preview-checkbox-panel" class="form-check-input" checked>
+                <label for="auto-preview-checkbox-panel" class="form-check-label" style="margin: 0; font-size: 0.7rem; cursor: pointer;">
+                  <i class="fas fa-magic me-1"></i>Auto (5s)
+                </label>
+              </div>
+              <!-- Preview/Reload Button -->
+              <button id="preview-btn-panel" class="preview-btn-inline" title="Refresh PDF Preview">
+                <i class="fas fa-sync-alt"></i>
+              </button>
               <!-- Background compilation status indicator -->
               <div id="background-compile-status" class="status-indicator" style="opacity: 0; transition: opacity 0.3s;"></div>
               <!-- Countdown indicator -->
@@ -241,6 +273,47 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Git Commit Modal -->
+<div class="modal fade" id="git-commit-modal" tabindex="-1" aria-labelledby="git-commit-modal-label" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="git-commit-modal-label">
+          <i class="fas fa-code-branch me-2"></i>Commit Changes
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label for="commit-message-input" class="form-label">Commit Message</label>
+          <textarea
+            id="commit-message-input"
+            class="form-control"
+            rows="3"
+            placeholder="Describe your changes..."
+            required></textarea>
+          <div class="form-text">
+            <i class="fas fa-info-circle me-1"></i>
+            Auto-saved changes will be committed to git history
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Current Section</label>
+          <div id="commit-section-info" class="text-muted">
+            <i class="fas fa-file-alt me-1"></i><span id="commit-current-section">-</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" id="confirm-commit-btn" class="btn btn-primary">
+          <i class="fas fa-check me-1"></i>Commit
+        </button>
       </div>
     </div>
   </div>

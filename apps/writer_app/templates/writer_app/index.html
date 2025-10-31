@@ -2,8 +2,6 @@
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'writer_app/css/tex-view-sidebar.css' %}">
-<link rel="stylesheet" href="{% static 'writer_app/css/sidebar-improved.css' %}">
 <link rel="stylesheet" href="{% static 'writer_app/css/tex-view-main.css' %}">
 <link rel="stylesheet" href="{% static 'writer_app/css/editor-enhanced.css' %}">
 <link rel="stylesheet" href="{% static 'writer_app/css/pdf-view-main.css' %}">
@@ -39,7 +37,6 @@
 {% include "writer_app/index_partials/init_prompt.html" %}
 
 <div class="writer-container" {% if not writer_initialized and not is_demo %}hidden{% endif %}>
-    {% include "writer_app/index_partials/sidebar.html" %}
     {% include "writer_app/index_partials/main_editor.html" %}
 </div>
 
@@ -47,40 +44,106 @@
 {% endif %}
 
 {% if not needs_project_creation %}
-<!-- Monaco Editor - Load early to prevent AMD conflicts -->
+<!-- CodeMirror (fallback) - Load FIRST before Monaco to avoid AMD conflicts -->
 <script>
-    // Configure Monaco environment before loading
+(function() {
+    // CodeMirror scripts are UMD modules that detect AMD and try to register
+    // Temporarily disable AMD to prevent conflicts with Monaco's RequireJS
+    var originalDefine = window.define;
+    var originalRequire = window.require;
+
+    // Disable AMD
+    window.define = undefined;
+    window.require = undefined;
+
+    // List of CodeMirror scripts to load
+    var scripts = [
+        'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js',
+        'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/stex/stex.min.js',
+        'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/dialog/dialog.min.js',
+        'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/searchcursor.min.js',
+        'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/search.min.js',
+        'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/keymap/vim.min.js',
+        'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/keymap/emacs.min.js'
+    ];
+
+    // Load scripts sequentially
+    var loadNextScript = function(index) {
+        if (index >= scripts.length) {
+            // All scripts loaded, restore AMD
+            window.define = originalDefine;
+            window.require = originalRequire;
+            console.log('[CodeMirror] All scripts loaded successfully without AMD conflicts');
+
+            // Now load Monaco Editor after CodeMirror is done
+            loadMonacoEditor();
+            return;
+        }
+
+        var script = document.createElement('script');
+        script.src = scripts[index];
+        script.onload = function() {
+            loadNextScript(index + 1);
+        };
+        script.onerror = function() {
+            console.error('[CodeMirror] Failed to load:', scripts[index]);
+            loadNextScript(index + 1);
+        };
+        document.head.appendChild(script);
+    };
+
+    // Start loading CodeMirror first
+    loadNextScript(0);
+})();
+
+// Create a simple fake worker that runs in the main thread
+function createFakeWorker() {
+    return {
+        postMessage: function() {},
+        terminate: function() {},
+        addEventListener: function() {},
+        removeEventListener: function() {}
+    };
+}
+
+// Monaco Editor - Load AFTER CodeMirror to prevent conflicts
+function loadMonacoEditor() {
+    // Configure Monaco environment with main-thread worker fallback
     window.MonacoEnvironment = {
-        getWorkerUrl: function(moduleId, label) {
-            return 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/base/worker/workerMain.js';
+        getWorker: function(moduleId, label) {
+            // Return a simple promise that resolves with a fake worker
+            // This prevents CORS issues and allows Monaco to work without web workers
+            return Promise.resolve(createFakeWorker());
         }
     };
-</script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js" onload="
-    // Immediately load Monaco after loader is ready
-    if (typeof require !== 'undefined' && require.config) {
-        require.config({
-            paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs' },
-            'vs/nls': { availableLanguages: {} }
-        });
-        require(['vs/editor/editor.main'], function() {
-            console.log('[Monaco] Monaco Editor loaded successfully');
-            window.monacoLoaded = true;
-            window.monaco = monaco;
-        });
-    }
-"></script>
 
-<!-- CodeMirror (fallback) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/stex/stex.min.js"></script>
+    // Load Monaco loader
+    var loaderScript = document.createElement('script');
+    loaderScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js';
+    loaderScript.onload = function() {
+        // Immediately load Monaco after loader is ready
+        if (typeof require !== 'undefined' && require.config) {
+            require.config({
+                paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs' },
+                'vs/nls': { availableLanguages: {} }
+            });
+            require(['vs/editor/editor.main'], function() {
+                console.log('[Monaco] Monaco Editor loaded successfully');
+                window.monacoLoaded = true;
+                window.monaco = monaco;
+            });
+        }
+    };
+    document.head.appendChild(loaderScript);
+}
+</script>
 <!-- Initialize global variables for writer app -->
 <script>
     // Pass Django context to JavaScript (must use window. to make it globally accessible)
     window.WRITER_CONFIG = {
-        projectId: {% if project %}{{ project.id }}{% else %}0{% endif %},  // Use 0 for anonymous/demo users
+        projectId: {% if project %}{{ project.id }}{% else %}0{% endif %},  // Real project ID for all users (including demo)
         projectName: {% if project %}'{{ project.name|escapejs }}'{% else %}'Demo Project'{% endif %},
-        projectSlug: {% if project %}'{{ project.slug|escapejs }}'{% else %}null{% endif %},
+        projectSlug: {% if project %}'{{ project.slug|escapejs }}'{% else %}'demo-project'{% endif %},
         manuscriptTitle: {% if manuscript %}'{{ manuscript.title|escapejs }}'{% else %}'Untitled'{% endif %},
         userId: {% if user.is_authenticated %}{{ user.id }}{% else %}null{% endif %},
         username: {% if user.is_authenticated %}'{{ user.username|escapejs }}'{% else %}null{% endif %},

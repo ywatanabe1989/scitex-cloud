@@ -1666,14 +1666,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function exportManuscript() {
         console.log('[Writer] Exporting manuscript');
+
+        // Safely get element text content with fallback
+        const getElementText = (id, fallback = '0') => {
+            const element = document.getElementById(id);
+            return element ? element.textContent : fallback;
+        };
+
         // Create export data
         const exportData = {
             project: window.WRITER_CONFIG?.projectName || 'Demo Project',
             manuscript: window.WRITER_CONFIG?.manuscriptTitle || 'Untitled Manuscript',
-            sections: sectionsData,
+            sections: sectionsData || {},
             stats: {
-                totalWords: document.getElementById('total-words').textContent,
-                citations: document.getElementById('citation-count').textContent
+                totalWords: getElementText('total-words', '0') || getElementText('current-word-count', '0'),
+                citations: getElementText('citation-count', '0')
             },
             exported: new Date().toISOString()
         };

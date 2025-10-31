@@ -68,10 +68,28 @@ class WriterService:
             logger.info(f"WriterService: Ensured parent directory exists at {parent_dir}")
 
             try:
+                # IMPORTANT: Do NOT pass 'name' parameter to Writer
+                #
+                # The scitex.writer.Writer class expects to create a NEW project with its own directory.
+                # When you pass a 'name' parameter, Writer creates a subdirectory: project_path/name/
+                #
+                # However, Django SciTeX Cloud uses an organized ecosystem structure:
+                #   data/users/{username}/{project-slug}/scitex/writer/
+                #
+                # The 'writer' directory is already the final target where Writer should operate.
+                # We pass the exact path where Writer should work, not a parent directory.
+                # This prevents Writer from creating: scitex/writer/{project-name}/
+                #
+                # Example structure:
+                #   ✓ Correct: data/users/test-user/test-002/scitex/writer/01_manuscript/
+                #   ✗ Wrong:   data/users/test-user/test-002/scitex/writer/test-002/01_manuscript/
+                #
+                # Git Strategy: Use "parent" to share the main project's git repository
+                # The writer directory is part of the main project, not a separate repo.
                 self._writer = Writer(
-                    self.project_path,
-                    name=project.name,
-                    git_strategy="child",  # Isolated git per project
+                    self.project_path,  # Already points to: {project-root}/scitex/writer/
+                    # name=project.name,  # REMOVED - causes extra subdirectory creation
+                    git_strategy="parent",  # Use parent project's git repository
                 )
                 logger.info(f"WriterService: Writer instance created successfully")
             except Exception as e:
@@ -86,13 +104,17 @@ class WriterService:
         """Read a section from manuscript/supplementary/revision.
 
         Args:
-            section_name: Section name (e.g., 'introduction', 'abstract')
+            section_name: Section name (e.g., 'introduction', 'abstract', 'compiled_pdf')
             doc_type: 'manuscript', 'supplementary', or 'revision'
 
         Returns:
             Section content as string
         """
         try:
+            # Special handling for compiled PDF (merged/compiled TeX file)
+            if section_name == "compiled_pdf":
+                return self._read_compiled_tex(doc_type)
+
             if doc_type == "manuscript":
                 doc = self.writer.manuscript
             elif doc_type == "supplementary":
@@ -115,6 +137,96 @@ class WriterService:
         except Exception as e:
             logger.error(f"Error reading section {section_name}: {e}")
             raise
+
+    def _read_compiled_tex(self, doc_type: str = "manuscript") -> str:
+        """Read the compiled TeX file (merged document).
+
+        Args:
+            doc_type: 'manuscript', 'supplementary', or 'revision'
+
+        Returns:
+            Compiled TeX content or helpful message if not compiled yet
+        """
+        # Map document type to directory
+        dir_map = {
+            "manuscript": "01_manuscript",
+            "supplementary": "02_supplementary",
+            "revision": "03_revision",
+        }
+
+        if doc_type not in dir_map:
+            raise ValueError(f"Unknown document type: {doc_type}")
+
+        # Path to compiled.tex
+        compiled_tex_path = self.project_path / dir_map[doc_type] / "compiled.tex"
+
+        # Check if file exists
+        if not compiled_tex_path.exists():
+            # Return helpful message
+            doc_type_label = doc_type.capitalize()
+            return f"""% Compiled {doc_type_label} TeX not yet generated
+%
+% This file will be created after compilation.
+% Click the "Compile {doc_type_label} PDF" button to generate it.
+%
+% The compiled TeX file merges all sections into a single document
+% that can be compiled to PDF.
+"""
+
+        # Read and return the compiled TeX
+        try:
+            with open(compiled_tex_path, 'r', encoding='utf-8') as f:
+                return f.read()
+        except Exception as e:
+            logger.error(f"Error reading compiled TeX: {e}")
+            return f"% Error reading compiled TeX file: {str(e)}"
+
+    def get_template_content(
+        self, section_name: str, doc_type: str = "manuscript"
+    ) -> str | None:
+        """Get original template content for a section.
+
+        This retrieves the clean template content from scitex.writer.Writer,
+        which can be used to reset a section to its original state.
+
+        Args:
+            section_name: Section name (e.g., 'introduction', 'abstract')
+            doc_type: 'manuscript', 'supplementary', or 'revision'
+
+        Returns:
+            Template content string, or None if template not found
+        """
+        try:
+            # Access the document's template
+            if doc_type == "manuscript":
+                doc = self.writer.manuscript
+            elif doc_type == "supplementary":
+                doc = self.writer.supplementary
+            elif doc_type == "revision":
+                doc = self.writer.revision
+            else:
+                raise ValueError(f"Unknown document type: {doc_type}")
+
+            # Get the section object
+            section = getattr(doc.contents, section_name, None)
+            if section is None:
+                logger.warning(f"Section '{section_name}' not found in {doc_type}")
+                return None
+
+            # Get template content from the section's template
+            # The Writer class should have a method or property to access template content
+            if hasattr(section, 'template'):
+                return section.template
+            elif hasattr(section, 'get_template'):
+                return section.get_template()
+            else:
+                # Fallback: return empty string with comment
+                logger.warning(f"No template method found for section '{section_name}'")
+                return f"% Template for {section_name}\n\n"
+
+        except Exception as e:
+            logger.error(f"Error getting template content for {section_name}: {e}", exc_info=True)
+            return None
 
     def write_section(
         self, section_name: str, content: str, doc_type: str = "manuscript"
@@ -169,14 +281,54 @@ class WriterService:
                 raise ValueError(f"Unknown document type: {doc_type}")
 
             section = getattr(doc.contents, section_name)
-            return section.commit(message)
+            logger.info(f"Committing section {section_name} with message: {message}")
+
+            # Check if section has commit method
+            if not hasattr(section, 'commit'):
+                logger.error(f"Section {section_name} does not have commit method")
+                raise AttributeError(f"Section {section_name} does not support git commits")
+
+            result = section.commit(message)
+            logger.info(f"Commit result for {section_name}: {result}")
+            return result
         except Exception as e:
-            logger.error(f"Error committing section {section_name}: {e}")
+            logger.error(f"Error committing section {section_name}: {e}", exc_info=True)
             raise
 
     # ===== Compilation Operations =====
 
-    def compile_preview(self, latex_content: str, timeout: int = 60) -> dict:
+    def _apply_color_mode_to_latex(self, latex_content: str, color_mode: str) -> str:
+        """Apply color mode to LaTeX content by injecting color commands.
+
+        Args:
+            latex_content: Original LaTeX content
+            color_mode: 'light', 'dark', 'sepia', or 'paper'
+
+        Returns:
+            Modified LaTeX content with color commands
+        """
+        # Skip color injection for light mode (default LaTeX colors)
+        if color_mode == 'light':
+            return latex_content
+
+        # Define dark mode colors
+        # Must be after \documentclass but before \begin{document}
+        color_commands = """\\usepackage{xcolor}
+\\pagecolor[rgb]{0.1,0.1,0.1}
+\\color[rgb]{0.9,0.9,0.9}
+"""
+
+        # Find the position to inject
+        if '\\begin{document}' in latex_content:
+            # Insert right before \begin{document}
+            latex_content = latex_content.replace('\\begin{document}', f'{color_commands}\\begin{{document}}', 1)
+        else:
+            # Just prepend if no \begin{document} found
+            latex_content = color_commands + latex_content
+
+        return latex_content
+
+    def compile_preview(self, latex_content: str, timeout: int = 60, color_mode: str = 'light') -> dict:
         """Compile a quick preview of provided LaTeX content (not from workspace).
 
         This is used for live preview of the current section being edited.
@@ -184,6 +336,7 @@ class WriterService:
         Args:
             latex_content: Complete LaTeX document content to compile
             timeout: Compilation timeout in seconds (default: 60 for quick preview)
+            color_mode: PDF color mode - 'light', 'dark', 'sepia', or 'paper'
 
         Returns:
             Compilation result dict with keys:
@@ -193,9 +346,12 @@ class WriterService:
                 - error: str (error message if failed)
         """
         try:
+            # Apply color mode to LaTeX content
+            latex_content = self._apply_color_mode_to_latex(latex_content, color_mode)
+
             # Write content to a temporary file in the workspace
             temp_file = self.project_path / "preview_temp.tex"
-            logger.info(f"WriterService: Creating temporary preview file at {temp_file}")
+            logger.info(f"WriterService: Creating temporary preview file at {temp_file} with color_mode={color_mode}")
             temp_file.write_text(latex_content, encoding='utf-8')
 
             # Use pdflatex directly to compile the temporary file

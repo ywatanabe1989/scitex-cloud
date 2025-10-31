@@ -23,6 +23,7 @@ export declare class PDFPreviewManager {
     private compileTimeout;
     private currentPdfUrl;
     private fontSize;
+    private colorMode;
     constructor(options: PDFPreviewOptions);
     /**
      * Setup event listeners for compilation
@@ -50,6 +51,10 @@ export declare class PDFPreviewManager {
      * Compile minimal document for quick preview
      */
     compileQuick(content: string): Promise<void>;
+    /**
+     * Set PDF color mode
+     */
+    setColorMode(colorMode: 'light' | 'dark'): void;
     /**
      * Display PDF in container with optimized rendering
      * Uses requestAnimationFrame to minimize layout thrashing

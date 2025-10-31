@@ -19,6 +19,7 @@ SECTION_HIERARCHY = {
         "label": "Manuscript",
         "description": "Main manuscript content",
         "sections": [
+            {"id": "manuscript/compiled_pdf", "name": "compiled_pdf", "label": "Compiled PDF", "path": "01_manuscript/compiled.tex", "is_complete": True, "read_only": True},
             {"id": "manuscript/abstract", "name": "abstract", "label": "Abstract", "path": "01_manuscript/contents/abstract.tex"},
             {"id": "manuscript/introduction", "name": "introduction", "label": "Introduction", "path": "01_manuscript/contents/introduction.tex"},
             {"id": "manuscript/methods", "name": "methods", "label": "Methods", "path": "01_manuscript/contents/methods.tex"},
@@ -34,6 +35,7 @@ SECTION_HIERARCHY = {
         "label": "Supplementary",
         "description": "Supplementary materials",
         "sections": [
+            {"id": "supplementary/compiled_pdf", "name": "compiled_pdf", "label": "Compiled PDF", "path": "02_supplementary/compiled.tex", "is_complete": True, "read_only": True},
             {"id": "supplementary/methods", "name": "methods", "label": "Methods", "path": "02_supplementary/contents/methods.tex"},
             {"id": "supplementary/results", "name": "results", "label": "Results", "path": "02_supplementary/contents/results.tex"},
             {"id": "supplementary/figures", "name": "figures", "label": "Figures", "path": "02_supplementary/contents/figures/", "is_directory": True},
@@ -45,6 +47,8 @@ SECTION_HIERARCHY = {
         "description": "Revision materials (CRUD enabled)",
         "supports_crud": True,
         "sections": [
+            # Complete document
+            {"id": "revision/compiled_pdf", "name": "compiled_pdf", "label": "Compiled PDF", "path": "03_revision/compiled.tex", "is_complete": True, "read_only": True},
             # Base sections
             {"id": "revision/introduction", "name": "introduction", "label": "Introduction", "path": "03_revision/contents/introduction.tex"},
             {"id": "revision/conclusion", "name": "conclusion", "label": "Conclusion", "path": "03_revision/contents/conclusion.tex"},

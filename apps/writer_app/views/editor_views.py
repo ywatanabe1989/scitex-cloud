@@ -84,6 +84,10 @@ def ensure_writer_directory(project):
     scitex_dir = base_dir / "scitex"
     writer_dir = scitex_dir / "writer"
 
+    # Ensure parent directories exist before Writer() tries to create the project
+    scitex_dir.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Ensured scitex directory exists: {scitex_dir}")
+
     # Check if writer directory already exists (must check the actual writer dir, not just data_location)
     if writer_dir.exists() and (writer_dir / "01_manuscript").exists():
         logger.info(f"Writer directory already exists: {writer_dir}")
@@ -110,25 +114,11 @@ def ensure_writer_directory(project):
 
         return writer_dir  # Return absolute path to writer directory
 
-    # Create writer directory on-demand
+    # Create writer directory on-demand using Writer class
     logger.info(f"Creating writer directory on-demand for project: {project.name}")
 
     try:
-        # Create the minimal directory structure needed for writer
-        # (Don't use Writer class directly since we're creating a subdirectory in an existing project)
-        writer_dir.mkdir(parents=True, exist_ok=True)
-        for subdir in ["01_manuscript/contents", "02_supplementary/contents", "03_revision/contents", "shared"]:
-            (writer_dir / subdir).mkdir(parents=True, exist_ok=True)
-
-        logger.info(f"✓ Created writer directory structure: {writer_dir}")
-
-        # Verify the directory was actually created
-        if not writer_dir.exists() or not (writer_dir / "01_manuscript").exists():
-            logger.error(f"Failed to create directories at {writer_dir}")
-            raise Exception(f"Writer initialization failed - directories not created at {writer_dir}")
-
-        # Initialize Writer instance to set up git (if needed)
-        # We pass the writer_dir with git_strategy appropriate for the project
+        # Determine git strategy
         project_root = base_dir
         has_git = (project_root / '.git').exists()
 
@@ -141,16 +131,27 @@ def ensure_writer_directory(project):
             git_strategy = 'child'
             logger.info(f"Using git_strategy='child' (no parent git found)")
 
-        # Initialize Writer to set up git (the directories already exist)
+        # Initialize Writer instance - this creates the complete structure from template
+        # IMPORTANT: Writer() will create the full directory structure including scripts/
+        # Do NOT create directories manually before calling Writer()
         try:
             writer = Writer(writer_dir, git_strategy=git_strategy)
             logger.info(f"✓ Writer instance initialized with git_strategy='{git_strategy}'")
+            logger.info(f"✓ Writer directory created at: {writer_dir}")
             if writer.git_root:
                 logger.info(f"✓ Git root: {writer.git_root}")
+
+            # Verify the complete structure was created
+            expected_dirs = ["01_manuscript", "02_supplementary", "03_revision", "scripts", "shared"]
+            missing_dirs = [d for d in expected_dirs if not (writer_dir / d).exists()]
+            if missing_dirs:
+                logger.warning(f"Some expected directories not created: {missing_dirs}")
+            else:
+                logger.info(f"✓ All expected directories created: {expected_dirs}")
+
         except Exception as writer_error:
-            # Writer initialization failed, but directories are already created
-            # This is acceptable - the writer can work without git
-            logger.warning(f"Writer git initialization failed (non-fatal): {writer_error}")
+            logger.error(f"Writer initialization failed: {writer_error}", exc_info=True)
+            raise Exception(f"Failed to initialize Writer: {writer_error}") from writer_error
 
         # Ensure project.data_location points to project root (not writer workspace)
         if not project.data_location:
@@ -158,54 +159,27 @@ def ensure_writer_directory(project):
             project.save()
             logger.info(f"Set project data_location to project root: {project.slug}")
 
-        # Create manuscript
-        manuscript = Manuscript.objects.create(
-            project=project,
-            owner=project.owner,
-            title=f'{project.name} Manuscript',
-            slug=f'{project.slug}-manuscript-{uuid.uuid4().hex[:8]}',
-            is_modular=True
-        )
-        logger.info(f"✓ Created manuscript: {manuscript.title}")
+        # Create manuscript (non-fatal if it fails - can be created later)
+        try:
+            manuscript = Manuscript.objects.create(
+                project=project,
+                owner=project.owner,
+                title=f'{project.name} Manuscript',
+                slug=f'{project.slug}-manuscript-{uuid.uuid4().hex[:8]}',
+                is_modular=True
+            )
+            logger.info(f"✓ Created manuscript: {manuscript.title}")
+        except Exception as manuscript_error:
+            logger.warning(f"Could not create manuscript during initialization (non-fatal): {manuscript_error}")
+            # Don't raise - manuscript can be created later when user visits writer page
 
         return writer_dir
 
     except Exception as e:
-        logger.error(f"Failed to create writer directory: {e}", exc_info=True)
-        # Try fallback as last resort
-        try:
-            _create_writer_directory_fallback(writer_dir)
-            logger.info(f"✓ Created writer directory with emergency fallback: {writer_dir}")
-            return writer_dir
-        except Exception as fallback_error:
-            logger.error(f"Fallback also failed: {fallback_error}", exc_info=True)
-            return None
-
-
-def _create_writer_directory_fallback(writer_dir: Path) -> None:
-    """Create minimal writer directory structure as fallback.
-
-    Used when scitex create_writer_directory fails (e.g., git SSH issues).
-    Creates the essential directory structure needed for the writer app.
-    """
-    # Create required subdirectories
-    directories = [
-        writer_dir / "01_manuscript" / "contents",
-        writer_dir / "02_supplementary" / "contents",
-        writer_dir / "03_revision" / "contents",
-        writer_dir / "shared",
-    ]
-
-    for directory in directories:
-        directory.mkdir(parents=True, exist_ok=True)
-        logger.debug(f"Created directory: {directory}")
-
-    # Create minimal .gitkeep files to ensure directories are committed
-    for directory in [writer_dir / "01_manuscript", writer_dir / "02_supplementary",
-                     writer_dir / "03_revision", writer_dir / "shared"]:
-        gitkeep_file = directory / ".gitkeep"
-        gitkeep_file.touch()
-        logger.debug(f"Created .gitkeep in {directory}")
+        logger.error(f"Failed to ensure writer directory: {e}", exc_info=True)
+        # Re-raise the specific error instead of generic message
+        # The caller (initialize_workspace) will catch and format it with proper error handling
+        raise
 
 
 def index(request):
@@ -269,7 +243,7 @@ def index(request):
         # Store current project in session (use slug like scholar_app for consistency)
         request.session['current_project_slug'] = current_project.slug
 
-    # Check if writer directory exists (don't auto-create)
+    # Check if writer directory exists and auto-initialize for guest users
     writer_path = None
     writer_initialized = False
 
@@ -290,6 +264,16 @@ def index(request):
     if writer_path.exists():
         writer_initialized = True
         logger.info(f"Writer directory exists: {writer_path}")
+    elif is_guest:
+        # Auto-initialize writer directory for demo/guest users to enable git functionality
+        logger.info(f"Auto-initializing writer directory for demo user: {writer_path}")
+        try:
+            ensure_writer_directory(current_project)
+            writer_initialized = True
+            logger.info(f"Successfully initialized writer directory for demo user")
+        except Exception as e:
+            logger.error(f"Failed to initialize writer directory for demo user: {e}", exc_info=True)
+            writer_initialized = False
 
     # Load sections from project's writer directory
     sections_data = {}
@@ -441,6 +425,10 @@ def initialize_workspace(request):
     Uses username + project_slug instead of project_id for better API design.
     """
     import json
+    from apps.core.responses import success_response, error_response
+    import logging
+    console_logger = logging.getLogger('scitex.console')
+    endpoint = '/writer/api/initialize-workspace/'
 
     try:
         data = json.loads(request.body)
@@ -448,7 +436,12 @@ def initialize_workspace(request):
         project_slug = data.get('project_slug')
 
         if not username or not project_slug:
-            return JsonResponse({'success': False, 'error': 'Username and project_slug are required'}, status=400)
+            return error_response(
+                message='Username and project_slug are required',
+                error_type='validation_error',
+                endpoint=endpoint,
+                status=400
+            )
 
         # Determine the user to use for project lookup
         user = None
@@ -461,10 +454,12 @@ def initialize_workspace(request):
             # Verify the username matches (security check)
             if user.username != username:
                 logger.warning(f"Username mismatch: authenticated as {user.username}, requested {username}")
-                return JsonResponse({
-                    'success': False,
-                    'error': 'Username mismatch'
-                }, status=403)
+                return error_response(
+                    message='Username mismatch',
+                    error_type='authentication_error',
+                    endpoint=endpoint,
+                    status=403
+                )
         else:
             # Try to get guest user from session
             guest_user_id = request.session.get('guest_user_id')
@@ -476,28 +471,36 @@ def initialize_workspace(request):
                     # Verify the username matches
                     if user.username != username:
                         logger.warning(f"Guest username mismatch: session user {user.username}, requested {username}")
-                        return JsonResponse({
-                            'success': False,
-                            'error': 'Session mismatch. Please refresh the page.'
-                        }, status=403)
+                        return error_response(
+                            message='Session mismatch. Please refresh the page.',
+                            error_type='authentication_error',
+                            endpoint=endpoint,
+                            status=403
+                        )
                 except User.DoesNotExist:
                     logger.warning(f"Guest user not found: {guest_user_id}")
-                    return JsonResponse({
-                        'success': False,
-                        'error': 'Guest session not found. Please refresh the page.'
-                    }, status=401)
+                    return error_response(
+                        message='Guest session not found. Please refresh the page.',
+                        error_type='authentication_error',
+                        endpoint=endpoint,
+                        status=401
+                    )
             else:
                 logger.warning("No authenticated user or guest session found")
-                return JsonResponse({
-                    'success': False,
-                    'error': 'Not authenticated. Please log in or refresh the page.'
-                }, status=401)
+                return error_response(
+                    message='Not authenticated. Please log in or refresh the page.',
+                    error_type='authentication_error',
+                    endpoint=endpoint,
+                    status=401
+                )
 
         if not user:
-            return JsonResponse({
-                'success': False,
-                'error': 'Unable to determine user for workspace initialization'
-            }, status=401)
+            return error_response(
+                message='Unable to determine user for workspace initialization',
+                error_type='authentication_error',
+                endpoint=endpoint,
+                status=401
+            )
 
         # Get project using slug and owner (more robust than project_id)
         try:
@@ -505,38 +508,65 @@ def initialize_workspace(request):
             logger.info(f"Found project: {project.name} (slug={project_slug}, owner={user.username})")
         except Project.DoesNotExist:
             logger.error(f"Project '{project_slug}' not found for user {user.username}")
-            return JsonResponse({
-                'success': False,
-                'error': f"Project '{project_slug}' not found for user {user.username}"
-            }, status=404)
+            return error_response(
+                message=f"Project '{project_slug}' not found for user {user.username}",
+                error_type='not_found',
+                endpoint=endpoint,
+                status=404
+            )
 
         # Initialize writer directory
         logger.info(f"Creating writer directory for project: {project.name} (slug={project_slug}, owner={username})")
-        writer_path = ensure_writer_directory(project)
 
-        if writer_path:
-            logger.info(f"✓ Writer workspace initialized successfully: {writer_path}")
-            return JsonResponse({
-                'success': True,
-                'message': 'Writer workspace initialized successfully',
-                'writer_path': str(writer_path)
-            })
-        else:
-            logger.error(f"Failed to create writer directory for project: {project.name}")
-            return JsonResponse({
-                'success': False,
-                'error': 'Failed to create writer directory'
-            }, status=500)
+        try:
+            writer_path = ensure_writer_directory(project)
+
+            if writer_path:
+                logger.info(f"✓ Writer workspace initialized successfully: {writer_path}")
+                return success_response(
+                    message='Writer workspace initialized successfully',
+                    data={'writer_path': str(writer_path)},
+                    endpoint=endpoint
+                )
+            else:
+                logger.error(f"ensure_writer_directory returned None for project: {project.name}")
+                return error_response(
+                    message='Failed to create writer directory',
+                    error_type='initialization_error',
+                    error_details='ensure_writer_directory returned None',
+                    endpoint=endpoint,
+                    status=500
+                )
+        except Exception as writer_error:
+            # Capture detailed error from ensure_writer_directory
+            import traceback
+            error_traceback = traceback.format_exc()
+            logger.error(f"Failed to initialize writer directory: {writer_error}", exc_info=True)
+            return error_response(
+                message=f'Failed to initialize Writer: {str(writer_error)}',
+                error_type='writer_initialization_error',
+                error_details=str(writer_error),
+                traceback=error_traceback,
+                endpoint=endpoint,
+                status=500
+            )
 
     except json.JSONDecodeError:
         logger.error("Invalid JSON in initialize_workspace request")
-        return JsonResponse({
-            'success': False,
-            'error': 'Invalid JSON request'
-        }, status=400)
+        return error_response(
+            message='Invalid JSON request',
+            error_type='json_decode_error',
+            endpoint=endpoint,
+            status=400
+        )
     except Exception as e:
+        import traceback
+        error_traceback = traceback.format_exc()
         logger.error(f"Error initializing workspace: {e}", exc_info=True)
-        return JsonResponse({
-            'success': False,
-            'error': f'Server error: {str(e)}'
-        }, status=500)
+        return error_response(
+            message=f'Server error: {str(e)}',
+            error_type='server_error',
+            traceback=error_traceback,
+            endpoint=endpoint,
+            status=500
+        )

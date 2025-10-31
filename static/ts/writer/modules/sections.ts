@@ -38,7 +38,7 @@ export class SectionsManager {
     private sections: Map<string, Section> = new Map();
     private hierarchy: SectionHierarchy | null = null;
     private storage: StorageManager;
-    private currentSection: string = 'manuscript/abstract';
+    private currentSection: string = 'manuscript/compiled_pdf';
     private onSectionChangeCallback?: (section: string) => void;
     private onSectionsUpdateCallback?: (sections: Section[]) => void;
     private onHierarchyLoadCallback?: (hierarchy: SectionHierarchy) => void;

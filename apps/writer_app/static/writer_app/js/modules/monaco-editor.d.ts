@@ -102,5 +102,9 @@ export declare class EnhancedEditor {
      * Set editor theme
      */
     setTheme(theme: string): void;
+    /**
+     * Set editor read-only state
+     */
+    setReadOnly(readOnly: boolean): void;
 }
 //# sourceMappingURL=monaco-editor.d.ts.map

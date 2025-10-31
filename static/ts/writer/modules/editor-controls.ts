@@ -10,10 +10,11 @@ export interface EditorControlsOptions {
 }
 
 export class EditorControls {
-    private fontSizeSlider: HTMLInputElement | null;
-    private fontSizeDisplay: HTMLElement | null;
+    private fontSizeSelector: HTMLSelectElement | null;
     private autoPreviewCheckbox: HTMLInputElement | null;
+    private autoPreviewCheckboxPanel: HTMLInputElement | null;
     private previewButton: HTMLButtonElement | null;
+    private previewButtonPanel: HTMLButtonElement | null;
     private latexEditor: HTMLTextAreaElement | null;
     private pdfPreviewManager: any;
     private editor: any;
@@ -25,16 +26,17 @@ export class EditorControls {
     private storageAutoPreviewKey: string = 'scitex-auto-preview';
 
     constructor(options: EditorControlsOptions = {}) {
-        this.fontSizeSlider = document.getElementById('font-size-slider') as HTMLInputElement;
-        this.fontSizeDisplay = document.getElementById('font-size-display');
+        this.fontSizeSelector = document.getElementById('font-size-selector') as HTMLSelectElement;
         this.autoPreviewCheckbox = document.getElementById('auto-preview-checkbox') as HTMLInputElement;
+        this.autoPreviewCheckboxPanel = document.getElementById('auto-preview-checkbox-panel') as HTMLInputElement;
         this.previewButton = document.getElementById('preview-btn-toolbar') as HTMLButtonElement;
+        this.previewButtonPanel = document.getElementById('preview-btn-panel') as HTMLButtonElement;
         this.latexEditor = document.getElementById('latex-editor-textarea') as HTMLTextAreaElement;
         this.pdfPreviewManager = options.pdfPreviewManager;
         this.editor = options.editor;
         this._compilationManager = options.compilationManager;
 
-        if (this.fontSizeSlider || this.autoPreviewCheckbox || this.previewButton) {
+        if (this.fontSizeSelector || this.autoPreviewCheckbox || this.previewButton) {
             this.initialize();
         }
     }
@@ -44,27 +46,54 @@ export class EditorControls {
      */
     private initialize(): void {
         // Font size control
-        if (this.fontSizeSlider && this.fontSizeDisplay) {
+        if (this.fontSizeSelector) {
             this.loadFontSize();
-            this.fontSizeSlider.addEventListener('input', this.handleFontSizeChange.bind(this));
-            console.log('[EditorControls] Font size slider initialized');
+            this.fontSizeSelector.addEventListener('change', this.handleFontSizeChange.bind(this));
+            console.log('[EditorControls] Font size selector initialized');
         }
 
-        // Auto preview control
+        // Auto preview control - toolbar checkbox
         if (this.autoPreviewCheckbox) {
             this.loadAutoPreviewPreference();
-            this.autoPreviewCheckbox.addEventListener('change', this.handleAutoPreviewToggle.bind(this));
-            console.log('[EditorControls] Auto preview checkbox initialized');
+            this.autoPreviewCheckbox.addEventListener('change', (e) => {
+                this.handleAutoPreviewToggle(e);
+                // Sync panel checkbox
+                if (this.autoPreviewCheckboxPanel) {
+                    this.autoPreviewCheckboxPanel.checked = (e.target as HTMLInputElement).checked;
+                }
+            });
+            console.log('[EditorControls] Auto preview checkbox (toolbar) initialized');
         }
 
-        // Preview button
+        // Auto preview control - panel checkbox
+        if (this.autoPreviewCheckboxPanel) {
+            this.loadAutoPreviewPreference(this.autoPreviewCheckboxPanel);
+            this.autoPreviewCheckboxPanel.addEventListener('change', (e) => {
+                this.handleAutoPreviewToggle(e);
+                // Sync toolbar checkbox
+                if (this.autoPreviewCheckbox) {
+                    this.autoPreviewCheckbox.checked = (e.target as HTMLInputElement).checked;
+                }
+            });
+            console.log('[EditorControls] Auto preview checkbox (panel) initialized');
+        }
+
+        // Preview button - toolbar
         if (this.previewButton) {
             this.previewButton.addEventListener('click', this.handlePreviewClick.bind(this));
-            console.log('[EditorControls] Preview button initialized');
+            console.log('[EditorControls] Preview button (toolbar) initialized');
+        }
+
+        // Preview button - panel
+        if (this.previewButtonPanel) {
+            this.previewButtonPanel.addEventListener('click', this.handlePreviewClick.bind(this));
+            console.log('[EditorControls] Preview button (panel) initialized');
         }
 
         // Setup auto-preview trigger on editor changes
-        if (this.latexEditor && this.autoPreviewCheckbox && this.autoPreviewCheckbox.checked) {
+        const autoPreviewEnabled = (this.autoPreviewCheckbox && this.autoPreviewCheckbox.checked) ||
+                                   (this.autoPreviewCheckboxPanel && this.autoPreviewCheckboxPanel.checked);
+        if (this.latexEditor && autoPreviewEnabled) {
             this.setupAutoPreviewTrigger();
         }
 
@@ -113,10 +142,6 @@ export class EditorControls {
             console.log(`[EditorControls] PDF font size updated to ${fontSize}px`);
         }
 
-        if (this.fontSizeDisplay) {
-            this.fontSizeDisplay.textContent = fontSize.toString();
-        }
-
         // Save to localStorage
         localStorage.setItem(this.storageFontSizeKey, fontSize.toString());
         console.log(`[EditorControls] Font size changed to ${fontSize}px`);
@@ -129,16 +154,12 @@ export class EditorControls {
         const saved = localStorage.getItem(this.storageFontSizeKey);
         const fontSize = saved ? parseInt(saved, 10) : this.defaultFontSize;
 
-        if (this.fontSizeSlider) {
-            this.fontSizeSlider.value = fontSize.toString();
+        if (this.fontSizeSelector) {
+            this.fontSizeSelector.value = fontSize.toString();
         }
 
         // Apply to all editors
         this.applyFontSizeToAllEditors(fontSize);
-
-        if (this.fontSizeDisplay) {
-            this.fontSizeDisplay.textContent = fontSize.toString();
-        }
 
         console.log(`[EditorControls] Loaded font size: ${fontSize}px`);
     }
@@ -194,12 +215,22 @@ export class EditorControls {
     /**
      * Load auto-preview preference from localStorage
      */
-    private loadAutoPreviewPreference(): void {
+    private loadAutoPreviewPreference(checkbox: HTMLInputElement | null = null): void {
         const saved = localStorage.getItem(this.storageAutoPreviewKey);
         const isEnabled = saved !== 'false'; // Default to true
 
+        if (checkbox) {
+            checkbox.checked = isEnabled;
+        } else if (this.autoPreviewCheckbox) {
+            this.autoPreviewCheckbox.checked = isEnabled;
+        }
+
+        // Sync both checkboxes
         if (this.autoPreviewCheckbox) {
             this.autoPreviewCheckbox.checked = isEnabled;
+        }
+        if (this.autoPreviewCheckboxPanel) {
+            this.autoPreviewCheckboxPanel.checked = isEnabled;
         }
     }
 
@@ -210,7 +241,10 @@ export class EditorControls {
         if (!this.latexEditor) return;
 
         this.latexEditor.addEventListener('input', () => {
-            if (!this.autoPreviewCheckbox || !this.autoPreviewCheckbox.checked) return;
+            // Check if auto-preview is enabled (either checkbox)
+            const isEnabled = (this.autoPreviewCheckbox && this.autoPreviewCheckbox.checked) ||
+                            (this.autoPreviewCheckboxPanel && this.autoPreviewCheckboxPanel.checked);
+            if (!isEnabled) return;
 
             // Clear existing timeout
             this.clearAutoPreviewTimeout();
@@ -275,8 +309,8 @@ export class EditorControls {
      * Get current font size
      */
     public getFontSize(): number {
-        if (this.fontSizeSlider) {
-            return parseInt(this.fontSizeSlider.value, 10);
+        if (this.fontSizeSelector) {
+            return parseInt(this.fontSizeSelector.value, 10);
         }
         return this.defaultFontSize;
     }
@@ -286,10 +320,10 @@ export class EditorControls {
      */
     public setFontSize(fontSize: number): void {
         if (fontSize >= 10 && fontSize <= 20) {
-            if (this.fontSizeSlider) {
-                this.fontSizeSlider.value = fontSize.toString();
-                const event = new Event('input', { bubbles: true });
-                this.fontSizeSlider.dispatchEvent(event);
+            if (this.fontSizeSelector) {
+                this.fontSizeSelector.value = fontSize.toString();
+                const event = new Event('change', { bubbles: true });
+                this.fontSizeSelector.dispatchEvent(event);
             }
         }
     }

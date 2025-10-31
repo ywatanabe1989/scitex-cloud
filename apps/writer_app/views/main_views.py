@@ -153,12 +153,18 @@ def initialize_workspace(request):
             })
 
         # Initialize Writer (creates directory structure)
-        from ..services.writer_service import WriterService
-        service = WriterService(project_id, request.user.id)
+        # Use ensure_writer_directory which properly handles parent directory creation
+        from .editor_views import ensure_writer_directory
 
-        # Trigger initialization by accessing writer property
-        # This creates the directory structure
-        writer = service.writer
+        try:
+            ensure_writer_directory(project)
+            logger.info(f"Writer workspace initialized successfully for project {project_id}")
+        except Exception as e:
+            logger.error(f"Failed to initialize writer workspace: {e}", exc_info=True)
+            return JsonResponse({
+                'success': False,
+                'error': f'Failed to initialize Writer: {str(e)}'
+            }, status=500)
 
         # writer_initialized is a computed property based on filesystem state
         # No need to manually set it - it will automatically return True now

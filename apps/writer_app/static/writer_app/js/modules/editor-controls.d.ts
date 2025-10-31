@@ -8,10 +8,11 @@ export interface EditorControlsOptions {
     editor?: any;
 }
 export declare class EditorControls {
-    private fontSizeSlider;
-    private fontSizeDisplay;
+    private fontSizeSelector;
     private autoPreviewCheckbox;
+    private autoPreviewCheckboxPanel;
     private previewButton;
+    private previewButtonPanel;
     private latexEditor;
     private pdfPreviewManager;
     private editor;
@@ -33,6 +34,10 @@ export declare class EditorControls {
      * Load font size from localStorage
      */
     private loadFontSize;
+    /**
+     * Apply font size to all editors (Monaco, CodeMirror, PDF)
+     */
+    private applyFontSizeToAllEditors;
     /**
      * Handle auto preview checkbox toggle
      */

@@ -28,6 +28,7 @@ export class PDFPreviewManager {
     private compileTimeout: ReturnType<typeof setTimeout> | null = null;
     private currentPdfUrl: string | null = null;
     private fontSize: number = 14; // Default editor font size
+    private colorMode: 'light' | 'dark' = 'light'; // PDF color mode
 
     constructor(options: PDFPreviewOptions) {
         this.container = document.getElementById(options.containerId);
@@ -118,12 +119,21 @@ export class PDFPreviewManager {
             projectId: this.projectId,
             docType: this.docType,
             content: latexContent,
-            format: 'pdf'
+            format: 'pdf',
+            colorMode: this.colorMode
         };
 
-        console.log('[PDFPreview] Quick compile with docType:', this.docType, 'fontSize:', this.fontSize);
+        console.log('[PDFPreview] Quick compile with docType:', this.docType, 'fontSize:', this.fontSize, 'colorMode:', this.colorMode);
 
         await this.compilationManager.compile(options);
+    }
+
+    /**
+     * Set PDF color mode
+     */
+    setColorMode(colorMode: 'light' | 'dark'): void {
+        this.colorMode = colorMode;
+        console.log('[PDFPreview] Color mode set to:', colorMode);
     }
 
     /**
@@ -139,12 +149,15 @@ export class PDFPreviewManager {
             // Batch all HTML updates in a single operation
             this.container!.innerHTML = `
                 <div class="pdf-preview-container">
-                    <div class="pdf-preview-viewer">
-                        <embed
-                            src="${pdfUrl}#toolbar=0&navpanes=0&scrollbar=1"
+                    <div class="pdf-preview-viewer" id="pdf-viewer-pane">
+                        <iframe
+                            src="${pdfUrl}#toolbar=0&navpanes=0&scrollbar=1&view=FitW"
                             type="application/pdf"
-                            title="PDF Preview">
-                        </embed>
+                            width="100%"
+                            height="100%"
+                            title="PDF Preview"
+                            frameborder="0">
+                        </iframe>
                     </div>
                 </div>
             `;

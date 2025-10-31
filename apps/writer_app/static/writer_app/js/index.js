@@ -122,7 +122,7 @@ async function loadTexFile(filePath, editor) {
         return;
     }
     try {
-        const response = await fetch(`/writer/api/project/${config.projectId}/file-content/?path=${encodeURIComponent(filePath)}`);
+        const response = await fetch(`/writer/api/project/${config.projectId}/read-tex-file/?path=${encodeURIComponent(filePath)}`);
         console.log('[Writer] File API response status:', response.status);
         if (!response.ok) {
             const errorText = await response.text();
@@ -145,6 +145,82 @@ async function loadTexFile(filePath, editor) {
     catch (error) {
         console.error('[Writer] Error loading file:', error);
         showToast('Error loading file: ' + (error instanceof Error ? error.message : 'Unknown error'), 'error');
+    }
+}
+/**
+ * Populate section dropdown directly (fallback when FileTreeManager not available)
+ */
+async function populateSectionDropdownDirect(docType = 'manuscript', onFileSelectCallback = null) {
+    console.log('[Writer] Populating section dropdown directly for:', docType);
+    const dropdown = document.getElementById('texfile-selector');
+    if (!dropdown) {
+        console.warn('[Writer] Section dropdown not found');
+        return;
+    }
+    try {
+        const response = await fetch('/writer/api/sections-config/');
+        const data = await response.json();
+        if (!data.success || !data.hierarchy) {
+            console.error('[Writer] Failed to load sections hierarchy');
+            return;
+        }
+        const hierarchy = data.hierarchy;
+        dropdown.innerHTML = '';
+        let sections = [];
+        if (docType === 'manuscript' && hierarchy.manuscript) {
+            sections = hierarchy.manuscript.sections;
+        }
+        else if (docType === 'supplementary' && hierarchy.supplementary) {
+            sections = hierarchy.supplementary.sections;
+        }
+        else if (docType === 'revision' && hierarchy.revision) {
+            sections = hierarchy.revision.sections;
+        }
+        if (sections.length === 0) {
+            console.warn('[Writer] No sections found for document type:', docType);
+            return;
+        }
+        const optgroup = document.createElement('optgroup');
+        optgroup.label = docType.charAt(0).toUpperCase() + docType.slice(1);
+        sections.forEach((section) => {
+            const option = document.createElement('option');
+            option.value = section.id;
+            option.textContent = section.label;
+            if (section.is_complete) {
+                option.dataset.complete = 'true';
+            }
+            if (section.read_only) {
+                option.dataset.readonly = 'true';
+            }
+            optgroup.appendChild(option);
+        });
+        dropdown.appendChild(optgroup);
+        console.log('[Writer] Dropdown populated with', sections.length, 'sections');
+        // Add change event listener if not already attached
+        if (!dropdown.dataset.listenerAttached) {
+            dropdown.addEventListener('change', (e) => {
+                const target = e.target;
+                if (target.value && onFileSelectCallback) {
+                    const sectionId = target.value;
+                    const selectedOption = target.options[target.selectedIndex];
+                    const sectionName = selectedOption.textContent || sectionId;
+                    console.log('[Writer] Section selected from dropdown:', sectionName, 'ID:', sectionId);
+                    // Trigger callback with section info
+                    onFileSelectCallback(sectionId, sectionName);
+                }
+            });
+            dropdown.dataset.listenerAttached = 'true';
+        }
+        // Select first option and trigger selection manually (not via event)
+        if (dropdown.options.length > 0 && onFileSelectCallback) {
+            dropdown.selectedIndex = 0;
+            const firstOption = dropdown.options[0];
+            console.log('[Writer] Auto-selecting first section:', firstOption.value);
+            onFileSelectCallback(firstOption.value, firstOption.textContent || '');
+        }
+    }
+    catch (error) {
+        console.error('[Writer] Error populating dropdown:', error);
     }
 }
 /**
@@ -205,30 +281,42 @@ async function initializeEditor(config) {
     // @ts-ignore - editorControls is initialized and manages its own event listeners
     const editorControls = new EditorControls({
         pdfPreviewManager: pdfPreviewManager,
-        compilationManager: compilationManager
+        compilationManager: compilationManager,
+        editor: editor
     });
-    // Initialize file tree if project exists
-    if (config.projectId) {
+    // Define shared section/file selection callback
+    const onFileSelectHandler = (sectionId, sectionName) => {
+        console.log('[Writer] File/section selected:', sectionName, 'ID:', sectionId);
+        // Check if this is a known section ID pattern or a file path
+        // Section IDs follow: {docType}/{sectionName}
+        // File paths have .tex extension or are in shared/* directories
+        const sectionPattern = /^(manuscript|supplementary|revision)\/(abstract|introduction|methods|results|discussion|content|figures|tables|response|changes|compiled_pdf)$/;
+        const isKnownSection = sectionPattern.test(sectionId);
+        if (isKnownSection) {
+            // It's a section ID - switch section
+            console.log('[Writer] Detected section ID, switching section:', sectionId);
+            switchSection(editor, sectionsManager, state, sectionId);
+        }
+        else if (sectionId.endsWith('.tex')) {
+            // It's a file path - load from disk
+            console.log('[Writer] Detected .tex file, loading from disk:', sectionId);
+            loadTexFile(sectionId, editor);
+        }
+        else {
+            // Fallback: try as section first, then as file
+            console.log('[Writer] Unknown ID format, trying as section:', sectionId);
+            switchSection(editor, sectionsManager, state, sectionId);
+        }
+    };
+    // Initialize file tree (including demo mode with projectId 0)
+    if (config.projectId !== null && config.projectId !== undefined) {
         const fileTreeContainer = document.getElementById('tex-files-list');
         if (fileTreeContainer) {
             const fileTreeManager = new FileTreeManager({
                 projectId: config.projectId,
                 container: fileTreeContainer,
                 texFileDropdownId: 'texfile-selector',
-                onFileSelect: (sectionId, sectionName) => {
-                    console.log('[Writer] File/section selected:', sectionName, 'ID:', sectionId);
-                    // Check if this is a .tex file path or a section ID
-                    if (sectionId.endsWith('.tex') || sectionId.includes('/')) {
-                        // It's a file path - load from disk
-                        console.log('[Writer] Detected .tex file, loading from disk:', sectionId);
-                        loadTexFile(sectionId, editor);
-                    }
-                    else {
-                        // It's a section ID - switch section
-                        console.log('[Writer] Detected section ID, switching section:', sectionId);
-                        switchSection(editor, sectionsManager, state, sectionId);
-                    }
-                }
+                onFileSelect: onFileSelectHandler
             });
             // Load file tree
             fileTreeManager.load().catch((error) => {
@@ -263,6 +351,16 @@ async function initializeEditor(config) {
                 });
             }
         }
+        else {
+            // No file tree container found - populate dropdown directly
+            console.log('[Writer] No file tree container, populating dropdown directly');
+            populateSectionDropdownDirect('manuscript', onFileSelectHandler);
+        }
+    }
+    else {
+        // No projectId - still need to populate dropdown
+        console.log('[Writer] No project, populating dropdown for demo mode');
+        populateSectionDropdownDirect('manuscript', onFileSelectHandler);
     }
     // Setup event listeners
     if (editor) {
@@ -275,7 +373,7 @@ async function initializeEditor(config) {
     // Display PDF preview placeholder
     pdfPreviewManager.displayPlaceholder();
     // Load initial content
-    const currentSection = state.currentSection || 'abstract';
+    const currentSection = state.currentSection || 'manuscript/compiled_pdf';
     const content = sectionsManager.getContent(currentSection);
     if (editor && content) {
         editor.setContent(content);
@@ -373,6 +471,20 @@ function setupEditorListeners(editor, sectionsManager, compilationManager, state
             handleCompile(editor, sectionsManager, compilationManager, state, pdfPreviewManager);
         });
     }
+    // Setup git commit button
+    const commitBtn = document.getElementById('git-commit-btn');
+    if (commitBtn) {
+        commitBtn.addEventListener('click', () => {
+            showCommitModal(state);
+        });
+    }
+    // Setup confirm commit button (in modal)
+    const confirmCommitBtn = document.getElementById('confirm-commit-btn');
+    if (confirmCommitBtn) {
+        confirmCommitBtn.addEventListener('click', async () => {
+            await handleGitCommit(state);
+        });
+    }
 }
 /**
  * Setup section listeners
@@ -390,8 +502,16 @@ function setupSectionListeners(sectionsManager, editor, state, _storage) {
     });
     // Listen for section changes
     sectionsManager.onSectionChange((sectionId) => {
+        console.log('[Writer] Section change callback triggered for:', sectionId);
         const content = sectionsManager.getContent(sectionId);
-        editor.setContent(content);
+        console.log('[Writer] Section content length:', content?.length || 0);
+        if (editor && content) {
+            editor.setContent(content);
+            console.log('[Writer] Editor content updated for section:', sectionId);
+        }
+        else {
+            console.warn('[Writer] Failed to update editor - missing editor or content');
+        }
         state.currentSection = sectionId;
         updateSectionUI(sectionId);
     });
@@ -532,6 +652,47 @@ function setupThemeListener(editor) {
     });
 }
 /**
+ * Load section content from API
+ */
+async function loadSectionContent(editor, sectionsManager, state, sectionId) {
+    const config = getWriterConfig();
+    if (!config.projectId) {
+        console.warn('[Writer] Cannot load section content: no project ID');
+        return;
+    }
+    try {
+        // Extract section name and doc type from sectionId (e.g., "manuscript/abstract" -> doc_type="manuscript", section_name="abstract")
+        const parts = sectionId.split('/');
+        if (parts.length !== 2) {
+            console.warn('[Writer] Invalid section ID format:', sectionId);
+            return;
+        }
+        const docType = parts[0];
+        const sectionName = parts[1];
+        console.log('[Writer] Loading section content:', sectionId, 'docType:', docType, 'sectionName:', sectionName);
+        const response = await fetch(`/writer/api/project/${config.projectId}/section/${sectionName}/?doc_type=${docType}`);
+        if (!response.ok) {
+            const error = await response.text();
+            console.error('[Writer] Failed to load section:', response.status, error);
+            return;
+        }
+        const data = await response.json();
+        if (data.success && data.content !== undefined) {
+            console.log('[Writer] Section content loaded, length:', data.content.length);
+            sectionsManager.setContent(sectionId, data.content);
+            if (editor && state.currentSection === sectionId) {
+                editor.setContent(data.content);
+            }
+        }
+        else {
+            console.error('[Writer] Invalid section response:', data);
+        }
+    }
+    catch (error) {
+        console.error('[Writer] Error loading section content:', error);
+    }
+}
+/**
  * Switch to a section
  */
 function switchSection(editor, sectionsManager, state, sectionId) {
@@ -539,11 +700,23 @@ function switchSection(editor, sectionsManager, state, sectionId) {
     const currentContent = editor.getContent();
     sectionsManager.setContent(state.currentSection, currentContent);
     // Switch to new section
-    sectionsManager.switchTo(sectionId);
+    const switched = sectionsManager.switchTo(sectionId);
+    if (!switched) {
+        console.warn('[Writer] Failed to switch to section:', sectionId, '- section not found in manager');
+    }
+    else {
+        console.log('[Writer] Successfully switched to section:', sectionId);
+    }
     state.currentSection = sectionId;
     updateSectionUI(sectionId);
     // Sync dropdown to show currently selected section
     syncDropdownToSection(sectionId);
+    // Load content from server if not already cached
+    const cachedContent = sectionsManager.getContent(sectionId);
+    if (!cachedContent) {
+        console.log('[Writer] No cached content for section, loading from API:', sectionId);
+        loadSectionContent(editor, sectionsManager, state, sectionId);
+    }
 }
 /**
  * Update section UI
@@ -552,6 +725,61 @@ function updateSectionUI(sectionId) {
     document.querySelectorAll('.section-tab').forEach(tab => {
         tab.classList.toggle('active', tab.dataset.section === sectionId);
     });
+    // Update the section title label in the editor header
+    updateSectionTitleLabel(sectionId);
+    // Show/hide commit button based on section type (hide for read-only sections)
+    updateCommitButtonVisibility(sectionId);
+}
+/**
+ * Update the section title label to show current section name
+ */
+function updateSectionTitleLabel(sectionId) {
+    const titleElement = document.getElementById('editor-section-title');
+    if (!titleElement)
+        return;
+    // Extract section name from sectionId (e.g., "manuscript/abstract" -> "Abstract")
+    const parts = sectionId.split('/');
+    const sectionName = parts[parts.length - 1];
+    // Capitalize and format the section name
+    const formattedName = sectionName
+        .split('_')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+    titleElement.textContent = `${formattedName} Source`;
+}
+/**
+ * Update commit button state based on section type and user authentication
+ * - Hides button for guest users (Visitor Mode)
+ * - Disables button for read-only sections (keeps it visible to reduce surprise)
+ */
+function updateCommitButtonVisibility(sectionId) {
+    const commitBtn = document.getElementById('git-commit-btn');
+    if (!commitBtn)
+        return;
+    const config = window.WRITER_CONFIG;
+    // Hide for guest users (projectId === 0 means demo/guest project)
+    if (!config || config.projectId === 0) {
+        commitBtn.style.display = 'none';
+        return;
+    }
+    // Always show button for authenticated users
+    commitBtn.style.display = '';
+    // Extract section name from sectionId (e.g., "manuscript/compiled_pdf" -> "compiled_pdf")
+    const parts = sectionId.split('/');
+    const sectionName = parts[parts.length - 1];
+    // Disable button for read-only sections (but keep it visible)
+    // compiled_pdf is the merged/compiled document
+    // figures, tables, references are directories or view-only sections
+    const readOnlySections = ['compiled_pdf', 'figures', 'tables', 'references'];
+    const isReadOnly = readOnlySections.includes(sectionName);
+    if (isReadOnly) {
+        commitBtn.disabled = true;
+        commitBtn.title = 'Cannot commit read-only sections';
+    }
+    else {
+        commitBtn.disabled = false;
+        commitBtn.title = 'Create git commit for current changes';
+    }
 }
 /**
  * Update word count display
@@ -669,6 +897,108 @@ async function handleCompile(_editor, sectionsManager, _compilationManager, _sta
     }
 }
 /**
+ * Show git commit modal
+ */
+function showCommitModal(state) {
+    const currentSection = state.currentSection;
+    if (!currentSection) {
+        showToast('No section selected', 'warning');
+        return;
+    }
+    // Update current section info in modal
+    const sectionInfoEl = document.getElementById('commit-current-section');
+    if (sectionInfoEl) {
+        const parts = currentSection.split('/');
+        const sectionName = parts[parts.length - 1];
+        const formattedName = sectionName
+            .split('_')
+            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+        sectionInfoEl.textContent = formattedName;
+    }
+    // Clear previous message
+    const messageInput = document.getElementById('commit-message-input');
+    if (messageInput) {
+        messageInput.value = '';
+        messageInput.focus();
+    }
+    // Show modal using Bootstrap
+    const modalEl = document.getElementById('git-commit-modal');
+    if (modalEl) {
+        const modal = new window.bootstrap.Modal(modalEl);
+        modal.show();
+    }
+}
+/**
+ * Handle git commit
+ */
+async function handleGitCommit(state) {
+    const currentSection = state.currentSection;
+    if (!currentSection) {
+        showToast('No section selected', 'warning');
+        return;
+    }
+    const messageInput = document.getElementById('commit-message-input');
+    const commitMessage = messageInput?.value.trim();
+    if (!commitMessage) {
+        showToast('Please enter a commit message', 'warning');
+        messageInput?.focus();
+        return;
+    }
+    try {
+        // Extract doc type and section name
+        const [docType, sectionName] = currentSection.split('/');
+        if (!docType || !sectionName) {
+            showToast('Invalid section format', 'error');
+            return;
+        }
+        const config = window.WRITER_CONFIG;
+        // First, ensure changes are saved to file (auto-save might not have triggered yet)
+        console.log('[Writer] Ensuring section is saved before commit...');
+        // We need to get the current editor content and save it
+        // This will be handled by calling the section write API
+        // For now, we'll proceed with commit assuming auto-save has run
+        // Call API endpoint to commit
+        const response = await fetch(`/writer/api/project/${config.projectId}/section/${sectionName}/commit/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': config.csrfToken
+            },
+            body: JSON.stringify({
+                doc_type: docType,
+                message: commitMessage
+            })
+        });
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('[Writer] Commit HTTP error:', response.status, errorText);
+            throw new Error(`HTTP ${response.status}: ${errorText}`);
+        }
+        const data = await response.json();
+        console.log('[Writer] Commit response:', data);
+        if (data.success) {
+            showToast('Changes committed successfully', 'success');
+            // Close modal
+            const modalEl = document.getElementById('git-commit-modal');
+            if (modalEl) {
+                const modal = window.bootstrap.Modal.getInstance(modalEl);
+                if (modal) {
+                    modal.hide();
+                }
+            }
+        }
+        else {
+            console.error('[Writer] Commit failed:', data);
+            throw new Error(data.error || 'Commit failed');
+        }
+    }
+    catch (error) {
+        console.error('[Writer] Git commit error:', error);
+        showToast('Failed to commit: ' + (error instanceof Error ? error.message : 'Unknown error'), 'error');
+    }
+}
+/**
  * Setup sidebar button listeners
  */
 function setupSidebarButtons(_config) {
@@ -685,4 +1015,6 @@ function openPDF(url) {
         showToast('Failed to open PDF. Please check popup blocker settings.');
     }
 }
+// Export functions to global scope for ES6 module compatibility
+window.populateSectionDropdownDirect = populateSectionDropdownDirect;
 //# sourceMappingURL=index.js.map

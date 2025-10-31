@@ -8,10 +8,11 @@ export interface EditorControlsOptions {
     editor?: any;
 }
 export declare class EditorControls {
-    private fontSizeSlider;
-    private fontSizeDisplay;
+    private fontSizeSelector;
     private autoPreviewCheckbox;
+    private autoPreviewCheckboxPanel;
     private previewButton;
+    private previewButtonPanel;
     private latexEditor;
     private pdfPreviewManager;
     private editor;
