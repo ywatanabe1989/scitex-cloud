@@ -1165,9 +1165,10 @@ function showNotification(message, type = 'info') {
 
 /**
  * Make table rows clickable
+ * Supports both .clickable-row (legacy) and .file-browser-row (new standard) classes
  */
 function initClickableRows() {
-    const clickableRows = document.querySelectorAll('.clickable-row');
+    const clickableRows = document.querySelectorAll('.clickable-row, .file-browser-row');
     clickableRows.forEach(row => {
         row.addEventListener('click', function(e) {
             if (e.target.tagName === 'A' || e.target.closest('a')) {

@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-30 13:18:42
+!-- Timestamp: 2025-11-01 09:34:32
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/CLAUDE.md
 !-- --- -->
@@ -67,22 +67,55 @@ See `/dev/design/`
 ## Debugging Javascripts
 Add console.log for debugging
 
+## Error cascading
+python errors should be cascaded to console.log in javascript (or typescript), and also save logs to ./logs/console.log
+Simple stderr as text will enhance the easiness of trouble shooting.
+Actually, this rule should be applied to all of this web app
+
 ---
 
 # Requests
 
-- [ ] Latex pane and preview pane have 50%:50% widths
-- [ ] Just place splitter between them
-- [ ] Remove the large space between the left and right panes!
-- [ ] take screenshot and confirm with your eyes
-- [ ] Spliters width should be 0 but with slight handle
+## Rules for clear system building
 
-- [ ] PDF上部に大きな余白 (MANUSCRIPT PDFヘッダーの下); delete this ans maximize the PDF
+## Common vs App
+Clearly distinguish common files and app-level files
+app-level files should be under ./apps/<app_name>_app/
 
-- [ ] Take screenshots and confirm with your eyes.
-- [ ] 
+## Central Logging system
+- [ ] Log to one place
+  - [ ] ./logs/*.log
 
-- [ ] http://127.0.0.1:8000/scholar/search/
+## General
+- [ ] Single source of truth
+- [ ] Smaller files are better than monotholic, large files
+
+## Typescript over Javascript 
+- [ ] Migrate Javascript to Typescript
+  - [ ] console.log for debugging
+  - [ ] switchable log function should be implemented in central
+
+## CSS Rules
+- [ ] No inline styles. No exception. Factor out to css files
+- [ ] No distributed css files. For one class, only one css file can be applied.
+
+## HTML Rules
+- [ ] Use partials to read skelton structure of html pages
+
+## https://127.0.0.1:8000/writer/
+- [ ] Refactoring
+
+  - [ ] ./static/ts/writer -> ./apps/writer_app/static/writer_app/ts
+  - [ ] ./apps/writer_app/static/writer_app/css
+  - [ ] ./apps/writer_app/static/writer_app/js
+  - [ ] ./apps/writer_app/static/writer_app/ts
+  - [ ] ./apps/writer_app/templates/write_app/
+
+### Writer Advanced (skip this now)
+  - [ ] Diff functionality
+  - [ ] Multi-user edition
+
+## https://127.0.0.1:8000/search/ (skip this now)
 - [ ] When save button clicked, searched results disappear from the page
 - [ ] This prompt shown but search results disappear
 Select Project
@@ -105,7 +138,7 @@ Choose a project to save this paper:
 - [ ] Header
 - [ ] Scholar button should be separated button; the left is okay; right should have dropdown and enable selection whether bibtex or search
 
-## Project Page
+## Project Page (skip this now)
 - [ ] Root: http://127.0.0.1:8000/test-user/proj-001/
   - [ ] Layout of Root directory is good. 
 - [ ] Child: http://127.0.0.1:8000/test-user/proj-001/.git
