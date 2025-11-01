@@ -1,374 +1,342 @@
+<!-- ---
+!-- Timestamp: 2025-11-01 16:36:27
+!-- Author: ywatanabe
+!-- File: /home/ywatanabe/proj/scitex-cloud/README.md
+!-- --- -->
+
 # SciTeX Cloud
 
-**Open-source scientific research platform for researchers and academics**
+Open-source scientific research platform for researchers and academics.
 
-🌐 **Live Website**: https://scitex.ai
-📚 **Documentation**: [./docs/](./docs/)
-🔧 **Version**: 0.1.0-alpha
-
----
-
-## ⚠️ Development Status
-
-This project is under active development. Not all functionalities are implemented. Any data may be lost until stable version is released. **Modules may work locally better.**
-
----
-
-## Overview
-
-SciTeX Cloud is a Django-based web platform that provides an integrated ecosystem for scientific research, from literature discovery to manuscript publication.
-
-### Core Modules
-
-- **Scholar** - Literature discovery and analysis
-- **Writer** - AI-enhanced scientific writing
-- **Code** - Data analysis and computing
-- **Viz** - Publication-quality graphics
-
-### Deployment Options
-
-- **SciTeX Cloud** - Web interface at scitex.ai (this repository)
-- **SciTeX Local** - Full control, no internet required
+🌐 **Live**: https://scitex.ai
+📦 **Package**: `pip install scitex[web,scholar,writer,dev]`
+🔧 **Status**: Alpha (data may be lost)
 
 ---
 
 ## Quick Start
 
-### Development Setup
+<details open>
+<summary><b>Docker (Recommended)</b></summary>
 
 ```bash
-# Clone repository
+# Clone and navigate
 git clone git@github.com:ywatanabe1989/scitex-cloud.git
 cd scitex-cloud
 
-# Create virtual environment
+# Start development environment
+make start
+
+# Access at: http://localhost:8000
+# Gitea: http://localhost:3000
+```
+
+**Test User:**
+- Username: `test-user`
+- Password: `Test-user!`
+
+</details>
+
+<details>
+<summary><b>Local (Without Docker)</b></summary>
+
+```bash
+# Setup
 python3 -m venv .venv
 source .venv/bin/activate
+pip install scitex[web,scholar,writer,dev]
 
-# Install dependencies
-pip install -r requirements.txt
-
-# Set up environment variables
+# Configure
 cp deployment/dotenvs/dotenv.example .env
-# Edit .env with your configuration
+# Edit .env with your settings
 
-# Run migrations
+# Run
 python manage.py migrate
+python manage.py runserver
 
-# Start development server
-./server.sh
+# Access at: http://127.0.0.1:8000
 ```
 
-Access at: http://127.0.0.1:8000/
+</details>
 
 ---
 
-## Project Structure
+## Deployment Options
 
-```
-scitex-cloud/
-├── apps/                    # Django applications
-│   ├── auth_app/           # Authentication & signup
-│   ├── cloud_app/          # Landing page & main UI
-│   ├── code_app/           # Code analysis module
-│   ├── scholar_app/        # Literature discovery
-│   ├── writer_app/         # Scientific writing
-│   ├── viz_app/            # Data visualization
-│   ├── profile_app/        # User profiles & settings
-│   ├── project_app/        # Repository management
-│   ├── social_app/         # Social features (follow, star, explore)
-│   ├── dev_app/            # Design system & developer tools
-│   └── gitea_app/          # Git hosting integration
-│
-├── config/                  # Django configuration
-│   ├── settings/           # Settings files (dev, prod, shared)
-│   └── urls.py             # Main URL routing
-│
-├── static/                  # Frontend assets
-│   ├── css/                # Stylesheets
-│   │   ├── common/         # Shared styles (colors, typography, settings-layout)
-│   │   ├── components/     # Component styles (hero, buttons)
-│   │   ├── pages/          # Page-specific styles
-│   │   └── base/           # Base & overrides
-│   ├── js/                 # JavaScript
-│   └── images/             # Icons, logos
-│
-├── templates/               # Base templates
-│   └── partials/           # Reusable components (header, footer)
-│
-├── deployment/              # Deployment configurations
-│   ├── dotenvs/            # Environment variable templates
-│   ├── gitea/              # Gitea integration setup
-│   ├── nginx/              # Nginx configurations
-│   ├── postgres/           # PostgreSQL setup
-│   └── uwsgi/              # uWSGI configurations
-│
-├── scripts/                 # Utility scripts
-│   ├── server/             # Server management
-│   ├── deployment/         # Deployment helpers
-│   ├── docs_building/      # Documentation generation
-│   └── utils/              # Formatting & utilities
-│
-├── docs/                    # Documentation
-│   └── archive/            # Historical documentation
-│
-├── data/                    # User data (gitignored)
-│   ├── db/                 # Database files
-│   ├── ssh_keys/           # SSH keys (sensitive)
-│   └── users/              # User workspaces
-│
-└── tests/                   # Test suite
+<details open>
+<summary><b>Development (Default)</b></summary>
 
+```bash
+make start                    # Full setup
+make restart                  # Quick restart
+make logs                     # View logs
+make migrate                  # Run migrations
+make shell                    # Django shell
 ```
 
----
+</details>
 
-## Key Features
+<details>
+<summary><b>Production</b></summary>
 
-### User Profile System
-- Public profile with bio, institution, and research interests
-- Git hosting profiles (GitHub, GitLab, Bitbucket)
-- Tabbed interface: Overview, Repositories, Projects, Stars
-- Settings organized by sections (Personal, Access & Security)
+```bash
+make ENV=prod start           # Deploy production
+make ENV=prod db-backup       # Backup database
+make ENV=prod verify-health   # Health check
+```
 
-### Profile Settings
-- **Public Profile** - Bio, location, links, Git hosting profiles
-- **Account** - Email change, password change, delete account
-- **Appearance** - Theme preferences (dark mode default)
-- **Git Integrations** - GitHub, GitLab, Bitbucket tokens (masked display)
-- **SSH & GPG Keys** - Tabbed interface for key management
-- **API Keys** - API token management
+</details>
 
-### Repository Management
-- GitHub-style repository interface
-- Import from GitHub/GitLab/Bitbucket
-- Collaborator management (Read, Write, Admin roles)
-- Visibility controls (Public/Private)
-- GitHub-style deletion confirmation
+<details>
+<summary><b>NAS/Home Server</b></summary>
 
-### Design System
-- Theme-responsive (light/dark modes)
-- GitHub-inspired UI components
-- Hero component with multiple gradient variants
-- Consistent color palette across all pages
-- Accessible at `/dev/design/`
+```bash
+make ENV=nas start            # Start on NAS
+make ENV=nas status           # Check status
+make ENV=nas db-backup        # Backup
+```
+
+</details>
+
+**All commands:** `make help` or `make ENV=prod help`
 
 ---
 
 ## Environment Variables
 
-Create a `.env` file or use `deployment/dotenvs/dotenv.{dev,prod}`:
+<details>
+<summary><b>Configuration Files</b></summary>
 
+Place `.env` files in `SECRET/` directory (gitignored):
+- `SECRET/.env.dev` - Development
+- `SECRET/.env.prod` - Production
+- `SECRET/.env.nas` - NAS
+
+**Required variables:**
 ```bash
 # Django
-SCITEX_DJANGO_SECRET_KEY=your-secret-key-here
-DEBUG=True  # False in production
+DJANGO_SECRET_KEY=your-secret-key
+DEBUG=True                           # False in production
 
 # Database
-SCITEX_DB_ENGINE=sqlite3  # or postgresql
-SCITEX_DB_NAME=scitex_cloud.db
+POSTGRES_DB=scitex_cloud_dev
+POSTGRES_USER=scitex_dev
+POSTGRES_PASSWORD=strong-password
 
-# Git Integration (optional)
-SCITEX_CLOUD_GITEA_URL=http://localhost:3000
-SCITEX_CLOUD_GITEA_TOKEN=your-gitea-token
-
-# Email (optional)
-SCITEX_EMAIL_HOST=smtp.gmail.com
-SCITEX_EMAIL_PORT=587
+# Gitea (optional)
+SCITEX_CLOUD_GITEA_URL=http://gitea:3000
+SCITEX_CLOUD_GITEA_TOKEN=your-token
 ```
 
-See `deployment/dotenvs/dotenv.example` for complete list.
+**Templates available:**
+- `containers/docker_dev/.env.dev.example`
+- `containers/docker_prod/.env.prod.example`
+- `containers/docker_nas/.env.nas.example`
+
+</details>
 
 ---
 
-## Development
+## Common Tasks
 
-### Running the Server
-
-```bash
-# Development server
-./server.sh
-
-# Or directly with Django
-python manage.py runserver
-```
-
-### Database Migrations
+<details>
+<summary><b>Development</b></summary>
 
 ```bash
-# Create migrations
-python manage.py makemigrations
-
-# Apply migrations
-python manage.py migrate
-
-# Create superuser
-python manage.py createsuperuser
+make start                    # Start dev environment
+make migrate                  # Run migrations
+make shell                    # Django shell
+make logs-web                 # View web logs
+make db-shell                 # Database shell
+make gitea-token              # Setup Gitea token (dev only)
+make recreate-testuser        # Recreate test user (dev only)
 ```
 
-### Static Files
+</details>
+
+<details>
+<summary><b>Production</b></summary>
 
 ```bash
-# Collect static files for production
-python manage.py collectstatic --noinput
+make ENV=prod start           # Deploy production
+make ENV=prod migrate         # Prod migrations
+make ENV=prod db-backup       # Backup database
+make ENV=prod verify-health   # Health check
+make ENV=prod logs            # View logs
 ```
+
+</details>
+
+<details>
+<summary><b>Testing</b></summary>
+
+```bash
+make test                     # Run test suite (dev)
+make ENV=prod verify-health   # Health check (prod)
+```
+
+</details>
 
 ---
 
-## Deployment
+## Project Structure
 
-See [deployment/README.md](./deployment/README.md) for detailed deployment instructions including:
+<details>
+<summary><b>Directory Organization</b></summary>
 
-- **Nginx** configuration
-- **uWSGI** setup
-- **PostgreSQL** database
-- **Gitea** integration (optional)
-- SSL/HTTPS setup
-
-Quick production deployment:
-```bash
-# Set environment
-export SCITEX_ENV=prod
-
-# Run deployment scripts
-./scripts/deployment/setup_postgres.sh
-./scripts/deployment/configure_nginx_system.sh
-
-# Start services
-systemctl start scitex-cloud
-systemctl start nginx
 ```
+scitex-cloud/
+├── apps/                    # Django applications
+│   ├── scholar_app/        # Literature discovery
+│   ├── writer_app/         # Scientific writing
+│   ├── code_app/           # Code analysis
+│   ├── viz_app/            # Data visualization
+│   ├── project_app/        # Repository management
+│   ├── auth_app/           # Authentication
+│   ├── public_app/         # Landing page
+│   ├── gitea_app/          # Git hosting integration
+│   └── dev_app/            # Design system
+│
+├── containers/              # Container deployments
+│   ├── docker_dev/         # Development
+│   ├── docker_prod/        # Production
+│   ├── docker_nas/         # NAS/Home server
+│   └── common/             # Shared resources
+│
+├── SECRET/                  # Environment files (gitignored)
+│   ├── .env.dev            # Development secrets
+│   ├── .env.prod           # Production secrets
+│   └── .env.nas            # NAS secrets
+│
+├── config/                  # Django configuration
+├── static/                  # Frontend assets
+├── templates/               # Base templates
+├── deployment/              # Legacy deployment configs
+└── Makefile                 # Environment switcher
+```
+
+**Documentation:**
+- `containers/README.md` - Docker setup
+- `containers/docker_dev/README.dev.md` - Dev environment
+- `containers/docker_prod/README.prod.md` - Production
+- `containers/docker_nas/README.nas.md` - NAS deployment
+
+</details>
 
 ---
 
 ## Architecture
 
-### Technology Stack
-- **Backend**: Django 4.2+
-- **Database**: SQLite (dev) / PostgreSQL (prod)
-- **Frontend**: HTML5, CSS3, JavaScript
-- **Server**: Nginx + uWSGI (production)
-- **Version Control**: Git + Gitea integration
+<details>
+<summary><b>Tech Stack</b></summary>
 
-### Design Philosophy
-- **Project-centric**: All modules (Scholar, Code, Viz, Writer) are linked to projects
-- **GitHub-inspired UI**: Familiar interface for developers and researchers
-- **Theme-responsive**: Full light/dark mode support
-- **Open source**: 100% MIT licensed
+**Backend:**
+- Django 4.2+
+- PostgreSQL (Docker) / SQLite (local)
+- Gunicorn (production)
 
----
+**Frontend:**
+- HTML5, CSS3, JavaScript
+- Theme-responsive (light/dark modes)
+- GitHub-inspired UI
 
-## Applications
+**Infrastructure:**
+- Nginx (reverse proxy)
+- Gitea (Git hosting)
+- Redis (caching)
+- Docker Compose (orchestration)
 
-| App | Path | Purpose |
-|-----|------|---------|
-| `auth_app` | `/auth/` | User authentication, signup, login |
-| `cloud_app` | `/` | Landing page, about, donate |
-| `profile_app` | `/profile/` | User profiles and settings |
-| `project_app` | `/<username>/<repo>/` | Repository management |
-| `social_app` | `/social/` | Explore, follow, star, notifications |
-| `scholar_app` | `/scholar/` | Literature search and discovery |
-| `writer_app` | `/writer/` | Manuscript writing interface |
-| `code_app` | `/code/` | Code analysis and execution |
-| `viz_app` | `/viz/` | Data visualization |
-| `dev_app` | `/dev/` | Design system and developer tools |
+**Design:**
+- Project-centric (all modules link to projects)
+- 100% MIT licensed
 
----
-
-## Contributing
-
-We welcome contributions! Please:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'feat: Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-### Code Style
-- Follow Django best practices
-- Use `apps/XXX_app/` format for applications
-- Keep files organized (no files in project root)
-- Use theme-responsive CSS variables
-
----
-
-## Database Migrations
-
-The project includes migrations for:
-- User profiles with SSH keys and Git integrations
-- Project/Repository models with Git metadata
-- Social features (follows, stars, activities)
-
-**Current migrations:**
-- `profile_app`: 4 migrations (SSH keys, Git tokens, hosting profiles)
-- `project_app`: 8 migrations (Git integration, hypotheses removal)
+</details>
 
 ---
 
 ## Troubleshooting
 
-### Common Issues
+<details>
+<summary><b>Docker Issues</b></summary>
 
-**Server won't start:**
 ```bash
-# Check if port 8000 is in use
+make logs                     # Check logs
+make rebuild                  # Rebuild containers
+make down                     # Stop services
+make ENV=dev clean            # Clean up (⚠️ removes volumes)
+```
+
+**Port conflicts:**
+```bash
+sudo lsof -i :8000
+make down
+```
+
+**Permission denied:**
+```bash
+sudo usermod -aG docker $USER
+newgrp docker
+```
+
+</details>
+
+<details>
+<summary><b>Local Development Issues</b></summary>
+
+```bash
+# Port in use
 lsof -i :8000
 
-# Use different port
-python manage.py runserver 8080
-```
-
-**Static files not loading:**
-```bash
-python manage.py collectstatic --noinput
-```
-
-**Database errors:**
-```bash
-# Reset database (development only!)
+# Reset database
 rm data/db/sqlite/scitex_cloud.db
 python manage.py migrate
+
+# Fix static files
+python manage.py collectstatic
+
+# Permission errors
+chmod +x scripts/server/start
 ```
 
-**Permission errors:**
-```bash
-chmod +x scripts/server/start
-chmod +x deployment/gitea/*.sh
-```
+</details>
 
 ---
 
-## Security
+## Contributing
 
-- SSH keys stored in `data/ssh_keys/` (gitignored)
-- User data in `data/users/` (gitignored)
-- Tokens displayed as masked (first 4 + last 4 chars)
-- Environment variables for secrets (never committed)
-- GitHub push protection enabled
+<details>
+<summary><b>How to Contribute</b></summary>
+
+1. Fork repository
+2. Create feature branch: `git checkout -b feature/name`
+3. Commit: `git commit -m 'feat: Add feature'`
+4. Push: `git push origin feature/name`
+5. Open Pull Request
+
+**Code Style:**
+- Django best practices
+- Apps in `apps/XXX_app/` format
+- No files in project root
+- Theme-responsive CSS
+- Environment files in `SECRET/` (never commit)
+
+</details>
 
 ---
 
 ## License
 
-MIT License - See [LICENSE](./LICENSE) for details.
-
-**100% Open Source** - Anyone can edit, redistribute, and deploy this program.
+MIT License - See [LICENSE](./LICENSE)
 
 ---
 
-## Contact & Community
+## Contact
 
 - **GitHub**: https://github.com/SciTeX-AI
-- **Author**: Yusuke Watanabe (ywatanabe@alumni.u-tokyo.ac.jp)
-- **Issues**: https://github.com/ywatanabe1989/scitex-cloud/issues
+- **Author**: Yusuke Watanabe (ywatanabe@scitex.ai)
 
 ---
 
-## Acknowledgments
-
-Built by researchers, for researchers. Community-driven development.
-
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
+Built by researchers, for researchers.
 
 <!-- EOF -->
