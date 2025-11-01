@@ -1,7 +1,7 @@
 <!-- Repository Tab Navigation (GitHub-style) -->
 <!-- Unified tabs partial for all repository pages -->
-<div class="repo-tabs">
-    <div class="scitex-tabs">
+<!-- Uses central .scitex-tabs component from /static/css/components/tabs.css -->
+<div class="scitex-tabs">
         <a href="/{{ project.owner.username }}/{{ project.slug }}/"
            class="scitex-tab {% if active_tab == 'code' %}scitex-tab-active{% endif %}"
            title="Browse repository files">
@@ -35,5 +35,4 @@
             </svg>
             Settings
         </a>
-    </div>
 </div>

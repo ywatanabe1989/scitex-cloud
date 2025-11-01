@@ -25,12 +25,6 @@
     text-decoration: underline;
 }
 
-/* Tab navigation now uses standardized .scitex-tabs component from design system */
-.repo-tabs {
-    /* Layout preserved */
-    margin-bottom: 1.5rem;
-}
-
 /* Breadcrumb */
 .breadcrumb-nav {
     /* Layout preserved */
@@ -331,25 +325,25 @@
     align-self: start;
 }
 
-/* Sidebar sections */
+/* Sidebar sections - simple, no card styling */
 .sidebar-section {
     /* Layout preserved */
-    padding: 16px;
-    margin-bottom: 16px;
+    padding: 0;
+    margin-bottom: 8px;
     /* Styling moved to central CSS - see static/css/components/sidebar.css */
-    /* border: 1px solid var(--color-border-default); */
-    /* border-radius: 6px; */
-    /* background: var(--color-canvas-default); */
+    /* No border, radius, or background - simple tree view */
 }
 
 .sidebar-title {
     /* Layout preserved */
-    margin-bottom: 14px;
-    padding: 8px 12px;
+    margin-bottom: 8px;
+    padding: 4px 0;
     /* Styling moved to central CSS - see static/css/common/typography-vars.css */
-    /* font-size: 17px; */
-    /* font-weight: 600; */
-    /* color: var(--color-fg-default); */
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-fg-muted, #656d76);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .sidebar-item {
@@ -382,23 +376,22 @@
     text-decoration: underline;
 }
 
-/* File tree styles - larger for better GitHub match */
+/* File tree styles - compact and simple with tree guidelines */
 .file-tree-item {
     /* Layout preserved */
-    padding: 12px 14px; /* Increased padding */
+    padding: 2px 4px; /* Compact padding */
     cursor: pointer;
+    position: relative;
     /* Styling moved to central CSS - see static/css/components/file-tree.css */
     /* color: var(--color-fg-default); */
-    /* border-radius: 6px; */
-    /* transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); */
-    /* font-size: 16px; */
+    border-radius: 3px;
+    transition: all 0.15s ease;
+    /* font-size: 14px; */
 }
 
 .file-tree-item:hover {
-    transform: translateX(4px);
+    background: var(--color-neutral-subtle, rgba(208, 215, 222, 0.32));
     /* Styling moved to central CSS - see static/css/components/file-tree.css */
-    /* background: var(--color-neutral-subtle, #f6f8fa); */
-    /* box-shadow: inset 2px 0 0 var(--color-border-default, #d0d7de); */
 }
 
 .file-tree-item.active {
@@ -413,7 +406,7 @@
     /* Layout preserved */
     display: flex;
     align-items: center;
-    gap: 12px; /* Increased gap */
+    gap: 6px; /* Compact gap */
     /* Styling moved to central CSS - see static/css/components/file-tree.css */
     /* color: var(--color-fg-default); */
     /* font-weight: 500; */
@@ -423,21 +416,21 @@
     /* Layout preserved */
     display: flex;
     align-items: center;
-    gap: 12px; /* Increased gap */
+    gap: 6px; /* Compact gap */
     /* Styling moved to central CSS - see static/css/components/file-tree.css */
     /* color: var(--color-fg-muted); */
 }
 
 .file-tree-icon {
     /* Layout preserved */
-    width: 22px; /* Larger icon */
-    height: 22px;
+    width: 16px; /* Compact icon */
+    height: 16px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
     /* Styling moved to central CSS - see static/css/components/file-tree.css */
-    /* font-size: 22px; */
+    /* font-size: 16px; */
     /* transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s ease; */
 }
 
@@ -445,44 +438,48 @@
 .icon-folder,
 .icon-file {
     /* Layout preserved */
-    width: 22px; /* Larger */
-    height: 22px;
+    width: 16px; /* Compact */
+    height: 16px;
 }
 
+/* Icon colors matching main table */
 .icon-folder,
 .file-tree-folder .file-tree-icon {
-    /* Styling moved to central CSS - see static/css/components/icons.css */
-    /* color: var(--scitex-color-04, var(--color-accent-fg, #0969da)); */
-}
-
-.file-tree-file:hover .file-tree-icon {
-    transform: scale(1.1);
-    /* Styling moved to central CSS - see static/css/components/icons.css */
-    /* color: var(--color-accent-fg, #0969da); */
-}
-
-.file-tree-folder:hover .file-tree-icon {
-    transform: scale(1.1);
+    color: var(--color-accent-fg, #0969da);
 }
 
 .icon-file,
 .file-tree-file .file-tree-icon {
-    /* Styling moved to central CSS - see static/css/components/icons.css */
-    /* color: var(--text-secondary, var(--color-fg-muted, #57606a)); */
+    color: var(--color-fg-muted, #656d76);
+}
+
+.file-tree-file:hover .file-tree-icon {
+    transform: scale(1.05);
+}
+
+.file-tree-folder:hover .file-tree-icon {
+    transform: scale(1.05);
 }
 
 .file-tree-chevron {
     /* Layout preserved */
-    width: 26px; /* Larger */
-    height: 26px;
+    width: 20px; /* Larger clickable area */
+    height: 20px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    border-radius: 3px;
+    margin-right: 2px;
     /* Styling moved to central CSS - see static/css/components/file-tree.css */
-    /* font-size: 18px; */
-    /* color: var(--color-fg-muted); */
-    /* transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s ease; */
+    /* font-size: 14px; */
+    color: var(--color-fg-muted, #656d76);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.file-tree-chevron:hover {
+    background: var(--color-neutral-emphasis, rgba(175, 184, 193, 0.48));
+    color: var(--color-accent-fg, #0969da);
 }
 
 .file-tree-item:hover .file-tree-chevron {
@@ -500,6 +497,7 @@
 
 .file-tree-children.expanded {
     display: block;
+    margin-left: 20px;
 }
 
 /* Split button dropdown fix */

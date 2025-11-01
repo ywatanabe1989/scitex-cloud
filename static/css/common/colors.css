@@ -16,7 +16,7 @@
    * =========================================================================== */
 
   /* Brand colors */
-  --_scitex-01: #1a2332;
+  --_scitex-01: #1a2a40;  /* Even more bluish - was #1a2332 (adjusted for better blue tone) */
   --_scitex-02: #34495e;
   --_scitex-03: #506b7a;
   --_scitex-04: #6c8ba0;
@@ -89,7 +89,7 @@
   --color-border-muted: var(--border-muted);
   --color-accent-fg: var(--text-primary);
   --color-accent-emphasis: var(--text-primary);
-  --color-accent-subtle: var(--bg-muted);
+  --color-accent-subtle: #e8f4f8;  /* Light blue-gray for better visibility (was var(--bg-muted)) */
   --color-danger-fg: var(--status-error);
   --color-danger-emphasis: var(--status-error);
   --color-danger-subtle: var(--status-error);

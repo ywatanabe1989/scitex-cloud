@@ -174,18 +174,18 @@
 }
 
 .file-tree-item.active {
-    background: var(--color-accent-emphasis, #0969da);
-    color: #ffffff;
+    background: var(--color-accent-subtle, #ddf4ff);
+    color: var(--color-accent-fg, #0969da);
     font-weight: 600;
-    box-shadow: 0 2px 4px rgba(9, 105, 218, 0.2);
+    box-shadow: inset 3px 0 0 var(--color-accent-emphasis, #0969da);
 }
 
-/* Ensure all child elements are visible when active */
+/* Ensure all child elements inherit proper color when active */
 .file-tree-item.active .file-tree-folder,
 .file-tree-item.active .file-tree-file,
 .file-tree-item.active .file-tree-icon,
 .file-tree-item.active .file-tree-chevron {
-    color: #ffffff !important;
+    color: var(--color-accent-fg, #0969da) !important;
 }
 
 
@@ -199,8 +199,17 @@
 }
 
 [data-theme="dark"] .file-tree-item.active {
-    background: var(--color-accent-emphasis, #1f6feb);
-    box-shadow: 0 2px 4px rgba(31, 111, 235, 0.2);
+    background: var(--color-accent-subtle, #1c2d41);
+    color: var(--color-accent-fg, #58a6ff);
+    box-shadow: inset 3px 0 0 var(--color-accent-emphasis, #1f6feb);
+}
+
+/* Dark theme - ensure proper color for active item children */
+[data-theme="dark"] .file-tree-item.active .file-tree-folder,
+[data-theme="dark"] .file-tree-item.active .file-tree-file,
+[data-theme="dark"] .file-tree-item.active .file-tree-icon,
+[data-theme="dark"] .file-tree-item.active .file-tree-chevron {
+    color: var(--color-accent-fg, #58a6ff) !important;
 }
 
 /* Enhanced file tree folder hover effects */
