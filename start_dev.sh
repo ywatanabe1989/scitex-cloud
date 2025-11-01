@@ -1,1 +1,1 @@
-containers/docker/start_dev.sh
+deployment/docker/docker_dev/start.sh

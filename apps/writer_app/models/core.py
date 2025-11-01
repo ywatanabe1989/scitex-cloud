@@ -64,10 +64,14 @@ class Manuscript(models.Model):
 
         manager = get_project_filesystem_manager(self.owner)
         project_root = manager.get_project_root_path(self.project)
+        if project_root is None:
+            return None
         return project_root / "scitex" / "writer"
 
     @property
     def writer_initialized(self) -> bool:
         """Check if Writer project exists."""
         path = self.get_writer_path()
+        if path is None:
+            return False
         return (path / "01_manuscript").exists()
