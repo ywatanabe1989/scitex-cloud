@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<title>README.html</title>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+
+</head>
+
+<body>
+
+<!-- ---
+!-- Timestamp: 2025-11-01 16:36:27
+!-- Author: ywatanabe
+!-- File: /home/ywatanabe/proj/scitex-cloud/README.md
+!-- --- -->
+<h1 id="scitex-cloud">SciTeX Cloud</h1>
+<p>Open-source scientific research platform for researchers and
+academics.</p>
+<p>🌐 <strong>Live</strong>: https://scitex.ai 📦
+<strong>Package</strong>:
+<code>pip install scitex[web,scholar,writer,dev]</code> 🔧
+<strong>Status</strong>: Alpha (data may be lost)</p>
+<hr />
+<h2 id="quick-start">Quick Start</h2>
+<details open>
+<summary>
+<b>Docker (Recommended)</b>
+</summary>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Clone and navigate</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone git@github.com:ywatanabe1989/scitex-cloud.git</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> scitex-cloud</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Start development environment</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> start</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Access at: http://localhost:8000</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Gitea: http://localhost:3000</span></span></code></pre></div>
+<p><strong>Test User:</strong> - Username: <code>test-user</code> -
+Password: <code>Test-user!</code></p>
+</details>
+<details>
+<summary>
+<b>Local (Without Docker)</b>
+</summary>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> <span class="at">-m</span> venv .venv</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> .venv/bin/activate</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install scitex<span class="pp">[</span><span class="ss">web,scholar,writer,dev</span><span class="pp">]</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Configure</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="fu">cp</span> deployment/dotenvs/dotenv.example .env</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Edit .env with your settings</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Run</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> manage.py migrate</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> manage.py runserver</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Access at: http://127.0.0.1:8000</span></span></code></pre></div>
+</details>
+<hr />
+<h2 id="deployment-options">Deployment Options</h2>
+<details open>
+<summary>
+<b>Development (Default)</b>
+</summary>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> start                    <span class="co"># Full setup</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> restart                  <span class="co"># Quick restart</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> logs                     <span class="co"># View logs</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> migrate                  <span class="co"># Run migrations</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> shell                    <span class="co"># Django shell</span></span></code></pre></div>
+</details>
+<details>
+<summary>
+<b>Production</b>
+</summary>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> ENV=prod start           <span class="co"># Deploy production</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> ENV=prod db-backup       <span class="co"># Backup database</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> ENV=prod verify-health   <span class="co"># Health check</span></span></code></pre></div>
+</details>
+<details>
+<summary>
+<b>NAS/Home Server</b>
+</summary>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> ENV=nas start            <span class="co"># Start on NAS</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> ENV=nas status           <span class="co"># Check status</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> ENV=nas db-backup        <span class="co"># Backup</span></span></code></pre></div>
+</details>
+<p><strong>All commands:</strong> <code>make help</code> or
+<code>make ENV=prod help</code></p>
+<hr />
+<h2 id="environment-variables">Environment Variables</h2>
+<details>
+<summary>
+<b>Configuration Files</b>
+</summary>
+<p>Place <code>.env</code> files in <code>SECRET/</code> directory
+(gitignored): - <code>SECRET/.env.dev</code> - Development -
+<code>SECRET/.env.prod</code> - Production -
+<code>SECRET/.env.nas</code> - NAS</p>
+<p><strong>Required variables:</strong></p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Django</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="va">DJANGO_SECRET_KEY</span><span class="op">=</span>your-secret-key</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="va">DEBUG</span><span class="op">=</span>True                           <span class="co"># False in production</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Database</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="va">POSTGRES_DB</span><span class="op">=</span>scitex_cloud_dev</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="va">POSTGRES_USER</span><span class="op">=</span>scitex_dev</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="va">POSTGRES_PASSWORD</span><span class="op">=</span>strong-password</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Gitea (optional)</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="va">SCITEX_CLOUD_GITEA_URL</span><span class="op">=</span>http://gitea:3000</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="va">SCITEX_CLOUD_GITEA_TOKEN</span><span class="op">=</span>your-token</span></code></pre></div>
+<p><strong>Templates available:</strong> -
+<code>containers/docker_dev/.env.dev.example</code> -
+<code>containers/docker_prod/.env.prod.example</code> -
+<code>containers/docker_nas/.env.nas.example</code></p>
+</details>
+<hr />
+<h2 id="common-tasks">Common Tasks</h2>
+<details>
+<summary>
+<b>Development</b>
+</summary>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> start                    <span class="co"># Start dev environment</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> migrate                  <span class="co"># Run migrations</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> shell                    <span class="co"># Django shell</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> logs-web                 <span class="co"># View web logs</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> db-shell                 <span class="co"># Database shell</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> gitea-token              <span class="co"># Setup Gitea token (dev only)</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> recreate-testuser        <span class="co"># Recreate test user (dev only)</span></span></code></pre></div>
+</details>
+<details>
+<summary>
+<b>Production</b>
+</summary>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> ENV=prod start           <span class="co"># Deploy production</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> ENV=prod migrate         <span class="co"># Prod migrations</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> ENV=prod db-backup       <span class="co"># Backup database</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> ENV=prod verify-health   <span class="co"># Health check</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> ENV=prod logs            <span class="co"># View logs</span></span></code></pre></div>
+</details>
+<details>
+<summary>
+<b>Testing</b>
+</summary>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> test                     <span class="co"># Run test suite (dev)</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> ENV=prod verify-health   <span class="co"># Health check (prod)</span></span></code></pre></div>
+</details>
+<hr />
+<h2 id="project-structure">Project Structure</h2>
+<details>
+<summary>
+<b>Directory Organization</b>
+</summary>
+<pre><code>scitex-cloud/
+├── apps/                    # Django applications
+│   ├── scholar_app/        # Literature discovery
+│   ├── writer_app/         # Scientific writing
+│   ├── code_app/           # Code analysis
+│   ├── viz_app/            # Data visualization
+│   ├── project_app/        # Repository management
+│   ├── auth_app/           # Authentication
+│   ├── public_app/         # Landing page
+│   ├── gitea_app/          # Git hosting integration
+│   └── dev_app/            # Design system
+│
+├── containers/              # Container deployments
+│   ├── docker_dev/         # Development
+│   ├── docker_prod/        # Production
+│   ├── docker_nas/         # NAS/Home server
+│   └── common/             # Shared resources
+│
+├── SECRET/                  # Environment files (gitignored)
+│   ├── .env.dev            # Development secrets
+│   ├── .env.prod           # Production secrets
+│   └── .env.nas            # NAS secrets
+│
+├── config/                  # Django configuration
+├── static/                  # Frontend assets
+├── templates/               # Base templates
+├── deployment/              # Legacy deployment configs
+└── Makefile                 # Environment switcher</code></pre>
+<p><strong>Documentation:</strong> - <code>containers/README.md</code> -
+Docker setup - <code>containers/docker_dev/README.dev.md</code> - Dev
+environment - <code>containers/docker_prod/README.prod.md</code> -
+Production - <code>containers/docker_nas/README.nas.md</code> - NAS
+deployment</p>
+</details>
+<hr />
+<h2 id="architecture">Architecture</h2>
+<details>
+<summary>
+<b>Tech Stack</b>
+</summary>
+<p><strong>Backend:</strong> - Django 4.2+ - PostgreSQL (Docker) /
+SQLite (local) - Gunicorn (production)</p>
+<p><strong>Frontend:</strong> - HTML5, CSS3, JavaScript -
+Theme-responsive (light/dark modes) - GitHub-inspired UI</p>
+<p><strong>Infrastructure:</strong> - Nginx (reverse proxy) - Gitea (Git
+hosting) - Redis (caching) - Docker Compose (orchestration)</p>
+<p><strong>Design:</strong> - Project-centric (all modules link to
+projects) - 100% MIT licensed</p>
+</details>
+<hr />
+<h2 id="troubleshooting">Troubleshooting</h2>
+<details>
+<summary>
+<b>Docker Issues</b>
+</summary>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> logs                     <span class="co"># Check logs</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> rebuild                  <span class="co"># Rebuild containers</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> down                     <span class="co"># Stop services</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> ENV=dev clean            <span class="co"># Clean up (⚠️ removes volumes)</span></span></code></pre></div>
+<p><strong>Port conflicts:</strong></p>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> lsof <span class="at">-i</span> :8000</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> down</span></code></pre></div>
+<p><strong>Permission denied:</strong></p>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> usermod <span class="at">-aG</span> docker <span class="va">$USER</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="ex">newgrp</span> docker</span></code></pre></div>
+</details>
+<details>
+<summary>
+<b>Local Development Issues</b>
+</summary>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Port in use</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="ex">lsof</span> <span class="at">-i</span> :8000</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Reset database</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span> data/db/sqlite/scitex_cloud.db</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> manage.py migrate</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Fix static files</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> manage.py collectstatic</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Permission errors</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="fu">chmod</span> +x scripts/server/start</span></code></pre></div>
+</details>
+<hr />
+<h2 id="contributing">Contributing</h2>
+<details>
+<summary>
+<b>How to Contribute</b>
+</summary>
+<ol type="1">
+<li>Fork repository</li>
+<li>Create feature branch:
+<code>git checkout -b feature/name</code></li>
+<li>Commit: <code>git commit -m 'feat: Add feature'</code></li>
+<li>Push: <code>git push origin feature/name</code></li>
+<li>Open Pull Request</li>
+</ol>
+<p><strong>Code Style:</strong> - Django best practices - Apps in
+<code>apps/XXX_app/</code> format - No files in project root -
+Theme-responsive CSS - Environment files in <code>SECRET/</code> (never
+commit)</p>
+</details>
+<hr />
+<h2 id="license">License</h2>
+<p>MIT License - See <a href="./LICENSE">LICENSE</a></p>
+<hr />
+<h2 id="contact">Contact</h2>
+<ul>
+<li><strong>GitHub</strong>: https://github.com/SciTeX-AI</li>
+<li><strong>Author</strong>: Yusuke Watanabe (ywatanabe@scitex.ai)</li>
+</ul>
+<hr />
+<p>Built by researchers, for researchers.</p>
+<!-- EOF -->
+
+</body>
+</html>
