@@ -734,3 +734,4 @@ containers/docker/.env
 containers/docker/.env.dev
 docs/to_claude/
 logs/
+test-paper-project/
