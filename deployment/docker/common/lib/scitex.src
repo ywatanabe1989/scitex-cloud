@@ -1,0 +1,11 @@
+#!/bin/bash
+# ============================================
+# SciTeX Package Functions
+# ============================================
+
+verify_scitex_package() {
+    echo "🔍 Verifying scitex package..."
+    python -c "import scitex; print(f'✅ Scitex {scitex.__version__} available')"
+}
+
+# EOF

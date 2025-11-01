@@ -1,0 +1,78 @@
+#!/bin/bash
+
+# SciTeX-Cloud Stop Script
+# Gracefully stops all SciTeX-Cloud processes
+
+APP_HOME="/home/ywatanabe/proj/SciTeX-Cloud"
+PID_FILE="$APP_HOME/run/scitex.pid"
+LOG_DIR="$APP_HOME/logs"
+
+echo "Stopping SciTeX-Cloud services..."
+
+# Function to kill process by PID file
+kill_by_pidfile() {
+    if [ -f "$PID_FILE" ]; then
+        PID=$(cat "$PID_FILE")
+        if kill -0 "$PID" 2>/dev/null; then
+            kill "$PID"
+            echo "Stopped process with PID: $PID"
+        fi
+        rm -f "$PID_FILE"
+    fi
+}
+
+# Stop Django development server
+echo "Stopping Django development server..."
+lsof -ti:8000 | xargs kill -9 2>/dev/null || true
+
+# Stop uwsgi processes
+echo "Stopping uwsgi processes..."
+pkill -f "uwsgi.*scitex" 2>/dev/null || true
+
+# Kill by PID file
+kill_by_pidfile
+
+# Remove socket files
+rm -f "$APP_HOME/run/uwsgi.sock" 2>/dev/null
+rm -f "$APP_HOME/run/scitex_cloud.sock" 2>/dev/null
+
+# Check if any processes are still running
+if lsof -ti:8000 >/dev/null 2>&1; then
+    echo "Warning: Some processes may still be running on port 8000"
+    echo "Use 'lsof -ti:8000' to check"
+else
+    echo "All SciTeX-Cloud processes stopped successfully"
+fi
+
+# Show recent logs for debugging
+echo
+echo "Recent error logs (if any):"
+tail -n 5 "$LOG_DIR/django.log" 2>/dev/null | grep -i error || echo "No recent errors"
+
+# #!/bin/bash
+
+# stop_processes() {
+#     rm /home/ywatanabe/proj/airight/uwsgi.sock -f 1&>2 /dev/null
+#     sudo pkill -f uwsgi -9 1&>2 /dev/null
+#     sudo pkill -f daphne -9 1&>2 /dev/null
+#     lsof -ti:8000 | xargs kill -9 1&>2 /dev/null
+#     echo "All processes stopped."
+# }
+
+# stop_processes
+
+# # # Remove the uWSGI socket
+# # rm /home/ywatanabe/proj/aiielts/uwsgi.sock -f > /dev/null
+
+# # # Kill any running uwsgi processes
+# # sudo pkill -f uwsgi -9 > /dev/null
+
+# # # Kill any running daphne processes
+# # sudo pkill -f daphne -9 > /dev/null
+
+# # # Kill runserver
+# # lsof -ti:8000 | xargs kill -9 > /dev/null
+
+# # echo "All processes stopped."
+
+# # ## EOF
