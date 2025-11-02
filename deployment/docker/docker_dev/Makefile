@@ -11,10 +11,10 @@
 # Variables
 # ============================================
 COMPOSE := docker compose -f docker-compose.yml
-WEB_CONTAINER := docker-web-1
-DB_CONTAINER := docker-db-1
-GITEA_CONTAINER := docker-gitea-1
-REDIS_CONTAINER := docker-redis-1
+WEB_CONTAINER := scitex-cloud-dev-web-1
+DB_CONTAINER := scitex-cloud-dev-db-1
+GITEA_CONTAINER := scitex-cloud-dev-gitea-1
+REDIS_CONTAINER := scitex-cloud-dev-redis-1
 SCRIPTS_DIR := .
 
 # Colors for output

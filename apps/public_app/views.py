@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-10-16 05:41:11 (ywatanabe)"
+# Timestamp: "2025-11-02 12:13:11 (ywatanabe)"
 # File: /home/ywatanabe/proj/scitex-cloud/apps/public_app/views.py
 # ----------------------------------------
 from __future__ import annotations
@@ -18,7 +18,8 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.db import models
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect
+from django.shortcuts import render
 from django.utils import timezone
 
 logger = logging.getLogger("scitex")
@@ -366,9 +367,14 @@ def premium_subscription(request):
     return render(request, "public_app/premium_subscription.html", context)
 
 
-def vision(request):
-    """SciTeX vision and values page."""
-    return render(request, "public_app/pages/vision.html")
+def about(request):
+    """SciTeX about page - purpose, mission, vision, and values."""
+    return render(request, "public_app/pages/about.html")
+
+
+# def vision(request):
+#     """SciTeX vision and values page."""
+#     return render(request, "public_app/pages/vision.html")
 
 
 def publications(request):
@@ -519,142 +525,142 @@ def cookie_policy(request):
     return render(request, "public_app/legal/cookie_policy.html")
 
 
-def signup(request):
-    """Signup page with user registration."""
-    from django.contrib.auth import login
-    from django.contrib.auth.models import User
+# def signup(request):
+#     """Signup page with user registration."""
+#     from django.contrib.auth import login
+#     from django.contrib.auth.models import User
 
-    from .forms import SignupForm
+#     from .forms import SignupForm
 
-    if request.method == "POST":
-        form = SignupForm(request.POST)
-        if form.is_valid():
-            # Create new user
-            user = User.objects.create_user(
-                username=form.cleaned_data["username"],
-                email=form.cleaned_data["email"],
-                password=form.cleaned_data["password"],
-            )
+#     if request.method == "POST":
+#         form = SignupForm(request.POST)
+#         if form.is_valid():
+#             # Create new user
+#             user = User.objects.create_user(
+#                 username=form.cleaned_data["username"],
+#                 email=form.cleaned_data["email"],
+#                 password=form.cleaned_data["password"],
+#             )
 
-            # Create user profile
-            from apps.auth_app.models import UserProfile
+#             # Create user profile
+#             from apps.auth_app.models import UserProfile
 
-            UserProfile.objects.create(user=user)
+#             UserProfile.objects.create(user=user)
 
-            # Log the user in
-            login(request, user)
+#             # Log the user in
+#             login(request, user)
 
-            messages.success(
-                request,
-                "Welcome to SciTeX! Your account has been created successfully.",
-            )
-            return redirect("project_app:list")
-    else:
-        form = SignupForm()
+#             messages.success(
+#                 request,
+#                 "Welcome to SciTeX! Your account has been created successfully.",
+#             )
+#             return redirect("project_app:list")
+#     else:
+#         form = SignupForm()
 
-    context = {
-        "form": form,
-    }
-    return render(request, "public_app/signup.html", context)
-
-
-def login_view(request):
-    """Login page with authentication."""
-    from django.contrib.auth import authenticate, login
-    from django.contrib.auth.models import User
-
-    from .forms import LoginForm
-
-    if request.method == "POST":
-        form = LoginForm(request.POST)
-        if form.is_valid():
-            username = form.cleaned_data["username"]
-            password = form.cleaned_data["password"]
-
-            # Check if username is actually an email
-            if "@" in username:
-                try:
-                    user_obj = User.objects.get(email=username)
-                    username = user_obj.username
-                except User.DoesNotExist:
-                    pass
-
-            # Authenticate user
-            user = authenticate(request, username=username, password=password)
-
-            if user is not None:
-                login(request, user)
-
-                # Handle remember me
-                if not form.cleaned_data.get("remember_me"):
-                    request.session.set_expiry(0)
-
-                # Redirect to next page or projects
-                next_page = request.GET.get(
-                    "next", settings.LOGIN_REDIRECT_URL
-                )
-                messages.success(request, f"Welcome back, {user.username}!")
-                return redirect(next_page)
-            else:
-                messages.error(request, "Invalid username or password.")
-    else:
-        form = LoginForm()
-
-    context = {
-        "form": form,
-    }
-    return render(request, "public_app/signin.html", context)
+#     context = {
+#         "form": form,
+#     }
+#     return render(request, "public_app/signup.html", context)
 
 
-def forgot_password(request):
-    """Forgot password page."""
-    return render(request, "public_app/forgot_password.html")
+# def login_view(request):
+#     """Login page with authentication."""
+#     from django.contrib.auth import authenticate, login
+#     from django.contrib.auth.models import User
+
+#     from .forms import LoginForm
+
+#     if request.method == "POST":
+#         form = LoginForm(request.POST)
+#         if form.is_valid():
+#             username = form.cleaned_data["username"]
+#             password = form.cleaned_data["password"]
+
+#             # Check if username is actually an email
+#             if "@" in username:
+#                 try:
+#                     user_obj = User.objects.get(email=username)
+#                     username = user_obj.username
+#                 except User.DoesNotExist:
+#                     pass
+
+#             # Authenticate user
+#             user = authenticate(request, username=username, password=password)
+
+#             if user is not None:
+#                 login(request, user)
+
+#                 # Handle remember me
+#                 if not form.cleaned_data.get("remember_me"):
+#                     request.session.set_expiry(0)
+
+#                 # Redirect to next page or projects
+#                 next_page = request.GET.get(
+#                     "next", settings.LOGIN_REDIRECT_URL
+#                 )
+#                 messages.success(request, f"Welcome back, {user.username}!")
+#                 return redirect(next_page)
+#             else:
+#                 messages.error(request, "Invalid username or password.")
+#     else:
+#         form = LoginForm()
+
+#     context = {
+#         "form": form,
+#     }
+#     return render(request, "public_app/signin.html", context)
 
 
-def reset_password(request, uidb64, token):
-    """Password reset confirmation page."""
-    from django.contrib.auth.models import User
-    from django.contrib.auth.tokens import default_token_generator
-    from django.utils.encoding import force_str
-    from django.utils.http import urlsafe_base64_decode
-
-    context = {
-        "uidb64": uidb64,
-        "token": token,
-        "valid_link": False,
-        "user": None,
-    }
-
-    try:
-        # Decode user ID
-        uid = force_str(urlsafe_base64_decode(uidb64))
-        user = User.objects.get(pk=uid)
-
-        # Validate token
-        if default_token_generator.check_token(user, token):
-            context["valid_link"] = True
-            context["user"] = user
-
-    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
-        pass
-
-    return render(request, "public_app/reset_password.html", context)
+# def forgot_password(request):
+#     """Forgot password page."""
+#     return render(request, "public_app/forgot_password.html")
 
 
-def logout_view(request):
-    """Logout page."""
-    from django.contrib.auth import logout
+# def reset_password(request, uidb64, token):
+#     """Password reset confirmation page."""
+#     from django.contrib.auth.models import User
+#     from django.contrib.auth.tokens import default_token_generator
+#     from django.utils.encoding import force_str
+#     from django.utils.http import urlsafe_base64_decode
 
-    logout(request)
-    return render(request, "public_app/logout.html")
+#     context = {
+#         "uidb64": uidb64,
+#         "token": token,
+#         "valid_link": False,
+#         "user": None,
+#     }
+
+#     try:
+#         # Decode user ID
+#         uid = force_str(urlsafe_base64_decode(uidb64))
+#         user = User.objects.get(pk=uid)
+
+#         # Validate token
+#         if default_token_generator.check_token(user, token):
+#             context["valid_link"] = True
+#             context["user"] = user
+
+#     except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+#         pass
+
+#     return render(request, "public_app/reset_password.html", context)
 
 
-def verify_email(request):
-    """Email verification page for account signup."""
-    # This page is for OTP email verification during account signup
-    # The actual verification is handled by the JavaScript frontend
-    # which calls the API endpoints in apps.api.v1.auth.views
-    return render(request, "public_app/email_verification.html")
+# def logout_view(request):
+#     """Logout page."""
+#     from django.contrib.auth import logout
+
+#     logout(request)
+#     return render(request, "public_app/logout.html")
+
+
+# def verify_email(request):
+#     """Email verification page for account signup."""
+#     # This page is for OTP email verification during account signup
+#     # The actual verification is handled by the JavaScript frontend
+#     # which calls the API endpoints in apps.api.v1.auth.views
+#     return render(request, "public_app/email_verification.html")
 
 
 def donation_success(request, donation_id):
@@ -769,62 +775,65 @@ def scitex_api_keys(request):
     from django.contrib import messages
 
     # Handle POST requests (create new API key)
-    if request.method == 'POST':
-        action = request.POST.get('action')
+    if request.method == "POST":
+        action = request.POST.get("action")
 
-        if action == 'create':
-            name = request.POST.get('name', '').strip()
+        if action == "create":
+            name = request.POST.get("name", "").strip()
             if not name:
-                messages.error(request, 'Please provide a name for your API key')
-                return redirect('public_app:scitex_api_keys')
+                messages.error(
+                    request, "Please provide a name for your API key"
+                )
+                return redirect("public_app:scitex_api_keys")
 
             # Create new API key
             api_key, full_key = APIKey.create_key(
                 user=request.user,
                 name=name,
-                scopes=['scholar:read', 'scholar:write']  # Default scopes
+                scopes=["scholar:read", "scholar:write"],  # Default scopes
             )
 
             # Store the full key in session to show once
-            request.session['new_api_key'] = full_key
-            messages.success(request, f'API key "{name}" created successfully!')
-            return redirect('public_app:scitex_api_keys')
+            request.session["new_api_key"] = full_key
+            messages.success(
+                request, f'API key "{name}" created successfully!'
+            )
+            return redirect("public_app:scitex_api_keys")
 
-        elif action == 'delete':
-            key_id = request.POST.get('key_id')
+        elif action == "delete":
+            key_id = request.POST.get("key_id")
             try:
                 api_key = APIKey.objects.get(id=key_id, user=request.user)
                 key_name = api_key.name
                 api_key.delete()
                 messages.success(request, f'API key "{key_name}" deleted')
             except APIKey.DoesNotExist:
-                messages.error(request, 'API key not found')
-            return redirect('public_app:scitex_api_keys')
+                messages.error(request, "API key not found")
+            return redirect("public_app:scitex_api_keys")
 
-        elif action == 'toggle':
-            key_id = request.POST.get('key_id')
+        elif action == "toggle":
+            key_id = request.POST.get("key_id")
             try:
                 api_key = APIKey.objects.get(id=key_id, user=request.user)
                 api_key.is_active = not api_key.is_active
                 api_key.save()
-                status = 'activated' if api_key.is_active else 'deactivated'
+                status = "activated" if api_key.is_active else "deactivated"
                 messages.success(request, f'API key "{api_key.name}" {status}')
             except APIKey.DoesNotExist:
-                messages.error(request, 'API key not found')
-            return redirect('public_app:scitex_api_keys')
+                messages.error(request, "API key not found")
+            return redirect("public_app:scitex_api_keys")
 
     # Get user's API keys
-    api_keys = APIKey.objects.filter(user=request.user).order_by('-created_at')
+    api_keys = APIKey.objects.filter(user=request.user).order_by("-created_at")
 
     # Get newly created key from session (show once)
-    new_api_key = request.session.pop('new_api_key', None)
+    new_api_key = request.session.pop("new_api_key", None)
 
     context = {
-        'api_keys': api_keys,
-        'new_api_key': new_api_key,
+        "api_keys": api_keys,
+        "new_api_key": new_api_key,
     }
 
-    return render(request, 'public_app/pages/api_keys.html', context)
-
+    return render(request, "public_app/pages/api_keys.html", context)
 
 # EOF
