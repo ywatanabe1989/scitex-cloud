@@ -23,6 +23,8 @@ deployment/ssl/
 # Temporary scripts
 tmp.sh
 tmp/*.sh
+rename_without_duplication.sh
+SCITEX_CLOUD_DJANGO_SETTINGS_MODULE
 
 # old directories as trash bin
 *old*
