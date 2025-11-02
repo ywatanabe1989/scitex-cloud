@@ -1,0 +1,50 @@
+    <!-- Recent Documents -->
+    <div class="col-lg-6">
+      <div class="recent-section">
+        <h5 class="mb-3">
+          <i class="fas fa-clock me-2"></i>Recent Documents
+        </h5>
+        
+        {% if manuscripts %}
+          {% for manuscript in manuscripts %}
+          <div class="manuscript-item">
+            <div class="d-flex justify-content-between align-items-start">
+              <div class="flex-grow-1">
+                <h6 class="mb-1">{{ manuscript.title }}</h6>
+                <small class="text-muted">
+                  Updated {{ manuscript.updated_at|timesince }} ago
+                </small>
+                <div class="mt-2">
+                  <span class="badge bg-secondary">{{ manuscript.get_status_display }}</span>
+                  {% if manuscript.target_journal %}
+                  <span class="badge bg-info">{{ manuscript.target_journal }}</span>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="text-end">
+                <a href="{% url 'writer:manuscript-edit' manuscript.slug %}" 
+                   class="btn btn-sm btn-outline-primary">
+                  <i class="fas fa-edit me-1"></i>Edit
+                </a>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+          
+          <div class="text-center mt-3">
+            <a href="{% url 'writer:manuscript-list' %}" class="btn btn-outline-primary">
+              <i class="fas fa-list me-2"></i>View All Documents
+            </a>
+          </div>
+        {% else %}
+          <div class="text-center py-4">
+            <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+            <p class="text-muted">No documents yet</p>
+            <a href="{% url 'writer:mvp-editor' %}" class="btn-mvp">
+              <i class="fas fa-plus me-2"></i>Create Your First Document
+            </a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+

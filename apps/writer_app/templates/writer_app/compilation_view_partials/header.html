@@ -1,0 +1,20 @@
+    <!-- Header -->
+    <div class="compilation-header">
+        <div>
+            <h2>
+                <i class="fas fa-cogs me-2"></i>PDF Compilation
+            </h2>
+            <p>
+                {{ project.name }}
+            </p>
+        </div>
+        <div>
+            <button id="compile-btn-main" class="btn btn-primary">
+                <i class="fas fa-file-pdf me-2"></i>Compile PDF
+            </button>
+            <a href="/{{ project.owner.username }}/{{ project.slug }}/?mode=writer" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Editor
+            </a>
+        </div>
+    </div>
+

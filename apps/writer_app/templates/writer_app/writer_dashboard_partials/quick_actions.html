@@ -1,0 +1,49 @@
+  <!-- Quick Actions -->
+  <div class="quick-actions">
+    <div class="action-card">
+      <div class="action-icon">
+        <i class="fas fa-file-plus"></i>
+      </div>
+      <h5>New Document</h5>
+      <p class="text-muted mb-3">Start with a blank document or choose from our templates.</p>
+      <a href="{% url 'writer:mvp-editor' %}" class="btn-mvp">
+        <i class="fas fa-pen me-2"></i>Start Writing
+      </a>
+    </div>
+    
+    <div class="action-card">
+      <div class="action-icon">
+        <i class="fas fa-file-import"></i>
+      </div>
+      <h5>Import Document</h5>
+      <p class="text-muted mb-3">Upload existing LaTeX files or convert from Word documents.</p>
+      <button class="btn btn-outline-primary" onclick="document.getElementById('file-upload').click()">
+        <i class="fas fa-upload me-2"></i>Import File
+      </button>
+      <input type="file" id="file-upload" accept=".tex,.txt" class="hidden">
+    </div>
+    
+    <div class="action-card">
+      <div class="action-icon">
+        <i class="fas fa-graduation-cap"></i>
+      </div>
+      <h5>LaTeX Tutorial</h5>
+      <p class="text-muted mb-3">New to LaTeX? Learn the basics with our interactive guide.</p>
+      <a href="#" class="btn btn-outline-primary">
+        <i class="fas fa-book me-2"></i>Learn LaTeX
+      </a>
+    </div>
+    
+    <div class="action-card">
+      <div class="action-icon">
+        <i class="fas fa-code"></i>
+      </div>
+      <h5>Advanced Editor</h5>
+      <p class="text-muted mb-3">Access the full-featured manuscript editor with collaboration tools.</p>
+      <a href="{% url 'writer:dashboard' %}" class="btn btn-outline-primary">
+        <i class="fas fa-cogs me-2"></i>Full Editor
+      </a>
+    </div>
+  </div>
+
+  <div class="row">

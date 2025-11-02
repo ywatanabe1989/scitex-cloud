@@ -1,0 +1,68 @@
+    <!-- Recent Compilations -->
+    <div class="col-lg-6">
+      <div class="recent-section">
+        <h5 class="mb-3">
+          <i class="fas fa-cogs me-2"></i>Recent Compilations
+        </h5>
+        
+        {% if recent_jobs %}
+          {% for job in recent_jobs %}
+          <div class="job-item">
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="flex-grow-1">
+                <div class="d-flex align-items-center mb-1">
+                  <span class="job-status {{ job.status }}">{{ job.get_status_display }}</span>
+                  <small class="text-muted ms-2">{{ job.created_at|timesince }} ago</small>
+                </div>
+                <h6 class="mb-1">{{ job.manuscript.title|truncatechars:40 }}</h6>
+                {% if job.execution_time %}
+                <small class="text-muted">
+                  <i class="fas fa-clock me-1"></i>{{ job.execution_time|floatformat:1 }}s
+                  {% if job.page_count %}
+                  • {{ job.page_count }} page{{ job.page_count|pluralize }}
+                  {% endif %}
+                </small>
+                {% endif %}
+                
+                {% if job.status == 'running' %}
+                <div class="progress-indicator">
+                  <div class="progress-fill" class="progress-50"></div>
+                </div>
+                {% endif %}
+              </div>
+              
+              <div class="text-end">
+                {% if job.status == 'completed' and job.output_pdf %}
+                <a href="{{ job.output_pdf.url }}" target="_blank" 
+                   class="btn btn-sm btn-outline-success">
+                  <i class="fas fa-file-pdf me-1"></i>PDF
+                </a>
+                {% elif job.status == 'failed' %}
+                <button class="btn btn-sm btn-outline-danger" 
+                        title="{{ job.error_message|truncatechars:50 }}">
+                  <i class="fas fa-exclamation-triangle me-1"></i>Error
+                </button>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+          
+          <div class="text-center mt-3">
+            <a href="#" class="btn btn-outline-primary">
+              <i class="fas fa-history me-2"></i>View All Jobs
+            </a>
+          </div>
+        {% else %}
+          <div class="text-center py-4">
+            <i class="fas fa-cogs fa-3x text-muted mb-3"></i>
+            <p class="text-muted">No compilations yet</p>
+            <a href="{% url 'writer:mvp-editor' %}" class="btn-mvp">
+              <i class="fas fa-play me-2"></i>Compile Your First Document
+            </a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+

@@ -739,21 +739,42 @@ def demo(request):
 
 def contributors(request):
     """Contributors page - show SciTeX team and contributors."""
-    # Define core team and contributors
-    core_team = [
-        {
-            "name": "Yusuke Watanabe",
-            "username": "ywatanabe1989",
-            "role": "Creator & Lead Developer",
-            "avatar_url": None,
-            "github_url": "https://github.com/ywatanabe1989",
-            "contributions": "Architecture, Core Development, Research",
-        },
-    ]
+    from .models import Contributor
 
-    contributors = [
-        # Add contributors here as they join
-    ]
+    # Get core team members from database
+    core_team_db = Contributor.objects.filter(is_core_team=True)
+
+    # Get community contributors from database
+    contributors_db = Contributor.objects.filter(is_core_team=False)
+
+    # Convert to template-friendly format
+    core_team = []
+    for member in core_team_db:
+        core_team.append(
+            {
+                "name": member.name,
+                "username": member.github_username,
+                "role": member.get_role_display(),
+                "avatar_url": member.avatar_url,
+                "github_url": member.github_url,
+                "contributions": member.contributions_description
+                or f"{member.contributions} contributions",
+            }
+        )
+
+    contributors = []
+    for contributor in contributors_db:
+        contributors.append(
+            {
+                "name": contributor.name,
+                "username": contributor.github_username,
+                "role": contributor.get_role_display() if contributor.role != "contributor" else None,
+                "avatar_url": contributor.avatar_url,
+                "github_url": contributor.github_url,
+                "contributions": contributor.contributions_description
+                or f"{contributor.contributions} contributions",
+            }
+        )
 
     context = {
         "core_team": core_team,

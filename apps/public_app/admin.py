@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import (
     SubscriptionPlan, Subscription, CloudResource,
-    APIKey, ServiceIntegration
+    APIKey, ServiceIntegration, Contributor
 )
 
 # EmailVerification admin now in apps.auth_app.admin
@@ -65,3 +65,25 @@ class ServiceIntegrationAdmin(admin.ModelAdmin):
     search_fields = ['user__username', 'user__email', 'external_id']
     readonly_fields = ['created_at', 'updated_at']
     exclude = ['access_token', 'refresh_token']  # Hide sensitive fields
+
+
+@admin.register(Contributor)
+class ContributorAdmin(admin.ModelAdmin):
+    list_display = ['github_username', 'name', 'role', 'is_core_team', 'contributions', 'display_order', 'updated_at']
+    list_filter = ['role', 'is_core_team', 'created_at']
+    search_fields = ['github_username', 'name']
+    readonly_fields = ['created_at', 'updated_at']
+    fieldsets = (
+        ('Basic Information', {
+            'fields': ('github_username', 'name', 'avatar_url', 'github_url')
+        }),
+        ('Role and Status', {
+            'fields': ('role', 'is_core_team', 'display_order')
+        }),
+        ('Contributions', {
+            'fields': ('contributions', 'contributions_description', 'first_contribution', 'last_contribution')
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at')
+        }),
+    )

@@ -17,7 +17,7 @@
 #   make ENV=prod switch           # Switch to prod
 #   make ENV=prod rebuild          # Rebuild prod (with confirmation)
 
-.PHONY: help status validate-state validate-docker validate switch stop-all start restart stop down logs ps migrate shell clean-state force-stop-all set-active-env clear-active-env ssl-setup ssl-verify ssl-check ssl-renew verify-health list-envs exec-web exec-db exec-gitea gitea-token recreate-testuser
+.PHONY: help status validate-state validate-docker validate switch stop-all start restart stop down logs ps migrate shell clean-state force-stop-all set-active-env clear-active-env ssl-setup ssl-verify ssl-check ssl-renew verify-health list-envs exec-web exec-db exec-gitea gitea-token recreate-testuser build-ts collectstatic
 .DEFAULT_GOAL := help
 
 # ============================================
@@ -147,7 +147,8 @@ help:
 	@echo "$(CYAN)🐍 Django:$(NC)"
 	@echo "  make ENV=<env> migrate            # Run migrations"
 	@echo "  make ENV=<env> shell              # Django shell"
-	@echo "  make ENV=<env> collectstatic      # Collect static files"
+	@echo "  make ENV=<env> build-ts           # Compile TypeScript to JavaScript"
+	@echo "  make ENV=<env> collectstatic      # Collect static files (auto-builds TS)"
 	@echo ""
 	@echo "$(CYAN)📊 Monitoring:$(NC)"
 	@echo "  make ENV=<env> logs               # View logs"
@@ -350,6 +351,10 @@ shell: validate
 createsuperuser: validate
 	@echo "$(CYAN)👤 Creating superuser ($(ENV))...$(NC)"
 	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile createsuperuser
+
+build-ts: validate
+	@echo "$(CYAN)🔨 Building TypeScript ($(ENV))...$(NC)"
+	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile build-ts
 
 collectstatic: validate
 	@echo "$(CYAN)📦 Collecting static files ($(ENV))...$(NC)"

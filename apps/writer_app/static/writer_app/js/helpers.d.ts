@@ -10,7 +10,7 @@ export declare function getWriterConfig(): WriterConfig;
 /**
  * Create default editor state
  */
-export declare function createDefaultEditorState(): EditorState;
+export declare function createDefaultEditorState(config?: WriterConfig): EditorState;
 /**
  * Load editor state from storage or create default
  */
