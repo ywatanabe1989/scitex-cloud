@@ -56,7 +56,7 @@ def get_single_pipeline():
     if _single_pipeline is None:
         try:
             _single_pipeline = ScholarPipelineSearchSingle(
-                use_cache=getattr(settings, 'SCITEX_USE_CACHE', True),
+                use_cache=getattr(settings, 'SCITEX_SCHOLAR_USE_CACHE', True),
             )
             logger.info("Initialized ScholarPipelineSearchSingle")
         except Exception as e:
@@ -76,13 +76,13 @@ def get_parallel_pipeline():
 
     if _parallel_pipeline is None:
         try:
-            max_workers = getattr(settings, 'SCITEX_MAX_WORKERS', 5)
-            timeout = getattr(settings, 'SCITEX_TIMEOUT_PER_ENGINE', 30)
+            max_workers = getattr(settings, 'SCITEX_SCHOLAR_MAX_WORKERS', 5)
+            timeout = getattr(settings, 'SCITEX_SCHOLAR_TIMEOUT_PER_ENGINE', 30)
 
             _parallel_pipeline = ScholarPipelineSearchParallel(
                 max_workers=max_workers,
                 timeout_per_engine=timeout,
-                use_cache=getattr(settings, 'SCITEX_USE_CACHE', True),
+                use_cache=getattr(settings, 'SCITEX_SCHOLAR_USE_CACHE', True),
             )
             logger.info(f"Initialized ScholarPipelineSearchParallel (workers={max_workers})")
         except Exception as e:

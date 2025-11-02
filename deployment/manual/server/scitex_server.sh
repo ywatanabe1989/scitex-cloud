@@ -335,14 +335,14 @@ case $COMMAND in
         case $MODE in
             prod)
                 export SCITEX_CLOUD_ENV=production
-                if [ -z "$SCITEX_DJANGO_SECRET_KEY" ]; then
-                    log_error "SCITEX_DJANGO_SECRET_KEY not set for production!"
+                if [ -z "$SCITEX_CLOUD_DJANGO_SECRET_KEY" ]; then
+                    log_error "SCITEX_CLOUD_DJANGO_SECRET_KEY not set for production!"
                     exit 1
                 fi
                 ;;
             dev|windows)
                 export SCITEX_CLOUD_ENV=development
-                export SCITEX_DJANGO_SECRET_KEY="${SCITEX_DJANGO_SECRET_KEY:-dev-secret-key-123}"
+                export SCITEX_CLOUD_DJANGO_SECRET_KEY="${SCITEX_CLOUD_DJANGO_SECRET_KEY:-dev-secret-key-123}"
                 ;;
         esac
 

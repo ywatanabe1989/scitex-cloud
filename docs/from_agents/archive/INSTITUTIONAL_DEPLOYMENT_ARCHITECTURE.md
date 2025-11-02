@@ -278,7 +278,7 @@ services:
       - /shared/scitex/data:/data
       - static:/static
     environment:
-      - DATABASE_URL=postgresql://scitex:password@postgres:5432/scitex
+      - SCITEX_CLOUD_POSTGRES_URL=postgresql://scitex:password@postgres:5432/scitex
       - GITEA_URL=http://gitea:3000
     depends_on:
       - postgres
@@ -300,9 +300,9 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB=scitex
-      - POSTGRES_USER=scitex
-      - POSTGRES_PASSWORD=secure_password
+      - SCITEX_CLOUD_POSTGRES_DB=scitex
+      - SCITEX_CLOUD_POSTGRES_USER=scitex
+      - SCITEX_CLOUD_POSTGRES_PASSWORD=secure_password
 
   redis:
     image: redis:7-alpine

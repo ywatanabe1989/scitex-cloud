@@ -7,7 +7,7 @@ import sys
 import json
 
 # Setup Django environment
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+os.environ.setdefault('SCITEX_CLOUD_DJANGO_SETTINGS_MODULE', 'config.settings')
 
 import django
 django.setup()
@@ -211,4 +211,3 @@ if __name__ == '__main__':
         
     except Exception as e:
         print(f"\n❌ Testing failed with error: {e}")
-        sys.exit(1)

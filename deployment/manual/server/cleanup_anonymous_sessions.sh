@@ -17,7 +17,7 @@ python << EOF
 import os
 import django
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.settings_prod')
+os.environ.setdefault('SCITEX_CLOUD_DJANGO_SETTINGS_MODULE', 'config.settings.settings_prod')
 django.setup()
 
 from apps.workspace_app.anonymous_storage import cleanup_expired_sessions

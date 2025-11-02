@@ -17,12 +17,12 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("SCITEX_DJANGO_SECRET_KEY")
+SCITEX_CLOUD_DJANGO_SECRET_KEY = os.getenv("SCITEX_CLOUD_DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "scitex.ai"]
+SCITEX_CLOUD_ALLOWED_HOSTS = ["localhost", "127.0.0.1", "scitex.ai"]
 
 # Application definition
 INSTALLED_APPS = [
@@ -116,6 +116,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Email settings
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+SCITEX_CLOUD_EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 # EOF

@@ -7,7 +7,7 @@ import sys
 import django
 
 # Setup Django environment
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.development')
+os.environ.setdefault('SCITEX_CLOUD_DJANGO_SETTINGS_MODULE', 'config.settings.development')
 django.setup()
 
 from django.contrib.auth.models import User

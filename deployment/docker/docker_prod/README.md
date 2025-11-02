@@ -94,17 +94,17 @@ SCITEX_CLOUD_GIT_DOMAIN=git.scitex.ai          # Git subdomain
 
 # Django
 DEBUG=False
-SECRET_KEY=<generated>
-ALLOWED_HOSTS=${SCITEX_CLOUD_DOMAIN},www.${SCITEX_CLOUD_DOMAIN},web
+SCITEX_CLOUD_DJANGO_SECRET_KEY=<generated>
+SCITEX_CLOUD_ALLOWED_HOSTS=${SCITEX_CLOUD_DOMAIN},www.${SCITEX_CLOUD_DOMAIN},web
 
 # Database
-POSTGRES_DB=scitex_cloud_prod
-POSTGRES_USER=scitex_prod
-POSTGRES_PASSWORD=<strong_password>
+SCITEX_CLOUD_POSTGRES_DB=scitex_cloud_prod
+SCITEX_CLOUD_POSTGRES_USER=scitex_prod
+SCITEX_CLOUD_POSTGRES_PASSWORD=<strong_password>
 
 # SSL/HTTPS
-ENABLE_SSL_REDIRECT=true  # After SSL setup
-FORCE_HTTPS_COOKIES=true  # After SSL setup
+SCITEX_CLOUD_ENABLE_SSL_REDIRECT=true  # After SSL setup
+SCITEX_CLOUD_FORCE_HTTPS_COOKIES=true  # After SSL setup
 
 # Email (for SSL certificates)
 SCITEX_CLOUD_EMAIL_ADMIN=admin@${SCITEX_CLOUD_DOMAIN}  # SSL renewal notifications
@@ -133,7 +133,7 @@ Certbot container automatically renews certificates every 12 hours.
 Production deployment checklist:
 
 - [ ] DEBUG=False in .env
-- [ ] Strong SECRET_KEY generated
+- [ ] Strong SCITEX_CLOUD_DJANGO_SECRET_KEY generated
 - [ ] Strong database password
 - [ ] .env symlinked from SECRET/.env.prod
 - [ ] SSL certificates obtained (./nginx/setup_nginx.sh)

@@ -53,8 +53,8 @@ export SCITEX_SENDER_GMAIL_PASSWORD=your-app-password
 ## Django Settings
 
 ```bash
-export DJANGO_SETTINGS_MODULE=config.settings.settings_dev   # or settings_prod
-export SECRET_KEY=your-secret-key-here
+export SCITEX_CLOUD_DJANGO_SETTINGS_MODULE=config.settings.settings_dev   # or settings_prod
+export SCITEX_CLOUD_DJANGO_SECRET_KEY=your-secret-key-here
 ```
 
 ## Debugging
@@ -85,8 +85,8 @@ export SCITEX_SENDER_GMAIL_PASSWORD=your-app-password
 
 ```bash
 # Production server environment
-export DJANGO_SETTINGS_MODULE=config.settings.settings_prod
-export SECRET_KEY=your-very-secure-secret-key
+export SCITEX_CLOUD_DJANGO_SETTINGS_MODULE=config.settings.settings_prod
+export SCITEX_CLOUD_DJANGO_SECRET_KEY=your-very-secure-secret-key
 export SCITEX_CLOUD_DB_PASSWORD_PROD=production-password
 export SCITEX_CLOUD_DB_HOST_PROD=db.scitex.cloud
 export SCITEX_SENDER_GMAIL=noreply@scitex.cloud
@@ -137,7 +137,7 @@ grep -r "SCITEX_CLOUD_" docs/
 3. **Rotate credentials regularly**
    - Change database passwords quarterly
    - Update API keys when compromised
-   - Regenerate SECRET_KEY if exposed
+   - Regenerate SCITEX_CLOUD_DJANGO_SECRET_KEY if exposed
 
 4. **Separate dev and prod credentials**
    - Never use production credentials in development
@@ -152,8 +152,8 @@ Create a `.env` file in project root (add to `.gitignore`):
 # DO NOT COMMIT THIS FILE
 
 # Django
-DJANGO_SETTINGS_MODULE=config.settings.settings_dev
-SECRET_KEY=dev-secret-key-change-in-production
+SCITEX_CLOUD_DJANGO_SETTINGS_MODULE=config.settings.settings_dev
+SCITEX_CLOUD_DJANGO_SECRET_KEY=dev-secret-key-change-in-production
 
 # Database (PostgreSQL)
 SCITEX_CLOUD_DB_NAME_DEV=scitex_cloud_dev

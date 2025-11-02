@@ -89,8 +89,8 @@ verify_env_setup() {
     local critical_vars=(
         "SCITEX_CLOUD_GITEA_URL_IN_CONTAINER_DEV"
         "SCITEX_CLOUD_DB_HOST_DEV"
-        "POSTGRES_DB"
-        "POSTGRES_USER"
+        "SCITEX_CLOUD_POSTGRES_DB"
+        "SCITEX_CLOUD_POSTGRES_USER"
     )
 
     for var_name in "${critical_vars[@]}"; do
@@ -154,8 +154,8 @@ list_env_dev() {
         "SCITEX_CLOUD_ENV"
         "SCITEX_CLOUD_HTTP_PORT_DEV"
         "SCITEX_CLOUD_GITEA_HTTP_PORT_DEV"
-        "POSTGRES_USER"
-        "POSTGRES_DB"
+        "SCITEX_CLOUD_POSTGRES_USER"
+        "SCITEX_CLOUD_POSTGRES_DB"
         "SCITEX_CLOUD_TEST_USER_PASSWORD"
     )
 
@@ -394,8 +394,8 @@ check_database_credentials() {
         docker compose -f docker-compose.yml up -d db
         sleep 3
         if ! docker compose -f docker-compose.yml exec -T db \
-            psql -U "${POSTGRES_USER:-scitex_dev}" \
-            -d "${POSTGRES_DB:-scitex_cloud_dev}" \
+            psql -U "${SCITEX_CLOUD_POSTGRES_USER:-scitex_dev}" \
+            -d "${SCITEX_CLOUD_POSTGRES_DB:-scitex_cloud_dev}" \
             -c "SELECT 1" >/dev/null 2>&1; then
             echo_warning \
                 "Credentials mismatch. " \

@@ -115,13 +115,13 @@ Place `.env` files in `SECRET/` directory (gitignored):
 **Required variables:**
 ```bash
 # Django
-DJANGO_SECRET_KEY=your-secret-key
+DJANGO_SCITEX_CLOUD_DJANGO_SECRET_KEY=your-secret-key
 DEBUG=True                           # False in production
 
 # Database
-POSTGRES_DB=scitex_cloud_dev
-POSTGRES_USER=scitex_dev
-POSTGRES_PASSWORD=strong-password
+SCITEX_CLOUD_POSTGRES_DB=scitex_cloud_dev
+SCITEX_CLOUD_POSTGRES_USER=scitex_dev
+SCITEX_CLOUD_POSTGRES_PASSWORD=strong-password
 
 # Gitea (optional)
 SCITEX_CLOUD_GITEA_URL=http://gitea:3000

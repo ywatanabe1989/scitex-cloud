@@ -61,11 +61,11 @@ Settings are configured in `/home/ywatanabe/proj/scitex-cloud/config/settings/se
 
 ```python
 # SciTeX Scholar Search Settings
-SCITEX_USE_CACHE = True  # Enable result caching
-SCITEX_MAX_WORKERS = 5  # Parallel workers
-SCITEX_TIMEOUT_PER_ENGINE = 30  # Seconds
-SCITEX_ENGINES = ["CrossRef", "PubMed", "Semantic_Scholar", "arXiv", "OpenAlex"]
-SCITEX_DEFAULT_MODE = "parallel"  # or "single"
+SCITEX_SCHOLAR_USE_CACHE = True  # Enable result caching
+SCITEX_SCHOLAR_MAX_WORKERS = 5  # Parallel workers
+SCITEX_SCHOLAR_TIMEOUT_PER_ENGINE = 30  # Seconds
+SCITEX_SCHOLAR_ENGINES = ["CrossRef", "PubMed", "Semantic_Scholar", "arXiv", "OpenAlex"]
+SCITEX_SCHOLAR_DEFAULT_MODE = "parallel"  # or "single"
 ```
 
 ### 3. Environment Variables (Optional)
@@ -73,11 +73,11 @@ SCITEX_DEFAULT_MODE = "parallel"  # or "single"
 Override settings via environment variables:
 
 ```bash
-export SCITEX_USE_CACHE=True
-export SCITEX_MAX_WORKERS=5
-export SCITEX_TIMEOUT_PER_ENGINE=30
-export SCITEX_ENGINES="CrossRef,PubMed,arXiv"
-export SCITEX_DEFAULT_MODE=parallel
+export SCITEX_SCHOLAR_USE_CACHE=True
+export SCITEX_SCHOLAR_MAX_WORKERS=5
+export SCITEX_SCHOLAR_TIMEOUT_PER_ENGINE=30
+export SCITEX_SCHOLAR_ENGINES="CrossRef,PubMed,arXiv"
+export SCITEX_SCHOLAR_DEFAULT_MODE=parallel
 ```
 
 ## API Endpoints
@@ -389,16 +389,16 @@ if __name__ == "__main__":
 
 **Solutions**:
 - Use `search_fields=title` instead of `title,abstract` (fewer engines support abstract)
-- Reduce `SCITEX_MAX_WORKERS` to avoid rate limiting
+- Reduce `SCITEX_SCHOLAR_MAX_WORKERS` to avoid rate limiting
 - Use single pipeline: `/api/search/scitex/single/`
-- Enable caching: `SCITEX_USE_CACHE=True`
+- Enable caching: `SCITEX_SCHOLAR_USE_CACHE=True`
 
 ### Issue: Rate limiting errors
 
 **Solutions**:
 - Switch to single pipeline
-- Reduce `SCITEX_MAX_WORKERS`
-- Increase `SCITEX_TIMEOUT_PER_ENGINE`
+- Reduce `SCITEX_SCHOLAR_MAX_WORKERS`
+- Increase `SCITEX_SCHOLAR_TIMEOUT_PER_ENGINE`
 - Add delays between requests in frontend
 
 ## Performance Optimization
@@ -408,7 +408,7 @@ if __name__ == "__main__":
 Results are automatically cached based on query+filters hash:
 - **Cache location**: `~/.scitex/cache/engines/`
 - **Cache duration**: Persistent until manually cleared
-- **Clear cache**: Set `SCITEX_USE_CACHE=False` or delete cache files
+- **Clear cache**: Set `SCITEX_SCHOLAR_USE_CACHE=False` or delete cache files
 
 ### Database Storage
 
@@ -421,12 +421,12 @@ Search results are automatically stored in Django's `SearchIndex` model:
 
 ```python
 # Conservative settings (good for production)
-SCITEX_MAX_WORKERS = 3
-SCITEX_TIMEOUT_PER_ENGINE = 45
+SCITEX_SCHOLAR_MAX_WORKERS = 3
+SCITEX_SCHOLAR_TIMEOUT_PER_ENGINE = 45
 
 # Aggressive settings (good for local development)
-SCITEX_MAX_WORKERS = 8
-SCITEX_TIMEOUT_PER_ENGINE = 20
+SCITEX_SCHOLAR_MAX_WORKERS = 8
+SCITEX_SCHOLAR_TIMEOUT_PER_ENGINE = 20
 ```
 
 ## Monitoring & Analytics

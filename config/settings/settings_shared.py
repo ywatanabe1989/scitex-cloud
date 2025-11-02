@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-10-22 08:23:01 (ywatanabe)"
-# File: /home/ywatanabe/proj/scitex-cloud/config/settings/settings_shared.py
+# Timestamp: "2025-11-02 18:34:25 (ywatanabe)"
+# File: /ssh:scitex:/home/ywatanabe/proj/scitex-cloud/config/settings/settings_shared.py
 # ----------------------------------------
 from __future__ import annotations
 import os
@@ -18,8 +18,7 @@ Base settings shared across all environments.
 
 from pathlib import Path
 from datetime import timedelta
-from scitex import logging
-logger = logging.getLogger(__name__)
+
 
 # ---------------------------------------
 # Functions
@@ -79,7 +78,11 @@ LOGOUT_REDIRECT_URL = "/"
 # ---------------------------------------
 # Security
 # ---------------------------------------
-SECRET_KEY = os.getenv("SCITEX_CLOUD_DJANGO_SECRET_KEY") or os.getenv("SCITEX_DJANGO_SECRET_KEY")
+SECRET_KEY = os.getenv("SCITEX_CLOUD_DJANGO_SECRET_KEY")
+if not SECRET_KEY:
+    raise ValueError(
+        "SCITEX_CLOUD_DJANGO_SECRET_KEY must be set in environment"
+    )
 
 # ---------------------------------------
 # Applications
@@ -153,7 +156,8 @@ DATABASES = {
 }
 
 # Cache Configuration - fallback to database if Redis not available
-REDIS_URL = os.getenv("SCITEX_CLOUD_REDIS_URL") or os.getenv("REDIS_URL", "redis://127.0.0.1:6379/1")
+REDIS_URL = os.getenv("SCITEX_CLOUD_REDIS_URL", "redis://127.0.0.1:6379/1")
+
 try:
     import redis
 
@@ -212,12 +216,14 @@ USE_TZ = True
 # ---------------------------------------
 # Email
 # ---------------------------------------
-EMAIL_BACKEND = os.getenv("SCITEX_CLOUD_EMAIL_BACKEND", "django.core.mail.backends.smtp.EmailBackend")
-EMAIL_HOST = os.getenv("SCITEX_CLOUD_EMAIL_HOST", "mail1030.onamae.ne.jp")
+EMAIL_BACKEND = os.getenv("SCITEX_CLOUD_EMAIL_BACKEND")
+EMAIL_HOST = os.getenv("SCITEX_CLOUD_EMAIL_HOST")
 EMAIL_PORT = int(os.getenv("SCITEX_CLOUD_EMAIL_PORT", "587"))
-EMAIL_USE_TLS = os.getenv("SCITEX_CLOUD_EMAIL_USE_TLS", "True").lower() == "true"
-EMAIL_HOST_USER = os.getenv("SCITEX_CLOUD_EMAIL_HOST_USER") or os.getenv("SCITEX_SCHOLAR_FROM_EMAIL_ADDRESS", "agent@scitex.ai")
-EMAIL_HOST_PASSWORD = os.getenv("SCITEX_CLOUD_EMAIL_HOST_PASSWORD") or os.getenv("SCITEX_SCHOLAR_FROM_EMAIL_PASSWORD", "")
+EMAIL_USE_TLS = (
+    os.getenv("SCITEX_CLOUD_EMAIL_USE_TLS", "True").lower() == "true"
+)
+EMAIL_HOST_USER = os.getenv("SCITEX_CLOUD_EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("SCITEX_CLOUD_EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 SERVER_EMAIL = EMAIL_HOST_USER
 
@@ -232,7 +238,7 @@ try:
     import redis
 
     # Test Redis connection for channels
-    redis_url = os.getenv("REDIS_URL", "redis://127.0.0.1:6379/2")
+    redis_url = os.getenv("SCITEX_CLOUD_REDIS_URL", "redis://127.0.0.1:6379/2")
     r = redis.from_url(redis_url)
     r.ping()
     # Redis is available for channels
@@ -386,19 +392,27 @@ ORCID_REDIRECT_URI = os.getenv(
 # SciTeX Scholar Search Settings
 # ---------------------------------------
 # Enable/disable search pipeline caching
-SCITEX_USE_CACHE = os.getenv("SCITEX_USE_CACHE", "True").lower() in ["true", "1", "yes"]
+SCITEX_SCHOLAR_USE_CACHE = os.getenv(
+    "SCITEX_SCHOLAR_USE_CACHE", "True"
+).lower() in ["true", "1", "yes"]
 
 # Maximum parallel workers for parallel search pipeline
-SCITEX_MAX_WORKERS = int(os.getenv("SCITEX_MAX_WORKERS", "5"))
+SCITEX_SCHOLAR_MAX_WORKERS = int(os.getenv("SCITEX_SCHOLAR_MAX_WORKERS", "5"))
 
 # Timeout per engine in seconds
-SCITEX_TIMEOUT_PER_ENGINE = int(os.getenv("SCITEX_TIMEOUT_PER_ENGINE", "30"))
+SCITEX_SCHOLAR_TIMEOUT_PER_ENGINE = int(
+    os.getenv("SCITEX_SCHOLAR_TIMEOUT_PER_ENGINE", "30")
+)
 
 # Preferred engines (comma-separated, e.g., "PubMed,CrossRef,arXiv")
-SCITEX_ENGINES = os.getenv("SCITEX_ENGINES", "CrossRef,PubMed,Semantic_Scholar,arXiv,OpenAlex").split(",")
+SCITEX_SCHOLAR_ENGINES = os.getenv(
+    "SCITEX_SCHOLAR_ENGINES", "CrossRef,PubMed,Semantic_Scholar,arXiv,OpenAlex"
+).split(",")
 
 # Default search mode: "parallel" or "single"
-SCITEX_DEFAULT_MODE = os.getenv("SCITEX_DEFAULT_MODE", "parallel")
+SCITEX_SCHOLAR_DEFAULT_MODE = os.getenv(
+    "SCITEX_SCHOLAR_DEFAULT_MODE", "parallel"
+)
 
 # ---------------------------------------
 # SciTeX Writer Settings
@@ -416,15 +430,8 @@ SCITEX_WRITER_TEMPLATE_PATH = None
 for location in _WRITER_TEMPLATE_LOCATIONS:
     if location and location.exists():
         SCITEX_WRITER_TEMPLATE_PATH = location
-        logger.info(f"Found SciTeX Writer template at: {location}")
+        # Template found
         break
-
-if not SCITEX_WRITER_TEMPLATE_PATH:
-    logger.warning(
-        "SciTeX Writer template not found at any standard location. "
-        "Manuscripts will use fallback compilation scripts. "
-        f"To use templates, clone scitex-writer to one of: {[str(l) for l in _WRITER_TEMPLATE_LOCATIONS[1:]]}"
-    )
 
 # ---------------------------------------
 # REST Framework

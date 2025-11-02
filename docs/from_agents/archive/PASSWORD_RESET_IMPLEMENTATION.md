@@ -70,12 +70,12 @@ Response: { "success": true, "message": "Password reset successfully" }
 
 **Settings** (`config/settings/base.py`):
 ```python
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'  # Or mail1030.onamae.ne.jp
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.environ.get('SCITEX_SENDER_GMAIL')
-EMAIL_HOST_PASSWORD = os.environ.get('SCITEX_SENDER_GMAIL_PASSWORD')
+SCITEX_CLOUD_EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+SCITEX_CLOUD_EMAIL_HOST = 'smtp.gmail.com'  # Or mail1030.onamae.ne.jp
+SCITEX_CLOUD_EMAIL_PORT = 587
+SCITEX_CLOUD_EMAIL_USE_TLS = True
+SCITEX_CLOUD_EMAIL_HOST_USER = os.environ.get('SCITEX_SENDER_GMAIL')
+SCITEX_CLOUD_EMAIL_HOST_PASSWORD = os.environ.get('SCITEX_SENDER_GMAIL_PASSWORD')
 ```
 
 **Environment Variables Required:**

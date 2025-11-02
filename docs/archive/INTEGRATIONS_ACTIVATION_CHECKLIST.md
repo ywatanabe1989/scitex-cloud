@@ -145,7 +145,7 @@ To add integrations to your main navigation, edit your base template:
 
 ## 🔐 Security Notes
 
-- **Tokens are encrypted** using Django's SECRET_KEY before storage
+- **Tokens are encrypted** using Django's SCITEX_CLOUD_DJANGO_SECRET_KEY before storage
 - **Use HTTPS in production** for all OAuth redirects
 - **Never commit** ORCID credentials to git
 - **Use environment variables** for all sensitive data

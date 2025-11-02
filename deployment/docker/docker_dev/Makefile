@@ -184,7 +184,7 @@ test: docker-check-health
 # ============================================
 db-shell: docker-check-health
 	@echo "$(CYAN)🗄️  Opening PostgreSQL shell...$(NC)"
-	@$(COMPOSE) exec db psql -U $${POSTGRES_USER:-scitex_dev} -d $${POSTGRES_DB:-scitex_cloud_dev}
+	@$(COMPOSE) exec db psql -U $${SCITEX_CLOUD_POSTGRES_USER:-scitex_dev} -d $${SCITEX_CLOUD_POSTGRES_DB:-scitex_cloud_dev}
 
 db-reset: docker-check-health
 	@echo "$(RED)⚠️  WARNING: This will DELETE ALL DATA in the database!$(NC)"

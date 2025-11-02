@@ -4,7 +4,7 @@ import django
 from django.conf import settings
 
 # Setup Django
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.development')
+os.environ.setdefault('SCITEX_CLOUD_DJANGO_SETTINGS_MODULE', 'config.settings.development')
 django.setup()
 
 from django.contrib.auth.models import User
@@ -42,4 +42,3 @@ try:
     print(f"User '{username}' now has admin privileges")
     
 except Exception as e:
-    print(f"Error creating user: {e}")

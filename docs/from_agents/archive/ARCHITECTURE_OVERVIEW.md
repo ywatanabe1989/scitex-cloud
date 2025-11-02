@@ -440,7 +440,7 @@ Paper (scholar_app)
 ## Deployment Checklist
 
 - [ ] All migrations applied to production database
-- [ ] Environment variables configured (SECRET_KEY, DEBUG=False, etc.)
+- [ ] Environment variables configured (SCITEX_CLOUD_DJANGO_SECRET_KEY, DEBUG=False, etc.)
 - [ ] Static files collected and served
 - [ ] HTTPS enforced
 - [ ] Security headers configured

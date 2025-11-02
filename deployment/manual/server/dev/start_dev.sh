@@ -16,7 +16,7 @@ echo "🔧 Activating virtual environment..."
 source env/bin/activate
 
 # Set Django settings module
-export DJANGO_SETTINGS_MODULE=config.settings.development
+export SCITEX_CLOUD_DJANGO_SETTINGS_MODULE=config.settings.development
 
 # Install/upgrade dependencies
 echo "📚 Installing development dependencies..."
@@ -63,4 +63,3 @@ echo "🌐 Or access it via localhost at http://localhost:8000"
 echo ""
 
 # Start the development server
-python manage.py runserver 0.0.0.0:8000

@@ -8,7 +8,7 @@ import sys
 
 # Set up Django environment
 sys.path.append('/home/ywatanabe/proj/SciTeX-Cloud')
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+os.environ.setdefault('SCITEX_CLOUD_DJANGO_SETTINGS_MODULE', 'config.settings')
 django.setup()
 
 from django.test import Client
@@ -68,4 +68,3 @@ def test_project_redirects():
 
 if __name__ == '__main__':
     test_project_redirects()
-    print("\n🎯 Project redirect tests completed!")

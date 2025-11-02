@@ -11,19 +11,19 @@ fi
 # ----------------------------------------
 # Django Settings
 # ----------------------------------------
-export DJANGO_SETTINGS_MODULE=config.settings.settings_prod
+export SCITEX_CLOUD_DJANGO_SETTINGS_MODULE=config.settings.settings_prod
 
 # ----------------------------------------
 # Django Secret Key
 # ----------------------------------------
-export SCITEX_CLOUD_DJANGO_SECRET_KEY="${SCITEX_EMAIL_PASSWORD}"
+export SCITEX_CLOUD_DJANGO_SECRET_KEY="${SCITEX_CLOUD_EMAIL_PASSWORD}"
 
 # ----------------------------------------
 # Database - Production
 # ----------------------------------------
 export SCITEX_CLOUD_DB_NAME_PROD=scitex_cloud_prod
 export SCITEX_CLOUD_DB_USER_PROD=scitex_prod
-export SCITEX_CLOUD_DB_PASSWORD_PROD="${SCITEX_EMAIL_PASSWORD}"
+export SCITEX_CLOUD_DB_PASSWORD_PROD="${SCITEX_CLOUD_EMAIL_PASSWORD}"
 export SCITEX_CLOUD_DB_HOST_PROD=localhost
 export SCITEX_CLOUD_DB_PORT_PROD=5432
 
@@ -48,10 +48,10 @@ export SCITEX_CLOUD_GITEA_TOKEN_PROD="${SCITEX_CLOUD_GITEA_TOKEN_PROD:-}"  # Set
 # ----------------------------------------
 # SciTeX Scholar Search - Production
 # ----------------------------------------
-export SCITEX_USE_CACHE=True
-export SCITEX_MAX_WORKERS=8  # Higher for production (more throughput)
-export SCITEX_TIMEOUT_PER_ENGINE=30  # Standard timeout
-export SCITEX_ENGINES="CrossRef,PubMed,Semantic_Scholar,arXiv,OpenAlex"  # All engines
-export SCITEX_DEFAULT_MODE=parallel  # Parallel mode for speed
+export SCITEX_SCHOLAR_USE_CACHE=True
+export SCITEX_SCHOLAR_MAX_WORKERS=8  # Higher for production (more throughput)
+export SCITEX_SCHOLAR_TIMEOUT_PER_ENGINE=30  # Standard timeout
+export SCITEX_SCHOLAR_ENGINES="CrossRef,PubMed,Semantic_Scholar,arXiv,OpenAlex"  # All engines
+export SCITEX_SCHOLAR_DEFAULT_MODE=parallel  # Parallel mode for speed
 
 # EOF

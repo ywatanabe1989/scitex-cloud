@@ -9,7 +9,7 @@ import django
 import sys
 
 # Set up Django environment
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.production')
+os.environ.setdefault('SCITEX_CLOUD_DJANGO_SETTINGS_MODULE', 'config.settings.production')
 django.setup()
 
 from django.contrib.auth.models import User
@@ -67,4 +67,3 @@ if __name__ == "__main__":
         sys.exit(0 if success else 1)
     except Exception as e:
         print(f"❌ Error during test: {str(e)}")
-        sys.exit(1)

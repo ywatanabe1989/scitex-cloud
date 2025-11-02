@@ -92,7 +92,7 @@ run_migrations() {
     source .venv/bin/activate
 
     # Set production environment
-    export DJANGO_SETTINGS_MODULE=config.settings.settings_prod
+    export SCITEX_CLOUD_DJANGO_SETTINGS_MODULE=config.settings.settings_prod
 
     echo_info "Making migrations..."
     $MANAGE_PY makemigrations --settings=config.settings.settings_prod
@@ -110,7 +110,7 @@ collect_static() {
     source .venv/bin/activate
 
     # Set production environment
-    export DJANGO_SETTINGS_MODULE=config.settings.settings_prod
+    export SCITEX_CLOUD_DJANGO_SETTINGS_MODULE=config.settings.settings_prod
 
     # Collect new static files
     $MANAGE_PY collectstatic --noinput --settings=config.settings.settings_prod
@@ -179,7 +179,7 @@ run_checks() {
     source .venv/bin/activate
 
     # Set production environment
-    export DJANGO_SETTINGS_MODULE=config.settings.settings_prod
+    export SCITEX_CLOUD_DJANGO_SETTINGS_MODULE=config.settings.settings_prod
 
     # Run Django system checks
     echo_info "Running Django system checks..."
@@ -309,4 +309,3 @@ if [ "$DO_DEPLOY" = true ]; then
     echo_info "=========================="
 fi
 
-# EOF

@@ -9,7 +9,7 @@ This prevents code duplication and ensures consistent project selection logic.
 
 from django.contrib.auth.models import User
 from apps.project_app.models import Project
-from scitex import logging
+import logging
 
 logger = logging.getLogger(__name__)
 

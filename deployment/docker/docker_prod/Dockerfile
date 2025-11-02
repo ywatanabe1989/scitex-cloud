@@ -39,7 +39,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 # Install scitex from PyPI (production uses stable releases)
 # Version pinned for stability - Complete toolkit with all features
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv pip install --system scitex==2.1.1[dl,ml,jupyter,neuro,web,scholar,writer,dev]
+    uv pip install --system "scitex[dl,ml,jupyter,neuro,web,scholar,writer,dev]==2.1.2"
 
 # Install Playwright browsers
 RUN --mount=type=cache,target=/root/.cache/ms-playwright \
@@ -78,16 +78,17 @@ ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    DJANGO_SETTINGS_MODULE=config.settings.settings_prod
+    SCITEX_CLOUD_DJANGO_SETTINGS_MODULE=config.settings.settings_prod
 
 WORKDIR /app
 
-# Install ONLY runtime dependencies (no build-essential, no git, no wget)
+# Install runtime dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     # Core runtime
     curl \
     netcat-openbsd \
     jq \
+    git \
     # Database runtime library (not dev package)
     libpq5 \
     # LaTeX runtime

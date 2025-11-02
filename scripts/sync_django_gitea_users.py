@@ -16,7 +16,7 @@ from pathlib import Path
 
 # Setup Django
 sys.path.insert(0, str(Path(__file__).parent.parent))
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings.settings_dev")
+os.environ.setdefault("SCITEX_CLOUD_DJANGO_SETTINGS_MODULE", "config.settings.settings_dev")
 
 # Load environment before Django setup
 from dotenv import load_dotenv

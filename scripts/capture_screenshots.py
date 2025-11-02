@@ -26,7 +26,7 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 # Django setup
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings.settings_dev")
+os.environ.setdefault("SCITEX_CLOUD_DJANGO_SETTINGS_MODULE", "config.settings.settings_dev")
 import django
 django.setup()
 

@@ -182,7 +182,7 @@ service.send_notification('project_created', {
 
 ### Token Encryption
 
-OAuth tokens and API keys are encrypted before storage using Django's SECRET_KEY. Ensure your SECRET_KEY is:
+OAuth tokens and API keys are encrypted before storage using Django's SCITEX_CLOUD_DJANGO_SECRET_KEY. Ensure your SCITEX_CLOUD_DJANGO_SECRET_KEY is:
 - Strong and unique
 - Never committed to version control
 - Stored securely in production

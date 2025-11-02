@@ -29,13 +29,13 @@ SciTeX Cloud uses a **two-layer configuration approach**:
 Example:
 ```python
 # In settings_shared.py
-SCITEX_MAX_WORKERS = int(os.getenv("SCITEX_MAX_WORKERS", "5"))  # Default: 5
+SCITEX_SCHOLAR_MAX_WORKERS = int(os.getenv("SCITEX_SCHOLAR_MAX_WORKERS", "5"))  # Default: 5
 
 # In dotenv_dev
-export SCITEX_MAX_WORKERS=3  # Override for dev → Will use 3
+export SCITEX_SCHOLAR_MAX_WORKERS=3  # Override for dev → Will use 3
 
 # In dotenv_prod
-export SCITEX_MAX_WORKERS=8  # Override for prod → Will use 8
+export SCITEX_SCHOLAR_MAX_WORKERS=8  # Override for prod → Will use 8
 ```
 
 ## Configuration Options
@@ -44,11 +44,11 @@ export SCITEX_MAX_WORKERS=8  # Override for prod → Will use 8
 
 | Variable | Default | Dev | Prod | Description |
 |----------|---------|-----|------|-------------|
-| `SCITEX_USE_CACHE` | `True` | `True` | `True` | Enable result caching |
-| `SCITEX_MAX_WORKERS` | `5` | `3` | `8` | Parallel workers |
-| `SCITEX_TIMEOUT_PER_ENGINE` | `30` | `45` | `30` | Timeout (seconds) |
-| `SCITEX_ENGINES` | All 5 | 3 engines | All 5 | Which engines to use |
-| `SCITEX_DEFAULT_MODE` | `parallel` | `single` | `parallel` | Search mode |
+| `SCITEX_SCHOLAR_USE_CACHE` | `True` | `True` | `True` | Enable result caching |
+| `SCITEX_SCHOLAR_MAX_WORKERS` | `5` | `3` | `8` | Parallel workers |
+| `SCITEX_SCHOLAR_TIMEOUT_PER_ENGINE` | `30` | `45` | `30` | Timeout (seconds) |
+| `SCITEX_SCHOLAR_ENGINES` | All 5 | 3 engines | All 5 | Which engines to use |
+| `SCITEX_SCHOLAR_DEFAULT_MODE` | `parallel` | `single` | `parallel` | Search mode |
 
 ### Available Engines
 
@@ -65,11 +65,11 @@ export SCITEX_MAX_WORKERS=8  # Override for prod → Will use 8
 **Philosophy**: Faster iteration, predictable debugging
 
 ```bash
-export SCITEX_USE_CACHE=True
-export SCITEX_MAX_WORKERS=3              # Lower to avoid rate limits
-export SCITEX_TIMEOUT_PER_ENGINE=45      # Higher for debugging
-export SCITEX_ENGINES="CrossRef,PubMed,arXiv"  # Fewer engines
-export SCITEX_DEFAULT_MODE=single        # Sequential for debugging
+export SCITEX_SCHOLAR_USE_CACHE=True
+export SCITEX_SCHOLAR_MAX_WORKERS=3              # Lower to avoid rate limits
+export SCITEX_SCHOLAR_TIMEOUT_PER_ENGINE=45      # Higher for debugging
+export SCITEX_SCHOLAR_ENGINES="CrossRef,PubMed,arXiv"  # Fewer engines
+export SCITEX_SCHOLAR_DEFAULT_MODE=single        # Sequential for debugging
 ```
 
 **Why these settings?**
@@ -83,11 +83,11 @@ export SCITEX_DEFAULT_MODE=single        # Sequential for debugging
 **Philosophy**: Maximum performance, all features
 
 ```bash
-export SCITEX_USE_CACHE=True
-export SCITEX_MAX_WORKERS=8              # More throughput
-export SCITEX_TIMEOUT_PER_ENGINE=30      # Standard timeout
-export SCITEX_ENGINES="CrossRef,PubMed,Semantic_Scholar,arXiv,OpenAlex"
-export SCITEX_DEFAULT_MODE=parallel      # Fast parallel search
+export SCITEX_SCHOLAR_USE_CACHE=True
+export SCITEX_SCHOLAR_MAX_WORKERS=8              # More throughput
+export SCITEX_SCHOLAR_TIMEOUT_PER_ENGINE=30      # Standard timeout
+export SCITEX_SCHOLAR_ENGINES="CrossRef,PubMed,Semantic_Scholar,arXiv,OpenAlex"
+export SCITEX_SCHOLAR_DEFAULT_MODE=parallel      # Fast parallel search
 ```
 
 **Why these settings?**
@@ -105,7 +105,7 @@ export SCITEX_DEFAULT_MODE=parallel      # Fast parallel search
 vim /home/ywatanabe/proj/scitex-cloud/deployment/dotenvs/dotenv_dev
 
 # Change setting
-export SCITEX_MAX_WORKERS=5
+export SCITEX_SCHOLAR_MAX_WORKERS=5
 
 # Reload environment
 source /home/ywatanabe/proj/scitex-cloud/deployment/dotenvs/dotenv_dev
@@ -118,7 +118,7 @@ source /home/ywatanabe/proj/scitex-cloud/deployment/dotenvs/dotenv_dev
 
 ```bash
 # Set for current session only
-export SCITEX_MAX_WORKERS=10
+export SCITEX_SCHOLAR_MAX_WORKERS=10
 
 # Start Django with override
 ./deployment/server/start.sh
@@ -130,7 +130,7 @@ Only edit `settings_shared.py` to change **defaults**, not environment-specific 
 
 ```python
 # In config/settings/settings_shared.py
-SCITEX_MAX_WORKERS = int(os.getenv("SCITEX_MAX_WORKERS", "5"))  # Change default here
+SCITEX_SCHOLAR_MAX_WORKERS = int(os.getenv("SCITEX_SCHOLAR_MAX_WORKERS", "5"))  # Change default here
 #                                                         ^^^
 ```
 
@@ -158,33 +158,33 @@ SCITEX_MAX_WORKERS = int(os.getenv("SCITEX_MAX_WORKERS", "5"))  # Change default
 
 ```bash
 # In dotenv_dev or dotenv_prod
-export SCITEX_MAX_WORKERS=2              # Fewer parallel requests
-export SCITEX_DEFAULT_MODE=single        # Sequential mode
-export SCITEX_ENGINES="CrossRef,OpenAlex"  # Only use unlimited engines
+export SCITEX_SCHOLAR_MAX_WORKERS=2              # Fewer parallel requests
+export SCITEX_SCHOLAR_DEFAULT_MODE=single        # Sequential mode
+export SCITEX_SCHOLAR_ENGINES="CrossRef,OpenAlex"  # Only use unlimited engines
 ```
 
 ### Scenario 2: Speed up searches (have API keys)
 
 ```bash
-export SCITEX_MAX_WORKERS=10             # More parallel requests
-export SCITEX_TIMEOUT_PER_ENGINE=15      # Shorter timeout
-export SCITEX_DEFAULT_MODE=parallel      # Fast mode
+export SCITEX_SCHOLAR_MAX_WORKERS=10             # More parallel requests
+export SCITEX_SCHOLAR_TIMEOUT_PER_ENGINE=15      # Shorter timeout
+export SCITEX_SCHOLAR_DEFAULT_MODE=parallel      # Fast mode
 ```
 
 ### Scenario 3: Debug why search is slow
 
 ```bash
-export SCITEX_MAX_WORKERS=1              # One at a time
-export SCITEX_TIMEOUT_PER_ENGINE=120     # Very long timeout
-export SCITEX_DEFAULT_MODE=single        # Sequential
+export SCITEX_SCHOLAR_MAX_WORKERS=1              # One at a time
+export SCITEX_SCHOLAR_TIMEOUT_PER_ENGINE=120     # Very long timeout
+export SCITEX_SCHOLAR_DEFAULT_MODE=single        # Sequential
 # Check logs to see which engine is slow
 ```
 
 ### Scenario 4: Only use free/unlimited engines
 
 ```bash
-export SCITEX_ENGINES="CrossRef,OpenAlex"  # No rate limits
-export SCITEX_MAX_WORKERS=10              # Can go higher
+export SCITEX_SCHOLAR_ENGINES="CrossRef,OpenAlex"  # No rate limits
+export SCITEX_SCHOLAR_MAX_WORKERS=10              # Can go higher
 ```
 
 ## Monitoring & Verification
@@ -198,8 +198,8 @@ env | grep SCITEX
 # Check what Django is using
 python manage.py shell
 >>> from django.conf import settings
->>> settings.SCITEX_MAX_WORKERS
->>> settings.SCITEX_ENGINES
+>>> settings.SCITEX_SCHOLAR_MAX_WORKERS
+>>> settings.SCITEX_SCHOLAR_ENGINES
 ```
 
 ### Check via API
@@ -221,10 +221,10 @@ INFO: Initialized ScholarPipelineSearchParallel (workers=5)
 ### For Speed (Have good API rate limits)
 
 ```bash
-SCITEX_MAX_WORKERS=10
-SCITEX_TIMEOUT_PER_ENGINE=20
-SCITEX_DEFAULT_MODE=parallel
-SCITEX_USE_CACHE=True
+SCITEX_SCHOLAR_MAX_WORKERS=10
+SCITEX_SCHOLAR_TIMEOUT_PER_ENGINE=20
+SCITEX_SCHOLAR_DEFAULT_MODE=parallel
+SCITEX_SCHOLAR_USE_CACHE=True
 ```
 
 Expected: 1-2 second searches, ~20 searches/second
@@ -232,10 +232,10 @@ Expected: 1-2 second searches, ~20 searches/second
 ### For Reliability (Conservative)
 
 ```bash
-SCITEX_MAX_WORKERS=2
-SCITEX_TIMEOUT_PER_ENGINE=60
-SCITEX_DEFAULT_MODE=single
-SCITEX_ENGINES="CrossRef,OpenAlex"  # Only unlimited
+SCITEX_SCHOLAR_MAX_WORKERS=2
+SCITEX_SCHOLAR_TIMEOUT_PER_ENGINE=60
+SCITEX_SCHOLAR_DEFAULT_MODE=single
+SCITEX_SCHOLAR_ENGINES="CrossRef,OpenAlex"  # Only unlimited
 ```
 
 Expected: 3-5 second searches, ~5 searches/second, no rate limit errors
@@ -243,10 +243,10 @@ Expected: 3-5 second searches, ~5 searches/second, no rate limit errors
 ### For Development
 
 ```bash
-SCITEX_MAX_WORKERS=1
-SCITEX_TIMEOUT_PER_ENGINE=120
-SCITEX_DEFAULT_MODE=single
-SCITEX_USE_CACHE=False  # See fresh results
+SCITEX_SCHOLAR_MAX_WORKERS=1
+SCITEX_SCHOLAR_TIMEOUT_PER_ENGINE=120
+SCITEX_SCHOLAR_DEFAULT_MODE=single
+SCITEX_SCHOLAR_USE_CACHE=False  # See fresh results
 ```
 
 Expected: Slow but predictable, easy to debug
@@ -257,16 +257,16 @@ Expected: Slow but predictable, easy to debug
 
 **Solution**: Reduce workers or switch to unlimited engines
 ```bash
-export SCITEX_MAX_WORKERS=2
-export SCITEX_ENGINES="CrossRef,OpenAlex"
+export SCITEX_SCHOLAR_MAX_WORKERS=2
+export SCITEX_SCHOLAR_ENGINES="CrossRef,OpenAlex"
 ```
 
 ### Issue: Searches timing out
 
 **Solution**: Increase timeout or reduce engines
 ```bash
-export SCITEX_TIMEOUT_PER_ENGINE=60
-export SCITEX_ENGINES="CrossRef,PubMed"  # Fewer engines
+export SCITEX_SCHOLAR_TIMEOUT_PER_ENGINE=60
+export SCITEX_SCHOLAR_ENGINES="CrossRef,PubMed"  # Fewer engines
 ```
 
 ### Issue: Settings not taking effect
@@ -274,7 +274,7 @@ export SCITEX_ENGINES="CrossRef,PubMed"  # Fewer engines
 **Checklist**:
 1. ✓ Sourced dotenv file? `source deployment/dotenvs/dotenv_dev`
 2. ✓ Restarted Django? `./deployment/server/start.sh`
-3. ✓ Check environment: `echo $SCITEX_MAX_WORKERS`
+3. ✓ Check environment: `echo $SCITEX_SCHOLAR_MAX_WORKERS`
 4. ✓ Check Django: See monitoring section above
 
 ### Issue: Different behavior on server vs local
@@ -283,7 +283,7 @@ export SCITEX_ENGINES="CrossRef,PubMed"  # Fewer engines
 
 **Solution**: Check which environment is active
 ```bash
-echo $DJANGO_SETTINGS_MODULE
+echo $SCITEX_CLOUD_DJANGO_SETTINGS_MODULE
 # Should show: config.settings.settings_dev or settings_prod
 ```
 
@@ -311,11 +311,11 @@ echo $DJANGO_SETTINGS_MODULE
 
 ```python
 # In settings_shared.py (with defaults)
-SCITEX_USE_CACHE = os.getenv("SCITEX_USE_CACHE", "True").lower() in ["true", "1", "yes"]
-SCITEX_MAX_WORKERS = int(os.getenv("SCITEX_MAX_WORKERS", "5"))
-SCITEX_TIMEOUT_PER_ENGINE = int(os.getenv("SCITEX_TIMEOUT_PER_ENGINE", "30"))
-SCITEX_ENGINES = os.getenv("SCITEX_ENGINES", "CrossRef,PubMed,Semantic_Scholar,arXiv,OpenAlex").split(",")
-SCITEX_DEFAULT_MODE = os.getenv("SCITEX_DEFAULT_MODE", "parallel")
+SCITEX_SCHOLAR_USE_CACHE = os.getenv("SCITEX_SCHOLAR_USE_CACHE", "True").lower() in ["true", "1", "yes"]
+SCITEX_SCHOLAR_MAX_WORKERS = int(os.getenv("SCITEX_SCHOLAR_MAX_WORKERS", "5"))
+SCITEX_SCHOLAR_TIMEOUT_PER_ENGINE = int(os.getenv("SCITEX_SCHOLAR_TIMEOUT_PER_ENGINE", "30"))
+SCITEX_SCHOLAR_ENGINES = os.getenv("SCITEX_SCHOLAR_ENGINES", "CrossRef,PubMed,Semantic_Scholar,arXiv,OpenAlex").split(",")
+SCITEX_SCHOLAR_DEFAULT_MODE = os.getenv("SCITEX_SCHOLAR_DEFAULT_MODE", "parallel")
 ```
 
 ---

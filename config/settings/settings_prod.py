@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-10-22 08:22:46 (ywatanabe)"
-# File: /home/ywatanabe/proj/scitex-cloud/config/settings/settings_prod.py
+# Timestamp: "2025-11-02 18:32:26 (ywatanabe)"
+# File: /ssh:scitex:/home/ywatanabe/proj/scitex-cloud/config/settings/settings_prod.py
 # ----------------------------------------
 from __future__ import annotations
 import os
@@ -17,8 +17,6 @@ Production settings for SciTeX Cloud project.
 
 from .settings_shared import *
 from dotenv import load_dotenv
-from scitex import logging
-logger = logging.getLogger(__name__)
 
 # ---------------------------------------
 # Env
@@ -26,25 +24,18 @@ logger = logging.getLogger(__name__)
 try:
     load_dotenv(os.path.join(BASE_DIR, ".env"))
 except Exception as e:
-    logger.error(e)
+    print(f"Error loading .env: {e}")
 
 # ---------------------------------------
 # Security
 # ---------------------------------------
 DEBUG = False  # Always False in production for security
 
-SECRET_KEY = os.environ.get("SCITEX_CLOUD_DJANGO_SECRET_KEY") or os.environ.get("SCITEX_DJANGO_SECRET_KEY")
+SECRET_KEY = os.environ.get("SCITEX_CLOUD_DJANGO_SECRET_KEY")
 
-ALLOWED_HOSTS = [
-    "scitex.ai",
-    "www.scitex.ai",
-    "sciwriter.app",
-    "www.sciwriter.app",
-    "162.43.35.139",
-    "localhost",
-    "scitex",
-    "airight.app",
-]
+ALLOWED_HOSTS = os.environ.get(
+    "SCITEX_CLOUD_ALLOWED_HOSTS", "127.0.0.1,localhost"
+).split(",")
 
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
@@ -53,20 +44,25 @@ SECURE_HSTS_SECONDS = 31536000
 SECURE_HSTS_PRELOAD = True
 SECURE_REDIRECT_EXEMPT = []
 SECURE_SSL_REDIRECT = (
-    os.environ.get("SCITEX_CLOUD_ENABLE_SSL_REDIRECT") or os.environ.get("ENABLE_SSL_REDIRECT", "false")
+    os.environ.get("SCITEX_CLOUD_ENABLE_SSL_REDIRECT")
+    or os.environ.get("SCITEX_CLOUD_ENABLE_SSL_REDIRECT", "false")
 ).lower() == "true"
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-X_FRAME_OPTIONS = "SAMEORIGIN"  # Allow same-site iframes (needed for PDF viewer)
+X_FRAME_OPTIONS = (
+    "SAMEORIGIN"  # Allow same-site iframes (needed for PDF viewer)
+)
 SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 
 # ---------------------------------------
 # Cookie
 # ---------------------------------------
 SESSION_COOKIE_SECURE = (
-    os.environ.get("SCITEX_CLOUD_FORCE_HTTPS_COOKIES") or os.environ.get("FORCE_HTTPS_COOKIES", "false")
+    os.environ.get("SCITEX_CLOUD_FORCE_HTTPS_COOKIES")
+    or os.environ.get("SCITEX_CLOUD_FORCE_HTTPS_COOKIES", "false")
 ).lower() == "true"
 CSRF_COOKIE_SECURE = (
-    os.environ.get("SCITEX_CLOUD_FORCE_HTTPS_COOKIES") or os.environ.get("FORCE_HTTPS_COOKIES", "false")
+    os.environ.get("SCITEX_CLOUD_FORCE_HTTPS_COOKIES")
+    or os.environ.get("SCITEX_CLOUD_FORCE_HTTPS_COOKIES", "false")
 ).lower() == "true"
 SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_HTTPONLY = True

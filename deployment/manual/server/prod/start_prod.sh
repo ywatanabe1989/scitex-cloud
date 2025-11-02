@@ -43,7 +43,7 @@ echo "📚 Installing dependencies..."
 pip install -r requirements.txt
 
 # Set production environment
-export DJANGO_SETTINGS_MODULE=config.settings.production
+export SCITEX_CLOUD_DJANGO_SETTINGS_MODULE=config.settings.production
 
 # Run Django checks
 echo "🔍 Running Django system checks (production)..."
@@ -92,4 +92,3 @@ else
     echo ""
     echo "🚀 Run with --start flag to automatically start the server"
     echo "   ./scripts/start_prod.sh --start"
-fi

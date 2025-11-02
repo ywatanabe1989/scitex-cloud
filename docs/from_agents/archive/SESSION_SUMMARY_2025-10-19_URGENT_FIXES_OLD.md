@@ -280,7 +280,7 @@ export SCITEX_CLOUD_GITEA_URL=http://localhost:3000
 export SCITEX_CLOUD_GITEA_TOKEN=<your-gitea-api-token>
 
 # Django Settings
-export DJANGO_SETTINGS_MODULE=config.settings.settings_dev
+export SCITEX_CLOUD_DJANGO_SETTINGS_MODULE=config.settings.settings_dev
 export SCITEX_CLOUD_DJANGO_SECRET_KEY=<your-secret-key>
 ```
 

@@ -4,7 +4,7 @@
 # Automatic environment switching for Docker deployments
 # Location: /Makefile
 
-.PHONY: help dev prod nas start restart stop down logs ps migrate shell db-shell db-backup clean ssl-setup ssl-verify ssl-check ssl-renew verify-health
+.PHONY: help dev prod nas start restart stop down logs ps migrate shell db-shell db-backup clean ssl-setup ssl-verify ssl-check ssl-renew verify-health list-envs
 
 .DEFAULT_GOAL := help
 
@@ -71,6 +71,7 @@ help:
 	@echo "$(CYAN)🔧 Utilities:$(NC)"
 	@echo "  make clean                  # Clean Python cache"
 	@echo "  make exec-web               # Shell into web container"
+	@echo "  make list-envs              # List environment variables in container"
 	@echo ""
 	@echo "$(CYAN)🔒 SSL/HTTPS (prod only):$(NC)"
 	@echo "  make ENV=prod ssl-verify    # Verify HTTPS is working"
@@ -221,6 +222,10 @@ exec-db:
 exec-gitea:
 	@echo "$(CYAN)🐳 Opening shell in Gitea container ($(ENV))...$(NC)"
 	cd $(DOCKER_DIR) && $(MAKE) -f Makefile exec-gitea 2>/dev/null || echo "$(YELLOW)Gitea not available in $(ENV)$(NC)"
+
+list-envs:
+	@echo "$(CYAN)🔍 Listing environment variables ($(ENV))...$(NC)"
+	cd $(DOCKER_DIR) && $(MAKE) -f Makefile list-envs
 
 # ============================================
 # Dev-Only Commands
