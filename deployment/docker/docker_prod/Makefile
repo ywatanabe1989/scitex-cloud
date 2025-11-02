@@ -3,7 +3,7 @@
 # ============================================
 # Location: /containers/docker_prod/Makefile.prod
 
-.PHONY: help setup build start restart stop down logs ps status rebuild migrate makemigrations shell collectstatic db-shell db-backup verify-health logs-web logs-db logs-redis logs-nginx exec-web exec-db clean-python ssl-setup ssl-check ssl-create ssl-renew ssl-verify ssl-auto list-envs
+.PHONY: help setup build build-ts start restart stop down logs ps status rebuild migrate makemigrations shell collectstatic db-shell db-backup verify-health logs-web logs-db logs-redis logs-nginx exec-web exec-db clean-python ssl-setup ssl-check ssl-create ssl-renew ssl-verify ssl-auto list-envs
 
 .DEFAULT_GOAL := help
 
@@ -160,7 +160,16 @@ shell: docker-check-health
 	@echo "$(YELLOW)⚠️  BE CAREFUL - This is production!$(NC)"
 	$(COMPOSE) exec web python manage.py shell
 
-collectstatic: docker-check-health
+build-ts:
+	@echo "$(CYAN)🔨 Building TypeScript files...$(NC)"
+	@if command -v npm >/dev/null 2>&1; then \
+		npm run build; \
+		echo "$(GREEN)✅ TypeScript build complete$(NC)"; \
+	else \
+		echo "$(YELLOW)⚠️  npm not found, skipping TypeScript build$(NC)"; \
+	fi
+
+collectstatic: docker-check-health build-ts
 	@echo "$(CYAN)📦 Collecting static files...$(NC)"
 	$(COMPOSE) exec -T web python manage.py collectstatic --noinput
 	@echo "$(GREEN)✅ Static files collected$(NC)"
