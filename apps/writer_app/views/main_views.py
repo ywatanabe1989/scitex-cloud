@@ -12,10 +12,96 @@ from django.conf import settings
 from ..models import Manuscript
 from apps.project_app.models import Project
 from apps.project_app.services import get_current_project
+from ..services.writer_service import WriterService
 import json
 import logging
 
 logger = logging.getLogger(__name__)
+
+
+def _initialize_demo_writer_workspace(project: Project):
+    """Initialize Writer workspace for demo project with sample content."""
+    try:
+        service = WriterService(project.id, project.owner.id)
+
+        # Initialize workspace
+        service.initialize_workspace()
+
+        # Write sample sections
+        sample_sections = {
+            'abstract': '''This is a demo abstract. You can edit this text and see live PDF preview.
+
+Sign up to save your work permanently and collaborate with others!
+
+Try using LaTeX commands like $E = mc^2$ for equations.''',
+
+            'highlights': r'''\item Interactive LaTeX editor with live PDF preview
+\item Real-time collaboration support
+\item Version control with git integration
+\item Automated compilation and error detection''',
+
+            'introduction': r'''This is the introduction section. LaTeX commands work here: $E = mc^2$
+
+You can write multiple paragraphs and use mathematical notation.
+
+\subsection{Background}
+SciTeX Writer provides a modern, collaborative environment for scientific writing.
+
+\subsection{Features}
+All the tools you need for academic publishing in one place.''',
+
+            'methods': r'''Describe your methodology here.
+
+\subsection{Data Collection}
+Explain how data was collected and processed.
+
+\subsection{Statistical Analysis}
+Describe analysis methods used.
+
+You can include equations:
+\begin{equation}
+\bar{x} = \frac{1}{n}\sum_{i=1}^{n} x_i
+\end{equation}''',
+
+            'results': r'''Present your results here.
+
+You can include figures and tables:
+\begin{equation}
+y = mx + b
+\end{equation}
+
+\subsection{Key Findings}
+Summarize the main results of your study.''',
+
+            'discussion': r'''Discuss your findings here and compare with existing literature.
+
+\subsection{Interpretation}
+How do these results relate to previous work?
+
+\subsection{Limitations}
+Acknowledge any limitations of the study.''',
+
+            'conclusion': r'''Summarize your key conclusions and suggest directions for future work.
+
+This demo shows the core features of SciTeX Writer. Sign up to:
+\begin{itemize}
+\item Save your work permanently
+\item Collaborate with co-authors in real-time
+\item Submit to journals directly
+\item Access advanced features
+\end{itemize}'''
+        }
+
+        for section_name, content in sample_sections.items():
+            try:
+                service.write_section(section_name, 'manuscript', content)
+            except Exception as e:
+                logger.warning(f"[DemoWriter] Could not write section {section_name}: {e}")
+
+        logger.info(f"[DemoWriter] Initialized content for project {project.id}")
+
+    except Exception as e:
+        logger.error(f"[DemoWriter] Failed to initialize workspace: {e}")
 
 
 def index(request):
@@ -76,41 +162,52 @@ def index(request):
             # User authenticated but no project selected
             context['needs_project_creation'] = True
     else:
-        # Anonymous user - create demo project with sample content
+        # Anonymous user - use demo project pool
+        from apps.project_app.services.demo_project_pool import DemoProjectPool
+
+        demo_project, created = DemoProjectPool.get_or_create_demo_project(request.session)
+
         context['is_demo'] = True
-        context['writer_initialized'] = True
+        context['project'] = demo_project
 
-        # Demo project info
-        class DemoProject:
-            id = 0
-            name = 'Demo Project'
-            slug = 'demo-project'
+        # Get or create manuscript for demo project
+        manuscript, manuscript_created = Manuscript.objects.get_or_create(
+            project=demo_project,
+            owner=demo_project.owner,
+            defaults={
+                'title': 'Demo Manuscript',
+                'description': 'Try out SciTeX Writer!'
+            }
+        )
+        context['manuscript'] = manuscript
+        context['manuscript_id'] = manuscript.id
 
-        class DemoManuscript:
-            id = 0
-            title = 'Demo Manuscript'
-            description = 'Try out SciTeX Writer'
-            writer_initialized = True
-            word_count_abstract = 150
-            word_count_introduction = 250
-            word_count_methods = 200
-            word_count_results = 180
-            word_count_discussion = 220
+        # Initialize workspace with sample content if newly created
+        if created or manuscript_created:
+            logger.info(f"[DemoWriter] Initializing workspace for demo project {demo_project.id}")
+            _initialize_demo_writer_workspace(demo_project)
 
-        context['project'] = DemoProject()
-        context['manuscript'] = DemoManuscript()
-        context['manuscript_id'] = 0
+        context['writer_initialized'] = manuscript.writer_initialized
 
-        # Demo sections with sample LaTeX content
-        context['sections'] = {
-            'abstract': 'This is a demo abstract. You can edit this text and see live PDF preview. Sign up to save your work permanently.',
-            'highlights': '\\item Key finding one\n\\item Key finding two\n\\item Key finding three',
-            'introduction': 'This is the introduction section. LaTeX commands work here: $E = mc^2$\n\nYou can write multiple paragraphs and use mathematical notation.',
-            'methods': 'Describe your methodology here.\n\n\\subsection{Data Collection}\nExplain how data was collected.\n\n\\subsection{Analysis}\nDescribe analysis methods.',
-            'results': 'Present your results here.\n\nYou can include figures and tables:\n\\begin{equation}\ny = mx + b\n\\end{equation}',
-            'discussion': 'Discuss your findings here and compare with existing literature.',
-            'conclusion': 'Summarize your key conclusions and future work.'
-        }
+        # Load section content if initialized
+        if manuscript.writer_initialized:
+            try:
+                service = WriterService(demo_project.id, demo_project.owner.id)
+                sections = {}
+                for section_name in ['abstract', 'highlights', 'introduction', 'methods',
+                                   'results', 'discussion', 'conclusion']:
+                    try:
+                        content = service.read_section(section_name, 'manuscript')
+                        sections[section_name] = content
+                    except Exception as e:
+                        logger.warning(f"Could not load demo section {section_name}: {e}")
+                        sections[section_name] = ""
+                context['sections'] = sections
+            except Exception as e:
+                logger.error(f"Error loading demo Writer sections: {e}")
+                context['sections'] = {}
+        else:
+            context['sections'] = {}
 
     return render(request, 'writer_app/index.html', context)
 

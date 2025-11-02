@@ -118,11 +118,13 @@ def compile_preview_view(request, project_id):
         color_mode = data.get("color_mode", "light")
         section_name = data.get("section_name", "preview")  # For output filename
 
-        # Anonymous users: use quick compile
+        # Anonymous users: use demo project from pool
         if not request.user.is_authenticated:
-            logger.info(f"[CompilePreview] Anonymous user: {len(content)} chars")
-            from ..services.compiler import quick_compile_content
-            result = quick_compile_content(content, timeout=timeout)
+            from apps.project_app.services.demo_project_pool import DemoProjectPool
+            demo_project, _ = DemoProjectPool.get_or_create_demo_project(request.session)
+            logger.info(f"[CompilePreview] Anonymous user: project_id={demo_project.id}, section={section_name}, content={len(content)} chars")
+            service = WriterService(demo_project.id, demo_project.owner.id)
+            result = service.compile_preview(content, timeout=timeout, color_mode=color_mode, section_name=section_name)
         else:
             # Authenticated users: use WriterService for proper workspace handling
             project = Project.objects.get(id=project_id, owner=request.user)
