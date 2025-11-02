@@ -169,10 +169,7 @@ function loadMonacoEditor() {
             discussion: `{{ sections.discussion|default:""|escapejs }}`,
             conclusion: `{{ sections.conclusion|default:""|escapejs }}`
         },
-        csrfToken: document.querySelector('[name=csrfmiddlewaretoken]')?.value ||
-                   (document.cookie ? Array.from(document.cookie.split(';'))
-                       .find(c => c.trim().startsWith('csrftoken='))
-                       ?.split('=')[1] : null) || ''
+        csrfToken: '{{ csrf_token }}'
     };
 </script>
 
