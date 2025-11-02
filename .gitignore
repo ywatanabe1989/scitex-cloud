@@ -12,6 +12,9 @@ CLAUDE.md
 .git-crypt/keys
 **/*secret*
 
+# SSL Certificates (managed by certbot, never commit)
+deployment/ssl/
+
 ### Source: /home/ywatanabe/.git-templates/.gitignore-templates/Custom/Development.gitignore ###
 # Development directories
 .dev/
