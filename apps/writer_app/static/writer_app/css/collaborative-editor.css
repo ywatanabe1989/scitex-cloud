@@ -1,0 +1,334 @@
+    /* SciTeX Writer - Collaborative Modular Editor */
+
+    /* Utility Classes */
+    .hidden {
+        display: none !important;
+    }
+
+    .hidden-data {
+        display: none;
+    }
+
+    body {
+        background-color: var(--scitex-color-07);
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    
+    .writer-container {
+        min-height: 100vh;
+        background-color: var(--scitex-color-07);
+        padding-top: 20px; /* Space for collaboration presence */
+    }
+    
+    .writer-header {
+        background-color: var(--scitex-color-01);
+        color: var(--white);
+        padding: 1rem 0;
+        margin-bottom: 2rem;
+        position: relative;
+    }
+    
+    .collaboration-toggle {
+        position: absolute;
+        top: 1rem;
+        right: 2rem;
+        background: rgba(255,255,255,0.2);
+        border: 1px solid rgba(255,255,255,0.3);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+    
+    .collaboration-toggle:hover {
+        background: rgba(255,255,255,0.3);
+        border-color: rgba(255,255,255,0.5);
+    }
+    
+    .collaboration-toggle.active {
+        background: #28a745;
+        border-color: #28a745;
+    }
+    
+    .manuscript-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    .manuscript-meta {
+        font-size: 0.9rem;
+        opacity: 0.8;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .collab-status {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(255,255,255,0.1);
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.8rem;
+    }
+    
+    .collab-indicator {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #28a745;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.5; }
+        100% { opacity: 1; }
+    }
+    
+    .action-bar {
+        background-color: var(--white);
+        border-bottom: 1px solid var(--scitex-color-06);
+        padding: 1rem 0;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+    
+    .collaboration-info {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        font-size: 0.9rem;
+        color: var(--scitex-color-03);
+    }
+    
+    .manuscript-section {
+        background-color: var(--white);
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .section-header-collaborative {
+        background-color: var(--scitex-color-02);
+        color: var(--white);
+        padding: 1rem 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .section-title {
+        font-weight: 600;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .section-collaboration-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .section-stats {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .word-count {
+        background-color: rgba(255,255,255,0.2);
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+    }
+    
+    .collaboration-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.2rem 0.5rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+    
+    .collaboration-badge.active {
+        background: rgba(40, 167, 69, 0.2);
+        color: #28a745;
+    }
+    
+    .collaboration-badge.locked {
+        background: rgba(255, 193, 7, 0.2);
+        color: #ffc107;
+    }
+    
+    .collaboration-badge.editing {
+        background: rgba(13, 110, 253, 0.2);
+        color: #0d6efd;
+    }
+    
+    .collaborative-section {
+        position: relative;
+        padding: 1.5rem;
+    }
+    
+    .text-editor {
+        width: 100%;
+        min-height: 200px;
+        border: 2px solid var(--scitex-color-06);
+        border-radius: 6px;
+        padding: 1rem;
+        font-size: 1rem;
+        line-height: 1.6;
+        resize: vertical;
+        font-family: Georgia, "Times New Roman", serif;
+        transition: all 0.3s ease;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .text-editor:focus {
+        outline: none;
+        border-color: var(--scitex-color-02);
+        box-shadow: 0 0 0 3px rgba(26, 35, 50, 0.1);
+    }
+    
+    .text-editor.collaborative-editing {
+        border-color: #28a745;
+        box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
+    }
+    
+    .section-help {
+        background-color: var(--scitex-color-07);
+        padding: 1rem;
+        margin-top: 1rem;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        color: var(--scitex-color-03);
+    }
+    
+    .collaborative-help {
+        background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+        border: 1px solid #bbdefb;
+        color: #1976d2;
+        margin-top: 1rem;
+    }
+    
+    .btn-primary {
+        background-color: var(--scitex-color-02);
+        border: none;
+        color: var(--white);
+        padding: 0.75rem 1.5rem;
+        border-radius: 6px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        background-color: var(--scitex-color-03);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    
+    .btn-secondary {
+        background-color: transparent;
+        border: 2px solid var(--scitex-color-02);
+        color: var(--scitex-color-02);
+        padding: 0.75rem 1.5rem;
+        border-radius: 6px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-secondary:hover {
+        background-color: var(--scitex-color-02);
+        color: var(--white);
+    }
+    
+    .progress-overview {
+        background: linear-gradient(135deg, #1a2332 0%, #34495e 100%);
+        color: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .progress-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .progress-item {
+        background: rgba(255,255,255,0.1);
+        padding: 1rem;
+        border-radius: 6px;
+        text-align: center;
+    }
+    
+    .progress-number {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    .progress-label {
+        font-size: 0.9rem;
+        opacity: 0.8;
+    }
+    
+    /* Mobile responsive */
+    @media (max-width: 768px) {
+        .collaboration-toggle {
+            position: static;
+            margin-top: 1rem;
+            display: block;
+            text-align: center;
+        }
+        
+        .manuscript-meta {
+            flex-direction: column;
+            gap: 0.5rem;
+            align-items: flex-start;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .collaboration-info {
+            margin-left: 0;
+            margin-top: 1rem;
+        }
+        
+        .section-header-collaborative {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+        
+        .progress-grid {
+            grid-template-columns: 1fr;
+        }
+    }

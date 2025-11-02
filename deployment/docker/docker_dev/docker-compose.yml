@@ -4,8 +4,8 @@
 # SciTeX Cloud - Development Environment
 # ============================================
 
-# Set project name to "docker" for consistent container naming (docker-web-1, docker-db-1, etc.)
-name: docker
+# Set project name with environment for clear identification
+name: scitex-cloud-dev
 
 services:
   # ============================================
@@ -16,9 +16,10 @@ services:
       context: ../../..
       dockerfile: deployment/docker/docker_dev/Dockerfile
       cache_from:
-        - scitex-cloud-web:dev-latest
+        - scitex-cloud-dev-web:latest
       args:
         BUILDKIT_INLINE_CACHE: 1
+    image: scitex-cloud-dev-web:latest
 
     # Volumes - Live code reload
     volumes:

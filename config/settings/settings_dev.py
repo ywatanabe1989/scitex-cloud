@@ -136,8 +136,8 @@ GITEA_INTEGRATION_ENABLED = True  # Core feature, always enabled
 # Development Cache Configuration - fallback to dummy cache if Redis not available
 # Override cache configuration for development if Redis is not available
 if not test_redis_connection():
-    logger.warn(
-        "    Redis not available in development, using local memory cache"
+    print(
+        "⚠️  Redis not available in development, using local memory cache"
     )
     CACHES = {
         "default": {

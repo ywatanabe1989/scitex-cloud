@@ -860,3 +860,102 @@
         padding: 1rem;
     }
 }
+
+/* Utility classes for common inline styles - extracted during refactoring */
+.hidden {
+    display: none;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.mt-1-5 {
+    margin-top: 1.5rem;
+}
+
+.mb-1-5 {
+    margin-bottom: 1.5rem;
+}
+
+.progress-50 {
+    width: 50%;
+}
+
+.max-width-300 {
+    max-width: 300px;
+}
+
+.iframe-borderless {
+    border: none;
+}
+
+.log-viewer-compact {
+    max-height: 300px;
+}
+
+.pdf-status-centered {
+    padding: 2rem;
+    text-align: center;
+    color: var(--color-fg-muted);
+    background: var(--color-canvas-subtle);
+    border-radius: 4px;
+    min-height: 600px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.progress-bar-lg {
+    height: 30px;
+}
+
+.header-title-no-margin {
+    margin: 0;
+    color: var(--color-fg-default);
+}
+
+.header-subtitle {
+    margin: 0.5rem 0 0 0;
+    color: var(--color-fg-muted);
+}
+
+.hidden-with-margin {
+    display: none;
+    margin-bottom: 1.5rem;
+}
+
+.progress-bar-initial {
+    width: 0%;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.section-spacing {
+    margin-bottom: 1.5rem;
+}
+
+.hidden-section {
+    display: none;
+    margin-top: 1.5rem;
+}
+
+.changes-list-text {
+    font-size: 0.9rem;
+}
+
+.compilation-status-view {
+    padding: 2rem;
+    text-align: center;
+    color: var(--color-fg-muted);
+    background: var(--color-canvas-subtle);
+    border-radius: 4px;
+    min-height: 600px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

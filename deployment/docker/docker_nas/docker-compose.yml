@@ -4,16 +4,19 @@ version: '3.8'
 # For: Synology DXP480T Plus (Home NAS)
 # No router access or port forwarding needed!
 
+# Set project name with environment for clear identification
+name: scitex-cloud-nas
+
 services:
   web:
     build:
       context: ../../..
       dockerfile: deployment/docker/docker_prod/Dockerfile
       cache_from:
-        - scitex-cloud-web:nas-latest
+        - scitex-cloud-nas-web:latest
       args:
         BUILDKIT_INLINE_CACHE: 1
-    image: scitex-cloud-web:nas-latest
+    image: scitex-cloud-nas-web:latest
     entrypoint: ["/entrypoint.sh"]
     command: ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "6", "--threads", "2", "--timeout", "120", "--access-logfile", "-", "--error-logfile", "-", "--log-level", "info"]
     volumes:

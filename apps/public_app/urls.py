@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-10-16 02:00:47 (ywatanabe)"
+# Timestamp: "2025-11-02 12:10:38 (ywatanabe)"
 # File: /home/ywatanabe/proj/scitex-cloud/apps/public_app/urls.py
 # ----------------------------------------
 from __future__ import annotations
@@ -22,7 +22,8 @@ urlpatterns = [
     path("", views.index, name="index"),
     path("cloud/", lambda request: redirect("public_app:index"), name="cloud"),
     # Concept and vision pages
-    path("vision/", views.vision, name="vision"),
+    path("about/", views.about, name="about"),
+    # path("vision/", views.vision, name="vision"),
     path("publications/", views.publications, name="publications"),
     path("contributors/", views.contributors, name="contributors"),
     # Support pages
