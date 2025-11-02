@@ -8,44 +8,55 @@ Environment-specific configuration for SciTeX Cloud
 
 | File | Purpose |
 |------|---------|
-| `dotenv.dev` | Development environment |
-| `dotenv.prod` | Production environment |
-| `setup_env.sh` | Environment setup script |
+| `.env.example` | Template file with all available variables (✅ safe to commit) |
+| `setup_env.sh` | Environment setup script (✅ safe to commit) |
+| `README.md` | This documentation (✅ safe to commit) |
 
-**All files are safe to commit** (no secrets - references only)
+**All configuration files here are safe to commit** (no secrets - templates only)
 
 ---
 
 ## Quick Start
 
+**First time setup:**
 ```bash
-# Setup environment (creates symlink and loads vars)
-source ./setup_env.sh
+# 1. Copy example to SECRET/ directory (gitignored)
+cp .env.example ../../SECRET/.env.dev
 
-# Manual sourcing
-source dotenv.dev    # or dotenv.prod
+# 2. Edit with your actual credentials
+vim ../../SECRET/.env.dev
+
+# 3. Docker Compose will automatically use SECRET/ files via symlinks
+cd ../docker/docker_dev
+docker compose up -d
 ```
 
 ---
 
 ## Architecture
 
-**Two-layer approach:**
+**Single Source of Truth: `SECRET/` directory**
 
-1. **Global secrets** (from `~/.dotfiles/.bash.d/secrets/`)
-   - API keys, passwords, credentials
-   - Loaded automatically by shell
-
-2. **Project config** (this directory)
-   - References secrets via `${VARIABLE}`
-   - Database settings, Django config
-   - Safe to commit
-
-```bash
-# Example: dotenv.dev
-export SCITEX_CLOUD_DJANGO_SECRET_KEY="${SCITEX_CLOUD_EMAIL_PASSWORD}"  # Reference
-export SCITEX_CLOUD_DB_NAME=scitex_cloud_dev                       # Safe config
 ```
+SECRET/                          # ❌ Gitignored (entire directory)
+  ├── .env.dev                   # Real secrets for development
+  ├── .env.prod                  # Real secrets for production
+  └── .env.nas                   # Real secrets for NAS deployment
+
+deployment/envs/
+  └── .env.example               # ✅ Template (committed to git)
+
+deployment/docker/
+  ├── docker_dev/.env    → ../../../SECRET/.env.dev   (symlink)
+  ├── docker_prod/.env   → ../../../SECRET/.env.prod  (symlink)
+  └── docker_nas/.env    → ../../../SECRET/.env.nas   (symlink)
+```
+
+**Benefits:**
+- ✅ Single source of truth for all secrets
+- ✅ No risk of committing secrets (entire SECRET/ is gitignored)
+- ✅ Docker automatically uses correct environment via symlinks
+- ✅ Easy to update: edit files in SECRET/, restart containers
 
 ---
 
@@ -70,13 +81,29 @@ export SCITEX_CLOUD_DB_NAME=scitex_cloud_dev                       # Safe config
 
 ## Security
 
-- ✅ **DO** commit these dotenv files (no secrets)
-- ✅ **DO** use `${VAR}` to reference secrets
-- ❌ **DON'T** hardcode passwords
-- ❌ **DON'T** commit `.env` symlink at project root
+- ✅ **DO** keep all secrets in `SECRET/` directory
+- ✅ **DO** commit `.env.example` template
+- ✅ **DO** use symlinks from docker directories to `SECRET/`
+- ❌ **DON'T** commit anything in `SECRET/` (entire directory is gitignored)
+- ❌ **DON'T** hardcode passwords in committed files
 
 ---
 
-**Location:** `/home/ywatanabe/proj/scitex-cloud/deployment/dotenvs/`
+## Updating Configuration
+
+To update environment variables in production:
+
+```bash
+# 1. Edit the SECRET file
+vim SECRET/.env.prod
+
+# 2. Restart containers to reload
+cd deployment/docker/docker_prod
+docker compose restart web
+```
+
+---
+
+**Location:** `/home/ywatanabe/proj/scitex-cloud/deployment/envs/`
 
 <!-- EOF -->

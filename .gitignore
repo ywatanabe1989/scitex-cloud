@@ -740,3 +740,5 @@ containers/docker/.env.dev
 docs/to_claude/
 logs/
 test-paper-project/
+*.backup.*
+.env.backup*
