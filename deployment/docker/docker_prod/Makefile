@@ -161,13 +161,9 @@ shell: docker-check-health
 	$(COMPOSE) exec web python manage.py shell
 
 build-ts:
-	@echo "$(CYAN)🔨 Building TypeScript files...$(NC)"
-	@if command -v npm >/dev/null 2>&1; then \
-		npm run build; \
-		echo "$(GREEN)✅ TypeScript build complete$(NC)"; \
-	else \
-		echo "$(YELLOW)⚠️  npm not found, skipping TypeScript build$(NC)"; \
-	fi
+	@echo "$(CYAN)🔨 Building TypeScript...$(NC)"
+	@cd ../../.. && cd frontend && npm run build:writer
+	@echo "$(GREEN)✅ TypeScript compiled$(NC)"
 
 collectstatic: docker-check-health build-ts
 	@echo "$(CYAN)📦 Collecting static files...$(NC)"

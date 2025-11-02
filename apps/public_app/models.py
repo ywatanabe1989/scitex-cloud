@@ -192,27 +192,66 @@ class ServiceIntegration(models.Model):
         ('mendeley', 'Mendeley'),
         ('zotero', 'Zotero'),
     ]
-    
+
     # Relationships
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='cloud_integrations')
-    
+
     # Integration details
     integration_type = models.CharField(max_length=20, choices=INTEGRATION_TYPES)
     external_id = models.CharField(max_length=255)
     access_token = models.TextField(blank=True)  # Encrypted in practice
     refresh_token = models.TextField(blank=True)  # Encrypted in practice
-    
+
     # Status
     is_active = models.BooleanField(default=True)
     last_synced = models.DateTimeField(null=True, blank=True)
-    
+
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+
     class Meta:
         unique_together = ['user', 'integration_type']
         ordering = ['-created_at']
-    
+
     def __str__(self):
         return f"{self.user.username} - {self.integration_type}"
+
+
+class Contributor(models.Model):
+    """Model for GitHub contributors."""
+    ROLE_CHOICES = [
+        ('creator', 'Creator'),
+        ('maintainer', 'Maintainer'),
+        ('core', 'Core Team'),
+        ('contributor', 'Contributor'),
+    ]
+
+    # Basic info
+    github_username = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=200, blank=True)
+    avatar_url = models.URLField(blank=True)
+    github_url = models.URLField(blank=True)
+
+    # Role and status
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='contributor')
+    is_core_team = models.BooleanField(default=False)
+
+    # Contribution stats
+    contributions = models.IntegerField(default=0)
+    contributions_description = models.TextField(blank=True)
+
+    # Display order (lower number = higher priority)
+    display_order = models.IntegerField(default=1000)
+
+    # Timestamps
+    first_contribution = models.DateTimeField(null=True, blank=True)
+    last_contribution = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['display_order', '-contributions', '-last_contribution']
+
+    def __str__(self):
+        return f"{self.github_username} ({self.role})"

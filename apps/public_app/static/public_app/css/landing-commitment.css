@@ -1,0 +1,259 @@
+/* Landing Commitment Section Styles */
+
+.commitment-container {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.commitment-card {
+    background: linear-gradient(135deg, #34495e 0%, #506b7a 50%, #6c8ba0 100%);
+    border-radius: 12px;
+    padding: 4rem 2rem;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--box-shadow-lg);
+}
+
+/* Grid pattern overlay on commitment card - balanced */
+.commitment-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.2;
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+    background-size: 70px 70px;
+}
+
+/* Dark mode commitment card */
+[data-theme="dark"] .commitment-card {
+    background: linear-gradient(135deg, var(--_scitex-02) 0%, var(--_scitex-03) 50%, var(--_scitex-04) 100%);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .commitment-card::before {
+    opacity: 0.15;
+    background-image:
+        linear-gradient(rgba(181, 199, 209, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(181, 199, 209, 0.1) 1px, transparent 1px);
+    background-size: 70px 70px;
+}
+
+/* Ensure content stays above pattern */
+.commitment-card > * {
+    position: relative;
+    z-index: 1;
+}
+
+.commitment-title {
+    color: white;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-size: 2.5rem;
+}
+
+.commitment-subtitle {
+    color: rgba(255, 255, 255, 0.95);
+    text-align: center;
+    margin-bottom: 3rem;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 1.1rem;
+}
+
+.commitment-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2.5rem;
+    max-width: 1100px;
+    margin: 0 auto 3rem;
+}
+
+.commitment-feature-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 2.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.commitment-feature-title {
+    color: white;
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+}
+
+.commitment-feature-list {
+    color: rgba(255, 255, 255, 0.95);
+    line-height: 2;
+    list-style: none;
+    padding: 0;
+    font-size: 1rem;
+}
+
+.commitment-actions {
+    text-align: center;
+    margin-top: 2rem;
+}
+
+.commitment-btn {
+    padding: 1rem 2.5rem;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-right: 1rem;
+    font-size: 1.05rem;
+    transition: all 0.3s ease;
+}
+
+.commitment-btn-github {
+    background: black;
+    color: white;
+}
+
+.commitment-btn-github:hover {
+    background: #333;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.commitment-btn-vision {
+    background: transparent;
+    border: 2px solid white;
+    color: white;
+}
+
+.commitment-btn-vision:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+}
+
+/* Call to Action Section */
+.commitment-cta {
+    margin-top: 4rem;
+    padding-top: 3rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    text-align: center;
+}
+
+.commitment-cta-title {
+    color: white;
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+    font-weight: 700;
+}
+
+.commitment-cta-subtitle {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.05rem;
+    margin-bottom: 2rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.commitment-cta-buttons {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.commitment-cta-btn {
+    padding: 0.85rem 2rem;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.commitment-cta-btn-primary {
+    background: white;
+    color: var(--scitex-color-01);
+}
+
+.commitment-cta-btn-primary:hover {
+    background: rgba(255, 255, 255, 0.9);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+
+.commitment-cta-btn-secondary {
+    background: transparent;
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+}
+
+.commitment-cta-btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: white;
+    transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+    .commitment-card {
+        padding: 3rem 1.5rem;
+    }
+
+    .commitment-title {
+        font-size: 2rem;
+    }
+
+    .commitment-subtitle {
+        font-size: 1rem;
+    }
+
+    .commitment-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .commitment-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .commitment-btn {
+        margin-right: 0;
+        width: 100%;
+        max-width: 300px;
+        justify-content: center;
+    }
+
+    .commitment-cta-title {
+        font-size: 1.5rem;
+    }
+
+    .commitment-cta-subtitle {
+        font-size: 0.95rem;
+    }
+
+    .commitment-cta-buttons {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .commitment-cta-btn {
+        width: 100%;
+        max-width: 300px;
+        justify-content: center;
+    }
+}

@@ -3,11 +3,11 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'writer_app/css/tex-view-main.css' %}?v={{ request.timestamp|default:'1' }}">
-<link rel="stylesheet" href="{% static 'writer_app/css/editor-enhanced.css' %}?v={{ request.timestamp|default:'1' }}">
+<link rel="stylesheet" href="{% static 'writer_app/css/index-editor-panels.css' %}?v={{ request.timestamp|default:'1' }}">
 <link rel="stylesheet" href="{% static 'writer_app/css/pdf-view-main.css' %}?v={{ request.timestamp|default:'1' }}">
-<link rel="stylesheet" href="{% static 'writer_app/css/history_timeline.css' %}?v={{ request.timestamp|default:'1' }}">
-<link rel="stylesheet" href="{% static 'writer_app/css/writer-ui-improved.css' %}?v=2">
-{% include "partials/codemirror_css.html" %}
+<link rel="stylesheet" href="{% static 'writer_app/css/history-timeline.css' %}?v={{ request.timestamp|default:'1' }}">
+<link rel="stylesheet" href="{% static 'writer_app/css/index-ui-components.css' %}?v=2">
+{% include "writer_app/index_partials/codemirror_css.html" %}
 {% endblock %}
 
 {% block writer_content %}
@@ -184,16 +184,16 @@ function loadMonacoEditor() {
     "@/utils/api": "{% static 'js/utils/api.js' %}",
     "@/utils/": "{% static 'js/utils/' %}",
     "@/utils": "{% static 'js/utils/index.js' %}",
-    "@/writer/utils": "{% static 'js/writer/utils/index.js' %}",
-    "@/writer/utils/": "{% static 'js/writer/utils/' %}",
-    "@/writer/": "{% static 'js/writer/' %}",
+    "@/writer/utils": "{% static 'writer_app/js/utils/index.js' %}",
+    "@/writer/utils/": "{% static 'writer_app/js/utils/' %}",
+    "@/writer/": "{% static 'writer_app/js/' %}",
     "@/": "{% static 'js/' %}"
   }
 }
 </script>
 
 <!-- TypeScript-compiled Writer Application Bundle -->
-<script type="module" src="{% static 'js/writer/index.js' %}?v={{ build_id|default:'dev' }}"></script>
+<script type="module" src="{% static 'writer_app/js/index.js' %}?v={{ build_id|default:'dev' }}"></script>
 
 <!-- API Client for REST endpoints -->
 <script src="{% static 'writer_app/js/api-client.js' %}?v={{ build_id|default:'dev' }}"></script>

@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-11-01 09:34:32
+!-- Timestamp: 2025-11-03 09:04:54
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/CLAUDE.md
 !-- --- -->
@@ -52,13 +52,41 @@ The SciTeX ecosystem is project-centric; scholar, code, viz, writer should be li
 `/home/ywatanabe/proj/scitex-cloud/.venv`
 When change directory from `.`, deactivate automatically called.
 
-## CSS - Common vs Specific
-`./static/css/CSS_RULES.md`
-
 ## Django Directory Structure
 Use `./apps/XXX_app/` format
 Follow `./apps/README.md`
 Do not place any files under project root directory
+
+## CSS - Common vs Specific
+`./static/css/CSS_RULES.md`
+
+### Layout
+- [ ] CSS should use central css files as much as possible: 
+  - [ ] `./static/css/{common.css,common/*.css,components/*.css`
+  - [ ] Currently, layout gets broken after refactoring
+  - [ ] Please keep all the original css under:
+    - [ ] `./apps/xxx_app/static/xxx_app/css/`
+    - [ ] However, comment out overriding settings
+    - [ ] At the same time, keep using css related to layout, positioning
+    - [ ] See the example below:
+
+    Before:
+    ``` css
+    .writer-container {
+        min-height: calc(100vh - 80px);
+        display: flex;
+        background: var(--scitex-light);
+    }
+    ```
+
+    After:
+    ``` css
+    .writer-container {
+        min-height: calc(100vh - 80px);
+        display: flex;
+        /* background: var(--scitex-light); */
+    }
+    ```
 
 ## Design Theme of the website
 See `./apps/dev_app`
@@ -102,41 +130,11 @@ app-level files should be under ./apps/<app_name>_app/
 ## HTML Rules
 - [ ] Use partials to read skelton structure of html pages
 
-## https://127.0.0.1:8000/writer/
-- [ ] Refactoring
-
-  - [ ] ./static/ts/writer -> ./apps/writer_app/static/writer_app/ts
-  - [ ] ./apps/writer_app/static/writer_app/css
-  - [ ] ./apps/writer_app/static/writer_app/js
-  - [ ] ./apps/writer_app/static/writer_app/ts
-  - [ ] ./apps/writer_app/templates/write_app/
-
-### Writer Advanced (skip this now)
-  - [ ] Diff functionality
-  - [ ] Multi-user edition
+## Current Top Priority - Improve /writer/ and show synergy with /scholar/
+./TODOS/10_SCITEX_WRITER_01.md
 
 ## https://127.0.0.1:8000/search/ (skip this now)
-- [ ] When save button clicked, searched results disappear from the page
-- [ ] This prompt shown but search results disappear
-Select Project
-Choose a project to save this paper:
-
-- [ ] To use space effectively, show the Cite, Save, DOI, Engine badges in the same row in each card
-- [ ] Filtering seekbar should use our brand theme colors
-- [ ] Filtering does not show data in online manner
-- [x] Hues for all three scatters should be synced
-- [x] Slider selection should apply filtering in the figures immediately (so, colors changed and the same items across figures change colors as well; shared hue)
-- [ ] Ctrl + Shift + R should not delete the searched results
-- [ ] when searched, it restart searching, infinitely
-
-- [ ] http://127.0.0.1:8000/scholar/bibtex/
-- [ ] No alert saved to...; just show success alert
-
-- [ ] http://127.0.0.1:8000/new/
-- [ ] Disable auto-filling to the repository name
-
-- [ ] Header
-- [ ] Scholar button should be separated button; the left is okay; right should have dropdown and enable selection whether bibtex or search
+./TODOS/10_SCITEX_SCHOLAR_01.md
 
 ## Project Page (skip this now)
 - [ ] Root: http://127.0.0.1:8000/test-user/proj-001/

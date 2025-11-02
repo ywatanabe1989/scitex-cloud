@@ -742,3 +742,4 @@ logs/
 test-paper-project/
 *.backup.*
 .env.backup*
+.tmp_sync/

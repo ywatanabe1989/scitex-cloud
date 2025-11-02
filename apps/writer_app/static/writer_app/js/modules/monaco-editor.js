@@ -159,10 +159,13 @@ export class EnhancedEditor {
                 editorContainer.id = `${config.elementId}-monaco`;
                 editorContainer.style.cssText = 'width: 100%; height: 100%; border: none;';
                 element.parentElement?.replaceChild(editorContainer, element);
+                // Detect current theme
+                const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
+                const initialTheme = isDarkMode ? 'vs-dark' : 'vs';
                 this.monacoEditor = monaco.editor.create(editorContainer, {
                     value: initialValue,
                     language: 'latex',
-                    theme: 'scitex-dark',
+                    theme: initialTheme,
                     lineNumbers: config.lineNumbers !== false ? 'on' : 'off',
                     wordWrap: config.lineWrapping !== false ? 'on' : 'off',
                     tabSize: 4,
@@ -191,6 +194,17 @@ export class EnhancedEditor {
                 this.editor = this.monacoEditor;
                 this.editorType = 'monaco';
                 this.setupMonacoEditor();
+                // Listen for global theme changes and update editor theme
+                const themeObserver = new MutationObserver(() => {
+                    const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
+                    const newTheme = isDarkMode ? 'vs-dark' : 'vs';
+                    monaco.editor.setTheme(newTheme);
+                    console.log('[Editor] Monaco theme auto-switched to:', newTheme);
+                });
+                themeObserver.observe(document.documentElement, {
+                    attributes: true,
+                    attributeFilter: ['data-theme']
+                });
                 console.log('[Editor] Monaco Editor initialized with LaTeX support');
             }
             catch (error) {
@@ -463,6 +477,25 @@ export class EnhancedEditor {
             const cmEditor = document.querySelector('.CodeMirror')?.CodeMirror;
             if (cmEditor) {
                 cmEditor.setOption('readOnly', readOnly);
+            }
+        }
+    }
+    /**
+     * Set editor keybinding mode
+     */
+    setKeyBinding(mode) {
+        if (this.editorType === 'monaco' && this.monacoEditor) {
+            console.log('[Editor] Monaco keybinding change requested:', mode);
+            // Monaco doesn't directly support Vim/Emacs keybindings without extensions
+            // For now, just log - would need monaco-vim or monaco-emacs packages
+            console.warn('[Editor] Monaco Vim/Emacs keybindings require additional packages');
+        }
+        else {
+            // CodeMirror keymap
+            console.log('[Editor] Setting CodeMirror keymap to:', mode);
+            const cmEditor = document.querySelector('.CodeMirror')?.CodeMirror;
+            if (cmEditor) {
+                cmEditor.setOption('keyMap', mode);
             }
         }
     }

@@ -1,0 +1,319 @@
+<script src="{% static 'js/collaborative-editor.js' %}"></script>
+<script>
+// Enhanced modular editor with collaboration features
+let isCollaborationEnabled = false;
+let currentManuscript = {
+    id: {{ manuscript.id }},
+    sections: ['abstract', 'introduction', 'methods', 'results', 'discussion', 'conclusion']
+};
+
+// Initialize editor
+document.addEventListener('DOMContentLoaded', function() {
+    initializeEditor();
+    setupCollaborationToggle();
+    setupAutoSave();
+    updateWordCounts();
+});
+
+function initializeEditor() {
+    // Setup word count tracking for all sections
+    currentManuscript.sections.forEach(section => {
+        const textarea = document.getElementById(`section-${section}`);
+        if (textarea) {
+            textarea.addEventListener('input', function() {
+                updateWordCount(section);
+                updateProgress();
+                markAsModified();
+            });
+        }
+    });
+    
+    // Initial word count update
+    setTimeout(updateWordCounts, 100);
+}
+
+function setupCollaborationToggle() {
+    const toggle = document.getElementById('collaboration-toggle');
+    const status = document.getElementById('collab-status');
+    const info = document.getElementById('collaboration-info');
+    
+    toggle.addEventListener('click', function() {
+        if (!isCollaborationEnabled) {
+            enableCollaboration();
+        } else {
+            disableCollaboration();
+        }
+    });
+}
+
+function enableCollaboration() {
+    isCollaborationEnabled = true;
+    const toggle = document.getElementById('collaboration-toggle');
+    const status = document.getElementById('collab-status');
+    const info = document.getElementById('collaboration-info');
+
+    toggle.classList.add('active');
+    toggle.innerHTML = '<i class="fas fa-users"></i> Collaboration Active';
+    status.classList.remove('hidden');
+    info.classList.remove('hidden');
+
+    // Show collaborative help sections
+    document.querySelectorAll('.collaborative-help').forEach(help => {
+        help.classList.remove('hidden');
+    });
+
+    // Add collaborative styling to editors
+    document.querySelectorAll('.text-editor').forEach(editor => {
+        editor.classList.add('collaborative-editing');
+    });
+
+    // Initialize WebSocket collaboration if available
+    if (window.collaborativeEditor) {
+        console.log('Collaborative editing enabled');
+    }
+}
+
+function disableCollaboration() {
+    isCollaborationEnabled = false;
+    const toggle = document.getElementById('collaboration-toggle');
+    const status = document.getElementById('collab-status');
+    const info = document.getElementById('collaboration-info');
+
+    toggle.classList.remove('active');
+    toggle.innerHTML = '<i class="fas fa-users"></i> Enable Collaboration';
+    status.classList.add('hidden');
+    info.classList.add('hidden');
+
+    // Hide collaborative help sections
+    document.querySelectorAll('.collaborative-help').forEach(help => {
+        help.classList.add('hidden');
+    });
+
+    // Remove collaborative styling from editors
+    document.querySelectorAll('.text-editor').forEach(editor => {
+        editor.classList.remove('collaborative-editing');
+    });
+
+    // Disconnect WebSocket collaboration if available
+    if (window.collaborativeEditor) {
+        window.collaborativeEditor.destroy();
+        console.log('Collaborative editing disabled');
+    }
+}
+
+function updateWordCount(section) {
+    const textarea = document.getElementById(`section-${section}`);
+    const countElement = document.getElementById(`${section}-count`);
+    
+    if (textarea && countElement) {
+        const wordCount = textarea.value.trim().split(/\s+/).filter(word => word.length > 0).length;
+        countElement.textContent = `${wordCount} words`;
+        
+        // Update section badge
+        updateSectionBadge(section, wordCount);
+    }
+}
+
+function updateSectionBadge(section, wordCount) {
+    const badgesContainer = document.getElementById(`${section}-badges`);
+    if (!badgesContainer) return;
+    
+    // Clear existing badges
+    badgesContainer.innerHTML = '';
+    
+    // Add word count badge
+    if (wordCount > 0) {
+        const badge = document.createElement('span');
+        badge.className = 'collaboration-badge active';
+        badge.innerHTML = `<i class="fas fa-edit"></i> ${wordCount} words`;
+        badgesContainer.appendChild(badge);
+    }
+    
+    // Add collaboration badges if enabled
+    if (isCollaborationEnabled) {
+        const collabBadge = document.createElement('span');
+        collabBadge.className = 'collaboration-badge editing';
+        collabBadge.innerHTML = `<i class="fas fa-users"></i> Live`;
+        badgesContainer.appendChild(collabBadge);
+    }
+}
+
+function updateWordCounts() {
+    currentManuscript.sections.forEach(section => {
+        updateWordCount(section);
+    });
+    updateProgress();
+}
+
+function updateProgress() {
+    let totalWords = 0;
+    let sectionsCompleted = 0;
+    
+    currentManuscript.sections.forEach(section => {
+        const textarea = document.getElementById(`section-${section}`);
+        if (textarea) {
+            const wordCount = textarea.value.trim().split(/\s+/).filter(word => word.length > 0).length;
+            totalWords += wordCount;
+            if (wordCount > 0) sectionsCompleted++;
+        }
+    });
+    
+    const completionPercentage = Math.round((sectionsCompleted / currentManuscript.sections.length) * 100);
+    
+    // Update progress display
+    document.getElementById('total-words').textContent = totalWords;
+    document.getElementById('sections-completed').textContent = `${sectionsCompleted}/${currentManuscript.sections.length}`;
+    document.getElementById('completion-percentage').textContent = `${completionPercentage}%`;
+}
+
+function autoSave() {
+    const data = {};
+    currentManuscript.sections.forEach(section => {
+        const textarea = document.getElementById(`section-${section}`);
+        if (textarea) {
+            data[section] = textarea.value;
+        }
+    });
+    
+    // Save to localStorage
+    localStorage.setItem(`manuscript_${currentManuscript.id}`, JSON.stringify(data));
+    
+    // Update save time
+    const saveTime = document.getElementById('last-save-time');
+    if (saveTime) {
+        saveTime.textContent = 'Auto-saved just now';
+    }
+    
+    console.log('Manuscript auto-saved');
+}
+
+function setupAutoSave() {
+    // Auto-save every 30 seconds
+    setInterval(autoSave, 30000);
+    
+    // Save on page unload
+    window.addEventListener('beforeunload', autoSave);
+}
+
+function exportJSON() {
+    const data = {
+        manuscript_id: currentManuscript.id,
+        sections: {},
+        exported_at: new Date().toISOString()
+    };
+    
+    currentManuscript.sections.forEach(section => {
+        const textarea = document.getElementById(`section-${section}`);
+        if (textarea) {
+            data.sections[section] = textarea.value;
+        }
+    });
+    
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `manuscript_${currentManuscript.id}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+function showLatexView() {
+    alert('LaTeX view coming soon! This will show the generated LaTeX code for your manuscript.');
+}
+
+function compileManuscript() {
+    alert('PDF compilation coming soon! This will generate a PDF from your manuscript.');
+}
+
+function openVersionControl() {
+    window.location.href = `/writer/version-control/${currentManuscript.id}/`;
+}
+
+function createVersion() {
+    const commitMessage = prompt('Enter a commit message for this version:');
+    if (!commitMessage) return;
+    
+    const versionTag = prompt('Enter an optional version tag (e.g., "Draft 1", "Final Version"):') || '';
+    
+    // First auto-save current content
+    autoSave();
+    
+    const formData = {
+        commit_message: commitMessage,
+        version_tag: versionTag,
+        branch_name: 'main',
+        is_major: false
+    };
+    
+    fetch(`/writer/api/version/${currentManuscript.id}/create/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(`Version created successfully: v${data.version.version_number}`);
+            updateLastSaveTime('Version saved');
+        } else {
+            alert('Error creating version: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error creating version');
+    });
+}
+
+function updateLastSaveTime(message) {
+    const saveTime = document.getElementById('last-save-time');
+    if (saveTime) {
+        saveTime.textContent = message || 'Auto-saved just now';
+    }
+}
+
+// Utility function to get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function markAsModified() {
+    // Visual indication that document has unsaved changes
+    document.title = '● ' + document.title.replace('● ', '');
+}
+
+// Load saved content on page load
+window.addEventListener('load', function() {
+    const saved = localStorage.getItem(`manuscript_${currentManuscript.id}`);
+    if (saved) {
+        try {
+            const data = JSON.parse(saved);
+            currentManuscript.sections.forEach(section => {
+                const textarea = document.getElementById(`section-${section}`);
+                if (textarea && data[section]) {
+                    textarea.value = data[section];
+                }
+            });
+            updateWordCounts();
+        } catch (e) {
+            console.error('Error loading saved content:', e);
+        }
+    }
+});
+</script>
+{% endblock %}

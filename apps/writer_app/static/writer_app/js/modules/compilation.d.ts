@@ -6,8 +6,10 @@ import { CompilationJob } from '@/types';
 export interface CompilationOptions {
     projectId: number;
     docType: string;
-    content: string;
+    content?: string;
     format?: 'pdf' | 'dvi';
+    colorMode?: 'light' | 'dark';
+    sectionName?: string;
 }
 export declare class CompilationManager {
     private apiClient;
@@ -18,7 +20,15 @@ export declare class CompilationManager {
     private onErrorCallback?;
     constructor(apiBaseUrl?: string);
     /**
-     * Compile manuscript
+     * Compile preview (live editing with content)
+     */
+    compilePreview(options: CompilationOptions): Promise<CompilationJob | null>;
+    /**
+     * Compile full manuscript from workspace (no content)
+     */
+    compileFull(options: CompilationOptions): Promise<CompilationJob | null>;
+    /**
+     * @deprecated Use compilePreview() or compileFull() instead
      */
     compile(options: CompilationOptions): Promise<CompilationJob | null>;
     /**

@@ -25,9 +25,17 @@ export class PanelResizer {
     init() {
         if (!this.resizer)
             return;
-        this.resizer.addEventListener('mousedown', (e) => this.handleMouseDown(e));
-        document.addEventListener('mousemove', (e) => this.handleMouseMove(e));
-        document.addEventListener('mouseup', () => this.handleMouseUp());
+        // Force resizer to be visible (CSS might be overridden by other stylesheets)
+        this.resizer.style.width = '4px';
+        this.resizer.style.minWidth = '4px';
+        this.resizer.style.maxWidth = '4px';
+        this.resizer.style.height = '100%';
+        this.resizer.style.flexShrink = '0';
+        this.resizer.style.flexGrow = '0';
+        console.log('[PanelResizer] Forced resizer dimensions via JS (4px)');
+        this.resizer.addEventListener('mousedown', (e) => this.handleMouseDown(e), { capture: true });
+        document.addEventListener('mousemove', (e) => this.handleMouseMove(e), { capture: true });
+        document.addEventListener('mouseup', () => this.handleMouseUp(), { capture: true });
         this._initialized = true;
         this.restoreSavedWidth();
         console.log('[PanelResizer] Initialized');
@@ -36,15 +44,33 @@ export class PanelResizer {
      * Handle mouse down on resizer
      */
     handleMouseDown(e) {
+        console.log('[PanelResizer] Mouse down on resizer');
         this.isResizing = true;
         this.startX = e.clientX;
         if (this.leftPanel && this.container) {
             this.startLeftWidth = this.leftPanel.getBoundingClientRect().width;
+            console.log('[PanelResizer] Starting left width:', this.startLeftWidth);
         }
         if (this.resizer) {
             this.resizer.classList.add('active');
         }
+        // Hide PDF iframe during resize for better performance
+        const pdfIframe = document.querySelector('.preview-panel iframe');
+        const pdfViewer = document.querySelector('.pdf-preview-viewer');
+        if (pdfIframe) {
+            pdfIframe.style.visibility = 'hidden';
+            console.log('[PanelResizer] PDF hidden for resize performance');
+            // Set background color based on theme during resize
+            if (pdfViewer) {
+                const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
+                pdfViewer.style.backgroundColor = isDarkMode ? '#1a1a1a' : '#ffffff';
+            }
+        }
+        // Set cursor for entire document during drag
+        document.body.style.cursor = 'col-resize';
         e.preventDefault();
+        e.stopPropagation();
+        console.log('[PanelResizer] Resize started at X:', this.startX);
     }
     /**
      * Handle mouse move during resize
@@ -56,25 +82,41 @@ export class PanelResizer {
         const deltaX = e.clientX - this.startX;
         const containerWidth = this.container.getBoundingClientRect().width;
         const newLeftWidth = this.startLeftWidth + deltaX;
+        console.log('[PanelResizer] Mouse move - deltaX:', deltaX, 'newLeftWidth:', newLeftWidth);
         // Minimum width for each panel (200px)
         const minWidth = 200;
         const maxLeftWidth = containerWidth - minWidth;
         if (newLeftWidth >= minWidth && newLeftWidth <= maxLeftWidth) {
             const leftPercent = (newLeftWidth / containerWidth) * 100;
             const rightPercent = 100 - leftPercent;
+            console.log('[PanelResizer] Setting widths - left:', leftPercent.toFixed(1) + '%', 'right:', rightPercent.toFixed(1) + '%');
             this.leftPanel.style.flex = `0 0 ${leftPercent}%`;
             this.rightPanel.style.flex = `0 0 ${rightPercent}%`;
             // Save preference to localStorage
             localStorage.setItem('panelLeftWidth', leftPercent.toString());
+        }
+        else {
+            console.log('[PanelResizer] Width out of bounds - minWidth:', minWidth, 'maxLeftWidth:', maxLeftWidth);
         }
     }
     /**
      * Handle mouse up
      */
     handleMouseUp() {
-        this.isResizing = false;
-        if (this.resizer) {
-            this.resizer.classList.remove('active');
+        if (this.isResizing) {
+            console.log('[PanelResizer] Resize ended');
+            this.isResizing = false;
+            if (this.resizer) {
+                this.resizer.classList.remove('active');
+            }
+            // Show PDF iframe again
+            const pdfIframe = document.querySelector('.preview-panel iframe');
+            if (pdfIframe) {
+                pdfIframe.style.visibility = 'visible';
+                console.log('[PanelResizer] PDF shown again');
+            }
+            // Reset cursor
+            document.body.style.cursor = '';
         }
     }
     /**
@@ -84,10 +126,19 @@ export class PanelResizer {
         const savedWidth = localStorage.getItem('panelLeftWidth');
         if (savedWidth && this.leftPanel && this.rightPanel) {
             const leftPercent = parseFloat(savedWidth);
+            // Validate saved width (must be between 20% and 80%)
+            if (leftPercent < 20 || leftPercent > 80) {
+                console.log('[PanelResizer] Saved width invalid:', leftPercent, '% - resetting to 50%');
+                this.resetToDefault();
+                return;
+            }
             const rightPercent = 100 - leftPercent;
             this.leftPanel.style.flex = `0 0 ${leftPercent}%`;
             this.rightPanel.style.flex = `0 0 ${rightPercent}%`;
             console.log('[PanelResizer] Restored panel width:', leftPercent + '%');
+        }
+        else {
+            console.log('[PanelResizer] No saved width, using default 50:50');
         }
     }
     /**

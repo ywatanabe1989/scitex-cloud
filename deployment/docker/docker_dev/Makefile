@@ -3,7 +3,7 @@
 # ============================================
 # Location: /containers/docker_dev/Makefile.dev
 
-.PHONY: help setup build start restart stop down logs ps clean rebuild test migrate makemigrations shell createsuperuser collectstatic db-shell db-reset verify-env docker-check-health logs-web logs-db logs-gitea logs-redis exec-web exec-db exec-gitea gitea-token verify-gitea recreate-testuser list-env clean-python dev update reset
+.PHONY: help setup build build-ts start restart stop down logs ps clean rebuild test migrate makemigrations shell createsuperuser collectstatic db-shell db-reset verify-env docker-check-health logs-web logs-db logs-gitea logs-redis exec-web exec-db exec-gitea gitea-token verify-gitea recreate-testuser list-env clean-python dev update reset
 
 .DEFAULT_GOAL := help
 
@@ -53,7 +53,8 @@ help:
 	@echo "  make makemigrations     - Create new migrations"
 	@echo "  make shell              - Open Django shell"
 	@echo "  make createsuperuser    - Create superuser account"
-	@echo "  make collectstatic      - Collect static files"
+	@echo "  make build-ts           - Compile TypeScript to JavaScript"
+	@echo "  make collectstatic      - Collect static files (includes compiled JS)"
 	@echo "  make test               - Run test suite"
 	@echo ""
 	@echo "$(CYAN)🗄️  Database:$(NC)"
@@ -90,7 +91,7 @@ help:
 # ============================================
 # Setup & Build Commands
 # ============================================
-setup: start migrate collectstatic
+setup: start migrate build-ts collectstatic
 	@echo "$(GREEN)✅ Development setup complete!$(NC)"
 
 start:
@@ -126,7 +127,7 @@ ps:
 	@echo "$(CYAN)📊 Service Status:$(NC)"
 	$(COMPOSE) ps
 
-rebuild: down build up migrate collectstatic
+rebuild: down build up migrate build-ts collectstatic
 	@echo "$(GREEN)✅ Rebuild complete!$(NC)"
 
 clean:
@@ -168,6 +169,11 @@ shell: docker-check-health
 createsuperuser: docker-check-health
 	@echo "$(CYAN)👤 Creating superuser...$(NC)"
 	$(COMPOSE) exec web python manage.py createsuperuser
+
+build-ts:
+	@echo "$(CYAN)🔨 Building TypeScript...$(NC)"
+	@cd ../../.. && cd frontend && npm run build:writer
+	@echo "$(GREEN)✅ TypeScript compiled$(NC)"
 
 collectstatic: docker-check-health
 	@echo "$(CYAN)📦 Collecting static files...$(NC)"

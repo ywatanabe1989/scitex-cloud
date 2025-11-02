@@ -1,0 +1,30 @@
+{
+  "name": "scitex-cloud",
+  "version": "1.0.0",
+  "description": "SciTeX Cloud - Collaborative Scientific Writing Platform",
+  "main": "static/js/index.js",
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "build:writer": "tsc -p tsconfig.writer.json && rm -rf ../apps/writer_app/static/writer_app/js/apps ../apps/writer_app/static/writer_app/js/static",
+    "build:scholar": "tsc --rootDir static/ts/scholar --outDir apps/scholar_app/static/scholar_app/js",
+    "type-check": "tsc --noEmit",
+    "dev": "tsc --watch --pretty",
+    "lint": "eslint static/ts/**/*.ts apps/**/static/**/ts/**/*.ts",
+    "format": "prettier --write static/ts/**/*.ts apps/**/static/**/ts/**/*.ts",
+    "clean:writer": "rm -rf ../apps/writer_app/static/writer_app/js/apps ../apps/writer_app/static/writer_app/js/static"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^5.2.2",
+    "@types/node": "^20.5.0",
+    "@types/codemirror": "^5.60.11",
+    "eslint": "^8.48.0",
+    "@typescript-eslint/eslint-plugin": "^6.5.0",
+    "@typescript-eslint/parser": "^6.5.0",
+    "prettier": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

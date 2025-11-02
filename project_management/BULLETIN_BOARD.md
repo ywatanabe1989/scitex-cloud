@@ -1,7 +1,52 @@
 # SciTeX Development Bulletin Board
 
-**Last Updated:** 2025-10-23 16:07
-**Status:** 🔄 IN PROGRESS - Color System Architecture Refactoring & Token Migration
+**Last Updated:** 2025-11-03 09:35
+**Status:** 🔄 IN PROGRESS - Writer App Refactoring (CSS + Templates + TypeScript)
+
+---
+
+## 🚧 ACTIVE WORK: Writer App Refactoring (2025-11-03)
+
+**Branch:** `refactor/writer-app-structure`
+**Agent:** Main refactoring agent
+**Status:** Phase 2 complete, starting Phase 3
+
+### Completed (Phases 1-2):
+1. ✅ **Phase 1: CSS Extraction** (2025-11-03 09:20)
+   - Extracted 1,256 lines of inline CSS → 5 new CSS files
+   - Removed all `<style>` blocks and `style=""` attributes
+   - Templates reduced by 37% (3,440 → 2,181 lines)
+   - **Commit:** f1ff545 - "refactor(writer): Extract inline CSS to separate files"
+
+2. ✅ **Phase 2: Template Splitting** (2025-11-03 09:35)
+   - Split 5 large templates into partials (93% reduction: 2,181 → 145 lines)
+   - Created 36 partials with `xxx_partials/` naming convention
+   - Main templates now: 18-37 lines each (was 302-587 lines)
+   - Structure: `xxx.html` + `xxx_partials/yyy.html` + `xxx_partials/yyy_partials/zzz.html`
+
+### Completed (Phase 3):
+3. ✅ **Phase 3: TypeScript Consolidation** (2025-11-03 09:42)
+   - Archived experimental services-based TypeScript (not in use)
+   - Moved active TypeScript: `./static/ts/writer/` → `./apps/writer_app/static/writer_app/ts/` (18 files)
+   - Created `tsconfig.writer.json` for app-specific builds
+   - Updated `package.json` build script to use new config
+   - Build tested successfully (53KB index.js compiled)
+   - Removed old root TypeScript/JavaScript directories
+   - **Result:** All writer code now in `apps/writer_app/` (app-centric architecture) ✅
+
+### Ready to Commit:
+4. ⏳ **Commit Atomic Refactoring** (Next)
+   - All 3 phases complete
+   - Ready for testing and merge
+
+### Pending:
+5. ⏳ Test writer functionality in browser
+6. ⏳ Merge to develop branch
+
+### ⚠️ **Please Avoid:**
+- Modifying files in `apps/writer_app/templates/writer_app/` (being actively refactored)
+- Changing `apps/writer_app/static/writer_app/css/` (just completed)
+- Moving TypeScript files (Phase 3 in progress)
 
 ---
 
@@ -475,3 +520,146 @@ Imports from workspace_app:     2 occurrences across 3 files
 ---
 
 <!-- EOF -->
+
+---
+
+## CLAUDE-main (Code Organization & Cleanup Specialist)
+
+### Session: 2025-11-03 09:15 - 09:43 (28 minutes)
+
+**Tasks Completed:**
+
+- [x] **Relocated CodeMirror partial** to writer app (app-centric organization)
+  - From: `/templates/global_base_partials/codemirror_css.html`
+  - To: `/apps/writer_app/templates/writer_app/index_partials/codemirror_css.html`
+  - Updated reference in `index.html`
+
+- [x] **Removed empty directory** `_shared_partials/`
+
+- [x] **Eliminated duplicates** - Removed `/static/writer_app/` (legacy location)
+
+- [x] **CSS cleanup** (12 active files remaining)
+  - Moved 3 unused files to `/unused/` directory
+  - Standardized naming: `history_timeline.css` → `history-timeline.css`
+  - Renamed vague files:
+    - `editor-enhanced.css` → `index-editor-panels.css`
+    - `writer-ui-improved.css` → `index-ui-components.css`
+
+- [x] **TypeScript assessment** - Discovered 95% TypeScript adoption!
+  - Only 1 file remaining: `api-client.js` (256 lines)
+  - Build process: `npm run build:writer` already configured
+  - Created migration quickstart guide
+
+**Documentation Created:**
+1. `/docs/from_agents/WRITER_APP_CLEANUP_SUMMARY.md`
+2. `/docs/from_agents/WRITER_APP_TYPESCRIPT_MIGRATION_ASSESSMENT.md`
+3. `/docs/from_agents/TYPESCRIPT_MIGRATION_QUICKSTART.md`
+
+**Writer App Grade:** C+ → B+ (organization improved)
+
+**TypeScript Progress:** 95% complete (18/19 files)
+
+**Recommendations for Next Agent:**
+- Test all writer pages to verify CSS changes
+- Consider completing TypeScript migration (1 hour, very easy)
+- Update .gitignore to exclude compiled JS files
+
+
+---
+
+## CLAUDE-main (Build Configuration Specialist) - FOLLOW-UP
+
+### Session: 2025-11-03 09:45 - 09:56 (11 minutes)
+
+**Issue Found:** TypeScript build creating nested directory structures due to compiler moved to `./frontend/`
+
+**Root Cause:**
+- When `rootDir: ".."` (project root), TypeScript preserves full path from root to source
+- Example: `apps/writer_app/ts/index.ts` → `js/apps/writer_app/ts/index.js` (nested!)
+- Created duplicates in `js/apps/` and `js/static/` subdirectories
+
+**Solution Implemented:**
+
+- [x] **Fixed `tsconfig.writer.json`** configuration
+  - Set `rootDir: "../"` to allow global utility imports
+  - Set `outDir: "../apps/writer_app/static/writer_app/js"`
+  - Added cleanup step to build script: removes nested dirs AFTER compilation
+
+- [x] **Updated `package.json` build script**
+  - From: `tsc -p tsconfig.writer.json`
+  - To: `tsc -p tsconfig.writer.json && rm -rf ../apps/writer_app/static/writer_app/js/apps ../apps/writer_app/static/writer_app/js/static`
+  - Cleanup runs AFTER build (not before)
+
+- [x] **Verified clean structure**
+  - ✅ No .js files in `/ts/` directory (source-only)
+  - ✅ No nested `apps/` or `static/` directories in `/js/`
+  - ✅ Flat structure: `/js/{helpers,index,modules,utils}`
+
+**Build Command:**
+```bash
+cd frontend && npm run build:writer
+```
+
+**Result:** ✅ TypeScript build now produces clean, flat output structure!
+
+**Files Modified:**
+- `/frontend/tsconfig.writer.json` - Fixed rootDir/outDir configuration
+- `/frontend/package.json` - Added post-build cleanup step
+
+**Status:** TypeScript build system fully functional and clean! 🎉
+
+
+---
+
+## CLAUDE-main (Build System Integration) - FINAL UPDATE
+
+### Session: 2025-11-03 09:56 - 10:00 (4 minutes)
+
+**Completed: TypeScript Build Integration into Makefiles**
+
+- [x] **Added `build-ts` target to all Makefiles:**
+  - `/Makefile` (root) - delegates to environment Makefiles
+  - `/deployment/docker/docker_dev/Makefile` - builds on host machine
+  - `/deployment/docker/docker_prod/Makefile` - updated command
+
+- [x] **Integrated into build workflows:**
+  - `setup: start migrate build-ts collectstatic`
+  - `rebuild: down build up migrate build-ts collectstatic`
+  - `collectstatic` now auto-runs `build-ts` first (dependency)
+
+- [x] **Build command with auto-cleanup:**
+  ```bash
+  npm run build:writer
+  # Compiles TS → JS AND removes nested directories
+  ```
+
+- [x] **Updated help text** in all Makefiles
+
+**Usage:**
+```bash
+# From root
+make ENV=dev build-ts
+
+# From docker_dev/
+make build-ts
+
+# Auto-included in setup/rebuild
+make ENV=dev setup
+```
+
+**Result:** ✅ TypeScript builds now integrated into standard development workflow!
+
+**Files Modified:**
+- `/Makefile` (added build-ts target + help text)
+- `/deployment/docker/docker_dev/Makefile` (added build-ts + updated workflows)
+- `/deployment/docker/docker_prod/Makefile` (updated build-ts command)
+- `/frontend/package.json` (added cleanup to build:writer script)
+- `/frontend/tsconfig.writer.json` (fixed rootDir/outDir paths)
+
+**Final Structure:**
+```
+/ts/      → Source files only (.ts)
+/js/      → Compiled files only (.js, .d.ts, .js.map)
+          → Clean, flat structure (no nesting)
+```
+

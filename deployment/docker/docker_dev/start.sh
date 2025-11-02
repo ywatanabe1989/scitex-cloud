@@ -376,18 +376,18 @@ cleanup_containers() {
     echo_info "Cleaning up old containers..."
     docker compose -f docker-compose.yml down
     docker rm -f \
-        docker-db-1 docker-web-1 docker-redis-1 docker-gitea-1 \
+        scitex-cloud-dev-db-1 scitex-cloud-dev-web-1 scitex-cloud-dev-redis-1 scitex-cloud-dev-gitea-1 \
         2>/dev/null || true
 }
 
 
 check_database_credentials() {
-    if docker ps | grep -q docker-db-1; then
+    if docker ps | grep -q scitex-cloud-dev-db-1; then
         echo_success "Database already running, skipping check"
         return 0
     fi
 
-    if docker volume inspect docker_postgres_data \
+    if docker volume inspect scitex-cloud-dev_postgres_data \
         >/dev/null 2>&1; then
         echo_info \
             "Database volume exists, checking credentials..."
@@ -469,7 +469,7 @@ cleanup_corrupted_containers() {
     echo_header "Cleaning up any corrupted containers..."
 
     # Remove any containers in a bad state (exited status)
-    local bad_containers=$(docker ps -a --filter "status=exited" --format "{{.Names}}" | grep "^docker_")
+    local bad_containers=$(docker ps -a --filter "status=exited" --format "{{.Names}}" | grep "^scitex-cloud-dev-")
 
     if [ -n "$bad_containers" ]; then
         echo_warning "Found corrupted containers, removing: $bad_containers"
@@ -495,7 +495,7 @@ wait_for_services_healthy() {
     echo_header "Waiting for Gitea to be ready..."
     timeout 60 bash -c \
         'until docker compose -f docker-compose.yml ps | \
-        grep docker-gitea-1 | \
+        grep scitex-cloud-dev-gitea-1 | \
         grep -q "(healthy)"; do \
         sleep 2; \
         done' \
@@ -557,9 +557,9 @@ setup_gitea_token() {
     local ADMIN_EMAIL="${SCITEX_CLOUD_GITEA_ADMIN_EMAIL:-admin@scitex.local}"
 
     # Check if admin user exists, create if not
-    if ! docker exec -u git docker-gitea-1 gitea admin user list 2>/dev/null | grep -q "$ADMIN_USERNAME"; then
+    if ! docker exec -u git scitex-cloud-dev-gitea-1 gitea admin user list 2>/dev/null | grep -q "$ADMIN_USERNAME"; then
         echo_info "Creating Gitea admin user: $ADMIN_USERNAME"
-        docker exec -u git docker-gitea-1 gitea admin user create \
+        docker exec -u git scitex-cloud-dev-gitea-1 gitea admin user create \
             --username "$ADMIN_USERNAME" \
             --password "$ADMIN_PASSWORD" \
             --email "$ADMIN_EMAIL" \
@@ -569,7 +569,7 @@ setup_gitea_token() {
     fi
 
     # Generate token for admin user
-    local NEW_TOKEN=$(docker exec -u git docker-gitea-1 gitea admin user generate-access-token \
+    local NEW_TOKEN=$(docker exec -u git scitex-cloud-dev-gitea-1 gitea admin user generate-access-token \
         --username "$ADMIN_USERNAME" \
         --token-name "scitex-dev-$(date +%Y%m%d)" \
         --scopes "write:repository,write:user,write:admin" \
@@ -776,7 +776,7 @@ wait_for_web_healthy() {
     while [ $((SECONDS - START_TIME)) -lt $TIMEOUT ]; do
         # Check if container is healthy (matches "Up ... (healthy)" format)
         if docker compose -f docker-compose.yml ps | \
-            grep docker-web-1 | \
+            grep scitex-cloud-dev-web-1 | \
             grep -q "(healthy)"; then
             echo ""
             echo_success \
@@ -786,12 +786,12 @@ wait_for_web_healthy() {
         fi
 
         # Stream all new logs from container since last check
-        docker logs docker-web-1 2>&1 | tail -n +$((LAST_LOG_LINE + 1)) | while IFS= read -r line; do
+        docker logs scitex-cloud-dev-web-1 2>&1 | tail -n +$((LAST_LOG_LINE + 1)) | while IFS= read -r line; do
             echo "  $line"
         done
 
         # Update line count for next iteration
-        LAST_LOG_LINE=$(docker logs docker-web-1 2>&1 | wc -l)
+        LAST_LOG_LINE=$(docker logs scitex-cloud-dev-web-1 2>&1 | wc -l)
 
         sleep 2
     done
@@ -847,7 +847,7 @@ restart_dev() {
     echo_info "Checking dependencies..."
 
     # Check if Gitea is running
-    if ! docker compose -f docker-compose.yml ps | grep docker-gitea-1 | grep -q "Up"; then
+    if ! docker compose -f docker-compose.yml ps | grep scitex-cloud-dev-gitea-1 | grep -q "Up"; then
         echo_warning "Gitea not running, starting all services..."
         docker compose -f docker-compose.yml up -d
         wait_for_services_healthy

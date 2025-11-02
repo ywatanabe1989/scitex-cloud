@@ -31,6 +31,8 @@ export class EditorControls {
             this.fontSizeSelector.addEventListener('change', this.handleFontSizeChange.bind(this));
             console.log('[EditorControls] Font size selector initialized');
         }
+        // Ctrl+Middle mouse drag for font size
+        this.setupFontSizeDrag();
         // Auto preview control - toolbar checkbox
         if (this.autoPreviewCheckbox) {
             this.loadAutoPreviewPreference();
@@ -288,6 +290,92 @@ export class EditorControls {
             const event = new Event('change', { bubbles: true });
             this.autoPreviewCheckbox.dispatchEvent(event);
         }
+    }
+    /**
+     * Setup Ctrl+Mouse wheel for font size adjustment
+     */
+    setupFontSizeDrag() {
+        const editorContainer = document.querySelector('.latex-panel');
+        if (!editorContainer) {
+            console.warn('[EditorControls] Editor container not found for font size control');
+            return;
+        }
+        // Listen on document level with capture to intercept early
+        document.addEventListener('wheel', (e) => {
+            const wheelEvent = e;
+            console.log('[EditorControls] Wheel event - Ctrl pressed:', wheelEvent.ctrlKey);
+            // Only handle when Ctrl is pressed
+            if (!wheelEvent.ctrlKey)
+                return;
+            // Check if we're over the editor panel (not the PDF panel)
+            const target = wheelEvent.target;
+            const pdfPanel = document.querySelector('.preview-panel');
+            console.log('[EditorControls] Ctrl+Wheel detected - target:', target.className, 'tagName:', target.tagName);
+            console.log('[EditorControls] Is over PDF panel:', pdfPanel?.contains(target));
+            console.log('[EditorControls] Is over editor panel:', editorContainer.contains(target));
+            // If over PDF panel, ignore (let PDF zoom handler take it)
+            if (pdfPanel && pdfPanel.contains(target)) {
+                console.log('[EditorControls] Over PDF - skipping font size adjustment');
+                return;
+            }
+            // If not over editor panel, ignore
+            if (!editorContainer.contains(target)) {
+                console.log('[EditorControls] Not over editor - skipping');
+                return;
+            }
+            console.log('[EditorControls] Ctrl+Wheel over editor - adjusting font size');
+            // Prevent default zoom behavior and stop propagation
+            e.preventDefault();
+            e.stopPropagation();
+            // Get current font size
+            const currentSize = this.fontSizeSelector?.value;
+            const currentFontSize = currentSize ? parseInt(currentSize, 10) : 14;
+            // Calculate new font size based on wheel direction
+            const delta = wheelEvent.deltaY > 0 ? -1 : 1; // Scroll down = decrease, up = increase
+            const newFontSize = Math.max(10, Math.min(20, currentFontSize + delta));
+            if (newFontSize !== currentFontSize) {
+                this.setFontSize(newFontSize);
+                console.log('[EditorControls] Font size changed via Ctrl+Wheel:', currentFontSize, '→', newFontSize);
+            }
+        }, { passive: false, capture: true }); // Use capture phase to intercept very early
+        console.log('[EditorControls] Ctrl+Wheel font size adjustment enabled on editor (document-level listener)');
+        // Also add keyboard shortcuts for font size
+        document.addEventListener('keydown', (e) => {
+            if (!e.ctrlKey && !e.metaKey)
+                return;
+            const editorContainer = document.querySelector('.latex-panel');
+            if (!editorContainer)
+                return;
+            // Check if we're focused on the editor area
+            const activeElement = document.activeElement;
+            if (!activeElement || !editorContainer.contains(activeElement))
+                return;
+            const currentSize = this.fontSizeSelector?.value;
+            const currentFontSize = currentSize ? parseInt(currentSize, 10) : 14;
+            let newFontSize = currentFontSize;
+            // Ctrl+Plus: increase font size
+            if (e.key === '+' || e.key === '=') {
+                e.preventDefault();
+                newFontSize = Math.min(20, currentFontSize + 1);
+                console.log('[EditorControls] Ctrl++ font size increase');
+            }
+            // Ctrl+Minus: decrease font size
+            else if (e.key === '-' || e.key === '_') {
+                e.preventDefault();
+                newFontSize = Math.max(10, currentFontSize - 1);
+                console.log('[EditorControls] Ctrl+- font size decrease');
+            }
+            // Ctrl+0: reset to default
+            else if (e.key === '0') {
+                e.preventDefault();
+                newFontSize = this.defaultFontSize;
+                console.log('[EditorControls] Ctrl+0 font size reset');
+            }
+            if (newFontSize !== currentFontSize) {
+                this.setFontSize(newFontSize);
+            }
+        });
+        console.log('[EditorControls] Font size keyboard shortcuts enabled (Ctrl+/-, Ctrl+0)');
     }
 }
 //# sourceMappingURL=editor-controls.js.map

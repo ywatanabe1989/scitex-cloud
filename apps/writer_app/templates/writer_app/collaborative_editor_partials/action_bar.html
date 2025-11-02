@@ -1,0 +1,33 @@
+        <!-- Action bar -->
+        <div class="action-bar">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" onclick="autoSave()">
+                            <i class="fas fa-save"></i> Save Draft
+                        </button>
+                        <button class="btn btn-secondary" onclick="exportJSON()">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                        <button class="btn btn-secondary" onclick="showLatexView()">
+                            <i class="fas fa-code"></i> LaTeX View
+                        </button>
+                        <button class="btn btn-secondary" onclick="compileManuscript()">
+                            <i class="fas fa-file-pdf"></i> Compile PDF
+                        </button>
+                        <button class="btn btn-secondary" onclick="openVersionControl()">
+                            <i class="fas fa-code-branch"></i> Version Control
+                        </button>
+                        <button class="btn btn-secondary" onclick="createVersion()">
+                            <i class="fas fa-tag"></i> Save Version
+                        </button>
+
+                        <div class="collaboration-info hidden" id="collaboration-info">
+                            <span id="active-users-count">0 users online</span>
+                            <span id="last-save-time">Auto-saved just now</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
