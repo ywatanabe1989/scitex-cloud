@@ -2,7 +2,7 @@
 Django settings auto-loader for SciTeX Cloud.
 
 This module automatically loads the appropriate settings based on:
-1. DJANGO_SETTINGS_MODULE environment variable
+1. SCITEX_CLOUD_DJANGO_SETTINGS_MODULE environment variable
 2. SCITEX_CLOUD_ENV environment variable
 3. Default to development if not specified
 
@@ -13,13 +13,9 @@ Usage:
 
 import os
 import sys
-from scitex import logging
-logger = logging.getLogger(__name__)
 
 # Determine which settings to use
 env = os.environ.get('SCITEX_CLOUD_ENV', 'development').lower()
-
-logger.info(f"Loading: {__file__}...")
 
 if env == 'production':
     from .settings_prod import *

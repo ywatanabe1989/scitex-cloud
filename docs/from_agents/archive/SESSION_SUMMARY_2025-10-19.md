@@ -79,7 +79,7 @@ $SCITEX_DIR/
 ```bash
 SCITEX_DIR=/home/ywatanabe/.scitex/
 SCITEX_CLOUD_ENV=development
-SCITEX_DJANGO_SECRET_KEY=(set)
+SCITEX_CLOUD_DJANGO_SECRET_KEY=(set)
 ```
 
 ## Critical Issues Identified

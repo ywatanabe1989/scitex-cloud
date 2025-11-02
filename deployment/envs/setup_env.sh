@@ -114,7 +114,7 @@ setup_environment() {
     source "$ENV_FILE"
     echo ""
     echo "SciTeX Cloud - Environment: $ENV"
-    echo "Django Settings: $DJANGO_SETTINGS_MODULE"
+    echo "Django Settings: $SCITEX_CLOUD_DJANGO_SETTINGS_MODULE"
 
     if [ "$ENV" = "dev" ]; then
         echo "Database: $SCITEX_CLOUD_DB_NAME_DEV"
@@ -158,4 +158,3 @@ main() {
 
 main "$@" 2>&1 | tee "$LOG_FILE"
 
-# EOF

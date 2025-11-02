@@ -14,8 +14,8 @@ class DjangoSettingsTests(TestCase):
         """Test that basic Django settings are configured"""
         # Test essential settings
         self.assertTrue(hasattr(settings, 'DEBUG'))
-        self.assertTrue(hasattr(settings, 'SECRET_KEY'))
-        self.assertTrue(hasattr(settings, 'ALLOWED_HOSTS'))
+        self.assertTrue(hasattr(settings, 'SCITEX_CLOUD_DJANGO_SECRET_KEY'))
+        self.assertTrue(hasattr(settings, 'SCITEX_CLOUD_ALLOWED_HOSTS'))
         self.assertTrue(hasattr(settings, 'INSTALLED_APPS'))
         self.assertTrue(hasattr(settings, 'MIDDLEWARE'))
         
@@ -43,8 +43,8 @@ class EnvironmentTests(TestCase):
     def test_development_settings_loaded(self):
         """Test that development settings are loaded"""
         # In development mode, certain settings should be present
-        if hasattr(settings, 'DJANGO_SETTINGS_MODULE'):
-            settings_module = os.environ.get('DJANGO_SETTINGS_MODULE', '')
+        if hasattr(settings, 'SCITEX_CLOUD_DJANGO_SETTINGS_MODULE'):
+            settings_module = os.environ.get('SCITEX_CLOUD_DJANGO_SETTINGS_MODULE', '')
             if 'development' in settings_module:
                 # Development-specific tests
                 self.assertTrue(settings.DEBUG)
@@ -70,12 +70,11 @@ class SecuritySettingsTests(TestCase):
     """Tests for security-related settings"""
     
     def test_secret_key_exists(self):
-        """Test that SECRET_KEY is configured"""
-        self.assertTrue(hasattr(settings, 'SECRET_KEY'))
-        self.assertIsNotNone(settings.SECRET_KEY)
-        self.assertNotEqual(settings.SECRET_KEY, '')
+        """Test that SCITEX_CLOUD_DJANGO_SECRET_KEY is configured"""
+        self.assertTrue(hasattr(settings, 'SCITEX_CLOUD_DJANGO_SECRET_KEY'))
+        self.assertIsNotNone(settings.SCITEX_CLOUD_DJANGO_SECRET_KEY)
+        self.assertNotEqual(settings.SCITEX_CLOUD_DJANGO_SECRET_KEY, '')
         
     def test_allowed_hosts_configured(self):
-        """Test that ALLOWED_HOSTS is configured"""
-        self.assertTrue(hasattr(settings, 'ALLOWED_HOSTS'))
-        self.assertIsInstance(settings.ALLOWED_HOSTS, list)
+        """Test that SCITEX_CLOUD_ALLOWED_HOSTS is configured"""
+        self.assertTrue(hasattr(settings, 'SCITEX_CLOUD_ALLOWED_HOSTS'))

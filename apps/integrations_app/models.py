@@ -64,14 +64,14 @@ class IntegrationConnection(models.Model):
         """Encrypt sensitive data"""
         if not value:
             return ''
-        f = Fernet(settings.SECRET_KEY[:32].encode().ljust(32)[:32])
+        f = Fernet(settings.SCITEX_CLOUD_DJANGO_SECRET_KEY[:32].encode().ljust(32)[:32])
         return f.encrypt(value.encode()).decode()
 
     def decrypt_value(self, encrypted_value):
         """Decrypt sensitive data"""
         if not encrypted_value:
             return ''
-        f = Fernet(settings.SECRET_KEY[:32].encode().ljust(32)[:32])
+        f = Fernet(settings.SCITEX_CLOUD_DJANGO_SECRET_KEY[:32].encode().ljust(32)[:32])
         return f.decrypt(encrypted_value.encode()).decode()
 
     def set_access_token(self, token):

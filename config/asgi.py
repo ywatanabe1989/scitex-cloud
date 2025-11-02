@@ -11,7 +11,9 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.security.websocket import AllowedHostsOriginValidator
 from django.core.asgi import get_asgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+# Use SCITEX_CLOUD_ prefix for configuration
+settings_module = os.getenv("SCITEX_CLOUD_DJANGO_SETTINGS_MODULE") or "config.settings"
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', settings_module)
 django.setup()
 
 # Import routing after Django setup
@@ -26,4 +28,3 @@ application = ProtocolTypeRouter({
             )
         )
     ),
-})

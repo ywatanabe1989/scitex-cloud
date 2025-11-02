@@ -246,7 +246,7 @@ From TODOS/INTEGRATIONS.md:
 
 ## Security Notes
 
-- All OAuth tokens encrypted using Django SECRET_KEY
+- All OAuth tokens encrypted using Django SCITEX_CLOUD_DJANGO_SECRET_KEY
 - CSRF protection on OAuth flows
 - User-scoped data access
 - Webhook URLs validated before storage

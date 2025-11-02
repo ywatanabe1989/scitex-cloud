@@ -53,8 +53,8 @@ fi
 
 # Set Django settings
 case $MODE in
-    dev|win) export DJANGO_SETTINGS_MODULE=config.settings.development ;;
-    prod) export DJANGO_SETTINGS_MODULE=config.settings.production ;;
+    dev|win) export SCITEX_CLOUD_DJANGO_SETTINGS_MODULE=config.settings.development ;;
+    prod) export SCITEX_CLOUD_DJANGO_SETTINGS_MODULE=config.settings.production ;;
 esac
 
 # Basic setup
@@ -122,4 +122,3 @@ case $MODE in
             exit 1
         fi
         ;;
-esac

@@ -9,7 +9,7 @@ Group=www-data
 WorkingDirectory=/home/ywatanabe/proj/scitex-cloud
 Environment="PATH=/home/ywatanabe/proj/scitex-cloud/.venv/bin"
 Environment="SCITEX_CLOUD_ENV=development"
-Environment="DJANGO_SETTINGS_MODULE=config.settings.settings_dev"
+Environment="SCITEX_CLOUD_DJANGO_SETTINGS_MODULE=config.settings.settings_dev"
 EnvironmentFile=/home/ywatanabe/proj/scitex-cloud/deployment/dotenvs/dotenv_dev
 ExecStart=/home/ywatanabe/proj/scitex-cloud/.venv/bin/uwsgi --ini /home/ywatanabe/proj/scitex-cloud/deployment/uwsgi/uwsgi_dev.ini
 

@@ -43,7 +43,7 @@ source .env
 
 docker compose run --rm certbot certonly \
   --webroot -w /var/www/certbot \
-  --email ${SCITEX_EMAIL_ADMIN} \
+  --email ${SCITEX_SCITEX_CLOUD_EMAIL_ADMIN} \
   --agree-tos --no-eff-email \
   -d scitex.ai -d git.scitex.ai
 ```

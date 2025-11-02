@@ -8,7 +8,7 @@ import sys
 import django
 
 # Setup Django
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.development')
+os.environ.setdefault('SCITEX_CLOUD_DJANGO_SETTINGS_MODULE', 'config.settings.development')
 sys.path.append('/home/ywatanabe/proj/SciTeX-Cloud')
 django.setup()
 
@@ -144,4 +144,3 @@ if __name__ == "__main__":
     # Test search integration
     test_search_integration()
     
-    print("\n🎉 All tests completed!")

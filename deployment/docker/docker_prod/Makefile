@@ -3,7 +3,7 @@
 # ============================================
 # Location: /containers/docker_prod/Makefile.prod
 
-.PHONY: help setup build start restart stop down logs ps status rebuild migrate makemigrations shell collectstatic db-shell db-backup verify-health logs-web logs-db logs-redis logs-nginx exec-web exec-db clean-python ssl-setup ssl-check ssl-create ssl-renew ssl-verify ssl-auto
+.PHONY: help setup build start restart stop down logs ps status rebuild migrate makemigrations shell collectstatic db-shell db-backup verify-health logs-web logs-db logs-redis logs-nginx exec-web exec-db clean-python ssl-setup ssl-check ssl-create ssl-renew ssl-verify ssl-auto list-envs
 
 .DEFAULT_GOAL := help
 
@@ -64,9 +64,10 @@ help:
 	@echo "  make logs-redis         - View Redis logs"
 	@echo "  make logs-nginx         - View Nginx logs"
 	@echo ""
-	@echo "$(CYAN)🔧 Shell Access:$(NC)"
+	@echo "$(CYAN)🔧 Shell Access & Debug:$(NC)"
 	@echo "  make exec-web           - Shell into web container"
 	@echo "  make exec-db            - Shell into database container"
+	@echo "  make list-envs          - List environment variables"
 	@echo ""
 	@echo "$(CYAN)🔍 Health & Monitoring:$(NC)"
 	@echo "  make verify-health      - Check all services health"
@@ -170,13 +171,13 @@ collectstatic: docker-check-health
 db-shell: docker-check-health
 	@echo "$(CYAN)🗄️  Opening PostgreSQL shell (production)...$(NC)"
 	@echo "$(YELLOW)⚠️  BE CAREFUL - This is production!$(NC)"
-	@$(COMPOSE) exec db psql -U $${POSTGRES_USER} -d $${POSTGRES_DB}
+	@$(COMPOSE) exec db psql -U $${SCITEX_CLOUD_POSTGRES_USER} -d $${SCITEX_CLOUD_POSTGRES_DB}
 
 db-backup: docker-check-health
 	@echo "$(CYAN)💾 Backing up production database...$(NC)"
 	@mkdir -p ../../backups
 	@BACKUP_FILE="../../backups/scitex_prod_$$(date +%Y%m%d_%H%M%S).sql" && \
-	$(COMPOSE) exec -T db pg_dump -U $${POSTGRES_USER} $${POSTGRES_DB} > $$BACKUP_FILE && \
+	$(COMPOSE) exec -T db pg_dump -U $${SCITEX_CLOUD_POSTGRES_USER} $${SCITEX_CLOUD_POSTGRES_DB} > $$BACKUP_FILE && \
 	gzip $$BACKUP_FILE && \
 	echo "$(GREEN)✅ Backup saved to: $$BACKUP_FILE.gz$(NC)"
 
@@ -336,6 +337,29 @@ ssl-auto:
 ssl-setup:
 	@echo "$(CYAN)🔒 Setting up SSL/HTTPS (interactive)...$(NC)"
 	@bash $(CURDIR)/nginx/setup_nginx.sh
+
+# ============================================
+# Utilities
+# ============================================
+
+# List environment variables in web container
+list-envs:
+	@echo "$(CYAN)🔍 Environment variables in web container:$(NC)"
+	@echo ""
+	@echo "$(CYAN)━━━ SCITEX_CLOUD_* variables ━━━$(NC)"
+	@$(COMPOSE) exec -T web env | grep "^SCITEX_CLOUD_" | sort || true
+	@echo ""
+	@echo "$(CYAN)━━━ SCITEX_* variables (non-CLOUD) ━━━$(NC)"
+	@$(COMPOSE) exec -T web env | grep "^SCITEX_" | grep -v "^SCITEX_CLOUD_" | sort || true
+	@echo ""
+	@echo "$(CYAN)━━━ SCITEX_CLOUD_EMAIL_* variables ━━━$(NC)"
+	@$(COMPOSE) exec -T web env | grep "^SCITEX_CLOUD_EMAIL_" | sort || true
+	@echo ""
+	@echo "$(CYAN)━━━ Django variables ━━━$(NC)"
+	@$(COMPOSE) exec -T web env | grep -E "^(DEBUG|DJANGO_|SCITEX_CLOUD_DJANGO_SECRET_KEY|SCITEX_CLOUD_ALLOWED_HOSTS|SCITEX_CLOUD_POSTGRES_URL|SCITEX_CLOUD_REDIS_URL)" | sort || true
+	@echo ""
+	@echo "$(CYAN)━━━ Database variables ━━━$(NC)"
+	@$(COMPOSE) exec -T web env | grep -E "^(POSTGRES_|DB_)" | sort || true
 
 # EOF
 

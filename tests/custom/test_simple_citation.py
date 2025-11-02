@@ -2,7 +2,7 @@
 Simple test of citation export functionality using Django management command
 """
 import os
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+os.environ.setdefault('SCITEX_CLOUD_DJANGO_SETTINGS_MODULE', 'config.settings')
 
 from datetime import date
 
@@ -114,4 +114,3 @@ if __name__ == '__main__':
     
     print("\n" + "=" * 60)
     print("✅ Citation Format Testing Complete!")
-    print("All citation formats are generating properly formatted output.")

@@ -590,7 +590,7 @@ class WorkflowSecret(models.Model):
         from django.conf import settings
 
         # Get encryption key from settings
-        key = settings.SECRET_KEY[:32].encode()
+        key = settings.SCITEX_CLOUD_DJANGO_SECRET_KEY[:32].encode()
         f = Fernet(key)
         self.encrypted_value = f.encrypt(value.encode()).decode()
 
@@ -600,7 +600,7 @@ class WorkflowSecret(models.Model):
         from django.conf import settings
 
         # Get encryption key from settings
-        key = settings.SECRET_KEY[:32].encode()
+        key = settings.SCITEX_CLOUD_DJANGO_SECRET_KEY[:32].encode()
         f = Fernet(key)
         return f.decrypt(self.encrypted_value.encode()).decode()
 

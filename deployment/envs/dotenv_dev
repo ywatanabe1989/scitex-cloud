@@ -5,22 +5,22 @@
 # ========================================
 # Django Settings
 # ========================================
-DJANGO_SETTINGS_MODULE=config.settings.settings_dev
+SCITEX_CLOUD_DJANGO_SETTINGS_MODULE=config.settings.settings_dev
 DEBUG=True
 
 # ========================================
 # Django Secret Key
 # ========================================
 SCITEX_CLOUD_DJANGO_SECRET_KEY=WlLHhph63BKuRP7W?Z3TszWTltaObIzC
-SCITEX_DJANGO_SECRET_KEY=WlLHhph63BKuRP7W?Z3TszWTltaObIzC
+SCITEX_CLOUD_DJANGO_SECRET_KEY=WlLHhph63BKuRP7W?Z3TszWTltaObIzC
 
 # ========================================
 # Database - Development (Docker)
 # ========================================
 # PostgreSQL service configuration (for docker-compose)
-POSTGRES_DB=scitex_cloud_dev
-POSTGRES_USER=scitex_dev
-POSTGRES_PASSWORD=scitex_dev_2025
+SCITEX_CLOUD_POSTGRES_DB=scitex_cloud_dev
+SCITEX_CLOUD_POSTGRES_USER=scitex_dev
+SCITEX_CLOUD_POSTGRES_PASSWORD=scitex_dev_2025
 
 # Django database connection (use 'db' for Docker service name)
 SCITEX_CLOUD_DB_NAME_DEV=scitex_cloud_dev
@@ -45,7 +45,7 @@ SCITEX_CLOUD_ENV=development
 # Logging
 # ========================================
 SCITEX_LOGGING_LEVEL=info
-SCITEX_SUPPRESS_IMPORTING_MESSAGES=True
+SCITEX_CODE_SUPPRESS_IMPORTING_MESSAGES=True
 
 # ========================================
 # Directories
@@ -72,11 +72,11 @@ SCITEX_CLOUD_GITEA_TOKEN_DEV=bfd4ecd8471bde7f3b7ee7e1ce3f86ec8c966a36
 # ========================================
 # SciTeX Scholar - Search Configuration
 # ========================================
-SCITEX_USE_CACHE=False
-SCITEX_MAX_WORKERS=3
-SCITEX_TIMEOUT_PER_ENGINE=45
-SCITEX_ENGINES=CrossRef,PubMed,arXiv
-SCITEX_DEFAULT_MODE=single
+SCITEX_SCHOLAR_USE_CACHE=False
+SCITEX_SCHOLAR_MAX_WORKERS=3
+SCITEX_SCHOLAR_TIMEOUT_PER_ENGINE=45
+SCITEX_SCHOLAR_ENGINES=CrossRef,PubMed,arXiv
+SCITEX_SCHOLAR_DEFAULT_MODE=single
 
 # ========================================
 # SciTeX Scholar - General

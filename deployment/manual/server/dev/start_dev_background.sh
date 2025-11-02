@@ -11,8 +11,8 @@ cd "$PROJECT_ROOT"
 lsof -ti:8000 | xargs kill -9 2>/dev/null || true
 
 # Set environment variables
-export SCITEX_DJANGO_SECRET_KEY='django-insecure-development-key-12345'
-export DJANGO_SETTINGS_MODULE=config.settings.development
+export SCITEX_CLOUD_DJANGO_SECRET_KEY='django-insecure-development-key-12345'
+export SCITEX_CLOUD_DJANGO_SETTINGS_MODULE=config.settings.development
 
 # Start the server in background
 echo "Starting Django development server..."
@@ -31,4 +31,3 @@ if curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/ | grep -q "200\
     echo "✅ Also accessible at http://172.19.33.56:8000/"
 else
     echo "⚠️  Server may have issues. Check server.log for details."
-fi

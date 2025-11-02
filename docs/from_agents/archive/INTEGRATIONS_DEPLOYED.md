@@ -192,7 +192,7 @@ Complete guides available:
 
 ## Security Features
 
-✅ OAuth tokens encrypted at rest (using Django SECRET_KEY)
+✅ OAuth tokens encrypted at rest (using Django SCITEX_CLOUD_DJANGO_SECRET_KEY)
 ✅ CSRF protection on all forms
 ✅ Environment variable configuration
 ✅ User-scoped data access only

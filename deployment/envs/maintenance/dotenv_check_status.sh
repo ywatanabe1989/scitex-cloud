@@ -39,7 +39,7 @@ PROJECT_ROOT="/home/ywatanabe/proj/scitex-cloud"
 # Critical environment variables that should exist
 CRITICAL_VARS=(
     "SCITEX_CLOUD_DJANGO_SECRET_KEY"
-    "DJANGO_SETTINGS_MODULE"
+    "SCITEX_CLOUD_SCITEX_CLOUD_DJANGO_SETTINGS_MODULE"
     "SCITEX_CLOUD_DB_NAME"
     "SCITEX_CLOUD_DB_USER"
     "SCITEX_CLOUD_DB_PASSWORD"
@@ -92,11 +92,11 @@ check_critical_vars() {
         missing_vars+=("SCITEX_CLOUD_DJANGO_SECRET_KEY")
     fi
 
-    if grep -q "^export DJANGO_SETTINGS_MODULE=" "$file" 2>/dev/null; then
-        echo_success "    ✓ DJANGO_SETTINGS_MODULE is set"
+    if grep -q "^export SCITEX_CLOUD_SCITEX_CLOUD_DJANGO_SETTINGS_MODULE=" "$file" 2>/dev/null; then
+        echo_success "    ✓ SCITEX_CLOUD_SCITEX_CLOUD_DJANGO_SETTINGS_MODULE is set"
     else
-        echo_error "    ✗ DJANGO_SETTINGS_MODULE is missing"
-        missing_vars+=("DJANGO_SETTINGS_MODULE")
+        echo_error "    ✗ SCITEX_CLOUD_SCITEX_CLOUD_DJANGO_SETTINGS_MODULE is missing"
+        missing_vars+=("SCITEX_CLOUD_SCITEX_CLOUD_DJANGO_SETTINGS_MODULE")
     fi
 
     # Check database variables with environment suffix
@@ -253,10 +253,10 @@ show_security_recommendations() {
 
     echo_info "Best Practices:"
     echo_info "  • Never commit .env files with secrets to git"
-    echo_info "  • Use different SECRET_KEY for dev and prod"
+    echo_info "  • Use different SCITEX_CLOUD_DJANGO_SECRET_KEY for dev and prod"
     echo_info "  • Use different database credentials for dev and prod"
     echo_info "  • Keep production DEBUG=False"
-    echo_info "  • Set specific ALLOWED_HOSTS in production"
+    echo_info "  • Set specific SCITEX_CLOUD_ALLOWED_HOSTS in production"
     echo
 }
 
@@ -277,4 +277,3 @@ main() {
 
 main "$@" > >(tee -a "$LOG_PATH") 2> >(tee -a "$ERR_PATH" >&2)
 
-# EOF

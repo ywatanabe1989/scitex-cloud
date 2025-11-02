@@ -21,15 +21,15 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get(
-    "SCITEX_DJANGO_SECRET_KEY",
+SCITEX_CLOUD_DJANGO_SECRET_KEY = os.environ.get(
+    "SCITEX_CLOUD_DJANGO_SECRET_KEY",
     "django-insecure-development-key-change-in-production",
 )
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+SCITEX_CLOUD_ALLOWED_HOSTS = []
 
 # Application definition
 DJANGO_APPS = [
@@ -276,7 +276,7 @@ GITHUB_WEBHOOK_SECRET = os.environ.get('GITHUB_WEBHOOK_SECRET', 'your-webhook-se
 
 # Stripe Payment Processing Settings
 STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY', '')
-STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY', '')
+STRIPE_SCITEX_CLOUD_DJANGO_SECRET_KEY = os.environ.get('STRIPE_SCITEX_CLOUD_DJANGO_SECRET_KEY', '')
 STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET', '')
 
 # Billing and Monetization Settings
@@ -291,12 +291,12 @@ FREE_TIER_LIMITS = {
 
 # Email settings for billing notifications
 if BILLING_ENABLED:
-    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
-    EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587'))
-    EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'true').lower() == 'true'
-    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
-    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+    SCITEX_CLOUD_EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    SCITEX_CLOUD_EMAIL_HOST = os.environ.get('SCITEX_CLOUD_EMAIL_HOST', 'smtp.gmail.com')
+    SCITEX_CLOUD_EMAIL_PORT = int(os.environ.get('SCITEX_CLOUD_EMAIL_PORT', '587'))
+    SCITEX_CLOUD_EMAIL_USE_TLS = os.environ.get('SCITEX_CLOUD_EMAIL_USE_TLS', 'true').lower() == 'true'
+    SCITEX_CLOUD_EMAIL_HOST_USER = os.environ.get('SCITEX_CLOUD_EMAIL_HOST_USER', '')
+    SCITEX_CLOUD_EMAIL_HOST_PASSWORD = os.environ.get('SCITEX_CLOUD_EMAIL_HOST_PASSWORD', '')
     DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'billing@scitex.ai')
 
 # EOF

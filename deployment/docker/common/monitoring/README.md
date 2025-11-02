@@ -29,4 +29,4 @@ docker exec docker-gitea-1 /app/common/scripts/maintenance/gitea_check_status.sh
 Scripts load from `.env`:
 - `SCITEX_CLOUD_GITEA_URL_DEV`
 - `SCITEX_CLOUD_GITEA_TOKEN_DEV`
-- `POSTGRES_USER`, `POSTGRES_DB`
+- `SCITEX_CLOUD_POSTGRES_USER`, `SCITEX_CLOUD_POSTGRES_DB`

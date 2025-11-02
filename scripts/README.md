@@ -260,7 +260,7 @@ Loaded automatically by shell from:
 
 Contains sensitive credentials:
 ```bash
-SCITEX_EMAIL_PASSWORD          # Used as Django secret key
+SCITEX_CLOUD_EMAIL_PASSWORD          # Used as Django secret key
 SCITEX_SCHOLAR_FROM_EMAIL_*    # Email SMTP config
 SCITEX_SCHOLAR_ZENROWS_API_KEY # API keys
 # etc.
@@ -273,7 +273,7 @@ Loaded by `scripts/deployment/switch_env.sh`:
 Contains environment-specific config:
 ```bash
 # Django
-DJANGO_SETTINGS_MODULE
+SCITEX_CLOUD_DJANGO_SETTINGS_MODULE
 SCITEX_CLOUD_DJANGO_SECRET_KEY
 
 # Database

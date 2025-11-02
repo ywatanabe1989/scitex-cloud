@@ -98,7 +98,7 @@ check_django_status() {
     # Django settings
     echo_info "Django Configuration:"
     SETTINGS_MODULE=$(docker-compose -f docker-compose.dev.yml exec -T web \
-        python -c "import os; print(os.getenv('DJANGO_SETTINGS_MODULE', 'Not set'))" 2>/dev/null)
+        python -c "import os; print(os.getenv('SCITEX_CLOUD_DJANGO_SETTINGS_MODULE', 'Not set'))" 2>/dev/null)
     echo_info "  Settings module: $SETTINGS_MODULE"
 
     DEBUG_MODE=$(docker-compose -f docker-compose.dev.yml exec -T web \

@@ -25,9 +25,10 @@ def main():
 
     # Use new auto-detection settings module
     # Set SCITEX_CLOUD_ENV=production for production, defaults to development
-    os.environ.setdefault(
-        "DJANGO_SETTINGS_MODULE", "config.settings"
+    settings_module = os.environ.get(
+        "SCITEX_CLOUD_DJANGO_SETTINGS_MODULE", "config.settings"
     )
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", settings_module)
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:

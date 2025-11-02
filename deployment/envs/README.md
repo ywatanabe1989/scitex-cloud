@@ -43,7 +43,7 @@ source dotenv.dev    # or dotenv.prod
 
 ```bash
 # Example: dotenv.dev
-export SCITEX_CLOUD_DJANGO_SECRET_KEY="${SCITEX_EMAIL_PASSWORD}"  # Reference
+export SCITEX_CLOUD_DJANGO_SECRET_KEY="${SCITEX_CLOUD_EMAIL_PASSWORD}"  # Reference
 export SCITEX_CLOUD_DB_NAME=scitex_cloud_dev                       # Safe config
 ```
 
@@ -59,7 +59,7 @@ export SCITEX_CLOUD_DB_NAME=scitex_cloud_dev                       # Safe config
 - `SCITEX_CLOUD_DB_PORT`
 
 **Django:**
-- `DJANGO_SETTINGS_MODULE`
+- `SCITEX_CLOUD_DJANGO_SETTINGS_MODULE`
 - `SCITEX_CLOUD_DJANGO_SECRET_KEY`
 
 **Services:**

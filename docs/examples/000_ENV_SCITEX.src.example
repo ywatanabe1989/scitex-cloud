@@ -7,8 +7,8 @@
 # chmod 600 ~/.bash.d/secrets/000_ENV_SCITEX.src
 
 # Django Settings
-export DJANGO_SETTINGS_MODULE="config.settings.production"
-export SCITEX_DJANGO_SECRET_KEY="your-secret-key-here-change-in-production"
+export SCITEX_CLOUD_DJANGO_SETTINGS_MODULE="config.settings.production"
+export SCITEX_CLOUD_DJANGO_SECRET_KEY="your-secret-key-here-change-in-production"
 
 # Database Configuration (PostgreSQL)
 # Leave DB_PASSWORD empty or set to placeholder to use SQLite fallback
@@ -22,10 +22,10 @@ export DB_PORT="5432"
 export SCITEX_CLOUD_EMAIL_ADMIN="admin@scitex.ai"
 export SCITEX_CLOUD_EMAIL_PASSWORD="your-email-password-here"
 export SCITEX_SENDER_EMAIL="admin@scitex.ai"
-export SCITEX_SENDER_EMAIL_PASSWORD="your-sender-email-password-here"
+export SCITEX_SENDER_SCITEX_CLOUD_EMAIL_PASSWORD="your-sender-email-password-here"
 
 # SSL Configuration (set to 'true' only if HTTPS is properly configured)
-export ENABLE_SSL_REDIRECT="false"
+export SCITEX_CLOUD_ENABLE_SSL_REDIRECT="false"
 
 # Other Email Addresses (optional)
 # export SCITEX_CLOUD_EMAIL_AGENT="agent@scitex.ai"
