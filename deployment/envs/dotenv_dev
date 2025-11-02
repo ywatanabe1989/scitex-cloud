@@ -53,14 +53,14 @@ SCITEX_SUPPRESS_IMPORTING_MESSAGES=True
 SCITEX_DIR=/home/ywatanabe/.scitex/
 
 # ========================================
-# Email Configuration
+# Email Configuration (Cloud-scoped)
 # ========================================
-SCITEX_EMAIL_ADMIN=admin@scitex.ai
-SCITEX_EMAIL_AGENT=agent@scitex.ai
-SCITEX_EMAIL_YWATANABE=ywatanabe@scitex.ai
-SCITEX_EMAIL_YUSUKEWATANABE=YusukeWatanabe@scitex.ai
-SCITEX_EMAIL_SUPPORT=support@scitex.ai
-SCITEX_EMAIL_PASSWORD=WlLHhph63BKuRP7W?Z3TszWTltaObIzC
+SCITEX_CLOUD_EMAIL_ADMIN=admin@scitex.ai
+SCITEX_CLOUD_EMAIL_AGENT=agent@scitex.ai
+SCITEX_CLOUD_EMAIL_YWATANABE=ywatanabe@scitex.ai
+SCITEX_CLOUD_EMAIL_YUSUKEWATANABE=YusukeWatanabe@scitex.ai
+SCITEX_CLOUD_EMAIL_SUPPORT=support@scitex.ai
+SCITEX_CLOUD_EMAIL_PASSWORD=WlLHhph63BKuRP7W?Z3TszWTltaObIzC
 SCITEX_RECIPIENT_GMAIL=wyusuuke@gmail.com
 
 # ========================================

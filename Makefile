@@ -4,7 +4,7 @@
 # Automatic environment switching for Docker deployments
 # Location: /Makefile
 
-.PHONY: help dev prod nas start restart stop down logs ps migrate shell db-shell db-backup clean
+.PHONY: help dev prod nas start restart stop down logs ps migrate shell db-shell db-backup clean ssl-setup ssl-verify ssl-check ssl-renew verify-health
 
 .DEFAULT_GOAL := help
 
@@ -72,9 +72,16 @@ help:
 	@echo "  make clean                  # Clean Python cache"
 	@echo "  make exec-web               # Shell into web container"
 	@echo ""
+	@echo "$(CYAN)🔒 SSL/HTTPS (prod only):$(NC)"
+	@echo "  make ENV=prod ssl-verify    # Verify HTTPS is working"
+	@echo "  make ENV=prod ssl-check     # Check certificate status"
+	@echo "  make ENV=prod ssl-renew     # Renew certificates"
+	@echo "  make ENV=prod ssl-setup     # Manual SSL setup (interactive)"
+	@echo ""
 	@echo "$(CYAN)💡 Examples:$(NC)"
 	@echo "  make start                  # Start dev (default)"
 	@echo "  make ENV=prod start         # Start production"
+	@echo "  make ENV=prod ssl-setup     # Setup HTTPS for production"
 	@echo "  make ENV=nas logs           # View NAS logs"
 	@echo ""
 	@echo "$(YELLOW)For all commands: cd $(DOCKER_DIR) && make help$(NC)"
@@ -254,6 +261,39 @@ ifneq ($(ENV),dev)
 	cd $(DOCKER_DIR) && $(MAKE) -f Makefile verify-health
 else
 	@echo "$(YELLOW)❌ verify-health only available in prod/nas$(NC)"
+	@exit 1
+endif
+
+ssl-setup:
+ifeq ($(ENV),prod)
+	@echo "$(CYAN)🔒 Setting up SSL/HTTPS for production...$(NC)"
+	cd $(DOCKER_DIR) && $(MAKE) ssl-setup
+else
+	@echo "$(YELLOW)❌ ssl-setup only available in prod environment$(NC)"
+	@exit 1
+endif
+
+ssl-verify:
+ifeq ($(ENV),prod)
+	cd $(DOCKER_DIR) && $(MAKE) ssl-verify
+else
+	@echo "$(YELLOW)❌ ssl-verify only available in prod environment$(NC)"
+	@exit 1
+endif
+
+ssl-check:
+ifeq ($(ENV),prod)
+	cd $(DOCKER_DIR) && $(MAKE) ssl-check
+else
+	@echo "$(YELLOW)❌ ssl-check only available in prod environment$(NC)"
+	@exit 1
+endif
+
+ssl-renew:
+ifeq ($(ENV),prod)
+	cd $(DOCKER_DIR) && $(MAKE) ssl-renew
+else
+	@echo "$(YELLOW)❌ ssl-renew only available in prod environment$(NC)"
 	@exit 1
 endif
 

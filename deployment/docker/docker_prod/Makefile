@@ -3,7 +3,7 @@
 # ============================================
 # Location: /containers/docker_prod/Makefile.prod
 
-.PHONY: help setup build start restart stop down logs ps status rebuild migrate makemigrations shell collectstatic db-shell db-backup verify-health logs-web logs-db logs-redis logs-nginx exec-web exec-db clean-python
+.PHONY: help setup build start restart stop down logs ps status rebuild migrate makemigrations shell collectstatic db-shell db-backup verify-health logs-web logs-db logs-redis logs-nginx exec-web exec-db clean-python ssl-setup ssl-check ssl-create ssl-renew ssl-verify ssl-auto
 
 .DEFAULT_GOAL := help
 
@@ -71,6 +71,12 @@ help:
 	@echo "$(CYAN)🔍 Health & Monitoring:$(NC)"
 	@echo "  make verify-health      - Check all services health"
 	@echo ""
+	@echo "$(CYAN)🔒 SSL/HTTPS Management:$(NC)"
+	@echo "  make ssl-auto           - Automatic SSL management (runs in start/restart)"
+	@echo "  make ssl-verify         - Verify HTTPS is working"
+	@echo "  make ssl-check          - Check certificate status"
+	@echo "  make ssl-renew          - Renew certificates"
+	@echo ""
 
 # ============================================
 # Health Check
@@ -85,16 +91,16 @@ docker-check-health:
 # ============================================
 # Deployment Commands
 # ============================================
-setup: build up migrate collectstatic
+setup: build up migrate collectstatic ssl-auto
 	@echo "$(GREEN)✅ Production setup complete!$(NC)"
-	@echo "$(YELLOW)⚠️  Remember to configure SSL and domain settings$(NC)"
 
-start: up
+start: up ssl-auto
 	@echo "$(GREEN)✅ Production services started$(NC)"
 
 restart:
 	@echo "$(CYAN)🔄 Restarting production services...$(NC)"
 	$(COMPOSE) restart
+	@$(MAKE) ssl-verify || true
 	@echo "$(GREEN)✅ Services restarted$(NC)"
 
 stop: down
@@ -226,4 +232,110 @@ clean-python:
 	find ../../ -type f -name "*.pyc" -delete
 	@echo "$(GREEN)✅ Python cache cleaned$(NC)"
 
+# ============================================
+# SSL/HTTPS Management (Automatic)
+# ============================================
+
+# Check if SSL certificates exist and are valid
+ssl-check:
+	@echo "$(CYAN)🔍 Checking SSL certificates...$(NC)"
+	@bash -c 'if [ -f ".env" ]; then source .env; fi; \
+	DOMAIN=$${SCITEX_CLOUD_DOMAIN:-scitex.ai}; \
+	if docker exec scitex-cloud-nginx test -f /etc/nginx/ssl/live/$$DOMAIN/fullchain.pem 2>/dev/null; then \
+		echo "✅ Certificates exist for $$DOMAIN"; \
+		$(COMPOSE) run --rm --entrypoint "certbot" certbot certificates 2>/dev/null | grep -E "Certificate Name|Expiry Date" || true; \
+	else \
+		echo "⚠️  No certificates found for $$DOMAIN"; \
+		exit 1; \
+	fi'
+
+# Create new SSL certificates (non-interactive)
+ssl-create:
+	@echo "$(CYAN)🔒 Creating SSL certificates...$(NC)"
+	@bash -c 'if [ -f ".env" ]; then source .env; fi && \
+	$(COMPOSE) run --rm --entrypoint "certbot" certbot certonly \
+		--webroot -w /var/www/certbot \
+		--email $${SCITEX_CLOUD_EMAIL_ADMIN:-admin@$${SCITEX_CLOUD_DOMAIN:-scitex.ai}} \
+		--agree-tos --no-eff-email --non-interactive \
+		-d $${SCITEX_CLOUD_DOMAIN:-scitex.ai} \
+		-d $${SCITEX_CLOUD_GIT_DOMAIN:-git.scitex.ai} && \
+	echo "$(GREEN)✅ Certificates created$(NC)" || \
+	echo "$(RED)❌ Certificate creation failed$(NC)"'
+
+# Enable HTTPS in nginx configuration
+ssl-enable:
+	@echo "$(CYAN)🔧 Enabling HTTPS in nginx configuration...$(NC)"
+	@bash nginx/enable_https.sh
+	@echo "$(CYAN)⏳ Waiting for nginx to be ready...$(NC)"
+	@for i in 1 2 3 4 5; do \
+		if docker ps --filter "name=scitex-cloud-nginx" --filter "status=running" | grep -q scitex-cloud-nginx; then \
+			break; \
+		fi; \
+		echo "  Waiting... ($$i/5)"; \
+		sleep 2; \
+	done
+	@if docker ps --filter "name=scitex-cloud-nginx" --filter "status=running" | grep -q scitex-cloud-nginx; then \
+		$(COMPOSE) exec nginx nginx -t && \
+		$(COMPOSE) exec nginx nginx -s reload && \
+		echo "$(GREEN)✅ HTTPS enabled$(NC)"; \
+	else \
+		echo "$(YELLOW)⚠️  Nginx not ready yet - config updated but not reloaded$(NC)"; \
+		echo "$(YELLOW)Run 'make restart' to apply changes$(NC)"; \
+	fi
+
+# Renew SSL certificates
+ssl-renew:
+	@echo "$(CYAN)🔄 Renewing SSL certificates...$(NC)"
+	@$(COMPOSE) run --rm --entrypoint "certbot" certbot renew && \
+	$(COMPOSE) exec nginx nginx -s reload && \
+	echo "$(GREEN)✅ Certificates renewed$(NC)"
+
+# Verify HTTPS is working
+ssl-verify:
+	@echo "$(CYAN)🔍 Verifying HTTPS...$(NC)"
+	@bash -c 'set -e; \
+	if [ -f ".env" ]; then source .env; fi; \
+	MAIN_DOMAIN=$${SCITEX_CLOUD_DOMAIN:-scitex.ai}; \
+	GIT_DOMAIN=$${SCITEX_CLOUD_GIT_DOMAIN:-git.scitex.ai}; \
+	echo "  Testing https://$$MAIN_DOMAIN..."; \
+	STATUS=$$(curl -sI https://$$MAIN_DOMAIN 2>/dev/null | head -1 | grep -o "[0-9]\{3\}"); \
+	if [ "$$STATUS" = "200" ]; then \
+		echo "  ✅ https://$$MAIN_DOMAIN → $$STATUS"; \
+	else \
+		echo "  ❌ https://$$MAIN_DOMAIN → $$STATUS"; \
+	fi; \
+	echo "  Testing https://$$GIT_DOMAIN..."; \
+	STATUS=$$(curl -sI https://$$GIT_DOMAIN 2>/dev/null | head -1 | grep -o "[0-9]\{3\}"); \
+	if [ "$$STATUS" = "200" ]; then \
+		echo "  ✅ https://$$GIT_DOMAIN → $$STATUS"; \
+	else \
+		echo "  ❌ https://$$GIT_DOMAIN → $$STATUS"; \
+	fi; \
+	echo "  Testing HTTP→HTTPS redirect..."; \
+	REDIRECT=$$(curl -sI http://$$MAIN_DOMAIN 2>/dev/null | grep -o "301\|302"); \
+	if [ -n "$$REDIRECT" ]; then \
+		echo "  ✅ HTTP redirects to HTTPS ($$REDIRECT)"; \
+	else \
+		echo "  ⚠️  No HTTP redirect"; \
+	fi'
+
+# Automatic SSL management (integrated into start/restart)
+ssl-auto:
+	@echo "$(CYAN)🤖 Automatic SSL management...$(NC)"
+	@bash -c 'if [ -f ".env" ]; then source .env; fi; \
+	MAIN_DOMAIN=$${SCITEX_CLOUD_DOMAIN:-scitex.ai}; \
+	if ! docker exec scitex-cloud-nginx test -f /etc/nginx/ssl/live/$$MAIN_DOMAIN/fullchain.pem 2>/dev/null; then \
+		echo "⚠️  No certificates found - creating..."; \
+		$(MAKE) ssl-create && $(MAKE) ssl-enable; \
+	else \
+		echo "✅ Certificates already exist"; \
+		$(MAKE) ssl-verify || true; \
+	fi'
+
+# Manual SSL setup (interactive - for initial setup)
+ssl-setup:
+	@echo "$(CYAN)🔒 Setting up SSL/HTTPS (interactive)...$(NC)"
+	@bash $(CURDIR)/nginx/setup_nginx.sh
+
 # EOF
+

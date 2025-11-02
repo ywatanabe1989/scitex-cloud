@@ -31,9 +31,9 @@ except Exception as e:
 # ---------------------------------------
 # Security
 # ---------------------------------------
-DEBUG = False
+DEBUG = False  # Always False in production for security
 
-SECRET_KEY = os.environ.get("SCITEX_DJANGO_SECRET_KEY")
+SECRET_KEY = os.environ.get("SCITEX_CLOUD_DJANGO_SECRET_KEY") or os.environ.get("SCITEX_DJANGO_SECRET_KEY")
 
 ALLOWED_HOSTS = [
     "scitex.ai",
@@ -53,8 +53,8 @@ SECURE_HSTS_SECONDS = 31536000
 SECURE_HSTS_PRELOAD = True
 SECURE_REDIRECT_EXEMPT = []
 SECURE_SSL_REDIRECT = (
-    os.environ.get("ENABLE_SSL_REDIRECT", "false").lower() == "true"
-)
+    os.environ.get("SCITEX_CLOUD_ENABLE_SSL_REDIRECT") or os.environ.get("ENABLE_SSL_REDIRECT", "false")
+).lower() == "true"
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 X_FRAME_OPTIONS = "SAMEORIGIN"  # Allow same-site iframes (needed for PDF viewer)
 SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
@@ -63,11 +63,11 @@ SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 # Cookie
 # ---------------------------------------
 SESSION_COOKIE_SECURE = (
-    os.environ.get("FORCE_HTTPS_COOKIES", "false").lower() == "true"
-)
+    os.environ.get("SCITEX_CLOUD_FORCE_HTTPS_COOKIES") or os.environ.get("FORCE_HTTPS_COOKIES", "false")
+).lower() == "true"
 CSRF_COOKIE_SECURE = (
-    os.environ.get("FORCE_HTTPS_COOKIES", "false").lower() == "true"
-)
+    os.environ.get("SCITEX_CLOUD_FORCE_HTTPS_COOKIES") or os.environ.get("FORCE_HTTPS_COOKIES", "false")
+).lower() == "true"
 SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_HTTPONLY = True
 

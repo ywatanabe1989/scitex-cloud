@@ -62,6 +62,9 @@ docker-compose*.yml
 .env.*
 SECRET/
 
+# SSL Certificates (mounted at runtime, not built into image)
+deployment/ssl/
+
 # Temporary files
 *.tmp
 *.bak

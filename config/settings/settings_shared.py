@@ -79,7 +79,7 @@ LOGOUT_REDIRECT_URL = "/"
 # ---------------------------------------
 # Security
 # ---------------------------------------
-SECRET_KEY = os.getenv("SCITEX_DJANGO_SECRET_KEY")
+SECRET_KEY = os.getenv("SCITEX_CLOUD_DJANGO_SECRET_KEY") or os.getenv("SCITEX_DJANGO_SECRET_KEY")
 
 # ---------------------------------------
 # Applications
@@ -153,7 +153,7 @@ DATABASES = {
 }
 
 # Cache Configuration - fallback to database if Redis not available
-REDIS_URL = os.getenv("REDIS_URL", "redis://127.0.0.1:6379/1")
+REDIS_URL = os.getenv("SCITEX_CLOUD_REDIS_URL") or os.getenv("REDIS_URL", "redis://127.0.0.1:6379/1")
 try:
     import redis
 
@@ -212,14 +212,12 @@ USE_TZ = True
 # ---------------------------------------
 # Email
 # ---------------------------------------
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = "mail1030.onamae.ne.jp"
-EMAIL_PORT = 587  # 587 is modern; use 465 only if 587 is blocked
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.environ.get(
-    "SCITEX_SCHOLAR_FROM_EMAIL_ADDRESS", "agent@scitex.ai"
-)
-EMAIL_HOST_PASSWORD = os.environ.get("SCITEX_SCHOLAR_FROM_EMAIL_PASSWORD", "")
+EMAIL_BACKEND = os.getenv("SCITEX_CLOUD_EMAIL_BACKEND", "django.core.mail.backends.smtp.EmailBackend")
+EMAIL_HOST = os.getenv("SCITEX_CLOUD_EMAIL_HOST", "mail1030.onamae.ne.jp")
+EMAIL_PORT = int(os.getenv("SCITEX_CLOUD_EMAIL_PORT", "587"))
+EMAIL_USE_TLS = os.getenv("SCITEX_CLOUD_EMAIL_USE_TLS", "True").lower() == "true"
+EMAIL_HOST_USER = os.getenv("SCITEX_CLOUD_EMAIL_HOST_USER") or os.getenv("SCITEX_SCHOLAR_FROM_EMAIL_ADDRESS", "agent@scitex.ai")
+EMAIL_HOST_PASSWORD = os.getenv("SCITEX_CLOUD_EMAIL_HOST_PASSWORD") or os.getenv("SCITEX_SCHOLAR_FROM_EMAIL_PASSWORD", "")
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 SERVER_EMAIL = EMAIL_HOST_USER
 
