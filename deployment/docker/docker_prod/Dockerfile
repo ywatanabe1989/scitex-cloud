@@ -37,8 +37,9 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv pip install --system gunicorn==21.2.0 psycopg2-binary
 
 # Install scitex from PyPI (production uses stable releases)
+# Version pinned for stability - Complete toolkit with all features
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv pip install --system scitex[web,scholar,writer]
+    uv pip install --system scitex==2.1.1[dl,ml,jupyter,neuro,web,scholar,writer,dev]
 
 # Install Playwright browsers
 RUN --mount=type=cache,target=/root/.cache/ms-playwright \
@@ -99,7 +100,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     texlive-science \
     texlive-pictures \
     texlive-plain-generic \
-    bibtex \
+    # bibtex is included in texlive-bibtex-extra
     latexdiff \
     ghostscript \
     poppler-utils \
@@ -134,7 +135,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Copy Python packages from builder (avoids rebuilding)
 COPY --from=python-builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
 COPY --from=python-builder /usr/local/bin /usr/local/bin
-COPY --from=python-builder /root/.cache/ms-playwright /root/.cache/ms-playwright
+# Copy Playwright cache if it exists (use wildcard to avoid failure if missing)
+COPY --from=python-builder /root/.cache/ms-playwright* /root/.cache/
 
 # Copy Node.js and Mermaid from node-builder
 COPY --from=node-builder /usr/local/bin/node /usr/local/bin/node
@@ -146,8 +148,10 @@ RUN ln -s /usr/local/lib/node_modules/@mermaid-js/mermaid-cli/src/cli.js /usr/lo
 # Copy yq from tool-builder
 COPY --from=tool-builder /usr/local/bin/yq /usr/local/bin/yq
 
-# Configure ImageMagick (PDF policy)
-RUN sed -i 's/<policy domain="coder" rights="none" pattern="PDF" \/>/<policy domain="coder" rights="read|write" pattern="PDF" \/>/g' /etc/ImageMagick-6/policy.xml
+# Configure ImageMagick (PDF policy) - check if file exists first
+RUN if [ -f /etc/ImageMagick-6/policy.xml ]; then \
+        sed -i 's/<policy domain="coder" rights="none" pattern="PDF" \/>/<policy domain="coder" rights="read|write" pattern="PDF" \/>/g' /etc/ImageMagick-6/policy.xml || true; \
+    fi
 
 # Create non-root user and directories
 RUN useradd -m -u 1000 scitex && \

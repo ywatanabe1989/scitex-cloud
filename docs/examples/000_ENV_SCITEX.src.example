@@ -19,8 +19,8 @@ export DB_HOST="localhost"
 export DB_PORT="5432"
 
 # Email Configuration
-export SCITEX_EMAIL_ADMIN="admin@scitex.ai"
-export SCITEX_EMAIL_PASSWORD="your-email-password-here"
+export SCITEX_CLOUD_EMAIL_ADMIN="admin@scitex.ai"
+export SCITEX_CLOUD_EMAIL_PASSWORD="your-email-password-here"
 export SCITEX_SENDER_EMAIL="admin@scitex.ai"
 export SCITEX_SENDER_EMAIL_PASSWORD="your-sender-email-password-here"
 
@@ -28,10 +28,10 @@ export SCITEX_SENDER_EMAIL_PASSWORD="your-sender-email-password-here"
 export ENABLE_SSL_REDIRECT="false"
 
 # Other Email Addresses (optional)
-# export SCITEX_EMAIL_AGENT="agent@scitex.ai"
-# export SCITEX_EMAIL_SUPPORT="support@scitex.ai"
-# export SCITEX_EMAIL_YWATANABE="ywatanabe@scitex.ai"
-# export SCITEX_EMAIL_YUSUKEWATANABE="YusukeWatanabe@scitex.ai"
+# export SCITEX_CLOUD_EMAIL_AGENT="agent@scitex.ai"
+# export SCITEX_CLOUD_EMAIL_SUPPORT="support@scitex.ai"
+# export SCITEX_CLOUD_EMAIL_YWATANABE="ywatanabe@scitex.ai"
+# export SCITEX_CLOUD_EMAIL_YUSUKEWATANABE="YusukeWatanabe@scitex.ai"
 
 # API Keys (for future use)
 # export SCITEX_OPENAI_API_KEY=""

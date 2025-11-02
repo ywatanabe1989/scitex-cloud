@@ -47,8 +47,8 @@ export SCITEX_SCHOLAR_FROM_EMAIL_PASSWORD=your-email-password
 export SCITEX_SCHOLAR_FROM_EMAIL_SMTP_SERVER=mail1030.onamae.ne.jp
 export SCITEX_SCHOLAR_FROM_EMAIL_SMTP_PORT=587
 
-export SCITEX_EMAIL_ADMIN=admin@scitex.ai
-export SCITEX_EMAIL_PASSWORD=your-email-password
+export SCITEX_CLOUD_EMAIL_ADMIN=admin@scitex.ai
+export SCITEX_CLOUD_EMAIL_PASSWORD=your-email-password
 
 # ----------------------------------------
 # Logging

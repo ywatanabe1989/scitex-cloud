@@ -1,91 +1,191 @@
 # Docker Production Environment
 
-Production deployment with security hardening and performance optimization.
+Production deployment for https://scitex.ai and https://git.scitex.ai
+
+---
 
 ## Quick Start
 
+### 1. Setup Environment
 ```bash
-# Initial setup
-make -f Makefile.prod setup
+cd /home/ywatanabe/proj/scitex-cloud/deployment/docker/docker_prod
 
-# Start services
-make -f Makefile.prod start
-
-# Stop services
-make -f Makefile.prod down
+# Link production environment file
+ln -sf ../../SECRET/.env.prod .env
 ```
+
+### 2. Start Services
+```bash
+make up
+```
+
+### 3. Setup HTTPS
+```bash
+cd nginx
+./setup_nginx.sh
+```
+
+See `nginx/README.md` for complete SSL setup guide.
+
+---
 
 ## Services
 
-- **Nginx** - Port 80/443 (SSL)
-- **Django** - Internal (via Nginx)
-- **PostgreSQL** - Internal
-- **Redis** - Internal
+| Service | Port | Purpose |
+|---------|------|---------|
+| **nginx** | 80, 443 | Reverse proxy with HTTPS |
+| **web** | 8000 (internal) | Django application |
+| **db** | 5432 (internal) | PostgreSQL database |
+| **redis** | 6379 (internal) | Cache |
+| **gitea** | 3000, 222 | Git server |
+| **certbot** | - | SSL auto-renewal |
+
+---
 
 ## Common Commands
 
+### Deployment
 ```bash
-# Deployment
-make -f Makefile.prod start           # Start production
-make -f Makefile.prod restart         # Restart services
-make -f Makefile.prod rebuild         # Full rebuild (⚠️ causes downtime)
-
-# Django
-make -f Makefile.prod migrate         # Run migrations
-make -f Makefile.prod collectstatic   # Collect static files
-make -f Makefile.prod shell           # Django shell (⚠️ production!)
-
-# Database
-make -f Makefile.prod db-backup       # Backup database
-make -f Makefile.prod db-shell        # PostgreSQL shell (⚠️ production!)
-
-# Monitoring
-make -f Makefile.prod verify-health   # Health check
-make -f Makefile.prod logs            # View logs
-make -f Makefile.prod ps              # Service status
-
-# Help
-make -f Makefile.prod help            # Show all commands
+make up              # Start services
+make restart         # Restart services
+make down            # Stop services
+make rebuild         # Full rebuild (⚠️ causes downtime)
 ```
+
+### Django
+```bash
+make migrate         # Run migrations
+make collectstatic   # Collect static files
+make shell           # Django shell (⚠️ production!)
+```
+
+### Database
+```bash
+make db-backup       # Backup database
+make db-shell        # PostgreSQL shell (⚠️ production!)
+```
+
+### Monitoring
+```bash
+make status          # Service status
+make logs            # View all logs
+make logs-web        # View web logs
+make logs-nginx      # View nginx logs
+make verify-health   # Health check
+```
+
+### Help
+```bash
+make help            # Show all commands
+```
+
+---
 
 ## Environment Variables
 
-Uses `SECRET/.env.prod`.
+Configuration file: `../../SECRET/.env.prod`
 
-Critical variables:
-- `DJANGO_SECRET_KEY` - Unique secret key
-- `ALLOWED_HOSTS` - Domain names
-- `POSTGRES_PASSWORD` - Strong password
-- SSL/TLS certificates path
+Key variables:
+```bash
+# Server & Domains (customize for your site)
+SCITEX_CLOUD_SERVER_IP=162.43.35.139           # Server public IP
+SCITEX_CLOUD_DOMAIN=scitex.ai                  # Main domain
+SCITEX_CLOUD_GIT_DOMAIN=git.scitex.ai          # Git subdomain
+
+# Django
+DEBUG=False
+SECRET_KEY=<generated>
+ALLOWED_HOSTS=${SCITEX_CLOUD_DOMAIN},www.${SCITEX_CLOUD_DOMAIN},web
+
+# Database
+POSTGRES_DB=scitex_cloud_prod
+POSTGRES_USER=scitex_prod
+POSTGRES_PASSWORD=<strong_password>
+
+# SSL/HTTPS
+ENABLE_SSL_REDIRECT=true  # After SSL setup
+FORCE_HTTPS_COOKIES=true  # After SSL setup
+
+# Email (for SSL certificates)
+SCITEX_CLOUD_EMAIL_ADMIN=admin@${SCITEX_CLOUD_DOMAIN}  # SSL renewal notifications
+```
+
+---
+
+## SSL/HTTPS Setup
+
+### Automated Setup
+```bash
+cd nginx
+./setup_nginx.sh
+```
+
+### Manual Setup
+See `nginx/README.md` for detailed instructions.
+
+### Auto-Renewal
+Certbot container automatically renews certificates every 12 hours.
+
+---
 
 ## Security Checklist
 
-- [ ] DEBUG=False
-- [ ] Strong SECRET_KEY
+Production deployment checklist:
+
+- [ ] DEBUG=False in .env
+- [ ] Strong SECRET_KEY generated
 - [ ] Strong database password
-- [ ] SSL certificates (Let's Encrypt)
-- [ ] Configure firewall (allow only 22, 80, 443)
-- [ ] Regular database backups
-- [ ] Log monitoring
+- [ ] .env symlinked from SECRET/.env.prod
+- [ ] SSL certificates obtained (./nginx/setup_nginx.sh)
+- [ ] HTTPS enabled in nginx config
+- [ ] Firewall configured (ports 22, 80, 443 only)
+- [ ] Database backups configured
+- [ ] Log monitoring enabled
+
+---
 
 ## Backups
 
-Backups saved to `../../backups/` with timestamp:
+### Database Backup
 ```bash
-make -f Makefile.prod db-backup
-# Creates: backups/scitex_prod_YYYYMMDD_HHMMSS.sql.gz
+make db-backup
 ```
 
-## SSL Setup
+Backups saved to: `../../backups/scitex_prod_YYYYMMDD_HHMMSS.sql.gz`
 
-### Let's Encrypt (Recommended)
+### Restore Database
 ```bash
-sudo certbot certonly --standalone -d scitex.ai -d www.scitex.ai
-sudo cp /etc/letsencrypt/live/scitex.ai/*.pem ../../ssl/
+gunzip < backups/scitex_prod_YYYYMMDD_HHMMSS.sql.gz | \
+  docker compose exec -T db psql -U scitex_prod scitex_cloud_prod
 ```
 
-### Auto-renewal
+---
+
+## Troubleshooting
+
+### Services won't start
 ```bash
-sudo crontab -e
-# Add: 0 3 * * 0 certbot renew --quiet && docker compose restart nginx
+# Check logs
+make logs
+
+# Check status
+docker compose ps
 ```
+
+### Database connection issues
+```bash
+# Check database
+make db-shell
+
+# Check environment
+cat .env | grep POSTGRES
+```
+
+### SSL/HTTPS issues
+See `nginx/README.md` troubleshooting section.
+
+---
+
+**Domains**: https://scitex.ai, https://git.scitex.ai
+
+<!-- EOF -->
