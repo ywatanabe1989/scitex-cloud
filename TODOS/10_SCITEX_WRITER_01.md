@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-11-03 10:15:28
+!-- Timestamp: 2025-11-03 16:07:10
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/TODOS/10_SCITEX_WRITER_01.md
 !-- --- -->
@@ -14,20 +14,10 @@
 
 ## writer_app https://127.0.0.1:8000/writer/
 
-### Visitor Support
-- [ ] Download dropdowns not working for visitors
-  - [ ] Maybe due to insufficient handling of temporally project 
-
-
 ### Monaco Custom Command
-- [ ] Comment-out toggle for selected text like in emacs
+- [ ] Implement keyboard shortcuts:
+  - [ ] Toggle Comment Out | Text selection -> "C-;"
 
-<!-- ### Refactoring (skip this now, I will check)
- !--   - [ ] ./static/ts/writer -> ./apps/writer_app/static/writer_app/ts
- !--   - [ ] ./apps/writer_app/static/writer_app/css
- !--   - [ ] ./apps/writer_app/static/writer_app/js
- !--   - [ ] ./apps/writer_app/static/writer_app/ts
- !--   - [ ] ./apps/writer_app/templates/write_app/ -->
 
 <!-- ### Synergy with Scholar (skip this now, I will check)
  !-- - [ ] Auto-completion with monaco editor
