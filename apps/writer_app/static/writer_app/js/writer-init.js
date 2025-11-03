@@ -314,9 +314,13 @@ export async function initializeEditor(config) {
         });
 
         // Register custom commands if Monaco is available
-        if (monacoReady && editor.monaco) {
-            registerCommands(editor.monaco);
-            console.log('[Writer] Custom commands registered');
+        if (monacoReady && window.monaco) {
+            // Get Monaco editor instance
+            const monacoEditor = window.monaco.editor.getEditors()[0];
+            if (monacoEditor) {
+                registerCommands(monacoEditor);
+                console.log('[Writer] Custom commands registered');
+            }
         }
     }
     catch (error) {
