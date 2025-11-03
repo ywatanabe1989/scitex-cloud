@@ -20,12 +20,24 @@
 
           <!-- Explore Dropdown Menu -->
           <div id="explore-dropdown-menu" class="header-nav-dropdown" style="display: none;">
-            <a href="{% if user.is_authenticated %}/{{ user.username }}/{% else %}/social/explore/{% endif %}" class="nav-dropdown-item">
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="margin-right: 8px;">
-                <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.71l-5.223 2.206A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z"/>
-              </svg>
-              <span>Your Repositories</span>
-            </a>
+            {% if user.is_authenticated %}
+              <a href="/{{ user.username }}/" class="nav-dropdown-item">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="margin-right: 8px;">
+                  <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.71l-5.223 2.206A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z"/>
+                </svg>
+                <span>Your Repositories</span>
+              </a>
+            {% else %}
+              <a href="#" id="visitor-your-repos-link" class="nav-dropdown-item" style="opacity: 0.7;">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="margin-right: 8px;">
+                  <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.71l-5.223 2.206A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z"/>
+                </svg>
+                <span>Your Repositories</span>
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" style="margin-left: auto; opacity: 0.5;">
+                  <path d="M8 0a1 1 0 0 1 1 1v6h6a1 1 0 1 1 0 2H9v6a1 1 0 1 1-2 0V9H1a1 1 0 0 1 0-2h6V1a1 1 0 0 1 1-1z"/>
+                </svg>
+              </a>
+            {% endif %}
 
             <a href="/social/explore/" class="nav-dropdown-item">
               <img src="{% static 'images/vectorstock_38853699/vectorstock_38853699-navy-inverted.svg' %}" alt="" style="width: 16px; height: 16px; margin-right: 8px; opacity: 0.85;">
@@ -355,6 +367,32 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     }
   });
+
+  // Handle visitor "Your Repositories" click - prompt to sign up
+  const visitorReposLink = document.getElementById('visitor-your-repos-link');
+  if (visitorReposLink) {
+    visitorReposLink.addEventListener('click', function(e) {
+      e.preventDefault();
+
+      // Use modern modal if available, fallback to confirm
+      if (window.scitexConfirm) {
+        window.scitexConfirm({
+          title: 'Sign up to create repositories',
+          message: 'Create an account to save your work permanently and manage your own repositories.',
+          confirmText: 'Sign up',
+          cancelText: 'Maybe later',
+          onConfirm: () => {
+            window.location.href = '/auth/signup/';
+          }
+        });
+      } else {
+        // Fallback to browser confirm
+        if (confirm('Sign up to create your own repositories and save your work permanently.\n\nSign up now?')) {
+          window.location.href = '/auth/signup/';
+        }
+      }
+    });
+  }
 
   const userMenuToggle = document.getElementById('user-menu-toggle');
   const userMenuDropdown = document.getElementById('user-menu-dropdown');
