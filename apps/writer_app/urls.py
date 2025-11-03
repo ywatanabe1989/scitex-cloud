@@ -345,9 +345,6 @@ urlpatterns = [
         views.initialize_categories,
         name="arxiv-initialize-categories",
     ),
-]
-
-
     # Presence & Collaboration
     path(
         "api/project/<int:project_id>/presence/update/",

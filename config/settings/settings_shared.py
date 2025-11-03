@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-11-02 18:34:25 (ywatanabe)"
-# File: /ssh:scitex:/home/ywatanabe/proj/scitex-cloud/config/settings/settings_shared.py
+# Timestamp: "2025-11-03 21:35:37 (ywatanabe)"
+# File: /home/ywatanabe/proj/scitex-cloud/config/settings/settings_shared.py
 # ----------------------------------------
 from __future__ import annotations
 import os
@@ -42,9 +42,9 @@ def discover_local_apps():
 
 
 # ---------------------------------------
-# Meatadata
+# Metadata
 # ---------------------------------------
-SCITEX_VERSION = "0.1.0-alpha"
+SCITEX_CLOUD_VERSION = "0.1.0-alpha"
 
 # ---------------------------------------
 # Paths

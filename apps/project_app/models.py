@@ -1157,3 +1157,73 @@ class VisitorAllocation(models.Model):
     def __str__(self):
         status = 'active' if self.is_active else 'expired'
         return f"visitor-{self.visitor_number:03d} ({status})"
+
+
+class ProjectInvitation(models.Model):
+    """
+    Pending invitation to collaborate on a project.
+    User must accept invitation to become a collaborator.
+    """
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('accepted', 'Accepted'),
+        ('declined', 'Declined'),
+        ('expired', 'Expired'),
+    ]
+
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='invitations')
+    invited_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='project_invitations')
+    invited_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_invitations')
+    role = models.CharField(max_length=20, choices=ProjectMembership.ROLE_CHOICES, default='collaborator')
+    permission_level = models.CharField(max_length=20, choices=ProjectMembership.PERMISSION_CHOICES, default='write')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    token = models.CharField(max_length=64, unique=True, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    responded_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        unique_together = ('project', 'invited_user')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.invited_user.username} → {self.project.name} ({self.status})"
+
+    def save(self, *args, **kwargs):
+        if not self.token:
+            import secrets
+            self.token = secrets.token_urlsafe(32)
+        if not self.expires_at:
+            self.expires_at = timezone.now() + timedelta(days=7)
+        super().save(*args, **kwargs)
+
+    def is_expired(self):
+        return timezone.now() > self.expires_at and self.status == 'pending'
+
+    def accept(self):
+        """Accept invitation and create membership."""
+        if self.status != 'pending':
+            return False
+
+        ProjectMembership.objects.create(
+            project=self.project,
+            user=self.invited_user,
+            role=self.role,
+            permission_level=self.permission_level,
+            invited_by=self.invited_by
+        )
+
+        self.status = 'accepted'
+        self.responded_at = timezone.now()
+        self.save()
+        return True
+
+    def decline(self):
+        """Decline invitation."""
+        if self.status != 'pending':
+            return False
+
+        self.status = 'declined'
+        self.responded_at = timezone.now()
+        self.save()
+        return True

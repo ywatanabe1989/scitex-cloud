@@ -33,7 +33,8 @@ def project_delete_wrapper(request, username, slug):
     return views.project_delete(request, username, slug)
 
 def project_collaborate_wrapper(request, username, slug):
-    return views.project_collaborate(request, username, slug)
+    # Just call project_settings - it handles everything
+    return views.project_settings(request, username, slug)
 
 def project_members_wrapper(request, username, slug):
     return views.project_members(request, username, slug)

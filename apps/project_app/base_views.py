@@ -810,6 +810,8 @@ def project_edit(request, username, slug):
 @login_required
 def project_settings(request, username, slug):
     """GitHub-style repository settings page"""
+    logger.info(f"[Settings VIEW] ===== ENTERED ===== Method: {request.method}, User: {request.user.username if request.user.is_authenticated else 'Anonymous'}, Path: {request.path}")
+
     user = get_object_or_404(User, username=username)
     project = get_object_or_404(Project, slug=slug, owner=user)
 
@@ -822,6 +824,13 @@ def project_settings(request, username, slug):
 
     if request.method == "POST":
         action = request.POST.get("action")
+        logger.info(f"[Settings POST] ===== POST RECEIVED =====")
+        logger.info(f"[Settings POST] Action: '{action}'")
+        logger.info(f"[Settings POST] User: {request.user.username}")
+        logger.info(f"[Settings POST] Project: {project.slug}")
+        logger.info(f"[Settings POST] All POST keys: {list(request.POST.keys())}")
+        logger.info(f"[Settings POST] collaborator_username: {request.POST.get('collaborator_username')}")
+        logger.info(f"[Settings POST] collaborator_role: {request.POST.get('collaborator_role')}")
 
         if action == "update_general":
             # Update basic project info
@@ -842,13 +851,24 @@ def project_settings(request, username, slug):
                 )
 
         elif action == "add_collaborator":
-            # Add collaborator
+            # Send invitation to collaborator
+            from apps.project_app.models import ProjectInvitation
+            from apps.project_app.services.email_service import EmailService
+
             collaborator_username = request.POST.get(
                 "collaborator_username", ""
             ).strip()
             collaborator_role = request.POST.get(
                 "collaborator_role", "collaborator"
             )
+
+            # Map role to permission_level
+            role_permission_map = {
+                'viewer': 'read',
+                'collaborator': 'write',
+                'admin': 'admin'
+            }
+            permission_level = role_permission_map.get(collaborator_role, 'write')
 
             if collaborator_username:
                 try:
@@ -869,17 +889,71 @@ def project_settings(request, username, slug):
                             request,
                             "Repository owner is already a collaborator",
                         )
-                    else:
-                        # Add collaborator
-                        ProjectMembership.objects.create(
-                            project=project,
-                            user=collaborator,
-                            role=collaborator_role,
-                        )
-                        messages.success(
+                    elif ProjectInvitation.objects.filter(
+                        project=project, invited_user=collaborator, status='pending'
+                    ).exists():
+                        messages.warning(
                             request,
-                            f"{collaborator_username} added as {collaborator_role}",
+                            f"Invitation already sent to {collaborator_username}",
                         )
+                    else:
+                        # Create invitation
+                        try:
+                            invitation = ProjectInvitation.objects.create(
+                                project=project,
+                                invited_user=collaborator,
+                                invited_by=request.user,
+                                role=collaborator_role,
+                                permission_level=permission_level
+                            )
+                            logger.info(f"Created invitation: {invitation.id} for {collaborator_username}")
+
+                            # Send email notification if user has email
+                            if collaborator.email:
+                                try:
+                                    email_service = EmailService()
+                                    accept_url = request.build_absolute_uri(
+                                        f'/invitations/{invitation.token}/accept/'
+                                    )
+                                    decline_url = request.build_absolute_uri(
+                                        f'/invitations/{invitation.token}/decline/'
+                                    )
+
+                                    email_service.send_email(
+                                        to_email=collaborator.email,
+                                        subject=f'{request.user.username} invited you to collaborate on {project.name}',
+                                        html_content=f'''
+                                        <h2>You've been invited to collaborate!</h2>
+                                        <p><strong>{request.user.username}</strong> has invited you to collaborate on the project <strong>{project.name}</strong>.</p>
+                                        <p><strong>Role:</strong> {collaborator_role.title()} ({permission_level})</p>
+                                        <p><a href="{accept_url}" style="display: inline-block; padding: 12px 24px; background: #10b981; color: white; text-decoration: none; border-radius: 6px; font-weight: 600;">Accept Invitation</a></p>
+                                        <p><a href="{decline_url}" style="color: #6b7280;">Decline</a></p>
+                                        <p style="color: #6b7280; font-size: 12px; margin-top: 24px;">This invitation expires in 7 days.</p>
+                                        ''',
+                                        plain_content=f'{request.user.username} invited you to collaborate on {project.name}. Visit {accept_url} to accept.'
+                                    )
+                                    logger.info(f"Sent invitation email to {collaborator.email}")
+                                    messages.success(
+                                        request,
+                                        f"✓ Invitation sent to {collaborator_username}! They'll receive an email at {collaborator.email}",
+                                    )
+                                except Exception as e:
+                                    logger.error(f"Failed to send invitation email to {collaborator.email}: {e}", exc_info=True)
+                                    messages.warning(
+                                        request,
+                                        f"Invitation created for {collaborator_username}, but email failed. They can check /invitations/",
+                                    )
+                            else:
+                                # No email - just notify
+                                logger.warning(f"User {collaborator_username} has no email address")
+                                messages.success(
+                                    request,
+                                    f"✓ Invitation created for {collaborator_username} (they have no email set - they can check /invitations/)",
+                                )
+                        except Exception as e:
+                            logger.error(f"Failed to create invitation: {e}", exc_info=True)
+                            messages.error(request, f"Failed to create invitation: {e}")
+
                 except User.DoesNotExist:
                     messages.error(
                         request, f'User "{collaborator_username}" not found'
@@ -946,23 +1020,9 @@ def project_delete(request, username, slug):
 
 @login_required
 def project_collaborate(request, username, slug):
-    """Project collaboration management"""
-    user = get_object_or_404(User, username=username)
-    project = get_object_or_404(Project, slug=slug, owner=user)
-
-    # Only project owner can manage collaborators
-    if project.owner != request.user:
-        messages.error(
-            request,
-            "You don't have permission to manage collaborators for this project.",
-        )
-        return redirect("project_app:detail", username=username, slug=slug)
-
-    context = {
-        "project": project,
-        "memberships": project.memberships.all(),
-    }
-    return render(request, "project_app/project_collaborate.html", context)
+    """Project collaboration management - redirects to settings with collaborators tab"""
+    # Redirect to main settings page with collaborators section
+    return redirect(f'/{username}/{slug}/settings/#collaborators')
 
 
 @login_required
@@ -2742,3 +2802,71 @@ def commit_detail(request, username, slug, commit_hash):
     }
 
     return render(request, 'project_app/commits/detail.html', context)
+
+
+@login_required
+def accept_invitation(request, token):
+    """Accept a project collaboration invitation."""
+    from apps.project_app.models import ProjectInvitation
+
+    try:
+        invitation = get_object_or_404(ProjectInvitation, token=token)
+
+        # Check if invitation is for current user
+        if invitation.invited_user != request.user:
+            messages.error(request, "This invitation is not for you")
+            return redirect('/')
+
+        # Check if expired
+        if invitation.is_expired():
+            messages.error(request, "This invitation has expired")
+            return redirect('/')
+
+        # Accept invitation
+        if invitation.accept():
+            messages.success(
+                request,
+                f"You're now a collaborator on {invitation.project.name}!"
+            )
+            # Redirect to project
+            return redirect(
+                f'/{invitation.project.owner.username}/{invitation.project.slug}/'
+            )
+        else:
+            messages.error(request, "Invitation has already been responded to")
+            return redirect('/')
+
+    except Exception as e:
+        logger.error(f"Error accepting invitation: {e}")
+        messages.error(request, "Error accepting invitation")
+        return redirect('/')
+
+
+@login_required
+def decline_invitation(request, token):
+    """Decline a project collaboration invitation."""
+    from apps.project_app.models import ProjectInvitation
+
+    try:
+        invitation = get_object_or_404(ProjectInvitation, token=token)
+
+        # Check if invitation is for current user
+        if invitation.invited_user != request.user:
+            messages.error(request, "This invitation is not for you")
+            return redirect('/')
+
+        # Decline invitation
+        if invitation.decline():
+            messages.success(
+                request,
+                f"Invitation to {invitation.project.name} declined"
+            )
+        else:
+            messages.error(request, "Invitation has already been responded to")
+
+        return redirect('/')
+
+    except Exception as e:
+        logger.error(f"Error declining invitation: {e}")
+        messages.error(request, "Error declining invitation")
+        return redirect('/')

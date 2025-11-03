@@ -8,6 +8,12 @@ Main views delegating to REST API:
 - API stubs for backward compatibility
 """
 
+# API views
+from .api_views import (
+    presence_update_view,
+    presence_list_view,
+)
+
 # Main views
 from .main_views import (
     index,
@@ -84,7 +90,11 @@ __all__ = [
     'initialize_workspace',
     'user_default_workspace',
     'project_writer',
-    
+
+    # Presence
+    'presence_update_view',
+    'presence_list_view',
+
     # API stubs
     'save_section',
     'load_latex_section',
