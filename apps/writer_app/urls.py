@@ -347,4 +347,18 @@ urlpatterns = [
     ),
 ]
 
+
+    # Presence & Collaboration
+    path(
+        "api/project/<int:project_id>/presence/update/",
+        views.presence_update_view,
+        name="presence-update",
+    ),
+    path(
+        "api/project/<int:project_id>/presence/list/",
+        views.presence_list_view,
+        name="presence-list",
+    ),
+]
+
 # EOF

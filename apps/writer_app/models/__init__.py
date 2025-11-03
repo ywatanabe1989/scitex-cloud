@@ -11,6 +11,10 @@ delegated to scitex.writer.Writer and exposed via REST API.
 # Core models
 from .core import Manuscript
 
+# Collaboration models
+from .collaboration import WriterPresence
+
 __all__ = [
     'Manuscript',
+    'WriterPresence',
 ]

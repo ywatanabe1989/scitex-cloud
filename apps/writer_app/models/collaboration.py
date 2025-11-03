@@ -6,6 +6,38 @@ from datetime import timedelta
 import uuid
 
 
+class WriterPresence(models.Model):
+    """
+    Simple presence tracking for showing who's online and which section they're editing.
+    Uses polling (not WebSocket) for simplicity.
+    """
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='writer_presences')
+    project = models.ForeignKey('project_app.Project', on_delete=models.CASCADE, related_name='writer_presences')
+    current_section = models.CharField(max_length=100, blank=True)  # e.g., "manuscript/abstract"
+    last_seen = models.DateTimeField(auto_now=True)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = ('user', 'project')
+        indexes = [
+            models.Index(fields=['project', 'is_active', 'last_seen']),
+        ]
+        ordering = ['-last_seen']
+
+    def __str__(self):
+        return f"{self.user.username} in {self.project.slug} ({self.current_section})"
+
+    @classmethod
+    def get_active_users(cls, project_id, minutes=2):
+        """Get users active in the last N minutes."""
+        threshold = timezone.now() - timedelta(minutes=minutes)
+        return cls.objects.filter(
+            project_id=project_id,
+            is_active=True,
+            last_seen__gte=threshold
+        ).select_related('user')
+
+
 class CollaborativeSession(models.Model):
     """Track collaborative editing sessions for real-time collaboration."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -51,42 +83,3 @@ class CollaborativeSession(models.Model):
         return timezone.now() - self.last_activity < timedelta(minutes=5)
 
 
-class DocumentChange(models.Model):
-    """Track individual document changes for version control and operational transforms."""
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    manuscript = models.ForeignKey('Manuscript', on_delete=models.CASCADE, related_name='document_changes')
-    section = models.ForeignKey('ManuscriptSection', on_delete=models.CASCADE, related_name='changes')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='document_changes')
-    session = models.ForeignKey('CollaborativeSession', on_delete=models.CASCADE, related_name='changes')
-
-    # Change details
-    change_type = models.CharField(max_length=20, choices=[
-        ('insert', 'Text Insertion'),
-        ('delete', 'Text Deletion'),
-        ('replace', 'Text Replacement'),
-        ('format', 'Formatting Change'),
-    ])
-
-    # Operation details for operational transforms
-    operation_data = models.JSONField()  # Contains position, text, length, etc.
-
-    # Content tracking
-    content_before = models.TextField(blank=True)  # Content before change
-    content_after = models.TextField(blank=True)   # Content after change
-
-    # Version control
-    version_number = models.IntegerField(default=1)
-    parent_change = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True)
-
-    # Operational transform state
-    transform_applied = models.BooleanField(default=False)
-    conflict_resolved = models.BooleanField(default=False)
-
-    # Timestamp
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ['-created_at']
-
-    def __str__(self):
-        return f"{self.get_change_type_display()} by {self.user.username} - {self.section.title}"
