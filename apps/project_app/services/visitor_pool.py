@@ -58,7 +58,9 @@ class VisitorPool:
         for i in range(1, pool_size + 1):
             visitor_num = f"{i:03d}"
             username = f"{cls.VISITOR_USER_PREFIX}{visitor_num}"
-            project_slug = f"{cls.DEFAULT_PROJECT_PREFIX}{visitor_num}"
+            # Project slug is just "default-project" (same as logged-in users)
+            # Uniqueness is provided by the username (visitor-001, visitor-002, etc.)
+            project_slug = "default-project"
 
             # Create visitor user if doesn't exist
             user, user_created = User.objects.get_or_create(
@@ -74,11 +76,12 @@ class VisitorPool:
                 logger.info(f"[VisitorPool] Created user: {username}")
 
             # Create default project if doesn't exist
+            # Name and slug match logged-in user convention: "default-project"
             project, project_created = Project.objects.get_or_create(
                 slug=project_slug,
                 owner=user,
                 defaults={
-                    "name": f"Default Project {visitor_num}",
+                    "name": "default-project",
                     "description": "Try SciTeX features - sign up to save permanently!",
                     "visibility": "private",
                     "data_location": f"{username}/{project_slug}",
@@ -157,9 +160,8 @@ class VisitorPool:
                 user = User.objects.get(
                     username=f"{cls.VISITOR_USER_PREFIX}{visitor_num:03d}"
                 )
-                project = Project.objects.get(
-                    slug=f"{cls.DEFAULT_PROJECT_PREFIX}{visitor_num:03d}", owner=user
-                )
+                # Project slug is just "default-project" (not numbered)
+                project = Project.objects.get(slug="default-project", owner=user)
                 logger.info(
                     f"[VisitorPool] Reusing allocation: visitor-{visitor_num:03d}"
                 )
@@ -207,7 +209,8 @@ class VisitorPool:
 
                 # Get visitor user and project
                 username = f"{cls.VISITOR_USER_PREFIX}{visitor_num:03d}"
-                project_slug = f"{cls.DEFAULT_PROJECT_PREFIX}{visitor_num:03d}"
+                # Project slug is always "default-project" (not numbered)
+                project_slug = "default-project"
 
                 try:
                     user = User.objects.get(username=username)
@@ -299,21 +302,17 @@ class VisitorPool:
             project = Project.objects.get(id=visitor_project_id)
             old_owner = project.owner
 
-            # Verify it's a default project
-            if not project.slug.startswith(cls.DEFAULT_PROJECT_PREFIX):
+            # Verify it's a default project (slug is "default-project")
+            if project.slug != "default-project":
                 logger.error(
-                    f"[VisitorPool] Project {project.id} is not a default project"
+                    f"[VisitorPool] Project {project.id} is not a default project (slug: {project.slug})"
                 )
                 return None
 
-            # Transfer ownership
+            # Transfer ownership - keep the same name/slug, just change owner
             project.owner = new_user
-            project.name = (
-                f"{new_user.username}'s Project"  # Rename from "Default Project XXX"
-            )
-            project.slug = (
-                f"{new_user.username}-project-001"  # New slug under user's namespace
-            )
+            # Keep name as "default-project" for consistency
+            # Slug stays "default-project" but now scoped under new user
             project.save()
 
             # Update filesystem ownership
@@ -369,15 +368,14 @@ class VisitorPool:
         """
         try:
             # Recreate default project for this visitor
-            visitor_num = visitor_user.username.replace(cls.VISITOR_USER_PREFIX, "")
-            project_slug = f"{cls.DEFAULT_PROJECT_PREFIX}{visitor_num}"
+            project_slug = "default-project"
 
             # Delete old project if exists
             Project.objects.filter(slug=project_slug, owner=visitor_user).delete()
 
-            # Create fresh default project
+            # Create fresh default project (consistent naming with logged-in users)
             project = Project.objects.create(
-                name=f"Default Project {visitor_num}",
+                name="default-project",
                 slug=project_slug,
                 description="Try SciTeX features - sign up to save permanently!",
                 owner=visitor_user,
