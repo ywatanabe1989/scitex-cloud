@@ -690,6 +690,9 @@ deployment/dotenvs/*
 *.crt
 secret_key.txt
 
+# Pre-commit secrets baseline (this is safe to commit)
+!.secrets.baseline
+
 # Django database files
 *.sqlite3
 *.db
@@ -697,7 +700,7 @@ secret_key.txt
 *.db.broken
 db.sqlite3*
 *.db-journal
-*.db-shm  
+*.db-shm
 *.db-wal
 
 # Django media uploads (user content)

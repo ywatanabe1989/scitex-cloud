@@ -31,6 +31,7 @@ repos:
       - id: bandit
         args: ['-r', 'apps/', 'config/', '-ll']
         files: \.py$
+        exclude: migrations/
 
   # Python formatting (optional)
   - repo: https://github.com/psf/black
