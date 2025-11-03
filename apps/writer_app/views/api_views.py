@@ -12,8 +12,10 @@ from django.views.decorators.clickjacking import xframe_options_exempt
 import json
 import traceback
 from pathlib import Path
+from functools import wraps
 
 from apps.project_app.models import Project
+from apps.project_app.services.demo_project_pool import DemoProjectPool
 from ..services.writer_service import WriterService
 from ..configs.sections_config import SECTION_HIERARCHY, get_all_sections_flat, get_sections_by_category
 from scitex import logging
@@ -21,7 +23,46 @@ from scitex import logging
 logger = logging.getLogger(__name__)
 
 
-@login_required
+def allow_demo_project(view_func):
+    """
+    Decorator to allow both authenticated users and demo project access.
+
+    For authenticated users: requires login
+    For anonymous users: allows access to their demo project only
+    """
+    @wraps(view_func)
+    def wrapper(request, project_id, *args, **kwargs):
+        # Authenticated users: standard access control
+        if request.user.is_authenticated:
+            try:
+                project = Project.objects.get(id=project_id, owner=request.user)
+                return view_func(request, project_id, *args, **kwargs)
+            except Project.DoesNotExist:
+                return JsonResponse({"success": False, "error": "Project not found"}, status=404)
+
+        # Anonymous users: check if accessing their demo project
+        else:
+            demo_project_id = DemoProjectPool.get_demo_project_id(request.session)
+
+            if demo_project_id is None:
+                return JsonResponse({
+                    "success": False,
+                    "error": "Authentication required. Please sign up or log in."
+                }, status=401)
+
+            if int(project_id) != demo_project_id:
+                return JsonResponse({
+                    "success": False,
+                    "error": "Access denied to this project."
+                }, status=403)
+
+            # Access allowed to demo project
+            return view_func(request, project_id, *args, **kwargs)
+
+    return wrapper
+
+
+@allow_demo_project
 @require_http_methods(["GET", "POST"])
 def section_view(request, project_id, section_name):
     """Read or write a manuscript section.
@@ -39,9 +80,16 @@ def section_view(request, project_id, section_name):
         }
     """
     try:
-        # Verify project access
-        project = Project.objects.get(id=project_id, owner=request.user)
-        service = WriterService(project_id, request.user.id)
+        # Get project and user ID (works for both authenticated and demo)
+        if request.user.is_authenticated:
+            project = Project.objects.get(id=project_id, owner=request.user)
+            user_id = request.user.id
+        else:
+            # Demo project - already validated by decorator
+            project = Project.objects.get(id=project_id)
+            user_id = project.owner.id
+
+        service = WriterService(project_id, user_id)
 
         if request.method == "GET":
             doc_type = request.GET.get("doc_type", "manuscript")
@@ -435,7 +483,7 @@ def section_commit_view(request, project_id, section_name):
         )
 
 
-@login_required
+@allow_demo_project
 @require_http_methods(["GET"])
 @xframe_options_exempt
 def pdf_view(request, project_id):
@@ -445,8 +493,16 @@ def pdf_view(request, project_id):
         doc_type: 'manuscript', 'supplementary', or 'revision' (default: manuscript)
     """
     try:
-        project = Project.objects.get(id=project_id, owner=request.user)
-        service = WriterService(project_id, request.user.id)
+        # Get project and user ID (works for both authenticated and demo)
+        if request.user.is_authenticated:
+            project = Project.objects.get(id=project_id, owner=request.user)
+            user_id = request.user.id
+        else:
+            # Demo project - already validated by decorator
+            project = Project.objects.get(id=project_id)
+            user_id = project.owner.id
+
+        service = WriterService(project_id, user_id)
 
         doc_type = request.GET.get("doc_type", "manuscript")
         pdf_path = service.get_pdf(doc_type)
@@ -474,13 +530,21 @@ def pdf_view(request, project_id):
         return JsonResponse({"success": False, "error": str(e)}, status=500)
 
 
-@login_required
+@allow_demo_project
 @require_http_methods(["GET"])
 def available_sections_view(request, project_id):
     """Get list of available sections for each document type."""
     try:
-        project = Project.objects.get(id=project_id, owner=request.user)
-        service = WriterService(project_id, request.user.id)
+        # Get project and user ID (works for both authenticated and demo)
+        if request.user.is_authenticated:
+            project = Project.objects.get(id=project_id, owner=request.user)
+            user_id = request.user.id
+        else:
+            # Demo project - already validated by decorator
+            project = Project.objects.get(id=project_id)
+            user_id = project.owner.id
+
+        service = WriterService(project_id, user_id)
 
         # Get available sections from Writer
         sections = {
