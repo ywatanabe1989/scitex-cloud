@@ -258,31 +258,46 @@ export function registerCommands(editor, keybindings = {}) {
     // Register each command
     Object.entries(commands).forEach(([id, fn]) => {
         const keybinding = keybindings[id] || defaults[id];
-        if (!keybinding) return;
+        if (!keybinding) {
+            console.warn(`[Commands] No keybinding for ${id}, skipping`);
+            return;
+        }
 
-        editor.addAction({
-            id: id,
-            label: getCommandLabel(id),
-            keybindings: [keybinding],
-            run: function(ed) {
-                fn(ed);
-            }
-        });
+        try {
+            editor.addAction({
+                id: id,
+                label: getCommandLabel(id),
+                keybindings: [keybinding],
+                run: function(ed) {
+                    console.log(`[Command] Executing: ${id}`);
+                    fn(ed);
+                }
+            });
+            console.log(`[Commands] ✓ Registered: ${id}`);
+        } catch (error) {
+            console.error(`[Commands] ✗ Failed to register ${id}:`, error);
+        }
     });
 
     // Register section jump commands (Ctrl+1 through Ctrl+7)
     for (let i = 1; i <= 7; i++) {
-        editor.addAction({
-            id: `navigation.jumpToSection${i}`,
-            label: `Jump to Section ${i}`,
-            keybindings: [monaco.KeyMod.CtrlCmd | (monaco.KeyCode.Digit1 + i - 1)],
-            run: function() {
-                jumpToSection(i);
-            }
-        });
+        try {
+            editor.addAction({
+                id: `navigation.jumpToSection${i}`,
+                label: `Jump to Section ${i}`,
+                keybindings: [monaco.KeyMod.CtrlCmd | (monaco.KeyCode.Digit1 + i - 1)],
+                run: function() {
+                    console.log(`[Command] Executing: Jump to section ${i}`);
+                    jumpToSection(i);
+                }
+            });
+            console.log(`[Commands] ✓ Registered: navigation.jumpToSection${i}`);
+        } catch (error) {
+            console.error(`[Commands] ✗ Failed to register section jump ${i}:`, error);
+        }
     }
 
-    console.log('[Commands] Registered custom commands with Monaco');
+    console.log('[Commands] Registration complete');
 }
 
 /**
