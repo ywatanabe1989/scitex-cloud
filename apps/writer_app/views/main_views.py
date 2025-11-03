@@ -22,23 +22,15 @@ logger = logging.getLogger(__name__)
 def _initialize_demo_writer_workspace(project: Project):
     """Initialize Writer workspace for demo project.
 
-    Ensures scitex.writer structure is created (01_manuscript/, etc.).
+    Delegates to scitex.writer - no Django-side validation.
     """
     try:
         service = WriterService(project.id, project.owner.id)
-
-        # Trigger Writer initialization - creates directory structure
-        writer = service.writer
-
-        # Verify the manuscript directory exists
-        manuscript_path = service.project_path / "01_manuscript"
-        if not manuscript_path.exists():
-            logger.warning(f"[DemoWriter] Manuscript directory not found, Writer may not have initialized properly")
-        else:
-            logger.info(f"[DemoWriter] Writer workspace initialized at {service.project_path}")
-
+        # Trigger Writer initialization - scitex.writer handles everything
+        _ = service.writer
+        logger.info(f"[DemoWriter] Writer initialized for project {project.id}")
     except Exception as e:
-        logger.error(f"[DemoWriter] Failed to initialize workspace: {e}", exc_info=True)
+        logger.error(f"[DemoWriter] Failed to initialize: {e}", exc_info=True)
 
 
 def index(request):
