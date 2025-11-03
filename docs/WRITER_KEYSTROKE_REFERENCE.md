@@ -1,3 +1,9 @@
+<!-- ---
+!-- Timestamp: 2025-11-03 17:36:37
+!-- Author: ywatanabe
+!-- File: /home/ywatanabe/proj/scitex-cloud/docs/WRITER_KEYSTROKE_REFERENCE.md
+!-- --- -->
+
 # Writer Keystroke Reference
 
 **Investigation Date:** 2025-11-03
@@ -201,5 +207,7 @@ editor.addAction({
 ---
 
 **References:**
-- Monaco Editor Keybinding API: https://microsoft.github.io/monaco-editor/api/interfaces/monaco.editor.IStandaloneCodeEditor.html#addAction
+- Monaco Editor Keybinding API: https://microsoft.github.io/monaco-editor/typedoc/index.html
 - Browser Keyboard Events: https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key
+
+<!-- EOF -->
