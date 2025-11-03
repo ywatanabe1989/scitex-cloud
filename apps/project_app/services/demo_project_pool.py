@@ -121,11 +121,21 @@ class DemoProjectPool:
             visibility='private',
         )
 
+        # Initialize project directory structure
+        from apps.project_app.services.project_filesystem import get_project_filesystem_manager
+        manager = get_project_filesystem_manager(demo_user)
+        success, project_path = manager.create_empty_project_directory(project)
+
+        if not success:
+            logger.error(f"[DemoPool] Failed to create directory for demo project {project.id}")
+            project.delete()
+            raise RuntimeError("Failed to create demo project directory")
+
         # Store in session
         session[cls.SESSION_KEY_PROJECT_ID] = project.id
         session.save()
 
-        logger.info(f"[DemoPool] Created demo project: {project_slug} (id={project.id}, user={demo_user.username})")
+        logger.info(f"[DemoPool] Created demo project: {project_slug} (id={project.id}, user={demo_user.username}, path={project_path})")
 
         return project, True
 
