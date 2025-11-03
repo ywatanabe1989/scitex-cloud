@@ -48,11 +48,40 @@
 - [ ] Vim preset
 - [ ] VS Code preset (explicit)
 
-### Step 6: Settings UI
+### Step 6: Settings UI & Discovery
 - [ ] Keybindings settings page
 - [ ] Preset selector dropdown
 - [ ] Custom binding editor
 - [ ] Reset to defaults button
+- [ ] **`describe-bindings`** (Emacs-style)
+  - [ ] Show all active keybindings in searchable list
+  - [ ] Group by category (Citation, LaTeX, Navigation, etc.)
+  - [ ] Show command name + description + keystroke
+  - [ ] Bind to: `Ctrl+H B` (Emacs) or `Ctrl+K Ctrl+S` (VS Code)
+  - [ ] Help modal with keyboard shortcut reference
+
+### Step 7: Symbol Insertion System
+- [ ] **Auto-replace** (type → symbol)
+  - [ ] `-->` → `→` (arrow)
+  - [ ] `<--` → `←` (arrow)
+  - [ ] `+-` → `±` (plus-minus)
+  - [ ] `<=` → `≤` (less than or equal)
+  - [ ] `>=` → `≥` (greater than or equal)
+  - [ ] `~=` → `≈` (approximately)
+  - [ ] `---` → `—` (em-dash)
+  - [ ] `--` → `–` (en-dash)
+
+- [ ] **Symbol palette** (click to insert)
+  - [ ] Math: `− × ÷ ± ≈ ≤ ≥ ≠ ∞`
+  - [ ] Greek: `α β γ δ ε θ λ μ π σ ω`
+  - [ ] Arrows: `→ ← ↑ ↓ ↔`
+  - [ ] Units: `° µ Å`
+  - [ ] Organized by category
+
+- [ ] **Symbol search** (`Ctrl+K`)
+  - [ ] Type "arrow" → see `→ ← ↑ ↓`
+  - [ ] Type "alpha" → see `α`
+  - [ ] Fuzzy search support
 
 ## Phase 2: Collaboration Features
 - [ ] Presence indicators
