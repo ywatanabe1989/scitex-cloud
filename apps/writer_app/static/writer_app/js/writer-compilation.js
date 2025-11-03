@@ -2,7 +2,7 @@
  * Writer Compilation Module
  * Handles LaTeX compilation, auto-compile scheduling, and compilation listeners
  */
-import { setCompileTimeout } from './writer-sections.js';
+import { clearCompileTimeout, setCompileTimeout } from './writer-shared.js';
 
 /**
  * Show toast notification (utility)
@@ -19,10 +19,8 @@ export function scheduleAutoCompile(pdfPreviewManager, content, sectionId) {
     if (!pdfPreviewManager)
         return;
 
-    // Import at runtime to avoid circular dependency
-    import('./writer-sections.js').then(module => {
-        module.clearCompileTimeout();
-    });
+    // Clear existing timeout
+    clearCompileTimeout();
 
     // Schedule compilation after user stops typing
     const timeout = setTimeout(() => {
@@ -31,10 +29,8 @@ export function scheduleAutoCompile(pdfPreviewManager, content, sectionId) {
         pdfPreviewManager.compileQuick(content, sectionId);
     }, 2000); // Wait 2 seconds after user stops typing
 
-    // Import and set timeout
-    import('./writer-sections.js').then(module => {
-        module.setCompileTimeout(timeout);
-    });
+    // Store timeout so it can be cancelled
+    setCompileTimeout(timeout);
 }
 
 /**

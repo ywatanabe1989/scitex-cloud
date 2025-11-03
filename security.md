@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-11-03 (Auto-updated)
+!-- Timestamp: 2025-11-03 14:46:04
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/security.md
 !-- --- -->
@@ -22,34 +22,18 @@
 ### 2025-11-03: GitHub Secret Detection Alert
 **Issue**: Checkout.com Production Secret Key detected in deployment/dotenvs/dotenv_dev#L130 (commit 2e4e3d8e)
 
-**Status**: ✅ Resolved
+**Status**: Under Investigation
 
 **Actions Taken**:
-- [x] Review the flagged file and commit - File no longer exists in working directory
-- [x] Update .gitignore rules - Added `deployment/dotenvs/*` to prevent future leaks
-- [x] Commit the fix (commit 71fbe7c)
-- [ ] Dismiss the GitHub alert at: https://github.com/ywatanabe1989/scitex-cloud/security/secret-scanning/1
-- [ ] Rotate the Checkout.com key (if it's a real production key)
+- [ ] Review the flagged file and commit
+- [ ] Rotate the exposed secret if valid
+- [ ] Remove secret from git history using `git filter-repo` or BFG
+- [ ] Update .gitignore rules
+- [ ] Implement pre-commit hooks
 
-**Resolution Strategy**: Option 2 - Dismiss Alert
-- The file no longer exists in working directory
-- .gitignore updated to prevent future commits
-- Alert exists only in personal fork, not org repo (SciTeX-AI/scitex-cloud)
-- Not rewriting git history to avoid force-push complications
+**Root Cause**: Secrets committed to version control
 
-**Root Cause**: Dotenv files with real secrets were committed to version control
-
-**Prevention Measures Implemented**:
-1. Updated .gitignore to block all files in `deployment/dotenvs/`
-2. Created reusable security module: `scitex.security`
-3. Added CLI command: `scitex security check`
-4. Documentation updated with security best practices
-
-**How to Dismiss the Alert**:
-1. Go to: https://github.com/ywatanabe1989/scitex-cloud/security/secret-scanning/1
-2. Click "Dismiss alert"
-3. Select reason: "Won't fix" (or "False positive" if the key isn't real)
-4. Add comment: "File removed from working directory and .gitignore updated to prevent future commits"
+**Prevention**: Implement automated secret scanning before commit
 
 ---
 
@@ -411,94 +395,27 @@ git push --force --tags
 
 ---
 
-## Automated Security Monitoring
-
-### Using the SciTeX Security Module
-
-The security check functionality is now part of the reusable `scitex.security` module:
-
-```bash
-# From command line (cleanest way)
-scitex security check --save
-
-# Check specific repo
-scitex security check --repo SciTeX-AI/scitex-cloud --save
-
-# Show latest report
-scitex security latest
-```
-
-```python
-# From Python (anywhere)
-from scitex.security import check_github_alerts, save_alerts_to_file
-
-alerts = check_github_alerts()
-file_path = save_alerts_to_file(alerts)  # Saves to logs/security/
-```
-
-### Why This Is Better
-- **Reusable**: Works from scitex-cloud, scitex-cli, scitex-writer, anywhere
-- **Pythonic**: Clean API for agents and Django apps
-- **Consistent**: Same security checks across all SciTeX projects
-- **Maintainable**: Update once in `~/proj/scitex-code/src/scitex/security/`
-
-Full documentation: `~/proj/scitex-code/src/scitex/security/README.md`
-
-### Quick Setup
-```bash
-# 1. Install GitHub CLI
-sudo apt install gh  # or: brew install gh
-
-# 2. Authenticate
-gh auth login
-
-# 3. Test it
-scitex security check --save
-
-# 4. Optional: Add to cron for daily checks at 9 AM
-echo "0 9 * * * cd ~/proj/scitex-cloud && scitex security check --save" | crontab -
-```
-
-### For Agents
-```python
-# In any SciTeX project
-from scitex.security import check_github_alerts
-
-alerts = check_github_alerts()
-open_count = sum(
-    len([a for a in alerts[key] if a.get("state") == "open"])
-    for key in alerts
-)
-
-if open_count > 0:
-    # Read the latest report
-    from pathlib import Path
-    report = (Path.cwd() / "logs/security/security-latest.txt").read_text()
-    # Work on fixing issues...
-```
-
----
-
 ## Next Steps
 
 1. **Immediate** (Today)
-   - [ ] Run `./scripts/check_github_security.sh` to check current alerts
    - [ ] Investigate the Checkout.com secret alert
    - [ ] Rotate the exposed secret if valid
    - [ ] Remove from git history
 
 2. **This Week**
-   - [ ] Set up automated daily security checks (cron or manual)
+   - [ ] Set up pre-commit hooks
    - [ ] Enable GitHub secret scanning alerts
    - [ ] Add security headers to production settings
+   - [ ] Create GitHub security workflows
 
 3. **This Month**
    - [ ] Complete security audit
    - [ ] Implement rate limiting
    - [ ] Set up automated dependency scanning
+   - [ ] Document security procedures
 
 4. **Ongoing**
-   - [ ] Run `./scripts/check_github_security.sh` weekly (or check cron logs)
+   - [ ] Monitor security alerts weekly
    - [ ] Review and update security practices monthly
    - [ ] Conduct security training quarterly
 

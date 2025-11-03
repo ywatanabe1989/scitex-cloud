@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-11-03 14:35:18 (ywatanabe)"
+# Timestamp: "2025-11-03 09:31:06 (ywatanabe)"
 # File: ./scripts/maintenance/tree_templates_and_static.sh
 
 ORIG_DIR="$(pwd)"
@@ -44,20 +44,20 @@ _tree_base() {
     local specific_app=$2
 
     echo_header "$template_or_static: Global"
-    tree -lh ./$template_or_static
+    tree ./$template_or_static
 
     if [ -n "$specific_app" ]; then
         local app_path="./apps/${specific_app}"
         if [ -d "$app_path" ]; then
             echo_header "$template_or_static: $app_path"
-            tree -lh $app_path/$template_or_static
+            tree $app_path/$template_or_static
         else
             echo_error "App not found: $app_path"
         fi
     else
         for app in ./apps/*_app; do
             echo_header "$template_or_static: $app"
-            tree -lh $app/$template_or_static
+            tree $app/$template_or_static
         done
     fi
 }

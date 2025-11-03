@@ -4,30 +4,7 @@
  */
 import { getWriterConfig } from './helpers.js';
 import { render_pdf, updatePDFPreviewTitle } from './writer-pdf.js';
-
-// Shared timeout for auto-compile (needs to be accessible across modules)
-let compileTimeout;
-
-/**
- * Get the compile timeout for clearing
- */
-export function getCompileTimeout() {
-    return compileTimeout;
-}
-
-/**
- * Set the compile timeout
- */
-export function setCompileTimeout(timeout) {
-    compileTimeout = timeout;
-}
-
-/**
- * Clear the compile timeout
- */
-export function clearCompileTimeout() {
-    clearTimeout(compileTimeout);
-}
+import { clearCompileTimeout } from './writer-shared.js';
 
 /**
  * Load section content from API
@@ -85,7 +62,7 @@ export async function loadSectionContent(editor, sectionsManager, _state, sectio
  */
 export async function switchSection(editor, sectionsManager, state, sectionId, pdfPreviewManager) {
     // FIRST: Cancel any pending auto-compile from previous section
-    clearTimeout(compileTimeout);
+    clearCompileTimeout();
 
     // Save current section
     const currentContent = editor.getContent();
