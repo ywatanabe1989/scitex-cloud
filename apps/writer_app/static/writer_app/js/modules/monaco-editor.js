@@ -221,6 +221,7 @@ export class EnhancedEditor {
     setupMonacoEditor() {
         if (!this.monacoEditor)
             return;
+        const monaco = window.monaco;
         // Track changes
         this.monacoEditor.onDidChangeModelContent(() => {
             const content = this.monacoEditor.getValue();
@@ -229,7 +230,21 @@ export class EnhancedEditor {
                 this.onChangeCallback(content, wordCount);
             }
         });
-        console.log('[Editor] Monaco Editor listeners configured');
+        // Add custom comment toggle action (Ctrl+/ or Cmd+/)
+        this.monacoEditor.addAction({
+            id: 'toggle-line-comment',
+            label: 'Toggle Line Comment',
+            keybindings: [
+                monaco.KeyMod.CtrlCmd | monaco.KeyCode.Slash
+            ],
+            contextMenuGroupId: 'modification',
+            contextMenuOrder: 1.5,
+            run: (editor) => {
+                // Use Monaco's built-in toggle line comment action
+                editor.trigger('keyboard', 'editor.action.commentLine', {});
+            }
+        });
+        console.log('[Editor] Monaco Editor listeners and actions configured');
     }
     /**
      * Initialize CodeMirror fallback
