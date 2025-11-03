@@ -979,3 +979,91 @@ def sections_config_view(request):
     except Exception as e:
         logger.error(f"Sections config view error: {e}")
         return JsonResponse({"success": False, "error": str(e)}, status=500)
+
+
+# ============================================================================
+# Presence & Collaboration APIs
+# ============================================================================
+
+@require_http_methods(["POST"])
+def presence_update_view(request, project_id):
+    """
+    Update user's presence in project.
+    
+    POST body: {"section": "manuscript/abstract"}
+    
+    Works for both authenticated users and visitors.
+    """
+    try:
+        from apps.writer_app.models import WriterPresence
+        from apps.project_app.models import Project
+        
+        # Get project
+        project = Project.objects.get(id=project_id)
+        
+        # Get user (authenticated or visitor)
+        user = request.user if request.user.is_authenticated else project.owner
+        
+        data = json.loads(request.body)
+        current_section = data.get('section', '')
+        
+        # Update or create presence
+        WriterPresence.objects.update_or_create(
+            user=user,
+            project=project,
+            defaults={
+                'current_section': current_section,
+                'is_active': True
+            }
+        )
+        
+        return JsonResponse({'success': True})
+        
+    except Project.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Project not found'}, status=404)
+    except Exception as e:
+        logger.error(f"Presence update error: {e}")
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+@require_http_methods(["GET"])
+def presence_list_view(request, project_id):
+    """
+    Get list of active users in project.
+    
+    Returns users active in last 2 minutes with their current sections.
+    """
+    try:
+        from apps.writer_app.models import WriterPresence
+        
+        # Get active presences
+        presences = WriterPresence.get_active_users(project_id, minutes=2)
+        
+        # Generate user colors (consistent per user ID)
+        def get_user_color(user_id):
+            colors = [
+                '#ef4444', '#f59e0b', '#10b981', '#3b82f6',
+                '#6366f1', '#8b5cf6', '#ec4899', '#14b8a6'
+            ]
+            return colors[user_id % len(colors)]
+        
+        users_data = [
+            {
+                'user_id': p.user.id,
+                'username': p.user.username,
+                'section': p.current_section,
+                'last_seen': p.last_seen.isoformat(),
+                'avatar_color': get_user_color(p.user.id)
+            }
+            for p in presences
+        ]
+        
+        return JsonResponse({
+            'success': True,
+            'users': users_data,
+            'count': len(users_data)
+        })
+        
+    except Exception as e:
+        logger.error(f"Presence list error: {e}")
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
