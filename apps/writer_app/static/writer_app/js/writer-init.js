@@ -14,6 +14,7 @@ import { setupThemeListener, setupKeybindingListener, setupSidebarButtons, showT
 import { setupPDFZoomControls } from './writer-pdf.js';
 import { clearCompileTimeout } from './writer-shared.js';
 import { registerCommands } from './writer-commands.js';
+import { PresenceManager } from './writer-presence.js';
 
 /**
  * Wait for Monaco to load asynchronously
@@ -501,6 +502,25 @@ export async function initializeEditor(config) {
     setupThemeListener(editor);
     setupKeybindingListener(editor);
     setupSidebarButtons(config);
+
+    // Initialize presence tracking for collaboration
+    if (config.projectId && config.userId) {
+        const presenceManager = new PresenceManager(config.projectId, config.userId);
+        presenceManager.start();
+        console.log('[Writer] Presence tracking initialized');
+
+        // Update presence when section changes
+        const originalOnFileSelect = onFileSelectHandler;
+        const onFileSelectWithPresence = (sectionId, sectionName) => {
+            originalOnFileSelect(sectionId, sectionName);
+            presenceManager.setSection(sectionId);
+        };
+
+        // Stop presence tracking when user leaves
+        window.addEventListener('beforeunload', () => {
+            presenceManager.stop();
+        });
+    }
 
     // Setup scroll priority: PDF scrolling takes priority over page scrolling
     setupPDFScrollPriority();

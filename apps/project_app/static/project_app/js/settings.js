@@ -1,5 +1,13 @@
 // Project Settings JavaScript
 
+// ===== DEBUG LOGGING =====
+const DEBUG = true;
+const log = (msg, data) => DEBUG && console.log(`[Settings] ${msg}`, data || '');
+const logError = (msg, err) => console.error(`[Settings ERROR] ${msg}`, err || '');
+const logWarn = (msg, data) => console.warn(`[Settings WARN] ${msg}`, data || '');
+
+log('Settings.js loaded');
+
 // Section navigation - show only one section at a time
 function switchSection(sectionId) {
     // Hide all sections
@@ -145,21 +153,93 @@ document.addEventListener('keydown', function(e) {
 
 // Add collaborator button feedback
 document.addEventListener('DOMContentLoaded', function() {
+    // Handle hash navigation (e.g., #collaborators)
+    if (window.location.hash) {
+        const hash = window.location.hash.substring(1); // Remove #
+        const navLink = document.querySelector(`[data-section="${hash}"]`);
+        if (navLink) {
+            navLink.click(); // Trigger section switch
+        }
+    }
+
+    // Add form submit listener for debugging
+    const settingsForm = document.getElementById('settingsForm');
+    if (settingsForm) {
+        settingsForm.addEventListener('submit', function(e) {
+            const formData = new FormData(this);
+            const data = {};
+            for (let [key, value] of formData.entries()) {
+                data[key] = value;
+            }
+            log('FORM SUBMIT EVENT', {
+                action: this.action,
+                method: this.method,
+                data: data,
+                validity: this.checkValidity(),
+                reportValidity: this.reportValidity()
+            });
+
+            // Check if form is valid
+            if (!this.checkValidity()) {
+                logError('FORM VALIDATION FAILED', {
+                    invalidFields: Array.from(this.querySelectorAll(':invalid')).map(el => el.name)
+                });
+                e.preventDefault();
+                return false;
+            }
+
+            log('FORM IS SUBMITTING NOW - Watch Network tab for POST request');
+        });
+    }
+
     const addCollaboratorBtn = document.getElementById('addCollaboratorBtn');
     const collaboratorUsername = document.getElementById('collaboratorUsername');
     const addBtnText = document.getElementById('addBtnText');
 
     if (addCollaboratorBtn && collaboratorUsername) {
+        log('Collaborator button initialized');
+
         // Show loading state when form submits via this button
         addCollaboratorBtn.addEventListener('click', function(e) {
             const username = collaboratorUsername.value.trim();
+            const role = document.getElementById('collaboratorRole')?.value;
+            const form = document.getElementById('settingsForm');
+
+            log('Add collaborator button clicked', { username, role, hasForm: !!form });
+
             if (username) {
+                // CRITICAL: Ensure action value is set before disabling button
+                // Browsers may not submit disabled button values
+                let actionInput = form.querySelector('input[name="action"][type="hidden"]');
+                if (!actionInput) {
+                    actionInput = document.createElement('input');
+                    actionInput.type = 'hidden';
+                    actionInput.name = 'action';
+                    form.appendChild(actionInput);
+                }
+                actionInput.value = 'add_collaborator';
+                log('Set hidden action input', { value: actionInput.value });
+
                 addBtnText.textContent = 'Adding...';
                 addCollaboratorBtn.disabled = true;
                 addCollaboratorBtn.style.opacity = '0.7';
-                console.log('Adding collaborator:', username);
+
+                // Get form data for debugging
+                const formData = new FormData(form);
+                const formDataObj = {};
+                for (let [key, value] of formData.entries()) {
+                    formDataObj[key] = value;
+                }
+
+                log('Submitting form', {
+                    action: form?.action,
+                    method: form?.method,
+                    currentURL: window.location.href,
+                    formFields: formDataObj
+                });
             } else {
                 e.preventDefault();
+                logWarn('Empty username, preventing submission');
                 alert('Please enter a username');
             }
         });

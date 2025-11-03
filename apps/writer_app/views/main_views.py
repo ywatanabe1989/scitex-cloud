@@ -261,7 +261,27 @@ def user_default_workspace(request):
 
 
 def project_writer(request, project_id):
-    """Project writer interface."""
+    """
+    Project writer interface - direct link to specific project.
+    Checks permissions and sets project in context.
+    """
+    from django.shortcuts import get_object_or_404
+    from django.http import HttpResponseForbidden
+
+    # Get project
+    project = get_object_or_404(Project, id=project_id)
+
+    # Check view permission
+    if not project.can_view(request.user):
+        return HttpResponseForbidden(
+            "You don't have permission to view this project. "
+            "Contact the project owner for access."
+        )
+
+    # Store project_id in session so get_current_project() picks it up
+    request.session['current_project_id'] = project_id
+
+    # Call index which will use get_current_project()
     return index(request)
 
 

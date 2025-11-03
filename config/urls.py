@@ -209,6 +209,40 @@ def api_logout(request):
     )
 
 
+def api_search_users(request):
+    """
+    API endpoint to search for users by username.
+    Used for collaborator autocomplete.
+
+    Query params:
+        q: Search query (username or email)
+
+    Returns:
+        JSON response with matching users
+    """
+    query = request.GET.get('q', '').strip()
+
+    if len(query) < 2:
+        return JsonResponse({'users': []})
+
+    # Search by username (case-insensitive, contains)
+    users = User.objects.filter(
+        username__icontains=query
+    )[:10]  # Limit to 10 results
+
+    users_data = [
+        {
+            'id': u.id,
+            'username': u.username,
+            'email': u.email if u.email else None,
+            'full_name': u.get_full_name() or u.username,
+        }
+        for u in users
+    ]
+
+    return JsonResponse({'users': users_data})
+
+
 # # Create view functions to redirect to appropriate app views
 # def concept_page(request):
 #     return render(request, "cloud_app/pages/concept.html")
@@ -304,10 +338,12 @@ def discover_app_urls():
                             hasattr(urls_module, "urlpatterns")
                             and urls_module.urlpatterns
                         ):
+                            # Use app_name from urls module as namespace if available
+                            namespace = getattr(urls_module, 'app_name', app_name)
                             patterns.append(
                                 path(
                                     f"{url_prefix}/",
-                                    include(f"apps.{app_name}.urls"),
+                                    include((f"apps.{app_name}.urls", namespace)),
                                 )
                             )
                         else:
@@ -381,6 +417,8 @@ urlpatterns += [
         "favicon.ico",
         RedirectView.as_view(url="/static/images/favicon.png", permanent=True),
     ),
+    # API endpoints
+    path("api/users/search/", api_search_users, name="api_search_users"),
     # Public app URLs (includes landing page and auth)
     # Note: public_app is already included by discover_app_urls() at /public/
     # This additional include makes it accessible at root path /
@@ -390,6 +428,9 @@ urlpatterns += [
 urlpatterns += [
     # /new - Create new project (GitHub-style)
     path("new/", project_create, name="project_create"),
+    # Invitation accept/decline
+    path("invitations/<str:token>/accept/", lambda r, token: __import__('apps.project_app.base_views', fromlist=['accept_invitation']).accept_invitation(r, token), name="accept_invitation"),
+    path("invitations/<str:token>/decline/", lambda r, token: __import__('apps.project_app.base_views', fromlist=['decline_invitation']).decline_invitation(r, token), name="decline_invitation"),
 ]
 
 # GitHub-style username/project URLs (MUST be last to avoid conflicts)
