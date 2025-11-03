@@ -361,7 +361,7 @@ async function initializeEditor(config) {
         if (isKnownSection) {
             // It's a section ID - switch section
             console.log('[Writer] Detected section ID, switching section:', sectionId);
-            switchSection(editor, sectionsManager, state, sectionId);
+            switchSection(editor, sectionsManager, state, sectionId, pdfPreviewManager);
         }
         else if (sectionId.endsWith('.tex')) {
             // It's a file path - load from disk
@@ -371,7 +371,7 @@ async function initializeEditor(config) {
         else {
             // Fallback: try as section first, then as file
             console.log('[Writer] Unknown ID format, trying as section:', sectionId);
-            switchSection(editor, sectionsManager, state, sectionId);
+            switchSection(editor, sectionsManager, state, sectionId, pdfPreviewManager);
         }
     };
     // Initialize file tree (including demo mode with projectId 0)
@@ -431,7 +431,7 @@ async function initializeEditor(config) {
     // Setup event listeners
     if (editor) {
         setupEditorListeners(editor, sectionsManager, compilationManager, state, pdfPreviewManager);
-        setupSectionListeners(sectionsManager, editor, state, writerStorage);
+        setupSectionListeners(sectionsManager, editor, state, writerStorage, pdfPreviewManager);
     }
     setupCompilationListeners(compilationManager, config);
     setupThemeListener(editor);
@@ -483,7 +483,7 @@ function handleDocTypeSwitch(editor, sectionsManager, state, newDocType) {
     }
     // Switch to the first section of the new document type
     console.log('[Writer] Switching to', firstSection, 'for', newDocType);
-    switchSection(editor, sectionsManager, state, firstSection);
+    switchSection(editor, sectionsManager, state, firstSection, pdfPreviewManager);
 }
 /**
  * Setup editor event listeners
@@ -507,8 +507,8 @@ function setupEditorListeners(editor, sectionsManager, compilationManager, state
         updateWordCountDisplay(currentSection, wordCount);
         // Schedule auto-save
         scheduleSave(editor, sectionsManager, state);
-        // Schedule auto-compile for live PDF preview
-        if (pdfPreviewManager) {
+        // Schedule auto-compile for live PDF preview (skip for compiled_pdf sections)
+        if (pdfPreviewManager && !currentSection.endsWith('/compiled_pdf')) {
             scheduleAutoCompile(pdfPreviewManager, content, currentSection);
         }
     });
@@ -565,14 +565,14 @@ function setupEditorListeners(editor, sectionsManager, compilationManager, state
 /**
  * Setup section listeners
  */
-function setupSectionListeners(sectionsManager, editor, state, _storage) {
+function setupSectionListeners(sectionsManager, editor, state, _storage, pdfPreviewManager) {
     const sectionItems = document.querySelectorAll('.section-tab');
     sectionItems.forEach(item => {
         item.addEventListener('click', (e) => {
             const target = e.target;
             const sectionId = target.dataset.section;
             if (sectionId) {
-                switchSection(editor, sectionsManager, state, sectionId);
+                switchSection(editor, sectionsManager, state, sectionId, pdfPreviewManager);
             }
         });
     });
@@ -785,7 +785,10 @@ async function loadSectionContent(editor, sectionsManager, _state, sectionId) {
 /**
  * Switch to a section
  */
-async function switchSection(editor, sectionsManager, state, sectionId) {
+async function switchSection(editor, sectionsManager, state, sectionId, pdfPreviewManager) {
+    // FIRST: Cancel any pending auto-compile from previous section
+    clearTimeout(compileTimeout);
+
     // Save current section
     const currentContent = editor.getContent();
     sectionsManager.setContent(state.currentSection, currentContent);
@@ -794,6 +797,10 @@ async function switchSection(editor, sectionsManager, state, sectionId) {
     console.log('[Writer] Switching to section:', sectionId);
     updateSectionUI(sectionId);
     syncDropdownToSection(sectionId);
+
+    // Render appropriate PDF (compiled or preview)
+    render_pdf(sectionId, pdfPreviewManager);
+
     // For compiled_pdf sections, load the compiled TeX in editor (read-only)
     if (sectionId.endsWith('/compiled_pdf')) {
         console.log('[Writer] Compiled PDF section - loading compiled TeX');
@@ -840,11 +847,26 @@ function updateSectionUI(sectionId) {
     updatePDFPreviewTitle(sectionId);
     // Show/hide commit button based on section type (hide for read-only sections)
     updateCommitButtonVisibility(sectionId);
-    // Load compiled PDF if this is the compiled_pdf section
-    if (sectionId.endsWith('/compiled_pdf')) {
-        loadCompiledPDF(sectionId);
-    }
 }
+/**
+ * Render PDF - Central function for PDF display logic
+ * Determines whether to show compiled PDF or trigger preview compilation
+ *
+ * @param {string} sectionId - Section ID (e.g., 'manuscript/compiled_pdf')
+ * @param {object} pdfPreviewManager - PDF preview manager instance (unused for compiled_pdf)
+ */
+function render_pdf(sectionId, pdfPreviewManager) {
+    // For compiled_pdf sections: show full manuscript PDF (NO preview compilation)
+    if (sectionId.endsWith('/compiled_pdf')) {
+        console.log('[Writer] render_pdf: Showing compiled PDF (no preview compilation)');
+        loadCompiledPDF(sectionId);
+        return;
+    }
+
+    // For other sections: preview will be managed by auto-compile on content change
+    console.log('[Writer] render_pdf: Editable section, preview managed by auto-compile');
+}
+
 /**
  * Load compiled PDF for display (not quick preview)
  */

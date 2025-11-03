@@ -11,12 +11,33 @@
 
       <!-- Primary Navigation -->
       <nav class="header-nav">
-        <a href="/social/explore/"
-           class="header-nav-item {% if 'explore' in request.path %}active{% endif %}"
-           data-tooltip="Browse repositories and projects">
-          <img src="{% static 'images/scitex-explore-icon.svg' %}" alt="" class="nav-icon">
-          <span class="nav-label">Explore</span>
-        </a>
+        <!-- Explore Module with Dropdown -->
+        <div class="header-dropdown-group">
+          <button id="explore-dropdown-toggle" class="header-nav-item header-dropdown-toggle {% if 'explore' in request.path %}active{% endif %}" data-tooltip="Browse repositories and projects">
+            <img src="{% static 'images/scitex-explore-icon.svg' %}" alt="" class="nav-icon">
+            <span class="nav-label">Explore</span>
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" style="margin-left: 4px;">
+              <path d="M4 6l4 4 4-4H4z"/>
+            </svg>
+          </button>
+
+          <!-- Explore Dropdown Menu -->
+          <div id="explore-dropdown-menu" class="header-nav-dropdown" style="display: none;">
+            <a href="{% if user.is_authenticated %}/{{ user.username }}/{% else %}/social/explore/{% endif %}" class="nav-dropdown-item">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="margin-right: 8px;">
+                <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.71l-5.223 2.206A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z"/>
+              </svg>
+              <span>Your Repositories</span>
+            </a>
+
+            <a href="/social/explore/" class="nav-dropdown-item">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="margin-right: 8px;">
+                <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+              </svg>
+              <span>All Public Repositories</span>
+            </a>
+          </div>
+        </div>
         {% comment %}
         Module links - All users now navigate to dedicated module endpoints:
         - /scholar/ - Scholar app with project selector
@@ -25,23 +46,18 @@
         - /writer/ - Writer module (project-centric via sessionStorage)
         {% endcomment %}
         <!-- Scholar Module with Dropdown -->
-        <div class="header-scholar-group">
-          <a href="/scholar/"
-             class="header-nav-item {% if 'scholar' in request.path %}active{% endif %}"
-             data-tooltip="Scholar module">
+        <div class="header-dropdown-group">
+          <button id="scholar-dropdown-toggle" class="header-nav-item header-dropdown-toggle {% if 'scholar' in request.path %}active{% endif %}" data-tooltip="Scholar module">
             <img src="{% static 'images/scitex-scholar-icon.svg' %}" alt="" class="nav-icon">
             <span class="nav-label">Scholar</span>
-          </a>
-          <button id="scholar-dropdown-toggle" class="header-scholar-dropdown-btn" data-tooltip="Scholar options">
-            <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" style="margin-left: 4px;">
               <path d="M4 6l4 4 4-4H4z"/>
             </svg>
           </button>
 
           <!-- Scholar Dropdown Menu -->
-          <div id="scholar-dropdown-menu" class="header-scholar-dropdown" style="display: none;">
-
-            <a href="/scholar/bibtex/" class="scholar-dropdown-item">
+          <div id="scholar-dropdown-menu" class="header-nav-dropdown" style="display: none;">
+            <a href="/scholar/bibtex/" class="nav-dropdown-item">
               <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="margin-right: 8px;">
                 <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.71l-5.223 2.206A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z"/>
               </svg>
@@ -49,12 +65,12 @@
               <span class="dropdown-badge">Recommended</span>
             </a>
 
-            <a href="/scholar/search/" class="scholar-dropdown-item">
+            <a href="/scholar/search/" class="nav-dropdown-item">
               <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="margin-right: 8px;">
                 <path d="M6.5 1a5.5 5.5 0 0 1 4.38 8.98l6.01 6.01a.75.75 0 1 1-1.06 1.06l-6.01-6.01A5.5 5.5 0 1 1 6.5 1zm0 1.5a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/>
               </svg>
               <span>Paper Search</span>
-            </a>            
+            </a>
           </div>
         </div>
         <span class="header-nav-item header-nav-item-disabled"
@@ -76,22 +92,30 @@
       </nav>
     </div>
 
-    <!-- Project Selector (for authenticated users) - Custom Dropdown Menu -->
-    {% if user.is_authenticated %}
+    <!-- Project Selector (for all users) - Custom Dropdown Menu -->
     <div class="header-project-selector">
       <!-- Project Dropdown Button -->
-      <button id="project-selector-toggle" class="project-selector-btn" title="Switch projects (Alt+P)">
+      <button id="project-selector-toggle" class="project-selector-btn" title="{% if user.is_authenticated %}Switch projects (Alt+P){% else %}Current project{% endif %}">
         <span id="project-selector-text" class="project-selector-text">
-          {% if user.profile.last_active_repository %}
-            {{ user.profile.last_active_repository.name }}
+          {% if user.is_authenticated %}
+            {% if user.profile.last_active_repository %}
+              {{ user.profile.last_active_repository.name }}
+            {% else %}
+              {% with projects=user.profile.get_user_projects %}
+                {% if projects|length > 0 %}
+                  {% for project in projects %}{% if forloop.first %}{{ project.name }}{% endif %}{% endfor %}
+                {% else %}
+                  Projects
+                {% endif %}
+              {% endwith %}
+            {% endif %}
           {% else %}
-            {% with projects=user.profile.get_user_projects %}
-              {% if projects|length > 0 %}
-                {% for project in projects %}{% if forloop.first %}{{ project.name }}{% endif %}{% endfor %}
-              {% else %}
-                Projects
-              {% endif %}
-            {% endwith %}
+            {% comment %}Visitor mode - show allocated default project from context{% endcomment %}
+            {% if project %}
+              {{ project.name }}
+            {% else %}
+              Default Project
+            {% endif %}
           {% endif %}
         </span>
         <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" style="margin-left: 4px;">
@@ -101,42 +125,73 @@
 
       <!-- Project Dropdown Menu -->
       <div id="project-selector-dropdown" class="project-selector-dropdown" style="display: none;">
-        {% if user.profile.get_user_projects %}
-          <div class="dropdown-section">
-            <div class="dropdown-section-title">Your Projects</div>
-            {% for project in user.profile.get_user_projects %}
-              <button type="button" class="dropdown-project-item" data-project-id="{{ project.id }}" data-project-name="{{ project.name }}" data-project-slug="{{ project.slug }}" data-project-owner="{{ project.owner.username }}">
+        {% if user.is_authenticated %}
+          {% if user.profile.get_user_projects %}
+            <div class="dropdown-section">
+              <div class="dropdown-section-title">Your Projects</div>
+              {% for project in user.profile.get_user_projects %}
+                <button type="button" class="dropdown-project-item" data-project-id="{{ project.id }}" data-project-name="{{ project.name }}" data-project-slug="{{ project.slug }}" data-project-owner="{{ project.owner.username }}">
+                  <span class="project-item-name">{{ project.name }}</span>
+                  <span class="project-item-check" style="display: {% if user.profile.last_active_repository and user.profile.last_active_repository.id == project.id %}inline{% else %}none{% endif %};">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+                      <path d="M13.78 4.22a.75.75 0 010 1.06l-7.25 7.25a.75.75 0 11-1.06-1.06L12.72 4.22a.75.75 0 011.06 0z"/>
+                    </svg>
+                  </span>
+                </button>
+              {% endfor %}
+            </div>
+            <div class="dropdown-divider"></div>
+
+            <!-- Go to Project Option -->
+            <button type="button" id="dropdown-go-to-project" class="dropdown-project-item dropdown-action" style="display: none;">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="margin-right: 6px;">
+                <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.71l-5.223 2.206A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z"/>
+              </svg>
+              <span id="go-to-project-text">Go to Project</span>
+            </button>
+            <div class="dropdown-divider"></div>
+          {% endif %}
+
+          <!-- Create New Project Option (authenticated users only) -->
+          <a href="/new/" class="dropdown-project-item dropdown-create-new">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="margin-right: 6px;">
+              <path d="M8 0a1 1 0 0 1 1 1v6h6a1 1 0 1 1 0 2H9v6a1 1 0 1 1-2 0V9H1a1 1 0 0 1 0-2h6V1a1 1 0 0 1 1-1z"/>
+            </svg>
+            <span>Create New Project</span>
+          </a>
+        {% else %}
+          <!-- Visitor mode - show current project info -->
+          {% if project %}
+            <div class="dropdown-section">
+              <div class="dropdown-section-title">Current Project</div>
+              <div class="dropdown-project-item" style="cursor: default; opacity: 0.9;">
                 <span class="project-item-name">{{ project.name }}</span>
-                <span class="project-item-check" style="display: {% if user.profile.last_active_repository and user.profile.last_active_repository.id == project.id %}inline{% else %}none{% endif %};">
+                <span class="project-item-check" style="display: inline;">
                   <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
                     <path d="M13.78 4.22a.75.75 0 010 1.06l-7.25 7.25a.75.75 0 11-1.06-1.06L12.72 4.22a.75.75 0 011.06 0z"/>
                   </svg>
                 </span>
-              </button>
-            {% endfor %}
-          </div>
-          <div class="dropdown-divider"></div>
+              </div>
+              <div style="padding: 12px; font-size: 12px; color: var(--color-fg-muted); line-height: 1.5;">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="margin-right: 4px; vertical-align: text-bottom;">
+                  <path d="M8 1a.5.5 0 0 1 .5.5v.518A7.001 7.001 0 0 1 14.954 7.5h.518a.5.5 0 0 1 0 1h-.518A7.001 7.001 0 0 1 8.5 14.482v.518a.5.5 0 0 1-1 0v-.518A7.001 7.001 0 0 1 1.046 8.5H.528a.5.5 0 0 1 0-1h.518A7.001 7.001 0 0 1 7.5 2.018V1.5A.5.5 0 0 1 8 1zm-.5 2.02A6.001 6.001 0 0 0 2.02 7.5h.48a.5.5 0 0 1 0 1h-.48A6.001 6.001 0 0 0 7.5 13.98v-.48a.5.5 0 0 1 1 0v.48A6.001 6.001 0 0 0 13.98 8.5h-.48a.5.5 0 0 1 0-1h.48A6.001 6.001 0 0 0 8.5 3.02v.48a.5.5 0 0 1-1 0v-.48z"/>
+                </svg>
+                Visitor mode: Your work won't be saved permanently. Sign up to keep it!
+              </div>
+            </div>
+            <div class="dropdown-divider"></div>
+          {% endif %}
 
-          <!-- Go to Project Option -->
-          <button type="button" id="dropdown-go-to-project" class="dropdown-project-item dropdown-action" style="display: none;">
+          <!-- Sign up to save (visitors) -->
+          <a href="{% url 'auth_app:signup' %}" class="dropdown-project-item dropdown-create-new">
             <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="margin-right: 6px;">
-              <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.71l-5.223 2.206A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z"/>
+              <path d="M8 0a1 1 0 0 1 1 1v6h6a1 1 0 1 1 0 2H9v6a1 1 0 1 1-2 0V9H1a1 1 0 0 1 0-2h6V1a1 1 0 0 1 1-1z"/>
             </svg>
-            <span id="go-to-project-text">Go to Project</span>
-          </button>
-          <div class="dropdown-divider"></div>
+            <span>Sign up to save your work</span>
+          </a>
         {% endif %}
-
-        <!-- Create New Project Option -->
-        <a href="/new/" class="dropdown-project-item dropdown-create-new">
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="margin-right: 6px;">
-            <path d="M8 0a1 1 0 0 1 1 1v6h6a1 1 0 1 1 0 2H9v6a1 1 0 1 1-2 0V9H1a1 1 0 0 1 0-2h6V1a1 1 0 0 1 1-1z"/>
-          </svg>
-          <span>Create New Project</span>
-        </a>
       </div>
     </div>
-    {% endif %}
 
     <!-- Center: Search -->
     <div class="header-center">
@@ -267,32 +322,49 @@
 <!-- JavaScript for dropdown menu -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  // Scholar dropdown functionality
-  const scholarToggle = document.getElementById('scholar-dropdown-toggle');
-  const scholarDropdown = document.getElementById('scholar-dropdown-menu');
+  // Generic dropdown functionality for all header nav dropdowns
+  const dropdownGroups = document.querySelectorAll('.header-dropdown-group');
 
-  if (scholarToggle && scholarDropdown) {
-    scholarToggle.addEventListener('click', function(e) {
-      e.stopPropagation();
-      const isVisible = scholarDropdown.style.display !== 'none';
-      scholarDropdown.style.display = isVisible ? 'none' : 'block';
-    });
+  dropdownGroups.forEach(group => {
+    const toggle = group.querySelector('.header-dropdown-toggle');
+    const dropdown = group.querySelector('.header-nav-dropdown');
 
-    // Close dropdown when clicking outside
-    document.addEventListener('click', function(e) {
-      const scholarGroup = document.querySelector('.header-scholar-group');
-      if (scholarGroup && !scholarGroup.contains(e.target)) {
-        scholarDropdown.style.display = 'none';
-      }
-    });
+    if (toggle && dropdown) {
+      // Toggle dropdown on button click
+      toggle.addEventListener('click', function(e) {
+        e.stopPropagation();
 
-    // Close dropdown when pressing Escape
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') {
-        scholarDropdown.style.display = 'none';
-      }
-    });
-  }
+        // Close other dropdowns first
+        document.querySelectorAll('.header-nav-dropdown').forEach(otherDropdown => {
+          if (otherDropdown !== dropdown) {
+            otherDropdown.style.display = 'none';
+          }
+        });
+
+        // Toggle current dropdown
+        const isVisible = dropdown.style.display !== 'none';
+        dropdown.style.display = isVisible ? 'none' : 'block';
+      });
+    }
+  });
+
+  // Close all dropdowns when clicking outside
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.header-dropdown-group')) {
+      document.querySelectorAll('.header-nav-dropdown').forEach(dropdown => {
+        dropdown.style.display = 'none';
+      });
+    }
+  });
+
+  // Close all dropdowns when pressing Escape
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.header-nav-dropdown').forEach(dropdown => {
+        dropdown.style.display = 'none';
+      });
+    }
+  });
 
   const userMenuToggle = document.getElementById('user-menu-toggle');
   const userMenuDropdown = document.getElementById('user-menu-dropdown');
