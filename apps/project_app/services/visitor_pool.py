@@ -1,0 +1,376 @@
+"""
+Visitor Pool Manager
+
+Pre-allocated visitor accounts (visitor-001 to visitor-032) for anonymous users.
+Each visitor gets a default project that can be claimed on signup.
+
+Architecture:
+- Fixed pool: 32 visitor accounts with default projects
+- Allocation: Session-based with security token
+- Signup: Transfer project ownership (visitor → real user)
+- Reset: Clear workspace, free slot back to pool
+"""
+
+import logging
+import secrets
+from datetime import timedelta
+from typing import Optional, Tuple
+from django.utils import timezone
+from django.contrib.auth.models import User
+from django.db import transaction
+from apps.project_app.models import Project, ProjectMembership, VisitorAllocation
+from pathlib import Path
+
+logger = logging.getLogger(__name__)
+
+
+class VisitorPool:
+    """
+    Manages fixed pool of visitor accounts and default projects.
+
+    Pool Size: 32 concurrent visitors
+    Naming: visitor-001 to visitor-032, default-project-001 to default-project-032
+    """
+
+    VISITOR_USER_PREFIX = "visitor-"
+    DEFAULT_PROJECT_PREFIX = "default-project-"
+    POOL_SIZE = 32
+    SESSION_LIFETIME_HOURS = 24
+    SESSION_KEY_PROJECT_ID = 'visitor_project_id'
+    SESSION_KEY_VISITOR_ID = 'visitor_user_id'
+    SESSION_KEY_ALLOCATION_TOKEN = 'visitor_allocation_token'
+
+    @classmethod
+    def initialize_pool(cls, pool_size: int = None) -> int:
+        """
+        Create visitor pool (visitor-001 to visitor-032).
+
+        Run once during deployment: python manage.py create_visitor_pool
+
+        Returns:
+            int: Number of visitor accounts created
+        """
+        if pool_size is None:
+            pool_size = cls.POOL_SIZE
+
+        created_count = 0
+
+        for i in range(1, pool_size + 1):
+            visitor_num = f"{i:03d}"
+            username = f"{cls.VISITOR_USER_PREFIX}{visitor_num}"
+            project_slug = f"{cls.DEFAULT_PROJECT_PREFIX}{visitor_num}"
+
+            # Create visitor user if doesn't exist
+            user, user_created = User.objects.get_or_create(
+                username=username,
+                defaults={
+                    'email': f'{username}@visitor.scitex.local',
+                    'is_active': True,
+                }
+            )
+            if user_created:
+                user.set_unusable_password()
+                user.save()
+                logger.info(f"[VisitorPool] Created user: {username}")
+
+            # Create default project if doesn't exist
+            project, project_created = Project.objects.get_or_create(
+                slug=project_slug,
+                owner=user,
+                defaults={
+                    'name': f'Default Project {visitor_num}',
+                    'description': 'Try SciTeX features - sign up to save permanently!',
+                    'visibility': 'private',
+                }
+            )
+
+            if project_created:
+                # Initialize project directory
+                from apps.project_app.services.project_filesystem import get_project_filesystem_manager
+                manager = get_project_filesystem_manager(user)
+                success, project_path = manager.create_empty_project_directory(project)
+
+                if success:
+                    logger.info(f"[VisitorPool] Created project: {project_slug} at {project_path}")
+                    created_count += 1
+                else:
+                    logger.error(f"[VisitorPool] Failed to create directory for {project_slug}")
+                    project.delete()
+
+        logger.info(f"[VisitorPool] Pool initialization complete: {created_count} new projects")
+        return created_count
+
+    @classmethod
+    @transaction.atomic
+    def allocate_visitor(cls, session) -> Tuple[Optional[Project], Optional[User]]:
+        """
+        Allocate a free visitor slot to the session.
+
+        Uses database locking to prevent race conditions.
+
+        Returns:
+            tuple: (Project, User) or (None, None) if pool exhausted
+        """
+        # Check if session already has allocation
+        existing_token = session.get(cls.SESSION_KEY_ALLOCATION_TOKEN)
+        if existing_token:
+            try:
+                allocation = VisitorAllocation.objects.get(
+                    allocation_token=existing_token,
+                    is_active=True,
+                    expires_at__gt=timezone.now()
+                )
+                visitor_num = allocation.visitor_number
+                user = User.objects.get(username=f"{cls.VISITOR_USER_PREFIX}{visitor_num:03d}")
+                project = Project.objects.get(
+                    slug=f"{cls.DEFAULT_PROJECT_PREFIX}{visitor_num:03d}",
+                    owner=user
+                )
+                logger.info(f"[VisitorPool] Reusing allocation: visitor-{visitor_num:03d}")
+                return project, user
+            except (VisitorAllocation.DoesNotExist, User.DoesNotExist, Project.DoesNotExist):
+                logger.warning(f"[VisitorPool] Invalid allocation token, reallocating")
+
+        # Find free visitor slot
+        for i in range(1, cls.POOL_SIZE + 1):
+            visitor_num = i
+
+            # Check if slot is free or expired
+            allocation = VisitorAllocation.objects.filter(
+                visitor_number=visitor_num
+            ).first()
+
+            # Slot is free if: no allocation, expired, or inactive
+            if allocation is None or not allocation.is_active or allocation.expires_at < timezone.now():
+                # Allocate this slot
+                allocation_token = secrets.token_hex(32)
+                expires_at = timezone.now() + timedelta(hours=cls.SESSION_LIFETIME_HOURS)
+
+                # Delete old allocation if exists
+                if allocation:
+                    allocation.delete()
+
+                # Create new allocation
+                VisitorAllocation.objects.create(
+                    visitor_number=visitor_num,
+                    session_key=session.session_key or '',
+                    allocation_token=allocation_token,
+                    expires_at=expires_at,
+                    is_active=True
+                )
+
+                # Get visitor user and project
+                username = f"{cls.VISITOR_USER_PREFIX}{visitor_num:03d}"
+                project_slug = f"{cls.DEFAULT_PROJECT_PREFIX}{visitor_num:03d}"
+
+                try:
+                    user = User.objects.get(username=username)
+                    project = Project.objects.get(slug=project_slug, owner=user)
+
+                    # Store in session
+                    session[cls.SESSION_KEY_PROJECT_ID] = project.id
+                    session[cls.SESSION_KEY_VISITOR_ID] = user.id
+                    session[cls.SESSION_KEY_ALLOCATION_TOKEN] = allocation_token
+                    session.save()
+
+                    logger.info(f"[VisitorPool] Allocated visitor-{visitor_num:03d} to session")
+                    return project, user
+
+                except (User.DoesNotExist, Project.DoesNotExist):
+                    logger.error(f"[VisitorPool] Visitor slot {visitor_num} exists in allocations but user/project not found")
+                    continue
+
+        # Pool exhausted
+        logger.warning(f"[VisitorPool] Pool exhausted - all {cls.POOL_SIZE} slots in use")
+        return None, None
+
+    @classmethod
+    def deallocate_visitor(cls, session):
+        """
+        Free visitor slot (called when session expires or user signs up).
+
+        Args:
+            session: Django session object
+        """
+        allocation_token = session.get(cls.SESSION_KEY_ALLOCATION_TOKEN)
+        if not allocation_token:
+            return
+
+        try:
+            allocation = VisitorAllocation.objects.get(allocation_token=allocation_token)
+            allocation.is_active = False
+            allocation.save()
+
+            # Clear session
+            session.pop(cls.SESSION_KEY_PROJECT_ID, None)
+            session.pop(cls.SESSION_KEY_VISITOR_ID, None)
+            session.pop(cls.SESSION_KEY_ALLOCATION_TOKEN, None)
+            session.save()
+
+            logger.info(f"[VisitorPool] Deallocated visitor-{allocation.visitor_number:03d}")
+
+        except VisitorAllocation.DoesNotExist:
+            logger.warning(f"[VisitorPool] Allocation not found for token: {allocation_token[:8]}...")
+
+    @classmethod
+    @transaction.atomic
+    def claim_project_on_signup(cls, session, new_user: User) -> Optional[Project]:
+        """
+        Transfer visitor's default project to newly signed-up user.
+
+        Called during signup to preserve visitor's work.
+
+        Args:
+            session: Django session with visitor allocation
+            new_user: Newly created user account
+
+        Returns:
+            Optional[Project]: Transferred project or None
+        """
+        visitor_project_id = session.get(cls.SESSION_KEY_PROJECT_ID)
+        allocation_token = session.get(cls.SESSION_KEY_ALLOCATION_TOKEN)
+
+        if not visitor_project_id or not allocation_token:
+            logger.warning(f"[VisitorPool] No visitor project to claim for user {new_user.username}")
+            return None
+
+        try:
+            # Get visitor project
+            project = Project.objects.get(id=visitor_project_id)
+            old_owner = project.owner
+
+            # Verify it's a default project
+            if not project.slug.startswith(cls.DEFAULT_PROJECT_PREFIX):
+                logger.error(f"[VisitorPool] Project {project.id} is not a default project")
+                return None
+
+            # Transfer ownership
+            project.owner = new_user
+            project.name = f"{new_user.username}'s Project"  # Rename from "Default Project XXX"
+            project.slug = f"{new_user.username}-project-001"  # New slug under user's namespace
+            project.save()
+
+            # Update filesystem ownership
+            from apps.project_app.services.project_filesystem import get_project_filesystem_manager
+            old_manager = get_project_filesystem_manager(old_owner)
+            new_manager = get_project_filesystem_manager(new_user)
+
+            old_path = old_manager.get_project_root_path(project)
+            if old_path and old_path.exists():
+                # Move directory from visitor space to user space
+                new_path = new_manager.base_path / new_user.username / project.slug
+                new_path.parent.mkdir(parents=True, exist_ok=True)
+
+                import shutil
+                shutil.move(str(old_path), str(new_path))
+
+                # Update data_location
+                project.data_location = str(new_path.relative_to(new_manager.base_path))
+                project.save()
+
+                logger.info(f"[VisitorPool] Moved project from {old_path} to {new_path}")
+
+            # Deallocate visitor slot
+            cls.deallocate_visitor(session)
+
+            # Reset visitor workspace for next user
+            cls._reset_visitor_workspace(old_owner)
+
+            logger.info(f"[VisitorPool] Claimed project {project.slug} for user {new_user.username}")
+            return project
+
+        except Project.DoesNotExist:
+            logger.error(f"[VisitorPool] Project {visitor_project_id} not found")
+            return None
+        except Exception as e:
+            logger.error(f"[VisitorPool] Error claiming project: {e}", exc_info=True)
+            return None
+
+    @classmethod
+    def _reset_visitor_workspace(cls, visitor_user: User):
+        """
+        Reset visitor's workspace (clear content, keep structure).
+
+        Called after visitor signs up and claims project.
+        """
+        try:
+            # Recreate default project for this visitor
+            visitor_num = visitor_user.username.replace(cls.VISITOR_USER_PREFIX, "")
+            project_slug = f"{cls.DEFAULT_PROJECT_PREFIX}{visitor_num}"
+
+            # Delete old project if exists
+            Project.objects.filter(slug=project_slug, owner=visitor_user).delete()
+
+            # Create fresh default project
+            project = Project.objects.create(
+                name=f'Default Project {visitor_num}',
+                slug=project_slug,
+                description='Try SciTeX features - sign up to save permanently!',
+                owner=visitor_user,
+                visibility='private',
+            )
+
+            # Initialize directory
+            from apps.project_app.services.project_filesystem import get_project_filesystem_manager
+            manager = get_project_filesystem_manager(visitor_user)
+            success, project_path = manager.create_empty_project_directory(project)
+
+            if success:
+                logger.info(f"[VisitorPool] Reset visitor workspace: {project_slug}")
+            else:
+                logger.error(f"[VisitorPool] Failed to reset visitor workspace: {project_slug}")
+
+        except Exception as e:
+            logger.error(f"[VisitorPool] Error resetting visitor workspace: {e}", exc_info=True)
+
+    @classmethod
+    def cleanup_expired_allocations(cls) -> int:
+        """
+        Free visitor slots with expired sessions.
+
+        Returns:
+            int: Number of slots freed
+        """
+        expired = VisitorAllocation.objects.filter(
+            is_active=True,
+            expires_at__lt=timezone.now()
+        )
+
+        count = 0
+        for allocation in expired:
+            allocation.is_active = False
+            allocation.save()
+            count += 1
+            logger.info(f"[VisitorPool] Freed expired slot: visitor-{allocation.visitor_number:03d}")
+
+        return count
+
+    @classmethod
+    def get_pool_status(cls) -> dict:
+        """
+        Get current pool status.
+
+        Returns:
+            dict: {total, allocated, free, expired}
+        """
+        total = cls.POOL_SIZE
+        active_allocations = VisitorAllocation.objects.filter(
+            is_active=True,
+            expires_at__gt=timezone.now()
+        ).count()
+
+        expired = VisitorAllocation.objects.filter(
+            is_active=True,
+            expires_at__lte=timezone.now()
+        ).count()
+
+        return {
+            'total': total,
+            'allocated': active_allocations,
+            'free': total - active_allocations,
+            'expired': expired
+        }
+
+
+# For backward compatibility during migration
+DemoProjectPool = VisitorPool
