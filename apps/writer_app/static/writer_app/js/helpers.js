@@ -25,9 +25,12 @@ export function getWriterConfig() {
  * Create default editor state
  */
 export function createDefaultEditorState(config) {
+    // For demo/new projects, start with abstract (editable section)
+    // compiled_pdf should only be selected if a PDF exists
+    const defaultSection = 'manuscript/abstract';
     return {
         content: '',
-        currentSection: 'manuscript/compiled_pdf',
+        currentSection: defaultSection,
         unsavedSections: new Set(),
         currentDocType: 'manuscript',
         projectId: config?.projectId ? Number(config.projectId) : null,

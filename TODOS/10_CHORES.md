@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-11-03 09:10:25
+!-- Timestamp: 2025-11-03 13:37:52
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/TODOS/10_CHORES.md
 !-- --- -->
@@ -25,6 +25,10 @@
   - [ ] Default color for requirements instead of red from the beginning
 - [ ] Rename login -> signin, log in -> signin from text, url, views, filenames, docs, throught the codebase
   - [ ] You might want to use rename.sh
+
+## Global Header
+- [ ] Explore -> dropdown selector with 1. Your Repositories, 2. All Public Repositories
+- [ ] Scholar -> dropdown selector with 1. BibTeX Enrichment recommended badge, 2. Paper Search
 
 ##  This should be placed in appropriate place
 /home/ywatanabe/proj/scitex-cloud/templates/global_base_partials/codemirror_css.html

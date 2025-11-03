@@ -17,7 +17,11 @@ from functools import wraps
 from apps.project_app.models import Project
 from apps.project_app.services.visitor_pool import VisitorPool
 from ..services.writer_service import WriterService
-from ..configs.sections_config import SECTION_HIERARCHY, get_all_sections_flat, get_sections_by_category
+from ..configs.sections_config import (
+    SECTION_HIERARCHY,
+    get_all_sections_flat,
+    get_sections_by_category,
+)
 from scitex import logging
 
 logger = logging.getLogger(__name__)
@@ -30,6 +34,7 @@ def allow_demo_project(view_func):
     For authenticated users: requires login
     For anonymous users: allows access to their demo project only
     """
+
     @wraps(view_func)
     def wrapper(request, project_id, *args, **kwargs):
         # Authenticated users: standard access control
@@ -38,23 +43,28 @@ def allow_demo_project(view_func):
                 project = Project.objects.get(id=project_id, owner=request.user)
                 return view_func(request, project_id, *args, **kwargs)
             except Project.DoesNotExist:
-                return JsonResponse({"success": False, "error": "Project not found"}, status=404)
+                return JsonResponse(
+                    {"success": False, "error": "Project not found"}, status=404
+                )
 
         # Anonymous users: check if accessing their visitor project
         else:
-            visitor_project_id = session.get(VisitorPool.SESSION_KEY_PROJECT_ID)
+            visitor_project_id = request.session.get(VisitorPool.SESSION_KEY_PROJECT_ID)
 
             if visitor_project_id is None:
-                return JsonResponse({
-                    "success": False,
-                    "error": "Authentication required. Please sign up or log in."
-                }, status=401)
+                return JsonResponse(
+                    {
+                        "success": False,
+                        "error": "Authentication required. Please sign up or log in.",
+                    },
+                    status=401,
+                )
 
             if int(project_id) != visitor_project_id:
-                return JsonResponse({
-                    "success": False,
-                    "error": "Access denied to this project."
-                }, status=403)
+                return JsonResponse(
+                    {"success": False, "error": "Access denied to this project."},
+                    status=403,
+                )
 
             # Access allowed to demo project
             return view_func(request, project_id, *args, **kwargs)
@@ -94,12 +104,14 @@ def section_view(request, project_id, section_name):
         if request.method == "GET":
             doc_type = request.GET.get("doc_type", "manuscript")
             content = service.read_section(section_name, doc_type)
-            return JsonResponse({
-                "success": True,
-                "section": section_name,
-                "doc_type": doc_type,
-                "content": content,
-            })
+            return JsonResponse(
+                {
+                    "success": True,
+                    "section": section_name,
+                    "doc_type": doc_type,
+                    "content": content,
+                }
+            )
 
         elif request.method == "POST":
             data = json.loads(request.body)
@@ -108,10 +120,13 @@ def section_view(request, project_id, section_name):
             doc_type = data.get("doc_type", "manuscript")
 
             if content is None:
-                return JsonResponse({
-                    "success": False,
-                    "error": "Missing 'content' in request body",
-                }, status=400)
+                return JsonResponse(
+                    {
+                        "success": False,
+                        "error": "Missing 'content' in request body",
+                    },
+                    status=400,
+                )
 
             # Write section
             service.write_section(section_name, content, doc_type)
@@ -119,20 +134,26 @@ def section_view(request, project_id, section_name):
             # Optionally commit
             if commit_message:
                 service.commit_section(section_name, commit_message, doc_type)
-                return JsonResponse({
-                    "success": True,
-                    "section": section_name,
-                    "message": f"Section updated and committed: {commit_message}",
-                })
+                return JsonResponse(
+                    {
+                        "success": True,
+                        "section": section_name,
+                        "message": f"Section updated and committed: {commit_message}",
+                    }
+                )
             else:
-                return JsonResponse({
-                    "success": True,
-                    "section": section_name,
-                    "message": "Section updated (not committed)",
-                })
+                return JsonResponse(
+                    {
+                        "success": True,
+                        "section": section_name,
+                        "message": "Section updated (not committed)",
+                    }
+                )
 
     except Project.DoesNotExist:
-        return JsonResponse({"success": False, "error": "Project not found"}, status=404)
+        return JsonResponse(
+            {"success": False, "error": "Project not found"}, status=404
+        )
     except Exception as e:
         logger.error(f"Section view error: {e}")
         return JsonResponse({"success": False, "error": str(e)}, status=500)
@@ -157,10 +178,13 @@ def compile_preview_view(request, project_id):
         content = data.get("content")
 
         if not content:
-            return JsonResponse({
-                'success': False,
-                'error': 'Content is required for preview compilation'
-            }, status=400)
+            return JsonResponse(
+                {
+                    "success": False,
+                    "error": "Content is required for preview compilation",
+                },
+                status=400,
+            )
 
         timeout = data.get("timeout", 60)  # Shorter timeout for preview
         color_mode = data.get("color_mode", "light")
@@ -170,22 +194,39 @@ def compile_preview_view(request, project_id):
         if not request.user.is_authenticated:
             visitor_project_id = request.session.get(VisitorPool.SESSION_KEY_PROJECT_ID)
             if not visitor_project_id:
-                return JsonResponse({'success': False, 'error': 'No visitor project allocated'}, status=401)
+                return JsonResponse(
+                    {"success": False, "error": "No visitor project allocated"},
+                    status=401,
+                )
 
             visitor_project = Project.objects.get(id=visitor_project_id)
-            logger.info(f"[CompilePreview] Anonymous user: project_id={visitor_project.id}, section={section_name}, content={len(content)} chars")
+            logger.info(
+                f"[CompilePreview] Anonymous user: project_id={visitor_project.id}, section={section_name}, content={len(content)} chars"
+            )
             service = WriterService(visitor_project.id, visitor_project.owner.id)
-            result = service.compile_preview(content, timeout=timeout, color_mode=color_mode, section_name=section_name)
+            result = service.compile_preview(
+                content,
+                timeout=timeout,
+                color_mode=color_mode,
+                section_name=section_name,
+            )
         else:
             # Authenticated users: use WriterService for proper workspace handling
             project = Project.objects.get(id=project_id, owner=request.user)
-            logger.info(f"[CompilePreview] Authenticated user: project={project_id}, section={section_name}, content={len(content)} chars")
+            logger.info(
+                f"[CompilePreview] Authenticated user: project={project_id}, section={section_name}, content={len(content)} chars"
+            )
 
             service = WriterService(project_id, request.user.id)
-            result = service.compile_preview(content, timeout=timeout, color_mode=color_mode, section_name=section_name)
+            result = service.compile_preview(
+                content,
+                timeout=timeout,
+                color_mode=color_mode,
+                section_name=section_name,
+            )
 
         logger.info(f"[CompilePreview] Result: success={result.get('success')}")
-        if not result.get('success'):
+        if not result.get("success"):
             logger.warning(f"[CompilePreview] Failed: {result.get('error')}")
 
         # Convert file path to URL for preview PDFs
@@ -197,27 +238,34 @@ def compile_preview_view(request, project_id):
             else:
                 pdf_url = result.get("output_pdf")
 
-        return JsonResponse({
-            "success": result["success"],
-            "output_pdf": pdf_url,
-            "pdf_path": pdf_url,
-            "log": result.get("log", ""),
-            "error": result.get("error"),
-        })
+        return JsonResponse(
+            {
+                "success": result["success"],
+                "output_pdf": pdf_url,
+                "pdf_path": pdf_url,
+                "log": result.get("log", ""),
+                "error": result.get("error"),
+            }
+        )
 
     except Project.DoesNotExist:
         logger.error(f"Project {project_id} not found")
-        return JsonResponse({"success": False, "error": "Project not found"}, status=404)
+        return JsonResponse(
+            {"success": False, "error": "Project not found"}, status=404
+        )
     except Exception as e:
         error_trace = traceback.format_exc()
         logger.error(f"Preview compilation error: {type(e).__name__}: {e}")
         logger.error(f"Traceback:\n{error_trace}")
-        return JsonResponse({
-            "success": False,
-            "error": str(e),
-            "log": str(e),
-            "traceback": error_trace
-        }, status=500)
+        return JsonResponse(
+            {
+                "success": False,
+                "error": str(e),
+                "log": str(e),
+                "traceback": error_trace,
+            },
+            status=500,
+        )
 
 
 @require_http_methods(["POST"])
@@ -236,10 +284,13 @@ def compile_full_view(request, project_id):
     try:
         # Only authenticated users can compile from workspace
         if not request.user.is_authenticated:
-            return JsonResponse({
-                'success': False,
-                'error': 'Full compilation requires authentication. Use /compile_preview/ for anonymous compilation.'
-            }, status=403)
+            return JsonResponse(
+                {
+                    "success": False,
+                    "error": "Full compilation requires authentication. Use /compile_preview/ for anonymous compilation.",
+                },
+                status=403,
+            )
 
         data = json.loads(request.body)
         project = Project.objects.get(id=project_id, owner=request.user)
@@ -248,7 +299,9 @@ def compile_full_view(request, project_id):
         doc_type = data.get("doc_type", "manuscript")
         timeout = data.get("timeout", 300)
 
-        logger.info(f"[CompileFull] Starting: project={project_id}, doc_type={doc_type}, timeout={timeout}")
+        logger.info(
+            f"[CompileFull] Starting: project={project_id}, doc_type={doc_type}, timeout={timeout}"
+        )
 
         # Compile based on document type
         if doc_type == "supplementary":
@@ -261,33 +314,44 @@ def compile_full_view(request, project_id):
             logger.info(f"[CompileFull] Compiling manuscript")
             result = service.compile_manuscript(timeout=timeout)
 
-        logger.info(f"[CompileFull] Result: success={result.get('success')}, output_pdf={result.get('output_pdf')}")
-        if not result.get('success'):
+        logger.info(
+            f"[CompileFull] Result: success={result.get('success')}, output_pdf={result.get('output_pdf')}"
+        )
+        if not result.get("success"):
             logger.warning(f"[CompileFull] Failed: {result.get('error')}")
-            logger.warning(f"[CompileFull] Log: {result.get('log', '')[:500]}")  # First 500 chars
+            logger.warning(
+                f"[CompileFull] Log: {result.get('log', '')[:500]}"
+            )  # First 500 chars
 
-        return JsonResponse({
-            "success": result["success"],
-            "doc_type": doc_type,
-            "output_pdf": result.get("output_pdf"),
-            "pdf_path": result.get("output_pdf"),
-            "log": result.get("log", ""),
-            "error": result.get("error"),
-        })
+        return JsonResponse(
+            {
+                "success": result["success"],
+                "doc_type": doc_type,
+                "output_pdf": result.get("output_pdf"),
+                "pdf_path": result.get("output_pdf"),
+                "log": result.get("log", ""),
+                "error": result.get("error"),
+            }
+        )
 
     except Project.DoesNotExist:
         logger.error(f"Project {project_id} not found")
-        return JsonResponse({"success": False, "error": "Project not found"}, status=404)
+        return JsonResponse(
+            {"success": False, "error": "Project not found"}, status=404
+        )
     except Exception as e:
         error_trace = traceback.format_exc()
         logger.error(f"Full compilation error: {type(e).__name__}: {e}")
         logger.error(f"Traceback:\n{error_trace}")
-        return JsonResponse({
-            "success": False,
-            "error": str(e),
-            "log": str(e),
-            "traceback": error_trace
-        }, status=500)
+        return JsonResponse(
+            {
+                "success": False,
+                "error": str(e),
+                "log": str(e),
+                "traceback": error_trace,
+            },
+            status=500,
+        )
 
 
 @require_http_methods(["POST"])
@@ -296,7 +360,9 @@ def compile_view(request, project_id):
 
     This view is kept for backward compatibility but will be removed.
     """
-    logger.warning("[Compile] Using deprecated compile_view. Use compile_preview_view or compile_full_view instead.")
+    logger.warning(
+        "[Compile] Using deprecated compile_view. Use compile_preview_view or compile_full_view instead."
+    )
 
     data = json.loads(request.body)
     if data.get("content"):
@@ -320,15 +386,19 @@ def section_history_view(request, project_id, section_name):
         doc_type = request.GET.get("doc_type", "manuscript")
         history = service.get_section_history(section_name, doc_type)
 
-        return JsonResponse({
-            "success": True,
-            "section": section_name,
-            "doc_type": doc_type,
-            "history": history,
-        })
+        return JsonResponse(
+            {
+                "success": True,
+                "section": section_name,
+                "doc_type": doc_type,
+                "history": history,
+            }
+        )
 
     except Project.DoesNotExist:
-        return JsonResponse({"success": False, "error": "Project not found"}, status=404)
+        return JsonResponse(
+            {"success": False, "error": "Project not found"}, status=404
+        )
     except Exception as e:
         logger.error(f"History view error: {e}")
         return JsonResponse({"success": False, "error": str(e)}, status=500)
@@ -351,17 +421,21 @@ def section_diff_view(request, project_id, section_name):
         ref = request.GET.get("ref", "HEAD")
         diff = service.get_section_diff(section_name, ref, doc_type)
 
-        return JsonResponse({
-            "success": True,
-            "section": section_name,
-            "doc_type": doc_type,
-            "ref": ref,
-            "diff": diff,
-            "has_changes": bool(diff),
-        })
+        return JsonResponse(
+            {
+                "success": True,
+                "section": section_name,
+                "doc_type": doc_type,
+                "ref": ref,
+                "diff": diff,
+                "has_changes": bool(diff),
+            }
+        )
 
     except Project.DoesNotExist:
-        return JsonResponse({"success": False, "error": "Project not found"}, status=404)
+        return JsonResponse(
+            {"success": False, "error": "Project not found"}, status=404
+        )
     except Exception as e:
         logger.error(f"Diff view error: {e}")
         return JsonResponse({"success": False, "error": str(e)}, status=500)
@@ -388,15 +462,21 @@ def section_checkout_view(request, project_id, section_name):
 
         success = service.checkout_section(section_name, ref, doc_type)
 
-        return JsonResponse({
-            "success": success,
-            "section": section_name,
-            "ref": ref,
-            "message": f"Section restored to {ref}" if success else "Checkout failed",
-        })
+        return JsonResponse(
+            {
+                "success": success,
+                "section": section_name,
+                "ref": ref,
+                "message": (
+                    f"Section restored to {ref}" if success else "Checkout failed"
+                ),
+            }
+        )
 
     except Project.DoesNotExist:
-        return JsonResponse({"success": False, "error": "Project not found"}, status=404)
+        return JsonResponse(
+            {"success": False, "error": "Project not found"}, status=404
+        )
     except Exception as e:
         logger.error(f"Checkout view error: {e}")
         return JsonResponse({"success": False, "error": str(e)}, status=500)
@@ -422,7 +502,7 @@ def section_commit_view(request, project_id, section_name):
     from apps.core.responses import api_response, error_response, success_response
     import logging
 
-    git_logger = logging.getLogger('scitex.git')
+    git_logger = logging.getLogger("scitex.git")
 
     try:
         project = Project.objects.get(id=project_id, owner=request.user)
@@ -436,11 +516,13 @@ def section_commit_view(request, project_id, section_name):
             return error_response(
                 message="Commit message is required",
                 error_type="validation",
-                endpoint=request.path
+                endpoint=request.path,
             )
 
         # Log git operation
-        git_logger.info(f"Committing section {section_name} (doc_type={doc_type}): {commit_message}")
+        git_logger.info(
+            f"Committing section {section_name} (doc_type={doc_type}): {commit_message}"
+        )
 
         # Commit the section with the provided message
         success = service.commit_section(section_name, commit_message, doc_type)
@@ -454,7 +536,7 @@ def section_commit_view(request, project_id, section_name):
                 error_details="Make changes to the section and save before committing.",
                 stderr="nothing to commit, working tree clean",  # Git's message
                 exit_code=1,
-                endpoint=request.path
+                endpoint=request.path,
             )
 
         # Success!
@@ -464,9 +546,9 @@ def section_commit_view(request, project_id, section_name):
             data={
                 "section": section_name,
                 "doc_type": doc_type,
-                "commit_message": commit_message
+                "commit_message": commit_message,
             },
-            endpoint=request.path
+            endpoint=request.path,
         )
 
     except Project.DoesNotExist:
@@ -474,7 +556,7 @@ def section_commit_view(request, project_id, section_name):
             message="Project not found",
             error_type="not_found",
             endpoint=request.path,
-            status_code=404
+            status_code=404,
         )
     except Exception as e:
         logger.error(f"Commit error: {e}", exc_info=True)
@@ -482,7 +564,7 @@ def section_commit_view(request, project_id, section_name):
             message=str(e),
             error_type="unexpected",
             endpoint=request.path,
-            status_code=500
+            status_code=500,
         )
 
 
@@ -513,21 +595,26 @@ def pdf_view(request, project_id):
         if pdf_path and Path(pdf_path).exists():
             logger.info(f"[PDFView] Serving PDF: {pdf_path}")
             return FileResponse(
-                open(pdf_path, 'rb'),
-                content_type='application/pdf',
+                open(pdf_path, "rb"),
+                content_type="application/pdf",
                 as_attachment=False,
-                filename=f"{doc_type}.pdf"
+                filename=f"{doc_type}.pdf",
             )
         else:
             logger.warning(f"[PDFView] PDF not found: {pdf_path}")
-            return JsonResponse({
-                "success": False,
-                "error": f"PDF not found. Please compile {doc_type} first.",
-                "doc_type": doc_type,
-            }, status=404)
+            return JsonResponse(
+                {
+                    "success": False,
+                    "error": f"PDF not found. Please compile {doc_type} first.",
+                    "doc_type": doc_type,
+                },
+                status=404,
+            )
 
     except Project.DoesNotExist:
-        return JsonResponse({"success": False, "error": "Project not found"}, status=404)
+        return JsonResponse(
+            {"success": False, "error": "Project not found"}, status=404
+        )
     except Exception as e:
         logger.error(f"PDF view error: {e}")
         return JsonResponse({"success": False, "error": str(e)}, status=500)
@@ -574,19 +661,22 @@ def available_sections_view(request, project_id):
             ],
         }
 
-        return JsonResponse({
-            "success": True,
-            "sections": sections,
-        })
+        return JsonResponse(
+            {
+                "success": True,
+                "sections": sections,
+            }
+        )
 
     except Project.DoesNotExist:
-        return JsonResponse({"success": False, "error": "Project not found"}, status=404)
+        return JsonResponse(
+            {"success": False, "error": "Project not found"}, status=404
+        )
     except Exception as e:
         logger.error(f"Available sections view error: {e}")
         return JsonResponse({"success": False, "error": str(e)}, status=500)
 
 
-@login_required
 @require_http_methods(["POST"])
 def save_sections_view(request, project_id):
     """Save multiple sections at once.
@@ -601,24 +691,31 @@ def save_sections_view(request, project_id):
             "doc_type": "manuscript" (optional, default: manuscript),
             "commit_message": "optional commit message"
         }
+
+    Note: Works for both authenticated users and visitors with allocated projects.
     """
     try:
-        project = Project.objects.get(id=project_id, owner=request.user)
-        service = WriterService(project_id, request.user.id)
+        # Get project and use its owner (works for both authenticated users and visitors)
+        project = Project.objects.get(id=project_id)
+        service = WriterService(project_id, project.owner.id)
 
         data = json.loads(request.body)
         sections = data.get("sections", {})
         doc_type = data.get("doc_type", "manuscript")
         commit_message = data.get("commit_message")
 
-        logger.info(f"Save sections request: project={project_id}, doc_type={doc_type}, sections={len(sections)}, user={request.user.id}")
+        logger.info(
+            f"Save sections request: project={project_id}, doc_type={doc_type}, sections={len(sections)}, user={project.owner.id}"
+        )
 
         if not sections:
-            return JsonResponse({
-                "success": True,
-                "message": "No sections to save",
-                "sections_saved": 0,
-            })
+            return JsonResponse(
+                {
+                    "success": True,
+                    "message": "No sections to save",
+                    "sections_saved": 0,
+                }
+            )
 
         # Save each section
         saved_count = 0
@@ -626,8 +723,10 @@ def save_sections_view(request, project_id):
         for section_name, content in sections.items():
             try:
                 content_str = str(content) if content else ""
-                content_size = len(content_str.encode('utf-8'))
-                logger.debug(f"Writing section {section_name} ({content_size} bytes) for {doc_type}")
+                content_size = len(content_str.encode("utf-8"))
+                logger.debug(
+                    f"Writing section {section_name} ({content_size} bytes) for {doc_type}"
+                )
 
                 service.write_section(section_name, content, doc_type)
                 saved_count += 1
@@ -639,39 +738,49 @@ def save_sections_view(request, project_id):
             except TypeError as e:
                 # Type mismatch or conversion error
                 logger.error(f"Type error saving section {section_name}: {e}")
-                logger.error(f"Content type: {type(content)}, Content: {repr(content)[:100]}")
+                logger.error(
+                    f"Content type: {type(content)}, Content: {repr(content)[:100]}"
+                )
                 failed_sections.append(section_name)
             except Exception as e:
-                logger.error(f"Failed to save section {section_name}: {type(e).__name__}: {e}")
+                logger.error(
+                    f"Failed to save section {section_name}: {type(e).__name__}: {e}"
+                )
                 logger.error(f"Traceback: {traceback.format_exc()}")
                 failed_sections.append(section_name)
 
-        logger.info(f"Save sections completed: saved={saved_count}, failed={len(failed_sections)}")
+        logger.info(
+            f"Save sections completed: saved={saved_count}, failed={len(failed_sections)}"
+        )
 
         # Return success even if no sections were saved
         # (they may be empty or not exist in this document type)
-        return JsonResponse({
-            "success": True,
-            "message": f"Processed {len(sections)} sections ({saved_count} saved)",
-            "sections_saved": saved_count,
-            "sections_skipped": len(failed_sections),
-        })
+        return JsonResponse(
+            {
+                "success": True,
+                "message": f"Processed {len(sections)} sections ({saved_count} saved)",
+                "sections_saved": saved_count,
+                "sections_skipped": len(failed_sections),
+            }
+        )
 
     except Project.DoesNotExist:
         logger.error(f"Project {project_id} not found for user {request.user.id}")
-        return JsonResponse({"success": False, "error": "Project not found"}, status=404)
+        return JsonResponse(
+            {"success": False, "error": "Project not found"}, status=404
+        )
     except json.JSONDecodeError:
         logger.error("Invalid JSON in request body")
-        return JsonResponse({"success": False, "error": "Invalid JSON in request body"}, status=400)
+        return JsonResponse(
+            {"success": False, "error": "Invalid JSON in request body"}, status=400
+        )
     except Exception as e:
         error_trace = traceback.format_exc()
         logger.error(f"Save sections view error: {e}")
         logger.error(f"Traceback:\n{error_trace}")
-        return JsonResponse({
-            "success": False,
-            "error": str(e),
-            "traceback": error_trace
-        }, status=500)
+        return JsonResponse(
+            {"success": False, "error": str(e), "traceback": error_trace}, status=500
+        )
 
 
 @login_required
@@ -689,10 +798,10 @@ def file_tree_view(request, project_id):
         writer_path = service.project_path
 
         if not writer_path.exists():
-            return JsonResponse({
-                "success": False,
-                "error": "Writer workspace not initialized"
-            }, status=404)
+            return JsonResponse(
+                {"success": False, "error": "Writer workspace not initialized"},
+                status=404,
+            )
 
         # Build file tree
         def build_tree(path: Path, base_path: Path):
@@ -700,13 +809,13 @@ def file_tree_view(request, project_id):
             items = []
 
             # Skip hidden directories and git
-            if path.name.startswith('.'):
+            if path.name.startswith("."):
                 return items
 
             try:
                 for item in sorted(path.iterdir()):
                     # Skip hidden files and directories
-                    if item.name.startswith('.'):
+                    if item.name.startswith("."):
                         continue
 
                     # Get relative path from base
@@ -714,18 +823,18 @@ def file_tree_view(request, project_id):
 
                     if item.is_dir():
                         children = build_tree(item, base_path)
-                        items.append({
-                            "name": item.name,
-                            "path": rel_path,
-                            "type": "directory",
-                            "children": children
-                        })
-                    elif item.suffix == '.tex':
-                        items.append({
-                            "name": item.name,
-                            "path": rel_path,
-                            "type": "file"
-                        })
+                        items.append(
+                            {
+                                "name": item.name,
+                                "path": rel_path,
+                                "type": "directory",
+                                "children": children,
+                            }
+                        )
+                    elif item.suffix == ".tex":
+                        items.append(
+                            {"name": item.name, "path": rel_path, "type": "file"}
+                        )
             except PermissionError:
                 pass
 
@@ -733,13 +842,12 @@ def file_tree_view(request, project_id):
 
         tree = build_tree(writer_path, writer_path)
 
-        return JsonResponse({
-            "success": True,
-            "tree": tree
-        })
+        return JsonResponse({"success": True, "tree": tree})
 
     except Project.DoesNotExist:
-        return JsonResponse({"success": False, "error": "Project not found"}, status=404)
+        return JsonResponse(
+            {"success": False, "error": "Project not found"}, status=404
+        )
     except Exception as e:
         logger.error(f"File tree view error: {e}")
         return JsonResponse({"success": False, "error": str(e)}, status=500)
@@ -759,19 +867,19 @@ def read_tex_file_view(request, project_id):
 
         file_path = request.GET.get("path")
         if not file_path:
-            return JsonResponse({"success": False, "error": "File path required"}, status=400)
+            return JsonResponse(
+                {"success": False, "error": "File path required"}, status=400
+            )
 
         # Read the file from the writer workspace
         content = service.read_tex_file(file_path)
 
-        return JsonResponse({
-            "success": True,
-            "path": file_path,
-            "content": content
-        })
+        return JsonResponse({"success": True, "path": file_path, "content": content})
 
     except Project.DoesNotExist:
-        return JsonResponse({"success": False, "error": "Project not found"}, status=404)
+        return JsonResponse(
+            {"success": False, "error": "Project not found"}, status=404
+        )
     except FileNotFoundError:
         return JsonResponse({"success": False, "error": "File not found"}, status=404)
     except Exception as e:
@@ -791,45 +899,58 @@ def preview_pdf_view(request, project_id):
     Note: No login required - users can view previews anonymously.
     """
     try:
-        # For anonymous users (projectId=0), use demo project path
-        if project_id == 0 or not request.user.is_authenticated:
-            project_id = 0
-            user_id = 0
-        else:
-            # Verify project exists for authenticated users
+        # Verify project exists
+        try:
             project = Project.objects.get(id=project_id)
-            user_id = request.user.id
+            user_id = project.owner.id
+        except Project.DoesNotExist:
+            logger.error(f"Preview PDF view error: Project {project_id} not found")
+            return JsonResponse(
+                {"success": False, "error": f"Project {project_id} not found"},
+                status=404,
+            )
 
         service = WriterService(project_id, user_id)
 
         # Get section name from query params
-        section_name = request.GET.get('section', 'preview')
-        safe_section_name = section_name.replace('/', '-').replace(' ', '-').lower()
+        section_name = request.GET.get("section", "preview")
+        safe_section_name = section_name.replace("/", "-").replace(" ", "-").lower()
 
         # Get the section-specific preview PDF path
-        pdf_path = service.project_path / "preview_output" / f"preview-{safe_section_name}.pdf"
+        pdf_path = (
+            service.project_path / "preview_output" / f"preview-{safe_section_name}.pdf"
+        )
 
         logger.info(f"[PreviewPDF] Looking for: {pdf_path}")
 
         if not pdf_path.exists():
             logger.warning(f"[PreviewPDF] Not found: {pdf_path}")
-            return JsonResponse({
-                "success": False,
-                "error": f"Preview PDF not found: {pdf_path.name}. Please edit the section and wait 2 seconds for auto-compile.",
-                "attempted_path": str(pdf_path)
-            }, status=404)
+            return JsonResponse(
+                {
+                    "success": False,
+                    "error": f"Preview PDF not found: {pdf_path.name}. Please edit the section and wait 2 seconds for auto-compile.",
+                    "attempted_path": str(pdf_path),
+                },
+                status=404,
+            )
 
         if not pdf_path.is_file():
-            return JsonResponse({"success": False, "error": "Invalid PDF path"}, status=400)
+            return JsonResponse(
+                {"success": False, "error": "Invalid PDF path"}, status=400
+            )
 
         # Serve the file
         logger.info(f"[PreviewPDF] Serving: {pdf_path}")
-        response = FileResponse(open(pdf_path, 'rb'), content_type='application/pdf')
-        response['Content-Disposition'] = f'inline; filename="preview-{safe_section_name}.pdf"'
+        response = FileResponse(open(pdf_path, "rb"), content_type="application/pdf")
+        response["Content-Disposition"] = (
+            f'inline; filename="preview-{safe_section_name}.pdf"'
+        )
         return response
 
     except Project.DoesNotExist:
-        return JsonResponse({"success": False, "error": "Project not found"}, status=404)
+        return JsonResponse(
+            {"success": False, "error": "Project not found"}, status=404
+        )
     except Exception as e:
         logger.error(f"Preview PDF view error: {e}")
         return JsonResponse({"success": False, "error": str(e)}, status=500)
@@ -854,10 +975,7 @@ def sections_config_view(request):
         }
     """
     try:
-        return JsonResponse({
-            "success": True,
-            "hierarchy": SECTION_HIERARCHY
-        })
+        return JsonResponse({"success": True, "hierarchy": SECTION_HIERARCHY})
     except Exception as e:
         logger.error(f"Sections config view error: {e}")
         return JsonResponse({"success": False, "error": str(e)}, status=500)

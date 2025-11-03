@@ -592,8 +592,8 @@ function setupEditorListeners(
         // Schedule auto-save
         scheduleSave(editor, sectionsManager, state);
 
-        // Schedule auto-compile for live PDF preview
-        if (pdfPreviewManager) {
+        // Schedule auto-compile for live PDF preview (skip for compiled_pdf sections)
+        if (pdfPreviewManager && !currentSection.endsWith('/compiled_pdf')) {
             scheduleAutoCompile(pdfPreviewManager, content, currentSection);
         }
     });
@@ -987,6 +987,8 @@ function updateSectionUI(sectionId: string): void {
 
     // Load compiled PDF if this is the compiled_pdf section
     if (sectionId.endsWith('/compiled_pdf')) {
+        // Cancel any pending auto-compile from previous section
+        clearTimeout(compileTimeout);
         loadCompiledPDF(sectionId);
     }
 }
