@@ -91,40 +91,47 @@ def index(request):
             # User authenticated but no project selected
             context['needs_project_creation'] = True
     else:
-        # Anonymous user - use demo project pool
-        from apps.project_app.services.demo_project_pool import DemoProjectPool
+        # Anonymous user - allocate from visitor pool
+        from apps.project_app.services.visitor_pool import VisitorPool
 
-        demo_project, created = DemoProjectPool.get_or_create_demo_project(request.session)
+        visitor_project, visitor_user = VisitorPool.allocate_visitor(request.session)
+
+        if not visitor_project:
+            # Pool exhausted
+            context['pool_exhausted'] = True
+            context['is_demo'] = True
+            return render(request, 'writer_app/index.html', context)
+
+        created = False  # For compatibility with initialization logic
 
         context['is_demo'] = True
-        context['project'] = demo_project
+        context['project'] = visitor_project
 
-        # Get or create manuscript for demo project
+        # Get or create manuscript for visitor project
         manuscript, manuscript_created = Manuscript.objects.get_or_create(
-            project=demo_project,
-            owner=demo_project.owner,
+            project=visitor_project,
+            owner=visitor_project.owner,
             defaults={
-                'title': 'Demo Manuscript',
-                'description': 'Try out SciTeX Writer!'
+                'title': f'{visitor_project.name} Manuscript',
+                'description': 'Try out SciTeX Writer - sign up to save!'
             }
         )
         context['manuscript'] = manuscript
         context['manuscript_id'] = manuscript.id
 
-        # Initialize workspace with sample content if newly created
-        if created or manuscript_created:
-            logger.info(f"[DemoWriter] Initializing workspace for demo project {demo_project.id}")
-            _initialize_demo_writer_workspace(demo_project)
-            # Refresh manuscript to get updated writer_initialized status
+        # Initialize workspace if newly created
+        if manuscript_created:
+            logger.info(f"[VisitorWriter] Initializing workspace for {visitor_project.slug}")
+            _initialize_demo_writer_workspace(visitor_project)
             manuscript.refresh_from_db()
 
         context['writer_initialized'] = manuscript.writer_initialized
-        logger.info(f"[DemoWriter] Demo project {demo_project.id} writer_initialized={manuscript.writer_initialized}")
+        logger.info(f"[VisitorWriter] Project {visitor_project.slug} writer_initialized={manuscript.writer_initialized}")
 
         # Load section content if initialized
         if manuscript.writer_initialized:
             try:
-                service = WriterService(demo_project.id, demo_project.owner.id)
+                service = WriterService(visitor_project.id, visitor_project.owner.id)
                 sections = {}
                 for section_name in ['abstract', 'highlights', 'introduction', 'methods',
                                    'results', 'discussion', 'conclusion']:

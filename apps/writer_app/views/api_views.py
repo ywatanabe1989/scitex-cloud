@@ -15,7 +15,7 @@ from pathlib import Path
 from functools import wraps
 
 from apps.project_app.models import Project
-from apps.project_app.services.demo_project_pool import DemoProjectPool
+from apps.project_app.services.visitor_pool import VisitorPool
 from ..services.writer_service import WriterService
 from ..configs.sections_config import SECTION_HIERARCHY, get_all_sections_flat, get_sections_by_category
 from scitex import logging
@@ -40,17 +40,17 @@ def allow_demo_project(view_func):
             except Project.DoesNotExist:
                 return JsonResponse({"success": False, "error": "Project not found"}, status=404)
 
-        # Anonymous users: check if accessing their demo project
+        # Anonymous users: check if accessing their visitor project
         else:
-            demo_project_id = DemoProjectPool.get_demo_project_id(request.session)
+            visitor_project_id = session.get(VisitorPool.SESSION_KEY_PROJECT_ID)
 
-            if demo_project_id is None:
+            if visitor_project_id is None:
                 return JsonResponse({
                     "success": False,
                     "error": "Authentication required. Please sign up or log in."
                 }, status=401)
 
-            if int(project_id) != demo_project_id:
+            if int(project_id) != visitor_project_id:
                 return JsonResponse({
                     "success": False,
                     "error": "Access denied to this project."
@@ -166,12 +166,15 @@ def compile_preview_view(request, project_id):
         color_mode = data.get("color_mode", "light")
         section_name = data.get("section_name", "preview")  # For output filename
 
-        # Anonymous users: use demo project from pool
+        # Anonymous users: use visitor project from pool
         if not request.user.is_authenticated:
-            from apps.project_app.services.demo_project_pool import DemoProjectPool
-            demo_project, _ = DemoProjectPool.get_or_create_demo_project(request.session)
-            logger.info(f"[CompilePreview] Anonymous user: project_id={demo_project.id}, section={section_name}, content={len(content)} chars")
-            service = WriterService(demo_project.id, demo_project.owner.id)
+            visitor_project_id = request.session.get(VisitorPool.SESSION_KEY_PROJECT_ID)
+            if not visitor_project_id:
+                return JsonResponse({'success': False, 'error': 'No visitor project allocated'}, status=401)
+
+            visitor_project = Project.objects.get(id=visitor_project_id)
+            logger.info(f"[CompilePreview] Anonymous user: project_id={visitor_project.id}, section={section_name}, content={len(content)} chars")
+            service = WriterService(visitor_project.id, visitor_project.owner.id)
             result = service.compile_preview(content, timeout=timeout, color_mode=color_mode, section_name=section_name)
         else:
             # Authenticated users: use WriterService for proper workspace handling

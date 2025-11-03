@@ -680,7 +680,10 @@ coverage/
 
 ### Django Security ###
 # Environment variables and secrets
-# Note: deployment/dotenvs/dotenv.{dev,prod,example} are COMMITTED (no passwords)
+# IMPORTANT: All dotenv files should be gitignored to prevent secret leaks
+deployment/dotenvs/*
+!deployment/dotenvs/.gitkeep
+!deployment/dotenvs/README.md
 # Note: .env symlink at project root is NOT COMMITTED (gitignored above)
 *.key
 *.pem
