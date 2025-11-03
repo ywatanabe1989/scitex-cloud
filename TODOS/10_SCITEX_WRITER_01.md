@@ -1,11 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-11-03 16:13:56
-!-- Author: ywatanabe
-!-- File: /home/ywatanabe/proj/scitex-cloud/TODOS/10_SCITEX_WRITER_01.md
-!-- --- -->
-
-!-- Timestamp: 2025-11-03 08:31:00
-<!-- ---
+!-- Timestamp: 2025-11-03 16:24:13
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/TODOS/10_SCITEX_WRITER_01.md
 !-- --- -->
@@ -23,6 +17,8 @@
 - [ ] Each user's login info and cursor colors should be implemented
   - [ ] Collaborator
   - [ ] Guest Collaborator (only email auth; like for Professors who may not want to create an account)
+- [ ] Video Chat
+- [ ] Voice Chat
 
 <!-- ### Synergy with Scholar (skip this now, I will check)
  !-- - [ ] Auto-completion with monaco editor
