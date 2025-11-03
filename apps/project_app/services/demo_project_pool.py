@@ -1,45 +1,54 @@
 """
-Demo Project Pool Manager
+Visitor Pool Manager
 
-Manages temporary demo projects for anonymous users across all SciTeX apps.
+Manages pre-allocated visitor accounts and default projects for anonymous users.
 This is a shared infrastructure service used by Writer, Scholar, Code, etc.
 
-Each visitor gets their own isolated workspace that behaves identically to authenticated users.
+Architecture:
+- Pre-create visitor-001 to visitor-032 (fixed pool)
+- Each visitor gets default-project-XXX
+- Session-based allocation with locking
+- On signup: transfer project ownership (visitor → real user)
+- Reset visitor slots after deallocation
 """
 
 import logging
-import secrets
 from datetime import timedelta
 from typing import Optional, Tuple
 from django.utils import timezone
 from django.contrib.auth.models import User
+from django.db import transaction
 from apps.project_app.models import Project
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
 
-class DemoProjectPool:
+class VisitorPool:
     """
-    Manages a pool of demo projects for anonymous visitors across all SciTeX apps.
+    Manages a pool of pre-allocated visitor accounts for anonymous users.
 
     Features:
-    - Session-based allocation (each visitor gets isolated workspace)
-    - Automatic cleanup of expired projects
-    - Same code paths as authenticated users
-    - Reusable across Writer, Scholar, Code, and other apps
+    - Fixed pool size (visitor-001 to visitor-032)
+    - Session-based allocation with locking
+    - Project transfer on signup (visitor → user)
+    - Automatic slot reset after session expires
+    - Reusable across Writer, Scholar, Code apps
 
     Architecture:
-    - Each session gets one demo user + one demo project
-    - Apps (writer, scholar, etc.) use the same project infrastructure
-    - Cleanup happens automatically via management command
+    - Pre-allocated: 32 visitor accounts + default projects
+    - Allocation: Session gets free visitor slot
+    - Deallocation: Reset workspace, free slot
+    - Signup: Transfer ownership, free visitor slot
     """
 
-    DEMO_USER_PREFIX = "demo-visitor-"
-    DEMO_PROJECT_PREFIX = "demo-project-"
-    DEMO_PROJECT_LIFETIME_HOURS = 24  # Projects expire after 24 hours
-    SESSION_KEY_PROJECT_ID = 'demo_project_id'
-    SESSION_KEY_DEMO_USER_ID = 'demo_user_id'
+    VISITOR_USER_PREFIX = "visitor-"
+    DEFAULT_PROJECT_PREFIX = "default-project-"
+    POOL_SIZE = 32  # Fixed pool: visitor-001 to visitor-032
+    SESSION_LIFETIME_HOURS = 24
+    SESSION_KEY_PROJECT_ID = 'visitor_project_id'
+    SESSION_KEY_VISITOR_ID = 'visitor_user_id'
+    SESSION_KEY_ALLOCATION_TOKEN = 'visitor_allocation_token'
 
     @classmethod
     def get_or_create_demo_user(cls, session) -> User:
