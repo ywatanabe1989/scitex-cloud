@@ -12,6 +12,7 @@ import { setupEditorListeners, setupSectionListeners } from './writer-events.js'
 import { setupCompilationListeners } from './writer-compilation.js';
 import { setupThemeListener, setupKeybindingListener, setupSidebarButtons, showToast } from './writer-ui.js';
 import { setupPDFZoomControls } from './writer-pdf.js';
+import { clearCompileTimeout } from './writer-shared.js';
 
 /**
  * Wait for Monaco to load asynchronously
@@ -140,6 +141,10 @@ export async function populateSectionDropdownDirect(docType = 'manuscript', onFi
         // Add change event listener if not already attached
         if (!dropdown.dataset.listenerAttached) {
             dropdown.addEventListener('change', (e) => {
+                // IMMEDIATELY cancel any pending auto-compile before processing selection
+                console.log('[WriterInit] Dropdown changed - clearing auto-compile timeout');
+                clearCompileTimeout();
+
                 const target = e.target;
                 if (target.value && onFileSelectCallback) {
                     const sectionId = target.value;

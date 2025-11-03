@@ -4,6 +4,7 @@
  */
 import { getCsrfToken } from '@/utils/csrf.js';
 import { getWriterConfig } from './helpers.js';
+import { clearSaveTimeout, setSaveTimeout } from './writer-shared.js';
 
 /**
  * Show toast notification (utility)
@@ -13,17 +14,17 @@ function showToast(message, _type = 'info') {
     fn(message);
 }
 
-// Shared timeout for auto-save
-let saveTimeout;
-
 /**
  * Schedule auto-save
  */
 export function scheduleSave(_editor, sectionsManager, state) {
-    clearTimeout(saveTimeout);
-    saveTimeout = setTimeout(() => {
+    clearSaveTimeout();
+
+    const timeout = setTimeout(() => {
         saveSections(sectionsManager, state);
     }, 5000); // Auto-save after 5 seconds of inactivity
+
+    setSaveTimeout(timeout);
 }
 
 /**
