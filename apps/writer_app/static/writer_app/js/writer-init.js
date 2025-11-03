@@ -13,6 +13,7 @@ import { setupCompilationListeners } from './writer-compilation.js';
 import { setupThemeListener, setupKeybindingListener, setupSidebarButtons, showToast } from './writer-ui.js';
 import { setupPDFZoomControls } from './writer-pdf.js';
 import { clearCompileTimeout } from './writer-shared.js';
+import { registerCommands } from './writer-commands.js';
 
 /**
  * Wait for Monaco to load asynchronously
@@ -311,6 +312,12 @@ export async function initializeEditor(config) {
             theme: 'default',
             useMonaco: monacoReady
         });
+
+        // Register custom commands if Monaco is available
+        if (monacoReady && editor.monaco) {
+            registerCommands(editor.monaco);
+            console.log('[Writer] Custom commands registered');
+        }
     }
     catch (error) {
         console.error('[Writer] Failed to initialize enhanced editor, trying basic editor:', error);
