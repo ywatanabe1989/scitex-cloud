@@ -20,88 +20,25 @@ logger = logging.getLogger(__name__)
 
 
 def _initialize_demo_writer_workspace(project: Project):
-    """Initialize Writer workspace for demo project with sample content."""
+    """Initialize Writer workspace for demo project.
+
+    Ensures scitex.writer structure is created (01_manuscript/, etc.).
+    """
     try:
         service = WriterService(project.id, project.owner.id)
 
-        # Initialize workspace
-        service.initialize_workspace()
+        # Trigger Writer initialization - creates directory structure
+        writer = service.writer
 
-        # Write sample sections
-        sample_sections = {
-            'abstract': '''This is a demo abstract. You can edit this text and see live PDF preview.
-
-Sign up to save your work permanently and collaborate with others!
-
-Try using LaTeX commands like $E = mc^2$ for equations.''',
-
-            'highlights': r'''\item Interactive LaTeX editor with live PDF preview
-\item Real-time collaboration support
-\item Version control with git integration
-\item Automated compilation and error detection''',
-
-            'introduction': r'''This is the introduction section. LaTeX commands work here: $E = mc^2$
-
-You can write multiple paragraphs and use mathematical notation.
-
-\subsection{Background}
-SciTeX Writer provides a modern, collaborative environment for scientific writing.
-
-\subsection{Features}
-All the tools you need for academic publishing in one place.''',
-
-            'methods': r'''Describe your methodology here.
-
-\subsection{Data Collection}
-Explain how data was collected and processed.
-
-\subsection{Statistical Analysis}
-Describe analysis methods used.
-
-You can include equations:
-\begin{equation}
-\bar{x} = \frac{1}{n}\sum_{i=1}^{n} x_i
-\end{equation}''',
-
-            'results': r'''Present your results here.
-
-You can include figures and tables:
-\begin{equation}
-y = mx + b
-\end{equation}
-
-\subsection{Key Findings}
-Summarize the main results of your study.''',
-
-            'discussion': r'''Discuss your findings here and compare with existing literature.
-
-\subsection{Interpretation}
-How do these results relate to previous work?
-
-\subsection{Limitations}
-Acknowledge any limitations of the study.''',
-
-            'conclusion': r'''Summarize your key conclusions and suggest directions for future work.
-
-This demo shows the core features of SciTeX Writer. Sign up to:
-\begin{itemize}
-\item Save your work permanently
-\item Collaborate with co-authors in real-time
-\item Submit to journals directly
-\item Access advanced features
-\end{itemize}'''
-        }
-
-        for section_name, content in sample_sections.items():
-            try:
-                service.write_section(section_name, 'manuscript', content)
-            except Exception as e:
-                logger.warning(f"[DemoWriter] Could not write section {section_name}: {e}")
-
-        logger.info(f"[DemoWriter] Initialized content for project {project.id}")
+        # Verify the manuscript directory exists
+        manuscript_path = service.project_path / "01_manuscript"
+        if not manuscript_path.exists():
+            logger.warning(f"[DemoWriter] Manuscript directory not found, Writer may not have initialized properly")
+        else:
+            logger.info(f"[DemoWriter] Writer workspace initialized at {service.project_path}")
 
     except Exception as e:
-        logger.error(f"[DemoWriter] Failed to initialize workspace: {e}")
+        logger.error(f"[DemoWriter] Failed to initialize workspace: {e}", exc_info=True)
 
 
 def index(request):
