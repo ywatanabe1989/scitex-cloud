@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-11-03 13:37:52
+!-- Timestamp: 2025-11-03 13:55:17
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/TODOS/10_CHORES.md
 !-- --- -->
@@ -27,8 +27,10 @@
   - [ ] You might want to use rename.sh
 
 ## Global Header
-- [ ] Explore -> dropdown selector with 1. Your Repositories, 2. All Public Repositories
-- [ ] Scholar -> dropdown selector with 1. BibTeX Enrichment recommended badge, 2. Paper Search
+- [ ] All Public Repositories should not use GitHub Icon; it will be a legal problem
+- [ ] You can use scitex icon instead if the svg is appropriate resolution
+  - [ ] /home/ywatanabe/proj/scitex-cloud/static/images/vectorstock_38853699/vectorstock_38853699-navy-inverted.svg
+
 
 ##  This should be placed in appropriate place
 /home/ywatanabe/proj/scitex-cloud/templates/global_base_partials/codemirror_css.html
