@@ -107,10 +107,29 @@ class VisitorPool:
         Allocate a free visitor slot to the session.
 
         Uses database locking to prevent race conditions.
+        Falls back to DemoProjectPool if VisitorAllocation table not created yet.
 
         Returns:
             tuple: (Project, User) or (None, None) if pool exhausted
         """
+        # Check if VisitorAllocation table exists (migration may not have run yet)
+        try:
+            from django.db import connection
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "SELECT COUNT(*) FROM information_schema.tables WHERE table_name = 'project_app_visitorallocation'"
+                )
+                table_exists = cursor.fetchone()[0] > 0
+        except Exception:
+            table_exists = False
+
+        if not table_exists:
+            # Fallback to old DemoProjectPool until migration runs
+            logger.warning("[VisitorPool] VisitorAllocation table not found, using DemoProjectPool fallback")
+            from apps.project_app.services.demo_project_pool import DemoProjectPool
+            project, created = DemoProjectPool.get_or_create_demo_project(session)
+            return project, project.owner if project else None
+
         # Check if session already has allocation
         existing_token = session.get(cls.SESSION_KEY_ALLOCATION_TOKEN)
         if existing_token:
