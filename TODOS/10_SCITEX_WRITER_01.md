@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-11-03 16:07:10
+!-- Timestamp: 2025-11-03 16:13:56
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/TODOS/10_SCITEX_WRITER_01.md
 !-- --- -->
@@ -18,6 +18,11 @@
 - [ ] Implement keyboard shortcuts:
   - [ ] Toggle Comment Out | Text selection -> "C-;"
 
+
+### Real-Time, Multi-User Collaboration
+- [ ] Each user's login info and cursor colors should be implemented
+  - [ ] Collaborator
+  - [ ] Guest Collaborator (only email auth; like for Professors who may not want to create an account)
 
 <!-- ### Synergy with Scholar (skip this now, I will check)
  !-- - [ ] Auto-completion with monaco editor
@@ -44,11 +49,6 @@
  !-- │                   Alice, 2h ago     │
  !-- └─────────────────────────────────────┘
  !-- ``` -->
-
-<!-- ### Real-Time, Multi-User Collaboration (skip this now, I will check)
- !-- - [ ] Each user's login info and cursor colors should be implemented
- !--   - [ ] Collaborator
- !--   - [ ] Gues Collaborator (only email auth; like for Professors who may not want to create an account) -->
 
 <!-- ### AI Assistant (skip this now, I will check)
  !-- - [ ] Implement AI assistant
