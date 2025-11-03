@@ -186,8 +186,11 @@ def index(request):
         if created or manuscript_created:
             logger.info(f"[DemoWriter] Initializing workspace for demo project {demo_project.id}")
             _initialize_demo_writer_workspace(demo_project)
+            # Refresh manuscript to get updated writer_initialized status
+            manuscript.refresh_from_db()
 
         context['writer_initialized'] = manuscript.writer_initialized
+        logger.info(f"[DemoWriter] Demo project {demo_project.id} writer_initialized={manuscript.writer_initialized}")
 
         # Load section content if initialized
         if manuscript.writer_initialized:
