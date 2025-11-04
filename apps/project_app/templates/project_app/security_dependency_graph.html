@@ -1,0 +1,110 @@
+{% extends 'global_base.html' %}
+{% load static %}
+
+{% block title %}Dependency Graph - {{ project.name }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'project_app/css/project_app.css' %}">
+<link rel="stylesheet" href="{% static 'css/common/buttons.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="max-width: 1280px;">
+    {% include 'project_app/browse_partials/browse_header.html' %}
+    {% include 'project_app/browse_partials/browse_tabs.html' with active_tab='security' %}
+    {% include 'project_app/security_overview_partials/security_overview_tabs.html' with active_tab='dependencies' %}
+
+    <h2 class="mb-3">Dependencies</h2>
+
+    <div class="row mb-3">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h6>Total Dependencies</h6>
+                    <h3>{{ stats.total }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h6>Direct Dependencies</h6>
+                    <h3>{{ stats.direct }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-danger">
+                <div class="card-body">
+                    <h6>Vulnerable</h6>
+                    <h3 class="text-danger">{{ stats.vulnerable }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h6>Dev Dependencies</h6>
+                    <h3>{{ stats.dev }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Direct Dependencies</h5>
+        </div>
+        <div class="card-body p-0">
+            {% if dependencies %}
+            <table class="table table-sm mb-0">
+                <thead>
+                    <tr>
+                        <th>Package</th>
+                        <th>Version</th>
+                        <th>Type</th>
+                        <th>Vulnerabilities</th>
+                        <th>Last Scanned</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for dep in dependencies %}
+                    <tr>
+                        <td>
+                            <strong>{{ dep.package_name }}</strong>
+                            {% if dep.has_vulnerabilities %}
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="#cf222e">
+                                <path fill-rule="evenodd" d="M8.22 1.754a.25.25 0 00-.44 0L1.698 13.132a.25.25 0 00.22.368h12.164a.25.25 0 00.22-.368L8.22 1.754zm-1.763-.707c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0114.082 15H1.918a1.75 1.75 0 01-1.543-2.575L6.457 1.047zM9 11a1 1 0 11-2 0 1 1 0 012 0zm-.25-5.25a.75.75 0 00-1.5 0v2.5a.75.75 0 001.5 0v-2.5z"></path>
+                            </svg>
+                            {% endif %}
+                        </td>
+                        <td><code>{{ dep.version }}</code></td>
+                        <td>
+                            {% if dep.is_dev_dependency %}
+                            <span class="badge bg-secondary">Dev</span>
+                            {% else %}
+                            <span class="badge bg-primary">Production</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if dep.has_vulnerabilities %}
+                            <span class="text-danger">{{ dep.vulnerability_count }} found</span>
+                            {% else %}
+                            <span class="text-success">None known</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ dep.last_scanned|timesince }} ago</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="p-5 text-center text-muted">
+                <p>No dependencies found</p>
+                <p class="small">Run a security scan to analyze dependencies</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,8 +1,0 @@
-<!-- Breadcrumbs -->
-<nav aria-label="breadcrumb" style="margin-top: 1rem;">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{% url 'user_projects:detail' project.owner.username project.slug %}">{{ project.name }}</a></li>
-        <li class="breadcrumb-item"><a href="{% url 'user_projects:actions_list' project.owner.username project.slug %}">Actions</a></li>
-        <li class="breadcrumb-item active">{% if edit_mode %}Edit{% else %}New{% endif %} Workflow</li>
-    </ol>
-</nav>

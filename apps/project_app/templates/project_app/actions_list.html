@@ -1,0 +1,147 @@
+{% extends 'global_base.html' %}
+{% load static %}
+
+{% block title %}Actions - {{ project.name }} - SciTeX Cloud{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'project_app/css/project_app.css' %}">
+<link rel="stylesheet" href="{% static 'css/common/buttons.css' %}">
+
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="max-width: 1280px;">
+    {% include 'project_app/browse_partials/browse_header.html' %}
+    {% include 'project_app/browse_partials/browse_tabs.html' with active_tab='actions' %}
+
+    <!-- Actions Header -->
+    <div class="actions-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h1 class="actions-title">Actions</h1>
+            {% if project.can_edit %}
+            <a href="{% url 'user_projects:workflow_create' project.owner.username project.slug %}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> New workflow
+            </a>
+            {% endif %}
+        </div>
+
+        <!-- Statistics -->
+        <div class="actions-stats">
+            <div class="stat-item">
+                <div class="stat-value">{{ stats.total_workflows }}</div>
+                <div class="stat-label">Total workflows</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">{{ stats.enabled_workflows }}</div>
+                <div class="stat-label">Enabled</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">{{ stats.total_runs }}</div>
+                <div class="stat-label">Total runs</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">{{ stats.success_rate }}%</div>
+                <div class="stat-label">Success rate</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Workflows List -->
+    <div class="workflow-list">
+        <h2 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem;">Workflows</h2>
+
+        {% if workflows %}
+            {% for workflow in workflows %}
+            <div class="workflow-item">
+                <div class="workflow-header">
+                    <a href="{% url 'user_projects:workflow_detail' project.owner.username project.slug workflow.id %}" class="workflow-name">
+                        {{ workflow.name }}
+                    </a>
+                    <span class="workflow-status {% if workflow.enabled %}enabled{% else %}disabled{% endif %}">
+                        {% if workflow.enabled %}
+                            <i class="bi bi-check-circle-fill"></i> Enabled
+                        {% else %}
+                            <i class="bi bi-dash-circle"></i> Disabled
+                        {% endif %}
+                    </span>
+                </div>
+
+                <div class="workflow-meta">
+                    <span><i class="bi bi-play-circle"></i> {{ workflow.total_runs }} runs</span>
+                    <span><i class="bi bi-check-circle"></i> {{ workflow.successful_runs }} successful</span>
+                    {% if workflow.last_run_at %}
+                    <span><i class="bi bi-clock"></i> Last run {{ workflow.last_run_at|timesince }} ago</span>
+                    {% endif %}
+                </div>
+
+                <div class="workflow-triggers">
+                    {% for trigger in workflow.trigger_events %}
+                    <span class="trigger-badge">{{ trigger }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">
+                    <i class="bi bi-lightning-charge"></i>
+                </div>
+                <h3>No workflows yet</h3>
+                <p>Get started by creating your first workflow.</p>
+                {% if project.can_edit %}
+                <a href="{% url 'user_projects:workflow_create' project.owner.username project.slug %}" class="btn btn-primary">
+                    Create workflow
+                </a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Recent Runs -->
+    {% if recent_runs %}
+    <div class="recent-runs">
+        <h2 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem;">Recent runs</h2>
+
+        <table class="runs-table">
+            <thead>
+                <tr>
+                    <th>Status</th>
+                    <th>Workflow</th>
+                    <th>Event</th>
+                    <th>Branch</th>
+                    <th>Started</th>
+                    <th>Duration</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for run in recent_runs %}
+                <tr>
+                    <td>
+                        <a href="{% url 'user_projects:workflow_run_detail' project.owner.username project.slug run.id %}">
+                            <span class="run-status-icon {{ run.conclusion|default:run.status }}"></span>
+                            {{ run.conclusion|default:run.status|title }}
+                        </a>
+                    </td>
+                    <td>
+                        <a href="{% url 'user_projects:workflow_detail' project.owner.username project.slug run.workflow.id %}">
+                            {{ run.workflow.name }}
+                        </a>
+                    </td>
+                    <td>{{ run.trigger_event }}</td>
+                    <td><code>{{ run.branch|default:"-" }}</code></td>
+                    <td>{{ run.started_at|timesince }} ago</td>
+                    <td>
+                        {% if run.duration_seconds %}
+                            {{ run.duration_seconds }}s
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
