@@ -360,7 +360,11 @@ def discover_app_urls():
 
 # Reserved paths that should NOT be treated as usernames
 # Add these BEFORE the username pattern to prevent conflicts
-from apps.project_app.views import project_create
+from apps.project_app.views import (
+    project_create,
+    accept_invitation,
+    decline_invitation,
+)
 
 def get_reserved_paths():
     """
@@ -429,8 +433,8 @@ urlpatterns += [
     # /new - Create new project (GitHub-style)
     path("new/", project_create, name="project_create"),
     # Invitation accept/decline
-    path("invitations/<str:token>/accept/", lambda r, token: __import__('apps.project_app.base_views', fromlist=['accept_invitation']).accept_invitation(r, token), name="accept_invitation"),
-    path("invitations/<str:token>/decline/", lambda r, token: __import__('apps.project_app.base_views', fromlist=['decline_invitation']).decline_invitation(r, token), name="decline_invitation"),
+    path("invitations/<str:token>/accept/", accept_invitation, name="accept_invitation"),
+    path("invitations/<str:token>/decline/", decline_invitation, name="decline_invitation"),
 ]
 
 # GitHub-style username/project URLs (MUST be last to avoid conflicts)

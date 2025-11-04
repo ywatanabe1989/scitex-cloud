@@ -21,7 +21,7 @@
 <div class="timeline">
     {% for item in timeline %}
     <div class="timeline-item">
-        {% if item.__class__.__name__ == 'PullRequestComment' %}
+        {% if not item.event_type %}
         <!-- Comment -->
         <div class="timeline-icon bg-primary text-white">
             <i class="bi bi-chat"></i>
@@ -135,7 +135,7 @@
 {% endif %}
 
 <!-- Add comment form -->
-{% if user.is_authenticated and project.can_view user %}
+{% if user.is_authenticated and project.can_view %}
 <div class="mt-4">
     <h5>Leave a comment</h5>
     <form id="commentForm"
@@ -148,7 +148,7 @@
                 <i class="bi bi-chat"></i> Comment
             </button>
 
-            {% if not is_author and project.can_view user %}
+            {% if not is_author and project.can_view %}
             <div class="btn-group">
                 <button type="button" class="btn btn-success" onclick="submitReview('approved')">
                     <i class="bi bi-check-circle"></i> Approve
