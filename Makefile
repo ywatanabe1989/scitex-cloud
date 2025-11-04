@@ -226,8 +226,11 @@ start:
 restart: validate
 	@RUNNING=$$(docker ps --format '{{.Names}}' 2>/dev/null | grep -oE 'scitex-cloud-(dev|prod|nas)-' | sed 's/scitex-cloud-//' | sed 's/-//' | sort -u); \
 	if [ "$$RUNNING" != "$(ENV)" ]; then \
-		echo "$(RED)❌ $(ENV) is not running (active: $$RUNNING)$(NC)"; \
-		echo "$(YELLOW)   Use 'make ENV=$(ENV) start' to start it$(NC)"; \
+		echo "$(RED)❌ $(ENV) is not running ($$RUNNING is active)$(NC)"; \
+		echo "$(YELLOW)   Options:$(NC)"; \
+		echo "$(YELLOW)   • make env=$(ENV) start          # Start $(ENV) (stops $$RUNNING)$(NC)"; \
+		echo "$(YELLOW)   • make env=$(ENV) switch         # Clean switch to $(ENV)$(NC)"; \
+		echo "$(YELLOW)   • make env=$$RUNNING restart     # Restart current $$RUNNING$(NC)"; \
 		exit 1; \
 	fi
 	@echo "$(CYAN)🔄 Restarting $(ENV) environment...$(NC)"
@@ -237,8 +240,11 @@ restart: validate
 reload: validate
 	@RUNNING=$$(docker ps --format '{{.Names}}' 2>/dev/null | grep -oE 'scitex-cloud-(dev|prod|nas)-' | sed 's/scitex-cloud-//' | sed 's/-//' | sort -u); \
 	if [ "$$RUNNING" != "$(ENV)" ]; then \
-		echo "$(RED)❌ $(ENV) is not running (active: $$RUNNING)$(NC)"; \
-		echo "$(YELLOW)   Use 'make ENV=$(ENV) start' to start it$(NC)"; \
+		echo "$(RED)❌ $(ENV) is not running ($$RUNNING is active)$(NC)"; \
+		echo "$(YELLOW)   Options:$(NC)"; \
+		echo "$(YELLOW)   • make env=$(ENV) start          # Start $(ENV) (stops $$RUNNING)$(NC)"; \
+		echo "$(YELLOW)   • make env=$(ENV) switch         # Clean switch to $(ENV)$(NC)"; \
+		echo "$(YELLOW)   • make env=$$RUNNING reload      # Reload current $$RUNNING$(NC)"; \
 		exit 1; \
 	fi
 	@echo "$(CYAN)⚡ Quick reload (no scitex reinstall)...$(NC)"
