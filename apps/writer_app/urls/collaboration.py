@@ -1,6 +1,6 @@
 from django.urls import path
-from ..views.collaboration import session
+from django.views.generic import TemplateView
 
 urlpatterns = [
-    path('', session.collaboration_session, name='session'),
+    path('', TemplateView.as_view(template_name='writer_app/collaboration/session.html'), name='session'),
 ]

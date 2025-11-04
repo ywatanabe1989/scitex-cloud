@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-11-03 21:35:37 (ywatanabe)"
+# Timestamp: "2025-11-04 14:56:44 (ywatanabe)"
 # File: /home/ywatanabe/proj/scitex-cloud/config/settings/settings_shared.py
 # ----------------------------------------
 from __future__ import annotations
@@ -103,6 +103,7 @@ THIRD_PARTY_APPS = [
     "channels",
 ]
 
+# This installs all the apps (./apps/*_app)
 LOCAL_APPS = discover_local_apps()
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
