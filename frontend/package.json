@@ -7,12 +7,15 @@
     "build": "tsc",
     "build:watch": "tsc --watch",
     "build:writer": "tsc -p tsconfig.writer.json && rm -rf ../apps/writer_app/static/writer_app/js/apps ../apps/writer_app/static/writer_app/js/static",
+    "build:project": "tsc -p tsconfig.project.json && rm -rf ../apps/project_app/static/project_app/js/apps ../apps/project_app/static/project_app/js/static",
     "build:scholar": "tsc --rootDir static/ts/scholar --outDir apps/scholar_app/static/scholar_app/js",
+    "build:all": "npm run build:writer && npm run build:project",
     "type-check": "tsc --noEmit",
     "dev": "tsc --watch --pretty",
     "lint": "eslint static/ts/**/*.ts apps/**/static/**/ts/**/*.ts",
     "format": "prettier --write static/ts/**/*.ts apps/**/static/**/ts/**/*.ts",
-    "clean:writer": "rm -rf ../apps/writer_app/static/writer_app/js/apps ../apps/writer_app/static/writer_app/js/static"
+    "clean:writer": "rm -rf ../apps/writer_app/static/writer_app/js/apps ../apps/writer_app/static/writer_app/js/static",
+    "clean:project": "rm -rf ../apps/project_app/static/project_app/js/apps ../apps/project_app/static/project_app/js/static"
   },
   "dependencies": {},
   "devDependencies": {

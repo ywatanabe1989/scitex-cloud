@@ -363,7 +363,7 @@ def project_detail(request, username, slug):
         "is_watching": is_watching,
         "is_starred": is_starred,
     }
-    return render(request, "project_app/browse/project_root.html", context)
+    return render(request, "project_app/browse.html", context)
 
 
 @login_required
