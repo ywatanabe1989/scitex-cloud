@@ -19,15 +19,13 @@ echo "🔧 Development Environment"
 if [ -d "/scitex-code" ]; then
     # Check if scitex-code is a valid Python project
     if [ -f "/scitex-code/pyproject.toml" ] || [ -f "/scitex-code/setup.py" ]; then
-        # Check if scitex is already installed in editable mode
-        if pip show scitex 2>/dev/null | grep -q "Editable project location: /scitex-code"; then
+        # Check if scitex is already installed in editable mode from /scitex-code
+        if pip show -f scitex 2>/dev/null | grep -q "/scitex-code"; then
             echo -e "${GREEN}✅ Scitex already installed in editable mode${NC}"
-            verify_scitex_package
         else
-            echo -e "${CYAN}📦 Installing scitex from /scitex-code (editable mode)...${NC}"
             run_timed "Installing scitex (editable mode)" pip install --user -e /scitex-code
-            verify_scitex_package
         fi
+        verify_scitex_package
     else
         echo "⚠️  WARNING: /scitex-code exists but is not a valid Python package"
         echo "   (missing pyproject.toml or setup.py at root)"
