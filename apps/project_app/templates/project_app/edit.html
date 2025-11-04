@@ -12,7 +12,7 @@
 {% block content %}
 <div class="container-fluid">
     <!-- Breadcrumb -->
-    {% include 'project_app/partials/edit_breadcrumb.html' %}
+    {% include 'project_app/edit_partials/edit_breadcrumb.html' %}
 
     <h1>Edit Project</h1>
 
@@ -21,16 +21,16 @@
             {% csrf_token %}
 
             <!-- Name Field -->
-            {% include 'project_app/partials/edit_name_field.html' %}
+            {% include 'project_app/edit_partials/edit_name_field.html' %}
 
             <!-- Description Field -->
-            {% include 'project_app/partials/edit_description_field.html' %}
+            {% include 'project_app/edit_partials/edit_description_field.html' %}
 
             <!-- Source Code URL Field -->
-            {% include 'project_app/partials/edit_source_url_field.html' %}
+            {% include 'project_app/edit_partials/edit_source_url_field.html' %}
 
             <!-- Form Actions -->
-            {% include 'project_app/partials/edit_form_actions.html' %}
+            {% include 'project_app/edit_partials/edit_form_actions.html' %}
         </form>
     </div>
 </div>

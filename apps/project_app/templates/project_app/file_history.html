@@ -1,0 +1,74 @@
+{% extends "global_base.html" %}
+{% load static %}
+
+{% block title %}History for {{ file_name }} - {{ project.name }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'project_app/css/project_app.css' %}">
+<link rel="stylesheet" href="{% static 'css/common/buttons.css' %}">
+
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="max-width: 1280px;">
+    <!-- Repository Header with Breadcrumb -->
+    <div class="repo-header">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <a href="/{{ project.owner.username }}/" style="color: var(--color-accent-fg); text-decoration: none; font-weight: 400;">
+                {{ project.owner.username }}
+            </a>
+            <span style="color: var(--color-fg-muted);">/</span>
+            <a href="/{{ project.owner.username }}/{{ project.slug }}/" class="repo-title">
+                {{ project.name }}
+            </a>
+            {% for breadcrumb in breadcrumbs %}
+                {% if breadcrumb.name != project.name %}
+                    <span style="color: var(--color-fg-muted);">/</span>
+                    {% if breadcrumb.url %}
+                        <a href="{{ breadcrumb.url }}" style="color: var(--color-accent-fg); text-decoration: none;">
+                            {{ breadcrumb.name }}
+                        </a>
+                    {% else %}
+                        <span style="font-weight: 600; color: var(--color-fg-default);">{{ breadcrumb.name }}</span>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- History Header -->
+    {% include 'project_app/file_history_partials/file_history_header.html' %}
+
+    <!-- Filter Bar -->
+    {% include 'project_app/file_history_partials/file_history_filter_bar.html' %}
+
+    <!-- Commit List -->
+    {% if commits %}
+    <div class="commit-list">
+        {% for commit in commits %}
+        {% include 'project_app/file_history_partials/file_history_commit_item.html' %}
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% include 'project_app/file_history_partials/file_history_pagination.html' %}
+
+    {% else %}
+    <div class="empty-state">
+        <svg viewBox="0 0 16 16" fill="currentColor">
+            <path fill-rule="evenodd" d="M1.643 3.143L.427 1.927A.25.25 0 000 2.104V5.75c0 .138.112.25.25.25h3.646a.25.25 0 00.177-.427L2.715 4.215a6.5 6.5 0 11-1.18 4.458.75.75 0 10-1.493.154 8.001 8.001 0 101.6-5.684zM7.75 4a.75.75 0 01.75.75v2.992l2.028.812a.75.75 0 01-.557 1.392l-2.5-1A.75.75 0 017 8.25v-3.5A.75.75 0 017.75 4z"></path>
+        </svg>
+        <h3>No commits found</h3>
+        <p>This file has no commit history{% if author_filter %} for {{ author_filter }}{% endif %}.</p>
+        {% if author_filter %}
+        <a href="?page=1" class="btn btn-primary">View all commits</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'project_app/js/file_history.js' %}"></script>
+{% endblock %}

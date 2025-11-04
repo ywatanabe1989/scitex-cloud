@@ -34,7 +34,7 @@
 
     <div class="settings-layout">
         <!-- Left Navigation -->
-        {% include 'project_app/partials/settings_navigation.html' %}
+        {% include 'project_app/settings_partials/settings_navigation.html' %}
 
         <!-- Main Content -->
         <main class="settings-main">
@@ -43,30 +43,30 @@
 
                 <!-- General Settings -->
                 <div class="settings-section-wrapper" id="section-general" style="display: block;">
-                    {% include 'project_app/partials/settings_general.html' %}
+                    {% include 'project_app/settings_partials/settings_general.html' %}
                 </div>
 
                 <!-- Access & Visibility -->
                 <div class="settings-section-wrapper" id="section-access" style="display: none;">
-                    {% include 'project_app/partials/settings_visibility.html' %}
+                    {% include 'project_app/settings_partials/settings_visibility.html' %}
                 </div>
 
                 <!-- Collaborators -->
                 <div class="settings-section-wrapper" id="section-collaborators" style="display: none;">
-                    {% include 'project_app/partials/settings_collaborators.html' %}
+                    {% include 'project_app/settings_partials/settings_collaborators.html' %}
                 </div>
             </form>
 
             <!-- Danger Zone -->
             <div class="settings-section-wrapper" id="section-danger" style="display: none;">
-                {% include 'project_app/partials/settings_danger_zone.html' %}
+                {% include 'project_app/settings_partials/settings_danger_zone.html' %}
             </div>
         </main>
     </div>
 </div>
 
 <!-- Delete Modal -->
-{% include 'project_app/partials/settings_delete_modal.html' %}
+{% include 'project_app/settings_partials/settings_delete_modal.html' %}
 {% endblock %}
 
 {% block extra_js %}

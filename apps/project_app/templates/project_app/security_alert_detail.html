@@ -1,0 +1,93 @@
+{% extends 'global_base.html' %}
+{% load static %}
+
+{% block title %}{{ alert.title }} - Security - {{ project.name }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'project_app/css/project_app.css' %}">
+<link rel="stylesheet" href="{% static 'css/common/buttons.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="max-width: 1280px;"
+     data-alert-dismiss-url="{% url 'user_projects:api_dismiss_alert' project.owner.username project.slug alert.id %}"
+     data-alert-reopen-url="{% url 'user_projects:api_reopen_alert' project.owner.username project.slug alert.id %}">
+    {% include 'project_app/browse_partials/browse_header.html' %}
+    {% include 'project_app/browse_partials/browse_tabs.html' with active_tab='security' %}
+
+    <a href="{% url 'user_projects:security_alerts' project.owner.username project.slug %}" class="btn btn-sm btn-outline-secondary mb-3">← Back to alerts</a>
+
+    <div class="card">
+        <div class="card-header">
+            <h3>
+                {{ alert.title }}
+                <span class="badge bg-{{ alert.get_severity_badge_class }} ms-2">{{ alert.get_severity_display }}</span>
+                <span class="badge bg-secondary ms-1">{{ alert.get_alert_type_display }}</span>
+            </h3>
+        </div>
+        <div class="card-body">
+            <div class="mb-4">
+                <h5>Description</h5>
+                <p>{{ alert.description }}</p>
+            </div>
+
+            {% if alert.affected_package %}
+            <div class="mb-4">
+                <h5>Affected Package</h5>
+                <p><strong>{{ alert.affected_package }}</strong> version <code>{{ alert.affected_version }}</code></p>
+                {% if alert.fixed_version %}
+                <p class="text-success">Fixed in version: <code>{{ alert.fixed_version }}</code></p>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            {% if alert.cve_id %}
+            <div class="mb-4">
+                <h5>CVE ID</h5>
+                <p><a href="https://nvd.nist.gov/vuln/detail/{{ alert.cve_id }}" target="_blank">{{ alert.cve_id }}</a></p>
+            </div>
+            {% endif %}
+
+            {% if alert.file_path %}
+            <div class="mb-4">
+                <h5>Location</h5>
+                <p>File: <code>{{ alert.file_path }}</code>{% if alert.line_number %} (Line {{ alert.line_number }}){% endif %}</p>
+            </div>
+            {% endif %}
+
+            <div class="mb-4">
+                <h5>Status</h5>
+                <p>
+                    {% if alert.status == 'open' %}
+                        <span class="badge bg-danger">Open</span>
+                    {% elif alert.status == 'fixed' %}
+                        <span class="badge bg-success">Fixed</span>
+                    {% elif alert.status == 'dismissed' %}
+                        <span class="badge bg-secondary">Dismissed</span>
+                        {% if alert.dismissed_reason %}
+                        <p class="mt-2">Reason: {{ alert.dismissed_reason }}</p>
+                        {% endif %}
+                    {% endif %}
+                </p>
+            </div>
+
+            {% if project.can_edit user %}
+            <div class="mt-4">
+                {% if alert.status == 'open' %}
+                <button class="btn btn-warning" onclick="dismissAlert()">Dismiss Alert</button>
+                {% if alert.fix_available %}
+                <button class="btn btn-primary" onclick="createFixPR()">Create Fix PR</button>
+                {% endif %}
+                {% elif alert.status == 'dismissed' %}
+                <button class="btn btn-primary" onclick="reopenAlert()">Reopen Alert</button>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'project_app/js/security_alert_detail.js' %}"></script>
+{% endblock %}
