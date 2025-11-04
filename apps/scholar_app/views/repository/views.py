@@ -24,7 +24,7 @@ from ...models import (
     Repository, RepositoryConnection, Dataset, DatasetFile, 
     DatasetVersion, RepositorySync
 )
-from ...services.repository_services import (
+from ...services.repository import (
     RepositoryServiceFactory, RepositoryServiceError,
     sync_dataset_with_repository, upload_dataset_to_repository
 )
