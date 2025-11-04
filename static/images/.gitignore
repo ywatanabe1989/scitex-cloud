@@ -1,0 +1,27 @@
+# Archive files - keep locally for reference, but don't commit
+*.zip
+*.tar
+*.tar.gz
+*.rar
+
+# Backup/temporary files
+*~
+*.tmp
+.~*
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+.directory
+
+# Editor swap files
+.*.swp
+.*.swo
+*#
+
+# Old/deprecated images
+.old/
+
+# Environment files
+.env
+.env.local

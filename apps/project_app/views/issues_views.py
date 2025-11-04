@@ -167,7 +167,7 @@ def issues_list(request, username, slug):
         'current_branch': current_branch,
     }
 
-    return render(request, 'project_app/issues/issues_list.html', context)
+    return render(request, 'project_app/issues_list.html', context)
 
 
 # =============================================================================
@@ -219,7 +219,7 @@ def issue_detail(request, username, slug, issue_number):
         'can_comment': issue.can_comment(request.user),
     }
 
-    return render(request, 'project_app/issues/issue_detail.html', context)
+    return render(request, 'project_app/issues_detail.html', context)
 
 
 # =============================================================================
@@ -313,7 +313,7 @@ def issue_create(request, username, slug):
         'assignable_users': assignable_users,
     }
 
-    return render(request, 'project_app/issues/issue_form.html', context)
+    return render(request, 'project_app/issues_form.html', context)
 
 
 # =============================================================================
@@ -367,7 +367,7 @@ def issue_edit(request, username, slug, issue_number):
         'edit_mode': True,
     }
 
-    return render(request, 'project_app/issues/issue_form.html', context)
+    return render(request, 'project_app/issues_form.html', context)
 
 
 # =============================================================================
@@ -482,7 +482,7 @@ def issue_label_manage(request, username, slug):
         'labels': labels,
     }
 
-    return render(request, 'project_app/issues/label_manage.html', context)
+    return render(request, 'project_app/issues_label_manage.html', context)
 
 
 # =============================================================================
@@ -592,4 +592,4 @@ def issue_milestone_manage(request, username, slug):
         'milestones': milestones,
     }
 
-    return render(request, 'project_app/issues/milestone_manage.html', context)
+    return render(request, 'project_app/issues_milestone_manage.html', context)

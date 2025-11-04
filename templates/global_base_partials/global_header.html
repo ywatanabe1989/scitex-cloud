@@ -6,7 +6,7 @@
     <div class="header-left">
       <!-- Logo -->
       <a href="{% if user.is_authenticated %}/{{ user.username }}/{% else %}/{% endif %}" class="header-logo" data-tooltip="Go to your repositories">
-        <img src="{% static 'images/scitex-logo-cropped.png' %}" alt="SciTeX" class="header-logo-img">
+        <img src="{% static 'images/scitex_logos/scitex-logo-cropped.png' %}" alt="SciTeX" class="header-logo-img">
       </a>
 
       <!-- Primary Navigation -->
@@ -14,7 +14,7 @@
         <!-- Explore Module with Dropdown -->
         <div class="header-dropdown-group">
           <button id="explore-dropdown-toggle" class="header-nav-item header-dropdown-toggle {% if 'explore' in request.path %}active{% endif %}" data-tooltip="Browse repositories and projects">
-            <img src="{% static 'images/scitex-explore-icon.svg' %}" alt="" class="nav-icon">
+            <img src="{% static 'images/icons_svg/scitex-explore-icon.svg' %}" alt="" class="nav-icon">
             <span class="nav-label">Explore</span>
           </button>
 
@@ -40,7 +40,7 @@
             {% endif %}
 
             <a href="/social/explore/" class="nav-dropdown-item">
-              <img src="{% static 'images/vectorstock_38853699/vectorstock_38853699-navy-inverted.svg' %}" alt="" style="width: 16px; height: 16px; margin-right: 8px; opacity: 0.85;">
+              <img src="{% static 'images/scitex_logos/vectorstock/vectorstock_38853699-navy-inverted.svg' %}" alt="" style="width: 16px; height: 16px; margin-right: 8px; opacity: 0.85;">
               <span>All Public Repositories</span>
             </a>
           </div>
@@ -55,7 +55,7 @@
         <!-- Scholar Module with Dropdown -->
         <div class="header-dropdown-group">
           <button id="scholar-dropdown-toggle" class="header-nav-item header-dropdown-toggle {% if 'scholar' in request.path %}active{% endif %}" data-tooltip="Scholar module">
-            <img src="{% static 'images/scitex-scholar-icon.svg' %}" alt="" class="nav-icon">
+            <img src="{% static 'images/icons_svg/scitex-scholar-icon.svg' %}" alt="" class="nav-icon">
             <span class="nav-label">Scholar</span>
           </button>
 
@@ -79,18 +79,18 @@
         </div>
         <span class="header-nav-item header-nav-item-disabled"
               data-tooltip="Code module coming soon">
-          <img src="{% static 'images/scitex-code-icon.svg' %}" alt="" class="nav-icon">
+          <img src="{% static 'images/icons_svg/scitex-code-icon.svg' %}" alt="" class="nav-icon">
           <span class="nav-label">Code</span>
         </span>
         <span class="header-nav-item header-nav-item-disabled"
               data-tooltip="Viz module coming soon">
-          <img src="{% static 'images/scitex-viz-icon.svg' %}" alt="" class="nav-icon">
+          <img src="{% static 'images/icons_svg/scitex-viz-icon.svg' %}" alt="" class="nav-icon">
           <span class="nav-label">Viz</span>
         </span>
         <a href="/writer/"
            class="header-nav-item {% if 'writer' in request.path %}active{% endif %}"
            data-tooltip="Manuscript writing">
-          <img src="{% static 'images/scitex-writer-icon.svg' %}" alt="" class="nav-icon">
+          <img src="{% static 'images/icons_svg/scitex-writer-icon.svg' %}" alt="" class="nav-icon">
           <span class="nav-label">Writer</span>
         </a>
       </nav>
@@ -200,7 +200,7 @@
     <!-- Center: Search -->
     <div class="header-center">
       <div class="header-search">
-        <img src="{% static 'images/scitex-search-icon.svg' %}" alt="" class="header-search-icon">
+        <img src="{% static 'images/icons_svg/scitex-search-icon.svg' %}" alt="" class="header-search-icon">
         <input type="text" placeholder="Search repositories, users..." id="global-search" autocomplete="off">
       </div>
     </div>
@@ -312,7 +312,7 @@
 
             <!-- Support & Community -->
             <a href="https://github.com/SciTeX-AI" class="dropdown-item" target="_blank">
-              <img src="{% static 'images/vectorstock_38853699/vectorstock_38853699-navy-inverted.svg' %}" alt="" style="display: inline-block; vertical-align: text-bottom; margin-right: 8px; width: 16px; height: 16px; opacity: 0.85;">
+              <img src="{% static 'images/scitex_logos/vectorstock/vectorstock_38853699-navy-inverted.svg' %}" alt="" style="display: inline-block; vertical-align: text-bottom; margin-right: 8px; width: 16px; height: 16px; opacity: 0.85;">
               GitHub
             </a>
             <a href="{% url 'public_app:donate' %}" class="dropdown-item">
