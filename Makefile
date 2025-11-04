@@ -17,7 +17,7 @@
 #   make ENV=prod switch           # Switch to prod
 #   make ENV=prod rebuild          # Rebuild prod (with confirmation)
 
-.PHONY: help status validate-docker validate switch stop-all start restart reload stop down logs ps migrate shell force-stop-all ssl-setup ssl-verify ssl-check ssl-renew verify-health list-envs exec-web exec-db exec-gitea gitea-token recreate-testuser build-ts collectstatic
+.PHONY: help status validate-docker validate switch stop-all start restart reload stop down logs ps migrate shell force-stop-all ssl-setup ssl-verify ssl-check ssl-renew verify-health list-envs exec-web exec-db exec-gitea gitea-token recreate-testuser build-ts collectstatic makemigrations createsuperuser db-shell db-backup db-reset logs-web logs-db logs-gitea build rebuild setup test clean-python info
 .DEFAULT_GOAL := help
 
 # ============================================
@@ -123,8 +123,9 @@ help:
 	@echo "  make ENV=nas rebuild              # Rebuild NAS environment"
 	@echo ""
 	@echo "$(CYAN)🔧 Utilities:$(NC)"
-	@echo "  make exec-web                     # Shell into web container"
-	@echo "  make list-envs                    # List environment variables in container"
+	@echo "  make ENV=<env> exec-web           # Shell into web container"
+	@echo "  make ENV=<env> exec-db            # Shell into database container"
+	@echo "  make ENV=<env> list-envs          # List environment variables"
 	@echo ""
 	@echo "$(CYAN)🔒 SSL/HTTPS (prod only):$(NC)"
 	@echo "  make ENV=prod ssl-verify          # Verify HTTPS is working"
@@ -368,8 +369,8 @@ exec-gitea: validate
 	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile exec-gitea 2>/dev/null || echo "$(YELLOW)Gitea not available in $(ENV)$(NC)"
 
 list-envs: validate
-	@echo "$(CYAN)🔍 Listing environment variables ($(ENV))...$(NC)"
-	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile list-envs
+	@echo "$(CYAN)🔍 Environment variables in $(ENV):$(NC)"
+	@docker exec scitex-cloud-$(ENV)-web-1 env | sort
 
 # ============================================
 # Dev-Only Commands
