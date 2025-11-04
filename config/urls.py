@@ -439,8 +439,9 @@ urlpatterns += [
 
 # GitHub-style username/project URLs (MUST be last to avoid conflicts)
 # This pattern catches both regular users and guest-<sessionid>
+# Now using feature-based URL organization from apps.project_app.urls
 urlpatterns += [
-    path("<str:username>/", include("apps.project_app.user_urls")),
+    path("<str:username>/", include("apps.project_app.urls")),
 ]
 
 # Custom error handlers

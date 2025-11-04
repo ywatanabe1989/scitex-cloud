@@ -4,65 +4,60 @@
  * This file imports all modular CSS files in the correct order.
  * Import order matters for CSS specificity!
  *
- * Structure:
- * 1. Variables (CSS custom properties)
- * 2. Common/base styles
- * 3. Components (reusable UI elements)
- * 4. Pages (page-specific styles)
- * 5. Feature modules (filer, commits, users, etc.)
+ * Structure (FULLSTACK.md compliant):
+ * 1. Shared (variables, common, components)
+ * 2. Feature modules (repository, pull_requests, issues, security, workflows, projects, users, actions)
  */
 
 
-/* VARIABLES */
-@import url("variables.css");
+/* SHARED - Variables and Common Styles */
+@import url("shared/variables.css");
+@import url("shared/common.css");
 
-/* BASE */
-@import url("common.css");
+/* SHARED - Components */
+@import url("shared/buttons.css");
+@import url("shared/badges.css");
+@import url("shared/cards.css");
+@import url("shared/tables.css");
+@import url("shared/forms.css");
+@import url("shared/icons.css");
+@import url("shared/sidebar.css");
+@import url("shared/file-tree.css");
 
-/* COMPONENTS */
-@import url("components/buttons.css");
-@import url("components/badges.css");
-@import url("components/cards.css");
-@import url("components/tables.css");
-@import url("components/forms.css");
-@import url("components/icons.css");
-@import url("components/sidebar.css");
-@import url("components/file-tree.css");
+/* REPOSITORY FEATURE */
+@import url("repository/browse.css");
+@import url("repository/file_view.css");
+@import url("repository/file_edit.css");
+@import url("repository/file_history.css");
+@import url("repository/commit_detail.css");
+@import url("repository/file_browser.css");
 
-/* PAGES */
-@import url("pages/list.css");
-@import url("pages/detail.css");  /* Consolidated from detail.css + detail-extra.css */
-@import url("pages/create.css");
-@import url("pages/edit.css");
-@import url("pages/delete.css");
-@import url("pages/settings.css");
+/* PULL REQUESTS FEATURE */
+@import url("pull_requests/list.css");
+@import url("pull_requests/detail.css");
 
-/* FILER */
-@import url("filer/browser.css");
-@import url("filer/view.css");
-@import url("filer/edit.css");
-@import url("filer/history.css");
-
-/* COMMITS */
-@import url("commits/detail.css");
-
-/* USERS */
-@import url("users/bio.css");
-@import url("users/profile.css");
-
-/* ISSUES */
+/* ISSUES FEATURE */
 @import url("issues/list.css");
 @import url("issues/detail.css");
 
-/* PULL_REQUESTS */
-@import url("pull_requests/pr-list.css");
-@import url("pull_requests/pr-detail.css");
+/* SECURITY FEATURE */
+@import url("security/overview.css");
 
-/* ACTIONS */
+/* WORKFLOWS FEATURE */
+@import url("workflows/detail.css");
+@import url("workflows/editor.css");
+@import url("workflows/run_detail.css");
+
+/* PROJECTS FEATURE */
+@import url("projects/list.css");
+@import url("projects/create.css");
+@import url("projects/edit.css");
+@import url("projects/delete.css");
+@import url("projects/settings.css");
+
+/* USERS FEATURE */
+@import url("users/bio.css");
+@import url("users/profile.css");
+
+/* ACTIONS FEATURE */
 @import url("actions/list.css");
-@import url("actions/workflow-detail.css");
-@import url("actions/workflow-editor.css");
-@import url("actions/workflow-run-detail.css");
-
-/* SECURITY */
-@import url("security/security.css");

@@ -179,7 +179,7 @@ def project_settings(request, username, slug):
     context = {
         "project": project,
     }
-    return render(request, "project_app/settings.html", context)
+    return render(request, "project_app/projects/settings.html", context)
 
 
 # EOF

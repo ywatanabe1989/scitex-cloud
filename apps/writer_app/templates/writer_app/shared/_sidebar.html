@@ -1,0 +1,40 @@
+{% comment %}
+Shared sidebar partial for Writer app
+{% endcomment %}
+
+<aside class="writer-sidebar">
+    <nav class="sidebar-nav">
+        <ul class="nav-list">
+            <li class="nav-item">
+                <a href="{% url 'writer_app:editor' %}" class="nav-link">
+                    <i class="icon-edit"></i>
+                    <span>Editor</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'writer_app:compilation' %}" class="nav-link">
+                    <i class="icon-compile"></i>
+                    <span>Compilations</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'writer_app:version_control' %}" class="nav-link">
+                    <i class="icon-git"></i>
+                    <span>Version Control</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'writer_app:arxiv_list' %}" class="nav-link">
+                    <i class="icon-arxiv"></i>
+                    <span>arXiv</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'writer_app:collaboration' %}" class="nav-link">
+                    <i class="icon-users"></i>
+                    <span>Collaboration</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</aside>

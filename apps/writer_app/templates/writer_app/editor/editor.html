@@ -1,0 +1,64 @@
+{% extends "writer_app/base/app_base.html" %}
+{% load static %}
+
+{% comment %}
+Main editor template for SciTeX Writer
+Provides modular LaTeX editing interface with live preview
+{% endcomment %}
+
+{% block writer_css %}
+<link rel="stylesheet" href="{% static 'writer_app/css/editor/editor.css' %}">
+<link rel="stylesheet" href="{% static 'writer_app/css/editor/codemirror_styling.css' %}">
+{% endblock %}
+
+{% block writer_sidebar %}
+{% include "writer_app/shared/_sidebar.html" %}
+{% endblock %}
+
+{% block writer_content %}
+<div class="editor-container">
+    {% include "writer_app/shared/_toolbar.html" %}
+
+    <div class="editor-main">
+        <div class="editor-panel" id="editor-panel">
+            <div class="section-tabs">
+                <button class="tab-btn active" data-section="abstract">Abstract</button>
+                <button class="tab-btn" data-section="introduction">Introduction</button>
+                <button class="tab-btn" data-section="methods">Methods</button>
+                <button class="tab-btn" data-section="results">Results</button>
+                <button class="tab-btn" data-section="discussion">Discussion</button>
+                <button class="tab-btn" data-section="conclusion">Conclusion</button>
+            </div>
+
+            <div class="editor-content">
+                <textarea id="latex-editor" class="latex-editor">
+                    {% if sections.abstract %}{{ sections.abstract }}{% endif %}
+                </textarea>
+            </div>
+        </div>
+
+        <div class="preview-panel" id="preview-panel">
+            <div class="preview-toolbar">
+                <h3>PDF Preview</h3>
+                <button class="btn-refresh" id="btn-refresh-preview">Refresh</button>
+            </div>
+
+            <div class="pdf-viewer" id="pdf-viewer">
+                <p class="preview-message">Compile to see preview</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block writer_js %}
+<script src="{% static 'writer_app/js/editor/editor.js' %}"></script>
+<script>
+    // Initialize editor
+    const editorApp = new EditorApp({
+        projectId: {{ project.id|default:"null" }},
+        sections: {{ sections|safe }},
+        writerInitialized: {{ writer_initialized|lower }}
+    });
+</script>
+{% endblock %}

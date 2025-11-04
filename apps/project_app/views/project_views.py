@@ -127,7 +127,7 @@ def user_project_list(request, username):
         # Note: 'user' is automatically available as request.user in templates
         # Don't override it here - it should always be the logged-in user
     }
-    return render(request, "project_app/user_projects.html", context)
+    return render(request, "project_app/users/user_projects.html", context)
 
 
 def user_bio_page(request, username):
@@ -155,7 +155,7 @@ def user_bio_page(request, username):
         "total_projects": Project.objects.filter(owner=user).count(),
     }
 
-    return render(request, "project_app/user_bio.html", context)
+    return render(request, "project_app/users/user_bio.html", context)
 
 
 @project_access_required
@@ -363,7 +363,7 @@ def project_detail(request, username, slug):
         "is_watching": is_watching,
         "is_starred": is_starred,
     }
-    return render(request, "project_app/browse.html", context)
+    return render(request, "project_app/repository/browse.html", context)
 
 
 @login_required
@@ -398,7 +398,7 @@ def project_create(request):
             except ImportError:
                 available_templates = []
             context = {"available_templates": available_templates}
-            return render(request, "project_app/create.html", context)
+            return render(request, "project_app/projects/create.html", context)
 
         # Validate repository name
         is_valid, error_message = Project.validate_repository_name(name)
@@ -418,7 +418,7 @@ def project_create(request):
                 "init_type": init_type,
                 "git_url": git_url,
             }
-            return render(request, "project_app/create.html", context)
+            return render(request, "project_app/projects/create.html", context)
 
         # Check if name already exists for this user
         if Project.objects.filter(name=name, owner=request.user).exists():
@@ -438,7 +438,7 @@ def project_create(request):
                 "name": name,
                 "description": description,
             }
-            return render(request, "project_app/create.html", context)
+            return render(request, "project_app/projects/create.html", context)
 
         # Generate slug from name
         base_slug = slugify(name)
@@ -475,7 +475,7 @@ def project_create(request):
                         "description": description,
                         "init_type": init_type,
                     }
-                    return render(request, "project_app/create.html", context)
+                    return render(request, "project_app/projects/create.html", context)
             except GiteaAPIError:
                 # Repository doesn't exist in Gitea - this is good, proceed with creation
                 pass
@@ -736,7 +736,7 @@ def project_create(request):
         ]
 
     context = {"available_templates": available_templates}
-    return render(request, "project_app/create.html", context)
+    return render(request, "project_app/projects/create.html", context)
 
 
 @login_required
@@ -805,7 +805,7 @@ def project_edit(request, username, slug):
         )
 
     context = {"project": project}
-    return render(request, "project_app/edit.html", context)
+    return render(request, "project_app/projects/edit.html", context)
 
 
 @login_required
@@ -845,7 +845,7 @@ def project_delete(request, username, slug):
         return redirect("project_app:list")
 
     context = {"project": project}
-    return render(request, "project_app/delete.html", context)
+    return render(request, "project_app/projects/delete.html", context)
 
 
 @login_required
@@ -904,7 +904,7 @@ def user_overview(request, username):
         "is_following": is_following,
         "active_tab": "overview",
     }
-    return render(request, "project_app/user_overview.html", context)
+    return render(request, "project_app/users/user_overview.html", context)
 
 
 def user_projects_board(request, username):
@@ -931,7 +931,7 @@ def user_projects_board(request, username):
         "is_following": is_following,
         "active_tab": "projects",
     }
-    return render(request, "project_app/user_board.html", context)
+    return render(request, "project_app/users/user_board.html", context)
 
 
 def user_stars(request, username):
@@ -971,7 +971,7 @@ def user_stars(request, username):
         "is_following": is_following,
         "active_tab": "stars",
     }
-    return render(request, "project_app/user_stars.html", context)
+    return render(request, "project_app/users/user_stars.html", context)
 
 
 # EOF

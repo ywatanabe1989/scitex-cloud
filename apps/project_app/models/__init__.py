@@ -8,16 +8,20 @@ Following Django organization best practices:
 - Existing imports like `from apps.project_app.models import Project` continue to work
 """
 
-# Core models (Project, ProjectMembership, ProjectPermission, VisitorAllocation)
-from .core import (
+# Repository models (Project, ProjectMembership - split from core)
+from .repository import (
     Project,
     ProjectMembership,
+)
+
+# Core models (ProjectPermission, VisitorAllocation)
+from .core import (
     ProjectPermission,
     VisitorAllocation,
 )
 
 # Collaboration models (Watch, Star, Fork, Invitation)
-from .collaboration import (
+from .projects import (
     ProjectWatch,
     ProjectStar,
     ProjectFork,
@@ -44,12 +48,14 @@ from .pull_requests import (
     PullRequestEvent,
 )
 
-# Actions models (CI/CD workflows)
-from .actions import (
+# Workflow models (CI/CD workflows)
+from .workflows import (
     Workflow,
     WorkflowRun,
     WorkflowJob,
     WorkflowStep,
+    WorkflowSecret,
+    WorkflowArtifact,
 )
 
 # Explicit exports for clarity
@@ -78,9 +84,11 @@ __all__ = [
     'PullRequestCommit',
     'PullRequestLabel',
     'PullRequestEvent',
-    # Actions models
+    # Workflow models
     'Workflow',
     'WorkflowRun',
     'WorkflowJob',
     'WorkflowStep',
+    'WorkflowSecret',
+    'WorkflowArtifact',
 ]
