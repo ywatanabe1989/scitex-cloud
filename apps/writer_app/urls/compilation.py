@@ -1,6 +1,6 @@
 from django.urls import path
-from ..views.compilation import compilation
+from django.views.generic import TemplateView
 
 urlpatterns = [
-    path('', compilation.compilation_view, name='compilation_view'),
+    path('', TemplateView.as_view(template_name='writer_app/compilation/compilation_view.html'), name='compilation_view'),
 ]
