@@ -3,6 +3,7 @@
 # Editor models
 from .editor.document import Manuscript
 from .editor.section import ManuscriptSection
+from .editor.references import Citation, Figure, Table
 
 # Compilation models
 from .compilation.compilation import CompilationJob, AIAssistanceLog
@@ -28,13 +29,13 @@ from .arxiv.submission import (
 # Collaboration models
 from .collaboration.session import WriterPresence, CollaborativeSession
 
-# Legacy models (TODO: move to proper feature dirs)
-from .core_old import Citation, Figure, Table
-
 __all__ = [
     # Editor
     'Manuscript',
     'ManuscriptSection',
+    'Citation',
+    'Figure',
+    'Table',
     # Compilation
     'CompilationJob',
     'AIAssistanceLog',
@@ -53,8 +54,4 @@ __all__ = [
     # Collaboration
     'WriterPresence',
     'CollaborativeSession',
-    # Legacy (TODO: refactor)
-    'Citation',
-    'Figure',
-    'Table',
 ]
