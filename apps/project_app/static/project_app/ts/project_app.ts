@@ -1,7 +1,7 @@
 /**
- * project_app.js - Consolidated JavaScript for project_app
+ * project_app.ts - Consolidated TypeScript for project_app
  *
- * This file contains all JavaScript functionality previously scattered across
+ * This file contains all TypeScript functionality previously scattered across
  * inline <script> blocks in various templates.
  *
  * Organization:
@@ -14,6 +14,9 @@
  * 7. User Profile (from user_project_list.html)
  * 8. Utility Functions
  */
+
+(function() {
+    'use strict';
 
 // =============================================================================
 // 1. SIDEBAR MANAGEMENT
@@ -165,11 +168,11 @@ function buildTreeHTML(items, username, slug, level = 0) {
 /**
  * Toggle folder expansion in file tree
  */
-function toggleFolder(folderId) {
+function toggleFolder(folderId: string): boolean {
     const folder = document.getElementById(folderId);
-    if (!folder) return;
+    if (!folder) return false;
 
-    const chevron = event.target;
+    const chevron = (event as Event).target as HTMLElement;
 
     if (folder.classList.contains('expanded')) {
         folder.classList.remove('expanded');
@@ -179,8 +182,9 @@ function toggleFolder(folderId) {
         chevron.classList.add('expanded');
     }
 
-    event.stopPropagation();
-    event.preventDefault();
+    (event as Event).stopPropagation();
+    (event as Event).preventDefault();
+    return false;
 }
 
 // =============================================================================
@@ -243,9 +247,9 @@ async function loadProjectStats() {
 /**
  * Handle watch button click
  */
-async function handleWatch(event) {
-    const btn = event.currentTarget;
-    const pathParts = window.location.pathname.split('/').filter(x => x);
+async function handleWatch(event: Event) {
+    const btn = (event.currentTarget as HTMLElement);
+    const pathParts = window.location.pathname.split('/').filter((x: string) => x);
     if (pathParts.length < 2) return;
 
     const username = pathParts[0];
@@ -287,9 +291,9 @@ async function handleWatch(event) {
 /**
  * Handle star button click
  */
-async function handleStar(event) {
-    const btn = event.currentTarget;
-    const pathParts = window.location.pathname.split('/').filter(x => x);
+async function handleStar(event: Event) {
+    const btn = (event.currentTarget as HTMLElement);
+    const pathParts = window.location.pathname.split('/').filter((x: string) => x);
     if (pathParts.length < 2) return;
 
     const username = pathParts[0];
@@ -331,17 +335,17 @@ async function handleStar(event) {
 /**
  * Handle fork button click
  */
-async function handleFork(event) {
+async function handleFork(event: Event) {
     if (!confirm('Fork this repository? This will create a copy under your account.')) {
         return;
     }
 
-    const btn = event.currentTarget;
+    const btn = (event.currentTarget as HTMLButtonElement);
     const originalText = btn.innerHTML;
     btn.disabled = true;
     btn.innerHTML = '<span>Forking...</span>';
 
-    const pathParts = window.location.pathname.split('/').filter(x => x);
+    const pathParts = window.location.pathname.split('/').filter((x: string) => x);
     if (pathParts.length < 2) return;
 
     const username = pathParts[0];
@@ -402,11 +406,11 @@ function initProjectCreateForm() {
     let isNameAvailable = false;
 
     // Real-time name availability checking
-    nameInput.addEventListener('input', function() {
+    nameInput.addEventListener('input', function(this: HTMLInputElement) {
         const name = this.value.trim();
-        const availabilityDiv = document.getElementById('name-availability');
-        const availabilityIcon = document.getElementById('availability-icon');
-        const availabilityMessage = document.getElementById('availability-message');
+        const availabilityDiv = document.getElementById('name-availability') as HTMLElement | null;
+        const availabilityIcon = document.getElementById('availability-icon') as HTMLElement | null;
+        const availabilityMessage = document.getElementById('availability-message') as HTMLElement | null;
 
         clearTimeout(nameCheckTimeout);
 
@@ -414,18 +418,18 @@ function initProjectCreateForm() {
             if (availabilityDiv) availabilityDiv.style.display = 'none';
             isNameAvailable = false;
             if (submitButton) {
-                submitButton.disabled = true;
-                submitButton.style.opacity = '0.5';
-                submitButton.style.cursor = 'not-allowed';
+                (submitButton as HTMLButtonElement).disabled = true;
+                (submitButton as HTMLElement).style.opacity = '0.5';
+                (submitButton as HTMLElement).style.cursor = 'not-allowed';
             }
             return;
         }
 
         isNameAvailable = false;
         if (submitButton) {
-            submitButton.disabled = true;
-            submitButton.style.opacity = '0.5';
-            submitButton.style.cursor = 'not-allowed';
+            (submitButton as HTMLButtonElement).disabled = true;
+            (submitButton as HTMLElement).style.opacity = '0.5';
+            (submitButton as HTMLElement).style.cursor = 'not-allowed';
         }
 
         if (availabilityDiv) {
@@ -450,9 +454,9 @@ function initProjectCreateForm() {
                         availabilityMessage.style.color = '#28a745';
                     }
                     if (submitButton) {
-                        submitButton.disabled = false;
-                        submitButton.style.opacity = '1';
-                        submitButton.style.cursor = 'pointer';
+                        (submitButton as HTMLButtonElement).disabled = false;
+                        (submitButton as HTMLElement).style.opacity = '1';
+                        (submitButton as HTMLElement).style.cursor = 'pointer';
                     }
                 } else {
                     isNameAvailable = false;
@@ -462,9 +466,9 @@ function initProjectCreateForm() {
                         availabilityMessage.style.color = '#dc3545';
                     }
                     if (submitButton) {
-                        submitButton.disabled = true;
-                        submitButton.style.opacity = '0.5';
-                        submitButton.style.cursor = 'not-allowed';
+                        (submitButton as HTMLButtonElement).disabled = true;
+                        (submitButton as HTMLElement).style.opacity = '0.5';
+                        (submitButton as HTMLElement).style.cursor = 'not-allowed';
                     }
                 }
             } catch (error) {
@@ -477,7 +481,7 @@ function initProjectCreateForm() {
     // Prevent form submission if name is not available
     if (form) {
         form.addEventListener('submit', function(e) {
-            const name = nameInput.value.trim();
+            const name = (nameInput as HTMLInputElement).value.trim();
             if (!name) {
                 e.preventDefault();
                 alert('Please enter a project name');
@@ -493,12 +497,12 @@ function initProjectCreateForm() {
 
     // Handle initialization type selection
     initTypeRadios.forEach(radio => {
-        radio.addEventListener('change', function() {
-            if (githubUrlInput) githubUrlInput.style.display = 'none';
+        radio.addEventListener('change', function(this: HTMLInputElement) {
+            if (githubUrlInput) (githubUrlInput as HTMLElement).style.display = 'none';
 
             if (this.value === 'github') {
                 if (githubUrlInput && githubUrlField) {
-                    githubUrlInput.style.display = 'block';
+                    (githubUrlInput as HTMLElement).style.display = 'block';
                     githubUrlField.setAttribute('required', 'required');
                 }
             } else {
@@ -509,12 +513,12 @@ function initProjectCreateForm() {
 
     // Auto-fill name from Git URL
     if (githubUrlField) {
-        githubUrlField.addEventListener('blur', function() {
+        githubUrlField.addEventListener('blur', function(this: HTMLInputElement) {
             const url = this.value.trim();
-            if (url && !nameInput.value.trim()) {
+            if (url && !(nameInput as HTMLInputElement).value.trim()) {
                 const repoName = extractRepoNameFromUrl(url);
                 if (repoName) {
-                    nameInput.value = repoName;
+                    (nameInput as HTMLInputElement).value = repoName;
                     nameInput.dispatchEvent(new Event('input'));
                 }
             }
@@ -525,8 +529,8 @@ function initProjectCreateForm() {
     nameInput.setAttribute('readonly', 'readonly');
 
     const clearAutofill = function() {
-        if (nameInput.value && nameInput.matches(':-webkit-autofill')) {
-            nameInput.value = '';
+        if ((nameInput as HTMLInputElement).value && nameInput.matches(':-webkit-autofill')) {
+            (nameInput as HTMLInputElement).value = '';
         }
     };
 
@@ -566,9 +570,10 @@ function extractRepoNameFromUrl(url) {
 function initProjectSettingsForm() {
     // Radio button selection visual feedback
     document.querySelectorAll('.radio-option input[type="radio"]').forEach(radio => {
-        radio.addEventListener('change', function() {
+        radio.addEventListener('change', function(this: HTMLInputElement) {
             document.querySelectorAll('.radio-option').forEach(opt => opt.classList.remove('selected'));
-            this.closest('.radio-option').classList.add('selected');
+            const closestOption = this.closest('.radio-option');
+            if (closestOption) closestOption.classList.add('selected');
         });
     });
 
@@ -579,14 +584,14 @@ function initProjectSettingsForm() {
 
     if (deleteModal && deleteConfirmInput && deleteConfirmButton) {
         // Check delete input
-        deleteConfirmInput.addEventListener('input', function() {
+        deleteConfirmInput.addEventListener('input', function(this: HTMLInputElement) {
             const expectedValue = this.getAttribute('data-expected-value') || '';
             if (this.value === expectedValue) {
-                deleteConfirmButton.disabled = false;
-                deleteConfirmButton.style.opacity = '1';
+                (deleteConfirmButton as HTMLButtonElement).disabled = false;
+                (deleteConfirmButton as HTMLElement).style.opacity = '1';
             } else {
-                deleteConfirmButton.disabled = true;
-                deleteConfirmButton.style.opacity = '0.5';
+                (deleteConfirmButton as HTMLButtonElement).disabled = true;
+                (deleteConfirmButton as HTMLElement).style.opacity = '0.5';
             }
         });
     }
@@ -605,11 +610,11 @@ function initProjectSettingsForm() {
 
     if (addCollaboratorBtn && collaboratorUsername && addBtnText) {
         addCollaboratorBtn.addEventListener('click', function(e) {
-            const username = collaboratorUsername.value.trim();
+            const username = (collaboratorUsername as HTMLInputElement).value.trim();
             if (username) {
                 addBtnText.textContent = 'Adding...';
-                addCollaboratorBtn.disabled = true;
-                addCollaboratorBtn.style.opacity = '0.7';
+                (addCollaboratorBtn as HTMLButtonElement).disabled = true;
+                (addCollaboratorBtn as HTMLElement).style.opacity = '0.7';
                 console.log('Adding collaborator:', username);
             } else {
                 e.preventDefault();
@@ -618,10 +623,10 @@ function initProjectSettingsForm() {
         });
 
         collaboratorUsername.addEventListener('input', function() {
-            if (addCollaboratorBtn.disabled) {
+            if ((addCollaboratorBtn as HTMLButtonElement).disabled) {
                 addBtnText.textContent = 'Add collaborator';
-                addCollaboratorBtn.disabled = false;
-                addCollaboratorBtn.style.opacity = '1';
+                (addCollaboratorBtn as HTMLButtonElement).disabled = false;
+                (addCollaboratorBtn as HTMLElement).style.opacity = '1';
             }
         });
     }
@@ -633,11 +638,11 @@ function initProjectSettingsForm() {
 function showDeleteModal() {
     const modal = document.getElementById('deleteModal');
     if (modal) {
-        modal.style.display = 'flex';
+        (modal as HTMLElement).style.display = 'flex';
         const deleteConfirmInput = document.getElementById('deleteConfirmInput');
         const deleteConfirmButton = document.getElementById('deleteConfirmButton');
-        if (deleteConfirmInput) deleteConfirmInput.value = '';
-        if (deleteConfirmButton) deleteConfirmButton.disabled = true;
+        if (deleteConfirmInput) (deleteConfirmInput as HTMLInputElement).value = '';
+        if (deleteConfirmButton) (deleteConfirmButton as HTMLButtonElement).disabled = true;
     }
 }
 
@@ -647,7 +652,7 @@ function showDeleteModal() {
 function hideDeleteModal() {
     const modal = document.getElementById('deleteModal');
     if (modal) {
-        modal.style.display = 'none';
+        (modal as HTMLElement).style.display = 'none';
     }
 }
 
@@ -662,7 +667,8 @@ function submitDelete() {
     const csrfInput = document.createElement('input');
     csrfInput.type = 'hidden';
     csrfInput.name = 'csrfmiddlewaretoken';
-    csrfInput.value = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]') as HTMLInputElement;
+    csrfInput.value = csrfToken ? csrfToken.value : '';
 
     const actionInput = document.createElement('input');
     actionInput.type = 'hidden';
@@ -686,15 +692,15 @@ function initProjectDeleteForm() {
 
     const expectedText = deleteBtn.getAttribute('data-expected-text') || '';
 
-    confirmText.addEventListener('input', function() {
+    confirmText.addEventListener('input', function(this: HTMLInputElement) {
         if (this.value === expectedText) {
-            deleteBtn.disabled = false;
-            deleteBtn.style.opacity = '1';
-            deleteBtn.style.cursor = 'pointer';
+            (deleteBtn as HTMLButtonElement).disabled = false;
+            (deleteBtn as HTMLElement).style.opacity = '1';
+            (deleteBtn as HTMLElement).style.cursor = 'pointer';
         } else {
-            deleteBtn.disabled = true;
-            deleteBtn.style.opacity = '0.5';
-            deleteBtn.style.cursor = 'not-allowed';
+            (deleteBtn as HTMLButtonElement).disabled = true;
+            (deleteBtn as HTMLElement).style.opacity = '0.5';
+            (deleteBtn as HTMLElement).style.cursor = 'not-allowed';
         }
     });
 }
@@ -706,9 +712,10 @@ function initProjectDeleteForm() {
 /**
  * Handle file upload
  */
-function handleFileUpload(event) {
-    const files = event.target.files;
-    if (files.length > 0) {
+function handleFileUpload(event: Event) {
+    const target = event.target as HTMLInputElement;
+    const files = target.files;
+    if (files && files.length > 0) {
         alert(`Selected ${files.length} file(s) for upload. Upload functionality to be implemented.`);
     }
 }
@@ -716,7 +723,7 @@ function handleFileUpload(event) {
 /**
  * Create new folder
  */
-function createFolder() {
+function createFolder(): void {
     const folderName = prompt('Enter folder name:');
     if (folderName && folderName.trim()) {
         alert(`Creating folder: ${folderName}`);
@@ -726,14 +733,14 @@ function createFolder() {
 /**
  * Refresh files list
  */
-function refreshFiles() {
+function refreshFiles(): void {
     location.reload();
 }
 
 /**
  * Open file or folder
  */
-function openFile(fileName) {
+function openFile(fileName: string) {
     alert(`Opening: ${fileName}`);
 }
 
@@ -741,15 +748,15 @@ function openFile(fileName) {
  * Copy file content to clipboard
  */
 function copyToClipboard() {
-    const content = document.querySelector('.file-content')?.innerText ||
-                   document.querySelector('.markdown-body')?.innerText || '';
+    const content = (document.querySelector('.file-content') as HTMLElement)?.innerText ||
+                   (document.querySelector('.markdown-body') as HTMLElement)?.innerText || '';
 
     navigator.clipboard.writeText(content).then(() => {
-        const btn = event.target;
+        const btn = (event as Event).target as HTMLElement;
         const originalText = btn.innerHTML;
         btn.innerHTML = '✓ Copied!';
         setTimeout(() => { btn.innerHTML = originalText; }, 2000);
-    }).catch(err => {
+    }).catch((err: Error) => {
         alert('Failed to copy: ' + err);
     });
 }
@@ -757,15 +764,15 @@ function copyToClipboard() {
 /**
  * Show markdown code view
  */
-function showCode() {
+function showCode(): void {
     const preview = document.getElementById('markdownPreview');
     const code = document.getElementById('markdownCode');
     const codeBtn = document.getElementById('codeBtn');
     const previewBtn = document.getElementById('previewBtn');
 
     if (preview && code && codeBtn && previewBtn) {
-        preview.style.display = 'none';
-        code.style.display = 'block';
+        (preview as HTMLElement).style.display = 'none';
+        (code as HTMLElement).style.display = 'block';
         codeBtn.classList.add('active');
         previewBtn.classList.remove('active');
     }
@@ -774,15 +781,15 @@ function showCode() {
 /**
  * Show markdown preview
  */
-function showPreview() {
+function showPreview(): void {
     const preview = document.getElementById('markdownPreview');
     const code = document.getElementById('markdownCode');
     const codeBtn = document.getElementById('codeBtn');
     const previewBtn = document.getElementById('previewBtn');
 
     if (preview && code && codeBtn && previewBtn) {
-        preview.style.display = 'block';
-        code.style.display = 'none';
+        (preview as HTMLElement).style.display = 'block';
+        (code as HTMLElement).style.display = 'none';
         codeBtn.classList.remove('active');
         previewBtn.classList.add('active');
     }
@@ -791,15 +798,15 @@ function showPreview() {
 /**
  * Show markdown edit view (for file editor)
  */
-function showEdit() {
+function showEdit(): void {
     const textarea = document.getElementById('editorTextarea');
     const previewContainer = document.getElementById('previewContainer');
     const editBtn = document.getElementById('editBtn');
     const previewBtn = document.getElementById('previewBtn');
 
     if (textarea && previewContainer && editBtn && previewBtn) {
-        textarea.style.display = 'block';
-        previewContainer.style.display = 'none';
+        (textarea as HTMLElement).style.display = 'block';
+        (previewContainer as HTMLElement).style.display = 'none';
         editBtn.classList.add('active');
         previewBtn.classList.remove('active');
     }
@@ -819,7 +826,7 @@ async function copyProjectToClipboard() {
 
     const originalText = btn.innerHTML;
     btn.innerHTML = '⏳ Loading...';
-    btn.disabled = true;
+    (btn as HTMLButtonElement).disabled = true;
 
     const pathParts = window.location.pathname.split('/').filter(x => x);
     if (pathParts.length < 2) return;
@@ -839,17 +846,17 @@ async function copyProjectToClipboard() {
             btn.innerHTML = `✓ Copied ${data.file_count} files!`;
             setTimeout(() => {
                 btn.innerHTML = originalText;
-                btn.disabled = false;
+                (btn as HTMLButtonElement).disabled = false;
             }, 3000);
         } else {
             alert('Error: ' + data.error);
             btn.innerHTML = originalText;
-            btn.disabled = false;
+            (btn as HTMLButtonElement).disabled = false;
         }
     } catch (err) {
         alert('Failed to copy: ' + err);
         btn.innerHTML = originalText;
-        btn.disabled = false;
+        (btn as HTMLButtonElement).disabled = false;
     }
 }
 
@@ -857,11 +864,11 @@ async function copyProjectToClipboard() {
  * Download project/directory content as file
  */
 async function downloadProjectAsFile() {
-    const btn = event.target;
+    const btn = (event as Event).target as HTMLElement;
     const originalText = btn.innerHTML;
     btn.innerHTML = '⏳ Preparing download...';
 
-    const pathParts = window.location.pathname.split('/').filter(x => x);
+    const pathParts = window.location.pathname.split('/').filter((x: string) => x);
     if (pathParts.length < 2) return;
 
     const username = pathParts[0];
@@ -903,7 +910,7 @@ async function downloadProjectAsFile() {
 /**
  * Toggle branch dropdown
  */
-function toggleBranchDropdown(event) {
+function toggleBranchDropdown(event?: Event) {
     if (event) event.stopPropagation();
     const dropdown = document.getElementById('branchDropdown');
     if (dropdown) {
@@ -914,10 +921,10 @@ function toggleBranchDropdown(event) {
 /**
  * Switch to different Git branch
  */
-async function switchBranch(branch) {
+async function switchBranch(branch: string) {
     console.log('Switching to branch:', branch);
 
-    const pathParts = window.location.pathname.split('/').filter(x => x);
+    const pathParts = window.location.pathname.split('/').filter((x: string) => x);
     if (pathParts.length < 2) return;
 
     const username = pathParts[0];
@@ -949,45 +956,45 @@ async function switchBranch(branch) {
 /**
  * Toggle dropdown menus
  */
-function toggleAddFileDropdown() {
+function toggleAddFileDropdown(): void {
     const dropdown = document.getElementById('add-file-dropdown');
     if (dropdown) {
-        const isVisible = dropdown.style.display === 'block';
+        const isVisible = (dropdown as HTMLElement).style.display === 'block';
         closeAllDropdowns();
-        dropdown.style.display = isVisible ? 'none' : 'block';
+        (dropdown as HTMLElement).style.display = isVisible ? 'none' : 'block';
     }
 }
 
-function toggleCopyDropdown() {
+function toggleCopyDropdown(): void {
     const dropdown = document.getElementById('copy-dropdown');
     if (dropdown) {
-        const isVisible = dropdown.style.display === 'block';
+        const isVisible = (dropdown as HTMLElement).style.display === 'block';
         closeAllDropdowns();
-        dropdown.style.display = isVisible ? 'none' : 'block';
+        (dropdown as HTMLElement).style.display = isVisible ? 'none' : 'block';
     }
 }
 
-function toggleCodeDropdown() {
+function toggleCodeDropdown(): void {
     const dropdown = document.getElementById('code-dropdown');
     if (dropdown) {
-        const isVisible = dropdown.style.display === 'block';
+        const isVisible = (dropdown as HTMLElement).style.display === 'block';
         closeAllDropdowns();
-        dropdown.style.display = isVisible ? 'none' : 'block';
+        (dropdown as HTMLElement).style.display = isVisible ? 'none' : 'block';
     }
 }
 
-function toggleMoreDropdown() {
+function toggleMoreDropdown(): void {
     const dropdown = document.getElementById('more-dropdown');
     if (dropdown) {
-        const isVisible = dropdown.style.display === 'block';
+        const isVisible = (dropdown as HTMLElement).style.display === 'block';
         closeAllDropdowns();
-        dropdown.style.display = isVisible ? 'none' : 'block';
+        (dropdown as HTMLElement).style.display = isVisible ? 'none' : 'block';
     }
 }
 
-function closeAllDropdowns() {
+function closeAllDropdowns(): void {
     document.querySelectorAll('.dropdown-menu, .file-browser-toolbar .dropdown-menu').forEach(dropdown => {
-        dropdown.style.display = 'none';
+        (dropdown as HTMLElement).style.display = 'none';
     });
 }
 
@@ -1003,17 +1010,18 @@ function initRepoSearch() {
     if (!searchInput) return;
 
     searchInput.addEventListener('input', function(e) {
-        const searchTerm = e.target.value.toLowerCase();
+        const target = e.target as HTMLInputElement;
+        const searchTerm = target.value.toLowerCase();
         const repoItems = document.querySelectorAll('.repo-item');
 
         repoItems.forEach(item => {
-            const repoName = item.querySelector('.repo-name')?.textContent.toLowerCase() || '';
-            const repoDesc = item.querySelector('.repo-description')?.textContent.toLowerCase() || '';
+            const repoName = item.querySelector('.repo-name')?.textContent?.toLowerCase() || '';
+            const repoDesc = item.querySelector('.repo-description')?.textContent?.toLowerCase() || '';
 
             if (repoName.includes(searchTerm) || repoDesc.includes(searchTerm)) {
-                item.style.display = '';
+                (item as HTMLElement).style.display = '';
             } else {
-                item.style.display = 'none';
+                (item as HTMLElement).style.display = 'none';
             }
         });
     });
@@ -1068,7 +1076,7 @@ async function toggleFollow() {
 /**
  * Toggle star/unstar for repository
  */
-async function toggleStar(btn) {
+async function toggleStar(btn: HTMLButtonElement) {
     const isStarred = btn.innerHTML.includes('Unstar');
     const username = btn.dataset.username;
     const slug = btn.dataset.slug;
@@ -1120,8 +1128,8 @@ async function toggleStar(btn) {
 /**
  * Get CSRF token from cookies
  */
-function getCookie(name) {
-    let cookieValue = null;
+function getCookie(name: string): string | null {
+    let cookieValue: string | null = null;
     if (document.cookie && document.cookie !== '') {
         const cookies = document.cookie.split(';');
         for (let i = 0; i < cookies.length; i++) {
@@ -1138,7 +1146,7 @@ function getCookie(name) {
 /**
  * Show notification message
  */
-function showNotification(message, type = 'info') {
+function showNotification(message: string, type: string = 'info'): void {
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
     notification.textContent = message;
@@ -1170,8 +1178,9 @@ function showNotification(message, type = 'info') {
 function initClickableRows() {
     const clickableRows = document.querySelectorAll('.clickable-row, .file-browser-row');
     clickableRows.forEach(row => {
-        row.addEventListener('click', function(e) {
-            if (e.target.tagName === 'A' || e.target.closest('a')) {
+        row.addEventListener('click', function(this: HTMLElement, e: Event) {
+            const target = e.target as HTMLElement;
+            if (target.tagName === 'A' || target.closest('a')) {
                 return;
             }
             const href = this.getAttribute('data-href');
@@ -1189,28 +1198,28 @@ function initDragAndDrop() {
     const uploadZone = document.getElementById('upload-zone');
     if (!uploadZone) return;
 
-    uploadZone.addEventListener('dragover', (e) => {
+    uploadZone.addEventListener('dragover', (e: DragEvent) => {
         e.preventDefault();
         uploadZone.classList.add('dragover');
     });
 
-    uploadZone.addEventListener('dragleave', (e) => {
+    uploadZone.addEventListener('dragleave', (e: DragEvent) => {
         e.preventDefault();
         uploadZone.classList.remove('dragover');
     });
 
-    uploadZone.addEventListener('drop', (e) => {
+    uploadZone.addEventListener('drop', (e: DragEvent) => {
         e.preventDefault();
         uploadZone.classList.remove('dragover');
 
-        const files = e.dataTransfer.files;
-        if (files.length > 0) {
+        const files = e.dataTransfer?.files;
+        if (files && files.length > 0) {
             alert(`Dropped ${files.length} file(s). Upload functionality to be implemented.`);
         }
     });
 
     uploadZone.addEventListener('click', () => {
-        const fileInput = document.getElementById('file-upload');
+        const fileInput = document.getElementById('file-upload') as HTMLInputElement;
         if (fileInput) fileInput.click();
     });
 }
@@ -1257,19 +1266,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Close dropdowns when clicking outside
     document.addEventListener('click', function(e) {
-        if (!e.target.closest('.btn-group') && !e.target.closest('.file-browser-toolbar .btn-group')) {
+        const target = e.target as HTMLElement;
+        if (!target.closest('.btn-group') && !target.closest('.file-browser-toolbar .btn-group')) {
             closeAllDropdowns();
         }
 
         // Close branch dropdown
         const branchDropdown = document.getElementById('branchDropdown');
         const branchSelector = document.querySelector('.branch-selector');
-        if (branchDropdown && branchSelector && !branchSelector.contains(e.target)) {
+        if (branchDropdown && branchSelector && !branchSelector.contains(target)) {
             branchDropdown.classList.remove('show');
         }
     });
 
-    console.log('project_app.js: Initialization complete');
+    console.log('project_app.ts: Initialization complete');
 });
 
 // =============================================================================
@@ -1277,29 +1287,31 @@ document.addEventListener('DOMContentLoaded', function() {
 // =============================================================================
 
 // Make key functions available globally for inline onclick handlers
-window.toggleSidebarSection = toggleSidebarSection;
-window.toggleFolder = toggleFolder;
-window.handleWatch = handleWatch;
-window.handleStar = handleStar;
-window.handleFork = handleFork;
-window.showDeleteModal = showDeleteModal;
-window.hideDeleteModal = hideDeleteModal;
-window.submitDelete = submitDelete;
-window.copyToClipboard = copyToClipboard;
-window.showCode = showCode;
-window.showPreview = showPreview;
-window.showEdit = showEdit;
-window.copyProjectToClipboard = copyProjectToClipboard;
-window.downloadProjectAsFile = downloadProjectAsFile;
-window.toggleBranchDropdown = toggleBranchDropdown;
-window.switchBranch = switchBranch;
-window.toggleAddFileDropdown = toggleAddFileDropdown;
-window.toggleCopyDropdown = toggleCopyDropdown;
-window.toggleCodeDropdown = toggleCodeDropdown;
-window.toggleMoreDropdown = toggleMoreDropdown;
-window.toggleFollow = toggleFollow;
-window.toggleStar = toggleStar;
-window.handleFileUpload = handleFileUpload;
-window.createFolder = createFolder;
-window.refreshFiles = refreshFiles;
-window.openFile = openFile;
+(window as any).toggleSidebarSection = toggleSidebarSection;
+(window as any).toggleFolder = toggleFolder;
+(window as any).handleWatch = handleWatch;
+(window as any).handleStar = handleStar;
+(window as any).handleFork = handleFork;
+(window as any).showDeleteModal = showDeleteModal;
+(window as any).hideDeleteModal = hideDeleteModal;
+(window as any).submitDelete = submitDelete;
+(window as any).copyToClipboard = copyToClipboard;
+(window as any).showCode = showCode;
+(window as any).showPreview = showPreview;
+(window as any).showEdit = showEdit;
+(window as any).copyProjectToClipboard = copyProjectToClipboard;
+(window as any).downloadProjectAsFile = downloadProjectAsFile;
+(window as any).toggleBranchDropdown = toggleBranchDropdown;
+(window as any).switchBranch = switchBranch;
+(window as any).toggleAddFileDropdown = toggleAddFileDropdown;
+(window as any).toggleCopyDropdown = toggleCopyDropdown;
+(window as any).toggleCodeDropdown = toggleCodeDropdown;
+(window as any).toggleMoreDropdown = toggleMoreDropdown;
+(window as any).toggleFollow = toggleFollow;
+(window as any).toggleStar = toggleStar;
+(window as any).handleFileUpload = handleFileUpload;
+(window as any).createFolder = createFolder;
+(window as any).refreshFiles = refreshFiles;
+(window as any).openFile = openFile;
+
+})(); // End of IIFE

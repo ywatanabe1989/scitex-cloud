@@ -1,111 +1,155 @@
 /* =============================================================================
-   SIDEBAR IMPROVEMENTS - JavaScript Updates
+   SIDEBAR IMPROVEMENTS - TypeScript Updates
    Apply these changes to the <script> section in project_detail.html
    ============================================================================= */
 
-// ===========================================================================
-// 1. UPDATE: initializeSidebar() function
-// Replace the existing function with this enhanced version
-// ===========================================================================
-function initializeSidebar() {
-    const sidebar = document.getElementById('repo-sidebar');
-    const repoLayout = document.getElementById('repo-layout');
-    const toggleBtn = document.getElementById('sidebar-toggle');
-    const savedState = localStorage.getItem(SIDEBAR_STATE_KEY);
+(function() {
+    'use strict';
 
-    console.log('Initializing sidebar. Saved state:', savedState);
+    // localStorage keys - define them properly
+    const SIDEBAR_STATE_KEY = 'projectSidebarState';
+    const SIDEBAR_SECTIONS_KEY = 'projectSidebarSections';
 
-    // Always start collapsed by default (per GitHub style)
-    sidebar.classList.add('collapsed');
-    repoLayout.classList.add('sidebar-collapsed');
-    toggleBtn.setAttribute('title', 'Expand sidebar');  // ADDED
-    console.log('Sidebar initialized as collapsed (default)');
+    // ===========================================================================
+    // 1. UPDATE: initializeSidebar() function
+    // Replace the existing function with this enhanced version
+    // ===========================================================================
+    function initializeSidebar(): void {
+        const sidebar = document.getElementById('repo-sidebar') as HTMLElement | null;
+        const repoLayout = document.getElementById('repo-layout') as HTMLElement | null;
+        const toggleBtn = document.getElementById('sidebar-toggle') as HTMLElement | null;
+        const savedState = localStorage.getItem(SIDEBAR_STATE_KEY);
 
-    // Restore section states
-    const savedSections = localStorage.getItem(SIDEBAR_SECTIONS_KEY);
-    if (savedSections) {
-        try {
-            const sections = JSON.parse(savedSections);
-            Object.keys(sections).forEach(sectionId => {
-                const section = document.getElementById(sectionId);
-                if (section && sections[sectionId] === 'collapsed') {
-                    section.classList.add('section-collapsed');
-                }
-            });
-        } catch (e) {
-            console.error('Error restoring section states:', e);
+        console.log('Initializing sidebar. Saved state:', savedState);
+
+        if (!sidebar || !repoLayout || !toggleBtn) {
+            console.error('Required sidebar elements not found');
+            return;
         }
-    }
-}
 
-// ===========================================================================
-// 2. UPDATE: toggleSidebar() function
-// Replace the existing function with this enhanced version
-// ===========================================================================
-function toggleSidebar() {
-    const sidebar = document.getElementById('repo-sidebar');
-    const repoLayout = document.getElementById('repo-layout');
-    const toggleBtn = document.getElementById('sidebar-toggle');  // ADDED
-
-    if (sidebar.classList.contains('collapsed')) {
-        // Expand sidebar
-        sidebar.classList.remove('collapsed');
-        sidebar.classList.add('expanded');
-        repoLayout.classList.remove('sidebar-collapsed');
-        repoLayout.classList.add('sidebar-expanded');
-        localStorage.setItem(SIDEBAR_STATE_KEY, 'expanded');
-        toggleBtn.setAttribute('title', 'Collapse sidebar');  // ADDED
-        console.log('Sidebar expanded');
-    } else {
-        // Collapse sidebar
-        sidebar.classList.remove('expanded');
+        // Always start collapsed by default (per GitHub style)
         sidebar.classList.add('collapsed');
-        repoLayout.classList.remove('sidebar-expanded');
         repoLayout.classList.add('sidebar-collapsed');
-        localStorage.setItem(SIDEBAR_STATE_KEY, 'collapsed');
         toggleBtn.setAttribute('title', 'Expand sidebar');  // ADDED
-        console.log('Sidebar collapsed');
-    }
-}
+        console.log('Sidebar initialized as collapsed (default)');
 
-// ===========================================================================
-// 3. UPDATE: loadProjectStats() function
-// Replace the existing function with this enhanced version
-// ===========================================================================
-async function loadProjectStats() {
-    try {
-        const response = await fetch('/{{ project.owner.username }}/{{ project.slug }}/api/stats/');
-        const data = await response.json();
-
-        if (data.success) {
-            // Update counts
-            document.getElementById('watch-count').textContent = data.stats.watch_count;
-            document.getElementById('star-count').textContent = data.stats.star_count;
-            document.getElementById('fork-count').textContent = data.stats.fork_count;
-
-            // UPDATE SIDEBAR COUNTS (ADDED SECTION)
-            const sidebarStarCount = document.getElementById('sidebar-star-count');
-            const sidebarForkCount = document.getElementById('sidebar-fork-count');
-            if (sidebarStarCount) {
-                sidebarStarCount.textContent = `${data.stats.star_count} ${data.stats.star_count === 1 ? 'star' : 'stars'}`;
-            }
-            if (sidebarForkCount) {
-                sidebarForkCount.textContent = `${data.stats.fork_count} ${data.stats.fork_count === 1 ? 'fork' : 'forks'}`;
-            }
-
-            // Update button states
-            if (data.user_status.is_watching) {
-                document.getElementById('watch-btn').classList.add('active');
-            }
-            if (data.user_status.is_starred) {
-                document.getElementById('star-btn').classList.add('active');
+        // Restore section states
+        const savedSections = localStorage.getItem(SIDEBAR_SECTIONS_KEY);
+        if (savedSections) {
+            try {
+                const sections: {[key: string]: string} = JSON.parse(savedSections);
+                Object.keys(sections).forEach((sectionId: string) => {
+                    const section = document.getElementById(sectionId) as HTMLElement | null;
+                    if (section && sections[sectionId] === 'collapsed') {
+                        section.classList.add('section-collapsed');
+                    }
+                });
+            } catch (e) {
+                console.error('Error restoring section states:', e);
             }
         }
-    } catch (error) {
-        console.error('Failed to load project stats:', error);
     }
-}
+
+    // ===========================================================================
+    // 2. UPDATE: toggleSidebar() function
+    // Replace the existing function with this enhanced version
+    // ===========================================================================
+    function toggleSidebar(): void {
+        const sidebar = document.getElementById('repo-sidebar') as HTMLElement | null;
+        const repoLayout = document.getElementById('repo-layout') as HTMLElement | null;
+        const toggleBtn = document.getElementById('sidebar-toggle') as HTMLElement | null;
+
+        if (!sidebar || !repoLayout || !toggleBtn) {
+            console.error('Required sidebar elements not found');
+            return;
+        }
+
+        if (sidebar.classList.contains('collapsed')) {
+            // Expand sidebar
+            sidebar.classList.remove('collapsed');
+            sidebar.classList.add('expanded');
+            repoLayout.classList.remove('sidebar-collapsed');
+            repoLayout.classList.add('sidebar-expanded');
+            localStorage.setItem(SIDEBAR_STATE_KEY, 'expanded');
+            toggleBtn.setAttribute('title', 'Collapse sidebar');  // ADDED
+            console.log('Sidebar expanded');
+        } else {
+            // Collapse sidebar
+            sidebar.classList.remove('expanded');
+            sidebar.classList.add('collapsed');
+            repoLayout.classList.remove('sidebar-expanded');
+            repoLayout.classList.add('sidebar-collapsed');
+            localStorage.setItem(SIDEBAR_STATE_KEY, 'collapsed');
+            toggleBtn.setAttribute('title', 'Expand sidebar');  // ADDED
+            console.log('Sidebar collapsed');
+        }
+    }
+
+    // ===========================================================================
+    // 3. UPDATE: loadProjectStats() function
+    // Replace the existing function with this enhanced version
+    // ===========================================================================
+    interface ProjectStats {
+        success: boolean;
+        stats: {
+            watch_count: number;
+            star_count: number;
+            fork_count: number;
+        };
+        user_status: {
+            is_watching: boolean;
+            is_starred: boolean;
+        };
+    }
+
+    async function loadProjectStats(): Promise<void> {
+        try {
+            const response = await fetch('/{{ project.owner.username }}/{{ project.slug }}/api/stats/');
+            const data: ProjectStats = await response.json();
+
+            if (data.success) {
+                // Update counts
+                const watchCount = document.getElementById('watch-count') as HTMLElement | null;
+                const starCount = document.getElementById('star-count') as HTMLElement | null;
+                const forkCount = document.getElementById('fork-count') as HTMLElement | null;
+
+                if (watchCount) watchCount.textContent = String(data.stats.watch_count);
+                if (starCount) starCount.textContent = String(data.stats.star_count);
+                if (forkCount) forkCount.textContent = String(data.stats.fork_count);
+
+                // UPDATE SIDEBAR COUNTS (ADDED SECTION)
+                const sidebarStarCount = document.getElementById('sidebar-star-count') as HTMLElement | null;
+                const sidebarForkCount = document.getElementById('sidebar-fork-count') as HTMLElement | null;
+                if (sidebarStarCount) {
+                    sidebarStarCount.textContent = `${data.stats.star_count} ${data.stats.star_count === 1 ? 'star' : 'stars'}`;
+                }
+                if (sidebarForkCount) {
+                    sidebarForkCount.textContent = `${data.stats.fork_count} ${data.stats.fork_count === 1 ? 'fork' : 'forks'}`;
+                }
+
+                // Update button states
+                const watchBtn = document.getElementById('watch-btn') as HTMLElement | null;
+                const starBtn = document.getElementById('star-btn') as HTMLElement | null;
+
+                if (data.user_status.is_watching && watchBtn) {
+                    watchBtn.classList.add('active');
+                }
+                if (data.user_status.is_starred && starBtn) {
+                    starBtn.classList.add('active');
+                }
+            }
+        } catch (error) {
+            console.error('Failed to load project stats:', error);
+        }
+    }
+
+    // Expose functions to global scope for HTML onclick handlers
+    (window as any).initializeSidebar = initializeSidebar;
+    (window as any).toggleSidebar = toggleSidebar;
+    (window as any).loadProjectStats = loadProjectStats;
+
+})();
 
 /* =============================================================================
-   END OF JAVASCRIPT IMPROVEMENTS
+   END OF TYPESCRIPT IMPROVEMENTS
    ============================================================================= */

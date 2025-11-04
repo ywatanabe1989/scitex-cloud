@@ -1,54 +1,80 @@
 // Workflow Detail Page JavaScript
 // Functions for triggering and toggling workflows
 
-function triggerWorkflow() {
-    if (!confirm('Run this workflow now?')) {
-        return;
+(function() {
+    'use strict';
+
+    interface WorkflowResponse {
+        success: boolean;
+        run_url?: string;
+        error?: string;
     }
 
-    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-    const triggerUrl = document.body.dataset.workflowTriggerUrl;
-
-    fetch(triggerUrl, {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': csrfToken,
-            'X-Requested-With': 'XMLHttpRequest',
-        },
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            window.location.href = data.run_url;
-        } else {
-            alert('Error: ' + data.error);
+    function triggerWorkflow(): void {
+        if (!confirm('Run this workflow now?')) {
+            return;
         }
-    })
-    .catch(error => {
-        alert('Error triggering workflow: ' + error);
-    });
-}
 
-function toggleWorkflow() {
-    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-    const toggleUrl = document.body.dataset.workflowToggleUrl;
+        const csrfToken = (document.querySelector('[name=csrfmiddlewaretoken]') as HTMLInputElement)?.value;
+        const triggerUrl = document.body.dataset.workflowTriggerUrl;
 
-    fetch(toggleUrl, {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': csrfToken,
-            'X-Requested-With': 'XMLHttpRequest',
-        },
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            window.location.reload();
-        } else {
-            alert('Error: ' + data.error);
+        if (!csrfToken || !triggerUrl) {
+            alert('Error: Missing required data');
+            return;
         }
-    })
-    .catch(error => {
-        alert('Error toggling workflow: ' + error);
-    });
-}
+
+        fetch(triggerUrl, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        })
+        .then(response => response.json() as Promise<WorkflowResponse>)
+        .then(data => {
+            if (data.success && data.run_url) {
+                window.location.href = data.run_url;
+            } else {
+                alert('Error: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            console.error('Error triggering workflow:', error);
+            alert('Error triggering workflow: ' + error);
+        });
+    }
+
+    function toggleWorkflow(): void {
+        const csrfToken = (document.querySelector('[name=csrfmiddlewaretoken]') as HTMLInputElement)?.value;
+        const toggleUrl = document.body.dataset.workflowToggleUrl;
+
+        if (!csrfToken || !toggleUrl) {
+            alert('Error: Missing required data');
+            return;
+        }
+
+        fetch(toggleUrl, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        })
+        .then(response => response.json() as Promise<WorkflowResponse>)
+        .then(data => {
+            if (data.success) {
+                window.location.reload();
+            } else {
+                alert('Error: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            console.error('Error toggling workflow:', error);
+            alert('Error toggling workflow: ' + error);
+        });
+    }
+
+    // Expose functions to global scope
+    (window as any).triggerWorkflow = triggerWorkflow;
+    (window as any).toggleWorkflow = toggleWorkflow;
+})();

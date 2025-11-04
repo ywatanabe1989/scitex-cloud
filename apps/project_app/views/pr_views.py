@@ -605,7 +605,7 @@ def pr_compare(request, username, slug):
         'can_create': project.can_edit(request.user),
     }
 
-    return render(request, 'project_app/pull_requests/pr_compare.html', context)
+    return render(request, 'project_app/pr_form.html', context)
 
 
 # ============================================================================

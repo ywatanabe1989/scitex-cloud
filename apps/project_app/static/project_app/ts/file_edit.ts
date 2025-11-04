@@ -1,19 +1,48 @@
 // File editor functionality
 
-function showEdit() {
-    document.getElementById('editorTextarea').style.display = 'block';
-    document.getElementById('previewContainer').style.display = 'none';
-    document.getElementById('editBtn').classList.add('active');
-    document.getElementById('previewBtn').classList.remove('active');
-}
+(function() {
+    'use strict';
 
-function showPreview() {
-    const content = document.getElementById('editorTextarea').value;
-    const html = marked.parse(content);
-    document.getElementById('previewContainer').innerHTML = html;
+    function showEdit(): void {
+        const editorTextarea = document.getElementById('editorTextarea') as HTMLElement | null;
+        const previewContainer = document.getElementById('previewContainer') as HTMLElement | null;
+        const editBtn = document.getElementById('editBtn') as HTMLElement | null;
+        const previewBtn = document.getElementById('previewBtn') as HTMLElement | null;
 
-    document.getElementById('editorTextarea').style.display = 'none';
-    document.getElementById('previewContainer').style.display = 'block';
-    document.getElementById('editBtn').classList.remove('active');
-    document.getElementById('previewBtn').classList.add('active');
-}
+        if (editorTextarea && previewContainer && editBtn && previewBtn) {
+            editorTextarea.style.display = 'block';
+            previewContainer.style.display = 'none';
+            editBtn.classList.add('active');
+            previewBtn.classList.remove('active');
+        }
+    }
+
+    function showPreview(): void {
+        const editorTextarea = document.getElementById('editorTextarea') as HTMLTextAreaElement | null;
+        const previewContainer = document.getElementById('previewContainer') as HTMLElement | null;
+        const editBtn = document.getElementById('editBtn') as HTMLElement | null;
+        const previewBtn = document.getElementById('previewBtn') as HTMLElement | null;
+
+        if (editorTextarea && previewContainer && editBtn && previewBtn) {
+            const content = editorTextarea.value;
+
+            // Access marked library from window object (defined in global.d.ts)
+            if (window.marked && typeof window.marked.parse === 'function') {
+                const html = window.marked.parse(content);
+                previewContainer.innerHTML = html;
+            } else {
+                console.error('marked library not found');
+                previewContainer.innerHTML = '<p>Error: Markdown parser not available</p>';
+            }
+
+            editorTextarea.style.display = 'none';
+            previewContainer.style.display = 'block';
+            editBtn.classList.remove('active');
+            previewBtn.classList.add('active');
+        }
+    }
+
+    // Expose functions to window object for HTML onclick handlers
+    (window as any).showEdit = showEdit;
+    (window as any).showPreview = showPreview;
+})();

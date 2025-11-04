@@ -2,11 +2,11 @@
 // Functions for merging, closing, and reopening pull requests
 
 function submitMerge() {
-    const form = document.getElementById('mergeForm');
+    const form = document.getElementById('mergeForm') as HTMLFormElement;
     const formData = new FormData(form);
 
     // Get CSRF token
-    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const csrfToken = (document.querySelector('[name=csrfmiddlewaretoken]') as HTMLInputElement).value;
 
     // Get URL from data attribute (set in template)
     const mergeUrl = document.getElementById('mergeModal').dataset.mergeUrl;
@@ -35,7 +35,7 @@ function closePR() {
     if (!confirm('Are you sure you want to close this pull request?')) return;
 
     // Get CSRF token
-    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const csrfToken = (document.querySelector('[name=csrfmiddlewaretoken]') as HTMLInputElement).value;
 
     // Get URL from data attribute (set in template)
     const closeUrl = document.body.dataset.prCloseUrl;
@@ -58,7 +58,7 @@ function closePR() {
 
 function reopenPR() {
     // Get CSRF token
-    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const csrfToken = (document.querySelector('[name=csrfmiddlewaretoken]') as HTMLInputElement).value;
 
     // Get URL from data attribute (set in template)
     const reopenUrl = document.body.dataset.prReopenUrl;

@@ -2,11 +2,14 @@
 // Sidebar State Management
 // =============================================================================
 
+(function() {
+    'use strict';
+
 const SIDEBAR_STATE_KEY = 'scitex-sidebar-state';
 const SIDEBAR_SECTIONS_KEY = 'scitex-sidebar-sections';
 
 // Initialize sidebar state from localStorage
-function initializeSidebar() {
+function initializeSidebar(): void {
     const sidebar = document.getElementById('repo-sidebar');
     const repoLayout = document.getElementById('repo-layout');
     const toggleBtn = document.getElementById('sidebar-toggle');
@@ -61,10 +64,12 @@ function initializeSidebar() {
 }
 
 // Toggle entire sidebar
-function toggleSidebar() {
+function toggleSidebar(): void {
     const sidebar = document.getElementById('repo-sidebar');
     const repoLayout = document.getElementById('repo-layout');
     const toggleBtn = document.getElementById('sidebar-toggle');
+
+    if (!sidebar) return;
 
     if (sidebar.classList.contains('collapsed')) {
         // Expand sidebar
@@ -96,11 +101,11 @@ function toggleSidebar() {
 }
 
 // Toggle individual sidebar section
-function toggleSidebarSection(sectionId) {
+function toggleSidebarSection(sectionId: string): void {
     const sidebar = document.getElementById('repo-sidebar');
 
     // Don't toggle sections when sidebar is collapsed
-    if (sidebar.classList.contains('collapsed')) {
+    if (!sidebar || sidebar.classList.contains('collapsed')) {
         return;
     }
 
@@ -114,11 +119,17 @@ function toggleSidebarSection(sectionId) {
 }
 
 // Save all section states to localStorage
-function saveSectionStates() {
-    const sections = {
-        'file-tree-section': document.getElementById('file-tree-section').classList.contains('section-collapsed') ? 'collapsed' : 'expanded',
-        'about-section': document.getElementById('about-section').classList.contains('section-collapsed') ? 'collapsed' : 'expanded'
-    };
+function saveSectionStates(): void {
+    const fileTreeSection = document.getElementById('file-tree-section');
+    const aboutSection = document.getElementById('about-section');
+
+    const sections: Record<string, string> = {};
+    if (fileTreeSection) {
+        sections['file-tree-section'] = fileTreeSection.classList.contains('section-collapsed') ? 'collapsed' : 'expanded';
+    }
+    if (aboutSection) {
+        sections['about-section'] = aboutSection.classList.contains('section-collapsed') ? 'collapsed' : 'expanded';
+    }
     localStorage.setItem(SIDEBAR_SECTIONS_KEY, JSON.stringify(sections));
 }
 
@@ -127,8 +138,8 @@ function saveSectionStates() {
 // =============================================================================
 
 // Build file tree for sidebar
-async function loadFileTree() {
-    const projectData = window.SCITEX_PROJECT_DATA;
+async function loadFileTree(): Promise<void> {
+    const projectData = (window as any).SCITEX_PROJECT_DATA;
     if (!projectData) {
         console.error('Project data not available');
         return;
@@ -140,22 +151,37 @@ async function loadFileTree() {
 
         if (data.success) {
             const treeContainer = document.getElementById('file-tree');
-            treeContainer.innerHTML = buildTreeHTML(data.tree, projectData.owner, projectData.slug);
+            if (treeContainer) {
+                treeContainer.innerHTML = buildTreeHTML(data.tree, projectData.owner, projectData.slug);
+            }
         } else {
-            document.getElementById('file-tree').innerHTML = '<div style="color: var(--color-fg-muted); padding: 0.5rem;">Error loading file tree</div>';
+            const treeContainer = document.getElementById('file-tree');
+            if (treeContainer) {
+                treeContainer.innerHTML = '<div style="color: var(--color-fg-muted); padding: 0.5rem;">Error loading file tree</div>';
+            }
         }
     } catch (err) {
         console.error('Failed to load file tree:', err);
-        document.getElementById('file-tree').innerHTML = '<div style="color: var(--color-fg-muted); padding: 0.5rem;">Error loading file tree</div>';
+        const treeContainer = document.getElementById('file-tree');
+        if (treeContainer) {
+            treeContainer.innerHTML = '<div style="color: var(--color-fg-muted); padding: 0.5rem;">Error loading file tree</div>';
+        }
     }
 }
 
-function buildTreeHTML(items, username, slug, level = 0) {
+interface TreeItem {
+    name: string;
+    path: string;
+    type: 'file' | 'directory';
+    children?: TreeItem[];
+}
+
+function buildTreeHTML(items: TreeItem[], username: string, slug: string, level: number = 0): string {
     let html = '';
     const indent = level * 16;
     const currentPath = window.location.pathname;
 
-    items.forEach((item, index) => {
+    items.forEach((item: TreeItem, index: number) => {
         const itemPath = `/${username}/${slug}/${item.path}${item.type === 'directory' ? '/' : ''}`;
         const isActive = currentPath.includes(item.path);
         const icon = item.type === 'directory' ? '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" class="icon-folder"><path fill="currentColor" d="M1.75 1A1.75 1.75 0 0 0 0 2.75v10.5C0 14.216.784 15 1.75 15h12.5A1.75 1.75 0 0 0 16 13.25v-8.5A1.75 1.75 0 0 0 14.25 3H7.5a.25.25 0 0 1-.2-.1l-.9-1.2C6.07 1.26 5.55 1 5 1H1.75Z"></path></svg>' : '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" class="icon-file"><path fill="currentColor" d="M2 1.75C2 .784 2.784 0 3.75 0h6.586c.464 0 .909.184 1.237.513l2.914 2.914c.329.328.513.773.513 1.237v9.586A1.75 1.75 0 0 1 13.25 16h-9.5A1.75 1.75 0 0 1 2 14.25Zm1.75-.25a.25.25 0 0 0-.25.25v12.5c0 .138.112.25.25.25h9.5a.25.25 0 0 0 .25-.25V6h-2.75A1.75 1.75 0 0 1 9 4.25V1.5Zm6.75.062V4.25c0 .138.112.25.25.25h2.688l-.011-.013-2.914-2.914-.013-.011Z"></path></svg>';
@@ -198,31 +224,37 @@ function buildTreeHTML(items, username, slug, level = 0) {
     return html;
 }
 
-function toggleFolder(folderId) {
+function toggleFolder(folderId: string, event?: Event): void {
     const folder = document.getElementById(folderId);
-    const chevron = event.target;
+
+    if (!folder) return;
+
+    // Find the chevron element - it's the span with class 'file-tree-chevron'
+    const chevron = event ? (event.target as HTMLElement) : document.querySelector(`#${folderId}`)?.previousElementSibling?.querySelector('.file-tree-chevron') as HTMLElement;
 
     if (folder.classList.contains('expanded')) {
         folder.classList.remove('expanded');
-        chevron.classList.remove('expanded');
+        if (chevron) chevron.classList.remove('expanded');
     } else {
         folder.classList.add('expanded');
-        chevron.classList.add('expanded');
+        if (chevron) chevron.classList.add('expanded');
     }
 
-    event.stopPropagation();
-    event.preventDefault();
+    if (event) {
+        event.stopPropagation();
+        event.preventDefault();
+    }
 }
 
 // =============================================================================
 // Project Concatenation
 // =============================================================================
 
-async function copyProjectToClipboard() {
-    const projectData = window.SCITEX_PROJECT_DATA;
+async function copyProjectToClipboard(event: Event): Promise<void> {
+    const projectData = (window as any).SCITEX_PROJECT_DATA;
     if (!projectData) return;
 
-    const btn = event.target;
+    const btn = event.currentTarget as HTMLButtonElement;
     const originalText = btn.innerHTML;
     btn.innerHTML = '⏳ Loading...';
     btn.disabled = true;
@@ -251,11 +283,11 @@ async function copyProjectToClipboard() {
     }
 }
 
-async function downloadProjectAsFile() {
-    const projectData = window.SCITEX_PROJECT_DATA;
+async function downloadProjectAsFile(event: Event): Promise<void> {
+    const projectData = (window as any).SCITEX_PROJECT_DATA;
     if (!projectData) return;
 
-    const btn = event.target;
+    const btn = event.currentTarget as HTMLButtonElement;
     const originalText = btn.innerHTML;
     btn.innerHTML = '⏳ Preparing download...';
     btn.disabled = true;
@@ -299,8 +331,8 @@ async function downloadProjectAsFile() {
 // Watch/Star/Fork Action Handlers
 // =============================================================================
 
-async function loadProjectStats() {
-    const projectData = window.SCITEX_PROJECT_DATA;
+async function loadProjectStats(): Promise<void> {
+    const projectData = (window as any).SCITEX_PROJECT_DATA;
     if (!projectData) return;
 
     try {
@@ -309,16 +341,23 @@ async function loadProjectStats() {
 
         if (data.success) {
             // Update counts
-            document.getElementById('watch-count').textContent = data.stats.watch_count;
-            document.getElementById('star-count').textContent = data.stats.star_count;
-            document.getElementById('fork-count').textContent = data.stats.fork_count;
+            const watchCount = document.getElementById('watch-count');
+            const starCount = document.getElementById('star-count');
+            const forkCount = document.getElementById('fork-count');
+
+            if (watchCount) watchCount.textContent = data.stats.watch_count;
+            if (starCount) starCount.textContent = data.stats.star_count;
+            if (forkCount) forkCount.textContent = data.stats.fork_count;
 
             // Update button states
-            if (data.user_status.is_watching) {
-                document.getElementById('watch-btn').classList.add('active');
+            const watchBtn = document.getElementById('watch-btn');
+            const starBtn = document.getElementById('star-btn');
+
+            if (data.user_status.is_watching && watchBtn) {
+                watchBtn.classList.add('active');
             }
-            if (data.user_status.is_starred) {
-                document.getElementById('star-btn').classList.add('active');
+            if (data.user_status.is_starred && starBtn) {
+                starBtn.classList.add('active');
             }
         }
     } catch (error) {
@@ -326,11 +365,11 @@ async function loadProjectStats() {
     }
 }
 
-async function handleWatch(event) {
-    const projectData = window.SCITEX_PROJECT_DATA;
+async function handleWatch(event: Event): Promise<void> {
+    const projectData = (window as any).SCITEX_PROJECT_DATA;
     if (!projectData) return;
 
-    const btn = event.currentTarget;
+    const btn = event.currentTarget as HTMLElement;
     const isWatching = btn.classList.contains('active');
 
     try {
@@ -353,7 +392,8 @@ async function handleWatch(event) {
             }
 
             // Update count
-            document.getElementById('watch-count').textContent = data.watch_count;
+            const watchCount = document.getElementById('watch-count');
+            if (watchCount) watchCount.textContent = data.watch_count;
 
             // Show notification
             showNotification(data.message, 'success');
@@ -366,11 +406,11 @@ async function handleWatch(event) {
     }
 }
 
-async function handleStar(event) {
-    const projectData = window.SCITEX_PROJECT_DATA;
+async function handleStar(event: Event): Promise<void> {
+    const projectData = (window as any).SCITEX_PROJECT_DATA;
     if (!projectData) return;
 
-    const btn = event.currentTarget;
+    const btn = event.currentTarget as HTMLElement;
     const isStarred = btn.classList.contains('active');
 
     try {
@@ -393,7 +433,8 @@ async function handleStar(event) {
             }
 
             // Update count
-            document.getElementById('star-count').textContent = data.star_count;
+            const starCount = document.getElementById('star-count');
+            if (starCount) starCount.textContent = data.star_count;
 
             // Show notification
             showNotification(data.message, 'success');
@@ -406,15 +447,15 @@ async function handleStar(event) {
     }
 }
 
-async function handleFork(event) {
+async function handleFork(event: Event): Promise<void> {
     if (!confirm('Fork this repository? This will create a copy under your account.')) {
         return;
     }
 
-    const projectData = window.SCITEX_PROJECT_DATA;
+    const projectData = (window as any).SCITEX_PROJECT_DATA;
     if (!projectData) return;
 
-    const btn = event.currentTarget;
+    const btn = event.currentTarget as HTMLButtonElement;
     const originalText = btn.innerHTML;
     btn.disabled = true;
     btn.innerHTML = '<span>Forking...</span>';
@@ -432,7 +473,8 @@ async function handleFork(event) {
 
         if (data.success) {
             // Update count
-            document.getElementById('fork-count').textContent = data.fork_count;
+            const forkCount = document.getElementById('fork-count');
+            if (forkCount) forkCount.textContent = data.fork_count;
 
             // Show success message and redirect
             showNotification(data.message, 'success');
@@ -453,7 +495,7 @@ async function handleFork(event) {
 }
 
 // Helper function to show notifications
-function showNotification(message, type = 'info') {
+function showNotification(message: string, type: string = 'info'): void {
     // Create notification element
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
@@ -481,8 +523,8 @@ function showNotification(message, type = 'info') {
 }
 
 // Helper function to get CSRF token
-function getCookie(name) {
-    let cookieValue = null;
+function getCookie(name: string): string | null {
+    let cookieValue: string | null = null;
     if (document.cookie && document.cookie !== '') {
         const cookies = document.cookie.split(';');
         for (let i = 0; i < cookies.length; i++) {
@@ -500,8 +542,8 @@ function getCookie(name) {
 // Toolbar Dropdown Functions
 // =============================================================================
 
-function toggleBranchDropdown() {
-    const dropdown = document.getElementById('branch-dropdown');
+function toggleBranchDropdown(): void {
+    const dropdown = document.getElementById('branch-dropdown') as HTMLElement | null;
     const isVisible = dropdown && dropdown.style.display === 'block';
 
     // Close all other dropdowns
@@ -513,23 +555,28 @@ function toggleBranchDropdown() {
     }
 }
 
-function switchBranch(branchName) {
+function switchBranch(branchName: string): void {
     console.log('Switching to branch:', branchName);
-    document.getElementById('current-branch').textContent = branchName;
+    const currentBranch = document.getElementById('current-branch');
+    if (currentBranch) currentBranch.textContent = branchName;
 
     // Update active state in dropdown
-    document.querySelectorAll('.branch-item').forEach(item => {
-        if (item.dataset.branch === branchName) {
-            item.classList.add('active');
-            item.querySelector('svg').style.opacity = '1';
+    document.querySelectorAll('.branch-item').forEach((item: Element) => {
+        const htmlItem = item as HTMLElement;
+        if (htmlItem.dataset.branch === branchName) {
+            htmlItem.classList.add('active');
+            const svg = htmlItem.querySelector('svg') as SVGElement | null;
+            if (svg) svg.style.opacity = '1';
         } else {
-            item.classList.remove('active');
-            item.querySelector('svg').style.opacity = '0';
+            htmlItem.classList.remove('active');
+            const svg = htmlItem.querySelector('svg') as SVGElement | null;
+            if (svg) svg.style.opacity = '0';
         }
     });
 
     // Close dropdown
-    document.getElementById('branch-dropdown').style.display = 'none';
+    const branchDropdown = document.getElementById('branch-dropdown') as HTMLElement | null;
+    if (branchDropdown) branchDropdown.style.display = 'none';
 
     // TODO: Reload page with selected branch
     // const projectData = window.SCITEX_PROJECT_DATA;
@@ -537,20 +584,64 @@ function switchBranch(branchName) {
 }
 
 // Simple wrapper functions for toolbar buttons
-function toggleWatch() {
-    handleWatch({ currentTarget: document.getElementById('watch-btn') });
+function toggleWatch(): void {
+    const btn = document.getElementById('watch-btn');
+    if (btn) {
+        // Create a proper event object
+        const event = new MouseEvent('click', {
+            bubbles: true,
+            cancelable: true,
+            view: window
+        });
+        // Set currentTarget manually after creation
+        Object.defineProperty(event, 'currentTarget', {
+            writable: false,
+            value: btn
+        });
+        handleWatch(event);
+    }
 }
 
-function toggleStar() {
-    handleStar({ currentTarget: document.getElementById('star-btn') });
+function toggleStar(): void {
+    const btn = document.getElementById('star-btn');
+    if (btn) {
+        // Create a proper event object
+        const event = new MouseEvent('click', {
+            bubbles: true,
+            cancelable: true,
+            view: window
+        });
+        // Set currentTarget manually after creation
+        Object.defineProperty(event, 'currentTarget', {
+            writable: false,
+            value: btn
+        });
+        handleStar(event);
+    }
 }
 
-function forkProject() {
-    handleFork({ currentTarget: document.getElementById('fork-btn') });
+function forkProject(): void {
+    const btn = document.getElementById('fork-btn');
+    if (btn) {
+        // Create a proper event object
+        const event = new MouseEvent('click', {
+            bubbles: true,
+            cancelable: true,
+            view: window
+        });
+        // Set currentTarget manually after creation
+        Object.defineProperty(event, 'currentTarget', {
+            writable: false,
+            value: btn
+        });
+        handleFork(event);
+    }
 }
 
-function toggleAddFileDropdown() {
-    const dropdown = document.getElementById('add-file-dropdown');
+function toggleAddFileDropdown(): void {
+    const dropdown = document.getElementById('add-file-dropdown') as HTMLElement | null;
+    if (!dropdown) return;
+
     const isVisible = dropdown.style.display === 'block';
 
     // Close all other dropdowns
@@ -560,8 +651,10 @@ function toggleAddFileDropdown() {
     console.log('Add file dropdown toggled:', dropdown.style.display);
 }
 
-function toggleCodeDropdown() {
-    const dropdown = document.getElementById('code-dropdown');
+function toggleCodeDropdown(): void {
+    const dropdown = document.getElementById('code-dropdown') as HTMLElement | null;
+    if (!dropdown) return;
+
     const isVisible = dropdown.style.display === 'block';
 
     // Close all other dropdowns
@@ -571,8 +664,10 @@ function toggleCodeDropdown() {
     console.log('Code dropdown toggled:', dropdown.style.display);
 }
 
-function toggleCopyDropdown() {
-    const dropdown = document.getElementById('copy-dropdown');
+function toggleCopyDropdown(): void {
+    const dropdown = document.getElementById('copy-dropdown') as HTMLElement | null;
+    if (!dropdown) return;
+
     const isVisible = dropdown.style.display === 'block';
 
     // Close all other dropdowns
@@ -582,31 +677,35 @@ function toggleCopyDropdown() {
     console.log('Copy dropdown toggled:', dropdown.style.display);
 }
 
-function closeAllDropdowns() {
+function closeAllDropdowns(): void {
     const dropdowns = ['branch-dropdown-menu', 'add-file-dropdown', 'code-dropdown', 'copy-dropdown'];
     dropdowns.forEach(id => {
-        const dropdown = document.getElementById(id);
+        const dropdown = document.getElementById(id) as HTMLElement | null;
         if (dropdown && dropdown.style.display === 'block') {
             dropdown.style.display = 'none';
         }
     });
 }
 
-function copyCloneUrl() {
-    const input = document.getElementById('clone-url');
+function copyCloneUrl(event: Event): void {
+    const input = document.getElementById('clone-url') as HTMLInputElement;
+    if (!input) return;
+
     navigator.clipboard.writeText(input.value).then(() => {
-        const btn = event.target.closest('button');
+        const btn = (event.target as HTMLElement).closest('button');
+        if (!btn) return;
+
         const originalHTML = btn.innerHTML;
         btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M13.78 4.22a.75.75 0 010 1.06l-7.25 7.25a.75.75 0 01-1.06 0L2.22 9.28a.75.75 0 011.06-1.06L6 10.94l6.72-6.72a.75.75 0 011.06 0z"/></svg>';
         setTimeout(() => {
             btn.innerHTML = originalHTML;
         }, 2000);
-    }).catch(err => {
+    }).catch((err: Error) => {
         console.error('Failed to copy:', err);
     });
 }
 
-function downloadProjectZip() {
+function downloadProjectZip(): void {
     // Placeholder for ZIP download functionality
     alert('ZIP download functionality coming soon!');
 }
@@ -630,10 +729,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Make table rows clickable
     const fileBrowserRows = document.querySelectorAll('.file-browser-row');
-    fileBrowserRows.forEach(row => {
-        row.addEventListener('click', function(e) {
+    fileBrowserRows.forEach((row: Element) => {
+        row.addEventListener('click', function(this: HTMLElement, e: Event) {
             // Don't navigate if clicking on a link directly
-            if (e.target.tagName === 'A' || e.target.closest('a')) {
+            const target = e.target as HTMLElement;
+            if (target.tagName === 'A' || target.closest('a')) {
                 return;
             }
             const href = this.getAttribute('data-href');
@@ -645,7 +745,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Manual dropdown toggle for split button
     const dropdownToggle = document.querySelector('.dropdown-toggle-split');
-    const dropdownMenu = document.querySelector('.dropdown-menu');
+    const dropdownMenu = document.querySelector('.dropdown-menu') as HTMLElement | null;
 
     if (dropdownToggle && dropdownMenu) {
         console.log('Dropdown elements found - setting up manual toggle');
@@ -662,7 +762,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Close dropdown when clicking outside
         document.addEventListener('click', function(e) {
-            if (!dropdownToggle.contains(e.target) && !dropdownMenu.contains(e.target)) {
+            const target = e.target as Node;
+            if (!dropdownToggle.contains(target) && !dropdownMenu.contains(target)) {
                 dropdownMenu.style.display = 'none';
             }
         });
@@ -672,19 +773,40 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Close dropdowns when clicking outside
-document.addEventListener('click', function(e) {
+document.addEventListener('click', function(e: Event) {
     // Check if click is on any dropdown button or within dropdown content
-    const clickedButton = e.target.closest('button');
+    const target = e.target as HTMLElement;
+    const clickedButton = target.closest('button');
     const isDropdownButton = clickedButton && (
         clickedButton.id === 'branch-dropdown-btn-header' ||
         clickedButton.id === 'add-file-btn' ||
-        clickedButton.onclick === toggleCodeDropdown ||
-        clickedButton.onclick === toggleCopyDropdown ||
         clickedButton.classList.contains('dropdown-toggle-split')
     );
-    const isDropdownContent = e.target.closest('.dropdown-menu');
+    const isDropdownContent = target.closest('.dropdown-menu');
 
     if (!isDropdownButton && !isDropdownContent) {
         closeAllDropdowns();
     }
 });
+
+// Expose functions to global scope for onclick handlers
+(window as any).toggleSidebar = toggleSidebar;
+(window as any).toggleSidebarSection = toggleSidebarSection;
+(window as any).toggleFolder = toggleFolder;
+(window as any).copyProjectToClipboard = copyProjectToClipboard;
+(window as any).downloadProjectAsFile = downloadProjectAsFile;
+(window as any).handleWatch = handleWatch;
+(window as any).handleStar = handleStar;
+(window as any).handleFork = handleFork;
+(window as any).toggleBranchDropdown = toggleBranchDropdown;
+(window as any).switchBranch = switchBranch;
+(window as any).toggleWatch = toggleWatch;
+(window as any).toggleStar = toggleStar;
+(window as any).forkProject = forkProject;
+(window as any).toggleAddFileDropdown = toggleAddFileDropdown;
+(window as any).toggleCodeDropdown = toggleCodeDropdown;
+(window as any).toggleCopyDropdown = toggleCopyDropdown;
+(window as any).copyCloneUrl = copyCloneUrl;
+(window as any).downloadProjectZip = downloadProjectZip;
+
+})(); // End of IIFE
