@@ -6,6 +6,7 @@ set -e
 # ============================================
 
 # Source common libraries
+source /app/deployment/docker/common/lib/logging.src
 source /app/deployment/docker/common/lib/database.src
 source /app/deployment/docker/common/lib/django.src
 source /app/deployment/docker/common/lib/scitex.src
@@ -15,7 +16,6 @@ echo "🏭 Production Environment"
 # ============================================
 # Verify SciTeX from PyPI
 # ============================================
-echo "📦 Verifying scitex package (installed from PyPI)..."
 verify_scitex_package
 
 # Ensure we're NOT using editable install
