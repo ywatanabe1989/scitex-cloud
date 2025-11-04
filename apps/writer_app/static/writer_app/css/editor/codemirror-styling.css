@@ -1,0 +1,110 @@
+/**
+ * CodeMirror Design System Integration
+ * Applies SciTeX design tokens to CodeMirror editor
+ */
+
+/* CodeMirror wrapper and main container */
+.CodeMirror {
+    border: 1px solid var(--border-color, #dee2e6);
+    border-radius: var(--border-radius-lg, 8px);
+    font-family: var(--font-family-monospace, 'JetBrains Mono', 'Fira Code', 'Monaco', 'Courier New', monospace);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Gutters (line numbers) */
+.CodeMirror-gutters {
+    background-color: var(--color-canvas-default, #ffffff);
+    border-right: 1px solid var(--border-color, #dee2e6);
+}
+
+.CodeMirror-linenumber {
+    color: var(--color-fg-muted, #57606a);
+    padding: 0 8px;
+}
+
+/* Cursor and selection */
+.CodeMirror-cursor {
+    border-left: 2px solid var(--color-fg-default, #24292f);
+}
+
+.CodeMirror-selected {
+    background-color: var(--color-accent-muted, #ddf4ff);
+}
+
+.CodeMirror-focused .CodeMirror-selected {
+    background-color: var(--color-accent-muted, #ddf4ff);
+}
+
+/* Scrollbars */
+.CodeMirror-scrollbar-filler {
+    background-color: var(--color-canvas-default, #ffffff);
+}
+
+/* Theme overrides for default theme */
+.CodeMirror.cm-s-default {
+    background-color: var(--color-canvas-default, #ffffff);
+    color: var(--color-fg-default, #24292f);
+}
+
+.CodeMirror.cm-s-default .cm-string {
+    color: #22863a;
+}
+
+.CodeMirror.cm-s-default .cm-number {
+    color: #005cc5;
+}
+
+.CodeMirror.cm-s-default .cm-atom {
+    color: #005cc5;
+}
+
+.CodeMirror.cm-s-default .cm-keyword {
+    color: #d73a49;
+}
+
+.CodeMirror.cm-s-default .cm-variable {
+    color: #24292f;
+}
+
+.CodeMirror.cm-s-default .cm-comment {
+    color: #6a737d;
+}
+
+/* Active line highlight - disabled for consistent background */
+.CodeMirror-activeline-background {
+    background-color: transparent !important;
+}
+
+/* Autocomplete styling */
+.CodeMirror-hints {
+    background-color: var(--color-canvas-default, #ffffff);
+    border: 1px solid var(--border-color, #dee2e6);
+    box-shadow: var(--box-shadow-md, 0 4px 8px rgba(26, 35, 50, 0.1));
+}
+
+.CodeMirror-hint {
+    padding: 4px 8px;
+    color: var(--color-fg-default, #24292f);
+}
+
+.CodeMirror-hint-active {
+    background-color: var(--color-accent-muted, #ddf4ff);
+    color: var(--color-fg-default, #24292f);
+}
+
+/* Match highlighting */
+.CodeMirror-matchingbracket {
+    background-color: #fff4d6;
+    color: #24292f;
+}
+
+.CodeMirror-nonmatchingbracket {
+    color: #cb2431;
+}
+
+/* Search/replace panel */
+.CodeMirror-search-hint {
+    color: var(--color-fg-muted, #57606a);
+    font-size: 12px;
+}

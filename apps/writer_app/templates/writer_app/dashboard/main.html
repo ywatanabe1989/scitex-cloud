@@ -1,0 +1,66 @@
+{% extends "writer_app/base/app_base.html" %}
+{% load static %}
+
+{% comment %}
+Writer dashboard - user's manuscripts and activity
+{% endcomment %}
+
+{% block writer_css %}
+<link rel="stylesheet" href="{% static 'writer_app/css/dashboard/main.css' %}">
+{% endblock %}
+
+{% block writer_sidebar %}
+{% include "writer_app/shared/_sidebar.html" %}
+{% endblock %}
+
+{% block writer_content %}
+<div class="dashboard-container">
+    <header class="dashboard-header">
+        <h2>Your Manuscripts</h2>
+        <button class="btn-primary" id="btn-new-manuscript">New Manuscript</button>
+    </header>
+
+    <div class="dashboard-grid">
+        <div class="manuscripts-panel">
+            <h3>Recent Manuscripts</h3>
+            <div class="manuscript-list">
+                {% if recent_manuscripts %}
+                    {% for manuscript in recent_manuscripts %}
+                    <div class="manuscript-card">
+                        <h4>{{ manuscript.title }}</h4>
+                        <p class="manuscript-project">{{ manuscript.project.name }}</p>
+                        <div class="manuscript-meta">
+                            <span>{{ manuscript.word_count }} words</span>
+                            <span>{{ manuscript.updated_at }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="empty-message">No manuscripts yet. Create your first manuscript!</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="activity-panel">
+            <h3>Recent Activity</h3>
+            <div class="activity-list">
+                {% if recent_compilations %}
+                    {% for compilation in recent_compilations %}
+                    <div class="activity-item">
+                        <span class="activity-icon">📄</span>
+                        <span class="activity-text">Compiled {{ compilation.manuscript }}</span>
+                        <span class="activity-time">{{ compilation.created_at }}</span>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="empty-message">No recent activity.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block writer_js %}
+<script src="{% static 'writer_app/js/dashboard/main.js' %}"></script>
+{% endblock %}

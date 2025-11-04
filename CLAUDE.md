@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-11-03 09:04:54
+!-- Timestamp: 2025-11-04 13:46:37
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/CLAUDE.md
 !-- --- -->
@@ -53,40 +53,8 @@ The SciTeX ecosystem is project-centric; scholar, code, viz, writer should be li
 When change directory from `.`, deactivate automatically called.
 
 ## Django Directory Structure
-Use `./apps/XXX_app/` format
-Follow `./apps/README.md`
-Do not place any files under project root directory
+STRICTLY FOLLOW `./RULES/00_DJANGO_ORGANIZATION_FULLSTACK.md`.
 
-## CSS - Common vs Specific
-`./static/css/CSS_RULES.md`
-
-### Layout
-- [ ] CSS should use central css files as much as possible: 
-  - [ ] `./static/css/{common.css,common/*.css,components/*.css`
-  - [ ] Currently, layout gets broken after refactoring
-  - [ ] Please keep all the original css under:
-    - [ ] `./apps/xxx_app/static/xxx_app/css/`
-    - [ ] However, comment out overriding settings
-    - [ ] At the same time, keep using css related to layout, positioning
-    - [ ] See the example below:
-
-    Before:
-    ``` css
-    .writer-container {
-        min-height: calc(100vh - 80px);
-        display: flex;
-        background: var(--scitex-light);
-    }
-    ```
-
-    After:
-    ``` css
-    .writer-container {
-        min-height: calc(100vh - 80px);
-        display: flex;
-        /* background: var(--scitex-light); */
-    }
-    ```
 
 ## Design Theme of the website
 See `./apps/dev_app`
@@ -104,45 +72,40 @@ Actually, this rule should be applied to all of this web app
 
 # Requests
 
-## Rules for clear system building
+- [ ] Refactor project_app based on the FULLSTACK.md
+  - [ ] Evaluation can be seen at ./apps/project_app/EVAL.md
+  - [ ] Verify everything using playwright, `127.0.0.1:8000`
 
-## Common vs App
-Clearly distinguish common files and app-level files
-app-level files should be under ./apps/<app_name>_app/
-
-## Central Logging system
-- [ ] Log to one place
-  - [ ] ./logs/*.log
-
-## General
-- [ ] Single source of truth
-- [ ] Smaller files are better than monotholic, large files
-
-## Typescript over Javascript 
-- [ ] Migrate Javascript to Typescript
-  - [ ] console.log for debugging
-  - [ ] switchable log function should be implemented in central
-
-## CSS Rules
-- [ ] No inline styles. No exception. Factor out to css files
-- [ ] No distributed css files. For one class, only one css file can be applied.
-
-## HTML Rules
-- [ ] Use partials to read skelton structure of html pages
-
-## Current Top Priority - Improve /writer/ and show synergy with /scholar/
-./TODOS/10_SCITEX_WRITER_01.md
-
-## https://127.0.0.1:8000/search/ (skip this now)
-./TODOS/10_SCITEX_SCHOLAR_01.md
-
-## Project Page (skip this now)
-- [ ] Root: http://127.0.0.1:8000/test-user/proj-001/
-  - [ ] Layout of Root directory is good. 
-- [ ] Child: http://127.0.0.1:8000/test-user/proj-001/.git
-  - [ ] Layout of Child directories are corrupted
-  - [ ] Side panel and main table are corrupted in child directories
-- [ ] Why root and children are handled differently?
-  - [ ] Is it not possible to share components?
+<!-- Skip the blow now -->
+<!-- ## Central Logging system
+ !-- - [ ] Log to one place
+ !--   - [ ] ./logs/*.log
+ !-- 
+ !-- ## Typescript over Javascript 
+ !-- - [ ] Migrate Javascript to Typescript
+ !--   - [ ] console.log for debugging
+ !--   - [ ] switchable log function should be implemented in central
+ !-- 
+ !-- ## CSS Rules
+ !-- 
+ !-- 
+ !-- 
+ !-- ## HTML Rules
+ !-- - [ ] Use partials to read skelton structure of html pages
+ !-- 
+ !-- ## Current Top Priority - Improve /writer/ and show synergy with /scholar/
+ !-- ./TODOS/10_SCITEX_WRITER_01.md
+ !-- 
+ !-- ## https://127.0.0.1:8000/search/ (skip this now)
+ !-- ./TODOS/10_SCITEX_SCHOLAR_01.md
+ !-- 
+ !-- ## Project Page (skip this now)
+ !-- - [ ] Root: http://127.0.0.1:8000/test-user/proj-001/
+ !--   - [ ] Layout of Root directory is good. 
+ !-- - [ ] Child: http://127.0.0.1:8000/test-user/proj-001/.git
+ !--   - [ ] Layout of Child directories are corrupted
+ !--   - [ ] Side panel and main table are corrupted in child directories
+ !-- - [ ] Why root and children are handled differently?
+ !--   - [ ] Is it not possible to share components? -->
 
 <!-- EOF -->

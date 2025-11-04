@@ -1,20 +1,51 @@
-"""
-Writer app models package.
+"""Writer app models - Feature-based organization."""
 
-Minimal model set:
-- core: Manuscript (links user/project to scitex.writer.Writer)
+# Editor models
+from .editor.document import Manuscript
 
-All other functionality (sections, compilation, collaboration, version control, arxiv)
-delegated to scitex.writer.Writer and exposed via REST API.
-"""
+# Compilation models
+from .compilation.compilation import CompilationJob, AIAssistanceLog
 
-# Core models
-from .core import Manuscript
+# Version control models
+from .version_control.version import (
+    ManuscriptVersion,
+    ManuscriptBranch,
+    DiffResult,
+    MergeRequest,
+)
+
+# arXiv integration models
+from .arxiv.submission import (
+    ArxivAccount,
+    ArxivCategory,
+    ArxivSubmission,
+    ArxivSubmissionHistory,
+    ArxivValidationResult,
+    ArxivApiResponse,
+)
 
 # Collaboration models
-from .collaboration import WriterPresence
+from .collaboration.session import WriterPresence, CollaborativeSession
 
 __all__ = [
+    # Editor
     'Manuscript',
+    # Compilation
+    'CompilationJob',
+    'AIAssistanceLog',
+    # Version Control
+    'ManuscriptVersion',
+    'ManuscriptBranch',
+    'DiffResult',
+    'MergeRequest',
+    # arXiv
+    'ArxivAccount',
+    'ArxivCategory',
+    'ArxivSubmission',
+    'ArxivSubmissionHistory',
+    'ArxivValidationResult',
+    'ArxivApiResponse',
+    # Collaboration
     'WriterPresence',
+    'CollaborativeSession',
 ]

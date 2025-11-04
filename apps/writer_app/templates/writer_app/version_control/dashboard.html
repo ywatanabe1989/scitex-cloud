@@ -1,0 +1,63 @@
+{% extends "writer_app/base/app_base.html" %}
+{% load static %}
+
+{% comment %}
+Version control dashboard
+{% endcomment %}
+
+{% block writer_css %}
+<link rel="stylesheet" href="{% static 'writer_app/css/version_control/dashboard.css' %}">
+{% endblock %}
+
+{% block writer_sidebar %}
+{% include "writer_app/shared/_sidebar.html" %}
+{% endblock %}
+
+{% block writer_content %}
+<div class="version-control-container">
+    <header class="vc-header">
+        <h2>Version Control</h2>
+        <div class="vc-actions">
+            <button class="btn-primary" id="btn-commit">Commit Changes</button>
+            <button class="btn-secondary" id="btn-view-diff">View Changes</button>
+        </div>
+    </header>
+
+    <div class="vc-main">
+        <div class="branches-panel">
+            <h3>Branches</h3>
+            <ul class="branch-list">
+                {% for branch in branches %}
+                <li class="branch-item {% if branch.is_current %}active{% endif %}">
+                    {{ branch.name }}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="commits-panel">
+            <h3>Commit History</h3>
+            <div class="commit-list">
+                {% if commits %}
+                    {% for commit in commits %}
+                    <div class="commit-item">
+                        <div class="commit-message">{{ commit.message }}</div>
+                        <div class="commit-meta">
+                            <span class="commit-hash">{{ commit.hash|slice:":7" }}</span>
+                            <span class="commit-author">{{ commit.author }}</span>
+                            <span class="commit-date">{{ commit.date }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="empty-message">No commits yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block writer_js %}
+<script src="{% static 'writer_app/js/version_control/dashboard.js' %}"></script>
+{% endblock %}

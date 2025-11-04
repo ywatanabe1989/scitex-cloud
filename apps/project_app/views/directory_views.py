@@ -235,7 +235,7 @@ def project_directory_dynamic(request, username, slug, directory_path):
         or project.collaborators.filter(id=request.user.id).exists(),
     }
 
-    return render(request, "project_app/directory_browser.html", context)
+    return render(request, "project_app/repository/directory_browser.html", context)
 
 
 def project_file_view(request, username, slug, file_path):
@@ -467,7 +467,7 @@ def project_file_view(request, username, slug, file_path):
             "breadcrumbs": breadcrumbs,
             "mode": "edit",
         }
-        return render(request, "project_app/file_edit.html", context)
+        return render(request, "project_app/repository/file_edit.html", context)
 
     # Read file content
     try:
@@ -589,7 +589,7 @@ def project_file_view(request, username, slug, file_path):
         "git_info": git_info,
     }
 
-    return render(request, "project_app/file_view.html", context)
+    return render(request, "project_app/repository/file_view.html", context)
 
 
 def project_directory(request, username, slug, directory, subpath=None):
@@ -760,7 +760,7 @@ def project_directory(request, username, slug, directory, subpath=None):
         or project.collaborators.filter(id=request.user.id).exists(),
     }
 
-    return render(request, "project_app/directory_browser.html", context)
+    return render(request, "project_app/repository/directory_browser.html", context)
 
 
 def file_history_view(request, username, slug, branch, file_path):
@@ -921,7 +921,7 @@ def file_history_view(request, username, slug, branch, file_path):
         "total_commits": len(commits),
     }
 
-    return render(request, "project_app/file_history.html", context)
+    return render(request, "project_app/repository/file_history.html", context)
 
 
 def commit_detail(request, username, slug, commit_hash):

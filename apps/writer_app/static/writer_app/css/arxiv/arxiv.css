@@ -1,0 +1,412 @@
+/* ========================================
+ * arXiv Integration Styles for SciTeX Writer
+ * Refactored to use central CSS for styling
+ * Styling delegated to: /static/css/common.css, /static/css/components/*.css
+ * NOTE: Most arXiv-specific styling has been commented out
+ * ======================================== */
+
+/* General arXiv styling */
+.arxiv-dashboard {
+    /* background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); */  /* Styling from central CSS */
+    min-height: 100vh;
+}
+
+.arxiv-card {
+    /* border: none; */  /* Styling from central CSS */
+    /* box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); */  /* Styling from central CSS */
+    /* transition: transform 0.2s ease-in-out; */  /* Styling from central CSS */
+}
+
+.arxiv-card:hover {
+    /* transform: translateY(-2px); */  /* Styling from central CSS */
+    /* box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15); */  /* Styling from central CSS */
+}
+
+/* Status badges */
+.badge.bg-draft {
+    /* background-color: #6c757d !important; */  /* Styling from central CSS */
+}
+
+.badge.bg-validating {
+    /* background-color: #ffc107 !important; */  /* Styling from central CSS */
+}
+
+.badge.bg-submitted {
+    /* background-color: #0d6efd !important; */  /* Styling from central CSS */
+}
+
+.badge.bg-under-review {
+    /* background-color: #0dcaf0 !important; */  /* Styling from central CSS */
+}
+
+.badge.bg-approved {
+    /* background-color: #198754 !important; */  /* Styling from central CSS */
+}
+
+.badge.bg-published {
+    /* background-color: #28a745 !important; */  /* Styling from central CSS */
+}
+
+.badge.bg-rejected {
+    /* background-color: #dc3545 !important; */  /* Styling from central CSS */
+}
+
+.badge.bg-withdrawn {
+    /* background-color: #6f42c1 !important; */  /* Styling from central CSS */
+}
+
+/* Submission form styling */
+.submission-form {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.suggestion-btn {
+    /* transition: all 0.2s ease; */  /* Styling from central CSS */
+}
+
+.suggestion-btn:hover {
+    /* transform: scale(1.05); */  /* Styling from central CSS */
+}
+
+.character-counter {
+    /* font-size: 0.875rem; */  /* Styling from central CSS */
+}
+
+.character-counter.text-warning {
+    /* color: #ffc107 !important; */  /* Styling from central CSS */
+}
+
+.character-counter.text-danger {
+    /* color: #dc3545 !important; */  /* Styling from central CSS */
+}
+
+/* Validation results */
+.validation-results {
+    /* border-left: 4px solid #17a2b8; */  /* Styling from central CSS */
+    padding-left: 1rem;
+}
+
+.validation-check {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.validation-check i {
+    margin-right: 0.5rem;
+    width: 20px;
+}
+
+.circular-progress {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    /* border-radius: 50%; */  /* Styling from central CSS */
+    /* background: conic-gradient(
+        from 0deg,
+        #28a745 0deg,
+        #28a745 var(--progress, 0deg),
+        #e9ecef var(--progress, 0deg),
+        #e9ecef 360deg
+    ); */  /* Styling from central CSS */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.circular-progress::before {
+    content: '';
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    /* border-radius: 50%; */  /* Styling from central CSS */
+    /* background: white; */  /* Styling from central CSS */
+}
+
+.progress-value {
+    position: relative;
+    z-index: 1;
+    /* font-weight: bold; */  /* Styling from central CSS */
+    /* color: #495057; */  /* Styling from central CSS */
+}
+
+/* Timeline for submission history */
+.timeline {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 0.75rem;
+    top: 0;
+    height: 100%;
+    width: 2px;
+    /* background: #dee2e6; */  /* Styling from central CSS */
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -2.25rem;
+    top: 0.25rem;
+    width: 12px;
+    height: 12px;
+    /* border-radius: 50%; */  /* Styling from central CSS */
+    /* background: #0d6efd; */  /* Styling from central CSS */
+    /* border: 2px solid white; */  /* Styling from central CSS */
+    /* box-shadow: 0 0 0 2px #dee2e6; */  /* Styling from central CSS */
+}
+
+.timeline-content {
+    /* background: white; */  /* Styling from central CSS */
+    padding: 1rem;
+    /* border-radius: 0.375rem; */  /* Styling from central CSS */
+    /* box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); */  /* Styling from central CSS */
+}
+
+/* File display */
+.file-item {
+    /* transition: all 0.2s ease; */  /* Styling from central CSS */
+}
+
+.file-item:hover {
+    /* background-color: #f8f9fa; */  /* Styling from central CSS */
+    /* border-color: #0d6efd !important; */  /* Styling from central CSS */
+}
+
+/* Statistics cards */
+.stats-card {
+    text-align: center;
+    padding: 1rem;
+    /* border-radius: 0.5rem; */  /* Styling from central CSS */
+    /* border: 1px solid #dee2e6; */  /* Styling from central CSS */
+    /* transition: all 0.2s ease; */  /* Styling from central CSS */
+}
+
+.stats-card:hover {
+    /* border-color: #0d6efd; */  /* Styling from central CSS */
+    /* box-shadow: 0 2px 8px rgba(13, 110, 253, 0.15); */  /* Styling from central CSS */
+}
+
+.stats-number {
+    /* font-size: 2rem; */  /* Styling from central CSS */
+    /* font-weight: bold; */  /* Styling from central CSS */
+    /* line-height: 1; */  /* Styling from central CSS */
+    margin-bottom: 0.5rem;
+}
+
+/* Category selection */
+.category-group {
+    margin-bottom: 1rem;
+}
+
+.category-group h6 {
+    /* color: #495057; */  /* Styling from central CSS */
+    /* font-weight: 600; */  /* Styling from central CSS */
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.25rem;
+    /* border-bottom: 1px solid #dee2e6; */  /* Styling from central CSS */
+}
+
+.category-option {
+    padding: 0.5rem;
+    /* border: 1px solid #dee2e6; */  /* Styling from central CSS */
+    /* border-radius: 0.25rem; */  /* Styling from central CSS */
+    margin-bottom: 0.25rem;
+    cursor: pointer;
+    /* transition: all 0.2s ease; */  /* Styling from central CSS */
+}
+
+.category-option:hover {
+    /* background-color: #f8f9fa; */  /* Styling from central CSS */
+    /* border-color: #0d6efd; */  /* Styling from central CSS */
+}
+
+.category-option.selected {
+    /* background-color: #e7f3ff; */  /* Styling from central CSS */
+    /* border-color: #0d6efd; */  /* Styling from central CSS */
+    /* color: #0d6efd; */  /* Styling from central CSS */
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .submission-form {
+        padding: 1rem;
+    }
+    
+    .timeline {
+        padding-left: 1.5rem;
+    }
+    
+    .timeline-marker {
+        left: -1.75rem;
+    }
+    
+    .stats-number {
+        /* font-size: 1.5rem; */  /* Styling from central CSS */
+    }
+    
+    .circular-progress {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .circular-progress::before {
+        width: 45px;
+        height: 45px;
+    }
+}
+
+/* Loading states */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* background: rgba(0, 0, 0, 0.5); */  /* Styling from central CSS */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.loading-spinner {
+    /* background: white; */  /* Styling from central CSS */
+    padding: 2rem;
+    /* border-radius: 0.5rem; */  /* Styling from central CSS */
+    text-align: center;
+    /* box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); */  /* Styling from central CSS */
+}
+
+/* Submission guidelines */
+.guidelines-card {
+    /* background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); */  /* Styling from central CSS */
+    /* border: none; */  /* Styling from central CSS */
+}
+
+.guidelines-card .card-header {
+    /* background: rgba(255, 255, 255, 0.8); */  /* Styling from central CSS */
+    /* border-bottom: 1px solid rgba(25, 118, 210, 0.2); */  /* Styling from central CSS */
+}
+
+/* Action buttons */
+.action-btn {
+    margin-bottom: 0.5rem;
+    /* transition: all 0.2s ease; */  /* Styling from central CSS */
+}
+
+.action-btn:hover {
+    /* transform: translateY(-1px); */  /* Styling from central CSS */
+}
+
+/* Error and success states */
+.error-state {
+    /* color: #dc3545; */  /* Styling from central CSS */
+    /* background-color: #f8d7da; */  /* Styling from central CSS */
+    /* border-color: #f5c6cb; */  /* Styling from central CSS */
+}
+
+.success-state {
+    /* color: #155724; */  /* Styling from central CSS */
+    /* background-color: #d4edda; */  /* Styling from central CSS */
+    /* border-color: #c3e6cb; */  /* Styling from central CSS */
+}
+
+.warning-state {
+    /* color: #856404; */  /* Styling from central CSS */
+    /* background-color: #fff3cd; */  /* Styling from central CSS */
+    /* border-color: #ffeaa7; */  /* Styling from central CSS */
+}
+
+/* Table enhancements */
+.table-arxiv {
+    /* background: white; */  /* Styling from central CSS */
+    /* border-radius: 0.5rem; */  /* Styling from central CSS */
+    overflow: hidden;
+    /* box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); */  /* Styling from central CSS */
+}
+
+.table-arxiv th {
+    /* background-color: #f8f9fa; */  /* Styling from central CSS */
+    /* border-top: none; */  /* Styling from central CSS */
+    /* font-weight: 600; */  /* Styling from central CSS */
+    /* color: #495057; */  /* Styling from central CSS */
+}
+
+.table-arxiv td {
+    /* vertical-align: middle; */  /* Styling from central CSS */
+    /* border-color: #e9ecef; */  /* Styling from central CSS */
+}
+
+.table-arxiv tbody tr:hover {
+    /* background-color: #f8f9fa; */  /* Styling from central CSS */
+}
+
+/* Filters */
+.filter-controls {
+    /* background: white; */  /* Styling from central CSS */
+    padding: 1rem;
+    /* border-radius: 0.5rem; */  /* Styling from central CSS */
+    /* box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); */  /* Styling from central CSS */
+    margin-bottom: 1.5rem;
+}
+
+/* Empty state */
+.empty-state {
+    text-align: center;
+    padding: 3rem 2rem;
+}
+
+.empty-state i {
+    /* opacity: 0.5; */  /* Styling from central CSS */
+    margin-bottom: 1rem;
+}
+
+.empty-state h4 {
+    /* color: #6c757d; */  /* Styling from central CSS */
+    margin-bottom: 1rem;
+}
+
+.empty-state p {
+    /* color: #adb5bd; */  /* Styling from central CSS */
+    margin-bottom: 2rem;
+}
+
+/* Animation utilities */
+.fade-in {
+    /* animation: fadeIn 0.3s ease-in; */  /* Styling from central CSS */
+}
+
+@keyframes fadeIn {
+    from { 
+        /* opacity: 0; */  /* Styling from central CSS */
+        /* transform: translateY(10px); */  /* Styling from central CSS */
+    }
+    to { 
+        /* opacity: 1; */  /* Styling from central CSS */
+        /* transform: translateY(0); */  /* Styling from central CSS */
+    }
+}
+
+.slide-up {
+    /* animation: slideUp 0.3s ease-out; */  /* Styling from central CSS */
+}
+
+@keyframes slideUp {
+    from { 
+        /* opacity: 0; */  /* Styling from central CSS */
+        /* transform: translateY(20px); */  /* Styling from central CSS */
+    }
+    to { 
+        /* opacity: 1; */  /* Styling from central CSS */
+        /* transform: translateY(0); */  /* Styling from central CSS */
+    }
+}
