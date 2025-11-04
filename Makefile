@@ -36,6 +36,11 @@ NC := \033[0m
 # ============================================
 # Environment Validation - NO DEFAULTS!
 # ============================================
+# Accept both env= and ENV= (convert lowercase to uppercase)
+ifdef env
+  ENV := $(env)
+endif
+
 # Check if ENV is specified and valid
 ifdef ENV
   ifeq ($(filter $(ENV),$(VALID_ENVS)),)
@@ -134,7 +139,7 @@ help:
 	@echo "  make ENV=prod ssl-setup           # Manual SSL setup (interactive)"
 	@echo ""
 	@echo "$(RED)⚠️  IMPORTANT: ENV parameter is MANDATORY!$(NC)"
-	@echo "$(YELLOW)   No defaults - always specify ENV=<dev|prod|nas>$(NC)"
+	@echo "$(YELLOW)   No defaults - always specify ENV=<dev|prod|nas> (or env=)$(NC)"
 	@echo ""
 
 # ============================================
