@@ -111,7 +111,7 @@ class CollaborativeSessionAdmin(admin.ModelAdmin):
     search_fields = [
         'session_id',
         'manuscript__title',
-        'participants__username',
+        'user__username',
     ]
     readonly_fields = [
         'id',
@@ -121,10 +121,7 @@ class CollaborativeSessionAdmin(admin.ModelAdmin):
     ]
     fieldsets = (
         ('Session Information', {
-            'fields': ('session_id', 'manuscript', 'is_active')
-        }),
-        ('Participants', {
-            'fields': ('participants',)
+            'fields': ('session_id', 'manuscript', 'user', 'is_active')
         }),
         ('Locking', {
             'fields': ('locked_sections',),
@@ -141,7 +138,6 @@ class CollaborativeSessionAdmin(admin.ModelAdmin):
     )
     date_hierarchy = 'started_at'
     ordering = ['-started_at']
-    filter_horizontal = ['participants']
 
     def session_id_short(self, obj):
         """Display shortened session ID."""
@@ -162,15 +158,11 @@ class CollaborativeSessionAdmin(admin.ModelAdmin):
     manuscript_display.short_description = 'Manuscript'
 
     def active_users_count(self, obj):
-        """Display number of active participants."""
-        count = obj.participants.count()
-        return format_html(
-            '<span style="background: #e0e0e0; padding: 2px 8px; '
-            'border-radius: 3px;">{} user{}</span>',
-            count,
-            's' if count != 1 else ''
-        )
-    active_users_count.short_description = 'Participants'
+        """Display user for this session."""
+        if obj.user:
+            return f"{obj.user.username}"
+        return '-'
+    active_users_count.short_description = 'User'
 
     def is_active_badge(self, obj):
         """Display active status badge."""
@@ -186,6 +178,6 @@ class CollaborativeSessionAdmin(admin.ModelAdmin):
     is_active_badge.short_description = 'Status'
 
     def get_queryset(self, request):
-        """Optimize queryset with select_related and prefetch_related."""
+        """Optimize queryset with select_related."""
         qs = super().get_queryset(request)
-        return qs.select_related('manuscript').prefetch_related('participants')
+        return qs.select_related('manuscript', 'user')

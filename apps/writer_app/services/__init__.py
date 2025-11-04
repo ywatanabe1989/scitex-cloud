@@ -1,16 +1,19 @@
 """
-Writer App Services - Minimal Interface
+Writer App Services - Feature-Organized Services
 
-All heavy lifting delegated to scitex.writer.Writer.
-WriterService provides Django convenience wrapper.
+Business logic layer organized by feature domain.
 """
 
-from .writer_service import WriterService
 from .editor import DocumentService
-from .compilation import CompilationService
+from .compilation import CompilerService
+from .version_control import VersionControlService
+from .arxiv import ArxivService
+from .collaboration import CollaborationService
 
 __all__ = [
-    'WriterService',
     'DocumentService',
-    'CompilationService',
+    'CompilerService',
+    'VersionControlService',
+    'ArxivService',
+    'CollaborationService',
 ]
