@@ -4,15 +4,11 @@
 # ============================================
 
 run_migrations() {
-    echo "🔄 Running migrations..."
-    python manage.py migrate --noinput
-    echo "✅ Migrations complete!"
+    run_timed "Running migrations" python manage.py migrate --noinput
 }
 
 collect_static_files() {
-    echo "📦 Collecting static files..."
-    python manage.py collectstatic --noinput
-    echo "✅ Static files collected!"
+    run_timed "Collecting static files" python manage.py collectstatic --noinput
 }
 
 # EOF

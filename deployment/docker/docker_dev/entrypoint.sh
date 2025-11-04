@@ -6,6 +6,7 @@ set -e
 # ============================================
 
 # Source common libraries
+source /app/deployment/docker/common/lib/logging.src
 source /app/deployment/docker/common/lib/database.src
 source /app/deployment/docker/common/lib/django.src
 source /app/deployment/docker/common/lib/scitex.src
@@ -18,9 +19,7 @@ echo "🔧 Development Environment"
 if [ -d "/scitex-code" ]; then
     # Check if scitex-code is a valid Python project
     if [ -f "/scitex-code/pyproject.toml" ] || [ -f "/scitex-code/setup.py" ]; then
-        echo "📦 Installing scitex from /scitex-code (editable mode)..."
-        pip install --user -e /scitex-code
-        echo "✅ Scitex package installed in editable mode!"
+        run_timed "Installing scitex (editable mode)" pip install --user -e /scitex-code
         verify_scitex_package
     else
         echo "⚠️  WARNING: /scitex-code exists but is not a valid Python package"
