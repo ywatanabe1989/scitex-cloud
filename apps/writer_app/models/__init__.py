@@ -2,6 +2,7 @@
 
 # Editor models
 from .editor.document import Manuscript
+from .editor.section import ManuscriptSection
 
 # Compilation models
 from .compilation.compilation import CompilationJob, AIAssistanceLog
@@ -30,6 +31,7 @@ from .collaboration.session import WriterPresence, CollaborativeSession
 __all__ = [
     # Editor
     'Manuscript',
+    'ManuscriptSection',
     # Compilation
     'CompilationJob',
     'AIAssistanceLog',

@@ -1,42 +1,49 @@
 /**
- * Compilation Management
- * Handles PDF compilation operations and status tracking
+ * Compilation Module - LaTeX compilation and PDF preview
+ *
+ * Handles compilation job submission, status tracking, and PDF preview.
  */
 
-export class CompilationManager {
-    private projectId: number | null;
+/**
+ * Interface for compilation job response
+ */
+export interface CompilationJob {
+    job_id: string;
+    status: 'queued' | 'running' | 'completed' | 'failed';
+    output_pdf?: string;
+    error_message?: string;
+    compilation_time?: number;
+}
 
-    constructor(projectId: number | null) {
-        this.projectId = projectId;
-    }
+/**
+ * Compilation handler for LaTeX documents
+ */
+export class CompilationHandler {
+    private jobId: string | null = null;
+    private pollInterval: NodeJS.Timer | null = null;
 
     /**
-     * Start a new compilation job
+     * Submit a compilation job
      */
-    async compile(docType: string = 'manuscript'): Promise<void> {
-        if (!this.projectId) {
-            throw new Error('Project ID required for compilation');
-        }
-
+    public async submitCompilation(compilationType: string = 'full'): Promise<string> {
         try {
-            const response = await fetch('/writer/api/compile/', {
+            const response = await fetch('/api/writer/compilation/submit/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'X-CSRFToken': this.getCSRFToken(),
                 },
-                body: JSON.stringify({
-                    project_id: this.projectId,
-                    doc_type: docType,
-                }),
+                body: JSON.stringify({ compilation_type: compilationType }),
             });
 
-            const result = await response.json();
-            
-            if (!result.success) {
-                throw new Error(result.error || 'Compilation failed');
+            if (!response.ok) {
+                throw new Error('Compilation submission failed');
             }
 
-            console.log('Compilation started:', result);
+            const data = await response.json();
+            this.jobId = data.job_id;
+            this.startPolling();
+            return data.job_id;
         } catch (error) {
             console.error('Compilation error:', error);
             throw error;
@@ -44,17 +51,93 @@ export class CompilationManager {
     }
 
     /**
-     * Check compilation job status
+     * Check compilation status
      */
-    async checkStatus(jobId: string): Promise<any> {
+    public async checkStatus(jobId: string): Promise<CompilationJob> {
         try {
-            const response = await fetch(`/writer/api/compilation/status/?job_id=${jobId}`);
-            const result = await response.json();
-            
-            return result.status;
+            const response = await fetch(`/api/writer/compilation/status/${jobId}/`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch compilation status');
+            }
+            return await response.json();
         } catch (error) {
             console.error('Status check error:', error);
             throw error;
         }
     }
+
+    /**
+     * Start polling for job status
+     */
+    private startPolling(): void {
+        if (this.pollInterval) {
+            clearInterval(this.pollInterval);
+        }
+
+        this.pollInterval = setInterval(async () => {
+            if (!this.jobId) return;
+
+            try {
+                const status = await this.checkStatus(this.jobId);
+                this.handleStatusUpdate(status);
+
+                if (status.status === 'completed' || status.status === 'failed') {
+                    this.stopPolling();
+                }
+            } catch (error) {
+                console.error('Polling error:', error);
+                this.stopPolling();
+            }
+        }, 1000); // Poll every second
+    }
+
+    /**
+     * Stop polling
+     */
+    private stopPolling(): void {
+        if (this.pollInterval) {
+            clearInterval(this.pollInterval);
+            this.pollInterval = null;
+        }
+    }
+
+    /**
+     * Handle status updates
+     */
+    private handleStatusUpdate(status: CompilationJob): void {
+        console.log('Compilation status:', status);
+        // TODO: Update UI with status
+    }
+
+    /**
+     * Get CSRF token from DOM
+     */
+    private getCSRFToken(): string {
+        const token = document.querySelector('input[name="csrfmiddlewaretoken"]') as HTMLInputElement;
+        return token ? token.value : '';
+    }
+
+    /**
+     * Cancel ongoing polling
+     */
+    public cancel(): void {
+        this.stopPolling();
+        this.jobId = null;
+    }
 }
+
+// Initialize on document load
+document.addEventListener('DOMContentLoaded', () => {
+    const handler = new CompilationHandler();
+
+    const submitButton = document.getElementById('compile-button');
+    if (submitButton) {
+        submitButton.addEventListener('click', async () => {
+            try {
+                await handler.submitCompilation('full');
+            } catch (error) {
+                console.error('Compilation failed:', error);
+            }
+        });
+    }
+});
