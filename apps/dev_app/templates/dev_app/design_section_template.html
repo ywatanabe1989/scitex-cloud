@@ -6,9 +6,9 @@
 
 {% block extra_css %}
 {% load static %}
-<link rel="stylesheet" href="{% static 'css/common.css' %}">
-<link rel="stylesheet" href="{% static 'css/components/code-blocks.css' %}">
-<link rel="stylesheet" href="{% static 'css/components/theme-cards.css' %}">
+<link rel="stylesheet" href="{% static 'shared/css/common.css' %}">
+<link rel="stylesheet" href="{% static 'shared/css/components/code-blocks.css' %}">
+<link rel="stylesheet" href="{% static 'shared/css/components/theme-cards.css' %}">
 <link rel="stylesheet" href="{% static 'dev_app/styles/design.css' %}">
 
 <!-- Highlight.js themes for live preview -->
@@ -46,7 +46,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlightjs-line-numbers.js/2.8.0/highlightjs-line-numbers.min.js"></script>
 
 <!-- Custom Language Definitions for Highlight.js -->
-<script src="{% static 'js/utils/highlight-js-bibtex.js' %}"></script>
+<script src="{% static 'shared/js/utils/highlight-js-bibtex.js' %}"></script>
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
@@ -136,6 +136,6 @@
     }
   });
 </script>
-<script src="{% static 'js/code-blocks.js' %}"></script>
+<script src="{% static 'shared/js/code-blocks.js' %}"></script>
 <script src="{% static 'dev_app/scripts/design.js' %}"></script>
 {% endblock %}
