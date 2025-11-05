@@ -143,7 +143,7 @@ templates/project_app/
 │
 └── 📁 legacy/                         ← OBSOLETE/EXPERIMENTAL
     ├── extracted_styles/              (Old CSS extraction approach)
-    ├── sidebar_improvements.html      (Incomplete experiment)
+    ├── sidebar.html      (Incomplete experiment)
     ├── list.html                      (Superseded by other functionality)
     ├── filer/                         (If not fully migrated to browse→files/)
     ├── browse/                        (If migrating from this)
@@ -309,7 +309,7 @@ mv apps/project_app/templates/project_app/partials/profile_*.html \
 # Move old/experimental files to legacy/
 mv apps/project_app/templates/project_app/legacy/extracted_styles \
    apps/project_app/templates/project_app/legacy/
-mv apps/project_app/templates/project_app/sidebar_improvements.html \
+mv apps/project_app/templates/project_app/sidebar.html \
    apps/project_app/templates/project_app/legacy/
 mv apps/project_app/templates/project_app/list.html \
    apps/project_app/templates/project_app/legacy/

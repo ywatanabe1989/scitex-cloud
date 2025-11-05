@@ -1,13 +1,12 @@
+"use strict";
 // =============================================================================
 // Project Creation Form Logic
 // =============================================================================
+console.log("[DEBUG] apps/project_app/static/project_app/ts/projects/create.ts loaded");
 (function () {
     'use strict';
     // Handle initialization type selection
     const initTypeRadios = document.querySelectorAll('input[name="init_type"]');
-    const templateSelector = document.getElementById('template_type_selector');
-    const gitUrlInput = document.getElementById('git_url_input');
-    const gitUrlField = document.getElementById('git_url');
     const githubUrlInput = document.getElementById('github_url_input');
     const githubUrlField = document.getElementById('github_url');
     // Helper function to extract repo name from URL
@@ -73,12 +72,12 @@
         if (!name) {
             e.preventDefault();
             alert('Please enter a project name');
-            return false;
+            return;
         }
         if (!isNameAvailable) {
             e.preventDefault();
             alert('Please choose an available project name. The current name is already taken or invalid.');
-            return false;
+            return;
         }
     });
     nameInput?.addEventListener('input', function () {
@@ -87,7 +86,8 @@
         clearTimeout(nameCheckTimeout);
         // Hide availability if empty
         if (!name) {
-            availabilityDiv.style.display = 'none';
+            if (availabilityDiv)
+                availabilityDiv.style.display = 'none';
             isNameAvailable = false;
             if (submitButton) {
                 submitButton.disabled = true;
@@ -104,10 +104,14 @@
             submitButton.style.cursor = 'not-allowed';
         }
         // Show checking state
-        availabilityDiv.style.display = 'block';
-        availabilityIcon.textContent = '⏳';
-        availabilityMessage.textContent = ' Checking availability...';
-        availabilityMessage.style.color = '#666';
+        if (availabilityDiv)
+            availabilityDiv.style.display = 'block';
+        if (availabilityIcon)
+            availabilityIcon.textContent = '⏳';
+        if (availabilityMessage) {
+            availabilityMessage.textContent = ' Checking availability...';
+            availabilityMessage.style.color = '#666';
+        }
         // Debounce: wait 500ms after user stops typing
         nameCheckTimeout = window.setTimeout(async () => {
             try {

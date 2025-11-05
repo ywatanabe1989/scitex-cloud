@@ -1,4 +1,6 @@
+"use strict";
 // Project Settings TypeScript
+console.log("[DEBUG] apps/project_app/static/project_app/ts/projects/settings.ts loaded");
 (function () {
     'use strict';
     // ===== DEBUG LOGGING =====

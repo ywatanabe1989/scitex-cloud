@@ -106,7 +106,7 @@ You're currently **migrating template names from `filer/` to `browse/`**:
 ❌ pull_requests/    (16 files - no views render these)
 ❌ security/        (11 files - no views render these)
 ❌ commits/          (1 file - no views render this)
-❌ sidebar_improvements.html
+❌ sidebar.html
 ❌ list.html
 ❌ legacy/extracted_styles/
 ```
@@ -159,7 +159,7 @@ rm -rf apps/project_app/templates/project_app/issues/
 rm -rf apps/project_app/templates/project_app/pull_requests/
 rm -rf apps/project_app/templates/project_app/security/
 rm -rf apps/project_app/templates/project_app/commits/
-rm apps/project_app/templates/project_app/sidebar_improvements.html
+rm apps/project_app/templates/project_app/sidebar.html
 rm apps/project_app/templates/project_app/list.html
 rm -rf apps/project_app/templates/project_app/legacy/extracted_styles/
 ```
@@ -231,7 +231,7 @@ templates/project_app/
 ❌ security/
 ❌ commits/
 ❌ legacy/extracted_styles/
-❌ sidebar_improvements.html
+❌ sidebar.html
 ❌ list.html
 ```
 

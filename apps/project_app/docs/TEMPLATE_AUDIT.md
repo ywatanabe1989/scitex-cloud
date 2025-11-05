@@ -149,7 +149,7 @@ legacy/extracted_styles/
 
 ### 🚫 Misc Orphaned Files (2 templates)
 - `list.html` - Likely replaced by user listing functionality
-- `sidebar_improvements.html` - Experimental/incomplete feature
+- `sidebar.html` - Experimental/incomplete feature
 - `filer/browser.html` - Superseded by `filer/directory.html`
 
 ---
@@ -215,7 +215,7 @@ The partials directory contains many reusable components, but **many are not inc
 
 2. **Delete Truly Legacy Files** (7 templates)
    - Delete `legacy/extracted_styles/` (CSS extraction is not how Django works)
-   - Delete `sidebar_improvements.html` (experimental)
+   - Delete `sidebar.html` (experimental)
    - Delete `list.html` (replaced by other functionality)
 
 3. **Delete Clearly Superseded Files** (2 templates)
@@ -233,7 +233,7 @@ templates/project_app/
 ├── settings.html ✅
 ├── list.html ❌ (unused)
 ├── github_integration.html ✅
-├── sidebar_improvements.html ❌ (experimental)
+├── sidebar.html ❌ (experimental)
 ├── repository_maintenance.html ✅
 ├── actions/ ❌ (8 unused)
 ├── commits/ ❌ (1 unused)
@@ -332,7 +332,7 @@ Then remove unused partials.
 - [ ] Create `legacy/` subdirectories for unused features
 - [ ] Move all files from `actions/`, `issues/`, `pull_requests/`, `security/`, `commits/` to `legacy/`
 - [ ] Delete `legacy/extracted_styles/`
-- [ ] Delete `sidebar_improvements.html`
+- [ ] Delete `sidebar.html`
 - [ ] Delete `list.html` (confirm not used first)
 - [ ] Delete `filer/browser.html`
 - [ ] Rename all root-level templates with `project_` prefix

@@ -1,5 +1,7 @@
+"use strict";
 // Workflow Detail Page JavaScript
 // Functions for triggering and toggling workflows
+console.log("[DEBUG] apps/project_app/static/project_app/ts/workflows/detail.ts loaded");
 (function () {
     'use strict';
     function triggerWorkflow() {

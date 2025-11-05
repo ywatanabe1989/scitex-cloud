@@ -495,7 +495,7 @@ mv static/project_app/js/pr_detail.js static/project_app/js/pr-detail.js
 mv static/project_app/js/pr_form.js static/project_app/js/pr-form.js
 mv static/project_app/js/security_alert_detail.js static/project_app/js/security-alert-detail.js
 mv static/project_app/js/security_scan.js static/project_app/js/security-scan.js
-mv static/project_app/js/sidebar_improvements.js static/project_app/js/sidebar-improvements.js
+mv static/project_app/js/sidebar.js static/project_app/js/sidebar-improvements.js
 mv static/project_app/js/workflow_detail.js static/project_app/js/workflow-detail.js
 mv static/project_app/js/workflow_editor.js static/project_app/js/workflow-editor.js
 mv static/project_app/js/workflow_run_detail.js static/project_app/js/workflow-run-detail.js

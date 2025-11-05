@@ -281,9 +281,10 @@
 /* Table Cells */
 .file-browser-cell {
     /* Layout preserved */
-    padding: 8px 16px;
+    padding: 10px 16px;
     vertical-align: middle;
-    line-height: 20px;
+    line-height: 24px;  /* Increased for better alignment */
+    height: 44px;  /* Fixed height for consistency */
     /* Styling moved to central CSS - see static/css/components/tables.css */
     font-size: 14px;
     color: var(--color-fg-default);
@@ -298,8 +299,9 @@
     /* Layout preserved */
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     text-decoration: none;
+    line-height: 1;  /* Ensure consistent line height */
     /* Styling moved to central CSS - see static/css/components/buttons.css */
     color: var(--color-accent-fg);
     font-weight: 600;
@@ -319,7 +321,9 @@
     width: 16px;
     height: 16px;
     flex-shrink: 0;
-    vertical-align: text-bottom;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .octicon-directory {
@@ -379,6 +383,7 @@
 .file-browser-message-cell {
     /* Layout preserved */
     width: 45%;
+    line-height: 24px;  /* Match cell line height */
     /* Styling moved to central CSS - see static/css/components/tables.css */
     color: var(--color-fg-muted);
     font-size: 12px;
@@ -511,6 +516,7 @@
     width: 15%;
     text-align: right;
     white-space: nowrap;
+    line-height: 24px;  /* Match cell line height */
     /* Styling moved to central CSS - see static/css/components/tables.css */
     color: var(--color-fg-muted);
     font-size: 12px;
@@ -899,7 +905,6 @@
     font-size: 12px;
     font-weight: 600;
     color: var(--color-fg-default);
-    text-transform: uppercase;
     letter-spacing: 0.5px;
     transition: all 0.2s ease;
 }

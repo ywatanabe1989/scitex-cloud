@@ -87,11 +87,28 @@ def api_file_tree(request, username, slug):
                     continue
 
                 rel_path = item.relative_to(project_path)
+
+                # Detect symlinks
+                is_symlink = item.is_symlink()
+                symlink_target = None
+                if is_symlink:
+                    try:
+                        # Get symlink target relative to the symlink location
+                        target = item.readlink()
+                        symlink_target = str(target)
+                    except (OSError, ValueError):
+                        symlink_target = None
+
                 item_data = {
                     "name": item.name,
                     "type": "directory" if item.is_dir() else "file",
                     "path": str(rel_path),
+                    "is_symlink": is_symlink,
                 }
+
+                # Add symlink target if available
+                if symlink_target:
+                    item_data["symlink_target"] = symlink_target
 
                 # Add children for directories (deeper depth for full tree)
                 if item.is_dir() and current_depth < max_depth:

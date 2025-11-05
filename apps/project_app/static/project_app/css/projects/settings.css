@@ -31,7 +31,6 @@
     font-size: 12px;
     font-weight: 600;
     color: var(--color-fg-muted);
-    text-transform: uppercase;
     margin-bottom: 8px;
     padding: 0 8px;
 }

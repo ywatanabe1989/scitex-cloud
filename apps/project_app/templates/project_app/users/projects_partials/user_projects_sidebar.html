@@ -21,7 +21,7 @@
             <i class="fas fa-cog"></i>
             Edit profile
         </a>
-        <a href="{% url 'user_projects:repository_maintenance' %}" class="btn btn-sm" style="background-color: var(--color-accent-muted); color: var(--color-fg-default);">
+        <a href="{% url 'user_projects:repository_maintenance' username=profile_user.username %}" class="btn btn-sm" style="background-color: var(--color-accent-muted); color: var(--color-fg-default);">
             <i class="fas fa-tools"></i>
             Repository Maintenance
         </a>

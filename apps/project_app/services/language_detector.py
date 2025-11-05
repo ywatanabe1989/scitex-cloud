@@ -37,6 +37,7 @@ LANGUAGE_COLORS = {
     'SCSS': '#c6538c',
     'Markdown': '#083fa1',
     'LaTeX': '#3D6117',
+    'BibTeX': '#2D5F3F',
     'JSON': '#292929',
     'YAML': '#CB171E',
     'XML': '#0D8C55',
@@ -129,6 +130,7 @@ FILE_EXTENSION_MAP = {
     '.markdown': 'Markdown',
     '.tex': 'LaTeX',
     '.latex': 'LaTeX',
+    '.bib': 'BibTeX',
 
     # Data/Config
     '.json': 'JSON',

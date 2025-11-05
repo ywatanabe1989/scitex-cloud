@@ -46,7 +46,7 @@ npm run build:project
 - security_alert_detail.ts
 - security_scan.ts
 - settings.ts
-- sidebar_improvements.ts
+- sidebar.ts
 - workflow_detail.ts
 - workflow_editor.ts
 - workflow_run_detail.ts
@@ -149,7 +149,7 @@ Used **8 concurrent agents** to fix TypeScript errors:
 4. **Agent 4:** pr_conversation.ts, pr_form.ts, profile.ts
 5. **Agent 5:** project_app.ts, project_create.ts, project_detail.ts
 6. **Agent 6:** security_alert_detail.ts, security_scan.ts
-7. **Agent 7:** settings.ts, sidebar_improvements.ts
+7. **Agent 7:** settings.ts, sidebar.ts
 8. **Agent 8:** workflow_detail.ts, workflow_editor.ts, workflow_run_detail.ts + build verification
 
 **Result:** All agents completed successfully in parallel, achieving maximum efficiency

@@ -206,7 +206,7 @@ apps/project_app/
 │   ├── header_tabs_implementation.md
 │   ├── branch_selector_implementation.md (guide)
 │   ├── code_browser_table_implementation.md
-│   ├── sidebar_improvements_implementation.md
+│   ├── sidebar_implementation.md
 │   ├── svg_icons_implementation.md
 │   ├── toolbar_improvements_implementation.md
 │   ├── meta_sidebar_removal_implementation.md

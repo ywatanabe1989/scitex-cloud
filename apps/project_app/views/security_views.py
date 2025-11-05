@@ -86,7 +86,7 @@ def security_overview(request, username, slug):
         'vulnerable_dependencies': vulnerable_deps,
     }
 
-    return render(request, 'project_app/security_overview.html', context)
+    return render(request, 'project_app/security/overview.html', context)
 
 
 @login_required
@@ -133,7 +133,7 @@ def security_alerts(request, username, slug):
         'alert_type_filter': alert_type_filter,
     }
 
-    return render(request, 'project_app/security_alerts.html', context)
+    return render(request, 'project_app/security/alerts.html', context)
 
 
 @login_required
@@ -153,7 +153,7 @@ def security_alert_detail(request, username, slug, alert_id):
         'alert': alert,
     }
 
-    return render(request, 'project_app/security_alert_detail.html', context)
+    return render(request, 'project_app/security/alert_detail.html', context)
 
 
 @login_required
@@ -197,7 +197,7 @@ def security_policy_edit(request, username, slug):
         'created': created,
     }
 
-    return render(request, 'project_app/security_policy.html', context)
+    return render(request, 'project_app/security/policy.html', context)
 
 
 @login_required
@@ -227,7 +227,7 @@ def security_advisories(request, username, slug):
         'page_obj': page_obj,
     }
 
-    return render(request, 'project_app/security_advisories.html', context)
+    return render(request, 'project_app/security/advisories.html', context)
 
 
 @login_required
@@ -261,7 +261,7 @@ def dependency_graph(request, username, slug):
         'stats': stats,
     }
 
-    return render(request, 'project_app/security_dependency_graph.html', context)
+    return render(request, 'project_app/security/dependency_graph.html', context)
 
 
 @login_required
@@ -435,4 +435,4 @@ def scan_history(request, username, slug):
         'page_obj': page_obj,
     }
 
-    return render(request, 'project_app/security_scan_history.html', context)
+    return render(request, 'project_app/security/scan_history.html', context)

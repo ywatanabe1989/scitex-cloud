@@ -342,7 +342,6 @@
     font-size: 13px;
     font-weight: 600;
     color: var(--color-fg-muted, #656d76);
-    text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
@@ -380,7 +379,6 @@
 .file-tree-item {
     /* Layout preserved */
     padding: 2px 4px; /* Compact padding */
-    cursor: pointer;
     position: relative;
     /* Styling moved to central CSS - see static/css/components/file-tree.css */
     /* color: var(--color-fg-default); */
@@ -389,9 +387,43 @@
     /* font-size: 14px; */
 }
 
+.file-tree-item--folder {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.file-tree-item--file {
+    /* No special styling, inherits from file-tree-item */
+}
+
 .file-tree-item:hover {
     background: var(--color-neutral-subtle, rgba(208, 215, 222, 0.32));
     /* Styling moved to central CSS - see static/css/components/file-tree.css */
+}
+
+.file-tree-spacer {
+    width: 12px;
+    flex-shrink: 0;
+    display: inline-block;
+}
+
+.file-tree-name-wrapper {
+    flex: 1;
+    padding: 0 4px;
+}
+
+.file-tree-folder-link {
+    text-decoration: none;
+    color: var(--color-fg-default);
+}
+
+.file-tree-folder-link:hover {
+    text-decoration: underline;
+}
+
+.file-tree-file-name {
+    /* Inherits styling from parent */
 }
 
 .file-tree-item.active {
@@ -497,7 +529,7 @@
 
 .file-tree-children.expanded {
     display: block;
-    margin-left: 20px;
+    margin-left: 10px;  /* Reduced from 20px to 10px for compact indentation */
 }
 
 /* Split button dropdown fix */

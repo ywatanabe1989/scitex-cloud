@@ -127,7 +127,7 @@ def user_project_list(request, username):
         # Note: 'user' is automatically available as request.user in templates
         # Don't override it here - it should always be the logged-in user
     }
-    return render(request, "project_app/users/user_projects.html", context)
+    return render(request, "project_app/users/projects.html", context)
 
 
 def user_bio_page(request, username):
@@ -155,7 +155,7 @@ def user_bio_page(request, username):
         "total_projects": Project.objects.filter(owner=user).count(),
     }
 
-    return render(request, "project_app/users/user_bio.html", context)
+    return render(request, "project_app/users/bio.html", context)
 
 
 @project_access_required
@@ -904,7 +904,7 @@ def user_overview(request, username):
         "is_following": is_following,
         "active_tab": "overview",
     }
-    return render(request, "project_app/users/user_overview.html", context)
+    return render(request, "project_app/users/overview.html", context)
 
 
 def user_projects_board(request, username):
@@ -931,7 +931,7 @@ def user_projects_board(request, username):
         "is_following": is_following,
         "active_tab": "projects",
     }
-    return render(request, "project_app/users/user_board.html", context)
+    return render(request, "project_app/users/board.html", context)
 
 
 def user_stars(request, username):
@@ -971,7 +971,7 @@ def user_stars(request, username):
         "is_following": is_following,
         "active_tab": "stars",
     }
-    return render(request, "project_app/users/user_stars.html", context)
+    return render(request, "project_app/users/stars.html", context)
 
 
 # EOF

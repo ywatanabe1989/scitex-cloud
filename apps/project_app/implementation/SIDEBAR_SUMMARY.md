@@ -209,7 +209,7 @@ None identified. Implementation is complete and production-ready.
 - Pin/unpin sections
 
 ## Documentation
-- Full implementation details: `./sidebar_improvements_implementation.md`
+- Full implementation details: `./sidebar_implementation.md`
 - This summary: `./SIDEBAR_SUMMARY.md`
 
 ---
