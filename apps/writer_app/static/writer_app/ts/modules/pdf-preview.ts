@@ -6,6 +6,7 @@
 import { CompilationManager, CompilationOptions } from './compilation.js';
 import { LatexWrapper } from './latex-wrapper.js';
 
+console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/modules/pdf-preview.ts loaded");
 export interface PDFPreviewOptions {
     containerId: string;
     projectId: number;

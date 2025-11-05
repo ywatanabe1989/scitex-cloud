@@ -1,9 +1,6 @@
 /**
  * DOM manipulation and query utilities
  */
-/**
- * Safely query element from DOM
- */
 export declare function querySelector<T extends Element = Element>(selector: string): T | null;
 /**
  * Safely query all elements matching selector

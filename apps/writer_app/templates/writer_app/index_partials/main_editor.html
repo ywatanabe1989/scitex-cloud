@@ -19,6 +19,30 @@
           <select id="texfile-selector" class="form-select form-select-sm">
           </select>
         </div>
+
+        <!-- Section Management Buttons -->
+        <div class="section-management-btns">
+          <button id="add-section-btn" class="btn btn-sm btn-outline-secondary"
+                  title="Add New Section">
+            <i class="fas fa-plus"></i>
+          </button>
+          <button id="delete-section-btn" class="btn btn-sm btn-outline-danger"
+                  title="Delete Current Section" style="display: none;">
+            <i class="fas fa-trash-alt"></i>
+          </button>
+          <button id="toggle-section-include-btn" class="btn btn-sm btn-outline-secondary"
+                  title="Exclude Section from Compilation">
+            <i class="fas fa-eye"></i>
+          </button>
+          <button id="move-section-up-btn" class="btn btn-sm btn-outline-secondary"
+                  title="Move Section Up">
+            <i class="fas fa-arrow-up"></i>
+          </button>
+          <button id="move-section-down-btn" class="btn btn-sm btn-outline-secondary"
+                  title="Move Section Down">
+            <i class="fas fa-arrow-down"></i>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -275,6 +299,78 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Section Modal -->
+<div class="modal fade" id="add-section-modal" tabindex="-1" aria-labelledby="add-section-modal-label" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="add-section-modal-label">
+          <i class="fas fa-plus me-2"></i>Add New Section
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label for="new-section-name" class="form-label">Section Name</label>
+          <input type="text" id="new-section-name" class="form-control"
+                 placeholder="e.g., background, limitations, future_work"
+                 required>
+          <div class="form-text">
+            <i class="fas fa-info-circle me-1"></i>
+            Use lowercase letters, numbers, and underscores only
+          </div>
+        </div>
+        <div class="mb-3">
+          <label for="new-section-label" class="form-label">Display Label (Optional)</label>
+          <input type="text" id="new-section-label" class="form-control"
+                 placeholder="e.g., Background, Limitations, Future Work">
+          <div class="form-text">
+            <i class="fas fa-info-circle me-1"></i>
+            Leave blank to auto-generate from section name
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" id="confirm-add-section-btn" class="btn btn-primary">
+          <i class="fas fa-check me-1"></i>Add Section
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Section Modal -->
+<div class="modal fade" id="delete-section-modal" tabindex="-1" aria-labelledby="delete-section-modal-label" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="delete-section-modal-label">
+          <i class="fas fa-trash-alt text-danger me-2"></i>Delete Section
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-danger" role="alert">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          <strong>Warning:</strong> This action cannot be undone!
+        </div>
+        <p>Are you sure you want to delete the section "<strong id="delete-section-name-display"></strong>"?</p>
+        <p class="text-muted mb-0">
+          <i class="fas fa-info-circle me-1"></i>
+          The .tex file will be permanently deleted from your project.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" id="confirm-delete-section-btn" class="btn btn-danger">
+          <i class="fas fa-trash-alt me-1"></i>Delete Section
+        </button>
       </div>
     </div>
   </div>

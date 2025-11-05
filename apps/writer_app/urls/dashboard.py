@@ -1,6 +1,9 @@
 from django.urls import path
-from django.views.generic import TemplateView
+from ..views.index.main import index, initialize_workspace
 
 urlpatterns = [
-    path('', TemplateView.as_view(template_name='writer_app/dashboard/main.html'), name='dashboard'),
+    # Main writer page - simple editor with PDF viewer
+    path('', index, name='index'),
+    # Initialize workspace API
+    path('initialize/', initialize_workspace, name='initialize_workspace'),
 ]

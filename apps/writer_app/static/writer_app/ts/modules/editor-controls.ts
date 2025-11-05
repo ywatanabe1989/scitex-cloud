@@ -3,6 +3,7 @@
  * Handles font size adjustment and auto-preview functionality
  */
 
+console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/modules/editor-controls.ts loaded");
 export interface EditorControlsOptions {
     pdfPreviewManager?: any;
     compilationManager?: any;

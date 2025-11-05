@@ -1,4 +1,4 @@
-"""Version control dashboard view."""
+"""Version control index view."""
 
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
@@ -10,8 +10,8 @@ logger = logging.getLogger(__name__)
 
 
 @login_required
-def version_control_dashboard(request):
-    """Version control dashboard.
+def version_control_index(request):
+    """Version control index.
 
     Shows:
     - Git commit history
@@ -39,4 +39,4 @@ def version_control_dashboard(request):
         except Exception as e:
             logger.error(f"Error loading version control data: {e}")
 
-    return render(request, 'writer_app/version_control/dashboard.html', context)
+    return render(request, 'writer_app/version_control/index.html', context)

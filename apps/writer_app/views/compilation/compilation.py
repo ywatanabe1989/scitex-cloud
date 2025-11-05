@@ -2,7 +2,7 @@
 
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from ...services import CompilationService
+from ...services import CompilerService
 from apps.project_app.services import get_current_project
 import logging
 
@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 @login_required
 def compilation_view(request):
-    """Compilation history and status dashboard.
+    """Compilation history and status index.
 
     Shows:
     - Recent compilation jobs
@@ -28,7 +28,7 @@ def compilation_view(request):
 
     if current_project:
         try:
-            compilation_service = CompilationService(current_project.id, request.user.id)
+            compilation_service = CompilerService(current_project.id, request.user.id)
             compilations = compilation_service.get_history()
             context['compilations'] = compilations
         except Exception as e:

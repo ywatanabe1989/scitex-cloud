@@ -2,11 +2,11 @@
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'writer_app/css/tex-view-main.css' %}?v={{ request.timestamp|default:'1' }}">
-<link rel="stylesheet" href="{% static 'writer_app/css/index-editor-panels.css' %}?v={{ request.timestamp|default:'1' }}">
-<link rel="stylesheet" href="{% static 'writer_app/css/pdf-view-main.css' %}?v={{ request.timestamp|default:'1' }}">
-<link rel="stylesheet" href="{% static 'writer_app/css/history-timeline.css' %}?v={{ request.timestamp|default:'1' }}">
-<link rel="stylesheet" href="{% static 'writer_app/css/index-ui-components.css' %}?v=2">
+<link rel="stylesheet" href="{% static 'writer_app/css/editor/tex-view-main.css' %}?v={{ request.timestamp|default:'1' }}">
+<link rel="stylesheet" href="{% static 'writer_app/css/editor/index-editor-panels.css' %}?v={{ request.timestamp|default:'1' }}">
+<link rel="stylesheet" href="{% static 'writer_app/css/editor/pdf-view-main.css' %}?v={{ request.timestamp|default:'1' }}">
+<link rel="stylesheet" href="{% static 'writer_app/css/shared/history-timeline.css' %}?v={{ request.timestamp|default:'1' }}">
+<link rel="stylesheet" href="{% static 'writer_app/css/shared/index-ui-components.css' %}?v=2">
 {% include "writer_app/index_partials/codemirror_css.html" %}
 {% endblock %}
 
@@ -25,7 +25,7 @@
                     <p class="text-muted mb-4">
                         SciTeX Writer works with projects. Please create a project first to start writing your manuscript.
                     </p>
-                    <a href="{% url 'core:dashboard' %}" class="btn btn-primary btn-lg">
+                    <a href="{% url 'core:index' %}" class="btn btn-primary btn-lg">
                         <i class="fas fa-plus me-2"></i>Create a Project
                     </a>
                 </div>
@@ -44,98 +44,18 @@
 {% endif %}
 
 {% if not needs_project_creation %}
-<!-- CodeMirror (fallback) - Load FIRST before Monaco to avoid AMD conflicts -->
-<script>
-(function() {
-    // CodeMirror scripts are UMD modules that detect AMD and try to register
-    // Temporarily disable AMD to prevent conflicts with Monaco's RequireJS
-    var originalDefine = window.define;
-    var originalRequire = window.require;
+<!-- Editor Loader (TypeScript-compiled) - Handles CodeMirror and Monaco initialization -->
+<script type="module">
+import { editorLoader } from '{% static "writer_app/js/loaders/editor-loader.js" %}';
 
-    // Disable AMD
-    window.define = undefined;
-    window.require = undefined;
-
-    // List of CodeMirror scripts to load
-    var scripts = [
-        'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js',
-        'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/stex/stex.min.js',
-        'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/dialog/dialog.min.js',
-        'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/searchcursor.min.js',
-        'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/search.min.js',
-        'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/keymap/vim.min.js',
-        'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/keymap/emacs.min.js'
-    ];
-
-    // Load scripts sequentially
-    var loadNextScript = function(index) {
-        if (index >= scripts.length) {
-            // All scripts loaded, restore AMD
-            window.define = originalDefine;
-            window.require = originalRequire;
-            console.log('[CodeMirror] All scripts loaded successfully without AMD conflicts');
-
-            // Now load Monaco Editor after CodeMirror is done
-            loadMonacoEditor();
-            return;
-        }
-
-        var script = document.createElement('script');
-        script.src = scripts[index];
-        script.onload = function() {
-            loadNextScript(index + 1);
-        };
-        script.onerror = function() {
-            console.error('[CodeMirror] Failed to load:', scripts[index]);
-            loadNextScript(index + 1);
-        };
-        document.head.appendChild(script);
-    };
-
-    // Start loading CodeMirror first
-    loadNextScript(0);
+// Initialize editors (CodeMirror + Monaco) before anything else
+(async () => {
+    try {
+        await editorLoader.initialize();
+    } catch (error) {
+        console.error('[Writer] Failed to initialize editors:', error);
+    }
 })();
-
-// Create a simple fake worker that runs in the main thread
-function createFakeWorker() {
-    return {
-        postMessage: function() {},
-        terminate: function() {},
-        addEventListener: function() {},
-        removeEventListener: function() {}
-    };
-}
-
-// Monaco Editor - Load AFTER CodeMirror to prevent conflicts
-function loadMonacoEditor() {
-    // Configure Monaco environment with main-thread worker fallback
-    window.MonacoEnvironment = {
-        getWorker: function(moduleId, label) {
-            // Return a simple promise that resolves with a fake worker
-            // This prevents CORS issues and allows Monaco to work without web workers
-            return Promise.resolve(createFakeWorker());
-        }
-    };
-
-    // Load Monaco loader
-    var loaderScript = document.createElement('script');
-    loaderScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js';
-    loaderScript.onload = function() {
-        // Immediately load Monaco after loader is ready
-        if (typeof require !== 'undefined' && require.config) {
-            require.config({
-                paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs' },
-                'vs/nls': { availableLanguages: {} }
-            });
-            require(['vs/editor/editor.main'], function() {
-                console.log('[Monaco] Monaco Editor loaded successfully');
-                window.monacoLoaded = true;
-                window.monaco = monaco;
-            });
-        }
-    };
-    document.head.appendChild(loaderScript);
-}
 </script>
 <!-- Initialize global variables for writer app -->
 <script>
@@ -151,6 +71,7 @@ function loadMonacoEditor() {
         isAnonymous: {% if is_anonymous %}true{% else %}false{% endif %},
         isAuthenticated: {% if user.is_authenticated %}true{% else %}false{% endif %},
         writerInitialized: {% if writer_initialized %}true{% else %}false{% endif %},
+        documentType: '{{ document_type|default:"manuscript" }}',  // Current document type
         // Manuscript word counts
         wordCounts: {
             abstract: {% if manuscript %}{{ manuscript.word_count_abstract|default:0 }}{% else %}0{% endif %},
@@ -195,10 +116,7 @@ function loadMonacoEditor() {
 <!-- TypeScript-compiled Writer Application Bundle -->
 <script type="module" src="{% static 'writer_app/js/index.js' %}?v={{ build_id|default:'dev' }}"></script>
 
-<!-- API Client for REST endpoints -->
-<script src="{% static 'writer_app/js/api-client.js' %}?v={{ build_id|default:'dev' }}"></script>
-
-<!-- Real-Time Collaboration Script -->
-<script src="{% static 'js/writer_collaboration.js' %}?v={{ build_id|default:'dev' }}"></script>
+<!-- Real-Time Collaboration Script (TypeScript-compiled ES6 module) -->
+<script type="module" src="{% static 'js/collaboration/writer-collaboration.js' %}?v={{ build_id|default:'dev' }}"></script>
 {% endif %}
 {% endblock %}

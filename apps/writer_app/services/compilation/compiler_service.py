@@ -1,3 +1,15 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# Timestamp: "2025-11-04 20:49:54 (ywatanabe)"
+# File: /home/ywatanabe/proj/scitex-cloud/apps/writer_app/services/compilation/compiler_service.py
+# ----------------------------------------
+from __future__ import annotations
+import os
+__FILE__ = (
+    "./apps/writer_app/services/compilation/compiler_service.py"
+)
+__DIR__ = os.path.dirname(__FILE__)
+# ----------------------------------------
 """
 Compiler Service - LaTeX Compilation and AI Assistance
 
@@ -5,13 +17,14 @@ Handles LaTeX compilation, PDF generation, and AI-powered writing assistance.
 This service wraps the scitex.writer.Writer compilation functionality.
 """
 
-from typing import Optional, Dict, Any, Callable
+from typing import Optional
+from typing import Dict, Any, Callable
 from pathlib import Path
-from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 from django.db import transaction
 
-from ...models.compilation import CompilationJob, AIAssistanceLog
+from ...models.compilation import CompilationJob
+from ...models.compilation import AIAssistanceLog
 
 
 class CompilerService:
@@ -21,8 +34,8 @@ class CompilerService:
     def submit_compilation_job(
         manuscript,
         user: User,
-        compilation_type: str = 'full',
-        timeout: int = 300
+        compilation_type: str = "full",
+        timeout: int = 300,
     ) -> CompilationJob:
         """
         Submit a compilation job.
@@ -68,7 +81,7 @@ class CompilerService:
         manuscript,
         content: Optional[str] = None,
         timeout: int = 300,
-        on_progress: Optional[Callable[[int, str], None]] = None
+        on_progress: Optional[Callable[[int, str], None]] = None,
     ) -> Dict[str, Any]:
         """
         Compile manuscript synchronously (for immediate feedback).
@@ -90,13 +103,13 @@ class CompilerService:
         Raises:
             ValidationError: If compilation fails
         """
-        # TODO: Migrate from compiler.py CompilationService.compile_manuscript
+        # TODO: Migrate from compiler.py CompilerService.compile_manuscript
         raise NotImplementedError("To be migrated from compiler.py")
 
     @staticmethod
     def watch_manuscript(
         manuscript,
-        on_compile: Optional[Callable[[Dict[str, Any]], None]] = None
+        on_compile: Optional[Callable[[Dict[str, Any]], None]] = None,
     ) -> None:
         """
         Start watching manuscript for changes and auto-compile.
@@ -105,7 +118,7 @@ class CompilerService:
             manuscript: Manuscript to watch
             on_compile: Callback when compilation completes
         """
-        # TODO: Migrate from compiler.py CompilationService.watch_manuscript
+        # TODO: Migrate from compiler.py CompilerService.watch_manuscript
         raise NotImplementedError("To be migrated from compiler.py")
 
     @staticmethod
@@ -120,7 +133,9 @@ class CompilerService:
         raise NotImplementedError("To be implemented")
 
     @staticmethod
-    def get_pdf_path(manuscript, doc_type: str = 'manuscript') -> Optional[Path]:
+    def get_pdf_path(
+        manuscript, doc_type: str = "manuscript"
+    ) -> Optional[Path]:
         """
         Get path to compiled PDF.
 
@@ -131,7 +146,7 @@ class CompilerService:
         Returns:
             Path to PDF or None if not compiled
         """
-        # TODO: Migrate from compiler.py CompilationService.get_pdf
+        # TODO: Migrate from compiler.py CompilerService.get_pdf
         raise NotImplementedError("To be migrated from compiler.py")
 
     @staticmethod
@@ -143,7 +158,7 @@ class CompilerService:
         prompt: str,
         generated_text: str,
         model_name: Optional[str] = None,
-        tokens_used: Optional[int] = None
+        tokens_used: Optional[int] = None,
     ) -> AIAssistanceLog:
         """
         Log AI assistance usage.
@@ -168,8 +183,8 @@ class CompilerService:
     def get_ai_suggestions(
         manuscript,
         section_content: str,
-        suggestion_type: str = 'autocomplete',
-        context_length: int = 500
+        suggestion_type: str = "autocomplete",
+        context_length: int = 500,
     ) -> Dict[str, Any]:
         """
         Get AI-powered writing suggestions.
@@ -205,6 +220,8 @@ class CompilerService:
 
 
 # NOTE: Existing logic to migrate from:
-# - apps/writer_app/services/compiler.py - CompilationService class
+# - apps/writer_app/services/compiler.py - CompilerService class
 # - apps/writer_app/services/ai_service.py - AI assistance functionality
 # - apps/writer_app/services/writer_service.py - Some compilation-related methods
+
+# EOF

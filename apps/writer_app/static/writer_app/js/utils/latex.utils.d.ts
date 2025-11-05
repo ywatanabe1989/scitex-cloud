@@ -1,9 +1,6 @@
 /**
  * LaTeX conversion and processing utilities
  */
-/**
- * Convert plain text content to LaTeX format
- */
 export declare function convertToLatex(content: string): string;
 /**
  * Convert LaTeX content to plain text preview

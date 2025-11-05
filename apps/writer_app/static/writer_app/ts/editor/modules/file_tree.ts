@@ -5,6 +5,7 @@
 
 import { ApiClient } from '@/utils/api';
 
+console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/editor/modules/file_tree.ts loaded");
 export interface FileTreeNode {
     name: string;
     path: string;

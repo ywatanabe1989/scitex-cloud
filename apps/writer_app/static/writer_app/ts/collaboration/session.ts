@@ -1,104 +1,38 @@
 /**
- * Collaboration Session Management
- * Handles real-time collaborative editing
+ * Collaboration session page functionality
+ * Corresponds to: templates/writer_app/collaboration/session.html
  */
 
-export class CollaborationManager {
-    private projectId: number | null;
-    private websocket: WebSocket | null = null;
+console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/collaboration/session.ts loaded");
+interface CollaboratorPresence {
+    user_id: number;
+    username: string;
+    is_active: boolean;
+}
 
-    constructor(projectId: number | null) {
-        this.projectId = projectId;
+class CollaborationSessionPage {
+    // @ts-expect-error - Placeholder for future WebSocket implementation
+    private _websocket: WebSocket | null = null;
+    // @ts-expect-error - Placeholder for future collaborator tracking
+    private _collaborators: Map<number, CollaboratorPresence>;
+
+    constructor() {
+        this._collaborators = new Map();
+        this.init();
     }
 
-    /**
-     * Join collaboration session
-     */
-    async join(): Promise<void> {
-        if (!this.projectId) {
-            throw new Error('Project ID required for collaboration');
-        }
-
-        try {
-            const response = await fetch('/writer/api/collaboration/join/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    project_id: this.projectId,
-                }),
-            });
-
-            const result = await response.json();
-            
-            if (!result.success) {
-                throw new Error(result.error || 'Failed to join session');
-            }
-
-            // TODO: Initialize WebSocket connection
-        } catch (error) {
-            console.error('Error joining session:', error);
-            throw error;
-        }
+    private init(): void {
+        console.log('[CollaborationSession] Initializing collaboration session');
+        this.setupWebSocket();
     }
 
-    /**
-     * Leave collaboration session
-     */
-    async leave(): Promise<void> {
-        if (!this.projectId) {
-            return;
-        }
-
-        try {
-            if (this.websocket) {
-                this.websocket.close();
-                this.websocket = null;
-            }
-
-            await fetch('/writer/api/collaboration/leave/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    project_id: this.projectId,
-                }),
-            });
-        } catch (error) {
-            console.error('Error leaving session:', error);
-        }
-    }
-
-    /**
-     * Lock a section for exclusive editing
-     */
-    async lockSection(sectionName: string): Promise<void> {
-        if (!this.projectId) {
-            throw new Error('Project ID required');
-        }
-
-        try {
-            const response = await fetch('/writer/api/collaboration/lock/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    project_id: this.projectId,
-                    section_name: sectionName,
-                }),
-            });
-
-            const result = await response.json();
-            
-            if (!result.success) {
-                throw new Error(result.error || 'Failed to lock section');
-            }
-        } catch (error) {
-            console.error('Error locking section:', error);
-            throw error;
-        }
+    private setupWebSocket(): void {
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${protocol}//${window.location.host}/ws/writer/collaboration/`;
+        console.log('[CollaborationSession] Connecting to WebSocket:', wsUrl);
     }
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    new CollaborationSessionPage();
+});

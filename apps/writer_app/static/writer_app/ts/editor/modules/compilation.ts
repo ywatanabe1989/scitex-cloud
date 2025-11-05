@@ -7,6 +7,7 @@ import { ApiClient } from '@/utils/api';
 import { getCsrfToken } from '@/utils/csrf';
 import { CompilationJob } from '@/types';
 
+console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/editor/modules/compilation.ts loaded");
 export interface CompilationOptions {
     projectId: number;
     docType: string;

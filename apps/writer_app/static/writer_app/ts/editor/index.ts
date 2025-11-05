@@ -12,11 +12,13 @@ import { WriterEditor, EnhancedEditor, SectionsManager, CompilationManager, File
 import { PDFScrollZoomHandler } from './modules/pdf-scroll-zoom.js';
 import { getCsrfToken } from '@/utils/csrf.js';
 import { writerStorage } from '@/utils/storage.js';
-import { getWriterConfig, createDefaultEditorState } from './helpers.js';
+import { getWriterConfig, createDefaultEditorState } from '../helpers.js';
 
 /**
  * Show toast notification
  */
+
+console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/editor/index.ts loaded");
 function showToast(message: string, _type: string = 'info'): void {
     const fn = (window as any).showToast || ((msg: string) => console.log(msg));
     fn(message);

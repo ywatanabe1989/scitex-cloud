@@ -10,101 +10,162 @@ SECTION_HIERARCHY = {
         "label": "Shared",
         "description": "Shared content across all documents",
         "sections": [
-            {"id": "shared/title", "name": "title", "label": "Title", "path": "shared/title.tex"},
-            {"id": "shared/authors", "name": "authors", "label": "Authors", "path": "shared/authors.tex"},
-            {"id": "shared/bibliography", "name": "bibliography", "label": "Bibliography", "path": "shared/bib_files/bibliography.bib"},
-        ]
+            {
+                "id": "shared/title",
+                "name": "title",
+                "label": "Title",
+                "path": "shared/title.tex",
+            },
+            {
+                "id": "shared/authors",
+                "name": "authors",
+                "label": "Authors",
+                "path": "shared/authors.tex",
+            },
+            {
+                "id": "shared/keywords",
+                "name": "keywords",
+                "label": "Keywords",
+                "path": "shared/keywords.tex",
+            },
+            {
+                "id": "shared/journal_name",
+                "name": "journal_name",
+                "label": "Journal Name",
+                "path": "shared/journal_name.tex",
+            },
+        ],
     },
     "manuscript": {
         "label": "Manuscript",
         "description": "Main manuscript content",
         "sections": [
-            {"id": "manuscript/compiled_pdf", "name": "compiled_pdf", "label": "Compiled PDF", "path": "01_manuscript/manuscript.pdf", "is_complete": True, "read_only": True},
-            {"id": "manuscript/abstract", "name": "abstract", "label": "Abstract", "path": "01_manuscript/contents/abstract.tex"},
-            {"id": "manuscript/introduction", "name": "introduction", "label": "Introduction", "path": "01_manuscript/contents/introduction.tex"},
-            {"id": "manuscript/methods", "name": "methods", "label": "Methods", "path": "01_manuscript/contents/methods.tex"},
-            {"id": "manuscript/results", "name": "results", "label": "Results", "path": "01_manuscript/contents/results.tex"},
-            {"id": "manuscript/discussion", "name": "discussion", "label": "Discussion", "path": "01_manuscript/contents/discussion.tex"},
-            {"id": "manuscript/references", "name": "references", "label": "References", "path": "01_manuscript/contents/bibliography.bib", "view_only": True, "instruction": "Add references using bibliography.bib file"},
-            {"id": "manuscript/figures", "name": "figures", "label": "Figures", "path": "01_manuscript/contents/figures/", "is_directory": True},
-            {"id": "manuscript/tables", "name": "tables", "label": "Tables", "path": "01_manuscript/contents/tables/", "is_directory": True},
-            {"id": "manuscript/highlights", "name": "highlights", "label": "Highlights", "path": "01_manuscript/contents/highlights.tex", "optional": True},
-        ]
+            {
+                "id": "manuscript/abstract",
+                "name": "abstract",
+                "label": "Abstract",
+                "path": "01_manuscript/contents/abstract.tex",
+            },
+            {
+                "id": "manuscript/highlights",
+                "name": "highlights",
+                "label": "Highlights",
+                "path": "01_manuscript/contents/highlights.tex",
+                "optional": True,
+            },
+            {
+                "id": "manuscript/introduction",
+                "name": "introduction",
+                "label": "Introduction",
+                "path": "01_manuscript/contents/introduction.tex",
+            },
+            {
+                "id": "manuscript/methods",
+                "name": "methods",
+                "label": "Methods",
+                "path": "01_manuscript/contents/methods.tex",
+            },
+            {
+                "id": "manuscript/results",
+                "name": "results",
+                "label": "Results",
+                "path": "01_manuscript/contents/results.tex",
+            },
+            {
+                "id": "manuscript/discussion",
+                "name": "discussion",
+                "label": "Discussion",
+                "path": "01_manuscript/contents/discussion.tex",
+            },
+            {
+                "id": "manuscript/conclusion",
+                "name": "conclusion",
+                "label": "Conclusion",
+                "path": "01_manuscript/contents/conclusion.tex",
+            },
+        ],
     },
     "supplementary": {
         "label": "Supplementary",
         "description": "Supplementary materials",
         "sections": [
-            {"id": "supplementary/compiled_pdf", "name": "compiled_pdf", "label": "Compiled PDF", "path": "02_supplementary/supplementary.pdf", "is_complete": True, "read_only": True},
-            {"id": "supplementary/methods", "name": "methods", "label": "Methods", "path": "02_supplementary/contents/methods.tex"},
-            {"id": "supplementary/results", "name": "results", "label": "Results", "path": "02_supplementary/contents/results.tex"},
-            {"id": "supplementary/figures", "name": "figures", "label": "Figures", "path": "02_supplementary/contents/figures/", "is_directory": True},
-            {"id": "supplementary/tables", "name": "tables", "label": "Tables", "path": "02_supplementary/contents/tables/", "is_directory": True},
-        ]
+            {
+                "id": "supplementary/methods",
+                "name": "methods",
+                "label": "Supplementary Methods",
+                "path": "02_supplementary/contents/methods.tex",
+            },
+            {
+                "id": "supplementary/results",
+                "name": "results",
+                "label": "Supplementary Results",
+                "path": "02_supplementary/contents/results.tex",
+            },
+        ],
     },
     "revision": {
         "label": "Revision",
-        "description": "Revision materials (CRUD enabled)",
+        "description": "Revision materials",
         "supports_crud": True,
         "sections": [
-            # Complete document
-            {"id": "revision/compiled_pdf", "name": "compiled_pdf", "label": "Compiled PDF", "path": "03_revision/revision.pdf", "is_complete": True, "read_only": True},
-            # Base sections
-            {"id": "revision/introduction", "name": "introduction", "label": "Introduction", "path": "03_revision/contents/introduction.tex"},
-            {"id": "revision/conclusion", "name": "conclusion", "label": "Conclusion", "path": "03_revision/contents/conclusion.tex"},
-            # Editor comments (dynamic)
-            # Reviewer comments (dynamic)
-        ]
-    }
+            {
+                "id": "revision/introduction",
+                "name": "introduction",
+                "label": "Revision Introduction",
+                "path": "03_revision/contents/introduction.tex",
+            },
+            {
+                "id": "revision/editor",
+                "name": "editor",
+                "label": "Response to Editor",
+                "path": "03_revision/contents/editor.tex",
+            },
+            {
+                "id": "revision/reviewer1",
+                "name": "reviewer1",
+                "label": "Response to Reviewer 1",
+                "path": "03_revision/contents/reviewer1.tex",
+            },
+            {
+                "id": "revision/reviewer2",
+                "name": "reviewer2",
+                "label": "Response to Reviewer 2",
+                "path": "03_revision/contents/reviewer2.tex",
+            },
+        ],
+    },
 }
 
 
 def get_all_sections_flat():
-    """
-    Get flattened list of all sections.
-
-    Returns:
-        List of section dictionaries with category added
-    """
+    """Get all sections as a flat list."""
     sections = []
-    for category, config in SECTION_HIERARCHY.items():
-        for section in config["sections"]:
-            section_copy = section.copy()
-            section_copy["category"] = category
-            sections.append(section_copy)
+    for category_key, category in SECTION_HIERARCHY.items():
+        for section in category["sections"]:
+            section_with_category = {**section, "category": category_key}
+            sections.append(section_with_category)
     return sections
 
 
 def get_sections_by_category(category):
-    """
-    Get sections for specific category.
-
-    Args:
-        category: One of 'shared', 'manuscript', 'supplementary', 'revision'
-
-    Returns:
-        List of section dictionaries or None if category not found
-    """
+    """Get sections for a specific category."""
     if category in SECTION_HIERARCHY:
         return SECTION_HIERARCHY[category]["sections"]
-    return None
+    return []
 
 
-def get_category_info(category):
+def parse_section_id(section_id):
     """
-    Get category metadata.
+    Parse a hierarchical section ID into category and name.
 
     Args:
-        category: One of 'shared', 'manuscript', 'supplementary', 'revision'
+        section_id: e.g., "shared/title", "manuscript/abstract"
 
     Returns:
-        Dictionary with label, description, supports_crud
+        tuple: (category, name) e.g., ("shared", "title")
     """
-    if category in SECTION_HIERARCHY:
-        config = SECTION_HIERARCHY[category]
-        return {
-            "label": config.get("label"),
-            "description": config.get("description"),
-            "supports_crud": config.get("supports_crud", False)
-        }
-    return None
+    if "/" in section_id:
+        parts = section_id.split("/", 1)
+        return parts[0], parts[1]
+    # Fallback for old-style IDs
+    return "manuscript", section_id
