@@ -6,6 +6,8 @@
 /**
  * Configuration options for confirmation modal
  */
+
+console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/static/ts/components/confirm-modal.ts loaded");
 export interface ConfirmModalOptions {
   /** Modal title */
   title?: string;

@@ -3,6 +3,7 @@
  * Handles persistence of application state across sessions
  */
 
+console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/static/ts/utils/storage.ts loaded");
 export class StorageManager {
     private prefix: string;
 

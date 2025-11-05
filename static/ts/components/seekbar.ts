@@ -31,6 +31,8 @@
 // ============================================================================
 
 /** Seekbar values */
+
+console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/static/ts/components/seekbar.ts loaded");
 export interface SeekbarValues {
     min: number;
     max: number;

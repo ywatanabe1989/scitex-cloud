@@ -5,6 +5,7 @@
 
 import { getCsrfToken } from './csrf.js';
 
+console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/static/ts/utils/theme-switcher.ts loaded");
 type Theme = 'light' | 'dark';
 
 interface ThemeResponse {

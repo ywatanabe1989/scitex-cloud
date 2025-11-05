@@ -3,6 +3,7 @@
  * Provides reusable fetch wrapper with CSRF token handling
  */
 import { getCsrfToken } from './csrf.js';
+console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/static/ts/utils/api.ts loaded");
 /**
  * API Client class for making requests with automatic CSRF token handling
  */

@@ -2,6 +2,7 @@
  * UI Utility Module
  * Common UI interaction helpers
  */
+console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/static/ts/utils/ui.ts loaded");
 /**
  * Show a toast notification
  */

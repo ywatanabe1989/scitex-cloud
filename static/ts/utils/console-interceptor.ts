@@ -9,6 +9,7 @@
  * - Writes to file on server (file)
  */
 
+console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/static/ts/utils/console-interceptor.ts loaded");
 interface ConsoleLogEntry {
     level: string;
     message: string;

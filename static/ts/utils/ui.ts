@@ -3,6 +3,7 @@
  * Common UI interaction helpers
  */
 
+console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/static/ts/utils/ui.ts loaded");
 export type ToastType = 'success' | 'error' | 'warning' | 'info';
 
 /**

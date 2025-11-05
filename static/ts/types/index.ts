@@ -7,6 +7,7 @@
 // Configuration Types
 // ============================================================================
 
+console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/static/ts/types/index.ts loaded");
 export interface WriterConfig {
     projectId: string | null;
     username: string | null;
