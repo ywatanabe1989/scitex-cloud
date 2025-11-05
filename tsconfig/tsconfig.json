@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "../static/ts",
+    "outDir": "../static/js",
+    "baseUrl": "../static/ts",
+    "paths": {
+      "@/types": ["types/index.ts"],
+      "@/types/*": ["types/*"],
+      "@/utils": ["utils"],
+      "@/utils/*": ["utils/*"],
+      "@/*": ["*"]
+    }
+  },
+  "include": ["../static/ts/**/*"]
+}

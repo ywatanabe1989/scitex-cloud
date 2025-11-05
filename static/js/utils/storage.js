@@ -3,6 +3,7 @@
  * Handles persistence of application state across sessions
  */
 export class StorageManager {
+    prefix;
     constructor(prefix = 'scitex_') {
         this.prefix = prefix;
     }

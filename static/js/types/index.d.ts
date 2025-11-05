@@ -9,6 +9,7 @@ export interface WriterConfig {
     isDemo: boolean;
     isAnonymous: boolean;
     writerInitialized: boolean;
+    documentType?: string;
     csrfToken?: string;
     wordCounts?: Record<string, number>;
 }

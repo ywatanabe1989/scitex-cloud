@@ -14,6 +14,7 @@ export interface WriterConfig {
     isDemo: boolean;
     isAnonymous: boolean;
     writerInitialized: boolean;
+    documentType?: string;  // Current document type (manuscript, shared, supplementary, revision)
     csrfToken?: string;
     wordCounts?: Record<string, number>;
 }

@@ -93,6 +93,8 @@ export function showSpinner(containerId, show = true) {
  * Modal helper to show/hide modals
  */
 export class Modal {
+    element;
+    bootstrap;
     constructor(elementId) {
         const el = document.getElementById(elementId);
         if (!el) {

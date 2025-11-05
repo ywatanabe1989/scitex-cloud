@@ -17,7 +17,51 @@
 #   make ENV=prod switch           # Switch to prod
 #   make ENV=prod rebuild          # Rebuild prod (with confirmation)
 
-.PHONY: help status validate-docker validate switch stop-all start restart reload stop down logs ps migrate shell force-stop-all ssl-setup ssl-verify ssl-check ssl-renew verify-health list-envs exec-web exec-db exec-gitea gitea-token recreate-testuser build-ts collectstatic makemigrations createsuperuser db-shell db-backup db-reset logs-web logs-db logs-gitea build rebuild setup test clean-python info
+.PHONY: \
+	help \
+	status \
+	validate-docker \
+	validate \
+	switch \
+	stop-all \
+	start \
+	restart \
+	reload \
+	stop \
+	down \
+	logs \
+	ps \
+	migrate \
+	shell \
+	force-stop-all \
+	ssl-setup \
+	ssl-verify \
+	ssl-check \
+	ssl-renew \
+	verify-health \
+	list-envs \
+	exec-web \
+	exec-db \
+	exec-gitea \
+	gitea-token \
+	recreate-testuser \
+	build-ts \
+	collectstatic \
+	makemigrations \
+	createsuperuser \
+	db-shell \
+	db-backup \
+	db-reset \
+	logs-web \
+	logs-db \
+	logs-gitea \
+	build \
+	rebuild \
+	setup \
+	test \
+	clean-python \
+	info
+
 .DEFAULT_GOAL := help
 
 # ============================================
@@ -130,6 +174,7 @@ help:
 	@echo "$(CYAN)🔧 Utilities:$(NC)"
 	@echo "  make ENV=<env> exec-web           # Shell into web container"
 	@echo "  make ENV=<env> exec-db            # Shell into database container"
+	@echo "  make ENV=<env> exec <cmd>         # Execute command in web container"
 	@echo "  make ENV=<env> list-envs          # List environment variables"
 	@echo ""
 	@echo "$(CYAN)🔒 SSL/HTTPS (prod only):$(NC)"
@@ -138,17 +183,19 @@ help:
 	@echo "  make ENV=prod ssl-renew           # Renew certificates"
 	@echo "  make ENV=prod ssl-setup           # Manual SSL setup (interactive)"
 	@echo ""
-	@echo "$(RED)⚠️  IMPORTANT: ENV parameter is MANDATORY!$(NC)"
-	@echo "$(YELLOW)   No defaults - always specify ENV=<dev|prod|nas> (or env=)$(NC)"
-	@echo ""
 
 # ============================================
 # Status & Information
 # ============================================
 status:
 	@echo "$(CYAN)📊 Environment Status:$(NC)"
-	@echo ""
-	@RUNNING=$$(docker ps --format '{{.Names}}' 2>/dev/null | grep -oE 'scitex-cloud-(dev|prod|nas)-' | sed 's/scitex-cloud-//' | sed 's/-//' | sort -u | tr '\n' ' ' | xargs); \
+	@RUNNING=$$(docker ps --format '{{.Names}}' 2>/dev/null | \
+		grep -oE 'scitex-cloud-(dev|prod|nas)-' | \
+		sed 's/scitex-cloud-//' | \
+		sed 's/-//' | \
+		sort -u | \
+		tr '\n' ' ' | \
+		xargs); \
 	if [ -n "$$RUNNING" ]; then \
 		echo "  $(CYAN)Active environment:$(NC) $$RUNNING"; \
 	else \
@@ -156,8 +203,9 @@ status:
 	fi
 	@echo ""
 	@echo "$(CYAN)🐳 Running Containers:$(NC)"
-	@docker ps --format "table {{.Names}}\t{{.Status}}" 2>/dev/null | grep -E "scitex-cloud-(dev|prod|nas)-" || echo "  $(YELLOW)No scitex-cloud containers running$(NC)"
-	@echo ""
+	@docker ps --format "table {{.Names}}\t{{.Status}}" 2>/dev/null | \
+		grep -E "scitex-cloud-(dev|prod|nas)-" | xargs -I{} echo "  "{} || \
+		echo "  $(YELLOW)No scitex-cloud containers running$(NC)"
 
 # ============================================
 # Stop All Environments
@@ -374,6 +422,21 @@ exec-web: validate
 exec-db: validate
 	@echo "$(CYAN)🐳 Opening shell in database container ($(ENV))...$(NC)"
 	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile exec-db
+
+# Execute arbitrary command in web container
+# Usage: make ENV=dev exec CMD="ls -la" or make ENV=dev exec ls -la
+exec: validate
+	@if [ -z "$(CMD)" ]; then \
+		echo "$(YELLOW)⚠️  No CMD specified, using remaining args: $(filter-out $@,$(MAKECMDGOALS))$(NC)"; \
+		cd $(DOCKER_DIR) && docker compose exec web $(filter-out $@,$(MAKECMDGOALS)); \
+	else \
+		echo "$(CYAN)🐳 Executing command in web container ($(ENV)): $(CMD)$(NC)"; \
+		cd $(DOCKER_DIR) && docker compose exec web $(CMD); \
+	fi
+
+# Catch-all rule to prevent "No rule to make target" errors when using exec
+%:
+	@:
 
 exec-gitea: validate
 	@echo "$(CYAN)🐳 Opening shell in Gitea container ($(ENV))...$(NC)"
