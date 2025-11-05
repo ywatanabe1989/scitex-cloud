@@ -4,12 +4,20 @@
  */
 import { CompilationManager } from './compilation.js';
 import { LatexWrapper } from './latex-wrapper.js';
+console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/modules/pdf-preview.ts loaded");
 export class PDFPreviewManager {
+    container;
+    compilationManager;
+    latexWrapper;
+    projectId;
+    autoCompile;
+    compileDelay;
+    docType;
+    compileTimeout = null;
+    currentPdfUrl = null;
+    fontSize = 14; // Default editor font size
+    colorMode = 'light'; // PDF color mode
     constructor(options) {
-        this.compileTimeout = null;
-        this.currentPdfUrl = null;
-        this.fontSize = 14; // Default editor font size
-        this.colorMode = 'light'; // PDF color mode
         this.container = document.getElementById(options.containerId);
         this.projectId = options.projectId;
         this.autoCompile = options.autoCompile ?? false;

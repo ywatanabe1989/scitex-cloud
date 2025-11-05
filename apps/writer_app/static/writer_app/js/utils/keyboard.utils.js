@@ -1,6 +1,7 @@
 /**
  * Keyboard event utilities
  */
+console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/utils/keyboard.utils.ts loaded");
 /**
  * Check if keyboard event matches a shortcut
  */

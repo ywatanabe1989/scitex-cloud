@@ -4,6 +4,8 @@
  */
 
 // DOM utilities
+
+console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/shared/utils/index.ts loaded");
 export {
   querySelector,
   querySelectorAll,

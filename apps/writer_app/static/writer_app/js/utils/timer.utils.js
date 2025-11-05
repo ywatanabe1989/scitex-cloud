@@ -4,6 +4,7 @@
 /**
  * Debounce function to delay execution
  */
+console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/utils/timer.utils.ts loaded");
 export function debounce(func, wait, immediate = false) {
     let timeout = null;
     return function executedFunction(...args) {
@@ -49,10 +50,9 @@ export function formatElapsedTime(milliseconds) {
  * Create a simple timer
  */
 export class SimpleTimer {
-    constructor() {
-        this.startTime = 0;
-        this.isRunning = false;
-    }
+    startTime = 0;
+    isRunning = false;
+    interval;
     start(onTick) {
         this.startTime = Date.now();
         this.isRunning = true;

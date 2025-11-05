@@ -5,6 +5,8 @@
 /**
  * Safely query element from DOM
  */
+
+console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/utils/dom.utils.ts loaded");
 export function querySelector<T extends Element = Element>(selector: string): T | null {
   try {
     return document.querySelector(selector) as T | null;

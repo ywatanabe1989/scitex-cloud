@@ -20,7 +20,7 @@ This directory contains all frontend templates for the Writer app, organized by 
 3. **version_control/**: Git history
 4. **arxiv/**: arXiv submission
 5. **collaboration/**: Real-time editing
-6. **dashboard/**: User dashboard
+6. **index/**: User index
 
 ## Template Inheritance
 

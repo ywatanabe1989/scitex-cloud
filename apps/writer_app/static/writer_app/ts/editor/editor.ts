@@ -1,58 +1,34 @@
 /**
- * Editor Module - Main editor functionality
- *
- * Handles LaTeX/text editing, real-time preview, and editor interactions.
+ * Editor main page functionality
+ * Corresponds to: templates/writer_app/editor/editor.html
  */
 
-/**
- * Main editor class for manuscript editing
- */
-export class Editor {
-    private element: HTMLElement;
-    private content: string = '';
+console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/editor/editor.ts loaded");
+class EditorPage {
+    // @ts-expect-error - Placeholder for future editor integration
+    private _editor: any;
+    // @ts-expect-error - Placeholder for future PDF preview
+    private _pdfPreview: HTMLElement | null;
 
-    constructor(element: HTMLElement | null) {
-        if (!element) {
-            console.warn('Editor element not found');
-            return;
-        }
-        this.element = element;
+    constructor() {
+        this._pdfPreview = document.getElementById('pdf-preview');
         this.init();
     }
 
-    /**
-     * Initialize the editor
-     */
     private init(): void {
-        console.log('Editor initialized');
-        // TODO: Initialize editor with Monaco or CodeMirror
+        console.log('[Editor] Initializing editor page');
+        this.setupEditor();
     }
 
-    /**
-     * Get editor content
-     */
-    public getContent(): string {
-        return this.content;
+    private setupEditor(): void {
+        console.log('[Editor] Setting up Monaco editor');
     }
 
-    /**
-     * Set editor content
-     */
-    public setContent(content: string): void {
-        this.content = content;
-    }
-
-    /**
-     * Save current content
-     */
-    public save(): Promise<void> {
-        // TODO: Implement save functionality
-        return Promise.resolve();
+    public compile(): void {
+        console.log('[Editor] Starting compilation');
     }
 }
 
-// Initialize on document load
 document.addEventListener('DOMContentLoaded', () => {
-    const editorElement = document.getElementById('editor');
-    new Editor(editorElement);
+    new EditorPage();
 });

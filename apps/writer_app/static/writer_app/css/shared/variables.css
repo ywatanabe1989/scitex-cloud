@@ -1,14 +1,15 @@
-/* Writer App CSS Variables */
+/* Writer App CSS Variables - Using Central Design Tokens */
+
 :root {
-    /* Colors */
-    --writer-primary: #2563eb;
-    --writer-primary-hover: #1d4ed8;
-    --writer-secondary: #64748b;
-    --writer-background: #ffffff;
-    --writer-surface: #f8fafc;
-    --writer-border: #e2e8f0;
-    --writer-text: #0f172a;
-    --writer-text-muted: #64748b;
+    /* Colors - Map to central semantic tokens (theme-aware automatically) */
+    --writer-primary: var(--color-btn-primary-bg);
+    --writer-primary-hover: var(--color-btn-primary-hover-bg);
+    --writer-secondary: var(--text-secondary);
+    --writer-background: var(--bg-page);
+    --writer-surface: var(--bg-surface);
+    --writer-border: var(--border-default);
+    --writer-text: var(--text-primary);
+    --writer-text-muted: var(--text-muted);
 
     /* Editor specific */
     --editor-bg: #1e1e1e;

@@ -34,7 +34,7 @@ Migration from monolithic service classes to feature-based service architecture 
 
 ### 2. Compiler Service (`compilation/compiler_service.py`)
 **Source files:**
-- `compiler.py` - CompilationService class
+- `compiler.py` - CompilerService class
   - Synchronous compilation
   - Watch mode
   - PDF generation

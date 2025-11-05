@@ -7,6 +7,8 @@
 /**
  * Interface for compilation job response
  */
+
+console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/compilation/compilation.ts loaded");
 export interface CompilationJob {
     job_id: string;
     status: 'queued' | 'running' | 'completed' | 'failed';
@@ -20,7 +22,7 @@ export interface CompilationJob {
  */
 export class CompilationHandler {
     private jobId: string | null = null;
-    private pollInterval: NodeJS.Timer | null = null;
+    private pollInterval: number | null = null;
 
     /**
      * Submit a compilation job
@@ -88,7 +90,7 @@ export class CompilationHandler {
                 console.error('Polling error:', error);
                 this.stopPolling();
             }
-        }, 1000); // Poll every second
+        }, 1000) as unknown as number; // Poll every second
     }
 
     /**

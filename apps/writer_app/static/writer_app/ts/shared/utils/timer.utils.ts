@@ -5,6 +5,8 @@
 /**
  * Debounce function to delay execution
  */
+
+console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/shared/utils/timer.utils.ts loaded");
 export function debounce<T extends (...args: any[]) => any>(
   func: T,
   wait: number,

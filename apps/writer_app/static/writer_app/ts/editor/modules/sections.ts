@@ -5,6 +5,7 @@
 
 import { StorageManager } from '@/utils/storage';
 
+console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/editor/modules/sections.ts loaded");
 export interface Section {
     id: string;
     name: string;

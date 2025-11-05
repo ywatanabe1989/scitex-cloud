@@ -83,7 +83,7 @@ services/
 9. `is_compiling(manuscript)` - Check compilation status
 
 **Migration sources:**
-- `compiler.py` - CompilationService class
+- `compiler.py` - CompilerService class
 - `ai_service.py` - AI assistance functionality
 - `writer_service.py` - Some compilation methods
 

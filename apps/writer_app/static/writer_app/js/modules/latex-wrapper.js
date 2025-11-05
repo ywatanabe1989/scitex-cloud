@@ -2,7 +2,14 @@
  * LaTeX Wrapper Module
  * Wraps section content with proper LaTeX document structure
  */
+console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/modules/latex-wrapper.ts loaded");
 export class LatexWrapper {
+    documentClass;
+    packages;
+    preamble;
+    title;
+    author;
+    includeTableOfContents;
     constructor(options) {
         this.documentClass = options?.documentClass || 'article';
         this.packages = options?.packages || this.getDefaultPackages();

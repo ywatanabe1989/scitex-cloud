@@ -1,72 +1,36 @@
 /**
- * arXiv Submission Management
- * Handles manuscript submission to arXiv.org
+ * ArXiv submission page functionality
+ * Corresponds to: templates/writer_app/arxiv/submission.html
  */
 
-export class ArxivSubmissionManager {
-    private projectId: number | null;
+console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/arxiv/submission.ts loaded");
+class ArxivSubmissionPage {
+    private form: HTMLFormElement | null;
 
-    constructor(projectId: number | null) {
-        this.projectId = projectId;
+    constructor() {
+        this.form = document.querySelector('form#arxiv-submission-form');
+        this.init();
     }
 
-    /**
-     * Submit manuscript to arXiv
-     */
-    async submit(data: any): Promise<void> {
-        if (!this.projectId) {
-            throw new Error('Project ID required for submission');
-        }
+    private init(): void {
+        console.log('[ArxivSubmission] Initializing arXiv submission page');
+        this.setupFormValidation();
+    }
 
-        try {
-            const response = await fetch('/writer/api/arxiv/submit/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    project_id: this.projectId,
-                    ...data,
-                }),
+    private setupFormValidation(): void {
+        if (this.form) {
+            this.form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.submitToArxiv();
             });
-
-            const result = await response.json();
-            
-            if (!result.success) {
-                throw new Error(result.error || 'Submission failed');
-            }
-
-            console.log('Submitted to arXiv:', result);
-        } catch (error) {
-            console.error('Submission error:', error);
-            throw error;
         }
     }
 
-    /**
-     * Validate manuscript before submission
-     */
-    async validate(): Promise<any> {
-        if (!this.projectId) {
-            throw new Error('Project ID required for validation');
-        }
-
-        try {
-            const response = await fetch('/writer/api/arxiv/validate/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    project_id: this.projectId,
-                }),
-            });
-
-            const result = await response.json();
-            return result;
-        } catch (error) {
-            console.error('Validation error:', error);
-            throw error;
-        }
+    private async submitToArxiv(): Promise<void> {
+        console.log('[ArxivSubmission] Submitting to arXiv');
     }
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    new ArxivSubmissionPage();
+});

@@ -7,6 +7,7 @@
 import { StorageManager } from '@/utils/storage';
 import { HistoryEntry } from '@/types';
 
+console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/editor/modules/monaco-editor.ts loaded");
 export interface MonacoEditorConfig {
     elementId: string;
     mode?: string;
@@ -580,10 +581,13 @@ export class EnhancedEditor {
      */
     setKeyBinding(mode: string): void {
         if (this.editorType === 'monaco' && this.monacoEditor) {
-            console.log('[Editor] Monaco keybinding change requested:', mode);
-            // Monaco doesn't directly support Vim/Emacs keybindings without extensions
-            // For now, just log - would need monaco-vim or monaco-emacs packages
-            console.warn('[Editor] Monaco Vim/Emacs keybindings require additional packages');
+            // Only warn if trying to use Vim/Emacs keybindings
+            if (mode === 'vim' || mode === 'emacs') {
+                console.warn(`[Editor] Monaco ${mode} keybindings require additional packages (monaco-${mode})`);
+                console.log('[Editor] Falling back to default keybindings');
+            } else {
+                console.log('[Editor] Monaco keybinding mode:', mode);
+            }
         } else {
             // CodeMirror keymap
             console.log('[Editor] Setting CodeMirror keymap to:', mode);

@@ -5,6 +5,7 @@
  * - Ctrl+drag for zoom with cursor centering
  * - Zoom level indicator and controls
  */
+console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/modules/pdf-scroll-zoom.ts loaded");
 const PDF_COLOR_THEMES = {
     light: {
         name: 'light',
@@ -20,19 +21,21 @@ const PDF_COLOR_THEMES = {
     }
 };
 export class PDFScrollZoomHandler {
+    container;
+    pdfViewer = null;
+    currentZoom = 100;
+    minZoom = 50;
+    maxZoom = 300;
+    zoomStep = 10;
+    isCtrlPressed = false;
+    isDraggingZoom = false;
+    dragStartX = 0;
+    dragStartY = 0;
+    dragStartZoom = 100;
+    originalOverflow = '';
+    colorMode = 'light';
+    onColorModeChangeCallback;
     constructor(options) {
-        this.pdfViewer = null;
-        this.currentZoom = 100;
-        this.minZoom = 50;
-        this.maxZoom = 300;
-        this.zoomStep = 10;
-        this.isCtrlPressed = false;
-        this.isDraggingZoom = false;
-        this.dragStartX = 0;
-        this.dragStartY = 0;
-        this.dragStartZoom = 100;
-        this.originalOverflow = '';
-        this.colorMode = 'light';
         this.container = document.getElementById(options.containerId);
         this.minZoom = options.minZoom || 50;
         this.maxZoom = options.maxZoom || 300;

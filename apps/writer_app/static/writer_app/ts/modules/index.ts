@@ -3,6 +3,7 @@
  * Centralized export of all writer-specific modules
  */
 
+console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/modules/index.ts loaded");
 export { WriterEditor, type EditorConfig } from './editor.js';
 export { EnhancedEditor, type MonacoEditorConfig } from './monaco-editor.js';
 export { SectionsManager, type Section } from './sections.js';

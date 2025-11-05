@@ -3,7 +3,7 @@
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
-from ...services import CompilationService
+from ...services import CompilerService
 import json
 import logging
 
@@ -32,7 +32,7 @@ def compilation_api(request):
                 'error': 'project_id required'
             }, status=400)
 
-        compilation_service = CompilationService(project_id, request.user.id)
+        compilation_service = CompilerService(project_id, request.user.id)
         result = compilation_service.compile(doc_type)
 
         return JsonResponse(result)
@@ -62,7 +62,7 @@ def status_api(request):
                 'error': 'job_id required'
             }, status=400)
 
-        compilation_service = CompilationService(None, request.user.id)
+        compilation_service = CompilerService(None, request.user.id)
         status = compilation_service.get_status(job_id)
 
         return JsonResponse({
