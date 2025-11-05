@@ -1,6 +1,9 @@
 // Pull Request Detail Page JavaScript
 // Functions for merging, closing, and reopening pull requests
 
+
+console.log("[DEBUG] apps/project_app/static/project_app/ts/pull_requests/detail.ts loaded");
+
 function submitMerge() {
     const form = document.getElementById('mergeForm') as HTMLFormElement;
     const formData = new FormData(form);
@@ -9,7 +12,13 @@ function submitMerge() {
     const csrfToken = (document.querySelector('[name=csrfmiddlewaretoken]') as HTMLInputElement).value;
 
     // Get URL from data attribute (set in template)
-    const mergeUrl = document.getElementById('mergeModal').dataset.mergeUrl;
+    const mergeModal = document.getElementById('mergeModal') as HTMLElement | null;
+    const mergeUrl = mergeModal?.dataset.mergeUrl;
+
+    if (!mergeUrl) {
+        alert('Error: Merge URL not found');
+        return;
+    }
 
     fetch(mergeUrl, {
         method: 'POST',
@@ -40,6 +49,11 @@ function closePR() {
     // Get URL from data attribute (set in template)
     const closeUrl = document.body.dataset.prCloseUrl;
 
+    if (!closeUrl) {
+        alert('Error: Close URL not found');
+        return;
+    }
+
     fetch(closeUrl, {
         method: 'POST',
         headers: {
@@ -62,6 +76,11 @@ function reopenPR() {
 
     // Get URL from data attribute (set in template)
     const reopenUrl = document.body.dataset.prReopenUrl;
+
+    if (!reopenUrl) {
+        alert('Error: Reopen URL not found');
+        return;
+    }
 
     fetch(reopenUrl, {
         method: 'POST',

@@ -1,4 +1,7 @@
 // Project Settings TypeScript
+
+console.log("[DEBUG] apps/project_app/static/project_app/ts/projects/settings.ts loaded");
+
 (function() {
     'use strict';
 
@@ -73,7 +76,7 @@
 
         submitButtons.forEach((button) => {
             const btn = button as HTMLButtonElement;
-            btn.addEventListener('click', function(e: Event) {
+            btn.addEventListener('click', function(_e: Event) {
                 const actionValue = btn.value;
 
                 // Temporarily disable validation on non-active fields
@@ -211,7 +214,7 @@
                         invalidFields: Array.from(settingsForm.querySelectorAll(':invalid')).map((el) => (el as HTMLInputElement).name)
                     });
                     e.preventDefault();
-                    return false;
+                    return;
                 }
 
                 log('FORM IS SUBMITTING NOW - Watch Network tab for POST request');

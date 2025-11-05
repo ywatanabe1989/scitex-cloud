@@ -5,7 +5,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'project_app/css/project_app.css' %}">
-<link rel="stylesheet" href="{% static 'css/common/buttons.css' %}">
+<link rel="stylesheet" href="{% static 'project_app/css/shared/buttons.css' %}">
 
 {% endblock %}
 
@@ -23,7 +23,7 @@
             {{ project.name }}
         </a>
         <span style="color: var(--color-fg-muted);"> / </span>
-        <a href="{% url 'user_projects:issues_list' username=project.owner.username slug=project.slug %}" style="color: var(--color-accent-fg); text-decoration: none;">
+        <a href="{% url 'user_projects:list' username=project.owner.username slug=project.slug %}" style="color: var(--color-accent-fg); text-decoration: none;">
             Issues
         </a>
         <span style="color: var(--color-fg-muted);"> / </span>
@@ -91,7 +91,7 @@
         <!-- New Comment Form -->
         {% if can_comment %}
         <div class="new-comment-form">
-            <form method="POST" action="{% url 'user_projects:issue_comment_create' username=project.owner.username slug=project.slug issue_number=issue.number %}">
+            <form method="POST" action="{% url 'user_projects:comment_create' username=project.owner.username slug=project.slug issue_number=issue.number %}">
                 {% csrf_token %}
                 <textarea name="content" class="new-comment-textarea" placeholder="Leave a comment..." required></textarea>
                 <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.5rem;">
@@ -112,5 +112,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'project_app/js/issue_detail.js' %}"></script>
+<script src="{% static 'project_app/js/issues/detail.js' %}"></script>
 {% endblock %}

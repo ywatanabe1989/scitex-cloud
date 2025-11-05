@@ -1,25 +1,33 @@
-// Pull request form functionality
+/**
+ * Pull request form page functionality
+ * Corresponds to: templates/project_app/pull_requests/form.html
+ */
 
-(function() {
-    'use strict';
 
-    function updateComparison(): void {
-        const baseSelect = document.getElementById('baseSelect') as HTMLSelectElement | null;
-        const headSelect = document.getElementById('headSelect') as HTMLSelectElement | null;
+console.log("[DEBUG] apps/project_app/static/project_app/ts/pull_requests/form.ts loaded");
 
-        if (!baseSelect || !headSelect) {
-            console.error('Base or head select element not found');
-            return;
-        }
+class PullRequestFormPage {
+    private form: HTMLFormElement | null;
 
-        const base = baseSelect.value;
-        const head = headSelect.value;
+    constructor() {
+        this.form = document.querySelector('form.pr-form');
+        this.init();
+    }
 
-        if (base && head) {
-            window.location.href = `?base=${base}&head=${head}`;
+    private init(): void {
+        console.log('[PRForm] Initializing pull request form');
+        if (this.form) {
+            this.setupFormHandling();
         }
     }
 
-    // Expose function to global scope for use in HTML onchange attributes
-    (window as any).updateComparison = updateComparison;
-})();
+    private setupFormHandling(): void {
+        this.form?.addEventListener('submit', (_e) => {
+            console.log('[PRForm] Form submitted');
+        });
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    new PullRequestFormPage();
+});

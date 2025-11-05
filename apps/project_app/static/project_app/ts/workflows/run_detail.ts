@@ -1,5 +1,8 @@
 // Workflow run detail page functionality
 
+
+console.log("[DEBUG] apps/project_app/static/project_app/ts/workflows/run_detail.ts loaded");
+
 (function() {
     'use strict';
 

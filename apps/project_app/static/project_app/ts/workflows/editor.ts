@@ -1,10 +1,13 @@
 // Workflow Editor JavaScript
 // Template YAML definitions and template selection logic
 
+
+console.log("[DEBUG] apps/project_app/static/project_app/ts/workflows/editor.ts loaded");
+
 (function() {
     'use strict';
 
-    type TemplateId = 'blank' | 'python-test' | 'latex-build' | 'code-lint' | 'docker-build';
+    // type TemplateId = 'blank' | 'python-test' | 'latex-build' | 'code-lint' | 'docker-build';
 
     interface TemplateYamlMap {
         [key: string]: string;
