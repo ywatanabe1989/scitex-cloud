@@ -9,6 +9,10 @@ interface HLJSApi {
     lineNumbersBlock?(element: HTMLElement): void;
     configure(options: any): void;
     highlightAll(): void;
+    registerLanguage(name: string, definition: (hljs: any) => any): void;
+    COMMENT(begin: string, end: string): any;
+    QUOTE_STRING_MODE: any;
+    C_NUMBER_MODE: any;
 }
 
 // Marked (Markdown parser)
@@ -18,7 +22,7 @@ interface MarkedStatic {
 }
 
 // Icon utilities
-interface IconOptions {
+export interface IconOptions {
     size?: number;
     classes?: string;
     color?: string;
@@ -26,8 +30,8 @@ interface IconOptions {
 }
 
 interface IconUtilsInterface {
-    loadIcon(iconName: string, options?: IconOptions): Promise<string>;
-    createIcon(iconName: string, options?: IconOptions): Promise<HTMLElement | null>;
+    loadIcon(iconName: string, options?: IconOptions): Promise<any>;
+    createIcon(iconName: string, options?: IconOptions): Promise<any>;
     getInlineIcon(iconName: string, options?: IconOptions): string;
     emojiToIcon(emoji: string): string;
     ICON_BASE_PATH: string;
@@ -42,29 +46,33 @@ interface PDFJSLib {
 }
 
 // Global variables
-interface Window {
-    hljs: HLJSApi;
-    marked: MarkedStatic;
-    IconUtils: IconUtilsInterface;
-    pdfjsLib: PDFJSLib;
-    SCITEX_PROJECT_DATA: {
-        owner: string;
-        repo: string;
-        slug?: string;
-        path: string;
-        branch: string;
-        [key: string]: any;
-    };
-    SCITEX_FILE_PATH?: string;
-    SCITEX_PROFILE_DATA?: {
-        [key: string]: any;
-    };
-    // Functions exposed by file_view.ts
-    copyToClipboard: () => void;
-    showCode: () => void;
-    showPreview: () => void;
-    toggleBranchDropdown: (event: Event) => void;
-    switchBranch: (branch: string) => Promise<void>;
-    // Functions exposed by file_edit.ts
-    showEdit?: () => void;
+declare global {
+    interface Window {
+        hljs: HLJSApi;
+        marked: MarkedStatic;
+        IconUtils: IconUtilsInterface;
+        pdfjsLib: PDFJSLib;
+        SCITEX_PROJECT_DATA: {
+            owner: string;
+            repo: string;
+            slug?: string;
+            path: string;
+            branch: string;
+            [key: string]: any;
+        };
+        SCITEX_FILE_PATH?: string;
+        SCITEX_PROFILE_DATA?: {
+            [key: string]: any;
+        };
+        // Functions exposed by file_view.ts
+        copyToClipboard: () => void;
+        showCode: () => void;
+        showPreview: () => void;
+        toggleBranchDropdown: (event: Event) => void;
+        switchBranch: (branch: string) => Promise<any>;
+        // Functions exposed by file_edit.ts
+        showEdit?: () => void;
+    }
 }
+
+export {};

@@ -10,8 +10,8 @@
 
 {% block content %}
 <div class="container-fluid" style="max-width: 1280px;" data-run-status="{{ run.status }}">
-    {% include 'project_app/browse_partials/browse_header.html' %}
-    {% include 'project_app/browse_partials/browse_tabs.html' with active_tab='actions' %}
+    {% include 'project_app/repository/browse_partials/browse_header.html' %}
+    {% include 'project_app/repository/browse_partials/browse_tabs.html' with active_tab='actions' %}
 
     <!-- Run Header -->
     <div class="run-header">
@@ -134,5 +134,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'project_app/js/workflow_run_detail.js' %}"></script>
+<script src="{% static 'project_app/js/workflows/run_detail.js' %}"></script>
 {% endblock %}

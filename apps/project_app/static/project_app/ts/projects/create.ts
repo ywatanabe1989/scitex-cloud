@@ -2,14 +2,14 @@
 // Project Creation Form Logic
 // =============================================================================
 
+
+console.log("[DEBUG] apps/project_app/static/project_app/ts/projects/create.ts loaded");
+
 (function() {
     'use strict';
 
 // Handle initialization type selection
 const initTypeRadios = document.querySelectorAll('input[name="init_type"]') as NodeListOf<HTMLInputElement>;
-const templateSelector = document.getElementById('template_type_selector') as HTMLElement | null;
-const gitUrlInput = document.getElementById('git_url_input') as HTMLElement | null;
-const gitUrlField = document.getElementById('git_url') as HTMLInputElement | null;
 
 const githubUrlInput = document.getElementById('github_url_input') as HTMLElement | null;
 const githubUrlField = document.getElementById('github_url') as HTMLInputElement | null;
@@ -79,12 +79,12 @@ form?.addEventListener('submit', function(e: Event) {
     if (!name) {
         e.preventDefault();
         alert('Please enter a project name');
-        return false;
+        return;
     }
     if (!isNameAvailable) {
         e.preventDefault();
         alert('Please choose an available project name. The current name is already taken or invalid.');
-        return false;
+        return;
     }
 });
 
@@ -96,7 +96,7 @@ nameInput?.addEventListener('input', function(this: HTMLInputElement) {
 
     // Hide availability if empty
     if (!name) {
-        availabilityDiv.style.display = 'none';
+        if (availabilityDiv) availabilityDiv.style.display = 'none';
         isNameAvailable = false;
         if (submitButton) {
             submitButton.disabled = true;
@@ -116,10 +116,12 @@ nameInput?.addEventListener('input', function(this: HTMLInputElement) {
 
 
     // Show checking state
-    availabilityDiv.style.display = 'block';
-    availabilityIcon.textContent = '⏳';
-    availabilityMessage.textContent = ' Checking availability...';
-    availabilityMessage.style.color = '#666';
+    if (availabilityDiv) availabilityDiv.style.display = 'block';
+    if (availabilityIcon) availabilityIcon.textContent = '⏳';
+    if (availabilityMessage) {
+        availabilityMessage.textContent = ' Checking availability...';
+        availabilityMessage.style.color = '#666';
+    }
 
     // Debounce: wait 500ms after user stops typing
     nameCheckTimeout = window.setTimeout(async () => {

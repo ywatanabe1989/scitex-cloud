@@ -9,18 +9,18 @@
 
 {% block content %}
 <div class="container-fluid" style="max-width: 1280px;">
-    {% include 'project_app/browse_partials/browse_header.html' %}
-    {% include 'project_app/browse_partials/browse_tabs.html' with active_tab='actions' %}
+    {% include 'project_app/repository/browse_partials/browse_header.html' %}
+    {% include 'project_app/repository/browse_partials/browse_tabs.html' with active_tab='actions' %}
 
     <h1 style="margin: 1.5rem 0;">{% if edit_mode %}Edit Workflow{% else %}Create New Workflow{% endif %}</h1>
 
     <div class="editor-container">
-        {% include 'project_app/workflow_editor_partials/workflow_editor_templates_sidebar.html' %}
-        {% include 'project_app/workflow_editor_partials/workflow_editor_form.html' %}
+        {% include 'project_app/workflows/editor_partials/workflow_editor_templates_sidebar.html' %}
+        {% include 'project_app/workflows/editor_partials/workflow_editor_form.html' %}
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'project_app/js/workflow_editor.js' %}"></script>
+<script src="{% static 'project_app/js/workflows/editor.js' %}"></script>
 {% endblock %}

@@ -2,16 +2,21 @@
 // File View - IIFE wrapper for TypeScript
 // =============================================================================
 
+import { getCsrfToken } from '../utils/csrf.js';
+
 // Local type declarations (Window interface is defined in global.d.ts)
+
+console.log("[DEBUG] apps/project_app/static/project_app/ts/repository/file_view.ts loaded");
+
 interface CodeThemePreferences {
     light: string;
     dark: string;
 }
 
-interface ProjectData {
-    owner: string;
-    slug: string;
-}
+// interface ProjectData {
+//     owner: string;
+//     slug: string;
+// }
 
 interface ThemeResponse {
     code_theme_light?: string;
@@ -32,8 +37,8 @@ interface BranchSwitchResponse {
     // Theme Configuration
     // =============================================================================
 
-    const DARK_THEMES: string[] = ['dracula', 'monokai', 'nord', 'atom-one-dark', 'github-dark', 'vs2015'];
-    const LIGHT_THEMES: string[] = ['atom-one-light', 'github', 'stackoverflow-light', 'default', 'xcode'];
+    // const DARK_THEMES: string[] = ['dracula', 'monokai', 'nord', 'atom-one-dark', 'github-dark', 'vs2015'];
+    // const LIGHT_THEMES: string[] = ['atom-one-light', 'github', 'stackoverflow-light', 'default', 'xcode'];
 
     // Default themes
     let codeThemePreferences: CodeThemePreferences = {
@@ -53,22 +58,6 @@ interface BranchSwitchResponse {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
-    }
-
-    // Helper function to get CSRF token
-    function getCookie(name: string): string | null {
-        let cookieValue: string | null = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
     }
 
     // =============================================================================
@@ -91,30 +80,29 @@ interface BranchSwitchResponse {
         }
     }
 
-    // Save theme preferences to database
-    async function saveCodeThemePreferences(): Promise<void> {
-        try {
-            const csrfTokenElement = document.querySelector('[name=csrfmiddlewaretoken]') as HTMLInputElement | null;
-            const csrfToken = csrfTokenElement?.value || getCookie('csrftoken') || '';
-            const response = await fetch('/auth/api/save-theme/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrfToken
-                },
-                body: JSON.stringify({
-                    code_theme_light: codeThemePreferences.light,
-                    code_theme_dark: codeThemePreferences.dark
-                })
-            });
-            const data = await response.json() as ThemeResponse;
-            if (data.success) {
-                console.log('Code theme preferences saved:', codeThemePreferences);
-            }
-        } catch (error) {
-            console.warn('Failed to save code theme preferences:', error);
-        }
-    }
+    // Save theme preferences to database (currently unused)
+    // async function _saveCodeThemePreferences(): Promise<void> {
+    //     try {
+    //         const csrfToken = getCsrfToken();
+    //         const response = await fetch('/auth/api/save-theme/', {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //                 'X-CSRFToken': csrfToken
+    //             },
+    //             body: JSON.stringify({
+    //                 code_theme_light: codeThemePreferences.light,
+    //                 code_theme_dark: codeThemePreferences.dark
+    //             })
+    //         });
+    //         const data = await response.json() as ThemeResponse;
+    //         if (data.success) {
+    //             console.log('Code theme preferences saved:', codeThemePreferences);
+    //         }
+    //     } catch (error) {
+    //         console.warn('Failed to save code theme preferences:', error);
+    //     }
+    // }
 
     // Switch highlight.js theme
     function switchHighlightTheme(themeName: string, reHighlight: boolean = false): void {
@@ -254,7 +242,7 @@ interface BranchSwitchResponse {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken') || ''
+                    'X-CSRFToken': getCsrfToken()
                 },
                 body: JSON.stringify({ branch: branch })
             });
@@ -280,6 +268,19 @@ interface BranchSwitchResponse {
 
     // Initialize syntax highlighting with line numbers
     document.addEventListener('DOMContentLoaded', async function() {
+        // Extract language from code block class and add data-language attribute
+        // This is needed for markdown-rendered code blocks
+        document.querySelectorAll<HTMLElement>('pre code[class*="language-"]').forEach(codeElement => {
+            const classMatch = codeElement.className.match(/language-(\w+)/);
+            if (classMatch && classMatch[1]) {
+                const language = classMatch[1];
+                const preElement = codeElement.parentElement as HTMLPreElement | null;
+                if (preElement && preElement.tagName === 'PRE') {
+                    preElement.setAttribute('data-language', language);
+                }
+            }
+        });
+
         // Store original code content before highlighting
         const codeBlock = document.getElementById('code-content') as HTMLElement | null;
         if (codeBlock) {

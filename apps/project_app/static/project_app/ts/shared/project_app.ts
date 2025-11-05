@@ -15,6 +15,11 @@
  * 8. Utility Functions
  */
 
+import { getCsrfToken } from '../utils/csrf.js';
+import { loadFileTree as loadFileTreeShared, toggleFolder as toggleFolderShared } from './file-tree.js';
+
+console.log("[DEBUG] apps/project_app/static/project_app/ts/shared/project_app.ts loaded");
+
 (function() {
     'use strict';
 
@@ -22,7 +27,7 @@
 // 1. SIDEBAR MANAGEMENT
 // =============================================================================
 
-const SIDEBAR_STATE_KEY = 'scitex-sidebar-state';
+// const SIDEBAR_STATE_KEY = 'scitex-sidebar-state';
 const SIDEBAR_SECTIONS_KEY = 'scitex-sidebar-sections';
 
 /**
@@ -42,7 +47,7 @@ function initializeSidebar() {
 /**
  * Toggle individual sidebar section
  */
-function toggleSidebarSection(sectionId) {
+function toggleSidebarSection(sectionId: string) {
     const sidebar = document.getElementById('repo-sidebar');
 
     if (!sidebar) return;
@@ -68,7 +73,7 @@ function saveSectionStates() {
 
     if (!fileTreeSection && !aboutSection) return;
 
-    const sections = {};
+    const sections: Record<string, string> = {};
     if (fileTreeSection) {
         sections['file-tree-section'] = fileTreeSection.classList.contains('section-collapsed') ? 'collapsed' : 'expanded';
     }
@@ -84,106 +89,32 @@ function saveSectionStates() {
 // =============================================================================
 
 /**
- * Load file tree from API and render it in sidebar
+ * Load file tree from API and render it in sidebar - uses shared module
  */
 async function loadFileTree() {
-    const treeContainer = document.getElementById('file-tree');
-    if (!treeContainer) return;
+    console.log('[loadFileTree] START - Loading file tree from sidebar');
 
     // Extract project info from page URL
     const pathParts = window.location.pathname.split('/').filter(x => x);
-    if (pathParts.length < 2) return;
+    if (pathParts.length < 2) {
+        console.log('[loadFileTree] Not enough path parts');
+        return;
+    }
 
     const username = pathParts[0];
     const slug = pathParts[1];
+    console.log('[loadFileTree] Fetching tree for:', username + '/' + slug);
 
-    try {
-        const response = await fetch(`/${username}/${slug}/api/file-tree/`);
-        const data = await response.json();
-
-        if (data.success) {
-            treeContainer.innerHTML = buildTreeHTML(data.tree, username, slug);
-        } else {
-            treeContainer.innerHTML = '<div style="color: var(--color-fg-muted); padding: 0.5rem;">Error loading file tree</div>';
-        }
-    } catch (err) {
-        console.error('Failed to load file tree:', err);
-        treeContainer.innerHTML = '<div style="color: var(--color-fg-muted); padding: 0.5rem;">Error loading file tree</div>';
-    }
+    // Use shared loadFileTree function
+    await loadFileTreeShared(username, slug, 'file-tree');
 }
 
 /**
- * Build HTML for file tree recursively
+ * Toggle folder expansion in file tree - uses shared module
  */
-function buildTreeHTML(items, username, slug, level = 0) {
-    let html = '';
-    const indent = level * 16;
-    const currentPath = window.location.pathname;
-
-    items.forEach((item) => {
-        const itemPath = `/${username}/${slug}/${item.path}${item.type === 'directory' ? '/' : ''}`;
-        const isActive = currentPath.includes(item.path);
-        const iconFolder = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" class="icon-folder"><path fill="currentColor" d="M1.75 1A1.75 1.75 0 0 0 0 2.75v10.5C0 14.216.784 15 1.75 15h12.5A1.75 1.75 0 0 0 16 13.25v-8.5A1.75 1.75 0 0 0 14.25 3H7.5a.25.25 0 0 1-.2-.1l-.9-1.2C6.07 1.26 5.55 1 5 1H1.75Z"></path></svg>';
-        const iconFile = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" class="icon-file"><path fill="currentColor" d="M2 1.75C2 .784 2.784 0 3.75 0h6.586c.464 0 .909.184 1.237.513l2.914 2.914c.329.328.513.773.513 1.237v9.586A1.75 1.75 0 0 1 13.25 16h-9.5A1.75 1.75 0 0 1 2 14.25Zm1.75-.25a.25.25 0 0 0-.25.25v12.5c0 .138.112.25.25.25h9.5a.25.25 0 0 0 .25-.25V6h-2.75A1.75 1.75 0 0 1 9 4.25V1.5Zm6.75.062V4.25c0 .138.112.25.25.25h2.688l-.011-.013-2.914-2.914-.013-.011Z"></path></svg>';
-        const icon = item.type === 'directory' ? iconFolder : iconFile;
-        const hasChildren = item.children && item.children.length > 0;
-        const itemId = `tree-${item.path.replace(/\//g, '-')}`;
-
-        // Item row
-        html += `<div class="file-tree-item ${isActive ? 'active' : ''}" style="padding-left: ${indent}px;">`;
-
-        if (item.type === 'directory') {
-            html += `<a href="${itemPath}" class="file-tree-folder" style="text-decoration: none; color: var(--color-fg-default);">`;
-
-            // Chevron for folders with children (collapsed by default)
-            if (hasChildren) {
-                html += `<span class="file-tree-chevron" onclick="toggleFolder('${itemId}'); return false;">▸</span>`;
-            } else {
-                html += `<span style="width: 12px; display: inline-block;"></span>`;
-            }
-
-            html += `<span class="file-tree-icon">${icon}</span><span>${item.name}</span>`;
-            html += `</a>`;
-        } else {
-            html += `<a href="/${username}/${slug}/blob/${item.path}" class="file-tree-file" style="text-decoration: none; color: var(--color-fg-muted);">`;
-            html += `<span style="width: 12px; display: inline-block;"></span>`;
-            html += `<span class="file-tree-icon">${icon}</span><span>${item.name}</span>`;
-            html += `</a>`;
-        }
-
-        html += `</div>`;
-
-        // Children container - render ALL children (collapsed by default)
-        if (hasChildren) {
-            const isExpanded = false;  // All folders collapsed by default
-            html += `<div id="${itemId}" class="file-tree-children ${isExpanded ? 'expanded' : ''}">`;
-            html += buildTreeHTML(item.children, username, slug, level + 1);
-            html += `</div>`;
-        }
-    });
-
-    return html;
-}
-
-/**
- * Toggle folder expansion in file tree
- */
-function toggleFolder(folderId: string): boolean {
-    const folder = document.getElementById(folderId);
-    if (!folder) return false;
-
-    const chevron = (event as Event).target as HTMLElement;
-
-    if (folder.classList.contains('expanded')) {
-        folder.classList.remove('expanded');
-        chevron.classList.remove('expanded');
-    } else {
-        folder.classList.add('expanded');
-        chevron.classList.add('expanded');
-    }
-
-    (event as Event).stopPropagation();
-    (event as Event).preventDefault();
+function toggleFolder(folderId: string, event?: Event): boolean {
+    console.log('[toggleFolder] Toggling folder:', folderId);
+    toggleFolderShared(folderId, event);
     return false;
 }
 
@@ -260,7 +191,7 @@ async function handleWatch(event: Event) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
+                'X-CSRFToken': getCsrfToken()
             }
         });
 
@@ -304,7 +235,7 @@ async function handleStar(event: Event) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
+                'X-CSRFToken': getCsrfToken()
             }
         });
 
@@ -356,7 +287,7 @@ async function handleFork(event: Event) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
+                'X-CSRFToken': getCsrfToken()
             }
         });
 
@@ -402,7 +333,7 @@ function initProjectCreateForm() {
 
     if (!nameInput) return;
 
-    let nameCheckTimeout;
+    let nameCheckTimeout: number | undefined;
     let isNameAvailable = false;
 
     // Real-time name availability checking
@@ -441,7 +372,7 @@ function initProjectCreateForm() {
             }
         }
 
-        nameCheckTimeout = setTimeout(async () => {
+        nameCheckTimeout = window.setTimeout(async () => {
             try {
                 const response = await fetch(`/project/api/check-name/?name=${encodeURIComponent(name)}`);
                 const data = await response.json();
@@ -485,12 +416,12 @@ function initProjectCreateForm() {
             if (!name) {
                 e.preventDefault();
                 alert('Please enter a project name');
-                return false;
+                return;
             }
             if (!isNameAvailable) {
                 e.preventDefault();
                 alert('Please choose an available project name. The current name is already taken or invalid.');
-                return false;
+                return;
             }
         });
     }
@@ -554,7 +485,7 @@ function initProjectCreateForm() {
 /**
  * Extract repository name from URL
  */
-function extractRepoNameFromUrl(url) {
+function extractRepoNameFromUrl(url: string): string {
     if (!url) return '';
     url = url.trim();
     if (url.endsWith('.git')) {
@@ -935,7 +866,7 @@ async function switchBranch(branch: string) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
+                'X-CSRFToken': getCsrfToken()
             },
             body: JSON.stringify({ branch: branch })
         });
@@ -949,7 +880,8 @@ async function switchBranch(branch: string) {
         }
     } catch (error) {
         console.error('Error switching branch:', error);
-        alert('Failed to switch branch: ' + error.message);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        alert('Failed to switch branch: ' + errorMessage);
     }
 }
 
@@ -1046,7 +978,7 @@ async function toggleFollow() {
         const response = await fetch(endpoint, {
             method: 'POST',
             headers: {
-                'X-CSRFToken': getCookie('csrftoken'),
+                'X-CSRFToken': getCsrfToken(),
                 'Content-Type': 'application/json',
             }
         });
@@ -1095,7 +1027,7 @@ async function toggleStar(btn: HTMLButtonElement) {
         const response = await fetch(endpoint, {
             method: 'POST',
             headers: {
-                'X-CSRFToken': getCookie('csrftoken'),
+                'X-CSRFToken': getCsrfToken(),
                 'Content-Type': 'application/json',
             }
         });
@@ -1124,24 +1056,6 @@ async function toggleStar(btn: HTMLButtonElement) {
 // =============================================================================
 // 8. UTILITY FUNCTIONS
 // =============================================================================
-
-/**
- * Get CSRF token from cookies
- */
-function getCookie(name: string): string | null {
-    let cookieValue: string | null = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
 
 /**
  * Show notification message

@@ -2,6 +2,11 @@
 // Sidebar State Management
 // =============================================================================
 
+import { loadFileTree as loadFileTreeShared, toggleFolder as toggleFolderShared } from '../shared/file-tree.js';
+import { getCsrfToken } from '../utils/csrf.js';
+
+console.log("[DEBUG] apps/project_app/static/project_app/ts/projects/detail.ts loaded");
+
 (function() {
     'use strict';
 
@@ -137,7 +142,7 @@ function saveSectionStates(): void {
 // File Tree
 // =============================================================================
 
-// Build file tree for sidebar
+// Build file tree for sidebar using shared module
 async function loadFileTree(): Promise<void> {
     const projectData = (window as any).SCITEX_PROJECT_DATA;
     if (!projectData) {
@@ -145,105 +150,12 @@ async function loadFileTree(): Promise<void> {
         return;
     }
 
-    try {
-        const response = await fetch(`/${projectData.owner}/${projectData.slug}/api/file-tree/`);
-        const data = await response.json();
-
-        if (data.success) {
-            const treeContainer = document.getElementById('file-tree');
-            if (treeContainer) {
-                treeContainer.innerHTML = buildTreeHTML(data.tree, projectData.owner, projectData.slug);
-            }
-        } else {
-            const treeContainer = document.getElementById('file-tree');
-            if (treeContainer) {
-                treeContainer.innerHTML = '<div style="color: var(--color-fg-muted); padding: 0.5rem;">Error loading file tree</div>';
-            }
-        }
-    } catch (err) {
-        console.error('Failed to load file tree:', err);
-        const treeContainer = document.getElementById('file-tree');
-        if (treeContainer) {
-            treeContainer.innerHTML = '<div style="color: var(--color-fg-muted); padding: 0.5rem;">Error loading file tree</div>';
-        }
-    }
+    await loadFileTreeShared(projectData.owner, projectData.slug, 'file-tree');
 }
 
-interface TreeItem {
-    name: string;
-    path: string;
-    type: 'file' | 'directory';
-    children?: TreeItem[];
-}
-
-function buildTreeHTML(items: TreeItem[], username: string, slug: string, level: number = 0): string {
-    let html = '';
-    const indent = level * 16;
-    const currentPath = window.location.pathname;
-
-    items.forEach((item: TreeItem, index: number) => {
-        const itemPath = `/${username}/${slug}/${item.path}${item.type === 'directory' ? '/' : ''}`;
-        const isActive = currentPath.includes(item.path);
-        const icon = item.type === 'directory' ? '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" class="icon-folder"><path fill="currentColor" d="M1.75 1A1.75 1.75 0 0 0 0 2.75v10.5C0 14.216.784 15 1.75 15h12.5A1.75 1.75 0 0 0 16 13.25v-8.5A1.75 1.75 0 0 0 14.25 3H7.5a.25.25 0 0 1-.2-.1l-.9-1.2C6.07 1.26 5.55 1 5 1H1.75Z"></path></svg>' : '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" class="icon-file"><path fill="currentColor" d="M2 1.75C2 .784 2.784 0 3.75 0h6.586c.464 0 .909.184 1.237.513l2.914 2.914c.329.328.513.773.513 1.237v9.586A1.75 1.75 0 0 1 13.25 16h-9.5A1.75 1.75 0 0 1 2 14.25Zm1.75-.25a.25.25 0 0 0-.25.25v12.5c0 .138.112.25.25.25h9.5a.25.25 0 0 0 .25-.25V6h-2.75A1.75 1.75 0 0 1 9 4.25V1.5Zm6.75.062V4.25c0 .138.112.25.25.25h2.688l-.011-.013-2.914-2.914-.013-.011Z"></path></svg>';
-        const hasChildren = item.children && item.children.length > 0;
-        const itemId = `tree-${item.path.replace(/\//g, '-')}`;  // Unique ID based on path
-
-        // Item row
-        html += `<div class="file-tree-item ${isActive ? 'active' : ''}" style="padding-left: ${indent}px;">`;
-
-        if (item.type === 'directory') {
-            html += `<a href="${itemPath}" class="file-tree-folder" style="text-decoration: none; color: var(--color-fg-default);">`;
-
-            // Chevron for folders with children
-            if (hasChildren) {
-                html += `<span class="file-tree-chevron ${level === 0 ? 'expanded' : ''}" onclick="toggleFolder('${itemId}'); return false;">▸</span>`;
-            } else {
-                html += `<span style="width: 12px; display: inline-block;"></span>`;
-            }
-
-            html += `<span class="file-tree-icon">${icon}</span><span>${item.name}</span>`;
-            html += `</a>`;
-        } else {
-            html += `<a href="/${username}/${slug}/blob/${item.path}" class="file-tree-file" style="text-decoration: none; color: var(--color-fg-muted);">`;
-            html += `<span style="width: 12px; display: inline-block;"></span>`;
-            html += `<span class="file-tree-icon">${icon}</span><span>${item.name}</span>`;
-            html += `</a>`;
-        }
-
-        html += `</div>`;
-
-        // Children container - render ALL children
-        if (hasChildren) {
-            const isExpanded = level === 0;  // Auto-expand root level only
-            html += `<div id="${itemId}" class="file-tree-children ${isExpanded ? 'expanded' : ''}">`;
-            html += buildTreeHTML(item.children, username, slug, level + 1);  // Recursively build all children
-            html += `</div>`;
-        }
-    });
-
-    return html;
-}
-
+// Use shared toggle function
 function toggleFolder(folderId: string, event?: Event): void {
-    const folder = document.getElementById(folderId);
-
-    if (!folder) return;
-
-    // Find the chevron element - it's the span with class 'file-tree-chevron'
-    const chevron = event ? (event.target as HTMLElement) : document.querySelector(`#${folderId}`)?.previousElementSibling?.querySelector('.file-tree-chevron') as HTMLElement;
-
-    if (folder.classList.contains('expanded')) {
-        folder.classList.remove('expanded');
-        if (chevron) chevron.classList.remove('expanded');
-    } else {
-        folder.classList.add('expanded');
-        if (chevron) chevron.classList.add('expanded');
-    }
-
-    if (event) {
-        event.stopPropagation();
-        event.preventDefault();
-    }
+    toggleFolderShared(folderId, event);
 }
 
 // =============================================================================
@@ -370,14 +282,13 @@ async function handleWatch(event: Event): Promise<void> {
     if (!projectData) return;
 
     const btn = event.currentTarget as HTMLElement;
-    const isWatching = btn.classList.contains('active');
 
     try {
         const response = await fetch(`/${projectData.owner}/${projectData.slug}/api/watch/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
+                'X-CSRFToken': getCsrfToken()
             }
         });
 
@@ -411,14 +322,13 @@ async function handleStar(event: Event): Promise<void> {
     if (!projectData) return;
 
     const btn = event.currentTarget as HTMLElement;
-    const isStarred = btn.classList.contains('active');
 
     try {
         const response = await fetch(`/${projectData.owner}/${projectData.slug}/api/star/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
+                'X-CSRFToken': getCsrfToken()
             }
         });
 
@@ -465,7 +375,7 @@ async function handleFork(event: Event): Promise<void> {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
+                'X-CSRFToken': getCsrfToken()
             }
         });
 
@@ -520,22 +430,6 @@ function showNotification(message: string, type: string = 'info'): void {
         notification.style.animation = 'slideOut 0.3s ease';
         setTimeout(() => notification.remove(), 300);
     }, 3000);
-}
-
-// Helper function to get CSRF token
-function getCookie(name: string): string | null {
-    let cookieValue: string | null = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
 }
 
 // =============================================================================

@@ -5,15 +5,15 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'project_app/css/project_app.css' %}">
-<link rel="stylesheet" href="{% static 'css/common/buttons.css' %}">
+<link rel="stylesheet" href="{% static 'project_app/css/shared/buttons.css' %}">
 {% endblock %}
 
 {% block content %}
 <div class="container-fluid" style="max-width: 1280px;"
      data-alert-dismiss-url="{% url 'user_projects:api_dismiss_alert' project.owner.username project.slug alert.id %}"
      data-alert-reopen-url="{% url 'user_projects:api_reopen_alert' project.owner.username project.slug alert.id %}">
-    {% include 'project_app/browse_partials/browse_header.html' %}
-    {% include 'project_app/browse_partials/browse_tabs.html' with active_tab='security' %}
+    {% include 'project_app/repository/browse_partials/browse_header.html' %}
+    {% include 'project_app/repository/browse_partials/browse_tabs.html' with active_tab='security' %}
 
     <a href="{% url 'user_projects:security_alerts' project.owner.username project.slug %}" class="btn btn-sm btn-outline-secondary mb-3">← Back to alerts</a>
 
@@ -89,5 +89,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'project_app/js/security_alert_detail.js' %}"></script>
+<script src="{% static 'project_app/js/security/alert_detail.js' %}"></script>
 {% endblock %}

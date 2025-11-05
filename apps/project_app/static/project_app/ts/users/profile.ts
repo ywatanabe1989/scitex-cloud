@@ -2,38 +2,25 @@
 // User Profile Functions
 // =============================================================================
 
+import { getCsrfToken } from '../utils/csrf.js';
+
+// Type definitions
+interface ApiResponse {
+    success?: boolean;
+    error?: string;
+    followers_count?: number;
+}
+
+// Note: SCITEX_PROFILE_DATA is declared in global.d.ts
+
+console.log("[DEBUG] apps/project_app/static/project_app/ts/users/profile.ts loaded");
+
 (function() {
     'use strict';
-
-    // Type definitions
-    interface ProfileData {
-        username: string;
-    }
-
-    interface ApiResponse {
-        success?: boolean;
-        error?: string;
-        followers_count?: number;
-    }
 
     // =============================================================================
     // Helper Functions
     // =============================================================================
-
-    function getCookie(name: string): string | null {
-        let cookieValue: string | null = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
 
     // =============================================================================
     // Repository Search
@@ -90,8 +77,7 @@
             : `/social/api/follow/${username}/`;
 
         try {
-            const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]') as HTMLInputElement | null;
-            const csrfToken = csrfInput?.value || getCookie('csrftoken');
+            const csrfToken = getCsrfToken();
 
             if (!csrfToken) {
                 console.error('CSRF token not found');
@@ -158,8 +144,7 @@
         btn.innerHTML = '⏳ ...';
 
         try {
-            const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]') as HTMLInputElement | null;
-            const csrfToken = csrfInput?.value || getCookie('csrftoken');
+            const csrfToken = getCsrfToken();
 
             if (!csrfToken) {
                 console.error('CSRF token not found');
