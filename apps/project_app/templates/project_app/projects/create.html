@@ -12,7 +12,7 @@
 {% block content %}
 <div class="create-container">
     <!-- Breadcrumb -->
-    {% include 'project_app/create_partials/create_breadcrumb.html' %}
+    {% include 'project_app/projects/create_partials/create_breadcrumb.html' %}
 
     <h1>Create New Repository</h1>
 
@@ -21,23 +21,23 @@
             {% csrf_token %}
 
             <!-- Name Field -->
-            {% include 'project_app/create_partials/create_name_field.html' %}
+            {% include 'project_app/projects/create_partials/create_name_field.html' %}
 
             <!-- Description Field -->
-            {% include 'project_app/create_partials/create_description_field.html' %}
+            {% include 'project_app/projects/create_partials/create_description_field.html' %}
 
             <div class="form-group">
                 <label class="form-label" style="display: block; margin-bottom: 0.75rem;">
                     Initialize Repository
                 </label>
 
-                {% include 'project_app/create_partials/create_init_options.html' %}
+                {% include 'project_app/projects/create_partials/create_init_options.html' %}
 
-                {% include 'project_app/create_partials/create_scripts.html' %}
+                {% include 'project_app/projects/create_partials/create_scripts.html' %}
             </div>
 
             <!-- Form Actions -->
-            {% include 'project_app/create_partials/create_form_actions.html' %}
+            {% include 'project_app/projects/create_partials/create_form_actions.html' %}
         </form>
     </div>
 </div>

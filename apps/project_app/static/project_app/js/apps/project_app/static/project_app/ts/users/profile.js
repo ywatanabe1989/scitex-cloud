@@ -1,25 +1,13 @@
 // =============================================================================
 // User Profile Functions
 // =============================================================================
+import { getCsrfToken } from '../utils/csrf';
+console.log("[DEBUG] apps/project_app/static/project_app/ts/users/profile.ts loaded");
 (function () {
     'use strict';
     // =============================================================================
     // Helper Functions
     // =============================================================================
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
     // =============================================================================
     // Repository Search
     // =============================================================================
@@ -66,8 +54,7 @@
             ? `/social/api/unfollow/${username}/`
             : `/social/api/follow/${username}/`;
         try {
-            const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
-            const csrfToken = csrfInput?.value || getCookie('csrftoken');
+            const csrfToken = getCsrfToken();
             if (!csrfToken) {
                 console.error('CSRF token not found');
                 return;
@@ -125,8 +112,7 @@
         btn.disabled = true;
         btn.innerHTML = '⏳ ...';
         try {
-            const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
-            const csrfToken = csrfInput?.value || getCookie('csrftoken');
+            const csrfToken = getCsrfToken();
             if (!csrfToken) {
                 console.error('CSRF token not found');
                 btn.innerHTML = originalHTML;

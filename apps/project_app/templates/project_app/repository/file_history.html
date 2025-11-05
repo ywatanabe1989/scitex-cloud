@@ -5,7 +5,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'project_app/css/project_app.css' %}">
-<link rel="stylesheet" href="{% static 'css/common/buttons.css' %}">
+<link rel="stylesheet" href="{% static 'project_app/css/shared/buttons.css' %}">
 
 {% endblock %}
 
@@ -37,21 +37,21 @@
     </div>
 
     <!-- History Header -->
-    {% include 'project_app/file_history_partials/file_history_header.html' %}
+    {% include 'project_app/repository/file_history_partials/file_history_header.html' %}
 
     <!-- Filter Bar -->
-    {% include 'project_app/file_history_partials/file_history_filter_bar.html' %}
+    {% include 'project_app/repository/file_history_partials/file_history_filter_bar.html' %}
 
     <!-- Commit List -->
     {% if commits %}
     <div class="commit-list">
         {% for commit in commits %}
-        {% include 'project_app/file_history_partials/file_history_commit_item.html' %}
+        {% include 'project_app/repository/file_history_partials/file_history_commit_item.html' %}
         {% endfor %}
     </div>
 
     <!-- Pagination -->
-    {% include 'project_app/file_history_partials/file_history_pagination.html' %}
+    {% include 'project_app/repository/file_history_partials/file_history_pagination.html' %}
 
     {% else %}
     <div class="empty-state">
@@ -70,5 +70,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'project_app/js/file_history.js' %}"></script>
+<script src="{% static 'project_app/js/repository/file_history.js' %}"></script>
 {% endblock %}

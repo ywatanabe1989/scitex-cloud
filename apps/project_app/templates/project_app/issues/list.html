@@ -6,13 +6,13 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'project_app/css/project_app.css' %}">
 <link rel="stylesheet" href="{% static 'project_app/css/issues_list.css' %}">
-<link rel="stylesheet" href="{% static 'css/common/buttons.css' %}">
+<link rel="stylesheet" href="{% static 'project_app/css/shared/buttons.css' %}">
 {% endblock %}
 
 {% block content %}
 <div class="container-fluid" style="max-width: 1280px;">
-    {% include 'project_app/browse_partials/browse_header.html' %}
-    {% include 'project_app/browse_partials/browse_tabs.html' with active_tab='issues' %}
+    {% include 'project_app/repository/browse_partials/browse_header.html' %}
+    {% include 'project_app/repository/browse_partials/browse_tabs.html' with active_tab='issues' %}
 
     <!-- Issues Filters and List -->
     <div class="issues-header tab-content-spacing">
@@ -33,7 +33,7 @@
                     {{ closed_count }} Closed
                 </a>
             </div>
-            <a href="{% url 'user_projects:issue_create' username=project.owner.username slug=project.slug %}" class="btn btn-success">
+            <a href="{% url 'user_projects:create' username=project.owner.username slug=project.slug %}" class="btn btn-success">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="display: inline-block; vertical-align: text-bottom; margin-right: 4px;">
                     <path d="M7.75 2a.75.75 0 0 1 .75.75V7h4.25a.75.75 0 0 1 0 1.5H8.5v4.25a.75.75 0 0 1-1.5 0V8.5H2.75a.75.75 0 0 1 0-1.5H7V2.75A.75.75 0 0 1 7.75 2Z"/>
                 </svg>
@@ -70,7 +70,7 @@
                 </div>
                 <div class="issue-content">
                     <div class="issue-title-row">
-                        <a href="{% url 'user_projects:issue_detail' username=project.owner.username slug=project.slug issue_number=issue.number %}" class="issue-title">
+                        <a href="{% url 'user_projects:detail' username=project.owner.username slug=project.slug issue_number=issue.number %}" class="issue-title">
                             {{ issue.title }}
                         </a>
                         {% if issue.labels.all %}
@@ -145,7 +145,7 @@
             There are no open issues yet. Create a new issue to get started.
             {% endif %}
         </p>
-        <a href="{% url 'user_projects:issue_create' username=project.owner.username slug=project.slug %}" class="btn btn-success">
+        <a href="{% url 'user_projects:create' username=project.owner.username slug=project.slug %}" class="btn btn-success">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="display: inline-block; vertical-align: text-bottom; margin-right: 4px;">
                 <path d="M7.75 2a.75.75 0 0 1 .75.75V7h4.25a.75.75 0 0 1 0 1.5H8.5v4.25a.75.75 0 0 1-1.5 0V8.5H2.75a.75.75 0 0 1 0-1.5H7V2.75A.75.75 0 0 1 7.75 2Z"/>
             </svg>
@@ -155,5 +155,5 @@
     {% endif %}
 </div>
 
-{% include 'project_app/browse_partials/browse_scripts.html' %}
+{% include 'project_app/repository/browse_partials/browse_scripts.html' %}
 {% endblock %}

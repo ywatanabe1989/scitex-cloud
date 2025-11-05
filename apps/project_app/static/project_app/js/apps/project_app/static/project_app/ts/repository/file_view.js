@@ -1,6 +1,9 @@
 // =============================================================================
 // File View - IIFE wrapper for TypeScript
 // =============================================================================
+import { getCsrfToken } from '../../utils/csrf';
+// Local type declarations (Window interface is defined in global.d.ts)
+console.log("[DEBUG] apps/project_app/static/project_app/ts/repository/file_view.ts loaded");
 (function () {
     'use strict';
     // =============================================================================
@@ -24,21 +27,6 @@
         div.textContent = text;
         return div.innerHTML;
     }
-    // Helper function to get CSRF token
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
     // =============================================================================
     // Theme Management
     // =============================================================================
@@ -61,8 +49,7 @@
     // Save theme preferences to database
     async function saveCodeThemePreferences() {
         try {
-            const csrfTokenElement = document.querySelector('[name=csrfmiddlewaretoken]');
-            const csrfToken = csrfTokenElement?.value || getCookie('csrftoken') || '';
+            const csrfToken = getCsrfToken();
             const response = await fetch('/auth/api/save-theme/', {
                 method: 'POST',
                 headers: {
@@ -213,7 +200,7 @@
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken') || ''
+                    'X-CSRFToken': getCsrfToken()
                 },
                 body: JSON.stringify({ branch: branch })
             });
@@ -237,6 +224,18 @@
     // =============================================================================
     // Initialize syntax highlighting with line numbers
     document.addEventListener('DOMContentLoaded', async function () {
+        // Extract language from code block class and add data-language attribute
+        // This is needed for markdown-rendered code blocks
+        document.querySelectorAll('pre code[class*="language-"]').forEach(codeElement => {
+            const classMatch = codeElement.className.match(/language-(\w+)/);
+            if (classMatch && classMatch[1]) {
+                const language = classMatch[1];
+                const preElement = codeElement.parentElement;
+                if (preElement && preElement.tagName === 'PRE') {
+                    preElement.setAttribute('data-language', language);
+                }
+            }
+        });
         // Store original code content before highlighting
         const codeBlock = document.getElementById('code-content');
         if (codeBlock) {

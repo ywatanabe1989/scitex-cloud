@@ -74,7 +74,7 @@ def actions_list(request, username, slug):
         },
     }
 
-    return render(request, 'project_app/actions_list.html', context)
+    return render(request, 'project_app/actions/list.html', context)
 
 
 def workflow_detail(request, username, slug, workflow_id):
@@ -132,7 +132,7 @@ def workflow_detail(request, username, slug, workflow_id):
         },
     }
 
-    return render(request, 'project_app/workflow_detail.html', context)
+    return render(request, 'project_app/workflows/detail.html', context)
 
 
 def workflow_run_detail(request, username, slug, run_id):
@@ -172,7 +172,7 @@ def workflow_run_detail(request, username, slug, run_id):
         'duration_text': duration_text,
     }
 
-    return render(request, 'project_app/workflow_run_detail.html', context)
+    return render(request, 'project_app/workflows/run_detail.html', context)
 
 
 @login_required
@@ -202,7 +202,7 @@ def workflow_create(request, username, slug):
             yaml_data = yaml.safe_load(yaml_content)
         except yaml.YAMLError as e:
             messages.error(request, f"Invalid YAML: {str(e)}")
-            return render(request, 'project_app/workflow_editor.html', {
+            return render(request, 'project_app/workflows/editor.html', {
                 'project': project,
                 'yaml_content': yaml_content,
                 'workflow_name': workflow_name,
@@ -244,7 +244,7 @@ def workflow_create(request, username, slug):
         'templates': templates,
     }
 
-    return render(request, 'project_app/workflow_editor.html', context)
+    return render(request, 'project_app/workflows/editor.html', context)
 
 
 @login_required
@@ -270,7 +270,7 @@ def workflow_edit(request, username, slug, workflow_id):
             yaml_data = yaml.safe_load(yaml_content)
         except yaml.YAMLError as e:
             messages.error(request, f"Invalid YAML: {str(e)}")
-            return render(request, 'project_app/workflow_editor.html', {
+            return render(request, 'project_app/workflows/editor.html', {
                 'project': project,
                 'workflow': workflow,
                 'yaml_content': yaml_content,
@@ -311,7 +311,7 @@ def workflow_edit(request, username, slug, workflow_id):
         'edit_mode': True,
     }
 
-    return render(request, 'project_app/workflow_editor.html', context)
+    return render(request, 'project_app/workflows/editor.html', context)
 
 
 @login_required
@@ -343,7 +343,7 @@ def workflow_delete(request, username, slug, workflow_id):
         'workflow': workflow,
     }
 
-    return render(request, 'project_app/workflow_delete_confirm.html', context)
+    return render(request, 'project_app/workflows/delete_confirm.html', context)
 
 
 @login_required

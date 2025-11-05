@@ -216,7 +216,7 @@
 | `pr_form.js` | `pr-form.js` | ⏳ Rename |
 | `security_alert_detail.js` | `security-alert-detail.js` | ⏳ Rename |
 | `security_scan.js` | `security-scan.js` | ⏳ Rename |
-| `sidebar_improvements.js` | `sidebar-improvements.js` | ⏳ Rename |
+| `sidebar.js` | `sidebar-improvements.js` | ⏳ Rename |
 | `workflow_detail.js` | `workflow-detail.js` | ⏳ Rename |
 | `workflow_editor.js` | `workflow-editor.js` | ⏳ Rename |
 | `workflow_run_detail.js` | `workflow-run-detail.js` | ⏳ Rename |

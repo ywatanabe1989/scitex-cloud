@@ -1,5 +1,7 @@
+"use strict";
 // File Browser TypeScript
 // Functions for file upload, folder creation, and drag-and-drop
+console.log("[DEBUG] apps/project_app/static/project_app/ts/repository/browse.ts loaded");
 (function () {
     'use strict';
     function handleFileUpload(event) {

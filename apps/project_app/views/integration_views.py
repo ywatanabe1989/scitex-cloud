@@ -47,7 +47,7 @@ def repository_maintenance(request, username):
         "page_title": "Repository Maintenance",
         "active_tab": "repositories"
     }
-    return render(request, "project_app/repository_maintenance.html", context)
+    return render(request, "project_app/repository/admin_repository_maintenance.html", context)
 
 
 @login_required

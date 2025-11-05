@@ -2,22 +2,10 @@
  * Issue Detail Page
  * Functions for closing and reopening issues
  */
+import { getCsrfToken } from '../utils/csrf';
+console.log("[DEBUG] apps/project_app/static/project_app/ts/issues/detail.ts loaded");
 (function () {
     'use strict';
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
     async function closeIssue() {
         if (!confirm('Are you sure you want to close this issue?'))
             return;
@@ -26,7 +14,7 @@
             console.error('Issue close URL not found');
             return;
         }
-        const csrfToken = getCookie('csrftoken');
+        const csrfToken = getCsrfToken();
         if (!csrfToken) {
             console.error('CSRF token not found');
             return;
@@ -57,7 +45,7 @@
             console.error('Issue reopen URL not found');
             return;
         }
-        const csrfToken = getCookie('csrftoken');
+        const csrfToken = getCsrfToken();
         if (!csrfToken) {
             console.error('CSRF token not found');
             return;

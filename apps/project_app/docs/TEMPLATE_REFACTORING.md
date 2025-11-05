@@ -84,7 +84,7 @@ templates/project_app/
     ├── project_file_view.html
     ├── project_list.html
     ├── project_settings.html
-    ├── sidebar_improvements.html
+    ├── sidebar.html
     ├── user_bio.html
     ├── user_overview.html
     ├── user_project_list.html
@@ -171,7 +171,7 @@ Created **50 reusable partials** to reduce code duplication:
 #### CSS Files
 ```
 static/project_app/css/
-└── sidebar_improvements.css (114 lines)
+└── sidebar.css (114 lines)
 ```
 
 **Naming Convention:** ✅ Follows pattern `{feature}.css`
@@ -182,12 +182,12 @@ static/project_app/css/
 ```
 static/project_app/js/
 ├── project_app.js (1,369 lines) ✅
-└── sidebar_improvements.js (111 lines)
+└── sidebar.js (111 lines)
 ```
 
 **Naming Conventions:**
 - ✅ `project_app.js` - Main consolidated JavaScript (follows `{app_name}.js` convention)
-- ✅ `sidebar_improvements.js` - Feature-specific JavaScript
+- ✅ `sidebar.js` - Feature-specific JavaScript
 
 **JavaScript Organization in `project_app.js`:**
 1. Sidebar Management
@@ -252,12 +252,12 @@ static/project_app/icons/ (16 icons)
 
 1. **CSS Files:**
    - Pattern: `{feature}.css` or `{app_name}.css`
-   - Example: `sidebar_improvements.css`
+   - Example: `sidebar.css`
 
 2. **JavaScript Files:**
    - Main file: `project_app.js` (follows `{app_name}.js` convention) ✅
    - Feature files: `{feature}.js`
-   - Example: `sidebar_improvements.js`
+   - Example: `sidebar.js`
 
 3. **SVG Icons:**
    - Pattern: `{icon_name}.svg`
@@ -446,7 +446,7 @@ For developers working with these templates:
 <script src="{% static 'project_app/js/project_app.js' %}"></script>
 
 {# Include feature CSS #}
-<link rel="stylesheet" href="{% static 'project_app/css/sidebar_improvements.css' %}">
+<link rel="stylesheet" href="{% static 'project_app/css/sidebar.css' %}">
 
 {# Include SVG icons #}
 <img src="{% static 'project_app/icons/gear.svg' %}" alt="Settings">

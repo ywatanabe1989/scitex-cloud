@@ -221,7 +221,7 @@ These directories have **zero** active views rendering them:
 
 ### Experimental Files (2 files)
 ```
-❌ DELETE: sidebar_improvements.html    (Incomplete feature)
+❌ DELETE: sidebar.html    (Incomplete feature)
 ❌ DELETE: list.html                    (Superseded by other functionality)
 ❌ DELETE: filer/browser.html           (Superseded by filer/directory.html)
 ```
@@ -242,7 +242,7 @@ rm -rf apps/project_app/templates/project_app/browse/
 
 # Delete legacy files
 rm -rf apps/project_app/templates/project_app/legacy/extracted_styles/
-rm apps/project_app/templates/project_app/sidebar_improvements.html
+rm apps/project_app/templates/project_app/sidebar.html
 rm apps/project_app/templates/project_app/list.html
 rm apps/project_app/templates/project_app/filer/browser.html
 ```
@@ -357,7 +357,7 @@ templates/project_app/
 ❌ commits/
 ❌ browse/
 ❌ legacy/extracted_styles/
-❌ sidebar_improvements.html
+❌ sidebar.html
 ❌ list.html
 ❌ filer/browser.html
 ```

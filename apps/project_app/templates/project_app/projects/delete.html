@@ -5,32 +5,32 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'project_app/css/project_app.css' %}">
-<link rel="stylesheet" href="{% static 'css/common/buttons.css' %}">
+<link rel="stylesheet" href="{% static 'project_app/css/shared/buttons.css' %}">
 
 {% endblock %}
 
 {% block content %}
 <div class="container-fluid">
     <!-- Breadcrumb -->
-    {% include 'project_app/delete_partials/delete_breadcrumb.html' %}
+    {% include 'project_app/projects/delete_partials/delete_breadcrumb.html' %}
 
     <h1>Delete Project</h1>
 
     <div class="delete-form">
         <!-- Warning Box -->
-        {% include 'project_app/delete_partials/delete_warning_box.html' %}
+        {% include 'project_app/projects/delete_partials/delete_warning_box.html' %}
 
         <!-- Project Info -->
-        {% include 'project_app/delete_partials/delete_project_info.html' %}
+        {% include 'project_app/projects/delete_partials/delete_project_info.html' %}
 
         <!-- Consequences List -->
-        {% include 'project_app/delete_partials/delete_consequences_list.html' %}
+        {% include 'project_app/projects/delete_partials/delete_consequences_list.html' %}
 
         <!-- Confirmation Form -->
-        {% include 'project_app/delete_partials/delete_confirmation_form.html' %}
+        {% include 'project_app/projects/delete_partials/delete_confirmation_form.html' %}
 
         <!-- Confirmation Script -->
-        {% include 'project_app/delete_partials/delete_confirmation_script.html' %}
+        {% include 'project_app/projects/delete_partials/delete_confirmation_script.html' %}
     </div>
 </div>
 {% endblock %}

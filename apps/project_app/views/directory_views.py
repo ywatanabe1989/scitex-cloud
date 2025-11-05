@@ -33,75 +33,9 @@ from django.contrib.auth.models import User
 
 from ..models import Project, ProjectMembership
 from ..decorators import project_required, project_access_required
+from ..services.syntax_highlighting import detect_language
 
 logger = logging.getLogger(__name__)
-
-
-def _detect_language(file_ext, file_name):
-    """
-    Detect language for syntax highlighting based on file extension.
-    Returns language identifier for highlight.js.
-    """
-    language_map = {
-        '.py': 'python',
-        '.js': 'javascript',
-        '.ts': 'typescript',
-        '.jsx': 'javascript',
-        '.tsx': 'typescript',
-        '.html': 'html',
-        '.css': 'css',
-        '.scss': 'scss',
-        '.sass': 'sass',
-        '.json': 'json',
-        '.xml': 'xml',
-        '.yaml': 'yaml',
-        '.yml': 'yaml',
-        '.md': 'markdown',
-        '.sh': 'bash',
-        '.bash': 'bash',
-        '.zsh': 'bash',
-        '.fish': 'bash',
-        '.c': 'c',
-        '.cpp': 'cpp',
-        '.cc': 'cpp',
-        '.cxx': 'cpp',
-        '.h': 'c',
-        '.hpp': 'cpp',
-        '.java': 'java',
-        '.rb': 'ruby',
-        '.php': 'php',
-        '.go': 'go',
-        '.rs': 'rust',
-        '.swift': 'swift',
-        '.kt': 'kotlin',
-        '.scala': 'scala',
-        '.r': 'r',
-        '.R': 'r',
-        '.sql': 'sql',
-        '.tex': 'latex',
-        '.bib': 'bibtex',
-        '.dockerfile': 'dockerfile',
-        '.makefile': 'makefile',
-        '.txt': 'plaintext',
-        '.log': 'plaintext',
-        '.csv': 'plaintext',
-        '.toml': 'toml',
-        '.ini': 'ini',
-        '.cfg': 'ini',
-        '.conf': 'ini',
-    }
-
-    # Check by extension first
-    if file_ext.lower() in language_map:
-        return language_map[file_ext.lower()]
-
-    # Check by filename patterns
-    filename_lower = file_name.lower()
-    if filename_lower in ['dockerfile', 'makefile', 'rakefile', 'gemfile']:
-        return language_map.get(f'.{filename_lower}', 'plaintext')
-
-    # Default to plaintext
-    return 'plaintext'
 
 
 def project_directory_dynamic(request, username, slug, directory_path):
@@ -186,6 +120,16 @@ def project_directory_dynamic(request, username, slug, directory_path):
             ]:
                 continue
 
+            # Check if it's a symlink
+            is_symlink = item.is_symlink()
+            symlink_target = None
+            if is_symlink:
+                try:
+                    target = item.readlink()
+                    symlink_target = str(target)
+                except (OSError, ValueError):
+                    symlink_target = None
+
             if item.is_file():
                 contents.append(
                     {
@@ -194,6 +138,8 @@ def project_directory_dynamic(request, username, slug, directory_path):
                         "size": item.stat().st_size,
                         "modified": item.stat().st_mtime,
                         "path": str(item.relative_to(project_path)),
+                        "is_symlink": is_symlink,
+                        "symlink_target": symlink_target,
                     }
                 )
             elif item.is_dir():
@@ -202,6 +148,8 @@ def project_directory_dynamic(request, username, slug, directory_path):
                         "name": item.name,
                         "type": "directory",
                         "path": str(item.relative_to(project_path)),
+                        "is_symlink": is_symlink,
+                        "symlink_target": symlink_target,
                     }
                 )
     except PermissionError:
@@ -210,6 +158,10 @@ def project_directory_dynamic(request, username, slug, directory_path):
 
     # Sort: directories first, then files, alphabetically
     contents.sort(key=lambda x: (x["type"] == "file", x["name"].lower()))
+
+    # Separate directories and files for template
+    directories = [item for item in contents if item["type"] == "directory"]
+    files = [item for item in contents if item["type"] == "file"]
 
     # Build breadcrumb navigation
     breadcrumbs = [{"name": project.name, "url": f"/{username}/{slug}/", "is_last": False}]
@@ -229,7 +181,9 @@ def project_directory_dynamic(request, username, slug, directory_path):
         "directory": path_parts[0] if path_parts else directory_path,
         "subpath": "/".join(path_parts[1:]) if len(path_parts) > 1 else None,
         "breadcrumb_path": directory_path,
-        "contents": contents,
+        "contents": contents,  # Keep for backwards compatibility
+        "directories": directories,  # Template expects this
+        "files": files,  # Template expects this
         "breadcrumbs": breadcrumbs,
         "can_edit": project.owner == request.user
         or project.collaborators.filter(id=request.user.id).exists(),
@@ -524,7 +478,7 @@ def project_file_view(request, username, slug, file_path):
                         file_content = f.read()
 
                     # Detect language for syntax highlighting
-                    language = _detect_language(file_ext, file_name)
+                    language = detect_language(file_ext, file_name)
 
                     # Render based on file type
                     if file_ext == ".md":
@@ -1082,7 +1036,7 @@ def commit_detail(request, username, slug, commit_hash):
         'total_deletions': sum(int(f['deletions']) if isinstance(f['deletions'], (int, str)) and str(f['deletions']).isdigit() else 0 for f in changed_files),
     }
 
-    return render(request, 'project_app/commit_detail.html', context)
+    return render(request, 'project_app/repository/commit_detail.html', context)
 
 
 # EOF

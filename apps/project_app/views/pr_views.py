@@ -159,7 +159,7 @@ def pr_list(request, username, slug):
         'current_branch': current_branch,
     }
 
-    return render(request, 'project_app/pr_list.html', context)
+    return render(request, 'project_app/pull_requests/list.html', context)
 
 
 def pr_detail(request, username, slug, pr_number):
@@ -230,7 +230,7 @@ def pr_detail(request, username, slug, pr_number):
         'timeline': timeline,
     }
 
-    return render(request, 'project_app/pr_detail.html', context)
+    return render(request, 'project_app/pull_requests/detail.html', context)
 
 
 @login_required
@@ -327,7 +327,7 @@ def pr_create(request, username, slug):
         'potential_reviewers': potential_reviewers,
     }
 
-    return render(request, 'project_app/pr_form.html', context)
+    return render(request, 'project_app/pull_requests/form.html', context)
 
 
 @login_required
@@ -605,7 +605,7 @@ def pr_compare(request, username, slug):
         'can_create': project.can_edit(request.user),
     }
 
-    return render(request, 'project_app/pr_form.html', context)
+    return render(request, 'project_app/pull_requests/form.html', context)
 
 
 # ============================================================================

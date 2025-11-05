@@ -1,5 +1,7 @@
+"use strict";
 // Workflow Editor JavaScript
 // Template YAML definitions and template selection logic
+console.log("[DEBUG] apps/project_app/static/project_app/ts/workflows/editor.ts loaded");
 (function () {
     'use strict';
     const templateYaml = {

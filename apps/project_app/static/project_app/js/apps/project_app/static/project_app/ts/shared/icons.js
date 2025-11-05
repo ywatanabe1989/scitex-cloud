@@ -1,8 +1,10 @@
+"use strict";
 /**
  * Icon Utilities for SciTeX
  * Provides helper functions for working with Octicon SVG icons
  */
 /// <reference path="global.d.ts" />
+console.log("[DEBUG] apps/project_app/static/project_app/ts/shared/icons.ts loaded");
 (function () {
     'use strict';
     // Icon paths relative to static directory
