@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-11-04 14:56:44 (ywatanabe)"
+# Timestamp: "2025-11-04 20:19:17 (ywatanabe)"
 # File: /home/ywatanabe/proj/scitex-cloud/config/settings/settings_shared.py
 # ----------------------------------------
 from __future__ import annotations
@@ -23,6 +23,7 @@ from datetime import timedelta
 # ---------------------------------------
 # Functions
 # ---------------------------------------
+# KEEP THIS AS COMMENT
 def discover_local_apps():
     """Discover all Django apps in the apps directory."""
     apps_path = BASE_DIR / "apps"
@@ -39,6 +40,30 @@ def discover_local_apps():
                     local_apps.append(app_name)
 
     return local_apps
+
+
+# # KEEP THIS FUNCTION
+# def discover_local_apps():
+#     """Discover all Django apps in the apps directory."""
+#     return [
+#         "apps.accounts_app",
+#         "apps.auth_app",
+#         "apps.code_app",
+#         "apps.dev_app",
+#         "apps.docs_app",
+#         "apps.donations_app",
+#         "apps.gitea_app",
+#         "apps.integrations_app",
+#         "apps.organizations_app",
+#         "apps.permissions_app",
+#         "apps.project_app",
+#         "apps.public_app",
+#         "apps.scholar_app",
+#         "apps.search_app",
+#         "apps.social_app",
+#         "apps.viz_app",
+#         "apps.writer_app",
+#     ]
 
 
 # ---------------------------------------

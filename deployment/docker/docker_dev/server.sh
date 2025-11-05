@@ -1,7 +1,7 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
 # Timestamp: "2025-10-30 11:13:59 (ywatanabe)"
-# File: ./deployment/docker/docker_dev/start.sh
+# File: ./deployment/docker/docker_dev/server.sh
 
 ORIG_DIR="$(pwd)"
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
@@ -21,8 +21,8 @@ fi
 
 # Centralized logging - all logs go to ./logs/
 mkdir -p "$GIT_ROOT/logs"
-LOG_PATH="$GIT_ROOT/logs/start.sh.log"
-LOCAL_LOG="$THIS_DIR/.start.sh.log"
+LOG_PATH="$GIT_ROOT/logs/server.sh.log"
+LOCAL_LOG="$THIS_DIR/.server.sh.log"
 
 # Create symlink from local directory to centralized log
 rm -f "$LOCAL_LOG"

@@ -34,11 +34,12 @@ pre::after {
   left: 0;
   right: 0;
   height: 2.75rem;
-  background-color: var(--bg-muted);
+  background: linear-gradient(135deg, var(--scitex-color-04) 0%, var(--scitex-color-05) 100%);
   border-bottom: 1px solid var(--border-default);
   border-radius: 6px 6px 0 0;
   z-index: -1;
   pointer-events: none;
+  opacity: 0.15;
 }
 
 /* Copy button */
@@ -234,6 +235,25 @@ pre code span::-webkit-selection {
 }
 
 /* Language label badges using ::before on pre element */
+pre::before {
+  position: absolute;
+  top: 0.45rem;
+  left: 1.25rem;
+  background-color: transparent;
+  color: var(--text-muted);
+  padding: 0.25rem 0.5rem;
+  border-radius: 0;
+  border: none;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  pointer-events: none;
+  z-index: 2;
+  font-family: var(--font-body);
+  white-space: nowrap;
+  content: 'plaintext';
+}
+
 pre[data-language]::before {
   position: absolute;
   top: 0.45rem;
@@ -246,7 +266,6 @@ pre[data-language]::before {
   font-size: 0.7rem;
   font-weight: 500;
   letter-spacing: 0.05em;
-  text-transform: uppercase;
   pointer-events: none;
   z-index: 2;
   font-family: var(--font-body);
@@ -255,59 +274,59 @@ pre[data-language]::before {
 
 /* Define content for each language */
 pre[data-language="css"]::before {
-  content: "CSS";
+  content: "css";
 }
 
 pre[data-language="html"]::before {
-  content: "HTML";
+  content: "html";
 }
 
 pre[data-language="javascript"]::before {
-  content: "JavaScript";
+  content: "javascript";
 }
 
 pre[data-language="js"]::before {
-  content: "JavaScript";
+  content: "javascript";
 }
 
 pre[data-language="python"]::before {
-  content: "Python";
+  content: "python";
 }
 
 pre[data-language="py"]::before {
-  content: "Python";
+  content: "python";
 }
 
 pre[data-language="bash"]::before {
-  content: "Bash";
+  content: "bash";
 }
 
 pre[data-language="sh"]::before {
-  content: "Shell";
+  content: "shell";
 }
 
 pre[data-language="sql"]::before {
-  content: "SQL";
+  content: "sql";
 }
 
 pre[data-language="json"]::before {
-  content: "JSON";
+  content: "json";
 }
 
 pre[data-language="xml"]::before {
-  content: "XML";
+  content: "xml";
 }
 
 pre[data-language="yaml"]::before {
-  content: "YAML";
+  content: "yaml";
 }
 
 pre[data-language="markdown"]::before {
-  content: "Markdown";
+  content: "markdown";
 }
 
 pre[data-language="diff"]::before {
-  content: "Diff";
+  content: "diff";
 }
 
 /* =========================================
@@ -315,8 +334,15 @@ pre[data-language="diff"]::before {
    ========================================= */
 
 [data-theme="dark"] pre {
-  border: 1px solid var(--border-muted);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  background-color: #1a2332 !important;
+  border: 1px solid var(--border-default);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] pre::after {
+  background: linear-gradient(135deg, var(--scitex-color-04) 0%, var(--scitex-color-05) 100%);
+  border-bottom: 1px solid var(--border-default);
+  opacity: 0.25;
 }
 
 /* =========================================
@@ -328,17 +354,20 @@ pre[data-language="diff"]::before {
   text-align: right;
   min-width: 3ch;
   padding-right: 1rem !important;  /* Space between line numbers and code */
-  padding-left: 0.5rem;
+  padding-left: 0.75rem;
   color: var(--text-muted);
+  background-color: transparent;
   font-family: var(--font-mono, 'SF Mono', Monaco, 'Cascadia Code', monospace);
   font-size: 0.85em;
   font-weight: 400;
   user-select: none;
+  /* Remove border in light mode */
+  border-right: none;
 }
 
 /* Line code */
 .hljs-ln-code {
-  padding-left: 2rem;  /* Significant space between numbers and code */
+  padding-left: 1.5rem;  /* Space between numbers and code */
   padding-right: 0;
 }
 
@@ -347,8 +376,15 @@ pre[data-language="diff"]::before {
   display: flex;
 }
 
-/* Dark mode line numbers */
+/* Light mode line numbers - subtle background */
+:root:not([data-theme="dark"]) .hljs-ln-numbers {
+  background-color: transparent;
+  border-right: none;
+}
+
+/* Dark mode line numbers - theme-responsive styling */
 [data-theme="dark"] .hljs-ln-numbers {
   color: var(--text-muted);
-  border-right-color: var(--border-muted);
+  background-color: transparent;
+  border-right: none;
 }

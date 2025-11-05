@@ -1,0 +1,20 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "..",
+    "outDir": "../apps/writer_app/static/writer_app/js",
+    "baseUrl": "..",
+    "paths": {
+      "@/types": ["static/ts/types/index.ts"],
+      "@/types/*": ["static/ts/types/*"],
+      "@/utils": ["static/ts/utils/index.ts"],
+      "@/utils/*": ["static/ts/utils/*"]
+    }
+  },
+  "include": [
+    "../apps/writer_app/static/writer_app/ts/**/*",
+    "../static/ts/types/**/*",
+    "../static/ts/utils/**/*",
+    "../static/ts/global.d.ts"
+  ]
+}

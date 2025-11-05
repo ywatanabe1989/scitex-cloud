@@ -36,10 +36,13 @@ Output:
 
 """Imports"""
 import sys
+import re
 from pathlib import Path
 from collections import defaultdict
 from typing import List
 from typing import Set
+from typing import Dict
+from typing import Tuple
 
 """Parameters"""
 # Patterns to skip during validation
@@ -203,6 +206,9 @@ class AppStructureValidator:
         )
         print(f"   • TypeScript Files: {len(ts_files)}")
 
+        # Check for inline scripts
+        self._validate_inline_scripts()
+
         # Check 1:1:1 correspondence (template : CSS : TS)
         missing_css: List[str] = []
         missing_ts: List[str] = []
@@ -244,6 +250,96 @@ class AppStructureValidator:
                     self.warnings.append(
                         f"⚠️  {len(missing_ts)} templates missing TypeScript files"
                     )
+
+    def _validate_inline_scripts(self) -> None:
+        """Checks for inline JavaScript in templates."""
+        if not self.templates_path.exists():
+            return
+
+        violations: List[Tuple[Path, int]] = []
+
+        # Get all template files (including partials)
+        all_templates = list(self.templates_path.rglob("*.html"))
+
+        for tmpl_file in all_templates:
+            try:
+                content = tmpl_file.read_text(encoding='utf-8')
+
+                # Find all <script> tags
+                script_pattern = r'<script(?:\s+[^>]*)?>.*?</script>'
+                scripts = re.finditer(script_pattern, content, re.DOTALL | re.IGNORECASE)
+
+                inline_count = 0
+                for script_match in scripts:
+                    script_tag = script_match.group(0)
+
+                    # Skip external scripts (with src attribute)
+                    if re.search(r'src\s*=', script_tag, re.IGNORECASE):
+                        continue
+
+                    # Extract script content (between tags)
+                    content_match = re.search(
+                        r'<script[^>]*>(.*?)</script>',
+                        script_tag,
+                        re.DOTALL | re.IGNORECASE
+                    )
+                    if not content_match:
+                        continue
+
+                    script_content = content_match.group(1).strip()
+
+                    # Skip empty scripts
+                    if not script_content:
+                        continue
+
+                    # Check if it's a Django config script (mostly template variables)
+                    # These typically start with window.XXX = and contain {% %} tags
+                    is_config_only = (
+                        re.search(r'window\.\w+\s*=\s*\{', script_content) and
+                        (script_content.count('{%') > 3 or script_content.count('{{') > 5) and
+                        not re.search(r'(function|const|let|var)\s+\w+\s*=|addEventListener|document\.', script_content)
+                    )
+
+                    if not is_config_only:
+                        inline_count += 1
+
+                if inline_count > 0:
+                    violations.append((tmpl_file, inline_count))
+
+            except Exception as e:
+                self.warnings.append(
+                    f"⚠️  Error reading {tmpl_file.relative_to(self.templates_path)}: {e}"
+                )
+
+        # Report results
+        if not violations:
+            self.successes.append(
+                "✅ No inline JavaScript in templates"
+            )
+        else:
+            total_scripts = sum(count for _, count in violations)
+            self.warnings.append(
+                f"⚠️  {len(violations)} templates with {total_scripts} inline script(s)"
+            )
+
+            # List violating files (limit to 10)
+            if len(violations) <= 10:
+                for tmpl_file, count in violations:
+                    rel_path = tmpl_file.relative_to(self.templates_path)
+                    plural = "s" if count > 1 else ""
+                    self.warnings.append(
+                        f"   • {rel_path} ({count} inline script{plural})"
+                    )
+            else:
+                for tmpl_file, count in violations[:10]:
+                    rel_path = tmpl_file.relative_to(self.templates_path)
+                    plural = "s" if count > 1 else ""
+                    self.warnings.append(
+                        f"   • {rel_path} ({count} inline script{plural})"
+                    )
+                self.warnings.append(
+                    f"   ... and {len(violations) - 10} more files"
+                )
 
     def validate_backend_structure(self) -> None:
         """Validates backend (models, views, services) structure."""

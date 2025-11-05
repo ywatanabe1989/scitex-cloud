@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-11-04 18:39:43 (ywatanabe)"
+# Timestamp: "2025-11-04 20:27:37 (ywatanabe)"
 # File: /home/ywatanabe/proj/scitex-cloud/config/urls.py
 # ----------------------------------------
 from __future__ import annotations
@@ -15,60 +15,20 @@ __DIR__ = os.path.dirname(__FILE__)
 URL Configuration for SciTeX Cloud project.
 """
 
-import hashlib
-
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include
 from django.urls import path
 from django.views.generic import RedirectView
-
-# Import API views from proper apps
-from apps.auth_app.api.auth_views import api_register
-from apps.auth_app.api.auth_views import (
-    api_login,
-    api_forgot_password,
-    api_logout,
-)
 from apps.accounts_app.api.user_views import api_search_users
-
-
-# KEEP THIS FUNCTION - Explicit URL registration
-def discover_app_urls():
-    """Explicitly register URLs for all apps."""
-    return [
-        path("accounts/", include(("apps.accounts_app.urls", "accounts_app"))),
-        path("auth/", include(("apps.auth_app.urls", "auth_app"))),
-        path("code/", include(("apps.code_app.urls", "code_app"))),
-        path("dev/", include(("apps.dev_app.urls", "dev_app"))),
-        path("docs/", include(("apps.docs_app.urls", "docs_app"))),
-        path(
-            "donations/", include(("apps.donations_app.urls", "donations_app"))
-        ),
-        path(
-            "integrations/",
-            include(("apps.integrations_app.urls", "integrations_app")),
-        ),
-        path(
-            "organizations/",
-            include(("apps.organizations_app.urls", "organizations_app")),
-        ),
-        path("scholar/", include(("apps.scholar_app.urls", "scholar_app"))),
-        path("search/", include(("apps.search_app.urls", "search_app"))),
-        path("social/", include(("apps.social_app.urls", "social_app"))),
-        path("viz/", include(("apps.viz_app.urls", "viz_app"))),
-        path("writer/", include(("apps.writer_app.urls", "writer_app"))),
-    ]
-
-
-# Reserved paths that should NOT be treated as usernames
-# Add these BEFORE the username pattern to prevent conflicts
 from apps.project_app.views import project_create
+from apps.project_app.views import api_check_name_availability
 from apps.project_app.views import accept_invitation
 from apps.project_app.views import decline_invitation
 
 
+# Functions
 def get_reserved_paths():
     """
     Dynamically generate list of reserved URL prefixes.
@@ -143,11 +103,31 @@ RESERVED_PATHS = get_reserved_paths()
 
 # Build URL patterns with correct ordering
 urlpatterns = [
+    # Basics
+    path("", include("apps.public_app.urls")),
     path("admin/", admin.site.urls),
-] + discover_app_urls()
-
-urlpatterns += [
-    # Additional URL patterns
+    path("accounts/", include(("apps.accounts_app.urls", "accounts_app"))),
+    path("auth/", include(("apps.auth_app.urls", "auth_app"))),
+    # Main Modules
+    path("scholar/", include(("apps.scholar_app.urls", "scholar_app"))),
+    path("code/", include(("apps.code_app.urls", "code_app"))),
+    path("viz/", include(("apps.viz_app.urls", "viz_app"))),
+    path("writer/", include(("apps.writer_app.urls", "writer_app"))),
+    # Deveopment
+    path("dev/", include(("apps.dev_app.urls", "dev_app"))),
+    path("docs/", include(("apps.docs_app.urls", "docs_app"))),
+    # Etc.
+    path("donations/", include(("apps.donations_app.urls", "donations_app"))),
+    path(
+        "integrations/",
+        include(("apps.integrations_app.urls", "integrations_app")),
+    ),
+    path(
+        "organizations/",
+        include(("apps.organizations_app.urls", "organizations_app")),
+    ),
+    path("search/", include(("apps.search_app.urls", "search_app"))),
+    path("social/", include(("apps.social_app.urls", "social_app"))),
     # Favicon redirect to prevent 404 errors
     path(
         "favicon.ico",
@@ -155,14 +135,9 @@ urlpatterns += [
     ),
     # API endpoints
     path("api/users/search/", api_search_users, name="api_search_users"),
-    # Public app URLs (includes landing page and auth)
-    # Note: public_app is already included by discover_app_urls() at /public/
-    # This additional include makes it accessible at root path /
-    path("", include("apps.public_app.urls")),
-]
-
-urlpatterns += [
-    # /new - Create new project (GitHub-style)
+    path("project/api/check-name/", api_check_name_availability, name="api_check_name"),
+    # GitHub-like operations
+    # /new - Create new project
     path("new/", project_create, name="project_create"),
     # Invitation accept/decline
     path(
@@ -175,15 +150,9 @@ urlpatterns += [
         decline_invitation,
         name="decline_invitation",
     ),
-]
-
-# GitHub-style username/project URLs (MUST be last to avoid conflicts)
-# This pattern catches both regular users and guest-<sessionid>
-# Now using feature-based URL organization from apps.project_app.urls
-urlpatterns += [
+    # GitHub-style username/project URLs (MUST be last to avoid conflicts)
     path("<str:username>/", include("apps.project_app.urls")),
 ]
-
 
 # Custom error handlers (imported from apps)
 from apps.public_app.error_views import handler404

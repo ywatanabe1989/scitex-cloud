@@ -7,6 +7,8 @@ import { getCsrfToken } from './csrf.js';
  * API Client class for making requests with automatic CSRF token handling
  */
 export class ApiClient {
+    baseUrl;
+    csrfTokenFn;
     constructor(baseUrl = '', csrfTokenFn = getCsrfToken) {
         this.baseUrl = baseUrl;
         this.csrfTokenFn = csrfTokenFn;

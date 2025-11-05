@@ -1,3 +1,9 @@
+<!-- ---
+!-- Timestamp: 2025-11-04 22:04:36
+!-- Author: ywatanabe
+!-- File: /home/ywatanabe/proj/scitex-cloud/deployment/docker/common/docs/DOCKERFILE_OPTIMIZATION.md
+!-- --- -->
+
 # Dockerfile Optimization Guide
 
 ## Optimization Strategies Applied
@@ -76,10 +82,10 @@ RUN --mount=type=cache,target=/root/.cache/ms-playwright \
 
 **Build vs Runtime:**
 
-| Stage | Build Tools | Runtime Only |
-|-------|-------------|--------------|
-| Builder | build-essential, git, wget | ❌ |
-| Runtime | ❌ | libpq5, curl, jq |
+| Stage   | Build Tools                | Runtime Only     |
+|---------|----------------------------|------------------|
+| Builder | build-essential, git, wget | ❌               |
+| Runtime | ❌                         | libpq5, curl, jq |
 
 **Production savings:**
 - No gcc, g++, make (100+ MB)
@@ -154,13 +160,13 @@ __pycache__/
 
 ### Cache Hit Rate (Typical Development)
 
-| Layer Type | Cache Hit % | Notes |
-|------------|-------------|-------|
-| System deps | 95%+ | Almost always cached |
-| Tool install | 90%+ | Rarely change versions |
-| requirements.txt | 80%+ | Changes weekly |
-| Python packages | 80%+ | Reuses if requirements unchanged |
-| App code | 10%+ | Changes constantly (expected) |
+| Layer Type       | Cache Hit % | Notes                            |
+|------------------|-------------|----------------------------------|
+| System deps      | 95%+        | Almost always cached             |
+| Tool install     | 90%+        | Rarely change versions           |
+| requirements.txt | 80%+        | Changes weekly                   |
+| Python packages  | 80%+        | Reuses if requirements unchanged |
+| App code         | 10%+        | Changes constantly (expected)    |
 
 ### Build Time Comparison
 
@@ -290,3 +296,5 @@ time docker build -f Dockerfile.dev --progress=plain .
 - Full rebuild: 15 min → 15 min (same, but necessary)
 
 **Result:** Fast iteration in development, small images in production!
+
+<!-- EOF -->

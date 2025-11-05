@@ -3,7 +3,44 @@
 # ============================================
 # Location: /containers/docker_dev/Makefile.dev
 
-.PHONY: help setup build build-ts start restart stop down logs ps clean rebuild test migrate makemigrations shell createsuperuser collectstatic db-shell db-reset verify-env docker-check-health logs-web logs-db logs-gitea logs-redis exec-web exec-db exec-gitea gitea-token verify-gitea recreate-testuser list-env clean-python dev update reset
+.PHONY: \
+	help \
+	setup \
+	build \
+	build-ts \
+	start \
+	restart \
+	stop \
+	down \
+	logs \
+	ps \
+	clean \
+	rebuild \
+	test \
+	migrate \
+	makemigrations \
+	shell \
+	createsuperuser \
+	collectstatic \
+	db-shell \
+	db-reset \
+	verify-env \
+	docker-check-health \
+	logs-web \
+	logs-db \
+	logs-gitea \
+	logs-redis \
+	exec-web \
+	exec-db \
+	exec-gitea \
+	gitea-token \
+	verify-gitea \
+	recreate-testuser \
+	list-env \
+	clean-python \
+	dev \
+	update \
+	reset
 
 .DEFAULT_GOAL := help
 
@@ -96,11 +133,11 @@ setup: start migrate build-ts collectstatic
 
 start:
 	@echo "$(CYAN)🚀 Starting development environment...$(NC)"
-	cd $(CURDIR) && bash $(CURDIR)/start.sh -a start
+	cd $(CURDIR) && bash $(CURDIR)/server.sh -a start
 
 restart:
 	@echo "$(CYAN)🔄 Restarting web container...$(NC)"
-	cd $(CURDIR) && bash $(CURDIR)/start.sh -a restart
+	cd $(CURDIR) && bash $(CURDIR)/server.sh -a restart
 
 reload:
 	@echo "$(CYAN)⚡ Quick reload (for scitex code changes)...$(NC)"
@@ -245,26 +282,26 @@ exec-gitea: docker-check-health
 # ============================================
 gitea-token: docker-check-health
 	@echo "$(CYAN)🔑 Setting up Gitea API token...$(NC)"
-	cd $(CURDIR) && bash $(CURDIR)/start.sh -a setup_gitea_token
+	cd $(CURDIR) && bash $(CURDIR)/server.sh -a setup_gitea_token
 
 verify-gitea: docker-check-health
 	@echo "$(CYAN)🔍 Verifying Gitea API access...$(NC)"
-	cd $(CURDIR) && bash $(CURDIR)/start.sh -a verify_gitea_api
+	cd $(CURDIR) && bash $(CURDIR)/server.sh -a verify_gitea_api
 
 recreate-testuser: docker-check-health
 	@echo "$(CYAN)👤 Recreating test user...$(NC)"
-	cd $(CURDIR) && bash $(CURDIR)/start.sh -a recreate_test_user
+	cd $(CURDIR) && bash $(CURDIR)/server.sh -a recreate_test_user
 
 # ============================================
 # Environment & Utilities
 # ============================================
 verify-env:
 	@echo "$(CYAN)🔍 Verifying environment setup...$(NC)"
-	cd $(CURDIR) && bash $(CURDIR)/start.sh -a verify_env_setup
+	cd $(CURDIR) && bash $(CURDIR)/server.sh -a verify_env_setup
 
 list-env:
 	@echo "$(CYAN)📝 Environment Variables:$(NC)"
-	cd $(CURDIR) && bash $(CURDIR)/start.sh -a list_env
+	cd $(CURDIR) && bash $(CURDIR)/server.sh -a list_env
 
 clean-python:
 	@echo "$(CYAN)🧹 Cleaning Python cache files...$(NC)"

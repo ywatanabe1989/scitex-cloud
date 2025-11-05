@@ -17,7 +17,7 @@ echo_error() { echo -e "${RED}$1${NC}"; }
 # Show help
 show_help() {
     echo_info "SciTeX Cloud Server Launcher"
-    echo "Usage: ./start.sh [mode]"
+    echo "Usage: ./server.sh [mode]"
     echo ""
     echo "Modes:"
     echo "  dev     - Development server (default)"
