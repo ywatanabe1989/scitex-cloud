@@ -1,9 +1,9 @@
 {
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "rootDir": "../static/ts",
+    "rootDir": "../static/shared/ts",
     "outDir": "../static/js",
-    "baseUrl": "../static/ts",
+    "baseUrl": "../static/shared/ts",
     "paths": {
       "@/types": ["types/index.ts"],
       "@/types/*": ["types/*"],
@@ -12,5 +12,5 @@
       "@/*": ["*"]
     }
   },
-  "include": ["../static/ts/**/*"]
+  "include": ["../static/shared/ts/**/*"]
 }

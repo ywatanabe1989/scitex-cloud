@@ -105,7 +105,7 @@ def main():
 
     # Find all .ts files (excluding .d.ts)
     ts_files = []
-    for pattern in ["apps/*/static/*/ts/**/*.ts", "static/ts/**/*.ts"]:
+    for pattern in ["apps/*/static/*/ts/**/*.ts", "static/shared/ts/**/*.ts"]:
         for file_path in base_dir.glob(pattern):
             if file_path.suffix == ".ts" and not file_path.name.endswith(
                 ".d.ts"

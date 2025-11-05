@@ -131,7 +131,7 @@ urlpatterns = [
     # Favicon redirect to prevent 404 errors
     path(
         "favicon.ico",
-        RedirectView.as_view(url="/static/images/favicon.png", permanent=True),
+        RedirectView.as_view(url="/static/shared/images/favicon.png", permanent=True),
     ),
     # API endpoints
     path("api/users/search/", api_search_users, name="api_search_users"),
