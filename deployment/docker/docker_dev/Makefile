@@ -17,6 +17,9 @@
 	clean \
 	rebuild \
 	test \
+	test-e2e \
+	test-e2e-headed \
+	test-e2e-specific \
 	migrate \
 	makemigrations \
 	shell \
@@ -221,6 +224,28 @@ test: docker-check-health
 	@echo "$(CYAN)🧪 Running tests...$(NC)"
 	$(COMPOSE) exec -T web python manage.py test
 	@echo "$(GREEN)✅ Tests completed$(NC)"
+
+# E2E Testing with Playwright
+test-e2e: docker-check-health
+	@echo "$(CYAN)🎭 Running E2E tests (headless)...$(NC)"
+	$(COMPOSE) exec -T web pytest tests/e2e/ -v --browser chromium
+	@echo "$(GREEN)✅ E2E tests completed$(NC)"
+
+test-e2e-headed: docker-check-health
+	@echo "$(CYAN)🎭 Running E2E tests (with browser)...$(NC)"
+	@echo "$(YELLOW)⚠️  Note: Headed mode requires X11 forwarding in Docker$(NC)"
+	$(COMPOSE) exec -T -e DISPLAY=$(DISPLAY) web pytest tests/e2e/ -v --headed --browser chromium
+	@echo "$(GREEN)✅ E2E tests completed$(NC)"
+
+test-e2e-specific: docker-check-health
+	@if [ -z "$(TEST)" ]; then \
+		echo "$(RED)❌ TEST not specified!$(NC)"; \
+		echo "$(YELLOW)Usage: make test-e2e-specific TEST=tests/e2e/test_user_creation.py$(NC)"; \
+		exit 1; \
+	fi
+	@echo "$(CYAN)🎭 Running specific E2E test: $(TEST)...$(NC)"
+	$(COMPOSE) exec -T web pytest $(TEST) -v --browser chromium
+	@echo "$(GREEN)✅ E2E test completed$(NC)"
 
 # ============================================
 # Database Commands

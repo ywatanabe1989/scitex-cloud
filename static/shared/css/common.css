@@ -1,61 +1,65 @@
 /**
  * SciTeX Cloud - Master Stylesheet
  *
- * Consolidated import of ALL stylesheets from static/css/{common,components}.
+ * Consolidated import of ALL stylesheets organized by architecture:
+ * - base/: Foundation (reset, bootstrap overrides)
+ * - primitives/: Design tokens (colors, typography, spacing, z-index)
+ * - utilities/: Helper classes (effects, scrollbars, autofill)
+ * - components/: UI elements (buttons, forms, cards, etc.)
+ * - layouts/: Page structures
+ *
  * This file is loaded globally in global_base.html for all pages.
  * Page-specific overrides can be added in app-specific CSS files.
  *
- * Last updated: 2025-10-25
+ * Last updated: 2025-11-06
  */
 
 /* ========================================
    1. DESIGN TOKENS - MUST LOAD FIRST
    ======================================== */
-@import url('common/variables.css');
-@import url('common/colors.css');
-@import url('common/typography-vars.css');
+@import url('primitives/variables.css');
+@import url('primitives/colors.css');
+@import url('primitives/typography-vars.css');
 
 /* ========================================
    2. RESET & BASE STYLES
    ======================================== */
-@import url('common/reset.css');
-@import url('common/spacing.css');
-@import url('common/effects.css');
-@import url('common/z-index.css');
-@import url('common/layout.css');
-@import url('common/typography.css');
-@import url('common/utilities.css');
+@import url('base/reset.css');
+@import url('primitives/spacing.css');
+@import url('utilities/effects.css');
+@import url('primitives/z-index.css');
+@import url('layouts/layout.css');
+@import url('primitives/typography.css');
+@import url('utilities/utilities.css');
 
 /* ========================================
    3. COMMON UI COMPONENTS
    ======================================== */
 /* Form Elements */
-@import url('common/forms.css');
-@import url('common/autofill.css');
-@import url('common/buttons.css');
-@import url('common/buttons-dark.css');
-@import url('common/toggles.css');
-@import url('common/radios.css');
-@import url('common/checkboxes.css');
-@import url('common/select.css');
-@import url('common/sliders.css');
-@import url('common/file-upload.css');
+@import url('components/forms.css');
+@import url('utilities/autofill.css');
+@import url('components/buttons.css');
+@import url('components/buttons-dark.css');
+@import url('components/toggles.css');
+@import url('components/radios.css');
+@import url('components/checkboxes.css');
+@import url('components/select.css');
+@import url('components/sliders.css');
+@import url('components/file-upload.css');
 
 /* Display Components */
-@import url('common/cards.css');
-@import url('common/badges.css');
-@import url('common/tooltips.css');
-@import url('common/tooltip-contents.css');
-@import url('common/code-blocks.css');
-@import url('common/terminal-log.css');
-@import url('common/theme-cards.css');
-@import url('common/scrollbars.css');
-@import url('common/module-icons.css');
+@import url('components/cards.css');
+@import url('components/badges.css');
+@import url('components/tooltips.css');
+@import url('components/tooltip-contents.css');
+@import url('components/code-blocks.css');
+@import url('components/terminal-log.css');
+@import url('components/theme-cards.css');
+@import url('utilities/scrollbars.css');
+@import url('components/module-icons.css');
 
 /* Layout & Specialized */
-@import url('common/settings-layout.css');
-@import url('common/scitex-components.css');
-@import url('common/main.css');
+@import url('layouts/settings-layout.css');
 
 /* ========================================
    4. PAGE COMPONENTS
@@ -72,7 +76,7 @@
 @import url('components/hero.css');
 @import url('components/alerts.css');
 @import url('components/header.css');
-@import url('components/background-patterns.css');
+@import url('utilities/background-patterns.css');
 
 /* ========================================
    5. PAGE-SPECIFIC STYLES
