@@ -10,6 +10,7 @@
 // Type Definitions
 // ============================================================================
 
+console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/static/ts/collaboration/writer-collaboration.ts loaded");
 interface Collaborator {
     user_id: number;
     username: string;

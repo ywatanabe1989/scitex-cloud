@@ -12,6 +12,8 @@
 // ============================================================================
 
 /** User information */
+
+console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/static/ts/writer/collaborative-editor.ts loaded");
 interface User {
     username: string;
     cursorPosition: number;

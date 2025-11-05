@@ -6,6 +6,8 @@
 /**
  * Initialize the main application
  */
+
+console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/static/ts/utils/main.ts loaded");
 function initApp(): void {
   // Initialize mobile menu toggle
   initMobileMenu();

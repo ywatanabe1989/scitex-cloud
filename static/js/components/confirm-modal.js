@@ -3,6 +3,10 @@
  * Reusable across the site for better UX than browser confirm()
  */
 /**
+ * Configuration options for confirmation modal
+ */
+console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/static/ts/components/confirm-modal.ts loaded");
+/**
  * Show a modern confirmation dialog
  *
  * @param options - Configuration options for the modal

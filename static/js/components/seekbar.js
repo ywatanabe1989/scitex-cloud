@@ -26,6 +26,11 @@
  * @author SciTeX Development Team
  */
 // ============================================================================
+// Type Definitions
+// ============================================================================
+/** Seekbar values */
+console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/static/ts/components/seekbar.ts loaded");
+// ============================================================================
 // Main Class
 // ============================================================================
 export class ScitexSeekbar {

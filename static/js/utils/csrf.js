@@ -2,6 +2,7 @@
  * CSRF Token Utility Module
  * Handles retrieval of Django CSRF token from multiple sources
  */
+console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/static/ts/utils/csrf.ts loaded");
 export function getCsrfToken() {
     // First, try to get from window config objects
     if (window.WRITER_CONFIG?.csrfToken) {
