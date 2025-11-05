@@ -98,17 +98,17 @@ import { editorLoader } from '{% static "writer_app/js/loaders/editor-loader.js"
 <script type="importmap">
 {
   "imports": {
-    "@/types": "{% static 'js/types/index.js' %}",
-    "@/types/": "{% static 'js/types/' %}",
-    "@/utils/csrf": "{% static 'js/utils/csrf.js' %}",
-    "@/utils/storage": "{% static 'js/utils/storage.js' %}",
-    "@/utils/api": "{% static 'js/utils/api.js' %}",
-    "@/utils/": "{% static 'js/utils/' %}",
-    "@/utils": "{% static 'js/utils/index.js' %}",
+    "@/types": "{% static 'shared/js/types/index.js' %}",
+    "@/types/": "{% static 'shared/js/types/' %}",
+    "@/utils/csrf": "{% static 'shared/js/utils/csrf.js' %}",
+    "@/utils/storage": "{% static 'shared/js/utils/storage.js' %}",
+    "@/utils/api": "{% static 'shared/js/utils/api.js' %}",
+    "@/utils/": "{% static 'shared/js/utils/' %}",
+    "@/utils": "{% static 'shared/js/utils/index.js' %}",
     "@/writer/utils": "{% static 'writer_app/js/utils/index.js' %}",
     "@/writer/utils/": "{% static 'writer_app/js/utils/' %}",
     "@/writer/": "{% static 'writer_app/js/' %}",
-    "@/": "{% static 'js/' %}"
+    "@/": "{% static 'shared/js/' %}"
   }
 }
 </script>
@@ -117,6 +117,6 @@ import { editorLoader } from '{% static "writer_app/js/loaders/editor-loader.js"
 <script type="module" src="{% static 'writer_app/js/index.js' %}?v={{ build_id|default:'dev' }}"></script>
 
 <!-- Real-Time Collaboration Script (TypeScript-compiled ES6 module) -->
-<script type="module" src="{% static 'js/collaboration/writer-collaboration.js' %}?v={{ build_id|default:'dev' }}"></script>
+<script type="module" src="{% static 'shared/js/collaboration/writer-collaboration.js' %}?v={{ build_id|default:'dev' }}"></script>
 {% endif %}
 {% endblock %}

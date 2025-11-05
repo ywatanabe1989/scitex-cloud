@@ -228,7 +228,7 @@ test: docker-check-health
 # E2E Testing with Playwright
 test-e2e: docker-check-health
 	@echo "$(CYAN)🎭 Running E2E tests (headless)...$(NC)"
-	$(COMPOSE) exec -T web pytest tests/e2e/ -v --browser chromium
+	$(COMPOSE) exec -T web pytest tests/e2e/ -v -p no:zarr
 	@echo "$(GREEN)✅ E2E tests completed$(NC)"
 
 test-e2e-headed: docker-check-health
@@ -244,7 +244,7 @@ test-e2e-specific: docker-check-health
 		exit 1; \
 	fi
 	@echo "$(CYAN)🎭 Running specific E2E test: $(TEST)...$(NC)"
-	$(COMPOSE) exec -T web pytest $(TEST) -v --browser chromium
+	$(COMPOSE) exec -T web pytest $(TEST) -v -p no:zarr
 	@echo "$(GREEN)✅ E2E test completed$(NC)"
 
 # ============================================
