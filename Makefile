@@ -59,6 +59,9 @@
 	rebuild \
 	setup \
 	test \
+	test-e2e \
+	test-e2e-headed \
+	test-e2e-specific \
 	clean-python \
 	info
 
@@ -374,6 +377,23 @@ collectstatic: validate
 test: validate
 	@echo "$(CYAN)🧪 Running tests ($(ENV))...$(NC)"
 	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile test
+
+# E2E Testing Commands
+test-e2e: validate
+	@echo "$(CYAN)🎭 Running E2E tests ($(ENV))...$(NC)"
+	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile test-e2e
+
+test-e2e-headed: validate
+	@echo "$(CYAN)🎭 Running E2E tests with browser visible ($(ENV))...$(NC)"
+	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile test-e2e-headed
+
+test-e2e-specific: validate
+	@if [ -z "$(TEST)" ]; then \
+		echo "$(RED)❌ TEST not specified! Use: make ENV=$(ENV) test-e2e-specific TEST=tests/e2e/test_user_creation.py$(NC)"; \
+		exit 1; \
+	fi
+	@echo "$(CYAN)🎭 Running specific E2E test: $(TEST) ($(ENV))...$(NC)"
+	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile test-e2e-specific TEST=$(TEST)
 
 # ============================================
 # Database Commands

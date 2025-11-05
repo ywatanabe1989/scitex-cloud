@@ -126,11 +126,10 @@ COPY requirements.txt .
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv pip install --system -r requirements.txt
 
-# Install Playwright browsers (large download - cache it)
+# Install Playwright browsers (must persist in image for runtime use)
 # Note: We already have chromium and dependencies installed above,
 # so we skip install-deps which tries to install Ubuntu packages on Debian
-RUN --mount=type=cache,target=/root/.cache/ms-playwright \
-    python -m playwright install chromium
+RUN python -m playwright install chromium
 
 # ============================================
 # Application Code

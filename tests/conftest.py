@@ -7,17 +7,43 @@ Pytest configuration and fixtures for E2E testing.
 import pytest
 import os
 import sys
+import logging
 from pathlib import Path
 
 # Add project root to Python path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
+# Create necessary directories for Django logging
+logs_dir = project_root / "logs"
+logs_dir.mkdir(exist_ok=True)
+
 # Set Django settings module
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings.settings_dev")
 
-# Setup Django
+# Override Django logging to use simple configuration for tests
+os.environ["DJANGO_LOG_LEVEL"] = "ERROR"
+
+# Setup Django with simplified logging
 import django
+from django.conf import settings
+
+# Override logging configuration before Django setup
+if hasattr(settings, 'LOGGING'):
+    settings.LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'handlers': {
+            'console': {
+                'class': 'logging.StreamHandler',
+            },
+        },
+        'root': {
+            'handlers': ['console'],
+            'level': 'ERROR',
+        },
+    }
+
 django.setup()
 
 
@@ -67,16 +93,20 @@ def cleanup_test_users():
     """Cleanup test users after all tests complete."""
     yield
 
-    # Cleanup test users
-    from django.contrib.auth import get_user_model
-    User = get_user_model()
+    # Skip cleanup if running tests from host (database not accessible)
+    # When running in Docker, cleanup will work properly
+    try:
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
 
-    deleted_count, _ = User.objects.filter(
-        username__startswith="test_user_"
-    ).delete()
+        deleted_count, _ = User.objects.filter(
+            username__startswith="test_user_"
+        ).delete()
 
-    if deleted_count > 0:
-        print(f"\n✓ Cleaned up {deleted_count} test user(s)")
+        if deleted_count > 0:
+            print(f"\n✓ Cleaned up {deleted_count} test user(s)")
+    except Exception as e:
+        print(f"\n⚠ Skipping cleanup (database not accessible from host): {e}")
 
 
 @pytest.fixture
