@@ -73,43 +73,27 @@
     }{% if not forloop.last %},{% endif %}
     {% endfor %}
   ];
-
-  // Initialize swarm plots when DOM is ready
-  document.addEventListener('DOMContentLoaded', function() {
-    console.log('[Scholar Search] Initializing swarm plots with', window.SCHOLAR_SEARCH_RESULTS.length, 'Django results');
-
-    // Wait for SwarmPlots module to load
-    if (window.SwarmPlots) {
-      window.SwarmPlots.init(window.SCHOLAR_SEARCH_RESULTS);
-    } else {
-      // If not loaded yet, wait a bit
-      setTimeout(function() {
-        if (window.SwarmPlots) {
-          window.SwarmPlots.init(window.SCHOLAR_SEARCH_RESULTS);
-        } else {
-          console.warn('[Scholar Search] SwarmPlots module not available');
-        }
-      }, 500);
-    }
-  });
   {% endif %}
 </script>
 
+{% endblock %}
+
 {% block extra_js %}
 <!-- Common Scripts -->
-<script src="{% static 'scholar_app/scripts/common/project-selector.js' %}"></script>
+<script type="module" src="{% static 'scholar_app/js/common/project-selector.js' %}"></script>
 <!-- External Libraries -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.27.0.min.js" charset="utf-8"></script>
 <!-- Search Scripts -->
-<script src="{% static 'scholar_app/scripts/search/nouislider-init.js' %}"></script>
-<script src="{% static 'scholar_app/scripts/search/panel-toggle.js' %}"></script>
-<script src="{% static 'scholar_app/scripts/search/scitex-search.js' %}?v=20251027-fix-infinite-loop"></script>
-<script src="{% static 'scholar_app/scripts/search/advanced-sorting.js' %}"></script>
-<script src="{% static 'scholar_app/scripts/search/drag-sort.js' %}"></script>
-<script src="{% static 'scholar_app/scripts/search/swarm-plots.js' %}?v=20251022-dynamic"></script>
-<script src="{% static 'scholar_app/scripts/search/scholar-index-main.js' %}"></script>
-<script src="{% static 'scholar_app/scripts/search/seekbar-integration.js' %}"></script>
-{% endblock %}
-
+<script type="module" src="{% static 'scholar_app/js/search/nouislider-init.js' %}"></script>
+<script type="module" src="{% static 'scholar_app/js/search/panel-toggle.js' %}"></script>
+<script type="module" src="{% static 'scholar_app/js/search/scitex-search.js' %}"></script>
+<script type="module" src="{% static 'scholar_app/js/search/advanced-sorting.js' %}"></script>
+<script type="module" src="{% static 'scholar_app/js/search/drag-sort.js' %}"></script>
+<script type="module" src="{% static 'scholar_app/js/search/swarm-plots.js' %}"></script>
+<script type="module" src="{% static 'scholar_app/js/common/scholar-index-main.js' %}"></script>
+<script type="module" src="{% static 'scholar_app/js/search/seekbar-integration.js' %}"></script>
+<script type="module" src="{% static 'scholar_app/js/search/search-ui.js' %}"></script>
+<!-- Initialization Scripts -->
+<script type="module" src="{% static 'scholar_app/js/init/swarm-plots-init.js' %}"></script>
 {% endblock %}
