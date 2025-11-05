@@ -35,10 +35,128 @@ def index(request):
     # Show landing page to all users (removed auto-redirect for logged-in users)
     # Users can navigate to their profile via the header navigation
 
-    # Features are now in HTML partials at:
-    # apps/public_app/templates/public_app/landing_partials/features/
+    # Module features for landing page demos
+    scholar_features = [
+        {
+            "title": "Metadata Enrichment",
+            "description": "BibTeX file enrichment with abstract, citation counts, and journal impact factor — crucial for AI support",
+        },
+        {
+            "title": "PDF Downloads",
+            "description": "Scraping and PDF download with institutional authentication support, followed by extraction of text, tables, and figures",
+        },
+        {
+            "title": "Local/Cloud Libraries",
+            "description": "Manage and search your local PDF collection. Compatible with existing citation managers. Your data is yours.",
+        },
+        {
+            "title": "Multi-Source Search",
+            "description": "Concurrent search across CrossRef, PubMed, OpenAlex, Semantic Scholar, and arXiv",
+        },
+        {
+            "title": "Exporting Formats",
+            "description": "Support BibTeX, RIS, JSON, and Markdown formats",
+        },
+    ]
 
-    return render(request, "public_app/landing.html")
+    writer_features = [
+        {
+            "title": "LaTeX Integration",
+            "description": "Monaco editor with keyboard shortcuts integrated with BibTeX entries. PDF preview, multiple author collaboration, style changes, and words counts",
+        },
+        {
+            "title": "Section-separated editing",
+            "description": "No need to scroll large monolithic tex file. Reduced risk of corrupt independent sections.",
+        },
+        {
+            "title": "Manuscript Types",
+            "description": "Templates ready for manuscripts, supplementary materials, and revision letters",
+        },
+        {
+            "title": "AI Applicability",
+            "description": "Optimized structure for LLM assistants. Automatic differences with visual markup",
+        },
+        {
+            "title": "Bibliography Management",
+            "description": "Fact-based reference insertion with Scholar module",
+        },
+        {
+            "title": "Version Control",
+            "description": "Git workflows with intuitive GUI user interfaces",
+        },
+    ]
+
+    code_features = [
+        {
+            "title": "Session Management",
+            "description": "Auto-organized outputs with RUNNING/FINISHED_SUCCESS/ERROR structure",
+        },
+        {
+            "title": "Universal I/O",
+            "description": "30+ formats supported: CSV, JSON, HDF5, Zarr, pickle, Excel with auto-detection",
+        },
+        {
+            "title": "Statistical Testing",
+            "description": "23 parametric/non-parametric tests, effect sizes, power analysis, 9 export formats",
+        },
+        {
+            "title": "ML & AI Unified",
+            "description": "PyTorch training utilities, GenAI (7 providers), cost tracking, classification tools",
+        },
+        {
+            "title": "40+ Research Modules",
+            "description": "DSP, plots, scholar, browser, decorators, logging, and more",
+        },
+    ]
+
+    viz_features = [
+        {
+            "title": "Publication Quality",
+            "description": "Python Wrapper for SigmaPlot to produce publication-ready figures",
+        },
+        {
+            "title": "Style Consistency",
+            "description": "Unified/customizable color schemes and typography across all figures",
+        },
+        {
+            "title": "Multi-Format Export",
+            "description": "Export to PDF, SVG, PNG, and interactive HTML formats",
+        },
+    ]
+
+    cloud_features = [
+        {
+            "title": "Web Interface",
+            "description": "Access all SciTeX modules through this website (scitex.ai)",
+        },
+        {
+            "title": "Project Management",
+            "description": "Organize research projects with integrated tools and collaboration features",
+        },
+        {
+            "title": "Cloud Storage",
+            "description": "Store and sync your research data, papers, and figures across devices",
+        },
+        {
+            "title": "Team Collaboration",
+            "description": "Share projects, papers, and resources with research team members",
+        },
+        {
+            "title": "API Access",
+            "description": "Programmatic access to all SciTeX modules via REST API",
+        },
+    ]
+
+    context = {
+        "scholar_features": scholar_features,
+        "writer_features": writer_features,
+        "code_features": code_features,
+        "viz_features": viz_features,
+        "cloud_features": cloud_features,
+    }
+
+    # Otherwise show landing page for anonymous users
+    return render(request, "public_app/landing.html", context)
 
 
 def premium_subscription(request):

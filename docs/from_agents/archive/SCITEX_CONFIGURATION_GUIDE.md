@@ -111,7 +111,7 @@ export SCITEX_SCHOLAR_MAX_WORKERS=5
 source /home/ywatanabe/proj/scitex-cloud/deployment/dotenvs/dotenv_dev
 
 # Restart Django
-./deployment/server/start.sh
+./deployment/server/server.sh
 ```
 
 ### Option 2: Runtime override (Temporary)
@@ -121,7 +121,7 @@ source /home/ywatanabe/proj/scitex-cloud/deployment/dotenvs/dotenv_dev
 export SCITEX_SCHOLAR_MAX_WORKERS=10
 
 # Start Django with override
-./deployment/server/start.sh
+./deployment/server/server.sh
 ```
 
 ### Option 3: Edit Django settings (Not recommended)
@@ -273,7 +273,7 @@ export SCITEX_SCHOLAR_ENGINES="CrossRef,PubMed"  # Fewer engines
 
 **Checklist**:
 1. ✓ Sourced dotenv file? `source deployment/dotenvs/dotenv_dev`
-2. ✓ Restarted Django? `./deployment/server/start.sh`
+2. ✓ Restarted Django? `./deployment/server/server.sh`
 3. ✓ Check environment: `echo $SCITEX_SCHOLAR_MAX_WORKERS`
 4. ✓ Check Django: See monitoring section above
 

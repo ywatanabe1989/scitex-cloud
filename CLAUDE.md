@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-11-04 13:46:37
+!-- Timestamp: 2025-11-06 06:06:23
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/CLAUDE.md
 !-- --- -->
@@ -7,7 +7,11 @@
 ## AGENTS DO NEVER EDIT THIS FILE
 ## THE USER IS ONLY ALLOWED TO EDIT THIS FILE. DO NOT MODIFY THIS FILE UNLESS EXPLICITLY ASKED.
 ## GITIGNORE THIS FILE. NEVER UPLOAD TO GITHUB.
-## IN DEVELOPMENT (127.0.0.1:8000), DO NOT RUNSERVER. IT IS HANDLED BY ./start_dev.sh and we confirmed auto-hot-reloading enabled.
+## IN DEVELOPMENT (127.0.0.1:8000), DO NOT RUNSERVER. IT IS HANDLED BY `make ENV=dev restart` and we confirmed auto-hot-reloading enabled.
+
+## Developmental Environment
+We are using docker containers for developmental server as well. Please check ./deployment/docker/docker_dev/ for detals. Makefiles would be also useful. Also, we are not accepting direct call of `python manage.py` to avoid confusion. Please use docker.
+
 ---
 
 ## Subagents
@@ -63,18 +67,28 @@ See `/dev/design/`
 ## Debugging Javascripts
 Add console.log for debugging
 
-## Error cascading
-python errors should be cascaded to console.log in javascript (or typescript), and also save logs to ./logs/console.log
-Simple stderr as text will enhance the easiness of trouble shooting.
-Actually, this rule should be applied to all of this web app
+## Strict Typescript over javascript
+./RULES/02_TYPESCRIPT_HOT_BUILDING_IN_DEVELOPMENT.md
+./RULES/03_TYPESCRIPT_WATCH_MECHANISM.md
+./RULES/JAVASCRIPT_MIGRATION_STEPS.md
+./RULES/JAVASCRIPT_TYPESCRIPT_MIGRATION_STATUS.md
 
 ---
 
 # Requests
 
-- [ ] Refactor project_app based on the FULLSTACK.md
-  - [ ] Evaluation can be seen at ./apps/project_app/EVAL.md
+<!-- Loading file tree in sidebar does not complete in the file viewer (most child)
+ !-- http://127.0.0.1:8000/wyusuuke/proj-001/blob/scitex/writer/01_manuscript/base.tex -->
+
+- [ ] Solve the migration from javascript to typescript for root and all modules
+ 
+
+- [ ] Refactor and revise writer_app, strictly following:
+  - [ ] `./RULES/00_DJANGO_ORGANIZATION_FULLSTACK.md`
+  - [ ] `./RULES/01_DJANGO_ORGANIZATION_FULLSTACK_CHECKLIST.md`
   - [ ] Verify everything using playwright, `127.0.0.1:8000`
+  - [ ] Never accept dirty code like .old.legacy
+  - [ ] We don't need dashboard in /writer/; just a simple index with left panel as editor and right panel as pdf viewer, just in the https://scitex.ai/writer/
 
 <!-- Skip the blow now -->
 <!-- ## Central Logging system
