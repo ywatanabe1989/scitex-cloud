@@ -17,11 +17,11 @@ Single source of truth with strict settings:
 All extend base config, only override paths:
 
 **tsconfig.json** - Root-level static files
-- Compiles: `static/ts/**/*`
+- Compiles: `static/shared/ts/**/*`
 - Outputs: `static/js/`
 
 **tsconfig.all.json** - All apps (used by npm run build:all)
-- Compiles: `static/ts/**/*` + `apps/*/static/*/ts/**/*`
+- Compiles: `static/shared/ts/**/*` + `apps/*/static/*/ts/**/*`
 - Outputs: `.tsbuild/` (temporary, moved by post-build.js)
 
 **tsconfig.project.json** - project_app only

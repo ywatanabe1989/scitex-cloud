@@ -41,7 +41,7 @@ jobs:
       - name: Check formatting (Prettier)
         run: |
           cd tsconfig
-          npx prettier --check ../static/ts/**/*.ts ../apps/**/static/**/ts/**/*.ts
+          npx prettier --check ../static/shared/ts/**/*.ts ../apps/**/static/**/ts/**/*.ts
         continue-on-error: true  # Don't fail CI on formatting initially
 
       - name: Build TypeScript

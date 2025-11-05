@@ -5,14 +5,14 @@
     "outDir": "../.tsbuild",
     "baseUrl": "..",
     "paths": {
-      "@/types": ["static/ts/types/index.ts"],
-      "@/types/*": ["static/ts/types/*"],
-      "@/utils": ["static/ts/utils/index.ts"],
-      "@/utils/*": ["static/ts/utils/*"]
+      "@/types": ["static/shared/ts/types/index.ts"],
+      "@/types/*": ["static/shared/ts/types/*"],
+      "@/utils": ["static/shared/ts/utils/index.ts"],
+      "@/utils/*": ["static/shared/ts/utils/*"]
     }
   },
   "include": [
-    "../static/ts/**/*",
+    "../static/shared/ts/**/*",
     "../apps/*/static/*/ts/**/*"
   ]
 }

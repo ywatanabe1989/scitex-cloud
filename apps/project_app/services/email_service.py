@@ -58,8 +58,8 @@ class EmailService:
             <!DOCTYPE html>
             <html>
             <head>
-                <link rel="icon" type="image/png" href="https://scitex.ai/static/images/favicon.png">
-                <link rel="shortcut icon" type="image/png" href="https://scitex.ai/static/images/favicon.png">
+                <link rel="icon" type="image/png" href="https://scitex.ai/static/shared/images/favicon.png">
+                <link rel="shortcut icon" type="image/png" href="https://scitex.ai/static/shared/images/favicon.png">
             </head>
             <body>
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -145,8 +145,8 @@ class EmailService:
             <!DOCTYPE html>
             <html>
             <head>
-                <link rel="icon" type="image/png" href="https://scitex.ai/static/images/favicon.png">
-                <link rel="shortcut icon" type="image/png" href="https://scitex.ai/static/images/favicon.png">
+                <link rel="icon" type="image/png" href="https://scitex.ai/static/shared/images/favicon.png">
+                <link rel="shortcut icon" type="image/png" href="https://scitex.ai/static/shared/images/favicon.png">
             </head>
             <body>
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -239,8 +239,8 @@ class EmailService:
             <!DOCTYPE html>
             <html>
             <head>
-                <link rel="icon" type="image/png" href="https://scitex.ai/static/images/favicon.png">
-                <link rel="shortcut icon" type="image/png" href="https://scitex.ai/static/images/favicon.png">
+                <link rel="icon" type="image/png" href="https://scitex.ai/static/shared/images/favicon.png">
+                <link rel="shortcut icon" type="image/png" href="https://scitex.ai/static/shared/images/favicon.png">
             </head>
             <body>
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
