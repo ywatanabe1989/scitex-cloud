@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-10-22 08:15:48 (ywatanabe)"
+# Timestamp: "2025-11-05 09:20:27 (ywatanabe)"
 # File: /home/ywatanabe/proj/scitex-cloud/manage.py
 # ----------------------------------------
 from __future__ import annotations
@@ -15,12 +15,50 @@ __DIR__ = os.path.dirname(__FILE__)
 
 import sys
 
+
 def main():
-    """Run administrative tasks."""
+    """Run administrative tasks. Prevent direct call of this file (manage.py) and guide to use docker."""
+
+    print(f"Initial Args for manage.py: {sys.argv}")
+
+    if (
+        len(sys.argv) > 1
+        and sys.argv[1] == "runserver"
+        and ("from_docker" not in sys.argv)
+    ):
+        print("\n" + "=" * 70)
+        print("❌ ERROR: Direct 'python manage.py runserver' is not allowed!")
+        print("=" * 70)
+        print(
+            "\nPlease use docker (the Makefile) to ensure proper environment setup (e.g., Gitea):\n"
+        )
+        print("  For development:")
+        print("    make ENV=dev start     # Start development environment")
+        print("    make ENV=dev restart   # Restart development environment")
+        print("    make ENV=dev reload    # Hot reload without reinstall\n")
+        print("  For production:")
+        print("    make ENV=prod start    # Start production environment")
+        print("    make ENV=prod restart  # Restart production environment\n")
+        print("  For NAS:")
+        print("    make ENV=nas start     # Start NAS environment")
+        print("    make ENV=nas restart   # Restart NAS environment\n")
+        print("  Check status:")
+        print("    make status            # Show active environment\n")
+        print("=" * 70)
+        print("The Makefile ensures:")
+        print("  ✓ Only one environment runs at a time (exclusive mode)")
+        print("  ✓ Proper environment variables are set")
+        print("  ✓ All dependencies are correctly configured")
+        print("  ✓ Docker containers are properly managed")
+        print("=" * 70 + "\n")
+        sys.exit(1)
+
     # Add base and config directories to Python path
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     sys.path.insert(0, BASE_DIR)  # Add base directory
-    sys.path.insert(0, os.path.join(BASE_DIR, "config"))  # Add config directory
+    sys.path.insert(
+        0, os.path.join(BASE_DIR, "config")
+    )  # Add config directory
     # No need to add src directory anymore as it's been replaced by apps
 
     # Use new auto-detection settings module
@@ -37,7 +75,14 @@ def main():
             "available on your PYTHONPATH environment variable? Did you "
             "forget to activate a virtual environment?"
         ) from exc
-    execute_from_command_line(sys.argv)
+
+    # Drops from_docker argument if exists
+    final_args = sys.argv.copy()
+    if "from_docker" in final_args:
+        final_args.remove("from_docker")
+    print(f"Final Args for manage.py: {final_args}")
+
+    execute_from_command_line(final_args)
 
 
 if __name__ == "__main__":

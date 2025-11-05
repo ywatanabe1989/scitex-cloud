@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-11-03 16:24:13
+!-- Timestamp: 2025-11-05 18:53:37
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/TODOS/10_SCITEX_WRITER_01.md
 !-- --- -->
@@ -9,9 +9,6 @@
 ## writer_app https://127.0.0.1:8000/writer/
 
 ### Monaco Custom Command
-- [ ] Implement keyboard shortcuts:
-  - [ ] Toggle Comment Out | Text selection -> "C-;"
-
 
 ### Real-Time, Multi-User Collaboration
 - [ ] Each user's login info and cursor colors should be implemented
@@ -67,5 +64,53 @@
  !-- - [ ] Click on PDF → jump to LaTeX source -->
 
 <!-- ### Word/Markdown Conversion (skip this now, I will check) -->
+
+
+  PDF Compilation & Content Handling:
+- [ ] 1. Compiled PDF special processing - Handle the final output differently
+  - [ ] We need sections to be used/unused
+    - [ ] Also, users can add sections for their needs
+    - [ ] Sections should have name mapping (e.g., Abstract -> Summary) to follow publisher requirements
+    - [ ] Included/Excluded sections, with visual aid (subtle color for excluded, +/- buttons or radios; maybe in the existing dropdown; but order is also matter; excluded would be better to be folded by default)
+    - [ ] So, overall, sections should have CRUD operations in an excellent user UI/UX.
+
+- [ ] 2. Authors in frontmatter - Need special wrapping with begin-end
+  - [ ] internally (this is a LaTeX structure issue)
+
+- [ ] 3. Bibliography integration
+  - [ ] Merge logic for multiple bibliography files. 
+    - [ ] This is implemented in scitex.scholar module (~/proj/scitex-code/src/scholar)
+    - [ ] Link to proj-root/scitex/scholar/bib_files/bibliography.bib (merged one)
+    - [ ] How to render in the writer page
+      - [ ] This would be not latex. We might simply show list of entries using cards as a first step.
+        - [ ] Cards would be distinguishable between cited (used in the manuscript already) or not cited
+
+- [ ] 4. Citation autocomplete - Enable \cite{} command completion from bibtex entries
+
+- [ ] UI/UX Improvements:
+- [ ] 5. Hide internal-only content - Word counts and other metadata should not be shown to users
+
+- [ ] 6. Document type dropdown - Currently only manuscript is supported; needs to support shared, revision, and supplementary
+  - [ ] When selected one document type, they should change all the contents
+  - [ ] Section dropdown for the document type
+  - [ ] Update contents shown in editor and pdf area
+
+- [ ] 7. Conditional content display - Show different content based on selected
+  - [ ] document type
+
+- [ ] 8. Update WriterService - Support all document types, not just manuscript
+
+- [ ] 9. Update TypeScript/JavaScript UI - Handle document type switching properly
+  - [ ] Before diving into implementation, let me ask a few clarifying questions:
+
+- [ ] 1. Authors in frontmatter: Should the wrapping be done in WriterService (Python side) or in the editor (TypeScript side)?
+  - [ ] I am not sure... Maybe in background? What I want is to ensure the document is previewed correctly. Compile the entire document must be working based on my experiments (scitex.scholar is guranteeed to work separetely).
+
+- [ ] 2. Bibliography: Should we fetch from scitex.scholar at compile time or integrate it into the editing experience?
+  - [ ] Actually, bibtex file should be editable as an ordinally file. However, when doi is passed, we should sync with scholar storage. This might be better to be handled by cards as entries in frontend
+
+- [ ] 3. Document type switching: Should changing the document type reload the page content, or switch dynamically within the same page?
+  - [ ] Reloading is enough. Document type switching will not be frequent.
+  - [ ] I expect smooth transition between sections (that's why we prepare preview files in local for each section) but document types
 
 <!-- EOF -->
