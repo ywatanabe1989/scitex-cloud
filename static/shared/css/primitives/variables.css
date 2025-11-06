@@ -5,5 +5,5 @@
 @import url('colors.css');
 @import url('typography-vars.css');
 @import url('spacing.css');
-@import url('effects.css');
+@import url('../utilities/effects.css');
 @import url('z-index.css');

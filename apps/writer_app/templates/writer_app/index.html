@@ -13,8 +13,58 @@
 {% block writer_content %}
 {% include "writer_app/index_partials/demo_banner.html" %}
 
-<!-- Show message if user has no projects -->
-{% if needs_project_creation %}
+<!-- Show message if visitor pool has errors -->
+{% if pool_error %}
+<div id="pool-error-message" class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-warning">
+                <div class="card-body text-center p-5">
+                    <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                    <h3 class="mb-3">Visitor Pool Not Initialized</h3>
+                    <p class="text-muted mb-4">
+                        The visitor pool needs to be set up before anonymous users can try Writer.
+                    </p>
+                    <div class="alert alert-info text-start mb-4">
+                        <strong>For Administrators:</strong>
+                        <pre class="mt-2 mb-0"><code>python manage.py create_visitor_pool</code></pre>
+                        <p class="mt-2 mb-0 small">This will create 32 pre-allocated visitor accounts for anonymous users.</p>
+                    </div>
+                    <p class="mb-3">Already have an account?</p>
+                    <a href="{% url 'auth_app:login' %}" class="btn btn-primary btn-lg me-2">
+                        <i class="fas fa-sign-in-alt me-2"></i>Log In
+                    </a>
+                    <a href="{% url 'auth_app:signup' %}" class="btn btn-outline-primary btn-lg">
+                        <i class="fas fa-user-plus me-2"></i>Sign Up
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% elif pool_exhausted %}
+<div id="pool-exhausted-message" class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-warning">
+                <div class="card-body text-center p-5">
+                    <i class="fas fa-users fa-3x text-warning mb-3"></i>
+                    <h3 class="mb-3">High Traffic</h3>
+                    <p class="text-muted mb-4">
+                        All visitor slots are currently in use. Please try again in a few minutes, or sign up for immediate access.
+                    </p>
+                    <a href="{% url 'auth_app:signup' %}" class="btn btn-primary btn-lg me-2">
+                        <i class="fas fa-user-plus me-2"></i>Sign Up Now
+                    </a>
+                    <a href="{% url 'auth_app:login' %}" class="btn btn-outline-primary btn-lg">
+                        <i class="fas fa-sign-in-alt me-2"></i>Log In
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% elif needs_project_creation %}
 <div id="no-project-message" class="container py-5">
     <div class="row justify-content-center">
         <div class="col-lg-6">
@@ -43,7 +93,7 @@
 {% include "writer_app/index_partials/word_count.html" %}
 {% endif %}
 
-{% if not needs_project_creation %}
+{% if not needs_project_creation and not pool_error and not pool_exhausted %}
 <!-- Editor Loader (TypeScript-compiled) - Handles CodeMirror and Monaco initialization -->
 <script type="module">
 import { editorLoader } from '{% static "writer_app/js/loaders/editor-loader.js" %}';
@@ -67,6 +117,7 @@ import { editorLoader } from '{% static "writer_app/js/loaders/editor-loader.js"
         manuscriptTitle: {% if manuscript %}'{{ manuscript.title|escapejs }}'{% else %}'Untitled'{% endif %},
         userId: {% if user.is_authenticated %}{{ user.id }}{% else %}null{% endif %},
         username: {% if user.is_authenticated %}'{{ user.username|escapejs }}'{% else %}null{% endif %},
+        visitorUsername: {% if visitor_username %}'{{ visitor_username|escapejs }}'{% else %}null{% endif %},
         isDemo: {% if is_demo %}true{% else %}false{% endif %},
         isAnonymous: {% if is_anonymous %}true{% else %}false{% endif %},
         isAuthenticated: {% if user.is_authenticated %}true{% else %}false{% endif %},
@@ -92,6 +143,16 @@ import { editorLoader } from '{% static "writer_app/js/loaders/editor-loader.js"
         },
         csrfToken: '{{ csrf_token }}'
     };
+
+    // Log visitor allocation info
+    if (window.WRITER_CONFIG.isAnonymous && window.WRITER_CONFIG.visitorUsername) {
+        console.log('%c[VisitorPool] ✓ Allocated:', 'color: #4CAF50; font-weight: bold', window.WRITER_CONFIG.visitorUsername);
+        console.log('%c[VisitorPool] Project ID:', 'color: #2196F3', window.WRITER_CONFIG.projectId);
+        console.log('%c[VisitorPool] Project:', 'color: #2196F3', window.WRITER_CONFIG.projectName);
+    } else if (window.WRITER_CONFIG.isAuthenticated) {
+        console.log('%c[Writer] User:', 'color: #4CAF50; font-weight: bold', window.WRITER_CONFIG.username);
+        console.log('%c[Writer] Project ID:', 'color: #2196F3', window.WRITER_CONFIG.projectId);
+    }
 </script>
 
 <!-- Import map for module resolution -->
