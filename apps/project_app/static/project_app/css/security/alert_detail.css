@@ -1,0 +1,25 @@
+/* Security alert detail page styles */
+@import url('shared/variables.css');
+
+.alert-detail-container {
+    padding: 2rem;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.alert-header {
+    margin-bottom: 2rem;
+}
+
+.alert-metadata {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.alert-content {
+    background: var(--bg-secondary, #f8f9fa);
+    padding: 1.5rem;
+    border-radius: 0.375rem;
+}

@@ -1,0 +1,35 @@
+{
+  "name": "scitex-cloud",
+  "version": "1.0.0",
+  "description": "SciTeX Cloud - Collaborative Scientific Writing Platform",
+  "main": "static/js/index.js",
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "build:all": "tsc -p tsconfig.all.json && node post-build.js",
+    "build:all:watch": "tsc -p tsconfig.all.json --watch --preserveWatchOutput & node watch-and-move.js",
+    "build:writer": "tsc -p tsconfig.writer.json && rm -rf ../apps/writer_app/static/writer_app/js/apps ../apps/writer_app/static/writer_app/js/static",
+    "build:project": "tsc -p tsconfig.project.json && node -e \"const fs=require('fs');const path=require('path');const src='../apps/project_app/static/project_app/js/apps/project_app/static/project_app/ts';const dst='../apps/project_app/static/project_app/js';if(fs.existsSync(src)){const cp=require('child_process');cp.execSync('cp -r '+src+'/* '+dst+'/');cp.execSync('rm -rf ../apps/project_app/static/project_app/js/apps ../apps/project_app/static/project_app/js/static');}\"",
+    "build:scholar": "tsc --rootDir static/shared/ts/scholar --outDir apps/scholar_app/static/scholar_app/js",
+    "type-check": "tsc --noEmit",
+    "dev": "tsc --watch --pretty",
+    "lint": "eslint static/shared/ts/**/*.ts apps/**/static/**/ts/**/*.ts",
+    "format": "prettier --write static/shared/ts/**/*.ts apps/**/static/**/ts/**/*.ts",
+    "clean:writer": "rm -rf ../apps/writer_app/static/writer_app/js/apps ../apps/writer_app/static/writer_app/js/static",
+    "clean:project": "rm -rf ../apps/project_app/static/project_app/js/apps ../apps/project_app/static/project_app/js/static",
+    "clean:all": "npm run clean:writer && npm run clean:project"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^5.2.2",
+    "@types/node": "^20.5.0",
+    "@types/codemirror": "^5.60.11",
+    "eslint": "^8.48.0",
+    "@typescript-eslint/eslint-plugin": "^6.5.0",
+    "@typescript-eslint/parser": "^6.5.0",
+    "prettier": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

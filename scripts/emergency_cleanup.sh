@@ -38,4 +38,4 @@ else
 fi
 
 echo ""
-echo "Cleanup complete. You can now run: ./start.sh -m windows"
+echo "Cleanup complete. You can now run: ./server.sh -m windows"

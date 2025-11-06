@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-11-02 18:34:25 (ywatanabe)"
-# File: /ssh:scitex:/home/ywatanabe/proj/scitex-cloud/config/settings/settings_shared.py
+# Timestamp: "2025-11-04 20:19:17 (ywatanabe)"
+# File: /home/ywatanabe/proj/scitex-cloud/config/settings/settings_shared.py
 # ----------------------------------------
 from __future__ import annotations
 import os
@@ -23,6 +23,7 @@ from datetime import timedelta
 # ---------------------------------------
 # Functions
 # ---------------------------------------
+# KEEP THIS AS COMMENT
 def discover_local_apps():
     """Discover all Django apps in the apps directory."""
     apps_path = BASE_DIR / "apps"
@@ -41,10 +42,34 @@ def discover_local_apps():
     return local_apps
 
 
+# # KEEP THIS FUNCTION
+# def discover_local_apps():
+#     """Discover all Django apps in the apps directory."""
+#     return [
+#         "apps.accounts_app",
+#         "apps.auth_app",
+#         "apps.code_app",
+#         "apps.dev_app",
+#         "apps.docs_app",
+#         "apps.donations_app",
+#         "apps.gitea_app",
+#         "apps.integrations_app",
+#         "apps.organizations_app",
+#         "apps.permissions_app",
+#         "apps.project_app",
+#         "apps.public_app",
+#         "apps.scholar_app",
+#         "apps.search_app",
+#         "apps.social_app",
+#         "apps.viz_app",
+#         "apps.writer_app",
+#     ]
+
+
 # ---------------------------------------
-# Meatadata
+# Metadata
 # ---------------------------------------
-SCITEX_VERSION = "0.1.0-alpha"
+SCITEX_CLOUD_VERSION = "0.1.0-alpha"
 
 # ---------------------------------------
 # Paths
@@ -103,6 +128,7 @@ THIRD_PARTY_APPS = [
     "channels",
 ]
 
+# This installs all the apps (./apps/*_app)
 LOCAL_APPS = discover_local_apps()
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -226,6 +252,9 @@ EMAIL_HOST_USER = os.getenv("SCITEX_CLOUD_EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.getenv("SCITEX_CLOUD_EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 SERVER_EMAIL = EMAIL_HOST_USER
+
+# Site URL for generating absolute URLs in emails
+SITE_URL = os.getenv("SCITEX_CLOUD_SITE_URL", "http://127.0.0.1:8000")
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

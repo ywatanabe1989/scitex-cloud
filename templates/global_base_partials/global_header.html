@@ -6,7 +6,7 @@
     <div class="header-left">
       <!-- Logo -->
       <a href="{% if user.is_authenticated %}/{{ user.username }}/{% else %}/{% endif %}" class="header-logo" data-tooltip="Go to your repositories">
-        <img src="{% static 'images/scitex-logo-cropped.png' %}" alt="SciTeX" class="header-logo-img">
+        <img src="{% static 'shared/images/scitex_logos/scitex-logo-cropped.png' %}" alt="SciTeX" class="header-logo-img">
       </a>
 
       <!-- Primary Navigation -->
@@ -14,7 +14,7 @@
         <!-- Explore Module with Dropdown -->
         <div class="header-dropdown-group">
           <button id="explore-dropdown-toggle" class="header-nav-item header-dropdown-toggle {% if 'explore' in request.path %}active{% endif %}" data-tooltip="Browse repositories and projects">
-            <img src="{% static 'images/scitex-explore-icon.svg' %}" alt="" class="nav-icon">
+            <img src="{% static 'shared/images/icons_svg/scitex-explore-icon.svg' %}" alt="" class="nav-icon">
             <span class="nav-label">Explore</span>
           </button>
 
@@ -40,7 +40,7 @@
             {% endif %}
 
             <a href="/social/explore/" class="nav-dropdown-item">
-              <img src="{% static 'images/vectorstock_38853699/vectorstock_38853699-navy-inverted.svg' %}" alt="" style="width: 16px; height: 16px; margin-right: 8px; opacity: 0.85;">
+              <img src="{% static 'shared/images/scitex_logos/vectorstock/vectorstock_38853699-navy-inverted.svg' %}" alt="" style="width: 16px; height: 16px; margin-right: 8px; opacity: 0.85;">
               <span>All Public Repositories</span>
             </a>
           </div>
@@ -55,7 +55,7 @@
         <!-- Scholar Module with Dropdown -->
         <div class="header-dropdown-group">
           <button id="scholar-dropdown-toggle" class="header-nav-item header-dropdown-toggle {% if 'scholar' in request.path %}active{% endif %}" data-tooltip="Scholar module">
-            <img src="{% static 'images/scitex-scholar-icon.svg' %}" alt="" class="nav-icon">
+            <img src="{% static 'shared/images/icons_svg/scitex-scholar-icon.svg' %}" alt="" class="nav-icon">
             <span class="nav-label">Scholar</span>
           </button>
 
@@ -79,18 +79,18 @@
         </div>
         <span class="header-nav-item header-nav-item-disabled"
               data-tooltip="Code module coming soon">
-          <img src="{% static 'images/scitex-code-icon.svg' %}" alt="" class="nav-icon">
+          <img src="{% static 'shared/images/icons_svg/scitex-code-icon.svg' %}" alt="" class="nav-icon">
           <span class="nav-label">Code</span>
         </span>
         <span class="header-nav-item header-nav-item-disabled"
               data-tooltip="Viz module coming soon">
-          <img src="{% static 'images/scitex-viz-icon.svg' %}" alt="" class="nav-icon">
+          <img src="{% static 'shared/images/icons_svg/scitex-viz-icon.svg' %}" alt="" class="nav-icon">
           <span class="nav-label">Viz</span>
         </span>
         <a href="/writer/"
            class="header-nav-item {% if 'writer' in request.path %}active{% endif %}"
            data-tooltip="Manuscript writing">
-          <img src="{% static 'images/scitex-writer-icon.svg' %}" alt="" class="nav-icon">
+          <img src="{% static 'shared/images/icons_svg/scitex-writer-icon.svg' %}" alt="" class="nav-icon">
           <span class="nav-label">Writer</span>
         </a>
       </nav>
@@ -187,7 +187,7 @@
           {% endif %}
 
           <!-- Sign up to save (visitors) -->
-          <a href="{% url 'auth_app:signup' %}" class="dropdown-project-item dropdown-create-new">
+          <a href="/auth/signup/" class="dropdown-project-item dropdown-create-new">
             <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="margin-right: 6px;">
               <path d="M8 0a1 1 0 0 1 1 1v6h6a1 1 0 1 1 0 2H9v6a1 1 0 1 1-2 0V9H1a1 1 0 0 1 0-2h6V1a1 1 0 0 1 1-1z"/>
             </svg>
@@ -200,7 +200,7 @@
     <!-- Center: Search -->
     <div class="header-center">
       <div class="header-search">
-        <img src="{% static 'images/scitex-search-icon.svg' %}" alt="" class="header-search-icon">
+        <img src="{% static 'shared/images/icons_svg/scitex-search-icon.svg' %}" alt="" class="header-search-icon">
         <input type="text" placeholder="Search repositories, users..." id="global-search" autocomplete="off">
       </div>
     </div>
@@ -257,6 +257,31 @@
                 <div class="dropdown-user-username">@{{ user.username }}</div>
               </div>
             </div>
+
+            <!-- Account Switcher (Multi-account support) -->
+            <div class="dropdown-divider"></div>
+            <div id="account-switcher-container" style="padding: 8px 16px;">
+              <!-- Switcher dropdown (only shown when multiple accounts) -->
+              <div id="account-switcher-dropdown-wrapper" style="display: none;">
+                <div style="font-size: 12px; color: var(--color-fg-muted); margin-bottom: 8px; font-weight: 600;">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="margin-right: 4px; vertical-align: text-bottom;">
+                    <path d="M10.5 5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0zm.061 3.073a4 4 0 1 0-5.123 0 6.004 6.004 0 0 0-3.431 5.142.75.75 0 0 0 1.498.07 4.5 4.5 0 0 1 8.99 0 .75.75 0 1 0 1.498-.07 6.005 6.005 0 0 0-3.432-5.142z"/>
+                  </svg>
+                  Switch Account
+                </div>
+                <select id="account-switcher" style="width: 100%; padding: 6px 8px; border: 1px solid var(--color-border-default); border-radius: 6px; background: var(--color-canvas-default); color: var(--color-fg-default); margin-bottom: 8px;">
+                  <option value="">Loading...</option>
+                </select>
+              </div>
+              <!-- Add account link (always visible) -->
+              <a href="/auth/login/?next={{ request.path }}" class="dropdown-item" style="padding: 4px 0; font-size: 13px;">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="margin-right: 6px; vertical-align: text-bottom;">
+                  <path d="M8 0a1 1 0 0 1 1 1v6h6a1 1 0 1 1 0 2H9v6a1 1 0 1 1-2 0V9H1a1 1 0 0 1 0-2h6V1a1 1 0 0 1 1-1z"/>
+                </svg>
+                Add another account
+              </a>
+            </div>
+
             <div class="dropdown-divider"></div>
 
             <!-- Settings -->
@@ -287,7 +312,7 @@
 
             <!-- Support & Community -->
             <a href="https://github.com/SciTeX-AI" class="dropdown-item" target="_blank">
-              <img src="{% static 'images/vectorstock_38853699/vectorstock_38853699-navy-inverted.svg' %}" alt="" style="display: inline-block; vertical-align: text-bottom; margin-right: 8px; width: 16px; height: 16px; opacity: 0.85;">
+              <img src="{% static 'shared/images/scitex_logos/vectorstock/vectorstock_38853699-navy-inverted.svg' %}" alt="" style="display: inline-block; vertical-align: text-bottom; margin-right: 8px; width: 16px; height: 16px; opacity: 0.85;">
               GitHub
             </a>
             <a href="{% url 'public_app:donate' %}" class="dropdown-item">
@@ -299,7 +324,7 @@
             <div class="dropdown-divider"></div>
 
             <!-- Sign Out -->
-            <a href="{% url 'auth_app:logout' %}" class="dropdown-item">
+            <a href="/auth/logout/" class="dropdown-item">
               <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="display: inline-block; vertical-align: text-bottom; margin-right: 8px;">
                 <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0v2z"/>
                 <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/>
@@ -310,10 +335,10 @@
         </div>
       {% else %}
         <!-- Not logged in -->
-        <a href="{% url 'auth_app:signin' %}" class="header-btn" data-tooltip="Sign in to your account">
+        <a href="/auth/signin/" class="header-btn" data-tooltip="Sign in to your account">
           Sign in
         </a>
-        <a href="{% url 'auth_app:signup' %}" class="header-btn" data-tooltip="Create a new account">
+        <a href="/auth/signup/" class="header-btn" data-tooltip="Create a new account">
           Sign up
         </a>
       {% endif %}
@@ -626,6 +651,60 @@ document.addEventListener('DOMContentLoaded', function() {
         };
       }
     }
+  }
+
+  // Account Switcher (Multi-account support)
+  const accountSwitcher = document.getElementById('account-switcher');
+  const accountSwitcherDropdownWrapper = document.getElementById('account-switcher-dropdown-wrapper');
+
+  if (accountSwitcher) {
+    // Load authenticated accounts
+    fetch('/auth/api/authenticated-accounts/')
+      .then(response => response.json())
+      .then(data => {
+        const accounts = data.accounts || [];
+        const currentUserId = data.current_user_id;
+
+        if (accounts.length <= 1) {
+          // Hide dropdown selector if only one account, but keep "Add another account" visible
+          if (accountSwitcherDropdownWrapper) {
+            accountSwitcherDropdownWrapper.style.display = 'none';
+          }
+          return;
+        }
+
+        // Show dropdown wrapper
+        if (accountSwitcherDropdownWrapper) {
+          accountSwitcherDropdownWrapper.style.display = 'block';
+        }
+
+        accountSwitcher.innerHTML = '<option value="">-- Switch to --</option>';
+        accounts.forEach(account => {
+          const isCurrentUser = account.user_id === currentUserId;
+          const displayName = account.full_name || account.username;
+
+          const option = document.createElement('option');
+          option.value = account.user_id;
+          option.textContent = `${displayName} ${isCurrentUser ? '(current)' : ''}`;
+          option.disabled = isCurrentUser;
+          accountSwitcher.appendChild(option);
+        });
+
+        // Handle account switch
+        accountSwitcher.addEventListener('change', function() {
+          const userId = this.value;
+          if (userId) {
+            const currentUrl = window.location.href;
+            window.location.href = `/auth/switch/${userId}/?next=${encodeURIComponent(currentUrl)}`;
+          }
+        });
+      })
+      .catch(err => {
+        console.error('Failed to load authenticated accounts:', err);
+        if (accountSwitcherDropdownWrapper) {
+          accountSwitcherDropdownWrapper.style.display = 'none';
+        }
+      });
   }
 });
 </script>

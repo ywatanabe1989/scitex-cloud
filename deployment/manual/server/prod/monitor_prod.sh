@@ -200,7 +200,7 @@ show_production_summary() {
     echo_info "Quick Access:"
     echo "  🌐 Site: $PRODUCTION_URL"
     echo "  📊 Admin: $PRODUCTION_URL/admin/"
-    echo "  🔧 Restart: sudo systemctl restart nginx && ./start.sh prod"
+    echo "  🔧 Restart: sudo systemctl restart nginx && ./server.sh prod"
     echo "  📈 Monitor: ./scripts/monitor_prod.sh"
     
     echo ""

@@ -12,12 +12,15 @@ __DIR__ = os.path.dirname(__FILE__)
 # ----------------------------------------
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import (
-    search_views, bibtex_views, api_views,
-    workspace_views, library_views, export_views, annotation_views,
-    trending_views
-)
-from .views import repository_views
+from .views.search import views as search_views
+from .views.bibtex import views as bibtex_views
+from .views.workspace import api_key_views
+from .views.workspace import views as workspace_views
+from .views.library import views as library_views
+from .views.export import views as export_views
+from .views.annotation import views as annotation_views
+from .views.trending import views as trending_views
+from .views.repository import views as repository_views
 from .integrations import scitex_search
 
 app_name = 'scholar_app'
@@ -56,9 +59,9 @@ urlpatterns = [
     path('api/preferences/sources/', search_views.save_source_preferences, name='save_source_preferences'),
 
     # API Key Management endpoints
-    path('api-keys/', api_views.api_key_management, name='api_keys'),
-    path('api/test-api-key/', api_views.test_api_key, name='test_api_key'),
-    path('api/usage-stats/', api_views.api_usage_stats, name='api_usage_stats'),
+    path('api-keys/', api_key_views.api_key_management, name='api_keys'),
+    path('api/test-api-key/', api_key_views.test_api_key, name='test_api_key'),
+    path('api/usage-stats/', api_key_views.api_usage_stats, name='api_usage_stats'),
 
     # Saved Search API endpoints
     path('api/save-search/', search_views.save_search, name='save_search'),

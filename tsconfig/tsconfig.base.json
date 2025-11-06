@@ -1,0 +1,45 @@
+{
+  "compilerOptions": {
+    // Target and Module (Updated to ES2022 for modern features)
+    "target": "ES2022",
+    "module": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "moduleResolution": "bundler",  // Better for modern bundlers
+
+    // STRICT TYPESCRIPT-ONLY ENFORCEMENT
+    "allowJs": false,        // ← KEY: Reject .js files - enforce TypeScript only
+    "checkJs": false,
+
+    // Strict Type Checking
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictPropertyInitialization": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+
+    // Module Resolution
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+
+    // Output Configuration
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+
+    // React JSX (for future use)
+    "jsx": "react-jsx"
+  },
+  "exclude": [
+    "node_modules",
+    "**/node_modules/**",
+    "**/js/**",
+    "**/js-potentially-legacy/**",
+    "**/.tsbuild/**"
+  ]
+}

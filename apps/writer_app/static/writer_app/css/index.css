@@ -1,0 +1,123 @@
+/**
+ * Writer app index page styles
+ * Corresponds to: templates/writer_app/index.html
+ * 
+ * Following FULLSTACK 1:1:1:1 correspondence rule:
+ * index.html → index.css → index.ts → index.js
+ */
+
+/* Import shared components used by this page */
+@import url('shared/variables.css');
+
+/* Editor panels layout */
+.writer-container {
+    display: flex;
+    height: calc(100vh - 60px);
+    position: relative;
+}
+
+.editor-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--border-color, #ddd);
+}
+
+.preview-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-secondary, #f8f9fa);
+}
+
+/* TeX editor specific styles */
+.tex-editor {
+    flex: 1;
+    overflow: auto;
+}
+
+/* PDF viewer specific styles */
+.pdf-viewer {
+    flex: 1;
+    overflow: auto;
+    background: #525252;
+}
+
+.pdf-viewer canvas {
+    display: block;
+    margin: 0 auto;
+}
+
+/* History timeline styles */
+.history-timeline {
+    padding: 1rem;
+    border-top: 1px solid var(--border-color, #ddd);
+}
+
+.timeline-item {
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    border-left: 3px solid var(--primary-color, #007bff);
+    padding-left: 1rem;
+}
+
+/* UI components for this page */
+.no-project-message {
+    text-align: center;
+    padding: 3rem;
+}
+
+.demo-banner {
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 0.375rem;
+}
+
+.init-prompt {
+    padding: 2rem;
+    text-align: center;
+}
+
+.word-count-panel {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: white;
+    padding: 1rem;
+    border-radius: 0.375rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+.word-count-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.25rem 0;
+}
+
+/* CodeMirror integration styles */
+.CodeMirror {
+    height: 100%;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 14px;
+}
+
+/* Monaco editor integration */
+.monaco-editor {
+    height: 100%;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .writer-container {
+        flex-direction: column;
+    }
+    
+    .editor-panel,
+    .preview-panel {
+        flex: none;
+        height: 50vh;
+    }
+}

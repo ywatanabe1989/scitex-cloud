@@ -4,15 +4,23 @@
 # ============================================
 
 run_migrations() {
-    echo "🔄 Running migrations..."
-    python manage.py migrate --noinput
-    echo "✅ Migrations complete!"
+    if type run_timed &>/dev/null; then
+        run_timed "Running migrations" python manage.py migrate --noinput
+    else
+        echo "🔄 Running migrations..."
+        python manage.py migrate --noinput
+        echo "✅ Migrations complete!"
+    fi
 }
 
 collect_static_files() {
-    echo "📦 Collecting static files..."
-    python manage.py collectstatic --noinput
-    echo "✅ Static files collected!"
+    if type run_timed &>/dev/null; then
+        run_timed "Collecting static files" python manage.py collectstatic --noinput
+    else
+        echo "📦 Collecting static files..."
+        python manage.py collectstatic --noinput
+        echo "✅ Static files collected!"
+    fi
 }
 
 # EOF

@@ -292,6 +292,11 @@
   </aside>
 </div>
 
+<!-- Load required scripts for BibTeX enrichment -->
+<script type="module" src="{% static 'scholar_app/js/shared/collapsible-panels.js' %}"></script>
+<script type="module" src="{% static 'scholar_app/js/bibtex/bibtex-enrichment.js' %}"></script>
+<script type="module" src="{% static 'scholar_app/js/bibtex/queue-management.js' %}"></script>
+
 <style>
 .collapsible-header {
   cursor: pointer;
@@ -329,41 +334,3 @@
 }
 </style>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  // Initialize collapsible panels - all collapsed by default
-  const headers = document.querySelectorAll('.collapsible-header');
-
-  // Helper function to recalculate height
-  function recalculateHeight(content) {
-    if (content.style.display !== 'none') {
-      content.style.maxHeight = content.scrollHeight + 'px';
-    }
-  }
-
-  headers.forEach(header => {
-    header.addEventListener('click', function(e) {
-      e.preventDefault();
-      const content = this.nextElementSibling;
-      const icon = this.querySelector('.collapse-icon');
-
-      // Toggle expanded state
-      this.classList.toggle('expanded');
-
-      if (this.classList.contains('expanded')) {
-        content.style.display = 'block';
-        content.style.maxHeight = content.scrollHeight + 'px';
-        icon.style.transform = 'rotate(180deg)';
-
-        // Recalculate on images load and mutations
-        const observer = new MutationObserver(() => recalculateHeight(content));
-        observer.observe(content, { childList: true, subtree: true, characterData: true });
-      } else {
-        content.style.maxHeight = '0px';
-        content.style.display = 'none';
-        icon.style.transform = 'rotate(0deg)';
-      }
-    });
-  });
-});
-</script>

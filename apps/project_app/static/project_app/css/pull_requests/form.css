@@ -1,0 +1,19 @@
+/* Pull request form page styles */
+@import url('shared/variables.css');
+
+.pr-form-container {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 1.5rem;
+}
+
+.pr-form-section {
+    margin-bottom: 2rem;
+}
+
+.pr-comparison {
+    background: var(--bg-secondary, #f8f9fa);
+    padding: 1rem;
+    border-radius: 0.375rem;
+    margin-bottom: 1.5rem;
+}

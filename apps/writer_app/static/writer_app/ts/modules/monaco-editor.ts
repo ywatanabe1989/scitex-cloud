@@ -7,6 +7,7 @@
 import { StorageManager } from '@/utils/storage';
 import { HistoryEntry } from '@/types';
 
+console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/modules/monaco-editor.ts loaded");
 export interface MonacoEditorConfig {
     elementId: string;
     mode?: string;
@@ -283,6 +284,19 @@ export class EnhancedEditor {
             ],
             contextMenuGroupId: 'modification',
             contextMenuOrder: 1.5,
+            run: (editor: any) => {
+                // Use Monaco's built-in toggle line comment action
+                editor.trigger('keyboard', 'editor.action.commentLine', {});
+            }
+        });
+
+        // Add Ctrl+; (C-;) as alternative comment toggle shortcut
+        this.monacoEditor.addAction({
+            id: 'toggle-line-comment-alt',
+            label: 'Toggle Line Comment (Alt)',
+            keybindings: [
+                monaco.KeyMod.CtrlCmd | monaco.KeyCode.Semicolon
+            ],
             run: (editor: any) => {
                 // Use Monaco's built-in toggle line comment action
                 editor.trigger('keyboard', 'editor.action.commentLine', {});

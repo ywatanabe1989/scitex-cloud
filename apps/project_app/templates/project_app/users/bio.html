@@ -5,13 +5,13 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'project_app/css/project_app.css' %}">
-<link rel="stylesheet" href="{% static 'css/common/buttons.css' %}">
+<link rel="stylesheet" href="{% static 'project_app/css/shared/buttons.css' %}">
 
 {% endblock %}
 
 {% block content %}
 <div class="container-fluid" style="max-width: 1280px;">
-    {% include 'project_app/partials/user_bio_header.html' %}
+    {% include 'project_app/users/bio_partials/user_bio_header.html' %}
 
     <!-- Research Interests Section -->
     {% if profile.research_interests %}
@@ -23,6 +23,6 @@
     </div>
     {% endif %}
 
-    {% include 'project_app/partials/user_bio_projects.html' %}
+    {% include 'project_app/users/bio_partials/user_bio_projects.html' %}
 </div>
 {% endblock %}

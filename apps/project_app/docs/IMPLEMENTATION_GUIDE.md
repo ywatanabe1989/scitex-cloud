@@ -5,10 +5,10 @@ This guide explains how to apply the GitHub-style sidebar improvements to the pr
 
 ## Files Created
 
-1. **SIDEBAR_IMPROVEMENTS_SUMMARY.md** - Detailed documentation of all changes
-2. **sidebar_improvements.css** - CSS changes to copy
-3. **sidebar_improvements.js** - JavaScript function updates
-4. **sidebar_improvements.html** - HTML structure updates
+1. **SIDEBAR_SUMMARY.md** - Detailed documentation of all changes
+2. **sidebar.css** - CSS changes to copy
+3. **sidebar.js** - JavaScript function updates
+4. **sidebar.html** - HTML structure updates
 5. **IMPLEMENTATION_GUIDE.md** - This file
 
 ## Quick Start
@@ -52,8 +52,8 @@ Find and replace the following CSS sections in `/home/ywatanabe/proj/scitex-clou
 }
 ```
 
-**B. Copy all styles from sidebar_improvements.css**
-- Open `sidebar_improvements.css`
+**B. Copy all styles from sidebar.css**
+- Open `sidebar.css`
 - Copy the entire contents
 - Replace the corresponding sections in `project_detail.html`
 
@@ -64,7 +64,7 @@ Find the sidebar section:
 <aside class="repo-sidebar collapsed" id="repo-sidebar">
 ```
 
-Replace it with the content from `sidebar_improvements.html`.
+Replace it with the content from `sidebar.html`.
 
 Key changes:
 - Toggle button icon: `◀` → `▶`
@@ -74,7 +74,7 @@ Key changes:
 
 #### Step 3: Update JavaScript Functions (around line 1014)
 
-Replace these three functions with the versions from `sidebar_improvements.js`:
+Replace these three functions with the versions from `sidebar.js`:
 
 1. **initializeSidebar()**
    - Add `toggleBtn` variable
@@ -99,10 +99,10 @@ cd /home/ywatanabe/proj/scitex-cloud
 git diff apps/project_app/templates/project_app/project_detail.html
 
 # Create a patch
-git diff apps/project_app/templates/project_app/project_detail.html > sidebar_improvements.patch
+git diff apps/project_app/templates/project_app/project_detail.html > sidebar.patch
 
 # Apply the patch later
-git apply sidebar_improvements.patch
+git apply sidebar.patch
 ```
 
 ## Changes Summary

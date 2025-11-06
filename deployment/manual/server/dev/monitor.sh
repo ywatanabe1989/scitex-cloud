@@ -198,7 +198,7 @@ show_summary() {
     echo "  System logs: $LOG_DIR/"
     
     echo ""
-    echo_info "To restart services: ./scripts/start.sh windows"
+    echo_info "To restart services: ./scripts/server.sh windows"
     echo_info "To check server status: ./scripts/monitor.sh"
 }
 

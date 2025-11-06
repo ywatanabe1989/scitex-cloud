@@ -766,3 +766,14 @@ test-paper-project/
 .env.backup*
 .tmp_sync/
 demo/
+.tsbuild/
+
+# TypeScript Compiled Output (auto-generated, do not commit)
+apps/*/static/*/js/
+apps/*/static/*/js/**/*
+static/js/
+static/js/**/*
+
+# Legacy JavaScript Source (potential migration candidates, DO commit)
+!apps/*/static/*/js-potentially-legacy/
+!static/js-potentially-legacy/

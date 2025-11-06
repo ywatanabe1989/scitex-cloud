@@ -1,0 +1,49 @@
+{% extends "writer_app/base/app_base.html" %}
+{% load static %}
+
+{% comment %}
+Collaborative editing session
+{% endcomment %}
+
+{% block writer_css %}
+<link rel="stylesheet" href="{% static 'writer_app/css/collaboration/session.css' %}">
+{% endblock %}
+
+{% block writer_sidebar %}
+{% include "writer_app/shared/_sidebar.html" %}
+{% endblock %}
+
+{% block writer_content %}
+<div class="collaboration-container">
+    <header class="collaboration-header">
+        <h2>Collaborative Session</h2>
+        <div class="active-users">
+            {% for user in active_users %}
+            <span class="user-badge">{{ user.username }}</span>
+            {% endfor %}
+        </div>
+    </header>
+
+    <div class="collaboration-main">
+        <div class="editor-panel">
+            <textarea id="collaborative-editor" class="collaborative-editor"></textarea>
+        </div>
+
+        <div class="collaboration-sidebar">
+            <h3>Locked Sections</h3>
+            <ul class="locked-sections-list">
+                {% for section in locked_sections %}
+                <li class="locked-section">
+                    <span class="section-name">{{ section.name }}</span>
+                    <span class="locked-by">{{ section.locked_by }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block writer_js %}
+<script src="{% static 'writer_app/js/collaboration/session.js' %}"></script>
+{% endblock %}

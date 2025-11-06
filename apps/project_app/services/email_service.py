@@ -11,6 +11,9 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+# Get site URL from settings for generating absolute URLs
+SITE_URL = getattr(settings, 'SITE_URL', 'http://127.0.0.1:8000')
+
 
 class EmailService:
     """Service for sending emails including OTP verification"""
@@ -58,14 +61,14 @@ class EmailService:
             <!DOCTYPE html>
             <html>
             <head>
-                <link rel="icon" type="image/png" href="https://scitex.ai/static/images/favicon.png">
-                <link rel="shortcut icon" type="image/png" href="https://scitex.ai/static/images/favicon.png">
+                <link rel="icon" type="image/png" href="https://scitex.ai/static/shared/images/favicon.png">
+                <link rel="shortcut icon" type="image/png" href="https://scitex.ai/static/shared/images/favicon.png">
             </head>
             <body>
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-                <div style="text-align: center; margin-bottom: 30px;">
-                    <h1 style="color: #4a6baf;">SciTeX</h1>
-                    <h2>Email Verification</h2>
+                <div style="text-align: left; margin-bottom: 30px;">
+                    <img src="{SITE_URL}/static/shared/images/scitex_logos/scitex-logo-cropped.png" alt="SciTeX Logo" style="height: 60px; margin-bottom: 20px;">
+                    <h2 style="margin-top: 20px;">Email Verification</h2>
                 </div>
                 
                 <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
@@ -87,6 +90,9 @@ class EmailService:
                 </div>
                 
                 <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #dee2e6; color: #666; font-size: 14px;">
+                    <div style="text-align: center; margin-bottom: 15px;">
+                        <img src="{SITE_URL}/static/shared/images/scitex_logos/vectorstock/vectorstock_38853699-navy-inverted-48x48.png" alt="SciTeX" style="height: 32px; opacity: 0.6;">
+                    </div>
                     <p>If you didn't request this verification, please ignore this email.</p>
                     <p>This is an automated message from SciTeX Cloud.</p>
                 </div>
@@ -145,14 +151,14 @@ class EmailService:
             <!DOCTYPE html>
             <html>
             <head>
-                <link rel="icon" type="image/png" href="https://scitex.ai/static/images/favicon.png">
-                <link rel="shortcut icon" type="image/png" href="https://scitex.ai/static/images/favicon.png">
+                <link rel="icon" type="image/png" href="https://scitex.ai/static/shared/images/favicon.png">
+                <link rel="shortcut icon" type="image/png" href="https://scitex.ai/static/shared/images/favicon.png">
             </head>
             <body>
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-                <div style="text-align: center; margin-bottom: 30px;">
-                    <h1 style="color: #4a6baf;">SciTeX</h1>
-                    <h2>Welcome to Scientific Excellence!</h2>
+                <div style="text-align: left; margin-bottom: 30px;">
+                    <img src="{SITE_URL}/static/shared/images/scitex_logos/scitex-logo-cropped.png" alt="SciTeX Logo" style="height: 60px; margin-bottom: 20px;">
+                    <h2 style="margin-top: 20px;">Welcome to Scientific Excellence!</h2>
                 </div>
                 
                 <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
@@ -171,14 +177,17 @@ class EmailService:
                     </div>
                     
                     <div style="text-align: center; margin: 30px 0;">
-                        <a href="https://scitex.ai/dashboard/" style="display: inline-block; background: #4a6baf; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
+                        <a href="{SITE_URL}/dashboard/" style="display: inline-block; background: #4a6baf; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
                             Go to Dashboard
                         </a>
                     </div>
                 </div>
-                
+
                 <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #dee2e6; color: #666; font-size: 14px;">
-                    <p>Need help getting started? Check out our <a href="https://scitex.ai/docs/">documentation</a> or <a href="https://scitex.ai/contact/">contact support</a>.</p>
+                    <div style="text-align: center; margin-bottom: 15px;">
+                        <img src="{SITE_URL}/static/shared/images/scitex_logos/vectorstock/vectorstock_38853699-navy-inverted-48x48.png" alt="SciTeX" style="height: 32px; opacity: 0.6;">
+                    </div>
+                    <p>Need help getting started? Check out our <a href="{SITE_URL}/docs/">documentation</a> or <a href="{SITE_URL}/contact/">contact support</a>.</p>
                     <p>Happy researching!</p>
                     <p>The SciTeX Team</p>
                 </div>
@@ -201,9 +210,9 @@ class EmailService:
             - SciTeX-Engine: AI-powered research assistance
             - SciTeX-Viz: Create stunning scientific visualizations
             
-            Visit your dashboard: https://scitex.ai/dashboard/
-            
-            Need help getting started? Check out our documentation at https://scitex.ai/docs/
+            Visit your dashboard: {SITE_URL}/dashboard/
+
+            Need help getting started? Check out our documentation at {SITE_URL}/docs/
             
             Happy researching!
             The SciTeX Team
@@ -239,14 +248,14 @@ class EmailService:
             <!DOCTYPE html>
             <html>
             <head>
-                <link rel="icon" type="image/png" href="https://scitex.ai/static/images/favicon.png">
-                <link rel="shortcut icon" type="image/png" href="https://scitex.ai/static/images/favicon.png">
+                <link rel="icon" type="image/png" href="https://scitex.ai/static/shared/images/favicon.png">
+                <link rel="shortcut icon" type="image/png" href="https://scitex.ai/static/shared/images/favicon.png">
             </head>
             <body>
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-                <div style="text-align: center; margin-bottom: 30px;">
-                    <h1 style="color: #4a6baf;">SciTeX</h1>
-                    <h2 style="color: #e74c3c;">Account Deletion Scheduled</h2>
+                <div style="text-align: left; margin-bottom: 30px;">
+                    <img src="{SITE_URL}/static/shared/images/scitex_logos/scitex-logo-cropped.png" alt="SciTeX Logo" style="height: 60px; margin-bottom: 20px;">
+                    <h2 style="margin-top: 20px; color: #e74c3c;">Account Deletion Scheduled</h2>
                 </div>
                 
                 <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
@@ -272,12 +281,15 @@ class EmailService:
                 </div>
                 
                 <div style="text-align: center; margin: 30px 0;">
-                    <a href="https://scitex.ai/dashboard/settings/" style="display: inline-block; background: #e74c3c; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
+                    <a href="{SITE_URL}/dashboard/settings/" style="display: inline-block; background: #e74c3c; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
                         Cancel Deletion
                     </a>
                 </div>
-                
+
                 <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #dee2e6; color: #666; font-size: 14px;">
+                    <div style="text-align: center; margin-bottom: 15px;">
+                        <img src="{SITE_URL}/static/shared/images/scitex_logos/vectorstock/vectorstock_38853699-navy-inverted-48x48.png" alt="SciTeX" style="height: 32px; opacity: 0.6;">
+                    </div>
                     <p>If you didn't request this deletion, please log in immediately and cancel it, then change your password.</p>
                     <p>Need help? Contact us at support@scitex.ai</p>
                     <p>The SciTeX Team</p>
@@ -305,7 +317,7 @@ class EmailService:
             - After 28 days, all your data will be permanently deleted
             - This includes: projects, documents, profile, and all associated data
             
-            To cancel deletion, visit: https://scitex.ai/dashboard/settings/
+            To cancel deletion, visit: {SITE_URL}/dashboard/settings/
             
             If you didn't request this deletion, please log in immediately and cancel it, then change your password.
             
