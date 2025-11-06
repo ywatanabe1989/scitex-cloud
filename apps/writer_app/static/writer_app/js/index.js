@@ -20,6 +20,19 @@ function showToast(message, _type = 'info') {
     const fn = window.showToast || ((msg) => console.log(msg));
     fn(message);
 }
+/**
+ * Get user context string for logging
+ */
+function getUserContext() {
+    const config = getWriterConfig();
+    if (config.visitorUsername) {
+        return `[${config.visitorUsername}]`;
+    }
+    else if (config.username) {
+        return `[${config.username}]`;
+    }
+    return '[anonymous]';
+}
 // Initialize application
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('[Writer] Initializing application');
@@ -321,6 +334,8 @@ async function initializeEditor(config) {
         apiBaseUrl: '',
         docType: state.currentDocType || 'manuscript'
     });
+    // Set module-level reference for access from other functions
+    modulePdfPreviewManager = pdfPreviewManager;
     // Initialize PDF scroll and zoom handler
     const pdfScrollZoomHandler = new PDFScrollZoomHandler({
         containerId: 'text-preview',
@@ -766,8 +781,13 @@ function setupKeybindingListener(editor) {
     });
 }
 /**
+ * Module-level PDF preview manager (initialized in main)
+ */
+let modulePdfPreviewManager = null;
+/**
  * Load section content from API
  */
+let isLoadingContent = false; // Flag to prevent repeated auto-compile during content loading
 async function loadSectionContent(editor, sectionsManager, _state, sectionId) {
     const config = getWriterConfig();
     if (!config.projectId) {
@@ -783,7 +803,8 @@ async function loadSectionContent(editor, sectionsManager, _state, sectionId) {
         }
         const docType = parts[0];
         const sectionName = parts[1];
-        console.log('[Writer] Loading section content:', sectionId, 'docType:', docType, 'sectionName:', sectionName);
+        const userContext = getUserContext();
+        console.log(`${userContext} [Writer] Loading section content:`, sectionId, 'docType:', docType, 'sectionName:', sectionName);
         const response = await fetch(`/writer/api/project/${config.projectId}/section/${sectionName}/?doc_type=${docType}`);
         if (!response.ok) {
             const error = await response.text();
@@ -795,8 +816,19 @@ async function loadSectionContent(editor, sectionsManager, _state, sectionId) {
         if (data.success && data.content !== undefined) {
             console.log('[Writer] ✓ Content loaded for:', sectionId, 'length:', data.content.length);
             console.log('[Writer] First 100 chars:', data.content.substring(0, 100));
+            // Set flag to prevent multiple auto-compiles during onChange events
+            isLoadingContent = true;
             sectionsManager.setContent(sectionId, data.content);
             editor.setContent(data.content);
+            // Reset flag and trigger ONE initial preview
+            setTimeout(() => {
+                isLoadingContent = false;
+                // Trigger initial preview for the loaded section
+                if (modulePdfPreviewManager && !sectionId.endsWith('/compiled_pdf')) {
+                    console.log('[Writer] Triggering initial preview for:', sectionId);
+                    modulePdfPreviewManager.compileQuick(data.content, sectionId);
+                }
+            }, 100);
         }
         else {
             const errorMsg = data.error || 'Unknown error loading section';
@@ -806,6 +838,7 @@ async function loadSectionContent(editor, sectionsManager, _state, sectionId) {
     }
     catch (error) {
         console.error('[Writer] Error loading section content:', error);
+        isLoadingContent = false; // Reset flag on error
         throw error; // Re-throw to let caller handle it
     }
 }
@@ -1066,6 +1099,11 @@ let compileTimeout;
 function scheduleAutoCompile(pdfPreviewManager, content, sectionId) {
     if (!pdfPreviewManager)
         return;
+    // Skip auto-compile if we're just loading content (not user editing)
+    if (isLoadingContent) {
+        console.log('[Writer] Skipping auto-compile during content load');
+        return;
+    }
     // Clear existing timeout
     clearTimeout(compileTimeout);
     // Schedule compilation after user stops typing
@@ -1099,7 +1137,8 @@ async function saveSections(sectionsManager, state) {
             console.log('[Writer] No non-empty sections to save');
             return;
         }
-        console.log(`[Writer] Saving ${Object.keys(sections).length} sections for ${state.currentDocType || 'manuscript'}`);
+        const userContext = getUserContext();
+        console.log(`${userContext} [Writer] Saving ${Object.keys(sections).length} sections for ${state.currentDocType || 'manuscript'}`);
         const response = await fetch(`/writer/api/project/${config.projectId}/save-sections/`, {
             method: 'POST',
             headers: {
