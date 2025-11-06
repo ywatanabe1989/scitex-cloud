@@ -4,12 +4,20 @@
  */
 import { CompilationManager } from './compilation.js';
 import { LatexWrapper } from './latex-wrapper.js';
+console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/modules/pdf-preview.ts loaded");
 export class PDFPreviewManager {
+    container;
+    compilationManager;
+    latexWrapper;
+    projectId;
+    autoCompile;
+    compileDelay;
+    docType;
+    compileTimeout = null;
+    currentPdfUrl = null;
+    fontSize = 14; // Default editor font size
+    colorMode = 'light'; // PDF color mode
     constructor(options) {
-        this.compileTimeout = null;
-        this.currentPdfUrl = null;
-        this.fontSize = 14; // Default editor font size
-        this.colorMode = 'light'; // PDF color mode
         this.container = document.getElementById(options.containerId);
         this.projectId = options.projectId;
         this.autoCompile = options.autoCompile ?? false;
@@ -81,9 +89,24 @@ export class PDFPreviewManager {
     async compileQuick(content, sectionId) {
         if (!this.container)
             return;
-        const latexContent = this.latexWrapper.createMinimalDocument(content, this.fontSize);
         // Extract section name from sectionId (e.g., "manuscript/abstract" -> "abstract")
         const sectionName = sectionId ? sectionId.split('/').pop() : 'preview';
+        // Immediately show existing PDF if available (don't wait for compilation)
+        const existingPdfUrl = `/writer/api/project/${this.projectId}/pdf/preview-${sectionName}.pdf?t=${Date.now()}`;
+        console.log('[PDFPreview] Checking for existing PDF:', existingPdfUrl);
+        // Try to load existing PDF immediately
+        fetch(existingPdfUrl, { method: 'HEAD' })
+            .then(response => {
+            if (response.ok) {
+                console.log('[PDFPreview] Found existing PDF, showing immediately');
+                this.displayPdf(existingPdfUrl);
+            }
+        })
+            .catch(() => {
+            // PDF doesn't exist yet, will be created by compilation
+            console.log('[PDFPreview] No existing PDF found, will compile');
+        });
+        const latexContent = this.latexWrapper.createMinimalDocument(content, this.fontSize);
         const options = {
             projectId: this.projectId,
             docType: this.docType,
@@ -93,7 +116,7 @@ export class PDFPreviewManager {
             sectionName: sectionName // For section-specific preview files
         };
         console.log('[PDFPreview] Quick compile for section:', sectionName, 'docType:', this.docType, 'fontSize:', this.fontSize, 'colorMode:', this.colorMode);
-        // Use preview compilation for live editing
+        // Compile in background (will replace the PDF when done)
         await this.compilationManager.compilePreview(options);
     }
     /**

@@ -3,35 +3,15 @@
  * Handles file tree browsing and navigation
  */
 import { ApiClient } from '@/utils/api';
+console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/modules/file_tree.ts loaded");
 export class FileTreeManager {
+    apiClient;
+    projectId;
+    container;
+    onFileSelectCallback;
+    expandedDirs = new Set();
+    texFileDropdownId;
     constructor(options) {
-        this.expandedDirs = new Set();
-        /**
-         * Map of section IDs to readable names (IMRAD structure)
-         */
-        this.sectionNames = {
-            'title': 'Title',
-            'abstract': 'Abstract',
-            'introduction': 'Introduction',
-            'methods': 'Methods',
-            'results': 'Results',
-            'discussion': 'Discussion',
-            'conclusion': 'Conclusion',
-            'references': 'References',
-            'keywords': 'Keywords',
-            'authors': 'Authors',
-            'highlights': 'Highlights',
-            'graphical_abstract': 'Graphical Abstract',
-        };
-        /**
-         * Sections available for each document type
-         */
-        this.sectionsByDocType = {
-            'manuscript': ['abstract', 'introduction', 'methods', 'results', 'discussion', 'conclusion', 'references'],
-            'supplementary': ['content', 'methods', 'results'],
-            'revision': ['response', 'changes'],
-            'shared': [],
-        };
         this.apiClient = new ApiClient();
         this.projectId = options.projectId;
         this.container = options.container;
@@ -229,6 +209,32 @@ export class FileTreeManager {
         });
         return files;
     }
+    /**
+     * Map of section IDs to readable names (IMRAD structure)
+     */
+    sectionNames = {
+        'title': 'Title',
+        'abstract': 'Abstract',
+        'introduction': 'Introduction',
+        'methods': 'Methods',
+        'results': 'Results',
+        'discussion': 'Discussion',
+        'conclusion': 'Conclusion',
+        'references': 'References',
+        'keywords': 'Keywords',
+        'authors': 'Authors',
+        'highlights': 'Highlights',
+        'graphical_abstract': 'Graphical Abstract',
+    };
+    /**
+     * Sections available for each document type
+     */
+    sectionsByDocType = {
+        'manuscript': ['abstract', 'introduction', 'methods', 'results', 'discussion', 'conclusion', 'references'],
+        'supplementary': ['content', 'methods', 'results'],
+        'revision': ['response', 'changes'],
+        'shared': [],
+    };
     /**
      * Populate the section dropdown selector with hierarchical structure
      */

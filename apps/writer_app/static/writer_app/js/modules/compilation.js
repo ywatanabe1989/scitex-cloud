@@ -4,10 +4,15 @@
  */
 import { ApiClient } from '@/utils/api';
 import { getCsrfToken } from '@/utils/csrf';
+console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/modules/compilation.ts loaded");
 export class CompilationManager {
+    apiClient;
+    currentJob = null;
+    isCompiling = false;
+    onProgressCallback;
+    onCompleteCallback;
+    onErrorCallback;
     constructor(apiBaseUrl = '') {
-        this.currentJob = null;
-        this.isCompiling = false;
         this.apiClient = new ApiClient(apiBaseUrl);
     }
     /**

@@ -1,9 +1,6 @@
 /**
  * Timer and debounce/throttle utilities
  */
-/**
- * Debounce function to delay execution
- */
 export declare function debounce<T extends (...args: any[]) => any>(func: T, wait: number, immediate?: boolean): (...args: Parameters<T>) => void;
 /**
  * Throttle function to limit execution frequency

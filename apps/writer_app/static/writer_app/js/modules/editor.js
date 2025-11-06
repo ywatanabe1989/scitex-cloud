@@ -3,11 +3,15 @@
  * Handles CodeMirror editor initialization and management
  */
 import { StorageManager } from '@/utils/storage';
+console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/modules/editor.ts loaded");
 export class WriterEditor {
+    editor; // CodeMirror editor instance
+    storage;
+    history = [];
+    historyIndex = -1;
+    maxHistorySize = 50;
+    onChangeCallback;
     constructor(config) {
-        this.history = [];
-        this.historyIndex = -1;
-        this.maxHistorySize = 50;
         this.storage = new StorageManager('writer_editor_');
         // Initialize CodeMirror if available
         if (window.CodeMirror) {
