@@ -24,6 +24,19 @@ function showToast(message: string, _type: string = 'info'): void {
     fn(message);
 }
 
+/**
+ * Get user context string for logging
+ */
+function getUserContext(): string {
+    const config = getWriterConfig();
+    if (config.visitorUsername) {
+        return `[${config.visitorUsername}]`;
+    } else if (config.username) {
+        return `[${config.username}]`;
+    }
+    return '[anonymous]';
+}
+
 // Initialize application
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('[Writer] Initializing application');
@@ -366,6 +379,9 @@ async function initializeEditor(config: any): Promise<void> {
         apiBaseUrl: '',
         docType: state.currentDocType || 'manuscript'
     });
+
+    // Set module-level reference for access from other functions
+    modulePdfPreviewManager = pdfPreviewManager;
 
     // Initialize PDF scroll and zoom handler
     const pdfScrollZoomHandler = new PDFScrollZoomHandler({
@@ -889,8 +905,14 @@ function setupKeybindingListener(editor: any): void {
 }
 
 /**
+ * Module-level PDF preview manager (initialized in main)
+ */
+let modulePdfPreviewManager: PDFPreviewManager | null = null;
+
+/**
  * Load section content from API
  */
+let isLoadingContent: boolean = false; // Flag to prevent repeated auto-compile during content loading
 async function loadSectionContent(
     editor: WriterEditor,
     sectionsManager: SectionsManager,
@@ -914,7 +936,8 @@ async function loadSectionContent(
         const docType = parts[0];
         const sectionName = parts[1];
 
-        console.log('[Writer] Loading section content:', sectionId, 'docType:', docType, 'sectionName:', sectionName);
+        const userContext = getUserContext();
+        console.log(`${userContext} [Writer] Loading section content:`, sectionId, 'docType:', docType, 'sectionName:', sectionName);
 
         const response = await fetch(`/writer/api/project/${config.projectId}/section/${sectionName}/?doc_type=${docType}`);
 
@@ -931,8 +954,20 @@ async function loadSectionContent(
             console.log('[Writer] ✓ Content loaded for:', sectionId, 'length:', data.content.length);
             console.log('[Writer] First 100 chars:', data.content.substring(0, 100));
 
+            // Set flag to prevent multiple auto-compiles during onChange events
+            isLoadingContent = true;
             sectionsManager.setContent(sectionId, data.content);
             editor.setContent(data.content);
+
+            // Reset flag and trigger ONE initial preview
+            setTimeout(() => {
+                isLoadingContent = false;
+                // Trigger initial preview for the loaded section
+                if (modulePdfPreviewManager && !sectionId.endsWith('/compiled_pdf')) {
+                    console.log('[Writer] Triggering initial preview for:', sectionId);
+                    modulePdfPreviewManager.compileQuick(data.content, sectionId);
+                }
+            }, 100);
         } else {
             const errorMsg = data.error || 'Unknown error loading section';
             console.error('[Writer] ✗ API Error:', errorMsg);
@@ -940,6 +975,7 @@ async function loadSectionContent(
         }
     } catch (error) {
         console.error('[Writer] Error loading section content:', error);
+        isLoadingContent = false; // Reset flag on error
         throw error;  // Re-throw to let caller handle it
     }
 }
@@ -1235,6 +1271,12 @@ let compileTimeout: ReturnType<typeof setTimeout>;
 function scheduleAutoCompile(pdfPreviewManager: PDFPreviewManager | null, content: string, sectionId?: string): void {
     if (!pdfPreviewManager) return;
 
+    // Skip auto-compile if we're just loading content (not user editing)
+    if (isLoadingContent) {
+        console.log('[Writer] Skipping auto-compile during content load');
+        return;
+    }
+
     // Clear existing timeout
     clearTimeout(compileTimeout);
 
@@ -1274,7 +1316,8 @@ async function saveSections(sectionsManager: SectionsManager, state: any): Promi
             return;
         }
 
-        console.log(`[Writer] Saving ${Object.keys(sections).length} sections for ${state.currentDocType || 'manuscript'}`);
+        const userContext = getUserContext();
+        console.log(`${userContext} [Writer] Saving ${Object.keys(sections).length} sections for ${state.currentDocType || 'manuscript'}`);
 
         const response = await fetch(`/writer/api/project/${config.projectId}/save-sections/`, {
             method: 'POST',

@@ -90,18 +90,27 @@ def index_view(request):
         # Anonymous user - allocate from visitor pool
         from apps.project_app.services.visitor_pool import VisitorPool
 
-        visitor_project, visitor_user = VisitorPool.allocate_visitor(
-            request.session
-        )
+        try:
+            visitor_project, visitor_user = VisitorPool.allocate_visitor(
+                request.session
+            )
+        except Exception as e:
+            logger.error(f"[Writer] Visitor pool allocation failed: {e}", exc_info=True)
+            context["pool_error"] = True
+            context["pool_error_message"] = "Visitor pool not initialized. Please run: python manage.py create_visitor_pool"
+            context["is_demo"] = True
+            return render(request, "writer_app/index.html", context)
 
         if not visitor_project:
             # Pool exhausted
+            logger.warning("[Writer] Visitor pool exhausted - all slots in use")
             context["pool_exhausted"] = True
             context["is_demo"] = True
             return render(request, "writer_app/index.html", context)
 
         context["is_demo"] = True
         context["project"] = visitor_project
+        context["visitor_username"] = visitor_user.username if visitor_user else None
 
         # Get or create manuscript for visitor project
         manuscript, manuscript_created = Manuscript.objects.get_or_create(
@@ -122,9 +131,10 @@ def index_view(request):
     return render(request, "writer_app/index.html", context)
 
 
-@login_required
 def initialize_workspace(request):
     """Initialize Writer workspace for a project.
+
+    Supports both authenticated users and anonymous visitors.
 
     POST body:
         {
@@ -145,13 +155,48 @@ def initialize_workspace(request):
                 {"success": False, "error": "project_id required"}, status=400
             )
 
+        # Get effective user (authenticated or visitor)
+        if request.user.is_authenticated:
+            user = request.user
+        else:
+            # Get visitor user from session
+            visitor_user_id = request.session.get('visitor_user_id')
+            if not visitor_user_id:
+                return JsonResponse(
+                    {"success": False, "error": "Invalid session. Please refresh the page."},
+                    status=403
+                )
+            try:
+                user = User.objects.get(id=visitor_user_id)
+            except User.DoesNotExist:
+                return JsonResponse(
+                    {"success": False, "error": "Visitor user not found. Please refresh the page."},
+                    status=403
+                )
+
         # Verify project access
-        project = Project.objects.get(id=project_id, owner=request.user)
+        project = Project.objects.get(id=project_id, owner=user)
+
+        # Ensure project directory exists (required for Writer initialization)
+        from apps.project_app.services.project_filesystem import get_project_filesystem_manager
+        manager = get_project_filesystem_manager(user)
+        project_root = manager.get_project_root_path(project)
+
+        if not project_root:
+            # Create project directory if it doesn't exist
+            logger.info(f"Creating project directory for project {project_id}")
+            success, project_root = manager.create_project_directory(project, use_template=False)
+            if not success or not project_root:
+                return JsonResponse(
+                    {"success": False, "error": "Failed to create project directory"},
+                    status=500
+                )
+            logger.info(f"Project directory created at {project_root}")
 
         # Get or create manuscript
         manuscript, created = Manuscript.objects.get_or_create(
             project=project,
-            owner=request.user,
+            owner=user,
             defaults={"title": f"{project.name} Manuscript"},
         )
 
@@ -170,7 +215,7 @@ def initialize_workspace(request):
 
         try:
             # Create WriterService - this initializes Writer() which creates the complete structure
-            writer_service = WriterService(project_id, request.user.id)
+            writer_service = WriterService(project_id, user.id)
 
             # Access the writer property - this triggers initialization if not done
             writer = writer_service.writer

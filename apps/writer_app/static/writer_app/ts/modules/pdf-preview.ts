@@ -115,10 +115,27 @@ export class PDFPreviewManager {
     async compileQuick(content: string, sectionId?: string): Promise<void> {
         if (!this.container) return;
 
-        const latexContent = this.latexWrapper.createMinimalDocument(content, this.fontSize);
-
         // Extract section name from sectionId (e.g., "manuscript/abstract" -> "abstract")
         const sectionName = sectionId ? sectionId.split('/').pop() : 'preview';
+
+        // Immediately show existing PDF if available (don't wait for compilation)
+        const existingPdfUrl = `/writer/api/project/${this.projectId}/pdf/preview-${sectionName}.pdf?t=${Date.now()}`;
+        console.log('[PDFPreview] Checking for existing PDF:', existingPdfUrl);
+
+        // Try to load existing PDF immediately
+        fetch(existingPdfUrl, { method: 'HEAD' })
+            .then(response => {
+                if (response.ok) {
+                    console.log('[PDFPreview] Found existing PDF, showing immediately');
+                    this.displayPdf(existingPdfUrl);
+                }
+            })
+            .catch(() => {
+                // PDF doesn't exist yet, will be created by compilation
+                console.log('[PDFPreview] No existing PDF found, will compile');
+            });
+
+        const latexContent = this.latexWrapper.createMinimalDocument(content, this.fontSize);
 
         const options: CompilationOptions = {
             projectId: this.projectId,
@@ -131,7 +148,7 @@ export class PDFPreviewManager {
 
         console.log('[PDFPreview] Quick compile for section:', sectionName, 'docType:', this.docType, 'fontSize:', this.fontSize, 'colorMode:', this.colorMode);
 
-        // Use preview compilation for live editing
+        // Compile in background (will replace the PDF when done)
         await this.compilationManager.compilePreview(options);
     }
 

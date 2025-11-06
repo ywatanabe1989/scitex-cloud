@@ -23,8 +23,11 @@ REST API endpoints for writer operations:
 
 from django.urls import path
 from ..views.editor import api as api_views
+from ..views.index import main as index_views
 
 urlpatterns = [
+    # Workspace initialization
+    path('initialize-workspace/', index_views.initialize_workspace, name='api-initialize-workspace'),
     # Sections config (no project_id needed)
     path('sections-config/', api_views.sections_config_view, name='api-sections-config'),
     # Section CRUD operations (supports hierarchical IDs like "shared/authors")
@@ -96,8 +99,9 @@ urlpatterns = [
         api_views.section_commit_view,
         name="api-section-commit",
     ),
-    # PDF and file operations
-    path("project/<int:project_id>/pdf/<str:pdf_filename>/", api_views.pdf_view, name="api-pdf-file"),
+    # PDF and file operations (accept optional trailing slash)
+    path("project/<int:project_id>/pdf/<str:pdf_filename>/", api_views.pdf_view, name="api-pdf-file-slash"),
+    path("project/<int:project_id>/pdf/<str:pdf_filename>", api_views.pdf_view, name="api-pdf-file"),
     path("project/<int:project_id>/pdf/", api_views.pdf_view, name="api-pdf"),
     path(
         "project/<int:project_id>/preview-pdf/",
