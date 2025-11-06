@@ -11,6 +11,7 @@ console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/static/ts/types/index.ts 
 export interface WriterConfig {
     projectId: string | null;
     username: string | null;
+    visitorUsername?: string | null;  // Allocated visitor user (e.g., "visitor-015")
     projectSlug: string | null;
     isDemo: boolean;
     isAnonymous: boolean;

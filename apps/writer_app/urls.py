@@ -36,6 +36,7 @@ urlpatterns = [
     # Main writer page (simple editor with PDF viewer)
     path("", include("apps.writer_app.urls.index")),
     # API endpoints for editor operations
+    path("api/", include("apps.writer_app.urls.api")),
     path("editor/", include("apps.writer_app.urls.editor")),
     path("compilation/", include("apps.writer_app.urls.compilation")),
     path("collaboration/", include("apps.writer_app.urls.collaboration")),
