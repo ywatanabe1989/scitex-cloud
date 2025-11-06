@@ -143,9 +143,10 @@ def bibtex_enrich_sync(request):
 
         enriched_papers = asyncio.run(enrich())
 
-        # Save to temporary output file
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.bib', delete=False, encoding='utf-8') as tmp_output:
-            tmp_output_path = Path(tmp_output.name)
+        # Create temporary output file path (don't open it - let papers_to_bibtex handle that)
+        tmp_output = tempfile.NamedTemporaryFile(mode='w', suffix='.bib', delete=False, encoding='utf-8')
+        tmp_output_path = Path(tmp_output.name)
+        tmp_output.close()  # Close but don't delete - papers_to_bibtex will write to it
 
         bibtex_handler.papers_to_bibtex(enriched_papers, tmp_output_path)
 
