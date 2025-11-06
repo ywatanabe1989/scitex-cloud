@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="300" height="200" viewBox="0 0 300 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="300" height="200" fill="#f8f9fa"/>
-  <rect x="20" y="20" width="260" height="160" rx="5" fill="#e9ecef" stroke="#343a40"/>
-  <text x="150" y="100" font-family="Arial" font-size="16" fill="#343a40" text-anchor="middle">Gallery Image 7</text>
-  <circle cx="150" cy="130" r="30" fill="#343a40" fill-opacity="0.1"/>
-</svg>
