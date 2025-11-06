@@ -4,17 +4,6 @@
  */
 
 import { StorageManager } from '@/utils/storage';
-<<<<<<<< HEAD:.tsbuild/apps/writer_app/static/writer_app/ts/editor/modules/sections.js
-console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/editor/modules/sections.ts loaded");
-export class SectionsManager {
-    sections = new Map();
-    hierarchy = null;
-    storage;
-    currentSection = 'manuscript/compiled_pdf';
-    onSectionChangeCallback;
-    onSectionsUpdateCallback;
-    onHierarchyLoadCallback;
-========
 
 console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/editor/modules/sections.ts loaded");
 export interface Section {
@@ -55,7 +44,6 @@ export class SectionsManager {
     private onSectionsUpdateCallback?: (sections: Section[]) => void;
     private onHierarchyLoadCallback?: (hierarchy: SectionHierarchy) => void;
 
->>>>>>>> feat/writer-visitor-access-and-optimizations:apps/writer_app/static/writer_app/ts/editor/modules/sections.ts
     constructor() {
         this.storage = new StorageManager('writer_sections_');
         this.initializeSections();

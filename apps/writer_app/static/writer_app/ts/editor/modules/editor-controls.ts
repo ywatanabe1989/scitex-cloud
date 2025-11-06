@@ -2,31 +2,6 @@
  * Editor Controls Module
  * Handles font size adjustment and auto-preview functionality
  */
-<<<<<<<< HEAD:.tsbuild/apps/writer_app/static/writer_app/ts/editor/modules/editor-controls.js
-console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/editor/modules/editor-controls.ts loaded");
-export class EditorControls {
-    fontSizeSelector;
-    autoPreviewCheckbox;
-    autoPreviewCheckboxPanel;
-    previewButton;
-    previewButtonPanel;
-    latexEditor;
-    pdfPreviewManager;
-    editor;
-    // @ts-ignore - compilation manager available for future use
-    _compilationManager;
-    autoPreviewTimeout = null;
-    defaultFontSize = 14;
-    storageFontSizeKey = 'scitex-editor-font-size';
-    storageAutoPreviewKey = 'scitex-auto-preview';
-    constructor(options = {}) {
-        this.fontSizeSelector = document.getElementById('font-size-selector');
-        this.autoPreviewCheckbox = document.getElementById('auto-preview-checkbox');
-        this.autoPreviewCheckboxPanel = document.getElementById('auto-preview-checkbox-panel');
-        this.previewButton = document.getElementById('preview-btn-toolbar');
-        this.previewButtonPanel = document.getElementById('preview-btn-panel');
-        this.latexEditor = document.getElementById('latex-editor-textarea');
-========
 
 console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/editor/modules/editor-controls.ts loaded");
 export interface EditorControlsOptions {
@@ -58,7 +33,6 @@ export class EditorControls {
         this.previewButton = document.getElementById('preview-btn-toolbar') as HTMLButtonElement;
         this.previewButtonPanel = document.getElementById('preview-btn-panel') as HTMLButtonElement;
         this.latexEditor = document.getElementById('latex-editor-textarea') as HTMLTextAreaElement;
->>>>>>>> feat/writer-visitor-access-and-optimizations:apps/writer_app/static/writer_app/ts/editor/modules/editor-controls.ts
         this.pdfPreviewManager = options.pdfPreviewManager;
         this.editor = options.editor;
         this._compilationManager = options.compilationManager;

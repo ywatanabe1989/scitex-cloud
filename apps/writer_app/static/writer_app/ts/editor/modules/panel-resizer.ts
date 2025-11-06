@@ -2,19 +2,6 @@
  * Panel Resizer Module
  * Handles draggable divider between editor and preview panels
  */
-<<<<<<<< HEAD:.tsbuild/apps/writer_app/static/writer_app/ts/editor/modules/panel-resizer.js
-console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/editor/modules/panel-resizer.ts loaded");
-export class PanelResizer {
-    resizer;
-    leftPanel;
-    rightPanel;
-    container;
-    isResizing = false;
-    startX = 0;
-    startLeftWidth = 0;
-    _initialized = false;
-    constructor(containerId = 'editor-view-split') {
-========
 
 console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/editor/modules/panel-resizer.ts loaded");
 export class PanelResizer {
@@ -28,7 +15,6 @@ export class PanelResizer {
     private _initialized: boolean = false;
 
     constructor(containerId: string = 'editor-view-split') {
->>>>>>>> feat/writer-visitor-access-and-optimizations:apps/writer_app/static/writer_app/ts/editor/modules/panel-resizer.ts
         this.container = document.getElementById(containerId);
         this.resizer = document.getElementById('panel-resizer');
         this.leftPanel = document.querySelector('.latex-panel');

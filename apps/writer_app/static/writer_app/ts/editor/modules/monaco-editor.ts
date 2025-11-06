@@ -5,19 +5,6 @@
  */
 
 import { StorageManager } from '@/utils/storage';
-<<<<<<<< HEAD:.tsbuild/apps/writer_app/static/writer_app/ts/editor/modules/monaco-editor.js
-console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/editor/modules/monaco-editor.ts loaded");
-export class EnhancedEditor {
-    editor; // Monaco or CodeMirror instance
-    editorType = 'codemirror';
-    storage;
-    history = [];
-    historyIndex = -1;
-    maxHistorySize = 50;
-    onChangeCallback;
-    monacoEditor;
-    constructor(config) {
-========
 import { HistoryEntry } from '@/types';
 
 console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/editor/modules/monaco-editor.ts loaded");
@@ -42,7 +29,6 @@ export class EnhancedEditor {
     private monacoEditor?: any;
 
     constructor(config: MonacoEditorConfig) {
->>>>>>>> feat/writer-visitor-access-and-optimizations:apps/writer_app/static/writer_app/ts/editor/modules/monaco-editor.ts
         this.storage = new StorageManager('writer_editor_');
 
         // Try to use Monaco if requested and available
@@ -303,10 +289,7 @@ export class EnhancedEditor {
                 editor.trigger('keyboard', 'editor.action.commentLine', {});
             }
         });
-<<<<<<<< HEAD:.tsbuild/apps/writer_app/static/writer_app/ts/editor/modules/monaco-editor.js
-========
 
->>>>>>>> feat/writer-visitor-access-and-optimizations:apps/writer_app/static/writer_app/ts/editor/modules/monaco-editor.ts
         // Add Ctrl+; (C-;) as alternative comment toggle shortcut
         this.monacoEditor.addAction({
             id: 'toggle-line-comment-alt',
@@ -314,19 +297,12 @@ export class EnhancedEditor {
             keybindings: [
                 monaco.KeyMod.CtrlCmd | monaco.KeyCode.Semicolon
             ],
-<<<<<<<< HEAD:.tsbuild/apps/writer_app/static/writer_app/ts/editor/modules/monaco-editor.js
-            run: (editor) => {
-========
             run: (editor: any) => {
->>>>>>>> feat/writer-visitor-access-and-optimizations:apps/writer_app/static/writer_app/ts/editor/modules/monaco-editor.ts
                 // Use Monaco's built-in toggle line comment action
                 editor.trigger('keyboard', 'editor.action.commentLine', {});
             }
         });
-<<<<<<<< HEAD:.tsbuild/apps/writer_app/static/writer_app/ts/editor/modules/monaco-editor.js
-========
 
->>>>>>>> feat/writer-visitor-access-and-optimizations:apps/writer_app/static/writer_app/ts/editor/modules/monaco-editor.ts
         console.log('[Editor] Monaco Editor listeners and actions configured');
     }
 
@@ -609,19 +585,10 @@ export class EnhancedEditor {
             if (mode === 'vim' || mode === 'emacs') {
                 console.warn(`[Editor] Monaco ${mode} keybindings require additional packages (monaco-${mode})`);
                 console.log('[Editor] Falling back to default keybindings');
-<<<<<<<< HEAD:.tsbuild/apps/writer_app/static/writer_app/ts/editor/modules/monaco-editor.js
-            }
-            else {
-                console.log('[Editor] Monaco keybinding mode:', mode);
-            }
-        }
-        else {
-========
             } else {
                 console.log('[Editor] Monaco keybinding mode:', mode);
             }
         } else {
->>>>>>>> feat/writer-visitor-access-and-optimizations:apps/writer_app/static/writer_app/ts/editor/modules/monaco-editor.ts
             // CodeMirror keymap
             console.log('[Editor] Setting CodeMirror keymap to:', mode);
             const cmEditor = (document.querySelector('.CodeMirror') as any)?.CodeMirror;

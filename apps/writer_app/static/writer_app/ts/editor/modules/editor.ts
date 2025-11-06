@@ -4,17 +4,6 @@
  */
 
 import { StorageManager } from '@/utils/storage';
-<<<<<<<< HEAD:.tsbuild/apps/writer_app/static/writer_app/ts/editor/modules/editor.js
-console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/editor/modules/editor.ts loaded");
-export class WriterEditor {
-    editor; // CodeMirror editor instance
-    storage;
-    history = [];
-    historyIndex = -1;
-    maxHistorySize = 50;
-    onChangeCallback;
-    constructor(config) {
-========
 import { HistoryEntry } from '@/types';
 
 console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/editor/modules/editor.ts loaded");
@@ -36,7 +25,6 @@ export class WriterEditor {
     private onChangeCallback?: (content: string, wordCount: number) => void;
 
     constructor(config: EditorConfig) {
->>>>>>>> feat/writer-visitor-access-and-optimizations:apps/writer_app/static/writer_app/ts/editor/modules/editor.ts
         this.storage = new StorageManager('writer_editor_');
         
         // Initialize CodeMirror if available

@@ -5,10 +5,6 @@
  * - Ctrl+drag for zoom with cursor centering
  * - Zoom level indicator and controls
  */
-<<<<<<<< HEAD:.tsbuild/apps/writer_app/static/writer_app/ts/editor/modules/pdf-scroll-zoom.js
-console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/editor/modules/pdf-scroll-zoom.ts loaded");
-const PDF_COLOR_THEMES = {
-========
 
 console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/editor/modules/pdf-scroll-zoom.ts loaded");
 export interface PDFScrollZoomOptions {
@@ -28,7 +24,6 @@ export interface PDFColorTheme {
 }
 
 const PDF_COLOR_THEMES: Record<PDFColorMode, PDFColorTheme> = {
->>>>>>>> feat/writer-visitor-access-and-optimizations:apps/writer_app/static/writer_app/ts/editor/modules/pdf-scroll-zoom.ts
     light: {
         name: 'light',
         label: 'Light',
@@ -44,23 +39,6 @@ const PDF_COLOR_THEMES: Record<PDFColorMode, PDFColorTheme> = {
 };
 
 export class PDFScrollZoomHandler {
-<<<<<<<< HEAD:.tsbuild/apps/writer_app/static/writer_app/ts/editor/modules/pdf-scroll-zoom.js
-    container;
-    pdfViewer = null;
-    currentZoom = 100;
-    minZoom = 50;
-    maxZoom = 300;
-    zoomStep = 10;
-    isCtrlPressed = false;
-    isDraggingZoom = false;
-    dragStartX = 0;
-    dragStartY = 0;
-    dragStartZoom = 100;
-    originalOverflow = '';
-    colorMode = 'light';
-    onColorModeChangeCallback;
-    constructor(options) {
-========
     private container: HTMLElement | null;
     private pdfViewer: HTMLElement | null = null;
     private currentZoom: number = 100;
@@ -77,7 +55,6 @@ export class PDFScrollZoomHandler {
     private onColorModeChangeCallback?: (colorMode: PDFColorMode) => void;
 
     constructor(options: PDFScrollZoomOptions) {
->>>>>>>> feat/writer-visitor-access-and-optimizations:apps/writer_app/static/writer_app/ts/editor/modules/pdf-scroll-zoom.ts
         this.container = document.getElementById(options.containerId);
         this.minZoom = options.minZoom || 50;
         this.maxZoom = options.maxZoom || 300;
