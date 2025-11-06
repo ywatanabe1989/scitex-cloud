@@ -17,9 +17,24 @@ import { getWriterConfig, createDefaultEditorState } from './helpers.js';
 /**
  * Show toast notification
  */
+
+console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/index.ts loaded");
 function showToast(message: string, _type: string = 'info'): void {
     const fn = (window as any).showToast || ((msg: string) => console.log(msg));
     fn(message);
+}
+
+/**
+ * Get user context string for logging
+ */
+function getUserContext(): string {
+    const config = getWriterConfig();
+    if (config.visitorUsername) {
+        return `[${config.visitorUsername}]`;
+    } else if (config.username) {
+        return `[${config.username}]`;
+    }
+    return '[anonymous]';
 }
 
 // Initialize application
@@ -196,7 +211,9 @@ async function populateSectionDropdownDirect(
         dropdown.innerHTML = '';
 
         let sections: any[] = [];
-        if (docType === 'manuscript' && hierarchy.manuscript) {
+        if (docType === 'shared' && hierarchy.shared) {
+            sections = hierarchy.shared.sections;
+        } else if (docType === 'manuscript' && hierarchy.manuscript) {
             sections = hierarchy.manuscript.sections;
         } else if (docType === 'supplementary' && hierarchy.supplementary) {
             sections = hierarchy.supplementary.sections;
@@ -363,6 +380,9 @@ async function initializeEditor(config: any): Promise<void> {
         docType: state.currentDocType || 'manuscript'
     });
 
+    // Set module-level reference for access from other functions
+    modulePdfPreviewManager = pdfPreviewManager;
+
     // Initialize PDF scroll and zoom handler
     const pdfScrollZoomHandler = new PDFScrollZoomHandler({
         containerId: 'text-preview',
@@ -452,7 +472,7 @@ async function initializeEditor(config: any): Promise<void> {
                 });
             }
 
-            // Listen to document type changes
+            // Listen to document type changes (with file tree)
             const docTypeSelector = document.getElementById('doctype-selector') as HTMLSelectElement;
             if (docTypeSelector) {
                 docTypeSelector.addEventListener('change', (e) => {
@@ -477,6 +497,33 @@ async function initializeEditor(config: any): Promise<void> {
             // No file tree container found - populate dropdown directly
             console.log('[Writer] No file tree container, populating dropdown directly');
             populateSectionDropdownDirect('manuscript', onFileSelectHandler);
+
+            // Listen to document type changes (without file tree)
+            const docTypeSelector = document.getElementById('doctype-selector') as HTMLSelectElement;
+            if (docTypeSelector) {
+                docTypeSelector.addEventListener('change', async (e) => {
+                    const newDocType = (e.target as HTMLSelectElement).value;
+                    console.log('[Writer] Document type changed to:', newDocType, '- updating section dropdown');
+
+                    // Save current section content before switching
+                    if (editor && state.currentSection) {
+                        const currentContent = editor.getContent();
+                        sectionsManager.setContent(state.currentSection, currentContent);
+                    }
+
+                    // Update state
+                    state.currentDocType = newDocType;
+
+                    // Update PDF preview manager doc type
+                    if (pdfPreviewManager) {
+                        pdfPreviewManager.setDocType(newDocType);
+                    }
+
+                    // Repopulate section dropdown for new doc_type
+                    await populateSectionDropdownDirect(newDocType, onFileSelectHandler);
+                });
+                console.log('[Writer] Doc type change handler attached');
+            }
         }
     } else {
         // No projectId - still need to populate dropdown
@@ -493,6 +540,7 @@ async function initializeEditor(config: any): Promise<void> {
     setupThemeListener(editor);
     setupKeybindingListener(editor);
     setupSidebarButtons(config);
+    setupSectionManagementButtons(config, state, sectionsManager, editor);
 
     // Setup scroll priority: PDF scrolling takes priority over page scrolling
     setupPDFScrollPriority();
@@ -537,10 +585,10 @@ function handleDocTypeSwitch(
 ): void {
     // Map of first section for each document type
     const firstSectionByDocType: { [key: string]: string } = {
+        'shared': 'title',  // Shared sections: title, authors, keywords, journal_name
         'manuscript': 'abstract',
         'supplementary': 'content',
-        'revision': 'response',
-        'shared': '' // No sections for shared type
+        'revision': 'response'
     };
 
     const firstSection = firstSectionByDocType[newDocType] || 'abstract';
@@ -857,8 +905,14 @@ function setupKeybindingListener(editor: any): void {
 }
 
 /**
+ * Module-level PDF preview manager (initialized in main)
+ */
+let modulePdfPreviewManager: PDFPreviewManager | null = null;
+
+/**
  * Load section content from API
  */
+let isLoadingContent: boolean = false; // Flag to prevent repeated auto-compile during content loading
 async function loadSectionContent(
     editor: WriterEditor,
     sectionsManager: SectionsManager,
@@ -882,7 +936,8 @@ async function loadSectionContent(
         const docType = parts[0];
         const sectionName = parts[1];
 
-        console.log('[Writer] Loading section content:', sectionId, 'docType:', docType, 'sectionName:', sectionName);
+        const userContext = getUserContext();
+        console.log(`${userContext} [Writer] Loading section content:`, sectionId, 'docType:', docType, 'sectionName:', sectionName);
 
         const response = await fetch(`/writer/api/project/${config.projectId}/section/${sectionName}/?doc_type=${docType}`);
 
@@ -899,8 +954,20 @@ async function loadSectionContent(
             console.log('[Writer] ✓ Content loaded for:', sectionId, 'length:', data.content.length);
             console.log('[Writer] First 100 chars:', data.content.substring(0, 100));
 
+            // Set flag to prevent multiple auto-compiles during onChange events
+            isLoadingContent = true;
             sectionsManager.setContent(sectionId, data.content);
             editor.setContent(data.content);
+
+            // Reset flag and trigger ONE initial preview
+            setTimeout(() => {
+                isLoadingContent = false;
+                // Trigger initial preview for the loaded section
+                if (modulePdfPreviewManager && !sectionId.endsWith('/compiled_pdf')) {
+                    console.log('[Writer] Triggering initial preview for:', sectionId);
+                    modulePdfPreviewManager.compileQuick(data.content, sectionId);
+                }
+            }, 100);
         } else {
             const errorMsg = data.error || 'Unknown error loading section';
             console.error('[Writer] ✗ API Error:', errorMsg);
@@ -908,6 +975,7 @@ async function loadSectionContent(
         }
     } catch (error) {
         console.error('[Writer] Error loading section content:', error);
+        isLoadingContent = false; // Reset flag on error
         throw error;  // Re-throw to let caller handle it
     }
 }
@@ -1203,6 +1271,12 @@ let compileTimeout: ReturnType<typeof setTimeout>;
 function scheduleAutoCompile(pdfPreviewManager: PDFPreviewManager | null, content: string, sectionId?: string): void {
     if (!pdfPreviewManager) return;
 
+    // Skip auto-compile if we're just loading content (not user editing)
+    if (isLoadingContent) {
+        console.log('[Writer] Skipping auto-compile during content load');
+        return;
+    }
+
     // Clear existing timeout
     clearTimeout(compileTimeout);
 
@@ -1242,7 +1316,8 @@ async function saveSections(sectionsManager: SectionsManager, state: any): Promi
             return;
         }
 
-        console.log(`[Writer] Saving ${Object.keys(sections).length} sections for ${state.currentDocType || 'manuscript'}`);
+        const userContext = getUserContext();
+        console.log(`${userContext} [Writer] Saving ${Object.keys(sections).length} sections for ${state.currentDocType || 'manuscript'}`);
 
         const response = await fetch(`/writer/api/project/${config.projectId}/save-sections/`, {
             method: 'POST',
@@ -1464,6 +1539,322 @@ async function handleGitCommit(state: any): Promise<void> {
         console.error('[Writer] Git commit error:', error);
         showToast('Failed to commit: ' + (error instanceof Error ? error.message : 'Unknown error'), 'error');
     }
+}
+
+/**
+ * Setup section management button listeners
+ */
+function setupSectionManagementButtons(
+    config: any,
+    state: any,
+    sectionsManager: SectionsManager,
+    editor: WriterEditor | null
+): void {
+    console.log('[Writer] Setting up section management buttons');
+
+    // Get references to buttons
+    const addSectionBtn = document.getElementById('add-section-btn');
+    const deleteSectionBtn = document.getElementById('delete-section-btn');
+    const toggleIncludeBtn = document.getElementById('toggle-section-include-btn');
+    const moveUpBtn = document.getElementById('move-section-up-btn');
+    const moveDownBtn = document.getElementById('move-section-down-btn');
+
+    // Add Section Button
+    if (addSectionBtn) {
+        addSectionBtn.addEventListener('click', () => {
+            const modal = new (window as any).bootstrap.Modal(
+                document.getElementById('add-section-modal')
+            );
+            modal.show();
+        });
+    }
+
+    // Confirm Add Section
+    const confirmAddBtn = document.getElementById('confirm-add-section-btn');
+    if (confirmAddBtn) {
+        confirmAddBtn.addEventListener('click', async () => {
+            const nameInput = document.getElementById('new-section-name') as HTMLInputElement;
+            const labelInput = document.getElementById('new-section-label') as HTMLInputElement;
+
+            const sectionName = nameInput.value.trim().toLowerCase().replace(/\s+/g, '_');
+            const sectionLabel = labelInput.value.trim() ||
+                sectionName.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+
+            if (!sectionName) {
+                showToast('Please enter a section name', 'error');
+                return;
+            }
+
+            // Validate section name format
+            if (!/^[a-z0-9_]+$/.test(sectionName)) {
+                showToast('Section name must contain only lowercase letters, numbers, and underscores', 'error');
+                return;
+            }
+
+            try {
+                const docType = state.currentDocType || 'manuscript';
+                const response = await fetch(
+                    `/writer/api/project/${config.projectId}/section/create/`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCsrfToken()
+                        },
+                        body: JSON.stringify({
+                            doc_type: docType,
+                            section_name: sectionName,
+                            section_label: sectionLabel
+                        })
+                    }
+                );
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    showToast(`Section "${sectionLabel}" created successfully`, 'success');
+
+                    // Close modal
+                    const modalEl = document.getElementById('add-section-modal');
+                    if (modalEl) {
+                        const modal = (window as any).bootstrap.Modal.getInstance(modalEl);
+                        modal?.hide();
+                    }
+
+                    // Clear inputs
+                    nameInput.value = '';
+                    labelInput.value = '';
+
+                    // Refresh section dropdown
+                    await populateSectionDropdownDirect(docType, null);
+
+                    // Switch to the new section
+                    const newSectionId = `${docType}/${sectionName}`;
+                    if (editor) {
+                        switchSection(editor, sectionsManager, state, newSectionId);
+                    }
+                } else {
+                    showToast(`Failed to create section: ${data.error || 'Unknown error'}`, 'error');
+                }
+            } catch (error) {
+                console.error('[Writer] Error creating section:', error);
+                showToast('Failed to create section', 'error');
+            }
+        });
+    }
+
+    // Delete Section Button
+    if (deleteSectionBtn) {
+        deleteSectionBtn.addEventListener('click', () => {
+            const currentSection = state.currentSection;
+            if (!currentSection) {
+                showToast('No section selected', 'error');
+                return;
+            }
+
+            // Extract section name from ID
+            const parts = currentSection.split('/');
+            const sectionName = parts[parts.length - 1];
+
+            // Prevent deletion of core sections
+            const coreSections = ['abstract', 'introduction', 'methods', 'results', 'discussion',
+                                  'title', 'authors', 'keywords', 'compiled_pdf', 'compiled_tex'];
+            if (coreSections.includes(sectionName)) {
+                showToast('Cannot delete core sections', 'error');
+                return;
+            }
+
+            // Show confirmation modal
+            const displayElem = document.getElementById('delete-section-name-display');
+            if (displayElem) {
+                displayElem.textContent = sectionName;
+            }
+
+            const modal = new (window as any).bootstrap.Modal(
+                document.getElementById('delete-section-modal')
+            );
+            modal.show();
+        });
+    }
+
+    // Confirm Delete Section
+    const confirmDeleteBtn = document.getElementById('confirm-delete-section-btn');
+    if (confirmDeleteBtn) {
+        confirmDeleteBtn.addEventListener('click', async () => {
+            const currentSection = state.currentSection;
+            if (!currentSection) return;
+
+            try {
+                const response = await fetch(
+                    `/writer/api/project/${config.projectId}/section/${encodeURIComponent(currentSection)}/delete/`,
+                    {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCsrfToken()
+                        }
+                    }
+                );
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    showToast('Section deleted successfully', 'success');
+
+                    // Close modal
+                    const modalEl = document.getElementById('delete-section-modal');
+                    if (modalEl) {
+                        const modal = (window as any).bootstrap.Modal.getInstance(modalEl);
+                        modal?.hide();
+                    }
+
+                    // Refresh section dropdown
+                    const docType = state.currentDocType || 'manuscript';
+                    await populateSectionDropdownDirect(docType, null);
+
+                    // Switch to first available section
+                    if (editor) {
+                        handleDocTypeSwitch(editor, sectionsManager, state, docType);
+                    }
+                } else {
+                    showToast(`Failed to delete section: ${data.error || 'Unknown error'}`, 'error');
+                }
+            } catch (error) {
+                console.error('[Writer] Error deleting section:', error);
+                showToast('Failed to delete section', 'error');
+            }
+        });
+    }
+
+    // Toggle Include/Exclude Button
+    if (toggleIncludeBtn) {
+        toggleIncludeBtn.addEventListener('click', async () => {
+            const currentSection = state.currentSection;
+            if (!currentSection) {
+                showToast('No section selected', 'error');
+                return;
+            }
+
+            const isExcluded = toggleIncludeBtn.classList.contains('excluded');
+            const newState = !isExcluded;
+
+            try {
+                const response = await fetch(
+                    `/writer/api/project/${config.projectId}/section/${encodeURIComponent(currentSection)}/toggle-exclude/`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCsrfToken()
+                        },
+                        body: JSON.stringify({ excluded: newState })
+                    }
+                );
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    // Update button state
+                    if (newState) {
+                        toggleIncludeBtn.classList.add('excluded');
+                        toggleIncludeBtn.querySelector('i')?.classList.replace('fa-eye', 'fa-eye-slash');
+                        toggleIncludeBtn.title = 'Include Section in Compilation';
+                        showToast('Section excluded from compilation', 'info');
+                    } else {
+                        toggleIncludeBtn.classList.remove('excluded');
+                        toggleIncludeBtn.querySelector('i')?.classList.replace('fa-eye-slash', 'fa-eye');
+                        toggleIncludeBtn.title = 'Exclude Section from Compilation';
+                        showToast('Section included in compilation', 'info');
+                    }
+                } else {
+                    showToast(`Failed to toggle section: ${data.error || 'Unknown error'}`, 'error');
+                }
+            } catch (error) {
+                console.error('[Writer] Error toggling section:', error);
+                showToast('Failed to toggle section state', 'error');
+            }
+        });
+    }
+
+    // Move Section Up Button
+    if (moveUpBtn) {
+        moveUpBtn.addEventListener('click', async () => {
+            const currentSection = state.currentSection;
+            if (!currentSection) {
+                showToast('No section selected', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(
+                    `/writer/api/project/${config.projectId}/section/${encodeURIComponent(currentSection)}/move-up/`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCsrfToken()
+                        }
+                    }
+                );
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    showToast('Section moved up', 'success');
+
+                    // Refresh section dropdown to show new order
+                    const docType = state.currentDocType || 'manuscript';
+                    await populateSectionDropdownDirect(docType, null);
+                } else {
+                    showToast(`Failed to move section: ${data.error || 'Cannot move section up'}`, 'info');
+                }
+            } catch (error) {
+                console.error('[Writer] Error moving section up:', error);
+                showToast('Failed to move section', 'error');
+            }
+        });
+    }
+
+    // Move Section Down Button
+    if (moveDownBtn) {
+        moveDownBtn.addEventListener('click', async () => {
+            const currentSection = state.currentSection;
+            if (!currentSection) {
+                showToast('No section selected', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(
+                    `/writer/api/project/${config.projectId}/section/${encodeURIComponent(currentSection)}/move-down/`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCsrfToken()
+                        }
+                    }
+                );
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    showToast('Section moved down', 'success');
+
+                    // Refresh section dropdown to show new order
+                    const docType = state.currentDocType || 'manuscript';
+                    await populateSectionDropdownDirect(docType, null);
+                } else {
+                    showToast(`Failed to move section: ${data.error || 'Cannot move section down'}`, 'info');
+                }
+            } catch (error) {
+                console.error('[Writer] Error moving section down:', error);
+                showToast('Failed to move section', 'error');
+            }
+        });
+    }
+
+    console.log('[Writer] Section management buttons initialized');
 }
 
 /**

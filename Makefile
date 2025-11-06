@@ -17,13 +17,59 @@
 #   make ENV=prod switch           # Switch to prod
 #   make ENV=prod rebuild          # Rebuild prod (with confirmation)
 
-.PHONY: help status validate-state validate-docker validate switch stop-all start restart stop down logs ps migrate shell clean-state force-stop-all set-active-env clear-active-env ssl-setup ssl-verify ssl-check ssl-renew verify-health list-envs exec-web exec-db exec-gitea gitea-token recreate-testuser build-ts collectstatic
+.PHONY: \
+	help \
+	status \
+	validate-docker \
+	validate \
+	switch \
+	stop-all \
+	start \
+	restart \
+	reload \
+	stop \
+	down \
+	logs \
+	ps \
+	migrate \
+	shell \
+	force-stop-all \
+	ssl-setup \
+	ssl-verify \
+	ssl-check \
+	ssl-renew \
+	verify-health \
+	list-envs \
+	exec-web \
+	exec-db \
+	exec-gitea \
+	gitea-token \
+	recreate-testuser \
+	build-ts \
+	collectstatic \
+	makemigrations \
+	createsuperuser \
+	db-shell \
+	db-backup \
+	db-reset \
+	logs-web \
+	logs-db \
+	logs-gitea \
+	build \
+	rebuild \
+	setup \
+	test \
+	test-e2e \
+	test-e2e-headed \
+	test-e2e-specific \
+	clean-python \
+	info
+
 .DEFAULT_GOAL := help
 
 # ============================================
 # Configuration
 # ============================================
-STATE_FILE := deployment/.active-env
 VALID_ENVS := dev prod nas
 
 # Colors
@@ -37,6 +83,11 @@ NC := \033[0m
 # ============================================
 # Environment Validation - NO DEFAULTS!
 # ============================================
+# Accept both env= and ENV= (convert lowercase to uppercase)
+ifdef env
+  ENV := $(env)
+endif
+
 # Check if ENV is specified and valid
 ifdef ENV
   ifeq ($(filter $(ENV),$(VALID_ENVS)),)
@@ -47,7 +98,7 @@ ifdef ENV
 else
   # ENV not specified - only allow non-operational commands
   ifneq ($(MAKECMDGOALS),)
-    ifneq ($(filter-out help status validate-state validate-docker clean-state stop-all force-stop-all set-active-env clear-active-env,$(MAKECMDGOALS)),)
+    ifneq ($(filter-out help status validate-docker stop-all force-stop-all,$(MAKECMDGOALS)),)
       $(error ❌ ENV not specified! Use: make ENV=<dev|prod|nas> <command>)
     endif
   endif
@@ -59,46 +110,9 @@ endif
 # Detect which environments are actually running in Docker
 get-running-envs = $(shell docker ps --format '{{.Names}}' 2>/dev/null | grep -oE 'scitex-cloud-(dev|prod|nas)-' | sed 's/scitex-cloud-//' | sed 's/-//' | sort -u)
 
-# Get active environment from state file
-get-active-env = $(shell [ -f $(STATE_FILE) ] && cat $(STATE_FILE) || echo "none")
-
-# ============================================
-# State Management
-# ============================================
-# Set active environment
-set-active-env:
-	@mkdir -p deployment
-	@echo "$(ENV)" > $(STATE_FILE)
-	@echo "$(GREEN)✅ State file updated: $(ENV)$(NC)"
-
-# Clear active environment
-clear-active-env:
-	@rm -f $(STATE_FILE)
-	@echo "$(YELLOW)⚠️  State file cleared$(NC)"
-
 # ============================================
 # Validation Functions
 # ============================================
-validate-state:
-	@echo "$(CYAN)🔍 Validating environment state...$(NC)"
-	@ACTIVE=$$(cat $(STATE_FILE) 2>/dev/null || echo "none"); \
-	RUNNING=$$(docker ps --format '{{.Names}}' 2>/dev/null | grep -oE 'scitex-cloud-(dev|prod|nas)-' | sed 's/scitex-cloud-//' | sed 's/-//' | sort -u | tr '\n' ' '); \
-	echo "  State file: $$ACTIVE"; \
-	echo "  Running containers: $$RUNNING"; \
-	if [ "$$ACTIVE" = "none" ] && [ -n "$$RUNNING" ]; then \
-		echo "$(RED)❌ CONFLICT: State says 'none' but containers are running: $$RUNNING$(NC)"; \
-		echo "$(YELLOW)   Run 'make stop-all' to clean up$(NC)"; \
-		exit 1; \
-	fi; \
-	for env in $$RUNNING; do \
-		if [ "$$env" != "$$ACTIVE" ]; then \
-			echo "$(RED)❌ CONFLICT: State says '$$ACTIVE' but '$$env' containers are running$(NC)"; \
-			echo "$(YELLOW)   Run 'make stop-all' to clean up$(NC)"; \
-			exit 1; \
-		fi; \
-	done; \
-	echo "$(GREEN)✅ State is consistent$(NC)"
-
 validate-docker:
 	@echo "$(CYAN)🔍 Checking for container conflicts...$(NC)"
 	@RUNNING=$$(docker ps --format '{{.Names}}' 2>/dev/null | grep -oE 'scitex-cloud-(dev|prod|nas)-' | sed 's/scitex-cloud-//' | sed 's/-//' | sort -u); \
@@ -117,8 +131,8 @@ validate-docker:
 		echo "$(GREEN)✅ Only $$RUNNING is running$(NC)"; \
 	fi
 
-# Full validation (state + docker)
-validate: validate-docker validate-state
+# Validation alias
+validate: validate-docker
 
 # ============================================
 # Help
@@ -161,8 +175,10 @@ help:
 	@echo "  make ENV=nas rebuild              # Rebuild NAS environment"
 	@echo ""
 	@echo "$(CYAN)🔧 Utilities:$(NC)"
-	@echo "  make exec-web                     # Shell into web container"
-	@echo "  make list-envs                    # List environment variables in container"
+	@echo "  make ENV=<env> exec-web           # Shell into web container"
+	@echo "  make ENV=<env> exec-db            # Shell into database container"
+	@echo "  make ENV=<env> exec <cmd>         # Execute command in web container"
+	@echo "  make ENV=<env> list-envs          # List environment variables"
 	@echo ""
 	@echo "$(CYAN)🔒 SSL/HTTPS (prod only):$(NC)"
 	@echo "  make ENV=prod ssl-verify          # Verify HTTPS is working"
@@ -170,37 +186,29 @@ help:
 	@echo "  make ENV=prod ssl-renew           # Renew certificates"
 	@echo "  make ENV=prod ssl-setup           # Manual SSL setup (interactive)"
 	@echo ""
-	@echo "$(RED)⚠️  IMPORTANT: ENV parameter is MANDATORY!$(NC)"
-	@echo "$(YELLOW)   No defaults - always specify ENV=<dev|prod|nas>$(NC)"
-	@echo ""
 
 # ============================================
 # Status & Information
 # ============================================
 status:
 	@echo "$(CYAN)📊 Environment Status:$(NC)"
-	@echo ""
-	@ACTIVE=$$(cat $(STATE_FILE) 2>/dev/null || echo "none"); \
-	RUNNING=$$(docker ps --format '{{.Names}}' 2>/dev/null | grep -oE 'scitex-cloud-(dev|prod|nas)-' | sed 's/scitex-cloud-//' | sed 's/-//' | sort -u | tr '\n' ' ' | xargs); \
-	echo "  $(CYAN)State file:$(NC) $$ACTIVE"; \
+	@RUNNING=$$(docker ps --format '{{.Names}}' 2>/dev/null | \
+		grep -oE 'scitex-cloud-(dev|prod|nas)-' | \
+		sed 's/scitex-cloud-//' | \
+		sed 's/-//' | \
+		sort -u | \
+		tr '\n' ' ' | \
+		xargs); \
 	if [ -n "$$RUNNING" ]; then \
-		echo "  $(CYAN)Docker running:$(NC) $$RUNNING"; \
+		echo "  $(CYAN)Active environment:$(NC) $$RUNNING"; \
 	else \
-		echo "  $(CYAN)Docker running:$(NC) none"; \
-	fi; \
-	echo ""; \
-	if [ "$$ACTIVE" != "none" ] && [ "$$ACTIVE" != "$$RUNNING" ]; then \
-		echo "  $(RED)⚠️  MISMATCH DETECTED!$(NC)"; \
-		echo "  $(YELLOW)Run 'make validate' for details$(NC)"; \
-	elif [ "$$ACTIVE" = "none" ] && [ -z "$$RUNNING" ]; then \
 		echo "  $(YELLOW)⚠️  No active environment$(NC)"; \
-	else \
-		echo "  $(GREEN)✅ State is consistent$(NC)"; \
 	fi
 	@echo ""
 	@echo "$(CYAN)🐳 Running Containers:$(NC)"
-	@docker ps --format "table {{.Names}}\t{{.Status}}" 2>/dev/null | grep -E "scitex-cloud-(dev|prod|nas)-" || echo "  $(YELLOW)No scitex-cloud containers running$(NC)"
-	@echo ""
+	@docker ps --format "table {{.Names}}\t{{.Status}}" 2>/dev/null | \
+		grep -E "scitex-cloud-(dev|prod|nas)-" | xargs -I{} echo "  "{} || \
+		echo "  $(YELLOW)No scitex-cloud containers running$(NC)"
 
 # ============================================
 # Stop All Environments
@@ -219,7 +227,6 @@ stop-all:
 		fi; \
 		cd ../../..; \
 	done
-	@$(MAKE) --no-print-directory clear-active-env
 	@echo ""
 	@echo "$(GREEN)✅ All environments stopped$(NC)"
 
@@ -227,7 +234,6 @@ force-stop-all:
 	@echo "$(RED)⚠️  Force stopping all scitex-cloud containers...$(NC)"
 	@docker ps -a --format "{{.Names}}" | grep -E "scitex-cloud-(dev|prod|nas)-" | xargs -r docker stop 2>/dev/null || true
 	@docker ps -a --format "{{.Names}}" | grep -E "scitex-cloud-(dev|prod|nas)-" | xargs -r docker rm 2>/dev/null || true
-	@$(MAKE) --no-print-directory clear-active-env
 	@echo "$(GREEN)✅ All containers force-stopped$(NC)"
 
 # ============================================
@@ -236,7 +242,6 @@ force-stop-all:
 switch: validate stop-all
 	@echo ""
 	@echo "$(CYAN)🔄 Switching to $(ENV) environment...$(NC)"
-	@$(MAKE) --no-print-directory ENV=$(ENV) set-active-env
 	@$(MAKE) --no-print-directory ENV=$(ENV) start
 	@echo ""
 	@echo "$(GREEN)✅ Switched to $(ENV) environment$(NC)"
@@ -244,51 +249,62 @@ switch: validate stop-all
 # ============================================
 # Service Lifecycle with Validation
 # ============================================
-start: validate-docker
-	@echo "$(CYAN)🚀 Starting $(ENV) environment...$(NC)"
+start:
+	@echo "$(CYAN)🚀 Starting $(ENV) environment (exclusive mode)...$(NC)"
 	@echo ""
-	@# Check state file
-	@ACTIVE=$$(cat $(STATE_FILE) 2>/dev/null || echo "none"); \
-	if [ "$$ACTIVE" != "none" ] && [ "$$ACTIVE" != "$(ENV)" ]; then \
-		echo "$(YELLOW)⚠️  $$ACTIVE is marked as active in state file$(NC)"; \
-		echo "$(YELLOW)   Stopping all environments first...$(NC)"; \
-		$(MAKE) --no-print-directory stop-all; \
-		echo ""; \
-	fi
-	@# Check running containers
-	@RUNNING=$$(docker ps --format '{{.Names}}' 2>/dev/null | grep -oE 'scitex-cloud-(dev|prod|nas)-' | sed 's/scitex-cloud-//' | sed 's/-//' | sort -u); \
-	if [ -n "$$RUNNING" ] && [ "$$RUNNING" != "$(ENV)" ]; then \
-		echo "$(YELLOW)⚠️  $$RUNNING containers are running$(NC)"; \
-		echo "$(YELLOW)   Stopping all environments first...$(NC)"; \
-		$(MAKE) --no-print-directory stop-all; \
-		echo ""; \
-	fi
+	@# Stop all other environments to ensure exclusivity
+	@for env in $(VALID_ENVS); do \
+		if [ "$$env" != "$(ENV)" ]; then \
+			echo "$(CYAN)Checking $$env...$(NC)"; \
+			cd deployment/docker/docker_$$env && \
+			if docker compose ps -q 2>/dev/null | grep -q .; then \
+				echo "  $(YELLOW)Stopping $$env containers...$(NC)"; \
+				$(MAKE) -f Makefile down 2>/dev/null || docker compose down 2>/dev/null || true; \
+			else \
+				echo "  $(GREEN)✓ $$env already stopped$(NC)"; \
+			fi; \
+			cd ../../..; \
+		fi; \
+	done
+	@echo ""
 	@# Start the requested environment
 	@echo "$(CYAN)Starting $(ENV) services...$(NC)"
-	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile start
-	@$(MAKE) --no-print-directory ENV=$(ENV) set-active-env
+	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile start || (echo "$(RED)❌ Start failed. Run 'make ENV=$(ENV) start' to retry$(NC)"; exit 1)
 	@echo ""
 	@echo "$(GREEN)✅ $(ENV) environment is now running$(NC)"
 	@$(MAKE) --no-print-directory status
 
 restart: validate
-	@ACTIVE=$$(cat $(STATE_FILE) 2>/dev/null || echo "none"); \
-	if [ "$$ACTIVE" != "$(ENV)" ]; then \
-		echo "$(RED)❌ $(ENV) is not the active environment (active: $$ACTIVE)$(NC)"; \
-		echo "$(YELLOW)   Use 'make ENV=$(ENV) switch' to switch environments$(NC)"; \
+	@RUNNING=$$(docker ps --format '{{.Names}}' 2>/dev/null | grep -oE 'scitex-cloud-(dev|prod|nas)-' | sed 's/scitex-cloud-//' | sed 's/-//' | sort -u); \
+	if [ "$$RUNNING" != "$(ENV)" ]; then \
+		echo "$(RED)❌ $(ENV) is not running ($$RUNNING is active)$(NC)"; \
+		echo "$(YELLOW)   Options:$(NC)"; \
+		echo "$(YELLOW)   • make env=$(ENV) start          # Start $(ENV) (stops $$RUNNING)$(NC)"; \
+		echo "$(YELLOW)   • make env=$(ENV) switch         # Clean switch to $(ENV)$(NC)"; \
+		echo "$(YELLOW)   • make env=$$RUNNING restart     # Restart current $$RUNNING$(NC)"; \
 		exit 1; \
 	fi
 	@echo "$(CYAN)🔄 Restarting $(ENV) environment...$(NC)"
 	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile restart
 	@echo "$(GREEN)✅ $(ENV) restarted$(NC)"
 
+reload: validate
+	@RUNNING=$$(docker ps --format '{{.Names}}' 2>/dev/null | grep -oE 'scitex-cloud-(dev|prod|nas)-' | sed 's/scitex-cloud-//' | sed 's/-//' | sort -u); \
+	if [ "$$RUNNING" != "$(ENV)" ]; then \
+		echo "$(RED)❌ $(ENV) is not running ($$RUNNING is active)$(NC)"; \
+		echo "$(YELLOW)   Options:$(NC)"; \
+		echo "$(YELLOW)   • make env=$(ENV) start          # Start $(ENV) (stops $$RUNNING)$(NC)"; \
+		echo "$(YELLOW)   • make env=$(ENV) switch         # Clean switch to $(ENV)$(NC)"; \
+		echo "$(YELLOW)   • make env=$$RUNNING reload      # Reload current $$RUNNING$(NC)"; \
+		exit 1; \
+	fi
+	@echo "$(CYAN)⚡ Quick reload (no scitex reinstall)...$(NC)"
+	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile reload
+	@echo "$(GREEN)✅ $(ENV) reloaded$(NC)"
+
 stop: validate-docker
 	@echo "$(YELLOW)⬇️  Stopping $(ENV) environment...$(NC)"
 	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile down
-	@ACTIVE=$$(cat $(STATE_FILE) 2>/dev/null || echo "none"); \
-	if [ "$$ACTIVE" = "$(ENV)" ]; then \
-		$(MAKE) --no-print-directory clear-active-env; \
-	fi
 	@echo "$(GREEN)✅ $(ENV) stopped$(NC)"
 
 down: stop
@@ -322,7 +338,6 @@ rebuild: validate-docker
 	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile build
 	@echo "  3. Starting $(ENV)..."
 	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile up
-	@$(MAKE) --no-print-directory ENV=$(ENV) set-active-env
 	@echo ""
 	@echo "$(GREEN)✅ $(ENV) rebuild complete$(NC)"
 	@$(MAKE) --no-print-directory validate
@@ -330,7 +345,6 @@ rebuild: validate-docker
 setup:
 	@echo "$(CYAN)🔧 Setting up $(ENV) environment...$(NC)"
 	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile setup
-	@$(MAKE) --no-print-directory ENV=$(ENV) set-active-env
 	@echo "$(GREEN)✅ $(ENV) setup complete$(NC)"
 
 # ============================================
@@ -363,6 +377,23 @@ collectstatic: validate
 test: validate
 	@echo "$(CYAN)🧪 Running tests ($(ENV))...$(NC)"
 	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile test
+
+# E2E Testing Commands
+test-e2e: validate
+	@echo "$(CYAN)🎭 Running E2E tests ($(ENV))...$(NC)"
+	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile test-e2e
+
+test-e2e-headed: validate
+	@echo "$(CYAN)🎭 Running E2E tests with browser visible ($(ENV))...$(NC)"
+	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile test-e2e-headed
+
+test-e2e-specific: validate
+	@if [ -z "$(TEST)" ]; then \
+		echo "$(RED)❌ TEST not specified! Use: make ENV=$(ENV) test-e2e-specific TEST=tests/e2e/test_user_creation.py$(NC)"; \
+		exit 1; \
+	fi
+	@echo "$(CYAN)🎭 Running specific E2E test: $(TEST) ($(ENV))...$(NC)"
+	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile test-e2e-specific TEST=$(TEST)
 
 # ============================================
 # Database Commands
@@ -412,13 +443,28 @@ exec-db: validate
 	@echo "$(CYAN)🐳 Opening shell in database container ($(ENV))...$(NC)"
 	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile exec-db
 
+# Execute arbitrary command in web container
+# Usage: make ENV=dev exec CMD="ls -la" or make ENV=dev exec ls -la
+exec: validate
+	@if [ -z "$(CMD)" ]; then \
+		echo "$(YELLOW)⚠️  No CMD specified, using remaining args: $(filter-out $@,$(MAKECMDGOALS))$(NC)"; \
+		cd $(DOCKER_DIR) && docker compose exec web $(filter-out $@,$(MAKECMDGOALS)); \
+	else \
+		echo "$(CYAN)🐳 Executing command in web container ($(ENV)): $(CMD)$(NC)"; \
+		cd $(DOCKER_DIR) && docker compose exec web $(CMD); \
+	fi
+
+# Catch-all rule to prevent "No rule to make target" errors when using exec
+%:
+	@:
+
 exec-gitea: validate
 	@echo "$(CYAN)🐳 Opening shell in Gitea container ($(ENV))...$(NC)"
 	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile exec-gitea 2>/dev/null || echo "$(YELLOW)Gitea not available in $(ENV)$(NC)"
 
 list-envs: validate
-	@echo "$(CYAN)🔍 Listing environment variables ($(ENV))...$(NC)"
-	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile list-envs
+	@echo "$(CYAN)🔍 Environment variables in $(ENV):$(NC)"
+	@docker exec scitex-cloud-$(ENV)-web-1 env | sort
 
 # ============================================
 # Dev-Only Commands
@@ -487,11 +533,6 @@ endif
 # ============================================
 # Utilities
 # ============================================
-clean-state:
-	@echo "$(YELLOW)🧹 Cleaning state file...$(NC)"
-	@rm -f $(STATE_FILE)
-	@echo "$(GREEN)✅ State cleaned$(NC)"
-
 clean-python:
 	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile clean-python
 
@@ -500,10 +541,8 @@ clean-python:
 # ============================================
 info:
 	@echo "Specified environment: $(ENV)"
-	@echo "Active environment: $$(cat $(STATE_FILE) 2>/dev/null || echo 'none')"
 	@echo "Running environments: $$(docker ps --format '{{.Names}}' 2>/dev/null | grep -oE 'scitex-cloud-(dev|prod|nas)-' | sed 's/scitex-cloud-//' | sed 's/-//' | sort -u | tr '\n' ' ')"
 	@echo "Container directory: $(DOCKER_DIR)"
 	@echo "Makefile: $(MAKEFILE)"
-	@echo "State file: $(STATE_FILE)"
 
 # EOF

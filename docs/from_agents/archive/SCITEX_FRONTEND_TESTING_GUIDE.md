@@ -76,7 +76,7 @@ cd /home/ywatanabe/proj/scitex-cloud
 source deployment/dotenvs/dotenv_dev
 
 # Start Django
-./deployment/server/start.sh
+./deployment/server/server.sh
 ```
 
 ### 2. Open Browser

@@ -1,0 +1,99 @@
+<!-- Collaborators Section -->
+<div class="settings-section" id="collaborators">
+    <div class="settings-section-header">
+        <h2 class="settings-title">Manage access</h2>
+        <p class="settings-description">Control who has access to this repository</p>
+    </div>
+
+    <!-- Pending Invitations -->
+    {% with pending_invitations=project.invitations.filter|slice:":status='pending'" %}
+    {% if project.invitations.filter.count > 0 %}
+    <div style="margin-bottom: 16px;">
+        <h6 style="color: var(--color-fg-muted); font-size: 12px; margin-bottom: 8px;">PENDING INVITATIONS ({{ project.invitations.filter.count }})</h6>
+        {% for invitation in project.invitations.all %}
+        {% if invitation.status == 'pending' %}
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; border: 1px solid var(--color-border-default); border-radius: 6px; margin-bottom: 8px; background: var(--color-attention-subtle);">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 32px; height: 32px; border-radius: 50%; background: #f59e0b; color: white; display: flex; align-items: center; justify-content: center; font-weight: 600;">
+                    {{ invitation.invited_user.username|slice:":1"|upper }}
+                </div>
+                <div>
+                    <div style="font-weight: 600; color: var(--color-fg-default);">{{ invitation.invited_user.username }}</div>
+                    <div style="font-size: 12px; color: var(--color-fg-muted);">Pending • {{ invitation.role|title }}</div>
+                </div>
+            </div>
+            <button type="submit" name="action" value="cancel_invitation" class="btn btn-sm btn-danger" style="padding: 4px 12px; font-size: 12px;">
+                Cancel
+            </button>
+        </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <!-- Current Collaborators -->
+    {% if project.memberships.count > 0 %}
+    <div style="margin-bottom: 16px;">
+        <h6 style="color: var(--color-fg-muted); font-size: 12px; margin-bottom: 8px;">COLLABORATORS ({{ project.memberships.count }})</h6>
+        {% for membership in project.memberships.all %}
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; border: 1px solid var(--color-border-default); border-radius: 6px; margin-bottom: 8px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--scitex-color-04); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600;">
+                    {{ membership.user.username|slice:":1"|upper }}
+                </div>
+                <div>
+                    <div style="font-weight: 600; color: var(--color-fg-default);">{{ membership.user.username }}</div>
+                    <div style="font-size: 12px; color: var(--color-fg-muted);">{{ membership.role|title }}</div>
+                </div>
+            </div>
+            <select name="role_{{ membership.id }}" style="padding: 4px 8px; border: 1px solid var(--color-border-default); border-radius: 6px; background: var(--color-canvas-default); color: var(--color-fg-default);">
+                <option value="viewer" {% if membership.role == 'viewer' %}selected{% endif %}>Read</option>
+                <option value="collaborator" {% if membership.role == 'collaborator' %}selected{% endif %}>Write</option>
+                <option value="admin" {% if membership.role == 'admin' %}selected{% endif %}>Admin</option>
+            </select>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Add Collaborator Form -->
+    <div style="margin-top: 16px; padding: 16px; border: 1px solid var(--color-border-default); border-radius: 6px; background: var(--color-canvas-subtle);">
+        <h6 style="margin-bottom: 12px; color: var(--color-fg-default);">Add collaborator</h6>
+        <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+            <div style="flex: 1; position: relative;">
+                <input
+                    type="text"
+                    name="collaborator_username"
+                    id="collaboratorUsername"
+                    placeholder="Search by username (e.g., test-user)"
+                    required
+                    autocomplete="off"
+                    style="width: 100%; padding: 8px 12px; border: 1px solid var(--color-border-default); border-radius: 6px; background: var(--color-canvas-default); color: var(--color-fg-default); font-size: 14px;"
+                >
+                <!-- Autocomplete dropdown -->
+                <div id="collaborator-autocomplete" style="display: none; position: absolute; top: 100%; left: 0; right: 0; margin-top: 4px; background: var(--color-canvas-default); border: 1px solid var(--color-border-default); border-radius: 6px; box-shadow: 0 8px 16px rgba(0,0,0,0.2); max-height: 200px; overflow-y: auto; z-index: 1000;">
+                    <!-- Suggestions appear here -->
+                </div>
+            </div>
+            <select name="collaborator_role" id="collaboratorRole" style="padding: 8px; border: 1px solid var(--color-border-default); border-radius: 6px; background: var(--color-canvas-default); color: var(--color-fg-default);">
+                <option value="viewer">Read</option>
+                <option value="collaborator" selected>Write</option>
+                <option value="admin">Admin</option>
+            </select>
+            <button type="submit" name="action" value="add_collaborator" id="addCollaboratorBtn" class="btn btn-sm" style="background: var(--scitex-color-02); color: white; border: none; padding: 8px 16px; border-radius: 6px; white-space: nowrap;">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="display: inline-block; vertical-align: text-bottom; margin-right: 4px;">
+                    <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zm.5 4.75a.75.75 0 0 0-1.5 0v2.5h-2.5a.75.75 0 0 0 0 1.5h2.5v2.5a.75.75 0 0 0 1.5 0v-2.5h2.5a.75.75 0 0 0 0-1.5h-2.5v-2.5z"/>
+                </svg>
+                <span id="addBtnText">Add collaborator</span>
+            </button>
+        </div>
+        <p style="font-size: 12px; color: var(--color-fg-muted); margin: 0;">
+            Type to search for users. Examples: test-user, ywatanabe
+        </p>
+    </div>
+
+    {% load static %}
+    <!-- Autocomplete Script (TypeScript-compiled) -->
+    <script src="{% static 'project_app/js/projects/settings_collaborators.js' %}"></script>
+</div>

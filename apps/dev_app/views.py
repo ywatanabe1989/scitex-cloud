@@ -300,4 +300,5 @@ class DesignHeroView(DesignSectionView):
     def get(self, request):
         return super().get(request, "hero-guideline")
 
+
 # EOF

@@ -1,0 +1,9 @@
+/* SciTeX CSS Variables - Main Import File */
+/* This file imports all modular CSS variable definitions */
+
+/* Import all variable modules */
+@import url('colors.css');
+@import url('typography-vars.css');
+@import url('spacing.css');
+@import url('../utilities/effects.css');
+@import url('z-index.css');

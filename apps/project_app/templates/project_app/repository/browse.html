@@ -1,0 +1,37 @@
+{% extends 'global_base.html' %}
+{% load static %}
+
+{% block title %}{{ project.name }} - SciTeX Cloud{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'project_app/css/project_app.css' %}">
+<link rel="stylesheet" href="{% static 'project_app/css/repository/browse.css' %}">
+<link rel="stylesheet" href="{% static 'project_app/css/shared/sidebar.css' %}">
+<link rel="stylesheet" href="{% static 'project_app/css/shared/file-tree.css' %}">
+<link rel="stylesheet" href="{% static 'project_app/css/shared/buttons.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="max-width: 1280px;">
+    {% include 'project_app/repository/browse_partials/browse_header.html' %}
+
+    {% include 'project_app/repository/browse_partials/browse_tabs.html' with active_tab='code' %}
+
+    {% include 'project_app/repository/browse_partials/browse_toolbar.html' %}
+
+    <!-- Main Content Area with Sidebar -->
+    <div class="repo-layout" id="repo-layout">
+        {% include 'project_app/repository/browse_partials/browse_sidebar.html' %}
+
+        <div class="repo-main">
+            {% include 'project_app/repository/browse_partials/browse_empty_state.html' %}
+
+            {% include 'project_app/repository/browse_partials/browse_file_browser.html' %}
+
+            {% include 'project_app/repository/browse_partials/browse_readme.html' %}
+        </div>
+    </div>
+</div>
+
+{% include 'project_app/repository/browse_partials/browse_scripts.html' %}
+{% endblock %}

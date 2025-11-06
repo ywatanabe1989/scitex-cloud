@@ -1,0 +1,17 @@
+{% load static %}
+
+<!-- PDF.js rendering with navigation -->
+{% if render_type == 'pdf' %}
+<!-- Pass Django template variables to JavaScript via data attributes -->
+<script>
+// Make project and file data available globally for JS modules
+window.SCITEX_PROJECT_DATA = {
+    owner: '{{ project.owner.username }}',
+    slug: '{{ project.slug }}'
+};
+window.SCITEX_FILE_PATH = '{{ file_path }}';
+</script>
+
+<!-- Load external JavaScript file -->
+<script src="{% static 'project_app/js/shared/pdf_viewer.js' %}"></script>
+{% endif %}

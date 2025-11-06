@@ -1,0 +1,12 @@
+{% load static %}
+
+<!-- Pass Django template variables to JavaScript via data attributes -->
+<script>
+// Make profile data available globally for JS modules
+window.SCITEX_PROFILE_DATA = {
+    username: '{{ profile_user.username }}'
+};
+</script>
+
+<!-- Load external JavaScript file -->
+<script src="{% static 'project_app/js/users/profile.js' %}"></script>

@@ -389,7 +389,7 @@ mkdir -p apps/workspace_app/services
 ```bash
 python manage.py check
 python manage.py test
-./scripts/dev/start.sh
+./scripts/dev/server.sh
 # Verify all pages work
 ```
 

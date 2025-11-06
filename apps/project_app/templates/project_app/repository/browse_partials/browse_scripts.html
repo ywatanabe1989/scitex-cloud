@@ -1,0 +1,20 @@
+{% load static %}
+
+<!-- Project Data (for TypeScript modules) -->
+<div id="project-data" style="display: none;"
+     data-project-owner="{{ project.owner.username }}"
+     data-project-slug="{{ project.slug }}"
+     data-breadcrumb-path="{{ breadcrumb_path|default:'' }}"></div>
+
+<!-- Pass Django template variables to JavaScript via data attributes -->
+<script>
+// Make project data available globally for JS modules
+window.SCITEX_PROJECT_DATA = {
+    owner: '{{ project.owner.username }}',
+    slug: '{{ project.slug }}'
+};
+</script>
+
+<!-- Load external JavaScript files -->
+<script type="module" src="{% static 'project_app/js/shared/project_app.js' %}"></script>
+<script src="{% static 'project_app/js/repository/browse_toolbar.js' %}"></script>

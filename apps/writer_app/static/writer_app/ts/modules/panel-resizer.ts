@@ -3,6 +3,7 @@
  * Handles draggable divider between editor and preview panels
  */
 
+console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/modules/panel-resizer.ts loaded");
 export class PanelResizer {
     private resizer: HTMLElement | null;
     private leftPanel: HTMLElement | null;

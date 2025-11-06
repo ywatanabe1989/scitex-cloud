@@ -5,14 +5,14 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'project_app/css/project_app.css' %}">
-<link rel="stylesheet" href="{% static 'css/common/buttons.css' %}">
+<link rel="stylesheet" href="{% static 'project_app/css/shared/buttons.css' %}">
 {% endblock %}
 
 {% block content %}
 <div class="container-fluid" style="max-width: 1280px;">
-    {% include 'project_app/partials/_project_header.html' %}
-    {% include 'project_app/partials/_repo_tabs.html' with active_tab='security' %}
-    {% include 'project_app/security/partials/_security_tabs.html' with active_tab='dependencies' %}
+    {% include 'project_app/repository/browse_partials/browse_header.html' %}
+    {% include 'project_app/repository/browse_partials/browse_tabs.html' with active_tab='security' %}
+    {% include 'project_app/security_overview_partials/security_overview_tabs.html' with active_tab='dependencies' %}
 
     <h2 class="mb-3">Dependencies</h2>
 

@@ -13,7 +13,7 @@ SciTeX Cloud uses TypeScript for frontend development with automatic compilation
 
 ```
 Project Root
-├── frontend/                    ← Build configuration
+├── tsconfig/                    ← Build configuration
 │   ├── package.json            ← NPM scripts
 │   ├── tsconfig.json           ← Global TS config
 │   └── tsconfig.writer.json    ← Writer app specific config
@@ -378,8 +378,8 @@ make ENV=prod collectstatic        # Collects static (auto-builds TS)
 
 | What | Where |
 |------|-------|
-| **TS Config** | `/frontend/tsconfig.writer.json` |
-| **NPM Scripts** | `/frontend/package.json` |
+| **TS Config** | `/tsconfig/tsconfig.writer.json` |
+| **NPM Scripts** | `/tsconfig/package.json` |
 | **TS Source** | `/apps/writer_app/static/writer_app/ts/` |
 | **JS Output** | `/apps/writer_app/static/writer_app/js/` |
 | **Global Utils** | `/static/ts/{types,utils}/` |
