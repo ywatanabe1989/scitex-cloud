@@ -4,17 +4,6 @@
  */
 
 import { ApiClient } from '@/utils/api';
-<<<<<<<< HEAD:.tsbuild/apps/writer_app/static/writer_app/ts/editor/modules/file_tree.js
-console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/editor/modules/file_tree.ts loaded");
-export class FileTreeManager {
-    apiClient;
-    projectId;
-    container;
-    onFileSelectCallback;
-    expandedDirs = new Set();
-    texFileDropdownId;
-    constructor(options) {
-========
 
 console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/editor/modules/file_tree.ts loaded");
 export interface FileTreeNode {
@@ -40,7 +29,6 @@ export class FileTreeManager {
     private texFileDropdownId?: string;
 
     constructor(options: FileTreeOptions) {
->>>>>>>> feat/writer-visitor-access-and-optimizations:apps/writer_app/static/writer_app/ts/editor/modules/file_tree.ts
         this.apiClient = new ApiClient();
         this.projectId = options.projectId;
         this.container = options.container;
@@ -299,32 +287,6 @@ export class FileTreeManager {
         'shared': [],
     };
 
-    /**
-     * Map of section IDs to readable names (IMRAD structure)
-     */
-    sectionNames = {
-        'title': 'Title',
-        'abstract': 'Abstract',
-        'introduction': 'Introduction',
-        'methods': 'Methods',
-        'results': 'Results',
-        'discussion': 'Discussion',
-        'conclusion': 'Conclusion',
-        'references': 'References',
-        'keywords': 'Keywords',
-        'authors': 'Authors',
-        'highlights': 'Highlights',
-        'graphical_abstract': 'Graphical Abstract',
-    };
-    /**
-     * Sections available for each document type
-     */
-    sectionsByDocType = {
-        'manuscript': ['abstract', 'introduction', 'methods', 'results', 'discussion', 'conclusion', 'references'],
-        'supplementary': ['content', 'methods', 'results'],
-        'revision': ['response', 'changes'],
-        'shared': [],
-    };
     /**
      * Populate the section dropdown selector with hierarchical structure
      */

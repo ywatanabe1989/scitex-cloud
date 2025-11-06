@@ -2,17 +2,6 @@
  * LaTeX Wrapper Module
  * Wraps section content with proper LaTeX document structure
  */
-<<<<<<<< HEAD:.tsbuild/apps/writer_app/static/writer_app/ts/editor/modules/latex-wrapper.js
-console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/editor/modules/latex-wrapper.ts loaded");
-export class LatexWrapper {
-    documentClass;
-    packages;
-    preamble;
-    title;
-    author;
-    includeTableOfContents;
-    constructor(options) {
-========
 
 console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/editor/modules/latex-wrapper.ts loaded");
 export interface LatexWrapperOptions {
@@ -33,7 +22,6 @@ export class LatexWrapper {
     private includeTableOfContents: boolean;
 
     constructor(options?: LatexWrapperOptions) {
->>>>>>>> feat/writer-visitor-access-and-optimizations:apps/writer_app/static/writer_app/ts/editor/modules/latex-wrapper.ts
         this.documentClass = options?.documentClass || 'article';
         this.packages = options?.packages || this.getDefaultPackages();
         this.preamble = options?.preamble || '';

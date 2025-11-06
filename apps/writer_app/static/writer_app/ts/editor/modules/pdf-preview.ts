@@ -5,22 +5,6 @@
 
 import { CompilationManager, CompilationOptions } from './compilation.js';
 import { LatexWrapper } from './latex-wrapper.js';
-<<<<<<<< HEAD:.tsbuild/apps/writer_app/static/writer_app/ts/editor/modules/pdf-preview.js
-console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/editor/modules/pdf-preview.ts loaded");
-export class PDFPreviewManager {
-    container;
-    compilationManager;
-    latexWrapper;
-    projectId;
-    autoCompile;
-    compileDelay;
-    docType;
-    compileTimeout = null;
-    currentPdfUrl = null;
-    fontSize = 14; // Default editor font size
-    colorMode = 'light'; // PDF color mode
-    constructor(options) {
-========
 
 console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/editor/modules/pdf-preview.ts loaded");
 export interface PDFPreviewOptions {
@@ -48,7 +32,6 @@ export class PDFPreviewManager {
     private colorMode: 'light' | 'dark' = 'light'; // PDF color mode
 
     constructor(options: PDFPreviewOptions) {
->>>>>>>> feat/writer-visitor-access-and-optimizations:apps/writer_app/static/writer_app/ts/editor/modules/pdf-preview.ts
         this.container = document.getElementById(options.containerId);
         this.projectId = options.projectId;
         this.autoCompile = options.autoCompile ?? false;

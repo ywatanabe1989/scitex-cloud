@@ -1,0 +1,77 @@
+#!/bin/bash
+# ============================================
+# Logging & Timing Utilities
+# ============================================
+
+# Colors
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+RED='\033[0;31m'
+CYAN='\033[0;36m'
+GRAY='\033[0;90m'
+NC='\033[0m' # No Color
+
+# Log directory
+LOG_DIR="/app/logs"
+mkdir -p "$LOG_DIR"
+
+# Run a command with timing and clean output
+# Usage: run_timed "Description" command args...
+run_timed() {
+    local description="$1"
+    shift
+    local start_time=$(date +%s)
+    local log_file="$LOG_DIR/$(date +%Y%m%d_%H%M%S)_$(echo "$description" | tr ' ' '_' | tr '[:upper:]' '[:lower:]').log"
+
+    echo -e "${CYAN}⏳ $description...${NC}"
+
+    # Run command, capture output to log file
+    if "$@" > "$log_file" 2>&1; then
+        local end_time=$(date +%s)
+        local duration=$((end_time - start_time))
+        echo -e "${GREEN}✅ $description [${duration}s]${NC}"
+        echo -e "${GRAY}   Log saved: $log_file${NC}"
+        return 0
+    else
+        local end_time=$(date +%s)
+        local duration=$((end_time - start_time))
+        echo -e "${RED}❌ $description failed [${duration}s]${NC}"
+        echo -e "${RED}Error details:${NC}"
+        tail -50 "$log_file"
+        echo -e "${YELLOW}Full log: $log_file${NC}"
+        return 1
+    fi
+}
+
+# Run a command quietly with spinner
+# Usage: run_quiet "Description" command args...
+run_quiet() {
+    local description="$1"
+    shift
+    local log_file="$LOG_DIR/$(date +%Y%m%d_%H%M%S)_$(echo "$description" | tr ' ' '_' | tr '[:upper:]' '[:lower:]').log"
+
+    echo -en "${CYAN}⏳ $description...${NC}"
+
+    # Run command, capture output to log file
+    if "$@" > "$log_file" 2>&1; then
+        echo -e "\r${GREEN}✅ $description${NC}"
+        echo -e "${GRAY}   Log saved: $log_file${NC}"
+        return 0
+    else
+        echo -e "\r${RED}❌ $description failed${NC}"
+        echo -e "${RED}Error details:${NC}"
+        tail -50 "$log_file"
+        echo -e "${YELLOW}Full log: $log_file${NC}"
+        return 1
+    fi
+}
+
+# Show step header
+step() {
+    echo ""
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${CYAN}$1${NC}"
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+}
+
+# EOF

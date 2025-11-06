@@ -5,17 +5,6 @@
 
 import { ApiClient } from '@/utils/api';
 import { getCsrfToken } from '@/utils/csrf';
-<<<<<<<< HEAD:.tsbuild/apps/writer_app/static/writer_app/ts/editor/modules/compilation.js
-console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/editor/modules/compilation.ts loaded");
-export class CompilationManager {
-    apiClient;
-    currentJob = null;
-    isCompiling = false;
-    onProgressCallback;
-    onCompleteCallback;
-    onErrorCallback;
-    constructor(apiBaseUrl = '') {
-========
 import { CompilationJob } from '@/types';
 
 console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/editor/modules/compilation.ts loaded");
@@ -37,7 +26,6 @@ export class CompilationManager {
     private onErrorCallback?: (error: string) => void;
 
     constructor(apiBaseUrl: string = '') {
->>>>>>>> feat/writer-visitor-access-and-optimizations:apps/writer_app/static/writer_app/ts/editor/modules/compilation.ts
         this.apiClient = new ApiClient(apiBaseUrl);
     }
 
