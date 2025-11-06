@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-11-06 06:06:23
+!-- Timestamp: 2025-11-06 09:29:38
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/CLAUDE.md
 !-- --- -->
@@ -76,50 +76,5 @@ Add console.log for debugging
 ---
 
 # Requests
-
-<!-- Loading file tree in sidebar does not complete in the file viewer (most child)
- !-- http://127.0.0.1:8000/wyusuuke/proj-001/blob/scitex/writer/01_manuscript/base.tex -->
-
-- [ ] Solve the migration from javascript to typescript for root and all modules
- 
-
-- [ ] Refactor and revise writer_app, strictly following:
-  - [ ] `./RULES/00_DJANGO_ORGANIZATION_FULLSTACK.md`
-  - [ ] `./RULES/01_DJANGO_ORGANIZATION_FULLSTACK_CHECKLIST.md`
-  - [ ] Verify everything using playwright, `127.0.0.1:8000`
-  - [ ] Never accept dirty code like .old.legacy
-  - [ ] We don't need dashboard in /writer/; just a simple index with left panel as editor and right panel as pdf viewer, just in the https://scitex.ai/writer/
-
-<!-- Skip the blow now -->
-<!-- ## Central Logging system
- !-- - [ ] Log to one place
- !--   - [ ] ./logs/*.log
- !-- 
- !-- ## Typescript over Javascript 
- !-- - [ ] Migrate Javascript to Typescript
- !--   - [ ] console.log for debugging
- !--   - [ ] switchable log function should be implemented in central
- !-- 
- !-- ## CSS Rules
- !-- 
- !-- 
- !-- 
- !-- ## HTML Rules
- !-- - [ ] Use partials to read skelton structure of html pages
- !-- 
- !-- ## Current Top Priority - Improve /writer/ and show synergy with /scholar/
- !-- ./TODOS/10_SCITEX_WRITER_01.md
- !-- 
- !-- ## https://127.0.0.1:8000/search/ (skip this now)
- !-- ./TODOS/10_SCITEX_SCHOLAR_01.md
- !-- 
- !-- ## Project Page (skip this now)
- !-- - [ ] Root: http://127.0.0.1:8000/test-user/proj-001/
- !--   - [ ] Layout of Root directory is good. 
- !-- - [ ] Child: http://127.0.0.1:8000/test-user/proj-001/.git
- !--   - [ ] Layout of Child directories are corrupted
- !--   - [ ] Side panel and main table are corrupted in child directories
- !-- - [ ] Why root and children are handled differently?
- !--   - [ ] Is it not possible to share components? -->
 
 <!-- EOF -->
