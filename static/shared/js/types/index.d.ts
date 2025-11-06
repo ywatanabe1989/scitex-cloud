@@ -5,6 +5,7 @@
 export interface WriterConfig {
     projectId: string | null;
     username: string | null;
+    visitorUsername?: string | null;
     projectSlug: string | null;
     isDemo: boolean;
     isAnonymous: boolean;
