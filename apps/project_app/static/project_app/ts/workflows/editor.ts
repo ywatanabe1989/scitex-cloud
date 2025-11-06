@@ -1,11 +1,5 @@
 // Workflow Editor JavaScript
 // Template YAML definitions and template selection logic
-<<<<<<<< HEAD:apps/project_app/static/project_app/js-potentially-legacy/workflows/editor.js
-console.log("[DEBUG] apps/project_app/static/project_app/ts/workflows/editor.ts loaded");
-(function () {
-    'use strict';
-    const templateYaml = {
-========
 
 
 console.log("[DEBUG] apps/project_app/static/project_app/ts/workflows/editor.ts loaded");
@@ -23,9 +17,7 @@ console.log("[DEBUG] apps/project_app/static/project_app/ts/workflows/editor.ts 
         [key: string]: string;
     }
 
-    const templateYaml: TemplateYamlMap = {
->>>>>>>> feat/writer-visitor-access-and-optimizations:apps/project_app/static/project_app/ts/workflows/editor.ts
-        'blank': `name: My Workflow
+    const templateYaml: TemplateYamlMap = {        'blank': `name: My Workflow
 on:
   push:
     branches: [ main ]
@@ -154,48 +146,20 @@ jobs:
           docker run myapp:latest pytest
 `,
     };
-<<<<<<<< HEAD:apps/project_app/static/project_app/js-potentially-legacy/workflows/editor.js
-    function selectTemplate(templateId, event) {
-        console.log('Selecting template:', templateId);
-========
 
     function selectTemplate(templateId: string, event?: Event): void {
         console.log('Selecting template:', templateId);
-
->>>>>>>> feat/writer-visitor-access-and-optimizations:apps/project_app/static/project_app/ts/workflows/editor.ts
         // Highlight selected template
         document.querySelectorAll('.template-item').forEach(item => {
             item.classList.remove('selected');
         });
-<<<<<<<< HEAD:apps/project_app/static/project_app/js-potentially-legacy/workflows/editor.js
-        if (event && event.target) {
-            const target = event.target;
-========
 
         if (event && event.target) {
-            const target = event.target as HTMLElement;
->>>>>>>> feat/writer-visitor-access-and-optimizations:apps/project_app/static/project_app/ts/workflows/editor.ts
-            const templateItem = target.closest('.template-item');
+            const target = event.target as HTMLElement;            const templateItem = target.closest('.template-item');
             if (templateItem) {
                 templateItem.classList.add('selected');
             }
         }
-<<<<<<<< HEAD:apps/project_app/static/project_app/js-potentially-legacy/workflows/editor.js
-        // Set template input
-        const templateInput = document.getElementById('template-input');
-        if (templateInput) {
-            templateInput.value = templateId;
-        }
-        // Load template YAML
-        const yamlEditor = document.getElementById('yaml-editor');
-        if (yamlEditor && templateYaml[templateId]) {
-            yamlEditor.value = templateYaml[templateId];
-        }
-        // Auto-fill workflow name if blank
-        const nameInput = document.getElementById('workflow-name');
-        if (nameInput && !nameInput.value && templateId !== 'blank') {
-            const templateNames = {
-========
 
         // Set template input
         const templateInput = document.getElementById('template-input') as HTMLInputElement;
@@ -212,9 +176,7 @@ jobs:
         // Auto-fill workflow name if blank
         const nameInput = document.getElementById('workflow-name') as HTMLInputElement;
         if (nameInput && !nameInput.value && templateId !== 'blank') {
-            const templateNames: TemplateNamesMap = {
->>>>>>>> feat/writer-visitor-access-and-optimizations:apps/project_app/static/project_app/ts/workflows/editor.ts
-                'python-test': 'Python Tests',
+            const templateNames: TemplateNamesMap = {                'python-test': 'Python Tests',
                 'latex-build': 'LaTeX Build',
                 'code-lint': 'Code Linting',
                 'docker-build': 'Docker Build',
@@ -222,14 +184,7 @@ jobs:
             nameInput.value = templateNames[templateId] || '';
         }
     }
-<<<<<<<< HEAD:apps/project_app/static/project_app/js-potentially-legacy/workflows/editor.js
-    // Expose function to global scope
-    window.selectTemplate = selectTemplate;
-})();
-//# sourceMappingURL=editor.js.map
-========
 
     // Expose function to global scope
     (window as any).selectTemplate = selectTemplate;
 })();
->>>>>>>> feat/writer-visitor-access-and-optimizations:apps/project_app/static/project_app/ts/workflows/editor.ts
