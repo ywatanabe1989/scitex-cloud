@@ -44,7 +44,7 @@ class Command(BaseCommand):
         self.stdout.write(f'\nInitializing visitor pool (size={pool_size})...')
         self.stdout.write('This will create:')
         self.stdout.write(f'  - visitor-001 to visitor-{pool_size:03d} (users)')
-        self.stdout.write(f'  - default-project-001 to default-project-{pool_size:03d} (projects)')
+        self.stdout.write(f'  - {pool_size} "default-project" projects (one per visitor user)')
         self.stdout.write('')
 
         created = VisitorPool.initialize_pool(pool_size=pool_size)
