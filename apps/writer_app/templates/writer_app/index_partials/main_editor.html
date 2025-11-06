@@ -58,8 +58,11 @@
 
     <div class="toolbar-right">
       <!-- Compile Button -->
-      <button id="compile-btn-toolbar" class="btn btn-sm btn-primary" title="Compile Manuscript PDF">
-        <i class="fas fa-file-pdf me-1"></i><span id="compile-btn-text">Compile Manuscript PDF</span>
+      <button id="compile-btn-toolbar" class="btn btn-sm btn-primary"
+              title="Compile entire manuscript to PDF (all sections combined)"
+              data-bs-toggle="tooltip"
+              data-bs-placement="bottom">
+        <i class="fas fa-file-pdf me-1"></i><span id="compile-btn-text">Compile Full Manuscript</span>
       </button>
 
       <!-- Download PDF Button -->
@@ -147,7 +150,8 @@
         <div class="preview-panel">
           <div class="panel-header" id="preview-panel-header">
             <div class="header-left">
-              <i class="fas fa-eye me-1"></i><span id="preview-title">Manuscript Abstract PDF</span>
+              <i class="fas fa-eye me-1"></i><span id="preview-title">Section Preview</span>
+              <small class="text-muted ms-2">(auto-updated)</small>
             </div>
             <div class="header-right">
               <!-- Zoom Controls (PDF only) -->

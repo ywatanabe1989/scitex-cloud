@@ -18,13 +18,14 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 from ...services import DocumentService
 from ...services import CompilerService
+from .auth_utils import api_login_optional, get_user_for_request
 import json
 import logging
 
 logger = logging.getLogger(__name__)
 
 
-@login_required
+@api_login_optional
 @require_http_methods(["GET", "POST"])
 def section_view(request, project_id, section_name):
     """Read or write a section's .tex file from/to disk.
@@ -50,7 +51,16 @@ def section_view(request, project_id, section_name):
 
         # Get project
         project = Project.objects.get(id=project_id)
-        writer_service = WriterService(project_id, request.user.id)
+
+        # Get effective user (authenticated or visitor)
+        user, is_visitor = get_user_for_request(request, project_id)
+        if not user:
+            return JsonResponse(
+                {"success": False, "error": "Invalid session"},
+                status=403
+            )
+
+        writer_service = WriterService(project_id, user.id)
 
         # Parse section ID to get category and name
         # e.g., "shared/title" -> ("shared", "title")
@@ -119,7 +129,7 @@ def section_view(request, project_id, section_name):
         )
 
 
-@login_required
+@api_login_optional
 @require_http_methods(["POST"])
 def compile_api(request, project_id):
     """Compile LaTeX content to PDF.
@@ -146,7 +156,16 @@ def compile_api(request, project_id):
 
         # Get project and service
         project = Project.objects.get(id=project_id)
-        writer_service = WriterService(project_id, request.user.id)
+
+        # Get effective user (authenticated or visitor)
+        user, is_visitor = get_user_for_request(request, project_id)
+        if not user:
+            return JsonResponse(
+                {"success": False, "error": "Invalid session"},
+                status=403
+            )
+
+        writer_service = WriterService(project_id, user.id)
 
         # Compile preview
         result = writer_service.compile_preview(
@@ -395,7 +414,7 @@ def sections_config_view(request):
         })
 
 
-@login_required
+@api_login_optional
 @require_http_methods(["POST"])
 def save_sections_view(request, project_id):
     """Save multiple sections at once.
@@ -429,7 +448,16 @@ def save_sections_view(request, project_id):
         from apps.project_app.models import Project
 
         project = Project.objects.get(id=project_id)
-        writer_service = WriterService(project_id, request.user.id)
+
+        # Get effective user (authenticated or visitor)
+        user, is_visitor = get_user_for_request(request, project_id)
+        if not user:
+            return JsonResponse(
+                {"success": False, "error": "Invalid session"},
+                status=403
+            )
+
+        writer_service = WriterService(project_id, user.id)
 
         # Save each section
         saved_count = 0
@@ -477,10 +505,12 @@ def save_sections_view(request, project_id):
         )
 
 
-@login_required
-@require_http_methods(["GET"])
+@api_login_optional
+@require_http_methods(["GET", "HEAD"])
 def pdf_view(request, project_id, pdf_filename=None):
     """Serve PDF files from project's .preview directory.
+
+    Supports both GET (download PDF) and HEAD (check if PDF exists) requests.
 
     Args:
         project_id: Project ID
@@ -492,9 +522,17 @@ def pdf_view(request, project_id, pdf_filename=None):
         from apps.project_app.models import Project
         from pathlib import Path
 
+        # Get effective user (authenticated or visitor)
+        user, is_visitor = get_user_for_request(request, project_id)
+        if not user:
+            return JsonResponse(
+                {"success": False, "error": "Invalid session"},
+                status=403
+            )
+
         # Get project
         project = Project.objects.get(id=project_id)
-        writer_service = WriterService(project_id, request.user.id)
+        writer_service = WriterService(project_id, user.id)
 
         # If no filename specified, look for main compiled PDF
         if not pdf_filename:
@@ -519,6 +557,10 @@ def pdf_view(request, project_id, pdf_filename=None):
             else:
                 logger.error(f"[PDFView] PDF not found: {pdf_filename}")
                 logger.error(f"[PDFView] Checked paths: {pdf_path}, {legacy_preview}")
+                # For HEAD requests, return simple 404 without JSON body
+                if request.method == 'HEAD':
+                    from django.http import HttpResponse
+                    return HttpResponse(status=404)
                 return JsonResponse(
                     {"success": False, "error": f"PDF not found: {pdf_filename}"},
                     status=404
@@ -526,7 +568,15 @@ def pdf_view(request, project_id, pdf_filename=None):
 
         logger.info(f"[PDFView] Serving PDF from: {pdf_path}")
 
-        # Serve the PDF file
+        # For HEAD requests, just return 200 OK without file content
+        if request.method == 'HEAD':
+            from django.http import HttpResponse
+            response = HttpResponse(status=200)
+            response['Content-Type'] = 'application/pdf'
+            response['Content-Disposition'] = f'inline; filename="{pdf_filename}"'
+            return response
+
+        # For GET requests, serve the PDF file
         response = FileResponse(
             open(pdf_path, 'rb'),
             content_type='application/pdf'
