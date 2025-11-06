@@ -588,7 +588,118 @@ function displayBibtexDiff(diffData: any[], stats: any): void {
     if (modal) modal.style.display = 'none';
 };
 
+/**
+ * Recent job interface
+ */
+interface RecentJob {
+    id: string;
+    original_filename: string;
+    status: string;
+    total_papers: number;
+    processed_papers: number;
+    failed_papers: number;
+    created_at: string | null;
+    completed_at: string | null;
+    progress_percentage: number;
+    project_name: string | null;
+}
+
+/**
+ * Recent jobs API response
+ */
+interface RecentJobsResponse {
+    success: boolean;
+    jobs: RecentJob[];
+    total: number;
+}
+
+/**
+ * Load and display recent jobs
+ */
+async function loadRecentJobs(): Promise<void> {
+    try {
+        const response = await fetch('/scholar/api/bibtex/recent-jobs/');
+        if (!response.ok) {
+            console.warn('[BibTeX] Failed to load recent jobs:', response.status);
+            return;
+        }
+
+        const data: RecentJobsResponse = await response.json();
+
+        if (!data.success || !data.jobs || data.jobs.length === 0) {
+            // Show "no jobs" message
+            const noJobsMsg = document.getElementById('noRecentJobsMessage');
+            const jobsContainer = document.getElementById('recentJobsContainer');
+            if (noJobsMsg) noJobsMsg.style.display = 'block';
+            if (jobsContainer) jobsContainer.style.display = 'none';
+            return;
+        }
+
+        // Hide "no jobs" message and show container
+        const noJobsMsg = document.getElementById('noRecentJobsMessage');
+        const jobsContainer = document.getElementById('recentJobsContainer');
+        if (noJobsMsg) noJobsMsg.style.display = 'none';
+        if (jobsContainer) {
+            jobsContainer.style.display = 'flex';
+            renderRecentJobs(data.jobs, jobsContainer);
+        }
+
+    } catch (error) {
+        console.error('[BibTeX] Error loading recent jobs:', error);
+    }
+}
+
+/**
+ * Render recent jobs as compact cards
+ */
+function renderRecentJobs(jobs: RecentJob[], container: HTMLElement): void {
+    container.innerHTML = jobs.map(job => {
+        const statusBadge = getStatusBadge(job.status);
+        const createdDate = job.created_at ? new Date(job.created_at).toLocaleDateString() : 'Unknown';
+        const jobUrl = `/scholar/bibtex/job/${job.id}/`;
+
+        return `
+            <div class="recent-job-card" style="min-width: 200px; padding: 1rem; border: 1px solid var(--color-border-default); border-radius: 6px; background: var(--color-canvas-subtle); cursor: pointer; transition: all 0.2s ease;" onclick="window.location.href='${jobUrl}'">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                    <div style="font-weight: 600; color: var(--color-fg-default); font-size: 0.9rem; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${job.original_filename}">
+                        ${job.original_filename}
+                    </div>
+                    ${statusBadge}
+                </div>
+                <div style="font-size: 0.75rem; color: var(--color-fg-muted); margin-bottom: 0.5rem;">
+                    ${job.total_papers || 0} papers
+                </div>
+                <div style="font-size: 0.7rem; color: var(--color-fg-muted);">
+                    ${createdDate}
+                </div>
+                ${job.progress_percentage !== undefined && job.status === 'processing' ? `
+                    <div style="margin-top: 0.5rem; background: var(--color-border-default); height: 4px; border-radius: 2px; overflow: hidden;">
+                        <div style="height: 100%; background: var(--scitex-color-03); width: ${job.progress_percentage}%; transition: width 0.3s ease;"></div>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+    }).join('');
+}
+
+/**
+ * Get status badge HTML
+ */
+function getStatusBadge(status: string): string {
+    const badges: { [key: string]: { text: string; color: string } } = {
+        'completed': { text: '✓', color: 'var(--scitex-color-03)' },
+        'processing': { text: '⋯', color: 'var(--scitex-color-04)' },
+        'failed': { text: '✗', color: 'var(--color-danger-fg)' },
+        'pending': { text: '○', color: 'var(--color-fg-muted)' },
+        'cancelled': { text: '✗', color: 'var(--color-fg-muted)' }
+    };
+
+    const badge = badges[status] || badges['pending'];
+    return `<div style="font-size: 1.2rem; color: ${badge.color}; font-weight: bold;">${badge.text}</div>`;
+}
+
 // Initialize on DOM ready
 document.addEventListener('DOMContentLoaded', function() {
     initBibtexEnrichment();
+    loadRecentJobs();
 });
