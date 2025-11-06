@@ -279,10 +279,18 @@ function pollBibtexJobStatus(jobId: string, attempts: number = 0): void {
     // Store job ID globally for "Open All URLs" button
     window.currentBibtexJobId = jobId;
 
+    // Show enrichment running indicator on first call
+    if (attempts === 0) {
+        const runningIndicator = document.getElementById('enrichmentRunningIndicator') as HTMLElement | null;
+        if (runningIndicator) runningIndicator.style.display = 'block';
+    }
+
     if (attempts > 180) {
         console.error('[BibTeX] Polling timeout after 180 attempts');
         const log = document.getElementById('processingLog') as HTMLElement | null;
+        const enrichmentLog = document.getElementById('enrichmentProcessingLog') as HTMLElement | null;
         if (log) log.textContent += '\n\n✗ Polling timeout. Please refresh the page.';
+        if (enrichmentLog) enrichmentLog.textContent += '\n\n✗ Polling timeout. Please refresh the page.';
         return;
     }
 
@@ -292,28 +300,35 @@ function pollBibtexJobStatus(jobId: string, attempts: number = 0): void {
             return response.json();
         })
         .then((data: JobStatusResponse) => {
-            // Update progress
+            // Update progress in running indicator
             if (data.progress_percentage !== undefined) {
-                const progressBar = document.getElementById('progressBar') as HTMLElement | null;
-                const progressPercentage = document.getElementById('progressPercentage') as HTMLElement | null;
+                const progressBar = document.getElementById('enrichmentProgressBar') as HTMLElement | null;
+                const progressPercent = document.getElementById('progressPercent') as HTMLElement | null;
                 if (progressBar) progressBar.style.width = `${data.progress_percentage}%`;
-                if (progressPercentage) progressPercentage.textContent = `${data.progress_percentage}%`;
+                if (progressPercent) progressPercent.textContent = `${data.progress_percentage}%`;
             }
 
-            // Update paper counts
+            // Update status text in running indicator
             if (data.total_papers !== undefined) {
-                let text = `${data.processed_papers} / ${data.total_papers} papers processed`;
-                if (data.failed_papers && data.failed_papers > 0) text += ` (${data.failed_papers} failed)`;
-                const progressDetails = document.getElementById('progressDetails') as HTMLElement | null;
-                if (progressDetails) progressDetails.textContent = text;
+                let statusText = `Processing ${data.processed_papers}/${data.total_papers} papers`;
+                if (data.failed_papers && data.failed_papers > 0) statusText += ` (${data.failed_papers} failed)`;
+                const progressStatus = document.getElementById('progressStatus') as HTMLElement | null;
+                if (progressStatus) progressStatus.textContent = statusText;
             }
 
-            // Update log
+            // Update logs (both running indicator and sidebar)
             if (data.log) {
                 const processingLog = document.getElementById('processingLog') as HTMLElement | null;
+                const enrichmentLog = document.getElementById('enrichmentProcessingLog') as HTMLElement | null;
+
                 if (processingLog) {
                     processingLog.textContent = data.log;
                     processingLog.scrollTop = processingLog.scrollHeight;
+                }
+
+                if (enrichmentLog) {
+                    enrichmentLog.textContent = data.log;
+                    enrichmentLog.scrollTop = enrichmentLog.scrollHeight;
                 }
             }
 
@@ -322,12 +337,24 @@ function pollBibtexJobStatus(jobId: string, attempts: number = 0): void {
                 console.log('[BibTeX] Job completed! Setting up download...');
                 const downloadUrl = `/scholar/api/bibtex/job/${jobId}/download/`;
 
+                // Hide running indicator
+                const runningIndicator = document.getElementById('enrichmentRunningIndicator') as HTMLElement | null;
+                if (runningIndicator) runningIndicator.style.display = 'none';
+
                 // Enable download button
-                const downloadBtn = document.getElementById('downloadBtn') as HTMLAnchorElement | null;
+                const downloadBtn = document.getElementById('downloadBtn') as HTMLButtonElement | null;
                 if (downloadBtn) {
-                    downloadBtn.href = downloadUrl;
+                    downloadBtn.disabled = false;
                     downloadBtn.classList.remove('disabled');
                     downloadBtn.style.opacity = '1';
+                    downloadBtn.onclick = () => autoDownloadBibtexFile(downloadUrl);
+                }
+
+                // Enable save to project button
+                const saveBtn = document.getElementById('saveToProjectBtn') as HTMLButtonElement | null;
+                if (saveBtn) {
+                    saveBtn.disabled = false;
+                    saveBtn.style.opacity = '1';
                 }
 
                 // Enable other buttons
@@ -364,8 +391,17 @@ function pollBibtexJobStatus(jobId: string, attempts: number = 0): void {
             } else if (data.status === 'failed') {
                 console.log('[BibTeX] Job failed:', data.error_message);
                 const log = document.getElementById('processingLog') as HTMLElement | null;
-                if (log) log.textContent += '\n\n✗ ERROR: ' + (data.error_message || 'Unknown error');
-                setTimeout(() => resetBibtexForm(), 5000);
+                const enrichmentLog = document.getElementById('enrichmentProcessingLog') as HTMLElement | null;
+                const errorMsg = '\n\n✗ ERROR: ' + (data.error_message || 'Unknown error');
+                if (log) log.textContent += errorMsg;
+                if (enrichmentLog) enrichmentLog.textContent += errorMsg;
+
+                // Hide running indicator after delay
+                setTimeout(() => {
+                    const runningIndicator = document.getElementById('enrichmentRunningIndicator') as HTMLElement | null;
+                    if (runningIndicator) runningIndicator.style.display = 'none';
+                    resetBibtexForm();
+                }, 5000);
             } else {
                 setTimeout(() => pollBibtexJobStatus(jobId, attempts + 1), 2000);
             }
@@ -586,6 +622,26 @@ function displayBibtexDiff(diffData: any[], stats: any): void {
 (window as any).closeBibtexDiff = function(): void {
     const modal = document.getElementById('bibtexDiffModal') as HTMLElement | null;
     if (modal) modal.style.display = 'none';
+};
+
+/**
+ * Toggle processing log visibility in the running indicator
+ */
+(window as any).toggleProcessingLogVisibility = function(): void {
+    const log = document.getElementById('enrichmentProcessingLog') as HTMLElement | null;
+    const icon = document.getElementById('logToggleIcon') as HTMLElement | null;
+
+    if (log && icon) {
+        if (log.style.display === 'none') {
+            log.style.display = 'block';
+            icon.classList.remove('fa-chevron-down');
+            icon.classList.add('fa-chevron-up');
+        } else {
+            log.style.display = 'none';
+            icon.classList.remove('fa-chevron-up');
+            icon.classList.add('fa-chevron-down');
+        }
+    }
 };
 
 /**
