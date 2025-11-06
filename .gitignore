@@ -678,6 +678,22 @@ package-lock.json
 media/users/
 coverage/
 
+### TypeScript Compiled Output ###
+# Ignore all compiled TypeScript files in static directories
+# Only track source .ts files, not compiled .js/.d.ts/.map files
+apps/*/static/*/js/**/*.js
+apps/*/static/*/js/**/*.js.map
+apps/*/static/*/js/**/*.d.ts
+apps/*/static/*/js/**/*.d.ts.map
+static/*/js/**/*.js
+static/*/js/**/*.js.map
+static/*/js/**/*.d.ts
+static/*/js/**/*.d.ts.map
+static/js/**/*.js
+static/js/**/*.js.map
+static/js/**/*.d.ts
+static/js/**/*.d.ts.map
+
 ### Django Security ###
 # Environment variables and secrets
 # IMPORTANT: All dotenv files should be gitignored to prevent secret leaks
