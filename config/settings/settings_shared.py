@@ -253,6 +253,9 @@ EMAIL_HOST_PASSWORD = os.getenv("SCITEX_CLOUD_EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 SERVER_EMAIL = EMAIL_HOST_USER
 
+# Site URL for generating absolute URLs in emails
+SITE_URL = os.getenv("SCITEX_CLOUD_SITE_URL", "http://127.0.0.1:8000")
+
 # Default primary key field type
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 

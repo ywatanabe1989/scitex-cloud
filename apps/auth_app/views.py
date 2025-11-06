@@ -63,6 +63,15 @@ def signup(request):
                 if migrated:
                     logger.info(f"Migrated anonymous session data for new user {username}")
 
+            # Claim visitor project if user was using visitor pool
+            # This transfers visitor-XXX's default-project to the new user's default-project
+            from apps.project_app.services.visitor_pool import VisitorPool
+            claimed_project = VisitorPool.claim_project_on_signup(request.session, user)
+            if claimed_project:
+                logger.info(f"Claimed visitor project for new user {username}: {claimed_project.id}")
+            else:
+                logger.info(f"No visitor project to claim for new user {username}")
+
             # Create email verification record
             from .models import EmailVerification
             verification = EmailVerification.objects.create(
@@ -220,8 +229,13 @@ def forgot_password(request):
             domain = request.get_host()
             reset_url = f"{protocol}://{domain}/auth/reset-password/{uid}/{token}/"
 
-            # Send email
+            # Send email with HTML template
             subject = "Password Reset Request - SciTeX"
+
+            # Get site URL from settings
+            site_url = getattr(settings, 'SITE_URL', 'http://127.0.0.1:8000')
+
+            # Plain text message
             message = f"""Hello {user.username},
 
 You requested a password reset for your SciTeX account.
@@ -237,6 +251,51 @@ Best regards,
 The SciTeX Team
 """
 
+            # HTML message with styled template
+            html_message = f"""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <link rel="icon" type="image/png" href="{site_url}/static/shared/images/favicon.png">
+                <link rel="shortcut icon" type="image/png" href="{site_url}/static/shared/images/favicon.png">
+            </head>
+            <body>
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                <div style="text-align: left; margin-bottom: 30px;">
+                    <img src="{site_url}/static/shared/images/scitex_logos/scitex-logo-cropped.png" alt="SciTeX Logo" style="height: 60px; margin-bottom: 20px;">
+                    <h2 style="margin-top: 20px;">Password Reset Request</h2>
+                </div>
+
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                    <p>Hello <strong>{user.username}</strong>,</p>
+                    <p>You requested a password reset for your SciTeX account.</p>
+
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="{reset_url}" style="display: inline-block; background: #4a6baf; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
+                            Reset Your Password
+                        </a>
+                    </div>
+
+                    <p><strong>Important:</strong></p>
+                    <ul>
+                        <li>This link will expire in 24 hours</li>
+                        <li>If you didn't request this reset, please ignore this email</li>
+                        <li>Your password will not change unless you click the link above</li>
+                    </ul>
+                </div>
+
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #dee2e6; color: #666; font-size: 14px;">
+                    <div style="text-align: center; margin-bottom: 15px;">
+                        <img src="{site_url}/static/shared/images/scitex_logos/vectorstock/vectorstock_38853699-navy-inverted-48x48.png" alt="SciTeX" style="height: 32px; opacity: 0.6;">
+                    </div>
+                    <p>If you didn't request this password reset, please ignore this email or contact support if you have concerns.</p>
+                    <p>Best regards,<br>The SciTeX Team</p>
+                </div>
+            </div>
+            </body>
+            </html>
+            """
+
             try:
                 logger.info(f"Attempting to send password reset email to {email}")
                 logger.info(f"From: {settings.DEFAULT_FROM_EMAIL}")
@@ -248,6 +307,7 @@ The SciTeX Team
                     settings.DEFAULT_FROM_EMAIL,
                     [email],
                     fail_silently=False,
+                    html_message=html_message,
                 )
                 logger.info(f"Password reset email sent successfully to {email}")
                 messages.success(
