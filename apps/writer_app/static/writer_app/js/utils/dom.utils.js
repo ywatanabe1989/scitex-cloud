@@ -4,6 +4,7 @@
 /**
  * Safely query element from DOM
  */
+console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/utils/dom.utils.ts loaded");
 export function querySelector(selector) {
     try {
         return document.querySelector(selector);

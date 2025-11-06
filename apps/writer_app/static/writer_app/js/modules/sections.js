@@ -3,11 +3,16 @@
  * Handles hierarchical document sections (Shared, Manuscript, Supplementary, Revision)
  */
 import { StorageManager } from '@/utils/storage';
+console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/modules/sections.ts loaded");
 export class SectionsManager {
+    sections = new Map();
+    hierarchy = null;
+    storage;
+    currentSection = 'manuscript/compiled_pdf';
+    onSectionChangeCallback;
+    onSectionsUpdateCallback;
+    onHierarchyLoadCallback;
     constructor() {
-        this.sections = new Map();
-        this.hierarchy = null;
-        this.currentSection = 'manuscript/compiled_pdf';
         this.storage = new StorageManager('writer_sections_');
         this.initializeSections();
     }

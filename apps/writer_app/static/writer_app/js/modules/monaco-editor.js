@@ -4,12 +4,17 @@
  * Falls back to CodeMirror if Monaco is not available
  */
 import { StorageManager } from '@/utils/storage';
+console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/modules/monaco-editor.ts loaded");
 export class EnhancedEditor {
+    editor; // Monaco or CodeMirror instance
+    editorType = 'codemirror';
+    storage;
+    history = [];
+    historyIndex = -1;
+    maxHistorySize = 50;
+    onChangeCallback;
+    monacoEditor;
     constructor(config) {
-        this.editorType = 'codemirror';
-        this.history = [];
-        this.historyIndex = -1;
-        this.maxHistorySize = 50;
         this.storage = new StorageManager('writer_editor_');
         // Try to use Monaco if requested and available
         if (config.useMonaco !== false && window.monaco) {
@@ -239,6 +244,18 @@ export class EnhancedEditor {
             ],
             contextMenuGroupId: 'modification',
             contextMenuOrder: 1.5,
+            run: (editor) => {
+                // Use Monaco's built-in toggle line comment action
+                editor.trigger('keyboard', 'editor.action.commentLine', {});
+            }
+        });
+        // Add Ctrl+; (C-;) as alternative comment toggle shortcut
+        this.monacoEditor.addAction({
+            id: 'toggle-line-comment-alt',
+            label: 'Toggle Line Comment (Alt)',
+            keybindings: [
+                monaco.KeyMod.CtrlCmd | monaco.KeyCode.Semicolon
+            ],
             run: (editor) => {
                 // Use Monaco's built-in toggle line comment action
                 editor.trigger('keyboard', 'editor.action.commentLine', {});
