@@ -106,16 +106,12 @@ function updatePasswordRule(element: HTMLElement, isValid: boolean, hasInput: bo
     if (!icon) return;
 
     if (isValid) {
-        element.style.color = '#28a745';  // Green
         element.classList.add('valid');
         icon.className = 'fas fa-check';
-    } else if (hasInput) {
-        element.style.color = '#dc3545';  // Red
+    } else {
+        // Invalid state: red X (default)
         element.classList.add('invalid');
         icon.className = 'fas fa-times';
-    } else {
-        element.style.color = '#6c757d';  // Gray
-        icon.className = 'fas fa-circle';
     }
 }
 
@@ -149,11 +145,11 @@ document.addEventListener('DOMContentLoaded', () => {
         requirementsDiv.className = 'password-rules';
         requirementsDiv.innerHTML = `
             <div class="password-rules-title">Password Requirements:</div>
-            <div class="password-rule" id="rule-length"><i class="fas fa-circle"></i> At least 8 characters</div>
-            <div class="password-rule" id="rule-lowercase"><i class="fas fa-circle"></i> At least one lowercase letter</div>
-            <div class="password-rule" id="rule-uppercase"><i class="fas fa-circle"></i> At least one uppercase letter</div>
-            <div class="password-rule" id="rule-number"><i class="fas fa-circle"></i> At least one number</div>
-            <div class="password-rule" id="rule-special"><i class="fas fa-circle"></i> At least one special character (!@#$%^&*)</div>
+            <div class="password-rule invalid" id="rule-length"><i class="fas fa-times"></i> At least 8 characters</div>
+            <div class="password-rule invalid" id="rule-lowercase"><i class="fas fa-times"></i> At least one lowercase letter</div>
+            <div class="password-rule invalid" id="rule-uppercase"><i class="fas fa-times"></i> At least one uppercase letter</div>
+            <div class="password-rule invalid" id="rule-number"><i class="fas fa-times"></i> At least one number</div>
+            <div class="password-rule invalid" id="rule-special"><i class="fas fa-times"></i> At least one special character (!@#$%^&*)</div>
         `;
 
         // Insert after new password input group
@@ -329,6 +325,3 @@ if (typeof window !== 'undefined') {
     window.checkDeleteAccountInput = checkDeleteAccountInput;
     window.submitDeleteAccount = submitDeleteAccount;
 }
-
-// Make this file a module to allow global augmentation
-export {};
