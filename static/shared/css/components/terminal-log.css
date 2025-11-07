@@ -123,6 +123,46 @@
   opacity: 0.7;
 }
 
+/* ANSI Color Classes (for shell script output) - Theme Responsive */
+
+/* Dark theme ANSI colors (default) */
+.ansi-black { color: var(--color-canvas-inset, #3e3e3e); }
+.ansi-red { color: var(--error-color, #f14c4c); }
+.ansi-green { color: var(--success-color, #0dbc79); }
+.ansi-yellow { color: var(--warning-color, #e5e510); }
+.ansi-blue { color: var(--info-color, #3b8eea); }
+.ansi-magenta { color: #bc3fbc; }
+.ansi-cyan { color: #29b8db; }
+.ansi-white { color: var(--color-fg-default, #e5e5e5); }
+
+.ansi-bright-black { color: var(--color-fg-muted, #888888); }
+.ansi-bright-red { color: var(--error-color, #f14c4c); }
+.ansi-bright-green { color: var(--success-color, #23d18b); }
+.ansi-bright-yellow { color: var(--warning-color, #f5f543); }
+.ansi-bright-blue { color: var(--info-color, #5aa9f5); }
+.ansi-bright-magenta { color: #d670d6; }
+.ansi-bright-cyan { color: #5dcfe3; }
+.ansi-bright-white { color: var(--color-fg-emphasis, #ffffff); }
+
+/* Light theme ANSI overrides */
+[data-theme="light"] .ansi-black { color: #1a1a1a; }
+[data-theme="light"] .ansi-red { color: #cd3131; }
+[data-theme="light"] .ansi-green { color: #0dbc79; }
+[data-theme="light"] .ansi-yellow { color: #c19c00; }
+[data-theme="light"] .ansi-blue { color: #2472c8; }
+[data-theme="light"] .ansi-magenta { color: #a03ea0; }
+[data-theme="light"] .ansi-cyan { color: #0e98ba; }
+[data-theme="light"] .ansi-white { color: var(--color-fg-default, #333333); }
+
+[data-theme="light"] .ansi-bright-black { color: #666666; }
+[data-theme="light"] .ansi-bright-red { color: #e03838; }
+[data-theme="light"] .ansi-bright-green { color: #0dbc79; }
+[data-theme="light"] .ansi-bright-yellow { color: #d4a000; }
+[data-theme="light"] .ansi-bright-blue { color: #3b8eea; }
+[data-theme="light"] .ansi-bright-magenta { color: #c550c5; }
+[data-theme="light"] .ansi-bright-cyan { color: #11a8cd; }
+[data-theme="light"] .ansi-bright-white { color: #2a2a2a; }
+
 /* Terminal Log Container Wrapper */
 .terminal-log-container {
   margin-bottom: 1.5rem;

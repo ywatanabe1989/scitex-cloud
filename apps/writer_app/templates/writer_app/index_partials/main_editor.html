@@ -220,15 +220,33 @@
     <!-- Inline Compilation Output (Initially Hidden) -->
     <div id="compilation-output" class="compilation-output" style="display: none;">
       <div class="compilation-output-header">
-        <div>
-          <i class="fas fa-terminal me-2"></i>Compilation Output
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <i id="compilation-icon" class="fas fa-terminal"></i>
+          <span id="compilation-header-title">Compilation Output</span>
         </div>
         <button id="close-compilation-output" class="btn btn-sm btn-outline-secondary">
           <i class="fas fa-times"></i>
         </button>
       </div>
-      <div id="compilation-log-inline" class="compilation-log-inline">
+
+      <!-- Progress Bar -->
+      <div id="compilation-progress-container" style="display: none; padding: 0.75rem 1rem; border-bottom: 1px solid var(--color-border-default);">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem; font-size: 0.85rem;">
+          <span id="compilation-progress-percent">0%</span>
+          <span id="compilation-progress-status">Initializing...</span>
+        </div>
+        <div style="background: var(--color-canvas-subtle); height: 6px; border-radius: 3px; overflow: hidden;">
+          <div id="compilation-progress-bar" style="background: var(--color-accent-emphasis); height: 100%; width: 0%; transition: width 0.3s ease; border-radius: 3px;"></div>
+        </div>
+      </div>
+
+      <!-- Log Output (using terminal-log component) -->
+      <div id="compilation-log-inline" class="terminal-log terminal-log--medium">
         Click "Compile" to start compilation...
+      </div>
+
+      <!-- Success/Error Messages -->
+      <div id="compilation-result-inline" style="display: none; padding: 1rem; border-top: 1px solid var(--color-border-default);">
       </div>
     </div>
 
@@ -534,4 +552,5 @@
     </div>
   </div>
 </div>
+
 </div>

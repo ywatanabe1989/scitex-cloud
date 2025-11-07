@@ -74,6 +74,11 @@ urlpatterns = [
         name="api-compile-full",
     ),
     path(
+        "project/<int:project_id>/compilation/status/<str:job_id>/",
+        api_views.compilation_job_status,
+        name="api-compilation-status",
+    ),
+    path(
         "project/<int:project_id>/compile/",
         api_views.compile_view,
         name="api-compile",
