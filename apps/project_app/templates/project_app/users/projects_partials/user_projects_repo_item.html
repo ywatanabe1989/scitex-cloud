@@ -1,11 +1,12 @@
 {% load static %}
 <!-- Single Repository List Item -->
-<article class="repo-item">
+<article class="repo-item repo-item-clickable">
+    <a href="{{ project.get_absolute_url }}" class="repo-item-link" aria-label="View {{ project.name }}"></a>
     <div class="repo-header" style="display: flex; justify-content: space-between; align-items: center;">
         <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-            <a href="{{ project.get_absolute_url }}" class="text-link font-semibold text-lg">
+            <span class="text-link font-semibold text-lg">
                 {{ project.name }}
-            </a>
+            </span>
             <span class="repo-visibility">
                 {% if project.visibility == 'private' %}
                     <img src="{% static 'project_app/icons/lock.svg' %}" alt="" style="width: 14px; height: 14px; vertical-align: text-bottom; margin-right: 4px;">Private
