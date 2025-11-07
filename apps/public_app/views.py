@@ -617,6 +617,11 @@ def api_docs(request):
     return render(request, "public_app/pages/api_docs.html")
 
 
+def release_notes(request):
+    """Release Notes page showing comprehensive development history."""
+    return render(request, "public_app/release_note.html")
+
+
 # Missing view functions - added during cleanup to fix URL import errors
 def demo(request):
     """Demo page."""

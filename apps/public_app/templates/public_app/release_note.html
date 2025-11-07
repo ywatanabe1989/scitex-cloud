@@ -1,0 +1,395 @@
+{% extends 'global_base.html' %}
+{% load static %}
+
+{% block title %}Release Notes - SciTeX Cloud{% endblock %}
+
+{% block extra_js %}
+<!-- Chart.js libraries -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+<!-- TODO: Move inline script below to apps/public_app/static/public_app/js/release-timeline.js -->
+<!-- Currently inline due to permission issues on js/ directory (owned by root) -->
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'public_app/css/release-notes.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="release-notes-container">
+
+  <div class="release-header">
+    <h1>SciTeX Cloud Release Notes</h1>
+    <p>Building the future of scientific research collaboration</p>
+  </div>
+
+  <div class="stats-box">
+    <div class="stat-item">
+      <span class="stat-number">592</span>
+      <span class="stat-label">Total Commits</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-number">6</span>
+      <span class="stat-label">Months of Development</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-number">4</span>
+      <span class="stat-label">Core Modules</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-number">2</span>
+      <span class="stat-label">Contributors</span>
+    </div>
+  </div>
+
+  <!-- Development Timeline Chart -->
+  <div class="chart-container">
+    <h2>Development Timeline</h2>
+    <div class="chart-wrapper">
+      <canvas id="commitTimeline"></canvas>
+    </div>
+  </div>
+
+  <div class="release-month">
+    <div class="month-header">
+      <h2>November 2025</h2>
+      <span class="month-badge">115 commits</span>
+    </div>
+    <ul class="feature-list">
+
+      <li class="feature-item">
+        <h3>Smart Citation Autocomplete</h3>
+        <p>
+          Revolutionary citation management with intelligent autocomplete. Type <code>\cite</code> and get instant suggestions with fuzzy search across titles, authors, journals, and abstracts.
+          Automatic detail expansion, drag-and-drop citation insertion, atomic citation editing, and rich metadata display showing impact factors, citation counts, and abstracts.
+          Citations are sorted by impact with the most cited papers appearing first.
+        </p>
+      </li>
+
+      <li class="feature-item">
+        <h3>BibTeX Enrichment & Deduplication</h3>
+        <p>
+          Upload BibTeX files and automatically enrich them with citation counts, impact factors, abstracts, and URLs.
+          Intelligent deduplication using DOI-based and metadata-based fingerprinting removes duplicate entries.
+          Real-time progress tracking with detailed processing logs shows enrichment status for each paper.
+        </p>
+      </li>
+
+      <li class="feature-item">
+        <h3>Anonymous Visitor Access</h3>
+        <p>
+          Try SciTeX Writer without creating an account. Visitor pool system with 32 demo projects allows anonymous users to experience the platform.
+          Automatic project allocation, seamless upgrade path to full accounts, and comprehensive visitor documentation.
+        </p>
+      </li>
+
+      <li class="feature-item">
+        <h3>Emacs-Style Cursor Memory</h3>
+        <p>
+          Editor remembers your cursor position for each section. When switching between sections, your cursor returns to exactly where you left off.
+          Content hash verification ensures positions are only restored when content matches.
+        </p>
+      </li>
+
+      <li class="feature-item">
+        <h3>User Feedback Improvements</h3>
+        <p>
+          Visual feedback for all actions: loading states on buttons, success alerts showing file paths when saving,
+          download confirmations with file sizes, and persistent alerts. No more silent operations!
+        </p>
+      </li>
+
+    </ul>
+  </div>
+
+  <div class="release-month">
+    <div class="month-header">
+      <h2>October 2025</h2>
+      <span class="month-badge">447 commits</span>
+    </div>
+    <ul class="feature-list">
+
+      <li class="feature-item">
+        <h3>Complete TypeScript Migration</h3>
+        <p>
+          100% migration from JavaScript to TypeScript across all apps. ES2022 modern syntax, full type safety with strict mode,
+          comprehensive type definitions, and automated build system with hot-reloading.
+          Perfect three-layer mirroring: Templates - CSS - TypeScript.
+        </p>
+      </li>
+
+      <li class="feature-item">
+        <h3>App-Centric Architecture Refactoring</h3>
+        <p>
+          Complete reorganization following Django best practices. Each app now has clear templates, static, views, and services structure.
+          Eliminated 4,500+ lines of duplicate code and consolidated CSS architecture.
+        </p>
+      </li>
+
+      <li class="feature-item">
+        <h3>Writer Editor Enhancements</h3>
+        <p>
+          Monaco Editor integration with LaTeX support, theme-aware syntax highlighting, real-time PDF preview with auto-compilation,
+          draggable panel resizer, font size controls with keyboard shortcuts, and section-specific preview compilation.
+        </p>
+      </li>
+
+      <li class="feature-item">
+        <h3>Advanced Theme System</h3>
+        <p>
+          System-wide light/dark theme support with instant switching, theme-responsive components across all modules,
+          persistent theme preferences, and CodeMirror/Monaco theme synchronization.
+        </p>
+      </li>
+
+      <li class="feature-item">
+        <h3>UI/UX Overhaul</h3>
+        <p>
+          Modern alert components, improved button system with proper variants, beautiful code blocks with syntax highlighting and copy buttons,
+          responsive tabs and navigation, and comprehensive design system documentation.
+        </p>
+      </li>
+
+    </ul>
+  </div>
+
+  <div class="release-month">
+    <div class="month-header">
+      <h2>July 2025</h2>
+      <span class="month-badge">6 commits</span>
+    </div>
+    <ul class="feature-list">
+
+      <li class="feature-item">
+        <h3>Project-Centric Architecture</h3>
+        <p>
+          Redesigned navigation to be project-centric. All modules (Scholar, Writer, Code, Viz) now link to specific projects,
+          improving workflow coherence and user experience.
+        </p>
+      </li>
+
+    </ul>
+  </div>
+
+  <div class="release-month">
+    <div class="month-header">
+      <h2>June 2025</h2>
+      <span class="month-badge">21 commits</span>
+    </div>
+    <ul class="feature-list">
+
+      <li class="feature-item">
+        <h3>SciTeX Cloud Platform Launch</h3>
+        <p>
+          Initial release of SciTeX Cloud - an integrated platform for scientific research. Complete ecosystem with
+          Scholar (literature management), Writer (LaTeX collaboration), Code (analysis), and Viz (visualization) modules.
+        </p>
+      </li>
+
+      <li class="feature-item">
+        <h3>Scholar Module Foundation</h3>
+        <p>
+          Advanced paper acquisition system with citation export, performance optimization with caching,
+          personal library management, and paper similarity recommendations powered by ML.
+        </p>
+      </li>
+
+      <li class="feature-item">
+        <h3>Production Infrastructure</h3>
+        <p>
+          Docker-based deployment, database migrations, SSL/HTTPS support, comprehensive logging infrastructure,
+          and automatic cache table creation for production stability.
+        </p>
+      </li>
+
+    </ul>
+  </div>
+
+  <div class="cta-section">
+    <h2>Ready to Transform Your Research Workflow?</h2>
+    <p>Join researchers worldwide using SciTeX Cloud for seamless scientific collaboration</p>
+    <div class="cta-buttons">
+      <a href="/signup/" class="btn btn-primary">Get Started Free</a>
+      <a href="{% url 'public_app:index' %}#features" class="btn btn-outline-primary">Learn More</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// Create commit timeline chart
+document.addEventListener('DOMContentLoaded', function() {
+  const ctx = document.getElementById('commitTimeline');
+  if (!ctx) return;
+
+  // Cumulative commit data by date
+  const commitData = [
+    { date: '2025-06-28', commits: 9, cumulative: 9, milestone: 'Platform Launch' },
+    { date: '2025-06-30', commits: 12, cumulative: 21, milestone: null },
+    { date: '2025-07-01', commits: 6, cumulative: 27, milestone: 'Project-Centric Architecture' },
+    { date: '2025-10-16', commits: 45, cumulative: 73, milestone: 'Design System' },
+    { date: '2025-10-17', commits: 69, cumulative: 142, milestone: 'Dark Mode & Templates' },
+    { date: '2025-10-20', commits: 31, cumulative: 173, milestone: null },
+    { date: '2025-10-22', commits: 57, cumulative: 230, milestone: null },
+    { date: '2025-10-23', commits: 66, cumulative: 296, milestone: null },
+    { date: '2025-10-24', commits: 39, cumulative: 335, milestone: null },
+    { date: '2025-10-26', commits: 23, cumulative: 358, milestone: null },
+    { date: '2025-10-27', commits: 39, cumulative: 397, milestone: 'Code Blocks & Alerts' },
+    { date: '2025-10-28', commits: 27, cumulative: 424, milestone: null },
+    { date: '2025-10-29', commits: 7, cumulative: 431, milestone: 'Writer API Layer' },
+    { date: '2025-10-30', commits: 15, cumulative: 446, milestone: 'Monaco Editor' },
+    { date: '2025-11-01', commits: 5, cumulative: 451, milestone: null },
+    { date: '2025-11-02', commits: 6, cumulative: 457, milestone: 'SSL & Production' },
+    { date: '2025-11-03', commits: 37, cumulative: 494, milestone: 'Visitor Pool System' },
+    { date: '2025-11-04', commits: 25, cumulative: 519, milestone: 'TypeScript Migration' },
+    { date: '2025-11-06', commits: 28, cumulative: 547, milestone: 'Complete TS Migration' },
+    { date: '2025-11-07', commits: 14, cumulative: 561, milestone: 'Citation Autocomplete' }
+  ];
+
+  // Calculate true cumulative
+  let cumulative = 0;
+  const chartData = commitData.map(d => {
+    cumulative += d.commits;
+    return {
+      date: d.date,
+      cumulative: cumulative,
+      milestone: d.milestone,
+      commits: d.commits
+    };
+  });
+
+  // Separate data for line and milestones
+  const lineData = chartData.map(d => ({ x: d.date, y: d.cumulative }));
+  const milestoneData = chartData.filter(d => d.milestone).map(d => ({
+    x: d.date,
+    y: d.cumulative,
+    label: d.milestone,
+    commits: d.commits
+  }));
+
+  // Get theme-aware colors
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const lineColor = isDark ? 'rgb(107, 143, 179)' : 'rgb(70, 100, 130)';
+  const lineBgColor = isDark ? 'rgba(107, 143, 179, 0.2)' : 'rgba(107, 143, 179, 0.15)';
+  const milestoneColor = isDark ? 'rgb(184, 149, 106)' : 'rgb(200, 120, 70)';
+  const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+  const textColor = isDark ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.8)';
+
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      datasets: [
+        {
+          label: 'Cumulative Commits',
+          data: lineData,
+          borderColor: lineColor,
+          backgroundColor: lineBgColor,
+          borderWidth: 3,
+          fill: true,
+          tension: 0.4,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          pointBackgroundColor: lineColor,
+          pointBorderColor: lineColor
+        },
+        {
+          label: 'Major Milestones',
+          data: milestoneData,
+          type: 'scatter',
+          backgroundColor: milestoneColor,
+          borderColor: milestoneColor,
+          pointRadius: 8,
+          pointHoverRadius: 12,
+          pointStyle: 'star'
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        mode: 'index',
+        intersect: false
+      },
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top',
+          labels: {
+            usePointStyle: true,  // Use actual point style instead of rectangle
+            padding: 15,
+            color: textColor,
+            generateLabels: function(chart) {
+              const datasets = chart.data.datasets;
+              return datasets.map((dataset, i) => ({
+                text: dataset.label,
+                fillStyle: dataset.backgroundColor,
+                strokeStyle: dataset.borderColor,
+                lineWidth: dataset.borderWidth || 0,
+                hidden: !chart.isDatasetVisible(i),
+                index: i,
+                pointStyle: dataset.pointStyle || (dataset.type === 'scatter' ? 'star' : 'circle')
+              }));
+            }
+          }
+        },
+        tooltip: {
+          callbacks: {
+            title: function(context) {
+              if (context[0].dataset.label === 'Major Milestones') {
+                const point = milestoneData[context[0].dataIndex];
+                return point.label;
+              }
+              return context[0].label;
+            },
+            label: function(context) {
+              if (context.dataset.label === 'Major Milestones') {
+                const point = milestoneData[context.dataIndex];
+                return `${point.commits} commits • Total: ${point.y}`;
+              }
+              return `Total Commits: ${context.parsed.y}`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          type: 'time',
+          time: {
+            unit: 'month',
+            displayFormats: {
+              month: 'MMM yyyy'
+            }
+          },
+          title: {
+            display: true,
+            text: 'Development Timeline',
+            color: textColor
+          },
+          ticks: {
+            color: textColor
+          },
+          grid: {
+            color: gridColor
+          }
+        },
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: 'Cumulative Commits',
+            color: textColor
+          },
+          ticks: {
+            color: textColor
+          },
+          grid: {
+            color: gridColor
+          }
+        }
+      }
+    }
+  });
+});
+</script>
+{% endblock %}
