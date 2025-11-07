@@ -28,7 +28,7 @@ class ElementInspector {
         console.log('[ElementInspector] Initialized - Press Ctrl+Shift+I to toggle');
     }
 
-    private toggle(): void {
+    public toggle(): void {
         if (this.isActive) {
             this.deactivate();
         } else {
