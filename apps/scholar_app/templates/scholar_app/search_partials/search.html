@@ -1,7 +1,7 @@
 {% load static %}
 <!-- Literature Search - Side Panel Layout -->
 <div class="search-container-full-width">
-    <form id="literatureSearchForm" method="get" action="{% url 'scholar_app:index' %}">
+    <form id="literatureSearchForm" method="get" action="{% url 'scholar_app:scholar_search' %}">
         <!-- Search Input (Full Width) -->
         <div class="input-group input-group-lg mb-4">
             <input type="text" name="q" class="form-control search-input"
@@ -256,6 +256,9 @@
 
             <!-- Right Main Area: Search Results -->
             <div class="col-lg-9">
+                {# Progressive Loading - Only used for unified search (currently disabled) #}
+                {# {% include "scholar_app/search_partials/progressive_loading.html" %} #}
+
                 <div id="scitex-results-container">
                     {% if show_results and query %}
                         {% include "scholar_app/search_partials/search_results_header.html" %}

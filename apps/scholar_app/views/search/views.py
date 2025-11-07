@@ -37,8 +37,7 @@ logger = logging.getLogger(__name__)
 
 # Import scitex.scholar package for real API functionality
 try:
-    from scitex.scholar.paper_acquisition import PaperAcquisition, PaperMetadata
-    from scitex.scholar.impact_factor_search import JournalRankingSearch, get_journal_impact_factor
+    from scitex.scholar.pipelines.ScholarPipelineSearchParallel import ScholarPipelineSearchParallel
     SCITEX_SCHOLAR_AVAILABLE = True
     logger.info("    SciTeX Scholar package imported successfully")
 except ImportError as e:
@@ -104,6 +103,7 @@ def simple_search_with_tab(request, active_tab='search', template_name='scholar_
                 'citation_source': paper.citation_source,
                 'is_open_access': paper.is_open_access,
                 'snippet': paper.abstract[:200] + '...' if paper.abstract else 'No abstract available.',
+                'full_abstract': paper.abstract or '',
                 'pdf_url': paper.pdf_url,
                 'external_url': paper.external_url or '',
                 'doi': paper.doi or '',
@@ -457,6 +457,7 @@ def search_papers_online(query, max_results=200, sources='all', filters=None, us
                 'citations': paper.citation_count,
                 'is_open_access': paper.is_open_access,
                 'snippet': paper.abstract[:200] + '...' if paper.abstract else 'No abstract available.',
+                'full_abstract': paper.abstract or '',
                 'pdf_url': paper.pdf_url,
                 'external_url': paper.external_url or '',
                 'doi': paper.doi or '',
@@ -504,103 +505,90 @@ def search_papers_online(query, max_results=200, sources='all', filters=None, us
 
 def search_with_scitex_scholar(query, sources, max_results=30, filters=None, user_preferences=None):
     """
-    Use SciTeX-Scholar package for real external API searches with user API keys.
-    Bridges async SciTeX-Scholar with synchronous Django views.
+    Use SciTeX-Scholar parallel search pipeline for real external API searches.
+    Searches all engines in parallel and returns deduplicated, enriched results.
     """
     if not SCITEX_SCHOLAR_AVAILABLE:
         return []
 
     try:
-        logger.info(f"🚀 Using SciTeX-Scholar for real API search")
+        logger.info(f"🚀 Using SciTeX-Scholar parallel search pipeline")
         logger.info(f"   Query: '{query}'")
-        logger.info(f"   Sources: {sources}")
+        logger.info(f"   Sources requested: {sources}")
 
-        # Map Django source names to SciTeX-Scholar source names
-        scitex_sources = []
-        for source in sources:
-            if source == 'arxiv':
-                scitex_sources.append('arxiv')
-            elif source == 'pubmed':
-                scitex_sources.append('pubmed')
-            # Skip unsupported sources for now
+        # Create search pipeline
+        pipeline = ScholarPipelineSearchParallel(
+            max_workers=5,
+            timeout_per_engine=30.0,
+            use_cache=True
+        )
 
-        if not scitex_sources:
-            logger.warning("   No supported sources in SciTeX-Scholar")
-            return []
+        # Prepare filters for the pipeline
+        search_filters = {}
+        if filters:
+            if filters.get('year_from'):
+                search_filters['year_start'] = filters['year_from']
+            if filters.get('year_to'):
+                search_filters['year_end'] = filters['year_to']
+            if filters.get('min_citations'):
+                search_filters['min_citations'] = filters['min_citations']
+            if filters.get('min_impact_factor'):
+                search_filters['min_impact_factor'] = filters['min_impact_factor']
+            if filters.get('open_access'):
+                search_filters['open_access'] = filters['open_access']
 
         # Run async search in sync context
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
 
         try:
-            # Get user API keys if available
-            email = 'research@scitex.ai'  # Default email
-            if user_preferences and user_preferences.unpaywall_email:
-                email = user_preferences.unpaywall_email
-
-            # Create PaperAcquisition instance with user email
-            acquisition = PaperAcquisition(email=email)
-
-            # Add user API keys to acquisition if available
-            if user_preferences:
-                # Track API usage
-                for source in scitex_sources:
-                    user_preferences.increment_api_usage(source)
-
-                # Use user API keys for better rate limits
-                if user_preferences.has_api_key('pubmed') and 'pubmed' in scitex_sources:
-                    # PaperAcquisition doesn't directly support API keys yet, but we log it
-                    logger.info("   ✓ Using user's PubMed API key for enhanced rate limits")
-
-            # Execute async search
-            papers = loop.run_until_complete(
-                acquisition.search(
+            # Execute parallel search across all engines
+            search_response = loop.run_until_complete(
+                pipeline.search_async(
                     query=query,
-                    sources=scitex_sources,
+                    search_fields=['title', 'abstract'],
+                    filters=search_filters,
                     max_results=max_results
                 )
             )
 
-            logger.info(f"   SciTeX-Scholar found {len(papers)} papers")
+            papers = search_response.get('results', [])
+            metadata = search_response.get('metadata', {})
 
-            # Convert PaperMetadata to Django format with impact factor
+            logger.info(f"   SciTeX-Scholar found {len(papers)} unique papers")
+            logger.info(f"   Engines used: {metadata.get('engines_used', [])}")
+            logger.info(f"   Search time: {metadata.get('search_time', 0):.2f}s")
+
+            # Convert to Django format with proper author formatting
             results = []
-            impact_factor_cache = {}
-
             for paper in papers:
-                # Get impact factor for journal if available
-                impact_factor = None
-                if paper.journal and paper.journal not in impact_factor_cache:
-                    try:
-                        impact_factor = get_journal_impact_factor(paper.journal)
-                        impact_factor_cache[paper.journal] = impact_factor
-                        if impact_factor:
-                            logger.info(f"   📈 Found impact factor {impact_factor} for {paper.journal}")
-                    except Exception as e:
-                        logger.debug(f"Could not get impact factor for {paper.journal}: {e}")
-                        impact_factor_cache[paper.journal] = None
-                elif paper.journal:
-                    impact_factor = impact_factor_cache[paper.journal]
+                # Format authors as comma-separated string
+                authors = paper.get('authors', [])
+                authors_str = ', '.join(authors) if isinstance(authors, list) else str(authors)
 
                 result = {
-                    'title': paper.title,
-                    'authors': ', '.join(paper.authors) if paper.authors else 'Unknown Authors',
-                    'year': paper.year or '2024',
-                    'journal': paper.journal or f'{paper.source.title()} Publication',
-                    'abstract': paper.abstract or 'No abstract available.',
-                    'snippet': paper.abstract[:200] + '...' if paper.abstract else 'No abstract available.',
-                    'external_url': f'https://arxiv.org/abs/{paper.arxiv_id}' if paper.arxiv_id else '',
-                    'pdf_url': paper.pdf_url or '',
-                    'doi': paper.doi or '',
-                    'pmid': paper.pmid or '',
-                    'arxiv_id': paper.arxiv_id or '',
-                    'citations': paper.citation_count or 0,
-                    'is_open_access': True if paper.source == 'arxiv' else False,
-                    'source': paper.source,
-                    'impact_factor': impact_factor
+                    'title': paper.get('title', 'Unknown Title'),
+                    'authors': authors_str,
+                    'year': paper.get('year', '2024'),
+                    'journal': paper.get('journal', 'Unknown Journal'),
+                    'abstract': paper.get('abstract', 'No abstract available.'),
+                    'full_abstract': paper.get('abstract', ''),
+                    'snippet': (paper.get('abstract', 'No abstract available.')[:200] + '...') if paper.get('abstract') else 'No abstract available.',
+                    'external_url': paper.get('external_url', ''),
+                    'pdf_url': paper.get('pdf_url', ''),
+                    'doi': paper.get('doi', ''),
+                    'pmid': paper.get('pmid', ''),
+                    'arxiv_id': paper.get('arxiv_id', ''),
+                    'citations': paper.get('citation_count', 0),
+                    'citation_count': paper.get('citation_count', 0),
+                    'citation_source': paper.get('source_engines', ['scitex'])[0] if paper.get('source_engines') else 'scitex',
+                    'is_open_access': paper.get('is_open_access', False),
+                    'source': 'scitex_parallel',
+                    'source_engines': paper.get('source_engines', []),
+                    'impact_factor': paper.get('impact_factor')
                 }
                 results.append(result)
-                logger.info(f"   ✓ Converted: {paper.title[:50]}... (IF: {impact_factor or 'N/A'})")
+                logger.debug(f"   ✓ Converted: {paper.get('title', '')[:50]}... (IF: {paper.get('impact_factor') or 'N/A'})")
 
             return results
 
@@ -608,7 +596,9 @@ def search_with_scitex_scholar(query, sources, max_results=30, filters=None, use
             loop.close()
 
     except Exception as e:
-        logger.error(f"SciTeX-Scholar search failed: {e}")
+        logger.error(f"SciTeX-Scholar parallel search failed: {e}")
+        import traceback
+        logger.error(f"Traceback:\n{traceback.format_exc()}")
         return []
 
 
