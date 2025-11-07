@@ -26,6 +26,18 @@ def editor_view(request):
     }
 
     if current_project:
+        # Ensure bibliography structure exists (passive initialization)
+        try:
+            from pathlib import Path
+            from apps.project_app.services.bibliography_manager import ensure_bibliography_structure
+
+            if current_project.git_clone_path:
+                project_path = Path(current_project.git_clone_path)
+                ensure_bibliography_structure(project_path)
+        except Exception as e:
+            # Non-critical, just log
+            logger.warning(f"Could not ensure bibliography structure: {e}")
+
         # Load manuscript sections via service
         try:
             doc_service = DocumentService(current_project.id, request.user.id)

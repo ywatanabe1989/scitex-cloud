@@ -218,28 +218,46 @@ export class ScitexSeekbar {
             this.elements.valueMin = valuesDiv.querySelector<HTMLSpanElement>('[data-value="min"]') || undefined;
             this.elements.valueMax = valuesDiv.querySelector<HTMLSpanElement>('[data-value="max"]') || undefined;        }
     }
+
     /**
-     * Create a handle element
+     * Render the seekbar (update visual positions)
      * @private
      */
-    _createHandle(type, value) {
-        const handle = document.createElement('div');
-        handle.className = 'scitex-seekbar-dual-handle';
-        handle.setAttribute('role', 'slider');
-        handle.setAttribute('aria-label', type === 'min' ? 'Minimum value' : 'Maximum value');
-        handle.setAttribute('aria-valuemin', this.options.min.toString());
-        handle.setAttribute('aria-valuemax', this.options.max.toString());
-        handle.setAttribute('aria-valuenow', value.toString());
-        handle.setAttribute('tabindex', '0');
-        handle.dataset.handle = type;
-        if (this.options.showLabels) {
-            const label = document.createElement('div');
-            label.className = 'scitex-seekbar-dual-handle-label';
-            label.textContent = this.options.format(value);
-            handle.appendChild(label);
+    private _render(): void {
+        const range = this.options.max - this.options.min;
+        const minPercent = ((this.values.min - this.options.min) / range) * 100;
+        const maxPercent = ((this.values.max - this.options.min) / range) * 100;
+
+        // Update handle positions
+        this.elements.handleMin.style.left = `${minPercent}%`;
+        this.elements.handleMax.style.left = `${maxPercent}%`;
+
+        // Update range bar
+        this.elements.range.style.left = `${minPercent}%`;
+        this.elements.range.style.width = `${maxPercent - minPercent}%`;
+
+        // Update labels
+        if (this.elements.labelMin) {
+            this.elements.labelMin.textContent = this.options.format(this.values.min);
         }
-        return handle;
+        if (this.elements.labelMax) {
+            this.elements.labelMax.textContent = this.options.format(this.values.max);
+        }
+
+        // Update value displays
+        if (this.elements.valueMin) {
+            this.elements.valueMin.textContent = this.options.format(this.values.min);
+        }
+        if (this.elements.valueMax) {
+            this.elements.valueMax.textContent = this.options.format(this.values.max);
+        }
+
+        // Call callbacks
+        if (this.dragging && this.options.onUpdate) {
+            this.options.onUpdate(this.getValues());
+        }
     }
+
     // ========================================================================
     // Event Binding
     // ========================================================================
@@ -457,6 +475,8 @@ export class ScitexSeekbar {
         // Update ARIA
         const element = handle === 'min' ? this.elements.handleMin : this.elements.handleMax;
         element.setAttribute('aria-valuenow', value.toString());
+        // Render visual updates
+        this._render();
     }
 
     // ========================================================================
