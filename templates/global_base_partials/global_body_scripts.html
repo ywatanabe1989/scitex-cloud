@@ -114,3 +114,8 @@
 
 <!-- Modern Confirmation Modal - TypeScript compiled as ES module -->
 <script type="module" src="{% static 'shared/js/components/confirm-modal.js' %}?v=5"></script>
+
+<!-- Development Tools (only in DEBUG mode) -->
+{% if DEBUG %}
+<script type="module" src="{% static 'shared/js/utils/element-inspector.js' %}"></script>
+{% endif %}
