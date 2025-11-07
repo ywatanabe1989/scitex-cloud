@@ -19,7 +19,7 @@
 /* GitHub-style file viewer with dark mode support */
 .repo-header {
     /* Layout preserved */
-    padding: 1.5rem 0;
+    padding: 0.75rem 0 1.5rem 0;  /* Reduced top padding for better balance */
     /* Styling moved to central CSS - see static/css/components/header.css */
     /* border-bottom: 1px solid var(--color-border-default); */
 }

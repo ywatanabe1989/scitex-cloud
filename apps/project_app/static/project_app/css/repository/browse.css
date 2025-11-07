@@ -8,7 +8,7 @@
 
 /* GitHub-style repository header - Theme-aware */
 .repo-header {
-    padding: 1.5rem 0;
+    padding: 0.75rem 0 1.5rem 0;  /* Reduced top padding: 0.75rem top, 1.5rem bottom */
     border-bottom: 1px solid var(--color-border-default);
 }
 
