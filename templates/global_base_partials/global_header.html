@@ -211,6 +211,13 @@
     <!-- Right: Actions + User Menu -->
     <div class="header-right">
 
+      <!-- Development Tools (only in DEBUG mode) -->
+      {% if DEBUG %}
+      <button id="element-inspector-btn" class="theme-toggle" data-tooltip="Element Inspector (Ctrl+Shift+I)" onclick="window.elementInspector?.toggle?.()" style="background: rgba(239, 68, 68, 0.2); color: var(--color-danger-emphasis); border: 1px solid var(--color-danger-emphasis);">
+        <i class="fas fa-magnifying-glass-chart"></i>
+      </button>
+      {% endif %}
+
       <!-- Theme Toggle (always visible) -->
       <button id="theme-toggle" class="theme-toggle" data-tooltip="Toggle light/dark theme">
         🌓
