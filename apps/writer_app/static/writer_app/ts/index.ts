@@ -2020,6 +2020,184 @@ function switchRightPanel(view: 'pdf' | 'citations'): void {
     localStorage.setItem('writer_right_panel_view', view);
 }
 
+/**
+ * Show compilation progress in inline output area
+ */
+function showCompilationProgress(title: string = 'Compiling Manuscript'): void {
+    const output = document.getElementById('compilation-output');
+    const icon = document.getElementById('compilation-icon');
+    const headerTitle = document.getElementById('compilation-header-title');
+    const progressContainer = document.getElementById('compilation-progress-container');
+    const resultDiv = document.getElementById('compilation-result-inline');
+
+    if (!output) return;
+
+    // Update header
+    if (icon) {
+        icon.className = 'fas fa-spinner fa-spin';
+    }
+    if (headerTitle) {
+        headerTitle.textContent = title;
+    }
+
+    // Show progress bar
+    if (progressContainer) {
+        progressContainer.style.display = 'block';
+    }
+
+    // Hide result
+    if (resultDiv) {
+        resultDiv.style.display = 'none';
+        resultDiv.innerHTML = '';
+    }
+
+    // Reset progress
+    updateCompilationProgress(0, 'Initializing...');
+
+    // Clear log
+    const log = document.getElementById('compilation-log-inline');
+    if (log) {
+        log.textContent = 'Starting compilation...\n';
+    }
+
+    // Show compilation output
+    output.style.display = 'block';
+}
+
+/**
+ * Hide compilation output
+ */
+function hideCompilationProgress(): void {
+    const output = document.getElementById('compilation-output');
+    if (output) {
+        output.style.display = 'none';
+    }
+}
+
+/**
+ * Update compilation progress
+ */
+function updateCompilationProgress(percent: number, status: string): void {
+    const progressBar = document.getElementById('compilation-progress-bar');
+    const progressPercent = document.getElementById('compilation-progress-percent');
+    const progressStatus = document.getElementById('compilation-progress-status');
+
+    if (progressBar) progressBar.style.width = `${percent}%`;
+    if (progressPercent) progressPercent.textContent = `${percent}%`;
+    if (progressStatus) progressStatus.textContent = status;
+}
+
+/**
+ * Append to compilation log with semantic color coding
+ */
+function appendCompilationLog(message: string, type: 'info' | 'success' | 'error' | 'warning' = 'info'): void {
+    const log = document.getElementById('compilation-log-inline');
+    if (!log) return;
+
+    // Create colored span for the message
+    const span = document.createElement('span');
+
+    // Apply semantic color class based on message content or type
+    if (message.includes('✓') || message.includes('Success') || type === 'success') {
+        span.className = 'terminal-log__success';
+    } else if (message.includes('✗') || message.includes('Error') || message.includes('Failed') || type === 'error') {
+        span.className = 'terminal-log__error';
+    } else if (message.includes('⚠') || message.includes('Warning') || type === 'warning') {
+        span.className = 'terminal-log__warning';
+    } else {
+        span.className = 'terminal-log__info';
+    }
+
+    span.textContent = message + '\n';
+    log.appendChild(span);
+
+    // Auto-scroll to bottom
+    log.scrollTop = log.scrollHeight;
+}
+
+/**
+ * Show compilation success
+ */
+function showCompilationSuccess(pdfUrl: string): void {
+    const icon = document.getElementById('compilation-icon');
+    const progressContainer = document.getElementById('compilation-progress-container');
+    const resultDiv = document.getElementById('compilation-result-inline');
+
+    // Update icon to success
+    if (icon) {
+        icon.className = 'fas fa-check-circle text-success';
+    }
+
+    // Hide progress bar
+    if (progressContainer) {
+        progressContainer.style.display = 'none';
+    }
+
+    // Show success message
+    if (resultDiv) {
+        resultDiv.style.display = 'block';
+        resultDiv.innerHTML = `
+            <div style="background: var(--color-success-subtle); border: 1px solid var(--color-success-emphasis); border-radius: 6px; padding: 1rem;">
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; color: var(--color-success-emphasis);">
+                    <i class="fas fa-check-circle" style="font-size: 1.25rem;"></i>
+                    <strong>Compilation Successful!</strong>
+                </div>
+                <a href="${pdfUrl}" target="_blank" class="btn btn-sm btn-success mt-2">
+                    <i class="fas fa-file-pdf me-1"></i>View PDF
+                </a>
+            </div>
+        `;
+    }
+
+    updateCompilationProgress(100, 'Complete!');
+}
+
+/**
+ * Show compilation error
+ */
+function showCompilationError(errorMessage: string, errorDetails: string = ''): void {
+    const icon = document.getElementById('compilation-icon');
+    const progressContainer = document.getElementById('compilation-progress-container');
+    const resultDiv = document.getElementById('compilation-result-inline');
+
+    // Update icon to error
+    if (icon) {
+        icon.className = 'fas fa-exclamation-circle text-danger';
+    }
+
+    // Hide progress bar
+    if (progressContainer) {
+        progressContainer.style.display = 'none';
+    }
+
+    // Show error message
+    if (resultDiv) {
+        resultDiv.style.display = 'block';
+        resultDiv.innerHTML = `
+            <div style="background: var(--color-danger-subtle); border: 1px solid var(--color-danger-emphasis); border-radius: 6px; padding: 1rem;">
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; color: var(--color-danger-emphasis);">
+                    <i class="fas fa-exclamation-circle" style="font-size: 1.25rem;"></i>
+                    <strong>Compilation Failed</strong>
+                </div>
+                <p style="margin: 0.5rem 0; color: var(--color-fg-default);">${errorMessage}</p>
+                ${errorDetails ? `
+                <details style="margin-top: 0.5rem;">
+                    <summary style="cursor: pointer; font-size: 0.85rem; color: var(--color-fg-muted);">Show error details</summary>
+                    <pre style="margin-top: 0.5rem; padding: 0.5rem; background: var(--color-canvas-inset); border-radius: 4px; font-size: 0.75rem; overflow-x: auto; white-space: pre-wrap; max-height: 200px; overflow-y: auto;">${errorDetails}</pre>
+                </details>
+                ` : ''}
+            </div>
+        `;
+    }
+}
+
 // Export functions to global scope for ES6 module compatibility
 (window as any).populateSectionDropdownDirect = populateSectionDropdownDirect;
 (window as any).switchRightPanel = switchRightPanel;
+(window as any).showCompilationProgress = showCompilationProgress;
+(window as any).hideCompilationProgress = hideCompilationProgress;
+(window as any).updateCompilationProgress = updateCompilationProgress;
+(window as any).appendCompilationLog = appendCompilationLog;
+(window as any).showCompilationSuccess = showCompilationSuccess;
+(window as any).showCompilationError = showCompilationError;
+(window as any).toggleCompilationLog = toggleCompilationLog;

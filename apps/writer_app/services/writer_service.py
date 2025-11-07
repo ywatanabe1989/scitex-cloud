@@ -512,11 +512,13 @@ class WriterService:
                 "error": str(e),
             }
 
-    def compile_manuscript(self, timeout: int = 300) -> dict:
-        """Compile manuscript.
+    def compile_manuscript(self, timeout: int = 300, log_callback=None, progress_callback=None) -> dict:
+        """Compile manuscript with optional callbacks for live updates.
 
         Args:
             timeout: Compilation timeout in seconds
+            log_callback: Optional callback for real-time log streaming
+            progress_callback: Optional callback for progress updates
 
         Returns:
             Compilation result dict with keys:
@@ -526,7 +528,11 @@ class WriterService:
                 - error: str (error message if failed)
         """
         try:
-            result = self.writer.compile_manuscript(timeout=timeout)
+            result = self.writer.compile_manuscript(
+                timeout=timeout,
+                log_callback=log_callback,
+                progress_callback=progress_callback
+            )
             # Build log from stdout/stderr
             log_content = ""
             if hasattr(result, 'stdout') and result.stdout:

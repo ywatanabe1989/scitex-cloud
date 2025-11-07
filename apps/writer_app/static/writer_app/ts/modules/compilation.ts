@@ -113,6 +113,13 @@ export class CompilationManager {
         }
 
         this.isCompiling = true;
+
+        // Show progress modal
+        const showProgress = (window as any).showCompilationProgress;
+        if (showProgress) {
+            showProgress('Compiling Full Manuscript', 'Building complete manuscript PDF...');
+        }
+
         this.notifyProgress(0, 'Preparing full compilation...');
 
         try {
@@ -121,6 +128,12 @@ export class CompilationManager {
             const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
             console.log('[CompilationFull] Starting:', options.docType);
+
+            // Log start
+            const appendLog = (window as any).appendCompilationLog;
+            if (appendLog) {
+                appendLog(`[${new Date().toLocaleTimeString()}] Starting ${options.docType} compilation...`);
+            }
 
             const response = await fetch(
                 `/writer/api/project/${options.projectId}/compile_full/`,
@@ -146,15 +159,30 @@ export class CompilationManager {
 
             const result = await response.json() as any;
 
-            console.log('[CompilationFull] Result:', result);
-            this.notifyProgress(50, 'Compiling manuscript...');
+            console.log('[CompilationFull] API Response:', result);
 
-            if (result?.success === true) {
-                this.notifyProgress(100, 'Manuscript compiled');
+            if (result?.job_id) {
+                // Job started, begin polling for status
+                console.log('[CompilationFull] Job started, polling status:', result.job_id);
+                this.pollCompilationStatus(result.job_id, options.projectId);
+                return { id: result.job_id, status: 'running', progress: 0 };
+            } else if (result?.success === true) {
+                // Old-style immediate response (backward compat)
                 this.currentJob = { id: 'full', status: 'completed', progress: 100 };
 
                 const pdfPath = result.output_pdf || result.pdf_path;
                 console.log('[CompilationFull] PDF path:', pdfPath);
+
+                // Show success
+                const showSuccess = (window as any).showCompilationSuccess;
+                if (showSuccess && pdfPath) {
+                    showSuccess(pdfPath);
+                }
+
+                if (appendLog) {
+                    appendLog(`[${new Date().toLocaleTimeString()}] ✓ Compilation successful!`);
+                    appendLog(`PDF generated: ${pdfPath}`);
+                }
 
                 if (this.onCompleteCallback && pdfPath) {
                     this.onCompleteCallback('full', pdfPath);
@@ -164,10 +192,37 @@ export class CompilationManager {
             } else {
                 const errorMsg = result?.error || result?.log || 'Full compilation failed';
                 console.error('[CompilationFull] Error:', errorMsg);
+
+                // Show error
+                const showError = (window as any).showCompilationError;
+                if (showError) {
+                    showError(
+                        'Compilation failed',
+                        result?.log || errorMsg
+                    );
+                }
+
+                if (appendLog) {
+                    appendLog(`[${new Date().toLocaleTimeString()}] ✗ Compilation failed`);
+                    appendLog(`Error: ${errorMsg}`);
+                }
+
                 throw new Error(errorMsg);
             }
         } catch (error) {
             const message = error instanceof Error ? error.message : 'Full compilation failed';
+
+            // Show error modal
+            const showError = (window as any).showCompilationError;
+            if (showError) {
+                showError(message, error instanceof Error ? error.stack || '' : '');
+            }
+
+            const appendLog = (window as any).appendCompilationLog;
+            if (appendLog) {
+                appendLog(`[${new Date().toLocaleTimeString()}] ✗ Error: ${message}`);
+            }
+
             this.notifyError(message);
             this.currentJob = null;
             return null;
@@ -186,6 +241,108 @@ export class CompilationManager {
         } else {
             return this.compileFull(options);
         }
+    }
+
+    /**
+     * Poll compilation status for real-time updates
+     */
+    private pollCompilationStatus(jobId: string, projectId: number, attempts: number = 0): void {
+        const maxAttempts = 300; // 5 minutes max (1 poll per second)
+
+        if (attempts > maxAttempts) {
+            console.error('[CompilationFull] Polling timeout after', attempts, 'attempts');
+            const showError = (window as any).showCompilationError;
+            if (showError) {
+                showError('Compilation timeout', 'Compilation took longer than expected');
+            }
+            return;
+        }
+
+        fetch(`/writer/api/project/${projectId}/compilation/status/${jobId}/`)
+            .then(response => response.json())
+            .then(data => {
+                console.log(`[CompilationFull] Poll #${attempts + 1}:`, data.status, data.progress + '%');
+
+                // Update progress
+                const updateProgress = (window as any).updateCompilationProgress;
+                if (updateProgress && data.progress !== undefined) {
+                    updateProgress(data.progress, data.step || 'Processing...');
+                }
+
+                // Append new logs (use HTML version if available for color support)
+                const logDiv = document.getElementById('compilation-log-inline');
+                if (logDiv && data.log_html) {
+                    // Use innerHTML to render ANSI colors as HTML
+                    const existingLogLength = (this as any).lastLogLength || 0;
+                    const newLogsHtml = data.log_html.substring(existingLogLength);
+
+                    if (newLogsHtml.trim()) {
+                        // Append HTML directly (ANSI codes converted to colored spans)
+                        const newContent = document.createElement('span');
+                        newContent.innerHTML = newLogsHtml;
+                        logDiv.appendChild(newContent);
+                        logDiv.appendChild(document.createTextNode('\n'));
+
+                        // Auto-scroll
+                        logDiv.scrollTop = logDiv.scrollHeight;
+                    }
+
+                    (this as any).lastLogLength = data.log_html.length;
+                } else if (data.log) {
+                    // Fallback to plain text
+                    const appendLog = (window as any).appendCompilationLog;
+                    if (appendLog) {
+                        const existingLogLength = (this as any).lastLogLength || 0;
+                        const newLogs = data.log.substring(existingLogLength);
+
+                        if (newLogs.trim()) {
+                            newLogs.trim().split('\n').forEach(line => {
+                                appendLog(line);
+                            });
+                        }
+
+                        (this as any).lastLogLength = data.log.length;
+                    }
+                }
+
+                // Check status
+                if (data.status === 'completed') {
+                    this.isCompiling = false;
+                    console.log('[CompilationFull] Completed!');
+
+                    const result = data.result || {};
+                    const pdfPath = result.output_pdf || result.pdf_path;
+
+                    if (pdfPath) {
+                        const showSuccess = (window as any).showCompilationSuccess;
+                        if (showSuccess) {
+                            showSuccess(pdfPath);
+                        }
+
+                        if (this.onCompleteCallback) {
+                            this.onCompleteCallback('full', pdfPath);
+                        }
+                    }
+                } else if (data.status === 'failed') {
+                    this.isCompiling = false;
+                    console.error('[CompilationFull] Failed');
+
+                    const showError = (window as any).showCompilationError;
+                    if (showError) {
+                        const errorMsg = data.result?.error || 'Compilation failed';
+                        const errorLog = data.log || '';
+                        showError(errorMsg, errorLog);
+                    }
+                } else if (data.status === 'running' || data.status === 'pending') {
+                    // Continue polling
+                    setTimeout(() => this.pollCompilationStatus(jobId, projectId, attempts + 1), 1000);
+                }
+            })
+            .catch(error => {
+                console.error('[CompilationFull] Polling error:', error);
+                // Retry on error
+                setTimeout(() => this.pollCompilationStatus(jobId, projectId, attempts + 1), 2000);
+            });
     }
 
     /**
