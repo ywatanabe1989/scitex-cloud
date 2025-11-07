@@ -1,19 +1,17 @@
 <!-- ---
-!-- Timestamp: 2025-11-07 22:47:38
+!-- Timestamp: 2025-11-07 23:24:16
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/TODOS/10_CHORES.md
 !-- --- -->
 
 ## Chores TODO
 
-- [ ] http://127.0.0.1:8000/ywatanabe/
-  - [ ] Project cards themselves should be link (clickable)
-
-- [ ] Download button should download the full pdf
-- [ ] Sidebar should be scrollable
+- [ ] Sidebar should be scrollable when long in height/width
   - [ ] http://127.0.0.1:8000/ywatanabe/proj-013/
 
-- [ ] Manuscript should have "Full Manuscript" section and should be handled as a special case (readonly tex, no preview compilation)
-  - [ ] http://127.0.0.1:8000/writer/
+- [ ] Font size of editor does only change in width http://127.0.0.1:8000/writer/
+
+- [ ] Allocate shortcut key to element inspector
+  - [ ] Add element inspectation button for developmenet env in header
 
 <!-- EOF -->
