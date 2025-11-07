@@ -30,6 +30,11 @@ body {
 .profile-sidebar {
     /* Layout preserved */
     align-self: start;
+    position: sticky;
+    top: 80px;  /* Stick below header */
+    max-height: calc(100vh - 100px);  /* Full viewport minus header/padding */
+    overflow-y: auto;  /* Enable scrolling */
+    overflow-x: hidden;
 }
 
 .profile-avatar {
