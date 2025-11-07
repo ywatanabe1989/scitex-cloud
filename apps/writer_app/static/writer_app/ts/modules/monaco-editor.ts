@@ -499,6 +499,12 @@ export class EnhancedEditor {
                     quickSuggestions: true,
                     wordBasedSuggestions: false,
                     fixedOverflowWidgets: true,  // CRITICAL: Render widgets in body to prevent clipping
+                    suggest: {
+                        showIcons: true,
+                        showStatusBar: true,  // Show status bar
+                        maxVisibleSuggestions: 20,  // Show up to 20 suggestions at once
+                        snippetsPreventQuickSuggestions: false,
+                    },
                     scrollbar: {
                         vertical: 'visible',
                         horizontal: 'visible',

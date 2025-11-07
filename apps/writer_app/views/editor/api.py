@@ -1034,4 +1034,219 @@ def section_move_down_view(request, project_id, section_name):
             status=500
         )
 
+
+@api_login_optional
+@require_http_methods(["GET"])
+def citations_api(request, project_id):
+    """Get all citation keys from bibliography_all.bib for autocomplete.
+
+    Returns:
+        JSON with citation keys, authors, years, titles for Monaco autocomplete
+    """
+    try:
+        from apps.project_app.models import Project
+        from pathlib import Path
+
+        # Get project
+        user, is_visitor = get_user_for_request(request, project_id)
+        if user.is_authenticated:
+            project = Project.objects.get(id=project_id, owner=user)
+        else:
+            # For visitors, check public projects
+            project = Project.objects.get(id=project_id, is_public=True)
+
+        # Path to bibliography_all.bib
+        bib_file = Path(project.git_clone_path) / 'scitex' / 'bibliography_all.bib'
+
+        if not bib_file.exists():
+            # Return empty list if no bibliography yet
+            return JsonResponse({
+                'success': True,
+                'citations': [],
+                'message': 'No bibliography file found'
+            })
+
+        # Parse BibTeX file using scitex.scholar
+        from scitex.scholar.storage import BibTeXHandler
+        bibtex_handler = BibTeXHandler()
+
+        try:
+            papers = bibtex_handler.papers_from_bibtex(bib_file)
+        except Exception as e:
+            logger.warning(f"[Citations] Failed to parse bibliography: {e}")
+            return JsonResponse({
+                'success': True,
+                'citations': [],
+                'message': f'Error parsing bibliography: {str(e)}'
+            })
+
+        # Extract citation data
+        citations = []
+        for paper in papers:
+            # Get citation key
+            key = getattr(paper, '_bibtex_key', None)
+            if not key:
+                continue
+
+            # Get metadata
+            title = paper.metadata.basic.title or 'No title'
+            authors = paper.metadata.basic.authors or []
+            year = paper.metadata.basic.year
+
+            # Format author list - show up to 3 authors for better detail
+            if len(authors) == 0:
+                author_str = 'Unknown'
+            elif len(authors) == 1:
+                author_str = authors[0]
+            elif len(authors) == 2:
+                author_str = f"{authors[0]} and {authors[1]}"
+            elif len(authors) == 3:
+                author_str = f"{authors[0]}, {authors[1]}, and {authors[2]}"
+            else:
+                # Show first author's last name
+                first_author = authors[0].split()[-1] if authors[0] else 'Unknown'
+                author_str = f"{first_author} et al. ({len(authors)} authors)"
+
+            # Get additional metadata
+            journal = getattr(paper.metadata.publication, 'journal', None) if hasattr(paper.metadata, 'publication') else None
+            impact_factor = getattr(paper.metadata.publication, 'impact_factor', None) if hasattr(paper.metadata, 'publication') else None
+            citation_count = getattr(paper.metadata.citations, 'total', None) if hasattr(paper.metadata, 'citations') else None
+            abstract = getattr(paper.metadata.basic, 'abstract', None) if hasattr(paper.metadata, 'basic') else None
+
+            # Build rich documentation in markdown format
+            doc_parts = [f"## {title}", ""]  # Title as heading
+
+            # Metadata table
+            metadata_lines = []
+            metadata_lines.append(f"**Authors:** {author_str}")
+            if year:
+                metadata_lines.append(f"**Year:** {year}")
+            if journal:
+                journal_line = f"**Journal:** {journal}"
+                if impact_factor:
+                    journal_line += f" (IF: {impact_factor})"
+                metadata_lines.append(journal_line)
+            if citation_count:
+                metadata_lines.append(f"**Citations:** {citation_count}")
+
+            doc_parts.extend(metadata_lines)
+            doc_parts.append("")  # Blank line before abstract
+
+            # Abstract (truncated)
+            if abstract:
+                abstract_preview = abstract[:400] + "..." if len(abstract) > 400 else abstract
+                doc_parts.append("### Abstract")
+                doc_parts.append(abstract_preview)
+
+            documentation = '\n'.join(doc_parts)
+
+            # Create citation entry with rich metadata for search
+            citations.append({
+                'key': key,
+                'label': key,
+                'detail': f"{author_str} ({year})" if year else author_str,
+                'documentation': documentation,
+                'insertText': key,
+                # Additional fields for fuzzy search and inline display
+                'title': title,
+                'journal': journal or '',
+                'impact_factor': impact_factor,
+                'authors': authors,
+                'citation_count': citation_count or 0,
+                'abstract': abstract or '',
+            })
+
+        logger.info(f"[Citations] Found {len(citations)} citations in {bib_file.name}")
+
+        return JsonResponse({
+            'success': True,
+            'citations': citations,
+            'count': len(citations)
+        })
+
+    except Project.DoesNotExist:
+        return JsonResponse(
+            {"success": False, "error": "Project not found"},
+            status=404
+        )
+    except Exception as e:
+        logger.error(f"[Citations] Error: {e}", exc_info=True)
+        return JsonResponse(
+            {"success": False, "error": str(e)},
+            status=500
+        )
+
+
+@api_login_optional
+@require_http_methods(["POST"])
+def regenerate_bibliography_api(request, project_id):
+    """Manually regenerate bibliography_all.bib by merging all .bib files.
+
+    This is an opt-in operation that actually parses and merges BibTeX files.
+    Call this when user wants to refresh bibliography or after adding new .bib files.
+
+    Returns:
+        JSON with merge statistics
+    """
+    try:
+        from apps.project_app.models import Project
+        from pathlib import Path
+        from apps.project_app.services.bibliography_manager import regenerate_bibliography
+
+        # Get project
+        user = get_user_for_request(request)
+        if user.is_authenticated:
+            project = Project.objects.get(id=project_id, owner=user)
+        else:
+            return JsonResponse(
+                {"success": False, "error": "Authentication required"},
+                status=401
+            )
+
+        if not project.git_clone_path:
+            return JsonResponse(
+                {"success": False, "error": "Project has no git repository"},
+                status=400
+            )
+
+        # Regenerate bibliography
+        project_path = Path(project.git_clone_path)
+        results = regenerate_bibliography(project_path, project.name)
+
+        if results['success']:
+            logger.info(
+                f"[Bibliography] Regenerated for {project.name}: "
+                f"scholar={results['scholar_count']}, writer={results['writer_count']}, "
+                f"total={results['total_count']}"
+            )
+
+            return JsonResponse({
+                'success': True,
+                'message': f"Bibliography regenerated with {results['total_count']} papers",
+                'scholar_count': results['scholar_count'],
+                'writer_count': results['writer_count'],
+                'total_count': results['total_count'],
+            })
+        else:
+            return JsonResponse(
+                {
+                    "success": False,
+                    "error": "Failed to regenerate bibliography",
+                    "details": results['errors']
+                },
+                status=500
+            )
+
+    except Project.DoesNotExist:
+        return JsonResponse(
+            {"success": False, "error": "Project not found"},
+            status=404
+        )
+    except Exception as e:
+        logger.error(f"[Bibliography] Error regenerating: {e}", exc_info=True)
+        return JsonResponse(
+            {"success": False, "error": str(e)},
+            status=500
+        )
+
 # EOF

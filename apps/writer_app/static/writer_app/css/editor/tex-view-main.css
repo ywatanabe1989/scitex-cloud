@@ -27,7 +27,7 @@
 .writer-toolbar-sticky {
     position: sticky;
     top: 0;
-    z-index: 100;
+    z-index: 50;  /* Lowered to stay below Monaco widgets */
     background: var(--color-canvas-default);
     border-bottom: 1px solid var(--color-border-default);
     padding: 0.75rem 1rem;
@@ -253,14 +253,14 @@
     display: flex;
     flex-direction: column;
     background: var(--color-canvas-default);
-    overflow: hidden;
+    overflow: visible;  /* Allow Monaco suggestions to overflow */
 }
 
 /* Editor Content Wrapper */
 .editor-content-wrapper {
     flex: 1;
     position: relative;
-    overflow: hidden;
+    overflow: visible;  /* Allow Monaco suggestions to overflow */
 }
 
 /* Editor Views */
@@ -273,7 +273,7 @@
     display: none;
     flex-direction: column;
     padding: 0;
-    overflow: hidden;
+    overflow: visible;  /* Allow Monaco suggestions to overflow */
     width: 100%;
     height: 100%;
 }
@@ -959,7 +959,7 @@
     position: fixed;
     top: 1rem;
     right: 1rem;
-    z-index: 1050;
+    z-index: 1050;  /* Below Monaco widgets (999999) */
 }
 
 /* ========================================
@@ -1132,12 +1132,12 @@
     /* Optimize for content changes */
     contain: layout style paint;
     will-change: contents;
-    overflow: hidden;  /* Prevent any container scrollbars */
+    overflow: visible;  /* Allow Monaco suggestions to overflow */  /* Prevent any container scrollbars */
 }
 
 .pdf-preview-viewer {
     flex: 1;
-    overflow: hidden; /* Hide container overflow - embed handles scrolling */
+    overflow: visible;  /* Allow Monaco suggestions to overflow */ /* Hide container overflow - embed handles scrolling */
     background: #ffffff;
     display: flex;
     align-items: center;
@@ -1244,9 +1244,18 @@
     margin: 0;
     position: relative;
     padding: 0;
-    z-index: 1000;
+    z-index: 1;  /* Very low to stay well below Monaco widgets (999999) */
     pointer-events: all;
     align-self: stretch;
+}
+
+/* Ensure panel-resizer and all its pseudo-elements stay behind Monaco */
+.panel-resizer,
+.panel-resizer::before,
+.panel-resizer::after,
+.panel-resizer:hover,
+.panel-resizer.active {
+    z-index: 1 !important;
 }
 
 .panel-resizer:hover,

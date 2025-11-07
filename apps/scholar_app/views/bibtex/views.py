@@ -17,6 +17,9 @@ Uses scitex.scholar.pipelines.ScholarPipelineBibTeX under the hood.
 
 import asyncio
 import json
+import logging
+import os
+import shutil
 from pathlib import Path
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -29,6 +32,8 @@ from django.utils import timezone
 from django.conf import settings
 from ...models import BibTeXEnrichmentJob
 from apps.scholar_app.api_auth import api_key_optional
+
+logger = logging.getLogger(__name__)
 
 
 def bibtex_enrichment(request):
@@ -790,11 +795,39 @@ def _process_bibtex_job(job):
                 shutil.copy(output_path, project_enriched_path)
                 logger.info(f"Copied enriched .bib to {project_enriched_path}")
 
+                # ============================================================
+                # AUTO-MERGE: Regenerate bibliography using shared utility
+                # ============================================================
+                from apps.project_app.services.bibliography_manager import (
+                    ensure_bibliography_structure,
+                    regenerate_bibliography
+                )
+
+                project_path = Path(job.project.git_clone_path)
+
+                # Ensure structure exists
+                ensure_bibliography_structure(project_path)
+
+                # Regenerate all bibliographies
+                results = regenerate_bibliography(project_path, job.project.name)
+
+                if results['success']:
+                    logger.info(
+                        f"✓ Bibliography regenerated: "
+                        f"scholar={results['scholar_count']}, "
+                        f"writer={results['writer_count']}, "
+                        f"total={results['total_count']}"
+                    )
+                    job.enrichment_summary['bibliography_merged'] = True
+                    job.enrichment_summary['total_citations'] = results['total_count']
+                else:
+                    logger.warning(f"Bibliography regeneration had errors: {results['errors']}")
+
                 # Auto-commit both files to Gitea
                 commit_message = f"Scholar: Added bibliography - {job.processed_papers}/{job.total_papers} papers enriched"
                 success, output = auto_commit_file(
                     project_dir=Path(job.project.git_clone_path),
-                    filepath='scitex/scholar/bib_files/',  # Commit entire directory
+                    filepath='scitex/',  # Commit entire scitex directory
                     message=commit_message
                 )
 
@@ -1102,13 +1135,45 @@ def bibtex_save_to_project(request, job_id):
         }, status=404)
 
     try:
+        # Validate job has required files
+        if not job.input_file or not job.input_file.name:
+            logger.error(f"Job {job_id} has no input file")
+            return JsonResponse({
+                'success': False,
+                'error': 'Original BibTeX file not found'
+            }, status=404)
+
+        if not job.output_file or not job.output_file.name:
+            logger.error(f"Job {job_id} has no output file")
+            return JsonResponse({
+                'success': False,
+                'error': 'Enriched BibTeX file not found. Job may not be completed yet.'
+            }, status=404)
+
         # Generate filenames
         original_name = Path(job.original_filename).stem if job.original_filename else 'references'
         timestamp = datetime.now().strftime('%Y%m%d-%H%M%S')
 
-        # Copy source files
+        # Copy source files - build paths carefully
         input_path = Path(settings.MEDIA_ROOT) / job.input_file.name
         output_path = Path(settings.MEDIA_ROOT) / job.output_file.name
+
+        logger.info(f"Save to project - Input: {input_path}, Output: {output_path}")
+
+        # Validate the paths exist and are files, not directories
+        if not input_path.exists() or not input_path.is_file():
+            logger.error(f"Input path invalid: exists={input_path.exists()}, is_file={input_path.is_file()}, path={input_path}")
+            return JsonResponse({
+                'success': False,
+                'error': f'Original BibTeX file not found at expected location: {job.input_file.name}'
+            }, status=404)
+
+        if not output_path.exists() or not output_path.is_file():
+            logger.error(f"Output path invalid: exists={output_path.exists()}, is_file={output_path.is_file()}, path={output_path}")
+            return JsonResponse({
+                'success': False,
+                'error': f'Enriched BibTeX file not found at expected location: {job.output_file.name}'
+            }, status=404)
 
         original_filename = f"{original_name}_original-{timestamp}.bib"
         enriched_filename = f"{original_name}_enriched-{timestamp}.bib"
@@ -1127,10 +1192,36 @@ def bibtex_save_to_project(request, job_id):
             shutil.copy(input_path, project_bib_dir / original_filename)
             shutil.copy(output_path, project_bib_dir / enriched_filename)
 
+            # ============================================================
+            # AUTO-MERGE: Regenerate bibliography using shared utility
+            # ============================================================
+            from apps.project_app.services.bibliography_manager import (
+                ensure_bibliography_structure,
+                regenerate_bibliography
+            )
+
+            project_path = Path(project.git_clone_path)
+
+            # Ensure structure exists
+            ensure_bibliography_structure(project_path)
+
+            # Regenerate all bibliographies
+            results = regenerate_bibliography(project_path, project.name)
+
+            if results['success']:
+                logger.info(
+                    f"✓ Bibliography regenerated: "
+                    f"scholar={results['scholar_count']}, "
+                    f"writer={results['writer_count']}, "
+                    f"total={results['total_count']}"
+                )
+            else:
+                logger.warning(f"Bibliography regeneration had errors: {results['errors']}")
+
             # Commit
             success, output = auto_commit_file(
                 project_dir=Path(project.git_clone_path),
-                filepath='scitex/scholar/bib_files/',
+                filepath='scitex/',  # Commit entire scitex directory
                 message=f"Scholar: Added bibliography - {job.processed_papers}/{job.total_papers} papers"
             )
             committed = success
@@ -1144,23 +1235,29 @@ def bibtex_save_to_project(request, job_id):
             shutil.copy(input_path, project_media_dir / original_filename)
             shutil.copy(output_path, project_media_dir / enriched_filename)
 
-        # Add success message for Django to display
-        from django.contrib import messages
-        messages.success(request, f'✓ Successfully saved to {project.name}')
+        # Build file paths for response
+        if project.git_clone_path:
+            file_paths = {
+                'original': f'scitex/scholar/bib_files/{original_filename}',
+                'enriched': f'scitex/scholar/bib_files/{enriched_filename}',
+                'merged': 'scitex/scholar/references.bib'
+            }
+        else:
+            file_paths = {
+                'original': f'projects/{project.id}/scholar/bib_files/{original_filename}',
+                'enriched': f'projects/{project.id}/scholar/bib_files/{enriched_filename}'
+            }
 
         return JsonResponse({
             'success': True,
             'message': f'Saved to {project.name}',
             'project': project.name,
             'committed': committed,
-            'storage': 'git' if project.git_clone_path else 'media'
+            'storage': 'git' if project.git_clone_path else 'media',
+            'paths': file_paths
         })
 
     except Exception as e:
-        # Add error message for Django to display
-        from django.contrib import messages
-        messages.error(request, f'✗ Failed to save to project: {str(e)}')
-
         return JsonResponse({
             'success': False,
             'error': f'Save failed: {str(e)}'
