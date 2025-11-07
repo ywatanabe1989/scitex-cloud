@@ -1,0 +1,25 @@
+[Unit]
+Description=uWSGI instance to serve SciTeX Cloud (Development)
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/home/ywatanabe/proj/scitex-cloud
+Environment="PATH=/home/ywatanabe/proj/scitex-cloud/.venv/bin"
+Environment="SCITEX_CLOUD_ENV=development"
+Environment="SCITEX_CLOUD_DJANGO_SETTINGS_MODULE=config.settings.settings_dev"
+EnvironmentFile=/home/ywatanabe/proj/scitex-cloud/deployment/dotenvs/dotenv_dev
+ExecStart=/home/ywatanabe/proj/scitex-cloud/.venv/bin/uwsgi --ini /home/ywatanabe/proj/scitex-cloud/deployment/uwsgi/uwsgi_dev.ini
+
+# Restart policy
+Restart=always
+RestartSec=5s
+
+# Security
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

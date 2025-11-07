@@ -155,6 +155,63 @@ bash scripts/docs/build_module_docs.sh [module_name]
 
 ---
 
+## Development Tools
+
+### `add_debug_logging.py`
+
+**Purpose**: Add DEBUG console.log statements to TypeScript files for module load verification.
+
+**Usage**:
+```bash
+# Add DEBUG logging to all TypeScript files
+python3 scripts/add_debug_logging.py
+
+# Run from project root
+cd /home/ywatanabe/proj/scitex-cloud
+python3 scripts/add_debug_logging.py
+```
+
+**What it does**:
+- Scans all `.ts` files (excluding `.d.ts` declaration files)
+- Checks if DEBUG logging already exists using pattern: `console.log("[DEBUG] filepath loaded")`
+- Intelligently inserts DEBUG statement after imports and comments
+- Handles edge cases:
+  - Multi-line comments (`/* */`)
+  - Import statements (`import`, `import type`)
+  - Empty lines at top of file
+- Reports statistics (added, skipped, total)
+
+**Output Example**:
+```
+Found 107 TypeScript files
+✅ Added: apps/writer_app/static/writer_app/ts/index.ts
+...
+============================================================
+Summary:
+  Added DEBUG logging:  52 files
+  Already had logging:  55 files
+  Total:                107 files
+============================================================
+```
+
+**When to use**:
+- After adding new TypeScript files
+- To verify module loading in browser console
+- For debugging module initialization issues
+- To audit which modules are loading in production
+
+**Debug Statement Format**:
+```typescript
+console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/index.ts loaded");
+```
+
+**See also**:
+- `TODOS/JAVASCRIPT_TYPESCRIPT_MIGRATION_STATUS.md` - TypeScript migration status
+- `tsconfig/` - TypeScript configuration
+- Console interceptor: logs saved to `./logs/console.log`
+
+---
+
 ## Utility Scripts
 
 ### `utils/format_django_templates.sh`
@@ -202,6 +259,7 @@ bash scripts/demo/create_viz_demo_video.sh
 ```
 scripts/
 ├── README.md                       # This file
+├── add_debug_logging.py           # Add DEBUG logging to TypeScript files ⭐
 │
 ├── deployment/                     # Deployment & infrastructure
 │   ├── switch_env.sh              # Environment switcher ⭐
@@ -209,6 +267,10 @@ scripts/
 │   ├── setup_postgres.sql         # SQL commands
 │   ├── backup_database.sh         # Database backups
 │   └── configure_nginx_system.sh  # Nginx system config
+│
+├── maintenance/                    # Maintenance & cleanup scripts
+│   ├── emergency_cleanup.sh       # Emergency cleanup
+│   └── (other maintenance scripts)
 │
 ├── server/                         # Server management
 │   ├── scitex_server.sh           # Main server control
@@ -260,7 +322,7 @@ Loaded automatically by shell from:
 
 Contains sensitive credentials:
 ```bash
-SCITEX_EMAIL_PASSWORD          # Used as Django secret key
+SCITEX_CLOUD_EMAIL_PASSWORD          # Used as Django secret key
 SCITEX_SCHOLAR_FROM_EMAIL_*    # Email SMTP config
 SCITEX_SCHOLAR_ZENROWS_API_KEY # API keys
 # etc.
@@ -273,7 +335,7 @@ Loaded by `scripts/deployment/switch_env.sh`:
 Contains environment-specific config:
 ```bash
 # Django
-DJANGO_SETTINGS_MODULE
+SCITEX_CLOUD_DJANGO_SETTINGS_MODULE
 SCITEX_CLOUD_DJANGO_SECRET_KEY
 
 # Database

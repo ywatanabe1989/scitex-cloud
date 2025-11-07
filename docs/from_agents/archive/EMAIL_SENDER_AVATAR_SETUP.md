@@ -214,10 +214,10 @@ For Gmail users to see your logo:
 ## Current Email Configuration
 
 ```
-EMAIL_HOST: mail1030.onamae.ne.jp
-EMAIL_PORT: 587
-EMAIL_USE_TLS: True
-EMAIL_HOST_USER: agent@scitex.ai
+SCITEX_CLOUD_EMAIL_HOST: mail1030.onamae.ne.jp
+SCITEX_CLOUD_EMAIL_PORT: 587
+SCITEX_CLOUD_EMAIL_USE_TLS: True
+SCITEX_CLOUD_EMAIL_HOST_USER: agent@scitex.ai
 DEFAULT_FROM_EMAIL: agent@scitex.ai
 ```
 

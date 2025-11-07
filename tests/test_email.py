@@ -19,7 +19,7 @@ import django
 
 # Setup Django
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+os.environ.setdefault('SCITEX_CLOUD_DJANGO_SETTINGS_MODULE', 'config.settings')
 django.setup()
 
 from django.core.mail import send_mail
@@ -32,13 +32,13 @@ def test_email_config():
     print("SciTeX Cloud Email Configuration Test")
     print("=" * 60)
     print()
-    print(f"EMAIL_BACKEND: {settings.EMAIL_BACKEND}")
-    print(f"EMAIL_HOST: {settings.EMAIL_HOST}")
-    print(f"EMAIL_PORT: {settings.EMAIL_PORT}")
-    print(f"EMAIL_USE_TLS: {getattr(settings, 'EMAIL_USE_TLS', False)}")
-    print(f"EMAIL_USE_SSL: {getattr(settings, 'EMAIL_USE_SSL', False)}")
-    print(f"EMAIL_HOST_USER: {settings.EMAIL_HOST_USER}")
-    print(f"EMAIL_PASSWORD set: {bool(settings.EMAIL_HOST_PASSWORD)}")
+    print(f"SCITEX_CLOUD_EMAIL_BACKEND: {settings.SCITEX_CLOUD_EMAIL_BACKEND}")
+    print(f"SCITEX_CLOUD_EMAIL_HOST: {settings.SCITEX_CLOUD_EMAIL_HOST}")
+    print(f"SCITEX_CLOUD_EMAIL_PORT: {settings.SCITEX_CLOUD_EMAIL_PORT}")
+    print(f"SCITEX_CLOUD_EMAIL_USE_TLS: {getattr(settings, 'SCITEX_CLOUD_EMAIL_USE_TLS', False)}")
+    print(f"SCITEX_CLOUD_EMAIL_USE_SSL: {getattr(settings, 'SCITEX_CLOUD_EMAIL_USE_SSL', False)}")
+    print(f"SCITEX_CLOUD_EMAIL_HOST_USER: {settings.SCITEX_CLOUD_EMAIL_HOST_USER}")
+    print(f"SCITEX_CLOUD_EMAIL_PASSWORD set: {bool(settings.SCITEX_CLOUD_EMAIL_HOST_PASSWORD)}")
     print(f"DEFAULT_FROM_EMAIL: {settings.DEFAULT_FROM_EMAIL}")
     print()
 
@@ -52,18 +52,18 @@ def send_test_email(recipient_email='ywata1989@gmail.com'):
 
     try:
         # Get settings
-        email_host = settings.EMAIL_HOST
-        email_port = settings.EMAIL_PORT
+        email_host = settings.SCITEX_CLOUD_EMAIL_HOST
+        email_port = settings.SCITEX_CLOUD_EMAIL_PORT
         from_email = settings.DEFAULT_FROM_EMAIL
-        use_tls = getattr(settings, 'EMAIL_USE_TLS', False)
+        use_tls = getattr(settings, 'SCITEX_CLOUD_EMAIL_USE_TLS', False)
         protocol = "TLS" if use_tls else "SSL"
 
         html_message = f"""
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="icon" type="image/png" href="https://scitex.ai/static/images/favicon.png">
-    <link rel="shortcut icon" type="image/png" href="https://scitex.ai/static/images/favicon.png">
+    <link rel="icon" type="image/png" href="https://scitex.ai/static/shared/images/favicon.png">
+    <link rel="shortcut icon" type="image/png" href="https://scitex.ai/static/shared/images/favicon.png">
 </head>
 <body>
 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">

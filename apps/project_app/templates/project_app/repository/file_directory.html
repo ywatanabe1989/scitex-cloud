@@ -1,0 +1,35 @@
+{% extends "global_base.html" %}
+{% load static %}
+
+{% block title %}{{ breadcrumb_path }} - {{ project.name }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'project_app/css/project_app.css' %}">
+<link rel="stylesheet" href="{% static 'project_app/css/shared/sidebar.css' %}">
+<link rel="stylesheet" href="{% static 'project_app/css/shared/file-tree.css' %}">
+<link rel="stylesheet" href="{% static 'project_app/css/shared/buttons.css' %}">
+
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="max-width: 1280px;">
+    {% include "project_app/repository/file_directory_partials/file_directory_breadcrumb.html" %}
+
+    {% include "project_app/repository/file_directory_partials/file_directory_tabs.html" %}
+
+    {% include "project_app/repository/file_directory_partials/file_directory_toolbar.html" %}
+
+    <!-- Main Content Area with Sidebar -->
+    <div class="repo-layout" id="repo-layout">
+        {% include "project_app/repository/file_directory_partials/file_directory_sidebar.html" %}
+
+        <!-- Main Content (RIGHT side) -->
+        <div class="repo-main">
+            {% include "project_app/repository/file_directory_partials/file_directory_file_list.html" %}
+        </div>
+    </div>
+</div>
+
+{% include "project_app/repository/file_directory_partials/file_directory_scripts.html" %}
+<script type="module" src="{% static 'project_app/js/shared/project_app.js' %}"></script>
+{% endblock %}

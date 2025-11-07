@@ -9,7 +9,7 @@ This prevents code duplication and ensures consistent project selection logic.
 
 from django.contrib.auth.models import User
 from apps.project_app.models import Project
-from scitex import logging
+import logging
 
 logger = logging.getLogger(__name__)
 
@@ -19,9 +19,10 @@ def get_current_project(request, user=None):
     Get the current project for a user, with fallback logic.
 
     Logic priority:
-    1. User's last_active_repository (if authenticated)
-    2. Session-based project selection (current_project_slug)
-    3. Default project (created if needed)
+    1. Direct project ID from session (from shareable links)
+    2. User's last_active_repository (if authenticated)
+    3. Session-based project selection (current_project_slug)
+    4. Default project (created if needed)
 
     Args:
         request: Django request object
@@ -41,14 +42,32 @@ def get_current_project(request, user=None):
     current_project = None
     is_authenticated = user.is_authenticated if hasattr(user, 'is_authenticated') else (user.username and not user.username.startswith('guest-'))
 
-    # For authenticated users, try header selector first
+    # HIGHEST PRIORITY: Direct project ID from session (set by shareable links)
+    current_project_id = request.session.get('current_project_id')
+    if current_project_id:
+        try:
+            current_project = Project.objects.get(id=current_project_id)
+            # Verify user has permission to view
+            if current_project.can_view(user):
+                logger.info(f"Using direct project ID from session for user {user.username}: {current_project.name}")
+                return current_project
+            else:
+                # Clear invalid session
+                request.session.pop('current_project_id', None)
+                logger.warning(f"User {user.username} doesn't have permission for project {current_project_id}")
+        except Project.DoesNotExist:
+            logger.warning(f"Session project ID not found: {current_project_id}")
+            # Clear invalid session
+            request.session.pop('current_project_id', None)
+
+    # For authenticated users, try header selector
     if is_authenticated:
         if hasattr(user, 'profile') and user.profile.last_active_repository:
             current_project = user.profile.last_active_repository
             logger.info(f"Using last_active_repository for user {user.username}: {current_project.name}")
             return current_project
 
-    # Fallback: try session-based project selection
+    # Fallback: try session-based project selection by slug
     current_project_slug = request.session.get('current_project_slug')
     if current_project_slug:
         try:

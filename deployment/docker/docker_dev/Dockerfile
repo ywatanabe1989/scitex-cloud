@@ -122,15 +122,14 @@ RUN if [ -f /etc/ImageMagick-6/policy.xml ]; then \
 # Copy only requirements.txt (layer cached until requirements change)
 COPY requirements.txt .
 
-# Install Python dependencies with cache mount
+# Install SciTeX Cloud Python dependencies with cache mount
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv pip install --system -r requirements.txt
 
-# Install Playwright browsers (large download - cache it)
+# Install Playwright browsers (must persist in image for runtime use)
 # Note: We already have chromium and dependencies installed above,
 # so we skip install-deps which tries to install Ubuntu packages on Debian
-RUN --mount=type=cache,target=/root/.cache/ms-playwright \
-    python -m playwright install chromium
+RUN python -m playwright install chromium
 
 # ============================================
 # Application Code
@@ -170,6 +169,6 @@ HEALTHCHECK --interval=10s --timeout=3s --start-period=60s --retries=3 \
 EXPOSE 8000
 
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000", "from_docker"]
 
 # EOF

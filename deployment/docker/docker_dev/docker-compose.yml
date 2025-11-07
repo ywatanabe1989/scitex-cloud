@@ -4,8 +4,8 @@
 # SciTeX Cloud - Development Environment
 # ============================================
 
-# Set project name to "docker" for consistent container naming (docker-web-1, docker-db-1, etc.)
-name: docker
+# Set project name with environment for clear identification
+name: scitex-cloud-dev
 
 services:
   # ============================================
@@ -16,9 +16,10 @@ services:
       context: ../../..
       dockerfile: deployment/docker/docker_dev/Dockerfile
       cache_from:
-        - scitex-cloud-web:dev-latest
+        - scitex-cloud-dev-web:latest
       args:
         BUILDKIT_INLINE_CACHE: 1
+    image: scitex-cloud-dev-web:latest
 
     # Volumes - Live code reload
     volumes:
@@ -55,7 +56,7 @@ services:
       - .env
     
     environment:
-      - DJANGO_SETTINGS_MODULE=config.settings.settings_dev
+      - SCITEX_CLOUD_DJANGO_SETTINGS_MODULE=config.settings.settings_dev
       - PYTHONUNBUFFERED=1
       - PYTHONDONTWRITEBYTECODE=1
       # scitex.writer specific
@@ -103,14 +104,14 @@ services:
       - .env
 
     environment:
-      - POSTGRES_DB=${POSTGRES_DB:-scitex_cloud_dev}
-      - POSTGRES_USER=${POSTGRES_USER:-scitex_dev}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-scitex_dev_2025}
+      - SCITEX_CLOUD_POSTGRES_DB=${SCITEX_CLOUD_POSTGRES_DB:-scitex_cloud_dev}
+      - SCITEX_CLOUD_POSTGRES_USER=${SCITEX_CLOUD_POSTGRES_USER:-scitex_dev}
+      - SCITEX_CLOUD_POSTGRES_PASSWORD=${SCITEX_CLOUD_POSTGRES_PASSWORD:-scitex_dev_2025}
 
     restart: unless-stopped
     
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-scitex_dev} -d ${POSTGRES_DB:-scitex_cloud_dev}"]
+      test: ["CMD-SHELL", "pg_isready -U ${SCITEX_CLOUD_POSTGRES_USER:-scitex_dev} -d ${SCITEX_CLOUD_POSTGRES_DB:-scitex_cloud_dev}"]
       interval: 10s
       timeout: 3s
       retries: 5
@@ -174,9 +175,9 @@ services:
       # Database connection
       - GITEA__database__DB_TYPE=postgres
       - GITEA__database__HOST=db:5432
-      - GITEA__database__NAME=${POSTGRES_DB:-scitex_cloud_dev}
-      - GITEA__database__USER=${POSTGRES_USER:-scitex_dev}
-      - GITEA__database__PASSWD=${POSTGRES_PASSWORD:-scitex_dev_2025}
+      - GITEA__database__NAME=${SCITEX_CLOUD_POSTGRES_DB:-scitex_cloud_dev}
+      - GITEA__database__USER=${SCITEX_CLOUD_POSTGRES_USER:-scitex_dev}
+      - GITEA__database__PASSWD=${SCITEX_CLOUD_POSTGRES_PASSWORD:-scitex_dev_2025}
       
       # Server configuration
       - GITEA__server__DOMAIN=gitea
@@ -241,4 +242,3 @@ networks:
       config:
         - subnet: 172.20.0.0/16
 
-# EOF

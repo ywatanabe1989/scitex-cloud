@@ -83,7 +83,7 @@ Located in `/config/settings/`:
 
 #### Database Configuration
 - **Development:** SQLite3 at `data/db/sqlite/scitex_cloud.db`
-- **Production:** PostgreSQL (via DATABASE_URL env var)
+- **Production:** PostgreSQL (via SCITEX_CLOUD_POSTGRES_URL env var)
 
 #### Cache & Sessions
 - **Preferred:** Redis at `redis://127.0.0.1:6379/1`
@@ -214,10 +214,10 @@ Symlinked external modules:
 
 ### Required for Production
 ```bash
-SCITEX_DJANGO_SECRET_KEY="your-secret-key"
+SCITEX_CLOUD_DJANGO_SECRET_KEY="your-secret-key"
 DEBUG=False
-ALLOWED_HOSTS="your-domain.com"
-DATABASE_URL="postgres://..."
+SCITEX_CLOUD_ALLOWED_HOSTS="your-domain.com"
+SCITEX_CLOUD_POSTGRES_URL="postgres://..."
 ```
 
 ### Email Configuration
@@ -228,13 +228,13 @@ SCITEX_SCHOLAR_FROM_EMAIL_PASSWORD="..."
 
 ### Redis (Optional)
 ```bash
-REDIS_URL="redis://127.0.0.1:6379/1"
+SCITEX_CLOUD_REDIS_URL="redis://127.0.0.1:6379/1"
 ```
 
 ### Development Default
 ```bash
 SCITEX_CLOUD_ENV=development
-SCITEX_DJANGO_SECRET_KEY=dev-secret-key-123
+SCITEX_CLOUD_DJANGO_SECRET_KEY=dev-secret-key-123
 ```
 
 ---

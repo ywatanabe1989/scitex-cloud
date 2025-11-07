@@ -1,0 +1,20 @@
+/* Issues label management styles */
+@import url('shared/variables.css');
+
+.label-management-container {
+    padding: 2rem;
+}
+
+.label-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.label-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border: 1px solid var(--border-color, #ddd);
+    border-radius: 0.375rem;
+}

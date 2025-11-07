@@ -4,7 +4,7 @@
 {% block title %}SciTeX Scholar - BibTeX Enrichment{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/common.css' %}">
+<link rel="stylesheet" href="{% static 'shared/css/common.css' %}">
 <link rel="stylesheet" href="{% static 'scholar_app/css/index.css' %}">
 {% endblock %}
 
@@ -47,10 +47,8 @@
 
 {% block extra_js %}
 <!-- Common Scripts -->
-<script src="{% static 'scholar_app/scripts/common/project-selector.js' %}"></script>
-<!-- BibTeX Enrichment Scripts -->
-<script src="{% static 'scholar_app/scripts/bibtex/bibtex-enrichment.js' %}"></script>
-<script src="{% static 'scholar_app/scripts/bibtex/queue-management.js' %}?v=20251027-fix-polling-debug"></script>
+<script type="module" src="{% static 'scholar_app/js/common/project-selector.js' %}"></script>
+<!-- BibTeX scripts are loaded from bibtex_partials/enrich.html -->
 {% endblock %}
 
 {% endblock %}

@@ -129,6 +129,84 @@ def create_gitea_repository(sender, instance, created, **kwargs):
         logger.exception("Full traceback:")
 
 
+def _initialize_writer_structure(project, project_dir):
+    """
+    Initialize scitex writer structure using Writer() with parent git strategy.
+
+    Flow:
+    1. Project root already has .git (from Gitea clone)
+    2. Create scitex/writer/ subdirectory
+    3. Writer() with git_strategy='parent' creates full structure
+    4. Commit and push to Gitea
+
+    Args:
+        project: Project model instance
+        project_dir: Path to project root (with .git from Gitea)
+    """
+    from pathlib import Path
+    import subprocess
+
+    try:
+        # Writer goes in scitex/writer subdirectory
+        scitex_dir = project_dir / 'scitex'
+        writer_dir = scitex_dir / 'writer'
+
+        # Check if structure already exists
+        if writer_dir.exists() and (writer_dir / "01_manuscript").exists():
+            logger.info(f"Writer structure already exists for {project.slug}")
+            return
+
+        logger.info(f"Initializing scitex writer structure for {project.slug}")
+        logger.info(f"  Project root: {project_dir}")
+        logger.info(f"  Writer dir: {writer_dir}")
+        logger.info(f"  Has git: {(project_dir / '.git').exists()}")
+
+        # Initialize Writer with parent git strategy
+        # This will use the project root's .git repository
+        # Don't pass name parameter - let it use directory name 'writer'
+        from scitex.writer import Writer
+        writer = Writer(
+            project_dir=writer_dir,
+            git_strategy='parent'  # Use project root's git repo
+        )
+
+        logger.success(f"✓ Scitex writer structure created for {project.slug}")
+        logger.info(f"  - Manuscript: {writer.manuscript.root}")
+        logger.info(f"  - Supplementary: {writer.supplementary.root}")
+        logger.info(f"  - Git root: {writer.git_root}")
+
+        # Commit the new structure
+        subprocess.run(['git', 'add', '-A'], cwd=project_dir, capture_output=True)
+        result = subprocess.run(
+            ['git', 'commit', '-m', 'Initialize scitex writer structure'],
+            cwd=project_dir,
+            capture_output=True,
+            text=True
+        )
+
+        if result.returncode == 0:
+            logger.info("✓ Committed writer structure")
+
+            # Push to Gitea
+            result = subprocess.run(
+                ['git', 'push', 'origin', 'main'],
+                cwd=project_dir,
+                capture_output=True,
+                text=True
+            )
+
+            if result.returncode == 0:
+                logger.success(f"✓ Pushed to Gitea: {project.slug}")
+            else:
+                logger.warning(f"Could not push to Gitea: {result.stderr}")
+        else:
+            logger.info("No changes to commit (structure may already exist)")
+
+    except Exception as e:
+        logger.error(f"Failed to initialize writer structure for {project.slug}: {e}")
+        logger.exception("Full traceback:")
+
+
 def _clone_gitea_repo_to_data_dir(project):
     """
     Clone Gitea repository to Django's data directory.
@@ -197,6 +275,9 @@ def _clone_gitea_repo_to_data_dir(project):
             project.directory_created = True
             project.save(update_fields=['git_clone_path', 'directory_created'])
 
+            # Initialize scitex writer structure in scitex/writer subdirectory
+            _initialize_writer_structure(project, project_dir)
+
         else:
             logger.error(f"Failed to clone repo: {result.stderr}")
 
@@ -205,6 +286,35 @@ def _clone_gitea_repo_to_data_dir(project):
     except Exception as e:
         logger.error(f"Failed to clone Gitea repo for {project.slug}: {e}")
         logger.exception("Full traceback:")
+
+
+@receiver(post_save, sender=Project)
+def ensure_bibliography_structure(sender, instance, created, **kwargs):
+    """
+    Ensure bibliography directory structure exists after project creation.
+
+    This creates the basic directory structure and symlinks for bibliography
+    management, but does NOT parse or merge files (that's opt-in).
+    """
+    # Only run for newly created projects with git clone path
+    if not created or not instance.git_clone_path:
+        return
+
+    try:
+        from pathlib import Path
+        from .services.bibliography_manager import ensure_bibliography_structure as ensure_structure
+
+        project_path = Path(instance.git_clone_path)
+        if project_path.exists():
+            results = ensure_structure(project_path)
+            if results['success']:
+                logger.info(f"✓ Bibliography structure initialized for {instance.slug}")
+            else:
+                logger.warning(f"Bibliography structure initialization had errors: {results['errors']}")
+
+    except Exception as e:
+        # Non-critical error, log and continue
+        logger.warning(f"Failed to initialize bibliography structure for {instance.slug}: {e}")
 
 
 @receiver(post_save, sender=Project)

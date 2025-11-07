@@ -1,0 +1,19 @@
+/* Repository maintenance admin page styles */
+@import url('shared/variables.css');
+
+.maintenance-container {
+    padding: 2rem;
+}
+
+.maintenance-section {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    border: 1px solid var(--border-color, #ddd);
+    border-radius: 0.375rem;
+}
+
+.maintenance-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}

@@ -1,0 +1,7 @@
+
+[0;34m=== Gitea Status (Docker Compose) ===[0m
+
+[0;90mContainer Status:[0m
+[0;31m  ✗ Container not running[0m
+[0;90m  Status: [0m
+[0;90m  Start: cd /home/ywatanabe/proj/scitex-cloud/containers/docker && ./start_dev.sh[0m

@@ -1,0 +1,192 @@
+<script>
+const projectId = {{ project.id }};
+let logExpanded = false;
+
+// Elements
+const compileBtnMain = document.getElementById('compile-btn-main');
+const compilationProgress = document.getElementById('compilation-progress');
+const progressBar = document.getElementById('progress-bar');
+const compilationLog = document.getElementById('compilation-log');
+const pdfViewer = document.getElementById('pdf-viewer');
+const pdfViewLink = document.getElementById('pdf-view-link');
+const pdfDownloadLink = document.getElementById('pdf-download-link');
+const diffPdfViewer = document.getElementById('diff-pdf-viewer');
+const diffPdfViewLink = document.getElementById('diff-pdf-view-link');
+const diffPdfDownloadLink = document.getElementById('diff-pdf-download-link');
+const mainPdfView = document.getElementById('main-pdf-view');
+const diffPdfView = document.getElementById('diff-pdf-view');
+const mainPdfTab = document.getElementById('main-pdf-tab');
+const diffPdfTab = document.getElementById('diff-pdf-tab');
+const toggleLogSizeBtn = document.getElementById('toggle-log-size');
+
+// Initialize
+checkForExistingPDFs();
+checkForRunningCompilation();
+
+// Compile button
+compileBtnMain.addEventListener('click', function() {
+    compileManuscript();
+});
+
+// Toggle log size
+toggleLogSizeBtn.addEventListener('click', function() {
+    logExpanded = !logExpanded;
+    const logViewer = document.getElementById('compilation-log');
+    if (logExpanded) {
+        logViewer.style.maxHeight = '800px';
+        this.innerHTML = '<i class="fas fa-compress-alt"></i>';
+    } else {
+        logViewer.style.maxHeight = '400px';
+        this.innerHTML = '<i class="fas fa-expand-alt"></i>';
+    }
+});
+
+function switchPDFView(type) {
+    if (type === 'main') {
+        mainPdfView.style.display = 'block';
+        diffPdfView.style.display = 'none';
+        mainPdfTab.classList.add('active');
+        diffPdfTab.classList.remove('active');
+    } else {
+        mainPdfView.style.display = 'none';
+        diffPdfView.style.display = 'block';
+        mainPdfTab.classList.remove('active');
+        diffPdfTab.classList.add('active');
+    }
+}
+
+function checkForExistingPDFs() {
+    // Check main PDF
+    fetch(`/writer/project/${projectId}/pdf/`)
+    .then(response => {
+        if (response.ok) {
+            const pdfUrl = `/writer/project/${projectId}/pdf/`;
+            pdfViewer.src = pdfUrl;
+            pdfViewLink.href = pdfUrl;
+            pdfDownloadLink.href = `${pdfUrl}?mode=download`;
+        }
+    });
+
+    // Check diff PDF
+    const diffStatus = document.getElementById('diff-pdf-status');
+    const diffViewer = document.getElementById('diff-pdf-viewer');
+
+    fetch(`/writer/project/${projectId}/pdf/?type=diff`)
+    .then(response => {
+        if (response.ok) {
+            const diffPdfUrl = `/writer/project/${projectId}/pdf/?type=diff`;
+            diffPdfViewer.src = diffPdfUrl;
+            diffPdfViewLink.href = diffPdfUrl;
+            diffPdfDownloadLink.href = `${diffPdfUrl}&mode=download`;
+
+            // Show the iframe, hide the status message
+            diffStatus.style.display = 'none';
+            diffViewer.style.display = 'block';
+        } else {
+            // Keep showing the status message
+            diffStatus.style.display = 'flex';
+            diffViewer.style.display = 'none';
+        }
+    });
+}
+
+function checkForRunningCompilation() {
+    const lastJobId = localStorage.getItem(`last_compile_job_${projectId}`);
+    if (lastJobId) {
+        fetch(`/writer/api/status/${lastJobId}/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'running' || data.status === 'queued') {
+                compilationProgress.style.display = 'block';
+                pollCompilationStatus(lastJobId);
+            } else if (data.status === 'completed' && data.log) {
+                compilationProgress.style.display = 'block';
+                progressBar.style.width = '100%';
+                progressBar.textContent = '100%';
+                progressBar.classList.add('bg-success');
+                compilationLog.textContent = data.log;
+            }
+        });
+    }
+}
+
+function compileManuscript() {
+    compileBtnMain.disabled = true;
+    compileBtnMain.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Compiling...';
+    compilationProgress.style.display = 'block';
+    progressBar.style.width = '10%';
+    progressBar.textContent = '10%';
+    compilationLog.textContent = 'Starting compilation...\n';
+
+    fetch(`/writer/project/${projectId}/compile/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCsrfToken()
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            localStorage.setItem(`last_compile_job_${projectId}`, data.job_id);
+            compilationLog.textContent += 'Email notification sent.\nMonitoring progress...\n';
+            pollCompilationStatus(data.job_id);
+        } else {
+            compilationLog.textContent += `\nError: ${data.error}`;
+            compileBtnMain.disabled = false;
+            compileBtnMain.innerHTML = '<i class="fas fa-file-pdf me-2"></i>Compile PDF';
+        }
+    });
+}
+
+function pollCompilationStatus(jobId, attempts = 0) {
+    if (attempts > 90) {  // 3 minutes max
+        compilationLog.textContent += '\nTimeout - please refresh';
+        compileBtnMain.disabled = false;
+        compileBtnMain.innerHTML = '<i class="fas fa-file-pdf me-2"></i>Compile PDF';
+        return;
+    }
+
+    fetch(`/writer/api/status/${jobId}/`)
+    .then(response => response.json())
+    .then(data => {
+        const progress = data.progress || 50;
+        progressBar.style.width = `${progress}%`;
+        progressBar.textContent = `${progress}%`;
+
+        if (data.log) {
+            compilationLog.textContent = data.log;
+            compilationLog.scrollTop = compilationLog.scrollHeight;
+        }
+
+        if (data.status === 'completed') {
+            progressBar.style.width = '100%';
+            progressBar.textContent = '100%';
+            progressBar.classList.remove('progress-bar-animated');
+            progressBar.classList.add('bg-success');
+            compileBtnMain.innerHTML = '<i class="fas fa-check me-2"></i>Compiled!';
+
+            // Load PDFs
+            checkForExistingPDFs();
+
+            setTimeout(() => {
+                compileBtnMain.disabled = false;
+                compileBtnMain.innerHTML = '<i class="fas fa-file-pdf me-2"></i>Compile PDF';
+            }, 3000);
+        } else if (data.status === 'failed') {
+            progressBar.classList.add('bg-danger');
+            compilationLog.textContent = `ERROR: ${data.error}\n\n${data.error_details || data.log || ''}`;
+            compileBtnMain.disabled = false;
+            compileBtnMain.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>Failed';
+        } else {
+            setTimeout(() => pollCompilationStatus(jobId, attempts + 1), 2000);
+        }
+    });
+}
+
+function getCsrfToken() {
+    return document.querySelector('[name=csrfmiddlewaretoken]').value;
+}
+</script>
+
+{% csrf_token %}
+{% endblock %}

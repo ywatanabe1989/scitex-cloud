@@ -612,13 +612,17 @@ This project directory is managed by SciTeX Cloud. You can:
             Tuple of (success: bool, path: Optional[Path])
         """
         try:
-            # Import the proper initialization function from writer_app
-            from apps.writer_app.views.editor_views import ensure_writer_directory
+            # Initialize Writer workspace using WriterService
+            from apps.writer_app.services import WriterService
             import logging
             logger = logging.getLogger(__name__)
 
-            # Use the existing, complete initialization
-            writer_path = ensure_writer_directory(project)
+            # Create WriterService - this initializes Writer() which creates the complete structure
+            writer_service = WriterService(project.id, project.owner.id)
+
+            # Access the writer property - this triggers initialization
+            writer = writer_service.writer
+            writer_path = writer_service.project_path
 
             if writer_path and writer_path.exists():
                 logger.info(f"✓ Writer template initialized successfully at: {writer_path}")
@@ -800,7 +804,7 @@ CACHE_ENABLED=true
 
 # Add your custom environment variables below
 # API_KEY=your_api_key_here
-# DATABASE_URL=your_database_url_here
+# SCITEX_CLOUD_POSTGRES_URL=your_database_url_here
 """
         
         with open(config_path / '.env.template', 'w') as f:

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-10-22 08:22:28 (ywatanabe)"
-# File: /home/ywatanabe/proj/scitex-cloud/config/settings/settings_dev.py
+# Timestamp: "2025-11-02 18:25:23 (ywatanabe)"
+# File: /ssh:scitex:/home/ywatanabe/proj/scitex-cloud/config/settings/settings_dev.py
 # ----------------------------------------
 from __future__ import annotations
 import os
@@ -20,10 +20,6 @@ from .settings_shared import *
 from dotenv import load_dotenv
 import socket
 
-from scitex import logging
-logger = logging.getLogger(__name__)
-
-logger.info(f"Loading: {__file__}...")
 
 # ---------------------------------------
 # Functions
@@ -57,19 +53,18 @@ X_FRAME_OPTIONS = "SAMEORIGIN"
 # ---------------------------------------
 # Security
 # ---------------------------------------
-DEBUG = True
-if not SECRET_KEY:
-    SECRET_KEY = (
-        "django-insecure-dev-key-for-testing-only-do-not-use-in-production"
-    )
-ALLOWED_HOSTS = [
-    "localhost",
-    "127.0.0.1",
-    "0.0.0.0",
-    "172.19.33.56",
-    "[::1]",
-    "testserver",
+DEBUG = os.getenv("SCITEX_CLOUD_DJANGO_DEBUG", "True").lower() in [
+    "true",
+    "1",
+    "yes",
 ]
+SECRET_KEY = os.getenv("SCITEX_CLOUD_DJANGO_SECRET_KEY")
+ALLOWED_HOSTS = os.getenv(
+    "SCITEX_CLOUD_ALLOWED_HOSTS",
+    "localhost,127.0.0.1,0.0.0.0,172.19.33.56,[::1],testserver",
+).split(",")
+
+
 # Hot reload settings
 INTERNAL_IPS = [
     "127.0.0.1",
@@ -141,7 +136,9 @@ GITEA_INTEGRATION_ENABLED = True  # Core feature, always enabled
 # Development Cache Configuration - fallback to dummy cache if Redis not available
 # Override cache configuration for development if Redis is not available
 if not test_redis_connection():
-    logger.warn("    Redis not available in development, using local memory cache")
+    print(
+        "⚠️  Redis not available in development, using local memory cache"
+    )
     CACHES = {
         "default": {
             "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
@@ -224,11 +221,5 @@ LOGGING.update(
         },
     }
 )
-
-# ---------------------------------------
-# Email - Development
-# ---------------------------------------
-# Always use actual email sending (not console)
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 
 # EOF

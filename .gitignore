@@ -12,6 +12,9 @@ CLAUDE.md
 .git-crypt/keys
 **/*secret*
 
+# SSL Certificates (managed by certbot, never commit)
+deployment/ssl/
+
 ### Source: /home/ywatanabe/.git-templates/.gitignore-templates/Custom/Development.gitignore ###
 # Development directories
 .dev/
@@ -20,6 +23,8 @@ CLAUDE.md
 # Temporary scripts
 tmp.sh
 tmp/*.sh
+rename_without_duplication.sh
+SCITEX_CLOUD_DJANGO_SETTINGS_MODULE
 
 # old directories as trash bin
 *old*
@@ -673,14 +678,36 @@ package-lock.json
 media/users/
 coverage/
 
+### TypeScript Compiled Output ###
+# Ignore all compiled TypeScript files in static directories
+# Only track source .ts files, not compiled .js/.d.ts/.map files
+apps/*/static/*/js/**/*.js
+apps/*/static/*/js/**/*.js.map
+apps/*/static/*/js/**/*.d.ts
+apps/*/static/*/js/**/*.d.ts.map
+static/*/js/**/*.js
+static/*/js/**/*.js.map
+static/*/js/**/*.d.ts
+static/*/js/**/*.d.ts.map
+static/js/**/*.js
+static/js/**/*.js.map
+static/js/**/*.d.ts
+static/js/**/*.d.ts.map
+
 ### Django Security ###
 # Environment variables and secrets
-# Note: deployment/dotenvs/dotenv.{dev,prod,example} are COMMITTED (no passwords)
+# IMPORTANT: All dotenv files should be gitignored to prevent secret leaks
+deployment/dotenvs/*
+!deployment/dotenvs/.gitkeep
+!deployment/dotenvs/README.md
 # Note: .env symlink at project root is NOT COMMITTED (gitignored above)
 *.key
 *.pem
 *.crt
 secret_key.txt
+
+# Pre-commit secrets baseline (this is safe to commit)
+!.secrets.baseline
 
 # Django database files
 *.sqlite3
@@ -689,7 +716,7 @@ secret_key.txt
 *.db.broken
 db.sqlite3*
 *.db-journal
-*.db-shm  
+*.db-shm
 *.db-wal
 
 # Django media uploads (user content)
@@ -734,3 +761,28 @@ containers/docker/.env
 containers/docker/.env.dev
 docs/to_claude/
 logs/
+test-paper-project/
+*.backup.*
+.env.backup*
+.tmp_sync/
+demo/
+.tsbuild/
+
+# TypeScript Compiled Output (auto-generated, do not commit)
+apps/*/static/*/js/
+apps/*/static/*/js/**/*
+static/js/
+static/js/**/*
+
+# Legacy JavaScript Source (potential migration candidates, DO commit)
+!apps/*/static/*/js-potentially-legacy/
+!static/js-potentially-legacy/
+
+# TypeScript build artifacts
+**/*.d.ts
+**/*.js.map
+**/*.d.ts.map
+
+# TypeScript compiled outputs in ts/ directories (sibling to .ts sources)
+**/ts/**/*.js
+!**/ts/**/*.test.js

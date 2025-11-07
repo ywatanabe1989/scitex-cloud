@@ -1,0 +1,16 @@
+#!/bin/bash
+# ============================================
+# SciTeX Package Functions
+# ============================================
+
+verify_scitex_package() {
+    echo -e "${CYAN}🔍 Verifying scitex package...${NC}"
+    if python -c "import scitex; print(f'✅ Scitex {scitex.__version__} available')" 2>/dev/null; then
+        return 0
+    else
+        echo -e "${RED}❌ Failed to import scitex${NC}"
+        return 1
+    fi
+}
+
+# EOF

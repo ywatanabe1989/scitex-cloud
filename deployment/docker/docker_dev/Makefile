@@ -3,7 +3,47 @@
 # ============================================
 # Location: /containers/docker_dev/Makefile.dev
 
-.PHONY: help setup build start restart stop down logs ps clean rebuild test migrate makemigrations shell createsuperuser collectstatic db-shell db-reset verify-env docker-check-health logs-web logs-db logs-gitea logs-redis exec-web exec-db exec-gitea gitea-token verify-gitea recreate-testuser list-env clean-python dev update reset
+.PHONY: \
+	help \
+	setup \
+	build \
+	build-ts \
+	start \
+	restart \
+	stop \
+	down \
+	logs \
+	ps \
+	clean \
+	rebuild \
+	test \
+	test-e2e \
+	test-e2e-headed \
+	test-e2e-specific \
+	migrate \
+	makemigrations \
+	shell \
+	createsuperuser \
+	collectstatic \
+	db-shell \
+	db-reset \
+	verify-env \
+	docker-check-health \
+	logs-web \
+	logs-db \
+	logs-gitea \
+	logs-redis \
+	exec-web \
+	exec-db \
+	exec-gitea \
+	gitea-token \
+	verify-gitea \
+	recreate-testuser \
+	list-env \
+	clean-python \
+	dev \
+	update \
+	reset
 
 .DEFAULT_GOAL := help
 
@@ -11,10 +51,10 @@
 # Variables
 # ============================================
 COMPOSE := docker compose -f docker-compose.yml
-WEB_CONTAINER := docker-web-1
-DB_CONTAINER := docker-db-1
-GITEA_CONTAINER := docker-gitea-1
-REDIS_CONTAINER := docker-redis-1
+WEB_CONTAINER := scitex-cloud-dev-web-1
+DB_CONTAINER := scitex-cloud-dev-db-1
+GITEA_CONTAINER := scitex-cloud-dev-gitea-1
+REDIS_CONTAINER := scitex-cloud-dev-redis-1
 SCRIPTS_DIR := .
 
 # Colors for output
@@ -53,7 +93,8 @@ help:
 	@echo "  make makemigrations     - Create new migrations"
 	@echo "  make shell              - Open Django shell"
 	@echo "  make createsuperuser    - Create superuser account"
-	@echo "  make collectstatic      - Collect static files"
+	@echo "  make build-ts           - Compile TypeScript to JavaScript"
+	@echo "  make collectstatic      - Collect static files (includes compiled JS)"
 	@echo "  make test               - Run test suite"
 	@echo ""
 	@echo "$(CYAN)🗄️  Database:$(NC)"
@@ -90,16 +131,16 @@ help:
 # ============================================
 # Setup & Build Commands
 # ============================================
-setup: start migrate collectstatic
+setup: start migrate build-ts collectstatic
 	@echo "$(GREEN)✅ Development setup complete!$(NC)"
 
 start:
 	@echo "$(CYAN)🚀 Starting development environment...$(NC)"
-	cd $(CURDIR) && bash $(CURDIR)/start.sh -a start
+	cd $(CURDIR) && bash $(CURDIR)/server.sh -a start
 
 restart:
 	@echo "$(CYAN)🔄 Restarting web container...$(NC)"
-	cd $(CURDIR) && bash $(CURDIR)/start.sh -a restart
+	cd $(CURDIR) && bash $(CURDIR)/server.sh -a restart
 
 reload:
 	@echo "$(CYAN)⚡ Quick reload (for scitex code changes)...$(NC)"
@@ -126,7 +167,7 @@ ps:
 	@echo "$(CYAN)📊 Service Status:$(NC)"
 	$(COMPOSE) ps
 
-rebuild: down build up migrate collectstatic
+rebuild: down build up migrate build-ts collectstatic
 	@echo "$(GREEN)✅ Rebuild complete!$(NC)"
 
 clean:
@@ -169,6 +210,11 @@ createsuperuser: docker-check-health
 	@echo "$(CYAN)👤 Creating superuser...$(NC)"
 	$(COMPOSE) exec web python manage.py createsuperuser
 
+build-ts:
+	@echo "$(CYAN)🔨 Building TypeScript...$(NC)"
+	@cd ../../.. && cd frontend && npm run build:writer
+	@echo "$(GREEN)✅ TypeScript compiled$(NC)"
+
 collectstatic: docker-check-health
 	@echo "$(CYAN)📦 Collecting static files...$(NC)"
 	$(COMPOSE) exec -T web python manage.py collectstatic --noinput
@@ -179,12 +225,34 @@ test: docker-check-health
 	$(COMPOSE) exec -T web python manage.py test
 	@echo "$(GREEN)✅ Tests completed$(NC)"
 
+# E2E Testing with Playwright
+test-e2e: docker-check-health
+	@echo "$(CYAN)🎭 Running E2E tests (headless)...$(NC)"
+	$(COMPOSE) exec -T web pytest tests/e2e/ -v -p no:zarr
+	@echo "$(GREEN)✅ E2E tests completed$(NC)"
+
+test-e2e-headed: docker-check-health
+	@echo "$(CYAN)🎭 Running E2E tests (with browser)...$(NC)"
+	@echo "$(YELLOW)⚠️  Note: Headed mode requires X11 forwarding in Docker$(NC)"
+	$(COMPOSE) exec -T -e DISPLAY=$(DISPLAY) web pytest tests/e2e/ -v --headed --browser chromium
+	@echo "$(GREEN)✅ E2E tests completed$(NC)"
+
+test-e2e-specific: docker-check-health
+	@if [ -z "$(TEST)" ]; then \
+		echo "$(RED)❌ TEST not specified!$(NC)"; \
+		echo "$(YELLOW)Usage: make test-e2e-specific TEST=tests/e2e/test_user_creation.py$(NC)"; \
+		exit 1; \
+	fi
+	@echo "$(CYAN)🎭 Running specific E2E test: $(TEST)...$(NC)"
+	$(COMPOSE) exec -T web pytest $(TEST) -v -p no:zarr
+	@echo "$(GREEN)✅ E2E test completed$(NC)"
+
 # ============================================
 # Database Commands
 # ============================================
 db-shell: docker-check-health
 	@echo "$(CYAN)🗄️  Opening PostgreSQL shell...$(NC)"
-	@$(COMPOSE) exec db psql -U $${POSTGRES_USER:-scitex_dev} -d $${POSTGRES_DB:-scitex_cloud_dev}
+	@$(COMPOSE) exec db psql -U $${SCITEX_CLOUD_POSTGRES_USER:-scitex_dev} -d $${SCITEX_CLOUD_POSTGRES_DB:-scitex_cloud_dev}
 
 db-reset: docker-check-health
 	@echo "$(RED)⚠️  WARNING: This will DELETE ALL DATA in the database!$(NC)"
@@ -239,26 +307,26 @@ exec-gitea: docker-check-health
 # ============================================
 gitea-token: docker-check-health
 	@echo "$(CYAN)🔑 Setting up Gitea API token...$(NC)"
-	cd $(CURDIR) && bash $(CURDIR)/start.sh -a setup_gitea_token
+	cd $(CURDIR) && bash $(CURDIR)/server.sh -a setup_gitea_token
 
 verify-gitea: docker-check-health
 	@echo "$(CYAN)🔍 Verifying Gitea API access...$(NC)"
-	cd $(CURDIR) && bash $(CURDIR)/start.sh -a verify_gitea_api
+	cd $(CURDIR) && bash $(CURDIR)/server.sh -a verify_gitea_api
 
 recreate-testuser: docker-check-health
 	@echo "$(CYAN)👤 Recreating test user...$(NC)"
-	cd $(CURDIR) && bash $(CURDIR)/start.sh -a recreate_test_user
+	cd $(CURDIR) && bash $(CURDIR)/server.sh -a recreate_test_user
 
 # ============================================
 # Environment & Utilities
 # ============================================
 verify-env:
 	@echo "$(CYAN)🔍 Verifying environment setup...$(NC)"
-	cd $(CURDIR) && bash $(CURDIR)/start.sh -a verify_env_setup
+	cd $(CURDIR) && bash $(CURDIR)/server.sh -a verify_env_setup
 
 list-env:
 	@echo "$(CYAN)📝 Environment Variables:$(NC)"
-	cd $(CURDIR) && bash $(CURDIR)/start.sh -a list_env
+	cd $(CURDIR) && bash $(CURDIR)/server.sh -a list_env
 
 clean-python:
 	@echo "$(CYAN)🧹 Cleaning Python cache files...$(NC)"

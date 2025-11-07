@@ -5,6 +5,8 @@
 /**
  * Debounce function to delay execution
  */
+
+console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/utils/timer.utils.ts loaded");
 export function debounce<T extends (...args: any[]) => any>(
   func: T,
   wait: number,
@@ -64,13 +66,11 @@ export function formatElapsedTime(milliseconds: number): string {
 export class SimpleTimer {
   private startTime: number = 0;
   private isRunning: boolean = false;
-  private onTick?: (elapsed: number) => void;
   private interval?: NodeJS.Timeout;
 
   start(onTick?: (elapsed: number) => void): void {
     this.startTime = Date.now();
     this.isRunning = true;
-    this.onTick = onTick;
 
     if (onTick) {
       this.interval = setInterval(() => {

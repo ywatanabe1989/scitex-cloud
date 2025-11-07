@@ -3,11 +3,19 @@
 """
 Scholar App Views Package
 
-This package organizes all view modules for the Scholar application.
+Feature-based organization:
+- search: Paper search and discovery
+- library: Personal library management
+- bibtex: BibTeX import and enrichment
+- repository: Paper repository browsing
+- annotation: Paper annotation and collaboration
+- export: Citation export functionality
+- workspace: User workspace management
+- trending: Trending papers and research analytics
 """
 
 # Import search views
-from .search_views import (
+from .search.views import (
     index,
     simple_search,
     get_citation,
@@ -19,17 +27,28 @@ from .search_views import (
     save_source_preferences,
     mock_save_paper,
     mock_get_citation,
+    save_search,
+    get_saved_searches,
+    delete_saved_search,
+    run_saved_search,
+    api_search_arxiv,
+    api_search_pubmed,
+    api_search_semantic,
+    api_search_pmc,
+    api_search_doaj,
+    api_search_biorxiv,
+    api_search_plos,
 )
 
-# Import API views
-from .api_views import (
+# Import workspace views (API key management)
+from .workspace.api_key_views import (
     api_key_management,
     test_api_key,
     api_usage_stats,
 )
 
 # Import library views
-from .library_views import (
+from .library.views import (
     personal_library,
     api_library_papers,
     api_library_collections,
@@ -39,7 +58,7 @@ from .library_views import (
 )
 
 # Import export views
-from .export_views import (
+from .export.views import (
     export_bibtex,
     export_ris,
     export_endnote,
@@ -49,7 +68,7 @@ from .export_views import (
 )
 
 # Import annotation views
-from .annotation_views import (
+from .annotation.views import (
     paper_annotations,
     api_paper_annotations,
     api_create_annotation,
@@ -62,7 +81,7 @@ from .annotation_views import (
 )
 
 # Import trending views
-from .trending_views import (
+from .trending.views import (
     research_trends,
     api_trending_papers,
     api_trending_topics,
@@ -71,7 +90,7 @@ from .trending_views import (
 )
 
 # Import bibtex views
-from .bibtex_views import (
+from .bibtex.views import (
     bibtex_enrichment,
     bibtex_upload,
     bibtex_job_detail,
@@ -84,7 +103,7 @@ from .bibtex_views import (
 )
 
 # Import repository views
-from .repository_views import (
+from .repository.views import (
     list_repositories,
     create_repository_connection,
     sync_status,
@@ -95,23 +114,8 @@ from .repository_views import (
 )
 
 # Import workspace views
-from .workspace_views import (
+from .workspace.views import (
     user_default_workspace,
-)
-
-# Import search API endpoints
-from .search_views import (
-    save_search,
-    get_saved_searches,
-    delete_saved_search,
-    run_saved_search,
-    api_search_arxiv,
-    api_search_pubmed,
-    api_search_semantic,
-    api_search_pmc,
-    api_search_doaj,
-    api_search_biorxiv,
-    api_search_plos,
 )
 
 __all__ = [

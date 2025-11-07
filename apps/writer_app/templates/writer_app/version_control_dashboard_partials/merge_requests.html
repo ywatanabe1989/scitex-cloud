@@ -1,0 +1,38 @@
+        <!-- Merge Requests -->
+        {% if merge_requests %}
+        <div class="index-section">
+            <div class="section-header">
+                <h3 class="section-title">
+                    <i class="fas fa-code-merge"></i> Open Merge Requests
+                </h3>
+            </div>
+            <div class="section-content">
+                <ul class="branch-list">
+                    {% for mr in merge_requests %}
+                        <li class="merge-request-item">
+                            <div class="merge-request-info">
+                                <div class="merge-request-title">{{ mr.title }}</div>
+                                <div class="merge-request-meta">
+                                    Created by {{ mr.created_by.username }} • 
+                                    {{ mr.created_at|date:"M d, Y H:i" }}
+                                </div>
+                                <div class="merge-request-branches">
+                                    {{ mr.source_branch.name }} → {{ mr.target_branch.name }}
+                                </div>
+                            </div>
+                            <div class="version-actions">
+                                <span class="status-badge status-{{ mr.status }}">{{ mr.get_status_display }}</span>
+                                {% if mr.has_conflicts %}
+                                    <span class="status-badge status-conflict">Conflicts</span>
+                                {% endif %}
+                                <button class="btn-sm btn-outline" onclick="viewMergeRequest('{{ mr.id }}')">
+                                    <i class="fas fa-eye"></i> Review
+                                </button>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+

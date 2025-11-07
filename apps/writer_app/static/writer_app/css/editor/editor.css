@@ -1,0 +1,360 @@
+  /* ============================================================ */
+  /* Monaco Editor - FORCE SUGGESTIONS TO OVERLAY EVERYTHING */
+  /* ============================================================ */
+
+  /* Lower z-index of dev tooltips and browser overlays */
+  div[class*="panel-resizer"]::before,
+  div[class*="panel-resizer"]::after,
+  .panel-resizer::before,
+  .panel-resizer::after {
+    z-index: 1 !important;
+  }
+
+  /* Suggestion widget - WIDE (1400px) to fit 1920×1080 displays */
+  .monaco-editor .suggest-widget,
+  .monaco-editor .editor-widget.suggest-widget,
+  .suggest-widget,
+  .editor-widget.suggest-widget {
+    z-index: 999999 !important;
+    min-width: 1200px !important;
+    max-width: 1400px !important;
+    width: 1400px !important;
+  }
+
+  /* Make suggestion items MUCH TALLER for multi-line metadata display */
+  .monaco-editor .suggest-widget .monaco-list .monaco-list-row {
+    height: auto !important;
+    min-height: 90px !important;  /* Increased for 3-line display */
+    padding: 8px 4px !important;
+    line-height: 1.5 !important;
+  }
+
+  /* Increase width of suggestion item content area */
+  .monaco-editor .suggest-widget .monaco-list .monaco-list-row .suggest-icon,
+  .monaco-editor .suggest-widget .monaco-list .monaco-list-row > .contents {
+    width: 100% !important;
+  }
+
+  /* Make label and detail text wrap for multi-line content */
+  .monaco-editor .suggest-widget .monaco-list .monaco-list-row .monaco-highlighted-label,
+  .monaco-editor .suggest-widget .monaco-list .monaco-list-row .details-label {
+    white-space: pre-wrap !important;
+    word-wrap: break-word !important;
+    max-width: 100% !important;
+  }
+
+  /* Make the detail line multi-line and more prominent */
+  .monaco-editor .suggest-widget .monaco-list .monaco-list-row .monaco-icon-label-description-container {
+    font-size: 12px !important;
+    color: var(--vscode-editorSuggestWidget-foreground) !important;
+    opacity: 0.9 !important;
+    max-width: 1900px !important;
+    white-space: pre-wrap !important;
+    line-height: 1.6 !important;
+  }
+
+  /* Hover widget - shows when hovering over text */
+  .monaco-editor .monaco-hover,
+  .monaco-editor .monaco-hover-content,
+  .monaco-hover,
+  .monaco-hover-content {
+    z-index: 999999 !important;
+    max-width: 1000px !important;
+  }
+
+  /* Parameter hints widget */
+  .monaco-editor .parameter-hints-widget,
+  .parameter-hints-widget {
+    z-index: 999999 !important;
+  }
+
+  /* Suggestion details panel (right side popup with documentation) - Reasonable size */
+  .monaco-editor .suggest-details,
+  .monaco-editor .suggest-details-container,
+  .suggest-details,
+  .suggest-details-container {
+    z-index: 1000000 !important;
+    max-width: 800px !important;
+    min-width: 600px !important;
+    width: 700px !important;
+  }
+
+  /* ============================================================ */
+  /* FORCE DETAILS TO ALWAYS SHOW: RIGHT-SIDE, TOP-ALIGNED */
+  /* Nuclear option: Override ALL Monaco positioning logic */
+  /* ============================================================ */
+
+  /* Force horizontal layout for ALL widget states */
+  .monaco-editor .suggest-widget,
+  .monaco-editor .suggest-widget.docs-above,
+  .monaco-editor .suggest-widget.docs-below,
+  .monaco-editor .suggest-widget.docs-side,
+  .monaco-editor .suggest-widget.list-right,
+  .monaco-editor .suggest-widget.list-left {
+    display: flex !important;
+    flex-direction: row !important;  /* ALWAYS horizontal */
+    align-items: flex-start !important;  /* Top-align */
+  }
+
+  /* Force suggestion list to left side */
+  .monaco-editor .suggest-widget .monaco-list,
+  .monaco-editor .suggest-widget > .tree {
+    order: 1 !important;
+    width: 1400px !important;
+    max-width: 1400px !important;
+  }
+
+  /* Force details panel to right side, ALWAYS */
+  .monaco-editor .suggest-widget .suggest-details,
+  .monaco-editor .suggest-widget > .details {
+    order: 2 !important;
+    position: relative !important;  /* Relative to flex container */
+    left: auto !important;
+    top: auto !important;
+    bottom: auto !important;
+    right: auto !important;
+    margin-left: 4px !important;
+    margin-top: 0 !important;
+    transform: none !important;
+    display: block !important;  /* Always visible when item selected */
+  }
+
+  /* Disable Monaco's dynamic positioning classes */
+  .monaco-editor .suggest-widget.docs-above .suggest-details,
+  .monaco-editor .suggest-widget.docs-below .suggest-details {
+    position: relative !important;  /* Override absolute positioning */
+  }
+
+  /* Show up to 20 items in the suggestion list */
+  .monaco-editor .suggest-widget .monaco-list {
+    max-height: 1800px !important;  /* 20 items × 90px = 1800px */
+  }
+
+  /* Make detail text larger and more readable */
+  .monaco-editor .suggest-details .monaco-scrollable-element {
+    font-size: 13px !important;
+    line-height: 1.6 !important;
+  }
+
+  /* Keep status bar visible but force details to show by default */
+  /* Trigger "show more" mode automatically for citations */
+  .monaco-editor .suggest-widget .suggest-details {
+    visibility: visible !important;
+    display: block !important;
+    opacity: 1 !important;
+  }
+
+  /* Make the widget look like it's in "show more" mode by default */
+  .monaco-editor .suggest-widget {
+    /* Widget is already in expanded mode */
+  }
+
+  /* ============================================================ */
+  /* ALLOW ALL CONTAINERS TO OVERFLOW FOR MONACO WIDGETS */
+  /* ============================================================ */
+
+  /* Monaco editor itself */
+  .monaco-editor,
+  #latex-editor-textarea-monaco {
+    overflow: visible !important;
+  }
+
+  /* ALL parent containers - force overflow visible */
+  .latex-panel,
+  .editor-panel,
+  .panel-content,
+  .latex-editor-container,
+  .editor-content-wrapper,
+  .split-view,
+  .split-view > *,
+  .editor-view,
+  .writer-editor,
+  .mvp-main,
+  .mvp-container,
+  div[class*="panel"],
+  div[class*="editor"] {
+    overflow: visible !important;
+  }
+
+  /* Body and html - last resort */
+  body.writer-page,
+  html.writer-page {
+    overflow-x: hidden;  /* Only hide horizontal scroll */
+    overflow-y: auto;    /* Allow vertical scroll */
+  }
+
+  .mvp-container {
+  height: calc(100vh - 80px);
+  display: flex;
+  background-color: #f8f9fa;
+  }
+  
+  .mvp-sidebar {
+  width: 280px;
+  background-color: white;
+  border-right: 1px solid #dee2e6;
+  padding: 1rem;
+  overflow-y: auto;
+  }
+  
+  .mvp-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  }
+  
+  .mvp-toolbar {
+  background-color: white;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #dee2e6;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  }
+  
+  .mvp-editor {
+  flex: 1;
+  display: flex;
+  }
+  
+  .latex-editor {
+  flex: 1;
+  border: none;
+  }
+  
+  .CodeMirror {
+  height: 100%;
+  font-family: 'Fira Code', 'Monaco', monospace;
+  font-size: 14px;
+  }
+  
+  .preview-panel {
+  width: 400px;
+  background-color: white;
+  border-left: 1px solid #dee2e6;
+  display: flex;
+  flex-direction: column;
+  }
+  
+  .preview-header {
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+  font-weight: 600;
+  }
+  
+  .preview-content {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+  }
+  
+  .compile-status {
+  padding: 0.5rem 1rem;
+  background-color: #e9ecef;
+  border-top: 1px solid #dee2e6;
+  font-size: 0.9rem;
+  }
+  
+  .compile-status.success {
+  background-color: #d1e7dd;
+  color: #0f5132;
+  }
+  
+  .compile-status.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  }
+  
+  .compile-status.running {
+  background-color: #d1ecf1;
+  color: #055160;
+  }
+  
+  .job-item {
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  border: 1px solid #dee2e6;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  }
+  
+  .job-item:hover {
+  background-color: #f8f9fa;
+  }
+  
+  .job-status {
+  padding: 0.125rem 0.5rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  }
+  
+  .job-status.completed { background-color: #d1e7dd; color: #0f5132; }
+  .job-status.running { background-color: #d1ecf1; color: #055160; }
+  .job-status.failed { background-color: #f8d7da; color: #721c24; }
+  .job-status.queued { background-color: #fff3cd; color: #664d03; }
+  
+  .quick-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  }
+  
+  .template-selector {
+  margin-bottom: 1rem;
+  }
+  
+  .btn-mvp {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  color: white;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  transition: all 0.2s ease;
+  }
+  
+  .btn-mvp:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  color: white;
+  }
+  
+  .mvp-logo {
+  font-weight: 700;
+  color: #667eea;
+  font-size: 1.1rem;
+  }
+  
+  .progress-bar-mvp {
+  height: 4px;
+  background-color: #e9ecef;
+  border-radius: 2px;
+  overflow: hidden;
+  margin: 0.5rem 0;
+  }
+  
+  .progress-fill-mvp {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  transition: width 0.3s ease;
+  }
+  
+  @media (max-width: 768px) {
+  .mvp-container {
+  flex-direction: column;
+  }
+  
+  .mvp-sidebar {
+  width: 100%;
+  height: 200px;
+  }
+  
+  .preview-panel {
+  display: none;
+  }
+  }

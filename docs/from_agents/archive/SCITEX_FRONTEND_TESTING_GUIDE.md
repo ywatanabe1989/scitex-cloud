@@ -76,7 +76,7 @@ cd /home/ywatanabe/proj/scitex-cloud
 source deployment/dotenvs/dotenv_dev
 
 # Start Django
-./deployment/server/start.sh
+./deployment/server/server.sh
 ```
 
 ### 2. Open Browser
@@ -233,11 +233,11 @@ When searching:
 1. Switch to Single mode (reduces parallel overhead)
 2. Use fewer engines in dotenv_dev:
    ```bash
-   export SCITEX_ENGINES="CrossRef,PubMed"
+   export SCITEX_SCHOLAR_ENGINES="CrossRef,PubMed"
    ```
 3. Enable caching:
    ```bash
-   export SCITEX_USE_CACHE=True
+   export SCITEX_SCHOLAR_USE_CACHE=True
    ```
 
 ## Visual Indicators

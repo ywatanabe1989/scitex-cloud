@@ -42,6 +42,14 @@ class WriterService:
                 project = Project.objects.get(id=self.project_id)
                 manager = get_project_filesystem_manager(project.owner)
                 project_root = manager.get_project_root_path(project)
+
+                # Check if project_root is None (directory doesn't exist)
+                if project_root is None:
+                    raise RuntimeError(
+                        f"Project directory not found for project {self.project_id} (slug: {project.slug}). "
+                        f"Please ensure the project directory exists."
+                    )
+
                 self._project_path = project_root / "scitex" / "writer"
             except Project.DoesNotExist:
                 raise RuntimeError(f"Project {self.project_id} not found")
@@ -101,11 +109,11 @@ class WriterService:
     # ===== Section Operations =====
 
     def read_section(self, section_name: str, doc_type: str = "manuscript") -> str:
-        """Read a section from manuscript/supplementary/revision.
+        """Read a section from shared/manuscript/supplementary/revision.
 
         Args:
-            section_name: Section name (e.g., 'introduction', 'abstract', 'compiled_pdf')
-            doc_type: 'manuscript', 'supplementary', or 'revision'
+            section_name: Section name (e.g., 'introduction', 'abstract', 'title', 'authors')
+            doc_type: 'shared', 'manuscript', 'supplementary', or 'revision'
 
         Returns:
             Section content as string
@@ -113,23 +121,46 @@ class WriterService:
         try:
             logger.info(f"[ReadSection] section_name={section_name}, doc_type={doc_type}")
 
-            # Special handling for compiled sections
+            # Special handling for compiled sections (not applicable to shared)
             if section_name == "compiled_pdf" or section_name == "compiled_tex":
+                if doc_type == "shared":
+                    logger.warning("[ReadSection] Compiled sections not available for 'shared' doc_type")
+                    return ""
                 logger.info(f"[ReadSection] Reading compiled tex for {doc_type}")
                 content = self._read_compiled_tex(doc_type)
                 logger.info(f"[ReadSection] Compiled tex length: {len(content)}, first 100 chars: {content[:100]}")
                 return content
 
-            if doc_type == "manuscript":
+            # Get the appropriate document tree
+            if doc_type == "shared":
+                doc = self.writer.shared
+                # For shared, sections are at the root level (no .contents)
+                # shared has: title, authors, keywords, journal_name
+                if not hasattr(doc, section_name):
+                    logger.info(f"Section {section_name} not found in shared tree")
+                    return ""
+                section = getattr(doc, section_name)
+            elif doc_type == "manuscript":
                 doc = self.writer.manuscript
+                if not hasattr(doc.contents, section_name):
+                    logger.info(f"Section {section_name} not found for {doc_type}: ManuscriptContents does not have attribute '{section_name}'")
+                    return ""
+                section = getattr(doc.contents, section_name)
             elif doc_type == "supplementary":
                 doc = self.writer.supplementary
+                if not hasattr(doc.contents, section_name):
+                    logger.info(f"Section {section_name} not found for {doc_type}")
+                    return ""
+                section = getattr(doc.contents, section_name)
             elif doc_type == "revision":
                 doc = self.writer.revision
+                if not hasattr(doc.contents, section_name):
+                    logger.info(f"Section {section_name} not found for {doc_type}")
+                    return ""
+                section = getattr(doc.contents, section_name)
             else:
                 raise ValueError(f"Unknown document type: {doc_type}")
 
-            section = getattr(doc.contents, section_name)
             content = section.read()
 
             # Convert to string if it's a list (from scitex.io.load)
@@ -195,25 +226,29 @@ class WriterService:
         which can be used to reset a section to its original state.
 
         Args:
-            section_name: Section name (e.g., 'introduction', 'abstract')
-            doc_type: 'manuscript', 'supplementary', or 'revision'
+            section_name: Section name (e.g., 'introduction', 'abstract', 'title', 'authors')
+            doc_type: 'shared', 'manuscript', 'supplementary', or 'revision'
 
         Returns:
             Template content string, or None if template not found
         """
         try:
-            # Access the document's template
-            if doc_type == "manuscript":
+            # Get the appropriate document tree
+            if doc_type == "shared":
+                doc = self.writer.shared
+                section = getattr(doc, section_name, None)
+            elif doc_type == "manuscript":
                 doc = self.writer.manuscript
+                section = getattr(doc.contents, section_name, None)
             elif doc_type == "supplementary":
                 doc = self.writer.supplementary
+                section = getattr(doc.contents, section_name, None)
             elif doc_type == "revision":
                 doc = self.writer.revision
+                section = getattr(doc.contents, section_name, None)
             else:
                 raise ValueError(f"Unknown document type: {doc_type}")
 
-            # Get the section object
-            section = getattr(doc.contents, section_name, None)
             if section is None:
                 logger.warning(f"Section '{section_name}' not found in {doc_type}")
                 return None
@@ -241,22 +276,41 @@ class WriterService:
         Args:
             section_name: Section name
             content: Section content
-            doc_type: 'manuscript', 'supplementary', or 'revision'
+            doc_type: 'shared', 'manuscript', 'supplementary', or 'revision'
 
         Returns:
             True if successful
         """
         try:
-            if doc_type == "manuscript":
+            # Get the appropriate document tree
+            if doc_type == "shared":
+                doc = self.writer.shared
+                # For shared, sections are at the root level (no .contents)
+                if not hasattr(doc, section_name):
+                    logger.warning(f"Cannot write to non-existent section {section_name} in shared tree")
+                    return False
+                section = getattr(doc, section_name)
+            elif doc_type == "manuscript":
                 doc = self.writer.manuscript
+                if not hasattr(doc.contents, section_name):
+                    logger.warning(f"Cannot write to non-existent section {section_name} for {doc_type}")
+                    return False
+                section = getattr(doc.contents, section_name)
             elif doc_type == "supplementary":
                 doc = self.writer.supplementary
+                if not hasattr(doc.contents, section_name):
+                    logger.warning(f"Cannot write to non-existent section {section_name} for {doc_type}")
+                    return False
+                section = getattr(doc.contents, section_name)
             elif doc_type == "revision":
                 doc = self.writer.revision
+                if not hasattr(doc.contents, section_name):
+                    logger.warning(f"Cannot write to non-existent section {section_name} for {doc_type}")
+                    return False
+                section = getattr(doc.contents, section_name)
             else:
                 raise ValueError(f"Unknown document type: {doc_type}")
 
-            section = getattr(doc.contents, section_name)
             return section.write(content)
         except Exception as e:
             logger.error(f"Error writing section {section_name}: {e}")
@@ -270,22 +324,40 @@ class WriterService:
         Args:
             section_name: Section name
             message: Commit message
-            doc_type: 'manuscript', 'supplementary', or 'revision'
+            doc_type: 'shared', 'manuscript', 'supplementary', or 'revision'
 
         Returns:
             True if successful
         """
         try:
-            if doc_type == "manuscript":
+            # Get the appropriate document tree
+            if doc_type == "shared":
+                doc = self.writer.shared
+                if not hasattr(doc, section_name):
+                    logger.warning(f"Cannot commit non-existent section {section_name} in shared tree")
+                    return False
+                section = getattr(doc, section_name)
+            elif doc_type == "manuscript":
                 doc = self.writer.manuscript
+                if not hasattr(doc.contents, section_name):
+                    logger.warning(f"Cannot commit non-existent section {section_name} for {doc_type}")
+                    return False
+                section = getattr(doc.contents, section_name)
             elif doc_type == "supplementary":
                 doc = self.writer.supplementary
+                if not hasattr(doc.contents, section_name):
+                    logger.warning(f"Cannot commit non-existent section {section_name} for {doc_type}")
+                    return False
+                section = getattr(doc.contents, section_name)
             elif doc_type == "revision":
                 doc = self.writer.revision
+                if not hasattr(doc.contents, section_name):
+                    logger.warning(f"Cannot commit non-existent section {section_name} for {doc_type}")
+                    return False
+                section = getattr(doc.contents, section_name)
             else:
                 raise ValueError(f"Unknown document type: {doc_type}")
 
-            section = getattr(doc.contents, section_name)
             logger.info(f"Committing section {section_name} with message: {message}")
 
             # Check if section has commit method
@@ -333,7 +405,7 @@ class WriterService:
 
         return latex_content
 
-    def compile_preview(self, latex_content: str, timeout: int = 60, color_mode: str = 'light', section_name: str = 'preview') -> dict:
+    def compile_preview(self, latex_content: str, timeout: int = 60, color_mode: str = 'light', section_name: str = 'preview', doc_type: str = 'manuscript') -> dict:
         """Compile a quick preview of provided LaTeX content (not from workspace).
 
         This is used for live preview of the current section being edited.
@@ -342,7 +414,8 @@ class WriterService:
             latex_content: Complete LaTeX document content to compile
             timeout: Compilation timeout in seconds (default: 60 for quick preview)
             color_mode: PDF color mode - 'light', 'dark', 'sepia', or 'paper'
-            section_name: Section name for output filename (e.g., 'introduction' -> 'preview-introduction.pdf')
+            section_name: Section name for output filename (e.g., 'introduction')
+            doc_type: Document type - 'manuscript', 'supplementary', or 'revision'
 
         Returns:
             Compilation result dict with keys:
@@ -351,35 +424,34 @@ class WriterService:
                 - log: str (compilation log)
                 - error: str (error message if failed)
         """
+        # Import at method start to avoid UnboundLocalError in except clauses
+        import subprocess
+        import shutil
+
         try:
             # Apply color mode to LaTeX content
             latex_content = self._apply_color_mode_to_latex(latex_content, color_mode)
 
-            # Sanitize section name for filename (use dash consistently)
-            safe_section_name = section_name.replace('/', '-').replace(' ', '-').replace('_', '-').lower()
+            # Create .preview directory in scitex/writer for compiled previews
+            # This directory stores temporary compiled PDFs for quick preview
+            # Structure: scitex/writer/.preview/
+            preview_dir = self.project_path / "scitex" / "writer" / ".preview"
+            preview_dir.mkdir(parents=True, exist_ok=True)
 
-            # Write content to a section-specific temporary file
-            temp_file = self.project_path / f"preview-{safe_section_name}-temp.tex"
-            logger.info(f"[CompilePreview] Creating preview file: {temp_file.name} for section: {section_name}")
-            temp_file.write_text(latex_content, encoding='utf-8')
-
-            # Use pdflatex directly to compile the temporary file
-            import subprocess
-            import shutil
-
-            # Create output directory
-            output_dir = self.project_path / "preview_output"
-            output_dir.mkdir(exist_ok=True)
+            # Write content to temporary .tex file in .preview directory
+            temp_tex = preview_dir / f"preview-{section_name}-temp.tex"
+            logger.info(f"[CompilePreview] Creating preview file: {temp_tex} for section: {section_name}")
+            temp_tex.write_text(latex_content, encoding='utf-8')
 
             logger.info(f"[CompilePreview] Compiling preview ({len(latex_content)} chars) timeout={timeout}s")
 
-            # Run pdflatex
+            # Run pdflatex with output to .preview directory
             result = subprocess.run(
                 [
                     "pdflatex",
                     "-interaction=nonstopmode",
-                    "-output-directory", str(output_dir),
-                    str(temp_file)
+                    "-output-directory", str(preview_dir),
+                    str(temp_tex)
                 ],
                 capture_output=True,
                 text=True,
@@ -387,17 +459,24 @@ class WriterService:
             )
 
             log_content = result.stdout + result.stderr
-            # Section-specific preview PDF name (use dash consistently)
-            output_pdf = output_dir / f"preview-{safe_section_name}.pdf"
-            temp_pdf = output_dir / f"preview-{safe_section_name}-temp.pdf"
 
-            # pdflatex creates preview-{section}-temp.pdf, rename to preview-{section}.pdf
-            logger.info(f"[CompilePreview] Looking for temp PDF: {temp_pdf.name}")
+            # Expected PDF output: .preview/preview-{section_name}-temp.pdf
+            temp_pdf = preview_dir / f"preview-{section_name}-temp.pdf"
+            # Final PDF name: .preview/preview-{section_name}.pdf
+            output_pdf = preview_dir / f"preview-{section_name}.pdf"
+
+            # pdflatex creates preview-{section_name}-temp.pdf from preview-{section_name}-temp.tex
+            logger.info(f"[CompilePreview] Looking for compiled PDF: {temp_pdf}")
+
+            # Check if compilation succeeded by looking for the PDF file
+            # Note: pdflatex return code may be non-zero even on successful compilation
+            # with -interaction=nonstopmode, so we check for the PDF file instead
             if temp_pdf.exists():
-                logger.info(f"[CompilePreview] Moving {temp_pdf.name} -> {output_pdf.name}")
-                shutil.move(str(temp_pdf), str(output_pdf))
+                logger.info(f"[CompilePreview] PDF compiled successfully at {temp_pdf}")
+                # Rename from temp filename to final filename
+                if temp_pdf != output_pdf:
+                    shutil.move(str(temp_pdf), str(output_pdf))
 
-            if result.returncode == 0 and output_pdf.exists():
                 logger.info(f"WriterService: Preview compilation succeeded for {section_name}: {output_pdf}")
                 return {
                     "success": True,
@@ -406,12 +485,14 @@ class WriterService:
                     "error": None,
                 }
             else:
-                logger.error(f"WriterService: Preview compilation failed with return code {result.returncode}")
+                logger.error(f"WriterService: Preview compilation failed - PDF not found at {temp_pdf}")
+                logger.error(f"pdflatex return code: {result.returncode}")
+                logger.error(f"pdflatex output:\n{log_content}")
                 return {
                     "success": False,
                     "output_pdf": None,
                     "log": log_content,
-                    "error": f"pdflatex returned {result.returncode}",
+                    "error": f"PDF compilation failed - no output PDF generated",
                 }
 
         except subprocess.TimeoutExpired:
@@ -431,11 +512,13 @@ class WriterService:
                 "error": str(e),
             }
 
-    def compile_manuscript(self, timeout: int = 300) -> dict:
-        """Compile manuscript.
+    def compile_manuscript(self, timeout: int = 300, log_callback=None, progress_callback=None) -> dict:
+        """Compile manuscript with optional callbacks for live updates.
 
         Args:
             timeout: Compilation timeout in seconds
+            log_callback: Optional callback for real-time log streaming
+            progress_callback: Optional callback for progress updates
 
         Returns:
             Compilation result dict with keys:
@@ -445,7 +528,11 @@ class WriterService:
                 - error: str (error message if failed)
         """
         try:
-            result = self.writer.compile_manuscript(timeout=timeout)
+            result = self.writer.compile_manuscript(
+                timeout=timeout,
+                log_callback=log_callback,
+                progress_callback=progress_callback
+            )
             # Build log from stdout/stderr
             log_content = ""
             if hasattr(result, 'stdout') and result.stdout:
@@ -533,22 +620,40 @@ class WriterService:
 
         Args:
             section_name: Section name
-            doc_type: 'manuscript', 'supplementary', or 'revision'
+            doc_type: 'shared', 'manuscript', 'supplementary', or 'revision'
 
         Returns:
             List of commit messages
         """
         try:
-            if doc_type == "manuscript":
+            # Get the appropriate document tree
+            if doc_type == "shared":
+                doc = self.writer.shared
+                if not hasattr(doc, section_name):
+                    logger.warning(f"Cannot get history for non-existent section {section_name} in shared tree")
+                    return []
+                section = getattr(doc, section_name)
+            elif doc_type == "manuscript":
                 doc = self.writer.manuscript
+                if not hasattr(doc.contents, section_name):
+                    logger.warning(f"Cannot get history for non-existent section {section_name}")
+                    return []
+                section = getattr(doc.contents, section_name)
             elif doc_type == "supplementary":
                 doc = self.writer.supplementary
+                if not hasattr(doc.contents, section_name):
+                    logger.warning(f"Cannot get history for non-existent section {section_name}")
+                    return []
+                section = getattr(doc.contents, section_name)
             elif doc_type == "revision":
                 doc = self.writer.revision
+                if not hasattr(doc.contents, section_name):
+                    logger.warning(f"Cannot get history for non-existent section {section_name}")
+                    return []
+                section = getattr(doc.contents, section_name)
             else:
                 raise ValueError(f"Unknown document type: {doc_type}")
 
-            section = getattr(doc.contents, section_name)
             return section.history()
         except Exception as e:
             logger.error(f"Error getting history for {section_name}: {e}")
@@ -562,22 +667,40 @@ class WriterService:
         Args:
             section_name: Section name
             ref: Git reference (default: HEAD)
-            doc_type: 'manuscript', 'supplementary', or 'revision'
+            doc_type: 'shared', 'manuscript', 'supplementary', or 'revision'
 
         Returns:
             Diff string (empty if no changes)
         """
         try:
-            if doc_type == "manuscript":
+            # Get the appropriate document tree
+            if doc_type == "shared":
+                doc = self.writer.shared
+                if not hasattr(doc, section_name):
+                    logger.warning(f"Cannot get diff for non-existent section {section_name} in shared tree")
+                    return ""
+                section = getattr(doc, section_name)
+            elif doc_type == "manuscript":
                 doc = self.writer.manuscript
+                if not hasattr(doc.contents, section_name):
+                    logger.warning(f"Cannot get diff for non-existent section {section_name}")
+                    return ""
+                section = getattr(doc.contents, section_name)
             elif doc_type == "supplementary":
                 doc = self.writer.supplementary
+                if not hasattr(doc.contents, section_name):
+                    logger.warning(f"Cannot get diff for non-existent section {section_name}")
+                    return ""
+                section = getattr(doc.contents, section_name)
             elif doc_type == "revision":
                 doc = self.writer.revision
+                if not hasattr(doc.contents, section_name):
+                    logger.warning(f"Cannot get diff for non-existent section {section_name}")
+                    return ""
+                section = getattr(doc.contents, section_name)
             else:
                 raise ValueError(f"Unknown document type: {doc_type}")
 
-            section = getattr(doc.contents, section_name)
             return section.diff(ref=ref)
         except Exception as e:
             logger.error(f"Error getting diff for {section_name}: {e}")
@@ -591,22 +714,40 @@ class WriterService:
         Args:
             section_name: Section name
             ref: Git reference (commit hash, branch, tag, etc.)
-            doc_type: 'manuscript', 'supplementary', or 'revision'
+            doc_type: 'shared', 'manuscript', 'supplementary', or 'revision'
 
         Returns:
             True if successful
         """
         try:
-            if doc_type == "manuscript":
+            # Get the appropriate document tree
+            if doc_type == "shared":
+                doc = self.writer.shared
+                if not hasattr(doc, section_name):
+                    logger.warning(f"Cannot checkout non-existent section {section_name} in shared tree")
+                    return False
+                section = getattr(doc, section_name)
+            elif doc_type == "manuscript":
                 doc = self.writer.manuscript
+                if not hasattr(doc.contents, section_name):
+                    logger.warning(f"Cannot checkout non-existent section {section_name}")
+                    return False
+                section = getattr(doc.contents, section_name)
             elif doc_type == "supplementary":
                 doc = self.writer.supplementary
+                if not hasattr(doc.contents, section_name):
+                    logger.warning(f"Cannot checkout non-existent section {section_name}")
+                    return False
+                section = getattr(doc.contents, section_name)
             elif doc_type == "revision":
                 doc = self.writer.revision
+                if not hasattr(doc.contents, section_name):
+                    logger.warning(f"Cannot checkout non-existent section {section_name}")
+                    return False
+                section = getattr(doc.contents, section_name)
             else:
                 raise ValueError(f"Unknown document type: {doc_type}")
 
-            section = getattr(doc.contents, section_name)
             return section.checkout(ref)
         except Exception as e:
             logger.error(f"Error checking out {section_name}: {e}")

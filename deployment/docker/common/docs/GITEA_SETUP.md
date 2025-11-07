@@ -128,7 +128,7 @@ docker restart docker_web_1
 # Test Gitea API connection
 docker exec docker_web_1 python -c "
 import os
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.settings_dev')
+os.environ.setdefault('SCITEX_CLOUD_DJANGO_SETTINGS_MODULE', 'config.settings.settings_dev')
 import django
 django.setup()
 
@@ -398,7 +398,7 @@ docker exec -u git docker_gitea_1 gitea admin user list
 # Delete from Django (automatically deletes from Gitea)
 docker exec docker_web_1 python -c "
 import os
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.settings_dev')
+os.environ.setdefault('SCITEX_CLOUD_DJANGO_SETTINGS_MODULE', 'config.settings.settings_dev')
 import django
 django.setup()
 
@@ -413,7 +413,7 @@ print('✓ All test users deleted')
 # Check Django users
 docker exec docker_web_1 python -c "
 import os
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.settings_dev')
+os.environ.setdefault('SCITEX_CLOUD_DJANGO_SETTINGS_MODULE', 'config.settings.settings_dev')
 import django
 django.setup()
 
@@ -466,7 +466,7 @@ curl -X GET "http://127.0.0.1:3001/api/v1/repos/testuser/test-project" \
 ```bash
 docker exec docker_web_1 python -c "
 import os
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.settings_dev')
+os.environ.setdefault('SCITEX_CLOUD_DJANGO_SETTINGS_MODULE', 'config.settings.settings_dev')
 import django
 django.setup()
 
@@ -496,7 +496,7 @@ echo "=== Testing Gitea Integration ==="
 echo "1. Creating Django user..."
 docker exec docker_web_1 python -c "
 import os
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.settings_dev')
+os.environ.setdefault('SCITEX_CLOUD_DJANGO_SETTINGS_MODULE', 'config.settings.settings_dev')
 import django
 django.setup()
 
@@ -521,7 +521,7 @@ fi
 echo "3. Deleting Django user..."
 docker exec docker_web_1 python -c "
 import os
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.settings_dev')
+os.environ.setdefault('SCITEX_CLOUD_DJANGO_SETTINGS_MODULE', 'config.settings.settings_dev')
 import django
 django.setup()
 

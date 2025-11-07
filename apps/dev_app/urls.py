@@ -15,11 +15,13 @@ from django.urls import path
 
 from . import views
 from .views import DesignSystemView
+from apps.core_app.views.console_logger import log_console
 
 app_name = "dev_app"
 
 urlpatterns = [
     path("", views.index, name="index"),
+    path("api/console/", log_console, name="console_log"),
     path("design/", views.DesignGuidelinesView.as_view(), name="design"),
     path(
         "design/typography/",

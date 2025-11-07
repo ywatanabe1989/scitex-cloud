@@ -1,0 +1,68 @@
+            <!-- Version History -->
+            <div class="index-section">
+                <div class="section-header">
+                    <h3 class="section-title">
+                        <i class="fas fa-history"></i> Recent Versions
+                    </h3>
+                    <button class="btn-sm btn-outline" onclick="loadVersionHistory()">
+                        View All
+                    </button>
+                </div>
+                <div class="section-content">
+                    {% if recent_versions %}
+                        <ul class="version-list" id="version-list">
+                            {% for version in recent_versions %}
+                                <li class="version-item">
+                                    <div class="version-info">
+                                        <div class="version-number">
+                                            v{{ version.version_number }}
+                                            {% if version.version_tag %}
+                                                <span class="branch-badge">{{ version.version_tag }}</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="version-meta">
+                                            {{ version.created_by.username }} • 
+                                            {{ version.created_at|date:"M d, Y H:i" }} • 
+                                            {{ version.branch_name }} branch
+                                        </div>
+                                        {% if version.commit_message %}
+                                            <div class="version-message">{{ version.commit_message }}</div>
+                                        {% endif %}
+                                        <div class="version-stats">
+                                            <span class="stat-item">
+                                                <i class="fas fa-edit"></i> {{ version.total_changes }} changes
+                                            </span>
+                                            {% if version.word_count_delta > 0 %}
+                                                <span class="stat-item stat-positive">
+                                                    <i class="fas fa-plus"></i> {{ version.word_count_delta }} words
+                                                </span>
+                                            {% elif version.word_count_delta < 0 %}
+                                                <span class="stat-item stat-negative">
+                                                    <i class="fas fa-minus"></i> {{ version.word_count_delta|abs }} words
+                                                </span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="version-actions">
+                                        <button class="btn-sm btn-outline" onclick="viewDiff('{{ version.id }}')">
+                                            <i class="fas fa-eye"></i> Diff
+                                        </button>
+                                        <button class="btn-sm btn-outline" onclick="rollbackToVersion('{{ version.id }}')">
+                                            <i class="fas fa-undo"></i> Rollback
+                                        </button>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <div class="empty-state">
+                            <div class="empty-state-icon">
+                                <i class="fas fa-history"></i>
+                            </div>
+                            <div class="empty-state-message">No versions yet</div>
+                            <div class="empty-state-hint">Create your first version to start tracking changes</div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+

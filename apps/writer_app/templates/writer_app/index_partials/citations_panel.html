@@ -1,0 +1,78 @@
+<!-- Citations Panel -->
+<div class="citations-panel-container">
+  <!-- Search Bar -->
+  <div class="citations-search-bar">
+    <div class="search-input-wrapper">
+      <i class="fas fa-search"></i>
+      <input type="text"
+             id="citations-search-input"
+             class="form-control form-control-sm"
+             placeholder="Search citations (author, title, journal, year...)">
+      <button id="clear-citations-search" class="btn-clear" style="display: none;" title="Clear search">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- Sort Options -->
+    <div class="citations-sort-controls">
+      <label for="citations-sort-select" class="form-label" style="font-size: 0.75rem; margin: 0;">
+        <i class="fas fa-sort"></i>
+      </label>
+      <select id="citations-sort-select" class="form-select form-select-sm">
+        <option value="citation-count">Citations (High→Low)</option>
+        <option value="year-desc">Year (New→Old)</option>
+        <option value="year-asc">Year (Old→New)</option>
+        <option value="alpha">Alphabetical</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Citations Count Summary -->
+  <div class="citations-summary">
+    <span id="citations-count-display">
+      <i class="fas fa-book-open me-1"></i>
+      <span id="citations-total">0</span> citations
+      <span id="citations-filtered" style="display: none;">
+        (<span id="citations-filtered-count">0</span> shown)
+      </span>
+    </span>
+  </div>
+
+  <!-- Citations List (Scrollable Cards) -->
+  <div class="citations-list" id="citations-list">
+    <!-- Loading State -->
+    <div id="citations-loading" class="citations-empty-state">
+      <i class="fas fa-spinner fa-spin fa-2x mb-2"></i>
+      <p>Loading citations...</p>
+    </div>
+
+    <!-- Empty State (No Citations) -->
+    <div id="citations-empty" class="citations-empty-state" style="display: none;">
+      <i class="fas fa-book-open fa-2x mb-2 text-muted"></i>
+      <p class="text-muted">No citations found</p>
+      <small class="text-muted">
+        Upload .bib files via
+        <a href="/scholar/bibtex/" target="_blank">Scholar BibTeX</a>
+      </small>
+    </div>
+
+    <!-- No Search Results -->
+    <div id="citations-no-results" class="citations-empty-state" style="display: none;">
+      <i class="fas fa-search fa-2x mb-2 text-muted"></i>
+      <p class="text-muted">No citations match your search</p>
+    </div>
+
+    <!-- Citation Cards Container -->
+    <div id="citations-cards-container">
+      <!-- Cards will be dynamically inserted here -->
+    </div>
+  </div>
+
+  <!-- Quick Help -->
+  <div class="citations-help">
+    <small class="text-muted">
+      <i class="fas fa-info-circle me-1"></i>
+      Drag cards to editor to insert citations
+    </small>
+  </div>
+</div>

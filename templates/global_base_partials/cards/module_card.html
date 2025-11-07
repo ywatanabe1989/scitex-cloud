@@ -1,0 +1,17 @@
+{% load static %}
+{% comment %}
+Reusable SciTeX module card
+Usage: {% include 'partials/cards/module_card.html' with name='Scholar' icon='scitex-scholar-icon.svg' tagline='Literature discovery' url='/scholar/' coming_soon=False %}
+{% endcomment %}
+
+<div class="module-card-simple">
+  <a href="{{ url }}" class="module-card-link">
+    <div class="module-icon">
+      <img src="{% static 'shared/images/icons_svg/'|add:icon|default:'images/favicons/favicon.png' %}" alt="{{ name }}" width="{{ size|default:48 }}" height="{{ size|default:48 }}">
+    </div>    
+    <h3>{{ name }} {% if coming_soon %}<span class="coming-soon-badge">Coming Soon</span>{% endif %}</h3>
+    {% if tagline %}
+    <p class="module-tagline">{{ tagline }}</p>
+    {% endif %}
+  </a>
+</div>

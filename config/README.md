@@ -59,11 +59,11 @@ config/
 
 ```bash
 # Development (default)
-export DJANGO_SETTINGS_MODULE=config.settings.settings_dev
+export SCITEX_CLOUD_DJANGO_SETTINGS_MODULE=config.settings.settings_dev
 python manage.py runserver
 
 # Production
-export DJANGO_SETTINGS_MODULE=config.settings.settings_prod
+export SCITEX_CLOUD_DJANGO_SETTINGS_MODULE=config.settings.settings_prod
 ```
 
 ### Method 2: Auto-detection
@@ -108,4 +108,3 @@ For server deployment configuration (Nginx, uWSGI, systemd), see:
 - `../scripts/` - Database and deployment automation scripts
 - `../apps/` - Django applications
 
-<!-- EOF -->

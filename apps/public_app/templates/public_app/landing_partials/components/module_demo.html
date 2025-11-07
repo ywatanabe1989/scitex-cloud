@@ -33,26 +33,12 @@
 
             <!-- Features Section -->
             <div class="module-demo-features">
-                <ul class="module-demo-features-list">
-                    {% for feature in features %}
-                    <li class="module-demo-feature-item">
-                        <strong class="feature-title">{{ feature.title }}</strong><br>
-                        <span class="feature-description">{{ feature.description }}</span>
-                    </li>
-                    {% endfor %}
-                </ul>
+                {% include features_partial %}
             </div>
         {% else %}
             <!-- Features Section -->
             <div class="module-demo-features">
-                <ul class="module-demo-features-list">
-                    {% for feature in features %}
-                    <li class="module-demo-feature-item">
-                        <strong class="feature-title">{{ feature.title }}</strong><br>
-                        <span class="feature-description">{{ feature.description }}</span>
-                    </li>
-                    {% endfor %}
-                </ul>
+                {% include features_partial %}
             </div>
 
             <!-- Video Section -->

@@ -12,12 +12,12 @@
 <div class="profile-page">
     <div class="profile-layout">
         <!-- Left Sidebar - Profile Info -->
-        {% include 'project_app/partials/profile_sidebar.html' %}
+        {% include 'project_app/users/projects_partials/user_projects_sidebar.html' %}
 
         <!-- Right Content Area -->
         <main class="profile-content">
             <!-- Navigation Tabs -->
-            {% include 'project_app/partials/profile_navigation.html' %}
+            {% include 'project_app/users/projects_partials/user_projects_navigation.html' %}
 
             {% block profile_content %}
             <!-- Repository Section Header -->
@@ -37,7 +37,7 @@
             {% if projects %}
             <div class="repo-list">
                 {% for project in projects %}
-                {% include 'project_app/partials/repository_list_item.html' %}
+                {% include 'project_app/users/projects_partials/user_projects_repo_item.html' %}
                 {% endfor %}
             </div>
 
@@ -84,5 +84,5 @@
     </div>
 </div>
 
-{% include 'project_app/partials/profile_scripts.html' %}
+{% include 'project_app/users/projects_partials/user_projects_scripts.html' %}
 {% endblock %}

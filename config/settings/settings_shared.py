@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-10-22 08:23:01 (ywatanabe)"
+# Timestamp: "2025-11-04 20:19:17 (ywatanabe)"
 # File: /home/ywatanabe/proj/scitex-cloud/config/settings/settings_shared.py
 # ----------------------------------------
 from __future__ import annotations
@@ -18,12 +18,12 @@ Base settings shared across all environments.
 
 from pathlib import Path
 from datetime import timedelta
-from scitex import logging
-logger = logging.getLogger(__name__)
+
 
 # ---------------------------------------
 # Functions
 # ---------------------------------------
+# KEEP THIS AS COMMENT
 def discover_local_apps():
     """Discover all Django apps in the apps directory."""
     apps_path = BASE_DIR / "apps"
@@ -42,10 +42,34 @@ def discover_local_apps():
     return local_apps
 
 
+# # KEEP THIS FUNCTION
+# def discover_local_apps():
+#     """Discover all Django apps in the apps directory."""
+#     return [
+#         "apps.accounts_app",
+#         "apps.auth_app",
+#         "apps.code_app",
+#         "apps.dev_app",
+#         "apps.docs_app",
+#         "apps.donations_app",
+#         "apps.gitea_app",
+#         "apps.integrations_app",
+#         "apps.organizations_app",
+#         "apps.permissions_app",
+#         "apps.project_app",
+#         "apps.public_app",
+#         "apps.scholar_app",
+#         "apps.search_app",
+#         "apps.social_app",
+#         "apps.viz_app",
+#         "apps.writer_app",
+#     ]
+
+
 # ---------------------------------------
-# Meatadata
+# Metadata
 # ---------------------------------------
-SCITEX_VERSION = "0.1.0-alpha"
+SCITEX_CLOUD_VERSION = "0.1.0-alpha"
 
 # ---------------------------------------
 # Paths
@@ -79,7 +103,11 @@ LOGOUT_REDIRECT_URL = "/"
 # ---------------------------------------
 # Security
 # ---------------------------------------
-SECRET_KEY = os.getenv("SCITEX_DJANGO_SECRET_KEY")
+SECRET_KEY = os.getenv("SCITEX_CLOUD_DJANGO_SECRET_KEY")
+if not SECRET_KEY:
+    raise ValueError(
+        "SCITEX_CLOUD_DJANGO_SECRET_KEY must be set in environment"
+    )
 
 # ---------------------------------------
 # Applications
@@ -100,6 +128,7 @@ THIRD_PARTY_APPS = [
     "channels",
 ]
 
+# This installs all the apps (./apps/*_app)
 LOCAL_APPS = discover_local_apps()
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -153,7 +182,8 @@ DATABASES = {
 }
 
 # Cache Configuration - fallback to database if Redis not available
-REDIS_URL = os.getenv("REDIS_URL", "redis://127.0.0.1:6379/1")
+REDIS_URL = os.getenv("SCITEX_CLOUD_REDIS_URL", "redis://127.0.0.1:6379/1")
+
 try:
     import redis
 
@@ -212,16 +242,19 @@ USE_TZ = True
 # ---------------------------------------
 # Email
 # ---------------------------------------
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = "mail1030.onamae.ne.jp"
-EMAIL_PORT = 587  # 587 is modern; use 465 only if 587 is blocked
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.environ.get(
-    "SCITEX_SCHOLAR_FROM_EMAIL_ADDRESS", "agent@scitex.ai"
+EMAIL_BACKEND = os.getenv("SCITEX_CLOUD_EMAIL_BACKEND")
+EMAIL_HOST = os.getenv("SCITEX_CLOUD_EMAIL_HOST")
+EMAIL_PORT = int(os.getenv("SCITEX_CLOUD_EMAIL_PORT", "587"))
+EMAIL_USE_TLS = (
+    os.getenv("SCITEX_CLOUD_EMAIL_USE_TLS", "True").lower() == "true"
 )
-EMAIL_HOST_PASSWORD = os.environ.get("SCITEX_SCHOLAR_FROM_EMAIL_PASSWORD", "")
+EMAIL_HOST_USER = os.getenv("SCITEX_CLOUD_EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("SCITEX_CLOUD_EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 SERVER_EMAIL = EMAIL_HOST_USER
+
+# Site URL for generating absolute URLs in emails
+SITE_URL = os.getenv("SCITEX_CLOUD_SITE_URL", "http://127.0.0.1:8000")
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
@@ -234,7 +267,7 @@ try:
     import redis
 
     # Test Redis connection for channels
-    redis_url = os.getenv("REDIS_URL", "redis://127.0.0.1:6379/2")
+    redis_url = os.getenv("SCITEX_CLOUD_REDIS_URL", "redis://127.0.0.1:6379/2")
     r = redis.from_url(redis_url)
     r.ping()
     # Redis is available for channels
@@ -388,19 +421,27 @@ ORCID_REDIRECT_URI = os.getenv(
 # SciTeX Scholar Search Settings
 # ---------------------------------------
 # Enable/disable search pipeline caching
-SCITEX_USE_CACHE = os.getenv("SCITEX_USE_CACHE", "True").lower() in ["true", "1", "yes"]
+SCITEX_SCHOLAR_USE_CACHE = os.getenv(
+    "SCITEX_SCHOLAR_USE_CACHE", "True"
+).lower() in ["true", "1", "yes"]
 
 # Maximum parallel workers for parallel search pipeline
-SCITEX_MAX_WORKERS = int(os.getenv("SCITEX_MAX_WORKERS", "5"))
+SCITEX_SCHOLAR_MAX_WORKERS = int(os.getenv("SCITEX_SCHOLAR_MAX_WORKERS", "5"))
 
 # Timeout per engine in seconds
-SCITEX_TIMEOUT_PER_ENGINE = int(os.getenv("SCITEX_TIMEOUT_PER_ENGINE", "30"))
+SCITEX_SCHOLAR_TIMEOUT_PER_ENGINE = int(
+    os.getenv("SCITEX_SCHOLAR_TIMEOUT_PER_ENGINE", "30")
+)
 
 # Preferred engines (comma-separated, e.g., "PubMed,CrossRef,arXiv")
-SCITEX_ENGINES = os.getenv("SCITEX_ENGINES", "CrossRef,PubMed,Semantic_Scholar,arXiv,OpenAlex").split(",")
+SCITEX_SCHOLAR_ENGINES = os.getenv(
+    "SCITEX_SCHOLAR_ENGINES", "CrossRef,PubMed,Semantic_Scholar,arXiv,OpenAlex"
+).split(",")
 
 # Default search mode: "parallel" or "single"
-SCITEX_DEFAULT_MODE = os.getenv("SCITEX_DEFAULT_MODE", "parallel")
+SCITEX_SCHOLAR_DEFAULT_MODE = os.getenv(
+    "SCITEX_SCHOLAR_DEFAULT_MODE", "parallel"
+)
 
 # ---------------------------------------
 # SciTeX Writer Settings
@@ -418,15 +459,8 @@ SCITEX_WRITER_TEMPLATE_PATH = None
 for location in _WRITER_TEMPLATE_LOCATIONS:
     if location and location.exists():
         SCITEX_WRITER_TEMPLATE_PATH = location
-        logger.info(f"Found SciTeX Writer template at: {location}")
+        # Template found
         break
-
-if not SCITEX_WRITER_TEMPLATE_PATH:
-    logger.warning(
-        "SciTeX Writer template not found at any standard location. "
-        "Manuscripts will use fallback compilation scripts. "
-        f"To use templates, clone scitex-writer to one of: {[str(l) for l in _WRITER_TEMPLATE_LOCATIONS[1:]]}"
-    )
 
 # ---------------------------------------
 # REST Framework

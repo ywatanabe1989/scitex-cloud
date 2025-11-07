@@ -22,14 +22,14 @@ PRIMITIVE_TOKEN_PATTERN = re.compile(r'var\(--_[a-zA-Z0-9-]+\)')
 
 # Directories to scan for CSS/HTML files
 SCAN_DIRS = [
-    'static/css/',
+    'static/shared/css/',
     'apps/',
     'templates/',
 ]
 
 # Files that are ALLOWED to use primitive tokens
 ALLOWED_FILES = {
-    'static/css/common/colors.css',
+    'static/shared/css/common/colors.css',
 }
 
 
@@ -135,7 +135,7 @@ def main():
     print("=" * 80)
     print("NEXT STEPS:")
     print("  1. Replace primitive tokens (--_*) with semantic tokens")
-    print("  2. Refer to static/css/common/colors.css for available semantic tokens")
+    print("  2. Refer to static/shared/css/common/colors.css for available semantic tokens")
     print("  3. Use tokens like: --text-primary, --bg-primary, --border-primary, etc.")
     print("=" * 80)
 

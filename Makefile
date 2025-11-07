@@ -1,34 +1,138 @@
 # ============================================
-# SciTeX Cloud - Root Makefile
+# SciTeX Cloud - Environment Orchestrator
 # ============================================
-# Automatic environment switching for Docker deployments
+# Exclusive environment management for dev/prod/nas
 # Location: /Makefile
+#
+# Key Features:
+# - Mutual exclusivity (only one environment runs at a time)
+# - Mandatory environment specification (NO defaults!)
+# - State file + Docker reality validation
+# - Conflict detection and prevention
+# - Safety confirmations for production
+#
+# Usage:
+#   make status                    # Show active environment
+#   make ENV=dev start             # Start dev (stops others first)
+#   make ENV=prod switch           # Switch to prod
+#   make ENV=prod rebuild          # Rebuild prod (with confirmation)
 
-.PHONY: help dev prod nas start restart stop down logs ps migrate shell db-shell db-backup clean
+.PHONY: \
+	help \
+	status \
+	validate-docker \
+	validate \
+	switch \
+	stop-all \
+	start \
+	restart \
+	reload \
+	stop \
+	down \
+	logs \
+	ps \
+	migrate \
+	shell \
+	force-stop-all \
+	ssl-setup \
+	ssl-verify \
+	ssl-check \
+	ssl-renew \
+	verify-health \
+	list-envs \
+	exec-web \
+	exec-db \
+	exec-gitea \
+	gitea-token \
+	recreate-testuser \
+	build-ts \
+	collectstatic \
+	makemigrations \
+	createsuperuser \
+	db-shell \
+	db-backup \
+	db-reset \
+	logs-web \
+	logs-db \
+	logs-gitea \
+	build \
+	rebuild \
+	setup \
+	test \
+	test-e2e \
+	test-e2e-headed \
+	test-e2e-specific \
+	clean-python \
+	info
 
 .DEFAULT_GOAL := help
 
 # ============================================
-# Environment Detection
+# Configuration
 # ============================================
-# Default to dev if ENV not specified
-ENV ?= dev
-
-# Validate environment
-ifeq ($(filter $(ENV),dev prod nas),)
-$(error Invalid ENV='$(ENV)'. Use: dev, prod, or nas)
-endif
-
-# Set paths based on environment
-DOCKER_DIR := deployment/docker/docker_$(ENV)
-COMPOSE_FILE := $(DOCKER_DIR)/docker-compose.yml
-MAKEFILE := $(DOCKER_DIR)/Makefile
+VALID_ENVS := dev prod nas
 
 # Colors
 GREEN := \033[0;32m
 YELLOW := \033[0;33m
+RED := \033[0;31m
 CYAN := \033[0;36m
+BLUE := \033[0;34m
 NC := \033[0m
+
+# ============================================
+# Environment Validation - NO DEFAULTS!
+# ============================================
+# Accept both env= and ENV= (convert lowercase to uppercase)
+ifdef env
+  ENV := $(env)
+endif
+
+# Check if ENV is specified and valid
+ifdef ENV
+  ifeq ($(filter $(ENV),$(VALID_ENVS)),)
+    $(error Invalid ENV='$(ENV)'. Must be one of: dev, prod, nas)
+  endif
+  DOCKER_DIR := deployment/docker/docker_$(ENV)
+  MAKEFILE := $(DOCKER_DIR)/Makefile
+else
+  # ENV not specified - only allow non-operational commands
+  ifneq ($(MAKECMDGOALS),)
+    ifneq ($(filter-out help status validate-docker stop-all force-stop-all,$(MAKECMDGOALS)),)
+      $(error ❌ ENV not specified! Use: make ENV=<dev|prod|nas> <command>)
+    endif
+  endif
+endif
+
+# ============================================
+# Docker Reality Detection
+# ============================================
+# Detect which environments are actually running in Docker
+get-running-envs = $(shell docker ps --format '{{.Names}}' 2>/dev/null | grep -oE 'scitex-cloud-(dev|prod|nas)-' | sed 's/scitex-cloud-//' | sed 's/-//' | sort -u)
+
+# ============================================
+# Validation Functions
+# ============================================
+validate-docker:
+	@echo "$(CYAN)🔍 Checking for container conflicts...$(NC)"
+	@RUNNING=$$(docker ps --format '{{.Names}}' 2>/dev/null | grep -oE 'scitex-cloud-(dev|prod|nas)-' | sed 's/scitex-cloud-//' | sed 's/-//' | sort -u); \
+	COUNT=$$(echo "$$RUNNING" | wc -w); \
+	if [ $$COUNT -gt 1 ]; then \
+		echo "$(RED)❌ CONFLICT: Multiple environments running:$(NC)"; \
+		for env in $$RUNNING; do \
+			echo "  - $$env"; \
+		done; \
+		echo "$(YELLOW)   Run 'make stop-all' to clean up$(NC)"; \
+		exit 1; \
+	fi; \
+	if [ $$COUNT -eq 0 ]; then \
+		echo "$(GREEN)✅ No containers running$(NC)"; \
+	else \
+		echo "$(GREEN)✅ Only $$RUNNING is running$(NC)"; \
+	fi
+
+# Validation alias
+validate: validate-docker
 
 # ============================================
 # Help
@@ -36,184 +140,331 @@ NC := \033[0m
 help:
 	@echo ""
 	@echo "$(GREEN)╔═══════════════════════════════════════════════════════╗$(NC)"
-	@echo "$(GREEN)║           SciTeX Cloud - Root Makefile                ║$(NC)"
+	@echo "$(GREEN)║      SciTeX Cloud - Environment Orchestrator          ║$(NC)"
 	@echo "$(GREEN)╚═══════════════════════════════════════════════════════╝$(NC)"
 	@echo ""
-	@echo "$(CYAN)📍 Current Environment: $(ENV)$(NC)"
+	@$(MAKE) --no-print-directory status
 	@echo ""
-	@echo "$(CYAN)🔀 Switch Environment:$(NC)"
-	@echo "  make ENV=dev <command>      # Development"
-	@echo "  make ENV=prod <command>     # Production"
-	@echo "  make ENV=nas <command>      # NAS/Home server"
+	@echo "$(CYAN)📋 Core Commands:$(NC)"
+	@echo "  make status                       # Show active environment"
+	@echo "  make validate                     # Validate state consistency"
+	@echo "  make ENV=<env> start              # Start environment (stops others)"
+	@echo "  make ENV=<env> switch             # Switch environment cleanly"
+	@echo "  make ENV=<env> stop               # Stop specific environment"
+	@echo "  make stop-all                     # Stop all environments"
 	@echo ""
-	@echo "$(CYAN)🚀 Quick Start:$(NC)"
-	@echo "  make start                  # Start services (current: $(ENV))"
-	@echo "  make restart                # Restart services"
-	@echo "  make stop                   # Stop services"
-	@echo "  make logs                   # View logs"
+	@echo "$(CYAN)🔧 Build & Deploy:$(NC)"
+	@echo "  make ENV=<env> build              # Build images"
+	@echo "  make ENV=<env> rebuild            # Rebuild (stops, builds, starts)"
+	@echo "  make ENV=<env> setup              # Full setup (build + migrate)"
 	@echo ""
 	@echo "$(CYAN)🐍 Django:$(NC)"
-	@echo "  make migrate                # Run migrations"
-	@echo "  make makemigrations         # Create migrations"
-	@echo "  make shell                  # Django shell"
-	@echo "  make collectstatic          # Collect static files"
+	@echo "  make ENV=<env> migrate            # Run migrations"
+	@echo "  make ENV=<env> shell              # Django shell"
+	@echo "  make ENV=<env> build-ts           # Compile TypeScript to JavaScript"
+	@echo "  make ENV=<env> collectstatic      # Collect static files (auto-builds TS)"
 	@echo ""
-	@echo "$(CYAN)🗄️  Database:$(NC)"
-	@echo "  make db-shell               # PostgreSQL shell"
-	@echo "  make db-backup              # Backup database"
-	@echo "  make db-reset               # Reset database (⚠️  dev only)"
-	@echo ""
-	@echo "$(CYAN)📋 Monitoring:$(NC)"
-	@echo "  make ps                     # Service status"
-	@echo "  make logs                   # All logs"
-	@echo "  make logs-web               # Web logs only"
-	@echo ""
-	@echo "$(CYAN)🔧 Utilities:$(NC)"
-	@echo "  make clean                  # Clean Python cache"
-	@echo "  make exec-web               # Shell into web container"
+	@echo "$(CYAN)📊 Monitoring:$(NC)"
+	@echo "  make ENV=<env> logs               # View logs"
+	@echo "  make ENV=<env> ps                 # Container status"
 	@echo ""
 	@echo "$(CYAN)💡 Examples:$(NC)"
-	@echo "  make start                  # Start dev (default)"
-	@echo "  make ENV=prod start         # Start production"
-	@echo "  make ENV=nas logs           # View NAS logs"
+	@echo "  make status                       # Check what's running"
+	@echo "  make ENV=dev start                # Start development"
+	@echo "  make ENV=prod switch              # Switch to production"
+	@echo "  make ENV=nas rebuild              # Rebuild NAS environment"
 	@echo ""
-	@echo "$(YELLOW)For all commands: cd $(DOCKER_DIR) && make help$(NC)"
+	@echo "$(CYAN)🔧 Utilities:$(NC)"
+	@echo "  make ENV=<env> exec-web           # Shell into web container"
+	@echo "  make ENV=<env> exec-db            # Shell into database container"
+	@echo "  make ENV=<env> exec <cmd>         # Execute command in web container"
+	@echo "  make ENV=<env> list-envs          # List environment variables"
+	@echo ""
+	@echo "$(CYAN)🔒 SSL/HTTPS (prod only):$(NC)"
+	@echo "  make ENV=prod ssl-verify          # Verify HTTPS is working"
+	@echo "  make ENV=prod ssl-check           # Check certificate status"
+	@echo "  make ENV=prod ssl-renew           # Renew certificates"
+	@echo "  make ENV=prod ssl-setup           # Manual SSL setup (interactive)"
 	@echo ""
 
 # ============================================
-# Environment Shortcuts
+# Status & Information
 # ============================================
-dev:
-	@$(MAKE) ENV=dev help
-
-prod:
-	@$(MAKE) ENV=prod help
-
-nas:
-	@$(MAKE) ENV=nas help
+status:
+	@echo "$(CYAN)📊 Environment Status:$(NC)"
+	@RUNNING=$$(docker ps --format '{{.Names}}' 2>/dev/null | \
+		grep -oE 'scitex-cloud-(dev|prod|nas)-' | \
+		sed 's/scitex-cloud-//' | \
+		sed 's/-//' | \
+		sort -u | \
+		tr '\n' ' ' | \
+		xargs); \
+	if [ -n "$$RUNNING" ]; then \
+		echo "  $(CYAN)Active environment:$(NC) $$RUNNING"; \
+	else \
+		echo "  $(YELLOW)⚠️  No active environment$(NC)"; \
+	fi
+	@echo ""
+	@echo "$(CYAN)🐳 Running Containers:$(NC)"
+	@docker ps --format "table {{.Names}}\t{{.Status}}" 2>/dev/null | \
+		grep -E "scitex-cloud-(dev|prod|nas)-" | xargs -I{} echo "  "{} || \
+		echo "  $(YELLOW)No scitex-cloud containers running$(NC)"
 
 # ============================================
-# Service Lifecycle
+# Stop All Environments
+# ============================================
+stop-all:
+	@echo "$(YELLOW)⬇️  Stopping all environments...$(NC)"
+	@echo ""
+	@for env in $(VALID_ENVS); do \
+		echo "$(CYAN)Checking $$env...$(NC)"; \
+		cd deployment/docker/docker_$$env && \
+		if docker compose ps -q 2>/dev/null | grep -q .; then \
+			echo "  $(YELLOW)Stopping $$env containers...$(NC)"; \
+			$(MAKE) -f Makefile down 2>/dev/null || docker compose down 2>/dev/null || true; \
+		else \
+			echo "  $(GREEN)✓ $$env already stopped$(NC)"; \
+		fi; \
+		cd ../../..; \
+	done
+	@echo ""
+	@echo "$(GREEN)✅ All environments stopped$(NC)"
+
+force-stop-all:
+	@echo "$(RED)⚠️  Force stopping all scitex-cloud containers...$(NC)"
+	@docker ps -a --format "{{.Names}}" | grep -E "scitex-cloud-(dev|prod|nas)-" | xargs -r docker stop 2>/dev/null || true
+	@docker ps -a --format "{{.Names}}" | grep -E "scitex-cloud-(dev|prod|nas)-" | xargs -r docker rm 2>/dev/null || true
+	@echo "$(GREEN)✅ All containers force-stopped$(NC)"
+
+# ============================================
+# Environment Switching
+# ============================================
+switch: validate stop-all
+	@echo ""
+	@echo "$(CYAN)🔄 Switching to $(ENV) environment...$(NC)"
+	@$(MAKE) --no-print-directory ENV=$(ENV) start
+	@echo ""
+	@echo "$(GREEN)✅ Switched to $(ENV) environment$(NC)"
+
+# ============================================
+# Service Lifecycle with Validation
 # ============================================
 start:
-	@echo "$(CYAN)🚀 Starting $(ENV) environment...$(NC)"
-	cd $(DOCKER_DIR) && $(MAKE) start
+	@echo "$(CYAN)🚀 Starting $(ENV) environment (exclusive mode)...$(NC)"
+	@echo ""
+	@# Stop all other environments to ensure exclusivity
+	@for env in $(VALID_ENVS); do \
+		if [ "$$env" != "$(ENV)" ]; then \
+			echo "$(CYAN)Checking $$env...$(NC)"; \
+			cd deployment/docker/docker_$$env && \
+			if docker compose ps -q 2>/dev/null | grep -q .; then \
+				echo "  $(YELLOW)Stopping $$env containers...$(NC)"; \
+				$(MAKE) -f Makefile down 2>/dev/null || docker compose down 2>/dev/null || true; \
+			else \
+				echo "  $(GREEN)✓ $$env already stopped$(NC)"; \
+			fi; \
+			cd ../../..; \
+		fi; \
+	done
+	@echo ""
+	@# Start the requested environment
+	@echo "$(CYAN)Starting $(ENV) services...$(NC)"
+	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile start || (echo "$(RED)❌ Start failed. Run 'make ENV=$(ENV) start' to retry$(NC)"; exit 1)
+	@echo ""
+	@echo "$(GREEN)✅ $(ENV) environment is now running$(NC)"
+	@$(MAKE) --no-print-directory status
 
-restart:
+restart: validate
+	@RUNNING=$$(docker ps --format '{{.Names}}' 2>/dev/null | grep -oE 'scitex-cloud-(dev|prod|nas)-' | sed 's/scitex-cloud-//' | sed 's/-//' | sort -u); \
+	if [ "$$RUNNING" != "$(ENV)" ]; then \
+		echo "$(RED)❌ $(ENV) is not running ($$RUNNING is active)$(NC)"; \
+		echo "$(YELLOW)   Options:$(NC)"; \
+		echo "$(YELLOW)   • make env=$(ENV) start          # Start $(ENV) (stops $$RUNNING)$(NC)"; \
+		echo "$(YELLOW)   • make env=$(ENV) switch         # Clean switch to $(ENV)$(NC)"; \
+		echo "$(YELLOW)   • make env=$$RUNNING restart     # Restart current $$RUNNING$(NC)"; \
+		exit 1; \
+	fi
 	@echo "$(CYAN)🔄 Restarting $(ENV) environment...$(NC)"
-	cd $(DOCKER_DIR) && $(MAKE) restart
+	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile restart
+	@echo "$(GREEN)✅ $(ENV) restarted$(NC)"
 
-reload:
-	@echo "$(CYAN)⚡ Quick reload ($(ENV))...$(NC)"
-	cd $(DOCKER_DIR) && $(MAKE) reload
+reload: validate
+	@RUNNING=$$(docker ps --format '{{.Names}}' 2>/dev/null | grep -oE 'scitex-cloud-(dev|prod|nas)-' | sed 's/scitex-cloud-//' | sed 's/-//' | sort -u); \
+	if [ "$$RUNNING" != "$(ENV)" ]; then \
+		echo "$(RED)❌ $(ENV) is not running ($$RUNNING is active)$(NC)"; \
+		echo "$(YELLOW)   Options:$(NC)"; \
+		echo "$(YELLOW)   • make env=$(ENV) start          # Start $(ENV) (stops $$RUNNING)$(NC)"; \
+		echo "$(YELLOW)   • make env=$(ENV) switch         # Clean switch to $(ENV)$(NC)"; \
+		echo "$(YELLOW)   • make env=$$RUNNING reload      # Reload current $$RUNNING$(NC)"; \
+		exit 1; \
+	fi
+	@echo "$(CYAN)⚡ Quick reload (no scitex reinstall)...$(NC)"
+	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile reload
+	@echo "$(GREEN)✅ $(ENV) reloaded$(NC)"
 
-stop:
+stop: validate-docker
 	@echo "$(YELLOW)⬇️  Stopping $(ENV) environment...$(NC)"
-	cd $(DOCKER_DIR) && $(MAKE) -f Makefile down
+	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile down
+	@echo "$(GREEN)✅ $(ENV) stopped$(NC)"
 
 down: stop
 
+# ============================================
+# Build Commands
+# ============================================
 build:
 	@echo "$(CYAN)🏗️  Building $(ENV) images...$(NC)"
-	cd $(DOCKER_DIR) && $(MAKE) -f Makefile build
+	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile build
+	@echo "$(GREEN)✅ Build complete for $(ENV)$(NC)"
 
-up:
-	@echo "$(CYAN)⬆️  Starting $(ENV) services...$(NC)"
-	cd $(DOCKER_DIR) && $(MAKE) -f Makefile up
-
-rebuild:
+rebuild: validate-docker
+	@# Production safety check
+	@if [ "$(ENV)" = "prod" ]; then \
+		echo ""; \
+		echo "$(RED)⚠️  WARNING: Production rebuild!$(NC)"; \
+		echo "$(YELLOW)   This will cause downtime.$(NC)"; \
+		echo ""; \
+		read -p "Type 'yes' to confirm: " confirm; \
+		if [ "$$confirm" != "yes" ]; then \
+			echo "$(YELLOW)❌ Rebuild cancelled$(NC)"; \
+			exit 1; \
+		fi; \
+	fi
+	@echo ""
 	@echo "$(CYAN)🔄 Rebuilding $(ENV) environment...$(NC)"
-	cd $(DOCKER_DIR) && $(MAKE) -f Makefile rebuild
+	@echo "  1. Stopping $(ENV)..."
+	@$(MAKE) --no-print-directory ENV=$(ENV) stop
+	@echo "  2. Building images..."
+	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile build
+	@echo "  3. Starting $(ENV)..."
+	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile up
+	@echo ""
+	@echo "$(GREEN)✅ $(ENV) rebuild complete$(NC)"
+	@$(MAKE) --no-print-directory validate
 
-clean:
-	cd $(DOCKER_DIR) && $(MAKE) -f Makefile clean
+setup:
+	@echo "$(CYAN)🔧 Setting up $(ENV) environment...$(NC)"
+	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile setup
+	@echo "$(GREEN)✅ $(ENV) setup complete$(NC)"
 
 # ============================================
 # Django Commands
 # ============================================
-migrate:
+migrate: validate
 	@echo "$(CYAN)🔄 Running migrations ($(ENV))...$(NC)"
-	cd $(DOCKER_DIR) && $(MAKE) -f Makefile migrate
+	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile migrate
 
-makemigrations:
+makemigrations: validate
 	@echo "$(CYAN)📝 Creating migrations ($(ENV))...$(NC)"
-	cd $(DOCKER_DIR) && $(MAKE) -f Makefile makemigrations
+	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile makemigrations
 
-shell:
+shell: validate
 	@echo "$(CYAN)🐍 Opening Django shell ($(ENV))...$(NC)"
-	cd $(DOCKER_DIR) && $(MAKE) -f Makefile shell
+	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile shell
 
-createsuperuser:
+createsuperuser: validate
 	@echo "$(CYAN)👤 Creating superuser ($(ENV))...$(NC)"
-	cd $(DOCKER_DIR) && $(MAKE) -f Makefile createsuperuser
+	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile createsuperuser
 
-collectstatic:
+build-ts: validate
+	@echo "$(CYAN)🔨 Building TypeScript ($(ENV))...$(NC)"
+	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile build-ts
+
+collectstatic: validate
 	@echo "$(CYAN)📦 Collecting static files ($(ENV))...$(NC)"
-	cd $(DOCKER_DIR) && $(MAKE) -f Makefile collectstatic
+	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile collectstatic
 
-test:
+test: validate
 	@echo "$(CYAN)🧪 Running tests ($(ENV))...$(NC)"
-	cd $(DOCKER_DIR) && $(MAKE) -f Makefile test
+	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile test
+
+# E2E Testing Commands
+test-e2e: validate
+	@echo "$(CYAN)🎭 Running E2E tests ($(ENV))...$(NC)"
+	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile test-e2e
+
+test-e2e-headed: validate
+	@echo "$(CYAN)🎭 Running E2E tests with browser visible ($(ENV))...$(NC)"
+	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile test-e2e-headed
+
+test-e2e-specific: validate
+	@if [ -z "$(TEST)" ]; then \
+		echo "$(RED)❌ TEST not specified! Use: make ENV=$(ENV) test-e2e-specific TEST=tests/e2e/test_user_creation.py$(NC)"; \
+		exit 1; \
+	fi
+	@echo "$(CYAN)🎭 Running specific E2E test: $(TEST) ($(ENV))...$(NC)"
+	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile test-e2e-specific TEST=$(TEST)
 
 # ============================================
 # Database Commands
 # ============================================
-db-shell:
+db-shell: validate
 	@echo "$(CYAN)🗄️  Opening database shell ($(ENV))...$(NC)"
-	cd $(DOCKER_DIR) && $(MAKE) -f Makefile db-shell
+	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile db-shell
 
-db-backup:
+db-backup: validate
 	@echo "$(CYAN)💾 Backing up database ($(ENV))...$(NC)"
-	cd $(DOCKER_DIR) && $(MAKE) -f Makefile db-backup
+	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile db-backup
 
-db-reset:
-ifeq ($(ENV),dev)
+db-reset: validate
+	@if [ "$(ENV)" != "dev" ]; then \
+		echo "$(RED)❌ db-reset only available in dev environment$(NC)"; \
+		exit 1; \
+	fi
 	@echo "$(YELLOW)⚠️  Resetting database (dev only)...$(NC)"
-	cd $(DOCKER_DIR) && $(MAKE) -f Makefile db-reset
-else
-	@echo "$(YELLOW)❌ db-reset only available in dev environment$(NC)"
-	@exit 1
-endif
+	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile db-reset
 
 # ============================================
 # Logs & Monitoring
 # ============================================
-logs:
-	@echo "$(CYAN)📋 Showing logs ($(ENV))...$(NC)"
-	cd $(DOCKER_DIR) && $(MAKE) -f Makefile logs
+logs: validate
+	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile logs
 
-logs-web:
-	@echo "$(CYAN)📋 Showing web logs ($(ENV))...$(NC)"
-	cd $(DOCKER_DIR) && $(MAKE) -f Makefile logs-web
+logs-web: validate
+	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile logs-web
 
-logs-db:
-	@echo "$(CYAN)📋 Showing database logs ($(ENV))...$(NC)"
-	cd $(DOCKER_DIR) && $(MAKE) -f Makefile logs-db
+logs-db: validate
+	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile logs-db
 
-logs-gitea:
-	@echo "$(CYAN)📋 Showing Gitea logs ($(ENV))...$(NC)"
-	cd $(DOCKER_DIR) && $(MAKE) -f Makefile logs-gitea 2>/dev/null || echo "$(YELLOW)Gitea not available in $(ENV)$(NC)"
+logs-gitea: validate
+	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile logs-gitea 2>/dev/null || echo "$(YELLOW)Gitea not available in $(ENV)$(NC)"
 
-ps:
-	@echo "$(CYAN)📊 Service status ($(ENV)):$(NC)"
-	cd $(DOCKER_DIR) && $(MAKE) -f Makefile ps
-
-status: ps
+ps: validate
+	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile ps
 
 # ============================================
 # Shell Access
 # ============================================
-exec-web:
+exec-web: validate
 	@echo "$(CYAN)🐳 Opening shell in web container ($(ENV))...$(NC)"
-	cd $(DOCKER_DIR) && $(MAKE) -f Makefile exec-web
+	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile exec-web
 
-exec-db:
+exec-db: validate
 	@echo "$(CYAN)🐳 Opening shell in database container ($(ENV))...$(NC)"
-	cd $(DOCKER_DIR) && $(MAKE) -f Makefile exec-db
+	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile exec-db
 
-exec-gitea:
+# Execute arbitrary command in web container
+# Usage: make ENV=dev exec CMD="ls -la" or make ENV=dev exec ls -la
+exec: validate
+	@if [ -z "$(CMD)" ]; then \
+		echo "$(YELLOW)⚠️  No CMD specified, using remaining args: $(filter-out $@,$(MAKECMDGOALS))$(NC)"; \
+		cd $(DOCKER_DIR) && docker compose exec web $(filter-out $@,$(MAKECMDGOALS)); \
+	else \
+		echo "$(CYAN)🐳 Executing command in web container ($(ENV)): $(CMD)$(NC)"; \
+		cd $(DOCKER_DIR) && docker compose exec web $(CMD); \
+	fi
+
+# Catch-all rule to prevent "No rule to make target" errors when using exec
+%:
+	@:
+
+exec-gitea: validate
 	@echo "$(CYAN)🐳 Opening shell in Gitea container ($(ENV))...$(NC)"
-	cd $(DOCKER_DIR) && $(MAKE) -f Makefile exec-gitea 2>/dev/null || echo "$(YELLOW)Gitea not available in $(ENV)$(NC)"
+	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile exec-gitea 2>/dev/null || echo "$(YELLOW)Gitea not available in $(ENV)$(NC)"
+
+list-envs: validate
+	@echo "$(CYAN)🔍 Environment variables in $(ENV):$(NC)"
+	@docker exec scitex-cloud-$(ENV)-web-1 env | sort
 
 # ============================================
 # Dev-Only Commands
@@ -236,51 +487,62 @@ else
 	@exit 1
 endif
 
-verify-gitea:
-ifeq ($(ENV),dev)
-	@echo "$(CYAN)🔍 Verifying Gitea (dev)...$(NC)"
-	cd $(DOCKER_DIR) && $(MAKE) -f Makefile verify-gitea
+# ============================================
+# Health Checks
+# ============================================
+verify-health: validate
+	@if [ "$(ENV)" = "dev" ]; then \
+		echo "$(YELLOW)❌ verify-health only available in prod/nas$(NC)"; \
+		exit 1; \
+	fi
+	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile verify-health
+
+ssl-setup:
+ifeq ($(ENV),prod)
+	@echo "$(CYAN)🔒 Setting up SSL/HTTPS for production...$(NC)"
+	cd $(DOCKER_DIR) && $(MAKE) ssl-setup
 else
-	@echo "$(YELLOW)❌ verify-gitea only available in dev environment$(NC)"
+	@echo "$(YELLOW)❌ ssl-setup only available in prod environment$(NC)"
+	@exit 1
+endif
+
+ssl-verify:
+ifeq ($(ENV),prod)
+	cd $(DOCKER_DIR) && $(MAKE) ssl-verify
+else
+	@echo "$(YELLOW)❌ ssl-verify only available in prod environment$(NC)"
+	@exit 1
+endif
+
+ssl-check:
+ifeq ($(ENV),prod)
+	cd $(DOCKER_DIR) && $(MAKE) ssl-check
+else
+	@echo "$(YELLOW)❌ ssl-check only available in prod environment$(NC)"
+	@exit 1
+endif
+
+ssl-renew:
+ifeq ($(ENV),prod)
+	cd $(DOCKER_DIR) && $(MAKE) ssl-renew
+else
+	@echo "$(YELLOW)❌ ssl-renew only available in prod environment$(NC)"
 	@exit 1
 endif
 
 # ============================================
-# Prod/NAS-Only Commands
+# Utilities
 # ============================================
-verify-health:
-ifneq ($(ENV),dev)
-	@echo "$(CYAN)🔍 Checking health ($(ENV))...$(NC)"
-	cd $(DOCKER_DIR) && $(MAKE) -f Makefile verify-health
-else
-	@echo "$(YELLOW)❌ verify-health only available in prod/nas$(NC)"
-	@exit 1
-endif
-
-# ============================================
-# Development Workflow Shortcuts
-# ============================================
-setup:
-	@echo "$(CYAN)🔧 Setting up $(ENV) environment...$(NC)"
-	cd $(DOCKER_DIR) && $(MAKE) -f Makefile setup
-
-dev-cycle: ENV=dev
-dev-cycle:
-	@$(MAKE) ENV=dev start migrate collectstatic
-	@echo "$(GREEN)✅ Development environment ready at http://localhost:8000$(NC)"
-
-prod-deploy: ENV=prod
-prod-deploy:
-	@$(MAKE) ENV=prod setup
-	@echo "$(GREEN)✅ Production deployed$(NC)"
+clean-python:
+	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile clean-python
 
 # ============================================
 # Info
 # ============================================
 info:
-	@echo "Current environment: $(ENV)"
+	@echo "Specified environment: $(ENV)"
+	@echo "Running environments: $$(docker ps --format '{{.Names}}' 2>/dev/null | grep -oE 'scitex-cloud-(dev|prod|nas)-' | sed 's/scitex-cloud-//' | sed 's/-//' | sort -u | tr '\n' ' ')"
 	@echo "Container directory: $(DOCKER_DIR)"
-	@echo "Compose file: $(COMPOSE_FILE)"
 	@echo "Makefile: $(MAKEFILE)"
 
 # EOF

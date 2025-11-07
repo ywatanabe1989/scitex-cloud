@@ -38,8 +38,8 @@ from .library import (
     UserPreference,
 )
 
-# Collaboration models
-from .collaboration import (
+# Annotation models (collaboration feature)
+from .annotation import (
     Annotation,
     AnnotationReply,
     AnnotationVote,

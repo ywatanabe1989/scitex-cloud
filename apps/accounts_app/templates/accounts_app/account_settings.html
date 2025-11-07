@@ -4,7 +4,7 @@
 {% block title %}Account Settings{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/common/settings-layout.css' %}">
+<link rel="stylesheet" href="{% static 'shared/css/layouts/settings-layout.css' %}">
 <link rel="stylesheet" href="{% static 'accounts_app/css/account-modals.css' %}">
 <style>
 /* Account settings danger zone styling */
@@ -17,78 +17,8 @@
     color: var(--color-danger-fg);
 }
 
-/* Password toggle button styling (matching signup page) */
-.input-group {
-    display: flex;
-}
-
-.input-group .form-control {
-    flex: 1;
-}
-
-.input-group .btn {
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-}
-
-.input-group .toggle-password {
-    padding: 0.75rem 1rem;
-    border: 2px solid var(--border-default);
-    border-left: 0;
-    background-color: var(--bg-surface);
-    color: var(--text-secondary);
-    cursor: pointer;
-    transition: all 0.15s ease-in-out;
-}
-
-.input-group .toggle-password:hover {
-    background-color: var(--color-canvas-subtle);
-    color: var(--text-primary);
-}
-
-.input-group .toggle-password:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(108, 139, 160, 0.15);
-}
-
-/* Password requirements styling (matching signup page) */
-.password-rules {
-    background-color: var(--color-canvas-subtle);
-    border: 1px solid var(--color-border-default);
-    border-radius: 8px;
-    padding: 1rem;
-    font-size: 0.9rem;
-    margin-top: 0.5rem;
-}
-
-.password-rules-title {
-    font-weight: 600;
-    color: var(--color-fg-default);
-    margin-bottom: 0.5rem;
-    font-size: 0.95rem;
-}
-
-.password-rule {
-    margin-bottom: 0.4rem;
-    color: #6c757d;  /* Gray for default/untouched */
-    display: flex;
-    align-items: center;
-    transition: color 0.3s ease;
-}
-
-.password-rule.invalid {
-    color: #dc3545;  /* Red for invalid */
-}
-
-.password-rule.valid {
-    color: #28a745;  /* Green for valid */
-}
-
-.password-rule i {
-    margin-right: 0.5rem;
-    width: 16px;
-    font-size: 0.75rem;
-}
+/* Password requirements styling now in shared/css/components/forms.css */
+/* Input group styling (buttons + inputs) now in shared/css/components/forms.css */
 </style>
 {% endblock %}
 
@@ -257,5 +187,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'accounts_app/js/account_settings.js' %}"></script>
+<script src="{% static 'accounts_app/js/account-settings.js' %}"></script>
 {% endblock %}

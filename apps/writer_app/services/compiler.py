@@ -16,7 +16,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class CompilationService:
+class CompilerService:
     """Service for managing LaTeX manuscript compilation."""
 
     def __init__(self, project_dir: Path):
@@ -140,12 +140,12 @@ class CompilationService:
 
 
 # Global compilation services registry
-_compiler_instances: Dict[str, CompilationService] = {}
+_compiler_instances: Dict[str, CompilerService] = {}
 
 
-def get_compiler(project_dir: Path) -> CompilationService:
+def get_compiler(project_dir: Path) -> CompilerService:
     """Get or create compiler instance for project."""
     key = str(project_dir.absolute())
     if key not in _compiler_instances:
-        _compiler_instances[key] = CompilationService(project_dir)
+        _compiler_instances[key] = CompilerService(project_dir)
     return _compiler_instances[key]

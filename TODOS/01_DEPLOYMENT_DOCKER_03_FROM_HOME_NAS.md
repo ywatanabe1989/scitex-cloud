@@ -123,7 +123,7 @@ services:
     env_file:
       - .env
     environment:
-      - DJANGO_SETTINGS_MODULE=config.settings.settings_prod
+      - SCITEX_CLOUD_DJANGO_SETTINGS_MODULE=config.settings.settings_prod
       - PYTHONUNBUFFERED=1
     depends_on:
       db:
@@ -139,14 +139,14 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - SCITEX_CLOUD_POSTGRES_DB=${SCITEX_CLOUD_POSTGRES_DB}
+      - SCITEX_CLOUD_POSTGRES_USER=${SCITEX_CLOUD_POSTGRES_USER}
+      - SCITEX_CLOUD_POSTGRES_PASSWORD=${SCITEX_CLOUD_POSTGRES_PASSWORD}
     restart: always
     networks:
       - scitex-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      test: ["CMD-SHELL", "pg_isready -U ${SCITEX_CLOUD_POSTGRES_USER}"]
       interval: 10s
       timeout: 3s
       retries: 5
@@ -288,7 +288,7 @@ CLOUDFLARE_TUNNEL_TOKEN=your-token-here
 
 # Django settings for Cloudflare
 CSRF_TRUSTED_ORIGINS=https://scitex.ai
-ALLOWED_HOSTS=scitex.ai,localhost,nginx
+SCITEX_CLOUD_ALLOWED_HOSTS=scitex.ai,localhost,nginx
 ```
 
 ---
@@ -591,4 +591,3 @@ docker-compose ps
 
 **Questions?** Let me know and I'll help you through each step!
 
-<!-- EOF -->

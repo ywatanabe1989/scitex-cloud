@@ -12,6 +12,7 @@
 <link rel="stylesheet" href="{% static 'public_app/css/landing-enhanced.css' %}">
 <link rel="stylesheet" href="{% static 'public_app/css/landing-ecosystem.css' %}">
 <link rel="stylesheet" href="{% static 'public_app/css/landing-hero-fix.css' %}">
+<link rel="stylesheet" href="{% static 'public_app/css/landing-commitment.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -29,5 +30,6 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/module-cards.js' %}"></script>
+<!-- Module cards - TypeScript compiled as ES module -->
+<script type="module" src="{% static 'public_app/js/landing/module-cards.js' %}"></script>
 {% endblock %}

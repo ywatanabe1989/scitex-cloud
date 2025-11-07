@@ -132,11 +132,11 @@
           <!-- Password Requirements -->
           <div class="password-rules mb-3">
             <div class="password-rules-title">Password Requirements:</div>
-            <div class="password-rule" id="rule-length"><i class="fas fa-circle"></i> At least 8 characters</div>
-            <div class="password-rule" id="rule-lowercase"><i class="fas fa-circle"></i> At least one lowercase letter</div>
-            <div class="password-rule" id="rule-uppercase"><i class="fas fa-circle"></i> At least one uppercase letter</div>
-            <div class="password-rule" id="rule-number"><i class="fas fa-circle"></i> At least one number</div>
-            <div class="password-rule" id="rule-special"><i class="fas fa-circle"></i> At least one special character (!@#$%^&*)</div>
+            <div class="password-rule invalid" id="rule-length"><i class="fas fa-times"></i> At least 8 characters</div>
+            <div class="password-rule invalid" id="rule-lowercase"><i class="fas fa-times"></i> At least one lowercase letter</div>
+            <div class="password-rule invalid" id="rule-uppercase"><i class="fas fa-times"></i> At least one uppercase letter</div>
+            <div class="password-rule invalid" id="rule-number"><i class="fas fa-times"></i> At least one number</div>
+            <div class="password-rule invalid" id="rule-special"><i class="fas fa-times"></i> At least one special character (!@#$%^&*)</div>
           </div>
 
           <div class="form-check mb-3">
@@ -300,12 +300,10 @@
       if (isValid) {
         element.classList.add('valid');
         element.querySelector('i').className = 'fas fa-check';
-      } else if (hasInput) {
+      } else {
+        // Invalid state: red X (default)
         element.classList.add('invalid');
         element.querySelector('i').className = 'fas fa-times';
-      } else {
-        // Default state: gray circle
-        element.querySelector('i').className = 'fas fa-circle';
       }
     }
 

@@ -3,7 +3,7 @@
 
 # Set up environment
 export PYTHONPATH="$PYTHONPATH:$(pwd)/src"
-export DJANGO_SETTINGS_MODULE="config.settings.development"
+export SCITEX_CLOUD_DJANGO_SETTINGS_MODULE="config.settings.development"
 
 # Activate virtual environment if it exists
 if [ -d ".env" ]; then
@@ -91,4 +91,3 @@ fi
 log_message "Test run completed at $(date)"
 
 # Exit with the same code as the tests
-exit $TEST_EXIT_CODE

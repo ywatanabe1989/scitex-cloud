@@ -1,0 +1,19 @@
+[Unit]
+Description=SciTeX Scholar - Cleanup stale BibTeX enrichment jobs
+After=network.target
+
+[Service]
+Type=oneshot
+User=ywatanabe
+WorkingDirectory=/home/ywatanabe/proj/scitex-cloud
+Environment="PATH=/home/ywatanabe/.env/bin:/usr/local/bin:/usr/bin:/bin"
+ExecStart=/home/ywatanabe/.env/bin/python manage.py cleanup_stale_jobs --delete-old-jobs
+
+# Security hardening
+PrivateTmp=yes
+NoNewPrivileges=yes
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=scitex-cleanup-jobs
