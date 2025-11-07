@@ -660,7 +660,197 @@ export class EnhancedEditor {
             }
         });
 
+        // Setup drag-and-drop for citation insertion
+        this.setupCitationDropZone();
+
+        // Setup citation protection (atomic delete)
+        this.setupCitationProtection();
+
         console.log('[Editor] Monaco Editor listeners and actions configured');
+    }
+
+    /**
+     * Setup drag-and-drop zone for citation insertion
+     */
+    private setupCitationDropZone(): void {
+        if (!this.monacoEditor) return;
+
+        const editorDomNode = this.monacoEditor.getDomNode();
+        if (!editorDomNode) return;
+
+        // Dragover: Allow drop
+        editorDomNode.addEventListener('dragover', (e: DragEvent) => {
+            e.preventDefault();
+            if (e.dataTransfer) {
+                e.dataTransfer.dropEffect = 'copy';
+            }
+            // Add visual feedback
+            editorDomNode.parentElement?.classList.add('drag-over');
+        });
+
+        // Dragleave: Remove visual feedback
+        editorDomNode.addEventListener('dragleave', () => {
+            editorDomNode.parentElement?.classList.remove('drag-over');
+        });
+
+        // Drop: Insert citation
+        editorDomNode.addEventListener('drop', (e: DragEvent) => {
+            e.preventDefault();
+            e.stopPropagation();  // Prevent Monaco's default drop handling
+            editorDomNode.parentElement?.classList.remove('drag-over');
+
+            if (!e.dataTransfer) return;
+
+            const citationKey = e.dataTransfer.getData('text/plain');
+            if (!citationKey) return;
+
+            // Get drop position from Monaco
+            const position = this.monacoEditor.getTargetAtClientPoint(e.clientX, e.clientY);
+            if (!position) return;
+
+            // Insert \cite{key} at drop position
+            const citationText = `\\cite{${citationKey}}`;
+            const range = {
+                startLineNumber: position.position.lineNumber,
+                startColumn: position.position.column,
+                endLineNumber: position.position.lineNumber,
+                endColumn: position.position.column
+            };
+
+            // Use pushEditOperations to prevent default text insertion
+            this.monacoEditor.pushUndoStop();
+            this.monacoEditor.executeEdits('citation-drop', [{
+                range: range,
+                text: citationText,
+                forceMoveMarkers: true
+            }]);
+            this.monacoEditor.pushUndoStop();
+
+            // Focus editor and move cursor after citation
+            this.monacoEditor.setPosition({
+                lineNumber: position.position.lineNumber,
+                column: position.position.column + citationText.length
+            });
+            this.monacoEditor.focus();
+
+            console.log(`[Editor] Inserted citation at drop position: ${citationKey}`);
+
+            // Show toast notification
+            const showToast = (window as any).showToast;
+            if (showToast) {
+                showToast(`Citation added: ${citationKey}`, 'success');
+            }
+        });
+
+        console.log('[Editor] Citation drop zone configured');
+    }
+
+    /**
+     * Setup citation protection - treat \cite{key} as atomic unit
+     */
+    private setupCitationProtection(): void {
+        if (!this.monacoEditor) return;
+
+        const monaco = (window as any).monaco;
+
+        // Register link provider to detect citations
+        monaco.languages.registerLinkProvider('latex', {
+            provideLinks: (model: any) => {
+                const links: any[] = [];
+                const lineCount = model.getLineCount();
+
+                for (let lineNumber = 1; lineNumber <= lineCount; lineNumber++) {
+                    const lineContent = model.getLineContent(lineNumber);
+
+                    // Find all \cite{...} patterns
+                    const regex = /\\cite[tp]?\{([^}]+)\}/g;
+                    let match;
+
+                    while ((match = regex.exec(lineContent)) !== null) {
+                        const startColumn = match.index + 1;
+                        const endColumn = match.index + match[0].length + 1;
+
+                        links.push({
+                            range: new monaco.Range(lineNumber, startColumn, lineNumber, endColumn),
+                            url: `#citation:${match[1]}`,
+                            tooltip: `Citation: ${match[1]} (Click to select whole citation)`
+                        });
+                    }
+                }
+
+                return { links };
+            }
+        });
+
+        // Add custom delete command to handle citation boundaries
+        this.monacoEditor.addCommand(monaco.KeyCode.Backspace, () => {
+            const position = this.monacoEditor.getPosition();
+            const model = this.monacoEditor.getModel();
+            if (!model) return;
+
+            const lineContent = model.getLineContent(position.lineNumber);
+            const beforeCursor = lineContent.substring(0, position.column - 1);
+
+            // Check if cursor is right after \cite{key}
+            const citationMatch = beforeCursor.match(/\\cite[tp]?\{([^}]+)\}$/);
+            if (citationMatch) {
+                // Delete entire citation
+                const citationLength = citationMatch[0].length;
+                const range = new monaco.Range(
+                    position.lineNumber,
+                    position.column - citationLength,
+                    position.lineNumber,
+                    position.column
+                );
+
+                this.monacoEditor.executeEdits('delete-citation', [{
+                    range: range,
+                    text: ''
+                }]);
+
+                console.log('[Editor] Deleted entire citation:', citationMatch[1]);
+                return;
+            }
+
+            // Default backspace behavior
+            this.monacoEditor.trigger('keyboard', 'deleteLeft', {});
+        });
+
+        // Add custom delete (forward) command
+        this.monacoEditor.addCommand(monaco.KeyCode.Delete, () => {
+            const position = this.monacoEditor.getPosition();
+            const model = this.monacoEditor.getModel();
+            if (!model) return;
+
+            const lineContent = model.getLineContent(position.lineNumber);
+            const afterCursor = lineContent.substring(position.column - 1);
+
+            // Check if cursor is right before \cite{key}
+            const citationMatch = afterCursor.match(/^\\cite[tp]?\{([^}]+)\}/);
+            if (citationMatch) {
+                // Delete entire citation
+                const citationLength = citationMatch[0].length;
+                const range = new monaco.Range(
+                    position.lineNumber,
+                    position.column,
+                    position.lineNumber,
+                    position.column + citationLength
+                );
+
+                this.monacoEditor.executeEdits('delete-citation', [{
+                    range: range,
+                    text: ''
+                }]);
+
+                console.log('[Editor] Deleted entire citation:', citationMatch[1]);
+                return;
+            }
+
+            // Default delete behavior
+            this.monacoEditor.trigger('keyboard', 'deleteRight', {});
+        });
+
+        console.log('[Editor] Citation protection configured (atomic delete)');
     }
 
     /**

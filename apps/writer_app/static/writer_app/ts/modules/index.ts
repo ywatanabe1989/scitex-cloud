@@ -13,3 +13,4 @@ export { LatexWrapper, type LatexWrapperOptions } from './latex-wrapper.js';
 export { PDFPreviewManager, type PDFPreviewOptions } from './pdf-preview.js';
 export { PanelResizer } from './panel-resizer.js';
 export { EditorControls, type EditorControlsOptions } from './editor-controls.js';
+export { CitationsPanel, type Citation } from './citations-panel.js';

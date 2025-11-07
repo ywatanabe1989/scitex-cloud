@@ -8,7 +8,7 @@
  * - CompilationManager: LaTeX compilation and PDF management
  */
 
-import { WriterEditor, EnhancedEditor, SectionsManager, CompilationManager, FileTreeManager, PDFPreviewManager, PanelResizer, EditorControls } from './modules/index.js';
+import { WriterEditor, EnhancedEditor, SectionsManager, CompilationManager, FileTreeManager, PDFPreviewManager, PanelResizer, EditorControls, CitationsPanel } from './modules/index.js';
 import { PDFScrollZoomHandler } from './modules/pdf-scroll-zoom.js';
 import { getCsrfToken } from '@/utils/csrf.js';
 import { writerStorage } from '@/utils/storage.js';
@@ -414,6 +414,11 @@ async function initializeEditor(config: any): Promise<void> {
     if (!panelResizer.isInitialized()) {
         console.warn('[Writer] Panel resizer could not be initialized');
     }
+
+    // Initialize citations panel
+    const citationsPanel = new CitationsPanel();
+    (window as any).citationsPanel = citationsPanel;  // Make available globally
+    console.log('[Writer] Citations panel initialized');
 
     // Initialize editor controls (font size, auto-preview, preview button)
     // @ts-ignore - editorControls is initialized and manages its own event listeners
@@ -1944,5 +1949,77 @@ function openPDF(url: string): void {
     }
 }
 
+/**
+ * Switch right panel between PDF and Citations views
+ */
+function switchRightPanel(view: 'pdf' | 'citations'): void {
+    const pdfView = document.getElementById('pdf-view');
+    const citationsView = document.getElementById('citations-view');
+    const pdfBtn = document.getElementById('show-pdf-btn');
+    const citationsBtn = document.getElementById('show-citations-btn');
+    const pdfZoomControls = document.querySelector('.pdf-zoom-controls') as HTMLElement;
+    const previewPanel = document.querySelector('.preview-panel') as HTMLElement;
+
+    if (!pdfView || !citationsView || !pdfBtn || !citationsBtn) {
+        console.error('[Writer] Panel toggle elements not found');
+        return;
+    }
+
+    if (view === 'citations') {
+        // Show citations, hide PDF
+        pdfView.style.display = 'none';
+        citationsView.style.display = 'flex';
+
+        // Add class to preview-panel for CSS targeting
+        if (previewPanel) {
+            previewPanel.classList.add('showing-citations');
+            previewPanel.classList.remove('showing-pdf');
+        }
+
+        // Update button states
+        pdfBtn.classList.remove('active');
+        citationsBtn.classList.add('active');
+
+        // Hide PDF zoom controls
+        if (pdfZoomControls) {
+            pdfZoomControls.style.display = 'none';
+        }
+
+        console.log('[Writer] Switched to Citations view');
+
+        // Load citations if not already loaded
+        const citationsPanel = (window as any).citationsPanel;
+        if (citationsPanel && typeof citationsPanel.loadCitations === 'function') {
+            citationsPanel.loadCitations();
+        }
+    } else {
+        // Show PDF, hide citations
+        citationsView.style.display = 'none';
+        pdfView.style.display = 'flex';
+
+        // Add class to preview-panel for CSS targeting
+        if (previewPanel) {
+            previewPanel.classList.remove('showing-citations');
+            previewPanel.classList.add('showing-pdf');
+        }
+
+        // Update button states
+        citationsBtn.classList.remove('active');
+        pdfBtn.classList.add('active');
+
+        // Show PDF zoom controls if PDF is loaded
+        const hasPDF = document.querySelector('.pdf-preview-container') !== null;
+        if (pdfZoomControls && hasPDF) {
+            pdfZoomControls.style.display = 'flex';
+        }
+
+        console.log('[Writer] Switched to PDF view');
+    }
+
+    // Save preference
+    localStorage.setItem('writer_right_panel_view', view);
+}
+
 // Export functions to global scope for ES6 module compatibility
 (window as any).populateSectionDropdownDirect = populateSectionDropdownDirect;
+(window as any).switchRightPanel = switchRightPanel;
