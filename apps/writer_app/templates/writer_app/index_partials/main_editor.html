@@ -57,6 +57,16 @@
     </div>
 
     <div class="toolbar-right">
+      <!-- Right Panel Toggle: PDF / Citations -->
+      <div class="btn-group btn-group-sm me-2" role="group">
+        <button type="button" id="show-pdf-btn" class="btn btn-outline-secondary active" onclick="switchRightPanel('pdf')" title="Show PDF Preview">
+          <i class="fas fa-file-pdf me-1"></i>PDF
+        </button>
+        <button type="button" id="show-citations-btn" class="btn btn-outline-secondary" onclick="switchRightPanel('citations')" title="Show Citations Panel">
+          <i class="fas fa-book me-1"></i>Citations
+        </button>
+      </div>
+
       <!-- Compile Button -->
       <button id="compile-btn-toolbar" class="btn btn-sm btn-primary"
               title="Compile entire manuscript to PDF (all sections combined)"
@@ -148,54 +158,62 @@
         <!-- Resizable Panel Divider -->
         <div class="panel-resizer" id="panel-resizer" title="Drag to resize panels"></div>
         <div class="preview-panel">
-          <div class="panel-header" id="preview-panel-header">
-            <div class="header-left">
-              <i class="fas fa-eye me-1"></i><span id="preview-title">Section Preview</span>
-              <small class="text-muted ms-2">(auto-updated)</small>
-            </div>
-            <div class="header-right">
-              <!-- Zoom Controls (PDF only) -->
-              <div class="pdf-zoom-controls" style="display: none; gap: 0.25rem; align-items: center;">
-                <button id="pdf-zoom-out-btn" class="btn btn-sm btn-outline-secondary" title="Zoom Out (Ctrl+-)">
-                  <i class="fas fa-minus"></i>
-                </button>
-                <span id="pdf-zoom-indicator" style="font-size: 0.75rem; min-width: 35px; text-align: center;">100%</span>
-                <button id="pdf-zoom-in-btn" class="btn btn-sm btn-outline-secondary" title="Zoom In (Ctrl++)">
-                  <i class="fas fa-plus"></i>
-                </button>
-                <div style="width: 1px; height: 20px; background: var(--color-border-default); margin: 0 0.25rem;"></div>
-                <button id="pdf-fit-width-btn" class="btn btn-sm btn-outline-secondary" title="Fit to Width">
-                  <i class="fas fa-arrows-alt-h"></i>
-                </button>
-                <button id="pdf-reset-zoom-btn" class="btn btn-sm btn-outline-secondary" title="Reset Zoom (Ctrl+0)">
-                  <i class="fas fa-search"></i>
-                </button>
-                <div style="width: 1px; height: 20px; background: var(--color-border-default); margin: 0 0.25rem;"></div>
-                <button id="pdf-color-mode-btn" class="btn btn-sm btn-outline-secondary" title="PDF Theme: Light (Click to cycle)">
-                  <i class="fas fa-sun"></i>
-                  <span class="theme-label" style="margin-left: 0.25rem; font-size: 0.7rem;">Light</span>
-                </button>
+          <!-- PDF View (default visible) -->
+          <div id="pdf-view" class="right-panel-view">
+            <div class="panel-header" id="preview-panel-header">
+              <div class="header-left">
+                <i class="fas fa-eye me-1"></i><span id="preview-title">Section Preview</span>
+                <small class="text-muted ms-2">(auto-updated)</small>
               </div>
+              <div class="header-right">
+                <!-- Zoom Controls (PDF only) -->
+                <div class="pdf-zoom-controls" style="display: none; gap: 0.25rem; align-items: center;">
+                  <button id="pdf-zoom-out-btn" class="btn btn-sm btn-outline-secondary" title="Zoom Out (Ctrl+-)">
+                    <i class="fas fa-minus"></i>
+                  </button>
+                  <span id="pdf-zoom-indicator" style="font-size: 0.75rem; min-width: 35px; text-align: center;">100%</span>
+                  <button id="pdf-zoom-in-btn" class="btn btn-sm btn-outline-secondary" title="Zoom In (Ctrl++)">
+                    <i class="fas fa-plus"></i>
+                  </button>
+                  <div style="width: 1px; height: 20px; background: var(--color-border-default); margin: 0 0.25rem;"></div>
+                  <button id="pdf-fit-width-btn" class="btn btn-sm btn-outline-secondary" title="Fit to Width">
+                    <i class="fas fa-arrows-alt-h"></i>
+                  </button>
+                  <button id="pdf-reset-zoom-btn" class="btn btn-sm btn-outline-secondary" title="Reset Zoom (Ctrl+0)">
+                    <i class="fas fa-search"></i>
+                  </button>
+                  <div style="width: 1px; height: 20px; background: var(--color-border-default); margin: 0 0.25rem;"></div>
+                  <button id="pdf-color-mode-btn" class="btn btn-sm btn-outline-secondary" title="PDF Theme: Light (Click to cycle)">
+                    <i class="fas fa-sun"></i>
+                    <span class="theme-label" style="margin-left: 0.25rem; font-size: 0.7rem;">Light</span>
+                  </button>
+                </div>
 
-              <!-- Auto Preview Checkbox -->
-              <div class="auto-preview-control-panel">
-                <input type="checkbox" id="auto-preview-checkbox-panel" class="form-check-input" checked>
-                <label for="auto-preview-checkbox-panel" class="form-check-label" style="margin: 0; font-size: 0.7rem; cursor: pointer;">
-                  <i class="fas fa-magic me-1"></i>Auto (5s)
-                </label>
+                <!-- Auto Preview Checkbox -->
+                <div class="auto-preview-control-panel">
+                  <input type="checkbox" id="auto-preview-checkbox-panel" class="form-check-input" checked>
+                  <label for="auto-preview-checkbox-panel" class="form-check-label" style="margin: 0; font-size: 0.7rem; cursor: pointer;">
+                    <i class="fas fa-magic me-1"></i>Auto (5s)
+                  </label>
+                </div>
+                <!-- Preview/Reload Button -->
+                <button id="preview-btn-panel" class="preview-btn-inline" title="Refresh PDF Preview">
+                  <i class="fas fa-sync-alt"></i>
+                </button>
+                <!-- Background compilation status indicator -->
+                <div id="background-compile-status" class="status-indicator" style="opacity: 0; transition: opacity 0.3s;"></div>
+                <!-- Countdown indicator -->
+                <div id="compile-countdown-indicator" class="countdown-indicator" style="opacity: 0; transition: opacity 0.3s;"></div>
               </div>
-              <!-- Preview/Reload Button -->
-              <button id="preview-btn-panel" class="preview-btn-inline" title="Refresh PDF Preview">
-                <i class="fas fa-sync-alt"></i>
-              </button>
-              <!-- Background compilation status indicator -->
-              <div id="background-compile-status" class="status-indicator" style="opacity: 0; transition: opacity 0.3s;"></div>
-              <!-- Countdown indicator -->
-              <div id="compile-countdown-indicator" class="countdown-indicator" style="opacity: 0; transition: opacity 0.3s;"></div>
             </div>
+            <div id="text-preview" class="text-preview"></div>
           </div>
-          <div id="text-preview" class="text-preview"></div>
+
+          <!-- Citations View (hidden by default) -->
+          <div id="citations-view" class="right-panel-view" style="display: none;">
+            {% include "writer_app/index_partials/citations_panel.html" %}
           </div>
+        </div>
       </div>
     </div>
 

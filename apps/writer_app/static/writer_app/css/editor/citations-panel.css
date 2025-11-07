@@ -1,0 +1,340 @@
+/* ============================================================================
+ * Citations Panel Styles
+ * ============================================================================
+ * Drag-and-drop citation cards for the Writer interface
+ * Toggles with PDF preview in the right panel
+ * ========================================================================== */
+
+/* Ensure preview-panel uses flexbox column layout */
+.preview-panel {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* Panel container - ensure they take full space when visible */
+.right-panel-view {
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+/* PDF view - shown by default */
+#pdf-view {
+  display: flex;
+  flex: 1;
+}
+
+/* Citations view - hidden by default, JS will toggle */
+#citations-view {
+  display: none;
+}
+
+.citations-panel-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  max-width: 100%;
+  padding: 1rem;
+  background: var(--color-canvas-default);
+  overflow: hidden;
+  position: relative;
+  z-index: 0;
+  box-sizing: border-box;
+}
+
+/* Search Bar */
+.citations-search-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 100%;
+}
+
+.search-input-wrapper i.fa-search {
+  position: absolute;
+  left: 0.75rem;
+  color: var(--color-fg-muted);
+  font-size: 0.85rem;
+  pointer-events: none;
+}
+
+.search-input-wrapper input {
+  width: 100%;
+  padding-left: 2.25rem;
+  padding-right: 2.25rem;
+  font-size: 0.85rem;
+  box-sizing: border-box;
+}
+
+.search-input-wrapper .btn-clear {
+  position: absolute;
+  right: 0.5rem;
+  background: none;
+  border: none;
+  color: var(--color-fg-muted);
+  padding: 0.25rem;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.search-input-wrapper .btn-clear:hover {
+  color: var(--color-fg-default);
+}
+
+/* Sort Controls */
+.citations-sort-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.citations-sort-controls label {
+  color: var(--color-fg-muted);
+  flex-shrink: 0;
+}
+
+.citations-sort-controls select {
+  flex: 1;
+  font-size: 0.8rem;
+  min-width: 0;
+}
+
+/* Summary */
+.citations-summary {
+  padding: 0.5rem 0.75rem;
+  border-left: 3px solid var(--color-accent-emphasis);
+  background: var(--color-canvas-subtle);
+  border-radius: 4px;
+  margin-bottom: 0.75rem;
+  font-size: 0.85rem;
+  color: var(--color-fg-muted);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Citations List - Scrollable */
+.citations-list {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 0.5rem;
+  margin-bottom: 0.75rem;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  min-height: 0;
+}
+
+/* Citations Cards Container */
+#citations-cards-container {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Empty States */
+.citations-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--color-fg-muted);
+}
+
+.citations-empty-state i {
+  opacity: 0.5;
+}
+
+/* Citation Card */
+.citation-card {
+  background: var(--color-canvas-subtle);
+  border: 1px solid var(--color-border-default);
+  border-radius: 6px;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+  cursor: grab;
+  transition: all 0.2s ease;
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  word-wrap: break-word;
+}
+
+.citation-card:hover {
+  background: var(--color-canvas-inset);
+  border-color: var(--color-accent-emphasis);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+.citation-card:active {
+  cursor: grabbing;
+}
+
+.citation-card.dragging {
+  opacity: 0.5;
+  cursor: grabbing;
+}
+
+/* Citation Card Header */
+.citation-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+
+.citation-key {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-accent-emphasis);
+  background: var(--color-accent-subtle);
+  padding: 0.15rem 0.4rem;
+  border-radius: 3px;
+}
+
+.citation-metrics {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.7rem;
+  color: var(--color-fg-muted);
+}
+
+.citation-metric {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.citation-metric.high-citations {
+  color: var(--color-success-emphasis);
+  font-weight: 600;
+}
+
+/* Citation Card Body */
+.citation-title {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-fg-default);
+  margin-bottom: 0.4rem;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.citation-authors {
+  font-size: 0.75rem;
+  color: var(--color-fg-muted);
+  margin-bottom: 0.3rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.citation-journal {
+  font-size: 0.75rem;
+  color: var(--color-accent-fg);
+  font-style: italic;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.impact-factor {
+  background: var(--color-success-subtle);
+  color: var(--color-success-emphasis);
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  font-style: normal;
+}
+
+/* Drag Handle Indicator */
+.citation-card::before {
+  content: '⋮⋮';
+  position: absolute;
+  left: 0.25rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-fg-muted);
+  opacity: 0;
+  transition: opacity 0.2s;
+  font-size: 0.9rem;
+  letter-spacing: -2px;
+}
+
+.citation-card:hover::before {
+  opacity: 0.3;
+}
+
+/* Help Text */
+.citations-help {
+  padding: 0.5rem 0.75rem;
+  background: var(--color-accent-subtle);
+  border-radius: 4px;
+  text-align: center;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Scrollbar Styling */
+.citations-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.citations-list::-webkit-scrollbar-track {
+  background: var(--color-canvas-subtle);
+  border-radius: 3px;
+}
+
+.citations-list::-webkit-scrollbar-thumb {
+  background: var(--color-border-muted);
+  border-radius: 3px;
+}
+
+.citations-list::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-default);
+}
+
+/* Drag Ghost Element */
+.citation-drag-ghost {
+  opacity: 0.8;
+  transform: rotate(2deg);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Drop Zone Indicator on Editor */
+.latex-panel.drag-over {
+  outline: 2px dashed var(--color-accent-emphasis);
+  outline-offset: -4px;
+  background: var(--color-accent-subtle);
+  transition: all 0.2s;
+}
