@@ -27,6 +27,7 @@ export class EnhancedEditor {
     private maxHistorySize: number = 50;
     private onChangeCallback?: (content: string, wordCount: number) => void;
     private monacoEditor?: any;
+    private currentSectionId: string = '';
 
     constructor(config: MonacoEditorConfig) {
         this.storage = new StorageManager('writer_editor_');
@@ -167,6 +168,284 @@ export class EnhancedEditor {
                         }
                     });
                     console.log('[Monaco] LaTeX completion provider registered successfully');
+
+                    // ============================================================
+                    // CITATION AUTOCOMPLETE: Register completion provider for \cite{} commands
+                    // ============================================================
+                    console.log('[Citations] ========================================');
+                    console.log('[Citations] STARTING CITATION COMPLETION REGISTRATION');
+                    console.log('[Citations] ========================================');
+
+                    // Get project ID from URL or global variable
+                    const getProjectId = (): string | null => {
+                        // Try WRITER_CONFIG first (most reliable)
+                        const writerConfig = (window as any).WRITER_CONFIG;
+                        if (writerConfig?.projectId) {
+                            console.log('[Citations] Found project ID from WRITER_CONFIG:', writerConfig.projectId);
+                            return String(writerConfig.projectId);
+                        }
+
+                        // Try URL pattern: /writer/project/{id}/
+                        const match = window.location.pathname.match(/\/writer\/project\/(\d+)\//);
+                        if (match) {
+                            console.log('[Citations] Found project ID from URL:', match[1]);
+                            return match[1];
+                        }
+
+                        // Try global variable
+                        if ((window as any).SCITEX_PROJECT_ID) {
+                            console.log('[Citations] Found project ID from global:', (window as any).SCITEX_PROJECT_ID);
+                            return String((window as any).SCITEX_PROJECT_ID);
+                        }
+
+                        console.warn('[Citations] No project ID found - checked WRITER_CONFIG, URL, and global');
+                        return null;
+                    };
+
+                    // Cache for citations
+                    let citationsCache: any[] | null = null;
+                    let lastFetchTime = 0;
+                    const CACHE_DURATION = 60000; // 1 minute
+
+                    // Fetch citations from API
+                    const fetchCitations = async (): Promise<any[]> => {
+                        const projectId = getProjectId();
+                        if (!projectId) {
+                            console.warn('[Citations] No project ID - cannot fetch citations');
+                            return [];
+                        }
+
+                        const now = Date.now();
+                        if (citationsCache && (now - lastFetchTime) < CACHE_DURATION) {
+                            console.log(`[Citations] Using cached citations (${citationsCache.length} entries)`);
+                            return citationsCache;
+                        }
+
+                        try {
+                            const apiUrl = `/writer/api/project/${projectId}/citations/`;
+                            console.log('[Citations] Fetching from API:', apiUrl);
+                            const response = await fetch(apiUrl);
+                            console.log('[Citations] API response status:', response.status);
+
+                            if (!response.ok) {
+                                console.error('[Citations] API error:', response.status, response.statusText);
+                                return [];
+                            }
+
+                            const data = await response.json();
+                            console.log('[Citations] API response:', data);
+
+                            if (data.success && data.citations) {
+                                citationsCache = data.citations;
+                                lastFetchTime = now;
+                                console.log(`[Citations] ✓ Loaded ${data.citations.length} citations`);
+                                return data.citations;
+                            }
+                            console.warn('[Citations] No citations in response:', data.message);
+                            return [];
+                        } catch (error) {
+                            console.error('[Citations] Error fetching:', error);
+                            return [];
+                        }
+                    };
+
+                    // Register citation completion provider
+                    monaco.languages.registerCompletionItemProvider('latex', {
+                        triggerCharacters: ['{', '\\'],  // Trigger on { or \ for better UX
+                        provideCompletionItems: async (model: any, position: any) => {
+                            const lineContent = model.getLineContent(position.lineNumber);
+                            const beforeCursor = lineContent.substring(0, position.column - 1);
+
+                            console.log('[Citations] Triggered at:', beforeCursor.slice(-20));
+
+                            // Check for \cite or \cite{ context (with or without {)
+                            // Matches: \cite, \citep, \citet, \cite{, \citep{, \citet{
+                            const citeMatch = beforeCursor.match(/\\cite([tp])?\{?([^}]*)$/);
+                            if (!citeMatch) {
+                                return { suggestions: [] };
+                            }
+
+                            console.log('[Citations] In \\cite context!');
+
+                            const citations = await fetchCitations();
+                            if (citations.length === 0) {
+                                console.warn('[Citations] No citations available - showing guideline');
+                                // Show helpful guideline when no citations found
+                                return {
+                                    suggestions: [{
+                                        label: '📚 No citations available yet',
+                                        kind: monaco.languages.CompletionItemKind.Text,
+                                        detail: 'Upload BibTeX files to enable citation autocomplete',
+                                        documentation: {
+                                            value: 'To add citations:\n\n' +
+                                                   '1. Go to Scholar app (/scholar/bibtex/)\n' +
+                                                   '2. Upload your .bib file\n' +
+                                                   '3. Save to this project\n' +
+                                                   '4. Citations will appear here automatically\n\n' +
+                                                   'Or manually add .bib files to:\n' +
+                                                   '• scitex/scholar/bib_files/\n' +
+                                                   '• scitex/writer/bib_files/',
+                                            isTrusted: true,
+                                            supportHtml: false
+                                        },
+                                        insertText: '',
+                                        range: {
+                                            startLineNumber: position.lineNumber,
+                                            startColumn: position.column,
+                                            endLineNumber: position.lineNumber,
+                                            endColumn: position.column
+                                        }
+                                    }]
+                                };
+                            }
+
+                            const currentWord = citeMatch[2] || '';  // Changed from citeMatch[1] to citeMatch[2] due to new regex groups
+
+                            // Fuzzy search across multiple fields
+                            const suggestions = citations
+                                .filter((cite: any) => {
+                                    if (!currentWord) return true;
+                                    const searchTerm = currentWord.toLowerCase();
+
+                                    // Search in citation key
+                                    if (cite.key.toLowerCase().includes(searchTerm)) return true;
+
+                                    // Search in title
+                                    if (cite.title && cite.title.toLowerCase().includes(searchTerm)) return true;
+
+                                    // Search in authors
+                                    if (cite.authors && Array.isArray(cite.authors)) {
+                                        if (cite.authors.some((author: string) => author.toLowerCase().includes(searchTerm))) return true;
+                                    }
+
+                                    // Search in journal
+                                    if (cite.journal && cite.journal.toLowerCase().includes(searchTerm)) return true;
+
+                                    // Search in abstract
+                                    if (cite.abstract && cite.abstract.toLowerCase().includes(searchTerm)) return true;
+
+                                    return false;
+                                })
+                                .map((cite: any) => {
+                                    // Create MULTI-LINE detail showing all metadata on separate lines
+                                    let detailLines = [];
+
+                                    // Line 1: Author and Year
+                                    if (cite.detail) {
+                                        detailLines.push(cite.detail);
+                                    }
+
+                                    // Line 2: Title (truncated to 100 chars)
+                                    if (cite.title) {
+                                        const titlePreview = cite.title.length > 100 ? cite.title.substring(0, 100) + '...' : cite.title;
+                                        detailLines.push(`📄 ${titlePreview}`);
+                                    }
+
+                                    // Line 3: Journal with IF and Citation Count
+                                    let metricsLine = [];
+                                    if (cite.journal) {
+                                        let journalPart = cite.journal;
+                                        if (cite.impact_factor) {
+                                            journalPart += ` (IF: ${cite.impact_factor})`;
+                                        }
+                                        metricsLine.push(`📖 ${journalPart}`);
+                                    }
+                                    if (cite.citation_count && cite.citation_count > 0) {
+                                        metricsLine.push(`📊 ${cite.citation_count} citations`);
+                                    }
+                                    if (metricsLine.length > 0) {
+                                        detailLines.push(metricsLine.join('  •  '));
+                                    }
+
+                                    // Combine all lines with newlines for multi-line display
+                                    const detailLine = detailLines.join('\n');
+
+                                    // Sort by citation count (higher first), then alphabetically
+                                    const sortPrefix = String(1000000 - (cite.citation_count || 0)).padStart(7, '0');
+
+                                    // Build completion item with rich inline metadata
+                                    const completionItem: any = {
+                                        label: cite.key,
+                                        kind: monaco.languages.CompletionItemKind.Reference,
+                                        detail: detailLine,  // All metadata visible inline
+                                        documentation: {
+                                            value: cite.documentation || '',
+                                            isTrusted: false,
+                                            supportHtml: false
+                                        },
+                                        insertText: beforeCursor.endsWith('{') ? cite.key + '}' : `{${cite.key}}`,  // Smart brace handling
+                                        sortText: sortPrefix + cite.key,
+                                        filterText: `${cite.key} ${cite.title || ''} ${cite.journal || ''} ${(cite.authors || []).join(' ')}`,
+                                        range: {
+                                            startLineNumber: position.lineNumber,
+                                            startColumn: position.column - currentWord.length,
+                                            endLineNumber: position.lineNumber,
+                                            endColumn: position.column
+                                        }
+                                    };
+
+                                    // Add command to show additional info on hover
+                                    completionItem.additionalTextEdits = [];
+
+                                    return completionItem;
+                                });
+
+                            console.log(`[Citations] Returning ${suggestions.length} suggestions`);
+                            return { suggestions };
+                        }
+                    });
+
+                    console.log('[Citations] Citation completion provider registered');
+
+                    // ============================================================
+                    // HOVER PROVIDER: Show rich citation info when hovering over \cite{key}
+                    // ============================================================
+                    console.log('[Citations] Registering hover provider...');
+
+                    monaco.languages.registerHoverProvider('latex', {
+                        provideHover: async (model: any, position: any) => {
+                            const lineContent = model.getLineContent(position.lineNumber);
+                            const word = model.getWordAtPosition(position);
+
+                            if (!word) return null;
+
+                            // Check if we're hovering over a citation key inside \cite{}
+                            const beforeWord = lineContent.substring(0, position.column - 1);
+                            const afterWord = lineContent.substring(position.column - 1);
+
+                            // Match: \cite{WORD} or \citep{WORD} or \citet{WORD}
+                            const beforeMatch = beforeWord.match(/\\cite[tp]?\{([^}]*)$/);
+                            const afterMatch = afterWord.match(/^([^}]*)\}/);
+
+                            if (!beforeMatch && !afterMatch) return null;
+
+                            // Get the citation key under cursor
+                            const citationKey = word.word;
+                            console.log('[Citations] Hovering over citation key:', citationKey);
+
+                            // Fetch citations and find matching key
+                            const citations = await fetchCitations();
+                            const citation = citations.find((c: any) => c.key === citationKey);
+
+                            if (!citation) {
+                                console.log('[Citations] Key not found in bibliography:', citationKey);
+                                return null;
+                            }
+
+                            console.log('[Citations] Found citation for hover:', citation.key);
+
+                            // Return rich hover content
+                            return {
+                                contents: [
+                                    { value: `**${citation.key}**` },
+                                    { value: citation.documentation || '' }
+                                ]
+                            };
+                        }
+                    });
+
+                    console.log('[Citations] Hover provider registered');
+
                 } else {
                     console.log('[Monaco] LaTeX language already registered, skipping');
                 }
@@ -219,6 +498,7 @@ export class EnhancedEditor {
                     suggestOnTriggerCharacters: true,
                     quickSuggestions: true,
                     wordBasedSuggestions: false,
+                    fixedOverflowWidgets: true,  // CRITICAL: Render widgets in body to prevent clipping
                     scrollbar: {
                         vertical: 'visible',
                         horizontal: 'visible',
@@ -273,6 +553,19 @@ export class EnhancedEditor {
             if (this.onChangeCallback) {
                 this.onChangeCallback(content, wordCount);
             }
+        });
+
+        // Save cursor position on cursor changes (debounced)
+        let cursorSaveTimeout: number | undefined;
+        this.monacoEditor.onDidChangeCursorPosition(() => {
+            if (cursorSaveTimeout) {
+                clearTimeout(cursorSaveTimeout);
+            }
+            cursorSaveTimeout = window.setTimeout(() => {
+                if (this.currentSectionId) {
+                    this.saveCursorPosition(this.currentSectionId);
+                }
+            }, 500); // Debounce by 500ms
         });
 
         // Add custom comment toggle action (Ctrl+/ or Cmd+/)
@@ -592,6 +885,90 @@ export class EnhancedEditor {
             if (cmEditor) {
                 cmEditor.setOption('keyMap', mode);
             }
+        }
+    }
+
+    /**
+     * Save cursor position for a section (like Emacs save-place)
+     */
+    private saveCursorPosition(sectionId: string): void {
+        if (!this.monacoEditor || !sectionId) return;
+
+        const position = this.monacoEditor.getPosition();
+        const content = this.monacoEditor.getValue();
+        const contentHash = this.generateHash(content);
+
+        const cursorData = {
+            lineNumber: position.lineNumber,
+            column: position.column,
+            contentHash: contentHash,
+            timestamp: Date.now()
+        };
+
+        this.storage.save(`cursor_${sectionId}`, cursorData);
+        console.log(`[Editor] Saved cursor position for ${sectionId}:`, cursorData.lineNumber, ':', cursorData.column);
+    }
+
+    /**
+     * Restore cursor position for a section if content hash matches
+     */
+    private restoreCursorPosition(sectionId: string, content: string): void {
+        if (!this.monacoEditor || !sectionId) return;
+
+        const savedData = this.storage.load<any>(`cursor_${sectionId}`);
+        if (!savedData) {
+            console.log(`[Editor] No saved cursor position for ${sectionId}`);
+            return;
+        }
+
+        const currentHash = this.generateHash(content);
+        if (savedData.contentHash !== currentHash) {
+            console.log(`[Editor] Content changed for ${sectionId}, not restoring cursor (hash mismatch)`);
+            return;
+        }
+
+        // Restore cursor position
+        const position = {
+            lineNumber: savedData.lineNumber,
+            column: savedData.column
+        };
+
+        // Use setTimeout to ensure editor is fully rendered
+        setTimeout(() => {
+            this.monacoEditor.setPosition(position);
+            this.monacoEditor.revealPositionInCenter(position);
+            this.monacoEditor.focus();  // Activate cursor automatically
+            console.log(`[Editor] Restored cursor position for ${sectionId}:`, position.lineNumber, ':', position.column);
+        }, 50);
+    }
+
+    /**
+     * Set content with optional section ID for cursor position management
+     */
+    setContentForSection(sectionId: string, content: string): void {
+        // Save cursor position for current section before switching
+        if (this.currentSectionId && this.currentSectionId !== sectionId) {
+            this.saveCursorPosition(this.currentSectionId);
+        }
+
+        // Update current section
+        this.currentSectionId = sectionId;
+
+        // Set content
+        this.setContent(content);
+
+        // Restore cursor position for new section
+        const savedData = this.storage.load<any>(`cursor_${sectionId}`);
+        if (savedData) {
+            this.restoreCursorPosition(sectionId, content);
+        } else {
+            // No saved cursor position, just focus the editor
+            setTimeout(() => {
+                if (this.monacoEditor) {
+                    this.monacoEditor.focus();
+                    console.log(`[Editor] No saved cursor for ${sectionId}, focused editor at start`);
+                }
+            }, 50);
         }
     }
 }
