@@ -782,3 +782,7 @@ static/js/**/*
 **/*.d.ts
 **/*.js.map
 **/*.d.ts.map
+
+# TypeScript compiled outputs in ts/ directories (sibling to .ts sources)
+**/ts/**/*.js
+!**/ts/**/*.test.js
