@@ -285,6 +285,16 @@ interface BranchSwitchResponse {
         const codeBlock = document.getElementById('code-content') as HTMLElement | null;
         if (codeBlock) {
             originalCodeContent = codeBlock.textContent;
+
+            // Set data-language attribute on pre element for CSS label
+            const classMatch = codeBlock.className.match(/language-(\w+)/);
+            if (classMatch && classMatch[1]) {
+                const language = classMatch[1];
+                const preElement = codeBlock.parentElement as HTMLPreElement | null;
+                if (preElement && preElement.tagName === 'PRE') {
+                    preElement.setAttribute('data-language', language);
+                }
+            }
         }
 
         // Load preferences from database

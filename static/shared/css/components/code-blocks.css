@@ -329,6 +329,22 @@ pre[data-language="diff"]::before {
   content: "diff";
 }
 
+pre[data-language="bibtex"]::before {
+  content: "bibtex";
+}
+
+pre[data-language="bib"]::before {
+  content: "bibtex";
+}
+
+pre[data-language="latex"]::before {
+  content: "latex";
+}
+
+pre[data-language="tex"]::before {
+  content: "latex";
+}
+
 /* =========================================
    DARK MODE STYLING
    ========================================= */
