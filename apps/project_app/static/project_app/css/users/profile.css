@@ -248,11 +248,31 @@ body {
     padding: 0.25rem 1.5rem 1rem 1.5rem;
     background: var(--bg-surface);
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    position: relative;  /* For clickable overlay */
 }
 
 .repo-item:hover {
     border-color: var(--primary-color, #007acc);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    cursor: pointer;  /* Show clickable cursor */
+}
+
+/* Make entire card clickable via invisible overlay link */
+.repo-item-link {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+    text-decoration: none;
+}
+
+/* Ensure buttons stay above the overlay */
+.repo-item button,
+.repo-item .btn {
+    position: relative;
+    z-index: 2;
 }
 
 .repo-header {
