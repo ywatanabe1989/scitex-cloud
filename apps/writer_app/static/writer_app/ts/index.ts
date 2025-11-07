@@ -2193,6 +2193,33 @@ function showCompilationError(errorMessage: string, errorDetails: string = ''): 
 
 // Export functions to global scope for ES6 module compatibility
 (window as any).populateSectionDropdownDirect = populateSectionDropdownDirect;
+
+/**
+ * Handle download full PDF
+ */
+(window as any).handleDownloadFullPDF = function(event: Event): void {
+    event.preventDefault();
+
+    const config = getWriterConfig();
+    if (!config.projectId) {
+        showToast('No project selected', 'error');
+        return;
+    }
+
+    // Download the compiled manuscript PDF
+    const pdfUrl = `/writer/api/project/${config.projectId}/pdf/?doc_type=manuscript`;
+    const filename = `${config.projectName || 'manuscript'}.pdf`;
+
+    // Create temporary link and trigger download
+    const link = document.createElement('a');
+    link.href = pdfUrl;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    showToast(`Downloading ${filename}...`, 'success');
+};
 (window as any).switchRightPanel = switchRightPanel;
 (window as any).showCompilationProgress = showCompilationProgress;
 (window as any).hideCompilationProgress = hideCompilationProgress;
