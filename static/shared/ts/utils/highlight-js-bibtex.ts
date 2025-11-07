@@ -77,38 +77,75 @@ interface LanguageDefinition {
 
                     // Entry types: @article, @book, @inproceedings, etc.
                     {
-                        className: 'meta',
+                        className: 'keyword',
                         begin: '@[a-zA-Z]+',
                         relevance: 10
                     },
 
+                    // Citation keys: the identifier after @article{HERE,
+                    {
+                        className: 'title',
+                        begin: /\{/,
+                        end: /,/,
+                        excludeBegin: true,
+                        excludeEnd: true,
+                        relevance: 8
+                    },
+
                     // Field names: author=, title=, year=, etc.
                     {
-                        className: 'attr',
-                        begin: '[a-zA-Z_]+\\s*=',
-                        returnBegin: true,
+                        className: 'attribute',
+                        begin: /\b[a-zA-Z_][a-zA-Z0-9_]*\s*=/,
+                        end: /=/,
+                        excludeEnd: true,
+                        relevance: 5
+                    },
+
+                    // Braced strings: {value}
+                    {
+                        className: 'string',
+                        begin: /\{/,
+                        end: /\}/,
                         contains: [
-                            {
-                                className: 'attr',
-                                begin: '[a-zA-Z_]+'
-                            }
+                            { begin: /\{\{/, end: /\}\}/ },  // Nested braces
+                            { begin: /\\[a-zA-Z]+/, className: 'subst' }  // LaTeX commands
                         ]
                     },
 
-                    // Quoted strings: "value" or {value}
-                    hljs.QUOTE_STRING_MODE,
+                    // Quoted strings: "value"
+                    {
+                        className: 'string',
+                        begin: /"/,
+                        end: /"/,
+                        contains: [
+                            { begin: /\\"/ },  // Escaped quotes
+                            { begin: /\\[a-zA-Z]+/, className: 'subst' }  // LaTeX commands
+                        ]
+                    },
 
-                    // Numbers
-                    hljs.C_NUMBER_MODE
+                    // Numbers (years, pages, etc.)
+                    {
+                        className: 'number',
+                        begin: /\b\d+\b/
+                    }
                 ]
             };
         });
 
         console.log('[BibTeX] ✓ Language successfully registered with Highlight.js');
+
+        // Re-highlight any code blocks that were already processed
+        document.querySelectorAll('code.language-bibtex').forEach((block) => {
+            if (window.hljs) {
+                console.log('[BibTeX] Re-highlighting code block');
+                window.hljs.highlightElement(block as HTMLElement);
+                // Apply line numbers if available
+                if (window.hljs.lineNumbersBlock) {
+                    window.hljs.lineNumbersBlock(block as HTMLElement);
+                }
+            }
+        });
     } catch (err) {
         console.error('[BibTeX] ✗ Failed to register language:', err);
     }
 })();
-
-// Export empty object to make this a valid module
-export {};
