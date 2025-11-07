@@ -387,7 +387,10 @@ function pollBibtexJobStatus(jobId: string, attempts: number = 0): void {
                     });
 
                 // Auto-download the enriched file
-                autoDownloadBibtexFile(downloadUrl);
+                autoDownloadBibtexFile(downloadUrl).catch((error: Error) => {
+                    console.error('[Auto-Download on Complete] Failed:', error);
+                    // Error alert already shown in autoDownloadBibtexFile
+                });
             } else if (data.status === 'failed') {
                 console.log('[BibTeX] Job failed:', data.error_message);
                 const log = document.getElementById('processingLog') as HTMLElement | null;
@@ -413,57 +416,104 @@ function pollBibtexJobStatus(jobId: string, attempts: number = 0): void {
 }
 
 /**
+ * Handle download button click
+ */
+(window as any).handleDownload = async function(): Promise<void> {
+    const downloadBtn = document.getElementById('downloadBtn') as HTMLButtonElement;
+    if (!downloadBtn) return;
+
+    // Get download URL from button's onclick that was set during enrichment
+    const jobId = window.currentBibtexJobId;
+    if (!jobId) {
+        showAlert('⚠ No enriched file available yet. Please wait for enrichment to complete.', 'warning');
+        return;
+    }
+
+    const downloadUrl = `/scholar/api/bibtex/job/${jobId}/download/`;
+
+    // Add loading state
+    const originalHTML = downloadBtn.innerHTML;
+    downloadBtn.disabled = true;
+    downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Downloading...';
+    downloadBtn.style.opacity = '0.7';
+
+    try {
+        await autoDownloadBibtexFile(downloadUrl);
+        // Success alert is shown in autoDownloadBibtexFile
+    } catch (error) {
+        console.error('[Handle Download] Error:', error);
+        showAlert('❌ Failed to download enriched BibTeX file. Please try again.', 'error');
+    } finally {
+        // Restore button state
+        downloadBtn.disabled = false;
+        downloadBtn.innerHTML = originalHTML;
+        downloadBtn.style.opacity = '1';
+    }
+};
+
+/**
  * Auto-download BibTeX file when enrichment completes
  */
-function autoDownloadBibtexFile(url: string): void {
+async function autoDownloadBibtexFile(url: string): Promise<void> {
     console.log('[Auto-Download] Starting download for:', url);
 
-    fetch(url)
-        .then(response => {
-            console.log('[Auto-Download] Response status:', response.status);
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
-            }
+    try {
+        const response = await fetch(url);
+        console.log('[Auto-Download] Response status:', response.status);
 
-            // Extract filename from headers
-            let filename = 'enriched_bibliography.bib';
-            const contentDisposition = response.headers.get('Content-Disposition');
-            if (contentDisposition) {
-                const match = contentDisposition.match(/filename="?(.+?)"?$/);
-                if (match) filename = match[1];
-            }
-            console.log('[Auto-Download] Filename:', filename);
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
 
-            return response.blob().then(blob => ({ blob, filename }));
-        })
-        .then(({ blob, filename }) => {
-            console.log('[Auto-Download] Creating download link...');
-            const blobUrl = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = blobUrl;
-            a.download = filename;
-            a.style.display = 'none';
-            document.body.appendChild(a);
-            a.click();
+        // Extract filename from headers
+        let filename = 'enriched_bibliography.bib';
+        const contentDisposition = response.headers.get('Content-Disposition');
+        if (contentDisposition) {
+            const match = contentDisposition.match(/filename="?(.+?)"?$/);
+            if (match) filename = match[1];
+        }
+        console.log('[Auto-Download] Filename:', filename);
 
-            setTimeout(() => {
-                document.body.removeChild(a);
-                window.URL.revokeObjectURL(blobUrl);
-                console.log('[Auto-Download] ✓ Download completed');
-            }, 100);
-        })
-        .catch((error: Error) => {
-            console.error('[Auto-Download] ✗ Failed:', error);
-            console.log('[Auto-Download] Trying fallback method...');
+        const blob = await response.blob();
+        const fileSizeMB = (blob.size / (1024 * 1024)).toFixed(2);
 
-            // Fallback: direct link
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'enriched_bibliography.bib';
-            document.body.appendChild(a);
-            a.click();
-            setTimeout(() => document.body.removeChild(a), 100);
-        });
+        console.log('[Auto-Download] Creating download link...');
+        const blobUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = filename;
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+
+        setTimeout(() => {
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(blobUrl);
+            console.log('[Auto-Download] ✓ Download completed');
+        }, 100);
+
+        // Show success alert with filename and size
+        showAlert(
+            `✅ <strong>Download started!</strong><br><br>` +
+            `📄 File: <code>${filename}</code><br>` +
+            `📦 Size: ${fileSizeMB} MB<br><br>` +
+            `Check your browser's download folder.`,
+            'success'
+        );
+
+    } catch (error: any) {
+        console.error('[Auto-Download] ✗ Failed:', error);
+
+        // Show error alert with details
+        showAlert(
+            `❌ <strong>Download failed</strong><br><br>` +
+            `${error.message || 'Unknown error occurred'}<br><br>` +
+            `Please try again or contact support if the problem persists.`,
+            'error'
+        );
+
+        throw error; // Re-throw so handleDownload can catch it
+    }
 }
 
 /**
@@ -710,27 +760,83 @@ async function loadRecentJobs(): Promise<void> {
  */
 function renderRecentJobs(jobs: RecentJob[], container: HTMLElement): void {
     container.innerHTML = jobs.map(job => {
-        const statusBadge = getStatusBadge(job.status);
-        const createdDate = job.created_at ? new Date(job.created_at).toLocaleDateString() : 'Unknown';
+        const statusBadgeData = getStatusBadgeData(job.status);
         const jobUrl = `/scholar/bibtex/job/${job.id}/`;
+        const downloadUrl = `/scholar/bibtex/job/${job.id}/download/`;
 
         return `
-            <div class="recent-job-card" style="min-width: 200px; padding: 1rem; border: 1px solid var(--color-border-default); border-radius: 6px; background: var(--color-canvas-subtle); cursor: pointer; transition: all 0.2s ease;" onclick="window.location.href='${jobUrl}'">
-                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
-                    <div style="font-weight: 600; color: var(--color-fg-default); font-size: 0.9rem; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${job.original_filename}">
+            <div class="recent-job-card" style="position: relative; min-width: 160px; max-width: 180px; padding: 0.75rem; border: 1px solid var(--color-border-default); border-radius: 6px; background: var(--color-canvas-subtle); transition: all 0.2s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.12); display: flex; flex-direction: column; gap: 0.6rem;">
+
+                <!-- Close button -->
+                <button onclick="event.stopPropagation(); deleteJob('${job.id}')"
+                        style="position: absolute; top: 0.4rem; right: 0.4rem; background: none; border: none; color: var(--color-fg-muted); cursor: pointer; padding: 3px; border-radius: 3px; font-size: 0.75rem; line-height: 1; transition: all 0.2s; z-index: 10;"
+                        onmouseover="this.style.background='var(--color-danger-subtle)'; this.style.color='var(--color-danger-fg)';"
+                        onmouseout="this.style.background='none'; this.style.color='var(--color-fg-muted)';"
+                        title="Delete job">
+                    <i class="fas fa-times"></i>
+                </button>
+
+                <!-- Filename with icon -->
+                <div style="display: flex; align-items: center; gap: 0.4rem; padding-right: 1.2rem; cursor: pointer;" onclick="window.location.href='${jobUrl}'">
+                    <i class="fas fa-check-circle" style="color: var(--scitex-color-03); font-size: 0.85rem;"></i>
+                    <div style="font-weight: 500; color: var(--color-fg-default); font-size: 0.8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;" title="${job.original_filename}">
                         ${job.original_filename}
                     </div>
-                    ${statusBadge}
                 </div>
-                <div style="font-size: 0.75rem; color: var(--color-fg-muted); margin-bottom: 0.5rem;">
+
+                <!-- Paper count -->
+                <div style="font-size: 0.7rem; color: var(--color-fg-muted); cursor: pointer;" onclick="window.location.href='${jobUrl}'">
                     ${job.total_papers || 0} papers
                 </div>
-                <div style="font-size: 0.7rem; color: var(--color-fg-muted);">
-                    ${createdDate}
+
+                <!-- Status Badge -->
+                <div style="display: flex; justify-content: center; cursor: pointer;" onclick="window.location.href='${jobUrl}'">
+                    <span style="display: inline-block; padding: 0.25rem 0.6rem; border-radius: 4px; font-size: 0.7rem; font-weight: 600; background: ${statusBadgeData.bgColor}; color: ${statusBadgeData.textColor};">
+                        ${statusBadgeData.text}
+                    </span>
                 </div>
-                ${job.progress_percentage !== undefined && job.status === 'processing' ? `
-                    <div style="margin-top: 0.5rem; background: var(--color-border-default); height: 4px; border-radius: 2px; overflow: hidden;">
+
+                <!-- Progress bar (if processing) -->
+                ${job.status === 'processing' && job.progress_percentage !== undefined ? `
+                    <div style="background: var(--color-border-default); height: 3px; border-radius: 2px; overflow: hidden;">
                         <div style="height: 100%; background: var(--scitex-color-03); width: ${job.progress_percentage}%; transition: width 0.3s ease;"></div>
+                    </div>
+                ` : ''}
+
+                <!-- Action buttons -->
+                ${job.status === 'completed' ? `
+                    <div style="display: flex; gap: 0.4rem; margin-top: auto;">
+                        <!-- Save button -->
+                        <button onclick="event.stopPropagation(); saveJobToProject('${job.id}')"
+                                style="flex: 1; padding: 0.4rem; background: #d4a373; border: none; border-radius: 4px; color: white; font-size: 0.7rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.3rem;"
+                                onmouseover="this.style.background='#c49363';"
+                                onmouseout="this.style.background='#d4a373';"
+                                title="Save to project">
+                            <i class="fas fa-save" style="font-size: 0.7rem;"></i>
+                        </button>
+
+                        <!-- Download button -->
+                        <button onclick="event.stopPropagation(); window.location.href='${downloadUrl}'"
+                                style="flex: 1; padding: 0.4rem; background: #2ea043; border: none; border-radius: 4px; color: white; font-size: 0.7rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.3rem;"
+                                onmouseover="this.style.background='#2c974b';"
+                                onmouseout="this.style.background='#2ea043';"
+                                title="Download enriched BibTeX">
+                            <i class="fas fa-download" style="font-size: 0.7rem;"></i>
+                        </button>
+                    </div>
+                ` : ''}
+
+                <!-- Disabled buttons for non-completed jobs -->
+                ${job.status !== 'completed' ? `
+                    <div style="display: flex; gap: 0.4rem; margin-top: auto;">
+                        <button disabled
+                                style="flex: 1; padding: 0.4rem; background: var(--color-neutral-muted); border: none; border-radius: 4px; color: var(--color-fg-muted); font-size: 0.7rem; cursor: not-allowed; display: flex; align-items: center; justify-content: center; gap: 0.3rem; opacity: 0.5;">
+                            <i class="fas fa-save" style="font-size: 0.7rem;"></i>
+                        </button>
+                        <button disabled
+                                style="flex: 1; padding: 0.4rem; background: var(--color-neutral-muted); border: none; border-radius: 4px; color: var(--color-fg-muted); font-size: 0.7rem; cursor: not-allowed; display: flex; align-items: center; justify-content: center; gap: 0.3rem; opacity: 0.5;">
+                            <i class="fas fa-download" style="font-size: 0.7rem;"></i>
+                        </button>
                     </div>
                 ` : ''}
             </div>
@@ -739,20 +845,230 @@ function renderRecentJobs(jobs: RecentJob[], container: HTMLElement): void {
 }
 
 /**
- * Get status badge HTML
+ * Get status badge styling data
  */
-function getStatusBadge(status: string): string {
-    const badges: { [key: string]: { text: string; color: string } } = {
-        'completed': { text: '✓', color: 'var(--scitex-color-03)' },
-        'processing': { text: '⋯', color: 'var(--scitex-color-04)' },
-        'failed': { text: '✗', color: 'var(--color-danger-fg)' },
-        'pending': { text: '○', color: 'var(--color-fg-muted)' },
-        'cancelled': { text: '✗', color: 'var(--color-fg-muted)' }
+function getStatusBadgeData(status: string): { text: string; bgColor: string; textColor: string } {
+    const badges: { [key: string]: { text: string; bgColor: string; textColor: string } } = {
+        'completed': {
+            text: 'Completed',
+            bgColor: 'var(--scitex-color-03)',
+            textColor: 'white'
+        },
+        'processing': {
+            text: 'Processing',
+            bgColor: 'var(--scitex-color-04)',
+            textColor: 'var(--color-fg-default)'
+        },
+        'failed': {
+            text: 'Failed',
+            bgColor: 'var(--color-danger-emphasis)',
+            textColor: 'white'
+        },
+        'pending': {
+            text: 'Pending',
+            bgColor: 'var(--color-neutral-muted)',
+            textColor: 'var(--color-fg-default)'
+        },
+        'cancelled': {
+            text: 'Cancelled',
+            bgColor: 'var(--color-danger-subtle)',
+            textColor: 'var(--color-danger-fg)'
+        }
     };
 
-    const badge = badges[status] || badges['pending'];
-    return `<div style="font-size: 1.2rem; color: ${badge.color}; font-weight: bold;">${badge.text}</div>`;
+    return badges[status] || badges['pending'];
 }
+
+/**
+ * Delete a job (placeholder function - implement with API call)
+ */
+(window as any).deleteJob = async function(jobId: string): Promise<void> {
+    if (!confirm('Are you sure you want to delete this job?')) {
+        return;
+    }
+
+    try {
+        const csrfToken = (document.querySelector('[name=csrfmiddlewaretoken]') as HTMLInputElement)?.value;
+        const response = await fetch(`/scholar/api/bibtex/job/${jobId}/delete/`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.ok) {
+            // Reload recent jobs
+            await loadRecentJobs();
+        } else {
+            alert('Failed to delete job');
+        }
+    } catch (error) {
+        console.error('Error deleting job:', error);
+        alert('Failed to delete job');
+    }
+};
+
+/**
+ * Show alert banner at top of page
+ */
+function showAlert(message: string, type: 'success' | 'error' | 'warning' | 'info' = 'success'): void {
+    // Remove any existing alerts
+    const existingAlerts = document.querySelectorAll('.scholar-alert');
+    existingAlerts.forEach(alert => alert.remove());
+
+    // Create alert element
+    const alert = document.createElement('div');
+    alert.className = `scholar-alert scholar-alert-${type}`;
+    alert.style.cssText = `
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 10000;
+        background: ${type === 'success' ? 'var(--success-color)' : type === 'error' ? 'var(--error-color)' : type === 'warning' ? 'var(--warning-color)' : 'var(--info-color)'};
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        min-width: 300px;
+        max-width: 600px;
+        animation: slideDown 0.3s ease-out;
+    `;
+
+    const icon = type === 'success' ? 'check-circle' :
+                 type === 'error' ? 'times-circle' :
+                 type === 'warning' ? 'exclamation-triangle' : 'info-circle';
+
+    alert.innerHTML = `
+        <i class="fas fa-${icon}" style="font-size: 1.5rem; flex-shrink: 0;"></i>
+        <div style="flex: 1; line-height: 1.6;">${message}</div>
+        <button onclick="this.parentElement.remove()" style="background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; padding: 0; line-height: 1; flex-shrink: 0;">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+
+    // Add animation keyframes if not already added
+    if (!document.getElementById('alert-animation-styles')) {
+        const style = document.createElement('style');
+        style.id = 'alert-animation-styles';
+        style.textContent = `
+            @keyframes slideDown {
+                from {
+                    transform: translateX(-50%) translateY(-100px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(-50%) translateY(0);
+                    opacity: 1;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    document.body.appendChild(alert);
+
+    // Don't auto-remove - let user close it manually
+}
+
+/**
+ * Handle save to project button click
+ */
+(window as any).handleSaveToProject = async function(): Promise<void> {
+    // Get the button and add loading state
+    const saveBtn = document.getElementById('saveToProjectBtn') as HTMLButtonElement;
+    if (!saveBtn) return;
+
+    // Store original button content
+    const originalHTML = saveBtn.innerHTML;
+
+    // Set loading state
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+    saveBtn.style.opacity = '0.7';
+
+    try {
+        // Get current job ID from the global state
+        const jobId = window.currentBibtexJobId;
+        if (!jobId) {
+            throw new Error('No job ID found');
+        }
+
+        await saveJobToProject(jobId);
+    } catch (error) {
+        console.error('[Handle Save] Error:', error);
+        showAlert('Failed to save to project. Please try again.', 'error');
+    } finally {
+        // Restore button state
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = originalHTML;
+        saveBtn.style.opacity = '1';
+    }
+};
+
+/**
+ * Save a job to the current/default project
+ */
+(window as any).saveJobToProject = async function(jobId: string): Promise<void> {
+    console.log('[Save to Project] Job ID:', jobId);
+
+    // Get current project ID from hidden input or use default
+    const projectInput = document.getElementById('projectSelector') as HTMLInputElement;
+    const projectId = projectInput?.value;
+
+    console.log('[Save to Project] Project ID:', projectId);
+
+    if (!projectId) {
+        showAlert('⚠ No project selected. Please select a project first.', 'warning');
+        return;
+    }
+
+    const csrfToken = (document.querySelector('[name=csrfmiddlewaretoken]') as HTMLInputElement)?.value;
+    console.log('[Save to Project] CSRF Token:', csrfToken ? 'Present' : 'Missing');
+
+    const response = await fetch(`/scholar/api/bibtex/job/${jobId}/save-to-project/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken,
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: `project_id=${encodeURIComponent(projectId)}`
+    });
+
+    console.log('[Save to Project] Response status:', response.status);
+
+    const data = await response.json();
+    console.log('[Save to Project] Response data:', data);
+
+    if (response.ok && data.success) {
+        const projectName = data.project || 'project';
+
+        // Build detailed success message with file paths
+        let message = `✓ Successfully saved to <strong>${projectName}</strong>`;
+
+        if (data.paths) {
+            message += '<br><br><strong>Files saved:</strong><br>';
+            if (data.paths.enriched) {
+                message += `📄 <code>${data.paths.enriched}</code><br>`;
+            }
+            if (data.paths.merged && data.committed) {
+                message += `📚 <code>${data.paths.merged}</code> (merged bibliography)`;
+            }
+        }
+
+        if (data.committed) {
+            message += '<br><br>✅ Auto-committed to Git repository';
+        }
+
+        showAlert(message, 'success');
+    } else {
+        showAlert(`❌ Failed to save to project: ${data.error || 'Unknown error'}`, 'error');
+    }
+};
 
 // Initialize on DOM ready
 document.addEventListener('DOMContentLoaded', function() {

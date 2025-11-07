@@ -1,3 +1,152 @@
+  /* ============================================================ */
+  /* Monaco Editor - FORCE SUGGESTIONS TO OVERLAY EVERYTHING */
+  /* ============================================================ */
+
+  /* Lower z-index of dev tooltips and browser overlays */
+  div[class*="panel-resizer"]::before,
+  div[class*="panel-resizer"]::after,
+  .panel-resizer::before,
+  .panel-resizer::after {
+    z-index: 1 !important;
+  }
+
+  /* Suggestion widget - WIDE (1400px) to fit 1920×1080 displays */
+  .monaco-editor .suggest-widget,
+  .monaco-editor .editor-widget.suggest-widget,
+  .suggest-widget,
+  .editor-widget.suggest-widget {
+    z-index: 999999 !important;
+    min-width: 1200px !important;
+    max-width: 1400px !important;
+    width: 1400px !important;
+  }
+
+  /* Make suggestion items MUCH TALLER for multi-line metadata display */
+  .monaco-editor .suggest-widget .monaco-list .monaco-list-row {
+    height: auto !important;
+    min-height: 90px !important;  /* Increased for 3-line display */
+    padding: 8px 4px !important;
+    line-height: 1.5 !important;
+  }
+
+  /* Increase width of suggestion item content area */
+  .monaco-editor .suggest-widget .monaco-list .monaco-list-row .suggest-icon,
+  .monaco-editor .suggest-widget .monaco-list .monaco-list-row > .contents {
+    width: 100% !important;
+  }
+
+  /* Make label and detail text wrap for multi-line content */
+  .monaco-editor .suggest-widget .monaco-list .monaco-list-row .monaco-highlighted-label,
+  .monaco-editor .suggest-widget .monaco-list .monaco-list-row .details-label {
+    white-space: pre-wrap !important;
+    word-wrap: break-word !important;
+    max-width: 100% !important;
+  }
+
+  /* Make the detail line multi-line and more prominent */
+  .monaco-editor .suggest-widget .monaco-list .monaco-list-row .monaco-icon-label-description-container {
+    font-size: 12px !important;
+    color: var(--vscode-editorSuggestWidget-foreground) !important;
+    opacity: 0.9 !important;
+    max-width: 1900px !important;
+    white-space: pre-wrap !important;
+    line-height: 1.6 !important;
+  }
+
+  /* Hover widget - shows when hovering over text */
+  .monaco-editor .monaco-hover,
+  .monaco-editor .monaco-hover-content,
+  .monaco-hover,
+  .monaco-hover-content {
+    z-index: 999999 !important;
+    max-width: 1000px !important;
+  }
+
+  /* Parameter hints widget */
+  .monaco-editor .parameter-hints-widget,
+  .parameter-hints-widget {
+    z-index: 999999 !important;
+  }
+
+  /* Suggestion details panel (right side popup with documentation) - Reasonable size */
+  .monaco-editor .suggest-details,
+  .monaco-editor .suggest-details-container,
+  .suggest-details,
+  .suggest-details-container {
+    z-index: 1000000 !important;
+    max-width: 800px !important;
+    min-width: 600px !important;
+    width: 700px !important;
+  }
+
+  /* FORCE details to always appear consistently to the RIGHT */
+  /* Override Monaco's automatic above/below positioning */
+  .monaco-editor .suggest-widget.docs-above,
+  .monaco-editor .suggest-widget.docs-below {
+    /* Force side-by-side layout like docs-side */
+    flex-direction: row !important;
+  }
+
+  .monaco-editor .suggest-widget.docs-above .suggest-details,
+  .monaco-editor .suggest-widget.docs-below .suggest-details {
+    position: absolute !important;
+    left: 100% !important;  /* Always position to the right of the dropdown */
+    top: 0 !important;  /* Align with top of dropdown */
+    bottom: auto !important;
+    right: auto !important;
+    margin-left: 4px !important;  /* Small gap between dropdown and details */
+  }
+
+  /* Ensure details panel doesn't go off-screen to the right */
+  .monaco-editor .suggest-details {
+    transform: none !important;
+  }
+
+  /* Show up to 20 items in the suggestion list */
+  .monaco-editor .suggest-widget .monaco-list {
+    max-height: 1800px !important;  /* 20 items × 90px = 1800px */
+  }
+
+  /* Make detail text larger and more readable */
+  .monaco-editor .suggest-details .monaco-scrollable-element {
+    font-size: 13px !important;
+    line-height: 1.6 !important;
+  }
+
+  /* ============================================================ */
+  /* ALLOW ALL CONTAINERS TO OVERFLOW FOR MONACO WIDGETS */
+  /* ============================================================ */
+
+  /* Monaco editor itself */
+  .monaco-editor,
+  #latex-editor-textarea-monaco {
+    overflow: visible !important;
+  }
+
+  /* ALL parent containers - force overflow visible */
+  .latex-panel,
+  .editor-panel,
+  .panel-content,
+  .latex-editor-container,
+  .editor-content-wrapper,
+  .split-view,
+  .split-view > *,
+  .editor-view,
+  .writer-editor,
+  .mvp-main,
+  .mvp-container,
+  div[class*="panel"],
+  div[class*="editor"] {
+    overflow: visible !important;
+  }
+
+  /* Body and html - last resort */
+  body.writer-page,
+  html.writer-page {
+    overflow-x: hidden;  /* Only hide horizontal scroll */
+    overflow-y: auto;    /* Allow vertical scroll */
+  }
+
   .mvp-container {
   height: calc(100vh - 80px);
   display: flex;

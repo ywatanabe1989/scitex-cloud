@@ -32,6 +32,7 @@ def project_create(request):
         template_type = request.POST.get("template_type", "research")
         git_url = request.POST.get("git_url", "").strip()
         init_scitex_writer = request.POST.get("init_scitex_writer") == "true"
+        init_scitex_scholar = request.POST.get("init_scitex_scholar") == "true"
 
         # Initialize directory manager for all init types
         from apps.project_app.services.project_filesystem import (
@@ -175,12 +176,7 @@ def project_create(request):
                     success = True
                     result = str(project_dir)
 
-                if success:
-                    messages.success(
-                        request,
-                        f'Project "{project.name}" created successfully!',
-                    )
-                else:
+                if not success:
                     messages.error(
                         request,
                         f"Gitea repository created but clone failed: {result}",
@@ -200,7 +196,7 @@ def project_create(request):
                         "error": f"Clone failed: {result}",
                     }
                     return render(
-                        request, "project_app/create.html", context
+                        request, "project_app/projects/create.html", context
                     )
 
             except Exception as e:
@@ -229,7 +225,7 @@ def project_create(request):
                     "error": error_msg,
                 }
                 return render(
-                    request, "project_app/create.html", context
+                    request, "project_app/projects/create.html", context
                 )
 
         elif init_type == "github":
@@ -253,19 +249,14 @@ def project_create(request):
                     "git_url": git_url,
                 }
                 return render(
-                    request, "project_app/create.html", context
+                    request, "project_app/projects/create.html", context
                 )
 
             try:
                 # Clone from Git repository directly (no Gitea needed)
                 success, error_msg = manager.clone_from_git(project, git_url)
 
-                if success:
-                    messages.success(
-                        request,
-                        f'Project "{project.name}" imported from Git repository successfully',
-                    )
-                else:
+                if not success:
                     messages.error(
                         request, f"Failed to clone repository: {error_msg}"
                     )
@@ -282,12 +273,7 @@ def project_create(request):
             success, path = manager.create_project_directory(
                 project, use_template=True, template_type=template_type
             )
-            if success:
-                messages.success(
-                    request,
-                    f'Project "{project.name}" created with {template_type} template',
-                )
-            else:
+            if not success:
                 messages.error(
                     request, f"Failed to create project with template"
                 )
@@ -314,12 +300,7 @@ def project_create(request):
 
             # Clone from Git repository
             success, error_msg = manager.clone_from_git(project, git_url)
-            if success:
-                messages.success(
-                    request,
-                    f'Project "{project.name}" created and cloned from Git repository',
-                )
-            else:
+            if not success:
                 messages.error(
                     request, f"Project created but cloning failed: {error_msg}"
                 )
@@ -329,28 +310,59 @@ def project_create(request):
             success, path = manager.create_project_directory(
                 project, use_template=False
             )
-            if success:
-                messages.success(
-                    request, f'Project "{project.name}" created successfully'
-                )
-            else:
+            if not success:
                 messages.error(request, f"Failed to create project directory")
                 project.delete()
                 return redirect("project_app:list")
 
-        # Initialize SciTeX Writer template if requested
+        # Initialize SciTeX templates if requested
+        writer_initialized = False
+        scholar_initialized = False
+
         if init_scitex_writer:
             success, writer_path = manager.initialize_scitex_writer_template(project)
             if success:
-                messages.success(
-                    request,
-                    f'SciTeX Writer template initialized at scitex/writer/'
-                )
+                writer_initialized = True
             else:
                 messages.warning(
                     request,
-                    f'Project created but SciTeX Writer template initialization failed'
+                    f'SciTeX Writer template initialization failed'
                 )
+
+        if init_scitex_scholar:
+            # Initialize Scholar structure
+            from apps.project_app.services.bibliography_manager import ensure_bibliography_structure
+
+            try:
+                project_path = manager.get_project_root_path(project)
+                if project_path:
+                    ensure_bibliography_structure(project_path)
+                    scholar_initialized = True
+            except Exception as e:
+                logger.error(f"Failed to initialize Scholar structure: {e}")
+                messages.warning(
+                    request,
+                    f'SciTeX Scholar template initialization failed'
+                )
+
+        # Show consolidated success message
+        templates_msg = []
+        if writer_initialized:
+            templates_msg.append("Writer")
+        if scholar_initialized:
+            templates_msg.append("Scholar")
+
+        if templates_msg:
+            templates_str = " and ".join(templates_msg)
+            messages.success(
+                request,
+                f'Project "{project.name}" created successfully with SciTeX {templates_str} initialized!'
+            )
+        else:
+            messages.success(
+                request,
+                f'Project "{project.name}" created successfully!'
+            )
 
         return redirect(
             "user_projects:detail",

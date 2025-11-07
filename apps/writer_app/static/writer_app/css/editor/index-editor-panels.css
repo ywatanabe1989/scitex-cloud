@@ -126,7 +126,7 @@
 .editor-content-wrapper {
     flex: 1;
     display: flex;
-    overflow: hidden;
+    overflow: visible;  /* Changed from hidden to visible to allow Monaco suggestions to overflow */
 }
 
 .split-view {
@@ -148,7 +148,7 @@
     min-width: 0;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    overflow: visible;  /* Changed from hidden to visible to allow Monaco suggestions to overflow */
 }
 
 /* Compilation Output */

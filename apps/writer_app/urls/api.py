@@ -140,6 +140,18 @@ urlpatterns = [
         api_views.presence_list_view,
         name="api-presence-list",
     ),
+    # Citations (for autocomplete)
+    path(
+        "project/<int:project_id>/citations/",
+        api_views.citations_api,
+        name="api-citations",
+    ),
+    # Bibliography regeneration
+    path(
+        "project/<int:project_id>/regenerate-bibliography/",
+        api_views.regenerate_bibliography_api,
+        name="api-regenerate-bibliography",
+    ),
 ]
 
 # EOF
