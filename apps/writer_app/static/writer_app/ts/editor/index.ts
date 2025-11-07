@@ -506,7 +506,12 @@ async function initializeEditor(config: any): Promise<void> {
     const currentSection = state.currentSection || 'manuscript/compiled_pdf';
     const content = sectionsManager.getContent(currentSection);
     if (editor && content) {
-        editor.setContent(content);
+        // Use setContentForSection to restore cursor position and auto-focus
+        if (typeof (editor as any).setContentForSection === 'function') {
+            (editor as any).setContentForSection(currentSection, content);
+        } else {
+            editor.setContent(content);
+        }
     }
 
     // Show only split view - all views are split by default in HTML
@@ -902,7 +907,13 @@ async function loadSectionContent(
             console.log('[Writer] First 100 chars:', data.content.substring(0, 100));
 
             sectionsManager.setContent(sectionId, data.content);
-            editor.setContent(data.content);
+
+            // Use setContentForSection to restore cursor position
+            if (typeof (editor as any).setContentForSection === 'function') {
+                (editor as any).setContentForSection(sectionId, data.content);
+            } else {
+                editor.setContent(data.content);
+            }
         } else {
             const errorMsg = data.error || 'Unknown error loading section';
             console.error('[Writer] ✗ API Error:', errorMsg);
