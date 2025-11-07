@@ -398,6 +398,63 @@ export class EnhancedEditor {
                     console.log('[Citations] Citation completion provider registered');
 
                     // ============================================================
+                    // FORCE DETAILS PANEL TO RIGHT SIDE WITH JAVASCRIPT
+                    // ============================================================
+                    // Override Monaco's suggest controller to always show details to the right
+                    setTimeout(() => {
+                        const suggestController = (this.monacoEditor as any)._contentWidget?._widget;
+                        if (suggestController && suggestController.widget) {
+                            // Force detail panel to always show
+                            suggestController.widget._setDetailsVisible(true);
+                        }
+                    }, 1000);
+
+                    // Watch for suggestion widget creation and force positioning + auto-expand
+                    const observer = new MutationObserver((mutations) => {
+                        mutations.forEach((mutation) => {
+                            mutation.addedNodes.forEach((node: any) => {
+                                if (node.classList && node.classList.contains('suggest-widget')) {
+                                    console.log('[Citations] Suggestion widget detected, forcing right-side layout and auto-expanding details');
+
+                                    // Force horizontal layout
+                                    node.style.flexDirection = 'row';
+                                    node.style.alignItems = 'flex-start';
+
+                                    // Find and reposition details panel
+                                    const details = node.querySelector('.suggest-details');
+                                    if (details) {
+                                        (details as HTMLElement).style.position = 'relative';
+                                        (details as HTMLElement).style.order = '2';
+                                        (details as HTMLElement).style.marginLeft = '4px';
+                                        (details as HTMLElement).style.display = 'block';
+                                        (details as HTMLElement).style.visibility = 'visible';
+                                    }
+
+                                    // Programmatically trigger "show more" mode
+                                    // Simulate Ctrl+Space to expand details automatically
+                                    setTimeout(() => {
+                                        try {
+                                            // Try to access Monaco's suggest controller
+                                            const editor = this.monacoEditor;
+                                            if (editor) {
+                                                // Trigger suggest widget to show details
+                                                editor.trigger('keyboard', 'toggleSuggestionDetails', {});
+                                            }
+                                        } catch (e) {
+                                            console.log('[Citations] Could not auto-trigger details:', e);
+                                        }
+                                    }, 50);
+                                }
+                            });
+                        });
+                    });
+
+                    observer.observe(document.body, {
+                        childList: true,
+                        subtree: true
+                    });
+
+                    // ============================================================
                     // HOVER PROVIDER: Show rich citation info when hovering over \cite{key}
                     // ============================================================
                     console.log('[Citations] Registering hover provider...');
@@ -501,9 +558,10 @@ export class EnhancedEditor {
                     fixedOverflowWidgets: true,  // CRITICAL: Render widgets in body to prevent clipping
                     suggest: {
                         showIcons: true,
-                        showStatusBar: true,  // Show status bar
+                        showStatusBar: true,  // Keep "show more" text visible
                         maxVisibleSuggestions: 20,  // Show up to 20 suggestions at once
                         snippetsPreventQuickSuggestions: false,
+                        preselect: 'first',  // Preselect first item
                     },
                     scrollbar: {
                         vertical: 'visible',

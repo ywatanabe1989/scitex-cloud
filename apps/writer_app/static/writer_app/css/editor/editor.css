@@ -79,27 +79,50 @@
     width: 700px !important;
   }
 
-  /* FORCE details to always appear consistently to the RIGHT */
-  /* Override Monaco's automatic above/below positioning */
+  /* ============================================================ */
+  /* FORCE DETAILS TO ALWAYS SHOW: RIGHT-SIDE, TOP-ALIGNED */
+  /* Nuclear option: Override ALL Monaco positioning logic */
+  /* ============================================================ */
+
+  /* Force horizontal layout for ALL widget states */
+  .monaco-editor .suggest-widget,
   .monaco-editor .suggest-widget.docs-above,
-  .monaco-editor .suggest-widget.docs-below {
-    /* Force side-by-side layout like docs-side */
-    flex-direction: row !important;
+  .monaco-editor .suggest-widget.docs-below,
+  .monaco-editor .suggest-widget.docs-side,
+  .monaco-editor .suggest-widget.list-right,
+  .monaco-editor .suggest-widget.list-left {
+    display: flex !important;
+    flex-direction: row !important;  /* ALWAYS horizontal */
+    align-items: flex-start !important;  /* Top-align */
   }
 
-  .monaco-editor .suggest-widget.docs-above .suggest-details,
-  .monaco-editor .suggest-widget.docs-below .suggest-details {
-    position: absolute !important;
-    left: 100% !important;  /* Always position to the right of the dropdown */
-    top: 0 !important;  /* Align with top of dropdown */
+  /* Force suggestion list to left side */
+  .monaco-editor .suggest-widget .monaco-list,
+  .monaco-editor .suggest-widget > .tree {
+    order: 1 !important;
+    width: 1400px !important;
+    max-width: 1400px !important;
+  }
+
+  /* Force details panel to right side, ALWAYS */
+  .monaco-editor .suggest-widget .suggest-details,
+  .monaco-editor .suggest-widget > .details {
+    order: 2 !important;
+    position: relative !important;  /* Relative to flex container */
+    left: auto !important;
+    top: auto !important;
     bottom: auto !important;
     right: auto !important;
-    margin-left: 4px !important;  /* Small gap between dropdown and details */
+    margin-left: 4px !important;
+    margin-top: 0 !important;
+    transform: none !important;
+    display: block !important;  /* Always visible when item selected */
   }
 
-  /* Ensure details panel doesn't go off-screen to the right */
-  .monaco-editor .suggest-details {
-    transform: none !important;
+  /* Disable Monaco's dynamic positioning classes */
+  .monaco-editor .suggest-widget.docs-above .suggest-details,
+  .monaco-editor .suggest-widget.docs-below .suggest-details {
+    position: relative !important;  /* Override absolute positioning */
   }
 
   /* Show up to 20 items in the suggestion list */
@@ -111,6 +134,19 @@
   .monaco-editor .suggest-details .monaco-scrollable-element {
     font-size: 13px !important;
     line-height: 1.6 !important;
+  }
+
+  /* Keep status bar visible but force details to show by default */
+  /* Trigger "show more" mode automatically for citations */
+  .monaco-editor .suggest-widget .suggest-details {
+    visibility: visible !important;
+    display: block !important;
+    opacity: 1 !important;
+  }
+
+  /* Make the widget look like it's in "show more" mode by default */
+  .monaco-editor .suggest-widget {
+    /* Widget is already in expanded mode */
   }
 
   /* ============================================================ */
