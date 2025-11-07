@@ -55,6 +55,17 @@ function toggleAbstractMode(button: HTMLElement, paperId: string, mode: Abstract
     }
     // mode 'all' has no class (default display)
 
+    // Update active button state
+    const abstractControls = button.closest('.abstract-controls');
+    if (abstractControls) {
+        // Remove active class from all buttons in this control group
+        abstractControls.querySelectorAll('.abstract-toggle-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        // Add active class to clicked button
+        button.classList.add('active');
+    }
+
     console.log('[Search UI] Abstract mode updated for paper:', paperId);
 }
 
