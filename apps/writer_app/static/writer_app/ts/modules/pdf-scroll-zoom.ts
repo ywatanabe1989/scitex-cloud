@@ -314,23 +314,36 @@ export class PDFScrollZoomHandler {
     /**
      * Set zoom level with cursor/center point preservation
      */
-    private setZoom(zoomLevel: number, cursorX?: number, cursorY?: number): void {
+    private async setZoom(zoomLevel: number, cursorX?: number, cursorY?: number): Promise<void> {
         if (!this.pdfViewer) return;
 
         const oldZoom = this.currentZoom;
         this.currentZoom = Math.max(this.minZoom, Math.min(this.maxZoom, zoomLevel));
 
-        // Update embed scale via transform
-        const embed = this.pdfViewer.querySelector('embed');
-        if (embed) {
-            const scaleRatio = this.currentZoom / 100;
-            embed.style.transform = `scale(${scaleRatio})`;
-            embed.style.transformOrigin = 'top center';
-            embed.style.transition = 'none';
+        // Check if using PDF.js (canvas) or legacy embed/iframe
+        const isPDFJS = this.pdfViewer.querySelector('.pdfjs-pages-container') !== null;
 
-            // If cursor position provided, center zoom on cursor
-            if (cursorX !== undefined && cursorY !== undefined) {
-                this.centerZoomOnPoint(cursorX, cursorY, oldZoom);
+        if (isPDFJS) {
+            // PDF.js zoom - call PDFPreviewManager's setZoomScale
+            const pdfPreviewManager = (window as any).modulePdfPreviewManager;
+            if (pdfPreviewManager && typeof pdfPreviewManager.setZoomScale === 'function') {
+                const scale = this.currentZoom / 100;
+                await pdfPreviewManager.setZoomScale(scale);
+                console.log(`[PDFScrollZoom] PDF.js zoom: ${this.currentZoom.toFixed(0)}%`);
+            }
+        } else {
+            // Legacy embed/iframe zoom via transform
+            const embed = this.pdfViewer.querySelector('embed, iframe');
+            if (embed) {
+                const scaleRatio = this.currentZoom / 100;
+                (embed as HTMLElement).style.transform = `scale(${scaleRatio})`;
+                (embed as HTMLElement).style.transformOrigin = 'top center';
+                (embed as HTMLElement).style.transition = 'none';
+
+                // If cursor position provided, center zoom on cursor
+                if (cursorX !== undefined && cursorY !== undefined) {
+                    this.centerZoomOnPoint(cursorX, cursorY, oldZoom);
+                }
             }
         }
 
@@ -362,24 +375,24 @@ export class PDFScrollZoomHandler {
     /**
      * Zoom in
      */
-    zoomIn(): void {
+    async zoomIn(): Promise<void> {
         const newZoom = this.currentZoom + this.zoomStep;
-        this.setZoom(newZoom);
+        await this.setZoom(newZoom);
     }
 
     /**
      * Zoom out
      */
-    zoomOut(): void {
+    async zoomOut(): Promise<void> {
         const newZoom = this.currentZoom - this.zoomStep;
-        this.setZoom(newZoom);
+        await this.setZoom(newZoom);
     }
 
     /**
      * Reset zoom to 100%
      */
-    resetZoom(): void {
-        this.setZoom(100);
+    async resetZoom(): Promise<void> {
+        await this.setZoom(100);
     }
 
     /**
