@@ -558,8 +558,8 @@ async function autoDownloadBibtexFile(url: string): Promise<void> {
 
             if (data.urls && data.urls.length > 0) {
                 showConfirm({
-                    title: 'Open All Paper URLs',
-                    message: `Open ${data.total_urls} paper URL(s) in new tabs?\n\nThis feature is useful when you want to download PDF files.\n\nWhat will happen:\n• Papers will open in background tabs\n• You can download PDF files efficiently\n\nPlease note:\n• Opening many tabs may clutter your browser\n• Your browser may block pop-ups - please allow them for this site if needed`,
+                    title: `Open ${data.total_urls} paper URL(s) in new tabs?`,
+                    message: `This feature is useful when you want to download PDF files.\n\nWhat will happen:\n• Papers will open in background tabs\n• You can download PDF files efficiently\n\nPlease note:\n• Opening many tabs may clutter your browser\n• Your browser may block pop-ups - please allow them if needed`,
                     confirmText: 'Open All URLs',
                     cancelText: 'Cancel',
                     onConfirm: () => {
