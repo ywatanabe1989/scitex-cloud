@@ -221,15 +221,15 @@ def initialize_workspace(request):
             writer = writer_service.writer
 
             # Verify the structure was created
-            if writer_service.project_path.exists():
-                manuscript_dir = writer_service.project_path / "01_manuscript"
+            if writer_service.writer_dir.exists():
+                manuscript_dir = writer_service.writer_dir / "01_manuscript"
                 if manuscript_dir.exists():
                     logger.info(f"Writer workspace initialized successfully for project {project_id}")
-                    logger.info(f"  Structure: {writer_service.project_path}")
+                    logger.info(f"  Structure: {writer_service.writer_dir}")
                 else:
                     raise Exception("Writer structure incomplete - 01_manuscript not found")
             else:
-                raise Exception(f"Writer directory not created at {writer_service.project_path}")
+                raise Exception(f"Writer directory not created at {writer_service.writer_dir}")
 
         except Exception as e:
             logger.error(

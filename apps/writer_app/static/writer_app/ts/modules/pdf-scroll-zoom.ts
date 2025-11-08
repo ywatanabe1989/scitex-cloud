@@ -503,16 +503,41 @@ export class PDFScrollZoomHandler {
             this.pdfViewer.style.backgroundColor = theme.backgroundColor;
         }
 
+        // Set data attribute on all PDF-related containers for theme-responsive scrollbar
+        const textPreview = document.getElementById('text-preview');
+        if (textPreview) {
+            textPreview.setAttribute('data-pdf-theme', this.colorMode);
+        }
+
+        const pdfPreviewContainer = document.querySelector('.pdf-preview-container');
+        if (pdfPreviewContainer) {
+            pdfPreviewContainer.setAttribute('data-pdf-theme', this.colorMode);
+        }
+
+        if (this.pdfViewer) {
+            this.pdfViewer.setAttribute('data-pdf-theme', this.colorMode);
+        }
+
         console.log('[PDFScrollZoom] Applied theme:', theme.label);
     }
 
     /**
      * Load saved color mode preference from localStorage
+     * Defaults to global theme if no PDF-specific preference is saved
      */
     private loadColorModePreference(): void {
         const savedMode = localStorage.getItem('pdf-color-mode') as PDFColorMode | null;
+
         if (savedMode === 'dark' || savedMode === 'light') {
+            // Use saved PDF-specific preference
             this.colorMode = savedMode;
+        } else {
+            // Default to global theme
+            const globalTheme = document.documentElement.getAttribute('data-theme') ||
+                               localStorage.getItem('theme') ||
+                               'light';
+            this.colorMode = (globalTheme === 'dark' ? 'dark' : 'light') as PDFColorMode;
+            console.log('[PDFScrollZoom] No PDF theme saved, defaulting to global theme:', this.colorMode);
         }
     }
 
@@ -531,24 +556,20 @@ export class PDFScrollZoomHandler {
         if (!btn) return;
 
         const theme = PDF_COLOR_THEMES[this.colorMode];
-        const iconEl = btn.querySelector('i');
-        const textEl = btn.querySelector('.theme-label');
+        const iconEl = btn.querySelector('.theme-icon');
 
-        // Map color modes to icons
+        // Map color modes to emoji - show what the PDF SHOULD look like
+        // Moon = dark mode (black bg, white text), Sun = light mode (white bg, black text)
         const iconMap: Record<PDFColorMode, string> = {
-            light: 'fas fa-sun',
-            dark: 'fas fa-moon'
+            dark: '🌙',   // Moon emoji = Dark mode (BLACK background, WHITE text)
+            light: '☀️'   // Sun emoji = Light mode (WHITE background, BLACK text)
         };
 
         if (iconEl) {
-            iconEl.className = iconMap[this.colorMode];
+            iconEl.textContent = iconMap[this.colorMode];
         }
 
-        if (textEl) {
-            textEl.textContent = theme.label;
-        }
-
-        btn.setAttribute('title', `PDF Theme: ${theme.label} (Click to cycle)`);
+        btn.setAttribute('title', `PDF Theme: ${theme.label} (Click to toggle)`);
     }
 
     /**
@@ -600,6 +621,11 @@ export class PDFScrollZoomHandler {
         }
 
         // Load preference on first initialization
+        // Note: Will default to global theme if no PDF-specific preference saved
         this.loadColorModePreference();
+
+        // Apply the theme and update button icon immediately on page load
+        this.applyColorMode();
+        this.updateColorModeButton();
     }
 }

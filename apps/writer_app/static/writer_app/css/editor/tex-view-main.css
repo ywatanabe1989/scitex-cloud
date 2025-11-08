@@ -103,6 +103,44 @@
     font-weight: 500;
 }
 
+/* iOS-style Segmented Control for View Switching */
+.view-switcher {
+    display: inline-flex;
+    background: var(--color-canvas-subtle);
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    padding: 0.2rem;
+    gap: 0.15rem;
+}
+
+.view-switch-btn {
+    padding: 0.4rem 0.75rem;
+    border: none;
+    background: transparent;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    font-size: 0.8rem;
+    color: var(--color-fg-default);
+    cursor: pointer;
+    white-space: nowrap;
+    font-weight: 400;
+}
+
+.view-switch-btn:hover:not(.active) {
+    background: var(--color-canvas-default);
+}
+
+.view-switch-btn.active {
+    background: var(--color-accent-emphasis);
+    color: var(--color-fg-on-emphasis);
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.view-switch-btn i {
+    font-size: 0.75rem;
+}
+
 /* Save Status Indicator */
 .save-status {
     display: flex;
@@ -181,6 +219,307 @@
 .horizontal-selector .form-select {
     font-size: 0.85rem;
     min-width: 140px;
+}
+
+/* Custom Section Selector Dropdown */
+.custom-section-selector {
+    position: relative;
+    display: inline-block;
+}
+
+.section-selector-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: var(--color-canvas-default);
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    color: var(--color-fg-default);
+    font-size: 0.875rem;
+    cursor: pointer;
+    min-width: 160px;
+    transition: all 0.2s ease;
+}
+
+.section-selector-btn:hover {
+    border-color: var(--scitex-color-04);
+    background: var(--color-canvas-subtle);
+}
+
+.section-selector-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    min-width: 280px;
+    max-width: 400px;
+    background: var(--color-canvas-default);
+    border: 1px solid var(--color-border-default);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    z-index: 2000;
+    max-height: 400px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Scrollable sections area */
+.section-items-scrollable {
+    flex: 1;
+    overflow-y: auto;
+    padding: 4px 0;
+    min-height: 0;
+}
+
+/* Dropdown scrollbar styling */
+.section-items-scrollable::-webkit-scrollbar {
+    width: 8px;
+}
+
+.section-items-scrollable::-webkit-scrollbar-track {
+    background: var(--color-canvas-subtle);
+}
+
+.section-items-scrollable::-webkit-scrollbar-thumb {
+    background: var(--color-border-default);
+    border-radius: 4px;
+}
+
+.section-items-scrollable::-webkit-scrollbar-thumb:hover {
+    background: var(--color-fg-muted);
+}
+
+/* Fixed footer for FULL MANUSCRIPT + NEW SECTION */
+.section-items-footer {
+    flex-shrink: 0;
+    background: var(--color-canvas-default);
+    border-top: 1px solid var(--color-border-default);
+}
+
+.section-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    user-select: none;
+}
+
+/* Fast tooltip/hint appearance for dropdown items */
+.section-selector-dropdown [title] {
+    position: relative;
+}
+
+/* Override default tooltip delay for dropdown (make it faster) */
+.section-selector-dropdown [title]:hover::after {
+    transition-delay: 0.2s !important; /* Show after 200ms instead of 500ms */
+}
+
+.section-item:hover {
+    background: var(--color-canvas-subtle);
+}
+
+.section-item.active {
+    background: var(--color-canvas-subtle);
+    font-weight: 500;
+}
+
+.section-item.dragging {
+    opacity: 0.5;
+}
+
+.section-drag-handle {
+    cursor: grab;
+    color: var(--color-fg-muted);
+    font-size: 12px;
+    line-height: 1;
+    padding: 0 1px;
+    width: 16px;
+    flex-shrink: 0;
+}
+
+.section-drag-handle:active {
+    cursor: grabbing;
+}
+
+.section-item-name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--color-fg-default);
+    font-size: 0.8rem;
+}
+
+/* iOS-style toggle switch for sections */
+.section-item-toggle {
+    position: relative;
+    display: inline-block;
+    width: 32px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.section-item-toggle input[type="checkbox"] {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--color-border-default);
+    transition: 0.2s;
+    border-radius: 18px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 12px;
+    width: 12px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.2s;
+    border-radius: 50%;
+}
+
+.section-item-toggle input:checked + .toggle-slider {
+    background-color: var(--color-success-emphasis);
+}
+
+.section-item-toggle input:checked + .toggle-slider:before {
+    transform: translateX(14px);
+}
+
+.section-item-toggle:hover .toggle-slider {
+    box-shadow: 0 0 0 2px var(--color-accent-muted);
+}
+
+/* Excluded sections - crossed out and grayed */
+.section-item.excluded {
+    opacity: 0.6;
+}
+
+.section-item.excluded .section-item-name {
+    text-decoration: line-through;
+    color: var(--color-fg-muted);
+}
+
+/* Optional sections (not excluded) - slightly dimmed to indicate they're togglable */
+.section-item[data-optional="true"]:not(.excluded) {
+    opacity: 0.85;
+}
+
+.section-item[data-optional="true"]:not(.excluded) .section-item-name {
+    color: var(--color-fg-muted);
+}
+
+/* Hover states for optional sections */
+.section-item[data-optional="true"]:hover,
+.section-item.excluded:hover {
+    opacity: 1 !important;
+}
+
+.section-item.excluded .toggle-slider {
+    background-color: var(--color-danger-muted);
+}
+
+.section-item.excluded .toggle-slider:before {
+    background-color: var(--color-danger-fg);
+}
+
+/* Action buttons for Full Manuscript entry */
+.section-item-actions {
+    display: flex;
+    gap: 3px;
+    margin-left: auto;
+}
+
+.section-item-with-actions {
+    padding-right: 6px;
+}
+
+.section-item-actions .btn-xs {
+    padding: 2px 5px;
+    font-size: 10px;
+    line-height: 1;
+    border-radius: 3px;
+    min-width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.section-item-actions .btn-xs i {
+    font-size: 10px;
+}
+
+.section-divider {
+    height: 1px;
+    background: var(--color-border-default);
+    margin: 0; /* No margin in footer */
+}
+
+.section-items-footer .section-divider {
+    display: none; /* Hide divider in footer (border-top already provides separation) */
+}
+
+.section-action-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    cursor: pointer;
+    color: var(--color-accent-fg);
+    font-weight: 600;
+    font-size: 0.8rem;
+    transition: background 0.15s ease;
+}
+
+.section-action-item:hover {
+    background: var(--color-canvas-subtle);
+}
+
+.section-action-item i {
+    font-size: 11px;
+}
+
+/* Fix button colors in panel headers */
+.panel-header .btn {
+    color: var(--color-fg-default);
+}
+
+.panel-header .btn-outline-secondary {
+    color: var(--color-fg-default);
+    border-color: var(--color-border-default);
+}
+
+.panel-header .btn-outline-secondary:hover,
+.panel-header .btn-outline-secondary.active {
+    color: var(--color-fg-default);
+    background: var(--color-canvas-subtle);
+    border-color: var(--color-accent-emphasis);
+}
+
+.panel-header .btn-primary {
+    color: white;
+    background: var(--scitex-color-04);
+    border-color: var(--scitex-color-04);
+}
+
+.panel-header .btn-primary:hover {
+    background: var(--scitex-color-03);
+    border-color: var(--scitex-color-03);
 }
 
 /* Section Management Buttons */
@@ -358,6 +697,17 @@
     height: 100%;
     /* Ensure PDF scroll takes priority over page scroll */
     will-change: scroll-position;
+    outline: none !important;
+}
+
+/* Remove all focus outlines from preview pane */
+.text-preview:focus,
+.text-preview:focus-visible,
+.text-preview *:focus,
+.text-preview *:focus-visible,
+.text-preview iframe:focus,
+.text-preview iframe:focus-visible {
+    outline: none !important;
 }
 
 /* Add padding for text-only preview (not PDF) */
@@ -373,12 +723,32 @@
     height: 100%;
     background: #525659;  /* Gray background like PDF viewers */
     padding: 0 !important;
-    padding-top: 60px !important; /* Space for absolute-positioned header */
+    padding-top: 64px !important;  /* Space for absolute-positioned header */
+    box-sizing: border-box;
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Ensure PDF viewer fills container and displays at full width */
+.pdf-preview-viewer {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.pdf-preview-viewer iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
 }
 
 /* Ensure PDF preview starts at the top, not bottom */
@@ -393,12 +763,17 @@
 }
 
 /* Convert panel header to overlay when displaying PDF preview */
-.preview-panel:has(.pdf-preview-container) .panel-header {
+.preview-panel:has(.pdf-preview-container) .panel-header,
+#pdf-view:has(.pdf-preview-container) .panel-header {
     position: absolute !important;
     top: 0;
     left: 0;
     right: 0;
     z-index: 10;
+    height: 64px !important;
+    min-height: 64px;
+    max-height: 64px;
+    box-sizing: border-box;
     background: var(--color-canvas-subtle) !important;
     backdrop-filter: blur(10px);
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
@@ -408,7 +783,8 @@
 }
 
 /* Enhance overlay on hover */
-.preview-panel:has(.pdf-preview-container):hover .panel-header {
+.preview-panel:has(.pdf-preview-container):hover .panel-header,
+#pdf-view:has(.pdf-preview-container):hover .panel-header {
     opacity: 1;
     box-shadow: 0 3px 16px rgba(0, 0, 0, 0.12);
 }
@@ -417,11 +793,19 @@
 .preview-panel .panel-header {
     display: flex;
     align-items: center;
+    height: 64px !important;
+    min-height: 64px;
+    max-height: 64px;
+    box-sizing: border-box;
 }
 
 /* Ensure LaTeX panel header stays in normal flow */
 .latex-panel .panel-header {
     position: relative !important;
+    height: 64px !important;
+    min-height: 64px;
+    max-height: 64px;
+    box-sizing: border-box;
 }
 
 .panel-header {
@@ -429,14 +813,18 @@
     font-weight: 600;
     color: var(--color-fg-default);
     margin-bottom: 0;
-    padding: 0.4rem 0.8rem;
+    padding: 1rem 1.25rem;
+    height: 64px !important;
+    min-height: 64px;
+    max-height: 64px;
     background: var(--color-canvas-subtle);
     border-left: 3px solid var(--color-accent-emphasis);
     border-radius: 0 4px 4px 0;
     display: flex;
     align-items: center;
+    box-sizing: border-box;
     justify-content: space-between;
-    gap: 0.5rem;
+    gap: 1rem;
     flex-shrink: 0;
 }
 
@@ -452,6 +840,10 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    height: 64px !important;
+    min-height: 64px;
+    max-height: 64px;
+    box-sizing: border-box;
 }
 
 /* Theme selector in panel header */
@@ -1203,10 +1595,100 @@
     background: var(--color-fg-muted);
 }
 
+/* PDF.js Pages Container Styling */
+.pdfjs-pages-container {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: #525659;
+    padding: 1rem 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.pdfjs-page-container {
+    margin: 0 auto 1rem auto;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    display: block;
+    position: relative;
+}
+
+.pdfjs-page-container canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    background: white;
+}
+
+/* Dark mode PDF page styling - BLACK background with WHITE text */
+/* NOTE: No CSS filter needed! Server compiles PDFs with correct colors via LaTeX \pagecolor */
+.pdfjs-pages-container[data-pdf-theme="dark"] .pdfjs-page-container {
+    background: #000000;
+    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
+}
+
+/* Scrollbar styling for PDF.js container */
+.pdfjs-pages-container::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+.pdfjs-pages-container::-webkit-scrollbar-track {
+    background: #2d3339;
+}
+
+.pdfjs-pages-container::-webkit-scrollbar-thumb {
+    background: #4a5259;
+    border-radius: 5px;
+    border: 2px solid #2d3339;
+}
+
+.pdfjs-pages-container::-webkit-scrollbar-thumb:hover {
+    background: #5a6269;
+}
+
+/* Dark mode scrollbar styling for PDF preview */
+[data-theme="dark"] .text-preview::-webkit-scrollbar-track,
+.text-preview[data-pdf-theme="dark"]::-webkit-scrollbar-track,
+[data-theme="dark"] .pdf-preview-viewer::-webkit-scrollbar-track,
+.pdf-preview-viewer[data-pdf-theme="dark"]::-webkit-scrollbar-track,
+[data-theme="dark"] .pdf-preview-container::-webkit-scrollbar-track,
+.pdf-preview-container[data-pdf-theme="dark"]::-webkit-scrollbar-track {
+    background: #2d3339 !important;
+}
+
+[data-theme="dark"] .text-preview::-webkit-scrollbar-thumb,
+.text-preview[data-pdf-theme="dark"]::-webkit-scrollbar-thumb,
+[data-theme="dark"] .pdf-preview-viewer::-webkit-scrollbar-thumb,
+.pdf-preview-viewer[data-pdf-theme="dark"]::-webkit-scrollbar-thumb,
+[data-theme="dark"] .pdf-preview-container::-webkit-scrollbar-thumb,
+.pdf-preview-container[data-pdf-theme="dark"]::-webkit-scrollbar-thumb {
+    background: #4a5259 !important;
+    border: 2px solid #2d3339 !important;
+}
+
+[data-theme="dark"] .text-preview::-webkit-scrollbar-thumb:hover,
+.text-preview[data-pdf-theme="dark"]::-webkit-scrollbar-thumb:hover,
+[data-theme="dark"] .pdf-preview-viewer::-webkit-scrollbar-thumb:hover,
+.pdf-preview-viewer[data-pdf-theme="dark"]::-webkit-scrollbar-thumb:hover,
+[data-theme="dark"] .pdf-preview-container::-webkit-scrollbar-thumb:hover,
+.pdf-preview-container[data-pdf-theme="dark"]::-webkit-scrollbar-thumb:hover {
+    background: #5a6269 !important;
+}
+
 /* Firefox scrollbar styling (applies to all elements globally) */
 * {
     scrollbar-width: thin;
     scrollbar-color: var(--color-border-default) var(--color-canvas-subtle);
+}
+
+/* Dark mode Firefox scrollbar for PDF preview */
+[data-theme="dark"] .text-preview,
+.text-preview[data-pdf-theme="dark"] {
+    scrollbar-color: #4a5259 #2d3339;
 }
 
 *::-webkit-scrollbar {

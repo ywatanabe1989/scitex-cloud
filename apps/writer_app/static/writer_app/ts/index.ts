@@ -13,6 +13,14 @@ import { PDFScrollZoomHandler } from './modules/pdf-scroll-zoom.js';
 import { getCsrfToken } from '@/utils/csrf.js';
 import { writerStorage } from '@/utils/storage.js';
 import { getWriterConfig, createDefaultEditorState } from './helpers.js';
+import {
+    SaveSectionsResponse,
+    SectionReadResponse,
+    validateSaveSectionsResponse,
+    validateSectionReadResponse,
+    isSaveSectionsResponse,
+    isSectionReadResponse
+} from './types/api-responses.js';
 
 /**
  * Show toast notification
@@ -191,11 +199,39 @@ async function populateSectionDropdownDirect(
     docType: string = 'manuscript',
     onFileSelectCallback: ((sectionId: string, sectionName: string) => void) | null = null
 ): Promise<void> {
-    console.log('[Writer] Populating section dropdown directly for:', docType);
-    const dropdown = document.getElementById('texfile-selector') as HTMLSelectElement;
-    if (!dropdown) {
-        console.warn('[Writer] Section dropdown not found');
+    console.log('[Writer] Populating custom section dropdown for:', docType);
+
+    const dropdownContainer = document.getElementById('section-selector-dropdown');
+    const toggleBtn = document.getElementById('section-selector-toggle');
+    const selectorText = document.getElementById('section-selector-text');
+
+    if (!dropdownContainer || !toggleBtn || !selectorText) {
+        console.warn('[Writer] Custom section dropdown elements not found');
+        console.log('[Writer] dropdownContainer:', dropdownContainer);
+        console.log('[Writer] toggleBtn:', toggleBtn);
+        console.log('[Writer] selectorText:', selectorText);
         return;
+    }
+
+    console.log('[Writer] Custom dropdown elements found, setting up...');
+
+    // Always setup the toggle listener first (even if fetch fails)
+    if (!toggleBtn.dataset.listenerAttached) {
+        toggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isVisible = dropdownContainer.style.display !== 'none';
+            dropdownContainer.style.display = isVisible ? 'none' : 'flex';
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!toggleBtn.contains(e.target as Node) && !dropdownContainer.contains(e.target as Node)) {
+                dropdownContainer.style.display = 'none';
+            }
+        });
+
+        toggleBtn.dataset.listenerAttached = 'true';
+        console.log('[Writer] Section selector toggle listener attached');
     }
 
     try {
@@ -204,13 +240,23 @@ async function populateSectionDropdownDirect(
 
         if (!data.success || !data.hierarchy) {
             console.error('[Writer] Failed to load sections hierarchy');
+            console.error('[Writer] API response:', data);
+
+            // Fallback: Show error in dropdown
+            dropdownContainer.innerHTML = `
+                <div style="padding: 16px; text-align: center; color: var(--color-fg-muted);">
+                    <i class="fas fa-exclamation-triangle" style="margin-bottom: 8px; font-size: 24px;"></i>
+                    <div>Failed to load sections</div>
+                    <div style="font-size: 0.75rem; margin-top: 4px;">Check console for details</div>
+                </div>
+            `;
+            selectorText.textContent = 'Error loading sections';
             return;
         }
 
         const hierarchy = data.hierarchy;
-        dropdown.innerHTML = '';
-
         let sections: any[] = [];
+
         if (docType === 'shared' && hierarchy.shared) {
             sections = hierarchy.shared.sections;
         } else if (docType === 'manuscript' && hierarchy.manuscript) {
@@ -226,57 +272,248 @@ async function populateSectionDropdownDirect(
             return;
         }
 
-        const optgroup = document.createElement('optgroup');
-        optgroup.label = docType.charAt(0).toUpperCase() + docType.slice(1);
+        // Separate regular sections from footer items (Full Manuscript, New Section)
+        let regularSectionsHtml = '';
+        let footerSectionsHtml = '';
 
-        sections.forEach((section: any) => {
-            const option = document.createElement('option');
-            option.value = section.id;
-            option.textContent = section.label;
-            if (section.is_complete) {
-                option.dataset.complete = 'true';
+        sections.forEach((section: any, index: number) => {
+            const isExcluded = section.excluded === true;
+            const isOptional = section.optional === true;
+            const isViewOnly = section.view_only === true;
+            const isCompiledPdf = section.name === 'compiled_pdf';
+            const sectionLabel = section.label;
+
+            // Don't show toggle for view-only sections (like compiled_pdf)
+            const showToggle = !isViewOnly && (isOptional || isExcluded);
+
+            const itemHtml = `
+                <div class="section-item ${isExcluded ? 'excluded' : ''} section-item-with-actions"
+                     data-section-id="${section.id}"
+                     data-index="${index}"
+                     data-optional="${isOptional}"
+                     draggable="${!isCompiledPdf}"
+                     title="${isCompiledPdf ? 'View Full Manuscript' : 'Switch to ' + sectionLabel}">
+                    <span class="section-drag-handle" style="${isCompiledPdf ? 'visibility: hidden;' : ''}" title="Drag to reorder">⋮⋮</span>
+                    <span class="section-item-name">${sectionLabel}</span>
+                    ${showToggle ? `
+                        <label class="section-item-toggle" data-action="toggle-visibility" title="${isExcluded ? 'Include in compilation' : 'Exclude from compilation'}">
+                            <input type="checkbox" ${!isExcluded ? 'checked' : ''}>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    ` : ''}
+                    <div class="section-item-actions">
+                        ${isCompiledPdf ? `
+                            <button class="btn btn-xs btn-outline-secondary" data-action="compile-full" title="Compile Full Manuscript PDF" onclick="event.stopPropagation();">
+                                <i class="fas fa-file-pdf"></i>
+                            </button>
+                        ` : ''}
+                        <button class="btn btn-xs btn-outline-secondary" data-action="download-section" title="Download ${sectionLabel} PDF" onclick="event.stopPropagation();">
+                            <i class="fas fa-download"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            // Separate Full Manuscript to footer
+            if (isCompiledPdf) {
+                footerSectionsHtml += itemHtml;
+            } else {
+                regularSectionsHtml += itemHtml;
             }
-            if (section.read_only) {
-                option.dataset.readonly = 'true';
-            }
-            optgroup.appendChild(option);
         });
 
-        dropdown.appendChild(optgroup);
+        // Build final HTML with scrollable sections + fixed footer
+        const html = `
+            <div class="section-items-scrollable">
+                ${regularSectionsHtml}
+            </div>
+            <div class="section-items-footer">
+                <div class="section-divider"></div>
+                ${footerSectionsHtml}
+                <div class="section-action-item" data-action="new-section">
+                    <i class="fas fa-plus"></i>
+                    <span>New Section...</span>
+                </div>
+            </div>
+        `;
 
-        console.log('[Writer] Dropdown populated with', sections.length, 'sections');
+        dropdownContainer.innerHTML = html;
+        console.log('[Writer] Custom dropdown populated with', sections.length, 'sections');
 
-        // Add change event listener if not already attached
-        if (!dropdown.dataset.listenerAttached) {
-            dropdown.addEventListener('change', (e) => {
-                const target = e.target as HTMLSelectElement;
-                if (target.value && onFileSelectCallback) {
-                    const sectionId = target.value;
-                    const selectedOption = target.options[target.selectedIndex];
-                    const sectionName = selectedOption.textContent || sectionId;
-                    console.log('[Writer] Section selected from dropdown:');
-                    console.log('  - Display name:', sectionName);
-                    console.log('  - Section ID:', sectionId);
-                    console.log('  - Selected index:', target.selectedIndex);
-                    console.log('  - Option value:', selectedOption.value);
-                    console.log('  - Option text:', selectedOption.textContent);
-                    // Trigger callback with section info
+        // Setup section item clicks
+        dropdownContainer.querySelectorAll('.section-item').forEach(item => {
+            const sectionItem = item as HTMLElement;
+
+            // Setup toggle switch change event
+            const toggleCheckbox = sectionItem.querySelector('.section-item-toggle input[type="checkbox"]') as HTMLInputElement;
+            if (toggleCheckbox) {
+                toggleCheckbox.addEventListener('change', async (e) => {
+                    e.stopPropagation();
+                    const sectionId = sectionItem.dataset.sectionId;
+                    if (sectionId) {
+                        await toggleSectionVisibility(sectionId, sectionItem);
+                    }
+                });
+            }
+
+            // Setup action buttons (compile/download for FULL MANUSCRIPT)
+            const compileBtn = sectionItem.querySelector('[data-action="compile-full"]');
+            if (compileBtn) {
+                compileBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const mainCompileBtn = document.getElementById('compile-btn-toolbar');
+                    if (mainCompileBtn) {
+                        mainCompileBtn.click();
+                    }
+                    dropdownContainer.style.display = 'none';
+                });
+            }
+
+            const downloadBtn = sectionItem.querySelector('[data-action="download-section"]');
+            if (downloadBtn) {
+                downloadBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const sectionId = sectionItem.dataset.sectionId;
+                    const sectionLabel = sectionItem.querySelector('.section-item-name')?.textContent || 'section';
+                    if (sectionId) {
+                        handleDownloadSectionPDF(sectionId, sectionLabel);
+                    }
+                    dropdownContainer.style.display = 'none';
+                });
+            }
+
+            // Setup section selection (on item click, but not on toggle/actions)
+            sectionItem.addEventListener('click', (e) => {
+                const target = e.target as HTMLElement;
+
+                // Ignore clicks on toggle switch or action buttons
+                if (target.closest('[data-action="toggle-visibility"]') ||
+                    target.closest('[data-action="compile-full"]') ||
+                    target.closest('[data-action="download-section"]')) {
+                    return;
+                }
+
+                // Handle section selection
+                const sectionId = sectionItem.dataset.sectionId;
+                const sectionName = sectionItem.querySelector('.section-item-name')?.textContent || '';
+
+                if (sectionId && onFileSelectCallback) {
+                    // Update active state
+                    dropdownContainer.querySelectorAll('.section-item').forEach(si => si.classList.remove('active'));
+                    sectionItem.classList.add('active');
+
+                    // Update button text
+                    selectorText.textContent = sectionName;
+
+                    // Close dropdown
+                    dropdownContainer.style.display = 'none';
+
+                    // Trigger callback
                     onFileSelectCallback(sectionId, sectionName);
                 }
             });
-            dropdown.dataset.listenerAttached = 'true';
+        });
+
+        // Setup "New Section..." click
+        const newSectionItem = dropdownContainer.querySelector('[data-action="new-section"]');
+        if (newSectionItem) {
+            newSectionItem.addEventListener('click', () => {
+                // Open the add section modal directly
+                const modalEl = document.getElementById('add-section-modal');
+                if (modalEl) {
+                    const modal = new (window as any).bootstrap.Modal(modalEl);
+                    modal.show();
+                }
+                dropdownContainer.style.display = 'none';
+            });
         }
 
-        // Select first option and trigger selection manually (not via event)
-        if (dropdown.options.length > 0 && onFileSelectCallback) {
-            dropdown.selectedIndex = 0;
-            const firstOption = dropdown.options[0];
-            console.log('[Writer] Auto-selecting first section:', firstOption.value);
-            onFileSelectCallback(firstOption.value, firstOption.textContent || '');
+        // Setup drag and drop for section reordering
+        setupDragAndDrop(dropdownContainer, sections);
+
+        // Set initial selection
+        if (sections.length > 0) {
+            const firstSection = sections[0];
+            selectorText.textContent = firstSection.label;
+            dropdownContainer.querySelector('.section-item')?.classList.add('active');
+
+            // Auto-load first section
+            if (onFileSelectCallback) {
+                console.log('[Writer] Auto-selecting first section:', firstSection.id);
+                onFileSelectCallback(firstSection.id, firstSection.label);
+            }
         }
+
     } catch (error) {
-        console.error('[Writer] Error populating dropdown:', error);
+        console.error('[Writer] Error populating section dropdown:', error);
     }
+}
+
+/**
+ * Setup drag and drop for section reordering
+ */
+function setupDragAndDrop(container: HTMLElement, sections: any[]): void {
+    let draggedItem: HTMLElement | null = null;
+    let placeholder: HTMLElement | null = null;
+
+    container.querySelectorAll('.section-item').forEach(item => {
+        const htmlItem = item as HTMLElement;
+
+        // Drag start
+        htmlItem.addEventListener('dragstart', (e) => {
+            draggedItem = htmlItem;
+            htmlItem.classList.add('dragging');
+            e.dataTransfer!.effectAllowed = 'move';
+        });
+
+        // Drag end
+        htmlItem.addEventListener('dragend', () => {
+            if (draggedItem) {
+                draggedItem.classList.remove('dragging');
+                draggedItem = null;
+            }
+            if (placeholder && placeholder.parentNode) {
+                placeholder.parentNode.removeChild(placeholder);
+                placeholder = null;
+            }
+        });
+
+        // Drag over
+        htmlItem.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            if (!draggedItem || draggedItem === htmlItem) return;
+
+            const rect = htmlItem.getBoundingClientRect();
+            const midpoint = rect.top + rect.height / 2;
+            const isAfter = e.clientY > midpoint;
+
+            // Insert dragged item
+            if (isAfter) {
+                container.insertBefore(draggedItem, htmlItem.nextSibling);
+            } else {
+                container.insertBefore(draggedItem, htmlItem);
+            }
+        });
+
+        // Drop
+        htmlItem.addEventListener('drop', (e) => {
+            e.preventDefault();
+            if (draggedItem) {
+                // Update order
+                const newOrder: string[] = [];
+                container.querySelectorAll('.section-item').forEach((si, idx) => {
+                    const sectionId = (si as HTMLElement).dataset.sectionId;
+                    if (sectionId) {
+                        newOrder.push(sectionId);
+                        (si as HTMLElement).dataset.index = idx.toString();
+                    }
+                });
+
+                console.log('[Writer] New section order:', newOrder);
+                // Note: Order is saved automatically when sections are saved
+            }
+        });
+    });
 }
 
 /**
@@ -374,7 +611,7 @@ async function initializeEditor(config: any): Promise<void> {
         projectId: config.projectId || 0,
         manuscriptTitle: config.manuscriptTitle || 'Untitled',
         author: config.username || '',
-        autoCompile: true,
+        autoCompile: false, // Disabled - preview shows full manuscript PDF only
         compileDelay: 2000, // 2 seconds delay for live preview
         apiBaseUrl: '',
         docType: state.currentDocType || 'manuscript'
@@ -395,19 +632,28 @@ async function initializeEditor(config: any): Promise<void> {
     pdfScrollZoomHandler.observePDFViewer();
 
     // Connect color mode changes to recompilation
-    pdfScrollZoomHandler.onColorModeChange((colorMode) => {
-        console.log('[Writer] PDF color mode changed to:', colorMode, '- triggering recompilation');
-        pdfPreviewManager.setColorMode(colorMode);
+    pdfScrollZoomHandler.onColorModeChange(async (colorMode) => {
+        console.log('[Writer] PDF color mode changed to:', colorMode, '- updating renderer immediately');
 
-        // Trigger recompilation with new color mode
+        // Set color mode (this updates renderer immediately with CSS filters)
+        await pdfPreviewManager.setColorMode(colorMode);
+
+        // Then trigger recompilation with new color mode
         const currentContent = editor?.getContent();
+        const currentSection = state?.currentSection || 'manuscript/abstract';
         if (currentContent) {
-            pdfPreviewManager.compileQuick(currentContent);
+            pdfPreviewManager.compileQuick(currentContent, currentSection);
         }
     });
 
-    // Setup PDF zoom control buttons
-    setupPDFZoomControls(pdfScrollZoomHandler);
+    // Setup PDF color mode toggle button
+    const colorModeBtn = document.getElementById('pdf-color-mode-btn');
+    if (colorModeBtn) {
+        colorModeBtn.addEventListener('click', () => {
+            console.log('[Writer] PDF color mode button clicked');
+            pdfScrollZoomHandler.toggleColorMode();
+        });
+    }
 
     // Initialize panel resizer for draggable split view
     const panelResizer = new PanelResizer();
@@ -650,8 +896,10 @@ function setupEditorListeners(
         // Schedule auto-save
         scheduleSave(editor, sectionsManager, state);
 
-        // Schedule auto-compile for live PDF preview (skip for compiled_pdf sections)
-        if (pdfPreviewManager && !currentSection.endsWith('/compiled_pdf')) {
+        // Schedule auto-compile for live PDF preview (skip for compiled sections)
+        const isCompiledForPreview = currentSection.endsWith('/compiled_pdf') ||
+                                     currentSection.endsWith('/compiled_tex');
+        if (pdfPreviewManager && !isCompiledForPreview) {
             scheduleAutoCompile(pdfPreviewManager, content, currentSection);
         }
     });
@@ -978,8 +1226,10 @@ async function loadSectionContent(
             // Reset flag and trigger ONE initial preview
             setTimeout(() => {
                 isLoadingContent = false;
-                // Trigger initial preview for the loaded section
-                if (modulePdfPreviewManager && !sectionId.endsWith('/compiled_pdf')) {
+                // Trigger initial preview for the loaded section (skip for compiled sections)
+                const isCompiledSection = sectionId.endsWith('/compiled_pdf') ||
+                                         sectionId.endsWith('/compiled_tex');
+                if (modulePdfPreviewManager && !isCompiledSection) {
                     console.log('[Writer] Triggering initial preview for:', sectionId);
                     modulePdfPreviewManager.compileQuick(data.content, sectionId);
                 }
@@ -1088,29 +1338,58 @@ function loadCompiledPDF(sectionId: string): void {
     const parts = sectionId.split('/');
     const docType = parts[0];
 
-    // Use API endpoint for PDF (avoids X-Frame-Options issues)
+    // Use API endpoint for PDF with doc_type query parameter
     const pdfUrl = `/writer/api/project/${config.projectId}/pdf/?doc_type=${docType}`;
 
     console.log('[Writer] Loading compiled PDF for section:', sectionId, 'URL:', pdfUrl);
 
-    // Display the PDF directly (bypass quick preview compilation)
     const textPreview = document.getElementById('text-preview');
-    if (textPreview) {
-        textPreview.innerHTML = `
-            <div class="pdf-preview-container">
-                <div class="pdf-preview-viewer" id="pdf-viewer-pane">
-                    <iframe
-                        src="${pdfUrl}#toolbar=0&navpanes=0&scrollbar=1&view=FitW"
-                        type="application/pdf"
-                        width="100%"
-                        height="100%"
-                        title="Compiled PDF"
-                        frameborder="0">
-                    </iframe>
+    if (!textPreview) return;
+
+    // Check if PDF exists first
+    fetch(pdfUrl, { method: 'HEAD' })
+        .then(response => {
+            if (!response.ok) {
+                // PDF doesn't exist - show helpful message
+                textPreview.innerHTML = `
+                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding: 2rem; text-align: center; color: var(--color-fg-muted);">
+                        <i class="fas fa-file-pdf fa-3x mb-3" style="opacity: 0.3;"></i>
+                        <h5 style="color: var(--color-fg-default);">Full Manuscript Not Compiled Yet</h5>
+                        <p style="margin: 1rem 0;">Click the 📄 <strong>Compile</strong> button in the dropdown to generate the full manuscript PDF.</p>
+                        <small style="opacity: 0.7;">This combines all enabled sections into a single document.</small>
+                    </div>
+                `;
+                return;
+            }
+
+            // PDF exists - display it with cache-busting
+            const cacheBustUrl = `${pdfUrl}?t=${Date.now()}`;
+            textPreview.innerHTML = `
+                <div class="pdf-preview-container">
+                    <div class="pdf-preview-viewer" id="pdf-viewer-pane">
+                        <iframe
+                            src="${cacheBustUrl}#toolbar=0&navpanes=0&scrollbar=1&view=FitW&zoom=page-width"
+                            type="application/pdf"
+                            width="100%"
+                            height="100%"
+                            title="Compiled PDF"
+                            frameborder="0"
+                            style="display: block;">
+                        </iframe>
+                    </div>
                 </div>
-            </div>
-        `;
-    }
+            `;
+        })
+        .catch((error) => {
+            console.error('[Writer] Error checking compiled PDF:', error);
+            textPreview.innerHTML = `
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding: 2rem; text-align: center; color: var(--color-fg-muted);">
+                    <i class="fas fa-exclamation-triangle fa-3x mb-3 text-warning"></i>
+                    <h5 style="color: var(--color-fg-default);">Error Loading PDF</h5>
+                    <p>Could not check if PDF exists. Please try again.</p>
+                </div>
+            `;
+        });
 }
 
 /**
@@ -1316,14 +1595,14 @@ async function saveSections(sectionsManager: SectionsManager, state: any): Promi
             return;
         }
 
-        const allSections = sectionsManager.getAll();
+        const allSections = sectionsManager.getAll();  // Returns Section[]
 
-        // Filter out empty sections to avoid unnecessary writes
+        // Build sections object with section IDs as keys
         const sections: Record<string, string> = {};
-        for (const [name, contentValue] of Object.entries(allSections)) {
-            const content = String(contentValue || '');
-            if (content.trim().length > 0) {
-                sections[name] = content;
+        for (const section of allSections) {
+            const content = section.content || '';
+            if (content.trim().length > 0 && section.id) {
+                sections[section.id] = content;  // Use section.id, not array index!
             }
         }
 
@@ -1348,21 +1627,48 @@ async function saveSections(sectionsManager: SectionsManager, state: any): Promi
         });
 
         const data = await response.json();
+
+        // Validate response structure
+        if (!isSaveSectionsResponse(data)) {
+            throw new Error('Invalid response format from server');
+        }
+
+        // Validate response data
+        try {
+            validateSaveSectionsResponse(data);
+        } catch (validationError) {
+            console.error('[Writer] Response validation failed:', validationError);
+            throw new Error(`Invalid server response: ${validationError instanceof Error ? validationError.message : String(validationError)}`);
+        }
+
         if (data.success) {
             state.unsavedSections.clear();
-            console.log(`[Writer] Sections saved: ${data.sections_saved} saved, ${data.sections_skipped || 0} skipped`);
-            showToast('Sections saved', 'success');
-        } else {
-            const errorMsg = data.error || 'Unknown error';
-            console.error('[Writer] Save failed:', errorMsg);
-            if (data.traceback) {
-                console.error('[Writer] Server traceback:', data.traceback);
+
+            if (data.sections_saved === 0) {
+                console.warn('[Writer] No sections were saved!');
+                showToast('Warning: No sections were saved', 'warning');
+            } else {
+                console.log(`[Writer] Sections saved: ${data.sections_saved} saved, ${data.sections_skipped} skipped`);
+                showToast(`Saved ${data.sections_saved} section${data.sections_saved > 1 ? 's' : ''}`, 'success');
             }
-            showToast(`Failed to save sections: ${errorMsg}`, 'error');
+        } else {
+            console.error('[Writer] Save failed:', data.message);
+            if (data.errors && data.errors.length > 0) {
+                console.error('[Writer] Errors:', data.errors);
+            }
+            if (data.error_details && Object.keys(data.error_details).length > 0) {
+                console.error('[Writer] Detailed errors:', data.error_details);
+            }
+            showToast(`Failed to save sections: ${data.message}`, 'error');
         }
     } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : String(error);
         console.error('[Writer] Error saving sections:', error);
-        showToast('Error saving sections', 'error');
+        showToast(`Error saving sections: ${errorMsg}`, 'error');
+        // Don't silently fail - show alert for critical errors
+        if (error instanceof TypeError || error instanceof SyntaxError) {
+            alert(`Critical error saving sections: ${errorMsg}\n\nPlease check the console for details.`);
+        }
     }
 }
 
@@ -1955,12 +2261,13 @@ function openPDF(url: string): void {
 function switchRightPanel(view: 'pdf' | 'citations'): void {
     const pdfView = document.getElementById('pdf-view');
     const citationsView = document.getElementById('citations-view');
-    const pdfBtn = document.getElementById('show-pdf-btn');
-    const citationsBtn = document.getElementById('show-citations-btn');
-    const pdfZoomControls = document.querySelector('.pdf-zoom-controls') as HTMLElement;
+    // Get all view switch buttons in both panel headers
+    const allPdfBtns = document.querySelectorAll('#show-pdf-btn, .view-switch-btn[onclick*="pdf"]');
+    const allCitationsBtns = document.querySelectorAll('#show-citations-btn, .view-switch-btn[onclick*="citations"]');
+    // const pdfZoomControls = document.querySelector('.pdf-zoom-controls') as HTMLElement; // REMOVED
     const previewPanel = document.querySelector('.preview-panel') as HTMLElement;
 
-    if (!pdfView || !citationsView || !pdfBtn || !citationsBtn) {
+    if (!pdfView || !citationsView) {
         console.error('[Writer] Panel toggle elements not found');
         return;
     }
@@ -1976,14 +2283,14 @@ function switchRightPanel(view: 'pdf' | 'citations'): void {
             previewPanel.classList.remove('showing-pdf');
         }
 
-        // Update button states
-        pdfBtn.classList.remove('active');
-        citationsBtn.classList.add('active');
+        // Update button states - all buttons in both headers
+        allPdfBtns.forEach(btn => btn.classList.remove('active'));
+        allCitationsBtns.forEach(btn => btn.classList.add('active'));
 
-        // Hide PDF zoom controls
-        if (pdfZoomControls) {
-            pdfZoomControls.style.display = 'none';
-        }
+        // Hide PDF zoom controls (REMOVED - no longer in UI)
+        // if (pdfZoomControls) {
+        //     pdfZoomControls.style.display = 'none';
+        // }
 
         console.log('[Writer] Switched to Citations view');
 
@@ -2003,15 +2310,15 @@ function switchRightPanel(view: 'pdf' | 'citations'): void {
             previewPanel.classList.add('showing-pdf');
         }
 
-        // Update button states
-        citationsBtn.classList.remove('active');
-        pdfBtn.classList.add('active');
+        // Update button states - all buttons in both headers
+        allCitationsBtns.forEach(btn => btn.classList.remove('active'));
+        allPdfBtns.forEach(btn => btn.classList.add('active'));
 
-        // Show PDF zoom controls if PDF is loaded
-        const hasPDF = document.querySelector('.pdf-preview-container') !== null;
-        if (pdfZoomControls && hasPDF) {
-            pdfZoomControls.style.display = 'flex';
-        }
+        // Show PDF zoom controls if PDF is loaded (REMOVED - no longer in UI)
+        // const hasPDF = document.querySelector('.pdf-preview-container') !== null;
+        // if (pdfZoomControls && hasPDF) {
+        //     pdfZoomControls.style.display = 'flex';
+        // }
 
         console.log('[Writer] Switched to PDF view');
     }
@@ -2121,6 +2428,7 @@ function appendCompilationLog(message: string, type: 'info' | 'success' | 'error
 function showCompilationSuccess(pdfUrl: string): void {
     const icon = document.getElementById('compilation-icon');
     const progressContainer = document.getElementById('compilation-progress-container');
+    const alertBanner = document.getElementById('compilation-alert-banner');
     const resultDiv = document.getElementById('compilation-result-inline');
 
     // Update icon to success
@@ -2133,20 +2441,29 @@ function showCompilationSuccess(pdfUrl: string): void {
         progressContainer.style.display = 'none';
     }
 
-    // Show success message
-    if (resultDiv) {
-        resultDiv.style.display = 'block';
-        resultDiv.innerHTML = `
-            <div style="background: var(--color-success-subtle); border: 1px solid var(--color-success-emphasis); border-radius: 6px; padding: 1rem;">
-                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; color: var(--color-success-emphasis);">
-                    <i class="fas fa-check-circle" style="font-size: 1.25rem;"></i>
-                    <strong>Compilation Successful!</strong>
+    // Show success alert banner
+    if (alertBanner) {
+        alertBanner.style.display = 'block';
+        alertBanner.className = 'alert-banner alert-banner-success';
+        alertBanner.innerHTML = `
+            <div class="warning-banner-content">
+                <i class="fas fa-check-circle warning-banner-icon"></i>
+                <div class="warning-banner-text">
+                    <div class="warning-banner-title">Compilation Successful!</div>
+                    <div class="warning-banner-description">
+                        Your manuscript PDF has been generated.
+                        <a href="${pdfUrl}" target="_blank" style="color: white; text-decoration: underline; margin-left: 0.5rem;">
+                            <i class="fas fa-file-pdf me-1"></i>View PDF
+                        </a>
+                    </div>
                 </div>
-                <a href="${pdfUrl}" target="_blank" class="btn btn-sm btn-success mt-2">
-                    <i class="fas fa-file-pdf me-1"></i>View PDF
-                </a>
             </div>
         `;
+    }
+
+    // Keep old result div for backward compatibility (hide it)
+    if (resultDiv) {
+        resultDiv.style.display = 'none';
     }
 
     updateCompilationProgress(100, 'Complete!');
@@ -2158,6 +2475,7 @@ function showCompilationSuccess(pdfUrl: string): void {
 function showCompilationError(errorMessage: string, errorDetails: string = ''): void {
     const icon = document.getElementById('compilation-icon');
     const progressContainer = document.getElementById('compilation-progress-container');
+    const alertBanner = document.getElementById('compilation-alert-banner');
     const resultDiv = document.getElementById('compilation-result-inline');
 
     // Update icon to error
@@ -2170,24 +2488,86 @@ function showCompilationError(errorMessage: string, errorDetails: string = ''): 
         progressContainer.style.display = 'none';
     }
 
-    // Show error message
-    if (resultDiv) {
-        resultDiv.style.display = 'block';
-        resultDiv.innerHTML = `
-            <div style="background: var(--color-danger-subtle); border: 1px solid var(--color-danger-emphasis); border-radius: 6px; padding: 1rem;">
-                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; color: var(--color-danger-emphasis);">
-                    <i class="fas fa-exclamation-circle" style="font-size: 1.25rem;"></i>
-                    <strong>Compilation Failed</strong>
+    // Show error alert banner
+    if (alertBanner) {
+        alertBanner.style.display = 'block';
+        alertBanner.className = 'alert-banner alert-banner-danger';
+        alertBanner.innerHTML = `
+            <div class="warning-banner-content">
+                <i class="fas fa-exclamation-circle warning-banner-icon"></i>
+                <div class="warning-banner-text">
+                    <div class="warning-banner-title">Compilation Failed</div>
+                    <div class="warning-banner-description">
+                        ${errorMessage}
+                        ${errorDetails ? '<br><small>Check the compilation log below for details.</small>' : ''}
+                    </div>
                 </div>
-                <p style="margin: 0.5rem 0; color: var(--color-fg-default);">${errorMessage}</p>
-                ${errorDetails ? `
-                <details style="margin-top: 0.5rem;">
-                    <summary style="cursor: pointer; font-size: 0.85rem; color: var(--color-fg-muted);">Show error details</summary>
-                    <pre style="margin-top: 0.5rem; padding: 0.5rem; background: var(--color-canvas-inset); border-radius: 4px; font-size: 0.75rem; overflow-x: auto; white-space: pre-wrap; max-height: 200px; overflow-y: auto;">${errorDetails}</pre>
-                </details>
-                ` : ''}
             </div>
         `;
+    }
+
+    // Keep old result div for backward compatibility (hide it)
+    if (resultDiv) {
+        resultDiv.style.display = 'none';
+    }
+}
+
+/**
+ * Toggle section visibility (include/exclude from compilation)
+ */
+async function toggleSectionVisibility(sectionId: string, sectionItem: HTMLElement): Promise<void> {
+    const config = getWriterConfig();
+    if (!config.projectId) {
+        showToast('No project selected', 'error');
+        return;
+    }
+
+    const isExcluded = sectionItem.classList.contains('excluded');
+    const checkbox = sectionItem.querySelector('.section-item-toggle input[type="checkbox"]') as HTMLInputElement;
+
+    try {
+        // Call API to toggle exclusion
+        const response = await fetch(
+            `/writer/api/project/${config.projectId}/section/${sectionId}/toggle-exclude/`,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify({
+                    excluded: !isExcluded  // Toggle the state
+                })
+            }
+        );
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            // Update UI
+            sectionItem.classList.toggle('excluded');
+            if (checkbox) {
+                checkbox.checked = !data.excluded;  // Checkbox is checked when NOT excluded
+            }
+
+            const action = data.excluded ? 'excluded from' : 'included in';
+            showToast(`Section ${action} compilation`, 'success');
+
+            console.log('[Writer] Toggled visibility for section:', sectionId, 'excluded:', data.excluded);
+        } else {
+            showToast(`Failed to toggle section: ${data.error || 'Unknown error'}`, 'error');
+            // Revert checkbox state
+            if (checkbox) {
+                checkbox.checked = !checkbox.checked;
+            }
+        }
+    } catch (error) {
+        console.error('[Writer] Error toggling section visibility:', error);
+        showToast('Failed to toggle section', 'error');
+        // Revert checkbox state
+        if (checkbox) {
+            checkbox.checked = !checkbox.checked;
+        }
     }
 }
 
@@ -2195,9 +2575,18 @@ function showCompilationError(errorMessage: string, errorDetails: string = ''): 
 (window as any).populateSectionDropdownDirect = populateSectionDropdownDirect;
 
 /**
- * Handle download full PDF
+ * Handle download full PDF (called from dropdown buttons - deprecated, use handleDownloadSectionPDF)
  */
 (window as any).handleDownloadFullPDF = function(event: Event): void {
+    event.preventDefault();
+    // Redirect to section-specific handler
+    handleDownloadSectionPDF('manuscript/compiled_pdf', 'Full Manuscript');
+};
+
+/**
+ * Handle download current PDF (downloads whatever is shown in viewer)
+ */
+(window as any).handleDownloadCurrentPDF = function(event: Event): void {
     event.preventDefault();
 
     const config = getWriterConfig();
@@ -2206,9 +2595,27 @@ function showCompilationError(errorMessage: string, errorDetails: string = ''): 
         return;
     }
 
-    // Download the compiled manuscript PDF
-    const pdfUrl = `/writer/api/project/${config.projectId}/pdf/?doc_type=manuscript`;
-    const filename = `${config.projectName || 'manuscript'}.pdf`;
+    // Get currently displayed PDF from iframe src
+    const iframe = document.querySelector('#text-preview iframe') as HTMLIFrameElement;
+    if (!iframe || !iframe.src) {
+        showToast('No PDF currently displayed', 'warning');
+        return;
+    }
+
+    // Extract PDF URL (remove query parameters and hash)
+    let pdfUrl = iframe.src.split('?')[0].split('#')[0];
+
+    // Determine filename based on URL
+    let filename = 'preview.pdf';
+    if (pdfUrl.includes('manuscript.pdf')) {
+        filename = `${config.projectName || 'manuscript'}_full.pdf`;
+    } else if (pdfUrl.includes('preview-')) {
+        // Extract section name from preview filename (handles both theme-specific and legacy)
+        // Matches: preview-abstract-light.pdf or preview-abstract.pdf
+        const match = pdfUrl.match(/preview-([^-\.]+)(?:-(?:light|dark))?\.pdf/);
+        const sectionName = match ? match[1] : 'preview';
+        filename = `${config.projectName || 'manuscript'}_${sectionName}.pdf`;
+    }
 
     // Create temporary link and trigger download
     const link = document.createElement('a');
@@ -2220,6 +2627,95 @@ function showCompilationError(errorMessage: string, errorDetails: string = ''): 
 
     showToast(`Downloading ${filename}...`, 'success');
 };
+
+/**
+ * Handle download section PDF (for dropdown buttons)
+ */
+function handleDownloadSectionPDF(sectionId: string, sectionLabel: string): void {
+    const config = getWriterConfig();
+    if (!config.projectId) {
+        showToast('No project selected', 'error');
+        return;
+    }
+
+    // Parse section ID to get section name
+    const parts = sectionId.split('/');
+    const sectionName = parts[parts.length - 1];
+
+    // Determine PDF URL based on section type
+    let pdfUrl: string;
+    let filename: string;
+
+    if (sectionName === 'compiled_pdf') {
+        // Full manuscript PDF - use doc_type query parameter
+        const docType = parts[0]; // manuscript, supplementary, or revision
+        pdfUrl = `/writer/api/project/${config.projectId}/pdf/?doc_type=${docType}`;
+        filename = `${config.projectName || 'manuscript'}_${docType}.pdf`;
+
+        // Check if PDF exists before downloading
+        fetch(pdfUrl, { method: 'HEAD' })
+            .then(response => {
+                if (!response.ok) {
+                    console.warn('[Download] Full manuscript PDF not found at:', pdfUrl);
+                    showToast(`Full ${docType} PDF not compiled yet. Click 📄 Compile button in dropdown first.`, 'warning');
+                    return;
+                }
+
+                // PDF exists, download it
+                console.log('[Download] Downloading full manuscript PDF from:', pdfUrl);
+                const link = document.createElement('a');
+                link.href = pdfUrl;
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                showToast(`Downloading ${filename}...`, 'success');
+            })
+            .catch((error) => {
+                console.error('[Download] Error checking PDF:', error);
+                showToast(`Full ${docType} PDF not compiled yet. Click 📄 Compile button in dropdown first.`, 'warning');
+            });
+    } else {
+        // Section preview PDF - try to find themed version first, fall back to any available
+        const currentTheme = (window as any).pdfScrollZoomHandler?.getColorMode() || 'light';
+        const themedPdfUrl = `/writer/api/project/${config.projectId}/pdf/preview-${sectionName}-${currentTheme}.pdf`;
+        const fallbackPdfUrl = `/writer/api/project/${config.projectId}/pdf/preview-${sectionName}-light.pdf`;
+        filename = `${config.projectName || 'manuscript'}_${sectionName}.pdf`;
+
+        // Try themed PDF first
+        fetch(themedPdfUrl, { method: 'HEAD' })
+            .then(response => {
+                if (response.ok) {
+                    // Themed PDF exists, download it
+                    pdfUrl = themedPdfUrl;
+                } else {
+                    // Try fallback light theme
+                    return fetch(fallbackPdfUrl, { method: 'HEAD' });
+                }
+                return response;
+            })
+            .then(response => {
+                if (response.ok) {
+                    // PDF found, download it
+                    const link = document.createElement('a');
+                    link.href = pdfUrl || fallbackPdfUrl;
+                    link.download = filename;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+
+                    showToast(`Downloading ${filename}...`, 'success');
+                } else {
+                    showToast(`${sectionLabel} PDF not generated yet. Wait for auto-preview or click section.`, 'warning');
+                }
+            })
+            .catch(() => {
+                showToast(`${sectionLabel} PDF not generated yet. Wait for auto-preview or click section.`, 'warning');
+            });
+    }
+}
+(window as any).handleDownloadSectionPDF = handleDownloadSectionPDF;
 (window as any).switchRightPanel = switchRightPanel;
 (window as any).showCompilationProgress = showCompilationProgress;
 (window as any).hideCompilationProgress = hideCompilationProgress;
@@ -2227,4 +2723,4 @@ function showCompilationError(errorMessage: string, errorDetails: string = ''): 
 (window as any).appendCompilationLog = appendCompilationLog;
 (window as any).showCompilationSuccess = showCompilationSuccess;
 (window as any).showCompilationError = showCompilationError;
-(window as any).toggleCompilationLog = toggleCompilationLog;
+// (window as any).toggleCompilationLog = toggleCompilationLog; // Function not defined
