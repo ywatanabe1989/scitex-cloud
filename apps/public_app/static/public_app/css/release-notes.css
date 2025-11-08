@@ -104,7 +104,7 @@
 .stat-number {
   font-size: 2.5rem;
   font-weight: 700;
-  color: var(--scitex-color-02);
+  color: var(--color-fg-default);
   display: block;
 }
 

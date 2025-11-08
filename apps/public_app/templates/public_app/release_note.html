@@ -267,40 +267,48 @@ document.addEventListener('DOMContentLoaded', function() {
     commits: d.commits
   }));
 
-  // Get theme-aware colors
-  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-  const lineColor = isDark ? 'rgb(107, 143, 179)' : 'rgb(70, 100, 130)';
-  const lineBgColor = isDark ? 'rgba(107, 143, 179, 0.2)' : 'rgba(107, 143, 179, 0.15)';
-  const milestoneColor = isDark ? 'rgb(184, 149, 106)' : 'rgb(200, 120, 70)';
-  const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
-  const textColor = isDark ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.8)';
+  // Function to get theme-aware colors
+  function getThemeColors() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    return {
+      lineColor: isDark ? 'rgb(99, 179, 237)' : 'rgb(59, 130, 246)',
+      lineBgColor: isDark ? 'rgba(99, 179, 237, 0.15)' : 'rgba(59, 130, 246, 0.1)',
+      milestoneColor: isDark ? 'rgb(251, 146, 60)' : 'rgb(249, 115, 22)',
+      gridColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)',
+      textColor: isDark ? 'rgb(226, 232, 240)' : 'rgb(51, 65, 85)'
+    };
+  }
 
-  new Chart(ctx, {
+  let colors = getThemeColors();
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+
+  const chart = new Chart(ctx, {
     type: 'line',
     data: {
       datasets: [
         {
           label: 'Cumulative Commits',
           data: lineData,
-          borderColor: lineColor,
-          backgroundColor: lineBgColor,
+          borderColor: colors.lineColor,
+          backgroundColor: colors.lineBgColor,
           borderWidth: 3,
           fill: true,
           tension: 0.4,
           pointRadius: 4,
           pointHoverRadius: 6,
-          pointBackgroundColor: lineColor,
-          pointBorderColor: lineColor
+          pointBackgroundColor: colors.lineColor,
+          pointBorderColor: colors.lineColor
         },
         {
           label: 'Major Milestones',
           data: milestoneData,
           type: 'scatter',
-          backgroundColor: milestoneColor,
-          borderColor: milestoneColor,
+          backgroundColor: colors.milestoneColor,
+          borderColor: isDark ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.5)',
+          borderWidth: 3,
           pointRadius: 8,
           pointHoverRadius: 12,
-          pointStyle: 'star'
+          pointStyle: 'circle'
         }
       ]
     },
@@ -316,19 +324,25 @@ document.addEventListener('DOMContentLoaded', function() {
           display: true,
           position: 'top',
           labels: {
-            usePointStyle: true,  // Use actual point style instead of rectangle
-            padding: 15,
-            color: textColor,
+            usePointStyle: true,
+            padding: 20,
+            font: {
+              size: 16,
+              weight: '600'
+            },
+            color: colors.textColor,
+            boxWidth: 20,
+            boxHeight: 20,
             generateLabels: function(chart) {
               const datasets = chart.data.datasets;
               return datasets.map((dataset, i) => ({
                 text: dataset.label,
                 fillStyle: dataset.backgroundColor,
                 strokeStyle: dataset.borderColor,
-                lineWidth: dataset.borderWidth || 0,
+                lineWidth: dataset.borderWidth || 2,
                 hidden: !chart.isDatasetVisible(i),
                 index: i,
-                pointStyle: dataset.pointStyle || (dataset.type === 'scatter' ? 'star' : 'circle')
+                pointStyle: dataset.pointStyle || 'circle'
               }));
             }
           }
@@ -364,13 +378,13 @@ document.addEventListener('DOMContentLoaded', function() {
           title: {
             display: true,
             text: 'Development Timeline',
-            color: textColor
+            color: colors.textColor
           },
           ticks: {
-            color: textColor
+            color: colors.textColor
           },
           grid: {
-            color: gridColor
+            color: colors.gridColor
           }
         },
         y: {
@@ -378,17 +392,56 @@ document.addEventListener('DOMContentLoaded', function() {
           title: {
             display: true,
             text: 'Cumulative Commits',
-            color: textColor
+            color: colors.textColor
           },
           ticks: {
-            color: textColor
+            color: colors.textColor
           },
           grid: {
-            color: gridColor
+            color: colors.gridColor
           }
         }
       }
     }
+  });
+
+  // Listen for theme changes and update chart colors
+  const observer = new MutationObserver(function(mutations) {
+    mutations.forEach(function(mutation) {
+      if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme') {
+        colors = getThemeColors();
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+
+        // Update dataset colors
+        chart.data.datasets[0].borderColor = colors.lineColor;
+        chart.data.datasets[0].backgroundColor = colors.lineBgColor;
+        chart.data.datasets[0].pointBackgroundColor = colors.lineColor;
+        chart.data.datasets[0].pointBorderColor = colors.lineColor;
+        chart.data.datasets[1].backgroundColor = colors.milestoneColor;
+        chart.data.datasets[1].borderColor = isDark ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.5)';
+
+        // Update legend and scale colors
+        chart.options.plugins.legend.labels.color = colors.textColor;
+        chart.options.plugins.legend.labels.font = {
+          size: 16,
+          weight: '600'
+        };
+        chart.options.scales.x.title.color = colors.textColor;
+        chart.options.scales.x.ticks.color = colors.textColor;
+        chart.options.scales.x.grid.color = colors.gridColor;
+        chart.options.scales.y.title.color = colors.textColor;
+        chart.options.scales.y.ticks.color = colors.textColor;
+        chart.options.scales.y.grid.color = colors.gridColor;
+
+        // Update the chart
+        chart.update();
+      }
+    });
+  });
+
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['data-theme']
   });
 });
 </script>
