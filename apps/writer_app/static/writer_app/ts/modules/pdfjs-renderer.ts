@@ -148,7 +148,12 @@ export class PDFJSRenderer {
         canvas.height = viewport.height;
         canvas.width = viewport.width;
 
+        // Create text layer for text selection
+        const textLayerDiv = document.createElement('div');
+        textLayerDiv.className = 'textLayer';
+
         pageContainer.appendChild(canvas);
+        pageContainer.appendChild(textLayerDiv);
         container.appendChild(pageContainer);
 
         console.log('[PDFJSRenderer] Page', pageNum, 'rendered with theme:', this.colorMode, 'size:', viewport.width, 'x', viewport.height);
@@ -164,6 +169,22 @@ export class PDFJSRenderer {
 
         try {
             await renderTask.promise;
+
+            // Render text layer for text selection
+            const textContent = await page.getTextContent();
+            textLayerDiv.style.width = `${viewport.width}px`;
+            textLayerDiv.style.height = `${viewport.height}px`;
+
+            // Use PDF.js TextLayer utility if available
+            if ((window as any).pdfjsLib?.renderTextLayer) {
+                await (window as any).pdfjsLib.renderTextLayer({
+                    textContentSource: textContent,
+                    container: textLayerDiv,
+                    viewport: viewport,
+                    textDivs: []
+                }).promise;
+                console.log('[PDFJSRenderer] Text layer rendered for page', pageNum);
+            }
         } catch (error: any) {
             if (error?.name !== 'RenderingCancelledException') {
                 console.error('[PDFJSRenderer] Error rendering page', pageNum, error);

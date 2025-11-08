@@ -1623,6 +1623,35 @@
     background: white;
 }
 
+/* PDF.js text layer for text selection */
+.pdfjs-page-container .textLayer {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    opacity: 1;
+    line-height: 1.0;
+    user-select: text;
+}
+
+.pdfjs-page-container .textLayer > span {
+    color: transparent;
+    position: absolute;
+    white-space: pre;
+    cursor: text;
+    transform-origin: 0% 0%;
+}
+
+.pdfjs-page-container .textLayer > span::selection {
+    background: rgba(0, 100, 255, 0.3);
+}
+
+.pdfjs-page-container .textLayer > span::-moz-selection {
+    background: rgba(0, 100, 255, 0.3);
+}
+
 /* Dark mode PDF page styling - BLACK background with WHITE text */
 /* NOTE: No CSS filter needed! Server compiles PDFs with correct colors via LaTeX \pagecolor */
 .pdfjs-pages-container[data-pdf-theme="dark"] .pdfjs-page-container {
