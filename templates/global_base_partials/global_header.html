@@ -11,27 +11,25 @@
 
       <!-- Primary Navigation -->
       <nav class="header-nav">
-        <!-- Explore Module with Dropdown -->
+        <!-- Repositories - Simple Hover Menu -->
         <div class="header-dropdown-group">
-          <button id="explore-dropdown-toggle" class="header-nav-item header-dropdown-toggle {% if 'explore' in request.path %}active{% endif %}" data-tooltip="Browse repositories">
-            <img src="{% static 'shared/images/icons_svg/scitex-explore-icon.svg' %}" alt="" class="nav-icon">
+          <span class="header-nav-item header-dropdown-toggle {% if 'explore' in request.path or user.username in request.path %}active{% endif %}">
+            <i class="fas fa-book-open nav-icon-fa" style="font-size: 16px;"></i>
             <span class="nav-label">Repositories</span>
-          </button>
+          </span>
 
-          <!-- Explore Dropdown Menu -->
+          <!-- Simple Hover Menu - Two Options -->
           <div id="explore-dropdown-menu" class="header-nav-dropdown" style="display: none;">
             {% if user.is_authenticated %}
               <a href="/{{ user.username }}/" class="nav-dropdown-item">
                 <i class="fas fa-user" style="width: 14px; margin-right: 8px; text-align: center;"></i>
-                <span>Your Repositories</span>
+                <span>Yours</span>
               </a>
             {% else %}
-              <a href="#" id="visitor-your-repos-link" class="nav-dropdown-item" style="opacity: 0.7;">
+              <a href="/auth/signup/" class="nav-dropdown-item">
                 <i class="fas fa-user" style="width: 14px; margin-right: 8px; text-align: center;"></i>
-                <span>Your Repositories</span>
-                <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" style="margin-left: auto; opacity: 0.5;">
-                  <path d="M8 0a1 1 0 0 1 1 1v6h6a1 1 0 1 1 0 2H9v6a1 1 0 1 1-2 0V9H1a1 1 0 0 1 0-2h6V1a1 1 0 0 1 1-1z"/>
-                </svg>
+                <span>Yours</span>
+                <span style="font-size: 10px; color: var(--color-fg-muted); margin-left: 4px;">(Sign up)</span>
               </a>
             {% endif %}
 
@@ -50,29 +48,6 @@
         {% endcomment %}
         <!-- Scholar Module with Dropdown -->
         <div class="header-dropdown-group">
-          <!-- <button id="scholar-dropdown-toggle" class="header-nav-item header-dropdown-toggle {% if 'scholar' in request.path %}active{% endif %}" data-tooltip="Scholar module">
-           !--   <img src="{% static 'shared/images/icons_svg/scitex-scholar-icon.svg' %}" alt="" class="nav-icon">
-           !--   <span class="nav-label">Scholar</span>
-           !-- </button> -->
-
-          <!-- <\!-- Scholar Dropdown Menu -\->
-           !-- <div id="scholar-dropdown-menu" class="header-nav-dropdown" style="display: none;">
-           !--   <a href="/scholar/bibtex/" class="nav-dropdown-item">
-           !--     <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="margin-right: 8px;">
-           !--       <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.71l-5.223 2.206A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z"/>
-           !--     </svg>
-           !--     <span>BibTeX Enrichment</span>
-           !--     <span class="dropdown-badge">Recommended</span>
-           !--   </a>
-           !-- 
-           !--   <a href="/scholar/search/" class="nav-dropdown-item">
-           !--     <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="margin-right: 8px;">
-           !--       <path d="M6.5 1a5.5 5.5 0 0 1 4.38 8.98l6.01 6.01a.75.75 0 1 1-1.06 1.06l-6.01-6.01A5.5 5.5 0 1 1 6.5 1zm0 1.5a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/>
-           !--     </svg>
-           !--     <span>Paper Search</span>
-           !--   </a>
-           !-- </div> -->
-
           <a href="/scholar/bibtex/"
              class="header-nav-item {% if 'scholar' in request.path %}active{% endif %}"
              data-tooltip="Citation Management">
@@ -93,7 +68,7 @@
         <a href="/writer/"
            class="header-nav-item {% if 'writer' in request.path %}active{% endif %}"
            data-tooltip="Manuscript writing">
-          <img src="{% static 'shared/images/icons_svg/scitex-writer-icon.svg' %}" alt="" class="nav-icon">
+          <i class="fas fa-pen-nib nav-icon-fa" style="font-size: 16px;"></i>
           <span class="nav-label">Writer</span>
         </a>
       </nav>
@@ -204,19 +179,33 @@
     <div class="header-center">
       <div class="header-search">
         <img src="{% static 'shared/images/icons_svg/scitex-search-icon.svg' %}" alt="" class="header-search-icon">
-        <input type="text" placeholder="Search repositories, users..." id="global-search" autocomplete="off">
+        <input type="text" placeholder="Type / to search" id="global-search" autocomplete="off" readonly>
+        <kbd class="search-shortcut-badge">/</kbd>
+      </div>
+    </div>
+
+    <!-- Search Modal (GitHub-style) -->
+    <div id="search-modal" class="search-modal" style="display: none;">
+      <div class="search-modal-backdrop"></div>
+      <div class="search-modal-content">
+        <div class="search-modal-header">
+          <div class="search-modal-input-wrapper">
+            <img src="{% static 'shared/images/icons_svg/scitex-search-icon.svg' %}" alt="" class="search-modal-icon">
+            <input type="text" id="search-modal-input" class="search-modal-input" placeholder="Search or jump to..." autocomplete="off" autofocus>
+          </div>
+        </div>
+        <div class="search-modal-results" id="search-modal-results">
+          <!-- Results will be populated here -->
+        </div>
+        <div class="search-modal-footer">
+          <a href="#" class="search-modal-footer-link">Search syntax tips</a>
+          <a href="#" class="search-modal-footer-link">Give feedback</a>
+        </div>
       </div>
     </div>
 
     <!-- Right: Actions + User Menu -->
     <div class="header-right">
-
-      <!-- Development Tools (only in DEBUG mode) -->
-      {% if DEBUG %}
-      <button id="element-inspector-btn" class="theme-toggle" data-tooltip="Element Inspector (Ctrl+Shift+I)" onclick="window.elementInspector?.toggle?.()" style="background: rgba(239, 68, 68, 0.2); color: var(--color-danger-emphasis); border: 1px solid var(--color-danger-emphasis);">
-        <i class="fas fa-magnifying-glass-chart"></i>
-      </button>
-      {% endif %}
 
       <!-- Theme Toggle (always visible) -->
       <button id="theme-toggle" class="theme-toggle" data-tooltip="Toggle light/dark theme">
@@ -357,9 +346,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const dropdown = group.querySelector('.header-nav-dropdown');
 
     if (toggle && dropdown) {
-      // Toggle dropdown on button click
-      toggle.addEventListener('click', function(e) {
-        e.stopPropagation();
+      let hideTimeout;
+
+      // Show dropdown on hover over toggle
+      toggle.addEventListener('mouseenter', function() {
+        clearTimeout(hideTimeout);
 
         // Close other dropdowns first
         document.querySelectorAll('.header-nav-dropdown').forEach(otherDropdown => {
@@ -368,9 +359,27 @@ document.addEventListener('DOMContentLoaded', function() {
           }
         });
 
-        // Toggle current dropdown
-        const isVisible = dropdown.style.display !== 'none';
-        dropdown.style.display = isVisible ? 'none' : 'block';
+        dropdown.style.display = 'block';
+      });
+
+      // Keep dropdown open when hovering over it
+      dropdown.addEventListener('mouseenter', function() {
+        clearTimeout(hideTimeout);
+        dropdown.style.display = 'block';
+      });
+
+      // Start hide timer when leaving toggle
+      toggle.addEventListener('mouseleave', function() {
+        hideTimeout = setTimeout(() => {
+          dropdown.style.display = 'none';
+        }, 200);
+      });
+
+      // Start hide timer when leaving dropdown
+      dropdown.addEventListener('mouseleave', function() {
+        hideTimeout = setTimeout(() => {
+          dropdown.style.display = 'none';
+        }, 200);
       });
     }
   });
@@ -393,31 +402,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // Handle visitor "Your Repositories" click - prompt to sign up
-  const visitorReposLink = document.getElementById('visitor-your-repos-link');
-  if (visitorReposLink) {
-    visitorReposLink.addEventListener('click', function(e) {
-      e.preventDefault();
-
-      // Use modern modal if available, fallback to confirm
-      if (window.scitexConfirm) {
-        window.scitexConfirm({
-          title: 'Sign up to create repositories',
-          message: 'Create an account to save your work permanently and manage your own repositories.',
-          confirmText: 'Sign up',
-          cancelText: 'Maybe later',
-          onConfirm: () => {
-            window.location.href = '/auth/signup/';
-          }
-        });
-      } else {
-        // Fallback to browser confirm
-        if (confirm('Sign up to create your own repositories and save your work permanently.\n\nSign up now?')) {
-          window.location.href = '/auth/signup/';
-        }
-      }
-    });
-  }
 
   const userMenuToggle = document.getElementById('user-menu-toggle');
   const userMenuDropdown = document.getElementById('user-menu-dropdown');
@@ -480,7 +464,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Autocomplete UI helpers
+  // Autocomplete UI helpers - GitHub-style grouped results
   function showAutocomplete(suggestions) {
     let dropdown = document.getElementById('search-autocomplete');
     if (!dropdown) {
@@ -495,10 +479,10 @@ document.addEventListener('DOMContentLoaded', function() {
         border: 1px solid var(--color-border-default);
         border-radius: 6px;
         box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-        max-height: 400px;
+        max-height: 500px;
         overflow-y: auto;
         z-index: 1000;
-        margin-top: 4px;
+        margin-top: 8px;
       `;
       document.querySelector('.header-search').appendChild(dropdown);
     }
@@ -508,25 +492,54 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
     }
 
-    dropdown.innerHTML = suggestions.map(s => `
-      <a href="${s.url}" style="
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 12px;
-        color: var(--color-fg-default);
-        text-decoration: none;
-        border-bottom: 1px solid var(--color-border-muted);
-      " onmouseover="this.style.background='var(--color-canvas-subtle)'"
-         onmouseout="this.style.background='transparent'">
-        <span style="font-size: 20px;">${s.icon}</span>
-        <div style="flex: 1;">
-          <div style="font-weight: 500;">${s.title}</div>
-          <div style="font-size: 12px; color: var(--color-fg-muted);">${s.subtitle}</div>
-        </div>
-      </a>
-    `).join('');
+    // Group suggestions by type
+    const grouped = suggestions.reduce((acc, item) => {
+      const type = item.type || 'other';
+      if (!acc[type]) acc[type] = [];
+      acc[type].push(item);
+      return acc;
+    }, {});
 
+    // Render grouped results
+    let html = '';
+    const typeLabels = {
+      'users': 'Owners',
+      'repositories': 'Repositories',
+      'other': 'Other'
+    };
+
+    Object.keys(grouped).forEach(type => {
+      const label = typeLabels[type] || type;
+      html += `
+        <div style="padding: 8px 12px 4px; font-size: 11px; font-weight: 600; color: var(--color-fg-muted); text-transform: uppercase; letter-spacing: 0.5px;">
+          ${label}
+        </div>
+      `;
+
+      grouped[type].forEach(s => {
+        html += `
+          <a href="${s.url}" class="search-result-item" style="
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 12px;
+            color: var(--color-fg-default);
+            text-decoration: none;
+            border-bottom: 1px solid var(--color-border-muted);
+          " onmouseover="this.style.background='var(--color-canvas-subtle)'"
+             onmouseout="this.style.background='transparent'">
+            <span style="font-size: 16px; opacity: 0.7;">${s.icon || '📄'}</span>
+            <div style="flex: 1; min-width: 0;">
+              <div style="font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${s.title}</div>
+              ${s.subtitle ? `<div style="font-size: 12px; color: var(--color-fg-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${s.subtitle}</div>` : ''}
+            </div>
+            <div style="font-size: 12px; color: var(--color-fg-muted); white-space: nowrap;">Jump to</div>
+          </a>
+        `;
+      });
+    });
+
+    dropdown.innerHTML = html;
     dropdown.style.display = 'block';
   }
 
@@ -705,6 +718,149 @@ document.addEventListener('DOMContentLoaded', function() {
           accountSwitcherDropdownWrapper.style.display = 'none';
         }
       });
+  }
+
+  // Search Modal Management
+  const searchModal = document.getElementById('search-modal');
+  const searchModalInput = document.getElementById('search-modal-input');
+  const searchModalResults = document.getElementById('search-modal-results');
+  const globalSearchInput = document.getElementById('global-search');
+
+  // Open modal when clicking header search or pressing "/"
+  function openSearchModal() {
+    if (searchModal) {
+      searchModal.style.display = 'block';
+      document.body.style.overflow = 'hidden';
+      setTimeout(() => {
+        if (searchModalInput) {
+          searchModalInput.focus();
+        }
+      }, 100);
+    }
+  }
+
+  // Close modal
+  function closeSearchModal() {
+    if (searchModal) {
+      searchModal.style.display = 'none';
+      document.body.style.overflow = '';
+      if (searchModalInput) {
+        searchModalInput.value = '';
+      }
+      if (searchModalResults) {
+        searchModalResults.innerHTML = '';
+      }
+    }
+  }
+
+  // Click on header search input
+  if (globalSearchInput) {
+    globalSearchInput.addEventListener('click', function(e) {
+      e.preventDefault();
+      openSearchModal();
+    });
+  }
+
+  // Search keyboard shortcuts: "/" or "Ctrl+K" to open modal
+  document.addEventListener('keydown', function(e) {
+    // Ctrl+K or Cmd+K to open search modal
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      e.preventDefault();
+      openSearchModal();
+      return;
+    }
+
+    // "/" to open modal (only if not in an input/textarea)
+    if (e.key === '/' && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+      e.preventDefault();
+      openSearchModal();
+    }
+
+    // Close modal on Escape
+    if (e.key === 'Escape' && searchModal && searchModal.style.display === 'block') {
+      closeSearchModal();
+    }
+  });
+
+  // Close modal when clicking backdrop
+  if (searchModal) {
+    searchModal.addEventListener('click', function(e) {
+      if (e.target.classList.contains('search-modal-backdrop') || e.target.classList.contains('search-modal')) {
+        closeSearchModal();
+      }
+    });
+  }
+
+  // Search modal input handler
+  if (searchModalInput) {
+    let searchTimeout;
+    searchModalInput.addEventListener('input', function() {
+      clearTimeout(searchTimeout);
+      const query = this.value.trim();
+
+      if (query.length < 2) {
+        searchModalResults.innerHTML = '';
+        return;
+      }
+
+      searchTimeout = setTimeout(async () => {
+        try {
+          const response = await fetch(`/search/api/autocomplete/?q=${encodeURIComponent(query)}`);
+          const data = await response.json();
+          showModalResults(data.suggestions || []);
+        } catch (err) {
+          console.error('Search error:', err);
+        }
+      }, 200);
+    });
+  }
+
+  // Show results in modal
+  function showModalResults(suggestions) {
+    if (!searchModalResults) return;
+
+    if (suggestions.length === 0) {
+      searchModalResults.innerHTML = '<div style="padding: 24px; text-align: center; color: var(--color-fg-muted);">No results found</div>';
+      return;
+    }
+
+    // Group suggestions by type
+    const grouped = suggestions.reduce((acc, item) => {
+      const type = item.type || 'other';
+      if (!acc[type]) acc[type] = [];
+      acc[type].push(item);
+      return acc;
+    }, {});
+
+    // Render grouped results
+    let html = '';
+    const typeLabels = {
+      'users': 'Owners',
+      'repositories': 'Repositories',
+      'other': 'Other'
+    };
+
+    Object.keys(grouped).forEach(type => {
+      const label = typeLabels[type] || type;
+      html += `
+        <div class="search-modal-section-header">${label}</div>
+      `;
+
+      grouped[type].forEach(s => {
+        html += `
+          <a href="${s.url}" class="search-modal-result-item">
+            <span class="search-modal-result-icon">${s.icon || '📄'}</span>
+            <div class="search-modal-result-content">
+              <div class="search-modal-result-title">${s.title}</div>
+              ${s.subtitle ? `<div class="search-modal-result-subtitle">${s.subtitle}</div>` : ''}
+            </div>
+            <div class="search-modal-result-action">Jump to</div>
+          </a>
+        `;
+      });
+    });
+
+    searchModalResults.innerHTML = html;
   }
 });
 </script>
