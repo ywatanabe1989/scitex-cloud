@@ -431,77 +431,6 @@ class WriterService:
 
         return latex_content
 
-    def _compile_alternate_theme_background(self, latex_content: str, section_name: str, color_mode: str, timeout: int):
-        """Compile alternate theme PDF in background (non-blocking).
-
-        This runs in a separate thread to pre-generate the alternate theme
-        so theme switching is instant without waiting for recompilation.
-
-        Storage Strategy:
-        - Light theme: preview-{section}-light.pdf
-        - Dark theme: preview-{section}-dark.pdf
-        - Both files maintained for instant switching
-
-        Args:
-            latex_content: Original LaTeX content (before color mode applied)
-            section_name: Section name
-            color_mode: 'light' or 'dark'
-            timeout: Compilation timeout
-        """
-        import threading
-
-        def background_compile():
-            try:
-                # Apply alternate color mode
-                themed_content = self._apply_color_mode_to_latex(latex_content, color_mode)
-
-                import subprocess
-                import shutil
-
-                preview_dir = self.writer_dir / ".preview"
-                preview_dir.mkdir(parents=True, exist_ok=True)
-
-                # Compile with theme suffix
-                temp_tex = preview_dir / f"preview-{section_name}-{color_mode}-temp.tex"
-                temp_tex.write_text(themed_content, encoding='utf-8')
-
-                logger.info(f"[BackgroundCompile] Compiling alternate theme ({color_mode}) for {section_name}")
-
-                result = subprocess.run(
-                    [
-                        "pdflatex",
-                        "-interaction=nonstopmode",
-                        "-output-directory", str(preview_dir),
-                        str(temp_tex)
-                    ],
-                    capture_output=True,
-                    text=True,
-                    timeout=timeout
-                )
-
-                temp_pdf = preview_dir / f"preview-{section_name}-{color_mode}-temp.pdf"
-                output_pdf = preview_dir / f"preview-{section_name}-{color_mode}.pdf"
-
-                if temp_pdf.exists():
-                    if temp_pdf != output_pdf:
-                        shutil.move(str(temp_pdf), str(output_pdf))
-                    logger.info(f"[BackgroundCompile] ✓ Alternate theme ({color_mode}) ready for {section_name} - instant switching enabled!")
-
-                    # Cleanup temp .tex and auxiliary files
-                    temp_tex.unlink(missing_ok=True)
-                    for aux_file in preview_dir.glob(f"preview-{section_name}-{color_mode}-temp.*"):
-                        if aux_file.suffix not in ['.pdf']:
-                            aux_file.unlink(missing_ok=True)
-                else:
-                    logger.warning(f"[BackgroundCompile] Failed to compile alternate theme ({color_mode}) for {section_name}")
-
-            except Exception as e:
-                logger.warning(f"[BackgroundCompile] Error compiling alternate theme: {e}")
-
-        # Start background thread (daemon=True means it won't block shutdown)
-        thread = threading.Thread(target=background_compile, daemon=True)
-        thread.start()
-
     def compile_preview(self, latex_content: str, timeout: int = 60, color_mode: str = 'light', section_name: str = 'preview', doc_type: str = 'manuscript') -> dict:
         """Compile a quick preview of provided LaTeX content (not from workspace).
 
@@ -576,10 +505,6 @@ class WriterService:
                     shutil.move(str(temp_pdf), str(output_pdf))
 
                 logger.info(f"WriterService: Preview compilation succeeded for {section_name} ({color_mode}): {output_pdf}")
-
-                # Trigger background compilation for alternate theme (non-blocking)
-                alternate_theme = 'dark' if color_mode == 'light' else 'light'
-                self._compile_alternate_theme_background(latex_content, section_name, alternate_theme, timeout)
 
                 return {
                     "success": True,

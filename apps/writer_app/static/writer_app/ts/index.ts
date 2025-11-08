@@ -631,27 +631,36 @@ async function initializeEditor(config: any): Promise<void> {
     // Observe for PDF viewer changes and reinitialize zoom handler
     pdfScrollZoomHandler.observePDFViewer();
 
-    // Connect color mode changes to recompilation
-    pdfScrollZoomHandler.onColorModeChange(async (colorMode) => {
-        console.log('[Writer] PDF color mode changed to:', colorMode, '- updating renderer immediately');
-
-        // Set color mode (this updates renderer immediately with CSS filters)
-        await pdfPreviewManager.setColorMode(colorMode);
-
-        // Then trigger recompilation with new color mode
-        const currentContent = editor?.getContent();
-        const currentSection = state?.currentSection || 'manuscript/abstract';
-        if (currentContent) {
-            pdfPreviewManager.compileQuick(currentContent, currentSection);
-        }
-    });
-
-    // Setup PDF color mode toggle button
+    // Setup PDF color mode toggle button - SIMPLE direct approach with debounce
     const colorModeBtn = document.getElementById('pdf-color-mode-btn');
+    let isTogglingTheme = false;
+
     if (colorModeBtn) {
         colorModeBtn.addEventListener('click', () => {
-            console.log('[Writer] PDF color mode button clicked');
-            pdfScrollZoomHandler.toggleColorMode();
+            // Prevent rapid clicking
+            if (isTogglingTheme) {
+                console.log('[Writer] Theme toggle in progress, ignoring click');
+                return;
+            }
+
+            isTogglingTheme = true;
+
+            // Toggle color mode
+            const newMode = pdfScrollZoomHandler.getColorMode() === 'dark' ? 'light' : 'dark';
+            console.log('[Writer] PDF color mode switching to:', newMode);
+
+            // Update handler state and button
+            pdfScrollZoomHandler.setColorMode(newMode);
+
+            // Immediately switch PDF display (pass content for compilation if needed)
+            const currentContent = editor?.getContent();
+            const currentSection = state?.currentSection;
+            pdfPreviewManager.setColorMode(newMode, currentContent, currentSection);
+
+            // Allow next toggle after short delay
+            setTimeout(() => {
+                isTogglingTheme = false;
+            }, 500);
         });
     }
 
@@ -2222,11 +2231,7 @@ function setupPDFZoomControls(pdfScrollZoomHandler: any): void {
         });
     }
 
-    if (colorModeBtn) {
-        colorModeBtn.addEventListener('click', () => {
-            pdfScrollZoomHandler.toggleColorMode();
-        });
-    }
+    // Note: colorModeBtn listener already attached earlier in initialization
 
     // Show/hide zoom controls based on PDF presence
     const observer = new MutationObserver(() => {

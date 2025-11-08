@@ -5,7 +5,6 @@
 
 import { CompilationManager, CompilationOptions } from './compilation.js';
 import { LatexWrapper } from './latex-wrapper.js';
-import { PDFJSRenderer } from './pdfjs-renderer.js';
 
 console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/modules/pdf-preview.ts loaded");
 export interface PDFPreviewOptions {
@@ -23,7 +22,6 @@ export class PDFPreviewManager {
     private container: HTMLElement | null;
     private compilationManager: CompilationManager;
     private latexWrapper: LatexWrapper;
-    private pdfRenderer: PDFJSRenderer | null = null;
     private projectId: number;
     private autoCompile: boolean;
     private compileDelay: number;
@@ -32,7 +30,6 @@ export class PDFPreviewManager {
     private currentPdfUrl: string | null = null;
     private fontSize: number = 14; // Default editor font size
     private colorMode: 'light' | 'dark' = 'light'; // PDF color mode
-    private currentScale: number = 2.0; // PDF zoom scale (2.0 for high-DPI displays)
 
     constructor(options: PDFPreviewOptions) {
         this.container = document.getElementById(options.containerId);
@@ -179,41 +176,47 @@ export class PDFPreviewManager {
     }
 
     /**
-     * Set PDF color mode and switch to themed PDF instantly if available
+     * Set PDF color mode and switch to themed PDF instantly
+     * If themed PDF doesn't exist, compile it
      */
-    async setColorMode(colorMode: 'light' | 'dark'): Promise<void> {
+    setColorMode(colorMode: 'light' | 'dark', content?: string, sectionId?: string): void {
         const oldMode = this.colorMode;
         this.colorMode = colorMode;
         console.log('[PDFPreview] Color mode changed from', oldMode, 'to', colorMode);
 
-        // Update renderer immediately with new theme (applies CSS filters)
-        if (this.pdfRenderer) {
-            await this.pdfRenderer.setColorMode(colorMode);
-            console.log('[PDFPreview] Renderer updated to', colorMode, 'mode immediately');
-        }
-
-        // Also check if we can load a pre-compiled themed PDF
+        // Force reload with new theme if we have a PDF displayed
         if (this.currentPdfUrl) {
             // Extract section name from current URL
             const match = this.currentPdfUrl.match(/preview-([^-]+)-(?:light|dark)\.pdf/);
             if (match) {
                 const sectionName = match[1];
-                const themedPdfUrl = `/writer/api/project/${this.projectId}/pdf/preview-${sectionName}-${colorMode}.pdf?t=${Date.now()}`;
-
-                console.log('[PDFPreview] Checking for pre-compiled themed PDF:', themedPdfUrl);
+                const themedPdfUrl = `/writer/api/project/${this.projectId}/pdf/preview-${sectionName}-${colorMode}.pdf`;
 
                 // Check if themed PDF exists
                 fetch(themedPdfUrl, { method: 'HEAD' })
                     .then(response => {
                         if (response.ok) {
-                            console.log('[PDFPreview] Themed PDF exists, loading it');
-                            this.displayPdf(themedPdfUrl);
+                            // PDF exists, display it
+                            console.log('[PDFPreview] Themed PDF exists, displaying');
+                            this.currentPdfUrl = null;
+                            this.displayPdf(themedPdfUrl + `?t=${Date.now()}`);
+                        } else if (content) {
+                            // PDF doesn't exist but we have content, compile it
+                            console.log('[PDFPreview] Themed PDF not found, compiling');
+                            this.compileQuick(content, sectionId || `manuscript/${sectionName}`);
                         } else {
-                            console.log('[PDFPreview] Themed PDF not ready yet, using CSS filters for now');
+                            // No content available, show placeholder
+                            console.log('[PDFPreview] No themed PDF and no content, showing placeholder');
+                            this.displayPlaceholder();
                         }
                     })
                     .catch(() => {
-                        console.log('[PDFPreview] Using CSS filters for theme (will recompile in background)');
+                        if (content) {
+                            console.log('[PDFPreview] Compiling themed PDF');
+                            this.compileQuick(content, sectionId || `manuscript/${sectionName}`);
+                        } else {
+                            this.displayPlaceholder();
+                        }
                     });
             }
         }
@@ -226,65 +229,55 @@ export class PDFPreviewManager {
     private displayPdf(pdfUrl: string): void {
         if (!this.container) return;
 
-        // Skip if we're already displaying this exact PDF (prevent duplicate renders)
-        const cleanUrl = pdfUrl.split('?')[0]; // Remove cache-busting timestamp
-        const currentCleanUrl = this.currentPdfUrl ? this.currentPdfUrl.split('?')[0] : null;
-        if (currentCleanUrl === cleanUrl) {
-            console.log('[PDFPreview] Already displaying this PDF, skipping re-render:', cleanUrl);
-            return;
-        }
+        // Extract theme from URL
+        const pdfTheme = pdfUrl.includes('-dark.pdf') ? 'dark' : 'light';
+        console.log('[PDFPreview] Displaying PDF:', pdfUrl, 'theme:', pdfTheme);
 
-        // Extract theme from PDF URL to ensure button icon matches
-        const themeMatch = pdfUrl.match(/-(?:light|dark)\.pdf/);
-        if (themeMatch) {
-            const pdfTheme = pdfUrl.includes('-light.pdf') ? 'light' : 'dark';
-            if (pdfTheme !== this.colorMode) {
-                console.warn('[PDFPreview] PDF theme mismatch! Button shows', this.colorMode, 'but displaying', pdfTheme);
-                this.colorMode = pdfTheme;
-                // Update button icon to match actual PDF
-                const pdfScrollZoomHandler = (window as any).pdfScrollZoomHandler;
-                if (pdfScrollZoomHandler && typeof pdfScrollZoomHandler.setColorMode === 'function') {
-                    pdfScrollZoomHandler.setColorMode(pdfTheme);
-                }
+        // Ensure color mode matches PDF being displayed
+        if (pdfTheme !== this.colorMode) {
+            console.log('[PDFPreview] Updating color mode to match PDF:', pdfTheme);
+            this.colorMode = pdfTheme;
+
+            // Update button icon to match
+            const pdfScrollZoomHandler = (window as any).pdfScrollZoomHandler;
+            if (pdfScrollZoomHandler && typeof pdfScrollZoomHandler.setColorMode === 'function') {
+                pdfScrollZoomHandler.setColorMode(pdfTheme);
             }
         }
 
         // Use requestAnimationFrame to batch DOM updates with browser repaint cycle
         // This prevents layout thrashing and ensures minimal latency
-        requestAnimationFrame(async () => {
-            // Create PDF.js renderer if not exists
-            if (!this.pdfRenderer) {
-                // Create container structure for PDF.js
-                this.container!.innerHTML = `
-                    <div class="pdf-preview-container">
-                        <div class="pdf-preview-viewer" id="pdf-viewer-pane"></div>
+        requestAnimationFrame(() => {
+            // Add timestamp to URL for cache-busting (critical for theme switching)
+            const cacheBustUrl = pdfUrl.includes('?') ? pdfUrl : `${pdfUrl}?t=${Date.now()}`;
+
+            this.container!.innerHTML = `
+                <div class="pdf-preview-container">
+                    <div class="pdf-preview-viewer" id="pdf-viewer-pane">
+                        <iframe
+                            src="${cacheBustUrl}#toolbar=0&navpanes=0&scrollbar=1&view=FitW&zoom=page-width"
+                            type="application/pdf"
+                            width="100%"
+                            height="100%"
+                            title="PDF Preview"
+                            frameborder="0"
+                            style="display: block;">
+                        </iframe>
                     </div>
-                `;
+                </div>
+            `;
 
-                // Pass current color mode to renderer on creation
-                this.pdfRenderer = new PDFJSRenderer('pdf-viewer-pane', this.colorMode);
-                console.log('[PDFPreview] Created renderer with color mode:', this.colorMode);
+            // Update current PDF URL
+            this.currentPdfUrl = pdfUrl;
+
+            // Update download button
+            const downloadBtn = document.getElementById('download-pdf-toolbar') as HTMLAnchorElement;
+            if (downloadBtn) {
+                downloadBtn.href = pdfUrl;
+                downloadBtn.style.display = 'inline-block';
             }
 
-            // Render PDF with PDF.js
-            try {
-                await this.pdfRenderer.renderPDF(pdfUrl, this.currentScale);
-
-                // Update current PDF URL AFTER successful render
-                this.currentPdfUrl = pdfUrl;
-
-                // Update download button
-                const downloadBtn = document.getElementById('download-pdf-toolbar') as HTMLAnchorElement;
-                if (downloadBtn) {
-                    downloadBtn.href = pdfUrl;
-                    downloadBtn.style.display = 'inline-block';
-                }
-
-                console.log('[PDFPreview] PDF displayed with PDF.js:', pdfUrl, '(theme:', this.colorMode, ', scale:', this.currentScale, ')');
-            } catch (error) {
-                console.error('[PDFPreview] Error displaying PDF:', error);
-                this.displayError('Failed to display PDF');
-            }
+            console.log('[PDFPreview] PDF displayed with iframe:', pdfUrl, '(theme:', this.colorMode, ')');
         });
     }
 
@@ -313,27 +306,25 @@ export class PDFPreviewManager {
     private updateProgress(progress: number, status: string): void {
         if (!this.container) return;
 
-        // Don't show progress overlay if PDF is already rendered
-        // This prevents wiping out the PDF.js canvas during background compilation
-        const hasPDF = this.container.querySelector('.pdfjs-pages-container') !== null;
-        if (hasPDF && progress < 100) {
-            // PDF already showing, just log progress
+        // Check if PDF is already displayed (iframe or PDF.js)
+        const hasPDF = this.container.querySelector('iframe, .pdfjs-pages-container') !== null;
+
+        if (hasPDF) {
+            // PDF already showing, don't show progress overlay
             console.log('[PDFPreview] Background compile progress:', progress, '%', status);
             return;
         }
 
-        // Only show progress UI if we don't have a PDF yet
-        if (!hasPDF) {
-            this.container.innerHTML = `
-                <div style="padding: 2rem; text-align: center;">
-                    <div class="progress" style="height: 4px; margin-bottom: 1rem;">
-                        <div class="progress-bar" role="progressbar" style="width: ${progress}%; background: var(--color-accent-emphasis);" aria-valuenow="${progress}" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    <p style="color: var(--color-fg-muted);">${status}</p>
-                    <small>${progress}%</small>
+        // Only show progress UI if no PDF is displayed yet
+        this.container.innerHTML = `
+            <div style="padding: 2rem; text-align: center;">
+                <div class="progress" style="height: 4px; margin-bottom: 1rem;">
+                    <div class="progress-bar" role="progressbar" style="width: ${progress}%; background: var(--color-accent-emphasis);" aria-valuenow="${progress}" aria-valuemin="0" aria-valuemax="100"></div>
                 </div>
-            `;
-        }
+                <p style="color: var(--color-fg-muted);">${status}</p>
+                <small>${progress}%</small>
+            </div>
+        `;
     }
 
     /**
@@ -418,31 +409,4 @@ export class PDFPreviewManager {
         console.log('[PDFPreview] Font size set to:', fontSize);
     }
 
-    /**
-     * Set PDF zoom scale
-     */
-    async setZoomScale(scale: number): Promise<void> {
-        this.currentScale = scale;
-        if (this.pdfRenderer) {
-            await this.pdfRenderer.setScale(scale);
-            console.log('[PDFPreview] Zoom scale set to:', scale);
-        }
-    }
-
-    /**
-     * Get current zoom scale
-     */
-    getZoomScale(): number {
-        return this.currentScale;
-    }
-
-    /**
-     * Update PDF.js renderer color mode
-     */
-    async updateRendererColorMode(mode: 'light' | 'dark'): Promise<void> {
-        if (this.pdfRenderer) {
-            await this.pdfRenderer.setColorMode(mode);
-            console.log('[PDFPreview] Renderer color mode updated to:', mode);
-        }
-    }
 }

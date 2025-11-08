@@ -234,10 +234,12 @@ export class PDFScrollZoomHandler {
         this.dragStartY = e.clientY;
         this.dragStartZoom = this.currentZoom;
 
+        console.log('[PDFScrollZoom] Starting zoom drag from:', this.currentZoom);
+
         // Change cursor to indicate zoom mode
         if (this.pdfViewer) {
             this.originalOverflow = this.pdfViewer.style.cursor;
-            this.pdfViewer.style.cursor = 'grab';
+            this.pdfViewer.style.cursor = 'grabbing';
         }
     }
 
@@ -320,13 +322,13 @@ export class PDFScrollZoomHandler {
         const oldZoom = this.currentZoom;
         this.currentZoom = Math.max(this.minZoom, Math.min(this.maxZoom, zoomLevel));
 
-        // Update embed scale via transform
-        const embed = this.pdfViewer.querySelector('embed');
+        // Apply zoom via transform to iframe/embed
+        const embed = this.pdfViewer.querySelector('embed, iframe');
         if (embed) {
             const scaleRatio = this.currentZoom / 100;
-            embed.style.transform = `scale(${scaleRatio})`;
-            embed.style.transformOrigin = 'top center';
-            embed.style.transition = 'none';
+            (embed as HTMLElement).style.transform = `scale(${scaleRatio})`;
+            (embed as HTMLElement).style.transformOrigin = 'top center';
+            (embed as HTMLElement).style.transition = 'none';
 
             // If cursor position provided, center zoom on cursor
             if (cursorX !== undefined && cursorY !== undefined) {
