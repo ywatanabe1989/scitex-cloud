@@ -205,12 +205,56 @@ body {
     margin-bottom: 16px;
 }
 
+.repo-section-header .btn {
+    height: 40px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 16px;
+}
+
 .repo-search {
     /* Layout preserved */
+    position: relative;
     display: flex;
     gap: 8px;
     flex: 1;
     max-width: 100%;
+}
+
+.repo-search-input {
+    flex: 1;
+    padding-right: 70px !important;
+    height: 40px;
+}
+
+.repo-search-shortcut {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 3px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    color: var(--text-secondary);
+    background: transparent;
+    border: 1px solid var(--border-default);
+    border-radius: 3px;
+    pointer-events: none;
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+    line-height: 14px;
+}
+
+.repo-search-input:focus ~ .repo-search-shortcut {
+    opacity: 0;
+}
+
+[data-theme="dark"] .repo-search-shortcut {
+    background: transparent;
+    border-color: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.5);
 }
 
 .repo-search input {

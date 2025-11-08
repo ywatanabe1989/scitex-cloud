@@ -50,6 +50,22 @@ console.log("[DEBUG] apps/project_app/static/project_app/ts/users/profile.ts loa
                 }
             });
         });
+
+        // Ctrl+K shortcut to focus repository search
+        document.addEventListener('keydown', function(e: KeyboardEvent) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                // Don't trigger if already in an input (except our search)
+                if (document.activeElement?.tagName === 'INPUT' && document.activeElement.id !== 'repo-search') {
+                    return;
+                }
+                if (document.activeElement?.tagName === 'TEXTAREA') {
+                    return;
+                }
+
+                e.preventDefault();
+                repoSearchInput.focus();
+            }
+        });
     }
 
     // =============================================================================
