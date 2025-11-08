@@ -11,115 +11,136 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   }
 
-  /* Demos Carousel */
+  /* Modern Carousel */
   .demos-carousel-wrapper {
     position: relative;
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
-    padding: 0 60px;
+    padding: 0 80px;
+  }
+
+  .demos-carousel-container {
     overflow: hidden;
+    border-radius: 12px;
   }
 
   .demos-carousel-track {
     display: flex;
-    transition: transform 0.5s ease-in-out;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .demos-carousel-slide {
     flex: 0 0 100%;
     min-width: 100%;
+    box-sizing: border-box;
   }
 
-  /* Carousel Navigation */
+  /* Modern Navigation Arrows */
   .carousel-nav {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background: var(--color-canvas-default);
-    border: 2px solid var(--color-border-default);
-    border-radius: 50%;
-    width: 48px;
-    height: 48px;
+    background: transparent;
+    border: none;
+    width: 56px;
+    height: 56px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    z-index: 10;
-    transition: all 0.3s ease;
-    color: var(--color-fg-default);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    z-index: 100;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    color: var(--scitex-color-06);
+    opacity: 0.7;
   }
 
   .carousel-nav:hover {
-    background: var(--color-accent-emphasis);
-    color: white;
-    border-color: var(--color-accent-emphasis);
-    transform: translateY(-50%) scale(1.1);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    color: var(--scitex-color-07);
+    opacity: 1;
+    transform: translateY(-50%) scale(1.15);
+  }
+
+  .carousel-nav i {
+    font-size: 2.5rem;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
   }
 
   .carousel-nav-prev {
-    left: 0;
+    left: 10px;
   }
 
   .carousel-nav-next {
-    right: 0;
+    right: 10px;
   }
 
-  /* Carousel Indicators */
+  /* Modern Indicators */
   .carousel-indicators {
-    display: flex;
-    justify-content: center;
-    gap: 0.75rem;
-    margin-top: 2rem;
+    display: flex !important;
+    justify-content: center !important;
+    gap: 2rem;
+    margin-top: 4rem !important;
+    position: relative !important;
+    bottom: auto !important;
+    left: auto !important;
+    right: auto !important;
+    margin-bottom: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
   }
 
-  .carousel-indicator {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: var(--color-border-default);
-    border: none;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    padding: 0;
-  }
-
-  .carousel-indicator:hover {
-    background: var(--color-accent-fg);
-    transform: scale(1.2);
-  }
-
-  .carousel-indicator.active {
-    background: var(--color-accent-emphasis);
-    width: 32px;
-    border-radius: 6px;
-  }
-
-  /* Module labels under indicators */
   .carousel-indicator-label {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.25rem;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .carousel-indicator-label:hover .carousel-indicator {
+    background: var(--scitex-color-05);
+    transform: scale(1.3);
+  }
+
+  .carousel-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--scitex-color-04);
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0;
+    opacity: 0.4;
+  }
+
+  .carousel-indicator.active {
+    background: var(--scitex-color-06);
+    width: 40px;
+    height: 8px;
+    border-radius: 4px;
+    opacity: 1;
   }
 
   .carousel-indicator-label span {
-    font-size: 0.7rem;
-    color: var(--color-fg-muted);
-    transition: color 0.3s ease;
+    font-size: 0.75rem;
+    color: var(--scitex-color-05);
+    transition: all 0.3s ease;
+    font-weight: 500;
+    letter-spacing: 0.025em;
   }
 
   .carousel-indicator-label.active span {
-    color: var(--color-accent-emphasis);
-    font-weight: 600;
+    color: var(--scitex-color-07);
+    font-weight: 700;
+    font-size: 0.85rem;
   }
 </style>
 
 <!-- Demo Video Section -->
 <section class="landing-section section-demos bg-pattern bg-pattern-dots-scattered bg-pattern-subtle" id="demos">
     <div class="container">
-        <h2 style="text-align: center; margin-bottom: 3rem; font-size: 2.5rem; color: var(--color-fg-default);">Demonstrations</h2>
+        <!-- <h2 style="text-align: center; margin-bottom: 3rem; font-size: 2.5rem; color: var(--color-fg-default);">Demonstrations</h2> -->
 
         <div class="demos-carousel-wrapper">
             <!-- Navigation Arrows -->
@@ -130,31 +151,34 @@
                 <i class="fas fa-chevron-right" style="font-size: 1.25rem;"></i>
             </button>
 
-            <!-- Carousel Track -->
-            <div class="demos-carousel-track" id="demosCarouselTrack">
+            <!-- Carousel Container (overflow hidden) -->
+            <div class="demos-carousel-container">
+                <!-- Carousel Track -->
+                <div class="demos-carousel-track" id="demosCarouselTrack">
                 <!-- Scholar Demo -->
-                <div class="demos-carousel-slide bg-pattern bg-pattern-dots-sm bg-pattern-subtle" style="border-radius: 12px; padding: 2rem;">
-                    {% include 'public_app/landing_partials/components/module_demo.html' with module_name='Scholar' icon_path='shared/images/icons_svg/scitex-scholar-icon.svg' video_path='public_app/videos/landing/scholar-demo.mp4' poster='public_app/videos/landing/thumbnails/scholar-demo.jpg' docs_url='docs:scholar' github_url='https://github.com/ywatanabe1989/SciTeX-Code/tree/main/src/scitex/scholar' video_position='3fr 2fr' video_first=True margin='0 auto' features_partial='public_app/landing_partials/features/scholar_features.html' %}
+                <div class="demos-carousel-slide">
+                    {% include 'public_app/landing_partials/components/module_demo.html' with module_name='Scholar' icon_path='shared/images/icons_svg/scitex-scholar-icon.svg' video_path='public_app/videos/landing/scholar-demo.mp4' poster='public_app/videos/landing/thumbnails/scholar-demo.jpg' docs_url='docs:scholar' github_url='https://github.com/ywatanabe1989/SciTeX-Code/tree/main/src/scitex/scholar' video_position='1fr 1fr' video_first=True margin='0 auto' features_partial='public_app/landing_partials/features/scholar_features.html' %}
                 </div>
 
                 <!-- Writer Demo -->
-                <div class="demos-carousel-slide bg-pattern bg-pattern-grid bg-pattern-subtle" style="border-radius: 12px; padding: 2rem;">
-                    {% include 'public_app/landing_partials/components/module_demo.html' with module_name='Writer' icon_path='shared/images/icons_svg/scitex-writer-icon.svg' video_path='public_app/videos/landing/writer-demo.mp4' poster='public_app/videos/landing/thumbnails/writer-demo.jpg' docs_url='docs:writer' github_url='https://github.com/ywatanabe1989/SciTeX-Writer' video_position='3fr 2fr' video_first=True object_fit=True margin='0 auto' features_partial='public_app/landing_partials/features/writer_features.html' %}
+                <div class="demos-carousel-slide">
+                    {% include 'public_app/landing_partials/components/module_demo.html' with module_name='Writer' icon_path='shared/images/icons_svg/scitex-writer-icon.svg' video_path='public_app/videos/landing/writer-demo.mp4' poster='public_app/videos/landing/thumbnails/writer-demo.jpg' docs_url='docs:writer' github_url='https://github.com/ywatanabe1989/SciTeX-Writer' video_position='1fr 1fr' video_first=True object_fit=True margin='0 auto' features_partial='public_app/landing_partials/features/writer_features.html' %}
                 </div>
 
                 <!-- Code Demo -->
-                <div class="demos-carousel-slide bg-pattern bg-pattern-circuit bg-pattern-subtle" style="border-radius: 12px; padding: 2rem;">
-                    {% include 'public_app/landing_partials/components/module_demo.html' with module_name='Code' icon_path='shared/images/icons_svg/scitex-code-icon.svg' video_path='public_app/videos/landing/code-demo.mp4' docs_url='docs:code' github_url='https://github.com/ywatanabe1989/SciTeX-Code' video_position='3fr 2fr' video_first=True margin='0 auto' features_partial='public_app/landing_partials/features/code_features.html' %}
+                <div class="demos-carousel-slide">
+                    {% include 'public_app/landing_partials/components/module_demo.html' with module_name='Code' icon_path='shared/images/icons_svg/scitex-code-icon.svg' video_path='public_app/videos/landing/code-demo.mp4' docs_url='docs:code' github_url='https://github.com/ywatanabe1989/SciTeX-Code' video_position='1fr 1fr' video_first=True margin='0 auto' features_partial='public_app/landing_partials/features/code_features.html' %}
                 </div>
 
                 <!-- Viz Demo -->
-                <div class="demos-carousel-slide bg-pattern bg-pattern-dots-md bg-pattern-subtle" style="border-radius: 12px; padding: 2rem;">
-                    {% include 'public_app/landing_partials/components/module_demo.html' with module_name='Viz' icon_path='shared/images/icons_svg/scitex-viz-icon.svg' video_path='public_app/videos/landing/viz-demo.mp4' docs_url='docs:viz' github_url='https://github.com/ywatanabe1989/SciTeX-Viz' video_position='3fr 2fr' video_first=True margin='0 auto' features_partial='public_app/landing_partials/features/viz_features.html' %}
+                <div class="demos-carousel-slide">
+                    {% include 'public_app/landing_partials/components/module_demo.html' with module_name='Viz' icon_path='shared/images/icons_svg/scitex-viz-icon.svg' video_path='public_app/videos/landing/viz-demo.mp4' docs_url='docs:viz' github_url='https://github.com/ywatanabe1989/SciTeX-Viz' video_position='1fr 1fr' video_first=True margin='0 auto' features_partial='public_app/landing_partials/features/viz_features.html' %}
                 </div>
 
                 <!-- Cloud Demo -->
-                <div class="demos-carousel-slide bg-pattern bg-pattern-dots-radial bg-pattern-subtle" style="border-radius: 12px; padding: 2rem;">
-                    {% include 'public_app/landing_partials/components/module_demo.html' with module_name='Cloud' icon_path='shared/images/icons_svg/scitex-cloud-icon.svg' video_path='public_app/videos/landing/cloud-demo.mp4' docs_url='public_app:about' github_url='https://github.com/ywatanabe1989/SciTeX-Cloud' video_position='3fr 2fr' video_first=True margin='0 auto' features_partial='public_app/landing_partials/features/cloud_features.html' %}
+                <div class="demos-carousel-slide">
+                    {% include 'public_app/landing_partials/components/module_demo.html' with module_name='Cloud' icon_path='shared/images/icons_svg/scitex-cloud-icon.svg' video_path='public_app/videos/landing/cloud-demo.mp4' docs_url='public_app:about' github_url='https://github.com/ywatanabe1989/SciTeX-Cloud' video_position='1fr 1fr' video_first=True margin='0 auto' features_partial='public_app/landing_partials/features/cloud_features.html' %}
+                </div>
                 </div>
             </div>
 
