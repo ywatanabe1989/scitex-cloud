@@ -9,14 +9,24 @@
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid px-4" style="padding-top: 2rem; padding-bottom: 2rem;">
+<div class="container" style="padding-top: 2rem; padding-bottom: 2rem;">
   <div class="row">
     <!-- Main Content -->
     <div class="col-12">
       <!-- Page Header -->
       <div class="page-header mb-4">
-        <h1 class="h3 mb-3">BibTeX Enrichment</h1>
-        <p class="text-muted">Upload your BibTeX files to enrich bibliographic data with additional metadata</p>
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;">
+          <div>
+            <h1 class="h3 mb-3">BibTeX Enrichment</h1>
+            <p class="text-muted">Upload your BibTeX files to enrich bibliographic data with additional metadata</p>
+          </div>
+          <a href="{% url 'scholar_app:scholar_search' %}" class="btn btn-outline-primary" style="white-space: nowrap;">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="margin-right: 6px; vertical-align: text-bottom;">
+              <path d="M6.5 1a5.5 5.5 0 0 1 4.38 8.98l6.01 6.01a.75.75 0 1 1-1.06 1.06l-6.01-6.01A5.5 5.5 0 1 1 6.5 1zm0 1.5a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/>
+            </svg>
+            Literature Search
+          </a>
+        </div>
       </div>
 
       <!-- BibTeX Enrichment Content -->

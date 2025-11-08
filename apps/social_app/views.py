@@ -190,9 +190,11 @@ def explore(request):
         context['repositories'] = repositories
 
     elif tab == 'users':
-        # Get active users with public profiles
+        # Get active users with public profiles, excluding visitor accounts
         users = User.objects.filter(
             is_active=True
+        ).exclude(
+            username__startswith='visitor-'
         ).annotate(
             repo_count=Count('project_app_owned_projects'),
             follower_count=Count('followers')

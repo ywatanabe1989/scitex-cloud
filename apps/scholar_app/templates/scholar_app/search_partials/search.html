@@ -31,30 +31,32 @@
                 <i class="fas fa-chevron-down accordion-arrow"></i>
             </div>
             <div id="sourcesRow" class="accordion-row-content collapse">
-                <div class="d-flex flex-wrap gap-2">
-                    <div class="scitex-toggle-wrapper">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 0.75rem;">
+                    <div class="scitex-toggle-wrapper" style="grid-column: 1 / -1;">
                         <input class="scitex-toggle all-sources-toggle" type="checkbox" id="source_all_toggle" checked>
-                        <label class="scitex-toggle-label" for="source_all_toggle">All Sources</label>
+                        <label class="scitex-toggle-label" for="source_all_toggle" style="width: 100%;">All Sources</label>
                     </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
                     <div class="scitex-toggle-wrapper">
                         <input class="scitex-toggle source-toggle" type="checkbox" name="source_crossref" id="source_crossref" value="crossref" checked>
-                        <label class="scitex-toggle-label" for="source_crossref">CrossRef</label>
+                        <label class="scitex-toggle-label" for="source_crossref" style="width: 100%; display: block;">Crossref</label>
                     </div>
                     <div class="scitex-toggle-wrapper">
                         <input class="scitex-toggle source-toggle" type="checkbox" name="source_pubmed" id="source_pubmed" value="pubmed" checked>
-                        <label class="scitex-toggle-label" for="source_pubmed">PubMed</label>
+                        <label class="scitex-toggle-label" for="source_pubmed" style="width: 100%; display: block;">PubMed</label>
                     </div>
                     <div class="scitex-toggle-wrapper">
                         <input class="scitex-toggle source-toggle" type="checkbox" name="source_semantic" id="source_semantic" value="semantic" checked>
-                        <label class="scitex-toggle-label" for="source_semantic">Semantic Scholar</label>
+                        <label class="scitex-toggle-label" for="source_semantic" style="width: 100%; display: block;">Semantic</label>
                     </div>
                     <div class="scitex-toggle-wrapper">
                         <input class="scitex-toggle source-toggle" type="checkbox" name="source_arxiv" id="source_arxiv" value="arxiv" checked>
-                        <label class="scitex-toggle-label" for="source_arxiv">arXiv</label>
+                        <label class="scitex-toggle-label" for="source_arxiv" style="width: 100%; display: block;">arXiv</label>
                     </div>
-                    <div class="scitex-toggle-wrapper">
+                    <div class="scitex-toggle-wrapper" style="grid-column: 1 / -1;">
                         <input class="scitex-toggle source-toggle" type="checkbox" name="source_openalex" id="source_openalex" value="openalex" checked>
-                        <label class="scitex-toggle-label" for="source_openalex">OpenAlex</label>
+                        <label class="scitex-toggle-label" for="source_openalex" style="width: 100%; display: block;">OpenAlex</label>
                     </div>
                 </div>
             </div>
