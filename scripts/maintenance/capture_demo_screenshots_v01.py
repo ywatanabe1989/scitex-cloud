@@ -1,4 +1,16 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# Timestamp: "2025-11-08 04:29:09 (ywatanabe)"
+# File: /home/ywatanabe/proj/scitex-cloud/scripts/maintenance/capture_demo_screenshots.py
+# ----------------------------------------
+from __future__ import annotations
+import os
+__FILE__ = (
+    "./scripts/maintenance/capture_demo_screenshots.py"
+)
+__DIR__ = os.path.dirname(__FILE__)
+# ----------------------------------------
+
 """
 Fully Automated SciTeX Visual Test Script
 
@@ -12,32 +24,44 @@ Usage:
 import asyncio
 import time
 import sys
-from pathlib import Path
 from scitex import capture
 from playwright.async_api import async_playwright
 
 
 BASE_URL = "http://127.0.0.1:8000"
 PAGES = [
+    # Landing Page
     "/",
+    # Auth
     "/auth/signin/",
-    "/test-user/",
+    "/auth/signup/",
+    "/auth/signout/",
+    # Repository
     "/new/",
+    "/test-user/",
+    "/social/explore/",
+    "/social/explore/?tab=users",
     "/test-user/test-001/",
     "/test-user/test-001/issues/",
     "/test-user/test-001/pulls/",
     "/test-user/test-001/settings/",
+    "/default-project/scitex/writer/01_manuscript/"
+    # Accounts
     "/accounts/settings/profile/",
     "/accounts/settings/account/",
     "/accounts/settings/appearance/",
     "/accounts/settings/integrations/",
     "/accounts/settings/ssh-keys/",
     "/accounts/settings/api-keys/",
-    "/social/explore/",
+    "test-uesr/settings/repositories/",
+    # Scholar
     "/scholar/",
     "/scholar/bibtex/",
     "/scholar/search/",
+    # Writer
     "/scholar/writer/",
+    # Etc
+    "/social/explore/",
 ]
 
 
@@ -137,7 +161,9 @@ async def toggle_theme_async(target_theme: str) -> bool:
             print(f"Navigating to: {appearance_url}\n")
 
             # Navigate to appearance settings
-            await page.goto(appearance_url, wait_until="networkidle", timeout=10000)
+            await page.goto(
+                appearance_url, wait_until="networkidle", timeout=10000
+            )
             await asyncio.sleep(1)
 
             print(f"Looking for theme toggle for: {target_theme}")
@@ -257,3 +283,5 @@ if __name__ == "__main__":
 
         traceback.print_exc()
         sys.exit(1)
+
+# EOF
