@@ -9,6 +9,8 @@
  * @version 1.0.0
  */
 
+import { showConfirm } from '../../../shared/ts/components/confirm-modal.js';
+
 // Global state
 
 console.log("[DEBUG] apps/scholar_app/static/scholar_app/ts/bibtex/bibtex-enrichment.ts loaded");
@@ -360,6 +362,7 @@ function pollBibtexJobStatus(jobId: string, attempts: number = 0): void {
                 // Enable other buttons
                 const showDiffBtn = document.getElementById('showDiffBtn') as HTMLButtonElement | null;
                 const openUrlsBtn = document.getElementById('openUrlsBtn') as HTMLButtonElement | null;
+                const openUrlsMainBtn = document.getElementById('openUrlsMainBtn') as HTMLButtonElement | null;
 
                 if (showDiffBtn) {
                     showDiffBtn.disabled = false;
@@ -372,13 +375,27 @@ function pollBibtexJobStatus(jobId: string, attempts: number = 0): void {
                     openUrlsBtn.style.cursor = 'pointer';
                 }
 
-                // Fetch URL count for "Open All URLs" button
+                if (openUrlsMainBtn) {
+                    openUrlsMainBtn.disabled = false;
+                    openUrlsMainBtn.style.opacity = '1';
+                    openUrlsMainBtn.style.cursor = 'pointer';
+                }
+
+                // Fetch URL count for "Open All URLs" buttons
                 fetch(`/scholar/api/bibtex/job/${jobId}/urls/`)
                     .then(response => response.json())
                     .then((urlData: any) => {
                         const count = urlData.total_urls || 0;
+
+                        // Update sidebar button count
                         const urlCount = document.getElementById('urlCount') as HTMLElement | null;
                         if (urlCount) urlCount.textContent = count.toString();
+
+                        // Update main button text
+                        const urlButtonText = document.getElementById('urlButtonText') as HTMLElement | null;
+                        if (urlButtonText && count > 0) {
+                            urlButtonText.textContent = `Open All ${count} URLs`;
+                        }
                     })
                     .catch((error: Error) => {
                         console.error('[BibTeX] Failed to fetch URL count:', error);
@@ -517,7 +534,7 @@ async function autoDownloadBibtexFile(url: string): Promise<void> {
 }
 
 /**
- * Open all paper URLs from enriched BibTeX file
+ * Open all paper URLs from enriched BibTeX file in a new window
  */
 (window as any).openAllPaperUrls = function(): void {
     const jobId = window.currentBibtexJobId;
@@ -540,27 +557,44 @@ async function autoDownloadBibtexFile(url: string): Promise<void> {
             console.log('[Open URLs] Received data:', data);
 
             if (data.urls && data.urls.length > 0) {
-                const confirmMsg = `Open ${data.total_urls} paper URL(s) in new tabs?\n\n` +
-                    `Note: Your browser may block some pop-ups. Please allow pop-ups for this site if needed.`;
+                showConfirm({
+                    title: 'Open All Paper URLs',
+                    message: `Open ${data.total_urls} paper URL(s) in new tabs?\n\nThis feature is useful when you want to download PDF files.\n\nWhat will happen:\n• Papers will open in background tabs\n• You can download PDF files efficiently\n\nPlease note:\n• Opening many tabs may clutter your browser\n• Your browser may block pop-ups - please allow them for this site if needed`,
+                    confirmText: 'Open All URLs',
+                    cancelText: 'Cancel',
+                    onConfirm: () => {
+                        console.log(`[Open URLs] Opening ${data.urls.length} URLs as tabs...`);
 
-                if (confirm(confirmMsg)) {
-                    console.log(`[Open URLs] Opening ${data.urls.length} URLs...`);
+                        // Open all URLs in background tabs
+                        let openedCount = 0;
+                        data.urls.forEach((paper: any, index: number) => {
+                            console.log(`[Open URLs] Opening: ${paper.title.substring(0, 50)}... (${paper.type})`);
+                            // Use a unique target name for each tab so they all stay separate
+                            const targetName = `scitex_paper_${jobId}_${index}`;
+                            const tab = window.open(paper.url, targetName);
+                            if (tab) {
+                                // Immediately blur the new tab to keep focus on current page
+                                tab.blur();
+                                openedCount++;
+                            }
+                        });
 
-                    // Open all URLs immediately (no setTimeout to avoid popup blocker)
-                    let openedCount = 0;
-                    data.urls.forEach((paper: any) => {
-                        console.log(`[Open URLs] Opening: ${paper.title.substring(0, 50)}... (${paper.type})`);
-                        const newWindow = window.open(paper.url, '_blank');
-                        if (newWindow) {
-                            openedCount++;
+                        // Refocus on current window to stay here
+                        window.focus();
+
+                        // Show message about result
+                        if (openedCount === data.urls.length) {
+                            // All opened successfully
+                            console.log(`[Open URLs] Successfully opened all ${openedCount} URLs`);
+                        } else if (openedCount > 0) {
+                            // Some were blocked
+                            alert(`⚠️ Opened ${openedCount} out of ${data.urls.length} URLs.\n\nSome tabs were blocked by your browser's popup blocker.\nPlease allow popups for this site in your browser settings.`);
+                        } else {
+                            // All were blocked
+                            alert(`❌ Could not open URLs.\n\nYour browser blocked the popups.\nPlease allow popups for this site:\n1. Click the blocked popup icon in your address bar\n2. Allow popups from this site\n3. Try again`);
                         }
-                    });
-
-                    // Only show message if some tabs were blocked
-                    if (openedCount < data.urls.length) {
-                        alert(`⚠️ Opened ${openedCount} out of ${data.urls.length} URLs.\n\nSome tabs were blocked by your browser's popup blocker.\nPlease allow popups for this site and try again.`);
                     }
-                }
+                });
             } else {
                 alert('No URLs found in the enriched BibTeX file.\n\nThis could mean:\n- Papers don\'t have DOI or URL fields\n- Enrichment didn\'t add URLs\n- Try downloading the file to check');
             }
@@ -765,7 +799,7 @@ function renderRecentJobs(jobs: RecentJob[], container: HTMLElement): void {
         const downloadUrl = `/scholar/bibtex/job/${job.id}/download/`;
 
         return `
-            <div class="recent-job-card" style="position: relative; min-width: 160px; max-width: 180px; padding: 0.75rem; border: 1px solid var(--color-border-default); border-radius: 6px; background: var(--color-canvas-subtle); transition: all 0.2s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.12); display: flex; flex-direction: column; gap: 0.6rem;">
+            <div class="recent-job-card" style="position: relative; min-width: 180px; max-width: 200px; padding: 0.75rem; border: 1px solid var(--color-border-default); border-radius: 6px; background: var(--color-canvas-subtle); transition: all 0.2s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.12); display: flex; flex-direction: column; gap: 0.6rem;">
 
                 <!-- Close button -->
                 <button onclick="event.stopPropagation(); deleteJob('${job.id}')"
@@ -789,13 +823,6 @@ function renderRecentJobs(jobs: RecentJob[], container: HTMLElement): void {
                     ${job.total_papers || 0} papers
                 </div>
 
-                <!-- Status Badge -->
-                <div style="display: flex; justify-content: center; cursor: pointer;" onclick="window.location.href='${jobUrl}'">
-                    <span style="display: inline-block; padding: 0.25rem 0.6rem; border-radius: 4px; font-size: 0.7rem; font-weight: 600; background: ${statusBadgeData.bgColor}; color: ${statusBadgeData.textColor};">
-                        ${statusBadgeData.text}
-                    </span>
-                </div>
-
                 <!-- Progress bar (if processing) -->
                 ${job.status === 'processing' && job.progress_percentage !== undefined ? `
                     <div style="background: var(--color-border-default); height: 3px; border-radius: 2px; overflow: hidden;">
@@ -806,22 +833,25 @@ function renderRecentJobs(jobs: RecentJob[], container: HTMLElement): void {
                 <!-- Action buttons -->
                 ${job.status === 'completed' ? `
                     <div style="display: flex; gap: 0.4rem; margin-top: auto;">
-                        <!-- Save button -->
                         <button onclick="event.stopPropagation(); saveJobToProject('${job.id}')"
-                                style="flex: 1; padding: 0.4rem; background: #d4a373; border: none; border-radius: 4px; color: white; font-size: 0.7rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.3rem;"
-                                onmouseover="this.style.background='#c49363';"
-                                onmouseout="this.style.background='#d4a373';"
+                                class="btn btn-warning"
+                                style="flex: 1; padding: 0.4rem; font-size: 0.7rem; display: flex; align-items: center; justify-content: center; gap: 0.3rem; border: none;"
                                 title="Save to project">
                             <i class="fas fa-save" style="font-size: 0.7rem;"></i>
                         </button>
 
-                        <!-- Download button -->
                         <button onclick="event.stopPropagation(); window.location.href='${downloadUrl}'"
-                                style="flex: 1; padding: 0.4rem; background: #2ea043; border: none; border-radius: 4px; color: white; font-size: 0.7rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.3rem;"
-                                onmouseover="this.style.background='#2c974b';"
-                                onmouseout="this.style.background='#2ea043';"
+                                class="btn btn-success"
+                                style="flex: 1; padding: 0.4rem; font-size: 0.7rem; display: flex; align-items: center; justify-content: center; gap: 0.3rem; border: none;"
                                 title="Download enriched BibTeX">
                             <i class="fas fa-download" style="font-size: 0.7rem;"></i>
+                        </button>
+
+                        <button onclick="event.stopPropagation(); window.currentBibtexJobId='${job.id}'; openAllPaperUrls();"
+                                class="btn btn-info"
+                                style="flex: 1; padding: 0.4rem; font-size: 0.7rem; display: flex; align-items: center; justify-content: center; gap: 0.3rem; border: none;"
+                                title="Open all URLs">
+                            <i class="fas fa-external-link-alt" style="font-size: 0.7rem;"></i>
                         </button>
                     </div>
                 ` : ''}
@@ -836,6 +866,10 @@ function renderRecentJobs(jobs: RecentJob[], container: HTMLElement): void {
                         <button disabled
                                 style="flex: 1; padding: 0.4rem; background: var(--color-neutral-muted); border: none; border-radius: 4px; color: var(--color-fg-muted); font-size: 0.7rem; cursor: not-allowed; display: flex; align-items: center; justify-content: center; gap: 0.3rem; opacity: 0.5;">
                             <i class="fas fa-download" style="font-size: 0.7rem;"></i>
+                        </button>
+                        <button disabled
+                                style="flex: 1; padding: 0.4rem; background: var(--color-neutral-muted); border: none; border-radius: 4px; color: var(--color-fg-muted); font-size: 0.7rem; cursor: not-allowed; display: flex; align-items: center; justify-content: center; gap: 0.3rem; opacity: 0.5;">
+                            <i class="fas fa-external-link-alt" style="font-size: 0.7rem;"></i>
                         </button>
                     </div>
                 ` : ''}
@@ -883,10 +917,6 @@ function getStatusBadgeData(status: string): { text: string; bgColor: string; te
  * Delete a job (placeholder function - implement with API call)
  */
 (window as any).deleteJob = async function(jobId: string): Promise<void> {
-    if (!confirm('Are you sure you want to delete this job?')) {
-        return;
-    }
-
     try {
         const csrfToken = (document.querySelector('[name=csrfmiddlewaretoken]') as HTMLInputElement)?.value;
         const response = await fetch(`/scholar/api/bibtex/job/${jobId}/delete/`, {
