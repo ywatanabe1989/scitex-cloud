@@ -1,8 +1,13 @@
 /* Landing Commitment Section Styles */
 
+.section-commitment {
+    padding: 6rem 0;
+}
+
 .commitment-container {
-    max-width: 1400px;
+    max-width: 1200px;
     margin: 0 auto;
+    padding: 0 2rem;
 }
 
 .commitment-card {
@@ -12,10 +17,10 @@
     color: white;
     position: relative;
     overflow: hidden;
-    box-shadow: var(--box-shadow-lg);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
-/* Grid pattern overlay on commitment card - balanced */
+/* Grid pattern overlay */
 .commitment-card::before {
     content: '';
     position: absolute;
@@ -29,20 +34,6 @@
     background-image:
         linear-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px),
         linear-gradient(90deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px);
-    background-size: 70px 70px;
-}
-
-/* Dark mode commitment card */
-[data-theme="dark"] .commitment-card {
-    background: linear-gradient(135deg, var(--_scitex-02) 0%, var(--_scitex-03) 50%, var(--_scitex-04) 100%);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-}
-
-[data-theme="dark"] .commitment-card::before {
-    opacity: 0.15;
-    background-image:
-        linear-gradient(rgba(181, 199, 209, 0.1) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(181, 199, 209, 0.1) 1px, transparent 1px);
     background-size: 70px 70px;
 }
 
@@ -97,6 +88,16 @@
     list-style: none;
     padding: 0;
     font-size: 1rem;
+}
+
+/* Dark mode */
+[data-theme="dark"] .commitment-card {
+    background: linear-gradient(135deg, var(--scitex-color-02) 0%, var(--scitex-color-03) 50%, var(--scitex-color-04) 100%);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .commitment-card::before {
+    opacity: 0.15;
 }
 
 .commitment-actions {
@@ -161,50 +162,6 @@
     max-width: 600px;
     margin-left: auto;
     margin-right: auto;
-}
-
-.commitment-cta-buttons {
-    display: flex;
-    gap: 1.5rem;
-    justify-content: center;
-    flex-wrap: wrap;
-}
-
-.commitment-cta-btn {
-    padding: 0.85rem 2rem;
-    border-radius: 6px;
-    text-decoration: none;
-    font-weight: 600;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-    border: none;
-    cursor: pointer;
-}
-
-.commitment-cta-btn-primary {
-    background: white;
-    color: var(--scitex-color-01);
-}
-
-.commitment-cta-btn-primary:hover {
-    background: rgba(255, 255, 255, 0.9);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
-}
-
-.commitment-cta-btn-secondary {
-    background: transparent;
-    color: white;
-    border: 2px solid rgba(255, 255, 255, 0.8);
-}
-
-.commitment-cta-btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: white;
-    transform: translateY(-2px);
 }
 
 @media (max-width: 768px) {

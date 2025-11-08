@@ -2,16 +2,13 @@
 
 <!-- Module Demo Component -->
 <div class="module-demo-container">
-    <h2 class="module-demo-title">
-        <img src="{% static icon_path %}" alt="" class="module-demo-icon">
-        <span>SciTeX {{ module_name }}</span>
-        <img src="{% static icon_path %}" alt="" class="module-demo-icon">
-    </h2>
-
     <div class="module-demo-grid" style="grid-template-columns: {{ video_position }};">
         {% if video_first %}
             <!-- Video Section -->
             <div class="module-demo-video-section">
+                <p style="text-align: center; color: var(--color-fg-muted); font-size: 0.9rem; margin-bottom: 0.75rem; font-style: italic;">
+                    <i class="fas fa-desktop"></i> Demonstration on local environment
+                </p>
                 <div class="module-demo-video-wrapper">
                     <video autoplay loop muted playsinline controls class="module-demo-video" {% if poster %}poster="{% static poster %}"{% endif %}>
                         <source src="{% static video_path %}" type="video/mp4">
@@ -43,6 +40,9 @@
 
             <!-- Video Section -->
             <div class="module-demo-video-section">
+                <p style="text-align: center; color: var(--color-fg-muted); font-size: 0.9rem; margin-bottom: 0.75rem; font-style: italic;">
+                    <i class="fas fa-desktop"></i> Demonstration on local environment
+                </p>
                 <div class="module-demo-video-wrapper">
                     <video autoplay loop muted playsinline controls class="module-demo-video" {% if poster %}poster="{% static poster %}"{% endif %}>
                         <source src="{% static video_path %}" type="video/mp4">

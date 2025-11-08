@@ -1,359 +1,270 @@
-{% extends "public_app/cloud_base.html" %}
+{% extends "global_base.html" %}
+{% load static %}
 
-{% block title %}Contact Us - SciTeX{% endblock %}
+{% block title %}Contact — SciTeX{% endblock %}
 
 {% block extra_css %}
 <style>
-  .contact-section {
-    padding: var(--spacing-xxl) 0;
+  .contact-hero {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 6rem 2rem 4rem;
+    text-align: center;
   }
 
-  .contact-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--spacing-xl);
+  .contact-hero h1 {
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: var(--color-fg-default);
+    margin-bottom: 1rem;
+    letter-spacing: -0.02em;
   }
 
-  .contact-info {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-lg);
-  }
-
-  .contact-info-item {
-    display: flex;
-    gap: var(--spacing-md);
-    align-items: flex-start;
-  }
-
-  .contact-info-icon {
-    width: 40px;
-    height: 40px;
-    background-color: rgba(52, 152, 219, 0.1);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--secondary-color);
+  .contact-hero p {
     font-size: 1.25rem;
-    flex-shrink: 0;
+    color: var(--color-fg-muted);
+    line-height: 1.6;
   }
 
-  .contact-info-content h3 {
-    font-size: 1.1rem;
-    margin-bottom: var(--spacing-xs);
-    color: var(--primary-color);
+  /* Primary Contact Cards */
+  .contact-cards-primary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    max-width: 900px;
+    margin: 0 auto 5rem;
+    padding: 0 2rem;
   }
 
-  .contact-info-content p, 
-  .contact-info-content a {
-    color: var(--text-color);
-    margin: 0;
+  .contact-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: 12px;
+    padding: 2.5rem;
+    text-align: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   }
 
-  .contact-social {
-    display: flex;
-    gap: var(--spacing-md);
-    margin-top: var(--spacing-lg);
+  .contact-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    border-color: var(--color-accent-emphasis);
   }
 
-  .contact-social a {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: var(--light-gray);
+  .contact-card-icon {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 1.5rem;
+    background: var(--color-cta-subtle);
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--primary-color);
-    transition: all var(--transition-normal);
+    color: var(--color-cta);
+    font-size: 1.75rem;
   }
 
-  .contact-social a:hover {
-    background-color: var(--secondary-color);
+  .contact-card h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-fg-default);
+    margin-bottom: 0.75rem;
+  }
+
+  .contact-card p {
+    font-size: 1rem;
+    color: var(--color-fg-muted);
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+  }
+
+  .contact-card-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: var(--color-cta);
     color: white;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px var(--color-cta-subtle);
   }
 
-  .contact-form {
-    background-color: white;
-    border-radius: var(--border-radius);
-    padding: var(--spacing-xl);
-    box-shadow: var(--box-shadow-md);
+  .contact-card-btn:hover {
+    background: var(--color-cta-hover);
+    transform: translateX(4px);
+    box-shadow: 0 4px 12px var(--color-cta-subtle);
   }
 
-  .form-message {
-    padding: var(--spacing-md);
-    border-radius: var(--border-radius);
-    margin-bottom: var(--spacing-md);
+  /* Resources Grid */
+  .contact-resources {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem 6rem;
   }
 
-  .form-message.success {
-    background-color: rgba(46, 204, 113, 0.1);
-    color: var(--success-color);
-    border: 1px solid rgba(46, 204, 113, 0.3);
+  .resources-title {
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--color-fg-default);
+    margin-bottom: 3rem;
   }
 
-  .form-message.error {
-    background-color: rgba(231, 76, 60, 0.1);
-    color: var(--error-color);
-    border: 1px solid rgba(231, 76, 60, 0.3);
+  .resources-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
   }
 
-  .map-container {
-    width: 100%;
-    height: 300px;
-    border-radius: var(--border-radius);
-    overflow: hidden;
-    margin-top: var(--spacing-xl);
+  .resource-item {
+    padding: 1.5rem;
+    text-align: center;
   }
 
-  .map-container iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
+  .resource-item h4 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--color-fg-default);
+    margin-bottom: 0.75rem;
+  }
+
+  .resource-item p {
+    font-size: 0.9375rem;
+    color: var(--color-fg-muted);
+    margin-bottom: 1rem;
+    line-height: 1.6;
+  }
+
+  .resource-item a {
+    color: var(--color-cta);
+    text-decoration: none;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    transition: color 0.2s ease;
+  }
+
+  .resource-item a:hover {
+    color: var(--color-cta-hover);
+    text-decoration: underline;
+  }
+
+  /* Dark theme */
+  [data-theme="dark"] .contact-card {
+    background: var(--scitex-color-02);
+    border-color: var(--scitex-color-03);
+  }
+
+  [data-theme="dark"] .contact-card:hover {
+    background: var(--scitex-color-03);
+    border-color: var(--scitex-color-04);
   }
 
   @media (max-width: 768px) {
-    .contact-grid {
-      grid-template-columns: 1fr;
+    .contact-hero h1 {
+      font-size: 2.5rem;
     }
 
-    .contact-info {
-      order: 1;
+    .contact-hero {
+      padding: 4rem 1.5rem 3rem;
     }
 
-    .contact-form {
-      order: 0;
-      margin-bottom: var(--spacing-lg);
+    .contact-cards-primary,
+    .contact-resources {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
     }
   }
 </style>
 {% endblock %}
 
 {% block content %}
-  <section class="hero">
-    <div class="container">
-      <div class="hero-content">
-        <h1 class="hero-title">Contact Us</h1>
-        <p class="hero-description">We'd love to hear from you. Reach out with your questions, feedback, or inquiries.</p>
+<!-- Contact Hero -->
+<div class="contact-hero">
+  <h1>How can we help?</h1>
+  <p>Whether you have questions, feedback, or need support, we're here to help you succeed.</p>
+</div>
+
+<!-- Primary Contact Options -->
+<div class="contact-cards-primary">
+  <!-- General Inquiries -->
+  <div class="contact-card">
+    <div class="contact-card-icon">
+      <i class="fas fa-envelope"></i>
+    </div>
+    <h3>General Inquiries</h3>
+    <p>Questions about SciTeX, partnerships, or anything else?</p>
+    <a href="mailto:hello@scitex.ai" class="contact-card-btn">
+      Send us an email <i class="fas fa-arrow-right"></i>
+    </a>
+  </div>
+
+  <!-- Technical Support -->
+  <div class="contact-card">
+    <div class="contact-card-icon">
+      <i class="fas fa-life-ring"></i>
+    </div>
+    <h3>Technical Support</h3>
+    <p>Need help with SciTeX tools or having technical issues?</p>
+    <a href="mailto:support@scitex.ai" class="contact-card-btn">
+      Get support <i class="fas fa-arrow-right"></i>
+    </a>
+  </div>
+</div>
+
+<!-- Additional Resources -->
+<div class="contact-resources">
+  <h2 class="resources-title">More Resources</h2>
+
+  <div class="resources-grid">
+    <!-- Community -->
+    <div class="resource-item">
+      <h4>Join the Community</h4>
+      <p>Connect with other researchers and get quick help</p>
+      <a href="https://join.slack.com/t/scitex-ai/shared_invite/zt-2zbwx67n3-L6aaBdGKPMYZbBxl6yjXRA" target="_blank">
+        Join our Slack <i class="fas fa-external-link-alt"></i>
+      </a>
+    </div>
+
+    <!-- Documentation -->
+    <div class="resource-item">
+      <h4>Documentation</h4>
+      <p>Comprehensive guides and API references</p>
+      <a href="{% url 'docs:index' %}">
+        Browse docs <i class="fas fa-arrow-right"></i>
+      </a>
+    </div>
+
+    <!-- GitHub -->
+    <div class="resource-item">
+      <h4>Open Source</h4>
+      <p>Report issues or contribute to the project</p>
+      <a href="https://github.com/SciTeX-AI" target="_blank">
+        View on GitHub <i class="fas fa-external-link-alt"></i>
+      </a>
+    </div>
+
+    <!-- Social Media -->
+    <div class="resource-item">
+      <h4>Follow Us</h4>
+      <p>Stay updated with latest news and features</p>
+      <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1rem;">
+        <a href="https://twitter.com/SciTeX_AI" target="_blank" style="font-size: 1.5rem;" title="Twitter">
+          <i class="fab fa-twitter"></i>
+        </a>
+        <a href="https://www.linkedin.com/company/scitex-ai" target="_blank" style="font-size: 1.5rem;" title="LinkedIn">
+          <i class="fab fa-linkedin"></i>
+        </a>
+        <a href="https://www.youtube.com/@SciTeX-AI" target="_blank" style="font-size: 1.5rem;" title="YouTube">
+          <i class="fab fa-youtube"></i>
+        </a>
       </div>
     </div>
-  </section>
-
-  <section class="contact-section">
-    <div class="container">
-      {% if form_success %}
-      <div class="form-message success mb-lg text-center" role="alert">
-        <p>Thank you for your message! We'll get back to you shortly.</p>
-      </div>
-      {% endif %}
-      
-      {% if form_error %}
-      <div class="form-message error mb-lg text-center" role="alert">
-        <p>There was an error submitting your message. Please try again.</p>
-      </div>
-      {% endif %}
-      
-      <div class="contact-grid">
-        <div class="contact-form">
-          <h2 class="mb-lg">Send us a message</h2>
-          <form method="post" action="{% url 'contact' %}" id="contact-form">
-            {% csrf_token %}
-            
-            <div class="form-group">
-              <label for="name" class="form-label">Your Name</label>
-              <input type="text" id="name" name="name" class="form-control" required aria-required="true">
-              <div class="invalid-feedback" id="name-error"></div>
-            </div>
-            
-            <div class="form-group">
-              <label for="email" class="form-label">Your Email</label>
-              <input type="email" id="email" name="email" class="form-control" required aria-required="true">
-              <div class="invalid-feedback" id="email-error"></div>
-            </div>
-            
-            <div class="form-group">
-              <label for="subject" class="form-label">Subject</label>
-              <input type="text" id="subject" name="subject" class="form-control" required aria-required="true">
-              <div class="invalid-feedback" id="subject-error"></div>
-            </div>
-            
-            <div class="form-group">
-              <label for="message" class="form-label">Message</label>
-              <textarea id="message" name="message" class="form-control" rows="5" required aria-required="true"></textarea>
-              <div class="invalid-feedback" id="message-error"></div>
-            </div>
-            
-            <button type="submit" class="btn btn-primary">Send Message</button>
-          </form>
-        </div>
-        
-        <div class="contact-info">
-          <h2 class="mb-lg">Get in touch</h2>
-          
-          <div class="contact-info-item">
-            <div class="contact-info-icon" aria-hidden="true">
-              <i class="fas fa-map-marker-alt"></i>
-            </div>
-            <div class="contact-info-content">
-              <h3>Our Address</h3>
-              <address>
-                123 Science Park<br>
-                Research District<br>
-                San Francisco, CA 94107
-              </address>
-            </div>
-          </div>
-          
-          <div class="contact-info-item">
-            <div class="contact-info-icon" aria-hidden="true">
-              <i class="fas fa-envelope"></i>
-            </div>
-            <div class="contact-info-content">
-              <h3>Email</h3>
-              <p><a href="mailto:hello@scitex.ai" aria-label="Email us at hello@scitex.ai">hello@scitex.ai</a></p>
-            </div>
-          </div>
-          
-          <div class="contact-info-item">
-            <div class="contact-info-icon" aria-hidden="true">
-              <i class="fas fa-phone"></i>
-            </div>
-            <div class="contact-info-content">
-              <h3>Phone</h3>
-              <p><a href="tel:+15551234567" aria-label="Call us at +1 (555) 123-4567">+1 (555) 123-4567</a></p>
-            </div>
-          </div>
-          
-          <div class="contact-info-item">
-            <div class="contact-info-icon" aria-hidden="true">
-              <i class="fas fa-clock"></i>
-            </div>
-            <div class="contact-info-content">
-              <h3>Working Hours</h3>
-              <p>Monday - Friday: 9:00 AM - 6:00 PM</p>
-              <p>Saturday - Sunday: Closed</p>
-            </div>
-          </div>
-          
-          <div>
-            <h3>Connect with us</h3>
-            <div class="contact-social">
-              <a href="https://twitter.com/scitex_ai" aria-label="Twitter - Follow SciTeX"><i class="fab fa-twitter" aria-hidden="true"></i></a>
-              <a href="https://github.com/scitex-ai" aria-label="GitHub - SciTeX organization"><i class="fab fa-github" aria-hidden="true"></i></a>
-              <a href="https://linkedin.com/company/scitex" aria-label="LinkedIn - SciTeX company page"><i class="fab fa-linkedin" aria-hidden="true"></i></a>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="map-container">
-        <iframe 
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3153.0910441166854!2d-122.4026881!3d37.7912841!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x808580636c6f5d27%3A0x6e7887d0bad9b06f!2s123%20Main%20St%2C%20San%20Francisco%2C%20CA%2094105!5e0!3m2!1sen!2sus!4v1600000000000!5m2!1sen!2sus" 
-          allowfullscreen="" 
-          loading="lazy"
-          title="Map showing SciTeX office location in San Francisco"
-          aria-label="Interactive map showing our office location at 123 Science Park, San Francisco">
-        </iframe>
-      </div>
-    </div>
-  </section>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const contactForm = document.getElementById('contact-form');
-    
-    if (contactForm) {
-      // Function to show validation error
-      function showError(field, message) {
-        const input = document.getElementById(field);
-        const errorDiv = document.getElementById(field + '-error');
-        
-        input.classList.add('is-invalid');
-        input.setAttribute('aria-invalid', 'true');
-        
-        if (errorDiv) {
-          errorDiv.textContent = message;
-          errorDiv.setAttribute('role', 'alert');
-          input.setAttribute('aria-describedby', field + '-error');
-        }
-        
-        return false;
-      }
-      
-      // Function to clear validation error
-      function clearError(field) {
-        const input = document.getElementById(field);
-        const errorDiv = document.getElementById(field + '-error');
-        
-        input.classList.remove('is-invalid');
-        input.removeAttribute('aria-invalid');
-        
-        if (errorDiv) {
-          errorDiv.textContent = '';
-          errorDiv.removeAttribute('role');
-          input.removeAttribute('aria-describedby');
-        }
-      }
-      
-      // Form submission validation
-      contactForm.addEventListener('submit', (e) => {
-        let valid = true;
-        const name = document.getElementById('name').value.trim();
-        const email = document.getElementById('email').value.trim();
-        const subject = document.getElementById('subject').value.trim();
-        const message = document.getElementById('message').value.trim();
-        
-        // Clear all previous errors
-        ['name', 'email', 'subject', 'message'].forEach(clearError);
-        
-        // Validate name
-        if (!name) {
-          valid = showError('name', 'Please enter your name');
-        }
-        
-        // Validate email
-        if (!email) {
-          valid = showError('email', 'Please enter your email address');
-        } else {
-          // Simple email validation
-          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-          if (!emailRegex.test(email)) {
-            valid = showError('email', 'Please enter a valid email address');
-          }
-        }
-        
-        // Validate subject
-        if (!subject) {
-          valid = showError('subject', 'Please enter a subject for your message');
-        }
-        
-        // Validate message
-        if (!message) {
-          valid = showError('message', 'Please enter your message');
-        }
-        
-        if (!valid) {
-          e.preventDefault();
-          
-          // Focus the first field with an error
-          const firstInvalidField = document.querySelector('.is-invalid');
-          if (firstInvalidField) {
-            firstInvalidField.focus();
-          }
-        }
-      });
-      
-      // Clear validation state on input
-      const inputs = contactForm.querySelectorAll('input, textarea');
-      inputs.forEach(input => {
-        input.addEventListener('input', () => {
-          clearError(input.id);
-        });
-      });
-    }
-  });
-</script>
+  </div>
+</div>
 {% endblock %}
