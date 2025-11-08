@@ -50,16 +50,31 @@ def bibtex_enrichment(request):
         user_projects = Project.objects.filter(
             owner=request.user
         ).order_by('-created_at')
+        current_project = user_projects.first() if user_projects.exists() else None
     else:
         # For anonymous users, get jobs by session key
         recent_jobs = BibTeXEnrichmentJob.objects.filter(
             session_key=request.session.session_key
         ).order_by('-created_at')[:10] if request.session.session_key else []
+
+        # For visitor users, get their assigned project from the visitor pool
+        # The project_context processor should have added 'project' to the context
+        from apps.project_app.services.visitor_pool import VisitorPool
+        visitor_project_id = request.session.get(VisitorPool.SESSION_KEY_PROJECT_ID)
+        current_project = None
         user_projects = []
+
+        if visitor_project_id:
+            try:
+                current_project = Project.objects.get(id=visitor_project_id)
+                user_projects = [current_project]  # Make it available for the template
+            except Project.DoesNotExist:
+                pass
 
     context = {
         'recent_jobs': recent_jobs,
         'user_projects': user_projects,
+        'current_project': current_project,
         'is_anonymous': not request.user.is_authenticated,
         'show_save_prompt': not request.user.is_authenticated,
     }

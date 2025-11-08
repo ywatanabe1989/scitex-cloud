@@ -217,10 +217,26 @@
 }
 
 /* Source-Specific Colors for Search Engine Toggles */
+/* Crossref - Blue */
+#source_crossref + .scitex-toggle-label {
+    background-color: rgba(52, 152, 219, 0.15);
+    border-color: #3498db;
+    color: #3498db;
+    font-weight: 600;
+}
+
 #source_crossref:checked + .scitex-toggle-label {
     background-color: #3498db !important;
     border-color: #3498db !important;
     color: white !important;
+}
+
+/* PubMed - Red */
+#source_pubmed + .scitex-toggle-label {
+    background-color: rgba(231, 76, 60, 0.15);
+    border-color: #e74c3c;
+    color: #e74c3c;
+    font-weight: 600;
 }
 
 #source_pubmed:checked + .scitex-toggle-label {
@@ -229,10 +245,26 @@
     color: white !important;
 }
 
+/* Semantic Scholar - Purple */
+#source_semantic + .scitex-toggle-label {
+    background-color: rgba(155, 89, 182, 0.15);
+    border-color: #9b59b6;
+    color: #9b59b6;
+    font-weight: 600;
+}
+
 #source_semantic:checked + .scitex-toggle-label {
     background-color: #9b59b6 !important;
     border-color: #9b59b6 !important;
     color: white !important;
+}
+
+/* arXiv - Orange */
+#source_arxiv + .scitex-toggle-label {
+    background-color: rgba(243, 156, 18, 0.15);
+    border-color: #f39c12;
+    color: #f39c12;
+    font-weight: 600;
 }
 
 #source_arxiv:checked + .scitex-toggle-label {
@@ -241,20 +273,62 @@
     color: white !important;
 }
 
+/* OpenAlex - Teal */
+#source_openalex + .scitex-toggle-label {
+    background-color: rgba(26, 188, 156, 0.15);
+    border-color: #1abc9c;
+    color: #1abc9c;
+    font-weight: 600;
+}
+
 #source_openalex:checked + .scitex-toggle-label {
     background-color: #1abc9c !important;
     border-color: #1abc9c !important;
     color: white !important;
 }
 
-/* Smaller buttons for source engines */
+/* Source badge sizing and layout */
 #source_crossref + .scitex-toggle-label,
 #source_pubmed + .scitex-toggle-label,
 #source_semantic + .scitex-toggle-label,
 #source_arxiv + .scitex-toggle-label,
 #source_openalex + .scitex-toggle-label {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.8rem;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.85rem;
+    border-width: 2px;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+/* Hover effects for source badges */
+#source_crossref + .scitex-toggle-label:hover {
+    background-color: rgba(52, 152, 219, 0.25);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(52, 152, 219, 0.3);
+}
+
+#source_pubmed + .scitex-toggle-label:hover {
+    background-color: rgba(231, 76, 60, 0.25);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(231, 76, 60, 0.3);
+}
+
+#source_semantic + .scitex-toggle-label:hover {
+    background-color: rgba(155, 89, 182, 0.25);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(155, 89, 182, 0.3);
+}
+
+#source_arxiv + .scitex-toggle-label:hover {
+    background-color: rgba(243, 156, 18, 0.25);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(243, 156, 18, 0.3);
+}
+
+#source_openalex + .scitex-toggle-label:hover {
+    background-color: rgba(26, 188, 156, 0.25);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(26, 188, 156, 0.3);
 }
 
 /* Sort Items Container */

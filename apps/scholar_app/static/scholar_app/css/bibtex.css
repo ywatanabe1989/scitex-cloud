@@ -16,6 +16,15 @@
     text-align: center;
     background: var(--color-canvas-subtle);
     transition: all 0.3s;
+    cursor: pointer;
+}
+
+.u-upload-zone:hover {
+    border-color: var(--color-accent-emphasis);
+    border-style: solid;
+    background: var(--color-accent-subtle);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
 }
 
 .u-upload-input {
@@ -32,6 +41,12 @@
     font-size: 4.5rem;
     color: var(--color-border-default);
     margin-bottom: 1rem;
+    transition: all 0.3s;
+}
+
+.u-upload-zone:hover .u-upload-icon {
+    color: var(--color-accent-emphasis);
+    transform: scale(1.1);
 }
 
 /* Running Indicator Styles */
