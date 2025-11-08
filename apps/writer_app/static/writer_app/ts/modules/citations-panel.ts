@@ -24,6 +24,7 @@ export class CitationsPanel {
     private filteredCitations: Citation[] = [];
     private isLoaded: boolean = false;
     private projectId: string | null = null;
+    private selectedCards: Set<string> = new Set(); // Track selected citation keys
 
     constructor() {
         this.init();
@@ -160,12 +161,20 @@ export class CitationsPanel {
 
         const citationCount = citation.citation_count || 0;
         const citationClass = citationCount > 100 ? 'high-citations' : '';
+        const isSelected = this.selectedCards.has(citation.key);
 
         return `
-<div class="citation-card"
+<div class="citation-card ${isSelected ? 'selected' : ''}"
      draggable="true"
      data-citation-key="${citation.key}"
      data-citation-title="${this.escapeHtml(citation.title || '')}">
+  <!-- Selection Checkbox -->
+  <input type="checkbox"
+         class="citation-checkbox"
+         data-citation-key="${citation.key}"
+         ${isSelected ? 'checked' : ''}
+         title="Select for bulk insert">
+
   <div class="citation-card-header">
     <span class="citation-key">${this.escapeHtml(citation.key)}</span>
     <div class="citation-metrics">
@@ -186,7 +195,7 @@ export class CitationsPanel {
     }
 
     /**
-     * Attach drag event listeners to cards
+     * Attach drag and click event listeners to cards
      */
     private attachDragListeners(): void {
         const cards = document.querySelectorAll('.citation-card');
@@ -194,9 +203,78 @@ export class CitationsPanel {
         cards.forEach(card => {
             card.addEventListener('dragstart', (e) => this.handleDragStart(e as DragEvent));
             card.addEventListener('dragend', (e) => this.handleDragEnd(e as DragEvent));
+            card.addEventListener('click', (e) => this.handleCardClick(e as MouseEvent));
         });
 
-        console.log(`[CitationsPanel] Attached drag listeners to ${cards.length} cards`);
+        // Attach checkbox listeners
+        const checkboxes = document.querySelectorAll('.citation-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', (e) => this.handleCheckboxChange(e as Event));
+        });
+
+        console.log(`[CitationsPanel] Attached drag and click listeners to ${cards.length} cards`);
+    }
+
+    /**
+     * Handle checkbox change
+     */
+    private handleCheckboxChange(e: Event): void {
+        e.stopPropagation();
+        const checkbox = e.target as HTMLInputElement;
+        const citationKey = checkbox.dataset.citationKey;
+
+        if (!citationKey) return;
+
+        const card = checkbox.closest('.citation-card') as HTMLElement;
+
+        if (checkbox.checked) {
+            this.selectedCards.add(citationKey);
+            if (card) card.classList.add('selected');
+        } else {
+            this.selectedCards.delete(citationKey);
+            if (card) card.classList.remove('selected');
+        }
+
+        console.log('[CitationsPanel] Selected cards:', Array.from(this.selectedCards));
+        this.updateSelectionUI();
+    }
+
+    /**
+     * Handle card click for multi-select (Ctrl/Cmd + Click)
+     */
+    private handleCardClick(e: MouseEvent): void {
+        const target = e.target as HTMLElement;
+
+        // Don't handle clicks on checkbox itself
+        if (target.classList.contains('citation-checkbox')) {
+            return;
+        }
+
+        const card = e.currentTarget as HTMLElement;
+        const citationKey = card.dataset.citationKey;
+
+        if (!citationKey) return;
+
+        // Handle multi-select if Ctrl (Windows/Linux) or Cmd (Mac) is pressed
+        if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+
+            const checkbox = card.querySelector('.citation-checkbox') as HTMLInputElement;
+
+            // Toggle selection
+            if (this.selectedCards.has(citationKey)) {
+                this.selectedCards.delete(citationKey);
+                card.classList.remove('selected');
+                if (checkbox) checkbox.checked = false;
+            } else {
+                this.selectedCards.add(citationKey);
+                card.classList.add('selected');
+                if (checkbox) checkbox.checked = true;
+            }
+
+            console.log('[CitationsPanel] Selected cards:', Array.from(this.selectedCards));
+            this.updateSelectionUI();
+        }
     }
 
     /**
@@ -208,14 +286,22 @@ export class CitationsPanel {
 
         if (!citationKey || !e.dataTransfer) return;
 
-        // Store citation key for drop
-        e.dataTransfer.setData('text/plain', citationKey);
+        // If card is part of multi-selection, drag all selected cards
+        if (this.selectedCards.size > 0 && this.selectedCards.has(citationKey)) {
+            // Drag multiple citations
+            const keys = Array.from(this.selectedCards).join(',');
+            e.dataTransfer.setData('text/plain', keys);
+            console.log('[CitationsPanel] Drag started (multi):', keys);
+        } else {
+            // Drag single citation
+            e.dataTransfer.setData('text/plain', citationKey);
+            console.log('[CitationsPanel] Drag started (single):', citationKey);
+        }
+
         e.dataTransfer.effectAllowed = 'copy';
 
         // Add visual feedback
         card.classList.add('dragging');
-
-        console.log('[CitationsPanel] Drag started:', citationKey);
     }
 
     /**
@@ -394,6 +480,55 @@ export class CitationsPanel {
             const el = document.getElementById(id);
             if (el) el.style.display = 'none';
         });
+    }
+
+    /**
+     * Update selection UI (show count, clear button, etc.)
+     */
+    private updateSelectionUI(): void {
+        const count = this.selectedCards.size;
+
+        // Update selection count badge
+        let badge = document.getElementById('citations-selection-badge');
+        if (count > 0) {
+            if (!badge) {
+                // Create badge if it doesn't exist
+                const summary = document.querySelector('.citations-summary');
+                if (summary) {
+                    badge = document.createElement('div');
+                    badge.id = 'citations-selection-badge';
+                    badge.style.cssText = 'display: inline-flex; align-items: center; gap: 0.5rem; margin-left: 1rem; padding: 0.25rem 0.75rem; background: var(--color-accent-emphasis); color: white; border-radius: 4px; font-size: 0.85rem; font-weight: 600;';
+                    summary.appendChild(badge);
+                }
+            }
+
+            if (badge) {
+                badge.innerHTML = `
+                    <i class="fas fa-check-square"></i>
+                    ${count} selected
+                    <button onclick="citationsPanel.clearSelection()" style="background: none; border: none; color: white; cursor: pointer; padding: 0 0 0 0.5rem; font-size: 1rem;" title="Clear selection">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                badge.style.display = 'inline-flex';
+            }
+        } else if (badge) {
+            badge.style.display = 'none';
+        }
+    }
+
+    /**
+     * Clear all selections
+     */
+    public clearSelection(): void {
+        this.selectedCards.clear();
+        document.querySelectorAll('.citation-card.selected').forEach(card => {
+            card.classList.remove('selected');
+            const checkbox = card.querySelector('.citation-checkbox') as HTMLInputElement;
+            if (checkbox) checkbox.checked = false;
+        });
+        this.updateSelectionUI();
+        console.log('[CitationsPanel] Selection cleared');
     }
 
     /**
