@@ -27,12 +27,12 @@ class WriterService:
         self.project_id = project_id
         self.user_id = user_id
         self._writer = None
-        self._project_path = None
+        self._writer_dir = None
 
     @property
-    def project_path(self) -> Path:
-        """Get or calculate the project path."""
-        if self._project_path is None:
+    def writer_dir(self) -> Path:
+        """Get or calculate the writer directory path (scitex/writer/)."""
+        if self._writer_dir is None:
             from apps.project_app.models import Project
             from apps.project_app.services.project_filesystem import (
                 get_project_filesystem_manager,
@@ -50,11 +50,11 @@ class WriterService:
                         f"Please ensure the project directory exists."
                     )
 
-                self._project_path = project_root / "scitex" / "writer"
+                self._writer_dir = project_root / "scitex" / "writer"
             except Project.DoesNotExist:
                 raise RuntimeError(f"Project {self.project_id} not found")
 
-        return self._project_path
+        return self._writer_dir
 
     @property
     def writer(self) -> Writer:
@@ -67,11 +67,11 @@ class WriterService:
             from apps.project_app.models import Project
 
             project = Project.objects.get(id=self.project_id)
-            logger.info(f"WriterService: Creating Writer instance for project {self.project_id} at {self.project_path}")
+            logger.info(f"WriterService: Creating Writer instance for project {self.project_id} at {self.writer_dir}")
 
             # Ensure parent directories exist before creating Writer
             # This is necessary because clone_project needs the parent directory to exist
-            parent_dir = self.project_path.parent
+            parent_dir = self.writer_dir.parent
             parent_dir.mkdir(parents=True, exist_ok=True)
             logger.info(f"WriterService: Ensured parent directory exists at {parent_dir}")
 
@@ -95,7 +95,7 @@ class WriterService:
                 # Git Strategy: Use "parent" to share the main project's git repository
                 # The writer directory is part of the main project, not a separate repo.
                 self._writer = Writer(
-                    self.project_path,  # Already points to: {project-root}/scitex/writer/
+                    self.writer_dir,  # Already points to: {project-root}/scitex/writer/
                     # name=project.name,  # REMOVED - causes extra subdirectory creation
                     git_strategy="parent",  # Use parent project's git repository
                 )
@@ -194,7 +194,7 @@ class WriterService:
             raise ValueError(f"Unknown document type: {doc_type}")
 
         # Path to compiled tex file (e.g., manuscript.tex, supplementary.tex, revision.tex)
-        compiled_tex_path = self.project_path / dir_map[doc_type] / f"{doc_type}.tex"
+        compiled_tex_path = self.writer_dir / dir_map[doc_type] / f"{doc_type}.tex"
 
         # Check if file exists
         if not compiled_tex_path.exists():
@@ -280,6 +280,10 @@ class WriterService:
 
         Returns:
             True if successful
+
+        Raises:
+            ValueError: If section doesn't exist or doc_type is invalid
+            IOError: If file write fails
         """
         try:
             # Get the appropriate document tree
@@ -287,33 +291,55 @@ class WriterService:
                 doc = self.writer.shared
                 # For shared, sections are at the root level (no .contents)
                 if not hasattr(doc, section_name):
-                    logger.warning(f"Cannot write to non-existent section {section_name} in shared tree")
-                    return False
+                    available_sections = [attr for attr in dir(doc) if not attr.startswith('_') and hasattr(getattr(doc, attr), 'path')]
+                    raise ValueError(
+                        f"Section '{section_name}' not found in shared tree. "
+                        f"Available sections: {', '.join(available_sections)}"
+                    )
                 section = getattr(doc, section_name)
             elif doc_type == "manuscript":
                 doc = self.writer.manuscript
                 if not hasattr(doc.contents, section_name):
-                    logger.warning(f"Cannot write to non-existent section {section_name} for {doc_type}")
-                    return False
+                    available_sections = [attr for attr in dir(doc.contents) if not attr.startswith('_') and hasattr(getattr(doc.contents, attr), 'path')]
+                    raise ValueError(
+                        f"Section '{section_name}' not found in manuscript.contents. "
+                        f"Available sections: {', '.join(available_sections)}"
+                    )
                 section = getattr(doc.contents, section_name)
             elif doc_type == "supplementary":
                 doc = self.writer.supplementary
                 if not hasattr(doc.contents, section_name):
-                    logger.warning(f"Cannot write to non-existent section {section_name} for {doc_type}")
-                    return False
+                    available_sections = [attr for attr in dir(doc.contents) if not attr.startswith('_') and hasattr(getattr(doc.contents, attr), 'path')]
+                    raise ValueError(
+                        f"Section '{section_name}' not found in supplementary.contents. "
+                        f"Available sections: {', '.join(available_sections)}"
+                    )
                 section = getattr(doc.contents, section_name)
             elif doc_type == "revision":
                 doc = self.writer.revision
                 if not hasattr(doc.contents, section_name):
-                    logger.warning(f"Cannot write to non-existent section {section_name} for {doc_type}")
-                    return False
+                    available_sections = [attr for attr in dir(doc.contents) if not attr.startswith('_') and hasattr(getattr(doc.contents, attr), 'path')]
+                    raise ValueError(
+                        f"Section '{section_name}' not found in revision.contents. "
+                        f"Available sections: {', '.join(available_sections)}"
+                    )
                 section = getattr(doc.contents, section_name)
             else:
                 raise ValueError(f"Unknown document type: {doc_type}")
 
-            return section.write(content)
+            # Write content to section
+            write_result = section.write(content)
+
+            # Verify write succeeded
+            if not write_result:
+                expected_path = section.path if hasattr(section, 'path') else f"{doc_type}/contents/{section_name}.tex"
+                raise IOError(f"Failed to write to {section_name} (expected at: {expected_path})")
+
+            logger.info(f"Successfully wrote {len(content)} chars to {doc_type}/{section_name}")
+            return True
+
         except Exception as e:
-            logger.error(f"Error writing section {section_name}: {e}")
+            logger.error(f"Error writing section {doc_type}/{section_name}: {e}", exc_info=True)
             raise
 
     def commit_section(
@@ -388,11 +414,11 @@ class WriterService:
         if color_mode == 'light':
             return latex_content
 
-        # Define dark mode colors
+        # Define dark mode colors - BLACK background with WHITE text
         # Must be after \documentclass but before \begin{document}
         color_commands = """\\usepackage{xcolor}
-\\pagecolor[rgb]{0.1,0.1,0.1}
-\\color[rgb]{0.9,0.9,0.9}
+\\pagecolor[rgb]{0,0,0}
+\\color[rgb]{1,1,1}
 """
 
         # Find the position to inject
@@ -404,6 +430,77 @@ class WriterService:
             latex_content = color_commands + latex_content
 
         return latex_content
+
+    def _compile_alternate_theme_background(self, latex_content: str, section_name: str, color_mode: str, timeout: int):
+        """Compile alternate theme PDF in background (non-blocking).
+
+        This runs in a separate thread to pre-generate the alternate theme
+        so theme switching is instant without waiting for recompilation.
+
+        Storage Strategy:
+        - Light theme: preview-{section}-light.pdf
+        - Dark theme: preview-{section}-dark.pdf
+        - Both files maintained for instant switching
+
+        Args:
+            latex_content: Original LaTeX content (before color mode applied)
+            section_name: Section name
+            color_mode: 'light' or 'dark'
+            timeout: Compilation timeout
+        """
+        import threading
+
+        def background_compile():
+            try:
+                # Apply alternate color mode
+                themed_content = self._apply_color_mode_to_latex(latex_content, color_mode)
+
+                import subprocess
+                import shutil
+
+                preview_dir = self.writer_dir / ".preview"
+                preview_dir.mkdir(parents=True, exist_ok=True)
+
+                # Compile with theme suffix
+                temp_tex = preview_dir / f"preview-{section_name}-{color_mode}-temp.tex"
+                temp_tex.write_text(themed_content, encoding='utf-8')
+
+                logger.info(f"[BackgroundCompile] Compiling alternate theme ({color_mode}) for {section_name}")
+
+                result = subprocess.run(
+                    [
+                        "pdflatex",
+                        "-interaction=nonstopmode",
+                        "-output-directory", str(preview_dir),
+                        str(temp_tex)
+                    ],
+                    capture_output=True,
+                    text=True,
+                    timeout=timeout
+                )
+
+                temp_pdf = preview_dir / f"preview-{section_name}-{color_mode}-temp.pdf"
+                output_pdf = preview_dir / f"preview-{section_name}-{color_mode}.pdf"
+
+                if temp_pdf.exists():
+                    if temp_pdf != output_pdf:
+                        shutil.move(str(temp_pdf), str(output_pdf))
+                    logger.info(f"[BackgroundCompile] ✓ Alternate theme ({color_mode}) ready for {section_name} - instant switching enabled!")
+
+                    # Cleanup temp .tex and auxiliary files
+                    temp_tex.unlink(missing_ok=True)
+                    for aux_file in preview_dir.glob(f"preview-{section_name}-{color_mode}-temp.*"):
+                        if aux_file.suffix not in ['.pdf']:
+                            aux_file.unlink(missing_ok=True)
+                else:
+                    logger.warning(f"[BackgroundCompile] Failed to compile alternate theme ({color_mode}) for {section_name}")
+
+            except Exception as e:
+                logger.warning(f"[BackgroundCompile] Error compiling alternate theme: {e}")
+
+        # Start background thread (daemon=True means it won't block shutdown)
+        thread = threading.Thread(target=background_compile, daemon=True)
+        thread.start()
 
     def compile_preview(self, latex_content: str, timeout: int = 60, color_mode: str = 'light', section_name: str = 'preview', doc_type: str = 'manuscript') -> dict:
         """Compile a quick preview of provided LaTeX content (not from workspace).
@@ -435,15 +532,16 @@ class WriterService:
             # Create .preview directory in scitex/writer for compiled previews
             # This directory stores temporary compiled PDFs for quick preview
             # Structure: scitex/writer/.preview/
-            preview_dir = self.project_path / "scitex" / "writer" / ".preview"
+            preview_dir = self.writer_dir / ".preview"
             preview_dir.mkdir(parents=True, exist_ok=True)
 
             # Write content to temporary .tex file in .preview directory
-            temp_tex = preview_dir / f"preview-{section_name}-temp.tex"
-            logger.info(f"[CompilePreview] Creating preview file: {temp_tex} for section: {section_name}")
+            # Include theme in temp filename to avoid conflicts with parallel compilations
+            temp_tex = preview_dir / f"preview-{section_name}-{color_mode}-temp.tex"
+            logger.info(f"[CompilePreview] Creating preview file: {temp_tex} for section: {section_name}, theme: {color_mode}")
             temp_tex.write_text(latex_content, encoding='utf-8')
 
-            logger.info(f"[CompilePreview] Compiling preview ({len(latex_content)} chars) timeout={timeout}s")
+            logger.info(f"[CompilePreview] Compiling {color_mode} preview ({len(latex_content)} chars) timeout={timeout}s")
 
             # Run pdflatex with output to .preview directory
             result = subprocess.run(
@@ -460,10 +558,10 @@ class WriterService:
 
             log_content = result.stdout + result.stderr
 
-            # Expected PDF output: .preview/preview-{section_name}-temp.pdf
-            temp_pdf = preview_dir / f"preview-{section_name}-temp.pdf"
-            # Final PDF name: .preview/preview-{section_name}.pdf
-            output_pdf = preview_dir / f"preview-{section_name}.pdf"
+            # Expected PDF output: .preview/preview-{section_name}-{color_mode}-temp.pdf
+            temp_pdf = preview_dir / f"preview-{section_name}-{color_mode}-temp.pdf"
+            # Final PDF name: .preview/preview-{section_name}-{color_mode}.pdf
+            output_pdf = preview_dir / f"preview-{section_name}-{color_mode}.pdf"
 
             # pdflatex creates preview-{section_name}-temp.pdf from preview-{section_name}-temp.tex
             logger.info(f"[CompilePreview] Looking for compiled PDF: {temp_pdf}")
@@ -472,12 +570,17 @@ class WriterService:
             # Note: pdflatex return code may be non-zero even on successful compilation
             # with -interaction=nonstopmode, so we check for the PDF file instead
             if temp_pdf.exists():
-                logger.info(f"[CompilePreview] PDF compiled successfully at {temp_pdf}")
+                logger.info(f"[CompilePreview] {color_mode} PDF compiled successfully at {temp_pdf}")
                 # Rename from temp filename to final filename
                 if temp_pdf != output_pdf:
                     shutil.move(str(temp_pdf), str(output_pdf))
 
-                logger.info(f"WriterService: Preview compilation succeeded for {section_name}: {output_pdf}")
+                logger.info(f"WriterService: Preview compilation succeeded for {section_name} ({color_mode}): {output_pdf}")
+
+                # Trigger background compilation for alternate theme (non-blocking)
+                alternate_theme = 'dark' if color_mode == 'light' else 'light'
+                self._compile_alternate_theme_background(latex_content, section_name, alternate_theme, timeout)
+
                 return {
                     "success": True,
                     "output_pdf": str(output_pdf),
@@ -783,11 +886,11 @@ class WriterService:
         Raises:
             FileNotFoundError: If file doesn't exist
         """
-        full_path = self.project_path / file_path
+        full_path = self.writer_dir / file_path
 
         # Security check: ensure the path is within the project directory
         try:
-            full_path.resolve().relative_to(self.project_path.resolve())
+            full_path.resolve().relative_to(self.writer_dir.resolve())
         except ValueError:
             raise PermissionError(f"Access denied: path outside project directory")
 

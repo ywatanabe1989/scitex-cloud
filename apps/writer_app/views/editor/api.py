@@ -38,19 +38,11 @@ def section_view(request, project_id, section_name):
 
     Supports hierarchical section IDs (e.g., "shared/title", "manuscript/abstract").
 
-    GET: Read section content from disk
-        Section name can be:
-        - Hierarchical: "category/name" (e.g., "shared/title", "manuscript/abstract")
-        - Legacy: "name" + doc_type query param (e.g., "abstract" + doc_type=manuscript)
-
+    GET: Read section content from disk - returns SectionReadResponse
     POST: Write section content to disk
-        Body:
-            {
-                "content": <latex_content>,
-                "doc_type": "manuscript" (optional, overridden by hierarchical ID)
-            }
     """
     try:
+        from scitex.writer.dataclasses.results import SectionReadResponse
         from ...services import WriterService
         from apps.project_app.models import Project
         from ...configs.sections_config import parse_section_id
@@ -69,58 +61,108 @@ def section_view(request, project_id, section_name):
         writer_service = WriterService(project_id, user.id)
 
         # Parse section ID to get category and name
-        # e.g., "shared/title" -> ("shared", "title")
-        # e.g., "abstract" -> ("manuscript", "abstract")  # fallback
         category, name = parse_section_id(section_name)
 
         # GET: Read section from disk
         if request.method == "GET":
-            # Allow query param to override category for legacy compatibility
-            doc_type = request.GET.get("doc_type", category)
+            try:
+                # Allow query param to override category for legacy compatibility
+                doc_type = request.GET.get("doc_type", category)
 
-            logger.info(f"[SectionView GET] Reading section: {section_name} -> category={category}, name={name}, doc_type={doc_type}")
+                logger.info(f"[SectionView GET] Reading section: {section_name} -> category={category}, name={name}, doc_type={doc_type}")
 
-            # Read content from disk using WriterService
-            content = writer_service.read_section(name, doc_type)
+                # Read content from disk using WriterService
+                content = writer_service.read_section(name, doc_type)
 
-            logger.info(f"[SectionView GET] Read {len(content)} chars for {name}")
+                # Validate content was actually read
+                if content is None:
+                    raise ValueError(f"read_section returned None for {name}")
 
-            return JsonResponse({
-                "success": True,
-                "content": content,
-                "section_name": name,
-                "section_id": section_name,  # Return full hierarchical ID
-                "doc_type": doc_type
-            })
+                logger.info(f"[SectionView GET] Read {len(content)} chars for {name}")
+
+                # Build section file path for reference
+                doc_dir_map = {
+                    'manuscript': '01_manuscript/contents',
+                    'supplementary': '02_supplementary/contents',
+                    'revision': '03_revision/contents',
+                    'shared': 'shared'
+                }
+                section_dir = writer_service.writer_dir / doc_dir_map.get(doc_type, '01_manuscript/contents')
+                file_path = section_dir / f"{name}.tex"
+
+                # Create response
+                response = SectionReadResponse.create_success(
+                    content=content,
+                    section_name=name,
+                    section_id=section_name,
+                    doc_type=doc_type,
+                    file_path=file_path if file_path.exists() else None
+                )
+
+                # Validate before returning
+                response.validate()
+                return JsonResponse(response.to_dict())
+
+            except Exception as e:
+                logger.error(f"Error reading section {section_name}: {e}", exc_info=True)
+                response = SectionReadResponse.create_failure(
+                    section_id=section_name,
+                    error_message=f"Failed to read section: {str(e)}"
+                )
+                return JsonResponse(response.to_dict(), status=500)
 
         # POST: Write section to disk
         elif request.method == "POST":
-            data = json.loads(request.body)
-            content = data.get("content")
-            # Allow body doc_type to override, but prefer parsed category
-            doc_type = data.get("doc_type", category)
+            try:
+                data = json.loads(request.body)
+                content = data.get("content")
+                # Allow body doc_type to override, but prefer parsed category
+                doc_type = data.get("doc_type", category)
 
-            if content is None:
-                return JsonResponse(
-                    {"success": False, "error": "Content is required"},
-                    status=400
+                # Validate content
+                if content is None:
+                    response = SectionReadResponse.create_failure(
+                        section_id=section_name,
+                        error_message="Content is required"
+                    )
+                    return JsonResponse(response.to_dict(), status=400)
+
+                if not isinstance(content, str):
+                    response = SectionReadResponse.create_failure(
+                        section_id=section_name,
+                        error_message=f"Content must be string, got {type(content).__name__}"
+                    )
+                    return JsonResponse(response.to_dict(), status=400)
+
+                logger.info(f"[SectionView POST] Writing section: {section_name} -> category={category}, name={name}, doc_type={doc_type}, length: {len(content)}")
+
+                # Write content to disk using WriterService
+                success = writer_service.write_section(name, content, doc_type)
+
+                if success:
+                    # Return a read response with the saved content
+                    response = SectionReadResponse.create_success(
+                        content=content,
+                        section_name=name,
+                        section_id=section_name,
+                        doc_type=doc_type
+                    )
+                    response.validate()
+                    return JsonResponse(response.to_dict())
+                else:
+                    response = SectionReadResponse.create_failure(
+                        section_id=section_name,
+                        error_message="write_section returned False (unknown reason)"
+                    )
+                    return JsonResponse(response.to_dict(), status=500)
+
+            except Exception as e:
+                logger.error(f"Error writing section {section_name}: {e}", exc_info=True)
+                response = SectionReadResponse.create_failure(
+                    section_id=section_name,
+                    error_message=f"Failed to write section: {str(e)}"
                 )
-
-            logger.info(f"[SectionView POST] Writing section: {section_name} -> category={category}, name={name}, doc_type={doc_type}, length: {len(content)}")
-
-            # Write content to disk using WriterService
-            success = writer_service.write_section(name, content, doc_type)
-
-            if success:
-                return JsonResponse({
-                    "success": True,
-                    "message": f"Section {name} saved to disk"
-                })
-            else:
-                return JsonResponse(
-                    {"success": False, "error": "Failed to write section"},
-                    status=500
-                )
+                return JsonResponse(response.to_dict(), status=500)
 
     except Project.DoesNotExist:
         return JsonResponse(
@@ -188,11 +230,12 @@ def compile_api(request, project_id):
         if result.get('success') and result.get('output_pdf'):
             from pathlib import Path
             pdf_path = Path(result['output_pdf'])
-            # Convert: /app/data/users/USER/PROJECT/scitex/writer/preview_output/preview-abstract.pdf
-            # To URL: /writer/api/project/101/pdf/preview-abstract.pdf
+            # Convert: /app/data/users/USER/PROJECT/scitex/writer/.preview/preview-abstract-light.pdf
+            # To URL: /writer/api/project/101/pdf/preview-abstract-light.pdf
             pdf_filename = pdf_path.name
             result['output_pdf'] = f"/writer/api/project/{project_id}/pdf/{pdf_filename}"
             logger.info(f"[CompileAPI] Converted PDF path to URL: {result['output_pdf']}")
+            logger.info(f"[CompileAPI] Note: Alternate theme will be compiled in background for instant switching")
 
         return JsonResponse(result)
 
@@ -283,6 +326,17 @@ def _scan_project_sections(project_path):
         "main.tex", "preamble.tex", "base.tex"
     }
 
+    # Load excluded sections from config
+    config_file = project_path / '.scitex_section_config.json'
+    excluded_sections = []
+    if config_file.exists():
+        try:
+            config = json.loads(config_file.read_text())
+            excluded_sections = config.get('excluded_sections', [])
+        except Exception as e:
+            logger.warning(f"Failed to load section config: {e}")
+            excluded_sections = []
+
     # Scan shared/ directory
     shared_dir = project_path / "shared"
     if shared_dir.exists() and shared_dir.is_dir():
@@ -294,15 +348,19 @@ def _scan_project_sections(project_path):
                 continue
 
             section_name = tex_file.stem
+            section_id = f"shared/{section_name}"
             hierarchy["shared"]["sections"].append({
-                "id": f"shared/{section_name}",
+                "id": section_id,
                 "name": section_name,
                 "label": section_name.replace("_", " ").title(),
-                "path": str(tex_file.relative_to(project_path))
+                "path": str(tex_file.relative_to(project_path)),
+                "excluded": section_id in excluded_sections
             })
 
     # Scan manuscript/contents/ directory
     manuscript_dir = project_path / "01_manuscript" / "contents"
+    manuscript_sections = []
+
     if manuscript_dir.exists() and manuscript_dir.is_dir():
         for tex_file in sorted(manuscript_dir.glob("*.tex")):
             if tex_file.name in skip_files:
@@ -312,13 +370,62 @@ def _scan_project_sections(project_path):
                 continue
 
             section_name = tex_file.stem
-            hierarchy["manuscript"]["sections"].append({
-                "id": f"manuscript/{section_name}",
+            # Mark optional sections (can be excluded from compilation)
+            # Core sections: abstract, introduction, methods, discussion, results
+            # Optional sections: everything else
+            optional_sections = [
+                "highlights",
+                "graphical_abstract",
+                "additional_info",
+                "data_availability",
+                "conclusion",
+                "acknowledgments",
+                "funding",
+                "conflict_of_interest"
+            ]
+            section_id = f"manuscript/{section_name}"
+            manuscript_sections.append({
+                "id": section_id,
                 "name": section_name,
                 "label": section_name.replace("_", " ").title(),
                 "path": str(tex_file.relative_to(project_path)),
-                "optional": section_name in ["highlights"]
+                "optional": section_name in optional_sections,
+                "excluded": section_id in excluded_sections
             })
+
+    # Define preferred order for manuscript sections (matches standard manuscript structure)
+    section_order = {
+        "abstract": 0,
+        "introduction": 1,
+        "methods": 2,
+        "discussion": 3,
+        "results": 4,
+        "highlights": 5,
+        "graphical_abstract": 6,
+        "additional_info": 7,
+        "data_availability": 8,
+        "conclusion": 9,
+        # Everything else goes after
+    }
+
+    # Sort sections by preferred order, then alphabetically
+    manuscript_sections.sort(key=lambda s: (section_order.get(s["name"], 999), s["name"]))
+
+    # Add sorted sections to hierarchy
+    hierarchy["manuscript"]["sections"] = manuscript_sections
+
+    # Add "Full Manuscript" compiled PDF section at the END
+    compiled_tex_path = project_path / "01_manuscript" / "manuscript.tex"
+    if compiled_tex_path.exists():
+        hierarchy["manuscript"]["sections"].append({
+            "id": "manuscript/compiled_pdf",
+            "name": "compiled_pdf",
+            "label": "📄 Full Manuscript",
+            "path": str(compiled_tex_path.relative_to(project_path)),
+            "view_only": True,
+            "is_compiled": True,
+            "no_preview": True
+        })
 
     # Scan supplementary/contents/ directory
     supplementary_dir = project_path / "02_supplementary" / "contents"
@@ -331,11 +438,13 @@ def _scan_project_sections(project_path):
                 continue
 
             section_name = tex_file.stem
+            section_id = f"supplementary/{section_name}"
             hierarchy["supplementary"]["sections"].append({
-                "id": f"supplementary/{section_name}",
+                "id": section_id,
                 "name": section_name,
                 "label": f"Supplementary {section_name.replace('_', ' ').title()}",
-                "path": str(tex_file.relative_to(project_path))
+                "path": str(tex_file.relative_to(project_path)),
+                "excluded": section_id in excluded_sections
             })
 
     # Scan revision/contents/ directory
@@ -349,11 +458,13 @@ def _scan_project_sections(project_path):
                 continue
 
             section_name = tex_file.stem
+            section_id = f"revision/{section_name}"
             hierarchy["revision"]["sections"].append({
-                "id": f"revision/{section_name}",
+                "id": section_id,
                 "name": section_name,
                 "label": f"Revision {section_name.replace('_', ' ').title()}",
-                "path": str(tex_file.relative_to(project_path))
+                "path": str(tex_file.relative_to(project_path)),
+                "excluded": section_id in excluded_sections
             })
 
     logger.info(f"Scanned project sections: {sum(len(cat['sections']) for cat in hierarchy.values())} total sections")
@@ -402,7 +513,7 @@ def sections_config_view(request):
         writer_service = WriterService(int(project_id), user_id)
 
         # Build hierarchy from actual filesystem
-        hierarchy = _scan_project_sections(writer_service.project_path)
+        hierarchy = _scan_project_sections(writer_service.writer_dir)
 
         return JsonResponse({
             "success": True,
@@ -436,18 +547,27 @@ def save_sections_view(request, project_id):
         }
 
     Returns:
-        JSON response with success status
+        JSON response with SaveSectionsResponse structure
     """
     try:
+        from scitex.writer.dataclasses.results import SaveSectionsResponse
+
         data = json.loads(request.body)
         sections = data.get("sections", {})
         doc_type = data.get("doc_type", "manuscript")
 
-        if not sections:
-            return JsonResponse(
-                {"success": False, "error": "No sections provided"},
-                status=400
+        # Validate input
+        if not isinstance(sections, dict):
+            response = SaveSectionsResponse.create_failure(
+                "Invalid request: 'sections' must be a dictionary"
             )
+            return JsonResponse(response.to_dict(), status=400)
+
+        if not sections:
+            response = SaveSectionsResponse.create_failure(
+                "No sections provided"
+            )
+            return JsonResponse(response.to_dict(), status=400)
 
         # Get project and service
         from ...services import WriterService
@@ -458,57 +578,78 @@ def save_sections_view(request, project_id):
         # Get effective user (authenticated or visitor)
         user, is_visitor = get_user_for_request(request, project_id)
         if not user:
-            return JsonResponse(
-                {"success": False, "error": "Invalid session"},
-                status=403
-            )
+            response = SaveSectionsResponse.create_failure("Invalid session")
+            return JsonResponse(response.to_dict(), status=403)
 
         writer_service = WriterService(project_id, user.id)
 
         # Save each section
         saved_count = 0
-        errors = []
+        error_list = []
+        error_details = {}
 
         from ...configs.sections_config import parse_section_id
 
         for section_id, content in sections.items():
             try:
+                # Validate content type
+                if not isinstance(content, str):
+                    error_msg = f"Content must be string, got {type(content).__name__}"
+                    error_list.append(f"{section_id}: {error_msg}")
+                    error_details[section_id] = error_msg
+                    continue
+
                 # Parse hierarchical section ID
-                # e.g., "shared/title" -> ("shared", "title")
-                # e.g., "manuscript/abstract" -> ("manuscript", "abstract")
                 category, section_name = parse_section_id(section_id)
 
                 # Use parsed category instead of global doc_type
-                writer_service.write_section(section_name, content, category)
-                saved_count += 1
+                success = writer_service.write_section(section_name, content, category)
+
+                if success:
+                    saved_count += 1
+                else:
+                    error_msg = "write_section returned False (unknown reason)"
+                    error_list.append(f"{section_id}: {error_msg}")
+                    error_details[section_id] = error_msg
+
             except Exception as e:
-                logger.error(f"Error saving section {section_id}: {e}")
-                errors.append(f"{section_id}: {str(e)}")
+                error_msg = str(e)
+                logger.error(f"Error saving section {section_id}: {e}", exc_info=True)
+                error_list.append(f"{section_id}: {error_msg}")
+                error_details[section_id] = error_msg
 
-        if errors:
-            return JsonResponse({
-                "success": False,
-                "saved": saved_count,
-                "errors": errors
-            }, status=500)
+        # Create response
+        if error_list:
+            response = SaveSectionsResponse(
+                success=saved_count > 0,  # Partial success if some saved
+                sections_saved=saved_count,
+                sections_skipped=len(error_list),
+                message=f"Saved {saved_count}/{len(sections)} sections",
+                errors=error_list,
+                error_details=error_details,
+            )
+            # Validate before returning
+            response.validate()
+            return JsonResponse(response.to_dict(), status=500 if saved_count == 0 else 200)
 
-        return JsonResponse({
-            "success": True,
-            "saved": saved_count,
-            "message": f"Saved {saved_count} sections"
-        })
+        response = SaveSectionsResponse.create_success(
+            sections_saved=saved_count,
+            message=f"Saved {saved_count} sections"
+        )
+        # Validate before returning
+        response.validate()
+        return JsonResponse(response.to_dict())
 
     except Project.DoesNotExist:
-        return JsonResponse(
-            {"success": False, "error": "Project not found"},
-            status=404
-        )
+        response = SaveSectionsResponse.create_failure("Project not found")
+        return JsonResponse(response.to_dict(), status=404)
     except Exception as e:
         logger.error(f"Error saving sections: {e}", exc_info=True)
-        return JsonResponse(
-            {"success": False, "error": str(e)},
-            status=500
+        response = SaveSectionsResponse.create_failure(
+            f"Server error: {str(e)}",
+            errors=[str(e)]
         )
+        return JsonResponse(response.to_dict(), status=500)
 
 
 @api_login_optional
@@ -540,37 +681,72 @@ def pdf_view(request, project_id, pdf_filename=None):
         project = Project.objects.get(id=project_id)
         writer_service = WriterService(project_id, user.id)
 
+        # Handle doc_type query parameter (for compiled full manuscripts)
+        doc_type = request.GET.get('doc_type')
+        if doc_type and not pdf_filename:
+            # Map doc_type to PDF filename
+            doc_type_map = {
+                'manuscript': 'manuscript.pdf',
+                'supplementary': 'supplementary.pdf',
+                'revision': 'revision.pdf'
+            }
+            pdf_filename = doc_type_map.get(doc_type, 'manuscript.pdf')
+            logger.info(f"[PDFView] Mapped doc_type={doc_type} to filename={pdf_filename}")
+
         # If no filename specified, look for main compiled PDF
         if not pdf_filename:
             pdf_filename = "main.pdf"
 
         logger.info(f"[PDFView] Serving PDF: {pdf_filename} for project {project_id}")
 
-        # Search for PDF in scitex/writer/.preview directory structure
-        # Structure: scitex/writer/.preview/{filename}.pdf
-        preview_dir = writer_service.project_path / "scitex" / "writer" / ".preview"
+        # Search for PDF in multiple locations
+        writer_dir = writer_service.writer_dir  # Already at scitex/writer/
+        pdf_path = None
+        checked_paths = []
 
-        pdf_path = preview_dir / pdf_filename
+        # 1. Preview directory (for section previews)
+        preview_dir = writer_dir / ".preview"
+        preview_path = preview_dir / pdf_filename
+        checked_paths.append(str(preview_path))
+        if preview_path.exists():
+            pdf_path = preview_path
+            logger.info(f"[PDFView] Found PDF in .preview directory")
 
-        logger.info(f"[PDFView] Looking for PDF at: {pdf_path}")
+        # 2. Full manuscript PDFs in document type directories
+        if not pdf_path and pdf_filename in ["manuscript.pdf", "supplementary.pdf", "revision.pdf"]:
+            doc_type_map = {
+                "manuscript.pdf": "01_manuscript",
+                "supplementary.pdf": "02_supplementary",
+                "revision.pdf": "03_revision"
+            }
+            doc_dir = doc_type_map.get(pdf_filename)
+            if doc_dir:
+                full_path = writer_dir / doc_dir / pdf_filename
+                checked_paths.append(str(full_path))
+                if full_path.exists():
+                    pdf_path = full_path
+                    logger.info(f"[PDFView] Found full PDF in {doc_dir} directory")
 
-        if not pdf_path.exists():
-            # Fallback to old preview_output directory for backward compatibility
-            legacy_preview = writer_service.project_path / "preview_output" / pdf_filename
+        # 3. Fallback to old preview_output directory for backward compatibility
+        if not pdf_path:
+            legacy_preview = writer_service.writer_dir / "preview_output" / pdf_filename
+            checked_paths.append(str(legacy_preview))
             if legacy_preview.exists():
                 pdf_path = legacy_preview
                 logger.info(f"[PDFView] Found PDF in legacy preview_output directory")
-            else:
-                logger.error(f"[PDFView] PDF not found: {pdf_filename}")
-                logger.error(f"[PDFView] Checked paths: {pdf_path}, {legacy_preview}")
-                # For HEAD requests, return simple 404 without JSON body
-                if request.method == 'HEAD':
-                    from django.http import HttpResponse
-                    return HttpResponse(status=404)
-                return JsonResponse(
-                    {"success": False, "error": f"PDF not found: {pdf_filename}"},
-                    status=404
-                )
+
+        # If still not found, return 404
+        if not pdf_path:
+            logger.error(f"[PDFView] PDF not found: {pdf_filename}")
+            logger.error(f"[PDFView] Checked paths: {', '.join(checked_paths)}")
+            # For HEAD requests, return simple 404 without JSON body
+            if request.method == 'HEAD':
+                from django.http import HttpResponse
+                return HttpResponse(status=404)
+            return JsonResponse(
+                {"success": False, "error": f"PDF not found: {pdf_filename}"},
+                status=404
+            )
 
         logger.info(f"[PDFView] Serving PDF from: {pdf_path}")
 
@@ -588,6 +764,13 @@ def pdf_view(request, project_id, pdf_filename=None):
             content_type='application/pdf'
         )
         response['Content-Disposition'] = f'inline; filename="{pdf_filename}"'
+
+        # Add cache control headers to prevent browser caching themed PDFs
+        # This is critical for theme switching to work correctly
+        response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        response['Pragma'] = 'no-cache'
+        response['Expires'] = '0'
+
         return response
 
     except Project.DoesNotExist:
@@ -885,7 +1068,7 @@ def section_create_view(request, project_id):
             )
 
         # Create section file
-        section_dir = writer_service.project_path / doc_dir_map[doc_type]
+        section_dir = writer_service.writer_dir / doc_dir_map[doc_type]
         section_file = section_dir / f"{section_name}.tex"
 
         if section_file.exists():
@@ -962,7 +1145,7 @@ def section_delete_view(request, project_id, section_name):
             'shared': 'shared'
         }
 
-        section_dir = writer_service.project_path / doc_dir_map.get(category, '01_manuscript/contents')
+        section_dir = writer_service.writer_dir / doc_dir_map.get(category, '01_manuscript/contents')
         section_file = section_dir / f"{name}.tex"
 
         if not section_file.exists():
@@ -994,7 +1177,7 @@ def section_delete_view(request, project_id, section_name):
         )
 
 
-@login_required
+@api_login_optional
 @require_http_methods(["POST"])
 def section_toggle_exclude_view(request, project_id, section_name):
     """Toggle section include/exclude state for compilation.
@@ -1012,8 +1195,16 @@ def section_toggle_exclude_view(request, project_id, section_name):
         import json
         from pathlib import Path
 
+        # Get effective user (authenticated or visitor)
+        user, is_visitor = get_user_for_request(request, project_id)
+        if not user:
+            return JsonResponse(
+                {"success": False, "error": "Invalid session"},
+                status=403
+            )
+
         # Get project
-        project = Project.objects.get(id=project_id, owner=request.user)
+        project = Project.objects.get(id=project_id)
 
         # Parse request body
         data = json.loads(request.body)
@@ -1022,11 +1213,10 @@ def section_toggle_exclude_view(request, project_id, section_name):
         # Parse section ID
         category, name = parse_section_id(section_name)
 
-        # TODO: Store this in a project configuration file or database
-        # For now, we'll use a simple JSON file in the project root
+        # Store in project configuration file
         from ...services import WriterService
-        writer_service = WriterService(project_id, request.user.id)
-        config_file = writer_service.project_path / '.scitex_section_config.json'
+        writer_service = WriterService(project_id, user.id)
+        config_file = writer_service.writer_dir / '.scitex_section_config.json'
 
         # Load existing config
         config = {}
@@ -1092,7 +1282,7 @@ def section_move_up_view(request, project_id, section_name):
         section_id = f"{category}/{name}"
 
         # Load section order configuration
-        config_file = writer_service.project_path / '.scitex_section_config.json'
+        config_file = writer_service.writer_dir / '.scitex_section_config.json'
         config = {}
         if config_file.exists():
             config = json.loads(config_file.read_text())
@@ -1166,7 +1356,7 @@ def section_move_down_view(request, project_id, section_name):
         section_id = f"{category}/{name}"
 
         # Load section order configuration
-        config_file = writer_service.project_path / '.scitex_section_config.json'
+        config_file = writer_service.writer_dir / '.scitex_section_config.json'
         config = {}
         if config_file.exists():
             config = json.loads(config_file.read_text())
