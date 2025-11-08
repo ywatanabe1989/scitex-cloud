@@ -19,11 +19,26 @@
   text-align: left !important;
 }
 
-/* Fix hero title spacing and color */
+/* Fix hero title spacing and add gradient */
 .hero-landing .hero-title {
   margin-top: 0 !important;
   margin-bottom: 1.5rem !important;
   letter-spacing: -0.02em;
+  font-size: 3rem !important;
+  white-space: nowrap;
+}
+
+/* Light mode - no gradient, keep simple */
+[data-theme="light"] .hero-landing .hero-title {
+  color: var(--color-fg-default);
+}
+
+/* Dark mode - visible gradient */
+[data-theme="dark"] .hero-landing .hero-title {
+  background: linear-gradient(135deg, #8fb3c9 0%, #d4e1e8 50%, #6b8fb3 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 /* Fix hero badges alignment */
