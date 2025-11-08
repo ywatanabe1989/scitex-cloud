@@ -42,6 +42,18 @@
     border-radius: 0.5rem;
     padding: 1.5rem;
     text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.health-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.health-card.active {
+    border-width: 3px;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
 }
 
 .health-card-value {
@@ -64,8 +76,8 @@
 }
 
 .health-card.warning {
-    border-color: #d4a574;
-    background-color: rgba(212, 165, 116, 0.05);
+    border-color: #d29922;
+    background-color: rgba(210, 153, 34, 0.08);
 }
 
 .health-card.success {

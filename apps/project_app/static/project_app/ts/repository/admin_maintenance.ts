@@ -38,6 +38,7 @@ class RepositoryMaintenance {
     private username: string = '';
     private healthData: HealthData | null = null;
     private pendingAction: PendingAction | null = null;
+    private currentFilter: 'all' | 'healthy' | 'warnings' | 'critical' = 'all';
 
     constructor() {
         this.init();
@@ -103,19 +104,19 @@ class RepositoryMaintenance {
     private renderHealthStatus(data: HealthData): void {
         const stats = data.stats;
         const html = `
-            <div class="health-card success">
+            <div class="health-card success ${this.currentFilter === 'healthy' ? 'active' : ''}" data-filter="healthy" title="Click to show only healthy repositories">
                 <div class="health-card-value">${stats.healthy_count}</div>
                 <div class="health-card-label">Healthy</div>
             </div>
-            <div class="health-card ${stats.warnings > 0 ? 'warning' : 'success'}">
+            <div class="health-card warning ${this.currentFilter === 'warnings' ? 'active' : ''}" data-filter="warnings" title="Click to show only warnings">
                 <div class="health-card-value">${stats.warnings}</div>
                 <div class="health-card-label">Warnings</div>
             </div>
-            <div class="health-card ${stats.critical_issues > 0 ? 'critical' : 'success'}">
+            <div class="health-card ${stats.critical_issues > 0 ? 'critical' : ''} ${this.currentFilter === 'critical' ? 'active' : ''}" data-filter="critical" title="Click to show only critical issues">
                 <div class="health-card-value">${stats.critical_issues}</div>
                 <div class="health-card-label">Critical</div>
             </div>
-            <div class="health-card">
+            <div class="health-card ${this.currentFilter === 'all' ? 'active' : ''}" data-filter="all" title="Click to show all repositories">
                 <div class="health-card-value">${stats.total_django_projects}</div>
                 <div class="health-card-label">Total Projects</div>
             </div>
@@ -123,6 +124,14 @@ class RepositoryMaintenance {
         const statusEl = document.getElementById('health-status');
         if (statusEl) {
             statusEl.innerHTML = html;
+
+            // Add click handlers to cards
+            statusEl.querySelectorAll('.health-card').forEach((card) => {
+                card.addEventListener('click', () => {
+                    const filter = card.getAttribute('data-filter') as 'all' | 'healthy' | 'warnings' | 'critical';
+                    this.applyFilter(filter);
+                });
+            });
         }
     }
 
@@ -147,6 +156,52 @@ class RepositoryMaintenance {
 
         const html = issues.map(issue => this.renderIssue(issue)).join('');
         issuesListEl.innerHTML = html;
+
+        // Apply current filter
+        this.applyCurrentFilter();
+    }
+
+    private applyFilter(filter: 'all' | 'healthy' | 'warnings' | 'critical'): void {
+        this.currentFilter = filter;
+        console.log('[Repository Maintenance] Applying filter:', filter);
+
+        // Update health cards to show active state
+        if (this.healthData) {
+            this.renderHealthStatus(this.healthData);
+        }
+
+        // Filter the repository cards
+        this.applyCurrentFilter();
+    }
+
+    private applyCurrentFilter(): void {
+        const issueCards = document.querySelectorAll('.issue-card');
+
+        let visibleCount = 0;
+
+        issueCards.forEach((card) => {
+            const htmlCard = card as HTMLElement;
+            let shouldShow = false;
+
+            if (this.currentFilter === 'all') {
+                shouldShow = true;
+            } else if (this.currentFilter === 'healthy') {
+                shouldShow = card.getAttribute('data-status') === 'healthy';
+            } else if (this.currentFilter === 'warnings') {
+                shouldShow = card.getAttribute('data-status') === 'warning';
+            } else if (this.currentFilter === 'critical') {
+                shouldShow = card.getAttribute('data-status') === 'critical';
+            }
+
+            if (shouldShow) {
+                htmlCard.style.display = '';
+                visibleCount++;
+            } else {
+                htmlCard.style.display = 'none';
+            }
+        });
+
+        console.log(`[Repository Maintenance] Showing ${visibleCount}/${issueCards.length} repositories`);
     }
 
     private renderIssue(issue: RepositoryIssue): string {
@@ -196,8 +251,11 @@ class RepositoryMaintenance {
             `;
         }
 
+        // Determine status for filtering
+        const status = issue.is_healthy ? 'healthy' : (issue.is_critical ? 'critical' : 'warning');
+
         return `
-            <div class="issue-item">
+            <div class="issue-item issue-card" data-status="${status}">
                 <div class="issue-header">
                     <div class="issue-icon ${iconClass}">${icon}</div>
                     <div class="issue-content" style="flex: 1;">

@@ -1,12 +1,16 @@
 <!-- Profile Sidebar Component -->
 <aside class="profile-sidebar">
-    <div class="profile-avatar">
+    {% if user.is_authenticated and user == profile_user %}
+    <a href="{% url 'accounts_app:profile_edit' %}" class="profile-avatar" style="cursor: pointer; text-decoration: none; color: inherit;" title="Edit your profile">
+    {% else %}
+    <a href="/{{ profile_user.username }}/" class="profile-avatar" style="cursor: pointer; text-decoration: none; color: inherit;" title="Go to {{ profile_user.username }}'s repositories">
+    {% endif %}
         {% if profile_user.profile.avatar %}
             <img src="{{ profile_user.profile.avatar.url }}" alt="{{ profile_user.username }}">
         {% else %}
             {{ profile_user.username|slice:":1"|upper }}
         {% endif %}
-    </div>
+    </a>
 
     <div class="profile-names">
         <div class="profile-fullname">
@@ -16,16 +20,9 @@
     </div>
 
     {% if user.is_authenticated and user == profile_user %}
-    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-        <a href="{% url 'accounts_app:profile_edit' %}" class="btn btn-sm">
-            <i class="fas fa-cog"></i>
-            Edit profile
-        </a>
-        <a href="{% url 'user_projects:repository_maintenance' username=profile_user.username %}" class="btn btn-sm" style="background-color: var(--color-accent-muted); color: var(--color-fg-default);">
-            <i class="fas fa-tools"></i>
-            Repository Maintenance
-        </a>
-    </div>
+    <a href="{% url 'accounts_app:profile_edit' %}" class="btn btn-sm">
+        Edit profile
+    </a>
     {% elif user.is_authenticated %}
     <button id="follow-btn" class="btn btn-primary w-full" onclick="toggleFollow()">
         {% if is_following %}

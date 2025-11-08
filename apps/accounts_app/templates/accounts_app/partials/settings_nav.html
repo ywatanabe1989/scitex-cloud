@@ -39,3 +39,26 @@
         <span>Personal access tokens</span>
     </a>
 </div>
+
+<!-- Repositories (Advanced) -->
+<div class="settings-nav-section">
+    <div class="settings-nav-header">Repositories</div>
+    <a href="{% url 'user_projects:repository_maintenance' username=user.username %}" class="settings-nav-item {% if active == 'repository_maintenance' %}active{% endif %}">
+        <i class="fas fa-tools"></i>
+        <span>Maintenance</span>
+    </a>
+</div>
+
+<!-- Developer Tools (DEBUG mode only) -->
+{% if DEBUG %}
+<div class="settings-nav-section">
+    <div class="settings-nav-header">Developer</div>
+    <button onclick="window.elementInspector?.toggle?.()" class="settings-nav-item" style="background: none; border: none; width: 100%; text-align: left; color: var(--color-fg-default);">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="display: inline-block; vertical-align: text-bottom; margin-right: 8px;">
+          <path d="M1.5 1.75V13.5h13.75a.75.75 0 0 1 0 1.5H.75a.75.75 0 0 1-.75-.75V1.75a.75.75 0 0 1 1.5 0zm8.5 11.5a.75.75 0 0 1 0-1.5h5.5a.75.75 0 0 1 0 1.5h-5.5zM15.75 10a.75.75 0 0 1-.75.75h-5.5a.75.75 0 0 1 0-1.5h5.5a.75.75 0 0 1 .75.75zM2.75 2.5a.75.75 0 0 0 0 1.5h5.5a.75.75 0 0 0 0-1.5h-5.5z"/>
+        </svg>
+        <span>Element Inspector</span>
+        <kbd style="margin-left: auto; padding: 2px 6px; font-size: 10px; background: var(--color-neutral-muted); border-radius: 3px;">Alt+I</kbd>
+    </button>
+</div>
+{% endif %}
