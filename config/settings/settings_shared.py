@@ -165,6 +165,7 @@ TEMPLATES = [
                 "apps.project_app.context_processors.version_context",
                 "apps.project_app.context_processors.project_context",
                 "config.context_processors.cache_buster",
+                "config.context_processors.debug_mode",
             ],
         },
     },

@@ -51,3 +51,13 @@ def cache_buster(request):
     return {
         'build_id': build_id
     }
+
+
+def debug_mode(request):
+    """
+    Always expose DEBUG setting to templates.
+    Unlike django.template.context_processors.debug, this doesn't check INTERNAL_IPS.
+    """
+    return {
+        'DEBUG': settings.DEBUG
+    }

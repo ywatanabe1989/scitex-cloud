@@ -40,18 +40,27 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     # Database (rarely change)
     libpq-dev \
     # LaTeX suite (large, rarely change - install early for caching)
+    # Writer Dependencies
     texlive-latex-base \
     texlive-latex-extra \
     texlive-latex-recommended \
     texlive-fonts-recommended \
     texlive-fonts-extra \
-    texlive-bibtex-extra \
     texlive-science \
+    texlive-publishers \
+    texlive-luatex \
+    texlive-xetex \
+    texlive-bibtex-extra \
     texlive-pictures \
     texlive-plain-generic \
+    texlive-lang-european \
+    texlive-lang-english \
     latexdiff \
+    chktex \
     ghostscript \
     poppler-utils \
+    perl \
+    parallel \
     # Image processing
     imagemagick \
     # Browser automation dependencies
