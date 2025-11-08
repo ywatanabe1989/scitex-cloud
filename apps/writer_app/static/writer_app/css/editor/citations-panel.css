@@ -38,6 +38,7 @@
   width: 100%;
   max-width: 100%;
   padding: 1rem;
+  padding-top: calc(64px + 1rem);  /* Account for 64px fixed header + spacing */
   background: var(--color-canvas-default);
   overflow: hidden;
   position: relative;
