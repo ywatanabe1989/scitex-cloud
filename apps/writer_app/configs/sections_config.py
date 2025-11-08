@@ -83,6 +83,16 @@ SECTION_HIERARCHY = {
                 "label": "Conclusion",
                 "path": "01_manuscript/contents/conclusion.tex",
             },
+            {
+                "id": "manuscript/compiled_pdf",
+                "name": "compiled_pdf",
+                "label": "Full Manuscript",
+                "path": "01_manuscript/manuscript.tex",
+                "view_only": True,
+                "is_compiled": True,
+                "no_preview": True,
+                "instruction": "This is the compiled full manuscript. Click 'Compile Full Manuscript' to regenerate."
+            },
         ],
     },
     "supplementary": {

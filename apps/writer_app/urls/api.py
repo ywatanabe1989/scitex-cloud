@@ -30,13 +30,7 @@ urlpatterns = [
     path('initialize-workspace/', index_views.initialize_workspace, name='api-initialize-workspace'),
     # Sections config (no project_id needed)
     path('sections-config/', api_views.sections_config_view, name='api-sections-config'),
-    # Section CRUD operations (supports hierarchical IDs like "shared/authors")
-    path(
-        "project/<int:project_id>/section/<path:section_name>/",
-        api_views.section_view,
-        name="api-section",
-    ),
-    # Section management operations
+    # Section management operations (MUST come BEFORE general section pattern)
     path(
         "project/<int:project_id>/section/create/",
         api_views.section_create_view,
@@ -61,6 +55,13 @@ urlpatterns = [
         "project/<int:project_id>/section/<path:section_name>/move-down/",
         api_views.section_move_down_view,
         name="api-section-move-down",
+    ),
+    # Section CRUD operations (supports hierarchical IDs like "shared/authors")
+    # This MUST come AFTER specific endpoints to avoid catching their URLs
+    path(
+        "project/<int:project_id>/section/<path:section_name>/",
+        api_views.section_view,
+        name="api-section",
     ),
     # Compilation
     path(

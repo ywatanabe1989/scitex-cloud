@@ -1,0 +1,94 @@
+/**
+ * PDF.js Viewer Styles
+ * Theme-responsive PDF rendering with custom scrollbars
+ */
+
+/* PDF.js scroll container - replaces iframe */
+.pdfjs-scroll-container {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #525659;
+}
+
+/* Pages container - scrollable area */
+.pdfjs-pages-container {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: #525659;
+    padding: 1rem 0;
+}
+
+/* Individual page container */
+.pdfjs-page-container {
+    margin: 0 auto 1rem auto;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
+.pdfjs-page {
+    margin: 0 auto 1rem auto;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Theme-responsive scrollbar for PDF.js */
+.pdfjs-pages-container::-webkit-scrollbar {
+    width: 12px;
+}
+
+.pdfjs-pages-container::-webkit-scrollbar-track {
+    background: var(--color-canvas-subtle);
+}
+
+.pdfjs-pages-container::-webkit-scrollbar-thumb {
+    background: var(--color-border-default);
+    border-radius: 6px;
+    border: 2px solid var(--color-canvas-subtle);
+}
+
+.pdfjs-pages-container::-webkit-scrollbar-thumb:hover {
+    background: var(--color-fg-muted);
+}
+
+/* Firefox scrollbar */
+.pdfjs-pages-container {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border-default) var(--color-canvas-subtle);
+}
+
+/* Dark mode adjustments for PDF pages */
+[data-theme="dark"] .pdfjs-page-container,
+[data-theme="dark"] .pdfjs-page {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+/* Loading state */
+.pdfjs-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--color-fg-muted);
+}
+
+/* Error state */
+.pdf-error {
+    padding: 2rem;
+    text-align: center;
+    color: var(--color-danger-fg);
+}
+
+/* Ensure PDF.js container takes full space */
+.pdf-preview-container .pdfjs-scroll-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+/* EOF */

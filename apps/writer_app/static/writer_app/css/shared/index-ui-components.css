@@ -229,7 +229,17 @@
   border: none;
   border-radius: 0;
   box-shadow: none;
-  outline: none;
+  outline: none !important;
+}
+
+/* Remove all focus outlines from preview pane */
+.text-preview:focus,
+.text-preview:focus-visible,
+.text-preview *:focus,
+.text-preview *:focus-visible,
+.text-preview iframe:focus,
+.text-preview iframe:focus-visible {
+  outline: none !important;
 }
 
 .text-preview:empty {

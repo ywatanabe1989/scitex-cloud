@@ -51,6 +51,21 @@ export class CompilationManager {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
+            // Ensure color mode is set (get from global if not specified)
+            let effectiveColorMode = options.colorMode || 'light';
+            if (!options.colorMode) {
+                // Check if there's a saved PDF theme preference
+                const savedPdfTheme = localStorage.getItem('pdf-color-mode');
+                if (savedPdfTheme === 'light' || savedPdfTheme === 'dark') {
+                    effectiveColorMode = savedPdfTheme;
+                } else {
+                    // Default to global page theme
+                    const globalTheme = document.documentElement.getAttribute('data-theme') || 'light';
+                    effectiveColorMode = (globalTheme === 'dark' ? 'dark' : 'light');
+                }
+                console.log('[CompilationPreview] Using effective color mode:', effectiveColorMode);
+            }
+
             const response = await fetch(
                 `/writer/api/project/${options.projectId}/compile_preview/`,
                 {
@@ -62,7 +77,7 @@ export class CompilationManager {
                     body: JSON.stringify({
                         content: options.content,
                         timeout: 60,
-                        color_mode: options.colorMode || 'light',
+                        color_mode: effectiveColorMode,
                         section_name: options.sectionName || 'preview'
                     }),
                     signal: controller.signal
@@ -78,6 +93,7 @@ export class CompilationManager {
             const result = await response.json() as any;
 
             console.log('[CompilationPreview] Result:', result.success);
+            console.log('[CompilationPreview] PDF URL from server:', result.output_pdf || result.pdf_path);
             this.notifyProgress(50, 'Compiling preview...');
 
             if (result?.success === true) {
@@ -85,6 +101,7 @@ export class CompilationManager {
                 this.currentJob = { id: 'preview', status: 'completed', progress: 100 };
 
                 const pdfPath = result.output_pdf || result.pdf_path;
+                console.log('[CompilationPreview] Using PDF path:', pdfPath);
                 if (this.onCompleteCallback && pdfPath) {
                     this.onCompleteCallback('preview', pdfPath);
                 }
