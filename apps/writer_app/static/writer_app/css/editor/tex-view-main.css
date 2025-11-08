@@ -1595,62 +1595,7 @@
     background: var(--color-fg-muted);
 }
 
-/* PDF.js Pages Container Styling */
-.pdfjs-pages-container {
-    width: 100%;
-    height: 100%;
-    overflow-y: auto;
-    overflow-x: hidden;
-    background: #525659;
-    padding: 1rem 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.pdfjs-page-container {
-    margin: 0 auto 1rem auto;
-    background: white;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-    display: block;
-    position: relative;
-}
-
-.pdfjs-page-container canvas {
-    display: block;
-    width: 100%;
-    height: auto;
-    background: white;
-}
-
-/* Dark mode PDF page styling - BLACK background with WHITE text */
-/* NOTE: No CSS filter needed! Server compiles PDFs with correct colors via LaTeX \pagecolor */
-.pdfjs-pages-container[data-pdf-theme="dark"] .pdfjs-page-container {
-    background: #000000;
-    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
-}
-
-/* Scrollbar styling for PDF.js container */
-.pdfjs-pages-container::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-}
-
-.pdfjs-pages-container::-webkit-scrollbar-track {
-    background: #2d3339;
-}
-
-.pdfjs-pages-container::-webkit-scrollbar-thumb {
-    background: #4a5259;
-    border-radius: 5px;
-    border: 2px solid #2d3339;
-}
-
-.pdfjs-pages-container::-webkit-scrollbar-thumb:hover {
-    background: #5a6269;
-}
-
-/* Dark mode scrollbar styling for PDF preview */
+/* Dark mode scrollbar styling for PDF preview - REMOVED PDF.js, using iframe */
 [data-theme="dark"] .text-preview::-webkit-scrollbar-track,
 .text-preview[data-pdf-theme="dark"]::-webkit-scrollbar-track,
 [data-theme="dark"] .pdf-preview-viewer::-webkit-scrollbar-track,
