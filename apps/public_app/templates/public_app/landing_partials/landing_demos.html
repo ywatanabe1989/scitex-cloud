@@ -10,6 +10,110 @@
     transform: scale(1.1);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   }
+
+  /* Demos Carousel */
+  .demos-carousel-wrapper {
+    position: relative;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 60px;
+    overflow: hidden;
+  }
+
+  .demos-carousel-track {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+  }
+
+  .demos-carousel-slide {
+    flex: 0 0 100%;
+    min-width: 100%;
+  }
+
+  /* Carousel Navigation */
+  .carousel-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--color-canvas-default);
+    border: 2px solid var(--color-border-default);
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.3s ease;
+    color: var(--color-fg-default);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  .carousel-nav:hover {
+    background: var(--color-accent-emphasis);
+    color: white;
+    border-color: var(--color-accent-emphasis);
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  }
+
+  .carousel-nav-prev {
+    left: 0;
+  }
+
+  .carousel-nav-next {
+    right: 0;
+  }
+
+  /* Carousel Indicators */
+  .carousel-indicators {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 2rem;
+  }
+
+  .carousel-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--color-border-default);
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0;
+  }
+
+  .carousel-indicator:hover {
+    background: var(--color-accent-fg);
+    transform: scale(1.2);
+  }
+
+  .carousel-indicator.active {
+    background: var(--color-accent-emphasis);
+    width: 32px;
+    border-radius: 6px;
+  }
+
+  /* Module labels under indicators */
+  .carousel-indicator-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .carousel-indicator-label span {
+    font-size: 0.7rem;
+    color: var(--color-fg-muted);
+    transition: color 0.3s ease;
+  }
+
+  .carousel-indicator-label.active span {
+    color: var(--color-accent-emphasis);
+    font-weight: 600;
+  }
 </style>
 
 <!-- Demo Video Section -->
@@ -17,29 +121,131 @@
     <div class="container">
         <h2 style="text-align: center; margin-bottom: 3rem; font-size: 2.5rem; color: var(--color-fg-default);">Demonstrations</h2>
 
-        <!-- Scholar Demo - Small dots (search/discovery) -->
-        <div class="bg-pattern bg-pattern-dots-sm bg-pattern-subtle" style="border-radius: 12px; padding: 2rem; margin-bottom: 3rem;">
-            {% include 'public_app/landing_partials/components/module_demo.html' with module_name='Scholar' icon_path='shared/images/icons_svg/scitex-scholar-icon.svg' video_path='public_app/videos/landing/scholar-demo.mp4' poster='public_app/videos/landing/thumbnails/scholar-demo.jpg' docs_url='docs:scholar' github_url='https://github.com/ywatanabe1989/SciTeX-Code/tree/main/src/scitex/scholar' video_position='2fr 1fr' video_first=True margin='0 auto' features_partial='public_app/landing_partials/features/scholar_features.html' %}
-        </div>
+        <div class="demos-carousel-wrapper">
+            <!-- Navigation Arrows -->
+            <button class="carousel-nav carousel-nav-prev" onclick="demosCarousel.prev()" aria-label="Previous demo">
+                <i class="fas fa-chevron-left" style="font-size: 1.25rem;"></i>
+            </button>
+            <button class="carousel-nav carousel-nav-next" onclick="demosCarousel.next()" aria-label="Next demo">
+                <i class="fas fa-chevron-right" style="font-size: 1.25rem;"></i>
+            </button>
 
-        <!-- Writer Demo - Grid pattern (structured writing) -->
-        <div class="bg-pattern bg-pattern-grid bg-pattern-subtle" style="border-radius: 12px; padding: 2rem; margin-bottom: 3rem;">
-            {% include 'public_app/landing_partials/components/module_demo.html' with module_name='Writer' icon_path='shared/images/icons_svg/scitex-writer-icon.svg' video_path='public_app/videos/landing/writer-demo.mp4' poster='public_app/videos/landing/thumbnails/writer-demo.jpg' docs_url='docs:writer' github_url='https://github.com/ywatanabe1989/SciTeX-Writer' video_position='1fr 2fr' video_first=False object_fit=True margin='0 auto' features_partial='public_app/landing_partials/features/writer_features.html' %}
-        </div>
+            <!-- Carousel Track -->
+            <div class="demos-carousel-track" id="demosCarouselTrack">
+                <!-- Scholar Demo -->
+                <div class="demos-carousel-slide bg-pattern bg-pattern-dots-sm bg-pattern-subtle" style="border-radius: 12px; padding: 2rem;">
+                    {% include 'public_app/landing_partials/components/module_demo.html' with module_name='Scholar' icon_path='shared/images/icons_svg/scitex-scholar-icon.svg' video_path='public_app/videos/landing/scholar-demo.mp4' poster='public_app/videos/landing/thumbnails/scholar-demo.jpg' docs_url='docs:scholar' github_url='https://github.com/ywatanabe1989/SciTeX-Code/tree/main/src/scitex/scholar' video_position='3fr 2fr' video_first=True margin='0 auto' features_partial='public_app/landing_partials/features/scholar_features.html' %}
+                </div>
 
-        <!-- Code Demo - Circuit pattern (technical/code) -->
-        <div class="bg-pattern bg-pattern-circuit bg-pattern-subtle" style="border-radius: 12px; padding: 2rem; margin-bottom: 3rem;">
-            {% include 'public_app/landing_partials/components/module_demo.html' with module_name='Code' icon_path='shared/images/icons_svg/scitex-code-icon.svg' video_path='public_app/videos/landing/code-demo.mp4' docs_url='docs:code' github_url='https://github.com/ywatanabe1989/SciTeX-Code' video_position='2fr 1fr' video_first=True margin='0 auto' features_partial='public_app/landing_partials/features/code_features.html' %}
-        </div>
+                <!-- Writer Demo -->
+                <div class="demos-carousel-slide bg-pattern bg-pattern-grid bg-pattern-subtle" style="border-radius: 12px; padding: 2rem;">
+                    {% include 'public_app/landing_partials/components/module_demo.html' with module_name='Writer' icon_path='shared/images/icons_svg/scitex-writer-icon.svg' video_path='public_app/videos/landing/writer-demo.mp4' poster='public_app/videos/landing/thumbnails/writer-demo.jpg' docs_url='docs:writer' github_url='https://github.com/ywatanabe1989/SciTeX-Writer' video_position='3fr 2fr' video_first=True object_fit=True margin='0 auto' features_partial='public_app/landing_partials/features/writer_features.html' %}
+                </div>
 
-        <!-- Viz Demo - Medium dots (data points) -->
-        <div class="bg-pattern bg-pattern-dots-md bg-pattern-subtle" style="border-radius: 12px; padding: 2rem; margin-bottom: 3rem;">
-            {% include 'public_app/landing_partials/components/module_demo.html' with module_name='Viz' icon_path='shared/images/icons_svg/scitex-viz-icon.svg' video_path='public_app/videos/landing/viz-demo.mp4' docs_url='docs:viz' github_url='https://github.com/ywatanabe1989/SciTeX-Viz' video_position='1fr 2fr' video_first=False margin='0 auto' features_partial='public_app/landing_partials/features/viz_features.html' %}
-        </div>
+                <!-- Code Demo -->
+                <div class="demos-carousel-slide bg-pattern bg-pattern-circuit bg-pattern-subtle" style="border-radius: 12px; padding: 2rem;">
+                    {% include 'public_app/landing_partials/components/module_demo.html' with module_name='Code' icon_path='shared/images/icons_svg/scitex-code-icon.svg' video_path='public_app/videos/landing/code-demo.mp4' docs_url='docs:code' github_url='https://github.com/ywatanabe1989/SciTeX-Code' video_position='3fr 2fr' video_first=True margin='0 auto' features_partial='public_app/landing_partials/features/code_features.html' %}
+                </div>
 
-        <!-- Cloud Demo - Radial dots (cloud/network) -->
-        <div class="bg-pattern bg-pattern-dots-radial bg-pattern-subtle" style="border-radius: 12px; padding: 2rem;">
-            {% include 'public_app/landing_partials/components/module_demo.html' with module_name='Cloud' icon_path='shared/images/icons_svg/scitex-cloud-icon.svg' video_path='public_app/videos/landing/cloud-demo.mp4' docs_url='public_app:about' github_url='https://github.com/ywatanabe1989/SciTeX-Cloud' video_position='2fr 1fr' video_first=True margin='0 auto' features_partial='public_app/landing_partials/features/cloud_features.html' %}
+                <!-- Viz Demo -->
+                <div class="demos-carousel-slide bg-pattern bg-pattern-dots-md bg-pattern-subtle" style="border-radius: 12px; padding: 2rem;">
+                    {% include 'public_app/landing_partials/components/module_demo.html' with module_name='Viz' icon_path='shared/images/icons_svg/scitex-viz-icon.svg' video_path='public_app/videos/landing/viz-demo.mp4' docs_url='docs:viz' github_url='https://github.com/ywatanabe1989/SciTeX-Viz' video_position='3fr 2fr' video_first=True margin='0 auto' features_partial='public_app/landing_partials/features/viz_features.html' %}
+                </div>
+
+                <!-- Cloud Demo -->
+                <div class="demos-carousel-slide bg-pattern bg-pattern-dots-radial bg-pattern-subtle" style="border-radius: 12px; padding: 2rem;">
+                    {% include 'public_app/landing_partials/components/module_demo.html' with module_name='Cloud' icon_path='shared/images/icons_svg/scitex-cloud-icon.svg' video_path='public_app/videos/landing/cloud-demo.mp4' docs_url='public_app:about' github_url='https://github.com/ywatanabe1989/SciTeX-Cloud' video_position='3fr 2fr' video_first=True margin='0 auto' features_partial='public_app/landing_partials/features/cloud_features.html' %}
+                </div>
+            </div>
+
+            <!-- Carousel Indicators with Labels -->
+            <div class="carousel-indicators" id="demosCarouselIndicators">
+                <div class="carousel-indicator-label active" onclick="demosCarousel.goTo(0)">
+                    <button class="carousel-indicator active" aria-label="Scholar demo"></button>
+                    <span>Scholar</span>
+                </div>
+                <div class="carousel-indicator-label" onclick="demosCarousel.goTo(1)">
+                    <button class="carousel-indicator" aria-label="Writer demo"></button>
+                    <span>Writer</span>
+                </div>
+                <div class="carousel-indicator-label" onclick="demosCarousel.goTo(2)">
+                    <button class="carousel-indicator" aria-label="Code demo"></button>
+                    <span>Code</span>
+                </div>
+                <div class="carousel-indicator-label" onclick="demosCarousel.goTo(3)">
+                    <button class="carousel-indicator" aria-label="Viz demo"></button>
+                    <span>Viz</span>
+                </div>
+                <div class="carousel-indicator-label" onclick="demosCarousel.goTo(4)">
+                    <button class="carousel-indicator" aria-label="Cloud demo"></button>
+                    <span>Cloud</span>
+                </div>
+            </div>
         </div>
     </div>
 </section>
+
+<script>
+// Demos Carousel Controller
+const demosCarousel = {
+    currentSlide: 0,
+    totalSlides: 5,
+    track: null,
+    indicators: null,
+
+    init() {
+        this.track = document.getElementById('demosCarouselTrack');
+        this.indicators = document.querySelectorAll('.carousel-indicator-label');
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') this.prev();
+            if (e.key === 'ArrowRight') this.next();
+        });
+
+        // Auto-play (optional)
+        // setInterval(() => this.next(), 5000);
+    },
+
+    goTo(index) {
+        this.currentSlide = index;
+        this.updateCarousel();
+    },
+
+    next() {
+        this.currentSlide = (this.currentSlide + 1) % this.totalSlides;
+        this.updateCarousel();
+    },
+
+    prev() {
+        this.currentSlide = (this.currentSlide - 1 + this.totalSlides) % this.totalSlides;
+        this.updateCarousel();
+    },
+
+    updateCarousel() {
+        // Update track position
+        if (this.track) {
+            this.track.style.transform = `translateX(-${this.currentSlide * 100}%)`;
+        }
+
+        // Update indicators
+        if (this.indicators) {
+            this.indicators.forEach((label, index) => {
+                const indicator = label.querySelector('.carousel-indicator');
+                if (index === this.currentSlide) {
+                    label.classList.add('active');
+                    if (indicator) indicator.classList.add('active');
+                } else {
+                    label.classList.remove('active');
+                    if (indicator) indicator.classList.remove('active');
+                }
+            });
+        }
+    }
+};
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', () => {
+    demosCarousel.init();
+});
+</script>
