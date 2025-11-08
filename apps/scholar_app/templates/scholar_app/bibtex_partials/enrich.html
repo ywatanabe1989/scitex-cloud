@@ -78,6 +78,11 @@
               <button id="downloadBtn" onclick="handleDownload()" disabled class="btn btn-success" style="display: flex; align-items: center; gap: 0.5rem; height: 56px; padding: 0 2rem; margin: 0;">
                 <i class="fas fa-file-download"></i> Download Enriched
               </button>
+
+              <!-- Open All URLs Button -->
+              <button id="openUrlsMainBtn" onclick="openAllPaperUrls()" disabled class="btn btn-info" style="display: flex; align-items: center; gap: 0.5rem; height: 56px; padding: 0 2rem; margin: 0; opacity: 0.6;">
+                <i class="fas fa-external-link-alt"></i> <span id="urlButtonText">Open All URLs</span>
+              </button>
             </div>
 
             <!-- Hidden project selector for Save to Project functionality -->
@@ -293,6 +298,7 @@
 </div>
 
 <!-- Load required scripts for BibTeX enrichment -->
+<script type="module" src="{% static 'shared/js/components/confirm-modal.js' %}"></script>
 <script type="module" src="{% static 'scholar_app/js/shared/collapsible-panels.js' %}"></script>
 <script type="module" src="{% static 'scholar_app/js/bibtex/bibtex-enrichment.js' %}"></script>
 <script type="module" src="{% static 'scholar_app/js/bibtex/queue-management.js' %}"></script>
