@@ -55,6 +55,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     texlive-plain-generic \
     texlive-lang-european \
     texlive-lang-english \
+    texlive-extra-utils \
     latexdiff \
     chktex \
     ghostscript \
