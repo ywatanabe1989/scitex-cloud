@@ -69,7 +69,7 @@ def discover_local_apps():
 # ---------------------------------------
 # Metadata
 # ---------------------------------------
-SCITEX_CLOUD_VERSION = "0.1.0-alpha"
+SCITEX_CLOUD_VERSION = "0.2.0-alpha"
 
 # ---------------------------------------
 # Paths
@@ -166,6 +166,7 @@ TEMPLATES = [
                 "apps.project_app.context_processors.project_context",
                 "config.context_processors.cache_buster",
                 "config.context_processors.debug_mode",
+                "config.context_processors.scitex_version",
             ],
         },
     },

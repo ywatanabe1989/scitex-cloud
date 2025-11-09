@@ -61,3 +61,13 @@ def debug_mode(request):
     return {
         'DEBUG': settings.DEBUG
     }
+
+
+def scitex_version(request):
+    """
+    Expose SciTeX Cloud version to all templates.
+    Single source of truth from settings.SCITEX_CLOUD_VERSION
+    """
+    return {
+        'SCITEX_CLOUD_VERSION': getattr(settings, 'SCITEX_CLOUD_VERSION', '0.0.0')
+    }

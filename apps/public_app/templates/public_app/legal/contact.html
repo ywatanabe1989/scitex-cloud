@@ -15,7 +15,10 @@
   .contact-hero h1 {
     font-size: 3.5rem;
     font-weight: 700;
-    color: var(--color-fg-default);
+    background: linear-gradient(135deg, var(--_scitex-02), var(--_scitex-04));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     margin-bottom: 1rem;
     letter-spacing: -0.02em;
   }
@@ -29,9 +32,9 @@
   /* Primary Contact Cards */
   .contact-cards-primary {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-    max-width: 900px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    max-width: 1100px;
     margin: 0 auto 5rem;
     padding: 0 2rem;
   }
@@ -48,21 +51,22 @@
 
   .contact-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-    border-color: var(--color-accent-emphasis);
+    box-shadow: 0 8px 24px rgba(26, 42, 64, 0.15);
+    border-color: var(--_scitex-04);
   }
 
   .contact-card-icon {
     width: 56px;
     height: 56px;
     margin: 0 auto 1.5rem;
-    background: var(--color-cta-subtle);
+    background: linear-gradient(135deg, var(--_scitex-04), var(--_scitex-05));
     border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--color-cta);
+    color: white;
     font-size: 1.75rem;
+    box-shadow: 0 4px 12px rgba(26, 42, 64, 0.15);
   }
 
   .contact-card h3 {
@@ -84,19 +88,19 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.75rem 1.5rem;
-    background: var(--color-cta);
+    background: linear-gradient(135deg, var(--_scitex-03), var(--_scitex-04));
     color: white;
     border-radius: 8px;
     text-decoration: none;
     font-weight: 600;
     transition: all 0.2s ease;
-    box-shadow: 0 2px 8px var(--color-cta-subtle);
+    box-shadow: 0 2px 8px rgba(26, 42, 64, 0.2);
   }
 
   .contact-card-btn:hover {
-    background: var(--color-cta-hover);
+    background: linear-gradient(135deg, var(--_scitex-02), var(--_scitex-03));
     transform: translateX(4px);
-    box-shadow: 0 4px 12px var(--color-cta-subtle);
+    box-shadow: 0 4px 16px rgba(26, 42, 64, 0.3);
   }
 
   /* Resources Grid */
@@ -110,7 +114,7 @@
     text-align: center;
     font-size: 1.5rem;
     font-weight: 600;
-    color: var(--color-fg-default);
+    color: var(--_scitex-02);
     margin-bottom: 3rem;
   }
 
@@ -128,7 +132,7 @@
   .resource-item h4 {
     font-size: 1.125rem;
     font-weight: 600;
-    color: var(--color-fg-default);
+    color: var(--_scitex-03);
     margin-bottom: 0.75rem;
   }
 
@@ -140,29 +144,61 @@
   }
 
   .resource-item a {
-    color: var(--color-cta);
+    color: var(--_scitex-03);
     text-decoration: none;
     font-weight: 500;
     display: inline-flex;
     align-items: center;
     gap: 0.375rem;
-    transition: color 0.2s ease;
+    transition: all 0.2s ease;
   }
 
   .resource-item a:hover {
-    color: var(--color-cta-hover);
+    color: var(--_scitex-02);
     text-decoration: underline;
   }
 
   /* Dark theme */
   [data-theme="dark"] .contact-card {
-    background: var(--scitex-color-02);
-    border-color: var(--scitex-color-03);
+    background: var(--_scitex-02);
+    border-color: var(--_scitex-03);
   }
 
   [data-theme="dark"] .contact-card:hover {
-    background: var(--scitex-color-03);
-    border-color: var(--scitex-color-04);
+    background: var(--_scitex-03);
+    border-color: var(--_scitex-04);
+  }
+
+  [data-theme="dark"] .contact-card-icon {
+    background: linear-gradient(135deg, var(--_scitex-05), var(--_scitex-06));
+    color: var(--_scitex-01);
+  }
+
+  [data-theme="dark"] .resource-item a {
+    color: var(--_scitex-05);
+  }
+
+  [data-theme="dark"] .resource-item a:hover {
+    color: var(--_scitex-06);
+  }
+
+  [data-theme="dark"] .contact-hero h1 {
+    background: linear-gradient(135deg, var(--_scitex-05), var(--_scitex-07));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  [data-theme="dark"] .resources-title {
+    color: var(--_scitex-05);
+  }
+
+  [data-theme="dark"] .resource-item h4 {
+    color: var(--_scitex-05);
+  }
+
+  [data-theme="dark"] .resource-item h4 i {
+    color: var(--_scitex-05) !important;
   }
 
   @media (max-width: 768px) {
@@ -187,32 +223,44 @@
 <!-- Contact Hero -->
 <div class="contact-hero">
   <h1>How can we help?</h1>
-  <p>Whether you have questions, feedback, or need support, we're here to help you succeed.</p>
+  <p>Get in touch with our team for demos, technical support, or product questions.</p>
 </div>
 
 <!-- Primary Contact Options -->
 <div class="contact-cards-primary">
-  <!-- General Inquiries -->
+  <!-- Sales & Demos -->
   <div class="contact-card">
     <div class="contact-card-icon">
-      <i class="fas fa-envelope"></i>
+      <i class="fas fa-users"></i>
     </div>
-    <h3>General Inquiries</h3>
-    <p>Questions about SciTeX, partnerships, or anything else?</p>
-    <a href="mailto:hello@scitex.ai" class="contact-card-btn">
-      Send us an email <i class="fas fa-arrow-right"></i>
+    <h3>Sales & Demos</h3>
+    <p>Explore institutional plans, request a demo, or discuss enterprise solutions for your research team.</p>
+    <a href="mailto:sales@scitex.ai" class="contact-card-btn">
+      Talk to sales <i class="fas fa-arrow-right"></i>
     </a>
   </div>
 
-  <!-- Technical Support -->
+  <!-- Help & Support -->
   <div class="contact-card">
     <div class="contact-card-icon">
-      <i class="fas fa-life-ring"></i>
+      <i class="fas fa-headset"></i>
     </div>
-    <h3>Technical Support</h3>
-    <p>Need help with SciTeX tools or having technical issues?</p>
+    <h3>Help & Support</h3>
+    <p>Ask product questions, report problems, or share feedback to help us improve.</p>
     <a href="mailto:support@scitex.ai" class="contact-card-btn">
-      Get support <i class="fas fa-arrow-right"></i>
+      Contact support <i class="fas fa-arrow-right"></i>
+    </a>
+  </div>
+
+  <!-- General Inquiries -->
+  <div class="contact-card">
+    <div class="contact-card-icon">
+      <i class="fas fa-comments"></i>
+    </div>
+    <h3>General Contact</h3>
+    <p>Questions about partnerships, media inquiries, or anything else? We'd love to hear from you.</p>
+    <a href="mailto:hello@scitex.ai" class="contact-card-btn">
+      Send us an email <i class="fas fa-arrow-right"></i>
     </a>
   </div>
 </div>
@@ -224,46 +272,38 @@
   <div class="resources-grid">
     <!-- Community -->
     <div class="resource-item">
-      <h4>Join the Community</h4>
-      <p>Connect with other researchers and get quick help</p>
+      <h4><i class="fab fa-slack" style="margin-right: 0.5rem; color: var(--_scitex-04);"></i>Join our Community</h4>
+      <p>Connect with researchers worldwide and share knowledge in our Slack workspace</p>
       <a href="https://join.slack.com/t/scitex-ai/shared_invite/zt-2zbwx67n3-L6aaBdGKPMYZbBxl6yjXRA" target="_blank">
-        Join our Slack <i class="fas fa-external-link-alt"></i>
+        Join Slack community <i class="fas fa-external-link-alt"></i>
+      </a>
+    </div>
+
+    <!-- Email -->
+    <div class="resource-item">
+      <h4><i class="fas fa-envelope" style="margin-right: 0.5rem; color: var(--_scitex-04);"></i>Email Us Directly</h4>
+      <p>Prefer email? Send us a message at hello@scitex.ai</p>
+      <a href="mailto:hello@scitex.ai">
+        Send an email <i class="fas fa-arrow-right"></i>
       </a>
     </div>
 
     <!-- Documentation -->
     <div class="resource-item">
-      <h4>Documentation</h4>
-      <p>Comprehensive guides and API references</p>
+      <h4><i class="fas fa-book" style="margin-right: 0.5rem; color: var(--_scitex-04);"></i>Browse Documentation</h4>
+      <p>Find feature overviews, guides, and tutorials for all SciTeX tools</p>
       <a href="{% url 'docs:index' %}">
-        Browse docs <i class="fas fa-arrow-right"></i>
+        View documentation <i class="fas fa-arrow-right"></i>
       </a>
     </div>
 
-    <!-- GitHub -->
+    <!-- Developer Resources -->
     <div class="resource-item">
-      <h4>Open Source</h4>
-      <p>Report issues or contribute to the project</p>
+      <h4><i class="fab fa-github" style="margin-right: 0.5rem; color: var(--_scitex-04);"></i>Developer Resources</h4>
+      <p>API documentation, SDKs, and open-source contributions on GitHub</p>
       <a href="https://github.com/SciTeX-AI" target="_blank">
-        View on GitHub <i class="fas fa-external-link-alt"></i>
+        Explore on GitHub <i class="fas fa-external-link-alt"></i>
       </a>
-    </div>
-
-    <!-- Social Media -->
-    <div class="resource-item">
-      <h4>Follow Us</h4>
-      <p>Stay updated with latest news and features</p>
-      <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1rem;">
-        <a href="https://twitter.com/SciTeX_AI" target="_blank" style="font-size: 1.5rem;" title="Twitter">
-          <i class="fab fa-twitter"></i>
-        </a>
-        <a href="https://www.linkedin.com/company/scitex-ai" target="_blank" style="font-size: 1.5rem;" title="LinkedIn">
-          <i class="fab fa-linkedin"></i>
-        </a>
-        <a href="https://www.youtube.com/@SciTeX-AI" target="_blank" style="font-size: 1.5rem;" title="YouTube">
-          <i class="fab fa-youtube"></i>
-        </a>
-      </div>
     </div>
   </div>
 </div>
