@@ -786,3 +786,8 @@ static/js/**/*
 # TypeScript compiled outputs in ts/ directories (sibling to .ts sources)
 **/ts/**/*.js
 !**/ts/**/*.test.js
+
+# Internal notes and documentation
+TODOS/
+docs/HOW_TO_IMPROVE_UX.md
+docs/NEEDS.md
