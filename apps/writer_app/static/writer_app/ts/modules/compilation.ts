@@ -15,6 +15,13 @@ export interface CompilationOptions {
     format?: 'pdf' | 'dvi';
     colorMode?: 'light' | 'dark';
     sectionName?: string;  // For section-specific preview files
+    // Full compilation options
+    noFigs?: boolean;
+    ppt2tif?: boolean;
+    cropTif?: boolean;
+    quiet?: boolean;
+    verbose?: boolean;
+    force?: boolean;
 }
 
 export class CompilationManager {
@@ -162,7 +169,13 @@ export class CompilationManager {
                     },
                     body: JSON.stringify({
                         doc_type: options.docType,
-                        timeout: 300
+                        timeout: 300,
+                        no_figs: options.noFigs || false,
+                        ppt2tif: options.ppt2tif || false,
+                        crop_tif: options.cropTif || false,
+                        quiet: options.quiet || false,
+                        verbose: options.verbose || false,
+                        force: options.force || false
                     }),
                     signal: controller.signal
                 }

@@ -1685,6 +1685,74 @@ async function saveSections(sectionsManager: SectionsManager, state: any): Promi
  * Handle compilation
  */
 /**
+ * Show compilation options modal and return a promise with user's choices
+ */
+function showCompilationOptionsModal(): Promise<any> {
+    return new Promise((resolve, reject) => {
+        const modal = document.getElementById('compilationOptionsModal');
+        if (!modal) {
+            reject(new Error('Modal not found'));
+            return;
+        }
+
+        // Show modal
+        modal.style.display = 'flex';
+        setTimeout(() => {
+            modal.classList.add('scitex-modal-visible');
+        }, 10);
+
+        // Handle confirm
+        const confirmBtn = document.getElementById('confirm-compile-btn');
+        const handleConfirm = () => {
+            // Read options
+            const options = {
+                noFigs: (document.getElementById('option-no-figs') as HTMLInputElement)?.checked || false,
+                ppt2tif: (document.getElementById('option-ppt2tif') as HTMLInputElement)?.checked || false,
+                cropTif: (document.getElementById('option-crop-tif') as HTMLInputElement)?.checked || false,
+                quiet: (document.getElementById('option-quiet') as HTMLInputElement)?.checked || false,
+                verbose: (document.getElementById('option-verbose') as HTMLInputElement)?.checked || false,
+                force: (document.getElementById('option-force') as HTMLInputElement)?.checked || false,
+            };
+
+            // Close modal
+            modal.classList.remove('scitex-modal-visible');
+            modal.classList.add('scitex-modal-closing');
+            setTimeout(() => {
+                modal.style.display = 'none';
+                modal.classList.remove('scitex-modal-closing');
+            }, 300);
+
+            // Cleanup listeners
+            confirmBtn?.removeEventListener('click', handleConfirm);
+            modal.removeEventListener('click', handleCancel);
+
+            resolve(options);
+        };
+
+        // Handle cancel
+        const handleCancel = (e: Event) => {
+            if (e.target === modal || (e.target as HTMLElement).classList.contains('scitex-modal-close')) {
+                modal.classList.remove('scitex-modal-visible');
+                modal.classList.add('scitex-modal-closing');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                    modal.classList.remove('scitex-modal-closing');
+                }, 300);
+
+                // Cleanup listeners
+                confirmBtn?.removeEventListener('click', handleConfirm);
+                modal.removeEventListener('click', handleCancel);
+
+                reject(new Error('User cancelled'));
+            }
+        };
+
+        confirmBtn?.addEventListener('click', handleConfirm);
+        modal.addEventListener('click', handleCancel);
+    });
+}
+
+/**
  * Handle full manuscript compilation (no content sent - uses workspace)
  */
 async function handleCompileFull(
@@ -1703,12 +1771,23 @@ async function handleCompileFull(
             return;
         }
 
+        // Show modal and get user options
+        let compOptions;
+        try {
+            compOptions = await showCompilationOptionsModal();
+        } catch (error) {
+            // User cancelled
+            return;
+        }
+
         showToast('Compiling full manuscript from workspace...', 'info');
         console.log('[Writer] Starting full compilation for project:', projectId);
+        console.log('[Writer] Compilation options:', compOptions);
 
         const result = await compilationManager.compileFull({
             projectId: projectId,
-            docType: 'manuscript'
+            docType: 'manuscript',
+            ...compOptions
         });
 
         if (result && result.status === 'completed') {

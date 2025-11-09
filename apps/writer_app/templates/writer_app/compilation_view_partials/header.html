@@ -18,3 +18,99 @@
         </div>
     </div>
 
+    <!-- Compilation Options Modal -->
+    <div class="scitex-modal-overlay" id="compilationOptionsModal" style="display: none;">
+        <div class="scitex-modal-content" style="max-width: 600px;">
+            <div class="scitex-modal-header">
+                <h3><i class="fas fa-cogs me-2"></i>Compilation Options</h3>
+                <button type="button" class="scitex-modal-close" onclick="closeCompilationModal()">&times;</button>
+            </div>
+            <div class="scitex-modal-body">
+                <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Select compilation options for manuscript:</p>
+
+                <!-- Manuscript/Supplementary Options -->
+                <div class="compilation-option-group" style="margin-bottom: 1.5rem;">
+                    <h6 style="margin-bottom: 1rem; color: var(--text-primary); font-weight: 600;">
+                        <i class="fas fa-images me-2"></i>Figure Options
+                    </h6>
+                    <div class="form-check" style="margin-bottom: 0.75rem;">
+                        <input class="form-check-input" type="checkbox" id="option-no-figs">
+                        <label class="form-check-label" for="option-no-figs">
+                            <strong>Exclude Figures</strong>
+                            <small style="display: block; color: var(--text-secondary);">Skip figure compilation for faster preview</small>
+                        </label>
+                    </div>
+                    <div class="form-check" style="margin-bottom: 0.75rem;">
+                        <input class="form-check-input" type="checkbox" id="option-ppt2tif">
+                        <label class="form-check-label" for="option-ppt2tif">
+                            <strong>Convert PowerPoint to TIF</strong>
+                            <small style="display: block; color: var(--text-secondary);">Convert .pptx files to .tif images (WSL)</small>
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="option-crop-tif">
+                        <label class="form-check-label" for="option-crop-tif">
+                            <strong>Crop TIF Images</strong>
+                            <small style="display: block; color: var(--text-secondary);">Remove excess whitespace from images</small>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Logging Options -->
+                <div class="compilation-option-group" style="margin-bottom: 1.5rem;">
+                    <h6 style="margin-bottom: 1rem; color: var(--text-primary); font-weight: 600;">
+                        <i class="fas fa-terminal me-2"></i>Logging Options
+                    </h6>
+                    <div class="form-check" style="margin-bottom: 0.75rem;">
+                        <input class="form-check-input" type="checkbox" id="option-quiet">
+                        <label class="form-check-label" for="option-quiet">
+                            <strong>Quiet Mode</strong>
+                            <small style="display: block; color: var(--text-secondary);">Suppress detailed LaTeX logs</small>
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="option-verbose">
+                        <label class="form-check-label" for="option-verbose">
+                            <strong>Verbose Mode</strong>
+                            <small style="display: block; color: var(--text-secondary);">Show detailed LaTeX compilation logs</small>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Advanced Options -->
+                <div class="compilation-option-group">
+                    <h6 style="margin-bottom: 1rem; color: var(--text-primary); font-weight: 600;">
+                        <i class="fas fa-tools me-2"></i>Advanced Options
+                    </h6>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="option-force">
+                        <label class="form-check-label" for="option-force">
+                            <strong>Force Recompilation</strong>
+                            <small style="display: block; color: var(--text-secondary);">Ignore cache and recompile everything</small>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Revision-specific option (hidden by default) -->
+                <div class="compilation-option-group" id="revision-options" style="margin-top: 1.5rem; display: none;">
+                    <h6 style="margin-bottom: 1rem; color: var(--text-primary); font-weight: 600;">
+                        <i class="fas fa-edit me-2"></i>Revision Options
+                    </h6>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="option-track-changes">
+                        <label class="form-check-label" for="option-track-changes">
+                            <strong>Track Changes</strong>
+                            <small style="display: block; color: var(--text-secondary);">Highlight differences from previous version</small>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="scitex-modal-footer">
+                <button type="button" class="scitex-btn scitex-btn-secondary" onclick="closeCompilationModal()">Cancel</button>
+                <button type="button" class="scitex-btn scitex-btn-primary" id="confirm-compile-btn">
+                    <i class="fas fa-file-pdf me-2"></i>Start Compilation
+                </button>
+            </div>
+        </div>
+    </div>
+

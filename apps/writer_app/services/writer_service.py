@@ -540,13 +540,31 @@ class WriterService:
                 "error": str(e),
             }
 
-    def compile_manuscript(self, timeout: int = 300, log_callback=None, progress_callback=None) -> dict:
+    def compile_manuscript(
+        self,
+        timeout: int = 300,
+        log_callback=None,
+        progress_callback=None,
+        no_figs: bool = False,
+        ppt2tif: bool = False,
+        crop_tif: bool = False,
+        quiet: bool = False,
+        verbose: bool = False,
+        force: bool = False,
+        **kwargs  # Catch any unexpected arguments
+    ) -> dict:
         """Compile manuscript with optional callbacks for live updates.
 
         Args:
             timeout: Compilation timeout in seconds
             log_callback: Optional callback for real-time log streaming
             progress_callback: Optional callback for progress updates
+            no_figs: Exclude figures for quick compilation
+            ppt2tif: Convert PowerPoint to TIF on WSL
+            crop_tif: Crop TIF images to remove excess whitespace
+            quiet: Suppress detailed logs for LaTeX compilation
+            verbose: Show detailed logs for LaTeX compilation
+            force: Force full recompilation, ignore cache
 
         Returns:
             Compilation result dict with keys:
@@ -556,10 +574,20 @@ class WriterService:
                 - error: str (error message if failed)
         """
         try:
-            result = self.writer.compile_manuscript(
+            # Use standalone compile function from scitex.writer._compile
+            from scitex.writer._compile import compile_manuscript
+
+            result = compile_manuscript(
+                project_dir=self.writer_dir,
                 timeout=timeout,
+                no_figs=no_figs,
+                ppt2tif=ppt2tif,
+                crop_tif=crop_tif,
+                quiet=quiet,
+                verbose=verbose,
+                force=force,
                 log_callback=log_callback,
-                progress_callback=progress_callback
+                progress_callback=progress_callback,
             )
             # Build log from stdout/stderr
             log_content = ""
@@ -585,10 +613,42 @@ class WriterService:
                 "error": str(e),
             }
 
-    def compile_supplementary(self, timeout: int = 300) -> dict:
-        """Compile supplementary material."""
+    def compile_supplementary(
+        self,
+        timeout: int = 300,
+        log_callback=None,
+        progress_callback=None,
+        no_figs: bool = False,
+        ppt2tif: bool = False,
+        crop_tif: bool = False,
+        quiet: bool = False,
+        **kwargs  # Catch any unexpected arguments
+    ) -> dict:
+        """Compile supplementary material.
+
+        Args:
+            timeout: Compilation timeout in seconds
+            log_callback: Optional callback for real-time log streaming
+            progress_callback: Optional callback for progress updates
+            no_figs: Exclude figures (default includes figures)
+            ppt2tif: Convert PowerPoint to TIF on WSL
+            crop_tif: Crop TIF images to remove excess whitespace
+            quiet: Suppress detailed logs for LaTeX compilation
+        """
         try:
-            result = self.writer.compile_supplementary(timeout=timeout)
+            # Use standalone compile function from scitex.writer._compile
+            from scitex.writer._compile import compile_supplementary
+
+            result = compile_supplementary(
+                project_dir=self.writer_dir,
+                timeout=timeout,
+                no_figs=no_figs,
+                ppt2tif=ppt2tif,
+                crop_tif=crop_tif,
+                quiet=quiet,
+                log_callback=log_callback,
+                progress_callback=progress_callback,
+            )
             # Build log from stdout/stderr
             log_content = ""
             if hasattr(result, 'stdout') and result.stdout:
@@ -613,10 +673,33 @@ class WriterService:
                 "error": str(e),
             }
 
-    def compile_revision(self, timeout: int = 300, track_changes: bool = False) -> dict:
-        """Compile revision response document."""
+    def compile_revision(
+        self,
+        timeout: int = 300,
+        log_callback=None,
+        progress_callback=None,
+        track_changes: bool = False,
+        **kwargs  # Catch any unexpected arguments
+    ) -> dict:
+        """Compile revision response document.
+
+        Args:
+            timeout: Compilation timeout in seconds
+            log_callback: Optional callback for real-time log streaming
+            progress_callback: Optional callback for progress updates
+            track_changes: Whether to enable change tracking (diff highlighting)
+        """
         try:
-            result = self.writer.compile_revision(timeout=timeout, track_changes=track_changes)
+            # Use standalone compile function from scitex.writer._compile
+            from scitex.writer._compile import compile_revision
+
+            result = compile_revision(
+                project_dir=self.writer_dir,
+                timeout=timeout,
+                track_changes=track_changes,
+                log_callback=log_callback,
+                progress_callback=progress_callback,
+            )
             # Build log from stdout/stderr
             log_content = ""
             if hasattr(result, 'stdout') and result.stdout:
