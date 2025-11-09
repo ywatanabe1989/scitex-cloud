@@ -33,6 +33,13 @@ run_migrations
 collect_static_files
 
 # ============================================
+# Initialize Visitor Pool
+# ============================================
+echo_info "Initializing visitor pool..."
+python manage.py create_visitor_pool --verbosity 0 2>&1 | grep -v "ERRO\|WARN" || true
+echo_success "Visitor pool ready"
+
+# ============================================
 # Start Application
 # ============================================
 echo "🚀 Starting production server..."
