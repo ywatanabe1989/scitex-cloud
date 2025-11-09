@@ -19,11 +19,7 @@
         <div class="profile-username">{{ profile_user.username }}</div>
     </div>
 
-    {% if user.is_authenticated and user == profile_user %}
-    <a href="{% url 'accounts_app:profile_edit' %}" class="btn btn-sm">
-        Edit profile
-    </a>
-    {% elif user.is_authenticated %}
+    {% if user.is_authenticated and user != profile_user %}
     <button id="follow-btn" class="btn btn-primary w-full" onclick="toggleFollow()">
         {% if is_following %}
             <i class="fas fa-user-check"></i>
