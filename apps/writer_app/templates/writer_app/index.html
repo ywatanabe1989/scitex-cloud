@@ -95,6 +95,9 @@
 </div>
 
 {% include "writer_app/index_partials/word_count.html" %}
+
+<!-- Compilation Options Modal -->
+{% include "writer_app/compilation_view_partials/header.html" %}
 {% endif %}
 
 {% if not needs_project_creation and not pool_error and not pool_exhausted %}

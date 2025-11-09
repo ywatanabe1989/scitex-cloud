@@ -23,9 +23,42 @@ const toggleLogSizeBtn = document.getElementById('toggle-log-size');
 checkForExistingPDFs();
 checkForRunningCompilation();
 
-// Compile button
+// Modal control functions
+function showCompilationModal() {
+    const modal = document.getElementById('compilationOptionsModal');
+    modal.style.display = 'flex';
+    // Trigger animation
+    setTimeout(() => {
+        modal.classList.add('scitex-modal-visible');
+    }, 10);
+}
+
+function closeCompilationModal() {
+    const modal = document.getElementById('compilationOptionsModal');
+    modal.classList.remove('scitex-modal-visible');
+    modal.classList.add('scitex-modal-closing');
+    setTimeout(() => {
+        modal.style.display = 'none';
+        modal.classList.remove('scitex-modal-closing');
+    }, 300);
+}
+
+// Compile button - show options modal
 compileBtnMain.addEventListener('click', function() {
+    showCompilationModal();
+});
+
+// Confirm compilation button in modal
+document.getElementById('confirm-compile-btn').addEventListener('click', function() {
+    closeCompilationModal();
     compileManuscript();
+});
+
+// Close modal on overlay click
+document.getElementById('compilationOptionsModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeCompilationModal();
+    }
 });
 
 // Toggle log size
@@ -93,7 +126,7 @@ function checkForExistingPDFs() {
 function checkForRunningCompilation() {
     const lastJobId = localStorage.getItem(`last_compile_job_${projectId}`);
     if (lastJobId) {
-        fetch(`/writer/api/status/${lastJobId}/`)
+        fetch(`/writer/api/project/${projectId}/compilation/status/${lastJobId}/`)
         .then(response => response.json())
         .then(data => {
             if (data.status === 'running' || data.status === 'queued') {
@@ -118,11 +151,35 @@ function compileManuscript() {
     progressBar.textContent = '10%';
     compilationLog.textContent = 'Starting compilation...\n';
 
-    fetch(`/writer/project/${projectId}/compile/`, {
+    // Read compilation options from checkboxes
+    const compOptions = {
+        no_figs: document.getElementById('option-no-figs')?.checked || false,
+        ppt2tif: document.getElementById('option-ppt2tif')?.checked || false,
+        crop_tif: document.getElementById('option-crop-tif')?.checked || false,
+        quiet: document.getElementById('option-quiet')?.checked || false,
+        verbose: document.getElementById('option-verbose')?.checked || false,
+        force: document.getElementById('option-force')?.checked || false
+    };
+
+    // Log selected options
+    const selectedOptions = Object.entries(compOptions)
+        .filter(([key, val]) => val === true)
+        .map(([key]) => key);
+    if (selectedOptions.length > 0) {
+        compilationLog.textContent += `Options: ${selectedOptions.join(', ')}\n`;
+    }
+
+    fetch(`/writer/api/project/${projectId}/compile_full/`, {
         method: 'POST',
         headers: {
+            'Content-Type': 'application/json',
             'X-CSRFToken': getCsrfToken()
-        }
+        },
+        body: JSON.stringify({
+            doc_type: 'manuscript',
+            timeout: 300,
+            ...compOptions
+        })
     })
     .then(response => response.json())
     .then(data => {
@@ -146,7 +203,7 @@ function pollCompilationStatus(jobId, attempts = 0) {
         return;
     }
 
-    fetch(`/writer/api/status/${jobId}/`)
+    fetch(`/writer/api/project/${projectId}/compilation/status/${jobId}/`)
     .then(response => response.json())
     .then(data => {
         const progress = data.progress || 50;

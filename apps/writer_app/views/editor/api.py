@@ -826,7 +826,16 @@ def compile_full_view(request, project_id):
     POST body:
         {
             "doc_type": "manuscript|supplementary|revision",
-            "timeout": 300 (optional)
+            "timeout": 300 (optional),
+            # Manuscript options:
+            "no_figs": false,
+            "ppt2tif": false,
+            "crop_tif": false,
+            "quiet": false,
+            "verbose": false,
+            "force": false,
+            # Revision options:
+            "track_changes": false
         }
     """
     try:
@@ -836,6 +845,17 @@ def compile_full_view(request, project_id):
         data = json.loads(request.body)
         doc_type = data.get("doc_type", "manuscript")
         timeout = data.get("timeout", 300)
+
+        # Extract compilation options
+        comp_options = {
+            'no_figs': data.get('no_figs', False),
+            'ppt2tif': data.get('ppt2tif', False),
+            'crop_tif': data.get('crop_tif', False),
+            'quiet': data.get('quiet', False),
+            'verbose': data.get('verbose', False),
+            'force': data.get('force', False),
+            'track_changes': data.get('track_changes', False),
+        }
 
         logger.info(f"[CompileFullAPI] project_id={project_id}, doc_type={doc_type}")
 
@@ -867,7 +887,7 @@ def compile_full_view(request, project_id):
         # Start compilation in background thread
         thread = threading.Thread(
             target=run_compilation_async,
-            args=(job_id, project_id, doc_type, timeout, user.id),
+            args=(job_id, project_id, doc_type, timeout, user.id, comp_options),
             daemon=True
         )
         thread.start()
@@ -892,12 +912,13 @@ def compile_full_view(request, project_id):
         )
 
 
-def run_compilation_async(job_id, project_id, doc_type, timeout, user_id):
+def run_compilation_async(job_id, project_id, doc_type, timeout, user_id, comp_options=None):
     """Run compilation in background thread with job tracking"""
     try:
         from ...services import WriterService
 
         writer_service = WriterService(project_id, user_id)
+        comp_options = comp_options or {}
 
         # Define callbacks to update job state
         def on_log(message):
@@ -919,12 +940,31 @@ def run_compilation_async(job_id, project_id, doc_type, timeout, user_id):
             result = writer_service.compile_manuscript(
                 timeout=timeout,
                 log_callback=on_log,
-                progress_callback=on_progress
+                progress_callback=on_progress,
+                no_figs=comp_options.get('no_figs', False),
+                ppt2tif=comp_options.get('ppt2tif', False),
+                crop_tif=comp_options.get('crop_tif', False),
+                quiet=comp_options.get('quiet', False),
+                verbose=comp_options.get('verbose', False),
+                force=comp_options.get('force', False),
             )
         elif doc_type == "supplementary":
-            result = writer_service.compile_supplementary(timeout=timeout)
+            result = writer_service.compile_supplementary(
+                timeout=timeout,
+                log_callback=on_log,
+                progress_callback=on_progress,
+                no_figs=comp_options.get('no_figs', False),
+                ppt2tif=comp_options.get('ppt2tif', False),
+                crop_tif=comp_options.get('crop_tif', False),
+                quiet=comp_options.get('quiet', False),
+            )
         elif doc_type == "revision":
-            result = writer_service.compile_revision(timeout=timeout)
+            result = writer_service.compile_revision(
+                timeout=timeout,
+                log_callback=on_log,
+                progress_callback=on_progress,
+                track_changes=comp_options.get('track_changes', False),
+            )
         else:
             raise ValueError(f"Invalid doc_type: {doc_type}")
 
