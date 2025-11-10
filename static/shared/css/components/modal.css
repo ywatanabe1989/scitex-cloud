@@ -150,6 +150,12 @@
     transition: all 0.2s ease;
 }
 
+/* Equal width buttons in modal footer */
+.scitex-modal-footer .scitex-btn {
+    flex: 1;
+    min-width: 100px;
+}
+
 .scitex-btn-primary {
     background: var(--scitex-color-05, #2563eb);
     color: #ffffff;
