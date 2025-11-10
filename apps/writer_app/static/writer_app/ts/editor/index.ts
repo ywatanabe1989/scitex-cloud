@@ -251,7 +251,7 @@ async function populateSectionDropdownDirect(
             return;
         }
 
-        // Separate regular sections from footer items (Full Manuscript, New Section)
+        // Separate regular sections from footer items (compiled PDFs, New Section)
         let regularSectionsHtml = '';
         let footerSectionsHtml = '';
 
@@ -277,7 +277,7 @@ async function populateSectionDropdownDirect(
                      data-index="${index}"
                      data-optional="${isOptional}"
                      draggable="${!isCompiledPdf}"
-                     title="${isCompiledPdf ? 'View Full Manuscript' : 'Switch to ' + sectionLabel}">
+                     title="${isCompiledPdf ? 'View ' + sectionLabel : 'Switch to ' + sectionLabel}">
                     <span class="section-drag-handle" style="${isCompiledPdf ? 'visibility: hidden;' : ''}" title="Drag to reorder">⋮⋮</span>
                     <span class="section-item-name">${sectionLabel}</span>
                     ${showToggle ? `
@@ -288,7 +288,7 @@ async function populateSectionDropdownDirect(
                     ` : ''}
                     <div class="section-item-actions">
                         ${isCompiledPdf ? `
-                            <button class="btn btn-xs btn-outline-secondary" data-action="compile-full" title="Compile Full Manuscript PDF" onclick="event.stopPropagation();">
+                            <button class="btn btn-xs btn-outline-secondary" data-action="compile-full" title="Compile ${sectionLabel} PDF" onclick="event.stopPropagation();">
                                 <i class="fas fa-file-pdf"></i>
                             </button>
                         ` : ''}
@@ -302,7 +302,7 @@ async function populateSectionDropdownDirect(
                 </div>
             `;
 
-            // Separate Full Manuscript to footer
+            // Separate compiled sections to footer
             if (isCompiledPdf) {
                 footerSectionsHtml += itemHtml;
             } else {
@@ -318,9 +318,10 @@ async function populateSectionDropdownDirect(
             <div class="section-items-footer">
                 <div class="section-divider"></div>
                 ${footerSectionsHtml}
+                <div class="section-divider"></div>
                 <div class="section-action-item" data-action="new-section">
                     <i class="fas fa-plus"></i>
-                    <span>New Section...</span>
+                    <span>Add New Section</span>
                 </div>
             </div>
         `;
