@@ -289,8 +289,22 @@ async function populateSectionDropdownDirect(
             // Generate file path for the section
             const username = (window as any).WRITER_CONFIG?.projectOwner || 'ywatanabe';
             const projectSlug = (window as any).WRITER_CONFIG?.projectSlug || 'default-project';
-            const sectionPath = section.id.replace(`${docType}/`, '');
-            const filePath = `/${username}/${projectSlug}/blob/scitex/writer/01_${docType}/contents/${sectionPath}.tex`;
+            // Use the path from backend if available, otherwise construct default path
+            let filePath = '';
+            if (section.path) {
+                // Backend provides the correct path like "01_manuscript/contents/abstract.tex"
+                filePath = `/${username}/${projectSlug}/blob/scitex/writer/${section.path}`;
+            } else {
+                // Fallback for sections without explicit path
+                const sectionPath = section.id.replace(`${docType}/`, '');
+                const docDirMap: Record<string, string> = {
+                    'manuscript': '01_manuscript',
+                    'supplementary': '02_supplementary',
+                    'revision': '03_revision'
+                };
+                const docDir = docDirMap[docType] || `01_${docType}`;
+                filePath = `/${username}/${projectSlug}/blob/scitex/writer/${docDir}/contents/${sectionPath}.tex`;
+            }
 
             const itemHtml = `
                 <div class="section-item ${isExcluded ? 'excluded' : ''} section-item-with-actions"
