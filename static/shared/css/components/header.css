@@ -967,6 +967,17 @@
     color: var(--scitex-color-04);
 }
 
+/* Project Jump Button */
+.project-item-jump-btn:hover {
+    background: var(--scitex-color-07);
+    color: var(--scitex-color-04);
+}
+
+[data-theme="dark"] .project-item-jump-btn:hover {
+    background: var(--scitex-color-03);
+    color: var(--scitex-color-04);
+}
+
 /* Files Jump Button */
 .project-files-btn {
     display: inline-flex;
