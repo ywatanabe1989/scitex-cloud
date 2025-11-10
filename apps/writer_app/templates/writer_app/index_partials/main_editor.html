@@ -248,9 +248,9 @@
       </div>
 
       <!-- Log Output (collapsible terminal) -->
-      <details id="compilation-log-details" style="border-top: 1px solid var(--color-border-default);">
+      <details id="compilation-log-details" style="border-top: 1px solid var(--color-border-default);" open>
         <summary style="padding: 0.75rem 1rem; cursor: pointer; user-select: none; font-size: 0.85rem; color: var(--color-fg-muted);">
-          <i class="fas fa-terminal me-2"></i>Show compilation log
+          <i class="fas fa-terminal me-2"></i>Compilation log
         </summary>
         <div id="compilation-log-inline" class="terminal-log terminal-log--medium" style="border-top: 1px solid var(--color-border-default); border-radius: 0;">
           Click "Compile" to start compilation...
@@ -429,42 +429,31 @@
 </div>
 
 <!-- Git Commit Modal -->
-<div class="modal fade" id="git-commit-modal" tabindex="-1" aria-labelledby="git-commit-modal-label" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="git-commit-modal-label">
-          <i class="fas fa-code-branch me-2"></i>Commit Changes
-        </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="mb-3">
-          <label for="commit-message-input" class="form-label">Commit Message</label>
-          <textarea
-            id="commit-message-input"
-            class="form-control"
-            rows="3"
-            placeholder="Describe your changes..."
-            required></textarea>
-          <div class="form-text">
-            <i class="fas fa-info-circle me-1"></i>
-            Auto-saved changes will be committed to git history
-          </div>
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Current Section</label>
-          <div id="commit-section-info" class="text-muted">
-            <i class="fas fa-file-alt me-1"></i><span id="commit-current-section">-</span>
-          </div>
+<div class="scitex-modal-overlay" id="git-commit-modal" style="display: none;">
+  <div class="scitex-modal-content" style="max-width: 480px;">
+    <div class="scitex-modal-header">
+      <h3><i class="fas fa-code-branch me-2"></i>Commit Changes</h3>
+      <button type="button" class="scitex-modal-close">&times;</button>
+    </div>
+    <div class="scitex-modal-body">
+      <div class="mb-3">
+        <label for="commit-message-input" class="form-label" style="font-size: 0.875rem; margin-bottom: 0.5rem; color: var(--color-fg-default);">Commit Message</label>
+        <input
+          type="text"
+          id="commit-message-input"
+          class="form-control"
+          placeholder="Update manuscript"
+          style="font-size: 0.875rem; background: var(--color-canvas-subtle); border-color: var(--color-border-default); color: var(--color-fg-default);">
+        <div class="form-text" style="font-size: 0.75rem; margin-top: 0.375rem; color: var(--color-fg-muted);">
+          <i class="fas fa-info-circle me-1"></i>Auto-saved changes will be committed
         </div>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" id="confirm-commit-btn" class="btn btn-primary">
-          <i class="fas fa-check me-1"></i>Commit
-        </button>
-      </div>
+    </div>
+    <div class="scitex-modal-footer">
+      <button type="button" class="scitex-btn scitex-btn-secondary scitex-modal-close">Cancel</button>
+      <button type="button" id="confirm-commit-btn" class="scitex-btn scitex-btn-primary">
+        <i class="fas fa-check me-1"></i>Commit
+      </button>
     </div>
   </div>
 </div>
