@@ -111,6 +111,16 @@ SECTION_HIERARCHY = {
                 "label": "Supplementary Results",
                 "path": "02_supplementary/contents/results.tex",
             },
+            {
+                "id": "supplementary/compiled_pdf",
+                "name": "compiled_pdf",
+                "label": "Full Supplementary File",
+                "path": "02_supplementary/supplementary.tex",
+                "view_only": True,
+                "is_compiled": True,
+                "no_preview": True,
+                "instruction": "This is the compiled full supplementary file. Click 'Compile Full Supplementary' to regenerate."
+            },
         ],
     },
     "revision": {
@@ -141,6 +151,16 @@ SECTION_HIERARCHY = {
                 "name": "reviewer2",
                 "label": "Response to Reviewer 2",
                 "path": "03_revision/contents/reviewer2.tex",
+            },
+            {
+                "id": "revision/compiled_pdf",
+                "name": "compiled_pdf",
+                "label": "Full Revision",
+                "path": "03_revision/revision.tex",
+                "view_only": True,
+                "is_compiled": True,
+                "no_preview": True,
+                "instruction": "This is the compiled full revision document. Click 'Compile Full Revision' to regenerate."
             },
         ],
     },
