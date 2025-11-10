@@ -286,6 +286,12 @@ async function populateSectionDropdownDirect(
             // Don't show toggle for view-only sections (like compiled_pdf)
             const showToggle = !isViewOnly && (isOptional || isExcluded);
 
+            // Generate file path for the section
+            const username = window.location.pathname.split('/')[1] || 'ywatanabe';
+            const projectSlug = window.location.pathname.split('/')[2] || 'default-project';
+            const sectionPath = section.id.replace(`${docType}/`, '');
+            const filePath = `/${username}/${projectSlug}/blob/scitex/writer/01_${docType}/contents/${sectionPath}.tex`;
+
             const itemHtml = `
                 <div class="section-item ${isExcluded ? 'excluded' : ''} section-item-with-actions"
                      data-section-id="${section.id}"
@@ -294,11 +300,16 @@ async function populateSectionDropdownDirect(
                      draggable="${!isCompiledPdf}"
                      title="${isCompiledPdf ? 'View Full Manuscript' : 'Switch to ' + sectionLabel}">
                     <span class="section-drag-handle" style="${isCompiledPdf ? 'visibility: hidden;' : ''}" title="Drag to reorder">⋮⋮</span>
+                    ${!isCompiledPdf ? `
+                        <a href="${filePath}" class="section-file-link" title="Open ${sectionLabel} file" onclick="event.stopPropagation();" target="_blank">
+                            <i class="fas fa-file-code section-file-icon"></i>
+                        </a>
+                    ` : ''}
                     <span class="section-item-name">${sectionLabel}</span>
                     ${showToggle ? `
-                        <label class="section-item-toggle" data-action="toggle-visibility" title="${isExcluded ? 'Include in compilation' : 'Exclude from compilation'}">
+                        <label class="ios-toggle" data-action="toggle-visibility" title="${isExcluded ? 'Include in compilation' : 'Exclude from compilation'}">
                             <input type="checkbox" ${!isExcluded ? 'checked' : ''}>
-                            <span class="toggle-slider"></span>
+                            <span class="ios-toggle-slider"></span>
                         </label>
                     ` : ''}
                     <div class="section-item-actions">
@@ -1845,30 +1856,67 @@ function showCommitModal(state: any): void {
         return;
     }
 
-    // Update current section info in modal
-    const sectionInfoEl = document.getElementById('commit-current-section');
-    if (sectionInfoEl) {
-        const parts = currentSection.split('/');
-        const sectionName = parts[parts.length - 1];
-        const formattedName = sectionName
-            .split('_')
-            .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(' ');
-        sectionInfoEl.textContent = formattedName;
-    }
+    // Generate default commit message
+    const parts = currentSection.split('/');
+    const sectionName = parts[parts.length - 1];
+    const formattedName = sectionName
+        .split('_')
+        .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+    const defaultMessage = `Update ${formattedName}`;
 
-    // Clear previous message
-    const messageInput = document.getElementById('commit-message-input') as HTMLTextAreaElement;
+    // Set default commit message
+    const messageInput = document.getElementById('commit-message-input') as HTMLInputElement;
     if (messageInput) {
-        messageInput.value = '';
-        messageInput.focus();
+        messageInput.value = defaultMessage;
+        // Select all text so user can easily replace it if needed
+        setTimeout(() => {
+            messageInput.focus();
+            messageInput.select();
+        }, 100);
     }
 
-    // Show modal using Bootstrap
+    // Show modal using scitex-modal pattern
     const modalEl = document.getElementById('git-commit-modal');
     if (modalEl) {
-        const modal = new (window as any).bootstrap.Modal(modalEl);
-        modal.show();
+        modalEl.style.display = 'flex';
+        setTimeout(() => {
+            modalEl.classList.add('scitex-modal-visible');
+        }, 10);
+
+        // Handle close buttons
+        const handleCancel = (e: Event) => {
+            if (e.target === modalEl || (e.target as HTMLElement).classList.contains('scitex-modal-close')) {
+                closeCommitModal();
+                modalEl.removeEventListener('click', handleCancel);
+            }
+        };
+        modalEl.addEventListener('click', handleCancel);
+
+        // Handle Enter key to submit
+        const handleEnter = (e: KeyboardEvent) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleGitCommit(state);
+                messageInput?.removeEventListener('keydown', handleEnter);
+            }
+        };
+        messageInput?.addEventListener('keydown', handleEnter);
+    }
+}
+
+/**
+ * Close git commit modal
+ */
+function closeCommitModal(): void {
+    const modalEl = document.getElementById('git-commit-modal');
+    if (modalEl) {
+        modalEl.classList.remove('scitex-modal-visible');
+        modalEl.classList.add('scitex-modal-closing');
+        setTimeout(() => {
+            modalEl.style.display = 'none';
+            modalEl.classList.remove('scitex-modal-closing');
+        }, 300);
     }
 }
 
@@ -1882,7 +1930,7 @@ async function handleGitCommit(state: any): Promise<void> {
         return;
     }
 
-    const messageInput = document.getElementById('commit-message-input') as HTMLTextAreaElement;
+    const messageInput = document.getElementById('commit-message-input') as HTMLInputElement;
     const commitMessage = messageInput?.value.trim();
 
     if (!commitMessage) {
@@ -1934,13 +1982,7 @@ async function handleGitCommit(state: any): Promise<void> {
             showToast('Changes committed successfully', 'success');
 
             // Close modal
-            const modalEl = document.getElementById('git-commit-modal');
-            if (modalEl) {
-                const modal = (window as any).bootstrap.Modal.getInstance(modalEl);
-                if (modal) {
-                    modal.hide();
-                }
-            }
+            closeCommitModal();
         } else {
             console.error('[Writer] Commit failed:', data);
             throw new Error(data.error || 'Commit failed');
@@ -2479,11 +2521,24 @@ function updateCompilationProgress(percent: number, status: string): void {
 }
 
 /**
- * Append to compilation log with semantic color coding
+ * Append to compilation log with semantic color coding and visual cues
  */
-function appendCompilationLog(message: string, type: 'info' | 'success' | 'error' | 'warning' = 'info'): void {
+function appendCompilationLog(message: string, type: 'info' | 'success' | 'error' | 'warning' | 'processing' = 'info', options?: { spinner?: boolean, dots?: boolean, id?: string }): void {
     const log = document.getElementById('compilation-log-inline');
     if (!log) return;
+
+    // Create line container
+    const lineDiv = document.createElement('div');
+    if (options?.id) {
+        lineDiv.id = options.id;
+    }
+
+    // Add spinner if requested
+    if (options?.spinner) {
+        const spinner = document.createElement('span');
+        spinner.className = 'terminal-log__spinner';
+        lineDiv.appendChild(spinner);
+    }
 
     // Create colored span for the message
     const span = document.createElement('span');
@@ -2495,15 +2550,61 @@ function appendCompilationLog(message: string, type: 'info' | 'success' | 'error
         span.className = 'terminal-log__error';
     } else if (message.includes('⚠') || message.includes('Warning') || type === 'warning') {
         span.className = 'terminal-log__warning';
+    } else if (type === 'processing') {
+        span.className = 'terminal-log__processing';
     } else {
         span.className = 'terminal-log__info';
     }
 
-    span.textContent = message + '\n';
-    log.appendChild(span);
+    span.textContent = message;
+    lineDiv.appendChild(span);
+
+    // Add animated dots if requested
+    if (options?.dots) {
+        const dots = document.createElement('span');
+        dots.className = 'terminal-log__loading-dots';
+        lineDiv.appendChild(dots);
+    }
+
+    // Add newline
+    lineDiv.appendChild(document.createTextNode('\n'));
+
+    log.appendChild(lineDiv);
 
     // Auto-scroll to bottom
     log.scrollTop = log.scrollHeight;
+}
+
+/**
+ * Update a processing log line (remove spinner/dots, update message)
+ */
+function updateCompilationLog(lineId: string, message: string, type: 'success' | 'error' | 'warning' | 'info' = 'info'): void {
+    const line = document.getElementById(lineId);
+    if (!line) return;
+
+    // Remove spinner and dots
+    const spinner = line.querySelector('.terminal-log__spinner');
+    const dots = line.querySelector('.terminal-log__loading-dots');
+    if (spinner) spinner.remove();
+    if (dots) dots.remove();
+
+    // Update message
+    const span = line.querySelector('span:not(.terminal-log__spinner):not(.terminal-log__loading-dots)');
+    if (span) {
+        span.textContent = message;
+
+        // Update color class
+        span.className = '';
+        if (message.includes('✓') || message.includes('Success') || type === 'success') {
+            span.className = 'terminal-log__success';
+        } else if (message.includes('✗') || message.includes('Error') || message.includes('Failed') || type === 'error') {
+            span.className = 'terminal-log__error';
+        } else if (message.includes('⚠') || message.includes('Warning') || type === 'warning') {
+            span.className = 'terminal-log__warning';
+        } else {
+            span.className = 'terminal-log__info';
+        }
+    }
 }
 
 /**
@@ -2805,6 +2906,7 @@ function handleDownloadSectionPDF(sectionId: string, sectionLabel: string): void
 (window as any).hideCompilationProgress = hideCompilationProgress;
 (window as any).updateCompilationProgress = updateCompilationProgress;
 (window as any).appendCompilationLog = appendCompilationLog;
+(window as any).updateCompilationLog = updateCompilationLog;
 (window as any).showCompilationSuccess = showCompilationSuccess;
 (window as any).showCompilationError = showCompilationError;
 // (window as any).toggleCompilationLog = toggleCompilationLog; // Function not defined
