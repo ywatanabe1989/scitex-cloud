@@ -312,11 +312,10 @@ async function populateSectionDropdownDirect(
                             <button class="btn btn-xs btn-outline-secondary" data-action="compile-full" title="Compile Full Manuscript PDF" onclick="event.stopPropagation();">
                                 <i class="fas fa-file-pdf"></i>
                             </button>
-                        ` : `
-                            <a href="${filePath}" class="btn btn-xs btn-outline-secondary" title="Go to ${sectionLabel} file" onclick="event.stopPropagation();" target="_blank">
-                                <i class="fas fa-folder-open"></i>
-                            </a>
-                        `}
+                        ` : ''}
+                        <a href="${filePath}" class="btn btn-xs btn-outline-secondary" title="Go to ${sectionLabel} file" onclick="event.stopPropagation();" target="_blank">
+                            <i class="fas fa-folder-open"></i>
+                        </a>
                         <button class="btn btn-xs btn-outline-secondary" data-action="download-section" title="Download ${sectionLabel} PDF" onclick="event.stopPropagation();">
                             <i class="fas fa-download"></i>
                         </button>
