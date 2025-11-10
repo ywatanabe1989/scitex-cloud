@@ -266,8 +266,8 @@ async function populateSectionDropdownDirect(
             const showToggle = !isViewOnly && (isOptional || isExcluded);
 
             // Generate file path for the section
-            const username = window.location.pathname.split('/')[1] || 'ywatanabe';
-            const projectSlug = window.location.pathname.split('/')[2] || 'default-project';
+            const username = (window as any).WRITER_CONFIG?.projectOwner || 'ywatanabe';
+            const projectSlug = (window as any).WRITER_CONFIG?.projectSlug || 'default-project';
             const sectionPath = section.id.replace(`${docType}/`, '');
             const filePath = `/${username}/${projectSlug}/blob/scitex/writer/01_${docType}/contents/${sectionPath}.tex`;
 
@@ -279,11 +279,6 @@ async function populateSectionDropdownDirect(
                      draggable="${!isCompiledPdf}"
                      title="${isCompiledPdf ? 'View Full Manuscript' : 'Switch to ' + sectionLabel}">
                     <span class="section-drag-handle" style="${isCompiledPdf ? 'visibility: hidden;' : ''}" title="Drag to reorder">⋮⋮</span>
-                    ${!isCompiledPdf ? `
-                        <a href="${filePath}" class="section-file-link" title="Open ${sectionLabel} file" onclick="event.stopPropagation();" target="_blank">
-                            <i class="fas fa-file-code section-file-icon"></i>
-                        </a>
-                    ` : ''}
                     <span class="section-item-name">${sectionLabel}</span>
                     ${showToggle ? `
                         <label class="ios-toggle" data-action="toggle-visibility" title="${isExcluded ? 'Include in compilation' : 'Exclude from compilation'}">
@@ -296,7 +291,11 @@ async function populateSectionDropdownDirect(
                             <button class="btn btn-xs btn-outline-secondary" data-action="compile-full" title="Compile Full Manuscript PDF" onclick="event.stopPropagation();">
                                 <i class="fas fa-file-pdf"></i>
                             </button>
-                        ` : ''}
+                        ` : `
+                            <a href="${filePath}" class="btn btn-xs btn-outline-secondary" title="Go to ${sectionLabel} file" onclick="event.stopPropagation();" target="_blank">
+                                <i class="fas fa-folder-open"></i>
+                            </a>
+                        `}
                         <button class="btn btn-xs btn-outline-secondary" data-action="download-section" title="Download ${sectionLabel} PDF" onclick="event.stopPropagation();">
                             <i class="fas fa-download"></i>
                         </button>
