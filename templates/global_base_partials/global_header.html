@@ -110,7 +110,6 @@
         {% if user.is_authenticated %}
           {% if user.profile.get_user_projects %}
             <div class="dropdown-section">
-              <div class="dropdown-section-title">Yours</div>
               {% for project in user.profile.get_user_projects %}
                 <button type="button" class="dropdown-project-item" data-project-id="{{ project.id }}" data-project-name="{{ project.name }}" data-project-slug="{{ project.slug }}" data-project-owner="{{ project.owner.username }}">
                   <span class="project-item-name">{{ project.name }}</span>
@@ -128,13 +127,6 @@
               {% endfor %}
             </div>
             <div class="dropdown-divider"></div>
-
-            <!-- Jump to Current File Option (only show on file viewer pages) -->
-            <button type="button" id="dropdown-jump-to-file" class="dropdown-project-item dropdown-action" style="display: none;">
-              <i class="fas fa-file-code" style="margin-right: 6px; font-size: 14px;"></i>
-              <span id="jump-to-file-text">Jump to Current File</span>
-            </button>
-            <div class="dropdown-divider" id="jump-to-file-divider" style="display: none;"></div>
           {% endif %}
 
           <!-- Create New Project Option (authenticated users only) -->
@@ -565,39 +557,11 @@ document.addEventListener('DOMContentLoaded', function() {
   // Project selector dropdown functionality
   const projectToggle = document.getElementById('project-selector-toggle');
   const projectDropdown = document.getElementById('project-selector-dropdown');
-  const projectItems = document.querySelectorAll('.dropdown-project-item:not(.dropdown-create-new):not(.dropdown-action)');
-  const jumpToFileBtn = document.getElementById('dropdown-jump-to-file');
-  const jumpToFileText = document.getElementById('jump-to-file-text');
-  const jumpToFileDivider = document.getElementById('jump-to-file-divider');
+  const projectItems = document.querySelectorAll('.dropdown-project-item:not(.dropdown-create-new)');
   const projectSelectorText = document.getElementById('project-selector-text');
 
   let currentProjectSlug = null;
   let currentProjectOwner = null;
-
-  // Check if we're on a file viewer page or writer page
-  const pathParts = window.location.pathname.split('/');
-  const isFileViewerPage = pathParts.includes('blob') && pathParts[pathParts.length - 1].endsWith('.tex');
-  const isWriterPage = window.location.pathname.includes('/writer');
-  let currentFilePath = isFileViewerPage ? window.location.pathname : null;
-
-  // Extract project info from URL if on blob viewer page
-  if (isFileViewerPage && pathParts.length > 2) {
-    currentProjectOwner = pathParts[1];
-    currentProjectSlug = pathParts[2];
-  }
-
-  // Extract project info from WRITER_CONFIG (set by writer page)
-  if (typeof window.WRITER_CONFIG !== 'undefined') {
-    currentProjectOwner = window.WRITER_CONFIG.projectOwner || currentProjectOwner;
-    currentProjectSlug = window.WRITER_CONFIG.projectSlug || currentProjectSlug;
-  }
-
-  // Try to get project info from the active project in dropdown
-  const activeProjectItem = document.querySelector('.dropdown-project-item.active');
-  if (activeProjectItem && !currentProjectSlug) {
-    currentProjectSlug = activeProjectItem.getAttribute('data-project-slug');
-    currentProjectOwner = activeProjectItem.getAttribute('data-project-owner');
-  }
 
   if (projectToggle && projectDropdown) {
     // Toggle dropdown visibility
@@ -639,57 +603,6 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     });
 
-    // Handle "Jump to File" button click
-    if (jumpToFileBtn) {
-      // Function to update jump button based on current context
-      function updateJumpToFileButton() {
-        if (isFileViewerPage && currentFilePath) {
-          jumpToFileBtn.style.display = 'flex';
-          jumpToFileDivider.style.display = 'block';
-          jumpToFileText.textContent = 'Reload Current File';
-        } else if (isWriterPage) {
-          // On writer page, try to get the current section from the page
-          const currentSectionElement = document.querySelector('[data-section-id].active, .section-item.active');
-          if (currentSectionElement) {
-            const sectionId = currentSectionElement.getAttribute('data-section-id');
-            const docType = document.getElementById('doctype-selector')?.value || 'manuscript';
-            if (sectionId && currentProjectSlug && currentProjectOwner) {
-              const sectionPath = sectionId.replace(`${docType}/`, '');
-              currentFilePath = `/${currentProjectOwner}/${currentProjectSlug}/blob/scitex/writer/01_${docType}/contents/${sectionPath}.tex`;
-              jumpToFileBtn.style.display = 'flex';
-              jumpToFileDivider.style.display = 'block';
-              jumpToFileText.textContent = 'Jump to File Viewer';
-              console.log('[Header] Jump to file button enabled:', currentFilePath);
-            } else {
-              console.log('[Header] Missing data for jump button:', { sectionId, currentProjectSlug, currentProjectOwner });
-            }
-          } else {
-            console.log('[Header] No active section found for jump button');
-          }
-        }
-      }
-
-      // Initial update
-      updateJumpToFileButton();
-
-      // Update when section changes (listen to section selector changes)
-      document.addEventListener('DOMContentLoaded', function() {
-        const sectionSelector = document.getElementById('section-selector-dropdown');
-        if (sectionSelector) {
-          sectionSelector.addEventListener('click', function() {
-            setTimeout(updateJumpToFileButton, 100);
-          });
-        }
-      });
-
-      jumpToFileBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        if (currentFilePath) {
-          window.location.href = currentFilePath;
-        }
-      });
-    }
-
     // Close dropdown when clicking outside
     document.addEventListener('click', function(e) {
       if (!projectToggle.contains(e.target) && !projectDropdown.contains(e.target)) {
@@ -706,7 +619,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Initialize current project info
-    const selectedItem = document.querySelector('.dropdown-project-item:not(.dropdown-create-new):not(.dropdown-action).active');
+    const selectedItem = document.querySelector('.dropdown-project-item:not(.dropdown-create-new).active');
     if (selectedItem || projectItems.length > 0) {
       const currentItem = selectedItem || projectItems[0];
       const projectSlug = currentItem.getAttribute('data-project-slug');
