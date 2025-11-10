@@ -447,6 +447,19 @@ def _scan_project_sections(project_path):
                 "excluded": section_id in excluded_sections
             })
 
+    # Add "Full Supplementary File" compiled PDF section at the END
+    supplementary_tex_path = project_path / "02_supplementary" / "supplementary.tex"
+    if supplementary_tex_path.exists():
+        hierarchy["supplementary"]["sections"].append({
+            "id": "supplementary/compiled_pdf",
+            "name": "compiled_pdf",
+            "label": "📄 Full Supplementary File",
+            "path": str(supplementary_tex_path.relative_to(project_path)),
+            "view_only": True,
+            "is_compiled": True,
+            "no_preview": True
+        })
+
     # Scan revision/contents/ directory
     revision_dir = project_path / "03_revision" / "contents"
     if revision_dir.exists() and revision_dir.is_dir():
@@ -466,6 +479,19 @@ def _scan_project_sections(project_path):
                 "path": str(tex_file.relative_to(project_path)),
                 "excluded": section_id in excluded_sections
             })
+
+    # Add "Full Revision" compiled PDF section at the END
+    revision_tex_path = project_path / "03_revision" / "revision.tex"
+    if revision_tex_path.exists():
+        hierarchy["revision"]["sections"].append({
+            "id": "revision/compiled_pdf",
+            "name": "compiled_pdf",
+            "label": "📄 Full Revision",
+            "path": str(revision_tex_path.relative_to(project_path)),
+            "view_only": True,
+            "is_compiled": True,
+            "no_preview": True
+        })
 
     logger.info(f"Scanned project sections: {sum(len(cat['sections']) for cat in hierarchy.values())} total sections")
     return hierarchy
@@ -820,6 +846,8 @@ compile_view = compile_api
 # sections_config_view now defined above as proper function
 
 
+@api_login_optional
+@require_http_methods(["POST"])
 def compile_full_view(request, project_id):
     """Compile full manuscript from workspace files.
 
