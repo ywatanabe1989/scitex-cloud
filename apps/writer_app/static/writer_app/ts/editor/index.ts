@@ -265,6 +265,12 @@ async function populateSectionDropdownDirect(
             // Don't show toggle for view-only sections (like compiled_pdf)
             const showToggle = !isViewOnly && (isOptional || isExcluded);
 
+            // Generate file path for the section
+            const username = window.location.pathname.split('/')[1] || 'ywatanabe';
+            const projectSlug = window.location.pathname.split('/')[2] || 'default-project';
+            const sectionPath = section.id.replace(`${docType}/`, '');
+            const filePath = `/${username}/${projectSlug}/blob/scitex/writer/01_${docType}/contents/${sectionPath}.tex`;
+
             const itemHtml = `
                 <div class="section-item ${isExcluded ? 'excluded' : ''} section-item-with-actions"
                      data-section-id="${section.id}"
@@ -273,11 +279,16 @@ async function populateSectionDropdownDirect(
                      draggable="${!isCompiledPdf}"
                      title="${isCompiledPdf ? 'View Full Manuscript' : 'Switch to ' + sectionLabel}">
                     <span class="section-drag-handle" style="${isCompiledPdf ? 'visibility: hidden;' : ''}" title="Drag to reorder">⋮⋮</span>
+                    ${!isCompiledPdf ? `
+                        <a href="${filePath}" class="section-file-link" title="Open ${sectionLabel} file" onclick="event.stopPropagation();" target="_blank">
+                            <i class="fas fa-file-code section-file-icon"></i>
+                        </a>
+                    ` : ''}
                     <span class="section-item-name">${sectionLabel}</span>
                     ${showToggle ? `
-                        <label class="section-item-toggle" data-action="toggle-visibility" title="${isExcluded ? 'Include in compilation' : 'Exclude from compilation'}">
+                        <label class="ios-toggle" data-action="toggle-visibility" title="${isExcluded ? 'Include in compilation' : 'Exclude from compilation'}">
                             <input type="checkbox" ${!isExcluded ? 'checked' : ''}>
-                            <span class="toggle-slider"></span>
+                            <span class="ios-toggle-slider"></span>
                         </label>
                     ` : ''}
                     <div class="section-item-actions">
@@ -1712,30 +1723,67 @@ function showCommitModal(state: any): void {
         return;
     }
 
-    // Update current section info in modal
-    const sectionInfoEl = document.getElementById('commit-current-section');
-    if (sectionInfoEl) {
-        const parts = currentSection.split('/');
-        const sectionName = parts[parts.length - 1];
-        const formattedName = sectionName
-            .split('_')
-            .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(' ');
-        sectionInfoEl.textContent = formattedName;
-    }
+    // Generate default commit message
+    const parts = currentSection.split('/');
+    const sectionName = parts[parts.length - 1];
+    const formattedName = sectionName
+        .split('_')
+        .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+    const defaultMessage = `Update ${formattedName}`;
 
-    // Clear previous message
-    const messageInput = document.getElementById('commit-message-input') as HTMLTextAreaElement;
+    // Set default commit message
+    const messageInput = document.getElementById('commit-message-input') as HTMLInputElement;
     if (messageInput) {
-        messageInput.value = '';
-        messageInput.focus();
+        messageInput.value = defaultMessage;
+        // Select all text so user can easily replace it if needed
+        setTimeout(() => {
+            messageInput.focus();
+            messageInput.select();
+        }, 100);
     }
 
-    // Show modal using Bootstrap
+    // Show modal using scitex-modal pattern
     const modalEl = document.getElementById('git-commit-modal');
     if (modalEl) {
-        const modal = new (window as any).bootstrap.Modal(modalEl);
-        modal.show();
+        modalEl.style.display = 'flex';
+        setTimeout(() => {
+            modalEl.classList.add('scitex-modal-visible');
+        }, 10);
+
+        // Handle close buttons
+        const handleCancel = (e: Event) => {
+            if (e.target === modalEl || (e.target as HTMLElement).classList.contains('scitex-modal-close')) {
+                closeCommitModal();
+                modalEl.removeEventListener('click', handleCancel);
+            }
+        };
+        modalEl.addEventListener('click', handleCancel);
+
+        // Handle Enter key to submit
+        const handleEnter = (e: KeyboardEvent) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleGitCommit(state);
+                messageInput?.removeEventListener('keydown', handleEnter);
+            }
+        };
+        messageInput?.addEventListener('keydown', handleEnter);
+    }
+}
+
+/**
+ * Close git commit modal
+ */
+function closeCommitModal(): void {
+    const modalEl = document.getElementById('git-commit-modal');
+    if (modalEl) {
+        modalEl.classList.remove('scitex-modal-visible');
+        modalEl.classList.add('scitex-modal-closing');
+        setTimeout(() => {
+            modalEl.style.display = 'none';
+            modalEl.classList.remove('scitex-modal-closing');
+        }, 300);
     }
 }
 
@@ -1749,7 +1797,7 @@ async function handleGitCommit(state: any): Promise<void> {
         return;
     }
 
-    const messageInput = document.getElementById('commit-message-input') as HTMLTextAreaElement;
+    const messageInput = document.getElementById('commit-message-input') as HTMLInputElement;
     const commitMessage = messageInput?.value.trim();
 
     if (!commitMessage) {
@@ -1801,13 +1849,7 @@ async function handleGitCommit(state: any): Promise<void> {
             showToast('Changes committed successfully', 'success');
 
             // Close modal
-            const modalEl = document.getElementById('git-commit-modal');
-            if (modalEl) {
-                const modal = (window as any).bootstrap.Modal.getInstance(modalEl);
-                if (modal) {
-                    modal.hide();
-                }
-            }
+            closeCommitModal();
         } else {
             console.error('[Writer] Commit failed:', data);
             throw new Error(data.error || 'Commit failed');
