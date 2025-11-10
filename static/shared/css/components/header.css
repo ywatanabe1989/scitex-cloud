@@ -734,8 +734,8 @@
 
 .dropdown-divider {
     height: 1px;
-    background: var(--scitex-color-06);  /* Light divider */
-    margin: 4px 0;
+    background: var(--color-border-default);
+    margin: 0;
 }
 
 /* Dark mode dropdown - WHITE text on medium dark background for maximum visibility */
@@ -760,9 +760,6 @@
     color: var(--scitex-color-06) !important;  /* #b5c7d1 - pale for icons */
 }
 
-[data-theme="dark"] .dropdown-divider {
-    background: var(--scitex-color-03);  /* Lighter divider */
-}
 
 /* Project Selector */
 .header-project-selector {
@@ -828,67 +825,47 @@
 /* Project Selector Dropdown Menu */
 .project-selector-dropdown {
     position: absolute;
-    top: calc(100% + 8px);
+    top: calc(100% + 4px);
     left: 0;
     min-width: 240px;
     max-width: 300px;
-    background: #ffffff;
-    border: 1px solid var(--scitex-color-06);
-    border-radius: 6px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-    z-index: 1001;
+    background: var(--color-canvas-default);
+    border: 1px solid var(--color-border-default);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    z-index: 2000;
     overflow: hidden;
 }
 
-[data-theme="dark"] .project-selector-dropdown {
-    background: var(--scitex-color-02);
-    border: 1px solid var(--scitex-color-03);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
-}
-
 .dropdown-section {
-    padding: 8px 0;
-}
-
-.dropdown-section-title {
-    padding: 8px 16px;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--scitex-color-03);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-[data-theme="dark"] .dropdown-section-title {
-    color: var(--scitex-color-05);
+    padding: 4px 0;
 }
 
 .dropdown-project-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
-    padding: 8px 16px;
+    gap: 6px;
+    padding: 6px 10px;
     background: transparent;
     border: none;
-    color: var(--scitex-color-01);
+    color: var(--color-fg-default);
     font-size: 14px;
     text-decoration: none;
     cursor: pointer;
-    transition: background 0.2s ease;
+    transition: background 0.15s ease;
     width: 100%;
     text-align: left;
     font-family: inherit;
 }
 
 .dropdown-project-item:hover {
-    background: var(--scitex-color-07);
-    color: var(--scitex-color-01);
+    background: var(--color-canvas-subtle);
     text-decoration: none;
 }
 
 .dropdown-project-item.active {
-    background: var(--scitex-color-07);
+    background: var(--color-canvas-subtle);
     font-weight: 500;
 }
 
@@ -905,15 +882,15 @@
 }
 
 .dropdown-project-item.dropdown-create-new {
-    padding: 12px 16px;
-    font-weight: 500;
-    border-top: 1px solid var(--scitex-color-06);
-    color: var(--scitex-color-04);
+    padding: 6px 10px;
+    font-weight: 600;
+    border-top: 1px solid var(--color-border-default);
+    color: var(--color-accent-fg);
+    font-size: 0.8rem;
 }
 
 .dropdown-project-item.dropdown-create-new:hover {
-    background: var(--scitex-color-04);
-    color: white;
+    background: var(--color-canvas-subtle);
 }
 
 .project-item-name {
@@ -929,53 +906,20 @@
     display: none;
 }
 
-/* Dark mode dropdown items */
-[data-theme="dark"] .dropdown-project-item {
-    color: #ffffff;
-}
-
-[data-theme="dark"] .dropdown-project-item:hover {
-    background: var(--scitex-color-03);
-    color: #ffffff;
-}
-
-[data-theme="dark"] .dropdown-project-item.active {
-    background: var(--scitex-color-03);
-    color: #ffffff;
-}
-
-[data-theme="dark"] .dropdown-project-item.dropdown-action {
-    color: var(--scitex-color-04);
-}
-
-[data-theme="dark"] .dropdown-project-item.dropdown-action:hover {
-    background: var(--scitex-color-04);
-    color: white;
-}
-
-[data-theme="dark"] .dropdown-project-item.dropdown-create-new {
-    border-top-color: var(--scitex-color-03);
-    color: var(--scitex-color-04);
-}
-
-[data-theme="dark"] .dropdown-project-item.dropdown-create-new:hover {
-    background: var(--scitex-color-04);
-    color: white;
-}
-
-[data-theme="dark"] .project-item-check {
-    color: var(--scitex-color-04);
-}
-
 /* Project Jump Button */
-.project-item-jump-btn:hover {
-    background: var(--scitex-color-07);
-    color: var(--scitex-color-04);
+.project-item-jump-btn {
+    opacity: 0.7;
+    transition: all 0.15s ease;
 }
 
-[data-theme="dark"] .project-item-jump-btn:hover {
-    background: var(--scitex-color-03);
-    color: var(--scitex-color-04);
+.project-item-jump-btn:hover {
+    opacity: 1;
+    background: var(--color-canvas-subtle);
+    color: var(--color-accent-fg);
+}
+
+.project-item-jump-btn:active {
+    transform: scale(0.95);
 }
 
 /* Files Jump Button */
