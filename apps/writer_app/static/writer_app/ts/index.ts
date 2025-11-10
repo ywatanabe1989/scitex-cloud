@@ -1620,6 +1620,10 @@ async function saveSections(sectionsManager: SectionsManager, state: any): Promi
         const sections: Record<string, string> = {};
         for (const section of allSections) {
             const content = section.content || '';
+            // Skip compiled sections (read-only, virtual sections)
+            if (section.id && section.id.endsWith('/compiled_pdf')) {
+                continue;
+            }
             if (content.trim().length > 0 && section.id) {
                 sections[section.id] = content;  // Use section.id, not array index!
             }
