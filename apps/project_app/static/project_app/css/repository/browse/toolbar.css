@@ -1,0 +1,100 @@
+/* ============================================================================= */
+/* REPOSITORY TOOLBAR - Browse page action buttons and search */
+/* ============================================================================= */
+
+/* Toolbar Actions Container */
+.repo-action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+/* Go to File Search */
+.goto-file-search {
+    position: relative;
+}
+
+.goto-file-search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-fg-muted);
+    pointer-events: none;
+}
+
+.goto-file-input {
+    padding: 5px 12px 5px 32px;
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    background: var(--color-canvas-default);
+    color: var(--color-fg-default);
+    font-size: 14px;
+    width: 180px;
+    transition: all 0.2s;
+}
+
+.goto-file-input:focus {
+    border-color: var(--color-accent-fg);
+    width: 250px;
+    outline: none;
+}
+
+/* Action Button Icons */
+.action-btn-icon {
+    display: inline-block;
+    vertical-align: text-bottom;
+}
+
+.action-btn-icon-right {
+    display: inline-block;
+    vertical-align: text-bottom;
+    margin-left: 4px;
+}
+
+.action-btn-icon-left {
+    display: inline-block;
+    vertical-align: text-bottom;
+    margin-right: 4px;
+}
+
+/* Dropdown Menus */
+.repo-dropdown-menu {
+    display: none; /* Hidden by default */
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 4px;
+    background: var(--color-canvas-default);
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    min-width: 200px;
+    z-index: 1000;
+}
+
+.repo-dropdown-menu.show {
+    display: block;
+}
+
+.repo-dropdown-menu.wide {
+    min-width: 250px;
+}
+
+.repo-dropdown-item {
+    display: block;
+    padding: 6px 12px;
+    color: var(--color-fg-default);
+    text-decoration: none;
+}
+
+.repo-dropdown-item:hover {
+    background: var(--color-canvas-subtle);
+    color: var(--color-fg-default);
+    text-decoration: none;
+}
+
+/* Copy Button Group */
+.copy-btn-group {
+    margin: 0;
+}
