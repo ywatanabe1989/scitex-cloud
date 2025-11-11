@@ -370,6 +370,16 @@
     /* font-size: 14px; */
 }
 
+/* Reset button styles for folder items */
+button.file-tree-item {
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: 1px solid var(--color-border-default, #d0d7de);
+    color: inherit;
+    font: inherit;
+}
+
 .file-tree-item--folder {
     cursor: pointer;
     display: flex;
