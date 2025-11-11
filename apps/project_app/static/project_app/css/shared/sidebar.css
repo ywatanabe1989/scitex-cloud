@@ -319,6 +319,50 @@
     color: var(--color-accent-fg, #58a6ff);
 }
 
+/* Sidebar title header with padding */
+.sidebar-title-header {
+    margin-bottom: 12px;
+    padding: 6px 8px;
+}
+
+/* Sidebar title link */
+.sidebar-title-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--color-fg-default);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.sidebar-title-link:hover {
+    color: var(--color-accent-fg);
+    text-decoration: none;
+}
+
+/* Sidebar title icon */
+.sidebar-title-icon {
+    fill: var(--color-accent-fg);
+}
+
+/* File tree container */
+.file-tree-container {
+    font-size: 16px;
+    margin-top: 4px;
+}
+
+/* Tree loading state */
+.tree-loading {
+    color: var(--color-fg-muted);
+    padding: 0.75rem;
+    font-size: 16px;
+}
+
+.tree-loading i {
+    font-size: 16px;
+}
+
 /* =============================================================================
    END OF SIDEBAR IMPROVEMENTS
    ============================================================================= */
