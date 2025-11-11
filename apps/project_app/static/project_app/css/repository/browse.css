@@ -788,11 +788,11 @@
     color: var(--color-fg-muted);
 }
 
-/* GitHub-style layout with sidebar on LEFT - COLLAPSED BY DEFAULT */
+/* GitHub-style layout with sidebar on LEFT - EXPANDED BY DEFAULT */
 .repo-layout {
     /* Layout preserved */
     display: grid;
-    grid-template-columns: 60px 1fr;  /* Start collapsed by default - slightly wider for icons */
+    grid-template-columns: 280px 1fr;  /* Start expanded by default for better visibility */
     gap: 16px;
     margin-top: 1.5rem;
     /* Styling moved to central CSS - see static/css/common/layout.css */
@@ -819,7 +819,7 @@
     overflow-y: auto; /* Vertical scrollbar for file tree */
     overflow-x: auto; /* Horizontal scrollbar for wide content */
     max-height: calc(100vh - 150px); /* Match code block height */
-    width: 60px;  /* Default collapsed width */
+    width: 280px;  /* Default expanded width for better visibility */
     /* Styling moved to central CSS - see static/css/components/sidebar.css */
     transition: all 0.3s ease;
 }
@@ -913,7 +913,7 @@
     align-items: center;
     justify-content: space-between;
     /* Styling moved to central CSS - see static/css/common/typography-vars.css */
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 600;
     color: var(--color-fg-default);
     letter-spacing: 0.5px;
@@ -1025,7 +1025,7 @@
     color: var(--color-fg-default);
     border-radius: 6px;
     transition: all 0.2s ease;
-    font-size: 15px;
+    font-size: 16px;
 }
 
 .file-tree-item:hover {
@@ -1077,8 +1077,8 @@
 
 .file-tree-icon {
     /* Layout preserved */
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -1088,8 +1088,8 @@
 .icon-folder,
 .icon-file {
     /* Layout preserved */
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
 }
 
 .icon-folder,
