@@ -238,7 +238,7 @@
 
 .file-browser-header {
     /* Layout preserved */
-    padding: 8px 16px;
+    padding: 8px 12px;
     text-align: left;
     line-height: 1.5;
     /* Styling moved to central CSS - see static/css/components/tables.css */
@@ -289,10 +289,10 @@
 /* Table Cells */
 .file-browser-cell {
     /* Layout preserved */
-    padding: 10px 16px;
+    padding: 8px 12px;
     vertical-align: middle;
     line-height: 24px;  /* Increased for better alignment */
-    height: 44px;  /* Fixed height for consistency */
+    height: 40px;  /* Fixed height for consistency */
     /* Styling moved to central CSS - see static/css/components/tables.css */
     font-size: 14px;
     color: var(--color-fg-default);
@@ -534,7 +534,7 @@
 /* README rendering - Theme-aware */
 .readme-container {
     /* Layout preserved */
-    padding: 2rem;
+    padding: 1.5rem;
     max-width: 100%;
     /* Styling moved to central CSS - see static/css/components/cards.css */
     border: 1px solid var(--color-border-default);
