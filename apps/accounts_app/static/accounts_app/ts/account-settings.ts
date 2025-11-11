@@ -135,55 +135,53 @@ document.addEventListener('DOMContentLoaded', () => {
     const newPasswordInput = document.getElementById('new_password') as HTMLInputElement | null;
     const confirmPasswordInput = document.getElementById('confirm_password') as HTMLInputElement | null;
 
-    // Find the change password form
-    const actionInput = document.querySelector<HTMLInputElement>('form input[name="action"][value="change_password"]');
-    const changePasswordForm = actionInput?.closest('form');
+    if (newPasswordInput && confirmPasswordInput) {
+        // Get rule elements (now from template HTML)
+        const ruleLength = document.getElementById('rule-length');
+        const ruleLowercase = document.getElementById('rule-lowercase');
+        const ruleUppercase = document.getElementById('rule-uppercase');
+        const ruleNumber = document.getElementById('rule-number');
+        const ruleSpecial = document.getElementById('rule-special');
+        const ruleMatch = document.getElementById('rule-match');
 
-    if (newPasswordInput && changePasswordForm) {
-        // Create password requirements display
-        const requirementsDiv = document.createElement('div');
-        requirementsDiv.className = 'password-rules';
-        requirementsDiv.innerHTML = `
-            <div class="password-rules-title">Password Requirements:</div>
-            <div class="password-rule invalid" id="rule-length"><i class="fas fa-times"></i> At least 8 characters</div>
-            <div class="password-rule invalid" id="rule-lowercase"><i class="fas fa-times"></i> At least one lowercase letter</div>
-            <div class="password-rule invalid" id="rule-uppercase"><i class="fas fa-times"></i> At least one uppercase letter</div>
-            <div class="password-rule invalid" id="rule-number"><i class="fas fa-times"></i> At least one number</div>
-            <div class="password-rule invalid" id="rule-special"><i class="fas fa-times"></i> At least one special character (!@#$%^&*)</div>
-        `;
+        /**
+         * Check if passwords match
+         */
+        function checkPasswordMatch(): void {
+            if (!newPasswordInput || !confirmPasswordInput || !ruleMatch) return;
 
-        // Insert after new password input group
-        const inputGroup = newPasswordInput.parentElement;
-        const formGroup = inputGroup?.parentElement;
-        if (formGroup) {
-            formGroup.appendChild(requirementsDiv);
+            const password = newPasswordInput.value;
+            const confirmPass = confirmPasswordInput.value;
+            const hasInput = password.length > 0 && confirmPass.length > 0;
+            const passwordsMatch = password === confirmPass && password.length > 0;
+
+            updatePasswordRule(ruleMatch, passwordsMatch, hasInput);
         }
 
-        // Real-time validation
+        // Real-time validation for new password
         newPasswordInput.addEventListener('input', function() {
             const password = this.value;
             const hasInput = password.length > 0;
 
-            // Get rule elements
-            const ruleLength = document.getElementById('rule-length');
-            const ruleLowercase = document.getElementById('rule-lowercase');
-            const ruleUppercase = document.getElementById('rule-uppercase');
-            const ruleNumber = document.getElementById('rule-number');
-            const ruleSpecial = document.getElementById('rule-special');
+            if (ruleLength && ruleLowercase && ruleUppercase && ruleNumber && ruleSpecial) {
+                // Validate requirements
+                const requirements = validatePasswordRequirements(password);
 
-            if (!ruleLength || !ruleLowercase || !ruleUppercase || !ruleNumber || !ruleSpecial) {
-                return;
+                // Update each rule
+                updatePasswordRule(ruleLength, requirements.length, hasInput);
+                updatePasswordRule(ruleLowercase, requirements.lowercase, hasInput);
+                updatePasswordRule(ruleUppercase, requirements.uppercase, hasInput);
+                updatePasswordRule(ruleNumber, requirements.number, hasInput);
+                updatePasswordRule(ruleSpecial, requirements.special, hasInput);
             }
 
-            // Validate requirements
-            const requirements = validatePasswordRequirements(password);
+            // Check if passwords match
+            checkPasswordMatch();
+        });
 
-            // Update each rule
-            updatePasswordRule(ruleLength, requirements.length, hasInput);
-            updatePasswordRule(ruleLowercase, requirements.lowercase, hasInput);
-            updatePasswordRule(ruleUppercase, requirements.uppercase, hasInput);
-            updatePasswordRule(ruleNumber, requirements.number, hasInput);
-            updatePasswordRule(ruleSpecial, requirements.special, hasInput);
+        // Check password match when confirm password changes
+        confirmPasswordInput.addEventListener('input', function() {
+            checkPasswordMatch();
         });
     }
 });

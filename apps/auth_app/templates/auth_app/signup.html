@@ -137,6 +137,7 @@
             <div class="password-rule invalid" id="rule-uppercase"><i class="fas fa-times"></i> At least one uppercase letter</div>
             <div class="password-rule invalid" id="rule-number"><i class="fas fa-times"></i> At least one number</div>
             <div class="password-rule invalid" id="rule-special"><i class="fas fa-times"></i> At least one special character (!@#$%^&*)</div>
+            <div class="password-rule invalid" id="rule-match"><i class="fas fa-times"></i> Passwords match</div>
           </div>
 
           <div class="form-check mb-3">
@@ -293,6 +294,7 @@
     const ruleUppercase = document.getElementById('rule-uppercase');
     const ruleNumber = document.getElementById('rule-number');
     const ruleSpecial = document.getElementById('rule-special');
+    const ruleMatch = document.getElementById('rule-match');
     
     // Helper function to update rule state
     function updatePasswordRule(element, isValid, hasInput) {
@@ -305,6 +307,16 @@
         element.classList.add('invalid');
         element.querySelector('i').className = 'fas fa-times';
       }
+    }
+
+    // Helper function to check password match
+    function checkPasswordMatch() {
+      const password = passwordInput.value;
+      const confirmPass = confirmPassword.value;
+      const hasInput = password.length > 0 && confirmPass.length > 0;
+      const passwordsMatch = password === confirmPass && password.length > 0;
+
+      updatePasswordRule(ruleMatch, passwordsMatch, hasInput);
     }
 
     // Check password strength
@@ -326,6 +338,14 @@
 
       // Check for special characters
       updatePasswordRule(ruleSpecial, /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password), hasInput);
+
+      // Check if passwords match
+      checkPasswordMatch();
+    });
+
+    // Check password match when confirm password changes
+    confirmPassword.addEventListener('input', function() {
+      checkPasswordMatch();
     });
     
     // Form submission validation
