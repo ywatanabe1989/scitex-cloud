@@ -61,49 +61,29 @@
         background: var(--color-canvas-default);
     }
 
-    /* Code container with scroll shadows */
+    /* Code container - GitHub-style progressive scroll */
     .file-content {
         position: relative;
-        max-height: 80vh;
-        overflow-y: auto;
+        max-height: calc(100vh - 150px); /* Initial height */
+        overflow-y: auto; /* Independent scrollbar for code content */
+        overflow-x: hidden; /* Horizontal scroll handled by pre element */
+        transition: max-height 0.2s ease; /* Smooth expansion */
+    }
+
+    /* When container reaches top (sticky mode), expand code block to full viewport */
+    .file-container.sticky-mode .file-content {
+        max-height: calc(100vh - 120px); /* Maximum height - minimize header space */
     }
 
     .file-content pre {
         margin: 0;
-        border-radius: 0 0 6px 6px;
+        border-radius: 6px;
         overflow-x: auto;
         background: var(--color-canvas-default);
     }
 
-    /* Scroll shadows - top shadow when scrolled */
-    .file-content.scrolled-top::before {
-        content: '';
-        position: sticky;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 8px;
-        background: linear-gradient(to bottom,
-            rgba(0, 0, 0, 0.15) 0%,
-            rgba(0, 0, 0, 0) 100%);
-        z-index: 1;
-        pointer-events: none;
-    }
-
-    /* Bottom shadow when more content below */
-    .file-content.scrolled-bottom::after {
-        content: '';
-        position: sticky;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 8px;
-        background: linear-gradient(to top,
-            rgba(0, 0, 0, 0.15) 0%,
-            rgba(0, 0, 0, 0) 100%);
-        z-index: 1;
-        pointer-events: none;
-    }
+    /* Scroll shadows removed - not needed with page-wide scrollbar */
+    /* Smart scrolling pattern: page handles vertical scroll, pre handles horizontal scroll only */
 
     /* Theme selector styling */
     #code-theme-selector {

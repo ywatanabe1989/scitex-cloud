@@ -88,25 +88,48 @@ class VisitorPool:
                 },
             )
 
-            if project_created:
-                # Initialize project directory
-                from apps.project_app.services.project_filesystem import (
-                    get_project_filesystem_manager,
-                )
+            # Initialize project directory
+            # Always ensure directory exists, not just for new projects
+            from apps.project_app.services.project_filesystem import (
+                get_project_filesystem_manager,
+            )
 
-                manager = get_project_filesystem_manager(user)
+            manager = get_project_filesystem_manager(user)
+            project_root = manager.get_project_root_path(project)
+
+            # Create directory if project is new OR directory doesn't exist
+            if project_created or not (project_root and project_root.exists()):
                 success, project_path = manager.create_project_directory(project)
 
                 if success:
                     logger.info(
                         f"[VisitorPool] Created project: {project_slug} at {project_path}"
                     )
+
+                    # Initialize writer workspace for visitor projects
+                    from pathlib import Path
+                    _initialize_visitor_writer_workspace(project, Path(project_path))
+
                     created_count += 1
                 else:
                     logger.error(
                         f"[VisitorPool] Failed to create directory for {project_slug}"
                     )
-                    project.delete()
+                    if project_created:
+                        project.delete()
+            else:
+                logger.info(
+                    f"[VisitorPool] Project directory already exists: {project_root}"
+                )
+
+                # Check if writer workspace exists, initialize if needed
+                from pathlib import Path
+                writer_dir = project_root / "scitex" / "writer"
+                if not (writer_dir.exists() and (writer_dir / "01_manuscript").exists()):
+                    logger.info(
+                        f"[VisitorPool] Writer workspace missing for {project_slug}, initializing..."
+                    )
+                    _initialize_visitor_writer_workspace(project, project_root)
 
         logger.info(
             f"[VisitorPool] Pool initialization complete: {created_count} new projects"
@@ -171,7 +194,12 @@ class VisitorPool:
                 User.DoesNotExist,
                 Project.DoesNotExist,
             ):
-                logger.warning(f"[VisitorPool] Invalid allocation token, reallocating")
+                logger.warning(f"[VisitorPool] Invalid allocation token, clearing session and reallocating")
+                # Clear stale session data before reallocating
+                session.pop(cls.SESSION_KEY_PROJECT_ID, None)
+                session.pop(cls.SESSION_KEY_VISITOR_ID, None)
+                session.pop(cls.SESSION_KEY_ALLOCATION_TOKEN, None)
+                session.save()
 
         # Find free visitor slot
         for i in range(1, cls.POOL_SIZE + 1):
@@ -393,6 +421,10 @@ class VisitorPool:
 
             if success:
                 logger.info(f"[VisitorPool] Reset visitor workspace: {project_slug}")
+
+                # Initialize writer workspace for the fresh visitor project
+                from pathlib import Path
+                _initialize_visitor_writer_workspace(project, Path(project_path))
             else:
                 logger.error(
                     f"[VisitorPool] Failed to reset visitor workspace: {project_slug}"
@@ -449,6 +481,67 @@ class VisitorPool:
             "free": total - active_allocations,
             "expired": expired,
         }
+
+
+def _initialize_visitor_writer_workspace(project, project_path):
+    """
+    Initialize writer workspace for visitor projects (Gitea-independent).
+
+    This is called during visitor pool initialization to ensure writer workspaces
+    are created even though visitors don't have Gitea accounts.
+
+    Args:
+        project: Project model instance
+        project_path: Path to project root directory
+    """
+    try:
+        writer_dir = project_path / "scitex" / "writer"
+
+        # Skip if writer workspace already exists
+        if writer_dir.exists() and (writer_dir / "01_manuscript").exists():
+            logger.info(f"[VisitorPool] Writer workspace already exists for {project.slug}")
+            return
+
+        logger.info(f"[VisitorPool] Initializing writer workspace for {project.slug}")
+
+        # Initialize Writer with git_strategy='none' for visitor projects
+        # Visitors don't have Gitea repos, so we don't use git
+        from scitex.writer import Writer
+        from django.conf import settings
+
+        template_branch = getattr(settings, 'SCITEX_WRITER_TEMPLATE_BRANCH', None)
+        template_tag = getattr(settings, 'SCITEX_WRITER_TEMPLATE_TAG', None)
+
+        # branch and tag are mutually exclusive - only pass the one that's set
+        writer_kwargs = {
+            'project_dir': writer_dir,
+            'git_strategy': None,  # No git for visitor projects
+        }
+        if template_tag:
+            writer_kwargs['tag'] = template_tag
+        elif template_branch:
+            writer_kwargs['branch'] = template_branch
+
+        writer = Writer(**writer_kwargs)
+
+        # Verify creation
+        manuscript_dir = writer_dir / "01_manuscript"
+        if manuscript_dir.exists():
+            logger.info(f"[VisitorPool] Writer workspace initialized for {project.slug}")
+
+            # Create manuscript record (writer_initialized is a computed property, not a field)
+            from apps.writer_app.models import Manuscript
+            Manuscript.objects.get_or_create(
+                project=project,
+                owner=project.owner,
+                defaults={'title': f'{project.name} Manuscript'}
+            )
+        else:
+            logger.warning(f"[VisitorPool] Writer workspace incomplete for {project.slug}")
+
+    except Exception as e:
+        logger.error(f"[VisitorPool] Failed to initialize writer workspace for {project.slug}: {e}")
+        logger.exception("Full traceback:")
 
 
 # For backward compatibility during migration

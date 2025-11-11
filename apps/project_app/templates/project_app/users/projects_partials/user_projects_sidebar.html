@@ -56,6 +56,10 @@
             <span>{{ profile_user.email }}</span>
         </div>
         {% endif %}
+        <div class="profile-meta-item">
+            <i class="fas fa-calendar-alt"></i>
+            <span>Joined {{ profile_user.date_joined|date:"F Y" }}</span>
+        </div>
     </div>
 
     <div class="profile-stats" style="color: var(--text-secondary);">

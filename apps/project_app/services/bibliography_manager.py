@@ -49,7 +49,7 @@ def ensure_bibliography_structure(project_path: Path, force: bool = False) -> di
         directories = [
             scitex_root / 'scholar' / 'bib_files',
             scitex_root / 'writer' / 'bib_files',
-            scitex_root / 'writer' / 'shared',
+            scitex_root / 'writer' / '00_shared',
             scitex_root / 'writer' / '01_manuscript' / 'contents',
         ]
 
@@ -122,20 +122,35 @@ def ensure_bibliography_structure(project_path: Path, force: bool = False) -> di
             logger.info(f"Created symlink: writer/bib_files/merged_scholar.bib")
 
         # ============================================================
-        # 4. CREATE WRITER SYMLINK CHAIN FOR LATEX
+        # 4. CREATE WRITER SYMLINK CHAIN FOR LATEX (v2.0.0-rc1)
         # ============================================================
-        # writer/shared/bibliography.bib → ../bibliography_all.bib
-        writer_shared_bib = scitex_root / 'writer' / 'shared' / 'bibliography.bib'
-        if not writer_shared_bib.exists() or force:
-            if writer_shared_bib.exists() or writer_shared_bib.is_symlink():
-                writer_shared_bib.unlink()
-            relative_path = os.path.relpath(bibliography_all, writer_shared_bib.parent)
-            writer_shared_bib.symlink_to(relative_path)
-            results['symlinks_created'].append(f"writer/shared/bibliography.bib → {relative_path}")
-            logger.info(f"Created symlink: writer/shared/bibliography.bib")
+        # Writer v2.0.0-rc1 structure:
+        # - Multiple .bib files in writer/00_shared/bib_files/
+        # - Merge script creates writer/00_shared/bib_files/bibliography.bib
+        # - Manuscript expects writer/01_manuscript/contents/bibliography.bib
 
-        # writer/01_manuscript/contents/bibliography.bib → ../../shared/bibliography.bib
+        # Ensure writer/00_shared/bib_files/ exists
+        writer_bib_dir = scitex_root / 'writer' / '00_shared' / 'bib_files'
+        if not writer_bib_dir.exists():
+            writer_bib_dir.mkdir(parents=True, exist_ok=True)
+            results['directories_created'].append(str(writer_bib_dir.relative_to(project_path)))
+            logger.info(f"Created directory: writer/00_shared/bib_files")
+
+        # Copy merged_scholar.bib into writer's bib_files so merge script picks it up
+        writer_scholar_link = writer_bib_dir / 'merged_scholar.bib'
+        if not writer_scholar_link.exists() or force:
+            if writer_scholar_link.exists() or writer_scholar_link.is_symlink():
+                writer_scholar_link.unlink()
+            relative_path = os.path.relpath(scholar_merged, writer_scholar_link.parent)
+            writer_scholar_link.symlink_to(relative_path)
+            results['symlinks_created'].append(f"writer/00_shared/bib_files/merged_scholar.bib → {relative_path}")
+            logger.info(f"Created symlink: writer/00_shared/bib_files/merged_scholar.bib")
+
+        # Create symlink from manuscript to merged bibliography
+        # writer/01_manuscript/contents/bibliography.bib → ../../00_shared/bib_files/bibliography.bib
         manuscript_bib = scitex_root / 'writer' / '01_manuscript' / 'contents' / 'bibliography.bib'
+        writer_merged_bib = writer_bib_dir / 'bibliography.bib'
+
         if not manuscript_bib.exists() or force:
             # Backup existing file if it's a real file with content
             if manuscript_bib.is_file() and not manuscript_bib.is_symlink():
@@ -149,7 +164,7 @@ def ensure_bibliography_structure(project_path: Path, force: bool = False) -> di
             elif manuscript_bib.is_symlink():
                 manuscript_bib.unlink()
 
-            relative_path = os.path.relpath(writer_shared_bib, manuscript_bib.parent)
+            relative_path = os.path.relpath(writer_merged_bib, manuscript_bib.parent)
             manuscript_bib.symlink_to(relative_path)
             results['symlinks_created'].append(f"01_manuscript/contents/bibliography.bib → {relative_path}")
             logger.info(f"Created symlink: 01_manuscript/contents/bibliography.bib")
