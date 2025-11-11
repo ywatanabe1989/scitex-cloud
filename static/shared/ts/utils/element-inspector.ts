@@ -257,43 +257,26 @@ class ElementInspector {
             }
 
             .selection-overlay {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0, 0, 0, 0.75);
-                z-index: 99999998;
-                pointer-events: none;
-                cursor: crosshair;
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+                background: rgba(0, 0, 0, 0.3) !important;
+                pointer-events: none !important;
+                z-index: 2147483646 !important;
             }
 
             .selection-rectangle {
-                position: fixed;
-                border: 3px solid rgba(59, 130, 246, 1);
-                background: transparent;
-                pointer-events: none;
-                z-index: 99999999;
-                box-shadow:
-                    0 0 20px rgba(59, 130, 246, 0.8),
-                    inset 0 0 0 1px rgba(255, 255, 255, 0.5);
-                animation: selection-pulse 2s ease-in-out infinite;
-                mix-blend-mode: lighten;
-            }
-
-            @keyframes selection-pulse {
-                0%, 100% {
-                    border-color: rgba(59, 130, 246, 1);
-                    box-shadow:
-                        0 0 20px rgba(59, 130, 246, 0.8),
-                        inset 0 0 0 1px rgba(255, 255, 255, 0.5);
-                }
-                50% {
-                    border-color: rgba(96, 165, 250, 1);
-                    box-shadow:
-                        0 0 30px rgba(59, 130, 246, 1),
-                        inset 0 0 0 1px rgba(255, 255, 255, 0.8);
-                }
+                position: fixed !important;
+                border: none !important;
+                background: transparent !important;
+                pointer-events: none !important;
+                z-index: 2147483647 !important;
+                box-shadow: 0 0 0 99999px rgba(0, 0, 0, 0.3) !important;
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
             }
 
             .selection-info {
@@ -851,10 +834,11 @@ class ElementInspector {
         info.timestamp = new Date().toISOString();
 
         // Element Identification
+        const className = typeof element.className === 'string' ? element.className : '';
         info.element = {
             tag: element.tagName.toLowerCase(),
             id: element.id || null,
-            classes: element.className ? element.className.split(/\s+/).filter(c => c) : [],
+            classes: className ? className.split(/\s+/).filter(c => c) : [],
             selector: this.buildCSSSelector(element),
             xpath: this.getXPath(element),
         };
@@ -1188,10 +1172,11 @@ Note: Exact CSS line numbers require browser DevTools API access.
             return { truncated: true };
         }
 
+        const className = typeof element.className === 'string' ? element.className : '';
         const node: any = {
             tag: element.tagName.toLowerCase(),
             id: element.id || undefined,
-            classes: element.className ? element.className.split(/\s+/).filter(c => c) : undefined,
+            classes: className ? className.split(/\s+/).filter(c => c) : undefined,
         };
 
         // Add important attributes
@@ -1361,65 +1346,20 @@ Press Alt+I to toggle element inspector overlay.
     }
 
     private startSelectionMode(): void {
-        console.log('[ElementInspector] Starting rectangle selection mode...');
         this.selectionMode = true;
         document.body.style.cursor = 'crosshair';
 
-        // Create dark overlay (like Windows screenshot)
+        // Ensure styles are added (in case inspector wasn't activated first)
+        if (!this.styleElement) {
+            this.addStyles();
+        }
+
+        // Create overlay immediately
         this.selectionOverlay = document.createElement('div');
         this.selectionOverlay.className = 'selection-overlay';
         document.body.appendChild(this.selectionOverlay);
 
-        // Add instructional overlay at the top
-        const instructionBanner = document.createElement('div');
-        instructionBanner.id = 'selection-instruction-banner';
-        instructionBanner.innerHTML = `
-            <div style="
-                position: fixed;
-                top: 20px;
-                left: 50%;
-                transform: translateX(-50%);
-                background: linear-gradient(135deg, rgba(59, 130, 246, 0.98) 0%, rgba(37, 99, 235, 0.98) 100%);
-                color: white;
-                padding: 16px 32px;
-                font-size: 16px;
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                border-radius: 12px;
-                font-weight: 600;
-                box-shadow:
-                    0 8px 32px rgba(0, 0, 0, 0.4),
-                    0 0 40px rgba(59, 130, 246, 0.5);
-                z-index: 100000000;
-                border: 3px solid rgba(255, 255, 255, 0.3);
-                backdrop-filter: blur(8px);
-                animation: fadeInDown 0.3s ease-out;
-            ">
-                🔲 <strong>Selection Mode Active</strong> — Click and drag to select an area • Press <kbd style="
-                    background: rgba(255, 255, 255, 0.2);
-                    padding: 4px 8px;
-                    border-radius: 4px;
-                    font-family: monospace;
-                    border: 1px solid rgba(255, 255, 255, 0.3);
-                ">Esc</kbd> to cancel
-            </div>
-        `;
-        document.body.appendChild(instructionBanner);
-
-        // Add animation keyframes
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes fadeInDown {
-                from {
-                    opacity: 0;
-                    transform: translateX(-50%) translateY(-20px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateX(-50%) translateY(0);
-                }
-            }
-        `;
-        document.head.appendChild(style);
+        this.showNotification('🔲 Selection Mode: Click and drag to select area (Esc to cancel)', 'success');
 
         // Add mouse event listeners
         document.addEventListener('mousedown', this.onSelectionMouseDown);
@@ -1428,17 +1368,10 @@ Press Alt+I to toggle element inspector overlay.
     }
 
     private cancelSelectionMode(): void {
-        console.log('[ElementInspector] Cancelling selection mode...');
         this.selectionMode = false;
         document.body.style.cursor = '';
 
-        // Remove instruction banner
-        const banner = document.getElementById('selection-instruction-banner');
-        if (banner) {
-            banner.remove();
-        }
-
-        // Remove selection overlay
+        // Remove overlay
         if (this.selectionOverlay) {
             this.selectionOverlay.remove();
             this.selectionOverlay = null;
@@ -1467,7 +1400,7 @@ Press Alt+I to toggle element inspector overlay.
             y: e.clientY
         };
 
-        // Create selection rectangle
+        // Create simple selection rectangle
         this.selectionRect = document.createElement('div');
         this.selectionRect.className = 'selection-rectangle';
         this.selectionRect.style.left = `${e.clientX}px`;
@@ -1475,28 +1408,13 @@ Press Alt+I to toggle element inspector overlay.
         this.selectionRect.style.width = '0px';
         this.selectionRect.style.height = '0px';
 
-        // Add corner handles
-        const corners = document.createElement('div');
-        corners.className = 'selection-corners';
-        corners.innerHTML = `
-            <div class="selection-corner top-left"></div>
-            <div class="selection-corner top-right"></div>
-            <div class="selection-corner bottom-left"></div>
-            <div class="selection-corner bottom-right"></div>
-        `;
-        this.selectionRect.appendChild(corners);
-
-        // Add info label
-        const info = document.createElement('div');
-        info.className = 'selection-info';
-        info.textContent = '0×0';
-        this.selectionRect.appendChild(info);
-
         document.body.appendChild(this.selectionRect);
     };
 
     private onSelectionMouseMove = (e: MouseEvent): void => {
-        if (!this.selectionMode || !this.selectionStart || !this.selectionRect) return;
+        if (!this.selectionMode || !this.selectionStart || !this.selectionRect) {
+            return;
+        }
 
         e.preventDefault();
 
@@ -1512,13 +1430,6 @@ Press Alt+I to toggle element inspector overlay.
         this.selectionRect.style.top = `${top}px`;
         this.selectionRect.style.width = `${width}px`;
         this.selectionRect.style.height = `${height}px`;
-
-        // Update info label
-        const info = this.selectionRect.querySelector('.selection-info');
-        if (info) {
-            const elementCount = this.countElementsInCurrentRect(left, top, width, height);
-            info.textContent = `${Math.round(width)}×${Math.round(height)} | ${elementCount} elements`;
-        }
     };
 
     private onSelectionMouseUp = async (e: MouseEvent): Promise<void> => {
@@ -1623,12 +1534,6 @@ Press Alt+I to toggle element inspector overlay.
         return selectedElements;
     }
 
-    private countElementsInCurrentRect(left: number, top: number, width: number, height: number): number {
-        // Quick count for live display
-        const rect = { left, top, width, height };
-        return this.findElementsInRect(rect).length;
-    }
-
     private gatherSelectionInfo(elements: Element[], rect: { left: number; top: number; width: number; height: number }): string {
         let info = `# Rectangle Selection Debug Information
 
@@ -1705,11 +1610,12 @@ Press Alt+I to toggle element inspector overlay.
         const info: any = {};
 
         // Element Identification
+        const className = typeof element.className === 'string' ? element.className : '';
         info.element = {
             number: elementNumber,
             tag: element.tagName.toLowerCase(),
             id: element.id || null,
-            classes: element.className ? element.className.split(/\s+/).filter(c => c) : [],
+            classes: className ? className.split(/\s+/).filter(c => c) : [],
             selector: this.buildCSSSelector(element),
             xpath: this.getXPath(element),
         };
@@ -1963,6 +1869,7 @@ ${info.matchingCSSRules && info.matchingCSSRules.length > 0 ? info.matchingCSSRu
             });
         }
     }
+
 }
 
 // Initialize global instance

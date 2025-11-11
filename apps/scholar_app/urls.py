@@ -129,6 +129,7 @@ urlpatterns = [
     path('api/bibtex/job/<uuid:job_id>/status/', bibtex_views.bibtex_job_status, name='bibtex_job_status'),
     path('api/bibtex/job/<uuid:job_id>/papers/', bibtex_views.bibtex_job_papers, name='bibtex_job_papers'),
     path('api/bibtex/job/<uuid:job_id>/download/', bibtex_views.bibtex_download_enriched, name='bibtex_download_enriched'),
+    path('api/bibtex/job/<uuid:job_id>/download/original/', bibtex_views.bibtex_download_original, name='bibtex_download_original'),
     path('api/bibtex/job/<uuid:job_id>/urls/', bibtex_views.bibtex_get_urls, name='bibtex_get_urls'),
     path('api/bibtex/job/<uuid:job_id>/diff/', bibtex_views.bibtex_job_diff, name='bibtex_job_diff'),
     path('api/bibtex/job/<uuid:job_id>/cancel/', bibtex_views.bibtex_cancel_job, name='bibtex_cancel_job'),
