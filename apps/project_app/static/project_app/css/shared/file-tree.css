@@ -320,7 +320,7 @@
 .sidebar-title {
     /* Layout preserved */
     margin-bottom: 8px;
-    padding: 4px 0;
+    padding: 4px 12px;  /* Added horizontal padding to prevent icon overlap */
     /* Styling moved to central CSS - see static/css/common/typography-vars.css */
     font-size: 13px;
     font-weight: 600;
