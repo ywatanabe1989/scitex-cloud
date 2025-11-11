@@ -506,6 +506,58 @@ def bibtex_download_enriched(request, job_id):
     return response
 
 
+def bibtex_download_original(request, job_id):
+    """Download the original BibTeX file (supports API key auth)."""
+
+    # Check for API key authentication
+    api_authenticated = hasattr(request, 'api_user')
+    user = request.api_user if api_authenticated else request.user
+
+    # Get job by user or session key
+    if api_authenticated or request.user.is_authenticated:
+        job = get_object_or_404(
+            BibTeXEnrichmentJob,
+            id=job_id,
+            user=user
+        )
+    else:
+        job = get_object_or_404(
+            BibTeXEnrichmentJob,
+            id=job_id,
+            session_key=request.session.session_key
+        )
+
+    if not job.input_file:
+        if api_authenticated:
+            return JsonResponse({
+                'success': False,
+                'error': 'Original file not available',
+                'job_id': str(job_id)
+            }, status=400)
+        messages.error(request, 'Original BibTeX file not available.')
+        return redirect('scholar_app:bibtex_job_detail', job_id=job_id)
+
+    # Serve the file
+    file_path = Path(settings.MEDIA_ROOT) / job.input_file.name
+
+    if not file_path.exists():
+        if api_authenticated:
+            return JsonResponse({
+                'success': False,
+                'error': 'File not found on server'
+            }, status=404)
+        messages.error(request, 'File not found.')
+        return redirect('scholar_app:bibtex_job_detail', job_id=job_id)
+
+    response = FileResponse(
+        open(file_path, 'rb'),
+        content_type='application/x-bibtex'
+    )
+    response['Content-Disposition'] = f'attachment; filename="{file_path.name}"'
+
+    return response
+
+
 @require_http_methods(["GET"])
 @api_key_optional
 def bibtex_job_status(request, job_id):
@@ -1324,6 +1376,7 @@ def bibtex_job_diff(request, job_id):
     """API endpoint to get diff between original and enriched BibTeX files."""
     import bibtexparser
     from pathlib import Path
+    from apps.project_app.services.project_utils import get_current_project
 
     # Get the job (handle both authenticated and anonymous users)
     if request.user.is_authenticated:
@@ -1394,13 +1447,17 @@ def bibtex_job_diff(request, job_id):
                     # Field existed (show in original)
                     original_fields[key] = original_value
 
+            # Convert dictionaries to arrays for frontend
+            added_fields_array = [{'name': k, 'value': v} for k, v in added_fields.items()]
+            original_fields_array = [{'name': k, 'value': v} for k, v in original_fields.items()]
+
             # Include ALL entries (even if no changes)
             diff.append({
                 'key': entry_id,
                 'type': enriched_entry.get('ENTRYTYPE', 'article'),
                 'title': enriched_entry.get('title', 'Unknown'),
-                'original_fields': original_fields,
-                'added_fields': added_fields,
+                'unchanged_fields': original_fields_array,  # Frontend expects "unchanged_fields"
+                'added_fields': added_fields_array,
                 'has_changes': len(added_fields) > 0,
             })
 
@@ -1410,6 +1467,64 @@ def bibtex_job_diff(request, job_id):
         total_fields_added = sum(len(entry['added_fields']) for entry in diff)
         total_fields_modified = 0  # Not tracking modifications anymore
 
+        # Calculate major metadata success rates
+        major_fields_stats = {
+            'abstract': {'acquired': 0, 'missing': 0},
+            'doi': {'acquired': 0, 'missing': 0},
+            'citation_count': {'acquired': 0, 'missing': 0},
+            'impact_factor': {'acquired': 0, 'missing': 0}
+        }
+
+        for entry_id, enriched_entry in enriched_entries.items():
+            # Check abstract
+            if enriched_entry.get('abstract'):
+                major_fields_stats['abstract']['acquired'] += 1
+            else:
+                major_fields_stats['abstract']['missing'] += 1
+
+            # Check DOI
+            if enriched_entry.get('doi'):
+                major_fields_stats['doi']['acquired'] += 1
+            else:
+                major_fields_stats['doi']['missing'] += 1
+
+            # Check citation count (various field names)
+            if any(enriched_entry.get(field) for field in ['citation_count', 'citations', 'citationcount']):
+                major_fields_stats['citation_count']['acquired'] += 1
+            else:
+                major_fields_stats['citation_count']['missing'] += 1
+
+            # Check impact factor
+            if enriched_entry.get('journal_impact_factor'):
+                major_fields_stats['impact_factor']['acquired'] += 1
+            else:
+                major_fields_stats['impact_factor']['missing'] += 1
+
+        # Build file URLs
+        original_filename = job.input_file.name.split('/')[-1]
+        enhanced_filename = job.output_file.name.split('/')[-1]
+
+        # Try to build filer URLs if user is authenticated and has a project
+        original_filer_url = None
+        enhanced_filer_url = None
+
+        if request.user.is_authenticated:
+            try:
+                current_project = get_current_project(request)
+                if current_project:
+                    # Build filer URLs: /{username}/{project_slug}/scholar/bib_files/{filename}
+                    original_filer_url = f'/{request.user.username}/{current_project.slug}/scholar/bib_files/{original_filename}'
+                    enhanced_filer_url = f'/{request.user.username}/{current_project.slug}/scholar/bib_files/{enhanced_filename}'
+            except Exception as e:
+                # Fall back to download URLs if filer URL building fails
+                pass
+
+        # Fall back to download URLs if filer URLs not available
+        if not original_filer_url:
+            original_filer_url = f'/scholar/api/bibtex/job/{job.id}/download/original/'
+        if not enhanced_filer_url:
+            enhanced_filer_url = f'/scholar/api/bibtex/job/{job.id}/download/'
+
         return JsonResponse({
             'success': True,
             'diff': diff,
@@ -1418,7 +1533,14 @@ def bibtex_job_diff(request, job_id):
                 'entries_enhanced': entries_enhanced,
                 'total_fields_added': total_fields_added,
                 'total_fields_modified': total_fields_modified,
-                'enhancement_rate': round((entries_enhanced / total_entries * 100), 1) if total_entries > 0 else 0
+                'enhancement_rate': round((entries_enhanced / total_entries * 100), 1) if total_entries > 0 else 0,
+                'major_fields': major_fields_stats  # Add major metadata stats
+            },
+            'files': {
+                'original': original_filename,
+                'enhanced': enhanced_filename,
+                'original_url': original_filer_url,
+                'enhanced_url': enhanced_filer_url
             }
         })
 

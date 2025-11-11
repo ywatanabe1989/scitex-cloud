@@ -359,6 +359,13 @@ function pollBibtexJobStatus(jobId: string, attempts: number = 0): void {
                     saveBtn.style.opacity = '1';
                 }
 
+                // Enable view changes button (main area)
+                const viewChangesBtn = document.getElementById('viewChangesBtn') as HTMLButtonElement | null;
+                if (viewChangesBtn) {
+                    viewChangesBtn.disabled = false;
+                    viewChangesBtn.style.opacity = '1';
+                }
+
                 // Enable other buttons
                 const showDiffBtn = document.getElementById('showDiffBtn') as HTMLButtonElement | null;
                 const openUrlsBtn = document.getElementById('openUrlsBtn') as HTMLButtonElement | null;
@@ -631,7 +638,7 @@ async function autoDownloadBibtexFile(url: string): Promise<void> {
         })
         .then((data: any) => {
             if (data.success) {
-                displayBibtexDiff(data.diff, data.stats);
+                displayBibtexDiff(data.diff, data.stats, data.files);
             } else {
                 if (content) {
                     content.innerHTML = `<div style="color: var(--error-color);">Error: ${data.error || 'Failed to generate diff'}</div>`;
@@ -649,8 +656,46 @@ async function autoDownloadBibtexFile(url: string): Promise<void> {
 /**
  * Display the diff in a readable format (GitHub-style)
  */
-function displayBibtexDiff(diffData: any[], stats: any): void {
+function displayBibtexDiff(diffData: any[], stats: any, files?: any): void {
     let html = '';
+
+    // Show file comparison info at the top
+    if (files && files.original && files.enhanced) {
+        html += `<div style="background: #f6f8fa; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border-left: 4px solid #0366d6;">`;
+        html += `<div style="display: flex; gap: 1rem; align-items: center; font-size: 0.9rem;">`;
+        html += `<div style="flex: 1;">`;
+        html += `<div style="color: #586069; font-size: 0.75rem; font-weight: 600; margin-bottom: 0.25rem;">ORIGINAL</div>`;
+        if (files.original_url) {
+            // Check if URL is a download endpoint or filer URL
+            const isDownloadUrl = files.original_url.includes('/download/');
+            const linkAttrs = isDownloadUrl ? 'download' : 'target="_blank"';
+            const icon = isDownloadUrl ? 'fa-download' : 'fa-folder-open';
+            const tooltip = isDownloadUrl ? 'Download original file' : 'View in file browser';
+            html += `<a href="${files.original_url}" ${linkAttrs} style="color: #0366d6; font-family: monospace; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem;" title="${tooltip}">`;
+            html += `<i class="fas ${icon}" style="font-size: 0.75rem;"></i>${files.original}`;
+            html += `</a>`;
+        } else {
+            html += `<div style="color: #24292e; font-family: monospace; font-size: 0.85rem;">${files.original}</div>`;
+        }
+        html += `</div>`;
+        html += `<div style="color: #586069; font-size: 1.2rem;"><i class="fas fa-arrow-right"></i></div>`;
+        html += `<div style="flex: 1;">`;
+        html += `<div style="color: #586069; font-size: 0.75rem; font-weight: 600; margin-bottom: 0.25rem;">ENHANCED</div>`;
+        if (files.enhanced_url) {
+            // Check if URL is a download endpoint or filer URL
+            const isDownloadUrl = files.enhanced_url.includes('/download/');
+            const linkAttrs = isDownloadUrl ? 'download' : 'target="_blank"';
+            const icon = isDownloadUrl ? 'fa-download' : 'fa-folder-open';
+            const tooltip = isDownloadUrl ? 'Download enhanced file' : 'View in file browser';
+            html += `<a href="${files.enhanced_url}" ${linkAttrs} style="color: #0366d6; font-family: monospace; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem;" title="${tooltip}">`;
+            html += `<i class="fas ${icon}" style="font-size: 0.75rem;"></i>${files.enhanced}`;
+            html += `</a>`;
+        } else {
+            html += `<div style="color: #24292e; font-family: monospace; font-size: 0.85rem;">${files.enhanced}</div>`;
+        }
+        html += `</div>`;
+        html += `</div></div>`;
+    }
 
     // Show statistics at the top
     if (stats) {
@@ -676,6 +721,57 @@ function displayBibtexDiff(diffData: any[], stats: any): void {
             <div style="color: #0366d6; font-size: 1.8rem; font-weight: 700;">${stats.enhancement_rate}%</div>
         </div>`;
         html += `</div></div>`;
+
+        // Show major metadata fields success rates
+        if (stats.major_fields) {
+            html += `<div style="background: #fff5e6; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; border-left: 4px solid #e67700;">`;
+            html += `<h3 style="color: #24292e; margin-bottom: 1rem; font-size: 1.1rem;">
+                <i class="fas fa-clipboard-check"></i> Major Metadata Success Rates
+            </h3>`;
+            html += `<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">`;
+
+            // Abstract (most important)
+            const abstractRate = stats.major_fields.abstract ?
+                Math.round((stats.major_fields.abstract.acquired / stats.total_entries) * 100) : 0;
+            const abstractColor = abstractRate >= 70 ? '#28a745' : abstractRate >= 40 ? '#e67700' : '#d73a49';
+            html += `<div style="text-align: center; padding: 0.75rem; background: white; border-radius: 6px; border: 1px solid #e1e4e8;">
+                <div style="color: #586069; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.25rem;">ABSTRACT</div>
+                <div style="color: ${abstractColor}; font-size: 1.6rem; font-weight: 700;">${abstractRate}%</div>
+                <div style="color: #586069; font-size: 0.75rem;">${stats.major_fields.abstract?.acquired || 0}/${stats.total_entries}</div>
+            </div>`;
+
+            // DOI
+            const doiRate = stats.major_fields.doi ?
+                Math.round((stats.major_fields.doi.acquired / stats.total_entries) * 100) : 0;
+            const doiColor = doiRate >= 70 ? '#28a745' : doiRate >= 40 ? '#e67700' : '#d73a49';
+            html += `<div style="text-align: center; padding: 0.75rem; background: white; border-radius: 6px; border: 1px solid #e1e4e8;">
+                <div style="color: #586069; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.25rem;">DOI</div>
+                <div style="color: ${doiColor}; font-size: 1.6rem; font-weight: 700;">${doiRate}%</div>
+                <div style="color: #586069; font-size: 0.75rem;">${stats.major_fields.doi?.acquired || 0}/${stats.total_entries}</div>
+            </div>`;
+
+            // Citations
+            const citationsRate = stats.major_fields.citation_count ?
+                Math.round((stats.major_fields.citation_count.acquired / stats.total_entries) * 100) : 0;
+            const citationsColor = citationsRate >= 70 ? '#28a745' : citationsRate >= 40 ? '#e67700' : '#d73a49';
+            html += `<div style="text-align: center; padding: 0.75rem; background: white; border-radius: 6px; border: 1px solid #e1e4e8;">
+                <div style="color: #586069; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.25rem;">CITATIONS</div>
+                <div style="color: ${citationsColor}; font-size: 1.6rem; font-weight: 700;">${citationsRate}%</div>
+                <div style="color: #586069; font-size: 0.75rem;">${stats.major_fields.citation_count?.acquired || 0}/${stats.total_entries}</div>
+            </div>`;
+
+            // Impact Factor
+            const ifRate = stats.major_fields.impact_factor ?
+                Math.round((stats.major_fields.impact_factor.acquired / stats.total_entries) * 100) : 0;
+            const ifColor = ifRate >= 70 ? '#28a745' : ifRate >= 40 ? '#e67700' : '#d73a49';
+            html += `<div style="text-align: center; padding: 0.75rem; background: white; border-radius: 6px; border: 1px solid #e1e4e8;">
+                <div style="color: #586069; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.25rem;">IMPACT FACTOR</div>
+                <div style="color: ${ifColor}; font-size: 1.6rem; font-weight: 700;">${ifRate}%</div>
+                <div style="color: #586069; font-size: 0.75rem;">${stats.major_fields.impact_factor?.acquired || 0}/${stats.total_entries}</div>
+            </div>`;
+
+            html += `</div></div>`;
+        }
     }
 
     if (!diffData || diffData.length === 0) {
@@ -689,10 +785,51 @@ function displayBibtexDiff(diffData: any[], stats: any): void {
         return;
     }
 
-    // Display entries in GitHub-style diff format (abbreviated for token efficiency)
+    // Display entries in GitHub-style diff format
     diffData.forEach((entry: any) => {
         html += `<div style="margin-bottom: 1.5rem; border: 1px solid #d1d5da; border-radius: 6px; overflow: hidden;">`;
-        html += `<div style="background: #f6f8fa; padding: 0.5rem 1rem; font-family: monospace;">@${entry.type}{${entry.key}}</div>`;
+        html += `<div style="background: #f6f8fa; padding: 0.5rem 1rem; font-family: monospace; font-weight: 600; color: #24292e;">@${entry.type}{${entry.key}}</div>`;
+
+        // Show added fields
+        if (entry.added_fields && entry.added_fields.length > 0) {
+            html += `<div style="background: #e6ffed; padding: 1rem;">`;
+            entry.added_fields.forEach((field: any) => {
+                const fieldValue = field.value.length > 100 ? field.value.substring(0, 100) + '...' : field.value;
+                html += `<div style="margin-bottom: 0.5rem; font-family: monospace; font-size: 0.9rem;">`;
+                html += `<span style="color: #22863a; font-weight: 600;">+ ${field.name}</span> = `;
+                html += `<span style="color: #032f62;">{${fieldValue}}</span>`;
+                html += `</div>`;
+            });
+            html += `</div>`;
+        }
+
+        // Show changed fields
+        if (entry.changed_fields && entry.changed_fields.length > 0) {
+            html += `<div style="background: #fff5b1; padding: 1rem;">`;
+            entry.changed_fields.forEach((field: any) => {
+                const oldValue = field.old_value.length > 80 ? field.old_value.substring(0, 80) + '...' : field.old_value;
+                const newValue = field.new_value.length > 80 ? field.new_value.substring(0, 80) + '...' : field.new_value;
+                html += `<div style="margin-bottom: 0.75rem; font-family: monospace; font-size: 0.9rem;">`;
+                html += `<div style="color: #b31d28; margin-bottom: 0.25rem;">- ${field.name} = {${oldValue}}</div>`;
+                html += `<div style="color: #22863a;">+ ${field.name} = {${newValue}}</div>`;
+                html += `</div>`;
+            });
+            html += `</div>`;
+        }
+
+        // Show unchanged fields (optional, grayed out)
+        if (entry.unchanged_fields && entry.unchanged_fields.length > 0) {
+            html += `<div style="background: #fafbfc; padding: 1rem; border-top: 1px solid #e1e4e8;">`;
+            html += `<div style="color: #6a737d; font-size: 0.85rem; margin-bottom: 0.5rem; font-weight: 600;">Unchanged fields (${entry.unchanged_fields.length})</div>`;
+            entry.unchanged_fields.forEach((field: any) => {
+                const fieldValue = field.value.length > 80 ? field.value.substring(0, 80) + '...' : field.value;
+                html += `<div style="margin-bottom: 0.35rem; font-family: monospace; font-size: 0.85rem; color: #6a737d;">`;
+                html += `  ${field.name} = {${fieldValue}}`;
+                html += `</div>`;
+            });
+            html += `</div>`;
+        }
+
         html += `</div>`;
     });
 
@@ -796,7 +933,7 @@ function renderRecentJobs(jobs: RecentJob[], container: HTMLElement): void {
     container.innerHTML = jobs.map(job => {
         const statusBadgeData = getStatusBadgeData(job.status);
         const jobUrl = `/scholar/bibtex/job/${job.id}/`;
-        const downloadUrl = `/scholar/bibtex/job/${job.id}/download/`;
+        const downloadUrl = `/scholar/api/bibtex/job/${job.id}/download/`;
 
         return `
             <div class="recent-job-card" style="position: relative; min-width: 180px; max-width: 200px; padding: 0.75rem; border: 1px solid var(--color-border-default); border-radius: 6px; background: var(--color-canvas-subtle); transition: all 0.2s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.12); display: flex; flex-direction: column; gap: 0.6rem;">
@@ -845,6 +982,13 @@ function renderRecentJobs(jobs: RecentJob[], container: HTMLElement): void {
                                 style="flex: 1; padding: 0.4rem; font-size: 0.7rem; display: flex; align-items: center; justify-content: center; gap: 0.3rem; border: none;"
                                 title="Download enriched BibTeX">
                             <i class="fas fa-download" style="font-size: 0.7rem;"></i>
+                        </button>
+
+                        <button onclick="event.stopPropagation(); window.currentBibtexJobId='${job.id}'; showBibtexDiff();"
+                                class="btn btn-secondary"
+                                style="flex: 1; padding: 0.4rem; font-size: 0.7rem; display: flex; align-items: center; justify-content: center; gap: 0.3rem; border: none;"
+                                title="Show what was enhanced">
+                            <i class="fas fa-code-branch" style="font-size: 0.7rem;"></i>
                         </button>
 
                         <button onclick="event.stopPropagation(); window.currentBibtexJobId='${job.id}'; openAllPaperUrls();"
