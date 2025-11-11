@@ -147,7 +147,7 @@
 
 /* Enhanced file tree item hover effects */
 .file-tree-item {
-    padding: 6px 8px;
+    padding: 6px 12px;  /* Increased left/right padding to prevent icon overlap */
     cursor: pointer;
     color: var(--color-fg-default, #1f2328);
     border-radius: 6px;
@@ -310,7 +310,7 @@
 /* Sidebar title header with padding */
 .sidebar-title-header {
     margin-bottom: 12px;
-    padding: 6px 8px;
+    padding: 6px 12px;  /* Increased left/right padding to prevent icon overlap */
 }
 
 /* Sidebar title link */
