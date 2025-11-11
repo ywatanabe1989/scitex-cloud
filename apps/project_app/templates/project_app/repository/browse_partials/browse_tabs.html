@@ -1,5 +1,5 @@
 <!-- GitHub-style Combined Tabs and Toolbar -->
-<div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid var(--color-border-default);">
+<div class="repo-tabs-toolbar" style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid var(--color-border-default);">
     <!-- Left: Navigation Tabs -->
     <div class="scitex-tabs" style="border-bottom: none; padding: 0; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
         <a href="/{{ project.owner.username }}/{{ project.slug }}/"
@@ -111,5 +111,18 @@
                 </a>
             </div>
         </div>
+    </div>
+</div>
+
+<!-- Main Content Area with Sidebar -->
+<div class="repo-layout" id="repo-layout">
+    {% include 'project_app/repository/browse_partials/browse_sidebar.html' %}
+
+    <div class="repo-main">
+        {% include 'project_app/repository/browse_partials/browse_empty_state.html' %}
+
+        {% include 'project_app/repository/browse_partials/browse_file_browser.html' %}
+
+        {% include 'project_app/repository/browse_partials/browse_readme.html' %}
     </div>
 </div>
