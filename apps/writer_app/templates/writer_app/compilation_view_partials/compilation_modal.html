@@ -1,37 +1,14 @@
-    <!-- Header -->
-    <div class="compilation-header">
-        <div>
-            <h2>
-                <i class="fas fa-cogs me-1"></i>PDF Compilation
-            </h2>
-            <p>
-                {{ project.name }}
-            </p>
-        </div>
-        <div>
-            <button id="compile-btn-main" class="btn btn-primary">
-                <i class="fas fa-file-pdf me-1"></i>Compile PDF
-            </button>
-            <button id="generate-ai2-prompt-btn" class="btn btn-outline-primary">
-                <i class="fas fa-brain me-1"></i>AI2 Asta
-            </button>
-            <a href="/{{ project.owner.username }}/{{ project.slug }}/?mode=writer" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left me-1"></i>Back to Editor
-            </a>
-        </div>
-    </div>
-
     <!-- Compilation Options Modal -->
     <div class="scitex-modal-overlay" id="compilationOptionsModal" style="display: none;">
         <div class="scitex-modal-content" style="max-width: 600px;">
             <div class="scitex-modal-header">
-                <h3><i class="fas fa-cogs me-1"></i>Compilation Options</h3>
-                <button type="button" class="scitex-modal-close" onclick="closeCompilationModal()">&times;</button>
+                <h3><i class="fas fa-cogs me-2"></i>Compilation Options</h3>
+                <button type="button" class="scitex-modal-close">&times;</button>
             </div>
             <div class="scitex-modal-body">
                 <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 13px;">Select compilation options:</p>
 
-                <!-- Content -->
+                <!-- Content Options -->
                 <div class="compilation-option-group" style="margin-bottom: 1rem;">
                     <h6 style="margin-bottom: 0.5rem; color: var(--text-primary); font-weight: 600; font-size: 13px;">
                         <i class="fas fa-file-alt me-1"></i>Content
@@ -59,7 +36,7 @@
                     </div>
                 </div>
 
-                <!-- Figure Processing -->
+                <!-- Figure Processing Options -->
                 <div class="compilation-option-group" style="margin-bottom: 1rem;">
                     <h6 style="margin-bottom: 0.5rem; color: var(--text-primary); font-weight: 600; font-size: 13px;">
                         <i class="fas fa-images me-1"></i>Figure Processing
@@ -80,7 +57,7 @@
                     </div>
                 </div>
 
-                <!-- Performance -->
+                <!-- Performance Options -->
                 <div class="compilation-option-group" style="margin-bottom: 1rem;">
                     <h6 style="margin-bottom: 0.5rem; color: var(--text-primary); font-weight: 600; font-size: 13px;">
                         <i class="fas fa-bolt me-1"></i>Performance
@@ -115,7 +92,7 @@
                     </div>
                 </div>
 
-                <!-- Advanced -->
+                <!-- Advanced Options -->
                 <div class="compilation-option-group">
                     <h6 style="margin-bottom: 0.5rem; color: var(--text-primary); font-weight: 600; font-size: 13px;">
                         <i class="fas fa-tools me-1"></i>Advanced
@@ -130,11 +107,10 @@
                 </div>
             </div>
             <div class="scitex-modal-footer">
-                <button type="button" class="scitex-btn scitex-btn-secondary" onclick="closeCompilationModal()">Cancel</button>
+                <button type="button" class="scitex-btn scitex-btn-secondary scitex-modal-close">Cancel</button>
                 <button type="button" class="scitex-btn scitex-btn-primary" id="confirm-compile-btn">
-                    <i class="fas fa-file-pdf me-1"></i>Start Compilation
+                    <i class="fas fa-file-pdf me-2"></i>Start Compilation
                 </button>
             </div>
         </div>
     </div>
-

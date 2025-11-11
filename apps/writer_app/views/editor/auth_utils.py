@@ -48,7 +48,12 @@ def api_login_optional(view_func):
             visitor_project_id = request.session.get('visitor_project_id')
             visitor_user_id = request.session.get('visitor_user_id')
 
-            if not visitor_project_id or visitor_project_id != project_id:
+            # Debug logging
+            logger.info(f"[Auth] Visitor session check: visitor_project_id={visitor_project_id} (type={type(visitor_project_id).__name__}), project_id={project_id} (type={type(project_id).__name__})")
+
+            # Type-safe comparison (handle int/str mismatches)
+            if not visitor_project_id or int(visitor_project_id) != int(project_id):
+                logger.warning(f"[Auth] Visitor session validation failed: visitor_project_id={visitor_project_id}, project_id={project_id}")
                 return JsonResponse({
                     "success": False,
                     "error": "Invalid visitor session. Please refresh the page."
@@ -60,8 +65,8 @@ def api_login_optional(view_func):
                     "error": "Visitor user not found in session. Please refresh the page."
                 }, status=403)
 
-            # Verify the visitor user owns the project
-            if project.owner_id != visitor_user_id:
+            # Verify the visitor user owns the project (type-safe comparison)
+            if int(project.owner_id) != int(visitor_user_id):
                 return JsonResponse({
                     "success": False,
                     "error": "Project does not belong to visitor user."

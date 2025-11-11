@@ -75,6 +75,19 @@ class WriterService:
             parent_dir.mkdir(parents=True, exist_ok=True)
             logger.info(f"WriterService: Ensured parent directory exists at {parent_dir}")
 
+            # Get template version from Django settings
+            # These are read from SCITEX_WRITER_TEMPLATE_BRANCH and SCITEX_WRITER_TEMPLATE_TAG env vars
+            template_branch = getattr(settings, 'SCITEX_WRITER_TEMPLATE_BRANCH', None)
+            template_tag = getattr(settings, 'SCITEX_WRITER_TEMPLATE_TAG', None)
+
+            # Convert "null" string to None (from environment variables)
+            if template_branch == "null":
+                template_branch = None
+            if template_tag == "null":
+                template_tag = None
+
+            logger.info(f"WriterService: Using template version - branch: {template_branch}, tag: {template_tag}")
+
             try:
                 # IMPORTANT: Do NOT pass 'name' parameter to Writer
                 #
@@ -94,10 +107,15 @@ class WriterService:
                 #
                 # Git Strategy: Use "parent" to share the main project's git repository
                 # The writer directory is part of the main project, not a separate repo.
+                #
+                # Template Version: Pass branch/tag from Django settings to control which
+                # version of scitex-writer template is cloned when creating new workspaces
                 self._writer = Writer(
                     self.writer_dir,  # Already points to: {project-root}/scitex/writer/
                     # name=project.name,  # REMOVED - causes extra subdirectory creation
                     git_strategy="parent",  # Use parent project's git repository
+                    branch=template_branch,  # Template branch from settings (e.g., "develop", "main")
+                    tag=template_tag,  # Template tag from settings (e.g., "v2.0.0-rc1")
                 )
                 logger.info(f"WriterService: Writer instance created successfully")
             except Exception as e:

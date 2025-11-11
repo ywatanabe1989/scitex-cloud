@@ -76,6 +76,19 @@ def index_view(request):
                     "description": f"Manuscript for {current_project.name}",
                 },
             )
+
+            # Check if writer workspace actually exists and update flag if needed
+            if not manuscript.writer_initialized:
+                from apps.project_app.services.project_filesystem import get_project_filesystem_manager
+                manager = get_project_filesystem_manager(request.user)
+                project_root = manager.get_project_root_path(current_project)
+                if project_root:
+                    writer_dir = project_root / "scitex" / "writer"
+                    manuscript_dir = writer_dir / "01_manuscript"
+                    if manuscript_dir.exists():
+                        # Workspace exists - writer_initialized property will auto-detect this
+                        logger.info(f"Writer workspace detected for project: {current_project.slug}")
+
             context["manuscript"] = manuscript
             context["manuscript_id"] = manuscript.id
             context["writer_initialized"] = manuscript.writer_initialized
@@ -121,6 +134,19 @@ def index_view(request):
                 "description": "Try out SciTeX Writer - sign up to save!",
             },
         )
+
+        # Check if writer workspace actually exists and update flag if needed
+        if not manuscript.writer_initialized:
+            from apps.project_app.services.project_filesystem import get_project_filesystem_manager
+            manager = get_project_filesystem_manager(visitor_project.owner)
+            project_root = manager.get_project_root_path(visitor_project)
+            if project_root:
+                writer_dir = project_root / "scitex" / "writer"
+                manuscript_dir = writer_dir / "01_manuscript"
+                if manuscript_dir.exists():
+                    # Workspace exists - writer_initialized property will auto-detect this
+                    logger.info(f"Writer workspace detected for visitor project: {visitor_project.slug}")
+
         context["manuscript"] = manuscript
         context["manuscript_id"] = manuscript.id
         context["writer_initialized"] = manuscript.writer_initialized
@@ -226,6 +252,7 @@ def initialize_workspace(request):
                 if manuscript_dir.exists():
                     logger.info(f"Writer workspace initialized successfully for project {project_id}")
                     logger.info(f"  Structure: {writer_service.writer_dir}")
+                    logger.info(f"Manuscript {manuscript.id} writer_initialized is now auto-detected as True")
                 else:
                     raise Exception("Writer structure incomplete - 01_manuscript not found")
             else:

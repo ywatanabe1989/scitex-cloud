@@ -169,6 +169,22 @@
                     <i class="fas fa-magic me-1"></i>Auto (5s)
                   </label>
                 </div>
+                <!-- PDF Zoom Controls -->
+                <div class="pdf-zoom-controls" style="display: flex; align-items: center; gap: 0.3rem; margin-left: 0.75rem; padding-left: 0.75rem; border-left: 1px solid var(--color-border-muted);">
+                  <button id="pdf-zoom-out" class="btn btn-sm btn-outline-secondary" style="padding: 0.2rem 0.4rem; font-size: 0.7rem; line-height: 1;" title="Zoom Out">
+                    <i class="fas fa-search-minus"></i>
+                  </button>
+                  <select id="pdf-zoom-selector" class="form-select form-select-sm" style="min-width: 70px; font-size: 0.75rem; padding: 0.2rem 0.5rem;" aria-label="PDF Zoom">
+                    <option value="100">100%</option>
+                    <option value="125" selected>125%</option>
+                    <option value="150">150%</option>
+                    <option value="175">175%</option>
+                    <option value="200">200%</option>
+                  </select>
+                  <button id="pdf-zoom-in" class="btn btn-sm btn-outline-secondary" style="padding: 0.2rem 0.4rem; font-size: 0.7rem; line-height: 1;" title="Zoom In">
+                    <i class="fas fa-search-plus"></i>
+                  </button>
+                </div>
                 <!-- Preview/Reload Button -->
                 <button id="preview-btn-panel" class="preview-btn-inline" title="Refresh PDF Preview">
                   <i class="fas fa-sync-alt"></i>
