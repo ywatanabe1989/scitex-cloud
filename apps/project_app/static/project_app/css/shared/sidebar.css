@@ -2,23 +2,11 @@
    SIDEBAR IMPROVEMENTS - GitHub-style sidebar with larger fonts and icons
    ============================================================================= */
 
-/* Layout Container */
-.repo-layout {
-    display: flex;
-    gap: 0;
-    margin-top: 16px;
-}
+/* NOTE: Layout structure (.repo-layout, .repo-main, .repo-sidebar positioning)
+   is defined in browse.css to avoid CSS cascade conflicts */
 
-/* Main Content Area */
-.repo-main {
-    flex: 1;
-    min-width: 0;
-}
-
-/* Sidebar Container */
+/* Sidebar Visual Styling */
 .repo-sidebar {
-    position: relative;
-    width: 220px;
     background: var(--color-canvas-subtle, #f6f8fa);
     border: 1px solid var(--color-border-default, #d0d7de);
     border-radius: 6px;
