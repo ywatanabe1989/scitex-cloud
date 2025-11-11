@@ -750,12 +750,12 @@ function displayBibtexDiff(diffData: any[], stats: any, files?: any): void {
                 <div style="color: #586069; font-size: 0.75rem;">${stats.major_fields.doi?.acquired || 0}/${stats.total_entries}</div>
             </div>`;
 
-            // Citations
+            // Citation Count
             const citationsRate = stats.major_fields.citation_count ?
                 Math.round((stats.major_fields.citation_count.acquired / stats.total_entries) * 100) : 0;
             const citationsColor = citationsRate >= 70 ? '#28a745' : citationsRate >= 40 ? '#e67700' : '#d73a49';
             html += `<div style="text-align: center; padding: 0.75rem; background: white; border-radius: 6px; border: 1px solid #e1e4e8;">
-                <div style="color: #586069; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.25rem;">CITATIONS</div>
+                <div style="color: #586069; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.25rem;">CITATION COUNT</div>
                 <div style="color: ${citationsColor}; font-size: 1.6rem; font-weight: 700;">${citationsRate}%</div>
                 <div style="color: #586069; font-size: 0.75rem;">${stats.major_fields.citation_count?.acquired || 0}/${stats.total_entries}</div>
             </div>`;
