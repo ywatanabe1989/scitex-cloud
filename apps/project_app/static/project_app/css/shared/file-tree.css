@@ -383,8 +383,7 @@
     gap: 4px;
     padding: 4px 6px;
     background: none;
-    border: 1px solid var(--color-border-default, #d0d7de);
-    border-radius: 4px;
+    border: none;
     color: inherit;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -392,16 +391,11 @@
 
 .folder-icon-button:hover {
     background: var(--color-neutral-subtle, rgba(208, 215, 222, 0.32));
-    border-color: var(--color-accent-emphasis, #0969da);
-}
-
-[data-theme="dark"] .folder-icon-button {
-    border-color: var(--color-border-default, #30363d);
+    border-radius: 4px;
 }
 
 [data-theme="dark"] .folder-icon-button:hover {
     background: var(--color-neutral-subtle, rgba(110, 118, 129, 0.2));
-    border-color: var(--color-accent-emphasis, #1f6feb);
 }
 
 .file-tree-item--file {
