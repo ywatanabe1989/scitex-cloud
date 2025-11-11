@@ -69,11 +69,9 @@ class WriterService:
             project = Project.objects.get(id=self.project_id)
             logger.info(f"WriterService: Creating Writer instance for project {self.project_id} at {self.writer_dir}")
 
-            # Ensure parent directories exist before creating Writer
-            # This is necessary because clone_project needs the parent directory to exist
-            parent_dir = self.writer_dir.parent
-            parent_dir.mkdir(parents=True, exist_ok=True)
-            logger.info(f"WriterService: Ensured parent directory exists at {parent_dir}")
+            # NOTE: No need to create parent directories here!
+            # scitex.template._clone_project now handles mkdir -p for parent directories.
+            # This ensures Writer can create the template in any path, even if parent dirs don't exist.
 
             # Get template version from Django settings
             # These are read from SCITEX_WRITER_TEMPLATE_BRANCH and SCITEX_WRITER_TEMPLATE_TAG env vars

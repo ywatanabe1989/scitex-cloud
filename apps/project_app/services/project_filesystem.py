@@ -623,7 +623,7 @@ This project directory is managed by SciTeX Cloud. You can:
 
             # Access the writer property - this triggers initialization
             writer = writer_service.writer
-            writer_path = writer_service.project_path
+            writer_path = writer_service.writer_dir
 
             if writer_path and writer_path.exists():
                 logger.info(f"✓ Writer template initialized successfully at: {writer_path}")

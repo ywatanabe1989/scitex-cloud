@@ -262,34 +262,58 @@ class ElementInspector {
                 left: 0;
                 width: 100%;
                 height: 100%;
-                background: transparent;
+                background: rgba(0, 0, 0, 0.75);
                 z-index: 99999998;
                 pointer-events: none;
+                cursor: crosshair;
             }
 
             .selection-rectangle {
-                position: absolute;
+                position: fixed;
                 border: 3px solid rgba(59, 130, 246, 1);
                 background: transparent;
                 pointer-events: none;
                 z-index: 99999999;
-                box-shadow: 0 0 0 99999px rgba(0, 0, 0, 0.6);
+                box-shadow:
+                    0 0 20px rgba(59, 130, 246, 0.8),
+                    inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+                animation: selection-pulse 2s ease-in-out infinite;
+                mix-blend-mode: lighten;
+            }
+
+            @keyframes selection-pulse {
+                0%, 100% {
+                    border-color: rgba(59, 130, 246, 1);
+                    box-shadow:
+                        0 0 20px rgba(59, 130, 246, 0.8),
+                        inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+                }
+                50% {
+                    border-color: rgba(96, 165, 250, 1);
+                    box-shadow:
+                        0 0 30px rgba(59, 130, 246, 1),
+                        inset 0 0 0 1px rgba(255, 255, 255, 0.8);
+                }
             }
 
             .selection-info {
                 position: absolute;
-                bottom: -28px;
+                bottom: -32px;
                 right: 0;
-                background: rgba(59, 130, 246, 0.95);
+                background: linear-gradient(135deg, rgba(59, 130, 246, 0.98) 0%, rgba(37, 99, 235, 0.98) 100%);
                 color: white;
-                padding: 4px 10px;
-                font-size: 12px;
+                padding: 6px 14px;
+                font-size: 13px;
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                border-radius: 4px;
+                border-radius: 6px;
                 pointer-events: none;
-                font-weight: 500;
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+                font-weight: 600;
+                box-shadow:
+                    0 4px 12px rgba(0, 0, 0, 0.4),
+                    0 0 20px rgba(59, 130, 246, 0.3);
                 white-space: nowrap;
+                border: 2px solid rgba(255, 255, 255, 0.3);
+                backdrop-filter: blur(4px);
             }
 
             .selection-toolbar {
@@ -332,17 +356,36 @@ class ElementInspector {
 
             .selection-corner {
                 position: absolute;
-                width: 8px;
-                height: 8px;
+                width: 12px;
+                height: 12px;
                 background: white;
-                border: 2px solid rgba(59, 130, 246, 1);
-                border-radius: 1px;
+                border: 3px solid rgba(59, 130, 246, 1);
+                border-radius: 2px;
+                box-shadow:
+                    0 2px 8px rgba(0, 0, 0, 0.4),
+                    0 0 12px rgba(59, 130, 246, 0.6);
+                animation: corner-pulse 2s ease-in-out infinite;
             }
 
-            .selection-corner.top-left { top: -4px; left: -4px; }
-            .selection-corner.top-right { top: -4px; right: -4px; }
-            .selection-corner.bottom-left { bottom: -4px; left: -4px; }
-            .selection-corner.bottom-right { bottom: -4px; right: -4px; }
+            @keyframes corner-pulse {
+                0%, 100% {
+                    transform: scale(1);
+                    box-shadow:
+                        0 2px 8px rgba(0, 0, 0, 0.4),
+                        0 0 12px rgba(59, 130, 246, 0.6);
+                }
+                50% {
+                    transform: scale(1.2);
+                    box-shadow:
+                        0 2px 12px rgba(0, 0, 0, 0.5),
+                        0 0 18px rgba(59, 130, 246, 0.9);
+                }
+            }
+
+            .selection-corner.top-left { top: -6px; left: -6px; }
+            .selection-corner.top-right { top: -6px; right: -6px; }
+            .selection-corner.bottom-left { bottom: -6px; left: -6px; }
+            .selection-corner.bottom-right { bottom: -6px; right: -6px; }
 
             .layer-picker-menu {
                 position: absolute;
@@ -1327,7 +1370,56 @@ Press Alt+I to toggle element inspector overlay.
         this.selectionOverlay.className = 'selection-overlay';
         document.body.appendChild(this.selectionOverlay);
 
-        this.showNotification('🔲 Selection Mode: Click and drag to select area (Esc to cancel)', 'success');
+        // Add instructional overlay at the top
+        const instructionBanner = document.createElement('div');
+        instructionBanner.id = 'selection-instruction-banner';
+        instructionBanner.innerHTML = `
+            <div style="
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: linear-gradient(135deg, rgba(59, 130, 246, 0.98) 0%, rgba(37, 99, 235, 0.98) 100%);
+                color: white;
+                padding: 16px 32px;
+                font-size: 16px;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                border-radius: 12px;
+                font-weight: 600;
+                box-shadow:
+                    0 8px 32px rgba(0, 0, 0, 0.4),
+                    0 0 40px rgba(59, 130, 246, 0.5);
+                z-index: 100000000;
+                border: 3px solid rgba(255, 255, 255, 0.3);
+                backdrop-filter: blur(8px);
+                animation: fadeInDown 0.3s ease-out;
+            ">
+                🔲 <strong>Selection Mode Active</strong> — Click and drag to select an area • Press <kbd style="
+                    background: rgba(255, 255, 255, 0.2);
+                    padding: 4px 8px;
+                    border-radius: 4px;
+                    font-family: monospace;
+                    border: 1px solid rgba(255, 255, 255, 0.3);
+                ">Esc</kbd> to cancel
+            </div>
+        `;
+        document.body.appendChild(instructionBanner);
+
+        // Add animation keyframes
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeInDown {
+                from {
+                    opacity: 0;
+                    transform: translateX(-50%) translateY(-20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateX(-50%) translateY(0);
+                }
+            }
+        `;
+        document.head.appendChild(style);
 
         // Add mouse event listeners
         document.addEventListener('mousedown', this.onSelectionMouseDown);
@@ -1339,6 +1431,12 @@ Press Alt+I to toggle element inspector overlay.
         console.log('[ElementInspector] Cancelling selection mode...');
         this.selectionMode = false;
         document.body.style.cursor = '';
+
+        // Remove instruction banner
+        const banner = document.getElementById('selection-instruction-banner');
+        if (banner) {
+            banner.remove();
+        }
 
         // Remove selection overlay
         if (this.selectionOverlay) {
@@ -1365,15 +1463,15 @@ Press Alt+I to toggle element inspector overlay.
 
         e.preventDefault();
         this.selectionStart = {
-            x: e.pageX,
-            y: e.pageY
+            x: e.clientX,
+            y: e.clientY
         };
 
         // Create selection rectangle
         this.selectionRect = document.createElement('div');
         this.selectionRect.className = 'selection-rectangle';
-        this.selectionRect.style.left = `${e.pageX}px`;
-        this.selectionRect.style.top = `${e.pageY}px`;
+        this.selectionRect.style.left = `${e.clientX}px`;
+        this.selectionRect.style.top = `${e.clientY}px`;
         this.selectionRect.style.width = '0px';
         this.selectionRect.style.height = '0px';
 
@@ -1402,8 +1500,8 @@ Press Alt+I to toggle element inspector overlay.
 
         e.preventDefault();
 
-        const currentX = e.pageX;
-        const currentY = e.pageY;
+        const currentX = e.clientX;
+        const currentY = e.clientY;
 
         const left = Math.min(this.selectionStart.x, currentX);
         const top = Math.min(this.selectionStart.y, currentY);
@@ -1428,8 +1526,8 @@ Press Alt+I to toggle element inspector overlay.
 
         e.preventDefault();
 
-        const currentX = e.pageX;
-        const currentY = e.pageY;
+        const currentX = e.clientX;
+        const currentY = e.clientY;
 
         const left = Math.min(this.selectionStart.x, currentX);
         const top = Math.min(this.selectionStart.y, currentY);

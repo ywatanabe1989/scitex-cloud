@@ -6,6 +6,13 @@
 /* ============================================================================= */
 
 
+/* Browse page container */
+.browse-container {
+    max-width: 100%;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
 /* GitHub-style repository header - Theme-aware */
 .repo-header {
     padding: 0.75rem 0 1rem 0;  /* Compact: 0.75rem top, 1rem bottom */
@@ -913,7 +920,7 @@
     align-items: center;
     justify-content: space-between;
     /* Styling moved to central CSS - see static/css/common/typography-vars.css */
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 600;
     color: var(--color-fg-default);
     letter-spacing: 0.5px;
@@ -1025,7 +1032,7 @@
     color: var(--color-fg-default);
     border-radius: 6px;
     transition: all 0.2s ease;
-    font-size: 16px;
+    font-size: 15px;
 }
 
 .file-tree-item:hover {
@@ -1077,8 +1084,8 @@
 
 .file-tree-icon {
     /* Layout preserved */
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -1088,8 +1095,8 @@
 .icon-folder,
 .icon-file {
     /* Layout preserved */
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
 }
 
 .icon-folder,

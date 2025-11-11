@@ -333,7 +333,7 @@
     color: var(--color-fg-default);
     text-decoration: none;
     font-weight: 600;
-    font-size: 16px;
+    font-size: 14px;
 }
 
 .sidebar-title-link:hover {
@@ -348,7 +348,7 @@
 
 /* File tree container */
 .file-tree-container {
-    font-size: 16px;
+    font-size: 14px;
     margin-top: 4px;
 }
 
@@ -356,11 +356,11 @@
 .tree-loading {
     color: var(--color-fg-muted);
     padding: 0.75rem;
-    font-size: 16px;
+    font-size: 14px;
 }
 
 .tree-loading i {
-    font-size: 16px;
+    font-size: 14px;
 }
 
 /* =============================================================================
