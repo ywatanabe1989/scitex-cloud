@@ -1,7 +1,7 @@
 <!-- GitHub-style Combined Tabs and Toolbar -->
-<div style="display: flex; gap: 0.5rem; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid var(--color-border-default);">
+<div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid var(--color-border-default);">
     <!-- Left: Navigation Tabs -->
-    <div class="scitex-tabs" style="flex: 1; border-bottom: none; padding: 0; margin: 0; display: flex; align-items: center;">
+    <div class="scitex-tabs" style="border-bottom: none; padding: 0; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
         <a href="/{{ project.owner.username }}/{{ project.slug }}/"
            class="scitex-tab {% if active_tab == 'code' %}scitex-tab-active{% endif %}"
            title="Browse repository files">
@@ -37,8 +37,8 @@
         </a>
     </div>
 
-    <!-- Right: Toolbar Actions -->
-    <div style="display: flex; gap: 0.5rem; align-items: center;">
+    <!-- Right: Toolbar Actions - Grouped -->
+    <div class="repo-action-buttons" style="display: flex; gap: 0.5rem; align-items: center;">
         <!-- Go to file search -->
         <div style="position: relative;">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--color-fg-muted); pointer-events: none;">
