@@ -17,6 +17,8 @@ class ElementInspector {
     private selectionOverlay: HTMLDivElement | null = null;
     private elementBoxMap: Map<HTMLDivElement, Element> = new Map();
     private layerPickerMenu: HTMLDivElement | null = null;
+    private currentlyHoveredBox: HTMLDivElement | null = null;
+    private currentlyHoveredElement: Element | null = null;
 
     constructor() {
         this.init();
@@ -115,6 +117,10 @@ class ElementInspector {
 
         // Clear element map
         this.elementBoxMap.clear();
+
+        // Clear hover tracking
+        this.currentlyHoveredBox = null;
+        this.currentlyHoveredElement = null;
 
         // Close layer picker if open
         this.closeLayerPicker();
@@ -469,34 +475,57 @@ class ElementInspector {
             // Store element reference for layer picking
             this.elementBoxMap.set(box, element);
 
-            // Make entire box area clickable - always select top-most (deepest) element
+            // Track hover on box itself (not just label)
+            box.addEventListener('mouseenter', () => {
+                this.currentlyHoveredBox = box;
+                this.currentlyHoveredElement = element;
+            });
+
+            box.addEventListener('mouseleave', () => {
+                // Only clear if this is the currently hovered box
+                if (this.currentlyHoveredBox === box) {
+                    this.currentlyHoveredBox = null;
+                    this.currentlyHoveredElement = null;
+                }
+            });
+
+            // Make entire box area clickable - use hovered element if available
             box.addEventListener('click', async (e: MouseEvent) => {
                 e.preventDefault();
                 e.stopPropagation();
 
-                // Find all overlapping boxes at this click position
-                const overlappingBoxes = this.findOverlappingBoxesAtPoint(e.clientX, e.clientY);
+                let selectedBox: HTMLDivElement;
+                let selectedElement: Element;
 
-                // Always select the first one (deepest/top-most element)
-                const topMostBox = overlappingBoxes[0] || box;
-                const topMostElement = this.elementBoxMap.get(topMostBox) || element;
+                // If we have a currently hovered element, use that (keeps hover and click consistent)
+                if (this.currentlyHoveredBox && this.currentlyHoveredElement) {
+                    selectedBox = this.currentlyHoveredBox;
+                    selectedElement = this.currentlyHoveredElement;
+                } else {
+                    // Otherwise, find all overlapping boxes at this click position
+                    const overlappingBoxes = this.findOverlappingBoxesAtPoint(e.clientX, e.clientY);
+
+                    // Always select the first one (deepest/top-most element)
+                    selectedBox = overlappingBoxes[0] || box;
+                    selectedElement = this.elementBoxMap.get(selectedBox) || element;
+                }
 
                 // Highlight the selected element
-                topMostBox.classList.add('highlighted');
+                selectedBox.classList.add('highlighted');
 
-                const debugInfo = this.gatherElementDebugInfo(topMostElement);
+                const debugInfo = this.gatherElementDebugInfo(selectedElement);
                 try {
                     await navigator.clipboard.writeText(debugInfo);
                     this.showNotification('✓ Element Info Copied!', 'success');
                     console.log('[ElementInspector] Copied:', debugInfo);
 
                     setTimeout(() => {
-                        topMostBox.classList.remove('highlighted');
+                        selectedBox.classList.remove('highlighted');
                     }, 2000);
                 } catch (err) {
                     console.error('[ElementInspector] Copy failed:', err);
                     this.showNotification('✗ Copy Failed', 'error');
-                    topMostBox.classList.remove('highlighted');
+                    selectedBox.classList.remove('highlighted');
                 }
             });
 
@@ -704,6 +733,10 @@ class ElementInspector {
     private addHoverHighlight(label: HTMLDivElement, box: HTMLDivElement, element: Element): void {
         // Highlight box when hovering over label
         label.addEventListener('mouseenter', () => {
+            // Track currently hovered element
+            this.currentlyHoveredBox = box;
+            this.currentlyHoveredElement = element;
+
             box.classList.add('highlighted');
             // Also add temporary highlight to the actual element
             if (element instanceof HTMLElement) {
@@ -713,6 +746,10 @@ class ElementInspector {
         });
 
         label.addEventListener('mouseleave', () => {
+            // Clear hover tracking when mouse leaves
+            this.currentlyHoveredBox = null;
+            this.currentlyHoveredElement = null;
+
             box.classList.remove('highlighted');
             // Remove highlight from actual element
             if (element instanceof HTMLElement) {
@@ -1694,7 +1731,7 @@ ${info.matchingCSSRules && info.matchingCSSRules.length > 0 ? info.matchingCSSRu
     private findOverlappingBoxesAtPoint(clientX: number, clientY: number): HTMLDivElement[] {
         const overlapping: HTMLDivElement[] = [];
 
-        this.elementBoxMap.forEach((element, box) => {
+        this.elementBoxMap.forEach((_element, box) => {
             const rect = box.getBoundingClientRect();
 
             // Check if click point is inside this box
@@ -1719,7 +1756,8 @@ ${info.matchingCSSRules && info.matchingCSSRules.length > 0 ? info.matchingCSSRu
         return overlapping;
     }
 
-    private showLayerPicker(boxes: HTMLDivElement[], x: number, y: number): void {
+    // @ts-ignore - Reserved for future use
+    private _showLayerPicker(boxes: HTMLDivElement[], x: number, y: number): void {
         // Close existing picker
         this.closeLayerPicker();
 
@@ -1743,7 +1781,8 @@ ${info.matchingCSSRules && info.matchingCSSRules.length > 0 ? info.matchingCSSRu
             const item = document.createElement('div');
             item.className = 'layer-picker-item';
 
-            const depth = this.getDepth(element);
+            // @ts-ignore - Reserved for future use
+            const _depth = this.getDepth(element);
             const tag = element.tagName.toLowerCase();
             const id = element.id;
             const classes = element.className;
@@ -1821,7 +1860,7 @@ ${info.matchingCSSRules && info.matchingCSSRules.length > 0 ? info.matchingCSSRu
             document.removeEventListener('click', this.onDocumentClickForLayerPicker);
 
             // Remove all highlights
-            this.elementBoxMap.forEach((element, box) => {
+            this.elementBoxMap.forEach((_element, box) => {
                 box.classList.remove('highlighted');
             });
         }

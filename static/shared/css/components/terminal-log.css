@@ -256,6 +256,65 @@
   }
 }
 
+/* Spinner animation for ongoing processes */
+.terminal-log__spinner {
+  display: inline-block;
+  width: 0.875rem;
+  height: 0.875rem;
+  margin-right: 0.5rem;
+  border: 2px solid var(--border-300);
+  border-top-color: var(--info-color);
+  border-radius: 50%;
+  animation: terminal-spinner-rotate 0.8s linear infinite;
+  vertical-align: middle;
+}
+
+@keyframes terminal-spinner-rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Animated dots for loading states */
+.terminal-log__loading-dots {
+  display: inline-block;
+  margin-left: 0.25rem;
+}
+
+.terminal-log__loading-dots::after {
+  content: '';
+  animation: terminal-loading-dots 1.5s steps(4, end) infinite;
+}
+
+@keyframes terminal-loading-dots {
+  0%, 20% {
+    content: '';
+  }
+  40% {
+    content: '.';
+  }
+  60% {
+    content: '..';
+  }
+  80%, 100% {
+    content: '...';
+  }
+}
+
+/* Processing line with spinner */
+.terminal-log__processing {
+  color: var(--info-color);
+}
+
+/* Light theme spinner */
+[data-theme="light"] .terminal-log__spinner {
+  border-color: var(--border-400);
+  border-top-color: var(--info-color);
+}
+
 /* Terminal Log States */
 .terminal-log--processing {
   border-color: var(--info-color);

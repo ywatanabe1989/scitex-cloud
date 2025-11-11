@@ -39,6 +39,8 @@
     overflow: hidden;
     transform: scale(0.9);
     transition: transform 0.3s ease;
+    display: flex;
+    flex-direction: column;
 }
 
 .scitex-modal-visible .scitex-modal-content {
@@ -113,6 +115,8 @@
 /* Modal Body */
 .scitex-modal-body {
     padding: 24px;
+    overflow-y: auto;
+    max-height: calc(90vh - 140px); /* Account for header and footer */
 }
 
 .scitex-modal-body p {
