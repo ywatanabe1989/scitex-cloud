@@ -238,7 +238,7 @@
 
 .file-browser-header {
     /* Layout preserved */
-    padding: 8px 12px;
+    padding: 8px 8px;
     text-align: left;
     line-height: 1.5;
     /* Styling moved to central CSS - see static/css/components/tables.css */
@@ -250,15 +250,15 @@
 }
 
 .file-browser-name-col {
-    width: 40%;
+    width: 30%;
 }
 
 .file-browser-message-col {
-    width: 45%;
+    width: 50%;
 }
 
 .file-browser-time-col {
-    width: 15%;
+    width: 20%;
     text-align: right;
 }
 
@@ -289,7 +289,7 @@
 /* Table Cells */
 .file-browser-cell {
     /* Layout preserved */
-    padding: 8px 12px;
+    padding: 8px 8px;
     vertical-align: middle;
     line-height: 24px;  /* Increased for better alignment */
     height: 40px;  /* Fixed height for consistency */
@@ -300,7 +300,7 @@
 
 /* Name Cell with Icon and Text */
 .file-browser-name-cell {
-    width: 40%;
+    width: 30%;
 }
 
 .file-browser-link {
@@ -390,7 +390,7 @@
 /* Commit Message Cell */
 .file-browser-message-cell {
     /* Layout preserved */
-    width: 45%;
+    width: 50%;
     line-height: 24px;  /* Match cell line height */
     /* Styling moved to central CSS - see static/css/components/tables.css */
     color: var(--color-fg-muted);
@@ -521,7 +521,7 @@
 /* Time Cell */
 .file-browser-time-cell {
     /* Layout preserved */
-    width: 15%;
+    width: 20%;
     text-align: right;
     white-space: nowrap;
     line-height: 24px;  /* Match cell line height */
@@ -534,7 +534,7 @@
 /* README rendering - Theme-aware */
 .readme-container {
     /* Layout preserved */
-    padding: 1.5rem;
+    padding: 1rem;
     max-width: 100%;
     /* Styling moved to central CSS - see static/css/components/cards.css */
     border: 1px solid var(--color-border-default);
