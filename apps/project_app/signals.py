@@ -165,9 +165,19 @@ def _initialize_writer_structure(project, project_dir):
         # This will use the project root's .git repository
         # Don't pass name parameter - let it use directory name 'writer'
         from scitex.writer import Writer
+        from django.conf import settings
+
+        # Get branch and tag from settings
+        # In development: tag=v2.0.0-beta, branch=None
+        # In production: tag=None, branch=main
+        template_branch = getattr(settings, 'SCITEX_WRITER_TEMPLATE_BRANCH', None)
+        template_tag = getattr(settings, 'SCITEX_WRITER_TEMPLATE_TAG', None)
+
         writer = Writer(
             project_dir=writer_dir,
-            git_strategy='parent'  # Use project root's git repo
+            git_strategy='parent',  # Use project root's git repo
+            branch=template_branch,  # Use env-specific branch (or None)
+            tag=template_tag  # Use env-specific tag (or None)
         )
 
         logger.success(f"✓ Scitex writer structure created for {project.slug}")

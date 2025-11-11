@@ -484,7 +484,7 @@ jobs:
 
       - name: Compile LaTeX
         run: |
-          cd scitex/writer/shared
+          cd scitex/writer/00_shared
           pdflatex main.tex
           bibtex main
           pdflatex main.tex
@@ -494,7 +494,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: manuscript
-          path: scitex/writer/shared/main.pdf
+          path: scitex/writer/00_shared/main.pdf
 ''',
         'code-lint': '''name: Code Linting
 on:

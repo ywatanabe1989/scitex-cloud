@@ -146,29 +146,10 @@ interface BranchSwitchResponse {
     }
 
     // =============================================================================
-    // Scroll Shadow Management
+    // Scroll Shadow Management - REMOVED
     // =============================================================================
-
-    // Handle scroll shadows
-    function updateScrollShadows(container: HTMLElement): void {
-        const scrollTop = container.scrollTop;
-        const scrollHeight = container.scrollHeight;
-        const clientHeight = container.clientHeight;
-        const scrollBottom = scrollHeight - scrollTop - clientHeight;
-
-        // Add/remove classes based on scroll position
-        if (scrollTop > 0) {
-            container.classList.add('scrolled-top');
-        } else {
-            container.classList.remove('scrolled-top');
-        }
-
-        if (scrollBottom > 0) {
-            container.classList.add('scrolled-bottom');
-        } else {
-            container.classList.remove('scrolled-bottom');
-        }
-    }
+    // Smart scrolling pattern: No nested scrollbar, use page-wide scrollbar only
+    // Scroll shadow effects removed since .file-content no longer has overflow-y
 
     // =============================================================================
     // Copy and Preview Functions
@@ -311,21 +292,63 @@ interface BranchSwitchResponse {
             }
         }
 
-        // Setup scroll shadow handlers
+        // GitHub-style progressive scroll behavior
         const fileContent = document.querySelector<HTMLElement>('.file-content');
-        if (fileContent) {
-            // Initial check
-            updateScrollShadows(fileContent);
+        const fileContainer = document.querySelector<HTMLElement>('.file-container');
 
-            // Update on scroll
-            fileContent.addEventListener('scroll', function() {
-                updateScrollShadows(fileContent);
+        if (fileContent && fileContainer) {
+            let lastScrollY = window.scrollY;
+
+            // Check if file container top has reached viewport top
+            const isContainerAtTop = (): boolean => {
+                const rect = fileContainer.getBoundingClientRect();
+                return rect.top <= 0;
+            };
+
+            window.addEventListener('scroll', function() {
+                const scrollingDown = window.scrollY > lastScrollY;
+                lastScrollY = window.scrollY;
+
+                // Update container position state
+                if (isContainerAtTop()) {
+                    fileContainer.classList.add('sticky-mode');
+                } else {
+                    fileContainer.classList.remove('sticky-mode');
+                }
             });
 
-            // Update on resize
-            window.addEventListener('resize', function() {
-                updateScrollShadows(fileContent);
-            });
+            // Progressive scroll on wheel
+            fileContent.addEventListener('wheel', function(e: WheelEvent) {
+                const target = e.currentTarget as HTMLElement;
+                const delta = e.deltaY;
+                const scrollingDown = delta > 0;
+
+                // Check code block scroll state
+                const codeScrollTop = target.scrollTop;
+                const codeScrollHeight = target.scrollHeight;
+                const codeHeight = target.clientHeight;
+                const codeAtTop = codeScrollTop === 0;
+                const codeAtBottom = codeScrollTop + codeHeight >= codeScrollHeight;
+
+                // Phase 1: Scroll page if container hasn't reached top
+                if (!isContainerAtTop() && scrollingDown) {
+                    // Let page scroll naturally
+                    return;
+                }
+
+                // Phase 2: Scroll code block when container is at top
+                if (isContainerAtTop()) {
+                    if ((scrollingDown && !codeAtBottom) || (!scrollingDown && !codeAtTop)) {
+                        // Scroll code block
+                        e.preventDefault();
+                        e.stopPropagation();
+                        target.scrollTop += delta;
+                    } else if (!scrollingDown && codeAtTop) {
+                        // Allow page scroll up when code is at top
+                        return;
+                    }
+                }
+            }, { passive: false });
         }
 
         // Listen for site theme changes (light/dark toggle)

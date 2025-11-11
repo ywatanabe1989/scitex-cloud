@@ -24,14 +24,111 @@
     /* border-bottom: 1px solid var(--color-border-default); */
 }
 
-/* Enhanced file header container - GitHub style with proper spacing */
+/* Enhanced file header container - GitHub style compact */
 .file-header-enhanced {
-    /* Layout preserved */
     margin-top: 0;
     overflow: hidden;
-    /* Styling moved to central CSS - see static/css/components/cards.css */
-    /* border: 1px solid var(--color-border-default); */
-    /* border-radius: 6px; */
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+}
+
+/* GitHub-style two-row header structure */
+
+/* Row 1: Commit info */
+.file-header-commit-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px;
+    min-height: 40px;
+    background: var(--color-canvas-subtle);
+    border-bottom: 1px solid var(--color-border-default);
+}
+
+.commit-info-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+}
+
+.commit-info-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Row 2: File actions */
+.file-header-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px;
+    min-height: 40px;
+    background: var(--color-canvas-default);
+}
+
+.file-actions-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex: 1;
+    min-width: 0;
+}
+
+.file-actions-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Code/Blame tabs */
+.file-view-tabs {
+    display: flex;
+    gap: 0;
+}
+
+.file-tab {
+    padding: 6px 12px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--color-fg-muted);
+    transition: color 0.2s, border-color 0.2s;
+}
+
+.file-tab:hover {
+    color: var(--color-fg-default);
+}
+
+.file-tab.active {
+    color: var(--color-fg-default);
+    border-bottom-color: var(--color-accent-emphasis);
+    font-weight: 600;
+}
+
+/* File info text */
+.file-info-text {
+    font-size: 12px;
+    color: var(--color-fg-muted);
+}
+
+/* Icon-only buttons */
+.btn-icon {
+    padding: 5px 8px;
+    background: var(--color-canvas-default);
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--color-fg-default);
+    transition: background 0.2s;
+}
+
+.btn-icon:hover {
+    background: var(--color-canvas-subtle);
 }
 
 /* Main header section with file info and actions */

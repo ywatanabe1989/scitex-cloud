@@ -134,8 +134,8 @@ class ProjectFilesystemManager:
             # Only create basic README for empty projects
             self._create_minimal_readme(project, project_path)
 
-            # Create project metadata
-            self._create_project_metadata(project, project_path)
+            # Note: .scitex_project.json removed - metadata already in database
+            # self._create_project_metadata(project, project_path)
 
             # Update project model with directory path
             project.data_location = str(project_path.relative_to(self.base_path))
@@ -578,24 +578,25 @@ This project directory is managed by SciTeX Cloud. You can:
         with open(readme_path, 'w', encoding='utf-8') as f:
             f.write(readme_content)
     
-    def _create_project_metadata(self, project: Project, project_path: Path):
-        """Create project metadata file."""
-        metadata = {
-            'project_id': project.id,
-            'name': project.name,
-            'slug': slugify(project.name),
-            'description': project.description,
-            'progress': getattr(project, 'progress', 0),
-            'owner_id': project.owner.id,
-            'created_at': project.created_at.isoformat(),
-            'updated_at': project.updated_at.isoformat(),
-            'directory_created_at': datetime.now().isoformat(),
-            'structure_version': '1.0'
-        }
-
-        metadata_path = project_path / '.scitex_project.json'
-        with open(metadata_path, 'w') as f:
-            json.dump(metadata, f, indent=2)
+    # REMOVED: .scitex_project.json is redundant (metadata already in database)
+    # def _create_project_metadata(self, project: Project, project_path: Path):
+    #     """Create project metadata file."""
+    #     metadata = {
+    #         'project_id': project.id,
+    #         'name': project.name,
+    #         'slug': slugify(project.name),
+    #         'description': project.description,
+    #         'progress': getattr(project, 'progress', 0),
+    #         'owner_id': project.owner.id,
+    #         'created_at': project.created_at.isoformat(),
+    #         'updated_at': project.updated_at.isoformat(),
+    #         'directory_created_at': datetime.now().isoformat(),
+    #         'structure_version': '1.0'
+    #     }
+    #
+    #     metadata_path = project_path / '.scitex_project.json'
+    #     with open(metadata_path, 'w') as f:
+    #         json.dump(metadata, f, indent=2)
 
     def initialize_scitex_writer_template(self, project: Project) -> Tuple[bool, Optional[Path]]:
         """

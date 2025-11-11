@@ -8,7 +8,7 @@
 
 /* GitHub-style repository header - Theme-aware */
 .repo-header {
-    padding: 0.75rem 0 1.5rem 0;  /* Reduced top padding: 0.75rem top, 1.5rem bottom */
+    padding: 0.75rem 0 1rem 0;  /* Compact: 0.75rem top, 1rem bottom */
     border-bottom: 1px solid var(--color-border-default);
 }
 
@@ -16,7 +16,15 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 1rem;
+    gap: 0.75rem;  /* Reduced gap for compact layout */
+    min-height: 40px; /* More compact height */
+}
+
+/* Action buttons with smaller gap */
+.repo-action-buttons {
+    display: flex;
+    gap: 8px;
+    margin-left: 12px; /* Small gap from branch counts - not auto */
 }
 
 .repo-header-left {
@@ -807,7 +815,9 @@
     position: sticky;
     top: 80px;
     align-self: start;
-    overflow: hidden;
+    overflow-y: auto; /* Vertical scrollbar for file tree */
+    overflow-x: auto; /* Horizontal scrollbar for wide content */
+    max-height: calc(100vh - 150px); /* Match code block height */
     width: 60px;  /* Default collapsed width */
     /* Styling moved to central CSS - see static/css/components/sidebar.css */
     transition: all 0.3s ease;

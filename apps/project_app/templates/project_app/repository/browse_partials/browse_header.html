@@ -75,10 +75,9 @@
                     <strong>0</strong> Tags
                 </a>
             </div>
-        </div>
 
-        <!-- Right: Action Buttons (Watch, Star, Fork) -->
-        <div class="repo-action-buttons" style="display: flex; gap: 8px; margin-left: auto;">
+            <!-- Action Buttons (Watch, Star, Fork) - no separation -->
+            <div class="repo-action-buttons">
             <!-- Watch Button -->
             <button class="repo-action-btn{% if is_watching %} active{% endif %}" id="watch-btn" onclick="handleWatch(event)" data-username="{{ project.owner.username }}" data-slug="{{ project.slug }}">
                 <svg class="repo-action-icon" viewBox="0 0 16 16" width="16" height="16">
