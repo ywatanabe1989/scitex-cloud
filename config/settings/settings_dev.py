@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-11-02 18:25:23 (ywatanabe)"
-# File: /ssh:scitex:/home/ywatanabe/proj/scitex-cloud/config/settings/settings_dev.py
+# Timestamp: "2025-11-10 15:46:56 (ywatanabe)"
+# File: /home/ywatanabe/proj/scitex-cloud/config/settings/settings_dev.py
 # ----------------------------------------
 from __future__ import annotations
 import os
@@ -58,6 +58,15 @@ DEBUG = os.getenv("SCITEX_CLOUD_DJANGO_DEBUG", "True").lower() in [
     "1",
     "yes",
 ]
+
+# ---------------------------------------
+# SciTeX Settings
+# ---------------------------------------
+# Use develp for writer template in development
+SCITEX_WRITER_TEMPLATE_BRANCH = os.getenv(
+    "SCITEX_WRITER_TEMPLATE_BRANCH", "develop"
+)
+SCITEX_WRITER_TEMPLATE_TAG = os.getenv("SCITEX_WRITER_TEMPLATE_TAG", None)
 SECRET_KEY = os.getenv("SCITEX_CLOUD_DJANGO_SECRET_KEY")
 ALLOWED_HOSTS = os.getenv(
     "SCITEX_CLOUD_ALLOWED_HOSTS",
@@ -136,9 +145,7 @@ GITEA_INTEGRATION_ENABLED = True  # Core feature, always enabled
 # Development Cache Configuration - fallback to dummy cache if Redis not available
 # Override cache configuration for development if Redis is not available
 if not test_redis_connection():
-    print(
-        "⚠️  Redis not available in development, using local memory cache"
-    )
+    print("⚠️  Redis not available in development, using local memory cache")
     CACHES = {
         "default": {
             "BACKEND": "django.core.cache.backends.locmem.LocMemCache",

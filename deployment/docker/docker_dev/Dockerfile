@@ -57,6 +57,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     texlive-lang-english \
     texlive-extra-utils \
     latexdiff \
+    latexmk \
     chktex \
     ghostscript \
     poppler-utils \
