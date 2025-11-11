@@ -250,6 +250,8 @@ switch: validate stop-all
 # Service Lifecycle with Validation
 # ============================================
 start:
+	rm -f ./logs/*.log
+
 	@echo "$(CYAN)🚀 Starting $(ENV) environment (exclusive mode)...$(NC)"
 	@echo ""
 	@# Stop all other environments to ensure exclusivity
@@ -275,6 +277,8 @@ start:
 	@$(MAKE) --no-print-directory status
 
 restart: validate
+	rm -f ./logs/*.log
+
 	@RUNNING=$$(docker ps --format '{{.Names}}' 2>/dev/null | grep -oE 'scitex-cloud-(dev|prod|nas)-' | sed 's/scitex-cloud-//' | sed 's/-//' | sort -u); \
 	if [ "$$RUNNING" != "$(ENV)" ]; then \
 		echo "$(RED)❌ $(ENV) is not running ($$RUNNING is active)$(NC)"; \
@@ -289,6 +293,8 @@ restart: validate
 	@echo "$(GREEN)✅ $(ENV) restarted$(NC)"
 
 reload: validate
+	rm -f ./logs/*.log
+
 	@RUNNING=$$(docker ps --format '{{.Names}}' 2>/dev/null | grep -oE 'scitex-cloud-(dev|prod|nas)-' | sed 's/scitex-cloud-//' | sed 's/-//' | sort -u); \
 	if [ "$$RUNNING" != "$(ENV)" ]; then \
 		echo "$(RED)❌ $(ENV) is not running ($$RUNNING is active)$(NC)"; \

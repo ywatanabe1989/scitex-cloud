@@ -1,1 +1,0 @@
-../../../deployment/postgres/maintenance/postgres_check_status.sh

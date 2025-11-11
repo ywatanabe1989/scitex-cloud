@@ -1,1 +1,0 @@
-../../../deployment/dotenvs/maintenance/dotenv_check_status.sh

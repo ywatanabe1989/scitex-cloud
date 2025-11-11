@@ -1,1 +1,0 @@
-../../../deployment/uwsgi/maintenance/uwsgi_check_status.sh

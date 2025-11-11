@@ -1,1 +1,0 @@
-../../deployment/postgres/setup_postgres.sh
