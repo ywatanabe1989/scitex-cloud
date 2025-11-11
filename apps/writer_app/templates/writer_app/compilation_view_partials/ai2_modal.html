@@ -1,0 +1,60 @@
+<!-- AI2 Asta Prompt Modal -->
+<div class="scitex-modal-overlay" id="ai2PromptModal" style="display: none;">
+    <div class="scitex-modal-content" style="max-width: 800px;">
+        <div class="scitex-modal-header">
+            <h3><i class="fas fa-brain me-2"></i>AI2 Asta Prompt</h3>
+            <button type="button" class="scitex-modal-close" onclick="closeAI2PromptModal()">&times;</button>
+        </div>
+        <div class="scitex-modal-body">
+            <!-- Search type selector -->
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 14px;">
+                    <i class="fas fa-search me-1"></i>Search Type:
+                </label>
+                <div style="display: flex; gap: 1rem;">
+                    <label class="form-check-label" style="cursor: pointer;">
+                        <input type="radio" name="ai2SearchType" value="related" checked style="margin-right: 0.5rem;">
+                        Related Papers
+                    </label>
+                    <label class="form-check-label" style="cursor: pointer;">
+                        <input type="radio" name="ai2SearchType" value="coauthors" style="margin-right: 0.5rem;">
+                        Co-author Papers
+                    </label>
+                </div>
+            </div>
+
+            <!-- Prompt text area -->
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 14px;">
+                    <i class="fas fa-file-alt me-1"></i>Generated Prompt:
+                </label>
+                <textarea id="ai2PromptText" readonly
+                    style="width: 100%; min-height: 300px; padding: 12px; border: 1px solid var(--color-border-default); border-radius: 6px; font-family: monospace; font-size: 13px; resize: vertical; background: var(--color-canvas-subtle);">
+Generating prompt...
+                </textarea>
+            </div>
+
+            <!-- Next steps -->
+            <div style="padding: 12px; background: var(--color-accent-subtle); border-radius: 6px; border-left: 4px solid var(--scitex-color-05); font-size: 13px;">
+                <strong style="display: block; margin-bottom: 0.5rem;">
+                    <i class="fas fa-info-circle me-1"></i>Next Steps:
+                </strong>
+                <ol id="ai2NextSteps" style="margin: 0; padding-left: 1.5rem;">
+                    <li>Visit <a href="https://asta.allen.ai/chat/" target="_blank" rel="noopener">https://asta.allen.ai/chat/</a></li>
+                    <li>Copy and paste the prompt above</li>
+                    <li>Click 'Export All Citations' to download BibTeX file</li>
+                    <li>Upload the downloaded BibTeX file to Scholar app</li>
+                </ol>
+            </div>
+        </div>
+        <div class="scitex-modal-footer">
+            <button type="button" class="scitex-btn scitex-btn-secondary" onclick="closeAI2PromptModal()">Close</button>
+            <button type="button" class="scitex-btn scitex-btn-primary" id="copyAI2PromptBtn">
+                <i class="fas fa-copy me-1"></i>Copy to Clipboard
+            </button>
+            <button type="button" class="scitex-btn scitex-btn-primary" id="regenerateAI2PromptBtn">
+                <i class="fas fa-sync me-1"></i>Regenerate
+            </button>
+        </div>
+    </div>
+</div>

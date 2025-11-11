@@ -30,6 +30,7 @@ export class PDFPreviewManager {
     private currentPdfUrl: string | null = null;
     private fontSize: number = 14; // Default editor font size
     private colorMode: 'light' | 'dark' = 'light'; // PDF color mode
+    private pdfZoom: number = 125; // PDF zoom level (default 125%)
 
     constructor(options: PDFPreviewOptions) {
         this.container = document.getElementById(options.containerId);
@@ -76,6 +77,74 @@ export class PDFPreviewManager {
         this.compilationManager.onError((error) => {
             this.displayError(error);
         });
+
+        // Setup PDF zoom controls
+        this.setupZoomControls();
+    }
+
+    /**
+     * Setup PDF zoom controls
+     */
+    private setupZoomControls(): void {
+        // Load saved zoom level from localStorage
+        const savedZoom = localStorage.getItem('pdf-zoom-level');
+        if (savedZoom) {
+            this.pdfZoom = parseInt(savedZoom, 10);
+        }
+
+        // Setup zoom selector
+        const zoomSelector = document.getElementById('pdf-zoom-selector') as HTMLSelectElement;
+        if (zoomSelector) {
+            zoomSelector.value = this.pdfZoom.toString();
+            zoomSelector.addEventListener('change', () => {
+                this.setPdfZoom(parseInt(zoomSelector.value, 10));
+            });
+        }
+
+        // Setup zoom in button
+        const zoomInBtn = document.getElementById('pdf-zoom-in');
+        if (zoomInBtn) {
+            zoomInBtn.addEventListener('click', () => {
+                const zoomLevels = [100, 125, 150, 175, 200];
+                const currentIndex = zoomLevels.indexOf(this.pdfZoom);
+                if (currentIndex < zoomLevels.length - 1) {
+                    this.setPdfZoom(zoomLevels[currentIndex + 1]);
+                }
+            });
+        }
+
+        // Setup zoom out button
+        const zoomOutBtn = document.getElementById('pdf-zoom-out');
+        if (zoomOutBtn) {
+            zoomOutBtn.addEventListener('click', () => {
+                const zoomLevels = [100, 125, 150, 175, 200];
+                const currentIndex = zoomLevels.indexOf(this.pdfZoom);
+                if (currentIndex > 0) {
+                    this.setPdfZoom(zoomLevels[currentIndex - 1]);
+                }
+            });
+        }
+    }
+
+    /**
+     * Set PDF zoom level
+     */
+    private setPdfZoom(zoom: number): void {
+        this.pdfZoom = zoom;
+        localStorage.setItem('pdf-zoom-level', zoom.toString());
+
+        // Update zoom selector if it exists
+        const zoomSelector = document.getElementById('pdf-zoom-selector') as HTMLSelectElement;
+        if (zoomSelector) {
+            zoomSelector.value = zoom.toString();
+        }
+
+        // Reload current PDF with new zoom if PDF is displayed
+        if (this.currentPdfUrl) {
+            this.displayPdf(this.currentPdfUrl);
+        }
+
+        console.log('[PDFPreview] Zoom changed to:', zoom + '%');
     }
 
     /**
@@ -255,13 +324,13 @@ export class PDFPreviewManager {
                 <div class="pdf-preview-container">
                     <div class="pdf-preview-viewer" id="pdf-viewer-pane">
                         <iframe
-                            src="${cacheBustUrl}#toolbar=0&navpanes=0&scrollbar=1&view=FitW&zoom=page-width"
+                            src="${cacheBustUrl}#toolbar=0&navpanes=0&scrollbar=1&zoom=${this.pdfZoom}&view=FitH"
                             type="application/pdf"
                             width="100%"
                             height="100%"
                             title="PDF Preview"
                             frameborder="0"
-                            style="display: block;">
+                            style="display: block; margin: 0 auto;">
                         </iframe>
                     </div>
                 </div>

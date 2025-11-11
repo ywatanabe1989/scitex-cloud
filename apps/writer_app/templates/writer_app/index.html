@@ -96,8 +96,9 @@
 
 {% include "writer_app/index_partials/word_count.html" %}
 
-<!-- Compilation Options Modal -->
-{% include "writer_app/compilation_view_partials/header.html" %}
+<!-- Compilation Options Modal (without redundant header) -->
+{% include "writer_app/compilation_view_partials/compilation_modal.html" %}
+{% include "writer_app/compilation_view_partials/ai2_modal.html" %}
 {% endif %}
 
 {% if not needs_project_creation and not pool_error and not pool_exhausted %}
@@ -121,6 +122,7 @@ import { editorLoader } from '{% static "writer_app/js/loaders/editor-loader.js"
         projectId: {% if project %}{{ project.id }}{% else %}0{% endif %},  // Real project ID for all users (including demo)
         projectName: {% if project %}'{{ project.name|escapejs }}'{% else %}'Demo Project'{% endif %},
         projectSlug: {% if project %}'{{ project.slug|escapejs }}'{% else %}'demo-project'{% endif %},
+        projectOwner: {% if project %}'{{ project.owner.username|escapejs }}'{% else %}null{% endif %},
         manuscriptTitle: {% if manuscript %}'{{ manuscript.title|escapejs }}'{% else %}'Untitled'{% endif %},
         userId: {% if user.is_authenticated %}{{ user.id }}{% else %}null{% endif %},
         username: {% if user.is_authenticated %}'{{ user.username|escapejs }}'{% else %}null{% endif %},

@@ -289,7 +289,7 @@ def _scan_project_sections(project_path):
     - Subdirectories (figures/, tables/, latex_styles/, etc.)
 
     Args:
-        project_path: Path to project root (contains shared/, 01_manuscript/, etc.)
+        project_path: Path to project root (contains 00_shared/, 01_manuscript/, etc.)
 
     Returns:
         dict: Hierarchy matching SECTION_HIERARCHY structure
@@ -337,8 +337,8 @@ def _scan_project_sections(project_path):
             logger.warning(f"Failed to load section config: {e}")
             excluded_sections = []
 
-    # Scan shared/ directory
-    shared_dir = project_path / "shared"
+    # Scan 00_shared/ directory (renamed from shared/ in v2.0.0-rc1)
+    shared_dir = project_path / "00_shared"
     if shared_dir.exists() and shared_dir.is_dir():
         for tex_file in sorted(shared_dir.glob("*.tex")):
             if tex_file.name in skip_files:
@@ -1478,7 +1478,7 @@ def section_move_down_view(request, project_id, section_name):
 @api_login_optional
 @require_http_methods(["GET"])
 def citations_api(request, project_id):
-    """Get all citation keys from bibliography_all.bib for autocomplete.
+    """Get all citation keys from bibliography for autocomplete.
 
     Returns:
         JSON with citation keys, authors, years, titles for Monaco autocomplete
@@ -1488,15 +1488,32 @@ def citations_api(request, project_id):
         from pathlib import Path
 
         # Get project
+        project = Project.objects.get(id=project_id)
         user, is_visitor = get_user_for_request(request, project_id)
-        if user.is_authenticated:
-            project = Project.objects.get(id=project_id, owner=user)
-        else:
-            # For visitors, check public projects
-            project = Project.objects.get(id=project_id, is_public=True)
+        if not user:
+            return JsonResponse({"success": False, "error": "Invalid session"}, status=403)
 
-        # Path to bibliography_all.bib
-        bib_file = Path(project.git_clone_path) / 'scitex' / 'bibliography_all.bib'
+        # Get project path (handle visitor pool)
+        if is_visitor:
+            from apps.project_app.services.visitor_pool import get_visitor_pool_dir
+            visitor_dir = get_visitor_pool_dir(project.slug, user.id)
+            project_path = visitor_dir / "scitex" / "writer"
+        else:
+            project_path = Path(project.git_clone_path) / "scitex" / "writer"
+
+        # Path to bibliography - try multiple locations for v2.0.0-rc1
+        # 1. Try manuscript bibliography (symlink to merged bibliography)
+        bib_file = project_path / "01_manuscript" / "contents" / "bibliography.bib"
+
+        # 2. If not found, try merged bibliography in 00_shared
+        if not bib_file.exists():
+            bib_file = project_path / "00_shared" / "bib_files" / "bibliography.bib"
+
+        # 3. If still not found, try old location for backwards compatibility
+        if not bib_file.exists():
+            bib_file = Path(project.git_clone_path) / "scitex" / "bibliography_all.bib"
+
+        logger.info(f"[Citations] Looking for bibliography at: {bib_file}")
 
         if not bib_file.exists():
             # Return empty list if no bibliography yet

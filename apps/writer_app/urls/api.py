@@ -23,6 +23,7 @@ REST API endpoints for writer operations:
 
 from django.urls import path
 from ..views.editor import api as api_views
+from ..views.editor import ai2_prompt
 from ..views.index import main as index_views
 
 urlpatterns = [
@@ -157,6 +158,12 @@ urlpatterns = [
         "project/<int:project_id>/regenerate-bibliography/",
         api_views.regenerate_bibliography_api,
         name="api-regenerate-bibliography",
+    ),
+    # AI2 Asta prompt generation
+    path(
+        "project/<int:project_id>/generate-ai2-prompt/",
+        ai2_prompt.generate_ai2_prompt_view,
+        name="api-generate-ai2-prompt",
     ),
 ]
 

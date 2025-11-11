@@ -351,58 +351,12 @@
     white-space: nowrap;
     color: var(--color-fg-default);
     font-size: 0.8rem;
+    text-transform: none; /* Preserve Title Case from backend */
 }
 
 /* iOS-style toggle switch for sections */
-.section-item-toggle {
-    position: relative;
-    display: inline-block;
-    width: 32px;
-    height: 18px;
-    cursor: pointer;
-}
-
-.section-item-toggle input[type="checkbox"] {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.toggle-slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: var(--color-border-default);
-    transition: 0.2s;
-    border-radius: 18px;
-}
-
-.toggle-slider:before {
-    position: absolute;
-    content: "";
-    height: 12px;
-    width: 12px;
-    left: 3px;
-    bottom: 3px;
-    background-color: white;
-    transition: 0.2s;
-    border-radius: 50%;
-}
-
-.section-item-toggle input:checked + .toggle-slider {
-    background-color: var(--color-success-emphasis);
-}
-
-.section-item-toggle input:checked + .toggle-slider:before {
-    transform: translateX(14px);
-}
-
-.section-item-toggle:hover .toggle-slider {
-    box-shadow: 0 0 0 2px var(--color-accent-muted);
-}
+/* Using centralized ios-toggle component from /static/shared/css/components/toggles.css */
+/* Section-specific toggle behavior for excluded state */
 
 /* Excluded sections - crossed out and grayed */
 .section-item.excluded {
@@ -414,13 +368,13 @@
     color: var(--color-fg-muted);
 }
 
-/* Optional sections (not excluded) - slightly dimmed to indicate they're togglable */
+/* Optional sections (not excluded) - use same color as required sections when included */
 .section-item[data-optional="true"]:not(.excluded) {
-    opacity: 0.85;
+    opacity: 1;
 }
 
 .section-item[data-optional="true"]:not(.excluded) .section-item-name {
-    color: var(--color-fg-muted);
+    color: var(--color-fg-default);
 }
 
 /* Hover states for optional sections */
@@ -429,12 +383,44 @@
     opacity: 1 !important;
 }
 
-.section-item.excluded .toggle-slider {
+.section-item.excluded .ios-toggle-slider {
     background-color: var(--color-danger-muted);
 }
 
-.section-item.excluded .toggle-slider:before {
+.section-item.excluded .ios-toggle-slider:before {
     background-color: var(--color-danger-fg);
+}
+
+/* File icon and link for sections */
+.section-file-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-fg-muted);
+    text-decoration: none;
+    transition: color 0.15s ease;
+    flex-shrink: 0;
+}
+
+.section-file-link:hover {
+    color: var(--color-accent-fg);
+}
+
+.section-file-icon {
+    font-size: 0.75rem;
+}
+
+/* Special sections (Full Manuscript, etc.) with no visible drag handle - align left */
+.section-item[draggable="false"] .section-drag-handle,
+.section-item .section-drag-handle[style*="visibility: hidden"] {
+    width: 0;
+    margin: 0;
+    padding: 0;
+}
+
+.section-item[draggable="false"],
+.section-item:has(.section-drag-handle[style*="visibility: hidden"]) {
+    padding-left: 10px;
 }
 
 /* Action buttons for Full Manuscript entry */
@@ -467,11 +453,7 @@
 .section-divider {
     height: 1px;
     background: var(--color-border-default);
-    margin: 0; /* No margin in footer */
-}
-
-.section-items-footer .section-divider {
-    display: none; /* Hide divider in footer (border-top already provides separation) */
+    margin: 4px 0;
 }
 
 .section-action-item {
@@ -484,6 +466,7 @@
     font-weight: 600;
     font-size: 0.8rem;
     transition: background 0.15s ease;
+    text-transform: none; /* Preserve Title Case */
 }
 
 .section-action-item:hover {
@@ -492,6 +475,9 @@
 
 .section-action-item i {
     font-size: 11px;
+    width: 16px;
+    flex-shrink: 0;
+    text-align: center;
 }
 
 /* Fix button colors in panel headers */
@@ -1535,9 +1521,10 @@
     align-items: center;
     justify-content: center;
     padding: 0 !important;
-    margin: 0 !important;
+    margin: 0 auto !important;
     width: 100%;
     height: 100%;
+    text-align: center;
 }
 
 .pdf-preview-viewer embed,

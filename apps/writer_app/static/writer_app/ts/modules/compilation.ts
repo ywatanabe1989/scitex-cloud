@@ -153,10 +153,15 @@ export class CompilationManager {
 
             console.log('[CompilationFull] Starting:', options.docType);
 
-            // Log start
+            // Log start with spinner
             const appendLog = (window as any).appendCompilationLog;
+            const updateLog = (window as any).updateCompilationLog;
             if (appendLog) {
-                appendLog(`[${new Date().toLocaleTimeString()}] Starting ${options.docType} compilation...`);
+                appendLog(
+                    `[${new Date().toLocaleTimeString()}] Starting ${options.docType} compilation`,
+                    'processing',
+                    { spinner: true, dots: true, id: 'compilation-start-line' }
+                );
             }
 
             const response = await fetch(
@@ -209,9 +214,15 @@ export class CompilationManager {
                     showSuccess(pdfPath);
                 }
 
+                if (updateLog) {
+                    updateLog(
+                        'compilation-start-line',
+                        `[${new Date().toLocaleTimeString()}] ✓ Compilation successful!`,
+                        'success'
+                    );
+                }
                 if (appendLog) {
-                    appendLog(`[${new Date().toLocaleTimeString()}] ✓ Compilation successful!`);
-                    appendLog(`PDF generated: ${pdfPath}`);
+                    appendLog(`PDF generated: ${pdfPath}`, 'info');
                 }
 
                 if (this.onCompleteCallback && pdfPath) {
@@ -232,9 +243,15 @@ export class CompilationManager {
                     );
                 }
 
+                if (updateLog) {
+                    updateLog(
+                        'compilation-start-line',
+                        `[${new Date().toLocaleTimeString()}] ✗ Compilation failed`,
+                        'error'
+                    );
+                }
                 if (appendLog) {
-                    appendLog(`[${new Date().toLocaleTimeString()}] ✗ Compilation failed`);
-                    appendLog(`Error: ${errorMsg}`);
+                    appendLog(`Error: ${errorMsg}`, 'error');
                 }
 
                 throw new Error(errorMsg);
@@ -249,8 +266,15 @@ export class CompilationManager {
             }
 
             const appendLog = (window as any).appendCompilationLog;
-            if (appendLog) {
-                appendLog(`[${new Date().toLocaleTimeString()}] ✗ Error: ${message}`);
+            const updateLog = (window as any).updateCompilationLog;
+            if (updateLog) {
+                updateLog(
+                    'compilation-start-line',
+                    `[${new Date().toLocaleTimeString()}] ✗ Error: ${message}`,
+                    'error'
+                );
+            } else if (appendLog) {
+                appendLog(`[${new Date().toLocaleTimeString()}] ✗ Error: ${message}`, 'error');
             }
 
             this.notifyError(message);
@@ -343,6 +367,16 @@ export class CompilationManager {
                     const result = data.result || {};
                     const pdfPath = result.output_pdf || result.pdf_path;
 
+                    // Update spinner line to success
+                    const updateLog = (window as any).updateCompilationLog;
+                    if (updateLog) {
+                        updateLog(
+                            'compilation-start-line',
+                            `[${new Date().toLocaleTimeString()}] ✓ Compilation completed successfully!`,
+                            'success'
+                        );
+                    }
+
                     if (pdfPath) {
                         const showSuccess = (window as any).showCompilationSuccess;
                         if (showSuccess) {
@@ -356,6 +390,16 @@ export class CompilationManager {
                 } else if (data.status === 'failed') {
                     this.isCompiling = false;
                     console.error('[CompilationFull] Failed');
+
+                    // Update spinner line to error
+                    const updateLog = (window as any).updateCompilationLog;
+                    if (updateLog) {
+                        updateLog(
+                            'compilation-start-line',
+                            `[${new Date().toLocaleTimeString()}] ✗ Compilation failed`,
+                            'error'
+                        );
+                    }
 
                     const showError = (window as any).showCompilationError;
                     if (showError) {

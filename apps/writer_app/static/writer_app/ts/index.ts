@@ -197,7 +197,9 @@ async function loadTexFile(filePath: string, editor: any): Promise<void> {
  */
 async function populateSectionDropdownDirect(
     docType: string = 'manuscript',
-    onFileSelectCallback: ((sectionId: string, sectionName: string) => void) | null = null
+    onFileSelectCallback: ((sectionId: string, sectionName: string) => void) | null = null,
+    compilationManager?: CompilationManager,
+    state?: any
 ): Promise<void> {
     console.log('[Writer] Populating custom section dropdown for:', docType);
 
@@ -257,6 +259,9 @@ async function populateSectionDropdownDirect(
         const hierarchy = data.hierarchy;
         let sections: any[] = [];
 
+        console.log('[Writer] Hierarchy received:', hierarchy);
+        console.log('[Writer] Looking for docType:', docType);
+
         if (docType === 'shared' && hierarchy.shared) {
             sections = hierarchy.shared.sections;
         } else if (docType === 'manuscript' && hierarchy.manuscript) {
@@ -267,8 +272,12 @@ async function populateSectionDropdownDirect(
             sections = hierarchy.revision.sections;
         }
 
+        console.log('[Writer] Sections extracted:', sections);
+        console.log('[Writer] Sections count:', sections.length);
+
         if (sections.length === 0) {
             console.warn('[Writer] No sections found for document type:', docType);
+            selectorText.textContent = 'No sections found';
             return;
         }
 
@@ -383,12 +392,28 @@ async function populateSectionDropdownDirect(
             // Setup action buttons (compile/download for FULL MANUSCRIPT)
             const compileBtn = sectionItem.querySelector('[data-action="compile-full"]');
             if (compileBtn) {
-                compileBtn.addEventListener('click', (e) => {
+                compileBtn.addEventListener('click', async (e) => {
                     e.stopPropagation();
-                    const mainCompileBtn = document.getElementById('compile-btn-toolbar');
-                    if (mainCompileBtn) {
-                        mainCompileBtn.click();
+
+                    // Extract doc type from section ID (e.g., "manuscript/compiled_pdf" -> "manuscript")
+                    const sectionId = sectionItem.dataset.sectionId;
+                    let docTypeToCompile = 'manuscript'; // default
+
+                    if (sectionId && sectionId.includes('/')) {
+                        const parts = sectionId.split('/');
+                        docTypeToCompile = parts[0]; // Get category (manuscript, supplementary, revision)
                     }
+
+                    console.log('[Writer] Compile button clicked for section:', sectionId, 'docType:', docTypeToCompile);
+
+                    // Call compilation with correct doc type
+                    if (compilationManager && state) {
+                        await handleCompileFull(compilationManager, state, docTypeToCompile);
+                    } else {
+                        console.error('[Writer] compilationManager or state not available');
+                        showToast('Compilation manager not initialized', 'error');
+                    }
+
                     dropdownContainer.style.display = 'none';
                 });
             }
@@ -626,6 +651,10 @@ async function initializeEditor(config: any): Promise<void> {
     // Initialize compilation manager
     const compilationManager = new CompilationManager('');
 
+    // Initialize AI2 prompt generator (disabled until generate_ai2_prompt.py is implemented)
+    // const { initializeAI2Prompt } = await import('./modules/ai2-prompt.js');
+    // initializeAI2Prompt(config.projectId);
+
     // Setup state management
     const state = createDefaultEditorState(config);
 
@@ -780,7 +809,7 @@ async function initializeEditor(config: any): Promise<void> {
         } else {
             // No file tree container found - populate dropdown directly
             console.log('[Writer] No file tree container, populating dropdown directly');
-            populateSectionDropdownDirect('manuscript', onFileSelectHandler);
+            populateSectionDropdownDirect('manuscript', onFileSelectHandler, compilationManager, state);
 
             // Listen to document type changes (without file tree)
             const docTypeSelector = document.getElementById('doctype-selector') as HTMLSelectElement;
@@ -804,7 +833,7 @@ async function initializeEditor(config: any): Promise<void> {
                     }
 
                     // Repopulate section dropdown for new doc_type
-                    await populateSectionDropdownDirect(newDocType, onFileSelectHandler);
+                    await populateSectionDropdownDirect(newDocType, onFileSelectHandler, compilationManager, state);
                 });
                 console.log('[Writer] Doc type change handler attached');
             }
@@ -812,7 +841,7 @@ async function initializeEditor(config: any): Promise<void> {
     } else {
         // No projectId - still need to populate dropdown
         console.log('[Writer] No project, populating dropdown for demo mode');
-        populateSectionDropdownDirect('manuscript', onFileSelectHandler);
+        populateSectionDropdownDirect('manuscript', onFileSelectHandler, compilationManager, state);
     }
 
     // Setup event listeners
@@ -1462,7 +1491,7 @@ function updateSectionTitleLabel(sectionId: string): void {
         // Regular sections are in contents/
         const ext = sectionName === 'bibliography' || sectionName === 'references' ? 'bib' : 'tex';
         if (docType === 'shared') {
-            filePath = `scitex/writer/shared/${sectionName}.${ext}`;
+            filePath = `scitex/writer/00_shared/${sectionName}.${ext}`;
         } else {
             filePath = `scitex/writer/${docDirMap[docType]}/contents/${sectionName}.${ext}`;
         }
@@ -1715,12 +1744,62 @@ async function saveSections(sectionsManager: SectionsManager, state: any): Promi
 /**
  * Show compilation options modal and return a promise with user's choices
  */
-function showCompilationOptionsModal(): Promise<any> {
+function showCompilationOptionsModal(docType: string = 'manuscript'): Promise<any> {
     return new Promise((resolve, reject) => {
         const modal = document.getElementById('compilationOptionsModal');
         if (!modal) {
             reject(new Error('Modal not found'));
             return;
+        }
+
+        // Update modal description based on doc type
+        const modalBody = modal.querySelector('.scitex-modal-body');
+        const descriptionText = modalBody?.querySelector('p');
+        if (descriptionText) {
+            const docTypeLabels: Record<string, string> = {
+                'manuscript': 'manuscript',
+                'supplementary': 'supplementary materials',
+                'revision': 'revision'
+            };
+            const docLabel = docTypeLabels[docType] || docType;
+            descriptionText.textContent = `Select compilation options for ${docLabel}:`;
+        }
+
+        // Show/hide option groups based on doc type and script capabilities
+        const contentOptions = modalBody?.querySelectorAll('.compilation-option-group')[0] as HTMLElement;
+        const figureProcessingOptions = modalBody?.querySelectorAll('.compilation-option-group')[1] as HTMLElement;
+        const performanceOptions = modalBody?.querySelectorAll('.compilation-option-group')[2] as HTMLElement;
+        const appearanceOptions = modalBody?.querySelectorAll('.compilation-option-group')[3] as HTMLElement;
+        const advancedOptions = modalBody?.querySelectorAll('.compilation-option-group')[4] as HTMLElement;
+
+        // Show/hide specific options within groups
+        const diffOption = document.querySelector('[for="option-add-diff"]')?.parentElement as HTMLElement;
+        const ppt2tifOption = document.querySelector('[for="option-ppt2tif"]')?.parentElement as HTMLElement;
+        const cropTifOption = document.querySelector('[for="option-crop-tif"]')?.parentElement as HTMLElement;
+        const forceOption = document.querySelector('[for="option-force"]')?.parentElement as HTMLElement;
+
+        if (docType === 'manuscript' || docType === 'supplementary') {
+            // Manuscript & Supplementary: All options available (v2.0.0-rc1)
+            if (contentOptions) contentOptions.style.display = 'block';
+            if (figureProcessingOptions) figureProcessingOptions.style.display = 'block';
+            if (performanceOptions) performanceOptions.style.display = 'block';
+            if (appearanceOptions) appearanceOptions.style.display = 'block';
+            if (advancedOptions) advancedOptions.style.display = 'block';
+            if (diffOption) diffOption.style.display = 'block';
+            if (ppt2tifOption) ppt2tifOption.style.display = 'block';
+            if (cropTifOption) cropTifOption.style.display = 'block';
+            if (forceOption) forceOption.style.display = 'block';
+        } else if (docType === 'revision') {
+            // Revision: Content (without diff), Performance, Appearance only
+            if (contentOptions) contentOptions.style.display = 'block';
+            if (figureProcessingOptions) figureProcessingOptions.style.display = 'none';
+            if (performanceOptions) performanceOptions.style.display = 'block';
+            if (appearanceOptions) appearanceOptions.style.display = 'block';
+            if (advancedOptions) advancedOptions.style.display = 'none';
+            if (diffOption) diffOption.style.display = 'none';  // Revision skips diff by default
+            if (ppt2tifOption) ppt2tifOption.style.display = 'none';
+            if (cropTifOption) cropTifOption.style.display = 'none';
+            if (forceOption) forceOption.style.display = 'none';
         }
 
         // Show modal
@@ -1732,15 +1811,35 @@ function showCompilationOptionsModal(): Promise<any> {
         // Handle confirm
         const confirmBtn = document.getElementById('confirm-compile-btn');
         const handleConfirm = () => {
-            // Read options
-            const options = {
-                noFigs: (document.getElementById('option-no-figs') as HTMLInputElement)?.checked || false,
-                ppt2tif: (document.getElementById('option-ppt2tif') as HTMLInputElement)?.checked || false,
-                cropTif: (document.getElementById('option-crop-tif') as HTMLInputElement)?.checked || false,
-                quiet: (document.getElementById('option-quiet') as HTMLInputElement)?.checked || false,
-                verbose: (document.getElementById('option-verbose') as HTMLInputElement)?.checked || false,
-                force: (document.getElementById('option-force') as HTMLInputElement)?.checked || false,
-            };
+            // Read options based on doc type (v2.0.0-rc1)
+            const options: any = {};
+
+            // Content options (inverted logic: checkbox = include, backend expects no_*)
+            const includeFigs = (document.getElementById('option-add-figs') as HTMLInputElement)?.checked || false;
+            const includeTables = (document.getElementById('option-add-tables') as HTMLInputElement)?.checked || false;
+            const includeDiff = (document.getElementById('option-add-diff') as HTMLInputElement)?.checked || false;
+
+            options.noFigs = !includeFigs;      // Default: exclude figures (fast)
+            options.noTables = !includeTables;  // Default: exclude tables (fast)
+            options.noDiff = !includeDiff;      // Default: no diff (fast)
+
+            // Figure processing options (manuscript & supplementary only)
+            if (docType === 'manuscript' || docType === 'supplementary') {
+                options.ppt2tif = (document.getElementById('option-ppt2tif') as HTMLInputElement)?.checked || false;
+                options.cropTif = (document.getElementById('option-crop-tif') as HTMLInputElement)?.checked || false;
+            }
+
+            // Performance options (all doc types)
+            options.draft = (document.getElementById('option-draft') as HTMLInputElement)?.checked || false;
+            options.quiet = (document.getElementById('option-quiet') as HTMLInputElement)?.checked || false;
+
+            // Appearance options (all doc types)
+            options.darkMode = (document.getElementById('option-dark-mode') as HTMLInputElement)?.checked || false;
+
+            // Advanced options (manuscript & supplementary only)
+            if (docType === 'manuscript' || docType === 'supplementary') {
+                options.force = (document.getElementById('option-force') as HTMLInputElement)?.checked || false;
+            }
 
             // Close modal
             modal.classList.remove('scitex-modal-visible');
@@ -1785,7 +1884,8 @@ function showCompilationOptionsModal(): Promise<any> {
  */
 async function handleCompileFull(
     compilationManager: CompilationManager,
-    state: any
+    state: any,
+    docType: string = 'manuscript'
 ): Promise<void> {
     if (compilationManager.getIsCompiling()) {
         showToast('Compilation already in progress', 'warning');
@@ -1802,24 +1902,32 @@ async function handleCompileFull(
         // Show modal and get user options
         let compOptions;
         try {
-            compOptions = await showCompilationOptionsModal();
+            compOptions = await showCompilationOptionsModal(docType);
         } catch (error) {
             // User cancelled
             return;
         }
 
-        showToast('Compiling full manuscript from workspace...', 'info');
-        console.log('[Writer] Starting full compilation for project:', projectId);
+        // Display appropriate message based on doc type
+        const docTypeLabels: Record<string, string> = {
+            'manuscript': 'manuscript',
+            'supplementary': 'supplementary materials',
+            'revision': 'revision'
+        };
+        const docLabel = docTypeLabels[docType] || docType;
+
+        showToast(`Compiling full ${docLabel} from workspace...`, 'info');
+        console.log('[Writer] Starting full compilation for project:', projectId, 'docType:', docType);
         console.log('[Writer] Compilation options:', compOptions);
 
         const result = await compilationManager.compileFull({
             projectId: projectId,
-            docType: 'manuscript',
+            docType: docType,
             ...compOptions
         });
 
         if (result && result.status === 'completed') {
-            showToast('Manuscript compiled successfully', 'success');
+            showToast(`${docLabel.charAt(0).toUpperCase() + docLabel.slice(1)} compiled successfully`, 'success');
         } else {
             showToast('Compilation failed', 'error');
         }
@@ -2095,7 +2203,7 @@ function setupSectionManagementButtons(
                     labelInput.value = '';
 
                     // Refresh section dropdown
-                    await populateSectionDropdownDirect(docType, null);
+                    await populateSectionDropdownDirect(docType, null, compilationManager, state);
 
                     // Switch to the new section
                     const newSectionId = `${docType}/${sectionName}`;
@@ -2179,7 +2287,7 @@ function setupSectionManagementButtons(
 
                     // Refresh section dropdown
                     const docType = state.currentDocType || 'manuscript';
-                    await populateSectionDropdownDirect(docType, null);
+                    await populateSectionDropdownDirect(docType, null, compilationManager, state);
 
                     // Switch to first available section
                     if (editor) {
@@ -2273,7 +2381,7 @@ function setupSectionManagementButtons(
 
                     // Refresh section dropdown to show new order
                     const docType = state.currentDocType || 'manuscript';
-                    await populateSectionDropdownDirect(docType, null);
+                    await populateSectionDropdownDirect(docType, null, compilationManager, state);
                 } else {
                     showToast(`Failed to move section: ${data.error || 'Cannot move section up'}`, 'info');
                 }
@@ -2312,7 +2420,7 @@ function setupSectionManagementButtons(
 
                     // Refresh section dropdown to show new order
                     const docType = state.currentDocType || 'manuscript';
-                    await populateSectionDropdownDirect(docType, null);
+                    await populateSectionDropdownDirect(docType, null, compilationManager, state);
                 } else {
                     showToast(`Failed to move section: ${data.error || 'Cannot move section down'}`, 'info');
                 }

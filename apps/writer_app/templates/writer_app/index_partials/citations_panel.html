@@ -48,12 +48,22 @@
 
     <!-- Empty State (No Citations) -->
     <div id="citations-empty" class="citations-empty-state" style="display: none;">
-      <i class="fas fa-book-open fa-2x mb-2 text-muted"></i>
-      <p class="text-muted">No citations found</p>
-      <small class="text-muted">
-        Upload .bib files via
-        <a href="/scholar/bibtex/" target="_blank">Scholar BibTeX</a>
-      </small>
+      <i class="fas fa-book-open fa-2x mb-3 text-muted"></i>
+      <p class="text-muted mb-2" style="font-weight: 600;">No citations found</p>
+      <div style="max-width: 400px; text-align: left; padding: 1rem; background: var(--color-accent-subtle); border-radius: 6px; border-left: 4px solid var(--scitex-color-05);">
+        <p style="margin: 0 0 0.75rem 0; font-size: 13px; font-weight: 600;">
+          <i class="fas fa-info-circle me-1"></i>To add citations:
+        </p>
+        <ol style="margin: 0; padding-left: 1.5rem; font-size: 12px; line-height: 1.6;">
+          <li>Visit <a href="/scholar/bibtex/" target="_blank" style="font-weight: 500;">Scholar → BibTeX</a> page</li>
+          <li>Upload your .bib files or paste BibTeX entries</li>
+          <li>Click "Save" to add citations to your bibliography</li>
+          <li>Return here to see and cite your references</li>
+        </ol>
+        <p style="margin: 0.75rem 0 0 0; padding-top: 0.75rem; border-top: 1px solid var(--color-border-muted); font-size: 11px; color: var(--color-fg-muted);">
+          <i class="fas fa-lightbulb me-1"></i><strong>Tip:</strong> Use the AI2 Asta button (in compilation view) to find related papers
+        </p>
+      </div>
     </div>
 
     <!-- No Search Results -->

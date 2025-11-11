@@ -176,7 +176,9 @@ async function loadTexFile(filePath: string, editor: any): Promise<void> {
  */
 async function populateSectionDropdownDirect(
     docType: string = 'manuscript',
-    onFileSelectCallback: ((sectionId: string, sectionName: string) => void) | null = null
+    onFileSelectCallback: ((sectionId: string, sectionName: string) => void) | null = null,
+    compilationManager?: CompilationManager,
+    state?: any
 ): Promise<void> {
     console.log('[Writer] Populating custom section dropdown for:', docType);
 
@@ -362,12 +364,28 @@ async function populateSectionDropdownDirect(
             // Setup action buttons (compile/download for FULL MANUSCRIPT)
             const compileBtn = sectionItem.querySelector('[data-action="compile-full"]');
             if (compileBtn) {
-                compileBtn.addEventListener('click', (e) => {
+                compileBtn.addEventListener('click', async (e) => {
                     e.stopPropagation();
-                    const mainCompileBtn = document.getElementById('compile-btn-toolbar');
-                    if (mainCompileBtn) {
-                        mainCompileBtn.click();
+
+                    // Extract doc type from section ID (e.g., "manuscript/compiled_pdf" -> "manuscript")
+                    const sectionId = sectionItem.dataset.sectionId;
+                    let docTypeToCompile = 'manuscript'; // default
+
+                    if (sectionId && sectionId.includes('/')) {
+                        const parts = sectionId.split('/');
+                        docTypeToCompile = parts[0]; // Get category (manuscript, supplementary, revision)
                     }
+
+                    console.log('[Writer] Compile button clicked for section:', sectionId, 'docType:', docTypeToCompile);
+
+                    // Call compilation with correct doc type
+                    if (compilationManager && state) {
+                        await handleCompileFull(compilationManager, state, docTypeToCompile);
+                    } else {
+                        console.error('[Writer] compilationManager or state not available');
+                        showToast('Compilation manager not initialized', 'error');
+                    }
+
                     dropdownContainer.style.display = 'none';
                 });
             }
@@ -794,12 +812,12 @@ async function initializeEditor(config: any): Promise<void> {
         } else {
             // No file tree container found - populate dropdown directly
             console.log('[Writer] No file tree container, populating dropdown directly');
-            populateSectionDropdownDirect('manuscript', onFileSelectHandler);
+            populateSectionDropdownDirect('manuscript', onFileSelectHandler, compilationManager, state);
         }
     } else {
         // No projectId - still need to populate dropdown
         console.log('[Writer] No project, populating dropdown for demo mode');
-        populateSectionDropdownDirect('manuscript', onFileSelectHandler);
+        populateSectionDropdownDirect('manuscript', onFileSelectHandler, compilationManager, state);
     }
 
     // Setup event listeners
@@ -1426,7 +1444,7 @@ function updateSectionTitleLabel(sectionId: string): void {
         // Regular sections are in contents/
         const ext = sectionName === 'bibliography' || sectionName === 'references' ? 'bib' : 'tex';
         if (docType === 'shared') {
-            filePath = `scitex/writer/shared/${sectionName}.${ext}`;
+            filePath = `scitex/writer/00_shared/${sectionName}.${ext}`;
         } else {
             filePath = `scitex/writer/${docDirMap[docType]}/contents/${sectionName}.${ext}`;
         }
@@ -1663,7 +1681,8 @@ async function saveSections(sectionsManager: SectionsManager, state: any): Promi
  */
 async function handleCompileFull(
     compilationManager: CompilationManager,
-    state: any
+    state: any,
+    docType: string = 'manuscript'
 ): Promise<void> {
     if (compilationManager.getIsCompiling()) {
         showToast('Compilation already in progress', 'warning');
@@ -1677,16 +1696,24 @@ async function handleCompileFull(
             return;
         }
 
-        showToast('Compiling full manuscript from workspace...', 'info');
-        console.log('[Writer] Starting full compilation for project:', projectId);
+        // Display appropriate message based on doc type
+        const docTypeLabels: Record<string, string> = {
+            'manuscript': 'manuscript',
+            'supplementary': 'supplementary materials',
+            'revision': 'revision'
+        };
+        const docLabel = docTypeLabels[docType] || docType;
+
+        showToast(`Compiling full ${docLabel} from workspace...`, 'info');
+        console.log('[Writer] Starting full compilation for project:', projectId, 'docType:', docType);
 
         const result = await compilationManager.compileFull({
             projectId: projectId,
-            docType: 'manuscript'
+            docType: docType
         });
 
         if (result && result.status === 'completed') {
-            showToast('Manuscript compiled successfully', 'success');
+            showToast(`${docLabel.charAt(0).toUpperCase() + docLabel.slice(1)} compiled successfully`, 'success');
         } else {
             showToast('Compilation failed', 'error');
         }
