@@ -802,6 +802,7 @@
     grid-template-columns: 280px 1fr;  /* Start expanded by default for better visibility */
     gap: 16px;
     margin-top: 1.5rem;
+    width: 100%;  /* Ensure full container width */
     /* Styling moved to central CSS - see static/css/common/layout.css */
     transition: grid-template-columns 0.3s ease;
 }
