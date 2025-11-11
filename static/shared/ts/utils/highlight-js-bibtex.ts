@@ -87,8 +87,6 @@ interface LanguageDefinition {
                         className: 'title',
                         begin: /\{/,
                         end: /,/,
-                        excludeBegin: true,
-                        excludeEnd: true,
                         relevance: 8
                     },
 
@@ -97,7 +95,6 @@ interface LanguageDefinition {
                         className: 'attribute',
                         begin: /\b[a-zA-Z_][a-zA-Z0-9_]*\s*=/,
                         end: /=/,
-                        excludeEnd: true,
                         relevance: 5
                     },
 
