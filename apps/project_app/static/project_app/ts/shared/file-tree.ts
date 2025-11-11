@@ -66,8 +66,8 @@ export function buildTreeHTML(items: TreeItem[], username: string, slug: string,
         const itemId = `tree-${item.path.replace(/\//g, '-')}`;
 
         if (item.type === 'directory') {
-            // FOLDER CARD - entire card expands/collapses
-            html += `<div class="file-tree-item file-tree-item--folder ${isActive ? 'active' : ''}" style="padding-left: ${indent}px;" onclick="toggleFolder('${itemId}', event)">`;
+            // FOLDER BUTTON - entire button expands/collapses
+            html += `<button type="button" class="file-tree-item file-tree-item--folder ${isActive ? 'active' : ''}" style="padding-left: ${indent}px;" onclick="toggleFolder('${itemId}', event)">`;
 
             // Chevron - just a visual indicator (not separately clickable)
             if (hasChildren) {
@@ -90,7 +90,7 @@ export function buildTreeHTML(items: TreeItem[], username: string, slug: string,
 
             html += `</div>`;
 
-            html += `</div>`;
+            html += `</button>`;
 
             // Children container
             if (hasChildren) {
