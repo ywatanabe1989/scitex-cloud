@@ -305,25 +305,8 @@
     /* color: var(--color-fg-muted); */
 }
 
-/* GitHub-style layout with sidebar on LEFT */
-.repo-layout {
-    /* Layout preserved */
-    display: grid;
-    grid-template-columns: 220px 1fr;  /* Sidebar first, then main content */
-    gap: 8px;
-    margin-top: 1.5rem;
-}
-
-.repo-main {
-    min-width: 0;
-}
-
-.repo-sidebar {
-    /* Layout preserved */
-    position: sticky;
-    top: 80px;
-    align-self: start;
-}
+/* NOTE: Layout structure (.repo-layout, .repo-main, .repo-sidebar)
+   is defined in browse.css to avoid CSS cascade conflicts */
 
 /* Sidebar sections - simple, no card styling */
 .sidebar-section {
