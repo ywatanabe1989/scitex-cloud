@@ -752,4 +752,56 @@ def scitex_api_keys(request):
 
     return render(request, "public_app/pages/api_keys.html", context)
 
+
+def tools(request):
+    """Research tools page - bookmarklets and utilities for researchers."""
+    tools_list = [
+        {
+            "name": "Asta AI Citation Scraper",
+            "category": "Research",
+            "description": "Automatically collect all BibTeX citations from Asta AI search results. Clicks all 'Copy BibTeX' buttons, combines citations, and downloads as a .bib file.",
+            "features": [
+                "Fast DOM scraping mode (instant!)",
+                "Live progress with counter and ETA",
+                "Auto-download as .bib file",
+                "Progress bar visualization",
+                "Clipboard backup copy",
+            ],
+            "bookmarklet_url": "/tools/asta-citation-scraper/",
+            "icon": "📚",
+            "color": "#4a9b7e",  # SciTeX success/green
+        },
+        {
+            "name": "Element Inspector",
+            "category": "Development",
+            "description": "Visual debugging tool for web developers. Inspect any element on any website with colored overlays, click to copy comprehensive debug info formatted for AI assistants.",
+            "features": [
+                "Alt+I keyboard shortcut to toggle",
+                "Escape to close",
+                "Click any element to copy debug info",
+                "Works on any website",
+                "AI-ready output format",
+            ],
+            "bookmarklet_url": "/tools/element-inspector/",
+            "icon": "🔍",
+            "color": "#6b8fb3",  # SciTeX info/blue
+        },
+    ]
+
+    context = {
+        "tools_list": tools_list,
+    }
+
+    return render(request, "public_app/pages/tools.html", context)
+
+
+def tool_element_inspector(request):
+    """Element Inspector tool detail page."""
+    return render(request, "public_app/tools/element-inspector.html")
+
+
+def tool_asta_citation_scraper(request):
+    """Asta AI Citation Scraper tool detail page."""
+    return render(request, "public_app/tools/asta-citation-scraper.html")
+
 # EOF

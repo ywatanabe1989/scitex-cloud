@@ -1,0 +1,160 @@
+{% extends "global_base.html" %}
+
+{% block title %}Research Tools - SciTeX{% endblock %}
+
+{% block meta_description %}Free browser-based tools for researchers: bookmarklets for element inspection, citation scraping, and more. Works on any website, no installation required.{% endblock %}
+
+{% block extra_css %}
+{% load static %}
+<style>
+  .tools-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+  }
+
+  .tools-hero {
+    text-align: center;
+    padding: 60px 20px;
+    background: linear-gradient(135deg, #1a2a40 0%, #506b7a 100%);
+    color: white;
+    border-radius: 12px;
+    margin-bottom: 60px;
+  }
+
+  .tools-hero-eyebrow {
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+    opacity: 0.9;
+  }
+
+  .tools-hero-title {
+    font-size: 48px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    line-height: 1.2;
+  }
+
+  .tools-hero-subtitle {
+    font-size: 20px;
+    opacity: 0.95;
+    max-width: 700px;
+    margin: 0 auto 30px;
+    line-height: 1.6;
+  }
+
+  .tools-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 60px;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .tool-card {
+    background: var(--bg-muted);
+    border-radius: 8px;
+    padding: 24px;
+    transition: all 0.2s ease;
+    border: 1px solid var(--border-muted);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .tool-card:hover {
+    border-color: var(--border-default);
+    background: var(--bg-surface);
+  }
+
+  .tool-icon {
+    font-size: 32px;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+
+  .tool-card-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .tool-card-title {
+    margin: 0 0 8px 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .tool-description {
+    color: var(--text-secondary);
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  .tool-card-footer {
+    flex-shrink: 0;
+  }
+
+  .btn-tool {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    display: inline-block;
+    white-space: nowrap;
+  }
+
+  .btn-tool-primary {
+    background: #6b8fb3;
+    color: white;
+  }
+
+  .btn-tool-primary:hover {
+    background: #506b7a;
+    color: white;
+    text-decoration: none;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="tools-container">
+  <!-- Hero Section -->
+  <header class="tools-hero">
+    <!-- <div class="tools-hero-eyebrow">🛠️ Free Research Tools</div> -->
+    <h1 class="tools-hero-title">Tools for Researchers</h1>
+    <p class="tools-hero-subtitle">
+      Utilities to accelerate your research workflow.
+    </p>
+  </header>
+
+  <!-- Tools Grid -->
+  <div class="tools-grid">
+    {% for tool in tools_list %}
+    <div class="tool-card">
+      <span class="tool-icon">{{ tool.icon }}</span>
+      <div class="tool-card-content">
+        <h3 class="tool-card-title">{{ tool.name }}</h3>
+        <p class="tool-description">{{ tool.description }}</p>
+      </div>
+      <div class="tool-card-footer">
+        <a href="{{ tool.bookmarklet_url }}" class="btn-tool btn-tool-primary">
+          Get Tool →
+        </a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
+{% endblock %}
