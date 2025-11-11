@@ -66,31 +66,34 @@ export function buildTreeHTML(items: TreeItem[], username: string, slug: string,
         const itemId = `tree-${item.path.replace(/\//g, '-')}`;
 
         if (item.type === 'directory') {
-            // FOLDER BUTTON - entire button expands/collapses
-            html += `<button type="button" class="file-tree-item file-tree-item--folder ${isActive ? 'active' : ''}" style="padding-left: ${indent}px;" onclick="toggleFolder('${itemId}', event)">`;
+            // FOLDER ROW - contains icon button and folder name link
+            html += `<div class="file-tree-item file-tree-item--folder ${isActive ? 'active' : ''}" style="padding-left: ${indent}px;">`;
 
-            // Chevron - just a visual indicator (not separately clickable)
+            // FOLDER ICON BUTTON - clickable button to expand/collapse
+            html += `<button type="button" class="folder-icon-button" onclick="toggleFolder('${itemId}', event)">`;
+
+            // Chevron - part of the icon button
             if (hasChildren) {
                 html += `<span class="file-tree-chevron ${shouldExpand ? 'expanded' : ''}">▸</span>`;
             } else {
                 html += `<span class="file-tree-spacer"></span>`;
             }
 
-            // Folder ICON - part of expand/collapse
+            // Folder ICON
             html += `<span class="file-tree-icon">${icon}</span>`;
+            html += `</button>`;
 
-            // Folder NAME - text in separate div, only text is a link that navigates
-            html += `<div class="file-tree-name-wrapper">`;
-            html += `<a href="${itemPath}" class="file-tree-folder-link" onclick="event.stopPropagation();">${item.name}</a>`;
+            // Folder NAME - link that navigates
+            html += `<a href="${itemPath}" class="file-tree-folder-link">${item.name}`;
 
             // Add symlink indicator if it's a symlink
             if (item.is_symlink && item.symlink_target) {
                 html += `<span style="color: var(--color-fg-muted); margin-left: 4px; font-size: 12px;"> → ${item.symlink_target}</span>`;
             }
 
-            html += `</div>`;
+            html += `</a>`;
 
-            html += `</button>`;
+            html += `</div>`;
 
             // Children container
             if (hasChildren) {

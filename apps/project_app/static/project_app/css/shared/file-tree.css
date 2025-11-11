@@ -370,20 +370,38 @@
     /* font-size: 14px; */
 }
 
-/* Reset button styles for folder items */
-button.file-tree-item {
-    width: 100%;
-    text-align: left;
-    background: none;
-    border: 1px solid var(--color-border-default, #d0d7de);
-    color: inherit;
-    font: inherit;
-}
-
 .file-tree-item--folder {
-    cursor: pointer;
     display: flex;
     align-items: center;
+    gap: 4px;
+}
+
+/* Folder icon button - clickable button for expand/collapse */
+.folder-icon-button {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 6px;
+    background: none;
+    border: 1px solid var(--color-border-default, #d0d7de);
+    border-radius: 4px;
+    color: inherit;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.folder-icon-button:hover {
+    background: var(--color-neutral-subtle, rgba(208, 215, 222, 0.32));
+    border-color: var(--color-accent-emphasis, #0969da);
+}
+
+[data-theme="dark"] .folder-icon-button {
+    border-color: var(--color-border-default, #30363d);
+}
+
+[data-theme="dark"] .folder-icon-button:hover {
+    background: var(--color-neutral-subtle, rgba(110, 118, 129, 0.2));
+    border-color: var(--color-accent-emphasis, #1f6feb);
 }
 
 .file-tree-item--file {
