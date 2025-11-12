@@ -29,11 +29,11 @@
     min-height: 40px; /* More compact height */
 }
 
-/* Action buttons with smaller gap */
+/* Action buttons with large gap from left elements */
 .repo-action-buttons {
     display: flex;
     gap: 8px;
-    margin-left: 12px; /* Small gap from branch counts - not auto */
+    margin-left: auto; /* Push to the right, creating large flexible gap */
 }
 
 .repo-header-left {
