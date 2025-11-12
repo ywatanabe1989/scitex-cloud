@@ -25,7 +25,49 @@ class BrowseToolbar {
             this.setupClickableRows();
             this.setupDropdowns();
             this.setupDropdownHoverEffects();
+            this.setupKeyboardShortcuts();
         });
+    }
+
+    private setupKeyboardShortcuts(): void {
+        // Ctrl+K or Cmd+K shortcut to focus "Go to file" search
+        // Use capture phase to intercept before global search modal
+        document.addEventListener('keydown', (e: KeyboardEvent) => {
+            const gotoFileInput = document.getElementById('goto-file-input') as HTMLInputElement | null;
+
+            // Ctrl+K to focus
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                // Check if we're on a browse page with goto-file-input
+                if (!gotoFileInput) {
+                    // Not on browse page, let global handler take over
+                    return;
+                }
+
+                // Don't trigger if already in an input (except our goto-file search)
+                if (document.activeElement?.tagName === 'INPUT' && (document.activeElement as HTMLElement).id !== 'goto-file-input') {
+                    return;
+                }
+                if (document.activeElement?.tagName === 'TEXTAREA') {
+                    return;
+                }
+
+                // Prevent default browser behavior and stop propagation to global search
+                e.preventDefault();
+                e.stopPropagation();
+
+                gotoFileInput.focus();
+                gotoFileInput.select();
+                console.log('[Browse Toolbar] Ctrl+K: focused goto-file-input, prevented global search');
+            }
+
+            // ESC to unfocus/blur the goto-file-input
+            if (e.key === 'Escape' && gotoFileInput && document.activeElement === gotoFileInput) {
+                e.preventDefault();
+                gotoFileInput.blur();
+                gotoFileInput.value = ''; // Clear the input
+                console.log('[Browse Toolbar] ESC: unfocused and cleared goto-file-input');
+            }
+        }, true); // Use capture phase to run before other handlers
     }
 
     private loadProjectData(): void {

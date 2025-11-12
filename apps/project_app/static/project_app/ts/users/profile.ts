@@ -53,6 +53,7 @@ console.log("[DEBUG] apps/project_app/static/project_app/ts/users/profile.ts loa
 
         // Ctrl+K shortcut to focus repository search
         document.addEventListener('keydown', function(e: KeyboardEvent) {
+            // Ctrl+K to focus
             if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
                 // Don't trigger if already in an input (except our search)
                 if (document.activeElement?.tagName === 'INPUT' && document.activeElement.id !== 'repo-search') {
@@ -64,6 +65,19 @@ console.log("[DEBUG] apps/project_app/static/project_app/ts/users/profile.ts loa
 
                 e.preventDefault();
                 repoSearchInput.focus();
+                repoSearchInput.select();
+            }
+
+            // ESC to unfocus/blur the repo-search input
+            if (e.key === 'Escape' && document.activeElement === repoSearchInput) {
+                e.preventDefault();
+                repoSearchInput.blur();
+                repoSearchInput.value = ''; // Clear the input
+                // Reset repository visibility
+                const repoItems = document.querySelectorAll('.repo-item');
+                repoItems.forEach((item) => {
+                    (item as HTMLElement).style.display = '';
+                });
             }
         });
     }
