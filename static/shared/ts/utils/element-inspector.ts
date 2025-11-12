@@ -19,6 +19,7 @@ class ElementInspector {
     private layerPickerMenu: HTMLDivElement | null = null;
     private currentlyHoveredBox: HTMLDivElement | null = null;
     private currentlyHoveredElement: Element | null = null;
+    private currentlySelectedElements: Set<Element> = new Set();
 
     constructor() {
         this.init();
@@ -45,11 +46,13 @@ class ElementInspector {
                 this.startSelectionMode();
             }
 
-            // Escape: Deactivate inspector or cancel selection mode
+            // Escape: Deactivate inspector and cancel selection mode
             if (e.key === 'Escape') {
                 e.preventDefault();
                 if (this.selectionMode) {
                     this.cancelSelectionMode();
+                    // Also deactivate the inspector visualization
+                    this.deactivate();
                 } else if (this.isActive) {
                     this.deactivate();
                 }
@@ -170,6 +173,11 @@ class ElementInspector {
                 animation: pulse 1s ease-in-out infinite;
             }
 
+            .element-inspector-selected {
+                /* Colors applied dynamically based on depth */
+                transition: outline 0.15s, background 0.15s, box-shadow 0.15s;
+            }
+
             @keyframes pulse {
                 0%, 100% {
                     box-shadow:
@@ -267,9 +275,15 @@ class ElementInspector {
                 z-index: 2147483646 !important;
             }
 
+            /* Force crosshair cursor during selection mode */
+            body.element-inspector-selection-mode,
+            body.element-inspector-selection-mode * {
+                cursor: crosshair !important;
+            }
+
             .selection-rectangle {
                 position: fixed !important;
-                border: none !important;
+                border: 2px dotted rgba(59, 130, 246, 1) !important;
                 background: transparent !important;
                 pointer-events: none !important;
                 z-index: 2147483647 !important;
@@ -1347,14 +1361,16 @@ Press Alt+I to toggle element inspector overlay.
 
     private startSelectionMode(): void {
         this.selectionMode = true;
-        document.body.style.cursor = 'crosshair';
 
-        // Ensure styles are added (in case inspector wasn't activated first)
-        if (!this.styleElement) {
-            this.addStyles();
+        // Add class to body to force crosshair cursor on all elements
+        document.body.classList.add('element-inspector-selection-mode');
+
+        // Activate element visualization if not already active
+        if (!this.isActive) {
+            this.activate();
         }
 
-        // Create overlay immediately
+        // Create overlay immediately (on top of element visualization)
         this.selectionOverlay = document.createElement('div');
         this.selectionOverlay.className = 'selection-overlay';
         document.body.appendChild(this.selectionOverlay);
@@ -1369,7 +1385,12 @@ Press Alt+I to toggle element inspector overlay.
 
     private cancelSelectionMode(): void {
         this.selectionMode = false;
-        document.body.style.cursor = '';
+
+        // Remove class from body to restore normal cursors
+        document.body.classList.remove('element-inspector-selection-mode');
+
+        // Clear selection highlights
+        this.clearSelectionHighlights();
 
         // Remove overlay
         if (this.selectionOverlay) {
@@ -1430,6 +1451,9 @@ Press Alt+I to toggle element inspector overlay.
         this.selectionRect.style.top = `${top}px`;
         this.selectionRect.style.width = `${width}px`;
         this.selectionRect.style.height = `${height}px`;
+
+        // Highlight elements that intersect with current selection
+        this.updateSelectionHighlights({ left, top, width, height });
     };
 
     private onSelectionMouseUp = async (e: MouseEvent): Promise<void> => {
@@ -1480,14 +1504,103 @@ Press Alt+I to toggle element inspector overlay.
             this.showNotification('✗ Copy Failed', 'error');
         }
 
-        // Clean up
+        // Clean up (will also clear highlights)
         this.cancelSelectionMode();
     };
+
+    private updateSelectionHighlights(rect: { left: number; top: number; width: number; height: number }): void {
+        // Find elements that are completely inside selection
+        const selectedElements = this.findElementsInRect(rect);
+        const newSelection = new Set(selectedElements);
+
+        // Track which boxes to highlight
+        const selectedBoxes = new Set<HTMLDivElement>();
+
+        // Find corresponding boxes and highlight them
+        this.elementBoxMap.forEach((element, box) => {
+            if (newSelection.has(element)) {
+                selectedBoxes.add(box);
+            }
+        });
+
+        // Remove highlights from boxes no longer in selection
+        this.elementBoxMap.forEach((element, box) => {
+            if (this.currentlySelectedElements.has(element) && !newSelection.has(element)) {
+                // Remove box highlight
+                box.style.borderWidth = '2px';
+                box.style.background = 'rgba(255, 255, 255, 0.01)';
+                box.style.transform = '';
+                box.style.zIndex = '';
+
+                // Remove element highlight
+                if (element instanceof HTMLElement) {
+                    element.classList.remove('element-inspector-selected');
+                }
+            }
+        });
+
+        // Add highlights to newly selected boxes
+        selectedBoxes.forEach(box => {
+            const element = this.elementBoxMap.get(box);
+            if (element && !this.currentlySelectedElements.has(element)) {
+                // Get depth-based color
+                const depth = this.getDepth(element);
+                const color = this.getColorForDepth(depth);
+
+                // Highlight the box more prominently
+                box.style.borderWidth = '4px';
+                box.style.background = this.hexToRgba(color, 0.25);
+                box.style.transform = 'scale(1.02)';
+                box.style.zIndex = '1000000';
+
+                // Also mark the element
+                if (element instanceof HTMLElement) {
+                    element.classList.add('element-inspector-selected');
+                }
+            }
+        });
+
+        // Update tracked selection
+        this.currentlySelectedElements = newSelection;
+    }
+
+    private clearSelectionHighlights(): void {
+        // Reset boxes to normal state
+        this.elementBoxMap.forEach((element, box) => {
+            if (this.currentlySelectedElements.has(element)) {
+                box.style.borderWidth = '2px';
+                box.style.background = 'rgba(255, 255, 255, 0.01)';
+                box.style.transform = '';
+                box.style.zIndex = '';
+            }
+        });
+
+        // Clear element classes
+        this.currentlySelectedElements.forEach(element => {
+            if (element instanceof HTMLElement) {
+                element.classList.remove('element-inspector-selected');
+            }
+        });
+        this.currentlySelectedElements.clear();
+    }
+
+    private hexToRgba(hex: string, alpha: number): string {
+        // Convert hex to RGB
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        if (!result) return `rgba(59, 130, 246, ${alpha})`; // fallback to blue
+
+        const r = parseInt(result[1], 16);
+        const g = parseInt(result[2], 16);
+        const b = parseInt(result[3], 16);
+
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
 
     private findElementsInRect(rect: { left: number; top: number; width: number; height: number }): Element[] {
         const selectedElements: Element[] = [];
         const allElements = document.querySelectorAll('*');
 
+        // Selection rect is in viewport coordinates (fixed position)
         const selectionRect = {
             left: rect.left,
             top: rect.top,
@@ -1498,7 +1611,8 @@ Press Alt+I to toggle element inspector overlay.
         allElements.forEach((element: Element) => {
             // Skip our own inspector elements
             if (element.closest('#element-inspector-overlay') ||
-                element.classList.contains('selection-rectangle')) {
+                element.classList.contains('selection-rectangle') ||
+                element.classList.contains('selection-overlay')) {
                 return;
             }
 
@@ -1510,12 +1624,13 @@ Press Alt+I to toggle element inspector overlay.
                 }
             }
 
+            // Element bounds in viewport coordinates (getBoundingClientRect is already viewport-relative)
             const elementRect = element.getBoundingClientRect();
             const elementBounds = {
-                left: elementRect.left + window.scrollX,
-                top: elementRect.top + window.scrollY,
-                right: elementRect.right + window.scrollX,
-                bottom: elementRect.bottom + window.scrollY
+                left: elementRect.left,
+                top: elementRect.top,
+                right: elementRect.right,
+                bottom: elementRect.bottom
             };
 
             // Check if element intersects with selection
