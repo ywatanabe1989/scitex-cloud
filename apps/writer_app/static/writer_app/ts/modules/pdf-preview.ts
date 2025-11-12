@@ -324,7 +324,7 @@ export class PDFPreviewManager {
                 <div class="pdf-preview-container">
                     <div class="pdf-preview-viewer" id="pdf-viewer-pane">
                         <iframe
-                            src="${cacheBustUrl}#toolbar=0&navpanes=0&scrollbar=0&zoom=${this.pdfZoom}"
+                            src="${cacheBustUrl}#toolbar=0&navpanes=0&scrollbar=1&zoom=${this.pdfZoom}"
                             type="application/pdf"
                             width="100%"
                             height="100%"

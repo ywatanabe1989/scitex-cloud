@@ -3,52 +3,31 @@
  * Theme-responsive PDF rendering with custom scrollbars
  */
 
-/* PDF Preview Container - scrollable wrapper around iframe */
+/* PDF Preview Container - direct container for iframe (no custom scrollbar) */
 .pdf-preview-container {
     width: 100%;
     height: 100%;
-    overflow: auto;
+    overflow: hidden;
     position: relative;
 }
 
 .pdf-preview-viewer {
     width: 100%;
-    min-height: 100%;
+    height: 100%;
 }
 
 .pdf-preview-viewer iframe {
     display: block;
     width: 100%;
-    height: 100vh; /* Make iframe taller to enable scrolling */
+    height: 100%;
     border: none;
     margin: 0;
     padding: 0;
 }
 
-/* Theme-aware scrollbars for PDF preview container */
-.pdf-preview-container::-webkit-scrollbar {
-    width: 12px;
-}
-
-.pdf-preview-container::-webkit-scrollbar-track {
-    background: var(--color-canvas-subtle);
-}
-
-.pdf-preview-container::-webkit-scrollbar-thumb {
-    background: var(--color-border-default);
-    border-radius: 6px;
-    border: 2px solid var(--color-canvas-subtle);
-}
-
-.pdf-preview-container::-webkit-scrollbar-thumb:hover {
-    background: var(--color-fg-muted);
-}
-
-/* Firefox scrollbar for PDF preview */
-.pdf-preview-container {
-    scrollbar-width: thin;
-    scrollbar-color: var(--color-border-default) var(--color-canvas-subtle);
-}
+/* Note: The iframe's internal scrollbar cannot be styled from CSS due to browser
+   security restrictions. The scrollbar appearance is controlled by the browser's
+   native PDF viewer and will use the browser's default scrollbar styling. */
 
 /* PDF.js scroll container - replaces iframe */
 .pdfjs-scroll-container {
