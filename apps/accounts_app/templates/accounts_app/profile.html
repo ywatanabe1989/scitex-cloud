@@ -90,7 +90,7 @@
       </div>
       <div class="col-md-10">
         <h1>{{ user.get_full_name|default:user.username }}</h1>
-        <p class="text-muted mb-0">Member since {{ user.date_joined|date:"F Y" }}</p>
+        <p class="text-muted mb-0">Member since {{ user.date_joined|date:"M Y" }}</p>
         {% if profile.academic_title %}
           <p class="mb-0">{{ profile.academic_title }}</p>
         {% endif %}

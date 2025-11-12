@@ -11,7 +11,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    /* background: rgba(0, 0, 0, 0.6); */ /* Styling from central CSS */
+    background: rgba(0, 0, 0, 0.6);
     z-index: 10000;
     align-items: center;
     justify-content: center;
@@ -19,12 +19,12 @@
 
 /* Modal Container */
 .delete-account-modal-content {
-    /* background: var(--color-canvas-default); */ /* Styling from central CSS */
-    /* border-radius: 12px; */ /* Styling from central CSS */
+    background: var(--color-canvas-default);
+    border-radius: 12px;
     max-width: 600px;
     width: 90%;
     padding: 24px;
-    /* box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4); */ /* Styling from central CSS */
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
 /* Modal Header */
@@ -40,53 +40,53 @@
 
 .delete-account-modal-title {
     margin: 0;
-    /* color: var(--color-fg-default); */ /* Styling from central CSS */
-    /* font-size: 20px; */ /* Styling from central CSS */
-    /* font-weight: 600; */ /* Styling from central CSS */
+    color: var(--color-fg-default);
+    font-size: 20px;
+    font-weight: 600;
 }
 
 /* Warning Box */
 .delete-account-warning {
     padding: 16px;
-    /* background: var(--color-danger-subtle); */ /* Styling from central CSS */
-    /* border: 1px solid var(--color-danger-emphasis); */ /* Styling from central CSS */
-    /* border-radius: 6px; */ /* Styling from central CSS */
+    background: var(--color-danger-subtle);
+    border: 1px solid var(--color-danger-emphasis);
+    border-radius: 6px;
     margin-bottom: 16px;
 }
 
 .delete-account-warning-title {
     margin: 0 0 12px 0;
-    /* color: var(--color-fg-default); */ /* Styling from central CSS */
-    /* font-weight: 600; */ /* Styling from central CSS */
+    color: var(--color-fg-default);
+    font-weight: 600;
 }
 
 .delete-account-warning-text {
     margin: 0;
-    /* color: var(--color-fg-default); */ /* Styling from central CSS */
-    /* font-size: 14px; */ /* Styling from central CSS */
+    color: var(--color-fg-default);
+    font-size: 14px;
 }
 
 /* Confirmation Text */
 .delete-account-confirm-text {
-    /* color: var(--color-fg-default); */ /* Styling from central CSS */
+    color: var(--color-fg-default);
     margin-bottom: 8px;
-    /* font-size: 14px; */ /* Styling from central CSS */
+    font-size: 14px;
 }
 
 .delete-account-username {
-    /* color: var(--color-danger-fg); */ /* Styling from central CSS */
+    color: var(--color-danger-fg);
 }
 
 /* Confirmation Input */
 .delete-account-confirm-input {
     width: 100%;
     padding: 8px 12px;
-    /* border: 2px solid var(--color-border-default); */ /* Styling from central CSS */
-    /* border-radius: 6px; */ /* Styling from central CSS */
-    /* font-size: 14px; */ /* Styling from central CSS */
+    border: 2px solid var(--color-border-default);
+    border-radius: 6px;
+    font-size: 14px;
     margin-bottom: 16px;
-    /* background: var(--color-canvas-default); */ /* Styling from central CSS */
-    /* color: var(--color-fg-default); */ /* Styling from central CSS */
+    background: var(--color-canvas-default);
+    color: var(--color-fg-default);
 }
 
 /* Modal Actions */
@@ -98,37 +98,37 @@
 
 .delete-account-cancel-btn {
     padding: 8px 16px;
-    /* border: 2px solid var(--color-border-default); */ /* Styling from static/css/common/buttons.css */
-    /* border-radius: 6px; */ /* Styling from static/css/common/buttons.css */
-    /* background: var(--color-canvas-default); */ /* Styling from static/css/common/buttons.css */
-    /* color: var(--color-fg-default); */ /* Styling from static/css/common/buttons.css */
+    border: 2px solid var(--color-border-default);
+    border-radius: 6px;
+    background: var(--color-canvas-default);
+    color: var(--color-fg-default);
     cursor: pointer;
-    /* font-size: 14px; */ /* Styling from static/css/common/buttons.css */
+    font-size: 14px;
 }
 
 .delete-account-cancel-btn:hover {
-    /* background: var(--color-btn-hover-bg); */ /* Styling from static/css/common/buttons.css */
+    background: var(--color-btn-hover-bg);
 }
 
 .delete-account-confirm-btn {
     padding: 8px 16px;
-    /* border: none; */ /* Styling from static/css/common/buttons.css */
-    /* border-radius: 6px; */ /* Styling from static/css/common/buttons.css */
-    /* background: #d73a49; */ /* Styling from static/css/common/buttons.css */
-    /* color: white; */ /* Styling from static/css/common/buttons.css */
+    border: none;
+    border-radius: 6px;
+    background: #d73a49;
+    color: white;
     cursor: pointer;
-    /* font-size: 14px; */ /* Styling from static/css/common/buttons.css */
-    /* font-weight: 600; */ /* Styling from static/css/common/buttons.css */
-    /* opacity: 0.5; */ /* Styling from static/css/common/buttons.css */
-    /* transition: opacity 0.2s ease; */ /* Styling from static/css/common/buttons.css */
+    font-size: 14px;
+    font-weight: 600;
+    opacity: 0.5;
+    transition: opacity 0.2s ease;
 }
 
 .delete-account-confirm-btn:not(:disabled) {
-    /* opacity: 1; */ /* Styling from static/css/common/buttons.css */
+    opacity: 1;
 }
 
 .delete-account-confirm-btn:not(:disabled):hover {
-    /* background: #cb2431; */ /* Styling from static/css/common/buttons.css */
+    background: #cb2431;
 }
 
 .delete-account-confirm-btn:disabled {

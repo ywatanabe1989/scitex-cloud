@@ -425,7 +425,7 @@ def delete_account(request):
             request,
             f"Account @{username} has been permanently deleted."
         )
-        return redirect("public_app:landing")
+        return redirect("public_app:index")
 
     return render(request, "auth_app/delete_account.html")
 
