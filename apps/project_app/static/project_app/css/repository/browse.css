@@ -32,9 +32,8 @@
 /* Right side: action buttons + description */
 .repo-header-right {
     display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 0.5rem;
+    align-items: center;
+    gap: 1rem;
     margin-left: auto; /* Push to the right, creating large flexible gap */
 }
 
@@ -124,7 +123,6 @@
 
 .repo-description {
     color: var(--color-fg-muted);
-    text-align: right;
 }
 
 /* Branch dropdown menu */
