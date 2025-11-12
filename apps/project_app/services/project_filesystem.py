@@ -637,13 +637,9 @@ This project directory is managed by SciTeX Cloud. You can:
             logger = logging.getLogger(__name__)
             logger.error(f"Error initializing SciTeX Writer template: {e}", exc_info=True)
 
-            # Check if writer directory was created despite the error
-            from pathlib import Path
-            expected_writer_dir = self.base_path / project.slug / 'scitex' / 'writer'
-            if expected_writer_dir.exists() and (expected_writer_dir / '01_manuscript').exists():
-                logger.warning(f"Writer directory exists despite error - considering it successful: {expected_writer_dir}")
-                return True, expected_writer_dir
-
+            # DO NOT accept incomplete writer directories as successful
+            # Writer structure must be complete or it should fail entirely
+            # This prevents partial initialization from being treated as success
             return False, None
 
     def _get_file_extension(self, doc_type: str) -> str:

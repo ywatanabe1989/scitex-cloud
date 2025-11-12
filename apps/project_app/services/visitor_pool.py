@@ -122,14 +122,12 @@ class VisitorPool:
                     f"[VisitorPool] Project directory already exists: {project_root}"
                 )
 
-                # Check if writer workspace exists, initialize if needed
+                # Initialize writer workspace - let Writer() handle structure validation
                 from pathlib import Path
-                writer_dir = project_root / "scitex" / "writer"
-                if not (writer_dir.exists() and (writer_dir / "01_manuscript").exists()):
-                    logger.info(
-                        f"[VisitorPool] Writer workspace missing for {project_slug}, initializing..."
-                    )
-                    _initialize_visitor_writer_workspace(project, project_root)
+                logger.info(
+                    f"[VisitorPool] Ensuring writer workspace for {project_slug}..."
+                )
+                _initialize_visitor_writer_workspace(project, project_root)
 
         logger.info(
             f"[VisitorPool] Pool initialization complete: {created_count} new projects"
@@ -497,11 +495,8 @@ def _initialize_visitor_writer_workspace(project, project_path):
     try:
         writer_dir = project_path / "scitex" / "writer"
 
-        # Skip if writer workspace already exists
-        if writer_dir.exists() and (writer_dir / "01_manuscript").exists():
-            logger.info(f"[VisitorPool] Writer workspace already exists for {project.slug}")
-            return
-
+        # Let Writer() handle structure validation and initialization
+        # Writer will either create new or attach to existing workspace
         logger.info(f"[VisitorPool] Initializing writer workspace for {project.slug}")
 
         # Initialize Writer with git_strategy='none' for visitor projects
