@@ -419,15 +419,18 @@ def project_create_from_template(request, username, slug):
 
         manager = get_project_filesystem_manager(project.owner)
 
-        success, path = manager.create_project_from_template(project)
+        try:
+            success, path = manager.create_project_from_template(project)
 
-        if success:
-            messages.success(
-                request,
-                f'Template structure created successfully for "{project.name}"!',
-            )
-        else:
-            messages.error(request, "Failed to create template structure.")
+            if success:
+                messages.success(
+                    request,
+                    f'Template structure created successfully for "{project.name}"!',
+                )
+            else:
+                messages.error(request, "Failed to create template structure.")
+        except Exception as e:
+            messages.error(request, f"Failed to create template structure: {str(e)}")
 
         return redirect("user_projects:detail", username=username, slug=slug)
 

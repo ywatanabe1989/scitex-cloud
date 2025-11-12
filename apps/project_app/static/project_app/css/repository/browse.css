@@ -24,6 +24,7 @@
 .repo-header-main {
     display: flex;
     align-items: center;
+    justify-content: space-between; /* Create space between left and right groups */
     gap: 0.75rem;  /* Reduced gap for compact layout */
     min-height: 40px; /* More compact height */
 }
@@ -33,13 +34,6 @@
     display: flex;
     align-items: center;
     gap: 1rem;
-    margin-left: auto; /* Push to the right, creating large flexible gap */
-}
-
-/* Action buttons */
-.repo-action-buttons {
-    display: flex;
-    gap: 8px;
 }
 
 .repo-header-left {
@@ -114,9 +108,10 @@
     color: var(--color-accent-fg);
 }
 
+/* Header action buttons (Watch/Star/Fork) */
 .repo-action-buttons {
     display: flex;
-    gap: 0.5rem;
+    gap: 8px;
     align-items: center;
 }
 
