@@ -7,56 +7,56 @@
 
 /* Base CTA Button */
 .btn-cta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.75rem;
-  background: var(--color-cta);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 600;
-  text-decoration: none;
-  cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 8px var(--color-cta-subtle);
-  white-space: nowrap;
+  /* display: inline-flex;
+   * align-items: center;
+   * justify-content: center;
+   * gap: 0.5rem;
+   * padding: 0.75rem 1.75rem; */
+  background: var(--color-cta) !important;
+  color: white !important;
+  /* border: none;
+   * border-radius: 8px;
+   * font-size: 1rem;
+   * font-weight: 600;
+   * text-decoration: none;
+   * cursor: pointer;
+   * transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+   * box-shadow: 0 2px 8px var(--color-cta-subtle);
+   * white-space: nowrap; */
 }
 
 .btn-cta:hover {
-  background: var(--color-cta-hover);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px var(--color-cta-subtle);
-  color: white;
+  background: var(--color-cta-hover) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 16px var(--color-cta-subtle) !important;
+  color: white
 }
 
 .btn-cta:active {
-  transform: translateY(0);
-  box-shadow: 0 1px 4px var(--color-cta-subtle);
+  transform: translateY(0) !important;
+  box-shadow: 0 1px 4px var(--color-cta-subtle) !important;
 }
 
 .btn-cta:focus-visible {
-  outline: 2px solid var(--color-cta);
+  outline: 2px solid var(--color-cta) !important;
   outline-offset: 2px;
 }
 
-/* CTA Sizes */
-.btn-cta-sm {
-  padding: 0.5rem 1.25rem;
-  font-size: 0.875rem;
-}
-
-.btn-cta-lg {
-  padding: 1rem 2.25rem;
-  font-size: 1.125rem;
-}
-
-.btn-cta-xl {
-  padding: 1.25rem 2.75rem;
-  font-size: 1.25rem;
-}
+/* /\* CTA Sizes *\/
+ * .btn-cta-sm {
+ *   padding: 0.5rem 1.25rem;
+ *   font-size: 0.875rem;
+ * }
+ *
+ * .btn-cta-lg {
+ *   padding: 1rem 2.25rem;
+ *   font-size: 1.125rem;
+ * }
+ *
+ * .btn-cta-xl {
+ *   padding: 1.25rem 2.75rem;
+ *   font-size: 1.25rem;
+ * } */
 
 /* CTA Variants */
 
