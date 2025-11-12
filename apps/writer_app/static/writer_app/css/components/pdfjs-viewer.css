@@ -3,6 +3,43 @@
  * Theme-responsive PDF rendering with custom scrollbars
  */
 
+/* PDF Preview Container - scrollable wrapper around iframe */
+.pdf-preview-container {
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+}
+
+.pdf-preview-viewer {
+    width: 100%;
+    height: 100%;
+}
+
+/* Theme-aware scrollbars for PDF preview container */
+.pdf-preview-container::-webkit-scrollbar {
+    width: 12px;
+}
+
+.pdf-preview-container::-webkit-scrollbar-track {
+    background: var(--color-canvas-subtle);
+}
+
+.pdf-preview-container::-webkit-scrollbar-thumb {
+    background: var(--color-border-default);
+    border-radius: 6px;
+    border: 2px solid var(--color-canvas-subtle);
+}
+
+.pdf-preview-container::-webkit-scrollbar-thumb:hover {
+    background: var(--color-fg-muted);
+}
+
+/* Firefox scrollbar for PDF preview */
+.pdf-preview-container {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border-default) var(--color-canvas-subtle);
+}
+
 /* PDF.js scroll container - replaces iframe */
 .pdfjs-scroll-container {
     width: 100%;

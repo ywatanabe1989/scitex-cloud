@@ -180,7 +180,7 @@
     <div class="header-center">
       <div class="header-search">
         <img src="{% static 'shared/images/icons_svg/scitex-search-icon.svg' %}" alt="" class="header-search-icon">
-        <input type="text" placeholder="Type / to search" id="global-search" autocomplete="off" readonly>
+        <input type="text" placeholder="Search or jump to..." id="global-search" autocomplete="off" readonly>
         <kbd class="search-shortcut-badge">/</kbd>
       </div>
     </div>
@@ -730,15 +730,9 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Search keyboard shortcuts: "/" or "Ctrl+K" to open modal
+  // Search keyboard shortcuts: only "/" to open global modal
+  // Note: Ctrl+K is reserved for page-specific search (browse, profile, etc.)
   document.addEventListener('keydown', function(e) {
-    // Ctrl+K or Cmd+K to open search modal
-    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-      e.preventDefault();
-      openSearchModal();
-      return;
-    }
-
     // "/" to open modal (only if not in an input/textarea)
     if (e.key === '/' && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
       e.preventDefault();

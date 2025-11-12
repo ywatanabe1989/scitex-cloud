@@ -1,15 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-11-05 09:20:27 (ywatanabe)"
-# File: /home/ywatanabe/proj/scitex-cloud/manage.py
-# ----------------------------------------
-from __future__ import annotations
+# Timestamp: "2025-11-12 20:50:11 (ywatanabe)"
+
 import os
-__FILE__ = (
-    "./manage.py"
-)
-__DIR__ = os.path.dirname(__FILE__)
-# ----------------------------------------
 
 """Django's command-line utility for administrative tasks."""
 
@@ -19,7 +12,7 @@ import sys
 def main():
     """Run administrative tasks. Prevent direct call of this file (manage.py) and guide to use docker."""
 
-    print(f"Initial Args for manage.py: {sys.argv}")
+    # print(f"Initial Args for manage.py: {sys.argv}")
 
     if (
         len(sys.argv) > 1
@@ -80,7 +73,7 @@ def main():
     final_args = sys.argv.copy()
     if "from_docker" in final_args:
         final_args.remove("from_docker")
-    print(f"Final Args for manage.py: {final_args}")
+    # print(f"Final Args for manage.py: {final_args}")
 
     execute_from_command_line(final_args)
 
