@@ -9,10 +9,14 @@ Django management command to delete all users and projects for fresh start
 This is a DANGEROUS command that will:
 1. Delete all projects (and their Gitea repos)
 2. Delete all users except superusers
-3. Delete project directories
+3. Delete project directories from filesystem
+4. Clean up incomplete writer directories
 
 Usage:
     python manage.py reset_all_data --confirm
+
+    For local development (RECOMMENDED):
+    python manage.py reset_all_data --confirm --delete-directories
 
 Safety features:
     - Requires explicit --confirm flag
@@ -193,6 +197,54 @@ class Command(BaseCommand):
                     f"   ✓ Deleted {manuscripts_deleted} manuscripts"
                 )
             )
+
+        # Step 2.5: Clean up incomplete writer directories
+        self.stdout.write("\n🧹 Step 2.5: Cleaning incomplete writer directories...")
+        from django.conf import settings
+        data_dir = Path(settings.BASE_DIR) / 'data' / 'users'
+        incomplete_dirs_cleaned = 0
+
+        if data_dir.exists():
+            for user_dir in data_dir.iterdir():
+                if not user_dir.is_dir() or user_dir.name.startswith('.'):
+                    continue
+
+                for project_dir in user_dir.iterdir():
+                    if not project_dir.is_dir() or project_dir.name.startswith('.'):
+                        continue
+
+                    writer_dir = project_dir / 'scitex' / 'writer'
+                    if writer_dir.exists():
+                        # Check if writer directory is incomplete
+                        # (has old bib_files/ structure OR missing required directories)
+                        old_structure = (writer_dir / 'bib_files').exists()
+                        missing_required = not (writer_dir / '02_supplementary').exists()
+
+                        if old_structure or missing_required:
+                            if dry_run:
+                                self.stdout.write(
+                                    f"   [DRY RUN] Would clean incomplete writer: {writer_dir.relative_to(data_dir)}"
+                                )
+                            else:
+                                try:
+                                    shutil.rmtree(writer_dir)
+                                    incomplete_dirs_cleaned += 1
+                                    self.stdout.write(
+                                        self.style.SUCCESS(
+                                            f"   ✓ Cleaned incomplete writer: {writer_dir.relative_to(data_dir)}"
+                                        )
+                                    )
+                                except Exception as e:
+                                    logger.error(f"Could not clean {writer_dir}: {e}")
+
+        if incomplete_dirs_cleaned > 0 or dry_run:
+            self.stdout.write(
+                self.style.SUCCESS(
+                    f"   ✓ Cleaned {incomplete_dirs_cleaned} incomplete writer directories"
+                )
+            )
+        else:
+            self.stdout.write("   No incomplete writer directories found")
 
         # Step 3: Delete users
         if not keep_users:
