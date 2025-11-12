@@ -374,9 +374,10 @@
     display: flex;
     align-items: center;
     gap: 4px;
+    cursor: pointer;
 }
 
-/* Folder icon button - clickable button for expand/collapse */
+/* Folder icon button - visual grouping for chevron and icon */
 .folder-icon-button {
     display: flex;
     align-items: center;
@@ -385,7 +386,8 @@
     background: none;
     border: none;
     color: inherit;
-    cursor: pointer;
+    cursor: inherit;
+    pointer-events: none;
     transition: all 0.2s ease;
 }
 
@@ -421,6 +423,8 @@
 .file-tree-folder-link {
     text-decoration: none;
     color: var(--color-fg-default);
+    cursor: pointer;
+    pointer-events: auto;
 }
 
 .file-tree-folder-link:hover {

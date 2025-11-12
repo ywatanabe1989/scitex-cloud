@@ -66,11 +66,11 @@ export function buildTreeHTML(items: TreeItem[], username: string, slug: string,
         const itemId = `tree-${item.path.replace(/\//g, '-')}`;
 
         if (item.type === 'directory') {
-            // FOLDER ROW - contains icon button and folder name link
-            html += `<div class="file-tree-item file-tree-item--folder ${isActive ? 'active' : ''}" style="padding-left: ${indent}px;">`;
+            // FOLDER ROW - entire div is clickable to expand/collapse (except the folder name)
+            html += `<div class="file-tree-item file-tree-item--folder ${isActive ? 'active' : ''}" style="padding-left: ${indent}px;" onclick="toggleFolder('${itemId}', event)">`;
 
-            // FOLDER ICON BUTTON - clickable button to expand/collapse
-            html += `<button type="button" class="folder-icon-button" onclick="toggleFolder('${itemId}', event)">`;
+            // FOLDER ICON BUTTON - visual grouping of chevron and icon
+            html += `<button type="button" class="folder-icon-button">`;
 
             // Chevron - part of the icon button
             if (hasChildren) {
@@ -83,8 +83,8 @@ export function buildTreeHTML(items: TreeItem[], username: string, slug: string,
             html += `<span class="file-tree-icon">${icon}</span>`;
             html += `</button>`;
 
-            // Folder NAME - link that navigates
-            html += `<a href="${itemPath}" class="file-tree-folder-link">${item.name}`;
+            // Folder NAME - link that navigates (stops propagation to prevent toggle)
+            html += `<a href="${itemPath}" class="file-tree-folder-link" onclick="event.stopPropagation()">${item.name}`;
 
             // Add symlink indicator if it's a symlink
             if (item.is_symlink && item.symlink_target) {
