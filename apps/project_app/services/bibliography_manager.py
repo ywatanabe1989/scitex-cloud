@@ -128,13 +128,24 @@ def ensure_bibliography_structure(project_path: Path, force: bool = False) -> di
         # - Multiple .bib files in writer/00_shared/bib_files/
         # - Merge script creates writer/00_shared/bib_files/bibliography.bib
         # - Manuscript expects writer/01_manuscript/contents/bibliography.bib
+        #
+        # NOTE: Writer directory structure MUST be created by scitex.writer.Writer
+        # This section only creates symlinks if the structure already exists
 
-        # Ensure writer/00_shared/bib_files/ exists
+        # Check if writer structure exists (created by scitex.writer.Writer)
         writer_bib_dir = scitex_root / 'writer' / '00_shared' / 'bib_files'
+        writer_dir = scitex_root / 'writer'
+
+        if not writer_dir.exists():
+            logger.warning(f"Writer directory not initialized yet - skipping writer bibliography setup")
+            logger.info(f"✓ Bibliography structure ensured for project: {project_path.name} (scholar only)")
+            return results
+
         if not writer_bib_dir.exists():
-            writer_bib_dir.mkdir(parents=True, exist_ok=True)
-            results['directories_created'].append(str(writer_bib_dir.relative_to(project_path)))
-            logger.info(f"Created directory: writer/00_shared/bib_files")
+            logger.error(f"Writer directory exists but 00_shared/bib_files missing - writer structure incomplete")
+            results['errors'].append("Writer structure incomplete: missing 00_shared/bib_files")
+            logger.info(f"✓ Bibliography structure ensured for project: {project_path.name} (scholar only)")
+            return results
 
         # Copy merged_scholar.bib into writer's bib_files so merge script picks it up
         writer_scholar_link = writer_bib_dir / 'merged_scholar.bib'
@@ -150,6 +161,12 @@ def ensure_bibliography_structure(project_path: Path, force: bool = False) -> di
         # writer/01_manuscript/contents/bibliography.bib → ../../00_shared/bib_files/bibliography.bib
         manuscript_bib = scitex_root / 'writer' / '01_manuscript' / 'contents' / 'bibliography.bib'
         writer_merged_bib = writer_bib_dir / 'bibliography.bib'
+
+        if not manuscript_bib.parent.exists():
+            logger.error(f"Manuscript contents directory missing - writer structure incomplete")
+            results['errors'].append("Writer structure incomplete: missing 01_manuscript/contents")
+            logger.info(f"✓ Bibliography structure ensured for project: {project_path.name} (partial)")
+            return results
 
         if not manuscript_bib.exists() or force:
             # Backup existing file if it's a real file with content
