@@ -206,10 +206,154 @@ export class PDFJSViewer {
 
             await page.render(renderContext).promise;
 
+            // NOTE: Link annotations NOT rendered - we use iframe PDF viewing, not PDF.js
+            // For link highlighting, see LaTeX hyperref configuration in latex-wrapper.ts
+            // await this.renderAnnotations(page, pageContainer, viewport);
+
             console.log('[PDFJSViewer] Rendered page', pageNum);
         } catch (error) {
             console.error(`[PDFJSViewer] Error rendering page ${pageNum}:`, error);
         }
+    }
+
+    /**
+     * Render link annotations as overlay elements
+     *
+     * ⚠️ WARNING: THIS METHOD IS NOT CURRENTLY USED
+     *
+     * This application uses IFRAME-based PDF viewing, NOT PDF.js canvas rendering.
+     * After extensive testing, iframe proved superior for browser compatibility,
+     * performance, and native PDF features.
+     *
+     * For link highlighting, we use LaTeX hyperref package configuration in
+     * latex-wrapper.ts instead (bold green text), which works with iframe viewing.
+     *
+     * This code is kept for reference only in case we switch back to PDF.js.
+     */
+    private async renderAnnotations(page: any, pageContainer: HTMLElement, viewport: any): Promise<void> {
+        try {
+            const annotations = await page.getAnnotations();
+
+            // Filter for link annotations only
+            const linkAnnotations = annotations.filter((ann: any) => ann.subtype === 'Link');
+
+            if (linkAnnotations.length === 0) {
+                return;
+            }
+
+            console.log(`[PDFJSViewer] Found ${linkAnnotations.length} link(s) on page`);
+
+            // Create annotation layer container
+            const annotationLayer = document.createElement('div');
+            annotationLayer.className = 'pdfjs-annotation-layer';
+            annotationLayer.style.cssText = `
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none;
+            `;
+            pageContainer.appendChild(annotationLayer);
+
+            // Render each link annotation
+            for (const annotation of linkAnnotations) {
+                const linkElement = this.createLinkElement(annotation, viewport);
+                if (linkElement) {
+                    annotationLayer.appendChild(linkElement);
+                }
+            }
+        } catch (error) {
+            console.error('[PDFJSViewer] Error rendering annotations:', error);
+        }
+    }
+
+    /**
+     * Create a link overlay element from annotation data
+     *
+     * ⚠️ WARNING: THIS METHOD IS NOT CURRENTLY USED
+     *
+     * This is part of the PDF.js annotation system which is not active.
+     * See renderAnnotations() documentation for details.
+     */
+    private createLinkElement(annotation: any, viewport: any): HTMLElement | null {
+        if (!annotation.rect || annotation.rect.length < 4) {
+            return null;
+        }
+
+        // Transform annotation rectangle to viewport coordinates
+        const rect = viewport.convertToViewportRectangle(annotation.rect);
+
+        // Calculate position and size (PDF coordinates are bottom-left origin)
+        const left = Math.min(rect[0], rect[2]);
+        const top = Math.min(rect[1], rect[3]);
+        const width = Math.abs(rect[2] - rect[0]);
+        const height = Math.abs(rect[3] - rect[1]);
+
+        // Create link element
+        const linkEl = document.createElement('a');
+        linkEl.className = 'pdfjs-link-annotation';
+
+        // Set link URL
+        let linkUrl = '';
+        if (annotation.url) {
+            linkUrl = annotation.url;
+        } else if (annotation.dest) {
+            // Internal link (destination within PDF)
+            linkUrl = `#page=${annotation.dest}`;
+        }
+
+        if (linkUrl) {
+            linkEl.href = linkUrl;
+            if (annotation.url) {
+                // External links open in new tab
+                linkEl.target = '_blank';
+                linkEl.rel = 'noopener noreferrer';
+            }
+        }
+
+        // Position and style the link overlay
+        linkEl.style.cssText = `
+            position: absolute;
+            left: ${left}px;
+            top: ${top}px;
+            width: ${width}px;
+            height: ${height}px;
+            pointer-events: auto;
+            cursor: pointer;
+            border: 1.5px solid ${this.colorMode === 'dark' ? 'rgba(100, 149, 237, 0.6)' : 'rgba(0, 102, 204, 0.5)'};
+            background: ${this.colorMode === 'dark' ? 'rgba(100, 149, 237, 0.1)' : 'rgba(0, 102, 204, 0.08)'};
+            border-radius: 2px;
+            transition: all 0.2s ease;
+        `;
+
+        // Add hover effect
+        linkEl.addEventListener('mouseenter', () => {
+            linkEl.style.background = this.colorMode === 'dark'
+                ? 'rgba(100, 149, 237, 0.2)'
+                : 'rgba(0, 102, 204, 0.15)';
+            linkEl.style.borderColor = this.colorMode === 'dark'
+                ? 'rgba(100, 149, 237, 0.9)'
+                : 'rgba(0, 102, 204, 0.8)';
+        });
+
+        linkEl.addEventListener('mouseleave', () => {
+            linkEl.style.background = this.colorMode === 'dark'
+                ? 'rgba(100, 149, 237, 0.1)'
+                : 'rgba(0, 102, 204, 0.08)';
+            linkEl.style.borderColor = this.colorMode === 'dark'
+                ? 'rgba(100, 149, 237, 0.6)'
+                : 'rgba(0, 102, 204, 0.5)';
+        });
+
+        // Add title tooltip
+        if (annotation.url) {
+            linkEl.title = `External link: ${annotation.url}`;
+        } else if (annotation.dest) {
+            linkEl.title = 'Internal link';
+        }
+
+        return linkEl;
     }
 
     /**
