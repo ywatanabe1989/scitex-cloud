@@ -480,25 +480,40 @@ class WriterService:
             preview_dir = self.writer_dir / ".preview"
             preview_dir.mkdir(parents=True, exist_ok=True)
 
+            # Ensure bibliography is accessible for citations
+            # Link bibliography from 00_shared/bib_files to preview directory
+            bib_source = self.writer_dir / "00_shared" / "bib_files" / "bibliography.bib"
+            bib_link = preview_dir / "bibliography.bib"
+            if bib_source.exists() and not bib_link.exists():
+                try:
+                    bib_link.symlink_to(bib_source)
+                    logger.info(f"[CompilePreview] Created bibliography symlink for citations")
+                except Exception as e:
+                    logger.warning(f"[CompilePreview] Could not create bibliography symlink: {e}")
+
             # Write content to temporary .tex file in .preview directory
             # Include theme in temp filename to avoid conflicts with parallel compilations
             temp_tex = preview_dir / f"preview-{section_name}-{color_mode}-temp.tex"
             logger.info(f"[CompilePreview] Creating preview file: {temp_tex} for section: {section_name}, theme: {color_mode}")
             temp_tex.write_text(latex_content, encoding='utf-8')
 
-            logger.info(f"[CompilePreview] Compiling {color_mode} preview ({len(latex_content)} chars) timeout={timeout}s")
+            logger.info(f"[CompilePreview] Compiling {color_mode} preview with latexmk ({len(latex_content)} chars) timeout={timeout}s")
 
-            # Run pdflatex with output to .preview directory
+            # Use latexmk for intelligent multi-pass compilation (handles citations automatically)
+            # This matches the behavior of full manuscript compilation
             result = subprocess.run(
                 [
-                    "pdflatex",
-                    "-interaction=nonstopmode",
-                    "-output-directory", str(preview_dir),
+                    "latexmk",
+                    "-pdf",                              # Generate PDF output
+                    "-interaction=nonstopmode",          # Don't stop on errors
+                    f"-output-directory={preview_dir}",  # Output to preview directory
+                    "-silent",                           # Reduce verbosity
                     str(temp_tex)
                 ],
                 capture_output=True,
                 text=True,
-                timeout=timeout
+                timeout=timeout,
+                cwd=str(preview_dir)                     # Run from preview directory for relative paths
             )
 
             log_content = result.stdout + result.stderr
@@ -508,14 +523,28 @@ class WriterService:
             # Final PDF name: .preview/preview-{section_name}-{color_mode}.pdf
             output_pdf = preview_dir / f"preview-{section_name}-{color_mode}.pdf"
 
-            # pdflatex creates preview-{section_name}-temp.pdf from preview-{section_name}-temp.tex
+            # latexmk creates preview-{section_name}-{color_mode}-temp.pdf from preview-{section_name}-{color_mode}-temp.tex
             logger.info(f"[CompilePreview] Looking for compiled PDF: {temp_pdf}")
 
             # Check if compilation succeeded by looking for the PDF file
-            # Note: pdflatex return code may be non-zero even on successful compilation
+            # Note: latexmk return code may be non-zero even on successful compilation
             # with -interaction=nonstopmode, so we check for the PDF file instead
             if temp_pdf.exists():
-                logger.info(f"[CompilePreview] {color_mode} PDF compiled successfully at {temp_pdf}")
+                logger.info(f"[CompilePreview] {color_mode} PDF compiled successfully with citations at {temp_pdf}")
+
+                # Clean up auxiliary files to keep preview directory tidy
+                # Keep: .pdf, .tex, bibliography.bib (symlink)
+                # Remove: .aux, .log, .fls, .fdb_latexmk, .bbl, .blg, .out, .toc
+                aux_extensions = ['.aux', '.log', '.fls', '.fdb_latexmk', '.bbl', '.blg', '.out', '.toc', '.nav', '.snm']
+                base_name = temp_tex.stem
+                for ext in aux_extensions:
+                    aux_file = preview_dir / f"{base_name}{ext}"
+                    if aux_file.exists():
+                        try:
+                            aux_file.unlink()
+                        except Exception as e:
+                            logger.debug(f"[CompilePreview] Could not remove auxiliary file {aux_file.name}: {e}")
+
                 # Rename from temp filename to final filename
                 if temp_pdf != output_pdf:
                     shutil.move(str(temp_pdf), str(output_pdf))
@@ -530,8 +559,8 @@ class WriterService:
                 }
             else:
                 logger.error(f"WriterService: Preview compilation failed - PDF not found at {temp_pdf}")
-                logger.error(f"pdflatex return code: {result.returncode}")
-                logger.error(f"pdflatex output:\n{log_content}")
+                logger.error(f"latexmk return code: {result.returncode}")
+                logger.error(f"latexmk output:\n{log_content}")
                 return {
                     "success": False,
                     "output_pdf": None,

@@ -162,10 +162,36 @@ export class LatexWrapper {
         doc += `\\usepackage{geometry}\n`;
         doc += `\\usepackage[utf8]{inputenc}\n`;
         doc += `\\geometry{margin=1in}\n`;
-        doc += `\\usepackage{hyperref}\n\n`;
+
+        // Define bright green color for links using xcolor package
+        doc += `\\usepackage{xcolor}\n`;
+        doc += `\\definecolor{linkgreen}{RGB}{0,153,0}  % Bright green for visibility\n\n`;
+
+        // Configure hyperref to make links visible with bright green color (alert success color)
+        // colorlinks=true: Use colored text for links
+        // This colors all hyperlinks green, making them clearly distinguishable from regular text
+        doc += `\\usepackage[colorlinks=true,linkcolor=linkgreen,citecolor=linkgreen,urlcolor=linkgreen]{hyperref}\n\n`;
+
+        // Make all links bold for better visibility
+        // Redefine citation command to include bold formatting
+        doc += `\\let\\oldcite\\cite\n`;
+        doc += `\\renewcommand{\\cite}[1]{\\textbf{\\oldcite{#1}}}\n`;
+        // Redefine href and url commands to include bold formatting
+        doc += `\\let\\oldhref\\href\n`;
+        doc += `\\renewcommand{\\href}[2]{\\oldhref{#1}{\\textbf{#2}}}\n`;
+        doc += `\\let\\oldurl\\url\n`;
+        doc += `\\renewcommand{\\url}[1]{\\textbf{\\oldurl{#1}}}\n\n`;
+
         doc += `\\begin{document}\n\n`;
         doc += content;
-        doc += `\n\n\\end{document}\n`;
+
+        // Add bibliography support for citations
+        // bibliographystyle should come before bibliography command
+        doc += `\n\n% Bibliography (automatically included for citation support)\n`;
+        doc += `\\bibliographystyle{plain}\n`;
+        doc += `\\bibliography{bibliography}\n`;
+
+        doc += `\n\\end{document}\n`;
         return doc;
     }
 
