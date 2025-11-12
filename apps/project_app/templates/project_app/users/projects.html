@@ -27,7 +27,7 @@
                     <kbd class="repo-search-shortcut">Ctrl K</kbd>
                 </div>
                 {% if user.is_authenticated and user == profile_user %}
-                <a href="{% url 'project_create' %}" class="btn btn-cta">
+                <a href="{% url 'project_create' %}" class="btn btn-primary">
                     <i class="fas fa-book"></i>
                     New
                 </a>
@@ -73,7 +73,7 @@
                 <h3>{{ profile_user.username }} doesn't have any public repositories yet.</h3>
                 {% if user.is_authenticated and user == profile_user %}
                 <p>Create your first repository to start building with SciTeX.</p>
-                <a href="{% url 'project_create' %}" class="btn btn-cta">
+                <a href="{% url 'project_create' %}" class="btn btn-primary">
                     <i class="fas fa-book"></i>
                     Create a new repository
                 </a>
