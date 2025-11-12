@@ -430,11 +430,15 @@ class WriterService:
         if color_mode == 'light':
             return latex_content
 
-        # Define dark mode colors - BLACK background with WHITE text
+        # Define dark mode colors - Eye-friendly soft dark gray background with off-white text
+        # Following modern dark mode best practices (Material Design, GitHub, etc.)
+        # Background: #1a1a1a (rgb 0.1, 0.1, 0.1) - soft dark gray, not pure black
+        # Text: #e0e0e0 (rgb 0.88, 0.88, 0.88) - off-white, not pure white
+        # This reduces eye strain and prevents "halation" effect of pure white on pure black
         # Must be after \documentclass but before \begin{document}
         color_commands = """\\usepackage{xcolor}
-\\pagecolor[rgb]{0,0,0}
-\\color[rgb]{1,1,1}
+\\pagecolor[rgb]{0.1,0.1,0.1}
+\\color[rgb]{0.88,0.88,0.88}
 """
 
         # Find the position to inject
