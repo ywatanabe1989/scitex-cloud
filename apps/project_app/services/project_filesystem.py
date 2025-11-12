@@ -156,10 +156,20 @@ class ProjectFilesystemManager:
             project: Project instance
             template_type: Type of template ('research', 'pip_project', or 'singularity')
         """
+        import logging
+        logger = logging.getLogger(__name__)
+
         try:
             project_path = self.get_project_root_path(project)
             if not project_path:
-                return False, None
+                error_msg = (
+                    f"Project directory not found for {project.slug}. "
+                    f"Expected at: {self.base_path / project.slug}. "
+                    f"This usually means the Git repository wasn't cloned successfully. "
+                    f"Please check Gitea integration and try again."
+                )
+                logger.error(error_msg)
+                raise RuntimeError(error_msg)
 
             # Try to use scitex template if available
             if self._copy_from_example_template(project_path, project, template_type):
@@ -170,30 +180,30 @@ class ProjectFilesystemManager:
             for main_dir, sub_structure in self.PROJECT_STRUCTURE.items():
                 main_path = project_path / main_dir
                 if not self._ensure_directory(main_path):
-                    return False, None
+                    raise RuntimeError(f"Failed to create directory: {main_path}")
 
                 # Create additional subdirectories under scripts for scientific workflow
                 if main_dir == 'scripts':
                     script_subdirs = ['analysis', 'preprocessing', 'modeling', 'visualization', 'utils']
                     for subdir in script_subdirs:
                         if not self._ensure_directory(main_path / subdir):
-                            return False, None
+                            raise RuntimeError(f"Failed to create directory: {main_path / subdir}")
 
                 if isinstance(sub_structure, dict):
                     # Handle nested structure (like data directory)
                     for sub_dir, sub_sub_dirs in sub_structure.items():
                         sub_path = main_path / sub_dir
                         if not self._ensure_directory(sub_path):
-                            return False, None
+                            raise RuntimeError(f"Failed to create directory: {sub_path}")
 
                         for sub_sub_dir in sub_sub_dirs:
                             if not self._ensure_directory(sub_path / sub_sub_dir):
-                                return False, None
+                                raise RuntimeError(f"Failed to create directory: {sub_path / sub_sub_dir}")
                 elif isinstance(sub_structure, list):
                     # Handle simple list structure
                     for sub_dir in sub_structure:
                         if not self._ensure_directory(main_path / sub_dir):
-                            return False, None
+                            raise RuntimeError(f"Failed to create directory: {main_path / sub_dir}")
 
             # Update README with full template info
             self._create_project_readme(project, project_path)
@@ -206,8 +216,8 @@ class ProjectFilesystemManager:
 
             return True, project_path
         except Exception as e:
-            print(f"Error creating project from template: {e}")
-            return False, None
+            logger.error(f"Error creating project from template: {e}", exc_info=True)
+            raise  # Re-raise so the view can catch and display it
     
     def get_project_root_path(self, project: Project) -> Optional[Path]:
         """Get the root directory path for a project.

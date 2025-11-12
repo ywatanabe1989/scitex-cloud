@@ -292,14 +292,31 @@ def _clone_gitea_repo_to_data_dir(project):
 
             shutil.rmtree(project_dir)
 
-        # Clone from Gitea using HTTP (no auth needed for own repos with token)
+        # Clone from Gitea using HTTP with embedded token for authentication
+        # Format: http://{token}@gitea:3000/{owner}/{repo}.git
         clone_url = project.gitea_clone_url
 
+        # Inject Gitea admin token into URL for authentication
+        # Clone URL format from Gitea: http://gitea:3000/owner/repo.git
+        # Authenticated format needed: http://{token}@gitea:3000/owner/repo.git
+        from django.conf import settings
+        gitea_token = settings.GITEA_TOKEN
+
+        if gitea_token and clone_url:
+            # Parse and inject token: http://gitea:3000/... → http://{token}@gitea:3000/...
+            if "://" in clone_url:
+                protocol, rest = clone_url.split("://", 1)
+                authenticated_clone_url = f"{protocol}://{gitea_token}@{rest}"
+            else:
+                authenticated_clone_url = clone_url
+        else:
+            authenticated_clone_url = clone_url
+
         logger.info(f"Cloning Gitea repo to: {project_dir}")
-        logger.info(f"  From: {clone_url}")
+        logger.info(f"  From: {clone_url}")  # Log original URL (without token)
 
         result = subprocess.run(
-            ["git", "clone", clone_url, str(project_dir)],
+            ["git", "clone", authenticated_clone_url, str(project_dir)],
             capture_output=True,
             text=True,
             timeout=60,
