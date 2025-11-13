@@ -1,11 +1,7 @@
 {% extends 'global_base.html' %}
 {% load static %}
-{% block title %}
-    {{
-    workflow.name }} - Actions - {{ project.name }}
-{% endblock %}
-{% block extra_css
-    %}
+{% block title %}{{ workflow.name }} - Actions - {{ project.name }}{% endblock %}
+{% block extra_css %}
     <link rel="stylesheet"
           href="{% static 'project_app/css/project_app.css' %}" />
     <link rel="stylesheet"
@@ -47,8 +43,9 @@
                         <button class="btn btn-secondary" onclick="toggleWorkflow()">
                             <i class="bi bi-toggle-on"></i>
                             {% if workflow.enabled %}
-                                Disable{%
-                                else %}Enable
+                                Disable
+                            {% else %}
+                                Enable
                             {% endif %}
                         </button>
                         <a href="{% url 'user_projects:workflow_delete' project.owner.username project.slug workflow.id %}"
@@ -95,15 +92,13 @@
                                 <span class="run-status-badge {{ run.conclusion|default:run.status }}">
                                     {% if run.conclusion == 'success' %}
                                         <i class="bi bi-check-circle-fill"></i> Success
-                                    {% elif
-                                        run.conclusion == 'failure' %}
+                                    {% elif run.conclusion == 'failure' %}
                                         <i class="bi bi-x-circle-fill"></i> Failure
-                                    {% elif run.status ==
-                                        'in_progress' %}
-                                        <i class="bi bi-arrow-repeat"></i> In progress {%
-                                        else %} <i class="bi bi-circle"></i> {{ run.status|title }}
-                                    {% endif
-                                    %}
+                                    {% elif run.status == 'in_progress' %}
+                                        <i class="bi bi-arrow-repeat"></i> In progress
+                                    {% else %}
+                                        <i class="bi bi-circle"></i> {{ run.status|title }}
+                                    {% endif %}
                                 </span>
                                 <div>
                                     <div style="font-weight: 500">{{ run.workflow.name }} #{{ run.run_number }}</div>
@@ -111,69 +106,69 @@
                                         {{ run.trigger_event|title }} on
                                         <code>{{ run.branch|default:"main" }}</code>
                                         {% if run.trigger_user %}
-                                            by {{ run.trigger_user.username }} {%
-                                            endif %}
-                                        </div>
+                                            by {{ run.trigger_user.username }}
+                                        {% endif %}
                                     </div>
                                 </div>
-                                <div style="text-align: right;
-                                            color: var(--color-fg-muted);
-                                            font-size: 0.875rem">
-                                    <div>{{ run.created_at|timesince }} ago</div>
-                                    {% if run.duration_seconds %}<div>{{ run.duration_seconds }}s</div>{% endif %}
-                                </div>
                             </div>
-                        </a>
-                    {% endfor %}
-                    <!-- Pagination -->
-                    {% if runs.has_other_pages %}
-                        <nav aria-label="Page navigation" style="margin-top: 1rem">
-                            <ul class="pagination justify-content-center">
-                                {% if runs.has_previous %}
-                                    <li class="page-item">
-                                        <a class="page-link" href="?page={{ runs.previous_page_number }}">Previous</a>
-                                    </li>
-                                {% endif %}
-                                <li class="page-item disabled">
-                                    <span class="page-link">Page {{ runs.number }} of {{ runs.paginator.num_pages }}</span>
-                                </li>
-                                {% if runs.has_next %}
-                                    <li class="page-item">
-                                        <a class="page-link" href="?page={{ runs.next_page_number }}">Next</a>
-                                    </li>
-                                {% endif %}
-                            </ul>
-                        </nav>
-                    {% endif %}
-                {% else %}
-                    <div class="empty-state"
-                         style="text-align: center;
-                                padding: 3rem;
-                                color: var(--color-fg-muted)">
-                        <div style="font-size: 3rem; margin-bottom: 1rem">
-                            <i class="bi bi-inbox"></i>
+                            <div style="text-align: right;
+                                        color: var(--color-fg-muted);
+                                        font-size: 0.875rem">
+                                <div>{{ run.created_at|timesince }} ago</div>
+                                {% if run.duration_seconds %}<div>{{ run.duration_seconds }}s</div>{% endif %}
+                            </div>
                         </div>
-                        <h3>No runs yet</h3>
-                        <p>This workflow has not been run yet.</p>
-                        {% if project.can_edit %}
-                            <button class="btn btn-primary" onclick="triggerWorkflow()">
-                                <i class="bi bi-play-circle"></i> Run workflow now
-                            </button>
-                        {% endif %}
-                    </div>
+                    </a>
+                {% endfor %}
+                <!-- Pagination -->
+                {% if runs.has_other_pages %}
+                    <nav aria-label="Page navigation" style="margin-top: 1rem">
+                        <ul class="pagination justify-content-center">
+                            {% if runs.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ runs.previous_page_number }}">Previous</a>
+                                </li>
+                            {% endif %}
+                            <li class="page-item disabled">
+                                <span class="page-link">Page {{ runs.number }} of {{ runs.paginator.num_pages }}</span>
+                            </li>
+                            {% if runs.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ runs.next_page_number }}">Next</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
                 {% endif %}
+            {% else %}
+                <div class="empty-state"
+                     style="text-align: center;
+                            padding: 3rem;
+                            color: var(--color-fg-muted)">
+                    <div style="font-size: 3rem; margin-bottom: 1rem">
+                        <i class="bi bi-inbox"></i>
+                    </div>
+                    <h3>No runs yet</h3>
+                    <p>This workflow has not been run yet.</p>
+                    {% if project.can_edit %}
+                        <button class="btn btn-primary" onclick="triggerWorkflow()">
+                            <i class="bi bi-play-circle"></i> Run workflow now
+                        </button>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+        <!-- YAML Viewer -->
+        <div class="yaml-viewer">
+            <div class="yaml-viewer-header">
+                <i class="bi bi-file-code"></i> Workflow definition
             </div>
-            <!-- YAML Viewer -->
-            <div class="yaml-viewer">
-                <div class="yaml-viewer-header">
-                    <i class="bi bi-file-code"></i> Workflow definition
-                </div>
-                <div class="yaml-viewer-content">
-                    <pre><code>{{ workflow.yaml_content }}</code></pre>
-                </div>
+            <div class="yaml-viewer-content">
+                <pre><code>{{ workflow.yaml_content }}</code></pre>
             </div>
         </div>
-    {% endblock %}
-    {% block extra_js %}
-        <script src="{% static 'project_app/js/workflows/detail.js' %}"></script>
-    {% endblock %}
+    </div>
+{% endblock %}
+{% block extra_js %}
+    <script src="{% static 'project_app/js/workflows/detail.js' %}"></script>
+{% endblock %}
