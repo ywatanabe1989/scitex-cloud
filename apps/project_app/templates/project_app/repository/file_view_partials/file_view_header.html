@@ -42,9 +42,7 @@
             <div class="file-view-tabs">
                 <button type="button" class="file-tab active">Code</button>
                 {% if render_type == 'code' or render_type == 'text' %}
-                    <button type="button"
-                            class="file-tab"
-                            onclick="alert('Blame view coming soon!'); return false;">Blame</button>
+                    <a href="?mode=blame" class="file-tab">Blame</a>
                 {% endif %}
             </div>
             <!-- File info -->

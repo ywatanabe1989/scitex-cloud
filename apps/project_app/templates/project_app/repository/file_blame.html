@@ -1,0 +1,213 @@
+{% extends "global_base.html" %}
+{% load static %}
+{% block title %}Blame: {{ file_name }} - {{ project.name }}{% endblock %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'project_app/css/project_app.css' %}" />
+    <link rel="stylesheet" href="{% static 'project_app/css/shared/sidebar.css' %}" />
+    <link rel="stylesheet" href="{% static 'project_app/css/shared/file-tree.css' %}" />
+    <link rel="stylesheet" href="{% static 'project_app/css/shared/buttons.css' %}" />
+    <style>
+  /* Blame view styling - GitHub inspired */
+  .blame-container {
+    font-family: var(--font-mono);
+    font-size: var(--code-font-size);
+    line-height: var(--code-line-height);
+    background: var(--color-canvas-default);
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-top: 16px;
+  }
+
+  .blame-line {
+    display: flex;
+    border-bottom: 1px solid var(--color-border-muted);
+    transition: background-color 0.1s ease;
+  }
+
+  .blame-line:hover {
+    background-color: var(--color-canvas-subtle);
+  }
+
+  .blame-line:last-child {
+    border-bottom: none;
+  }
+
+  .blame-meta {
+    display: flex;
+    align-items: stretch;
+    background-color: var(--color-canvas-subtle);
+    border-right: 1px solid var(--color-border-default);
+    min-width: 400px;
+    flex-shrink: 0;
+  }
+
+  .blame-commit {
+    padding: 6px 10px;
+    color: var(--color-fg-muted);
+    font-size: 12px;
+    border-right: 1px solid var(--color-border-muted);
+    min-width: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .blame-commit-hash {
+    font-family: var(--font-mono);
+    color: var(--color-accent-fg);
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .blame-commit-hash:hover {
+    text-decoration: underline;
+  }
+
+  .blame-author {
+    padding: 6px 10px;
+    color: var(--color-fg-default);
+    font-size: 12px;
+    border-right: 1px solid var(--color-border-muted);
+    min-width: 150px;
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+  }
+
+  .blame-time {
+    padding: 6px 10px;
+    color: var(--color-fg-muted);
+    font-size: 11px;
+    min-width: 80px;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+  }
+
+  .blame-line-number {
+    padding: 6px 12px;
+    text-align: right;
+    color: var(--color-fg-muted);
+    background-color: var(--color-canvas-default);
+    border-right: 1px solid var(--color-border-default);
+    min-width: 60px;
+    user-select: none;
+    font-family: var(--font-mono);
+  }
+
+  .blame-content {
+    padding: 6px 16px;
+    flex: 1;
+    font-family: var(--font-mono);
+    white-space: pre;
+    overflow-x: auto;
+    color: var(--color-fg-default);
+  }
+
+  /* Tooltip for commit message */
+  .blame-commit:hover::after {
+    content: attr(data-summary);
+    position: absolute;
+    background: var(--color-canvas-overlay);
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin-left: 110px;
+    margin-top: -30px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 1000;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    max-width: 400px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* File tabs styling */
+  .file-view-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .file-tab {
+    padding: 6px 12px;
+    background: transparent;
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    color: var(--color-fg-muted);
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .file-tab:hover {
+    background: var(--color-canvas-subtle);
+    border-color: var(--color-border-muted);
+    color: var(--color-fg-default);
+  }
+
+  .file-tab.active {
+    background: var(--color-accent-subtle);
+    border-color: var(--color-accent-emphasis);
+    color: var(--color-accent-fg);
+    font-weight: 500;
+  }
+    </style>
+{% endblock %}
+{% block content %}
+    <div class="container-fluid" style="max-width: 1280px">
+        {% include "project_app/repository/file_view_partials/file_view_breadcrumb.html" %}
+        {% include "project_app/repository/file_view_partials/file_view_tabs.html" %}
+        <!-- File Header -->
+        <div class="file-header-enhanced">
+            <div class="file-header-actions">
+                <div class="file-actions-left">
+                    <!-- Code/Blame tabs -->
+                    <div class="file-view-tabs">
+                        <a href="?mode=view" class="file-tab">Code</a>
+                        <a href="?mode=blame" class="file-tab active">Blame</a>
+                    </div>
+                </div>
+                <div class="file-actions-right">
+                    {% if can_edit %}
+                        <a href="?mode=edit" class="btn btn-sm btn-secondary">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                    {% endif %}
+                    <a href="?mode=raw" class="btn btn-sm btn-secondary">
+                        <i class="fas fa-file-code"></i> Raw
+                    </a>
+                    <a href="?mode=download" class="btn btn-sm btn-secondary">
+                        <i class="fas fa-download"></i> Download
+                    </a>
+                </div>
+            </div>
+        </div>
+        <!-- Main Content Area with Sidebar -->
+        <div class="repo-layout" id="repo-layout">
+            {% include 'project_app/repository/browse_partials/browse_sidebar.html' %}
+            <!-- Blame Content (RIGHT side) -->
+            <div class="repo-main">
+                <div class="blame-container">
+                    {% for line in blame_lines %}
+                        <div class="blame-line">
+                            <div class="blame-meta">
+                                <div class="blame-commit" data-summary="{{ line.summary }}">
+                                    <a href="/{{ project.owner.username }}/{{ project.slug }}/commit/{{ line.commit_hash }}" class="blame-commit-hash">{{ line.short_hash }}</a>
+                                </div>
+                                <div class="blame-author">{{ line.author }}</div>
+                                <div class="blame-time">{{ line.author_time_ago }}</div>
+                            </div>
+                            <div class="blame-line-number">{{ line.line_number }}</div>
+                            <div class="blame-content">{{ line.content }}</div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -356,6 +356,133 @@ def project_file_view(request, username, slug, file_path):
             response["Content-Disposition"] = f'{disposition}; filename="{file_name}"'
             return response
 
+    # Handle blame mode - show git blame information
+    if mode == "blame":
+        blame_lines = []
+
+        # Get git clone path for running git commands
+        git_clone_path = None
+        if hasattr(project, 'git_clone_path') and project.git_clone_path:
+            from pathlib import Path
+            git_clone_path = Path(project.git_clone_path)
+            if not git_clone_path.exists() or not (git_clone_path / ".git").exists():
+                git_clone_path = None
+
+        if not git_clone_path:
+            messages.error(request, "Git repository not available for blame. Please ensure the project is cloned from Gitea.")
+            return redirect("user_projects:file_view", username=username, slug=slug, file_path=file_path)
+
+        try:
+            # Run git blame with porcelain format for easier parsing
+            blame_result = subprocess.run(
+                ["git", "blame", "--porcelain", file_path],
+                cwd=git_clone_path,
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
+
+            if blame_result.returncode == 0:
+                # Parse porcelain format blame output
+                lines = blame_result.stdout.split("\n")
+                i = 0
+                line_number = 1
+
+                while i < len(lines):
+                    if not lines[i].strip():
+                        i += 1
+                        continue
+
+                    # First line: commit hash, original line, final line, group lines
+                    parts = lines[i].split()
+                    if len(parts) < 3:
+                        i += 1
+                        continue
+
+                    commit_hash = parts[0]
+                    blame_info = {
+                        'commit_hash': commit_hash,
+                        'short_hash': commit_hash[:7],
+                        'line_number': line_number,
+                        'author': '',
+                        'author_time': '',
+                        'author_time_ago': '',
+                        'summary': '',
+                        'content': '',
+                    }
+
+                    # Parse following lines for this commit
+                    i += 1
+                    while i < len(lines) and not lines[i].startswith('\t'):
+                        if lines[i].startswith('author '):
+                            blame_info['author'] = lines[i][7:]
+                        elif lines[i].startswith('author-time '):
+                            timestamp = int(lines[i][12:])
+                            blame_info['author_time'] = datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M')
+                            # Calculate time ago
+                            delta = datetime.now() - datetime.fromtimestamp(timestamp)
+                            if delta.days > 365:
+                                blame_info['author_time_ago'] = f"{delta.days // 365}y ago"
+                            elif delta.days > 30:
+                                blame_info['author_time_ago'] = f"{delta.days // 30}mo ago"
+                            elif delta.days > 0:
+                                blame_info['author_time_ago'] = f"{delta.days}d ago"
+                            elif delta.seconds > 3600:
+                                blame_info['author_time_ago'] = f"{delta.seconds // 3600}h ago"
+                            elif delta.seconds > 60:
+                                blame_info['author_time_ago'] = f"{delta.seconds // 60}m ago"
+                            else:
+                                blame_info['author_time_ago'] = "just now"
+                        elif lines[i].startswith('summary '):
+                            blame_info['summary'] = lines[i][8:]
+                        i += 1
+
+                    # Next line should be the actual code content (starts with tab)
+                    if i < len(lines) and lines[i].startswith('\t'):
+                        blame_info['content'] = lines[i][1:]  # Remove leading tab
+                        i += 1
+
+                    blame_lines.append(blame_info)
+                    line_number += 1
+            else:
+                # Git blame failed, possibly file not in git
+                messages.warning(request, "Unable to get blame information. File may not be tracked in git.")
+                return redirect("user_projects:file_view", username=username, slug=slug, file_path=file_path)
+
+        except subprocess.TimeoutExpired:
+            messages.error(request, "Git blame timed out. File may be too large.")
+            return redirect("user_projects:file_view", username=username, slug=slug, file_path=file_path)
+        except Exception as e:
+            logger.error(f"Error running git blame: {e}")
+            messages.error(request, f"Error getting blame information: {e}")
+            return redirect("user_projects:file_view", username=username, slug=slug, file_path=file_path)
+
+        # Build breadcrumb
+        breadcrumbs = [{"name": project.name, "url": f"/{username}/{slug}/"}]
+        path_parts = file_path.split("/")
+        current_path = ""
+        for i, part in enumerate(path_parts):
+            current_path += part
+            if i < len(path_parts) - 1:
+                current_path += "/"
+                breadcrumbs.append(
+                    {"name": part, "url": f"/{username}/{slug}/{current_path}"}
+                )
+            else:
+                breadcrumbs.append({"name": part, "url": None})
+
+        context = {
+            "project": project,
+            "file_name": file_name,
+            "file_path": file_path,
+            "blame_lines": blame_lines,
+            "breadcrumbs": breadcrumbs,
+            "git_info": git_info,
+            "can_edit": project.owner == request.user,
+            "mode": "blame",
+        }
+        return render(request, "project_app/repository/file_blame.html", context)
+
     # Handle edit mode - show editor
     if mode == "edit":
         if not (project.owner == request.user):
