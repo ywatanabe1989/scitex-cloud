@@ -30,16 +30,7 @@
                         <label class="form-label">Base branch</label>
                         <select id="baseSelect" class="form-select" onchange="updateComparison()">
                             {% for branch in branches %}
-                                <option
-                                    value="{{ branch }}"
-                                    {%
-                                    if
-                                    branch=""
-                                    ="base_branch"
-                                    %}selected{%
-                                    endif
-                                    %}
-                                    >{{ branch }}</option>
+                                <option value="{{ branch }}" {% if branch == base_branch %}selected{% endif %}>{{ branch }}</option>
                             {% endfor %}
                         </select>
                         <small class="text-muted">Choose the branch you want to merge into</small>
@@ -52,16 +43,7 @@
                         <select id="headSelect" class="form-select" onchange="updateComparison()">
                             <option value="">Select a branch</option>
                             {% for branch in branches %}
-                                <option
-                                    value="{{ branch }}"
-                                    {%
-                                    if
-                                    branch=""
-                                    ="head_branch"
-                                    %}selected{%
-                                    endif
-                                    %}
-                                    >{{ branch }}</option>
+                                <option value="{{ branch }}" {% if branch == head_branch %}selected{% endif %}>{{ branch }}</option>
                             {% endfor %}
                         </select>
                         <small class="text-muted">Choose the branch with your changes</small>

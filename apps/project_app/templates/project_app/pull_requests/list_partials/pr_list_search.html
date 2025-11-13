@@ -24,16 +24,7 @@
                 <select name="label" class="form-select form-select-sm">
                     <option value="">All labels</option>
                     {% for label in labels %}
-                        <option
-                            value="{{ label.name }}"
-                            {%
-                            if
-                            label_filter=""
-                            ="label.name"
-                            %}selected{%
-                            endif
-                            %}
-                            >{{ label.name }}</option>
+                        <option value="{{ label.name }}" {% if label_filter == label.name %}selected{% endif %}>{{ label.name }}</option>
                     {% endfor %}
                 </select>
             </div>
@@ -41,49 +32,13 @@
                 <label class="form-label">Sort by</label>
                 <div class="input-group input-group-sm">
                     <select name="sort" class="form-select">
-                        <option
-                            value="created"
-                            {%
-                            if
-                            sort_by=""
-                            ="created"
-                            %}selected{%
-                            endif
-                            %}
-                            >Created</option>
-                        <option
-                            value="updated"
-                            {%
-                            if
-                            sort_by=""
-                            ="updated"
-                            %}selected{%
-                            endif
-                            %}
-                            >Updated</option>
-                        <option
-                            value="comments"
-                            {%
-                            if
-                            sort_by=""
-                            ="comments"
-                            %}selected{%
-                            endif
-                            %}
-                            >Comments</option>
+                        <option value="created" {% if sort_by == "created" %}selected{% endif %}>Created</option>
+                        <option value="updated" {% if sort_by == "updated" %}selected{% endif %}>Updated</option>
+                        <option value="comments" {% if sort_by == "comments" %}selected{% endif %}>Comments</option>
                     </select>
                     <select name="direction" class="form-select">
-                        <option
-                            value="desc"
-                            {%
-                            if
-                            direction=""
-                            ="desc"
-                            %}selected{%
-                            endif
-                            %}
-                            >Newest</option>
-                        <option value="asc" {% if direction="" ="asc" %}selected{% endif %}>Oldest</option>
+                        <option value="desc" {% if direction == "desc" %}selected{% endif %}>Newest</option>
+                        <option value="asc" {% if direction == "asc" %}selected{% endif %}>Oldest</option>
                     </select>
                     <button type="submit" class="btn btn-primary">Apply</button>
                 </div>

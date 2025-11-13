@@ -67,30 +67,23 @@
                     <strong>{{ item.actor.username }}</strong>
                     {% if item.event_type == 'opened' %}
                         opened this pull request
-                    {% elif
-                        item.event_type == 'closed' %}
+                    {% elif item.event_type == 'closed' %}
                         closed this pull request
-                    {% elif
-                        item.event_type == 'reopened' %}
+                    {% elif item.event_type == 'reopened' %}
                         reopened this pull request
-                    {% elif
-                        item.event_type == 'merged' %}
+                    {% elif item.event_type == 'merged' %}
                         merged this pull request
-                    {% elif
-                        item.event_type == 'reviewed' %}
+                    {% elif item.event_type == 'reviewed' %}
                         reviewed this pull request
-                    {% elif
-                        item.event_type == 'commit' %}
+                    {% elif item.event_type == 'commit' %}
                         added commits
-                    {% elif item.event_type ==
-                        'label' %}
+                    {% elif item.event_type == 'label' %}
                         changed labels
                     {% elif item.event_type == 'assignee' %}
-                        changed
-                        assignees
+                        changed assignees
                     {% elif item.event_type == 'reviewer' %}
-                        changed reviewers {%
-                        endif %}
+                        changed reviewers
+                    {% endif %}
                         <time datetime="{{ item.created_at|date:'c' }}">
                             {{ item.created_at|timesince }} ago
                         </time>

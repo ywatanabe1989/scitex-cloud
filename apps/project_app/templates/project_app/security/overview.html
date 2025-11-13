@@ -13,26 +13,17 @@
 {% block content %}
     <div class="container-fluid" style="max-width: 1280px">
         {% include 'project_app/repository/browse_partials/browse_header.html' %}
-        {%
-        include 'project_app/repository/browse_partials/browse_tabs.html' with
-        active_tab='security' %}
-        {% include
-        'project_app/security_overview_partials/security_overview_tabs.html' with
-        active_tab='overview' %}
+        {% include 'project_app/repository/browse_partials/browse_tabs.html' with active_tab='security' %}
+        {% include 'project_app/security_overview_partials/security_overview_tabs.html' with active_tab='overview' %}
         <div class="row">
             <!-- Left Column: Stats -->
             <div class="col-md-4">
-                {% include
-                'project_app/security_overview_partials/security_overview_stats.html' %}
+                {% include 'project_app/security_overview_partials/security_overview_stats.html' %}
             </div>
             <!-- Right Column: Recent Alerts -->
             <div class="col-md-8">
-                {% include
-                'project_app/security_overview_partials/security_overview_alerts_card.html'
-                %}
-                {% include
-                'project_app/security_overview_partials/security_overview_scans_card.html'
-                %}
+                {% include 'project_app/security_overview_partials/security_overview_alerts_card.html' %}
+                {% include 'project_app/security_overview_partials/security_overview_scans_card.html' %}
             </div>
         </div>
     </div>
