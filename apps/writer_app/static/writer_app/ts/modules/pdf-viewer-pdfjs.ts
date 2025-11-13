@@ -326,6 +326,7 @@ export class PDFJSViewer {
       textLayerDiv.className = "textLayer";
 
       // Set width and height to match viewport exactly
+      // IMPORTANT: --scale-factor CSS variable is required by PDF.js for proper text positioning
       textLayerDiv.style.cssText = `
         position: absolute;
         left: 0;
@@ -335,6 +336,7 @@ export class PDFJSViewer {
         overflow: hidden;
         opacity: 1;
         line-height: 1.0;
+        --scale-factor: ${viewport.scale};
       `;
 
       container.appendChild(textLayerDiv);
