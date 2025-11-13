@@ -182,6 +182,7 @@
   line-height: 1.0;
   pointer-events: auto; /* Enable text selection */
   z-index: 2; /* Above canvas */
+  font-size: 1px; /* Will be scaled by PDF.js */
 }
 
 .textLayer > span {
@@ -194,6 +195,9 @@
   -webkit-user-select: text;
   -moz-user-select: text;
   -ms-user-select: text;
+  /* Prevent text from wrapping or breaking */
+  word-break: keep-all;
+  word-wrap: normal;
 }
 
 /* Text selection highlight */

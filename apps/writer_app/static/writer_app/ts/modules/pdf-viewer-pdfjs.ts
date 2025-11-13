@@ -300,8 +300,8 @@ export class PDFJSViewer {
 
       await page.render(renderContext).promise;
 
-      // Render text layer for text selection
-      await this.renderTextLayer(page, pageContainer, viewport);
+      // Render text layer for text selection (use same viewport as canvas)
+      await this.renderTextLayer(page, pageContainer, viewport, this.currentScale);
 
       // NOTE: Link annotations NOT rendered - we use iframe PDF viewing, not PDF.js
       // For link highlighting, see LaTeX hyperref configuration in latex-wrapper.ts
@@ -316,7 +316,7 @@ export class PDFJSViewer {
   /**
    * Render text layer for text selection
    */
-  private async renderTextLayer(page: any, container: HTMLElement, viewport: any): Promise<void> {
+  private async renderTextLayer(page: any, container: HTMLElement, viewport: any, scale: number): Promise<void> {
     try {
       // Get text content
       const textContent = await page.getTextContent();
@@ -324,12 +324,14 @@ export class PDFJSViewer {
       // Create text layer container
       const textLayerDiv = document.createElement("div");
       textLayerDiv.className = "textLayer";
+
+      // Set width and height to match viewport exactly
       textLayerDiv.style.cssText = `
         position: absolute;
         left: 0;
         top: 0;
-        right: 0;
-        bottom: 0;
+        width: ${viewport.width}px;
+        height: ${viewport.height}px;
         overflow: hidden;
         opacity: 1;
         line-height: 1.0;
@@ -338,16 +340,18 @@ export class PDFJSViewer {
       container.appendChild(textLayerDiv);
 
       // Render text layer using PDF.js text layer builder
+      // IMPORTANT: Use the same viewport as canvas rendering
       if ((window as any).pdfjsLib && (window as any).pdfjsLib.renderTextLayer) {
         const renderTask = (window as any).pdfjsLib.renderTextLayer({
           textContent: textContent,
           container: textLayerDiv,
           viewport: viewport,
           textDivs: [],
+          textContentItemsStr: [], // Required for better positioning
         });
 
         await renderTask.promise;
-        console.log("[PDFJSViewer] ✓ Text layer rendered for page");
+        console.log("[PDFJSViewer] ✓ Text layer rendered for page at scale:", scale);
       } else {
         console.warn("[PDFJSViewer] PDF.js renderTextLayer not available");
       }
