@@ -15,9 +15,7 @@
 {% block content %}
     <div class="container-fluid" style="max-width: 1280px">
         {% include 'project_app/repository/browse_partials/browse_header.html' %}
-        {%
-        include 'project_app/repository/browse_partials/browse_tabs.html' with
-        active_tab='issues' %}
+        {% include 'project_app/repository/browse_partials/browse_tabs.html' with active_tab='issues' %}
         <!-- Issues Filters and List -->
         <div class="issues-header tab-content-spacing">
             <div style="display: flex;
@@ -194,5 +192,4 @@
         {% endif %}
     </div>
     {% include 'project_app/repository/browse_partials/browse_scripts.html' %}
-    {%
-    endblock %}
+{% endblock %}
