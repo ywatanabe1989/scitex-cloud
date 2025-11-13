@@ -793,3 +793,6 @@ docs/HOW_TO_IMPROVE_UX.md
 docs/NEEDS.md
 TODOS
 RULES/
+
+# Internal documents directory (local only)
+GITIGNORED/
