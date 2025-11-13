@@ -423,6 +423,19 @@ export class PDFScrollZoomHandler {
   }
 
   /**
+   * Toggle hand/pan mode (public method for toolbar button)
+   */
+  public toggleHandMode(): void {
+    if (this.currentMode === "hand") {
+      this.setMode("text");
+      this.showModeMessage("Text Selection Mode");
+    } else {
+      this.setMode("hand");
+      this.showModeMessage("Hand/Pan Mode (press ESC to exit)");
+    }
+  }
+
+  /**
    * Set interaction mode and sync with PDFJSViewer
    */
   private setMode(mode: "text" | "hand" | "zoom"): void {
@@ -448,9 +461,22 @@ export class PDFScrollZoomHandler {
       const pdfViewerInstance = (window as any).pdfViewerInstance;
       if (pdfViewerInstance && pdfViewerInstance.currentMode !== undefined) {
         pdfViewerInstance.currentMode = mode;
-        pdfjsViewer.style.cursor = mode === "hand" ? "grab" :
-                                   mode === "zoom" ? "crosshair" : "auto";
         console.log("[PDFScrollZoom] Synced mode to PDFJSViewer:", mode);
+      }
+      // Always update cursor on the viewer element
+      pdfjsViewer.style.cursor = mode === "hand" ? "grab" :
+                                 mode === "zoom" ? "crosshair" : "auto";
+    }
+
+    // Update toolbar button appearance
+    const panBtn = document.getElementById("pdf-pan-mode-btn");
+    if (panBtn) {
+      if (mode === "hand") {
+        panBtn.classList.add("active", "btn-primary");
+        panBtn.classList.remove("btn-outline-secondary");
+      } else {
+        panBtn.classList.remove("active", "btn-primary");
+        panBtn.classList.add("btn-outline-secondary");
       }
     }
   }

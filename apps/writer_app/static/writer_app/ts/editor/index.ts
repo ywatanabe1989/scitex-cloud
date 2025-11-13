@@ -847,6 +847,16 @@ async function initializeEditor(config: any): Promise<void> {
     zoomStep: 10,
   });
 
+  // Expose globally for toolbar button access
+  (window as any).pdfScrollZoomHandler = pdfScrollZoomHandler;
+
+  // Global function for pan mode toggle button
+  (window as any).togglePdfPanMode = () => {
+    if (pdfScrollZoomHandler) {
+      pdfScrollZoomHandler.toggleHandMode();
+    }
+  };
+
   // Observe for PDF viewer changes and reinitialize zoom handler
   pdfScrollZoomHandler.observePDFViewer();
 
