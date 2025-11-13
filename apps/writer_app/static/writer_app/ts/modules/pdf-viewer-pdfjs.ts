@@ -300,6 +300,9 @@ export class PDFJSViewer {
 
       await page.render(renderContext).promise;
 
+      // Render text layer for text selection
+      await this.renderTextLayer(page, pageContainer, viewport);
+
       // NOTE: Link annotations NOT rendered - we use iframe PDF viewing, not PDF.js
       // For link highlighting, see LaTeX hyperref configuration in latex-wrapper.ts
       // await this.renderAnnotations(page, pageContainer, viewport);
@@ -307,6 +310,49 @@ export class PDFJSViewer {
       console.log("[PDFJSViewer] Rendered page", pageNum);
     } catch (error) {
       console.error(`[PDFJSViewer] Error rendering page ${pageNum}:`, error);
+    }
+  }
+
+  /**
+   * Render text layer for text selection
+   */
+  private async renderTextLayer(page: any, container: HTMLElement, viewport: any): Promise<void> {
+    try {
+      // Get text content
+      const textContent = await page.getTextContent();
+
+      // Create text layer container
+      const textLayerDiv = document.createElement("div");
+      textLayerDiv.className = "textLayer";
+      textLayerDiv.style.cssText = `
+        position: absolute;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        overflow: hidden;
+        opacity: 1;
+        line-height: 1.0;
+      `;
+
+      container.appendChild(textLayerDiv);
+
+      // Render text layer using PDF.js text layer builder
+      if ((window as any).pdfjsLib && (window as any).pdfjsLib.renderTextLayer) {
+        const renderTask = (window as any).pdfjsLib.renderTextLayer({
+          textContent: textContent,
+          container: textLayerDiv,
+          viewport: viewport,
+          textDivs: [],
+        });
+
+        await renderTask.promise;
+        console.log("[PDFJSViewer] ✓ Text layer rendered for page");
+      } else {
+        console.warn("[PDFJSViewer] PDF.js renderTextLayer not available");
+      }
+    } catch (error) {
+      console.error("[PDFJSViewer] Error rendering text layer:", error);
     }
   }
 

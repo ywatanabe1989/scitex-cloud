@@ -170,6 +170,41 @@
   background: #2b2b2b;
 }
 
+/* Text Layer Styles for Text Selection */
+.textLayer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  opacity: 0; /* Invisible - only for selection */
+  line-height: 1.0;
+  pointer-events: auto; /* Enable text selection */
+  z-index: 2; /* Above canvas */
+}
+
+.textLayer > span {
+  color: transparent;
+  position: absolute;
+  white-space: pre;
+  cursor: text;
+  transform-origin: 0% 0%;
+  user-select: text; /* Enable text selection */
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+}
+
+/* Text selection highlight */
+.textLayer ::selection {
+  background: rgba(0, 102, 204, 0.3);
+}
+
+[data-theme="dark"] .textLayer ::selection {
+  background: rgba(100, 149, 237, 0.3);
+}
+
 /* ============================================================================
  * WARNING: THE FOLLOWING STYLES ARE NOT CURRENTLY USED
  * ============================================================================
