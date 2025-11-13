@@ -4,13 +4,15 @@
     <h3>Open alerts</h3>
     <div class="security-stat-number">{{ stats.open_alerts }}</div>
     <div class="mt-2">
-        <span class="severity-critical"><strong>{{ stats.critical }}</strong> Critical</span> &nbsp;
-        <span class="severity-high"><strong>{{ stats.high }}</strong> High</span> &nbsp;
-        <span class="severity-medium"><strong>{{ stats.medium }}</strong> Medium</span> &nbsp;
+        <span class="severity-critical"><strong>{{ stats.critical }}</strong> Critical</span>
+        &nbsp;
+        <span class="severity-high"><strong>{{ stats.high }}</strong> High</span>
+        &nbsp;
+        <span class="severity-medium"><strong>{{ stats.medium }}</strong> Medium</span>
+        &nbsp;
         <span class="severity-low"><strong>{{ stats.low }}</strong> Low</span>
     </div>
 </div>
-
 <!-- Closed Alerts -->
 <div class="security-stat-card">
     <h3>Closed alerts</h3>
@@ -19,44 +21,54 @@
         <small>{{ stats.dismissed }} dismissed</small>
     </div>
 </div>
-
 <!-- Dependencies -->
 <div class="security-stat-card">
     <h3>Dependencies</h3>
     <div class="security-stat-number">{{ total_dependencies }}</div>
     {% if vulnerable_dependencies > 0 %}
-    <div class="mt-2 severity-high">
-        <strong>{{ vulnerable_dependencies }}</strong> with vulnerabilities
-    </div>
+        <div class="mt-2 severity-high">
+            <strong>{{ vulnerable_dependencies }}</strong> with vulnerabilities
+        </div>
     {% else %}
-    <div class="mt-2 text-success">
-        <small>No known vulnerabilities</small>
-    </div>
+        <div class="mt-2 text-success">
+            <small>No known vulnerabilities</small>
+        </div>
     {% endif %}
 </div>
-
 <!-- Security Policy -->
 <div class="security-stat-card">
     <h3>Security policy</h3>
     {% if has_policy %}
-    <div class="text-success">
-        <svg class="octicon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-            <path fill-rule="evenodd" d="M13.78 4.22a.75.75 0 010 1.06l-7.25 7.25a.75.75 0 01-1.06 0L2.22 9.28a.75.75 0 011.06-1.06L6 10.94l6.72-6.72a.75.75 0 011.06 0z"></path>
-        </svg>
-        Security policy defined
-    </div>
-    <div class="mt-2">
-        <a href="{% url 'user_projects:security_policy' project.owner.username project.slug %}" class="text-decoration-none">View policy</a>
-    </div>
+        <div class="text-success">
+            <svg class="octicon"
+                 width="16"
+                 height="16"
+                 viewBox="0 0 16 16"
+                 fill="currentColor">
+                <path fill-rule="evenodd" d="M13.78 4.22a.75.75 0 010 1.06l-7.25 7.25a.75.75 0 01-1.06 0L2.22 9.28a.75.75 0 011.06-1.06L6 10.94l6.72-6.72a.75.75 0 011.06 0z">
+                </path>
+            </svg>
+            Security policy defined
+        </div>
+        <div class="mt-2">
+            <a href="{% url 'user_projects:security_policy' project.owner.username project.slug %}"
+               class="text-decoration-none">View policy</a>
+        </div>
     {% else %}
-    <div class="text-muted">
-        <svg class="octicon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-            <path fill-rule="evenodd" d="M3.72 3.72a.75.75 0 011.06 0L8 6.94l3.22-3.22a.75.75 0 111.06 1.06L9.06 8l3.22 3.22a.75.75 0 11-1.06 1.06L8 9.06l-3.22 3.22a.75.75 0 01-1.06-1.06L6.94 8 3.72 4.78a.75.75 0 010-1.06z"></path>
-        </svg>
-        No security policy
-    </div>
-    <div class="mt-2">
-        <a href="{% url 'user_projects:security_policy' project.owner.username project.slug %}" class="text-decoration-none">Create policy</a>
-    </div>
+        <div class="text-muted">
+            <svg class="octicon"
+                 width="16"
+                 height="16"
+                 viewBox="0 0 16 16"
+                 fill="currentColor">
+                <path fill-rule="evenodd" d="M3.72 3.72a.75.75 0 011.06 0L8 6.94l3.22-3.22a.75.75 0 111.06 1.06L9.06 8l3.22 3.22a.75.75 0 11-1.06 1.06L8 9.06l-3.22 3.22a.75.75 0 01-1.06-1.06L6.94 8 3.72 4.78a.75.75 0 010-1.06z">
+                </path>
+            </svg>
+            No security policy
+        </div>
+        <div class="mt-2">
+            <a href="{% url 'user_projects:security_policy' project.owner.username project.slug %}"
+               class="text-decoration-none">Create policy</a>
+        </div>
     {% endif %}
 </div>

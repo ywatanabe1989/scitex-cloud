@@ -1,18 +1,17 @@
-    <!-- Header with collaboration status -->
-    <div class="writer-header hero-gradient-silverish">
-        <div class="container">
-            <button class="collaboration-toggle" id="collaboration-toggle">
-                <i class="fas fa-users"></i> Enable Collaboration
-            </button>
-            <h1 class="manuscript-title">{{ manuscript.title }}</h1>
-            <div class="manuscript-meta">
-                <span>Last modified: {{ manuscript.updated_at|date:"M d, Y H:i" }}</span>
-                <div class="collab-status hidden" id="collab-status">
-                    <div class="collab-indicator"></div>
-                    <span>Live collaboration active</span>
-                </div>
+<!-- Header with collaboration status -->
+<div class="writer-header hero-gradient-silverish">
+    <div class="container">
+        <button class="collaboration-toggle" id="collaboration-toggle">
+            <i class="fas fa-users"></i> Enable Collaboration
+        </button>
+        <h1 class="manuscript-title">{{ manuscript.title }}</h1>
+        <div class="manuscript-meta">
+            <span>Last modified: {{ manuscript.updated_at|date:"M d, Y H:i" }}</span>
+            <div class="collab-status hidden" id="collab-status">
+                <div class="collab-indicator"></div>
+                <span>Live collaboration active</span>
             </div>
         </div>
     </div>
-
-    <div class="container">
+</div>
+<div class="container"></div>

@@ -30,13 +30,13 @@ echo_header() { echo -e "${BLUE}$1${NC}"; }
 # Detect environment
 detect_environment() {
     # Check for production databases
-    if sudo -u postgres psql -lqt 2>/dev/null | cut -d \| -f 1 | grep -qw gitea_prod; then
+    if sudo -u postgres psql -lqt 2> /dev/null | cut -d \| -f 1 | grep -qw gitea_prod; then
         echo "production"
     # Check for development databases
-    elif sudo -u postgres psql -lqt 2>/dev/null | cut -d \| -f 1 | grep -qw scitex_dev; then
+    elif sudo -u postgres psql -lqt 2> /dev/null | cut -d \| -f 1 | grep -qw scitex_dev; then
         echo "development"
     # Check if PostgreSQL service is running at all
-    elif systemctl is-active --quiet postgresql 2>/dev/null; then
+    elif systemctl is-active --quiet postgresql 2> /dev/null; then
         echo "running"
     else
         echo "unknown"
@@ -58,12 +58,12 @@ check_general_status() {
         echo_info "  Active since: $UPTIME"
 
         # PostgreSQL version
-        PG_VERSION=$(sudo -u postgres psql --version 2>/dev/null | awk '{print $3}')
+        PG_VERSION=$(sudo -u postgres psql --version 2> /dev/null | awk '{print $3}')
         echo_info "  Version: $PG_VERSION"
     else
         echo_error "  ✗ Service not active"
 
-        if systemctl is-enabled --quiet postgresql 2>/dev/null; then
+        if systemctl is-enabled --quiet postgresql 2> /dev/null; then
             echo_warning "  ⚠ Service enabled but not running"
             echo_info "  Start with: sudo systemctl start postgresql"
         else
@@ -81,7 +81,7 @@ check_general_status() {
 
     # Connection test
     echo_info "Connection Test:"
-    if sudo -u postgres psql -c "SELECT 1;" >/dev/null 2>&1; then
+    if sudo -u postgres psql -c "SELECT 1;" > /dev/null 2>&1; then
         echo_success "  ✓ Can connect to PostgreSQL"
     else
         echo_error "  ✗ Cannot connect to PostgreSQL"
@@ -96,24 +96,24 @@ check_development() {
 
     # List development databases
     echo_info "Development Databases:"
-    sudo -u postgres psql -lqt 2>/dev/null | cut -d \| -f 1 | grep -E "scitex_dev|gitea_dev" | sed 's/^/  /' || echo_warning "  No development databases found"
+    sudo -u postgres psql -lqt 2> /dev/null | cut -d \| -f 1 | grep -E "scitex_dev|gitea_dev" | sed 's/^/  /' || echo_warning "  No development databases found"
     echo
 
     # Check scitex_dev database
-    if sudo -u postgres psql -lqt 2>/dev/null | cut -d \| -f 1 | grep -qw scitex_dev; then
+    if sudo -u postgres psql -lqt 2> /dev/null | cut -d \| -f 1 | grep -qw scitex_dev; then
         echo_info "SciTeX Development Database:"
         echo_success "  ✓ Database exists: scitex_dev"
 
         # Database size
-        DB_SIZE=$(sudo -u postgres psql -d scitex_dev -t -c "SELECT pg_size_pretty(pg_database_size('scitex_dev'));" 2>/dev/null | tr -d ' ')
+        DB_SIZE=$(sudo -u postgres psql -d scitex_dev -t -c "SELECT pg_size_pretty(pg_database_size('scitex_dev'));" 2> /dev/null | tr -d ' ')
         echo_info "  Size: $DB_SIZE"
 
         # Connection count
-        CONN_COUNT=$(sudo -u postgres psql -d scitex_dev -t -c "SELECT count(*) FROM pg_stat_activity WHERE datname='scitex_dev';" 2>/dev/null | tr -d ' ')
+        CONN_COUNT=$(sudo -u postgres psql -d scitex_dev -t -c "SELECT count(*) FROM pg_stat_activity WHERE datname='scitex_dev';" 2> /dev/null | tr -d ' ')
         echo_info "  Active connections: $CONN_COUNT"
 
         # Table count
-        TABLE_COUNT=$(sudo -u postgres psql -d scitex_dev -t -c "SELECT count(*) FROM information_schema.tables WHERE table_schema='public';" 2>/dev/null | tr -d ' ')
+        TABLE_COUNT=$(sudo -u postgres psql -d scitex_dev -t -c "SELECT count(*) FROM information_schema.tables WHERE table_schema='public';" 2> /dev/null | tr -d ' ')
         echo_info "  Tables: $TABLE_COUNT"
     else
         echo_warning "  ⚠ Database scitex_dev not found"
@@ -121,11 +121,11 @@ check_development() {
     echo
 
     # Check gitea_dev database
-    if sudo -u postgres psql -lqt 2>/dev/null | cut -d \| -f 1 | grep -qw gitea_dev; then
+    if sudo -u postgres psql -lqt 2> /dev/null | cut -d \| -f 1 | grep -qw gitea_dev; then
         echo_info "Gitea Development Database:"
         echo_success "  ✓ Database exists: gitea_dev"
 
-        DB_SIZE=$(sudo -u postgres psql -d gitea_dev -t -c "SELECT pg_size_pretty(pg_database_size('gitea_dev'));" 2>/dev/null | tr -d ' ')
+        DB_SIZE=$(sudo -u postgres psql -d gitea_dev -t -c "SELECT pg_size_pretty(pg_database_size('gitea_dev'));" 2> /dev/null | tr -d ' ')
         echo_info "  Size: $DB_SIZE"
     else
         echo_warning "  ⚠ Database gitea_dev not found"
@@ -140,24 +140,24 @@ check_production() {
 
     # List production databases
     echo_info "Production Databases:"
-    sudo -u postgres psql -lqt 2>/dev/null | cut -d \| -f 1 | grep -E "scitex_prod|gitea_prod" | sed 's/^/  /' || echo_warning "  No production databases found"
+    sudo -u postgres psql -lqt 2> /dev/null | cut -d \| -f 1 | grep -E "scitex_prod|gitea_prod" | sed 's/^/  /' || echo_warning "  No production databases found"
     echo
 
     # Check scitex_prod database
-    if sudo -u postgres psql -lqt 2>/dev/null | cut -d \| -f 1 | grep -qw scitex_prod; then
+    if sudo -u postgres psql -lqt 2> /dev/null | cut -d \| -f 1 | grep -qw scitex_prod; then
         echo_info "SciTeX Production Database:"
         echo_success "  ✓ Database exists: scitex_prod"
 
         # Database size
-        DB_SIZE=$(sudo -u postgres psql -d scitex_prod -t -c "SELECT pg_size_pretty(pg_database_size('scitex_prod'));" 2>/dev/null | tr -d ' ')
+        DB_SIZE=$(sudo -u postgres psql -d scitex_prod -t -c "SELECT pg_size_pretty(pg_database_size('scitex_prod'));" 2> /dev/null | tr -d ' ')
         echo_info "  Size: $DB_SIZE"
 
         # Connection count
-        CONN_COUNT=$(sudo -u postgres psql -d scitex_prod -t -c "SELECT count(*) FROM pg_stat_activity WHERE datname='scitex_prod';" 2>/dev/null | tr -d ' ')
+        CONN_COUNT=$(sudo -u postgres psql -d scitex_prod -t -c "SELECT count(*) FROM pg_stat_activity WHERE datname='scitex_prod';" 2> /dev/null | tr -d ' ')
         echo_info "  Active connections: $CONN_COUNT"
 
         # Table count
-        TABLE_COUNT=$(sudo -u postgres psql -d scitex_prod -t -c "SELECT count(*) FROM information_schema.tables WHERE table_schema='public';" 2>/dev/null | tr -d ' ')
+        TABLE_COUNT=$(sudo -u postgres psql -d scitex_prod -t -c "SELECT count(*) FROM information_schema.tables WHERE table_schema='public';" 2> /dev/null | tr -d ' ')
         echo_info "  Tables: $TABLE_COUNT"
     else
         echo_warning "  ⚠ Database scitex_prod not found"
@@ -165,15 +165,15 @@ check_production() {
     echo
 
     # Check gitea_prod database
-    if sudo -u postgres psql -lqt 2>/dev/null | cut -d \| -f 1 | grep -qw gitea_prod; then
+    if sudo -u postgres psql -lqt 2> /dev/null | cut -d \| -f 1 | grep -qw gitea_prod; then
         echo_info "Gitea Production Database:"
         echo_success "  ✓ Database exists: gitea_prod"
 
-        DB_SIZE=$(sudo -u postgres psql -d gitea_prod -t -c "SELECT pg_size_pretty(pg_database_size('gitea_prod'));" 2>/dev/null | tr -d ' ')
+        DB_SIZE=$(sudo -u postgres psql -d gitea_prod -t -c "SELECT pg_size_pretty(pg_database_size('gitea_prod'));" 2> /dev/null | tr -d ' ')
         echo_info "  Size: $DB_SIZE"
 
         # Connection count
-        CONN_COUNT=$(sudo -u postgres psql -d gitea_prod -t -c "SELECT count(*) FROM pg_stat_activity WHERE datname='gitea_prod';" 2>/dev/null | tr -d ' ')
+        CONN_COUNT=$(sudo -u postgres psql -d gitea_prod -t -c "SELECT count(*) FROM pg_stat_activity WHERE datname='gitea_prod';" 2> /dev/null | tr -d ' ')
         echo_info "  Active connections: $CONN_COUNT"
     else
         echo_warning "  ⚠ Database gitea_prod not found"
@@ -184,7 +184,7 @@ check_production() {
 # Show all databases
 show_all_databases() {
     echo_info "All Databases:"
-    sudo -u postgres psql -lqt 2>/dev/null | cut -d \| -f 1 | grep -v "^$" | grep -v "template" | sed 's/^/  /'
+    sudo -u postgres psql -lqt 2> /dev/null | cut -d \| -f 1 | grep -v "^$" | grep -v "template" | sed 's/^/  /'
     echo
 }
 
@@ -222,7 +222,7 @@ main() {
 
     # Recent logs
     echo_info "Recent Logs (last 10 lines):"
-    sudo journalctl -u postgresql -n 10 --no-pager 2>/dev/null | sed 's/^/  /'
+    sudo journalctl -u postgresql -n 10 --no-pager 2> /dev/null | sed 's/^/  /'
 
     echo -e "\nLogs: $LOG_PATH (stdout) | $ERR_PATH (stderr)"
 }

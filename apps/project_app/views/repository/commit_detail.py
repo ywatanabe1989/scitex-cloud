@@ -8,6 +8,7 @@ Repository Commit Detail
 
 Handles commit detail viewing functionality.
 """
+
 from __future__ import annotations
 
 import logging
@@ -48,6 +49,7 @@ def commit_detail(request, username, slug, commit_hash):
     if not has_access:
         if not request.user.is_authenticated:
             from django.contrib.auth.views import redirect_to_login
+
             return redirect_to_login(request.get_full_path())
         else:
             messages.error(request, "You don't have permission to access this project.")
@@ -72,43 +74,51 @@ def commit_detail(request, username, slug, commit_hash):
     try:
         # Get commit metadata: author, email, date, message
         result = subprocess.run(
-            ['git', 'show', '--no-patch', '--format=%an|%ae|%aI|%s|%b|%P|%H', commit_hash],
+            [
+                "git",
+                "show",
+                "--no-patch",
+                "--format=%an|%ae|%aI|%s|%b|%P|%H",
+                commit_hash,
+            ],
             cwd=project_path,
             capture_output=True,
             text=True,
-            timeout=10
+            timeout=10,
         )
 
         if result.returncode != 0:
             messages.error(request, f"Commit {commit_hash} not found.")
             return redirect("user_projects:detail", username=username, slug=slug)
 
-        parts = result.stdout.strip().split('|', 6)
+        parts = result.stdout.strip().split("|", 6)
         commit_info = {
-            'author_name': parts[0],
-            'author_email': parts[1],
-            'date': datetime.fromisoformat(parts[2].replace('Z', '+00:00')),
-            'subject': parts[3],  # First line of commit message
-            'body': parts[4] if len(parts) > 4 else '',  # Full commit message body
-            'parent_hash': parts[5].split()[0] if len(parts) > 5 and parts[5] else None,  # First parent
-            'full_hash': parts[6] if len(parts) > 6 else commit_hash,
-            'short_hash': commit_hash[:7],
+            "author_name": parts[0],
+            "author_email": parts[1],
+            "date": datetime.fromisoformat(parts[2].replace("Z", "+00:00")),
+            "subject": parts[3],  # First line of commit message
+            "body": parts[4] if len(parts) > 4 else "",  # Full commit message body
+            "parent_hash": parts[5].split()[0]
+            if len(parts) > 5 and parts[5]
+            else None,  # First parent
+            "full_hash": parts[6] if len(parts) > 6 else commit_hash,
+            "short_hash": commit_hash[:7],
         }
 
         # Get list of changed files with stats
         stats_result = subprocess.run(
-            ['git', 'diff-tree', '--no-commit-id', '--numstat', '-r', commit_hash],
+            ["git", "diff-tree", "--no-commit-id", "--numstat", "-r", commit_hash],
             cwd=project_path,
             capture_output=True,
             text=True,
-            timeout=10
+            timeout=10,
         )
 
         if stats_result.returncode == 0:
-            for line in stats_result.stdout.strip().split('\n'):
+            for line in stats_result.stdout.strip().split("\n"):
                 if not line:
                     continue
-                parts = line.split('\t')
+                parts = line.split("\t")
                 if len(parts) >= 3:
                     added = parts[0]
                     deleted = parts[1]
@@ -116,55 +126,56 @@ def commit_detail(request, username, slug, commit_hash):
 
                     # Get the actual diff for this file
                     diff_result = subprocess.run(
-                        ['git', 'show', '--format=', commit_hash, '--', filepath],
+                        ["git", "show", "--format=", commit_hash, "--", filepath],
                         cwd=project_path,
                         capture_output=True,
                         text=True,
-                        timeout=10
+                        timeout=10,
                     )
 
                     # Parse unified diff to get line-by-line changes
                     diff_lines = []
                     if diff_result.returncode == 0 and diff_result.stdout:
-                        for diff_line in diff_result.stdout.split('\n'):
-                            line_type = 'context'
-                            if diff_line.startswith('+++') or diff_line.startswith('---'):
-                                line_type = 'header'
-                            elif diff_line.startswith('@@'):
-                                line_type = 'hunk'
-                            elif diff_line.startswith('+'):
-                                line_type = 'addition'
-                            elif diff_line.startswith('-'):
-                                line_type = 'deletion'
+                        for diff_line in diff_result.stdout.split("\n"):
+                            line_type = "context"
+                            if diff_line.startswith("+++") or diff_line.startswith(
+                                "---"
+                            ):
+                                line_type = "header"
+                            elif diff_line.startswith("@@"):
+                                line_type = "hunk"
+                            elif diff_line.startswith("+"):
+                                line_type = "addition"
+                            elif diff_line.startswith("-"):
+                                line_type = "deletion"
 
-                            diff_lines.append({
-                                'content': diff_line,
-                                'type': line_type
-                            })
+                            diff_lines.append({"content": diff_line, "type": line_type})
 
                     # Determine file extension for syntax highlighting hint
                     file_ext = Path(filepath).suffix.lower()
 
-                    changed_files.append({
-                        'path': filepath,
-                        'additions': added if added != '-' else 0,
-                        'deletions': deleted if deleted != '-' else 0,
-                        'diff': diff_lines,
-                        'extension': file_ext,
-                    })
+                    changed_files.append(
+                        {
+                            "path": filepath,
+                            "additions": added if added != "-" else 0,
+                            "deletions": deleted if deleted != "-" else 0,
+                            "diff": diff_lines,
+                            "extension": file_ext,
+                        }
+                    )
 
         # Get current branch
         branch_result = subprocess.run(
-            ['git', 'branch', '--show-current'],
+            ["git", "branch", "--show-current"],
             cwd=project_path,
             capture_output=True,
             text=True,
-            timeout=5
+            timeout=5,
         )
         if branch_result.returncode == 0:
-            commit_info['current_branch'] = branch_result.stdout.strip() or 'main'
+            commit_info["current_branch"] = branch_result.stdout.strip() or "main"
         else:
-            commit_info['current_branch'] = 'main'
+            commit_info["current_branch"] = "main"
 
     except subprocess.TimeoutExpired:
         messages.error(request, "Git command timed out.")
@@ -175,14 +186,24 @@ def commit_detail(request, username, slug, commit_hash):
         return redirect("user_projects:detail", username=username, slug=slug)
 
     context = {
-        'project': project,
-        'commit': commit_info,
-        'changed_files': changed_files,
-        'total_additions': sum(int(f['additions']) if isinstance(f['additions'], (int, str)) and str(f['additions']).isdigit() else 0 for f in changed_files),
-        'total_deletions': sum(int(f['deletions']) if isinstance(f['deletions'], (int, str)) and str(f['deletions']).isdigit() else 0 for f in changed_files),
+        "project": project,
+        "commit": commit_info,
+        "changed_files": changed_files,
+        "total_additions": sum(
+            int(f["additions"])
+            if isinstance(f["additions"], (int, str)) and str(f["additions"]).isdigit()
+            else 0
+            for f in changed_files
+        ),
+        "total_deletions": sum(
+            int(f["deletions"])
+            if isinstance(f["deletions"], (int, str)) and str(f["deletions"]).isdigit()
+            else 0
+            for f in changed_files
+        ),
     }
 
-    return render(request, 'project_app/repository/commit_detail.html', context)
+    return render(request, "project_app/repository/commit_detail.html", context)
 
 
 # EOF

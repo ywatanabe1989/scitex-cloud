@@ -5,6 +5,7 @@ Project Edit View
 
 Handle project editing.
 """
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -21,9 +22,7 @@ def project_edit(request, username, slug):
 
     # Only project owner can edit
     if project.owner != request.user:
-        messages.error(
-            request, "You don't have permission to edit this project."
-        )
+        messages.error(request, "You don't have permission to edit this project.")
         return redirect("project_app:detail", username=username, slug=slug)
 
     if request.method == "POST":
@@ -37,9 +36,7 @@ def project_edit(request, username, slug):
 
         project.save()
         messages.success(request, "Project updated successfully")
-        return redirect(
-            "project_app:detail", username=username, slug=project.slug
-        )
+        return redirect("project_app:detail", username=username, slug=project.slug)
 
     context = {"project": project}
     return render(request, "project_app/projects/edit.html", context)

@@ -20,29 +20,22 @@ def history_api(request):
         - limit: Number of commits to return (default: 50)
     """
     try:
-        project_id = request.GET.get('project_id')
-        limit = int(request.GET.get('limit', 50))
+        project_id = request.GET.get("project_id")
+        limit = int(request.GET.get("limit", 50))
 
         if not project_id:
-            return JsonResponse({
-                'success': False,
-                'error': 'project_id required'
-            }, status=400)
+            return JsonResponse(
+                {"success": False, "error": "project_id required"}, status=400
+            )
 
         vc_service = VersionControlService(project_id, request.user.id)
         history = vc_service.get_history(limit=limit)
 
-        return JsonResponse({
-            'success': True,
-            'history': history
-        })
+        return JsonResponse({"success": True, "history": history})
 
     except Exception as e:
         logger.error(f"Error getting history: {e}", exc_info=True)
-        return JsonResponse({
-            'success': False,
-            'error': str(e)
-        }, status=500)
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
 
 
 @login_required
@@ -58,14 +51,14 @@ def create_version_api(request):
     """
     try:
         data = json.loads(request.body)
-        project_id = data.get('project_id')
-        message = data.get('message')
+        project_id = data.get("project_id")
+        message = data.get("message")
 
         if not all([project_id, message]):
-            return JsonResponse({
-                'success': False,
-                'error': 'project_id and message required'
-            }, status=400)
+            return JsonResponse(
+                {"success": False, "error": "project_id and message required"},
+                status=400,
+            )
 
         vc_service = VersionControlService(project_id, request.user.id)
         result = vc_service.create_version(message)
@@ -74,10 +67,7 @@ def create_version_api(request):
 
     except Exception as e:
         logger.error(f"Error creating version: {e}", exc_info=True)
-        return JsonResponse({
-            'success': False,
-            'error': str(e)
-        }, status=500)
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
 
 
 @login_required
@@ -93,14 +83,14 @@ def rollback_api(request):
     """
     try:
         data = json.loads(request.body)
-        project_id = data.get('project_id')
-        commit_hash = data.get('commit_hash')
+        project_id = data.get("project_id")
+        commit_hash = data.get("commit_hash")
 
         if not all([project_id, commit_hash]):
-            return JsonResponse({
-                'success': False,
-                'error': 'project_id and commit_hash required'
-            }, status=400)
+            return JsonResponse(
+                {"success": False, "error": "project_id and commit_hash required"},
+                status=400,
+            )
 
         vc_service = VersionControlService(project_id, request.user.id)
         result = vc_service.rollback(commit_hash)
@@ -109,7 +99,4 @@ def rollback_api(request):
 
     except Exception as e:
         logger.error(f"Error rolling back: {e}", exc_info=True)
-        return JsonResponse({
-            'success': False,
-            'error': str(e)
-        }, status=500)
+        return JsonResponse({"success": False, "error": str(e)}, status=500)

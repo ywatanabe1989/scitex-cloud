@@ -1,6 +1,6 @@
 """BibTeX export service for project bibliographies"""
+
 from django.utils import timezone
-from ..models import IntegrationLog
 
 
 class BibExportService:
@@ -29,8 +29,8 @@ class BibExportService:
         bibtex_entries = []
 
         for ref in references:
-            entry_type = ref.get('entry_type', 'article')
-            cite_key = ref.get('cite_key', self._generate_cite_key(ref))
+            entry_type = ref.get("entry_type", "article")
+            cite_key = ref.get("cite_key", self._generate_cite_key(ref))
 
             # Start entry
             entry = f"@{entry_type}{{{cite_key},\n"
@@ -40,35 +40,35 @@ class BibExportService:
 
             # Required and optional fields based on entry type
             field_mapping = {
-                'title': 'title',
-                'author': 'author',
-                'year': 'year',
-                'journal': 'journal',
-                'booktitle': 'booktitle',
-                'volume': 'volume',
-                'number': 'number',
-                'pages': 'pages',
-                'publisher': 'publisher',
-                'doi': 'doi',
-                'url': 'url',
-                'abstract': 'abstract',
-                'keywords': 'keywords',
-                'note': 'note',
-                'editor': 'editor',
-                'series': 'series',
-                'edition': 'edition',
-                'month': 'month',
-                'address': 'address',
-                'isbn': 'isbn',
-                'issn': 'issn',
+                "title": "title",
+                "author": "author",
+                "year": "year",
+                "journal": "journal",
+                "booktitle": "booktitle",
+                "volume": "volume",
+                "number": "number",
+                "pages": "pages",
+                "publisher": "publisher",
+                "doi": "doi",
+                "url": "url",
+                "abstract": "abstract",
+                "keywords": "keywords",
+                "note": "note",
+                "editor": "editor",
+                "series": "series",
+                "edition": "edition",
+                "month": "month",
+                "address": "address",
+                "isbn": "isbn",
+                "issn": "issn",
             }
 
             for key, bibtex_field in field_mapping.items():
                 value = ref.get(key)
                 if value:
                     # Handle author lists
-                    if key == 'author' and isinstance(value, list):
-                        value = ' and '.join(value)
+                    if key == "author" and isinstance(value, list):
+                        value = " and ".join(value)
 
                     # Escape special characters
                     value = self._escape_bibtex(str(value))
@@ -76,12 +76,12 @@ class BibExportService:
                     # Format field
                     fields.append(f"  {bibtex_field} = {{{value}}}")
 
-            entry += ',\n'.join(fields)
-            entry += '\n}\n'
+            entry += ",\n".join(fields)
+            entry += "\n}\n"
 
             bibtex_entries.append(entry)
 
-        return '\n'.join(bibtex_entries)
+        return "\n".join(bibtex_entries)
 
     def export_to_file(self, references, file_path):
         """
@@ -96,7 +96,7 @@ class BibExportService:
         """
         bibtex_content = self.generate_bibtex(references)
 
-        with open(file_path, 'w', encoding='utf-8') as f:
+        with open(file_path, "w", encoding="utf-8") as f:
             f.write(bibtex_content)
 
         return file_path
@@ -123,10 +123,10 @@ class BibExportService:
         exported_path = self.export_to_file(references, file_path)
 
         return {
-            'success': True,
-            'file_path': exported_path,
-            'reference_count': len(references),
-            'exported_at': timezone.now().isoformat(),
+            "success": True,
+            "file_path": exported_path,
+            "reference_count": len(references),
+            "exported_at": timezone.now().isoformat(),
         }
 
     def _get_project_references(self):
@@ -155,20 +155,20 @@ class BibExportService:
     def _generate_cite_key(self, ref):
         """Generate citation key from reference data"""
         # Format: FirstAuthorLastNameYYYY
-        author = ref.get('author', '')
-        year = ref.get('year', '')
+        author = ref.get("author", "")
+        year = ref.get("year", "")
 
         if isinstance(author, list) and author:
             author = author[0]
 
         # Extract last name
-        if ',' in author:
-            last_name = author.split(',')[0].strip()
+        if "," in author:
+            last_name = author.split(",")[0].strip()
         else:
-            last_name = author.split()[-1] if author else 'Unknown'
+            last_name = author.split()[-1] if author else "Unknown"
 
         # Clean last name
-        last_name = ''.join(c for c in last_name if c.isalnum())
+        last_name = "".join(c for c in last_name if c.isalnum())
 
         return f"{last_name}{year}" if year else last_name
 
@@ -176,16 +176,16 @@ class BibExportService:
         """Escape special BibTeX characters"""
         # Handle common special characters
         replacements = {
-            '&': r'\&',
-            '%': r'\%',
-            '$': r'\$',
-            '#': r'\#',
-            '_': r'\_',
-            '{': r'\{',
-            '}': r'\}',
-            '~': r'\textasciitilde{}',
-            '^': r'\textasciicircum{}',
-            '\\': r'\textbackslash{}',
+            "&": r"\&",
+            "%": r"\%",
+            "$": r"\$",
+            "#": r"\#",
+            "_": r"\_",
+            "{": r"\{",
+            "}": r"\}",
+            "~": r"\textasciitilde{}",
+            "^": r"\textasciicircum{}",
+            "\\": r"\textbackslash{}",
         }
 
         for char, replacement in replacements.items():
@@ -208,7 +208,7 @@ class BibExportService:
         import re
 
         references = []
-        pattern = r'@(\w+){([^,]+),\s*(.*?)\n}'
+        pattern = r"@(\w+){([^,]+),\s*(.*?)\n}"
 
         for match in re.finditer(pattern, bibtex_content, re.DOTALL):
             entry_type = match.group(1)
@@ -216,8 +216,8 @@ class BibExportService:
             fields_str = match.group(3)
 
             ref = {
-                'entry_type': entry_type,
-                'cite_key': cite_key,
+                "entry_type": entry_type,
+                "cite_key": cite_key,
             }
 
             # Parse fields

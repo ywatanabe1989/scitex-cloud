@@ -1,85 +1,110 @@
 {% extends "global_base.html" %}
 {% load static %}
-
-{% block title %}Edit {{ file_name }} - {{ project.name }}{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'project_app/css/project_app.css' %}">
-<link rel="stylesheet" href="{% static 'project_app/css/shared/buttons.css' %}">
-
-
-<!-- Markdown rendering library -->
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+{% block title %}
+    Edit {{
+    file_name }} - {{ project.name }}
 {% endblock %}
-
+{% block extra_css %}
+    <link rel="stylesheet"
+          href="{% static 'project_app/css/project_app.css' %}" />
+    <link rel="stylesheet"
+          href="{% static 'project_app/css/shared/buttons.css' %}" />
+    <!-- Markdown rendering library -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+{% endblock %}
 {% block content %}
-<div class="container-fluid" style="max-width: 1280px;">
-    <!-- Repository Header with Breadcrumb -->
-    <div class="repo-header">
-        <div style="display: flex; align-items: center; gap: 0.5rem;">
-            <a href="/{{ project.owner.username }}/" style="color: #0969da; text-decoration: none; font-weight: 400;">
-                {{ project.owner.username }}
-            </a>
-            <span style="color: #656d76;">/</span>
-            <a href="/{{ project.owner.username }}/{{ project.slug }}/" class="repo-title">
-                {{ project.name }}
-            </a>
-            {% for breadcrumb in breadcrumbs %}
-                {% if breadcrumb.name != project.name %}
-                    <span style="color: #656d76;">/</span>
-                    {% if breadcrumb.url %}
-                        <a href="{{ breadcrumb.url }}" style="color: #0969da; text-decoration: none;">
-                            {{ breadcrumb.name }}
-                        </a>
-                    {% else %}
-                        <span style="font-weight: 600;">{{ breadcrumb.name }}</span>
+    <div class="container-fluid" style="max-width: 1280px">
+        <!-- Repository Header with Breadcrumb -->
+        <div class="repo-header">
+            <div style="display: flex; align-items: center; gap: 0.5rem">
+                <a href="/{{ project.owner.username }}/"
+                   style="color: #0969da;
+                          text-decoration: none;
+                          font-weight: 400">{{ project.owner.username }}</a>
+                <span style="color: #656d76">/</span>
+                <a href="/{{ project.owner.username }}/{{ project.slug }}/"
+                   class="repo-title">{{ project.name }}</a>
+                {% for breadcrumb in breadcrumbs %}
+                    {% if breadcrumb.name != project.name
+                        %}
+                        <span style="color: #656d76">/</span>
+                        {% if breadcrumb.url %}
+                            <a href="{{ breadcrumb.url }}"
+                               style="color: #0969da;
+                                      text-decoration: none">{{ breadcrumb.name }}</a>
+                        {% else %}
+                            <span style="font-weight: 600">{{ breadcrumb.name }}</span>
+                        {% endif %}
                     {% endif %}
-                {% endif %}
-            {% endfor %}
+                {% endfor %}
+            </div>
         </div>
-    </div>
-
-    <!-- File Editor -->
-    <div class="file-editor-container">
-        <form method="POST">
-            {% csrf_token %}
-
-            <div class="editor-header" style="display: flex; justify-content: space-between; align-items: center;">
-                <span>Edit {{ file_name }}</span>
-                {% if file_name|slice:"-3:" == ".md" %}
-                <div class="btn-group btn-group-sm" role="group">
-                    <button type="button" class="btn btn-outline-secondary active" id="editBtn" onclick="showEdit()">
-                        <img src="{% static 'project_app/icons/edit.svg' %}" alt="" style="width: 16px; height: 16px; vertical-align: text-bottom; margin-right: 4px;">Edit
-                    </button>
-                    <button type="button" class="btn btn-outline-secondary" id="previewBtn" onclick="showPreview()">
-                        <img src="{% static 'project_app/icons/eye.svg' %}" alt="" style="width: 16px; height: 16px; vertical-align: text-bottom; margin-right: 4px;">Preview
+        <!-- File Editor -->
+        <div class="file-editor-container">
+            <form method="POST">
+                {% csrf_token %}
+                <div class="editor-header"
+                     style="display: flex;
+                            justify-content: space-between;
+                            align-items: center">
+                    <span>Edit {{ file_name }}</span>
+                    {% if file_name|slice:"-3:" == ".md" %}
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button type="button"
+                                    class="btn btn-outline-secondary active"
+                                    id="editBtn"
+                                    onclick="showEdit()">
+                                <img src="{% static 'project_app/icons/edit.svg' %}"
+                                     alt=""
+                                     style="width: 16px;
+                                            height: 16px;
+                                            vertical-align: text-bottom;
+                                            margin-right: 4px" />
+                                Edit
+                            </button>
+                            <button type="button"
+                                    class="btn btn-outline-secondary"
+                                    id="previewBtn"
+                                    onclick="showPreview()">
+                                <img src="{% static 'project_app/icons/eye.svg' %}"
+                                     alt=""
+                                     style="width: 16px;
+                                            height: 16px;
+                                            vertical-align: text-bottom;
+                                            margin-right: 4px" />
+                                Preview
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="editor-body">
+                    <textarea name="content" class="editor-textarea" id="editorTextarea">
+{{ file_content }}</textarea>
+                    <div id="previewContainer"
+                         class="markdown-body"
+                         style="display: none;
+                                padding: 2rem;
+                                min-height: 500px"></div>
+                </div>
+                <div class="editor-footer">
+                    <a href="/{{ project.owner.username }}/{{ project.slug }}/blob/{{ file_path }}"
+                       class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-success">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                             viewBox="0 0 16 16"
+                             width="16"
+                             height="16"
+                             style="vertical-align: text-bottom;
+                                    margin-right: 4px">
+                            <path fill="currentColor" d="M2 1.75C2 .784 2.784 0 3.75 0h5.586c.464 0 .909.184 1.237.513l2.914 2.914c.329.328.513.773.513 1.237v9.586A1.75 1.75 0 0 1 12.25 16h-8.5A1.75 1.75 0 0 1 2 14.25Zm1.75-.25a.25.25 0 0 0-.25.25v12.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25V6h-2.75A1.75 1.75 0 0 1 8 4.25V1.5Zm6.75.062V4.25c0 .138.112.25.25.25h2.688l-.011-.013-2.914-2.914-.013-.011ZM5.75 7.5a.75.75 0 0 0 0 1.5h4a.75.75 0 0 0 0-1.5h-4Z" />
+                        </svg>
+                        Save changes
                     </button>
                 </div>
-                {% endif %}
-            </div>
-
-            <div class="editor-body">
-                <textarea name="content" class="editor-textarea" id="editorTextarea">{{ file_content }}</textarea>
-                <div id="previewContainer" class="markdown-body" style="display: none; padding: 2rem; min-height: 500px;"></div>
-            </div>
-
-            <div class="editor-footer">
-                <a href="/{{ project.owner.username }}/{{ project.slug }}/blob/{{ file_path }}" class="btn btn-secondary">
-                    Cancel
-                </a>
-                <button type="submit" class="btn btn-success">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" style="vertical-align: text-bottom; margin-right: 4px;">
-                        <path fill="currentColor" d="M2 1.75C2 .784 2.784 0 3.75 0h5.586c.464 0 .909.184 1.237.513l2.914 2.914c.329.328.513.773.513 1.237v9.586A1.75 1.75 0 0 1 12.25 16h-8.5A1.75 1.75 0 0 1 2 14.25Zm1.75-.25a.25.25 0 0 0-.25.25v12.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25V6h-2.75A1.75 1.75 0 0 1 8 4.25V1.5Zm6.75.062V4.25c0 .138.112.25.25.25h2.688l-.011-.013-2.914-2.914-.013-.011ZM5.75 7.5a.75.75 0 0 0 0 1.5h4a.75.75 0 0 0 0-1.5h-4Z"/>
-                    </svg>
-                    Save changes
-                </button>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
-</div>
-
 {% endblock %}
-
 {% block extra_js %}
-<script src="{% static 'project_app/js/repository/file_edit.js' %}"></script>
+    <script src="{% static 'project_app/js/repository/file_edit.js' %}"></script>
 {% endblock %}

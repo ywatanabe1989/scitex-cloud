@@ -7,7 +7,9 @@
  * Configuration options for confirmation modal
  */
 
-console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/static/ts/components/confirm-modal.ts loaded");
+console.log(
+  "[DEBUG] /home/ywatanabe/proj/scitex-cloud/static/ts/components/confirm-modal.ts loaded",
+);
 export interface ConfirmModalOptions {
   /** Modal title */
   title?: string;
@@ -30,24 +32,24 @@ export interface ConfirmModalOptions {
  */
 export function showConfirm(options: ConfirmModalOptions): void {
   const {
-    title = 'Confirm',
+    title = "Confirm",
     message,
-    confirmText = 'Confirm',
-    cancelText = 'Cancel',
+    confirmText = "Confirm",
+    cancelText = "Cancel",
     onConfirm,
-    onCancel
+    onCancel,
   } = options;
 
   // Remove existing modal if present
-  const existingModal = document.getElementById('scitex-confirm-modal');
+  const existingModal = document.getElementById("scitex-confirm-modal");
   if (existingModal) {
     existingModal.remove();
   }
 
   // Create modal HTML
-  const modal = document.createElement('div');
-  modal.id = 'scitex-confirm-modal';
-  modal.className = 'scitex-modal-overlay';
+  const modal = document.createElement("div");
+  modal.id = "scitex-confirm-modal";
+  modal.className = "scitex-modal-overlay";
   modal.innerHTML = `
     <div class="scitex-modal-content">
       <div class="scitex-modal-header">
@@ -68,36 +70,42 @@ export function showConfirm(options: ConfirmModalOptions): void {
   document.body.appendChild(modal);
 
   // Get button elements
-  const closeBtn = modal.querySelector<HTMLButtonElement>('.scitex-modal-close');
-  const cancelBtn = modal.querySelector<HTMLButtonElement>('[data-action="cancel"]');
-  const confirmBtn = modal.querySelector<HTMLButtonElement>('[data-action="confirm"]');
+  const closeBtn = modal.querySelector<HTMLButtonElement>(
+    ".scitex-modal-close",
+  );
+  const cancelBtn = modal.querySelector<HTMLButtonElement>(
+    '[data-action="cancel"]',
+  );
+  const confirmBtn = modal.querySelector<HTMLButtonElement>(
+    '[data-action="confirm"]',
+  );
 
   /**
    * Close modal with animation
    */
   const closeModal = (): void => {
-    modal.classList.add('scitex-modal-closing');
+    modal.classList.add("scitex-modal-closing");
     setTimeout(() => modal.remove(), 300);
   };
 
   // Event listeners
-  closeBtn?.addEventListener('click', () => {
+  closeBtn?.addEventListener("click", () => {
     if (onCancel) onCancel();
     closeModal();
   });
 
-  cancelBtn?.addEventListener('click', () => {
+  cancelBtn?.addEventListener("click", () => {
     if (onCancel) onCancel();
     closeModal();
   });
 
-  confirmBtn?.addEventListener('click', () => {
+  confirmBtn?.addEventListener("click", () => {
     if (onConfirm) onConfirm();
     closeModal();
   });
 
   // Close on overlay click
-  modal.addEventListener('click', (e: MouseEvent) => {
+  modal.addEventListener("click", (e: MouseEvent) => {
     if (e.target === modal) {
       if (onCancel) onCancel();
       closeModal();
@@ -106,16 +114,16 @@ export function showConfirm(options: ConfirmModalOptions): void {
 
   // Close on Escape key
   const escapeHandler = (e: KeyboardEvent): void => {
-    if (e.key === 'Escape') {
+    if (e.key === "Escape") {
       if (onCancel) onCancel();
       closeModal();
-      document.removeEventListener('keydown', escapeHandler);
+      document.removeEventListener("keydown", escapeHandler);
     }
   };
-  document.addEventListener('keydown', escapeHandler);
+  document.addEventListener("keydown", escapeHandler);
 
   // Animate in
-  setTimeout(() => modal.classList.add('scitex-modal-visible'), 10);
+  setTimeout(() => modal.classList.add("scitex-modal-visible"), 10);
 
   // Focus confirm button
   confirmBtn?.focus();
@@ -125,7 +133,7 @@ export function showConfirm(options: ConfirmModalOptions): void {
  * Escape HTML to prevent XSS
  */
 function escapeHtml(text: string): string {
-  const div = document.createElement('div');
+  const div = document.createElement("div");
   div.textContent = text;
   return div.innerHTML;
 }

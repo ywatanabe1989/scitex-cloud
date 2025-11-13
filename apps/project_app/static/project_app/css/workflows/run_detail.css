@@ -2,173 +2,174 @@
 /* ACTIONS / WORKFLOW_RUN_DETAIL */
 /* ============================================================================= */
 
-
 .run-header {
-    padding: 1.5rem 0;
-    border-bottom: 1px solid var(--color-border-default);
+  padding: 1.5rem 0;
+  border-bottom: 1px solid var(--color-border-default);
 }
 
 .run-title {
-    font-size: 1.5rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .run-status-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-size: 1rem;
-    font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 1rem;
+  font-weight: 500;
 }
 
 .run-status-badge.success {
-    background: var(--color-success-subtle);
-    color: var(--color-success-fg);
+  background: var(--color-success-subtle);
+  color: var(--color-success-fg);
 }
 
 .run-status-badge.failure {
-    background: var(--color-danger-subtle);
-    color: var(--color-danger-fg);
+  background: var(--color-danger-subtle);
+  color: var(--color-danger-fg);
 }
 
 .run-status-badge.in_progress {
-    background: var(--color-accent-subtle);
-    color: var(--color-accent-fg);
+  background: var(--color-accent-subtle);
+  color: var(--color-accent-fg);
 }
 
 .run-meta {
-    margin-top: 1rem;
-    display: flex;
-    gap: 2rem;
-    font-size: 0.875rem;
-    color: var(--color-fg-muted);
+  margin-top: 1rem;
+  display: flex;
+  gap: 2rem;
+  font-size: 0.875rem;
+  color: var(--color-fg-muted);
 }
 
 .jobs-section {
-    margin-top: 2rem;
+  margin-top: 2rem;
 }
 
 .job-card {
-    border: 1px solid var(--color-border-default);
-    border-radius: 6px;
-    margin-bottom: 1rem;
-    overflow: hidden;
-    background: var(--color-canvas-default);
+  border: 1px solid var(--color-border-default);
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  overflow: hidden;
+  background: var(--color-canvas-default);
 }
 
 .job-header {
-    padding: 1rem;
-    background: var(--color-canvas-subtle);
-    border-bottom: 1px solid var(--color-border-default);
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  padding: 1rem;
+  background: var(--color-canvas-subtle);
+  border-bottom: 1px solid var(--color-border-default);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .job-header:hover {
-    background: var(--color-canvas-inset);
+  background: var(--color-canvas-inset);
 }
 
 .job-title {
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .job-duration {
-    font-size: 0.875rem;
-    color: var(--color-fg-muted);
+  font-size: 0.875rem;
+  color: var(--color-fg-muted);
 }
 
 .job-steps {
-    display: none;
+  display: none;
 }
 
 .job-steps.show {
-    display: block;
+  display: block;
 }
 
 .step-item {
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid var(--color-border-default);
-    cursor: pointer;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--color-border-default);
+  cursor: pointer;
 }
 
 .step-item:last-child {
-    border-bottom: none;
+  border-bottom: none;
 }
 
 .step-item:hover {
-    background: var(--color-canvas-subtle);
+  background: var(--color-canvas-subtle);
 }
 
 .step-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .step-name {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
 }
 
 .step-status-icon {
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
 }
 
 .step-status-icon.success {
-    background: var(--color-success-emphasis);
+  background: var(--color-success-emphasis);
 }
 
 .step-status-icon.failure {
-    background: var(--color-danger-emphasis);
+  background: var(--color-danger-emphasis);
 }
 
 .step-status-icon.in_progress {
-    background: var(--color-accent-fg);
-    animation: pulse 2s infinite;
+  background: var(--color-accent-fg);
+  animation: pulse 2s infinite;
 }
 
 @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 .step-output {
-    display: none;
-    margin-top: 0.5rem;
-    padding: 1rem;
-    background: var(--color-canvas-inset);
-    border-radius: 4px;
-    font-family: 'Monaco', 'Courier New', monospace;
-    font-size: 0.75rem;
-    overflow-x: auto;
-    max-height: 400px;
-    overflow-y: auto;
+  display: none;
+  margin-top: 0.5rem;
+  padding: 1rem;
+  background: var(--color-canvas-inset);
+  border-radius: 4px;
+  font-family: "Monaco", "Courier New", monospace;
+  font-size: 0.75rem;
+  overflow-x: auto;
+  max-height: 400px;
+  overflow-y: auto;
 }
 
 .step-output.show {
-    display: block;
+  display: block;
 }
 
 .step-output pre {
-    margin: 0;
-    white-space: pre-wrap;
-    word-wrap: break-word;
+  margin: 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
 }
-
-
-

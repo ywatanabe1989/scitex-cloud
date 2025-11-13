@@ -2,283 +2,279 @@
 /* ISSUES / ISSUES_LIST */
 /* ============================================================================= */
 
-
 /* GitHub-style issues list - Theme-aware */
 .issues-header {
-    padding: 1.5rem 0;
-    border-bottom: 1px solid var(--color-border-default);
+  padding: 1.5rem 0;
+  border-bottom: 1px solid var(--color-border-default);
 }
 
 .issues-header-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--color-fg-default);
-    margin-bottom: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-fg-default);
+  margin-bottom: 0.5rem;
 }
 
 .issues-search {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
 }
 
 .issues-search input {
-    flex: 1;
-    padding: 0.5rem 1rem;
-    border: 1px solid var(--color-border-default);
-    border-radius: 6px;
-    background: var(--color-canvas-default);
-    color: var(--color-fg-default);
-    font-size: 14px;
+  flex: 1;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--color-border-default);
+  border-radius: 6px;
+  background: var(--color-canvas-default);
+  color: var(--color-fg-default);
+  font-size: 14px;
 }
 
 .issues-filters {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-    align-items: center;
-    padding: 1rem 0;
-    border-bottom: 1px solid var(--color-border-default);
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--color-border-default);
 }
 
 .filter-group {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
 }
 
 .filter-label {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--color-fg-muted);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-fg-muted);
 }
 
 .filter-dropdown {
-    position: relative;
+  position: relative;
 }
 
 .filter-btn {
-    padding: 5px 12px;
-    font-size: 12px;
-    font-weight: 500;
-    border: 1px solid var(--color-border-default);
-    border-radius: 6px;
-    background: var(--color-canvas-default);
-    color: var(--color-fg-default);
-    cursor: pointer;
-    transition: all 0.2s ease;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid var(--color-border-default);
+  border-radius: 6px;
+  background: var(--color-canvas-default);
+  color: var(--color-fg-default);
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .filter-btn:hover {
-    background: var(--color-canvas-subtle);
-    border-color: var(--color-fg-muted);
+  background: var(--color-canvas-subtle);
+  border-color: var(--color-fg-muted);
 }
 
 .issues-tabs {
-    display: flex;
-    gap: 1rem;
-    padding: 1rem 0;
-    border-bottom: 1px solid var(--color-border-default);
+  display: flex;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--color-border-default);
 }
 
 .issues-tab {
-    padding: 0.5rem 1rem;
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--color-fg-muted);
-    text-decoration: none;
-    border-bottom: 2px solid transparent;
-    transition: all 0.2s ease;
+  padding: 0.5rem 1rem;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-fg-muted);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
 }
 
 .issues-tab:hover {
-    color: var(--color-fg-default);
-    text-decoration: none;
+  color: var(--color-fg-default);
+  text-decoration: none;
 }
 
 .issues-tab.active {
-    color: var(--color-fg-default);
-    border-bottom-color: var(--color-accent-fg);
+  color: var(--color-fg-default);
+  border-bottom-color: var(--color-accent-fg);
 }
 
 .issues-stats {
-    display: flex;
-    gap: 1rem;
-    align-items: center;
-    font-size: 14px;
-    color: var(--color-fg-muted);
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  font-size: 14px;
+  color: var(--color-fg-muted);
 }
 
 .issue-list {
-    border: 1px solid var(--color-border-default);
-    border-radius: 6px;
-    overflow: hidden;
-    margin-top: 1rem;
+  border: 1px solid var(--color-border-default);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-top: 1rem;
 }
 
 .issue-item {
-    padding: 1rem;
-    border-bottom: 1px solid var(--color-border-default);
-    transition: background-color 0.1s ease;
+  padding: 1rem;
+  border-bottom: 1px solid var(--color-border-default);
+  transition: background-color 0.1s ease;
 }
 
 .issue-item:last-child {
-    border-bottom: none;
+  border-bottom: none;
 }
 
 .issue-item:hover {
-    background: var(--color-canvas-subtle);
+  background: var(--color-canvas-subtle);
 }
 
 .issue-main {
-    display: flex;
-    gap: 0.75rem;
-    align-items: flex-start;
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
 }
 
 .issue-icon {
-    width: 16px;
-    height: 16px;
-    margin-top: 4px;
-    flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  margin-top: 4px;
+  flex-shrink: 0;
 }
 
 .issue-icon.open {
-    color: var(--color-success-fg);
+  color: var(--color-success-fg);
 }
 
 .issue-icon.closed {
-    color: var(--color-done-fg);
+  color: var(--color-done-fg);
 }
 
 .issue-content {
-    flex: 1;
-    min-width: 0;
+  flex: 1;
+  min-width: 0;
 }
 
 .issue-title-row {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.5rem;
-    flex-wrap: wrap;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .issue-title {
-    color: var(--color-fg-default);
-    font-weight: 600;
-    font-size: 16px;
-    text-decoration: none;
+  color: var(--color-fg-default);
+  font-weight: 600;
+  font-size: 16px;
+  text-decoration: none;
 }
 
 .issue-title:hover {
-    color: var(--color-accent-fg);
+  color: var(--color-accent-fg);
 }
 
 .issue-labels {
-    display: flex;
-    gap: 0.25rem;
-    flex-wrap: wrap;
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
 }
 
 .issue-label {
-    padding: 2px 8px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 500;
-    color: white;
-    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: white;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
 }
 
 .issue-meta {
-    margin-top: 0.5rem;
-    font-size: 12px;
-    color: var(--color-fg-muted);
+  margin-top: 0.5rem;
+  font-size: 12px;
+  color: var(--color-fg-muted);
 }
 
 .issue-meta a {
-    color: var(--color-fg-muted);
-    text-decoration: none;
+  color: var(--color-fg-muted);
+  text-decoration: none;
 }
 
 .issue-meta a:hover {
-    color: var(--color-accent-fg);
+  color: var(--color-accent-fg);
 }
 
 .new-issue-btn {
-    padding: 8px 16px;
-    background: var(--color-success-emphasis);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 500;
-    text-decoration: none;
-    cursor: pointer;
-    transition: all 0.2s ease;
+  padding: 8px 16px;
+  background: var(--color-success-emphasis);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .new-issue-btn:hover {
-    background: var(--color-success-emphasis);
-    opacity: 0.9;
-    color: white;
-    text-decoration: none;
+  background: var(--color-success-emphasis);
+  opacity: 0.9;
+  color: white;
+  text-decoration: none;
 }
 
 .empty-state {
-    padding: 3rem;
-    text-align: center;
-    background: var(--color-canvas-default);
-    border: 1px solid var(--color-border-default);
-    border-radius: 6px;
-    margin-top: 1rem;
+  padding: 3rem;
+  text-align: center;
+  background: var(--color-canvas-default);
+  border: 1px solid var(--color-border-default);
+  border-radius: 6px;
+  margin-top: 1rem;
 }
 
 .empty-state-icon {
-    font-size: 48px;
-    color: var(--color-fg-muted);
-    margin-bottom: 1rem;
+  font-size: 48px;
+  color: var(--color-fg-muted);
+  margin-bottom: 1rem;
 }
 
 .empty-state-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--color-fg-default);
-    margin-bottom: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-fg-default);
+  margin-bottom: 0.5rem;
 }
 
 .empty-state-description {
-    color: var(--color-fg-muted);
-    margin-bottom: 1.5rem;
+  color: var(--color-fg-muted);
+  margin-bottom: 1.5rem;
 }
 
 .pagination {
-    display: flex;
-    justify-content: center;
-    gap: 0.5rem;
-    margin-top: 2rem;
-    padding: 1rem 0;
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 2rem;
+  padding: 1rem 0;
 }
 
 .pagination a {
-    padding: 0.5rem 1rem;
-    border: 1px solid var(--color-border-default);
-    border-radius: 6px;
-    background: var(--color-canvas-default);
-    color: var(--color-fg-default);
-    text-decoration: none;
-    transition: all 0.2s ease;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--color-border-default);
+  border-radius: 6px;
+  background: var(--color-canvas-default);
+  color: var(--color-fg-default);
+  text-decoration: none;
+  transition: all 0.2s ease;
 }
 
 .pagination a:hover {
-    background: var(--color-canvas-subtle);
-    border-color: var(--color-accent-fg);
+  background: var(--color-canvas-subtle);
+  border-color: var(--color-accent-fg);
 }
 
 .pagination .current {
-    background: var(--color-accent-emphasis);
-    color: white;
-    border-color: var(--color-accent-emphasis);
+  background: var(--color-accent-emphasis);
+  color: white;
+  border-color: var(--color-accent-emphasis);
 }
-
-
-

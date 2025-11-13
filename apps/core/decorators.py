@@ -10,7 +10,7 @@ from functools import wraps
 from django.conf import settings
 from .responses import error_response
 
-logger = logging.getLogger('scitex.errors')
+logger = logging.getLogger("scitex.errors")
 
 
 def handle_api_errors(func):
@@ -34,6 +34,7 @@ def handle_api_errors(func):
     Returns:
         Wrapped function with automatic error handling
     """
+
     @wraps(func)
     def wrapper(request, *args, **kwargs):
         try:
@@ -45,7 +46,7 @@ def handle_api_errors(func):
                 message=str(e),
                 error_type="permission",
                 endpoint=request.path,
-                status_code=403
+                status_code=403,
             )
 
         except FileNotFoundError as e:
@@ -54,7 +55,7 @@ def handle_api_errors(func):
                 message=str(e),
                 error_type="file_not_found",
                 endpoint=request.path,
-                status_code=404
+                status_code=404,
             )
 
         except ValueError as e:
@@ -63,7 +64,7 @@ def handle_api_errors(func):
                 message=str(e),
                 error_type="validation",
                 endpoint=request.path,
-                status_code=400
+                status_code=400,
             )
 
         except Exception as e:
@@ -77,7 +78,7 @@ def handle_api_errors(func):
                 error_type=type(e).__name__,
                 traceback=tb if settings.DEBUG else None,
                 endpoint=request.path,
-                status_code=500
+                status_code=500,
             )
 
     return wrapper

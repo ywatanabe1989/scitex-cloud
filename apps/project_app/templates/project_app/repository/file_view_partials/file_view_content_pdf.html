@@ -1,44 +1,64 @@
 <!-- PDF Content -->
 <!-- PDF Overlay (for mobile) -->
 <div id="pdf-overlay" class="pdf-overlay" onclick="toggleSidebar()"></div>
-
-<div style="display: flex; width: 100%;">
+<div style="display: flex; width: 100%">
     <!-- PDF Sidebar (visible by default on desktop) -->
     <div id="pdf-sidebar" class="pdf-sidebar">
         <div class="pdf-sidebar-header">
-            <h5 style="margin: 0; font-size: 1rem;">Outline</h5>
-            <button onclick="toggleSidebar()" class="btn btn-sm btn-outline-secondary d-md-none">✕</button>
+            <h5 style="margin: 0; font-size: 1rem">Outline</h5>
+            <button onclick="toggleSidebar()"
+                    class="btn btn-sm btn-outline-secondary d-md-none">✕</button>
         </div>
         <div id="pdf-outline" class="pdf-outline">
-            <div style="text-align: center; padding: 2rem; color: var(--color-fg-muted);">
-                Loading outline...
-            </div>
+            <div style="text-align: center;
+                        padding: 2rem;
+                        color: var(--color-fg-muted)">Loading outline...</div>
         </div>
     </div>
-
     <!-- PDF Main Content -->
-    <div class="file-content" style="padding: 0; background: var(--color-canvas-subtle); flex: 1;">
+    <div class="file-content"
+         style="padding: 0;
+                background: var(--color-canvas-subtle);
+                flex: 1">
         <!-- PDF Controls -->
         <div class="pdf-controls">
-            <button onclick="toggleSidebar()" class="btn btn-sm btn-outline-secondary d-md-none" id="outline-btn">
-                📑 Outline
-            </button>
-            <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <button onclick="toggleSidebar()"
+                    class="btn btn-sm btn-outline-secondary d-md-none"
+                    id="outline-btn">📑 Outline</button>
+            <div style="display: flex; align-items: center; gap: 0.5rem">
                 <button onclick="zoomOut()" class="btn btn-sm btn-outline-secondary">−</button>
-                <span id="zoom-level" style="min-width: 60px; text-align: center; font-size: 0.875rem;">150%</span>
+                <span id="zoom-level"
+                      style="min-width: 60px;
+                             text-align: center;
+                             font-size: 0.875rem">150%</span>
                 <button onclick="zoomIn()" class="btn btn-sm btn-outline-secondary">+</button>
                 <button onclick="fitWidth()" class="btn btn-sm btn-outline-secondary">Fit Width</button>
             </div>
-            <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <div style="display: flex; align-items: center; gap: 0.5rem">
                 <button onclick="prevPage()" class="btn btn-sm btn-outline-secondary">◀</button>
-                <span style="font-size: 0.875rem;">
-                    Page <input type="number" id="page-input" min="1" value="1" style="width: 50px; text-align: center; border: 1px solid var(--color-border-default); border-radius: 4px; padding: 0.25rem;" onchange="gotoPage()"> / <span id="page-count">-</span>
+                <span style="font-size: 0.875rem">
+                    Page
+                    <input type="number"
+                           id="page-input"
+                           min="1"
+                           value="1"
+                           style="width: 50px;
+                                  text-align: center;
+                                  border: 1px solid var(--color-border-default);
+                                  border-radius: 4px;
+                                  padding: 0.25rem"
+                           onchange="gotoPage()" />
+                    / <span id="page-count">-</span>
                 </span>
                 <button onclick="nextPage()" class="btn btn-sm btn-outline-secondary">▶</button>
             </div>
         </div>
-
         <!-- PDF Viewer -->
-        <div id="pdf-viewer" style="width: 100%; height: calc(100vh - 250px); background: var(--color-canvas-default); padding: 1rem; overflow-y: auto;"></div>
+        <div id="pdf-viewer"
+             style="width: 100%;
+                    height: calc(100vh - 250px);
+                    background: var(--color-canvas-default);
+                    padding: 1rem;
+                    overflow-y: auto"></div>
     </div>
 </div>

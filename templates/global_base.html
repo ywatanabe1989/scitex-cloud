@@ -1,33 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <title>{% block title %}SciTeX - Scientific Research Platform{% endblock %}</title>
-  {% include 'global_base_partials/global_head_meta.html' %}
-  {% include 'global_base_partials/global_head_styles.html' %}
-  {% block extra_css %}{% endblock %}
-</head>
-<body style="background-color: var(--bg-page); color: var(--text-primary); min-height: 100vh; display: flex; flex-direction: column;" data-user-authenticated="{% if user.is_authenticated %}true{% else %}false{% endif %}">
-  {% include 'global_base_partials/global_header.html' %}
-
-  <!-- Django Messages -->
-  {% if messages %}
-  <div class="container mt-3">
-    {% for message in messages %}
-    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert" style="position: relative; padding: 1rem 3rem 1rem 1rem;">
-      {{ message|safe }}
-      <button type="button" class="btn-close" onclick="this.parentElement.remove()" aria-label="Close" style="position: absolute; top: 50%; right: 1rem; transform: translateY(-50%); background: transparent; border: none; font-size: 1.5rem; cursor: pointer; opacity: 0.5; line-height: 1;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.5'">&times;</button>
-    </div>
-    {% endfor %}
-  </div>
-  {% endif %}
-
-  <main id="main-content" style="flex: 1;">
-    {% block content %}{% endblock %}
-  </main>
-
-  {% include 'global_base_partials/global_footer.html' %}
-
-  {% include 'global_base_partials/global_body_scripts.html' %}
-  {% block extra_js %}{% endblock %}
-</body>
+    <head>
+        <title>
+            {% block title %}SciTeX - Scientific Research Platform{% endblock %}
+        </title>
+        {% include 'global_base_partials/global_head_meta.html' %}
+        {% include 'global_base_partials/global_head_styles.html' %}
+        {% block extra_css %}{% endblock %}
+    </head>
+    <body data-user-authenticated="{% if user.is_authenticated %}true{% else %}false{% endif %}">
+        {% include 'global_base_partials/global_header.html' %}
+        <!-- Django Messages -->
+        {% if messages %}
+            <div class="container django-messages-container">
+                {% for message in messages %}
+                    <div class="django-alert alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}"
+                         role="alert">
+                        {{ message|safe }}
+                        <button type="button"
+                                class="alert-close-btn"
+                                aria-label="Close">&times;</button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        <main id="main-content">
+            {% block content %}{% endblock %}
+        </main>
+        {% include 'global_base_partials/global_footer.html' %}
+        {% include 'global_base_partials/global_body_scripts.html' %}
+        {% block extra_js %}{% endblock %}
+    </body>
 </html>

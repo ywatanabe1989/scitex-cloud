@@ -32,7 +32,7 @@ echo "🔄 Fetching contributors from each repository..."
 for REPO in $REPOS; do
     echo "   📦 $ORG/$REPO"
 
-    CONTRIBUTORS=$(gh api repos/$ORG/$REPO/contributors --paginate 2>/dev/null)
+    CONTRIBUTORS=$(gh api repos/$ORG/$REPO/contributors --paginate 2> /dev/null)
 
     if [ $? -eq 0 ] && [ ! -z "$CONTRIBUTORS" ]; then
         CONTRIB_COUNT=$(echo "$CONTRIBUTORS" | jq length)

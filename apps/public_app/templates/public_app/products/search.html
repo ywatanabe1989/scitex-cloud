@@ -1,147 +1,156 @@
 {% extends "public_app/cloud_base.html" %}
 {% load static %}
-
-{% block title %}SciTeX Scholar - Intelligent Scientific Literature Search{% endblock %}
-
-{% block meta_description %}SciTeX Scholar - Advanced scientific literature discovery platform with semantic understanding and intelligent recommendations for researchers.{% endblock %}
-
-{% block extra_css %}
-<!-- Page-specific CSS removed - now using utilities and components -->
+{% block title
+    %}
+    SciTeX Scholar - Intelligent Scientific Literature Search
 {% endblock %}
-
+{%
+block meta_description %}SciTeX Scholar - Advanced scientific literature
+discovery platform with semantic understanding and intelligent recommendations
+for researchers.
+{% endblock %}
+{% block extra_css %}<!-- Page-specific CSS removed - now using utilities and components -->{% endblock %}
 {% block content %}
-<div class="product-detail">
-    <div class="container">
-        <div class="product-header">
-            <h1>SciTeX Scholar</h1>
-            <p class="tagline">Intelligent scientific literature discovery that understands your research</p>
-        </div>
-
-        <div class="product-overview">
-            <div class="overview-content">
-                <h2>Beyond Keyword Search</h2>
-                <p>
-                    SciTeX Scholar understands the semantic meaning behind scientific concepts, not just keywords. 
-                    Using advanced AI to understand the meaning of scientific texts, the relationships between 
-                    concepts, and the context of your research, you'll discover relevant papers that might use 
-                    different terminology but address similar concepts or methods.
+    <div class="product-detail">
+        <div class="container">
+            <div class="product-header">
+                <h1>SciTeX Scholar</h1>
+                <p class="tagline">
+                    Intelligent scientific literature discovery that understands your
+                    research
                 </p>
-                <div class="location-info">
-                    <strong>Status:</strong> Currently under development
-                </div>
             </div>
-            <div class="overview-visual">
-                <div class="search-preview">
-                    <div class="search-icon">🔍</div>
-                    <div class="search-features">
-                        <span>Semantic Understanding</span>
-                        <span>Context Awareness</span>
-                        <span>Cross-Field Discovery</span>
+            <div class="product-overview">
+                <div class="overview-content">
+                    <h2>Beyond Keyword Search</h2>
+                    <p>
+                        SciTeX Scholar understands the semantic meaning behind scientific
+                        concepts, not just keywords. Using advanced AI to understand the
+                        meaning of scientific texts, the relationships between concepts, and
+                        the context of your research, you'll discover relevant papers that
+                        might use different terminology but address similar concepts or
+                        methods.
+                    </p>
+                    <div class="location-info">
+                        <strong>Status:</strong> Currently under development
+                    </div>
+                </div>
+                <div class="overview-visual">
+                    <div class="search-preview">
+                        <div class="search-icon">🔍</div>
+                        <div class="search-features">
+                            <span>Semantic Understanding</span>
+                            <span>Context Awareness</span>
+                            <span>Cross-Field Discovery</span>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <div class="demo-section">
-            <h2>Experience SciTeX Scholar</h2>
-            <div class="search-demo">
-                <div class="search-interface">
-                    <div class="search-bar-demo">
-                        <input type="text" placeholder="Search for papers, researchers, topics..." value="neural mechanisms of visual attention" disabled>
-                        <button disabled>🔍 Search</button>
+            <div class="demo-section">
+                <h2>Experience SciTeX Scholar</h2>
+                <div class="search-demo">
+                    <div class="search-interface">
+                        <div class="search-bar-demo">
+                            <input type="text"
+                                   placeholder="Search for papers, researchers, topics..."
+                                   value="neural mechanisms of visual attention"
+                                   disabled />
+                            <button disabled>🔍 Search</button>
+                        </div>
+                        <div class="search-filters-demo">
+                            <span class="filter active">All Results</span>
+                            <span class="filter">Papers</span>
+                            <span class="filter">Authors</span>
+                            <span class="filter">Last 5 Years</span>
+                            <span class="filter">Open Access</span>
+                        </div>
                     </div>
-                    <div class="search-filters-demo">
-                        <span class="filter active">All Results</span>
-                        <span class="filter">Papers</span>
-                        <span class="filter">Authors</span>
-                        <span class="filter">Last 5 Years</span>
-                        <span class="filter">Open Access</span>
+                    <div class="demo-results">
+                        <p class="demo-note">Sample search results preview - full functionality coming soon</p>
                     </div>
                 </div>
-                <div class="demo-results">
-                    <p class="demo-note">Sample search results preview - full functionality coming soon</p>
-                </div>
             </div>
-        </div>
-
-        <div class="features-grid">
-            <div class="feature-card">
-                <h3>Semantic Understanding</h3>
-                <ul>
-                    <li>Beyond keyword matching</li>
-                    <li>Concept relationships</li>
-                    <li>Method recognition</li>
-                    <li>Context awareness</li>
-                </ul>
-            </div>
-            <div class="feature-card">
-                <h3>Intelligent Discovery</h3>
-                <ul>
-                    <li>Research context analysis</li>
-                    <li>Cross-field connections</li>
-                    <li>Citation networks</li>
-                    <li>Trend identification</li>
-                </ul>
-            </div>
-            <div class="feature-card">
-                <h3>Advanced Search</h3>
-                <ul>
-                    <li>Full-text analysis</li>
-                    <li>Methodology filters</li>
-                    <li>Statistical approach search</li>
-                    <li>Domain-specific criteria</li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="integration-section">
-            <h2>Seamless Integration</h2>
-            <p>
-                SciTeX Scholar is fully integrated with the entire SciTeX ecosystem. Search for 
-                specific methods and import code snippets with SciTeX-PyTools, add citations 
-                directly to manuscripts with SciTeX-Doc, feed search results to SciTeX Engine 
-                for AI analysis, and visualize citation networks with SciTeX-Viz.
-            </p>
-        </div>
-
-        <div class="comparison-section">
-            <h2>How SciTeX Scholar Compares</h2>
-            <div class="comparison-grid">
-                <div class="comparison-item">
-                    <h4>SciTeX Scholar</h4>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h3>Semantic Understanding</h3>
                     <ul>
-                        <li>✓ Semantic understanding</li>
-                        <li>✓ Research context awareness</li>
-                        <li>✓ Full-text search</li>
-                        <li>✓ Citation network analysis</li>
-                        <li>✓ Cross-field connections</li>
-                        <li>✓ Methodology-based filtering</li>
-                        <li>✓ Direct workflow integration</li>
+                        <li>Beyond keyword matching</li>
+                        <li>Concept relationships</li>
+                        <li>Method recognition</li>
+                        <li>Context awareness</li>
                     </ul>
                 </div>
-                <div class="comparison-item">
-                    <h4>Traditional Search</h4>
+                <div class="feature-card">
+                    <h3>Intelligent Discovery</h3>
                     <ul>
-                        <li>✗ Keyword matching only</li>
-                        <li>✗ No context awareness</li>
-                        <li>✓ Full-text search</li>
-                        <li>✗ Limited citation data</li>
-                        <li>✗ Field silos</li>
-                        <li>✗ Basic filters only</li>
-                        <li>✗ Standalone tool</li>
+                        <li>Research context analysis</li>
+                        <li>Cross-field connections</li>
+                        <li>Citation networks</li>
+                        <li>Trend identification</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h3>Advanced Search</h3>
+                    <ul>
+                        <li>Full-text analysis</li>
+                        <li>Methodology filters</li>
+                        <li>Statistical approach search</li>
+                        <li>Domain-specific criteria</li>
                     </ul>
                 </div>
             </div>
-        </div>
-
-        <div class="cta-section">
-            <h2>Coming Soon</h2>
-            <p>SciTeX Scholar is currently under development. Join our waitlist to be notified when this advanced scientific literature search platform launches.</p>
-            <div class="cta-buttons">
-                <a href="{% url 'public_app:signup' %}" class="btn btn-primary">Join Waitlist</a>
-                <a href="mailto:support@scitex.ai?subject=SciTeX%20Scholar%20Feature%20Request" class="btn btn-secondary">Request Features</a>
+            <div class="integration-section">
+                <h2>Seamless Integration</h2>
+                <p>
+                    SciTeX Scholar is fully integrated with the entire SciTeX ecosystem.
+                    Search for specific methods and import code snippets with
+                    SciTeX-PyTools, add citations directly to manuscripts with SciTeX-Doc,
+                    feed search results to SciTeX Engine for AI analysis, and visualize
+                    citation networks with SciTeX-Viz.
+                </p>
+            </div>
+            <div class="comparison-section">
+                <h2>How SciTeX Scholar Compares</h2>
+                <div class="comparison-grid">
+                    <div class="comparison-item">
+                        <h4>SciTeX Scholar</h4>
+                        <ul>
+                            <li>✓ Semantic understanding</li>
+                            <li>✓ Research context awareness</li>
+                            <li>✓ Full-text search</li>
+                            <li>✓ Citation network analysis</li>
+                            <li>✓ Cross-field connections</li>
+                            <li>✓ Methodology-based filtering</li>
+                            <li>✓ Direct workflow integration</li>
+                        </ul>
+                    </div>
+                    <div class="comparison-item">
+                        <h4>Traditional Search</h4>
+                        <ul>
+                            <li>✗ Keyword matching only</li>
+                            <li>✗ No context awareness</li>
+                            <li>✓ Full-text search</li>
+                            <li>✗ Limited citation data</li>
+                            <li>✗ Field silos</li>
+                            <li>✗ Basic filters only</li>
+                            <li>✗ Standalone tool</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="cta-section">
+                <h2>Coming Soon</h2>
+                <p>
+                    SciTeX Scholar is currently under development. Join our waitlist to be
+                    notified when this advanced scientific literature search platform
+                    launches.
+                </p>
+                <div class="cta-buttons">
+                    <a href="{% url 'public_app:signup' %}" class="btn btn-primary">Join Waitlist</a>
+                    <a href="mailto:support@scitex.ai?subject=SciTeX%20Scholar%20Feature%20Request"
+                       class="btn btn-secondary">Request Features</a>
+                </div>
             </div>
         </div>
     </div>
-</div>
 {% endblock %}

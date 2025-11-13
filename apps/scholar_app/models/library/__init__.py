@@ -9,9 +9,9 @@ from .models import (
 )
 
 __all__ = [
-    'Collection',
-    'UserLibrary',
-    'LibraryExport',
-    'RecommendationLog',
-    'UserPreference',
+    "Collection",
+    "UserLibrary",
+    "LibraryExport",
+    "RecommendationLog",
+    "UserPreference",
 ]

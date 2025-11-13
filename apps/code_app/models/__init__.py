@@ -13,9 +13,9 @@ from .code_models import (
 )
 
 __all__ = [
-    'CodeExecutionJob',
-    'DataAnalysisJob',
-    'Notebook',
-    'CodeLibrary',
-    'ResourceUsage',
+    "CodeExecutionJob",
+    "DataAnalysisJob",
+    "Notebook",
+    "CodeLibrary",
+    "ResourceUsage",
 ]

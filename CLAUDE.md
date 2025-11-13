@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-11-06 09:29:38
+!-- Timestamp: 2025-11-13 01:42:32
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/CLAUDE.md
 !-- --- -->
@@ -74,6 +74,10 @@ Add console.log for debugging
 ./RULES/JAVASCRIPT_TYPESCRIPT_MIGRATION_STATUS.md
 
 ---
+
+## Overleaf Source Code
+Available at ./externals/overleaf/
+Please learn from them and add additional values to our platform
 
 # Requests
 

@@ -1,84 +1,72 @@
 <!-- PR list -->
 <div class="list-group">
     {% for pr in prs %}
-    <a href="{% url 'user_projects:pr_detail' project.owner.username project.slug pr.number %}"
-       class="list-group-item list-group-item-action">
-        <div class="d-flex w-100 justify-content-between align-items-start">
-            <div class="flex-grow-1">
-                <div class="d-flex align-items-center mb-2">
-                    <!-- PR state icon -->
-                    {% if pr.state == 'open' %}
-                    <i class="bi bi-circle text-success me-2"></i>
-                    {% elif pr.state == 'merged' %}
-                    <i class="bi bi-check2-circle text-primary me-2"></i>
-                    {% else %}
-                    <i class="bi bi-x-circle text-danger me-2"></i>
-                    {% endif %}
-
-                    <!-- PR title -->
-                    <h6 class="mb-0">{{ pr.title }}</h6>
-
-                    <!-- Draft badge -->
-                    {% if pr.is_draft %}
-                    <span class="badge bg-secondary ms-2">Draft</span>
-                    {% endif %}
-
-                    <!-- Labels -->
-                    {% for label in pr.labels %}
-                    <span class="badge ms-2" style="background-color: {{ label.color }}">
-                        {{ label }}
-                    </span>
-                    {% endfor %}
-                </div>
-
-                <!-- PR metadata -->
-                <small class="text-muted">
-                    #{{ pr.number }} opened
-                    <time datetime="{{ pr.created_at|date:'c' }}" title="{{ pr.created_at }}">
-                        {{ pr.created_at|timesince }} ago
-                    </time>
-                    by <strong>{{ pr.author.username }}</strong>
-
-                    {% if pr.state == 'merged' %}
-                        - Merged by <strong>{{ pr.merged_by.username }}</strong>
-                        <time datetime="{{ pr.merged_at|date:'c' }}">{{ pr.merged_at|timesince }} ago</time>
-                    {% elif pr.state == 'closed' %}
-                        - Closed
-                        <time datetime="{{ pr.closed_at|date:'c' }}">{{ pr.closed_at|timesince }} ago</time>
-                    {% endif %}
-                </small>
-
-                <!-- Branch info -->
-                <div class="mt-1">
-                    <small class="text-muted font-monospace">
-                        <i class="bi bi-git"></i>
-                        {{ pr.source_branch }} → {{ pr.target_branch }}
+        <a href="{% url 'user_projects:pr_detail' project.owner.username project.slug pr.number %}"
+           class="list-group-item list-group-item-action">
+            <div class="d-flex w-100 justify-content-between align-items-start">
+                <div class="flex-grow-1">
+                    <div class="d-flex align-items-center mb-2">
+                        <!-- PR state icon -->
+                        {% if pr.state == 'open' %}
+                            <i class="bi bi-circle text-success me-2"></i>
+                        {% elif pr.state == 'merged' %}
+                            <i class="bi bi-check2-circle text-primary me-2"></i>
+                        {% else %}
+                            <i class="bi bi-x-circle text-danger me-2"></i>
+                        {% endif %}
+                        <!-- PR title -->
+                        <h6 class="mb-0">{{ pr.title }}</h6>
+                        <!-- Draft badge -->
+                        {% if pr.is_draft %}<span class="badge bg-secondary ms-2">Draft</span>{% endif %}
+                        <!-- Labels -->
+                        {% for label in pr.labels %}
+                            <span class="badge ms-2" style="background-color: {{ label.color }}">{{ label }}</span>
+                        {% endfor %}
+                    </div>
+                    <!-- PR metadata -->
+                    <small class="text-muted">
+                        #{{ pr.number }} opened
+                        <time datetime="{{ pr.created_at|date:'c' }}" title="{{ pr.created_at }}">
+                            {{ pr.created_at|timesince }} ago
+                        </time>
+                        by <strong>{{ pr.author.username }}</strong>
+                        {% if pr.state == 'merged' %}
+                            - Merged by
+                            <strong>{{ pr.merged_by.username }}</strong>
+                            <time datetime="{{ pr.merged_at|date:'c' }}">{{ pr.merged_at|timesince }} ago</time>
+                        {% elif pr.state == 'closed' %}
+                            - Closed
+                            <time datetime="{{ pr.closed_at|date:'c' }}">{{ pr.closed_at|timesince }} ago</time>
+                        {% endif %}
                     </small>
+                    <!-- Branch info -->
+                    <div class="mt-1">
+                        <small class="text-muted font-monospace">
+                            <i class="bi bi-git"></i>
+                            {{ pr.source_branch }} → {{ pr.target_branch }}
+                        </small>
+                    </div>
+                </div>
+                <!-- PR stats -->
+                <div class="text-end ms-3">
+                    {% if pr.comment_count > 0 %}
+                        <span class="badge bg-light text-dark me-2">
+                            <i class="bi bi-chat"></i> {{ pr.comment_count }}
+                        </span>
+                    {% endif %}
+                    {% if pr.review_count > 0 %}
+                        <span class="badge bg-light text-dark">
+                            <i class="bi bi-check-circle"></i> {{ pr.review_count }}
+                        </span>
+                    {% endif %}
+                    <!-- Conflict indicator -->
+                    {% if pr.has_conflicts %}
+                        <span class="badge bg-danger ms-2">
+                            <i class="bi bi-exclamation-triangle"></i> Conflicts
+                        </span>
+                    {% endif %}
                 </div>
             </div>
-
-            <!-- PR stats -->
-            <div class="text-end ms-3">
-                {% if pr.comment_count > 0 %}
-                <span class="badge bg-light text-dark me-2">
-                    <i class="bi bi-chat"></i> {{ pr.comment_count }}
-                </span>
-                {% endif %}
-
-                {% if pr.review_count > 0 %}
-                <span class="badge bg-light text-dark">
-                    <i class="bi bi-check-circle"></i> {{ pr.review_count }}
-                </span>
-                {% endif %}
-
-                <!-- Conflict indicator -->
-                {% if pr.has_conflicts %}
-                <span class="badge bg-danger ms-2">
-                    <i class="bi bi-exclamation-triangle"></i> Conflicts
-                </span>
-                {% endif %}
-            </div>
-        </div>
-    </a>
+        </a>
     {% endfor %}
 </div>

@@ -245,7 +245,7 @@ main() {
                 CERT_EMAIL="$2"
                 shift 2
                 ;;
-            -h|--help)
+            -h | --help)
                 usage
                 ;;
             *)

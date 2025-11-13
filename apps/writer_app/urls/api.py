@@ -5,9 +5,8 @@
 # ----------------------------------------
 from __future__ import annotations
 import os
-__FILE__ = (
-    "./apps/writer_app/urls/api.py"
-)
+
+__FILE__ = "./apps/writer_app/urls/api.py"
 __DIR__ = os.path.dirname(__FILE__)
 # ----------------------------------------
 """
@@ -28,9 +27,15 @@ from ..views.index import main as index_views
 
 urlpatterns = [
     # Workspace initialization
-    path('initialize-workspace/', index_views.initialize_workspace, name='api-initialize-workspace'),
+    path(
+        "initialize-workspace/",
+        index_views.initialize_workspace,
+        name="api-initialize-workspace",
+    ),
     # Sections config (no project_id needed)
-    path('sections-config/', api_views.sections_config_view, name='api-sections-config'),
+    path(
+        "sections-config/", api_views.sections_config_view, name="api-sections-config"
+    ),
     # Section management operations (MUST come BEFORE general section pattern)
     path(
         "project/<int:project_id>/section/create/",
@@ -107,8 +112,16 @@ urlpatterns = [
         name="api-section-commit",
     ),
     # PDF and file operations (accept optional trailing slash)
-    path("project/<int:project_id>/pdf/<str:pdf_filename>/", api_views.pdf_view, name="api-pdf-file-slash"),
-    path("project/<int:project_id>/pdf/<str:pdf_filename>", api_views.pdf_view, name="api-pdf-file"),
+    path(
+        "project/<int:project_id>/pdf/<str:pdf_filename>/",
+        api_views.pdf_view,
+        name="api-pdf-file-slash",
+    ),
+    path(
+        "project/<int:project_id>/pdf/<str:pdf_filename>",
+        api_views.pdf_view,
+        name="api-pdf-file",
+    ),
     path("project/<int:project_id>/pdf/", api_views.pdf_view, name="api-pdf"),
     path(
         "project/<int:project_id>/preview-pdf/",

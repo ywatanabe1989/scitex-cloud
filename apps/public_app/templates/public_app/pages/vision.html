@@ -1,10 +1,12 @@
 {% extends "public_app/cloud_base.html" %}
-
-{% block title %}SciTeX Vision - Future of Scientific Research{% endblock %}
-
+{% block title %}
+    SciTeX Vision -
+    Future of Scientific Research
+{% endblock %}
 {% block extra_css %}
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.css">
-<style>
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.css" />
+    <style>
   .vision-section {
     margin-bottom: 4rem;
   }
@@ -19,7 +21,7 @@
     position: relative;
   }
   .timeline-item:before {
-    content: '';
+    content: "";
     position: absolute;
     left: -10px;
     top: 0;
@@ -52,11 +54,11 @@
     margin-bottom: 1.5rem;
     transition: all 0.3s ease;
     background-color: #fff;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
   }
   .core-value-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
   }
   .value-icon {
     font-size: 2.5rem;
@@ -79,201 +81,268 @@
     padding: 2rem;
     margin: 2rem 0;
   }
-</style>
+    </style>
 {% endblock %}
-
 {% block content %}
-<div class="container">
-  <header class="py-5 text-center">
-    <h1 class="display-4">The SciTeX Vision</h1>
-    <p class="lead">Building the future of open, collaborative, and efficient scientific research</p>
-  </header>
-
-  <!-- Main Vision Section -->
-  <section class="vision-section">
-    <h2>Our Vision</h2>
-    <p class="lead">
-      Research should be <strong>open</strong>, <strong>reproducible</strong>, and <strong>collaborative</strong>.
-      That's why we made SciTeX <strong>100% open source</strong>.
-    </p>
-
-    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 2rem; margin: 2rem 0; color: white;">
-      <h3 style="color: white; margin-bottom: 1rem;">
-        <i class="fab fa-github"></i> Why 100% Open Source?
-      </h3>
-      <p style="color: rgba(255, 255, 255, 0.95); line-height: 1.8;">
-        SciTeX aims to transform scientific research by creating an integrated ecosystem that standardizes workflows,
-        enhances reproducibility, and leverages AI to accelerate discovery - all while maintaining complete transparency.
-        Every line of code is public because <strong>transparency matters in science</strong>.
-      </p>
+    <div class="container">
+        <header class="py-5 text-center">
+            <h1 class="display-4">The SciTeX Vision</h1>
+            <p class="lead">
+                Building the future of open, collaborative, and efficient scientific
+                research
+            </p>
+        </header>
+        <!-- Main Vision Section -->
+        <section class="vision-section">
+            <h2>Our Vision</h2>
+            <p class="lead">
+                Research should be <strong>open</strong>, <strong>reproducible</strong>,
+                and <strong>collaborative</strong>. That's why we made SciTeX
+                <strong>100% open source</strong>.
+            </p>
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        border-radius: 12px;
+                        padding: 2rem;
+                        margin: 2rem 0;
+                        color: white">
+                <h3 style="color: white; margin-bottom: 1rem">
+                    <i class="fab fa-github"></i> Why 100% Open Source?
+                </h3>
+                <p style="color: rgba(255, 255, 255, 0.95); line-height: 1.8">
+                    SciTeX aims to transform scientific research by creating an integrated
+                    ecosystem that standardizes workflows, enhances reproducibility, and
+                    leverages AI to accelerate discovery - all while maintaining complete
+                    transparency. Every line of code is public because
+                    <strong>transparency matters in science</strong>.
+                </p>
+            </div>
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <h4>
+                        <i class="fas fa-check-circle" style="color: #28a745"></i> What This
+                        Means
+                    </h4>
+                    <ul style="line-height: 2">
+                        <li>
+                            <strong>Every line of code is visible</strong> - Public audit,
+                            public trust
+                        </li>
+                        <li>
+                            <strong>No vendor lock-in</strong> - Self-host anywhere, full
+                            control
+                        </li>
+                        <li>
+                            <strong>MIT License</strong> - Use it however you want
+                        </li>
+                        <li>
+                            <strong>Community-driven</strong> - Contribute and improve together
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h4>
+                        <i class="fas fa-shield-alt" style="color: #0366d6"></i> Our
+                        Commitment
+                    </h4>
+                    <ul style="line-height: 2">
+                        <li>
+                            <strong>Full local functionality</strong> - Works completely offline
+                        </li>
+                        <li>
+                            <strong>Your data, your control</strong> - No forced cloud
+                            dependency
+                        </li>
+                        <li>
+                            <strong>Same features everywhere</strong> - Local = Cloud code
+                        </li>
+                        <li>
+                            <strong>Forever free core</strong> - Essential features always free
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <p class="mt-4">
+                By building open tools that address the entire research lifecycle, we
+                eliminate technical barriers and enable researchers to focus on discovery,
+                not infrastructure.
+            </p>
+        </section>
+        <!-- Core Values -->
+        <section class="vision-section">
+            <h2>Core Values</h2>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="core-value-card">
+                        <div class="value-icon">🔍</div>
+                        <h3>Scientific Integrity</h3>
+                        <p>
+                            We prioritize accuracy, reproducibility, and transparency in all
+                            aspects of research.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="core-value-card">
+                        <div class="value-icon">🔓</div>
+                        <h3>Open Access</h3>
+                        <p>
+                            We believe scientific tools and knowledge should be accessible to
+                            researchers everywhere.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="core-value-card">
+                        <div class="value-icon">🤝</div>
+                        <h3>Collaboration</h3>
+                        <p>
+                            We foster community-driven development and cross-disciplinary
+                            cooperation.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <div class="core-value-card">
+                        <div class="value-icon">🛠️</div>
+                        <h3>Technical Excellence</h3>
+                        <p>
+                            We strive for high-quality, well-documented, and reliable software
+                            that researchers can depend on.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="core-value-card">
+                        <div class="value-icon">🌍</div>
+                        <h3>Global Impact</h3>
+                        <p>
+                            We aim to benefit researchers worldwide, including in
+                            resource-limited environments.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Vision Timeline -->
+        <section class="vision-section">
+            <h2>Development Timeline</h2>
+            <div class="vision-timeline">
+                <div class="timeline-item">
+                    <div class="timeline-date">2025 - Phase 1: AI Research Assistance</div>
+                    <div class="timeline-content">
+                        <h4>SciTeX-Engine & SciTeX-Search Development</h4>
+                        <p>
+                            Development of AI-assisted research capabilities and literature
+                            discovery, helping researchers with literature review, hypothesis
+                            generation, and experiment design.
+                        </p>
+                        <ul>
+                            <li>Literature search and summarization</li>
+                            <li>Experimental design assistance</li>
+                            <li>Methods recommendation</li>
+                            <li>Results interpretation support</li>
+                            <li>Smart discovery of relevant research</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-date">2025-2026 - Phase 2: Analysis & Documentation Tools</div>
+                    <div class="timeline-content">
+                        <h4>SciTeX-Code & SciTeX-Doc Integration</h4>
+                        <p>
+                            Addition of data analysis and document preparation systems, enabling
+                            standardized research workflows and paper writing.
+                        </p>
+                        <ul>
+                            <li>Standardized analysis workflows</li>
+                            <li>LaTeX document editing and compilation</li>
+                            <li>Data management and sharing</li>
+                            <li>Revision tracking and reviewer response system</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-date">2026-2027 - Phase 3: Visualization & Platform Integration</div>
+                    <div class="timeline-content">
+                        <h4>SciTeX-Viz & SciTeX-Cloud Integration</h4>
+                        <p>
+                            Development of visualization tools and a unified web platform to
+                            integrate all components into a cohesive ecosystem.
+                        </p>
+                        <ul>
+                            <li>Publication-quality figure generation</li>
+                            <li>Interactive data visualizations</li>
+                            <li>User accounts and collaboration features</li>
+                            <li>Web interface access to all tools</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-date">2027+ - Phase 4: Full Ecosystem</div>
+                    <div class="timeline-content">
+                        <h4>Complete Research Platform</h4>
+                        <p>
+                            Full integration of all components into a seamless research platform
+                            with advanced collaboration and extension capabilities.
+                        </p>
+                        <ul>
+                            <li>End-to-end research workflows</li>
+                            <li>Advanced scientific collaboration tools</li>
+                            <li>Integration with external scientific services</li>
+                            <li>Customization for specific research domains</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Call to Action -->
+        <section class="vision-section text-center py-5">
+            <h2>Help Shape the Future of Scientific Research</h2>
+            <p class="lead">
+                Join us in building tools that accelerate discovery and make science more
+                open and accessible
+            </p>
+            <div class="mt-4">
+                <a href="{% url 'public_app:fundraising' %}"
+                   class="btn btn-primary btn-lg mx-2">Support Our Mission</a>
+                <a href="https://scitexworkspace.slack.com"
+                   class="btn btn-outline-primary btn-lg mx-2">Join Our Slack Community</a>
+                <a href="{% url 'public_app:concept' %}"
+                   class="btn btn-outline-secondary btn-lg mx-2">Explore the SciTeX Ecosystem</a>
+                <a href="https://github.com/scitex-ai"
+                   class="btn btn-outline-dark btn-lg mx-2">Contribute on GitHub</a>
+            </div>
+            <div class="mt-3 d-flex justify-content-center align-items-center">
+                <img src="https://cdn.sstatic.net/Sites/stackoverflow/Img/favicon.ico"
+                     alt="Slack"
+                     style="height: 24px;
+                            margin-right: 8px" />
+                <span>Connect with researchers and developers at
+                    <strong>scitexworkspace.slack.com</strong></span>
+            </div>
+            <div class="mt-2 d-flex justify-content-center align-items-center">
+                <i class="fas fa-envelope" style="margin-right: 8px"></i>
+                <span>Technical support:
+                    <strong><a href="mailto:support@scitex.ai">support@scitex.ai</a></strong></span>
+            </div>
+        </section>
     </div>
-
-    <div class="row mt-4">
-      <div class="col-md-6">
-        <h4><i class="fas fa-check-circle" style="color: #28a745;"></i> What This Means</h4>
-        <ul style="line-height: 2;">
-          <li><strong>Every line of code is visible</strong> - Public audit, public trust</li>
-          <li><strong>No vendor lock-in</strong> - Self-host anywhere, full control</li>
-          <li><strong>MIT License</strong> - Use it however you want</li>
-          <li><strong>Community-driven</strong> - Contribute and improve together</li>
-        </ul>
-      </div>
-      <div class="col-md-6">
-        <h4><i class="fas fa-shield-alt" style="color: #0366d6;"></i> Our Commitment</h4>
-        <ul style="line-height: 2;">
-          <li><strong>Full local functionality</strong> - Works completely offline</li>
-          <li><strong>Your data, your control</strong> - No forced cloud dependency</li>
-          <li><strong>Same features everywhere</strong> - Local = Cloud code</li>
-          <li><strong>Forever free core</strong> - Essential features always free</li>
-        </ul>
-      </div>
-    </div>
-
-    <p class="mt-4">
-      By building open tools that address the entire research lifecycle, we eliminate technical barriers
-      and enable researchers to focus on discovery, not infrastructure.
-    </p>
-  </section>
-
-  <!-- Core Values -->
-  <section class="vision-section">
-    <h2>Core Values</h2>
-    <div class="row">
-      <div class="col-md-4">
-        <div class="core-value-card">
-          <div class="value-icon">🔍</div>
-          <h3>Scientific Integrity</h3>
-          <p>We prioritize accuracy, reproducibility, and transparency in all aspects of research.</p>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="core-value-card">
-          <div class="value-icon">🔓</div>
-          <h3>Open Access</h3>
-          <p>We believe scientific tools and knowledge should be accessible to researchers everywhere.</p>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="core-value-card">
-          <div class="value-icon">🤝</div>
-          <h3>Collaboration</h3>
-          <p>We foster community-driven development and cross-disciplinary cooperation.</p>
-        </div>
-      </div>
-    </div>
-    <div class="row mt-3">
-      <div class="col-md-6">
-        <div class="core-value-card">
-          <div class="value-icon">🛠️</div>
-          <h3>Technical Excellence</h3>
-          <p>We strive for high-quality, well-documented, and reliable software that researchers can depend on.</p>
-        </div>
-      </div>
-      <div class="col-md-6">
-        <div class="core-value-card">
-          <div class="value-icon">🌍</div>
-          <h3>Global Impact</h3>
-          <p>We aim to benefit researchers worldwide, including in resource-limited environments.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Vision Timeline -->
-  <section class="vision-section">
-    <h2>Development Timeline</h2>
-    <div class="vision-timeline">
-      <div class="timeline-item">
-        <div class="timeline-date">2025 - Phase 1: AI Research Assistance</div>
-        <div class="timeline-content">
-          <h4>SciTeX-Engine & SciTeX-Search Development</h4>
-          <p>Development of AI-assisted research capabilities and literature discovery, helping researchers with literature review, hypothesis generation, and experiment design.</p>
-          <ul>
-            <li>Literature search and summarization</li>
-            <li>Experimental design assistance</li>
-            <li>Methods recommendation</li>
-            <li>Results interpretation support</li>
-            <li>Smart discovery of relevant research</li>
-          </ul>
-        </div>
-      </div>
-      <div class="timeline-item">
-        <div class="timeline-date">2025-2026 - Phase 2: Analysis & Documentation Tools</div>
-        <div class="timeline-content">
-          <h4>SciTeX-Code & SciTeX-Doc Integration</h4>
-          <p>Addition of data analysis and document preparation systems, enabling standardized research workflows and paper writing.</p>
-          <ul>
-            <li>Standardized analysis workflows</li>
-            <li>LaTeX document editing and compilation</li>
-            <li>Data management and sharing</li>
-            <li>Revision tracking and reviewer response system</li>
-          </ul>
-        </div>
-      </div>
-      <div class="timeline-item">
-        <div class="timeline-date">2026-2027 - Phase 3: Visualization & Platform Integration</div>
-        <div class="timeline-content">
-          <h4>SciTeX-Viz & SciTeX-Cloud Integration</h4>
-          <p>Development of visualization tools and a unified web platform to integrate all components into a cohesive ecosystem.</p>
-          <ul>
-            <li>Publication-quality figure generation</li>
-            <li>Interactive data visualizations</li>
-            <li>User accounts and collaboration features</li>
-            <li>Web interface access to all tools</li>
-          </ul>
-        </div>
-      </div>
-      <div class="timeline-item">
-        <div class="timeline-date">2027+ - Phase 4: Full Ecosystem</div>
-        <div class="timeline-content">
-          <h4>Complete Research Platform</h4>
-          <p>Full integration of all components into a seamless research platform with advanced collaboration and extension capabilities.</p>
-          <ul>
-            <li>End-to-end research workflows</li>
-            <li>Advanced scientific collaboration tools</li>
-            <li>Integration with external scientific services</li>
-            <li>Customization for specific research domains</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Call to Action -->
-  <section class="vision-section text-center py-5">
-    <h2>Help Shape the Future of Scientific Research</h2>
-    <p class="lead">Join us in building tools that accelerate discovery and make science more open and accessible</p>
-    <div class="mt-4">
-      <a href="{% url 'public_app:fundraising' %}" class="btn btn-primary btn-lg mx-2">Support Our Mission</a>
-      <a href="https://scitexworkspace.slack.com" class="btn btn-outline-primary btn-lg mx-2">Join Our Slack Community</a>
-      <a href="{% url 'public_app:concept' %}" class="btn btn-outline-secondary btn-lg mx-2">Explore the SciTeX Ecosystem</a>
-      <a href="https://github.com/scitex-ai" class="btn btn-outline-dark btn-lg mx-2">Contribute on GitHub</a>
-    </div>
-    <div class="mt-3 d-flex justify-content-center align-items-center">
-      <img src="https://cdn.sstatic.net/Sites/stackoverflow/Img/favicon.ico" alt="Slack" style="height: 24px; margin-right: 8px;">
-      <span>Connect with researchers and developers at <strong>scitexworkspace.slack.com</strong></span>
-    </div>
-    <div class="mt-2 d-flex justify-content-center align-items-center">
-      <i class="fas fa-envelope" style="margin-right: 8px;"></i>
-      <span>Technical support: <strong><a href="mailto:support@scitex.ai">support@scitex.ai</a></strong></span>
-    </div>
-  </section>
-</div>
 {% endblock %}
-
 {% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>
+  document.addEventListener("DOMContentLoaded", function () {
     mermaid.initialize({
       startOnLoad: true,
-      theme: 'neutral',
+      theme: "neutral",
       flowchart: {
         useMaxWidth: true,
         htmlLabels: true,
-        curve: 'basis'
-      }
+        curve: "basis",
+      },
     });
   });
-</script>
+    </script>
 {% endblock %}

@@ -8,26 +8,56 @@ def get_reserved_usernames():
     """
     try:
         from config.urls import RESERVED_PATHS
+
         # Remove file extensions and convert to set
         reserved = set()
         for path in RESERVED_PATHS:
             # Remove extensions like .ico, .txt, .xml
-            path_clean = path.split('.')[0]
+            path_clean = path.split(".")[0]
             reserved.add(path_clean)
 
         # Add guest prefix (for guest sessions)
-        reserved.add('guest')
+        reserved.add("guest")
 
         return reserved
     except ImportError:
         # Fallback if import fails
         return {
-            'admin', 'api', 'auth', 'billing', 'cloud', 'code', 'core',
-            'dev', 'docs', 'integrations', 'project', 'scholar', 'viz', 'writer',
-            'new', 'static', 'media', 'guest',
-            'about', 'help', 'support', 'contact', 'terms', 'privacy',
-            'settings', 'dashboard', 'profile', 'account', 'login', 'logout',
-            'signup', 'register', 'reset', 'verify', 'confirm',
+            "admin",
+            "api",
+            "auth",
+            "billing",
+            "cloud",
+            "code",
+            "core",
+            "dev",
+            "docs",
+            "integrations",
+            "project",
+            "scholar",
+            "viz",
+            "writer",
+            "new",
+            "static",
+            "media",
+            "guest",
+            "about",
+            "help",
+            "support",
+            "contact",
+            "terms",
+            "privacy",
+            "settings",
+            "dashboard",
+            "profile",
+            "account",
+            "login",
+            "logout",
+            "signup",
+            "register",
+            "reset",
+            "verify",
+            "confirm",
         }
 
 
@@ -52,12 +82,14 @@ def is_username_reserved(username):
         return True
 
     # Check if starts with guest- (reserved for guest sessions)
-    if username_lower.startswith('guest-'):
+    if username_lower.startswith("guest-"):
         return True
 
     # Check if starts with any reserved prefix followed by dash or number
     for reserved in reserved_usernames:
-        if username_lower.startswith(f"{reserved}-") or username_lower.startswith(f"{reserved}_"):
+        if username_lower.startswith(f"{reserved}-") or username_lower.startswith(
+            f"{reserved}_"
+        ):
             return True
 
     return False
@@ -85,11 +117,15 @@ def validate_username(username):
 
     # Character check (alphanumeric, dash, underscore only)
     import re
-    if not re.match(r'^[a-zA-Z0-9_-]+$', username):
-        return False, "Username can only contain letters, numbers, dashes, and underscores"
+
+    if not re.match(r"^[a-zA-Z0-9_-]+$", username):
+        return (
+            False,
+            "Username can only contain letters, numbers, dashes, and underscores",
+        )
 
     # Cannot start or end with dash/underscore
-    if username[0] in '-_' or username[-1] in '-_':
+    if username[0] in "-_" or username[-1] in "-_":
         return False, "Username cannot start or end with dash or underscore"
 
     # Reserved check

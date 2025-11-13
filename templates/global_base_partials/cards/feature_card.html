@@ -1,14 +1,11 @@
-{% comment %}
-Reusable feature card with icon
-Usage: {% include 'partials/cards/feature_card.html' with icon='🔓' title='Open by Default' description='Every line of code public...' border_color='#28a745' %}
-{% endcomment %}
-
+{% comment %} Reusable feature card with icon Usage:
+{% include
+'partials/cards/feature_card.html' with icon='🔓' title='Open by Default'
+description='Every line of code public...' border_color='#28a745' %}
+{%
+endcomment %}
 <div class="core-value-card" style="{% if border_color %}border-left: 4px solid {{ border_color }};{% endif %}">
-  {% if icon %}
-  <div style="font-size: {{ icon_size|default:'2rem' }}; margin-bottom: 0.5rem;">{{ icon }}</div>
-  {% endif %}
-  <h3 style="color: #1e293b; margin-bottom: 0.5rem; font-size: {{ title_size|default:'1.2rem' }};">{{ title }}</h3>
-  <p style="color: #64748b; line-height: 1.6; font-size: {{ text_size|default:'0.95rem' }};">
-    {{ description }}
-  </p>
+{% if icon %}<div style="font-size: {{ icon_size|default:'2rem' }}; margin-bottom: 0.5rem;">{{ icon }}</div>{% endif %}
+<h3 style="color: #1e293b; margin-bottom: 0.5rem; font-size: {{ title_size|default:'1.2rem' }};">{{ title }}</h3>
+<p style="color: #64748b; line-height: 1.6; font-size: {{ text_size|default:'0.95rem' }};">{{ description }}</p>
 </div>

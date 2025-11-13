@@ -2,204 +2,208 @@
 
 /* Theme Options Container */
 .theme-options {
-    /* background: var(--color-canvas-default); */ /* Styling from static/css/common/cards.css */
-    /* border: 1px solid var(--color-border-default); */ /* Styling from static/css/common/cards.css */
-    /* border-radius: 6px; */ /* Styling from static/css/common/cards.css */
-    padding: 24px;
+  /* background: var(--color-canvas-default); */ /* Styling from static/css/common/cards.css */
+  /* border: 1px solid var(--color-border-default); */ /* Styling from static/css/common/cards.css */
+  /* border-radius: 6px; */ /* Styling from static/css/common/cards.css */
+  padding: 24px;
 }
 
 .theme-section-title {
-    /* font-size: 16px; */ /* Styling from central CSS */
-    /* font-weight: 600; */ /* Styling from central CSS */
-    /* color: var(--color-fg-default); */ /* Styling from central CSS */
-    margin-bottom: 16px;
+  /* font-size: 16px; */ /* Styling from central CSS */
+  /* font-weight: 600; */ /* Styling from central CSS */
+  /* color: var(--color-fg-default); */ /* Styling from central CSS */
+  margin-bottom: 16px;
 }
 
 /* Theme Mode Selection Cards */
 .theme-modes {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 16px;
-    margin-bottom: 24px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
 }
 
 .theme-mode-card {
-    /* background: var(--color-canvas-subtle); */ /* Styling from static/css/common/cards.css */
-    /* border: 2px solid var(--color-border-muted); */ /* Styling from static/css/common/cards.css */
-    /* border-radius: 6px; */ /* Styling from static/css/common/cards.css */
-    padding: 16px;
-    cursor: pointer;
-    /* transition: all 0.2s ease; */ /* Styling from static/css/common/cards.css */
-    text-align: center;
+  /* background: var(--color-canvas-subtle); */ /* Styling from static/css/common/cards.css */
+  /* border: 2px solid var(--color-border-muted); */ /* Styling from static/css/common/cards.css */
+  /* border-radius: 6px; */ /* Styling from static/css/common/cards.css */
+  padding: 16px;
+  cursor: pointer;
+  /* transition: all 0.2s ease; */ /* Styling from static/css/common/cards.css */
+  text-align: center;
 }
 
 .theme-mode-card:hover {
-    /* border-color: var(--color-accent-fg); */ /* Styling from static/css/common/cards.css */
+  /* border-color: var(--color-accent-fg); */ /* Styling from static/css/common/cards.css */
 }
 
 .theme-mode-card.active {
-    /* border-color: var(--color-accent-fg); */ /* Styling from static/css/common/cards.css */
-    /* background: var(--color-accent-subtle); */ /* Styling from static/css/common/cards.css */
+  /* border-color: var(--color-accent-fg); */ /* Styling from static/css/common/cards.css */
+  /* background: var(--color-accent-subtle); */ /* Styling from static/css/common/cards.css */
 }
 
 .theme-mode-icon {
-    /* font-size: 48px; */ /* Styling from central CSS */
-    margin-bottom: 12px;
+  /* font-size: 48px; */ /* Styling from central CSS */
+  margin-bottom: 12px;
 }
 
 .theme-mode-title {
-    /* font-size: 16px; */ /* Styling from central CSS */
-    /* font-weight: 600; */ /* Styling from central CSS */
-    /* color: var(--color-fg-default); */ /* Styling from central CSS */
-    margin-bottom: 4px;
+  /* font-size: 16px; */ /* Styling from central CSS */
+  /* font-weight: 600; */ /* Styling from central CSS */
+  /* color: var(--color-fg-default); */ /* Styling from central CSS */
+  margin-bottom: 4px;
 }
 
 .theme-mode-desc {
-    /* font-size: 12px; */ /* Styling from central CSS */
-    /* color: var(--color-fg-muted); */ /* Styling from central CSS */
+  /* font-size: 12px; */ /* Styling from central CSS */
+  /* color: var(--color-fg-muted); */ /* Styling from central CSS */
 }
 
 /* Theme Preview Section */
 .theme-preview {
-    margin-top: 24px;
-    padding: 16px;
-    /* background: var(--color-canvas-subtle); */ /* Styling from static/css/common/cards.css */
-    /* border: 1px solid var(--color-border-muted); */ /* Styling from static/css/common/cards.css */
-    /* border-radius: 6px; */ /* Styling from static/css/common/cards.css */
+  margin-top: 24px;
+  padding: 16px;
+  /* background: var(--color-canvas-subtle); */ /* Styling from static/css/common/cards.css */
+  /* border: 1px solid var(--color-border-muted); */ /* Styling from static/css/common/cards.css */
+  /* border-radius: 6px; */ /* Styling from static/css/common/cards.css */
 }
 
 .preview-title {
-    /* font-size: 14px; */ /* Styling from central CSS */
-    /* font-weight: 600; */ /* Styling from central CSS */
-    /* color: var(--color-fg-default); */ /* Styling from central CSS */
-    margin-bottom: 12px;
+  /* font-size: 14px; */ /* Styling from central CSS */
+  /* font-weight: 600; */ /* Styling from central CSS */
+  /* color: var(--color-fg-default); */ /* Styling from central CSS */
+  margin-bottom: 12px;
 }
 
 .preview-box {
-    padding: 24px;
-    /* background: var(--color-canvas-default); */ /* Styling from static/css/common/cards.css */
-    /* border: 1px solid var(--color-border-default); */ /* Styling from static/css/common/cards.css */
-    /* border-radius: 6px; */ /* Styling from static/css/common/cards.css */
-    /* color: var(--color-fg-default); */ /* Styling from central CSS */
+  padding: 24px;
+  /* background: var(--color-canvas-default); */ /* Styling from static/css/common/cards.css */
+  /* border: 1px solid var(--color-border-default); */ /* Styling from static/css/common/cards.css */
+  /* border-radius: 6px; */ /* Styling from static/css/common/cards.css */
+  /* color: var(--color-fg-default); */ /* Styling from central CSS */
 }
 
 .preview-box h3 {
-    /* color: var(--color-fg-default); */ /* Styling from central CSS */
-    margin-bottom: 8px;
+  /* color: var(--color-fg-default); */ /* Styling from central CSS */
+  margin-bottom: 8px;
 }
 
 .preview-box p {
-    /* color: var(--color-fg-muted); */ /* Styling from central CSS */
-    margin-bottom: 16px;
+  /* color: var(--color-fg-muted); */ /* Styling from central CSS */
+  margin-bottom: 16px;
 }
 
 .preview-box a {
-    /* color: var(--color-accent-fg); */ /* Styling from central CSS */
-    text-decoration: underline;
+  /* color: var(--color-accent-fg); */ /* Styling from central CSS */
+  text-decoration: underline;
 }
 
 .preview-box button {
-    /* background: var(--color-btn-primary-bg); */ /* Styling from static/css/common/buttons.css */
-    /* color: var(--color-btn-primary-text); */ /* Styling from static/css/common/buttons.css */
-    /* border: 1px solid var(--color-btn-primary-border); */ /* Styling from static/css/common/buttons.css */
-    padding: 8px 16px;
-    /* border-radius: 6px; */ /* Styling from static/css/common/buttons.css */
-    /* font-size: 14px; */ /* Styling from static/css/common/buttons.css */
-    cursor: pointer;
+  /* background: var(--color-btn-primary-bg); */ /* Styling from static/css/common/buttons.css */
+  /* color: var(--color-btn-primary-text); */ /* Styling from static/css/common/buttons.css */
+  /* border: 1px solid var(--color-btn-primary-border); */ /* Styling from static/css/common/buttons.css */
+  padding: 8px 16px;
+  /* border-radius: 6px; */ /* Styling from static/css/common/buttons.css */
+  /* font-size: 14px; */ /* Styling from static/css/common/buttons.css */
+  cursor: pointer;
 }
 
 /* Code Theme Section */
 .code-theme-section {
-    margin-bottom: 20px;
+  margin-bottom: 20px;
 }
 
 .code-theme-label {
-    display: block;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--color-fg-default);
-    margin-bottom: 8px;
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-fg-default);
+  margin-bottom: 8px;
 }
 
 .code-theme-selector {
-    width: 100%;
-    max-width: 400px;
+  width: 100%;
+  max-width: 400px;
 }
 
 .appearance-description {
-    font-size: 14px;
-    color: var(--color-fg-muted);
-    margin-bottom: 20px;
-    line-height: 1.6;
+  font-size: 14px;
+  color: var(--color-fg-muted);
+  margin-bottom: 20px;
+  line-height: 1.6;
 }
 
 /* Code Preview Container */
 .code-preview-container {
-    margin-top: 16px;
-    border: 2px solid var(--color-border-default);
-    border-radius: 6px;
-    overflow: hidden;
+  margin-top: 16px;
+  border: 2px solid var(--color-border-default);
+  border-radius: 6px;
+  overflow: hidden;
 }
 
 .code-preview-lang-bar {
-    background: var(--color-canvas-subtle);
-    border-bottom: 1px solid var(--color-border-default);
-    padding: 8px 16px;
+  background: var(--color-canvas-subtle);
+  border-bottom: 1px solid var(--color-border-default);
+  padding: 8px 16px;
 }
 
 .code-preview-lang {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--color-fg-muted);
-    font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
-    text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-fg-muted);
+  font-family:
+    "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New",
+    monospace;
+  text-transform: uppercase;
 }
 
 .code-preview-pre {
-    margin: 0;
-    padding: 0;
-    background: transparent;
+  margin: 0;
+  padding: 0;
+  background: transparent;
 }
 
 .code-preview-code {
-    display: block;
-    padding: 16px;
-    font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
-    font-size: 14px;
-    line-height: 1.6;
-    overflow-x: auto;
+  display: block;
+  padding: 16px;
+  font-family:
+    "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New",
+    monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  overflow-x: auto;
 }
 
 .code-preview-header {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--color-fg-default);
-    margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-fg-default);
+  margin-bottom: 8px;
 }
 
 .code-preview-description {
-    font-size: 14px;
-    color: var(--color-fg-muted);
-    margin-bottom: 12px;
-    line-height: 1.6;
+  font-size: 14px;
+  color: var(--color-fg-muted);
+  margin-bottom: 12px;
+  line-height: 1.6;
 }
 
 .code-preview-status {
-    margin-top: 12px;
+  margin-top: 12px;
 }
 
 .code-save-status {
-    font-size: 13px;
-    font-weight: 500;
+  font-size: 13px;
+  font-weight: 500;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-    .theme-modes {
-        grid-template-columns: 1fr;
-    }
+  .theme-modes {
+    grid-template-columns: 1fr;
+  }
 
-    .code-theme-selector {
-        max-width: 100%;
-    }
+  .code-theme-selector {
+    max-width: 100%;
+  }
 }

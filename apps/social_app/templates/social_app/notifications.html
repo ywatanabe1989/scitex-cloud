@@ -1,117 +1,110 @@
 {% extends 'global_base.html' %}
 {% load static %}
-
-{% block title %}Notifications - SciTeX{% endblock %}
-
+{% block title
+    %}
+    Notifications - SciTeX
+{% endblock %}
 {% block extra_css %}
-<style>
-.notifications-page {
+    <style>
+  .notifications-page {
     max-width: 1280px;
     margin: 0 auto;
     padding: 32px 16px;
-}
+  }
 
-.notifications-header {
+  .notifications-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 24px;
     padding-bottom: 16px;
     border-bottom: 1px solid var(--color-border-muted);
-}
+  }
 
-.notifications-header h1 {
+  .notifications-header h1 {
     font-size: 24px;
     font-weight: 600;
     color: var(--color-fg-default);
     margin: 0;
-}
+  }
 
-.notifications-tabs {
+  .notifications-tabs {
     display: flex;
     gap: 16px;
     margin-bottom: 24px;
     border-bottom: 1px solid var(--color-border-muted);
-}
+  }
 
-.notifications-tab {
+  .notifications-tab {
     padding: 12px 16px;
     color: var(--color-fg-muted);
     text-decoration: none;
     border-bottom: 2px solid transparent;
     transition: all 0.2s ease;
-}
+  }
 
-.notifications-tab.active {
+  .notifications-tab.active {
     color: var(--color-fg-default);
     border-bottom-color: var(--tab-active-border);
-}
+  }
 
-.empty-notifications {
+  .empty-notifications {
     text-align: center;
     padding: 64px 24px;
     background: var(--color-canvas-default);
     border: 1px solid var(--color-border-muted);
     border-radius: 6px;
-}
+  }
 
-.empty-notifications-icon {
+  .empty-notifications-icon {
     font-size: 64px;
     color: var(--color-border-default);
     margin-bottom: 24px;
-}
+  }
 
-.empty-notifications h2 {
+  .empty-notifications h2 {
     color: var(--color-fg-default);
     font-size: 20px;
     margin-bottom: 8px;
-}
+  }
 
-.empty-notifications p {
+  .empty-notifications p {
     color: var(--color-fg-muted);
     font-size: 14px;
     max-width: 400px;
     margin: 0 auto;
-}
-</style>
+  }
+    </style>
 {% endblock %}
-
 {% block content %}
-<div class="notifications-page">
-    <div class="notifications-header">
-        <h1>Notifications</h1>
-    </div>
-
-    <nav class="notifications-tabs">
-        <a href="?filter=all" class="notifications-tab active">
-            All
-        </a>
-        <a href="?filter=unread" class="notifications-tab">
-            Unread
-        </a>
-        <a href="?filter=mentions" class="notifications-tab">
-            Mentions
-        </a>
-    </nav>
-
-    {% if not has_notifications %}
-    <div class="empty-notifications">
-        <div class="empty-notifications-icon">
-            <svg width="64" height="64" viewBox="0 0 16 16" fill="currentColor">
-                <path d="M8 16a2 2 0 0 0 1.985-1.75c.017-.137-.097-.25-.235-.25h-3.5c-.138 0-.252.113-.235.25A2 2 0 0 0 8 16z"/>
-                <path d="M8 1.918l-.797.161A4.002 4.002 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4.002 4.002 0 0 0-3.203-3.92L8 1.917zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5.002 5.002 0 0 1 13 6c0 .88.32 4.2 1.22 6z"/>
-            </svg>
+    <div class="notifications-page">
+        <div class="notifications-header">
+            <h1>Notifications</h1>
         </div>
-        <h2>No notifications yet</h2>
-        <p>When you get notifications about activity on your repositories, they'll show up here.</p>
+        <nav class="notifications-tabs">
+            <a href="?filter=all" class="notifications-tab active">All</a>
+            <a href="?filter=unread" class="notifications-tab">Unread</a>
+            <a href="?filter=mentions" class="notifications-tab">Mentions</a>
+        </nav>
+        {% if not has_notifications %}
+            <div class="empty-notifications">
+                <div class="empty-notifications-icon">
+                    <svg width="64" height="64" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M8 16a2 2 0 0 0 1.985-1.75c.017-.137-.097-.25-.235-.25h-3.5c-.138 0-.252.113-.235.25A2 2 0 0 0 8 16z" />
+                        <path d="M8 1.918l-.797.161A4.002 4.002 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4.002 4.002 0 0 0-3.203-3.92L8 1.917zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5.002 5.002 0 0 1 13 6c0 .88.32 4.2 1.22 6z" />
+                    </svg>
+                </div>
+                <h2>No notifications yet</h2>
+                <p>
+                    When you get notifications about activity on your repositories, they'll
+                    show up here.
+                </p>
+            </div>
+        {% else %}
+            <!-- Future: Display actual notifications here -->
+            <div class="notifications-list">
+                {% for notification in notifications %}<!-- Notification items will go here -->{% endfor %}
+            </div>
+        {% endif %}
     </div>
-    {% else %}
-    <!-- Future: Display actual notifications here -->
-    <div class="notifications-list">
-        {% for notification in notifications %}
-        <!-- Notification items will go here -->
-        {% endfor %}
-    </div>
-    {% endif %}
-</div>
 {% endblock %}

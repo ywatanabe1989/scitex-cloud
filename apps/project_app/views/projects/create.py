@@ -5,6 +5,7 @@ Project Create Views
 
 Handle project creation with various initialization options.
 """
+
 from __future__ import annotations
 import logging
 from pathlib import Path
@@ -50,6 +51,7 @@ def project_create(request):
             # Get templates for re-rendering form
             try:
                 from scitex.template import get_available_templates_info
+
                 available_templates = get_available_templates_info()
             except ImportError:
                 available_templates = []
@@ -63,6 +65,7 @@ def project_create(request):
             # Get templates for re-rendering form
             try:
                 from scitex.template import get_available_templates_info
+
                 available_templates = get_available_templates_info()
             except ImportError:
                 available_templates = []
@@ -84,6 +87,7 @@ def project_create(request):
             # Get templates for re-rendering form
             try:
                 from scitex.template import get_available_templates_info
+
                 available_templates = get_available_templates_info()
             except ImportError:
                 available_templates = []
@@ -102,24 +106,25 @@ def project_create(request):
         # This is a final safeguard before creation
         try:
             from apps.gitea_app.api_client import GiteaClient, GiteaAPIError
+
             client = GiteaClient()
 
             try:
                 existing_repo = client.get_repository(
-                    owner=request.user.username,
-                    repo=unique_slug
+                    owner=request.user.username, repo=unique_slug
                 )
                 if existing_repo:
                     # Gitea repo exists - this is a critical conflict
                     error_msg = (
                         f'Repository "{unique_slug}" already exists in Gitea. '
-                        f'This is likely an orphaned repository from a previous project. '
+                        f"This is likely an orphaned repository from a previous project. "
                         f'Please visit your <a href="/{request.user.username}/settings/repositories/">repository maintenance page</a> to clean it up.'
                     )
                     messages.error(request, mark_safe(error_msg))
                     # Get templates for re-rendering form
                     try:
                         from scitex.template import get_available_templates_info
+
                         available_templates = get_available_templates_info()
                     except ImportError:
                         available_templates = []
@@ -138,7 +143,7 @@ def project_create(request):
             logger.warning(f"Could not verify Gitea repository availability: {e}")
             messages.warning(
                 request,
-                "Could not verify repository name with Gitea. Proceeding with caution."
+                "Could not verify repository name with Gitea. Proceeding with caution.",
             )
 
         try:
@@ -166,9 +171,15 @@ def project_create(request):
                 project.refresh_from_db()
 
                 # Check if clone already succeeded (done by signal)
-                project_dir = Path(settings.BASE_DIR) / 'data' / 'users' / project.owner.username / project.slug
+                project_dir = (
+                    Path(settings.BASE_DIR)
+                    / "data"
+                    / "users"
+                    / project.owner.username
+                    / project.slug
+                )
 
-                if not project_dir.exists() or not (project_dir / '.git').exists():
+                if not project_dir.exists() or not (project_dir / ".git").exists():
                     # Clone to local directory if not done by signal
                     success, result = project.clone_gitea_to_local()
                 else:
@@ -188,6 +199,7 @@ def project_create(request):
                         from scitex.template import (
                             get_available_templates_info,
                         )
+
                         available_templates = get_available_templates_info()
                     except ImportError:
                         available_templates = []
@@ -195,9 +207,7 @@ def project_create(request):
                         "available_templates": available_templates,
                         "error": f"Clone failed: {result}",
                     }
-                    return render(
-                        request, "project_app/projects/create.html", context
-                    )
+                    return render(request, "project_app/projects/create.html", context)
 
             except Exception as e:
                 error_msg = str(e)
@@ -207,14 +217,13 @@ def project_create(request):
                         f'Repository "{name}" already exists in Gitea. Please choose a different name.',
                     )
                 else:
-                    messages.error(
-                        request, f"Failed to create repository: {error_msg}"
-                    )
+                    messages.error(request, f"Failed to create repository: {error_msg}")
                 logger.error(f"Gitea creation failed for {project.slug}: {e}")
                 project.delete()
                 # Get templates for re-rendering form
                 try:
                     from scitex.template import get_available_templates_info
+
                     available_templates = get_available_templates_info()
                 except ImportError:
                     available_templates = []
@@ -224,20 +233,17 @@ def project_create(request):
                     "description": description,
                     "error": error_msg,
                 }
-                return render(
-                    request, "project_app/projects/create.html", context
-                )
+                return render(request, "project_app/projects/create.html", context)
 
         elif init_type == "github":
             # Import from GitHub/GitLab - Use direct Git clone instead of Gitea
             if not git_url:
-                messages.error(
-                    request, "Repository URL is required for importing"
-                )
+                messages.error(request, "Repository URL is required for importing")
                 project.delete()
                 # Get templates for re-rendering form
                 try:
                     from scitex.template import get_available_templates_info
+
                     available_templates = get_available_templates_info()
                 except ImportError:
                     available_templates = []
@@ -248,18 +254,14 @@ def project_create(request):
                     "init_type": "github",
                     "git_url": git_url,
                 }
-                return render(
-                    request, "project_app/projects/create.html", context
-                )
+                return render(request, "project_app/projects/create.html", context)
 
             try:
                 # Clone from Git repository directly (no Gitea needed)
                 success, error_msg = manager.clone_from_git(project, git_url)
 
                 if not success:
-                    messages.error(
-                        request, f"Failed to clone repository: {error_msg}"
-                    )
+                    messages.error(request, f"Failed to clone repository: {error_msg}")
                     project.delete()
                     return redirect("new")
 
@@ -274,9 +276,7 @@ def project_create(request):
                 project, use_template=True, template_type=template_type
             )
             if not success:
-                messages.error(
-                    request, f"Failed to create project with template"
-                )
+                messages.error(request, f"Failed to create project with template")
                 project.delete()
                 return redirect("project_app:list")
 
@@ -325,13 +325,14 @@ def project_create(request):
                 writer_initialized = True
             else:
                 messages.warning(
-                    request,
-                    f'SciTeX Writer template initialization failed'
+                    request, f"SciTeX Writer template initialization failed"
                 )
 
         if init_scitex_scholar:
             # Initialize Scholar structure
-            from apps.project_app.services.bibliography_manager import ensure_bibliography_structure
+            from apps.project_app.services.bibliography_manager import (
+                ensure_bibliography_structure,
+            )
 
             try:
                 project_path = manager.get_project_root_path(project)
@@ -341,8 +342,7 @@ def project_create(request):
             except Exception as e:
                 logger.error(f"Failed to initialize Scholar structure: {e}")
                 messages.warning(
-                    request,
-                    f'SciTeX Scholar template initialization failed'
+                    request, f"SciTeX Scholar template initialization failed"
                 )
 
         # Show consolidated success message
@@ -356,13 +356,10 @@ def project_create(request):
             templates_str = " and ".join(templates_msg)
             messages.success(
                 request,
-                f'Project "{project.name}" created successfully with SciTeX {templates_str} initialized!'
+                f'Project "{project.name}" created successfully with SciTeX {templates_str} initialized!',
             )
         else:
-            messages.success(
-                request,
-                f'Project "{project.name}" created successfully!'
-            )
+            messages.success(request, f'Project "{project.name}" created successfully!')
 
         return redirect(
             "user_projects:detail",
@@ -373,6 +370,7 @@ def project_create(request):
     # GET request - get available templates from scitex
     try:
         from scitex.template import get_available_templates_info
+
         available_templates = get_available_templates_info()
     except ImportError:
         # Fallback if scitex not available
@@ -406,9 +404,7 @@ def project_create_from_template(request, username, slug):
 
     # Only project owner can create template
     if project.owner != request.user:
-        messages.error(
-            request, "Only project owner can create template structure."
-        )
+        messages.error(request, "Only project owner can create template structure.")
         return redirect("user_projects:detail", username=username, slug=slug)
 
     if request.method == "POST":

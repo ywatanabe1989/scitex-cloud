@@ -43,85 +43,85 @@
 
 /* File upload container */
 .file-upload {
-    position: relative;
-    display: inline-block;
-    width: 100%;
+  position: relative;
+  display: inline-block;
+  width: 100%;
 }
 
 /* Hide native file input */
 .file-upload-input {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
-    width: 0;
-    height: 0;
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 0;
+  height: 0;
 }
 
 /* File upload label - drag and drop area */
 .file-upload-label {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    cursor: pointer;
-    padding: 2rem 1.5rem;
-    border: 2px dashed var(--border-400);
-    border-radius: var(--border-radius);
-    background-color: var(--bg-100);
-    color: var(--text-700);
-    transition: var(--transition-fast);
-    min-height: 120px;
-    text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  padding: 2rem 1.5rem;
+  border: 2px dashed var(--border-400);
+  border-radius: var(--border-radius);
+  background-color: var(--bg-100);
+  color: var(--text-700);
+  transition: var(--transition-fast);
+  min-height: 120px;
+  text-align: center;
 }
 
 .file-upload-label:hover {
-    border-color: var(--btn-primary-bg);
-    background-color: var(--bg-200);
+  border-color: var(--btn-primary-bg);
+  background-color: var(--bg-200);
 }
 
 /* Button-style file upload */
 .file-upload-button {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
-    padding: 0.75rem 1.5rem;
-    border: 2px solid var(--border-400);
-    border-radius: var(--border-radius);
-    background-color: var(--btn-primary-bg);
-    color: white;
-    font-weight: 500;
-    transition: var(--transition-fast);
-    text-align: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  padding: 0.75rem 1.5rem;
+  border: 2px solid var(--border-400);
+  border-radius: var(--border-radius);
+  background-color: var(--btn-primary-bg);
+  color: white;
+  font-weight: 500;
+  transition: var(--transition-fast);
+  text-align: center;
 }
 
 .file-upload-button:hover {
-    background-color: var(--btn-primary-bg-hover);
-    border-color: var(--btn-primary-bg-hover);
+  background-color: var(--btn-primary-bg-hover);
+  border-color: var(--btn-primary-bg-hover);
 }
 
 /* Upload icon */
 .file-upload-icon {
-    font-size: 2rem;
-    opacity: 0.8;
+  font-size: 2rem;
+  opacity: 0.8;
 }
 
 .file-upload-button .file-upload-icon {
-    font-size: 1rem;
+  font-size: 1rem;
 }
 
 /* Upload text */
 .file-upload-text {
-    font-size: 0.9rem;
-    color: var(--text-secondary);
+  font-size: 0.9rem;
+  color: var(--text-secondary);
 }
 
 .file-upload-button + .file-upload-text {
-    display: inline-block;
-    margin-left: 0.75rem;
-    font-size: 0.875rem;
-    color: var(--text-primary);
+  display: inline-block;
+  margin-left: 0.75rem;
+  font-size: 0.875rem;
+  color: var(--text-primary);
 }
 
 /* =========================
@@ -130,15 +130,15 @@
 
 /* Dragover state */
 .file-upload-label.dragover {
-    border-color: var(--color-btn-primary-bg);
-    background-color: var(--bg-muted);
+  border-color: var(--color-btn-primary-bg);
+  background-color: var(--bg-muted);
 }
 
 /* Focus state (keyboard navigation) */
 .file-upload-input:focus + .file-upload-label,
 .file-upload-input:focus + .file-upload-button {
-    outline: 2px solid var(--color-btn-primary-bg);
-    outline-offset: 2px;
+  outline: 2px solid var(--color-btn-primary-bg);
+  outline-offset: 2px;
 }
 
 /* =========================
@@ -152,12 +152,12 @@
    ========================= */
 
 @media (max-width: 768px) {
-    .file-upload-label {
-        padding: 1.5rem 1rem;
-        min-height: 100px;
-    }
+  .file-upload-label {
+    padding: 1.5rem 1rem;
+    min-height: 100px;
+  }
 
-    .file-upload-icon {
-        font-size: 1.5rem;
-    }
+  .file-upload-icon {
+    font-size: 1.5rem;
+  }
 }

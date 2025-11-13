@@ -35,7 +35,7 @@ usage() {
     echo "Example:"
     echo "  source $0 --env dev"
     echo "  source $0 -e prod"
-    return 1 2>/dev/null || exit 1
+    return 1 2> /dev/null || exit 1
 }
 
 setup_environment() {
@@ -48,14 +48,14 @@ setup_environment() {
 
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            --env|-e)
+            --env | -e)
                 ENV="$2"
                 shift 2
                 ;;
-            -h|--help)
+            -h | --help)
                 usage
                 ;;
-            dev|development|prod|production)
+            dev | development | prod | production)
                 ENV="$1"
                 shift
                 ;;
@@ -76,18 +76,18 @@ setup_environment() {
             fi
             echo "Current environment: $ENV"
             echo "Usage: source $0 --env [dev|prod]"
-            return 0 2>/dev/null || exit 0
+            return 0 2> /dev/null || exit 0
         else
             ENV="dev"
         fi
     fi
 
     case "$ENV" in
-        dev|development)
+        dev | development)
             ENV="dev"
             ENV_FILE="$DOTENVS_DIR/dotenv_dev"
             ;;
-        prod|production)
+        prod | production)
             ENV="prod"
             ENV_FILE="$DOTENVS_DIR/dotenv_prod"
             ;;
@@ -99,7 +99,7 @@ setup_environment() {
 
     if [ ! -f "$ENV_FILE" ]; then
         echo "Error: Environment file not found: $ENV_FILE"
-        return 1 2>/dev/null || exit 1
+        return 1 2> /dev/null || exit 1
     fi
 
     echo "Setting up $ENV environment..."
@@ -157,4 +157,3 @@ main() {
 }
 
 main "$@" 2>&1 | tee "$LOG_FILE"
-

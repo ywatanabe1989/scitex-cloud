@@ -2,8 +2,6 @@
 Middleware for SciTeX Cloud.
 """
 
-import secrets
-
 
 class GuestSessionMiddleware:
     """
@@ -25,7 +23,8 @@ class GuestSessionMiddleware:
         if request.user.is_authenticated:
             # Check if URL matches /<username>/<project>/...
             import re
-            pattern = r'^/([^/]+)/([^/?]+)/'
+
+            pattern = r"^/([^/]+)/([^/?]+)/"
             match = re.match(pattern, request.path)
 
             if match:
@@ -33,9 +32,12 @@ class GuestSessionMiddleware:
                 project_slug = match.group(2)
 
                 # If this is a project page (not 'projects' or other reserved words)
-                if project_slug not in ['projects'] and username == request.user.username:
+                if (
+                    project_slug not in ["projects"]
+                    and username == request.user.username
+                ):
                     # Update session with current project
-                    request.session['current_project_slug'] = project_slug
+                    request.session["current_project_slug"] = project_slug
                     request.session.modified = True
 
         response = self.get_response(request)

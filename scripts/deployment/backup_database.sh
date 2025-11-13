@@ -52,12 +52,12 @@ backup_postgres() {
         return 1
     fi
 
-    if ! pg_isready -q 2>/dev/null; then
+    if ! pg_isready -q 2> /dev/null; then
         echo_warning "PostgreSQL is not running, skipping..."
         return 1
     fi
 
-    if pg_dump -U "$db_user" "$db_name" > "$backup_file" 2>/dev/null; then
+    if pg_dump -U "$db_user" "$db_name" > "$backup_file" 2> /dev/null; then
         gzip "$backup_file"
         echo_success "Backup created: ${backup_file}.gz"
         return 0
@@ -96,11 +96,11 @@ main() {
 
     while [[ $# -gt 0 ]]; do
         case $1 in
-            -e|--env)
+            -e | --env)
                 ENV="$2"
                 shift 2
                 ;;
-            -h|--help)
+            -h | --help)
                 usage
                 ;;
             *)

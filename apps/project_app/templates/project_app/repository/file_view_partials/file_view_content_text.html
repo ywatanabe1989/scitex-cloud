@@ -2,10 +2,10 @@
 <div class="file-content">
     <div class="line-numbers">
         {% for line in file_content.splitlines %}
-        <div class="line">
-            <div class="line-number">{{ forloop.counter }}</div>
-            <div class="line-content">{{ line }}</div>
-        </div>
+            <div class="line">
+                <div class="line-number">{{ forloop.counter }}</div>
+                <div class="line-content">{{ line }}</div>
+            </div>
         {% endfor %}
     </div>
 </div>

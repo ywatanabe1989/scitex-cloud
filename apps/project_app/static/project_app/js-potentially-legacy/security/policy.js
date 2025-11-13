@@ -2,16 +2,18 @@
  * Security policy page functionality
  * Corresponds to: templates/project_app/security/policy.html
  */
-console.log("[DEBUG] apps/project_app/static/project_app/ts/security/policy.ts loaded");
+console.log(
+  "[DEBUG] apps/project_app/static/project_app/ts/security/policy.ts loaded",
+);
 class SecurityPolicyPage {
-    constructor() {
-        this.init();
-    }
-    init() {
-        console.log('[SecurityPolicy] Initializing policy page');
-    }
+  constructor() {
+    this.init();
+  }
+  init() {
+    console.log("[SecurityPolicy] Initializing policy page");
+  }
 }
-document.addEventListener('DOMContentLoaded', () => {
-    new SecurityPolicyPage();
+document.addEventListener("DOMContentLoaded", () => {
+  new SecurityPolicyPage();
 });
 //# sourceMappingURL=policy.js.map

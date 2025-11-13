@@ -111,11 +111,11 @@ main() {
 
     while [[ $# -gt 0 ]]; do
         case $1 in
-            -e|--environment)
+            -e | --environment)
                 ENVIRONMENT="$2"
                 shift 2
                 ;;
-            -h|--help)
+            -h | --help)
                 usage
                 ;;
             *)

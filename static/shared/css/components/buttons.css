@@ -427,7 +427,7 @@
 }
 
 .btn-loading::after {
-  content: '';
+  content: "";
   position: absolute;
   width: 1rem;
   height: 1rem;
@@ -478,7 +478,7 @@
 }
 
 .btn-split .btn-dropdown-toggle::after {
-  content: '▼';
+  content: "▼";
   font-size: 0.6em;
   margin-left: 0;
 }

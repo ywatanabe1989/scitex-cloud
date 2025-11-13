@@ -4,11 +4,9 @@ Compilation service using scitex.writer.Writer API.
 Provides live compilation and PDF generation for manuscripts.
 """
 
-import json
 import threading
 from pathlib import Path
 from typing import Optional, Dict, Any, Callable
-from django.conf import settings
 from scitex.writer import Writer
 from scitex.writer._compile import CompilationResult
 import logging
@@ -29,17 +27,14 @@ class CompilerService:
     def get_writer(self) -> Writer:
         """Get or create Writer instance."""
         if self.writer is None:
-            self.writer = Writer(
-                self.project_dir,
-                git_strategy='parent'
-            )
+            self.writer = Writer(self.project_dir, git_strategy="parent")
         return self.writer
 
     def compile_manuscript(
         self,
         content: Optional[str] = None,
         timeout: int = 300,
-        on_progress: Optional[Callable[[int, str], None]] = None
+        on_progress: Optional[Callable[[int, str], None]] = None,
     ) -> Dict[str, Any]:
         """
         Compile manuscript to PDF.
@@ -54,9 +49,9 @@ class CompilerService:
         """
         if self.is_compiling:
             return {
-                'success': False,
-                'error': 'Compilation already in progress',
-                'job_id': None
+                "success": False,
+                "error": "Compilation already in progress",
+                "job_id": None,
             }
 
         try:
@@ -70,36 +65,34 @@ class CompilerService:
                 pass
 
             if on_progress:
-                on_progress(25, 'Preparing files...')
+                on_progress(25, "Preparing files...")
 
             # Compile manuscript
             result = writer.compile_manuscript(timeout=timeout)
             self.last_compilation = result
 
             if on_progress:
-                on_progress(100, 'Compilation complete' if result.success else 'Compilation failed')
+                on_progress(
+                    100,
+                    "Compilation complete" if result.success else "Compilation failed",
+                )
 
             return {
-                'success': result.success,
-                'pdf_url': str(result.output_pdf) if result.output_pdf else None,
-                'error': result.error if not result.success else None,
-                'log': result.log,
-                'job_id': None  # Not needed with synchronous compilation
+                "success": result.success,
+                "pdf_url": str(result.output_pdf) if result.output_pdf else None,
+                "error": result.error if not result.success else None,
+                "log": result.log,
+                "job_id": None,  # Not needed with synchronous compilation
             }
 
         except Exception as e:
             logger.error(f"Compilation error: {e}")
-            return {
-                'success': False,
-                'error': str(e),
-                'job_id': None
-            }
+            return {"success": False, "error": str(e), "job_id": None}
         finally:
             self.is_compiling = False
 
     def watch_manuscript(
-        self,
-        on_compile: Optional[Callable[[Dict[str, Any]], None]] = None
+        self, on_compile: Optional[Callable[[Dict[str, Any]], None]] = None
     ) -> None:
         """
         Start watching manuscript for changes and auto-compile.
@@ -112,12 +105,16 @@ class CompilerService:
         def compile_callback(result: CompilationResult):
             """Handle compilation result."""
             if on_compile:
-                on_compile({
-                    'success': result.success,
-                    'pdf_url': str(result.output_pdf) if result.output_pdf else None,
-                    'error': result.error if not result.success else None,
-                    'log': result.log
-                })
+                on_compile(
+                    {
+                        "success": result.success,
+                        "pdf_url": str(result.output_pdf)
+                        if result.output_pdf
+                        else None,
+                        "error": result.error if not result.success else None,
+                        "log": result.log,
+                    }
+                )
 
         # Start watching in background thread
         def watch_thread():
@@ -129,7 +126,7 @@ class CompilerService:
         thread = threading.Thread(target=watch_thread, daemon=True)
         thread.start()
 
-    def get_pdf(self, doc_type: str = 'manuscript') -> Optional[Path]:
+    def get_pdf(self, doc_type: str = "manuscript") -> Optional[Path]:
         """Get compiled PDF path."""
         writer = self.get_writer()
         return writer.get_pdf(doc_type=doc_type)

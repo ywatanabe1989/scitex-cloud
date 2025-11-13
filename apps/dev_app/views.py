@@ -5,9 +5,8 @@
 # ----------------------------------------
 from __future__ import annotations
 import os
-__FILE__ = (
-    "./apps/dev_app/views.py"
-)
+
+__FILE__ = "./apps/dev_app/views.py"
 __DIR__ = os.path.dirname(__FILE__)
 # ----------------------------------------
 
@@ -27,11 +26,7 @@ def index(request):
 def _load_components():
     """Load components from JSON."""
     components_path = (
-        Path(settings.BASE_DIR)
-        / "staticfiles"
-        / "dev_app"
-        / "data"
-        / "components.json"
+        Path(settings.BASE_DIR) / "staticfiles" / "dev_app" / "data" / "components.json"
     )
     components_data = {"components": [], "metadata": {}}
     if components_path.exists():

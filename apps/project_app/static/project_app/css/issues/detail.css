@@ -2,125 +2,121 @@
 /* ISSUES / ISSUE_DETAIL */
 /* ============================================================================= */
 
-
 /* GitHub-style issue detail - Theme-aware */
 .issue-header {
-    padding: 1.5rem 0;
-    border-bottom: 1px solid var(--color-border-default);
+  padding: 1.5rem 0;
+  border-bottom: 1px solid var(--color-border-default);
 }
 
 .issue-title {
-    font-size: 2rem;
-    font-weight: 600;
-    color: var(--color-fg-default);
-    margin-bottom: 0.5rem;
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--color-fg-default);
+  margin-bottom: 0.5rem;
 }
 
 .issue-number {
-    color: var(--color-fg-muted);
-    font-size: 2rem;
-    font-weight: 400;
+  color: var(--color-fg-muted);
+  font-size: 2rem;
+  font-weight: 400;
 }
 
 .issue-state-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 8px 16px;
-    border-radius: 24px;
-    font-size: 14px;
-    font-weight: 500;
-    margin-bottom: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 8px 16px;
+  border-radius: 24px;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 1rem;
 }
 
 .issue-state-badge.open {
-    background: var(--color-success-subtle);
-    color: var(--color-success-fg);
-    border: 1px solid var(--color-success-muted);
+  background: var(--color-success-subtle);
+  color: var(--color-success-fg);
+  border: 1px solid var(--color-success-muted);
 }
 
 .issue-state-badge.closed {
-    background: var(--color-done-subtle);
-    color: var(--color-done-fg);
-    border: 1px solid var(--color-done-muted);
+  background: var(--color-done-subtle);
+  color: var(--color-done-fg);
+  border: 1px solid var(--color-done-muted);
 }
 
 .issue-meta {
-    color: var(--color-fg-muted);
-    font-size: 14px;
+  color: var(--color-fg-muted);
+  font-size: 14px;
 }
 
 .issue-body {
-    padding: 1.5rem 0;
+  padding: 1.5rem 0;
 }
 
 .comment-box {
-    border: 1px solid var(--color-border-default);
-    border-radius: 6px;
-    overflow: hidden;
-    margin-bottom: 1.5rem;
-    background: var(--color-canvas-default);
+  border: 1px solid var(--color-border-default);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+  background: var(--color-canvas-default);
 }
 
 .comment-header {
-    padding: 0.75rem 1rem;
-    background: var(--color-canvas-subtle);
-    border-bottom: 1px solid var(--color-border-default);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  padding: 0.75rem 1rem;
+  background: var(--color-canvas-subtle);
+  border-bottom: 1px solid var(--color-border-default);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .comment-author {
-    font-weight: 600;
-    color: var(--color-fg-default);
+  font-weight: 600;
+  color: var(--color-fg-default);
 }
 
 .comment-date {
-    color: var(--color-fg-muted);
-    font-size: 12px;
+  color: var(--color-fg-muted);
+  font-size: 12px;
 }
 
 .comment-body {
-    padding: 1rem;
-    color: var(--color-fg-default);
-    line-height: 1.6;
+  padding: 1rem;
+  color: var(--color-fg-default);
+  line-height: 1.6;
 }
 
 .new-comment-form {
-    margin-top: 2rem;
+  margin-top: 2rem;
 }
 
 .new-comment-textarea {
-    width: 100%;
-    min-height: 150px;
-    padding: 1rem;
-    border: 1px solid var(--color-border-default);
-    border-radius: 6px;
-    background: var(--color-canvas-default);
-    color: var(--color-fg-default);
-    font-family: inherit;
-    font-size: 14px;
-    resize: vertical;
+  width: 100%;
+  min-height: 150px;
+  padding: 1rem;
+  border: 1px solid var(--color-border-default);
+  border-radius: 6px;
+  background: var(--color-canvas-default);
+  color: var(--color-fg-default);
+  font-family: inherit;
+  font-size: 14px;
+  resize: vertical;
 }
 
 .btn-close-issue {
-    background: var(--color-danger-emphasis);
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 6px;
-    cursor: pointer;
+  background: var(--color-danger-emphasis);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
 }
 
 .btn-reopen-issue {
-    background: var(--color-success-emphasis);
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 6px;
-    cursor: pointer;
+  background: var(--color-success-emphasis);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
 }
-
-
-

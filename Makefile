@@ -63,6 +63,10 @@
 	test-e2e-headed \
 	test-e2e-specific \
 	clean-python \
+	format \
+	format-python \
+	format-web \
+	format-shell \
 	info
 
 .DEFAULT_GOAL := help
@@ -98,7 +102,7 @@ ifdef ENV
 else
   # ENV not specified - only allow non-operational commands
   ifneq ($(MAKECMDGOALS),)
-    ifneq ($(filter-out help status validate-docker stop-all force-stop-all,$(MAKECMDGOALS)),)
+    ifneq ($(filter-out help status validate-docker stop-all force-stop-all format format-python format-web format-shell,$(MAKECMDGOALS)),)
       $(error ❌ ENV not specified! Use: make ENV=<dev|prod|nas> <command>)
     endif
   endif
@@ -179,6 +183,12 @@ help:
 	@echo "  make ENV=<env> exec-db            # Shell into database container"
 	@echo "  make ENV=<env> exec <cmd>         # Execute command in web container"
 	@echo "  make ENV=<env> list-envs          # List environment variables"
+	@echo ""
+	@echo "$(CYAN)✨ Code Quality:$(NC)"
+	@echo "  make format                       # Format & lint all code (Python + Web + Shell)"
+	@echo "  make format-python                # Format & lint Python with Ruff"
+	@echo "  make format-web                   # Format & lint web (djLint + Prettier + ESLint)"
+	@echo "  make format-shell                 # Format & lint shell scripts (shfmt + shellcheck)"
 	@echo ""
 	@echo "$(CYAN)🔒 SSL/HTTPS (prod only):$(NC)"
 	@echo "  make ENV=prod ssl-verify          # Verify HTTPS is working"
@@ -541,6 +551,90 @@ endif
 # ============================================
 clean-python:
 	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile clean-python
+
+# ============================================
+# Code Quality (Format + Lint)
+# ============================================
+format: format-python format-web format-shell
+	@echo ""
+	@echo "$(GREEN)✅ All formatting and linting complete!$(NC)"
+
+format-python:
+	@echo "$(CYAN)🐍 Formatting and linting Python code with Ruff...$(NC)"
+	@if command -v ruff >/dev/null 2>&1; then \
+		ruff format apps/ --respect-gitignore --quiet || echo "$(YELLOW)⚠️  Ruff formatting completed with warnings$(NC)"; \
+		ruff check --fix apps/ --exclude migrations --respect-gitignore --quiet || echo "$(RED)❌ Ruff found errors$(NC)"; \
+		echo "$(GREEN)✅ Python formatting and linting complete!$(NC)"; \
+	else \
+		echo "$(RED)❌ Ruff not found. Install with: pip install ruff$(NC)"; \
+		exit 1; \
+	fi
+
+format-web:
+	@echo "$(CYAN)✨ Formatting and linting web files...$(NC)"
+	@echo "$(CYAN)📝 Formatting Django templates with djLint...$(NC)"
+	@if command -v djlint >/dev/null 2>&1; then \
+		djlint --reformat --quiet \
+			apps/ templates/ \
+			2>&1 || echo "$(YELLOW)⚠️  djLint formatting completed with warnings$(NC)"; \
+		echo "$(GREEN)✅ Django template formatting complete!$(NC)"; \
+	else \
+		echo "$(YELLOW)⚠️  djLint not found. Install with: pip install djlint$(NC)"; \
+		echo "$(YELLOW)   Skipping Django template formatting...$(NC)"; \
+	fi
+	@echo "$(CYAN)💅 Formatting JS/TS/CSS with Prettier...$(NC)"
+	@if command -v prettier >/dev/null 2>&1; then \
+		prettier --write \
+			"apps/**/*.{ts,js,css}" \
+			"static/**/*.{ts,js,css}" \
+			--ignore-path .gitignore \
+			--log-level warn \
+			2>&1 || echo "$(YELLOW)⚠️  Prettier formatting completed with warnings$(NC)"; \
+		echo "$(GREEN)✅ Prettier formatting complete!$(NC)"; \
+	else \
+		echo "$(RED)❌ Prettier not found. Install with: npm install -g prettier$(NC)"; \
+		exit 1; \
+	fi
+	@echo "$(CYAN)🔍 Linting TS/JS with ESLint...$(NC)"
+	@if command -v eslint >/dev/null 2>&1; then \
+		eslint --fix \
+			"apps/**/*.{ts,js}" \
+			"static/**/*.{ts,js}" \
+			--ignore-path .gitignore \
+			--quiet \
+			2>&1 || echo "$(RED)❌ ESLint found errors$(NC)"; \
+		echo "$(GREEN)✅ ESLint linting complete!$(NC)"; \
+	else \
+		echo "$(RED)❌ ESLint not found. Install with: npm install -g eslint$(NC)"; \
+		exit 1; \
+	fi
+
+format-shell:
+	@echo "$(CYAN)🐚 Formatting and linting shell scripts...$(NC)"
+	@if command -v shfmt >/dev/null 2>&1; then \
+		find scripts/ deployment/ apps/ -name "*.sh" \
+			! -path "*/externals/*" \
+			! -path "*/node_modules/*" \
+			! -path "*/.venv/*" \
+			-exec shfmt -w -i 4 -bn -ci -sr {} + \
+			2>&1 || echo "$(YELLOW)⚠️  shfmt formatting completed with warnings$(NC)"; \
+		echo "$(GREEN)✅ Shell formatting complete!$(NC)"; \
+	else \
+		echo "$(YELLOW)⚠️  shfmt not found. Install with: go install mvdan.cc/sh/v3/cmd/shfmt@latest$(NC)"; \
+		echo "$(YELLOW)   Skipping shell formatting...$(NC)"; \
+	fi
+	@if command -v shellcheck >/dev/null 2>&1; then \
+		find scripts/ deployment/ apps/ -name "*.sh" \
+			! -path "*/externals/*" \
+			! -path "*/node_modules/*" \
+			! -path "*/.venv/*" \
+			-exec shellcheck --severity=error {} + \
+			2>&1 || echo "$(RED)❌ ShellCheck found errors$(NC)"; \
+		echo "$(GREEN)✅ Shell linting complete!$(NC)"; \
+	else \
+		echo "$(YELLOW)⚠️  shellcheck not found. Install with: sudo apt-get install shellcheck$(NC)"; \
+		echo "$(YELLOW)   Skipping shell linting...$(NC)"; \
+	fi
 
 # ============================================
 # Info

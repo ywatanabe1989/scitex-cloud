@@ -10,8 +10,8 @@ from .collaboration import (
 )
 
 __all__ = [
-    'ProjectWatch',
-    'ProjectStar',
-    'ProjectFork',
-    'ProjectInvitation',
+    "ProjectWatch",
+    "ProjectStar",
+    "ProjectFork",
+    "ProjectInvitation",
 ]

@@ -1,4 +1,5 @@
 """arXiv integration models for writer_app."""
+
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -7,7 +8,10 @@ import uuid
 
 class ArxivAccount(models.Model):
     """Store arXiv account credentials and verification status."""
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='arxiv_account')
+
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name="arxiv_account"
+    )
 
     # Account credentials
     arxiv_username = models.CharField(max_length=200)
@@ -38,7 +42,7 @@ class ArxivAccount(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['-created_at']
+        ordering = ["-created_at"]
 
     def __str__(self):
         return f"arXiv Account: {self.arxiv_username} ({'Verified' if self.is_verified else 'Unverified'})"
@@ -68,10 +72,15 @@ class ArxivAccount(models.Model):
 
 class ArxivCategory(models.Model):
     """arXiv subject categories."""
-    code = models.CharField(max_length=20, unique=True)  # e.g., 'cs.AI', 'physics.gen-ph'
+
+    code = models.CharField(
+        max_length=20, unique=True
+    )  # e.g., 'cs.AI', 'physics.gen-ph'
     name = models.CharField(max_length=200)
     description = models.TextField()
-    parent_category = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True)
+    parent_category = models.ForeignKey(
+        "self", on_delete=models.SET_NULL, null=True, blank=True
+    )
 
     # Category metadata
     is_active = models.BooleanField(default=True)
@@ -82,8 +91,8 @@ class ArxivCategory(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['code']
-        verbose_name_plural = 'arXiv Categories'
+        ordering = ["code"]
+        verbose_name_plural = "arXiv Categories"
 
     def __str__(self):
         return f"{self.code} - {self.name}"
@@ -91,29 +100,36 @@ class ArxivCategory(models.Model):
 
 class ArxivSubmission(models.Model):
     """Track arXiv submission records."""
+
     SUBMISSION_STATUS = [
-        ('draft', 'Draft'),
-        ('validating', 'Validating'),
-        ('submitted', 'Submitted'),
-        ('under_review', 'Under Review'),
-        ('approved', 'Approved'),
-        ('published', 'Published'),
-        ('rejected', 'Rejected'),
-        ('withdrawn', 'Withdrawn'),
-        ('replaced', 'Replaced'),
+        ("draft", "Draft"),
+        ("validating", "Validating"),
+        ("submitted", "Submitted"),
+        ("under_review", "Under Review"),
+        ("approved", "Approved"),
+        ("published", "Published"),
+        ("rejected", "Rejected"),
+        ("withdrawn", "Withdrawn"),
+        ("replaced", "Replaced"),
     ]
 
     SUBMISSION_TYPE = [
-        ('new', 'New Submission'),
-        ('replacement', 'Replacement'),
-        ('withdrawal', 'Withdrawal'),
-        ('cross_list', 'Cross-list'),
+        ("new", "New Submission"),
+        ("replacement", "Replacement"),
+        ("withdrawal", "Withdrawal"),
+        ("cross_list", "Cross-list"),
     ]
 
     # Core relationships
-    manuscript = models.ForeignKey('Manuscript', on_delete=models.CASCADE, related_name='arxiv_submissions')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='arxiv_submissions')
-    arxiv_account = models.ForeignKey('ArxivAccount', on_delete=models.CASCADE, related_name='submissions')
+    manuscript = models.ForeignKey(
+        "Manuscript", on_delete=models.CASCADE, related_name="arxiv_submissions"
+    )
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="arxiv_submissions"
+    )
+    arxiv_account = models.ForeignKey(
+        "ArxivAccount", on_delete=models.CASCADE, related_name="submissions"
+    )
 
     # Submission identification
     submission_id = models.UUIDField(default=uuid.uuid4, unique=True)
@@ -121,12 +137,18 @@ class ArxivSubmission(models.Model):
     arxiv_url = models.URLField(blank=True)
 
     # Submission metadata
-    submission_type = models.CharField(max_length=20, choices=SUBMISSION_TYPE, default='new')
-    status = models.CharField(max_length=20, choices=SUBMISSION_STATUS, default='draft')
+    submission_type = models.CharField(
+        max_length=20, choices=SUBMISSION_TYPE, default="new"
+    )
+    status = models.CharField(max_length=20, choices=SUBMISSION_STATUS, default="draft")
 
     # Categories
-    primary_category = models.ForeignKey('ArxivCategory', on_delete=models.PROTECT, related_name='primary_submissions')
-    secondary_categories = models.ManyToManyField('ArxivCategory', blank=True, related_name='secondary_submissions')
+    primary_category = models.ForeignKey(
+        "ArxivCategory", on_delete=models.PROTECT, related_name="primary_submissions"
+    )
+    secondary_categories = models.ManyToManyField(
+        "ArxivCategory", blank=True, related_name="secondary_submissions"
+    )
 
     # Manuscript details for submission
     title = models.CharField(max_length=500)
@@ -134,9 +156,15 @@ class ArxivSubmission(models.Model):
     authors = models.TextField()  # Formatted author list
 
     # Files
-    latex_source = models.FileField(upload_to='arxiv_submissions/latex/', blank=True, null=True)
-    pdf_file = models.FileField(upload_to='arxiv_submissions/pdfs/', blank=True, null=True)
-    supplementary_files = models.JSONField(default=list)  # List of additional file paths
+    latex_source = models.FileField(
+        upload_to="arxiv_submissions/latex/", blank=True, null=True
+    )
+    pdf_file = models.FileField(
+        upload_to="arxiv_submissions/pdfs/", blank=True, null=True
+    )
+    supplementary_files = models.JSONField(
+        default=list
+    )  # List of additional file paths
 
     # Submission comments and journal reference
     comments = models.TextField(blank=True)  # e.g., "28 pages, 15 figures"
@@ -149,7 +177,13 @@ class ArxivSubmission(models.Model):
 
     # Version management
     version = models.IntegerField(default=1)
-    replaces_submission = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='replacements')
+    replaces_submission = models.ForeignKey(
+        "self",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="replacements",
+    )
 
     # Status tracking
     submitted_at = models.DateTimeField(null=True, blank=True)
@@ -165,8 +199,8 @@ class ArxivSubmission(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['-created_at']
-        unique_together = ['manuscript', 'version']
+        ordering = ["-created_at"]
+        unique_together = ["manuscript", "version"]
 
     def __str__(self):
         arxiv_display = f" ({self.arxiv_id})" if self.arxiv_id else ""
@@ -175,30 +209,39 @@ class ArxivSubmission(models.Model):
     def get_status_display_with_details(self):
         """Get detailed status display."""
         status_map = {
-            'draft': 'Draft - Not yet submitted',
-            'validating': 'Validating - Checking submission requirements',
-            'submitted': 'Submitted - Awaiting arXiv processing',
-            'under_review': 'Under Review - Being reviewed by arXiv moderators',
-            'approved': 'Approved - Will be published in next announcement',
-            'published': f'Published - Available at {self.arxiv_url}' if self.arxiv_url else 'Published',
-            'rejected': f'Rejected - {self.moderation_reason}' if self.moderation_reason else 'Rejected',
-            'withdrawn': 'Withdrawn - Submission withdrawn by author',
-            'replaced': 'Replaced - Superseded by newer version',
+            "draft": "Draft - Not yet submitted",
+            "validating": "Validating - Checking submission requirements",
+            "submitted": "Submitted - Awaiting arXiv processing",
+            "under_review": "Under Review - Being reviewed by arXiv moderators",
+            "approved": "Approved - Will be published in next announcement",
+            "published": f"Published - Available at {self.arxiv_url}"
+            if self.arxiv_url
+            else "Published",
+            "rejected": f"Rejected - {self.moderation_reason}"
+            if self.moderation_reason
+            else "Rejected",
+            "withdrawn": "Withdrawn - Submission withdrawn by author",
+            "replaced": "Replaced - Superseded by newer version",
         }
         return status_map.get(self.status, self.get_status_display())
 
     def can_be_replaced(self):
         """Check if submission can be replaced with a new version."""
-        return self.status in ['published', 'approved'] and not self.replacements.exists()
+        return (
+            self.status in ["published", "approved"] and not self.replacements.exists()
+        )
 
     def can_be_withdrawn(self):
         """Check if submission can be withdrawn."""
-        return self.status in ['submitted', 'under_review', 'approved', 'published']
+        return self.status in ["submitted", "under_review", "approved", "published"]
 
 
 class ArxivSubmissionHistory(models.Model):
     """Track status changes and updates for arXiv submissions."""
-    submission = models.ForeignKey('ArxivSubmission', on_delete=models.CASCADE, related_name='history')
+
+    submission = models.ForeignKey(
+        "ArxivSubmission", on_delete=models.CASCADE, related_name="history"
+    )
 
     # Status change details
     previous_status = models.CharField(max_length=20, blank=True)
@@ -210,15 +253,19 @@ class ArxivSubmissionHistory(models.Model):
     error_details = models.TextField(blank=True)
 
     # User action
-    changed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-    is_automatic = models.BooleanField(default=True)  # True for API updates, False for manual changes
+    changed_by = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    is_automatic = models.BooleanField(
+        default=True
+    )  # True for API updates, False for manual changes
 
     # Timestamp
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['-created_at']
-        verbose_name_plural = 'arXiv Submission Histories'
+        ordering = ["-created_at"]
+        verbose_name_plural = "arXiv Submission Histories"
 
     def __str__(self):
         return f"{self.submission.title[:30]}... - {self.previous_status} → {self.new_status}"
@@ -226,25 +273,40 @@ class ArxivSubmissionHistory(models.Model):
 
 class ArxivValidationResult(models.Model):
     """Store validation results for arXiv submissions."""
+
     VALIDATION_STATUS = [
-        ('pending', 'Pending'),
-        ('passed', 'Passed'),
-        ('failed', 'Failed'),
-        ('warning', 'Warning'),
+        ("pending", "Pending"),
+        ("passed", "Passed"),
+        ("failed", "Failed"),
+        ("warning", "Warning"),
     ]
 
-    submission = models.OneToOneField('ArxivSubmission', on_delete=models.CASCADE, related_name='validation')
+    submission = models.OneToOneField(
+        "ArxivSubmission", on_delete=models.CASCADE, related_name="validation"
+    )
 
     # Overall validation status
-    status = models.CharField(max_length=20, choices=VALIDATION_STATUS, default='pending')
+    status = models.CharField(
+        max_length=20, choices=VALIDATION_STATUS, default="pending"
+    )
     overall_score = models.FloatField(default=0.0)  # 0-100 validation score
 
     # Individual validation checks
-    latex_compilation = models.CharField(max_length=20, choices=VALIDATION_STATUS, default='pending')
-    pdf_generation = models.CharField(max_length=20, choices=VALIDATION_STATUS, default='pending')
-    metadata_validation = models.CharField(max_length=20, choices=VALIDATION_STATUS, default='pending')
-    category_validation = models.CharField(max_length=20, choices=VALIDATION_STATUS, default='pending')
-    file_format_check = models.CharField(max_length=20, choices=VALIDATION_STATUS, default='pending')
+    latex_compilation = models.CharField(
+        max_length=20, choices=VALIDATION_STATUS, default="pending"
+    )
+    pdf_generation = models.CharField(
+        max_length=20, choices=VALIDATION_STATUS, default="pending"
+    )
+    metadata_validation = models.CharField(
+        max_length=20, choices=VALIDATION_STATUS, default="pending"
+    )
+    category_validation = models.CharField(
+        max_length=20, choices=VALIDATION_STATUS, default="pending"
+    )
+    file_format_check = models.CharField(
+        max_length=20, choices=VALIDATION_STATUS, default="pending"
+    )
 
     # Detailed results
     validation_details = models.JSONField(default=dict)
@@ -271,7 +333,7 @@ class ArxivValidationResult(models.Model):
     validation_completed = models.DateTimeField(null=True, blank=True)
 
     class Meta:
-        ordering = ['-validation_started']
+        ordering = ["-validation_started"]
 
     def __str__(self):
         return f"Validation: {self.submission.title[:30]}... - {self.status}"
@@ -279,34 +341,37 @@ class ArxivValidationResult(models.Model):
     def is_ready_for_submission(self):
         """Check if validation passed all required checks."""
         return (
-            self.status == 'passed' and
-            self.latex_compilation == 'passed' and
-            self.pdf_generation == 'passed' and
-            self.metadata_validation == 'passed' and
-            not self.max_file_size_exceeded
+            self.status == "passed"
+            and self.latex_compilation == "passed"
+            and self.pdf_generation == "passed"
+            and self.metadata_validation == "passed"
+            and not self.max_file_size_exceeded
         )
 
     def get_validation_summary(self):
         """Get a summary of validation results."""
         return {
-            'status': self.status,
-            'score': self.overall_score,
-            'checks': {
-                'latex': self.latex_compilation,
-                'pdf': self.pdf_generation,
-                'metadata': self.metadata_validation,
-                'category': self.category_validation,
-                'file_format': self.file_format_check,
+            "status": self.status,
+            "score": self.overall_score,
+            "checks": {
+                "latex": self.latex_compilation,
+                "pdf": self.pdf_generation,
+                "metadata": self.metadata_validation,
+                "category": self.category_validation,
+                "file_format": self.file_format_check,
             },
-            'errors': len(self.error_messages),
-            'warnings': len(self.warning_messages),
-            'ready': self.is_ready_for_submission()
+            "errors": len(self.error_messages),
+            "warnings": len(self.warning_messages),
+            "ready": self.is_ready_for_submission(),
         }
 
 
 class ArxivApiResponse(models.Model):
     """Log arXiv API responses for debugging and monitoring."""
-    submission = models.ForeignKey('ArxivSubmission', on_delete=models.CASCADE, related_name='api_responses')
+
+    submission = models.ForeignKey(
+        "ArxivSubmission", on_delete=models.CASCADE, related_name="api_responses"
+    )
 
     # Request details
     api_endpoint = models.CharField(max_length=200)
@@ -331,7 +396,7 @@ class ArxivApiResponse(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['-created_at']
+        ordering = ["-created_at"]
 
     def __str__(self):
         return f"{self.request_method} {self.api_endpoint} - {self.response_status}"

@@ -1,13 +1,13 @@
 """
 API views for project social interactions (Watch, Star, Fork) and branch switching
 """
+
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.models import User
 from django.db import transaction
-from django.utils.text import slugify
 import subprocess
 import json
 import logging
@@ -43,16 +43,15 @@ def api_project_watch(request, username, slug):
         )
 
         if not has_access:
-            return JsonResponse({
-                "success": False,
-                "error": "Permission denied"
-            }, status=403)
+            return JsonResponse(
+                {"success": False, "error": "Permission denied"}, status=403
+            )
 
         # Toggle watch
         watch, created = ProjectWatch.objects.get_or_create(
             user=request.user,
             project=project,
-            defaults={'notification_settings': 'all'}
+            defaults={"notification_settings": "all"},
         )
 
         if not created:
@@ -65,19 +64,18 @@ def api_project_watch(request, username, slug):
         # Get updated count
         watch_count = project.project_watchers.count()
 
-        return JsonResponse({
-            "success": True,
-            "is_watching": is_watching,
-            "watch_count": watch_count,
-            "message": "Watching" if is_watching else "Unwatched"
-        })
+        return JsonResponse(
+            {
+                "success": True,
+                "is_watching": is_watching,
+                "watch_count": watch_count,
+                "message": "Watching" if is_watching else "Unwatched",
+            }
+        )
 
     except Exception as e:
         logger.error(f"Error toggling watch for project {slug}: {e}")
-        return JsonResponse({
-            "success": False,
-            "error": str(e)
-        }, status=500)
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
 
 
 @login_required
@@ -101,15 +99,13 @@ def api_project_star(request, username, slug):
         )
 
         if not has_access:
-            return JsonResponse({
-                "success": False,
-                "error": "Permission denied"
-            }, status=403)
+            return JsonResponse(
+                {"success": False, "error": "Permission denied"}, status=403
+            )
 
         # Toggle star
         star, created = ProjectStar.objects.get_or_create(
-            user=request.user,
-            project=project
+            user=request.user, project=project
         )
 
         if not created:
@@ -122,19 +118,18 @@ def api_project_star(request, username, slug):
         # Get updated count
         star_count = project.project_stars_set.count()
 
-        return JsonResponse({
-            "success": True,
-            "is_starred": is_starred,
-            "star_count": star_count,
-            "message": "Starred" if is_starred else "Unstarred"
-        })
+        return JsonResponse(
+            {
+                "success": True,
+                "is_starred": is_starred,
+                "star_count": star_count,
+                "message": "Starred" if is_starred else "Unstarred",
+            }
+        )
 
     except Exception as e:
         logger.error(f"Error toggling star for project {slug}: {e}")
-        return JsonResponse({
-            "success": False,
-            "error": str(e)
-        }, status=500)
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
 
 
 @login_required
@@ -158,23 +153,24 @@ def api_project_fork(request, username, slug):
         )
 
         if not has_access:
-            return JsonResponse({
-                "success": False,
-                "error": "Permission denied"
-            }, status=403)
+            return JsonResponse(
+                {"success": False, "error": "Permission denied"}, status=403
+            )
 
         # Check if user already forked this project
         existing_fork = ProjectFork.objects.filter(
-            user=request.user,
-            original_project=original_project
+            user=request.user, original_project=original_project
         ).first()
 
         if existing_fork:
-            return JsonResponse({
-                "success": False,
-                "error": "You have already forked this project",
-                "forked_project_url": f"/{request.user.username}/{existing_fork.forked_project.slug}/"
-            }, status=400)
+            return JsonResponse(
+                {
+                    "success": False,
+                    "error": "You have already forked this project",
+                    "forked_project_url": f"/{request.user.username}/{existing_fork.forked_project.slug}/",
+                },
+                status=400,
+            )
 
         # Create the fork
         with transaction.atomic():
@@ -202,30 +198,29 @@ def api_project_fork(request, username, slug):
             fork_record = ProjectFork.objects.create(
                 user=request.user,
                 original_project=original_project,
-                forked_project=forked_project
+                forked_project=forked_project,
             )
 
             # Get updated fork count
             fork_count = original_project.project_forks_set.count()
 
-            return JsonResponse({
-                "success": True,
-                "message": "Project forked successfully",
-                "forked_project": {
-                    "id": forked_project.id,
-                    "name": forked_project.name,
-                    "slug": forked_project.slug,
-                    "url": f"/{request.user.username}/{forked_project.slug}/"
-                },
-                "fork_count": fork_count
-            })
+            return JsonResponse(
+                {
+                    "success": True,
+                    "message": "Project forked successfully",
+                    "forked_project": {
+                        "id": forked_project.id,
+                        "name": forked_project.name,
+                        "slug": forked_project.slug,
+                        "url": f"/{request.user.username}/{forked_project.slug}/",
+                    },
+                    "fork_count": fork_count,
+                }
+            )
 
     except Exception as e:
         logger.error(f"Error forking project {slug}: {e}")
-        return JsonResponse({
-            "success": False,
-            "error": str(e)
-        }, status=500)
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
 
 
 @login_required
@@ -249,10 +244,9 @@ def api_project_stats(request, username, slug):
         )
 
         if not has_access:
-            return JsonResponse({
-                "success": False,
-                "error": "Permission denied"
-            }, status=403)
+            return JsonResponse(
+                {"success": False, "error": "Permission denied"}, status=403
+            )
 
         # Get counts
         watch_count = project.project_watchers.count()
@@ -261,40 +255,36 @@ def api_project_stats(request, username, slug):
 
         # Check user's current status
         is_watching = ProjectWatch.objects.filter(
-            user=request.user,
-            project=project
+            user=request.user, project=project
         ).exists()
 
         is_starred = ProjectStar.objects.filter(
-            user=request.user,
-            project=project
+            user=request.user, project=project
         ).exists()
 
         has_forked = ProjectFork.objects.filter(
-            user=request.user,
-            original_project=project
+            user=request.user, original_project=project
         ).exists()
 
-        return JsonResponse({
-            "success": True,
-            "stats": {
-                "watch_count": watch_count,
-                "star_count": star_count,
-                "fork_count": fork_count
-            },
-            "user_status": {
-                "is_watching": is_watching,
-                "is_starred": is_starred,
-                "has_forked": has_forked
+        return JsonResponse(
+            {
+                "success": True,
+                "stats": {
+                    "watch_count": watch_count,
+                    "star_count": star_count,
+                    "fork_count": fork_count,
+                },
+                "user_status": {
+                    "is_watching": is_watching,
+                    "is_starred": is_starred,
+                    "has_forked": has_forked,
+                },
             }
-        })
+        )
 
     except Exception as e:
         logger.error(f"Error getting stats for project {slug}: {e}")
-        return JsonResponse({
-            "success": False,
-            "error": str(e)
-        }, status=500)
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
 
 
 @login_required
@@ -323,20 +313,18 @@ def api_switch_branch(request, username, slug):
     )
 
     if not has_access:
-        return JsonResponse({
-            "success": False,
-            "error": "Permission denied"
-        }, status=403)
+        return JsonResponse(
+            {"success": False, "error": "Permission denied"}, status=403
+        )
 
     try:
         data = json.loads(request.body)
         branch_name = data.get("branch", "").strip()
 
         if not branch_name:
-            return JsonResponse({
-                "success": False,
-                "error": "Branch name is required"
-            }, status=400)
+            return JsonResponse(
+                {"success": False, "error": "Branch name is required"}, status=400
+            )
 
         # Verify branch exists in the repository
         from apps.project_app.services.project_filesystem import (
@@ -347,71 +335,71 @@ def api_switch_branch(request, username, slug):
         project_path = manager.get_project_root_path(project)
 
         if not project_path or not project_path.exists():
-            return JsonResponse({
-                "success": False,
-                "error": "Project directory not found"
-            }, status=404)
+            return JsonResponse(
+                {"success": False, "error": "Project directory not found"}, status=404
+            )
 
         # Verify branch exists
         result = subprocess.run(
-            ['git', 'branch', '-a'],
+            ["git", "branch", "-a"],
             cwd=project_path,
             capture_output=True,
             text=True,
-            timeout=5
+            timeout=5,
         )
 
         if result.returncode != 0:
-            return JsonResponse({
-                "success": False,
-                "error": "Failed to list branches"
-            }, status=500)
+            return JsonResponse(
+                {"success": False, "error": "Failed to list branches"}, status=500
+            )
 
         # Parse branch list and check if requested branch exists
         branches = []
-        for line in result.stdout.split('\n'):
+        for line in result.stdout.split("\n"):
             line = line.strip()
             if line:
                 # Remove * prefix and remotes/origin/ prefix
-                branch = line.replace('*', '').strip()
-                branch = branch.replace('remotes/origin/', '')
+                branch = line.replace("*", "").strip()
+                branch = branch.replace("remotes/origin/", "")
                 if branch and branch not in branches:
                     branches.append(branch)
 
         if branch_name not in branches:
-            return JsonResponse({
-                "success": False,
-                "error": f"Branch '{branch_name}' not found. Available branches: {', '.join(branches)}"
-            }, status=404)
+            return JsonResponse(
+                {
+                    "success": False,
+                    "error": f"Branch '{branch_name}' not found. Available branches: {', '.join(branches)}",
+                },
+                status=404,
+            )
 
         # Store branch in session (scoped by project)
         session_key = f"project_{project.id}_branch"
         request.session[session_key] = branch_name
 
-        logger.info(f"Switched branch for project {project.slug} to {branch_name} (user: {request.user.username})")
+        logger.info(
+            f"Switched branch for project {project.slug} to {branch_name} (user: {request.user.username})"
+        )
 
-        return JsonResponse({
-            "success": True,
-            "branch": branch_name,
-            "message": f"Switched to branch '{branch_name}'"
-        })
+        return JsonResponse(
+            {
+                "success": True,
+                "branch": branch_name,
+                "message": f"Switched to branch '{branch_name}'",
+            }
+        )
 
     except json.JSONDecodeError:
-        return JsonResponse({
-            "success": False,
-            "error": "Invalid JSON in request body"
-        }, status=400)
+        return JsonResponse(
+            {"success": False, "error": "Invalid JSON in request body"}, status=400
+        )
     except subprocess.TimeoutExpired:
-        return JsonResponse({
-            "success": False,
-            "error": "Git command timed out"
-        }, status=500)
+        return JsonResponse(
+            {"success": False, "error": "Git command timed out"}, status=500
+        )
     except Exception as e:
         logger.error(f"Error switching branch: {e}")
-        return JsonResponse({
-            "success": False,
-            "error": str(e)
-        }, status=500)
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
 
 
 def get_current_branch_from_session(request, project):
@@ -447,11 +435,11 @@ def get_current_branch_from_session(request, project):
 
     try:
         result = subprocess.run(
-            ['git', 'branch', '--show-current'],
+            ["git", "branch", "--show-current"],
             cwd=project_path,
             capture_output=True,
             text=True,
-            timeout=5
+            timeout=5,
         )
 
         if result.returncode == 0 and result.stdout.strip():

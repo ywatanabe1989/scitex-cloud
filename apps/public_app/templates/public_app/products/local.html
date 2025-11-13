@@ -1,288 +1,291 @@
 {% extends "public_app/cloud_base.html" %}
 {% load static %}
-
-{% block title %}SciTeX Local - All Modules In One Package{% endblock %}
-
+{% block title
+    %}
+    SciTeX Local - All Modules In One Package
+{% endblock %}
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'shared/css/products/products-common.css' %}">
-<style>
-    .local-hero {
-        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-        color: white;
-        padding: 80px 0;
-        text-align: center;
-    }
+    <link rel="stylesheet"
+          href="{% static 'shared/css/products/products-common.css' %}" />
+    <style>
+  .local-hero {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    color: white;
+    padding: 80px 0;
+    text-align: center;
+  }
 
-    .local-hero h1 {
-        font-size: 3rem;
-        margin-bottom: 1.5rem;
-    }
+  .local-hero h1 {
+    font-size: 3rem;
+    margin-bottom: 1.5rem;
+  }
 
-    .local-hero .subtitle {
-        font-size: 1.5rem;
-        margin-bottom: 2rem;
-        opacity: 0.9;
-    }
+  .local-hero .subtitle {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+    opacity: 0.9;
+  }
 
-    .feature-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 2rem;
-        margin: 3rem 0;
-    }
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin: 3rem 0;
+  }
 
-    .feature-card {
-        background: white;
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        padding: 2rem;
-        text-align: center;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
+  .feature-card {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    transition:
+      transform 0.3s ease,
+      box-shadow 0.3s ease;
+  }
 
-    .feature-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    }
+  .feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  }
 
-    .feature-card .icon {
-        font-size: 3rem;
-        margin-bottom: 1rem;
-        color: var(--scitex-primary);
-    }
+  .feature-card .icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: var(--scitex-primary);
+  }
 
-    .feature-card h3 {
-        color: #333;
-        margin-bottom: 1rem;
-    }
+  .feature-card h3 {
+    color: #333;
+    margin-bottom: 1rem;
+  }
 
-    .installation-section {
-        background: #f8f9fa;
-        padding: 3rem 0;
-        margin: 3rem 0;
-    }
+  .installation-section {
+    background: #f8f9fa;
+    padding: 3rem 0;
+    margin: 3rem 0;
+  }
 
-    .code-block {
-        background: #1e1e1e;
-        color: #d4d4d4;
-        padding: 1.5rem;
-        border-radius: 8px;
-        font-family: 'Courier New', monospace;
-        overflow-x: auto;
-        margin: 1rem 0;
-    }
+  .code-block {
+    background: #1e1e1e;
+    color: #d4d4d4;
+    padding: 1.5rem;
+    border-radius: 8px;
+    font-family: "Courier New", monospace;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
 
-    .requirements-list {
-        list-style: none;
-        padding: 0;
-    }
+  .requirements-list {
+    list-style: none;
+    padding: 0;
+  }
 
-    .requirements-list li {
-        padding: 0.75rem 0;
-        border-bottom: 1px solid #e0e0e0;
-    }
+  .requirements-list li {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #e0e0e0;
+  }
 
-    .requirements-list li:last-child {
-        border-bottom: none;
-    }
+  .requirements-list li:last-child {
+    border-bottom: none;
+  }
 
-    .requirements-list li:before {
-        content: "✓";
-        color: var(--scitex-success);
-        font-weight: bold;
-        margin-right: 0.5rem;
-    }
+  .requirements-list li:before {
+    content: "✓";
+    color: var(--scitex-success);
+    font-weight: bold;
+    margin-right: 0.5rem;
+  }
 
-    .modules-included {
-        background: white;
-        padding: 3rem;
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        margin: 2rem 0;
-    }
+  .modules-included {
+    background: white;
+    padding: 3rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin: 2rem 0;
+  }
 
-    .module-tag {
-        display: inline-block;
-        background: var(--scitex-primary);
-        color: white;
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        margin: 0.25rem;
-        font-size: 0.9rem;
-    }
+  .module-tag {
+    display: inline-block;
+    background: var(--scitex-primary);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    margin: 0.25rem;
+    font-size: 0.9rem;
+  }
 
-    .cta-section {
-        text-align: center;
-        padding: 4rem 0;
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    }
+  .cta-section {
+    text-align: center;
+    padding: 4rem 0;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  }
 
-    .cta-buttons {
-        display: flex;
-        gap: 1rem;
-        justify-content: center;
-        margin-top: 2rem;
-    }
-</style>
+  .cta-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+  }
+    </style>
 {% endblock %}
-
 {% block content %}
-<div class="local-hero">
-    <div class="container">
-        <h1>SciTeX Local</h1>
-        <p class="subtitle">The Complete SciTeX Ecosystem on Your Machine</p>
-        <p>All six powerful modules in one integrated package for offline research</p>
-    </div>
-</div>
-
-<div class="container">
-    <section class="section">
-        <h2>Why Choose SciTeX Local?</h2>
-        <div class="feature-grid">
-            <div class="feature-card">
-                <div class="icon">🔒</div>
-                <h3>Complete Privacy</h3>
-                <p>All data stays on your machine. Perfect for sensitive research or proprietary data.</p>
-            </div>
-            <div class="feature-card">
-                <div class="icon">⚡</div>
-                <h3>Offline Capability</h3>
-                <p>Work anywhere without internet connection. Full functionality at your fingertips.</p>
-            </div>
-            <div class="feature-card">
-                <div class="icon">🛠️</div>
-                <h3>Customizable</h3>
-                <p>Adapt the platform to your specific workflow with full access to the codebase.</p>
-            </div>
-            <div class="feature-card">
-                <div class="icon">🚀</div>
-                <h3>High Performance</h3>
-                <p>Leverage your local computing resources for faster processing and analysis.</p>
-            </div>
-        </div>
-    </section>
-
-    <section class="modules-included">
-        <h2>All Modules Included</h2>
-        <p>Get the complete SciTeX ecosystem with a single installation:</p>
-        <div style="margin-top: 2rem;">
-            <span class="module-tag">SciTeX Engine</span>
-            <span class="module-tag">SciTeX Doc</span>
-            <span class="module-tag">SciTeX PyTools</span>
-            <span class="module-tag">SciTeX Scholar</span>
-            <span class="module-tag">SciTeX Viz</span>
-            <span class="module-tag">SciTeX Code</span>
-        </div>
-    </section>
-
-    <section class="installation-section">
+    <div class="local-hero">
         <div class="container">
-            <h2>Quick Installation</h2>
-            <p>Get started with SciTeX Local in minutes using pip or conda:</p>
-            
-            <h3>Using pip</h3>
-            <div class="code-block">
-                pip install scitex-local
-            </div>
-
-            <h3>Using conda</h3>
-            <div class="code-block">
-                conda install -c scitex scitex-local
-            </div>
-
-            <h3>Using Docker</h3>
-            <div class="code-block">
-                docker pull scitex/local:latest<br>
-                docker run -p 8000:8000 scitex/local:latest
-            </div>
-        </div>
-    </section>
-
-    <section class="section">
-        <h2>System Requirements</h2>
-        <div class="row">
-            <div class="col-md-6">
-                <h3>Minimum Requirements</h3>
-                <ul class="requirements-list">
-                    <li>Python 3.8 or higher</li>
-                    <li>8GB RAM</li>
-                    <li>10GB free disk space</li>
-                    <li>Windows 10/11, macOS 10.14+, or Linux</li>
-                </ul>
-            </div>
-            <div class="col-md-6">
-                <h3>Recommended Requirements</h3>
-                <ul class="requirements-list">
-                    <li>Python 3.10 or higher</li>
-                    <li>16GB RAM or more</li>
-                    <li>50GB free disk space</li>
-                    <li>GPU support for ML tasks (optional)</li>
-                </ul>
-            </div>
-        </div>
-    </section>
-
-    <section class="section">
-        <h2>Key Features</h2>
-        <div class="row">
-            <div class="col-md-4">
-                <h3>🔧 Easy Setup</h3>
-                <p>One-command installation with automatic dependency management</p>
-            </div>
-            <div class="col-md-4">
-                <h3>🔄 Seamless Integration</h3>
-                <p>All modules work together out of the box with shared data formats</p>
-            </div>
-            <div class="col-md-4">
-                <h3>📊 Local Dashboard</h3>
-                <p>Web-based interface for managing your research projects</p>
-            </div>
-        </div>
-        <div class="row mt-4">
-            <div class="col-md-4">
-                <h3>💾 Version Control</h3>
-                <p>Built-in Git integration for tracking research progress</p>
-            </div>
-            <div class="col-md-4">
-                <h3>🔌 Plugin System</h3>
-                <p>Extend functionality with custom plugins and modules</p>
-            </div>
-            <div class="col-md-4">
-                <h3>📚 Offline Docs</h3>
-                <p>Complete documentation available locally</p>
-            </div>
-        </div>
-    </section>
-
-    <div class="cta-section">
-        <h2>Ready to Get Started?</h2>
-        <p>Join thousands of researchers using SciTeX Local for their research workflows</p>
-        <div class="cta-buttons">
-            <a href="https://github.com/scitex/local" class="btn btn-primary btn-lg">
-                <i class="fab fa-github"></i> View on GitHub
-            </a>
-            <a href="/docs/local/getting-started" class="btn btn-secondary btn-lg">
-                📖 Read Documentation
-            </a>
+            <h1>SciTeX Local</h1>
+            <p class="subtitle">The Complete SciTeX Ecosystem on Your Machine</p>
+            <p>All six powerful modules in one integrated package for offline research</p>
         </div>
     </div>
-</div>
+    <div class="container">
+        <section class="section">
+            <h2>Why Choose SciTeX Local?</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="icon">🔒</div>
+                    <h3>Complete Privacy</h3>
+                    <p>
+                        All data stays on your machine. Perfect for sensitive research or
+                        proprietary data.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">⚡</div>
+                    <h3>Offline Capability</h3>
+                    <p>
+                        Work anywhere without internet connection. Full functionality at your
+                        fingertips.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">🛠️</div>
+                    <h3>Customizable</h3>
+                    <p>
+                        Adapt the platform to your specific workflow with full access to the
+                        codebase.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">🚀</div>
+                    <h3>High Performance</h3>
+                    <p>
+                        Leverage your local computing resources for faster processing and
+                        analysis.
+                    </p>
+                </div>
+            </div>
+        </section>
+        <section class="modules-included">
+            <h2>All Modules Included</h2>
+            <p>Get the complete SciTeX ecosystem with a single installation:</p>
+            <div style="margin-top: 2rem">
+                <span class="module-tag">SciTeX Engine</span>
+                <span class="module-tag">SciTeX Doc</span>
+                <span class="module-tag">SciTeX PyTools</span>
+                <span class="module-tag">SciTeX Scholar</span>
+                <span class="module-tag">SciTeX Viz</span>
+                <span class="module-tag">SciTeX Code</span>
+            </div>
+        </section>
+        <section class="installation-section">
+            <div class="container">
+                <h2>Quick Installation</h2>
+                <p>Get started with SciTeX Local in minutes using pip or conda:</p>
+                <h3>Using pip</h3>
+                <div class="code-block">pip install scitex-local</div>
+                <h3>Using conda</h3>
+                <div class="code-block">conda install -c scitex scitex-local</div>
+                <h3>Using Docker</h3>
+                <div class="code-block">
+                    docker pull scitex/local:latest
+                    <br />
+                    docker run -p 8000:8000 scitex/local:latest
+                </div>
+            </div>
+        </section>
+        <section class="section">
+            <h2>System Requirements</h2>
+            <div class="row">
+                <div class="col-md-6">
+                    <h3>Minimum Requirements</h3>
+                    <ul class="requirements-list">
+                        <li>Python 3.8 or higher</li>
+                        <li>8GB RAM</li>
+                        <li>10GB free disk space</li>
+                        <li>Windows 10/11, macOS 10.14+, or Linux</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h3>Recommended Requirements</h3>
+                    <ul class="requirements-list">
+                        <li>Python 3.10 or higher</li>
+                        <li>16GB RAM or more</li>
+                        <li>50GB free disk space</li>
+                        <li>GPU support for ML tasks (optional)</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        <section class="section">
+            <h2>Key Features</h2>
+            <div class="row">
+                <div class="col-md-4">
+                    <h3>🔧 Easy Setup</h3>
+                    <p>One-command installation with automatic dependency management</p>
+                </div>
+                <div class="col-md-4">
+                    <h3>🔄 Seamless Integration</h3>
+                    <p>All modules work together out of the box with shared data formats</p>
+                </div>
+                <div class="col-md-4">
+                    <h3>📊 Local Dashboard</h3>
+                    <p>Web-based interface for managing your research projects</p>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-md-4">
+                    <h3>💾 Version Control</h3>
+                    <p>Built-in Git integration for tracking research progress</p>
+                </div>
+                <div class="col-md-4">
+                    <h3>🔌 Plugin System</h3>
+                    <p>Extend functionality with custom plugins and modules</p>
+                </div>
+                <div class="col-md-4">
+                    <h3>📚 Offline Docs</h3>
+                    <p>Complete documentation available locally</p>
+                </div>
+            </div>
+        </section>
+        <div class="cta-section">
+            <h2>Ready to Get Started?</h2>
+            <p>
+                Join thousands of researchers using SciTeX Local for their research
+                workflows
+            </p>
+            <div class="cta-buttons">
+                <a href="https://github.com/scitex/local" class="btn btn-primary btn-lg">
+                    <i class="fab fa-github"></i> View on GitHub
+                </a>
+                <a href="/docs/local/getting-started" class="btn btn-secondary btn-lg">📖 Read Documentation</a>
+            </div>
+        </div>
+    </div>
 {% endblock %}
-
 {% block extra_js %}
-<script>
-    // Add smooth scrolling for anchor links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }
+    <script>
+  // Add smooth scrolling for anchor links
+  document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+    anchor.addEventListener("click", function (e) {
+      e.preventDefault();
+      const target = document.querySelector(this.getAttribute("href"));
+      if (target) {
+        target.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
         });
+      }
     });
-</script>
+  });
+    </script>
 {% endblock %}

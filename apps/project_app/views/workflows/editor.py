@@ -5,6 +5,7 @@ Workflow Editor Views
 
 Create and edit workflow YAML definitions.
 """
+
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -13,9 +14,14 @@ import yaml
 import logging
 
 from apps.project_app.models import Project
+
 # TODO: Uncomment when workflow models are available
 # from apps.project_app.models import Workflow
-from .utils import get_workflow_template, get_available_templates, save_workflow_to_filesystem
+from .utils import (
+    get_workflow_template,
+    get_available_templates,
+    save_workflow_to_filesystem,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -33,10 +39,10 @@ def workflow_create(request, username, slug):
     if not project.can_edit(request.user):
         return HttpResponseForbidden("You don't have permission to edit this project")
 
-    if request.method == 'POST':
-        workflow_name = request.POST.get('name')
-        yaml_content = request.POST.get('yaml_content')
-        template = request.POST.get('template')
+    if request.method == "POST":
+        workflow_name = request.POST.get("name")
+        yaml_content = request.POST.get("yaml_content")
+        template = request.POST.get("template")
 
         # If template selected, load template YAML
         if template:
@@ -47,16 +53,20 @@ def workflow_create(request, username, slug):
             yaml_data = yaml.safe_load(yaml_content)
         except yaml.YAMLError as e:
             messages.error(request, f"Invalid YAML: {str(e)}")
-            return render(request, 'project_app/workflows/editor.html', {
-                'project': project,
-                'yaml_content': yaml_content,
-                'workflow_name': workflow_name,
-            })
+            return render(
+                request,
+                "project_app/workflows/editor.html",
+                {
+                    "project": project,
+                    "yaml_content": yaml_content,
+                    "workflow_name": workflow_name,
+                },
+            )
 
         # Extract trigger events from YAML
         trigger_events = []
-        if 'on' in yaml_data:
-            on_config = yaml_data['on']
+        if "on" in yaml_data:
+            on_config = yaml_data["on"]
             if isinstance(on_config, str):
                 trigger_events.append(on_config)
             elif isinstance(on_config, list):
@@ -78,18 +88,22 @@ def workflow_create(request, username, slug):
         save_workflow_to_filesystem(workflow)
 
         messages.success(request, f"Workflow '{workflow_name}' created successfully")
-        return redirect('user_projects:workflow_detail',
-                       username=username, slug=slug, workflow_id=workflow.id)
+        return redirect(
+            "user_projects:workflow_detail",
+            username=username,
+            slug=slug,
+            workflow_id=workflow.id,
+        )
 
     # GET request - show form
     templates = get_available_templates()
 
     context = {
-        'project': project,
-        'templates': templates,
+        "project": project,
+        "templates": templates,
     }
 
-    return render(request, 'project_app/workflows/editor.html', context)
+    return render(request, "project_app/workflows/editor.html", context)
 
 
 @login_required
@@ -106,27 +120,31 @@ def workflow_edit(request, username, slug, workflow_id):
     if not project.can_edit(request.user):
         return HttpResponseForbidden("You don't have permission to edit this project")
 
-    if request.method == 'POST':
-        workflow_name = request.POST.get('name')
-        yaml_content = request.POST.get('yaml_content')
+    if request.method == "POST":
+        workflow_name = request.POST.get("name")
+        yaml_content = request.POST.get("yaml_content")
 
         # Validate YAML
         try:
             yaml_data = yaml.safe_load(yaml_content)
         except yaml.YAMLError as e:
             messages.error(request, f"Invalid YAML: {str(e)}")
-            return render(request, 'project_app/workflows/editor.html', {
-                'project': project,
-                'workflow': workflow,
-                'yaml_content': yaml_content,
-                'workflow_name': workflow_name,
-                'edit_mode': True,
-            })
+            return render(
+                request,
+                "project_app/workflows/editor.html",
+                {
+                    "project": project,
+                    "workflow": workflow,
+                    "yaml_content": yaml_content,
+                    "workflow_name": workflow_name,
+                    "edit_mode": True,
+                },
+            )
 
         # Extract trigger events
         trigger_events = []
-        if 'on' in yaml_data:
-            on_config = yaml_data['on']
+        if "on" in yaml_data:
+            on_config = yaml_data["on"]
             if isinstance(on_config, str):
                 trigger_events.append(on_config)
             elif isinstance(on_config, list):
@@ -144,19 +162,23 @@ def workflow_edit(request, username, slug, workflow_id):
         save_workflow_to_filesystem(workflow)
 
         messages.success(request, f"Workflow '{workflow_name}' updated successfully")
-        return redirect('user_projects:workflow_detail',
-                       username=username, slug=slug, workflow_id=workflow.id)
+        return redirect(
+            "user_projects:workflow_detail",
+            username=username,
+            slug=slug,
+            workflow_id=workflow.id,
+        )
 
     # GET request - show form with existing data
     context = {
-        'project': project,
-        'workflow': workflow,
-        'yaml_content': workflow.yaml_content,
-        'workflow_name': workflow.name,
-        'edit_mode': True,
+        "project": project,
+        "workflow": workflow,
+        "yaml_content": workflow.yaml_content,
+        "workflow_name": workflow.name,
+        "edit_mode": True,
     }
 
-    return render(request, 'project_app/workflows/editor.html', context)
+    return render(request, "project_app/workflows/editor.html", context)
 
 
 # EOF

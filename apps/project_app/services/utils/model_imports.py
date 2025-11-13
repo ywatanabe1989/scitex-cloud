@@ -4,7 +4,10 @@
 # Auth models
 try:
     from apps.auth_app.models import UserProfile, EmailVerification
-    from apps.auth_app.models import is_japanese_academic_email, JAPANESE_ACADEMIC_DOMAINS
+    from apps.auth_app.models import (
+        is_japanese_academic_email,
+        JAPANESE_ACADEMIC_DOMAINS,
+    )
 except ImportError:
     # Fallback for development/test environments
     UserProfile = None
@@ -21,8 +24,12 @@ except ImportError:
 # Project models
 try:
     from apps.project_app.models import (
-        Project, ProjectMembership, Organization, ResearchGroup, 
-        ResearchGroupMembership, ProjectPermission
+        Project,
+        ProjectMembership,
+        Organization,
+        ResearchGroup,
+        ResearchGroupMembership,
+        ProjectPermission,
     )
 except ImportError:
     Project = None
@@ -34,8 +41,15 @@ except ImportError:
 
 # Export all models for easy importing
 __all__ = [
-    'UserProfile', 'EmailVerification', 'is_japanese_academic_email', 'JAPANESE_ACADEMIC_DOMAINS',
-    'Document',
-    'Project', 'ProjectMembership', 'Organization', 'ResearchGroup', 
-    'ResearchGroupMembership', 'ProjectPermission'
+    "UserProfile",
+    "EmailVerification",
+    "is_japanese_academic_email",
+    "JAPANESE_ACADEMIC_DOMAINS",
+    "Document",
+    "Project",
+    "ProjectMembership",
+    "Organization",
+    "ResearchGroup",
+    "ResearchGroupMembership",
+    "ProjectPermission",
 ]

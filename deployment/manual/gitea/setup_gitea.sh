@@ -54,11 +54,11 @@ parse_args() {
 
     while [[ $# -gt 0 ]]; do
         case $1 in
-            -e|--env)
+            -e | --env)
                 ENV="$2"
                 shift 2
                 ;;
-            -h|--help)
+            -h | --help)
                 usage
                 ;;
             *)
@@ -117,7 +117,7 @@ check_postgres() {
 
 create_gitea_user() {
     echo_info "Creating gitea system user..."
-    if id "$GITEA_USER" &>/dev/null; then
+    if id "$GITEA_USER" &> /dev/null; then
         echo_warning "User $GITEA_USER already exists, skipping..."
     else
         useradd --system --shell /bin/bash --home "$GITEA_HOME" "$GITEA_USER"
@@ -183,7 +183,7 @@ create_database() {
     fi
 
     DB_PASSWORD=$(openssl rand -base64 32 | tr -d "=+/" | cut -c1-32)
-    sudo -u postgres psql <<EOF
+    sudo -u postgres psql << EOF
 DO \$\$
 BEGIN
     IF NOT EXISTS (SELECT FROM pg_user WHERE usename = '${GITEA_DB_USER}') THEN
@@ -206,7 +206,7 @@ create_config() {
     SCITEX_CLOUD_DJANGO_SECRET_KEY=$(gitea generate secret SCITEX_CLOUD_DJANGO_SECRET_KEY)
     INTERNAL_TOKEN=$(gitea generate secret INTERNAL_TOKEN)
     JWT_SECRET=$(gitea generate secret JWT_SECRET)
-    cat > "${GITEA_CONFIG_DIR}/app_${ENV}.ini" <<EOF
+    cat > "${GITEA_CONFIG_DIR}/app_${ENV}.ini" << EOF
 [server]
 APP_NAME = SciTeX Git Hosting (${ENV})
 DOMAIN = ${DOMAIN}
@@ -294,7 +294,7 @@ EOF
 
 create_systemd_service() {
     echo_info "Creating systemd service..."
-    cat > "/etc/systemd/system/${SERVICE_NAME}.service" <<EOF
+    cat > "/etc/systemd/system/${SERVICE_NAME}.service" << EOF
 [Unit]
 Description=Gitea (${ENV})
 After=syslog.target

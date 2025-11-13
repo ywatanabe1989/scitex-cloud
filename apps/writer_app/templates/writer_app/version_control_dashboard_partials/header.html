@@ -3,7 +3,9 @@
     <div class="container">
         <div class="header-content">
             <div class="manuscript-info">
-                <h1><i class="fas fa-code-branch"></i> Version Control</h1>
+                <h1>
+                    <i class="fas fa-code-branch"></i> Version Control
+                </h1>
                 <div class="manuscript-meta">
                     <span><strong>{{ manuscript.title }}</strong></span>
                     <span>Current Version: {{ manuscript.version }}</span>
@@ -17,7 +19,8 @@
                 <button class="btn-secondary" onclick="createBranch()">
                     <i class="fas fa-code-branch"></i> New Branch
                 </button>
-                <a href="{% url 'writer:collaborative-editor' manuscript.id %}" class="btn-secondary">
+                <a href="{% url 'writer:collaborative-editor' manuscript.id %}"
+                   class="btn-secondary">
                     <i class="fas fa-edit"></i> Edit
                 </a>
             </div>

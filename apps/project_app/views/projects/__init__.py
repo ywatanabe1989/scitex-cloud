@@ -5,6 +5,7 @@ Projects Feature Views
 
 Exports all project-related views.
 """
+
 from .list import project_list
 from .detail import project_detail, project_detail_redirect
 from .create import project_create, project_create_from_template

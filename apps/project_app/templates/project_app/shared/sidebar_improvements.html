@@ -1,33 +1,38 @@
 <!-- =============================================================================
      SIDEBAR IMPROVEMENTS - HTML Updates
      Replace the sidebar section in project_detail.html (around line 850-900)
-     ============================================================================= -->
-
+============================================================================= -->
 <!-- Sidebar (LEFT side like GitHub) - File Tree Navigation -->
 <aside class="repo-sidebar collapsed" id="repo-sidebar">
     <!-- Toggle Button - UPDATED icon and title -->
-    <button class="sidebar-toggle-btn" id="sidebar-toggle" onclick="toggleSidebar()" title="Expand sidebar">
-        <span class="sidebar-toggle-icon">▶</span>  <!-- Changed from ◀ -->
+    <button class="sidebar-toggle-btn"
+            id="sidebar-toggle"
+            onclick="toggleSidebar()"
+            title="Expand sidebar">
+        <span class="sidebar-toggle-icon">▶</span>
+        <!-- Changed from ◀ -->
     </button>
-
     <!-- File Tree - UPDATED font size -->
     <div class="sidebar-section" id="file-tree-section">
-        <div class="sidebar-title" onclick="toggleSidebarSection('file-tree-section')">
-            <a href="/{{ project.owner.username }}/{{ project.slug }}/" style="color: var(--color-fg-default); text-decoration: none;">
-                {{ project.name }}
-            </a>
+        <div class="sidebar-title"
+             onclick="toggleSidebarSection('file-tree-section')">
+            <a href="/{{ project.owner.username }}/{{ project.slug }}/"
+               style="color: var(--color-fg-default);
+                      text-decoration: none">{{ project.name }}</a>
             <span class="sidebar-section-chevron">▼</span>
         </div>
         <div class="sidebar-content">
-            <div id="file-tree" style="font-size: 13px;">  <!-- Changed from 12px -->
+            <div id="file-tree" style="font-size: 13px">
+                <!-- Changed from 12px -->
                 <!-- File tree will be loaded here -->
-                <div class="tree-loading" style="color: var(--color-fg-muted); padding: 1rem;">
+                <div class="tree-loading"
+                     style="color: var(--color-fg-muted);
+                            padding: 1rem">
                     <i class="fas fa-spinner fa-spin"></i> Loading file tree...
                 </div>
             </div>
         </div>
     </div>
-
     <!-- About Section - ENHANCED with stats -->
     <div class="sidebar-section collapsible" id="about-section">
         <!-- <div class="sidebar-title" onclick="toggleSidebarSection('about-section')">
@@ -36,44 +41,44 @@
          !-- </div> -->
         <div class="sidebar-content">
             {% if project.description %}
-            <p style="font-size: 13px; color: var(--color-fg-default); margin-bottom: 12px; line-height: 1.5;">  <!-- Added line-height -->
-                {{ project.description }}
-            </p>
+                <p style="font-size: 13px;
+                          color: var(--color-fg-default);
+                          margin-bottom: 12px;
+                          line-height: 1.5">
+                    <!-- Added line-height -->
+                    {{ project.description }}
+                </p>
             {% endif %}
-
             <!-- Owner -->
             <div class="sidebar-item">
-                <i class="fas fa-user" style="color: var(--color-fg-muted);"></i>
-                <a href="/{{ project.owner.username }}/" class="sidebar-link" style="padding: 0;">{{ project.owner.username }}</a>
+                <i class="fas fa-user" style="color: var(--color-fg-muted)"></i>
+                <a href="/{{ project.owner.username }}/"
+                   class="sidebar-link"
+                   style="padding: 0">{{ project.owner.username }}</a>
             </div>
-
             <!-- Stars - ADDED -->
             <div class="sidebar-item">
-                <i class="fas fa-star" style="color: var(--color-fg-muted);"></i>
+                <i class="fas fa-star" style="color: var(--color-fg-muted)"></i>
                 <span id="sidebar-star-count">0 stars</span>
             </div>
-
             <!-- Forks - ADDED -->
             <div class="sidebar-item">
-                <i class="fas fa-code-branch" style="color: var(--color-fg-muted);"></i>
+                <i class="fas fa-code-branch" style="color: var(--color-fg-muted)"></i>
                 <span id="sidebar-fork-count">0 forks</span>
             </div>
-
             <!-- Created Date -->
             <div class="sidebar-item">
-                <i class="fas fa-calendar" style="color: var(--color-fg-muted);"></i>
+                <i class="fas fa-calendar" style="color: var(--color-fg-muted)"></i>
                 <span>Created {{ project.created_at|date:"M j, Y" }}</span>
             </div>
-
             <!-- Updated Date -->
             <div class="sidebar-item">
-                <i class="fas fa-clock" style="color: var(--color-fg-muted);"></i>
+                <i class="fas fa-clock" style="color: var(--color-fg-muted)"></i>
                 <span>Updated {{ project.updated_at|date:"M j, Y" }}</span>
             </div>
         </div>
     </div>
 </aside>
-
 <!-- =============================================================================
      END OF HTML IMPROVEMENTS
      ============================================================================= -->

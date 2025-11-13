@@ -5,8 +5,6 @@ Contains: Project, ProjectMembership
 
 from django.db import models
 from django.contrib.auth.models import User
-from datetime import timedelta
-from django.utils import timezone
 
 # Import Organization models from dedicated app
 from apps.organizations_app.models import Organization, ResearchGroup
@@ -16,28 +14,39 @@ class ProjectMembership(models.Model):
     """Enhanced membership model for project collaboration"""
 
     ROLE_CHOICES = [
-        ('owner', 'Owner'),
-        ('admin', 'Administrator'),
-        ('collaborator', 'Collaborator'),
-        ('viewer', 'Viewer'),
+        ("owner", "Owner"),
+        ("admin", "Administrator"),
+        ("collaborator", "Collaborator"),
+        ("viewer", "Viewer"),
     ]
 
     PERMISSION_CHOICES = [
-        ('read', 'Read Only'),
-        ('write', 'Read/Write'),
-        ('admin', 'Full Admin'),
+        ("read", "Read Only"),
+        ("write", "Read/Write"),
+        ("admin", "Full Admin"),
     ]
 
-    project = models.ForeignKey('Project', on_delete=models.CASCADE, related_name='memberships')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='project_memberships')
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='collaborator')
-    permission_level = models.CharField(max_length=20, choices=PERMISSION_CHOICES, default='read')
+    project = models.ForeignKey(
+        "Project", on_delete=models.CASCADE, related_name="memberships"
+    )
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="project_memberships"
+    )
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default="collaborator")
+    permission_level = models.CharField(
+        max_length=20, choices=PERMISSION_CHOICES, default="read"
+    )
     joined_at = models.DateTimeField(auto_now_add=True)
-    invited_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,
-                                 related_name='project_invitations_sent')
+    invited_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="project_invitations_sent",
+    )
 
     class Meta:
-        unique_together = ('project', 'user')
+        unique_together = ("project", "user")
 
     def __str__(self):
         return f"{self.user.username} - {self.project.name} ({self.role})"
@@ -47,75 +56,134 @@ class Project(models.Model):
     """Model for research projects with enhanced collaboration"""
 
     VISIBILITY_CHOICES = [
-        ('public', 'Public'),
-        ('private', 'Private'),
+        ("public", "Public"),
+        ("private", "Private"),
     ]
 
     name = models.CharField(max_length=200)
-    slug = models.SlugField(max_length=200, default='project')
+    slug = models.SlugField(max_length=200, default="project")
     description = models.TextField()
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='project_app_owned_projects')
-
-    class Meta:
-        unique_together = [('owner', 'slug')]  # Slug is unique per owner, not globally
+    owner = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="project_app_owned_projects"
+    )
 
     # Privacy settings
     visibility = models.CharField(
         max_length=20,
         choices=VISIBILITY_CHOICES,
-        default='public',
-        help_text="Repository visibility: public (anyone can see) or private (only collaborators)"
+        default="public",
+        help_text="Repository visibility: public (anyone can see) or private (only collaborators)",
     )
 
-    organization = models.ForeignKey(Organization, on_delete=models.SET_NULL, null=True, blank=True, related_name='projects')
-    research_group = models.ForeignKey(ResearchGroup, on_delete=models.SET_NULL, null=True, blank=True,
-                                     related_name='projects', help_text="Associated research group/lab")
+    organization = models.ForeignKey(
+        Organization,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="projects",
+    )
+    research_group = models.ForeignKey(
+        ResearchGroup,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="projects",
+        help_text="Associated research group/lab",
+    )
 
     # Enhanced collaboration through ProjectMembership
-    collaborators = models.ManyToManyField(User, through='ProjectMembership', through_fields=('project', 'user'), related_name='project_app_collaborative_projects')
-    progress = models.IntegerField(default=0, help_text="Project progress percentage (0-100)")
+    collaborators = models.ManyToManyField(
+        User,
+        through="ProjectMembership",
+        through_fields=("project", "user"),
+        related_name="project_app_collaborative_projects",
+    )
+    progress = models.IntegerField(
+        default=0, help_text="Project progress percentage (0-100)"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     deadline = models.DateTimeField(null=True, blank=True)
 
     # Research data - Core SciTeX workflow fields
-    source_code_url = models.URLField(blank=True, help_text="GitHub/GitLab repository URL")
-    data_location = models.CharField(max_length=500, blank=True, help_text="Relative path to project directory")
+    source_code_url = models.URLField(
+        blank=True, help_text="GitHub/GitLab repository URL"
+    )
+    data_location = models.CharField(
+        max_length=500, blank=True, help_text="Relative path to project directory"
+    )
 
     # Enhanced GitHub Integration fields
-    github_token = models.CharField(max_length=255, blank=True, help_text="GitHub OAuth token")
-    github_repo_id = models.IntegerField(null=True, blank=True, help_text="GitHub repository ID")
-    github_repo_name = models.CharField(max_length=200, blank=True, help_text="GitHub repository name")
-    github_owner = models.CharField(max_length=100, blank=True, help_text="GitHub repository owner")
-    current_branch = models.CharField(max_length=100, default='main', help_text="Current git branch")
-    last_sync_at = models.DateTimeField(null=True, blank=True, help_text="Last GitHub sync timestamp")
-    github_integration_enabled = models.BooleanField(default=False, help_text="GitHub integration status")
+    github_token = models.CharField(
+        max_length=255, blank=True, help_text="GitHub OAuth token"
+    )
+    github_repo_id = models.IntegerField(
+        null=True, blank=True, help_text="GitHub repository ID"
+    )
+    github_repo_name = models.CharField(
+        max_length=200, blank=True, help_text="GitHub repository name"
+    )
+    github_owner = models.CharField(
+        max_length=100, blank=True, help_text="GitHub repository owner"
+    )
+    current_branch = models.CharField(
+        max_length=100, default="main", help_text="Current git branch"
+    )
+    last_sync_at = models.DateTimeField(
+        null=True, blank=True, help_text="Last GitHub sync timestamp"
+    )
+    github_integration_enabled = models.BooleanField(
+        default=False, help_text="GitHub integration status"
+    )
 
     # Gitea Integration fields
-    gitea_repo_id = models.IntegerField(null=True, blank=True, help_text="Gitea repository ID")
-    gitea_repo_name = models.CharField(max_length=200, blank=True, help_text="Gitea repository name")
+    gitea_repo_id = models.IntegerField(
+        null=True, blank=True, help_text="Gitea repository ID"
+    )
+    gitea_repo_name = models.CharField(
+        max_length=200, blank=True, help_text="Gitea repository name"
+    )
     gitea_repo_url = models.URLField(blank=True, help_text="Gitea repository web URL")
     gitea_clone_url = models.URLField(blank=True, help_text="Gitea HTTPS clone URL")
-    gitea_ssh_url = models.CharField(max_length=500, blank=True, help_text="Gitea SSH clone URL")
+    gitea_ssh_url = models.CharField(
+        max_length=500, blank=True, help_text="Gitea SSH clone URL"
+    )
     git_url = models.URLField(blank=True, help_text="Git clone URL (SSH or HTTPS)")
-    git_clone_path = models.CharField(max_length=500, blank=True, help_text="Local git clone path")
-    gitea_enabled = models.BooleanField(default=False, help_text="Gitea integration enabled")
+    git_clone_path = models.CharField(
+        max_length=500, blank=True, help_text="Local git clone path"
+    )
+    gitea_enabled = models.BooleanField(
+        default=False, help_text="Gitea integration enabled"
+    )
 
     # Source tracking (where did this project come from?)
     SOURCE_CHOICES = [
-        ('scitex', 'Created in SciTeX'),
-        ('github', 'Imported from GitHub'),
-        ('gitlab', 'Imported from GitLab'),
-        ('bitbucket', 'Imported from Bitbucket'),
-        ('git', 'Cloned from Git URL'),
+        ("scitex", "Created in SciTeX"),
+        ("github", "Imported from GitHub"),
+        ("gitlab", "Imported from GitLab"),
+        ("bitbucket", "Imported from Bitbucket"),
+        ("git", "Cloned from Git URL"),
     ]
-    source = models.CharField(max_length=20, choices=SOURCE_CHOICES, default='scitex', help_text="Project source")
-    source_url = models.URLField(blank=True, help_text="Original source URL (if imported)")
+    source = models.CharField(
+        max_length=20,
+        choices=SOURCE_CHOICES,
+        default="scitex",
+        help_text="Project source",
+    )
+    source_url = models.URLField(
+        blank=True, help_text="Original source URL (if imported)"
+    )
 
     # Directory management fields
-    directory_created = models.BooleanField(default=False, help_text="Whether project directory has been created")
-    storage_used = models.BigIntegerField(default=0, help_text="Storage used by project in bytes")
-    last_activity = models.DateTimeField(auto_now=True, help_text="Last activity in project directory")
+    directory_created = models.BooleanField(
+        default=False, help_text="Whether project directory has been created"
+    )
+    storage_used = models.BigIntegerField(
+        default=0, help_text="Storage used by project in bytes"
+    )
+    last_activity = models.DateTimeField(
+        auto_now=True, help_text="Last activity in project directory"
+    )
 
     # SciTeX Integration (scitex.project package)
     scitex_project_id = models.CharField(
@@ -123,42 +191,55 @@ class Project(models.Model):
         unique=True,
         null=True,
         blank=True,
-        help_text="Unique identifier linking to scitex/.metadata/ (from scitex.project package)"
+        help_text="Unique identifier linking to scitex/.metadata/ (from scitex.project package)",
     )
     local_path = models.CharField(
         max_length=500,
         blank=True,
-        help_text="Path to local project directory (where scitex/.metadata/ lives)"
+        help_text="Path to local project directory (where scitex/.metadata/ lives)",
     )
 
     # SciTeX Engine Integration Status
-    search_completed = models.BooleanField(default=False, help_text="Literature search completed")
-    knowledge_gap_identified = models.TextField(blank=True, help_text="Identified knowledge gaps")
-    analysis_completed = models.BooleanField(default=False, help_text="Code analysis completed")
-    figures_generated = models.BooleanField(default=False, help_text="Visualizations generated")
-    manuscript_generated = models.BooleanField(default=False, help_text="Manuscript generated")
+    search_completed = models.BooleanField(
+        default=False, help_text="Literature search completed"
+    )
+    knowledge_gap_identified = models.TextField(
+        blank=True, help_text="Identified knowledge gaps"
+    )
+    analysis_completed = models.BooleanField(
+        default=False, help_text="Code analysis completed"
+    )
+    figures_generated = models.BooleanField(
+        default=False, help_text="Visualizations generated"
+    )
+    manuscript_generated = models.BooleanField(
+        default=False, help_text="Manuscript generated"
+    )
 
     # Language detection
     primary_language = models.CharField(
         max_length=50,
         blank=True,
-        default='',
-        help_text="Auto-detected primary programming language"
+        default="",
+        help_text="Auto-detected primary programming language",
     )
 
     class Meta:
-        ordering = ['-updated_at']
-        unique_together = ('name', 'owner')  # Ensure unique project names per user
+        ordering = ["-updated_at"]
+        unique_together = [
+            ("name", "owner"),  # Ensure unique project names per user
+            ("owner", "slug"),  # Ensure unique slugs per user
+        ]
         constraints = [
             models.UniqueConstraint(
-                fields=['owner', 'gitea_repo_name'],
+                fields=["owner", "gitea_repo_name"],
                 condition=models.Q(gitea_enabled=True),
-                name='unique_gitea_repo_per_user'
+                name="unique_gitea_repo_per_user",
             ),
             models.UniqueConstraint(
-                fields=['gitea_repo_id'],
+                fields=["gitea_repo_id"],
                 condition=models.Q(gitea_repo_id__isnull=False),
-                name='unique_gitea_repo_id'
+                name="unique_gitea_repo_id",
             ),
         ]
 
@@ -188,14 +269,14 @@ class Project(models.Model):
 
         # Further sanitize for GitHub compatibility
         # GitHub allows: alphanumeric, hyphens, underscores, periods
-        base_slug = re.sub(r'[^a-z0-9._-]', '-', base_slug.lower())
+        base_slug = re.sub(r"[^a-z0-9._-]", "-", base_slug.lower())
 
         # Remove leading/trailing special chars
-        base_slug = re.sub(r'^[._-]+|[._-]+$', '', base_slug)
+        base_slug = re.sub(r"^[._-]+|[._-]+$", "", base_slug)
 
         # Ensure not empty
         if not base_slug:
-            base_slug = 'project'
+            base_slug = "project"
 
         # Limit to 100 chars (GitHub limit)
         base_slug = base_slug[:100]
@@ -274,37 +355,48 @@ class Project(models.Model):
             return False, "Repository name must be 100 characters or less"
 
         # Check for spaces
-        if ' ' in name:
-            return False, "Repository name cannot contain spaces. Use hyphens (-) or underscores (_) instead."
+        if " " in name:
+            return (
+                False,
+                "Repository name cannot contain spaces. Use hyphens (-) or underscores (_) instead.",
+            )
 
         # Check for valid characters (alphanumeric, hyphens, underscores, periods)
-        if not re.match(r'^[a-zA-Z0-9._-]+$', name):
-            return False, "Repository name can only contain letters, numbers, hyphens (-), underscores (_), and periods (.)"
+        if not re.match(r"^[a-zA-Z0-9._-]+$", name):
+            return (
+                False,
+                "Repository name can only contain letters, numbers, hyphens (-), underscores (_), and periods (.)",
+            )
 
         # Check that it doesn't start or end with special characters
-        if re.match(r'^[._-]', name) or re.match(r'[._-]$', name):
-            return False, "Repository name cannot start or end with hyphens, underscores, or periods"
+        if re.match(r"^[._-]", name) or re.match(r"[._-]$", name):
+            return (
+                False,
+                "Repository name cannot start or end with hyphens, underscores, or periods",
+            )
 
         return True, None
 
     def get_github_safe_name(self):
         """Get a GitHub-safe repository name"""
         import re
+
         # GitHub repo names: alphanumeric, hyphens, underscores, periods
         # Cannot start/end with special chars, max 100 chars
-        safe_name = re.sub(r'[^a-zA-Z0-9._-]', '_', self.name.lower())
-        safe_name = re.sub(r'^[._-]+|[._-]+$', '', safe_name)
+        safe_name = re.sub(r"[^a-zA-Z0-9._-]", "_", self.name.lower())
+        safe_name = re.sub(r"^[._-]+|[._-]+$", "", safe_name)
         safe_name = safe_name[:100]  # GitHub limit
-        return safe_name or 'scitex_project'
+        return safe_name or "scitex_project"
 
     def get_filesystem_safe_name(self):
         """Get a filesystem-safe directory name"""
         import re
+
         # Remove/replace characters that are problematic for filesystems
-        safe_name = re.sub(r'[<>:"/\\|?*]', '_', self.name)
-        safe_name = re.sub(r'\s+', '_', safe_name)  # Replace spaces with underscores
+        safe_name = re.sub(r'[<>:"/\\|?*]', "_", self.name)
+        safe_name = re.sub(r"\s+", "_", safe_name)  # Replace spaces with underscores
         safe_name = safe_name[:255]  # Filesystem limit
-        return safe_name or 'scitex_project'
+        return safe_name or "scitex_project"
 
     @staticmethod
     def extract_repo_name_from_url(git_url: str) -> str:
@@ -325,43 +417,45 @@ class Project(models.Model):
         git_url = git_url.strip()
 
         # Remove .git suffix if present
-        if git_url.endswith('.git'):
+        if git_url.endswith(".git"):
             git_url = git_url[:-4]
 
         # Extract repo name (last part of path)
         # Works for both HTTPS and SSH formats
-        repo_name = git_url.rstrip('/').split('/')[-1]
+        repo_name = git_url.rstrip("/").split("/")[-1]
 
         # Only decode URL encoding if present, but keep original name otherwise
         try:
             from urllib.parse import unquote
+
             repo_name = unquote(repo_name)
         except (ValueError, TypeError, AttributeError):
             pass
 
-        return repo_name or 'imported-repo'
+        return repo_name or "imported-repo"
 
     def get_absolute_url(self):
         """Get project detail URL using GitHub-style username/project pattern"""
         from django.urls import reverse
         from django.urls.exceptions import NoReverseMatch
+
         try:
             # Use the new user_projects namespace
-            return reverse('user_projects:detail', kwargs={
-                'username': self.owner.username,
-                'slug': self.slug
-            })
+            return reverse(
+                "user_projects:detail",
+                kwargs={"username": self.owner.username, "slug": self.slug},
+            )
         except NoReverseMatch:
             # Fallback to direct URL construction
-            return f'/{self.owner.username}/{self.slug}/'
+            return f"/{self.owner.username}/{self.slug}/"
 
     def is_public(self):
         """Check if repository is public"""
-        return self.visibility == 'public'
+        return self.visibility == "public"
 
     def is_private(self):
         """Check if repository is private"""
-        return self.visibility == 'private'
+        return self.visibility == "private"
 
     def can_view(self, user):
         """Check if user can view this repository"""
@@ -392,7 +486,7 @@ class Project(models.Model):
         # Check collaborator permissions
         try:
             membership = self.memberships.get(user=user)
-            return membership.permission_level in ['write', 'admin']
+            return membership.permission_level in ["write", "admin"]
         except ProjectMembership.DoesNotExist:
             return False
 
@@ -419,12 +513,13 @@ class Project(models.Model):
             detected_language = detect_language_from_files(project_path)
             if detected_language:
                 self.primary_language = detected_language
-                self.save(update_fields=['primary_language'])
+                self.save(update_fields=["primary_language"])
                 return detected_language
 
             return None
         except Exception as e:
             import logging
+
             logger = logging.getLogger(__name__)
             logger.warning(f"Failed to detect language for project {self.slug}: {e}")
             return None
@@ -454,16 +549,23 @@ class Project(models.Model):
 
         # 1. Check if this project already has a Gitea repository
         if self.gitea_enabled and self.gitea_repo_id:
-            logger.warning(f"Project {self.slug} already has Gitea repository {self.gitea_repo_id}")
+            logger.warning(
+                f"Project {self.slug} already has Gitea repository {self.gitea_repo_id}"
+            )
             raise Exception(f"Project already has a Gitea repository")
 
         # 2. Check if another Django project claims this Gitea repository
         from django.db.models import Q
-        existing_project = Project.objects.filter(
-            Q(owner=self.owner) &
-            Q(gitea_repo_name=self.slug) &
-            Q(gitea_enabled=True)
-        ).exclude(id=self.id).first()
+
+        existing_project = (
+            Project.objects.filter(
+                Q(owner=self.owner)
+                & Q(gitea_repo_name=self.slug)
+                & Q(gitea_enabled=True)
+            )
+            .exclude(id=self.id)
+            .first()
+        )
 
         if existing_project:
             raise Exception(
@@ -475,7 +577,9 @@ class Project(models.Model):
             existing_repo = client.get_repository(self.owner.username, self.slug)
             if existing_repo:
                 # Repository exists - this violates 1:1 mapping
-                logger.error(f"Gitea repository {self.owner.username}/{self.slug} already exists (ID: {existing_repo.get('id')})")
+                logger.error(
+                    f"Gitea repository {self.owner.username}/{self.slug} already exists (ID: {existing_repo.get('id')})"
+                )
                 raise Exception(
                     f"The repository '{self.slug}' already exists in Gitea (ID: {existing_repo.get('id')}). "
                     f"This is an orphaned repository. Please delete it manually or contact support."
@@ -491,27 +595,31 @@ class Project(models.Model):
             repo = client.create_repository(
                 name=self.slug,
                 description=self.description,
-                private=(self.visibility == 'private'),
+                private=(self.visibility == "private"),
                 auto_init=True,
-                gitignores='Python',
-                readme='Default'
+                gitignores="Python",
+                readme="Default",
             )
         except Exception as create_error:
-            logger.error(f"Failed to create Gitea repository {self.slug}: {create_error}")
+            logger.error(
+                f"Failed to create Gitea repository {self.slug}: {create_error}"
+            )
             raise Exception(f"Failed to create Gitea repository: {str(create_error)}")
 
         # 5. Update project with Gitea info (atomic operation)
         try:
-            self.gitea_repo_id = repo['id']
-            self.gitea_repo_name = repo['name']
-            self.gitea_repo_url = repo.get('html_url', '')
-            self.gitea_clone_url = repo.get('clone_url', '')
-            self.gitea_ssh_url = repo.get('ssh_url', '')
-            self.git_url = repo['clone_url']  # HTTPS URL
+            self.gitea_repo_id = repo["id"]
+            self.gitea_repo_name = repo["name"]
+            self.gitea_repo_url = repo.get("html_url", "")
+            self.gitea_clone_url = repo.get("clone_url", "")
+            self.gitea_ssh_url = repo.get("ssh_url", "")
+            self.git_url = repo["clone_url"]  # HTTPS URL
             self.gitea_enabled = True
             self.save()
 
-            logger.info(f"✓ Gitea repository created: {self.owner.username}/{self.slug} (ID: {repo['id']})")
+            logger.info(
+                f"✓ Gitea repository created: {self.owner.username}/{self.slug} (ID: {repo['id']})"
+            )
             return repo
 
         except Exception as e:
@@ -521,7 +629,9 @@ class Project(models.Model):
                 client.delete_repository(self.owner.username, self.slug)
                 logger.info(f"✓ Rolled back Gitea repository {self.slug}")
             except Exception as cleanup_error:
-                logger.error(f"Failed to cleanup Gitea repository {self.slug}: {cleanup_error}")
+                logger.error(
+                    f"Failed to cleanup Gitea repository {self.slug}: {cleanup_error}"
+                )
             raise Exception(f"Failed to link Gitea repository to project: {str(e)}")
 
     def clone_gitea_to_local(self):
@@ -532,8 +642,9 @@ class Project(models.Model):
             Tuple of (success, path or error_message)
         """
         import subprocess
-        from pathlib import Path
-        from apps.project_app.services.project_filesystem import get_project_filesystem_manager
+        from apps.project_app.services.project_filesystem import (
+            get_project_filesystem_manager,
+        )
 
         if not self.git_url:
             return False, "No git URL configured"
@@ -550,10 +661,10 @@ class Project(models.Model):
 
         try:
             result = subprocess.run(
-                ['git', 'clone', self.git_url, str(clone_path)],
+                ["git", "clone", self.git_url, str(clone_path)],
                 capture_output=True,
                 text=True,
-                timeout=300
+                timeout=300,
             )
 
             if result.returncode == 0:
@@ -570,8 +681,13 @@ class Project(models.Model):
         except Exception as e:
             return False, str(e)
 
-    def import_from_github(self, github_url: str, github_token: str = '',
-                          import_issues: bool = True, import_pulls: bool = True):
+    def import_from_github(
+        self,
+        github_url: str,
+        github_token: str = "",
+        import_issues: bool = True,
+        import_pulls: bool = True,
+    ):
         """
         Import project from GitHub repository
 
@@ -592,21 +708,21 @@ class Project(models.Model):
             repo = client.migrate_repository(
                 clone_addr=github_url,
                 repo_name=self.slug,
-                service='github',
+                service="github",
                 auth_token=github_token,
                 mirror=False,
-                private=(self.visibility == 'private'),
+                private=(self.visibility == "private"),
                 description=self.description,
                 issues=import_issues,
-                pull_requests=import_pulls
+                pull_requests=import_pulls,
             )
 
             # Update project with Gitea info
-            self.gitea_repo_id = repo['id']
-            self.gitea_repo_name = repo['name']
-            self.git_url = repo['clone_url']
+            self.gitea_repo_id = repo["id"]
+            self.gitea_repo_name = repo["name"]
+            self.git_url = repo["clone_url"]
             self.gitea_enabled = True
-            self.source = 'github'
+            self.source = "github"
             self.source_url = github_url
             self.save()
 
@@ -642,18 +758,22 @@ class Project(models.Model):
 
             # Clear Gitea integration fields
             self.gitea_repo_id = None
-            self.gitea_repo_name = ''
-            self.gitea_repo_url = ''
-            self.gitea_clone_url = ''
-            self.gitea_ssh_url = ''
+            self.gitea_repo_name = ""
+            self.gitea_repo_url = ""
+            self.gitea_clone_url = ""
+            self.gitea_ssh_url = ""
             self.gitea_enabled = False
             self.save()
 
-            logger.info(f"✓ Deleted Gitea repository: {self.owner.username}/{self.gitea_repo_name}")
+            logger.info(
+                f"✓ Deleted Gitea repository: {self.owner.username}/{self.gitea_repo_name}"
+            )
             return True, "Gitea repository deleted successfully"
 
         except Exception as e:
-            logger.error(f"Failed to delete Gitea repository {self.gitea_repo_name}: {e}")
+            logger.error(
+                f"Failed to delete Gitea repository {self.gitea_repo_name}: {e}"
+            )
             return False, str(e)
 
     @classmethod
@@ -680,9 +800,8 @@ class Project(models.Model):
 
             # Get all Django projects with Gitea integration
             django_projects = cls.objects.filter(
-                owner=user,
-                gitea_enabled=True
-            ).values_list('gitea_repo_name', 'gitea_repo_id')
+                owner=user, gitea_enabled=True
+            ).values_list("gitea_repo_name", "gitea_repo_id")
 
             django_repo_names = {name for name, _ in django_projects if name}
             django_repo_ids = {repo_id for _, repo_id in django_projects if repo_id}
@@ -690,26 +809,31 @@ class Project(models.Model):
             # Find orphaned repositories
             orphaned = []
             for repo in gitea_repos:
-                repo_name = repo.get('name')
-                repo_id = repo.get('id')
+                repo_name = repo.get("name")
+                repo_id = repo.get("id")
 
-                if repo_name not in django_repo_names and repo_id not in django_repo_ids:
-                    orphaned.append({
-                        'id': repo_id,
-                        'name': repo_name,
-                        'url': repo.get('html_url', ''),
-                        'created_at': repo.get('created_at', ''),
-                    })
+                if (
+                    repo_name not in django_repo_names
+                    and repo_id not in django_repo_ids
+                ):
+                    orphaned.append(
+                        {
+                            "id": repo_id,
+                            "name": repo_name,
+                            "url": repo.get("html_url", ""),
+                            "created_at": repo.get("created_at", ""),
+                        }
+                    )
 
             return {
-                'orphaned': orphaned,
-                'total_gitea': len(gitea_repos),
-                'total_django': len(django_repo_names),
+                "orphaned": orphaned,
+                "total_gitea": len(gitea_repos),
+                "total_django": len(django_repo_names),
             }
 
         except Exception as e:
             logger.error(f"Failed to check for orphaned repositories: {e}")
-            return {'error': str(e)}
+            return {"error": str(e)}
 
     def update_storage_usage(self):
         """
@@ -718,8 +842,9 @@ class Project(models.Model):
         Returns:
             int: Updated storage size in bytes
         """
-        from pathlib import Path
-        from apps.project_app.services.project_filesystem import get_project_filesystem_manager
+        from apps.project_app.services.project_filesystem import (
+            get_project_filesystem_manager,
+        )
 
         if not self.directory_created:
             return 0
@@ -733,7 +858,7 @@ class Project(models.Model):
 
             # Calculate total size of all files in project directory
             total_size = 0
-            for item in project_path.rglob('*'):
+            for item in project_path.rglob("*"):
                 if item.is_file():
                     try:
                         total_size += item.stat().st_size
@@ -749,6 +874,7 @@ class Project(models.Model):
 
         except Exception as e:
             import logging
+
             logger = logging.getLogger(__name__)
             logger.error(f"Error updating storage for project {self.name}: {e}")
             return self.storage_used
@@ -768,7 +894,10 @@ class Project(models.Model):
 
         if not self.local_path:
             # Default location
-            from apps.project_app.services.project_filesystem import get_project_filesystem_manager
+            from apps.project_app.services.project_filesystem import (
+                get_project_filesystem_manager,
+            )
+
             manager = get_project_filesystem_manager(self.owner)
             return manager.base_path / self.slug
         return Path(self.local_path)
@@ -776,7 +905,7 @@ class Project(models.Model):
     def has_scitex_metadata(self):
         """Check if project has scitex/.metadata/ directory."""
         local_path = self.get_local_path()
-        return (local_path / 'scitex' / '.metadata').exists()
+        return (local_path / "scitex" / ".metadata").exists()
 
     def to_scitex_project(self):
         """
@@ -793,8 +922,7 @@ class Project(models.Model):
             from scitex.project import SciTeXProject
         except ImportError:
             raise ImportError(
-                "scitex package is not installed. "
-                "Install it with: pip install scitex"
+                "scitex package is not installed. Install it with: pip install scitex"
             )
 
         if not self.has_scitex_metadata():
@@ -822,12 +950,13 @@ class Project(models.Model):
             from scitex.project import SciTeXProject
         except ImportError:
             raise ImportError(
-                "scitex package is not installed. "
-                "Install it with: pip install scitex"
+                "scitex package is not installed. Install it with: pip install scitex"
             )
 
         if self.has_scitex_metadata():
-            raise FileExistsError(f"Project '{self.name}' already has scitex/.metadata/")
+            raise FileExistsError(
+                f"Project '{self.name}' already has scitex/.metadata/"
+            )
 
         local_path = self.get_local_path()
 
@@ -843,15 +972,16 @@ class Project(models.Model):
             visibility=self.visibility,
             template=None,  # Unknown for existing projects
             tags=[],  # No tags in current Django model
-            init_git=False  # Git might already be initialized
+            init_git=False,  # Git might already be initialized
         )
 
         # Link Django project to SciTeXProject
         self.scitex_project_id = scitex_project.project_id
         self.local_path = str(local_path)
-        self.save(update_fields=['scitex_project_id', 'local_path'])
+        self.save(update_fields=["scitex_project_id", "local_path"])
 
         import logging
+
         logger = logging.getLogger(__name__)
         logger.info(
             f"Initialized scitex metadata for project '{self.name}' "
@@ -878,6 +1008,7 @@ class Project(models.Model):
         self.save()
 
         import logging
+
         logger = logging.getLogger(__name__)
         logger.info(f"Synced Django project '{self.name}' from scitex metadata")
 
@@ -899,6 +1030,7 @@ class Project(models.Model):
         scitex_project.save()
 
         import logging
+
         logger = logging.getLogger(__name__)
         logger.info(f"Synced scitex metadata from Django project '{self.name}'")
 
@@ -918,7 +1050,7 @@ class Project(models.Model):
 
         # Update Django model
         self.storage_used = storage
-        self.save(update_fields=['storage_used'])
+        self.save(update_fields=["storage_used"])
 
         return storage
 

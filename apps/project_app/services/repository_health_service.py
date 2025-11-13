@@ -11,7 +11,6 @@ Gitea repositories. Ensures strict 1:1 mapping between:
 import logging
 from typing import Dict, List, Tuple
 from pathlib import Path
-from django.conf import settings
 from django.contrib.auth.models import User
 from apps.project_app.models import Project
 from apps.gitea_app.api_client import GiteaClient, GiteaAPIError
@@ -23,29 +22,34 @@ class RepositoryHealthIssue:
     """Represents a single repository health issue"""
 
     ISSUE_TYPES = {
-        'orphaned_in_gitea': 'Orphaned in Gitea',
-        'missing_in_gitea': 'Missing in Gitea',
-        'missing_directory': 'Missing local directory',
-        'healthy': 'Healthy',
+        "orphaned_in_gitea": "Orphaned in Gitea",
+        "missing_in_gitea": "Missing in Gitea",
+        "missing_directory": "Missing local directory",
+        "healthy": "Healthy",
     }
 
-    def __init__(self, issue_type: str, project_slug: str = None,
-                 gitea_name: str = None, message: str = None):
+    def __init__(
+        self,
+        issue_type: str,
+        project_slug: str = None,
+        gitea_name: str = None,
+        message: str = None,
+    ):
         self.issue_type = issue_type
         self.project_slug = project_slug or gitea_name
         self.gitea_name = gitea_name
-        self.message = message or self.ISSUE_TYPES.get(issue_type, 'Unknown issue')
-        self.is_healthy = (issue_type == 'healthy')
-        self.is_critical = (issue_type in ['orphaned_in_gitea', 'missing_in_gitea'])
+        self.message = message or self.ISSUE_TYPES.get(issue_type, "Unknown issue")
+        self.is_healthy = issue_type == "healthy"
+        self.is_critical = issue_type in ["orphaned_in_gitea", "missing_in_gitea"]
 
     def to_dict(self):
         return {
-            'issue_type': self.issue_type,
-            'project_slug': self.project_slug,
-            'gitea_name': self.gitea_name,
-            'message': self.message,
-            'is_healthy': self.is_healthy,
-            'is_critical': self.is_critical,
+            "issue_type": self.issue_type,
+            "project_slug": self.project_slug,
+            "gitea_name": self.gitea_name,
+            "message": self.message,
+            "is_healthy": self.is_healthy,
+            "is_critical": self.is_critical,
         }
 
 
@@ -65,26 +69,28 @@ class RepositoryHealthChecker:
         """
         issues = []
         stats = {
-            'total_django_projects': 0,
-            'total_gitea_repos': 0,
-            'healthy_count': 0,
-            'critical_issues': 0,
-            'warnings': 0,
+            "total_django_projects": 0,
+            "total_gitea_repos": 0,
+            "healthy_count": 0,
+            "critical_issues": 0,
+            "warnings": 0,
         }
 
         try:
             # Get all Django projects for this user
             django_projects = Project.objects.filter(owner=self.user)
-            django_slugs = set(django_projects.values_list('slug', flat=True))
-            stats['total_django_projects'] = len(django_slugs)
+            django_slugs = set(django_projects.values_list("slug", flat=True))
+            stats["total_django_projects"] = len(django_slugs)
 
             # Get all Gitea repositories for this user
             try:
                 gitea_repos = self.client.list_repositories(self.user.username)
-                gitea_names = {repo['name']: repo for repo in gitea_repos}
-                stats['total_gitea_repos'] = len(gitea_names)
+                gitea_names = {repo["name"]: repo for repo in gitea_repos}
+                stats["total_gitea_repos"] = len(gitea_names)
             except (GiteaAPIError, Exception) as e:
-                logger.warning(f"Could not fetch Gitea repos for {self.user.username}: {e}")
+                logger.warning(
+                    f"Could not fetch Gitea repos for {self.user.username}: {e}"
+                )
                 gitea_names = {}
 
             # Check each Django project
@@ -92,22 +98,22 @@ class RepositoryHealthChecker:
                 issue = self._check_django_project(project, gitea_names)
                 issues.append(issue)
                 if issue.is_healthy:
-                    stats['healthy_count'] += 1
+                    stats["healthy_count"] += 1
                 elif issue.is_critical:
-                    stats['critical_issues'] += 1
+                    stats["critical_issues"] += 1
                 else:
-                    stats['warnings'] += 1
+                    stats["warnings"] += 1
 
             # Check for orphaned Gitea repos
             for gitea_name in gitea_names.keys():
                 if gitea_name not in django_slugs:
                     issue = RepositoryHealthIssue(
-                        'orphaned_in_gitea',
+                        "orphaned_in_gitea",
                         gitea_name=gitea_name,
-                        message=f"Repository exists in Gitea but no Django project found"
+                        message=f"Repository exists in Gitea but no Django project found",
                     )
                     issues.append(issue)
-                    stats['critical_issues'] += 1
+                    stats["critical_issues"] += 1
 
         except Exception as e:
             logger.error(f"Error checking repository health: {e}")
@@ -115,15 +121,17 @@ class RepositoryHealthChecker:
 
         return issues, stats
 
-    def _check_django_project(self, project: Project, gitea_names: Dict) -> RepositoryHealthIssue:
+    def _check_django_project(
+        self, project: Project, gitea_names: Dict
+    ) -> RepositoryHealthIssue:
         """Check health of a single Django project"""
 
         # Check if Gitea repo exists
         if project.slug not in gitea_names:
             return RepositoryHealthIssue(
-                'missing_in_gitea',
+                "missing_in_gitea",
                 project_slug=project.slug,
-                message=f"Django project exists but Gitea repository not found"
+                message=f"Django project exists but Gitea repository not found",
             )
 
         # Check if local directory exists
@@ -131,16 +139,16 @@ class RepositoryHealthChecker:
             git_dir = Path(project.git_clone_path)
             if not git_dir.exists():
                 return RepositoryHealthIssue(
-                    'missing_directory',
+                    "missing_directory",
                     project_slug=project.slug,
-                    message=f"Local git directory missing: {project.git_clone_path}"
+                    message=f"Local git directory missing: {project.git_clone_path}",
                 )
 
         # All checks passed
         return RepositoryHealthIssue(
-            'healthy',
+            "healthy",
             project_slug=project.slug,
-            message=f"Repository healthy and in sync"
+            message=f"Repository healthy and in sync",
         )
 
     def delete_orphaned_repository(self, gitea_name: str) -> Tuple[bool, str]:
@@ -157,7 +165,9 @@ class RepositoryHealthChecker:
             return True, message
         except Exception as e:
             message = f"✗ Failed to delete: {str(e)}"
-            logger.error(f"Failed to delete orphaned repo {self.user.username}/{gitea_name}: {e}")
+            logger.error(
+                f"Failed to delete orphaned repo {self.user.username}/{gitea_name}: {e}"
+            )
             return False, message
 
     def sync_repository(self, project_slug: str) -> Tuple[bool, str]:
@@ -175,11 +185,15 @@ class RepositoryHealthChecker:
                 self.client.get_repository(self.user.username, project_slug)
             except GiteaAPIError:
                 # Repo doesn't exist in Gitea - would need to recreate it
-                return False, f"Gitea repository doesn't exist for {project_slug}. Manual intervention needed."
+                return (
+                    False,
+                    f"Gitea repository doesn't exist for {project_slug}. Manual intervention needed.",
+                )
 
             # Re-clone from Gitea if directory is missing
             if not project.git_clone_path or not Path(project.git_clone_path).exists():
                 from apps.project_app.signals import _clone_gitea_repo_to_data_dir
+
                 _clone_gitea_repo_to_data_dir(project)
                 return True, f"✓ Re-cloned repository to: {project.git_clone_path}"
 
@@ -191,7 +205,9 @@ class RepositoryHealthChecker:
             logger.error(f"Failed to sync repository {project_slug}: {e}")
             return False, f"✗ Error during sync: {str(e)}"
 
-    def restore_orphaned_repository(self, gitea_name: str, project_name: str) -> Tuple[bool, str, int]:
+    def restore_orphaned_repository(
+        self, gitea_name: str, project_name: str
+    ) -> Tuple[bool, str, int]:
         """
         Restore an orphaned Gitea repository by creating a new Django project.
 
@@ -214,6 +230,7 @@ class RepositoryHealthChecker:
 
             # Create Django project linked to the existing Gitea repo
             from django.utils.text import slugify
+
             slug = slugify(project_name)
 
             # Check if project with this slug already exists
@@ -227,31 +244,45 @@ class RepositoryHealthChecker:
                 slug=slug,
                 description=f"Restored from Gitea repository: {gitea_name}",
                 owner=self.user,
-                visibility='private',  # Default to private
+                visibility="private",  # Default to private
             )
 
             # Update with Gitea information
-            project.gitea_repo_url = repo.get('html_url', '')
-            project.gitea_clone_url = repo.get('clone_url', '')
-            project.gitea_ssh_url = repo.get('ssh_url', '')
-            project.gitea_repo_id = repo.get('id')
-            project.gitea_repo_name = repo.get('name', gitea_name)
+            project.gitea_repo_url = repo.get("html_url", "")
+            project.gitea_clone_url = repo.get("clone_url", "")
+            project.gitea_ssh_url = repo.get("ssh_url", "")
+            project.gitea_repo_id = repo.get("id")
+            project.gitea_repo_name = repo.get("name", gitea_name)
             project.gitea_enabled = True
-            project.save(update_fields=[
-                'gitea_repo_url', 'gitea_clone_url', 'gitea_ssh_url',
-                'gitea_repo_id', 'gitea_repo_name', 'gitea_enabled'
-            ])
+            project.save(
+                update_fields=[
+                    "gitea_repo_url",
+                    "gitea_clone_url",
+                    "gitea_ssh_url",
+                    "gitea_repo_id",
+                    "gitea_repo_name",
+                    "gitea_enabled",
+                ]
+            )
 
             # Clone the repository to local filesystem
             from apps.project_app.signals import _clone_gitea_repo_to_data_dir
+
             _clone_gitea_repo_to_data_dir(project)
 
-            logger.info(f"✓ Restored project {project.name} (slug: {slug}) from Gitea repository {gitea_name}")
-            return True, f"✓ Successfully restored project '{project_name}' from Gitea repository", project.id
+            logger.info(
+                f"✓ Restored project {project.name} (slug: {slug}) from Gitea repository {gitea_name}"
+            )
+            return (
+                True,
+                f"✓ Successfully restored project '{project_name}' from Gitea repository",
+                project.id,
+            )
 
         except Exception as e:
             logger.error(f"Failed to restore repository {gitea_name}: {e}")
             logger.exception("Full traceback:")
             return False, f"✗ Error restoring repository: {str(e)}", None
+
 
 # EOF

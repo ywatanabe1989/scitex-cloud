@@ -5,6 +5,7 @@ Project List View
 
 Display list of user's projects.
 """
+
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
 

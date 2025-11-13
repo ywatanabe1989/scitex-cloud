@@ -23,14 +23,13 @@ def compilation_api(request):
     """
     try:
         data = json.loads(request.body)
-        project_id = data.get('project_id')
-        doc_type = data.get('doc_type', 'manuscript')
+        project_id = data.get("project_id")
+        doc_type = data.get("doc_type", "manuscript")
 
         if not project_id:
-            return JsonResponse({
-                'success': False,
-                'error': 'project_id required'
-            }, status=400)
+            return JsonResponse(
+                {"success": False, "error": "project_id required"}, status=400
+            )
 
         compilation_service = CompilerService(project_id, request.user.id)
         result = compilation_service.compile(doc_type)
@@ -39,10 +38,7 @@ def compilation_api(request):
 
     except Exception as e:
         logger.error(f"Compilation error: {e}", exc_info=True)
-        return JsonResponse({
-            'success': False,
-            'error': str(e)
-        }, status=500)
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
 
 
 @login_required
@@ -54,25 +50,18 @@ def status_api(request):
         - job_id: Compilation job ID
     """
     try:
-        job_id = request.GET.get('job_id')
+        job_id = request.GET.get("job_id")
 
         if not job_id:
-            return JsonResponse({
-                'success': False,
-                'error': 'job_id required'
-            }, status=400)
+            return JsonResponse(
+                {"success": False, "error": "job_id required"}, status=400
+            )
 
         compilation_service = CompilerService(None, request.user.id)
         status = compilation_service.get_status(job_id)
 
-        return JsonResponse({
-            'success': True,
-            'status': status
-        })
+        return JsonResponse({"success": True, "status": status})
 
     except Exception as e:
         logger.error(f"Status check error: {e}", exc_info=True)
-        return JsonResponse({
-            'success': False,
-            'error': str(e)
-        }, status=500)
+        return JsonResponse({"success": False, "error": str(e)}, status=500)

@@ -1,50 +1,48 @@
 <!-- Pinned Projects -->
 {% if projects %}
-<div class="readme-section">
-    <h2>📌 Featured Projects</h2>
-    <div class="pinned-projects">
-        {% for project in projects %}
-        <div class="project-card">
-            <a href="/{{ profile_user.username }}/{{ project.slug }}/" class="project-card-title">
-                {{ project.name }}
-            </a>
-            {% if project.description %}
-            <div class="project-card-description">
-                {{ project.description|truncatewords:20 }}
-            </div>
-            {% endif %}
-            <div class="project-card-meta">
-                Updated {{ project.updated_at|date:"M j, Y" }}
-            </div>
+    <div class="readme-section">
+        <h2>📌 Featured Projects</h2>
+        <div class="pinned-projects">
+            {% for project in projects %}
+                <div class="project-card">
+                    <a href="/{{ profile_user.username }}/{{ project.slug }}/"
+                       class="project-card-title">{{ project.name }}</a>
+                    {% if project.description %}
+                        <div class="project-card-description">{{ project.description|truncatewords:20 }}</div>
+                    {% endif %}
+                    <div class="project-card-meta">Updated {{ project.updated_at|date:"M j, Y" }}</div>
+                </div>
+            {% endfor %}
         </div>
-        {% endfor %}
+        {% if total_projects > 6 %}
+            <div style="text-align: center; margin-top: 1.5rem">
+                <a href="/{{ profile_user.username }}/?tab=repositories"
+                   class="btn btn-outline-primary">View all {{ total_projects }} projects</a>
+            </div>
+        {% endif %}
     </div>
-    {% if total_projects > 6 %}
-    <div style="text-align: center; margin-top: 1.5rem;">
-        <a href="/{{ profile_user.username }}/?tab=repositories" class="btn btn-outline-primary">
-            View all {{ total_projects }} projects
-        </a>
-    </div>
-    {% endif %}
-</div>
 {% endif %}
-
 <!-- Welcome Alert for Own Profile -->
 {% if is_own_profile and not profile.bio and not profile.research_interests %}
-<div class="alert-banner alert-banner-success" style="margin-bottom: var(--spacing-md);">
-    <div class="warning-banner-container">
-        <div class="warning-banner-content">
-            <i class="warning-banner-icon fas fa-check-circle"></i>
-            <div class="warning-banner-text">
-                <div class="warning-banner-title">👋 Welcome to your profile!</div>
-                <div class="warning-banner-description">
-                    This is your special profile page. Add information about yourself to make it shine!
-                    <a href="/profile/edit/" class="btn btn-primary btn-sm" style="margin-top: 0.75rem; display: inline-block;">
-                        <i class="fas fa-edit"></i> Complete Your Profile
-                    </a>
+    <div class="alert-banner alert-banner-success"
+         style="margin-bottom: var(--spacing-md)">
+        <div class="warning-banner-container">
+            <div class="warning-banner-content">
+                <i class="warning-banner-icon fas fa-check-circle"></i>
+                <div class="warning-banner-text">
+                    <div class="warning-banner-title">👋 Welcome to your profile!</div>
+                    <div class="warning-banner-description">
+                        This is your special profile page. Add information about yourself to
+                        make it shine!
+                        <a href="/profile/edit/"
+                           class="btn btn-primary btn-sm"
+                           style="margin-top: 0.75rem;
+                                  display: inline-block">
+                            <i class="fas fa-edit"></i> Complete Your Profile
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 {% endif %}

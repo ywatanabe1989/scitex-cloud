@@ -9,5 +9,5 @@ Contains external service integrations.
 # from apps.code_app.integrations.repository_integration import auto_sync_code_completion
 
 __all__ = [
-    'repository_integration',
+    "repository_integration",
 ]

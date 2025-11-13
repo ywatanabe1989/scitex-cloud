@@ -33,62 +33,62 @@
 
 /* Override Bootstrap's float-based layout for proper alignment */
 .form-check {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 /* Override Bootstrap's .form-check .form-check-input specificity */
 .form-check .form-check-input {
-    position: relative;
-    width: 18px;
-    height: 18px;
-    margin: 0 !important;
-    padding: 0;
-    appearance: none;
-    -webkit-appearance: none;
-    background-color: var(--bg-surface);
-    border: 2px solid var(--border-default);
-    border-radius: 4px;
-    cursor: pointer;
-    transition: var(--transition-fast);
-    vertical-align: middle;
-    flex-shrink: 0;
-    float: none !important;
+  position: relative;
+  width: 18px;
+  height: 18px;
+  margin: 0 !important;
+  padding: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: var(--bg-surface);
+  border: 2px solid var(--border-default);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  vertical-align: middle;
+  flex-shrink: 0;
+  float: none !important;
 }
 
 .form-check .form-check-input:hover:not(:disabled) {
-    border-color: var(--_scitex-02);
-    box-shadow: 0 0 0 3px rgba(52, 73, 94, 0.1);
+  border-color: var(--_scitex-02);
+  box-shadow: 0 0 0 3px rgba(52, 73, 94, 0.1);
 }
 
 .form-check .form-check-input:focus {
-    outline: 0;
-    border-color: var(--_scitex-02);
-    box-shadow: 0 0 0 3px rgba(52, 73, 94, 0.15);
+  outline: 0;
+  border-color: var(--_scitex-02);
+  box-shadow: 0 0 0 3px rgba(52, 73, 94, 0.15);
 }
 
 .form-check .form-check-input:checked {
-    background-color: var(--_scitex-02);
-    border-color: var(--_scitex-02);
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="white"><path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/></svg>');
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 12px;
-    background-clip: border-box;
+  background-color: var(--_scitex-02);
+  border-color: var(--_scitex-02);
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="white"><path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/></svg>');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 12px;
+  background-clip: border-box;
 }
 
 .form-check .form-check-input:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* Inline checkbox variant */
 .form-check-inline {
-    display: inline-flex;
-    align-items: center;
-    margin-right: 1rem;
-    gap: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  margin-right: 1rem;
+  gap: 0.5rem;
 }
 
 /* =========================

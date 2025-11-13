@@ -2,122 +2,118 @@
 /* ACTIONS / WORKFLOW_DETAIL */
 /* ============================================================================= */
 
-
 .workflow-header {
-    padding: 1.5rem 0;
-    border-bottom: 1px solid var(--color-border-default);
+  padding: 1.5rem 0;
+  border-bottom: 1px solid var(--color-border-default);
 }
 
 .workflow-title {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--color-fg-default);
-    display: flex;
-    align-items: center;
-    gap: 1rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-fg-default);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .workflow-actions {
-    display: flex;
-    gap: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
 }
 
 .workflow-stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 1rem;
-    margin: 1.5rem 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
 }
 
 .stat-card {
-    padding: 1rem;
-    border: 1px solid var(--color-border-default);
-    border-radius: 6px;
-    background: var(--color-canvas-default);
+  padding: 1rem;
+  border: 1px solid var(--color-border-default);
+  border-radius: 6px;
+  background: var(--color-canvas-default);
 }
 
 .stat-value {
-    font-size: 1.5rem;
-    font-weight: 600;
+  font-size: 1.5rem;
+  font-weight: 600;
 }
 
 .stat-label {
-    font-size: 0.875rem;
-    color: var(--color-fg-muted);
-    margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: var(--color-fg-muted);
+  margin-top: 0.25rem;
 }
 
 .runs-section {
-    margin-top: 2rem;
+  margin-top: 2rem;
 }
 
 .run-item {
-    padding: 1rem;
-    border: 1px solid var(--color-border-default);
-    border-radius: 6px;
-    margin-bottom: 0.5rem;
-    background: var(--color-canvas-default);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  padding: 1rem;
+  border: 1px solid var(--color-border-default);
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+  background: var(--color-canvas-default);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .run-info {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .run-status-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.25rem 0.75rem;
-    border-radius: 12px;
-    font-size: 0.875rem;
-    font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 500;
 }
 
 .run-status-badge.success {
-    background: var(--color-success-subtle);
-    color: var(--color-success-fg);
+  background: var(--color-success-subtle);
+  color: var(--color-success-fg);
 }
 
 .run-status-badge.failure {
-    background: var(--color-danger-subtle);
-    color: var(--color-danger-fg);
+  background: var(--color-danger-subtle);
+  color: var(--color-danger-fg);
 }
 
 .run-status-badge.in_progress {
-    background: var(--color-accent-subtle);
-    color: var(--color-accent-fg);
+  background: var(--color-accent-subtle);
+  color: var(--color-accent-fg);
 }
 
 .yaml-viewer {
-    margin-top: 2rem;
-    border: 1px solid var(--color-border-default);
-    border-radius: 6px;
-    overflow: hidden;
+  margin-top: 2rem;
+  border: 1px solid var(--color-border-default);
+  border-radius: 6px;
+  overflow: hidden;
 }
 
 .yaml-viewer-header {
-    padding: 0.75rem 1rem;
-    background: var(--color-canvas-subtle);
-    border-bottom: 1px solid var(--color-border-default);
-    font-weight: 600;
+  padding: 0.75rem 1rem;
+  background: var(--color-canvas-subtle);
+  border-bottom: 1px solid var(--color-border-default);
+  font-weight: 600;
 }
 
 .yaml-viewer-content {
-    padding: 1rem;
-    background: var(--color-canvas-default);
-    overflow-x: auto;
+  padding: 1rem;
+  background: var(--color-canvas-default);
+  overflow-x: auto;
 }
 
 .yaml-viewer-content pre {
-    margin: 0;
-    font-family: 'Monaco', 'Courier New', monospace;
-    font-size: 0.875rem;
+  margin: 0;
+  font-family: "Monaco", "Courier New", monospace;
+  font-size: 0.875rem;
 }
-
-
-

@@ -12,7 +12,6 @@ Provides helper functions for syncing Django users and projects with Gitea.
 import logging
 from typing import Optional
 from django.contrib.auth.models import User
-from django.conf import settings
 from apps.gitea_app.api_client import GiteaClient
 from apps.gitea_app.exceptions import (
     GiteaAPIError,
@@ -39,7 +38,7 @@ def sync_user_to_gitea(user: User, password: Optional[str] = None) -> bool:
 
         # Check if user exists in Gitea
         try:
-            gitea_user = client._request('GET', f'/users/{user.username}').json()
+            gitea_user = client._request("GET", f"/users/{user.username}").json()
             logger.info(f"Gitea user already exists: {user.username}")
             return True
         except GiteaAPIError:
@@ -48,19 +47,21 @@ def sync_user_to_gitea(user: User, password: Optional[str] = None) -> bool:
 
         # Create new Gitea user (requires admin token)
         if not password:
-            logger.warning(f"Cannot create Gitea user {user.username}: password required")
+            logger.warning(
+                f"Cannot create Gitea user {user.username}: password required"
+            )
             return False
 
         user_data = {
-            'username': user.username,
-            'email': user.email,
-            'password': password,
-            'full_name': user.get_full_name() or user.username,
-            'send_notify': False,
-            'must_change_password': False,
+            "username": user.username,
+            "email": user.email,
+            "password": password,
+            "full_name": user.get_full_name() or user.username,
+            "send_notify": False,
+            "must_change_password": False,
         }
 
-        response = client._request('POST', '/admin/users', json=user_data)
+        response = client._request("POST", "/admin/users", json=user_data)
         gitea_user = response.json()
 
         logger.info(f"✓ Created Gitea user: {user.username}")
@@ -119,7 +120,7 @@ def ensure_gitea_user_exists(user: User) -> bool:
 
     # Check if user already exists
     try:
-        gitea_user = client._request('GET', f'/users/{user.username}').json()
+        gitea_user = client._request("GET", f"/users/{user.username}").json()
         logger.info(f"Gitea user already exists: {user.username}")
         return True
     except GiteaAPIError:
@@ -130,21 +131,22 @@ def ensure_gitea_user_exists(user: User) -> bool:
         # Users don't need to know this password since they authenticate via Django
         import secrets
         import string
+
         alphabet = string.ascii_letters + string.digits + string.punctuation
-        random_password = ''.join(secrets.choice(alphabet) for _ in range(20))
+        random_password = "".join(secrets.choice(alphabet) for _ in range(20))
 
         # Create Gitea user via admin API
         user_data = {
-            'username': user.username,
-            'email': user.email,
-            'password': random_password,
-            'full_name': user.get_full_name() or user.username,
-            'send_notify': False,
-            'must_change_password': False,
+            "username": user.username,
+            "email": user.email,
+            "password": random_password,
+            "full_name": user.get_full_name() or user.username,
+            "send_notify": False,
+            "must_change_password": False,
         }
 
         try:
-            response = client._request('POST', '/admin/users', json=user_data)
+            response = client._request("POST", "/admin/users", json=user_data)
             logger.info(f"✓ Created Gitea user: {user.username}")
             return True
         except GiteaAPIError as e:

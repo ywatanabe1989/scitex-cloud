@@ -281,7 +281,7 @@
   border: 1px solid var(--color-border-default);
   max-height: 400px;
   overflow-y: auto;
-  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
+  font-family: "SF Mono", "Monaco", "Inconsolata", "Fira Code", monospace;
 }
 
 /* Demo Content Box */
@@ -331,10 +331,13 @@
   border-bottom: 1px solid var(--border-300);
   padding-bottom: 0.5rem;
   margin-bottom: 1.5rem;
-  color: var(--text-900); /* Darkest - adapts to theme (black in light, near-black in dark) */
+  color: var(
+    --text-900
+  ); /* Darkest - adapts to theme (black in light, near-black in dark) */
 }
 
-.design-section h3, .design-section h4 {
+.design-section h3,
+.design-section h4 {
   color: var(--text-900); /* Darkest - primary headings */
 }
 
@@ -391,7 +394,7 @@
 .color-swatch strong {
   font-size: 1rem;
   margin-bottom: 0.25rem;
-  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
+  font-family: "SF Mono", "Monaco", "Inconsolata", "Fira Code", monospace;
 }
 
 .color-swatch small {
@@ -514,7 +517,7 @@
 }
 
 [data-theme="dark"] .section-btn.btn-outline-primary {
-  color: var(--scitex-color-06) !important;  /* Light bluish */
+  color: var(--scitex-color-06) !important; /* Light bluish */
   border-color: var(--scitex-color-04) !important;
 }
 
@@ -524,7 +527,7 @@
 }
 
 [data-theme="dark"] .btn-secondary {
-  color: var(--scitex-color-01) !important;  /* Dark text */
+  color: var(--scitex-color-01) !important; /* Dark text */
   background: var(--scitex-color-05) !important;
 }
 
@@ -541,7 +544,7 @@
 
 [data-theme="dark"] .example-display .btn-outline-primary,
 [data-theme="dark"] .example-display .btn-outline-secondary {
-  color: var(--scitex-color-07) !important;  /* Light text */
+  color: var(--scitex-color-07) !important; /* Light text */
   border-color: var(--scitex-color-05) !important;
 }
 
@@ -590,32 +593,32 @@
 
 /* Dark mode outline buttons - brighter, more visible */
 [data-theme="dark"] .example-display .btn-outline-success {
-  color: #5fb98c !important;  /* Brighter green */
+  color: #5fb98c !important; /* Brighter green */
   border-color: #5fb98c !important;
 }
 
 [data-theme="dark"] .example-display .btn-outline-danger {
-  color: #c99090 !important;  /* Brighter red */
+  color: #c99090 !important; /* Brighter red */
   border-color: #c99090 !important;
 }
 
 [data-theme="dark"] .example-display .btn-outline-warning {
-  color: #d4a876 !important;  /* Brighter orange */
+  color: #d4a876 !important; /* Brighter orange */
   border-color: #d4a876 !important;
 }
 
 [data-theme="dark"] .example-display .btn-outline-info {
-  color: #89a8c9 !important;  /* Brighter blue */
+  color: #89a8c9 !important; /* Brighter blue */
   border-color: #89a8c9 !important;
 }
 
 [data-theme="dark"] .example-display .btn-outline-light {
-  color: var(--scitex-color-07) !important;  /* Very light */
+  color: var(--scitex-color-07) !important; /* Very light */
   border-color: var(--scitex-color-06) !important;
 }
 
 [data-theme="dark"] .example-display .btn-outline-dark {
-  color: var(--scitex-color-06) !important;  /* Light for "dark" button */
+  color: var(--scitex-color-06) !important; /* Light for "dark" button */
   border-color: var(--scitex-color-05) !important;
 }
 
@@ -647,7 +650,9 @@
 
 /* Table header styling for dark mode */
 [data-theme="dark"] .table-light {
-  background-color: var(--scitex-color-01-light) !important;  /* Darker than default */
+  background-color: var(
+    --scitex-color-01-light
+  ) !important; /* Darker than default */
   color: var(--scitex-color-07) !important;
 }
 
@@ -672,13 +677,18 @@
 
 /* Hero Section Dark Mode */
 [data-theme="dark"] .hero-design-system {
-  background: radial-gradient(ellipse at center, #506b7a 0%, #34495e 50%, #1a2332 100%) !important;
+  background: radial-gradient(
+    ellipse at center,
+    #506b7a 0%,
+    #34495e 50%,
+    #1a2332 100%
+  ) !important;
 }
 
 [data-theme="dark"] .hero-design-system h1,
 [data-theme="dark"] .hero-design-system p {
   color: var(--scitex-color-07) !important;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.5) !important;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5) !important;
 }
 
 [data-theme="dark"] .hero-btn-primary {
@@ -753,44 +763,63 @@ code[style*="background:#e9ecef"] {
 /* Moved from the style in bottom */
 /* Animated gradient for the live processing hero */
 .animated-gradient-hero {
-  background: linear-gradient(-45deg, var(--darkgray-900), var(--darkgray-700), var(--darkgray-500), var(--darkgray-600));
+  background: linear-gradient(
+    -45deg,
+    var(--darkgray-900),
+    var(--darkgray-700),
+    var(--darkgray-500),
+    var(--darkgray-600)
+  );
   background-size: 400% 400%;
   animation: gradientShift 8s ease infinite;
 }
 
 @keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 /* Shine animation for demo */
 .hero-shine-demo::before {
-  content: '';
+  content: "";
   position: absolute;
   top: -50%;
   left: -50%;
   width: 200%;
   height: 200%;
-  background: linear-gradient(45deg,
+  background: linear-gradient(
+    45deg,
     transparent 0%,
     transparent 40%,
-    rgba(255,255,255,0.1) 50%,
+    rgba(255, 255, 255, 0.1) 50%,
     transparent 60%,
-    transparent 100%);
+    transparent 100%
+  );
   animation: shineDemo 6s ease-in-out infinite;
   pointer-events: none;
 }
 
 @keyframes shineDemo {
-  0%, 100% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-  50% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+  0%,
+  100% {
+    transform: translateX(-100%) translateY(-100%) rotate(45deg);
+  }
+  50% {
+    transform: translateX(100%) translateY(100%) rotate(45deg);
+  }
 }
 
 /* Enhanced hero examples with better visual hierarchy */
 .design-section .example-display {
   margin-bottom: 1rem;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
 }
 
 .design-section .example-code {
@@ -820,57 +849,57 @@ code[style*="background:#e9ecef"] {
 
 /* Tab container */
 .scitex-tabs {
-    display: flex;
-    gap: 0;
-    border-bottom: 1px solid var(--color-border-default);
-    padding: 0;
-    margin-bottom: 0;
-    overflow: visible;
-    position: relative;
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--color-border-default);
+  padding: 0;
+  margin-bottom: 0;
+  overflow: visible;
+  position: relative;
 }
 
 /* Individual tab */
 .scitex-tab {
-    padding: 0.5rem 1rem;
-    color: var(--text-secondary);
-    text-decoration: none;
-    border-bottom: 2px solid transparent;
-    white-space: nowrap;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    transition: all 0.2s ease;
-    background: transparent;
-    border-left: none;
-    border-right: none;
-    border-top: none;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 400;
+  padding: 0.5rem 1rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  background: transparent;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 400;
 }
 
 /* Tab icon */
 .scitex-tab i {
-    font-size: 16px;
+  font-size: 16px;
 }
 
 /* Tab hover state */
 .scitex-tab:hover {
-    color: var(--text-primary);
-    border-bottom-color: var(--color-border-default);
-    text-decoration: none;
+  color: var(--text-primary);
+  border-bottom-color: var(--color-border-default);
+  text-decoration: none;
 }
 
 /* Active tab */
 .scitex-tab-active,
 .scitex-tab.active {
-    color: var(--text-primary);
-    border-bottom: 2px solid var(--scitex-color-03);
-    font-weight: 600;
+  color: var(--text-primary);
+  border-bottom: 2px solid var(--scitex-color-03);
+  font-weight: 600;
 }
 
 /* Dark theme active tab */
 [data-theme="dark"] .scitex-tab-active,
 [data-theme="dark"] .scitex-tab.active {
-    border-bottom-color: var(--scitex-color-05);
+  border-bottom-color: var(--scitex-color-05);
 }

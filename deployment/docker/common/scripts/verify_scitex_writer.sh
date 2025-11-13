@@ -8,7 +8,7 @@ THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
 LOG_PATH="$THIS_DIR/.$(basename $0).log"
 echo > "$LOG_PATH"
 
-GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
+GIT_ROOT="$(git rev-parse --show-toplevel 2> /dev/null)"
 
 GRAY='\033[0;90m'
 GREEN='\033[0;32m'
@@ -43,8 +43,8 @@ check_cmd yq
 check_cmd jq
 
 # Diagram tools
-check_cmd convert     # ImageMagick
-check_cmd mmdc        # Mermaid CLI
+check_cmd convert # ImageMagick
+check_cmd mmdc    # Mermaid CLI
 
 # Python packages
 python -c "import bibtexparser" && echo "✓ bibtexparser" || echo "✗ bibtexparser"

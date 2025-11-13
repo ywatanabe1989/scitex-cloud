@@ -18,27 +18,22 @@ from .policy import security_policy
 
 __all__ = [
     # Overview
-    'security_overview',
-
+    "security_overview",
     # Alerts
-    'security_alerts',
-    'security_alert_detail',
-    'dismiss_alert',
-    'reopen_alert',
-    'create_fix_pr',
-
+    "security_alerts",
+    "security_alert_detail",
+    "dismiss_alert",
+    "reopen_alert",
+    "create_fix_pr",
     # Scan
-    'security_scan_history',
-    'trigger_security_scan',
-
+    "security_scan_history",
+    "trigger_security_scan",
     # Advisories
-    'security_advisories',
-    'security_advisory_detail',
-
+    "security_advisories",
+    "security_advisory_detail",
     # Dependency
-    'security_dependency_graph',
-    'api_dependency_tree',
-
+    "security_dependency_graph",
+    "api_dependency_tree",
     # Policy
-    'security_policy',
+    "security_policy",
 ]

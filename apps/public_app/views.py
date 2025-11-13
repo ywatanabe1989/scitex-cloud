@@ -5,9 +5,8 @@
 # ----------------------------------------
 from __future__ import annotations
 import os
-__FILE__ = (
-    "./apps/public_app/views.py"
-)
+
+__FILE__ = "./apps/public_app/views.py"
 __DIR__ = os.path.dirname(__FILE__)
 # ----------------------------------------
 
@@ -270,11 +269,10 @@ def publications(request):
 
 def donate(request):
     """Donate page view with payment processing."""
-    import json
 
     from django.contrib import messages
 
-    from .forms import DonationForm, EmailVerificationForm, VerifyCodeForm
+    from .forms import DonationForm, EmailVerificationForm
     from .models import Donation, DonationTier
 
     # Get donation tiers
@@ -290,12 +288,10 @@ def donate(request):
             email_form = EmailVerificationForm(request.POST)
             if email_form.is_valid():
                 if email_form.send_verification_email():
-                    messages.success(
-                        request, "Verification code sent to your email!"
-                    )
-                    request.session["verification_email"] = (
-                        email_form.cleaned_data["email"]
-                    )
+                    messages.success(request, "Verification code sent to your email!")
+                    request.session["verification_email"] = email_form.cleaned_data[
+                        "email"
+                    ]
                     return redirect("cloud_app:verify-email")
                 else:
                     messages.error(
@@ -574,7 +570,6 @@ def donation_success(request, donation_id):
 def send_donation_confirmation(donation):
     """Send donation confirmation email."""
     from django.core.mail import send_mail
-    from django.template.loader import render_to_string
 
     subject = "Thank you for supporting SciTeX!"
 
@@ -590,7 +585,7 @@ Transaction Details:
 - Amount: ${donation.amount} USD
 - Payment Method: {donation.get_payment_method_display()}
 - Transaction ID: {donation.transaction_id}
-- Date: {donation.completed_at.strftime('%B %d, %Y')}
+- Date: {donation.completed_at.strftime("%B %d, %Y")}
 
 This email serves as your donation receipt for tax purposes.
 
@@ -697,9 +692,7 @@ def scitex_api_keys(request):
         if action == "create":
             name = request.POST.get("name", "").strip()
             if not name:
-                messages.error(
-                    request, "Please provide a name for your API key"
-                )
+                messages.error(request, "Please provide a name for your API key")
                 return redirect("public_app:scitex_api_keys")
 
             # Create new API key
@@ -711,9 +704,7 @@ def scitex_api_keys(request):
 
             # Store the full key in session to show once
             request.session["new_api_key"] = full_key
-            messages.success(
-                request, f'API key "{name}" created successfully!'
-            )
+            messages.success(request, f'API key "{name}" created successfully!')
             return redirect("public_app:scitex_api_keys")
 
         elif action == "delete":
@@ -803,5 +794,6 @@ def tool_element_inspector(request):
 def tool_asta_citation_scraper(request):
     """Asta AI Citation Scraper tool detail page."""
     return render(request, "public_app/tools/asta-citation-scraper.html")
+
 
 # EOF

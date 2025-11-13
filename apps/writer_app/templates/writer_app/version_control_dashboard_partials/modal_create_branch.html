@@ -9,14 +9,23 @@
             <form id="createBranchForm">
                 <div class="form-group">
                     <label class="form-label">Branch Name</label>
-                    <input type="text" class="form-control" id="branchNameInput" placeholder="feature/new-section" required>
+                    <input type="text"
+                           class="form-control"
+                           id="branchNameInput"
+                           placeholder="feature/new-section"
+                           required />
                 </div>
                 <div class="form-group">
                     <label class="form-label">Description</label>
-                    <textarea class="form-control" id="branchDescription" rows="3" placeholder="Describe the purpose of this branch..."></textarea>
+                    <textarea class="form-control"
+                              id="branchDescription"
+                              rows="3"
+                              placeholder="Describe the purpose of this branch..."></textarea>
                 </div>
                 <div class="text-right mt-1-5">
-                    <button type="button" class="btn-secondary" onclick="closeModal('createBranchModal')">Cancel</button>
+                    <button type="button"
+                            class="btn-secondary"
+                            onclick="closeModal('createBranchModal')">Cancel</button>
                     <button type="submit" class="btn-primary">Create Branch</button>
                 </div>
             </form>
@@ -24,244 +33,243 @@
     </div>
 </div>
 {% endblock %}
-
 {% block extra_js %}
-<script>
-// Version Control Index JavaScript
-const manuscriptId = {{ manuscript.id }};
-let currentDiffVersions = null;
+    <script>
+  // Version Control Index JavaScript
+  const manuscriptId = {{ manuscript.id }};
+  let currentDiffVersions = null;
 
-// Modal functions
-function openModal(modalId) {
-    document.getElementById(modalId).style.display = 'block';
-}
+  // Modal functions
+  function openModal(modalId) {
+      document.getElementById(modalId).style.display = 'block';
+  }
 
-function closeModal(modalId) {
-    document.getElementById(modalId).style.display = 'none';
-}
+  function closeModal(modalId) {
+      document.getElementById(modalId).style.display = 'none';
+  }
 
-// Version management functions
-function createVersion() {
-    openModal('createVersionModal');
-}
+  // Version management functions
+  function createVersion() {
+      openModal('createVersionModal');
+  }
 
-function createBranch() {
-    openModal('createBranchModal');
-}
+  function createBranch() {
+      openModal('createBranchModal');
+  }
 
-function loadVersionHistory() {
-    window.location.href = `{% url 'writer:version-history' manuscript.id %}`;
-}
+  function loadVersionHistory() {
+      window.location.href = `{% url 'writer:version-history' manuscript.id %}`;
+  }
 
-function viewDiff(versionId) {
-    // For simplicity, compare with previous version
-    // In a full implementation, you'd have a version selection interface
-    const versionItems = document.querySelectorAll('.version-item');
-    const currentIndex = Array.from(versionItems).findIndex(item => 
-        item.querySelector('.version-actions button').onclick.toString().includes(versionId)
-    );
-    
-    if (currentIndex < versionItems.length - 1) {
-        const previousVersionButton = versionItems[currentIndex + 1].querySelector('.version-actions button');
-        const previousVersionId = previousVersionButton.onclick.toString().match(/'([^']+)'/)[1];
-        
-        loadDiff(previousVersionId, versionId);
-    } else {
-        alert('No previous version to compare with');
-    }
-}
+  function viewDiff(versionId) {
+      // For simplicity, compare with previous version
+      // In a full implementation, you'd have a version selection interface
+      const versionItems = document.querySelectorAll('.version-item');
+      const currentIndex = Array.from(versionItems).findIndex(item =>
+          item.querySelector('.version-actions button').onclick.toString().includes(versionId)
+      );
 
-function loadDiff(fromVersionId, toVersionId) {
-    currentDiffVersions = { from: fromVersionId, to: toVersionId };
-    
-    const diffType = document.getElementById('diff-type').value;
-    
-    fetch(`/writer/api/version/${manuscriptId}/diff/${fromVersionId}/${toVersionId}/?type=${diffType}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                document.getElementById('diff-content').innerHTML = data.diff.html;
-                document.getElementById('diff-viewer').style.display = 'block';
-            } else {
-                alert('Error loading diff: ' + data.error);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error loading diff');
-        });
-}
+      if (currentIndex < versionItems.length - 1) {
+          const previousVersionButton = versionItems[currentIndex + 1].querySelector('.version-actions button');
+          const previousVersionId = previousVersionButton.onclick.toString().match(/'([^']+)'/)[1];
 
-function changeDiffType() {
-    if (currentDiffVersions) {
-        loadDiff(currentDiffVersions.from, currentDiffVersions.to);
-    }
-}
+          loadDiff(previousVersionId, versionId);
+      } else {
+          alert('No previous version to compare with');
+      }
+  }
 
-function closeDiffViewer() {
-    document.getElementById('diff-viewer').style.display = 'none';
-    currentDiffVersions = null;
-}
+  function loadDiff(fromVersionId, toVersionId) {
+      currentDiffVersions = { from: fromVersionId, to: toVersionId };
 
-function rollbackToVersion(versionId) {
-    if (confirm('Are you sure you want to rollback to this version? This will create a new version with the content from the selected version.')) {
-        fetch(`/writer/api/version/${manuscriptId}/rollback/${versionId}/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Rollback successful! New version created: ' + data.rollback_version.version_number);
-                location.reload();
-            } else {
-                alert('Error during rollback: ' + data.error);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error during rollback');
-        });
-    }
-}
+      const diffType = document.getElementById('diff-type').value;
 
-function createMergeRequest(sourceBranchId) {
-    // Simplified - in a full implementation, you'd have a modal for merge request details
-    const title = prompt('Enter merge request title:');
-    if (title) {
-        fetch(`/writer/api/merge/${manuscriptId}/create/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            },
-            body: JSON.stringify({
-                title: title,
-                source_branch_id: sourceBranchId,
-                target_branch_id: 'main',  // Assuming merge to main
-                description: ''
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Merge request created successfully!');
-                location.reload();
-            } else {
-                alert('Error creating merge request: ' + data.error);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error creating merge request');
-        });
-    }
-}
+      fetch(`/writer/api/version/${manuscriptId}/diff/${fromVersionId}/${toVersionId}/?type=${diffType}`)
+          .then(response => response.json())
+          .then(data => {
+              if (data.success) {
+                  document.getElementById('diff-content').innerHTML = data.diff.html;
+                  document.getElementById('diff-viewer').style.display = 'block';
+              } else {
+                  alert('Error loading diff: ' + data.error);
+              }
+          })
+          .catch(error => {
+              console.error('Error:', error);
+              alert('Error loading diff');
+          });
+  }
 
-function viewBranch(branchId) {
-    // Navigate to branch view
-    alert('Branch view not implemented yet');
-}
+  function changeDiffType() {
+      if (currentDiffVersions) {
+          loadDiff(currentDiffVersions.from, currentDiffVersions.to);
+      }
+  }
 
-function viewMergeRequest(mergeRequestId) {
-    // Navigate to merge request view
-    alert('Merge request view not implemented yet');
-}
+  function closeDiffViewer() {
+      document.getElementById('diff-viewer').style.display = 'none';
+      currentDiffVersions = null;
+  }
 
-// Form submissions
-document.getElementById('createVersionForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const formData = {
-        commit_message: document.getElementById('commitMessage').value,
-        version_tag: document.getElementById('versionTag').value,
-        branch_name: document.getElementById('branchName').value,
-        is_major: document.getElementById('isMajor').checked
-    };
-    
-    fetch(`/writer/api/version/${manuscriptId}/create/`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify(formData)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Version created successfully: v' + data.version.version_number);
-            closeModal('createVersionModal');
-            location.reload();
-        } else {
-            alert('Error creating version: ' + data.error);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error creating version');
-    });
-});
+  function rollbackToVersion(versionId) {
+      if (confirm('Are you sure you want to rollback to this version? This will create a new version with the content from the selected version.')) {
+          fetch(`/writer/api/version/${manuscriptId}/rollback/${versionId}/`, {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+                  'X-CSRFToken': getCookie('csrftoken')
+              }
+          })
+          .then(response => response.json())
+          .then(data => {
+              if (data.success) {
+                  alert('Rollback successful! New version created: ' + data.rollback_version.version_number);
+                  location.reload();
+              } else {
+                  alert('Error during rollback: ' + data.error);
+              }
+          })
+          .catch(error => {
+              console.error('Error:', error);
+              alert('Error during rollback');
+          });
+      }
+  }
 
-document.getElementById('createBranchForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const formData = {
-        name: document.getElementById('branchNameInput').value,
-        description: document.getElementById('branchDescription').value
-    };
-    
-    fetch(`/writer/api/branch/${manuscriptId}/create/`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify(formData)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Branch created successfully: ' + data.branch.name);
-            closeModal('createBranchModal');
-            location.reload();
-        } else {
-            alert('Error creating branch: ' + data.error);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error creating branch');
-    });
-});
+  function createMergeRequest(sourceBranchId) {
+      // Simplified - in a full implementation, you'd have a modal for merge request details
+      const title = prompt('Enter merge request title:');
+      if (title) {
+          fetch(`/writer/api/merge/${manuscriptId}/create/`, {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+                  'X-CSRFToken': getCookie('csrftoken')
+              },
+              body: JSON.stringify({
+                  title: title,
+                  source_branch_id: sourceBranchId,
+                  target_branch_id: 'main',  // Assuming merge to main
+                  description: ''
+              })
+          })
+          .then(response => response.json())
+          .then(data => {
+              if (data.success) {
+                  alert('Merge request created successfully!');
+                  location.reload();
+              } else {
+                  alert('Error creating merge request: ' + data.error);
+              }
+          })
+          .catch(error => {
+              console.error('Error:', error);
+              alert('Error creating merge request');
+          });
+      }
+  }
 
-// Utility function to get CSRF token
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
+  function viewBranch(branchId) {
+      // Navigate to branch view
+      alert('Branch view not implemented yet');
+  }
 
-// Close modals when clicking outside
-window.onclick = function(event) {
-    const modals = document.querySelectorAll('.modal');
-    modals.forEach(modal => {
-        if (event.target === modal) {
-            modal.style.display = 'none';
-        }
-    });
-}
-</script>
+  function viewMergeRequest(mergeRequestId) {
+      // Navigate to merge request view
+      alert('Merge request view not implemented yet');
+  }
+
+  // Form submissions
+  document.getElementById('createVersionForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const formData = {
+          commit_message: document.getElementById('commitMessage').value,
+          version_tag: document.getElementById('versionTag').value,
+          branch_name: document.getElementById('branchName').value,
+          is_major: document.getElementById('isMajor').checked
+      };
+
+      fetch(`/writer/api/version/${manuscriptId}/create/`, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': getCookie('csrftoken')
+          },
+          body: JSON.stringify(formData)
+      })
+      .then(response => response.json())
+      .then(data => {
+          if (data.success) {
+              alert('Version created successfully: v' + data.version.version_number);
+              closeModal('createVersionModal');
+              location.reload();
+          } else {
+              alert('Error creating version: ' + data.error);
+          }
+      })
+      .catch(error => {
+          console.error('Error:', error);
+          alert('Error creating version');
+      });
+  });
+
+  document.getElementById('createBranchForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const formData = {
+          name: document.getElementById('branchNameInput').value,
+          description: document.getElementById('branchDescription').value
+      };
+
+      fetch(`/writer/api/branch/${manuscriptId}/create/`, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': getCookie('csrftoken')
+          },
+          body: JSON.stringify(formData)
+      })
+      .then(response => response.json())
+      .then(data => {
+          if (data.success) {
+              alert('Branch created successfully: ' + data.branch.name);
+              closeModal('createBranchModal');
+              location.reload();
+          } else {
+              alert('Error creating branch: ' + data.error);
+          }
+      })
+      .catch(error => {
+          console.error('Error:', error);
+          alert('Error creating branch');
+      });
+  });
+
+  // Utility function to get CSRF token
+  function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+          const cookies = document.cookie.split(';');
+          for (let i = 0; i < cookies.length; i++) {
+              const cookie = cookies[i].trim();
+              if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                  break;
+              }
+          }
+      }
+      return cookieValue;
+  }
+
+  // Close modals when clicking outside
+  window.onclick = function(event) {
+      const modals = document.querySelectorAll('.modal');
+      modals.forEach(modal => {
+          if (event.target === modal) {
+              modal.style.display = 'none';
+          }
+      });
+  }
+    </script>
 {% endblock %}

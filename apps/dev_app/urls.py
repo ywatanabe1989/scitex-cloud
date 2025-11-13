@@ -5,16 +5,14 @@
 # ----------------------------------------
 from __future__ import annotations
 import os
-__FILE__ = (
-    "./apps/dev_app/urls.py"
-)
+
+__FILE__ = "./apps/dev_app/urls.py"
 __DIR__ = os.path.dirname(__FILE__)
 # ----------------------------------------
 
 from django.urls import path
 
 from . import views
-from .views import DesignSystemView
 from apps.core_app.views.console_logger import log_console
 
 app_name = "dev_app"
@@ -48,9 +46,7 @@ urlpatterns = [
         views.DesignSpacingView.as_view(),
         name="design_spacing",
     ),
-    path(
-        "design/theme/", views.DesignThemeView.as_view(), name="design_theme"
-    ),
+    path("design/theme/", views.DesignThemeView.as_view(), name="design_theme"),
     path(
         "design/guidelines/",
         views.DesignGuidelinesView.as_view(),

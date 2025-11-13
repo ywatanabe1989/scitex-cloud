@@ -29,9 +29,9 @@ echo_header() { echo -e "${BLUE}$1${NC}"; }
 
 # Detect environment
 detect_environment() {
-    if systemctl is-active --quiet scitex_cloud_prod 2>/dev/null; then
+    if systemctl is-active --quiet scitex_cloud_prod 2> /dev/null; then
         echo "production"
-    elif systemctl is-active --quiet scitex_cloud_dev 2>/dev/null; then
+    elif systemctl is-active --quiet scitex_cloud_dev 2> /dev/null; then
         echo "development"
     elif [ -S /tmp/scitex_cloud_dev.sock ] || [ -S /tmp/scitex_cloud_prod.sock ]; then
         echo "socket"
@@ -47,7 +47,7 @@ check_development() {
 
     # Service status
     echo_info "Service Status:"
-    if systemctl is-active --quiet scitex_cloud_dev 2>/dev/null; then
+    if systemctl is-active --quiet scitex_cloud_dev 2> /dev/null; then
         echo_success "  ✓ Service active"
 
         # Service details
@@ -56,7 +56,7 @@ check_development() {
     else
         echo_error "  ✗ Service not active"
 
-        if systemctl is-enabled --quiet scitex_cloud_dev 2>/dev/null; then
+        if systemctl is-enabled --quiet scitex_cloud_dev 2> /dev/null; then
             echo_warning "  ⚠ Service enabled but not running"
             echo_info "  Start with: sudo systemctl start scitex_cloud_dev"
         else
@@ -69,7 +69,7 @@ check_development() {
 
     # Process info
     echo_info "Process Info:"
-    systemctl show scitex_cloud_dev --property=MainPID --value | xargs -I {} ps -p {} -o pid,user,%cpu,%mem,vsz,rss,tty,stat,start,time,comm 2>/dev/null | sed 's/^/  /'
+    systemctl show scitex_cloud_dev --property=MainPID --value | xargs -I {} ps -p {} -o pid,user,%cpu,%mem,vsz,rss,tty,stat,start,time,comm 2> /dev/null | sed 's/^/  /'
     echo
 
     # Socket check
@@ -96,7 +96,7 @@ check_development() {
 
     # Recent logs
     echo_info "Recent Logs (last 10 lines):"
-    sudo journalctl -u scitex_cloud_dev -n 10 --no-pager 2>/dev/null | sed 's/^/  /'
+    sudo journalctl -u scitex_cloud_dev -n 10 --no-pager 2> /dev/null | sed 's/^/  /'
 }
 
 # Check production
@@ -115,7 +115,7 @@ check_production() {
     else
         echo_error "  ✗ Service not active"
 
-        if systemctl is-enabled --quiet scitex_cloud_prod 2>/dev/null; then
+        if systemctl is-enabled --quiet scitex_cloud_prod 2> /dev/null; then
             echo_warning "  ⚠ Service enabled but not running"
             echo_info "  Start with: sudo systemctl start scitex_cloud_prod"
         else
@@ -128,7 +128,7 @@ check_production() {
 
     # Process info
     echo_info "Process Info:"
-    systemctl show scitex_cloud_prod --property=MainPID --value | xargs -I {} ps -p {} -o pid,user,%cpu,%mem,vsz,rss,tty,stat,start,time,comm 2>/dev/null | sed 's/^/  /'
+    systemctl show scitex_cloud_prod --property=MainPID --value | xargs -I {} ps -p {} -o pid,user,%cpu,%mem,vsz,rss,tty,stat,start,time,comm 2> /dev/null | sed 's/^/  /'
 
     # Show all uWSGI workers
     echo_info "  Workers:"
@@ -154,8 +154,8 @@ check_production() {
         echo_info "  Path: deployment/uwsgi/scitex_cloud_prod.ini"
 
         # Show key configuration
-        echo_info "  Workers: $(grep "^processes" /home/ywatanabe/proj/scitex-cloud/deployment/uwsgi/scitex_cloud_prod.ini 2>/dev/null | cut -d'=' -f2 | tr -d ' ')"
-        echo_info "  Threads: $(grep "^threads" /home/ywatanabe/proj/scitex-cloud/deployment/uwsgi/scitex_cloud_prod.ini 2>/dev/null | cut -d'=' -f2 | tr -d ' ')"
+        echo_info "  Workers: $(grep "^processes" /home/ywatanabe/proj/scitex-cloud/deployment/uwsgi/scitex_cloud_prod.ini 2> /dev/null | cut -d'=' -f2 | tr -d ' ')"
+        echo_info "  Threads: $(grep "^threads" /home/ywatanabe/proj/scitex-cloud/deployment/uwsgi/scitex_cloud_prod.ini 2> /dev/null | cut -d'=' -f2 | tr -d ' ')"
     else
         echo_error "  ✗ Config file not found"
     fi
@@ -163,7 +163,7 @@ check_production() {
 
     # Recent logs
     echo_info "Recent Logs (last 10 lines):"
-    sudo journalctl -u scitex_cloud_prod -n 10 --no-pager 2>/dev/null | sed 's/^/  /'
+    sudo journalctl -u scitex_cloud_prod -n 10 --no-pager 2> /dev/null | sed 's/^/  /'
 }
 
 # Main

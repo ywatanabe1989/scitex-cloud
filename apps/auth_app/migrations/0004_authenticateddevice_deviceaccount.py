@@ -6,37 +6,74 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('auth_app', '0003_add_editor_theme_preferences'),
+        ("auth_app", "0003_add_editor_theme_preferences"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='AuthenticatedDevice',
+            name="AuthenticatedDevice",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('device_id', models.CharField(db_index=True, help_text='Unique identifier for this browser/device', max_length=64, unique=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('last_used', models.DateTimeField(auto_now=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "device_id",
+                    models.CharField(
+                        db_index=True,
+                        help_text="Unique identifier for this browser/device",
+                        max_length=64,
+                        unique=True,
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("last_used", models.DateTimeField(auto_now=True)),
             ],
             options={
-                'ordering': ['-last_used'],
+                "ordering": ["-last_used"],
             },
         ),
         migrations.CreateModel(
-            name='DeviceAccount',
+            name="DeviceAccount",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('authenticated_at', models.DateTimeField(auto_now_add=True)),
-                ('last_used', models.DateTimeField(auto_now=True)),
-                ('device', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='accounts', to='auth_app.authenticateddevice')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='authenticated_devices', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("authenticated_at", models.DateTimeField(auto_now_add=True)),
+                ("last_used", models.DateTimeField(auto_now=True)),
+                (
+                    "device",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="accounts",
+                        to="auth_app.authenticateddevice",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="authenticated_devices",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'ordering': ['-last_used'],
-                'unique_together': {('device', 'user')},
+                "ordering": ["-last_used"],
+                "unique_together": {("device", "user")},
             },
         ),
     ]

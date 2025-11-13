@@ -1,41 +1,42 @@
 {% extends "global_base.html" %}
 {% load static %}
-
-{% block title %}Search: {{ query }} - SciTeX{% endblock %}
-
+{% block title %}
+    Search: {{
+    query }} - SciTeX
+{% endblock %}
 {% block extra_css %}
-<style>
-.search-container {
+    <style>
+  .search-container {
     max-width: 1280px;
     margin: 0 auto;
     padding: 32px 16px;
-}
+  }
 
-.search-header {
+  .search-header {
     margin-bottom: 24px;
-}
+  }
 
-.search-title {
+  .search-title {
     font-size: 24px;
     font-weight: 600;
     color: var(--color-fg-default);
     margin-bottom: 8px;
-}
+  }
 
-.search-meta {
+  .search-meta {
     font-size: 14px;
     color: var(--color-fg-muted);
-}
+  }
 
-/* Filter tabs */
-.search-filters {
+  /* Filter tabs */
+  .search-filters {
     display: flex;
     gap: 16px;
     border-bottom: 1px solid var(--color-border-default);
     margin-bottom: 24px;
-}
+  }
 
-.filter-tab {
+  .filter-tab {
     padding: 12px 16px;
     color: var(--color-fg-muted);
     text-decoration: none;
@@ -43,42 +44,42 @@
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
-}
+  }
 
-.filter-tab:hover {
+  .filter-tab:hover {
     color: var(--color-fg-default);
     text-decoration: none;
-}
+  }
 
-.filter-tab.active {
+  .filter-tab.active {
     color: var(--color-fg-default);
     border-bottom-color: var(--tab-active-border);
-}
+  }
 
-.filter-count {
+  .filter-count {
     background: var(--color-canvas-subtle);
     padding: 2px 8px;
     border-radius: 12px;
     font-size: 12px;
     margin-left: 4px;
-}
+  }
 
-/* Results sections */
-.results-section {
+  /* Results sections */
+  .results-section {
     margin-bottom: 32px;
-}
+  }
 
-.section-title {
+  .section-title {
     font-size: 18px;
     font-weight: 600;
     color: var(--color-fg-default);
     margin-bottom: 16px;
     padding-bottom: 8px;
     border-bottom: 1px solid var(--color-border-default);
-}
+  }
 
-/* User results */
-.user-result {
+  /* User results */
+  .user-result {
     display: flex;
     align-items: start;
     gap: 16px;
@@ -87,14 +88,14 @@
     border-radius: 6px;
     margin-bottom: 12px;
     transition: all 0.2s;
-}
+  }
 
-.user-result:hover {
+  .user-result:hover {
     background: var(--color-canvas-subtle);
     border-color: var(--color-accent-fg);
-}
+  }
 
-.user-avatar {
+  .user-avatar {
     width: 48px;
     height: 48px;
     border-radius: 50%;
@@ -105,238 +106,224 @@
     font-size: 20px;
     color: var(--color-accent-fg);
     flex-shrink: 0;
-}
+  }
 
-.user-avatar img {
+  .user-avatar img {
     width: 100%;
     height: 100%;
     border-radius: 50%;
     object-fit: cover;
-}
+  }
 
-.user-info {
+  .user-info {
     flex: 1;
-}
+  }
 
-.user-name {
+  .user-name {
     font-size: 16px;
     font-weight: 600;
     color: var(--color-accent-fg);
     text-decoration: none;
-}
+  }
 
-.user-name:hover {
+  .user-name:hover {
     text-decoration: underline;
-}
+  }
 
-.user-username {
+  .user-username {
     font-size: 14px;
     color: var(--color-fg-muted);
     margin-bottom: 4px;
-}
+  }
 
-.user-meta {
+  .user-meta {
     font-size: 12px;
     color: var(--color-fg-muted);
     display: flex;
     gap: 16px;
     margin-top: 4px;
-}
+  }
 
-.user-bio {
+  .user-bio {
     font-size: 14px;
     color: var(--color-fg-muted);
     margin-top: 8px;
-}
+  }
 
-/* Repository results */
-.repo-result {
+  /* Repository results */
+  .repo-result {
     padding: 16px;
     border: 1px solid var(--color-border-default);
     border-radius: 6px;
     margin-bottom: 12px;
     transition: all 0.2s;
-}
+  }
 
-.repo-result:hover {
+  .repo-result:hover {
     background: var(--color-canvas-subtle);
     border-color: var(--color-accent-fg);
-}
+  }
 
-.repo-header {
+  .repo-header {
     display: flex;
     align-items: center;
     gap: 8px;
     margin-bottom: 8px;
-}
+  }
 
-.repo-name {
+  .repo-name {
     font-size: 16px;
     font-weight: 600;
     color: var(--color-accent-fg);
     text-decoration: none;
-}
+  }
 
-.repo-name:hover {
+  .repo-name:hover {
     text-decoration: underline;
-}
+  }
 
-.repo-visibility {
+  .repo-visibility {
     font-size: 12px;
     padding: 2px 8px;
     border-radius: 12px;
     border: 1px solid var(--color-border-default);
     color: var(--color-fg-muted);
-}
+  }
 
-.repo-description {
+  .repo-description {
     font-size: 14px;
     color: var(--color-fg-muted);
     margin-bottom: 8px;
-}
+  }
 
-.repo-meta {
+  .repo-meta {
     display: flex;
     gap: 16px;
     font-size: 12px;
     color: var(--color-fg-muted);
-}
+  }
 
-.empty-state {
+  .empty-state {
     text-align: center;
     padding: 64px 32px;
-}
+  }
 
-.empty-icon {
+  .empty-icon {
     font-size: 48px;
     color: var(--color-fg-muted);
     margin-bottom: 16px;
-}
+  }
 
-.empty-title {
+  .empty-title {
     font-size: 20px;
     font-weight: 600;
     color: var(--color-fg-default);
     margin-bottom: 8px;
-}
+  }
 
-.empty-description {
+  .empty-description {
     font-size: 14px;
     color: var(--color-fg-muted);
-}
-</style>
+  }
+    </style>
 {% endblock %}
-
 {% block content %}
-<div class="search-container">
-    <!-- Search Header -->
-    <div class="search-header">
-        <h1 class="search-title">
-            {% if query %}
-                Search results for "{{ query }}"
-            {% else %}
-                Search SciTeX
-            {% endif %}
-        </h1>
+    <div class="search-container">
+        <!-- Search Header -->
+        <div class="search-header">
+            <h1 class="search-title">
+                {% if query %}
+                    Search results for "{{ query }}"
+                {% else %}
+                    Search SciTeX
+                {% endif %}
+            </h1>
+            {% if query %}<p class="search-meta">{{ total_results }} result{{ total_results|pluralize }} found</p>{% endif %}
+        </div>
         {% if query %}
-        <p class="search-meta">{{ total_results }} result{{ total_results|pluralize }} found</p>
+            <!-- Filter Tabs -->
+            <nav class="search-filters">
+                <a href="?q={{ query }}&type=all"
+                   class="filter-tab {% if search_type == 'all' %}active{% endif %}">
+                    All
+                    <span class="filter-count">{{ total_results }}</span>
+                </a>
+                <a href="?q={{ query }}&type=users"
+                   class="filter-tab {% if search_type == 'users' %}active{% endif %}">
+                    Users
+                    <span class="filter-count">{{ users|length }}</span>
+                </a>
+                <a href="?q={{ query }}&type=repositories"
+                   class="filter-tab {% if search_type == 'repositories' %}active{% endif %}">
+                    Repositories
+                    <span class="filter-count">{{ repositories|length }}</span>
+                </a>
+            </nav>
+            <!-- Users Results -->
+            {% if search_type in 'all,users' and users %}
+                <div class="results-section">
+                    <h2 class="section-title">👤 Users</h2>
+                    {% for user in users %}
+                        <div class="user-result">
+                            <div class="user-avatar">
+                                {% if user.avatar_url %}
+                                    <img src="{{ user.avatar_url }}" alt="{{ user.username }}" />
+                                {% else %}
+                                    {{ user.username|slice:":1"|upper }}
+                                {% endif %}
+                            </div>
+                            <div class="user-info">
+                                <a href="{{ user.url }}" class="user-name">{{ user.full_name }}</a>
+                                <div class="user-username">@{{ user.username }}</div>
+                                {% if user.institution %}
+                                    <div class="user-meta">
+                                        <span><i class="fas fa-university"></i> {{ user.institution }}</span>
+                                    </div>
+                                {% endif %}
+                                {% if user.bio %}<div class="user-bio">{{ user.bio }}</div>{% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <!-- Repository Results -->
+            {% if search_type in 'all,repositories' and repositories %}
+                <div class="results-section">
+                    <h2 class="section-title">📘 Repositories</h2>
+                    {% for repo in repositories %}
+                        <div class="repo-result">
+                            <div class="repo-header">
+                                <a href="{{ repo.url }}" class="repo-name">{{ repo.owner_username }}/{{ repo.name }}</a>
+                                <span class="repo-visibility">{{ repo.visibility|capfirst }}</span>
+                            </div>
+                            {% if repo.description %}<p class="repo-description">{{ repo.description }}</p>{% endif %}
+                            <div class="repo-meta">
+                                <span>⭐ {{ repo.star_count }} star{{ repo.star_count|pluralize }}</span>
+                                <span>Updated {{ repo.updated_at|timesince }} ago</span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <!-- Empty State -->
+            {% if total_results == 0 %}
+                <div class="empty-state">
+                    <div class="empty-icon">🔍</div>
+                    <h2 class="empty-title">No results found for "{{ query }}"</h2>
+                    <p class="empty-description">
+                        Try different keywords or check your spelling.
+                        <br />
+                        You can search for users, repositories, or research topics.
+                    </p>
+                </div>
+            {% endif %}
+        {% else %}
+            <!-- No query yet - show popular searches or suggestions -->
+            <div class="empty-state">
+                <div class="empty-icon">🔍</div>
+                <h2 class="empty-title">Search SciTeX</h2>
+                <p class="empty-description">Search for users, repositories, papers, and more.</p>
+            </div>
         {% endif %}
     </div>
-
-    {% if query %}
-    <!-- Filter Tabs -->
-    <nav class="search-filters">
-        <a href="?q={{ query }}&type=all" class="filter-tab {% if search_type == 'all' %}active{% endif %}">
-            All
-            <span class="filter-count">{{ total_results }}</span>
-        </a>
-        <a href="?q={{ query }}&type=users" class="filter-tab {% if search_type == 'users' %}active{% endif %}">
-            Users
-            <span class="filter-count">{{ users|length }}</span>
-        </a>
-        <a href="?q={{ query }}&type=repositories" class="filter-tab {% if search_type == 'repositories' %}active{% endif %}">
-            Repositories
-            <span class="filter-count">{{ repositories|length }}</span>
-        </a>
-    </nav>
-
-    <!-- Users Results -->
-    {% if search_type in 'all,users' and users %}
-    <div class="results-section">
-        <h2 class="section-title">👤 Users</h2>
-        {% for user in users %}
-        <div class="user-result">
-            <div class="user-avatar">
-                {% if user.avatar_url %}
-                    <img src="{{ user.avatar_url }}" alt="{{ user.username }}">
-                {% else %}
-                    {{ user.username|slice:":1"|upper }}
-                {% endif %}
-            </div>
-            <div class="user-info">
-                <a href="{{ user.url }}" class="user-name">{{ user.full_name }}</a>
-                <div class="user-username">@{{ user.username }}</div>
-                {% if user.institution %}
-                <div class="user-meta">
-                    <span><i class="fas fa-university"></i> {{ user.institution }}</span>
-                </div>
-                {% endif %}
-                {% if user.bio %}
-                <div class="user-bio">{{ user.bio }}</div>
-                {% endif %}
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-    {% endif %}
-
-    <!-- Repository Results -->
-    {% if search_type in 'all,repositories' and repositories %}
-    <div class="results-section">
-        <h2 class="section-title">📘 Repositories</h2>
-        {% for repo in repositories %}
-        <div class="repo-result">
-            <div class="repo-header">
-                <a href="{{ repo.url }}" class="repo-name">
-                    {{ repo.owner_username }}/{{ repo.name }}
-                </a>
-                <span class="repo-visibility">
-                    {{ repo.visibility|capfirst }}
-                </span>
-            </div>
-            {% if repo.description %}
-            <p class="repo-description">{{ repo.description }}</p>
-            {% endif %}
-            <div class="repo-meta">
-                <span>⭐ {{ repo.star_count }} star{{ repo.star_count|pluralize }}</span>
-                <span>Updated {{ repo.updated_at|timesince }} ago</span>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-    {% endif %}
-
-    <!-- Empty State -->
-    {% if total_results == 0 %}
-    <div class="empty-state">
-        <div class="empty-icon">🔍</div>
-        <h2 class="empty-title">No results found for "{{ query }}"</h2>
-        <p class="empty-description">
-            Try different keywords or check your spelling.<br>
-            You can search for users, repositories, or research topics.
-        </p>
-    </div>
-    {% endif %}
-
-    {% else %}
-    <!-- No query yet - show popular searches or suggestions -->
-    <div class="empty-state">
-        <div class="empty-icon">🔍</div>
-        <h2 class="empty-title">Search SciTeX</h2>
-        <p class="empty-description">
-            Search for users, repositories, papers, and more.
-        </p>
-    </div>
-    {% endif %}
-</div>
 {% endblock %}

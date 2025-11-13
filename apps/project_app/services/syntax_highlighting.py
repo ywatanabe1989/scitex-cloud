@@ -16,7 +16,7 @@ This service should be used by:
 from typing import Optional
 import logging
 
-from pygments.lexers import get_lexer_by_name, guess_lexer_for_filename
+from pygments.lexers import guess_lexer_for_filename
 from pygments.util import ClassNotFound
 
 logger = logging.getLogger(__name__)
@@ -24,57 +24,57 @@ logger = logging.getLogger(__name__)
 # Mapping of Pygments lexer aliases to highlight.js language identifiers
 # Used when Pygments doesn't directly match highlight.js naming conventions
 PYGMENTS_TO_HIGHLIGHTJS = {
-    'text': 'plaintext',
-    'python': 'python',
-    'javascript': 'javascript',
-    'typescript': 'typescript',
-    'java': 'java',
-    'c': 'c',
-    'cpp': 'cpp',
-    'csharp': 'csharp',
-    'go': 'go',
-    'rust': 'rust',
-    'ruby': 'ruby',
-    'php': 'php',
-    'swift': 'swift',
-    'kotlin': 'kotlin',
-    'r': 'r',
-    'matlab': 'matlab',
-    'julia': 'julia',
-    'scala': 'scala',
-    'haskell': 'haskell',
-    'clojure': 'clojure',
-    'perl': 'perl',
-    'bash': 'bash',
-    'shell': 'bash',
-    'sh': 'bash',
-    'html': 'html',
-    'css': 'css',
-    'scss': 'scss',
-    'sass': 'scss',
-    'markdown': 'markdown',
-    'latex': 'latex',
-    'bibtex': 'bibtex',
-    'json': 'json',
-    'yaml': 'yaml',
-    'xml': 'xml',
-    'sql': 'sql',
-    'toml': 'toml',
-    'ini': 'ini',
-    'dockerfile': 'dockerfile',
-    'makefile': 'makefile',
+    "text": "plaintext",
+    "python": "python",
+    "javascript": "javascript",
+    "typescript": "typescript",
+    "java": "java",
+    "c": "c",
+    "cpp": "cpp",
+    "csharp": "csharp",
+    "go": "go",
+    "rust": "rust",
+    "ruby": "ruby",
+    "php": "php",
+    "swift": "swift",
+    "kotlin": "kotlin",
+    "r": "r",
+    "matlab": "matlab",
+    "julia": "julia",
+    "scala": "scala",
+    "haskell": "haskell",
+    "clojure": "clojure",
+    "perl": "perl",
+    "bash": "bash",
+    "shell": "bash",
+    "sh": "bash",
+    "html": "html",
+    "css": "css",
+    "scss": "scss",
+    "sass": "scss",
+    "markdown": "markdown",
+    "latex": "latex",
+    "bibtex": "bibtex",
+    "json": "json",
+    "yaml": "yaml",
+    "xml": "xml",
+    "sql": "sql",
+    "toml": "toml",
+    "ini": "ini",
+    "dockerfile": "dockerfile",
+    "makefile": "makefile",
 }
 
 # Special case: filename-based detection for files without extensions
 FILENAME_TO_LANGUAGE = {
-    'dockerfile': 'dockerfile',
-    'makefile': 'makefile',
-    'rakefile': 'makefile',
-    'gemfile': 'ruby',
+    "dockerfile": "dockerfile",
+    "makefile": "makefile",
+    "rakefile": "makefile",
+    "gemfile": "ruby",
 }
 
 
-def detect_language(file_ext: str, file_name: str = '') -> Optional[str]:
+def detect_language(file_ext: str, file_name: str = "") -> Optional[str]:
     """
     Detect the highlight.js language identifier using Pygments.
 
@@ -103,7 +103,7 @@ def detect_language(file_ext: str, file_name: str = '') -> Optional[str]:
         # Try Pygments guess_lexer_for_filename if we have a filename
         if file_name:
             try:
-                lexer = guess_lexer_for_filename(file_name, '')
+                lexer = guess_lexer_for_filename(file_name, "")
                 lexer_name = lexer.name.lower()
 
                 # Map Pygments lexer aliases to highlight.js identifiers
@@ -113,7 +113,7 @@ def detect_language(file_ext: str, file_name: str = '') -> Optional[str]:
 
                 # Fallback: use first alias
                 if lexer.aliases:
-                    return PYGMENTS_TO_HIGHLIGHTJS.get(lexer.aliases[0], 'plaintext')
+                    return PYGMENTS_TO_HIGHLIGHTJS.get(lexer.aliases[0], "plaintext")
             except ClassNotFound:
                 pass
 
@@ -121,13 +121,13 @@ def detect_language(file_ext: str, file_name: str = '') -> Optional[str]:
         if file_ext:
             file_ext_lower = file_ext.lower()
             # Ensure extension starts with dot
-            if not file_ext_lower.startswith('.'):
-                file_ext_lower = '.' + file_ext_lower
+            if not file_ext_lower.startswith("."):
+                file_ext_lower = "." + file_ext_lower
 
             try:
                 # Create dummy filename with the extension to use Pygments
-                dummy_filename = f'file{file_ext_lower}'
-                lexer = guess_lexer_for_filename(dummy_filename, '')
+                dummy_filename = f"file{file_ext_lower}"
+                lexer = guess_lexer_for_filename(dummy_filename, "")
 
                 # Map Pygments lexer aliases to highlight.js identifiers
                 for alias in lexer.aliases:
@@ -136,7 +136,7 @@ def detect_language(file_ext: str, file_name: str = '') -> Optional[str]:
 
                 # Fallback: use first alias
                 if lexer.aliases:
-                    return PYGMENTS_TO_HIGHLIGHTJS.get(lexer.aliases[0], 'plaintext')
+                    return PYGMENTS_TO_HIGHLIGHTJS.get(lexer.aliases[0], "plaintext")
             except ClassNotFound:
                 pass
 
@@ -144,7 +144,7 @@ def detect_language(file_ext: str, file_name: str = '') -> Optional[str]:
         logger.debug(f"Error detecting language for {file_name}{file_ext}: {e}")
 
     # Default to plaintext if no match found
-    return 'plaintext'
+    return "plaintext"
 
 
 def get_all_supported_languages() -> dict:
@@ -165,12 +165,12 @@ def get_all_supported_languages() -> dict:
                 lang_id = PYGMENTS_TO_HIGHLIGHTJS[alias]
                 if lang_id not in languages:
                     languages[lang_id] = {
-                        'identifier': lang_id,
-                        'name': name,
-                        'aliases': aliases,
-                        'filetypes': list(filetypes),
-                        'mimetypes': list(mimetypes),
-                        'custom': False,
+                        "identifier": lang_id,
+                        "name": name,
+                        "aliases": aliases,
+                        "filetypes": list(filetypes),
+                        "mimetypes": list(mimetypes),
+                        "custom": False,
                     }
 
     return languages
@@ -197,4 +197,4 @@ def is_supported_language(language: str) -> bool:
 
 def is_custom_language(language: str) -> bool:
     """Check if a language has special handling."""
-    return language in ['bibtex']  # Add custom languages here if needed
+    return language in ["bibtex"]  # Add custom languages here if needed

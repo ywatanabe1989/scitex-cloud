@@ -4,12 +4,12 @@
  * Corresponds to: Used across multiple pages with file tree sidebars
  */
 export interface TreeItem {
-    name: string;
-    path: string;
-    type: 'file' | 'directory';
-    children?: TreeItem[];
-    is_symlink?: boolean;
-    symlink_target?: string;
+  name: string;
+  path: string;
+  type: "file" | "directory";
+  children?: TreeItem[];
+  is_symlink?: boolean;
+  symlink_target?: string;
 }
 /**
  * Builds HTML for file tree recursively
@@ -19,7 +19,12 @@ export interface TreeItem {
  * @param level - Current nesting level (0 = root)
  * @returns HTML string for the tree
  */
-export declare function buildTreeHTML(items: TreeItem[], username: string, slug: string, level?: number): string;
+export declare function buildTreeHTML(
+  items: TreeItem[],
+  username: string,
+  slug: string,
+  level?: number,
+): string;
 /**
  * Toggles folder expand/collapse state
  * @param folderId - ID of the folder container to toggle
@@ -32,5 +37,9 @@ export declare function toggleFolder(folderId: string, event?: Event): void;
  * @param slug - Project slug
  * @param containerId - ID of container element to render tree into
  */
-export declare function loadFileTree(username: string, slug: string, containerId?: string): Promise<void>;
+export declare function loadFileTree(
+  username: string,
+  slug: string,
+  containerId?: string,
+): Promise<void>;
 //# sourceMappingURL=file-tree.d.ts.map

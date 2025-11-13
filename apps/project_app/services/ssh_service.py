@@ -23,9 +23,9 @@ class SSHKeyManager:
 
     def __init__(self, user: User):
         self.user = user
-        self.ssh_dir = Path(settings.BASE_DIR) / 'data' / 'ssh_keys' / f'user_{user.id}'
-        self.private_key_path = self.ssh_dir / 'id_rsa'
-        self.public_key_path = self.ssh_dir / 'id_rsa.pub'
+        self.ssh_dir = Path(settings.BASE_DIR) / "data" / "ssh_keys" / f"user_{user.id}"
+        self.private_key_path = self.ssh_dir / "id_rsa"
+        self.public_key_path = self.ssh_dir / "id_rsa.pub"
 
     def get_or_create_user_key(self) -> Tuple[bool, Optional[str], Optional[str]]:
         """
@@ -48,16 +48,26 @@ class SSHKeyManager:
 
         # Generate new key pair
         try:
-            email_comment = self.user.email or f'{self.user.username}@scitex.ai'
+            email_comment = self.user.email or f"{self.user.username}@scitex.ai"
 
-            subprocess.run([
-                'ssh-keygen',
-                '-t', 'rsa',
-                '-b', '4096',
-                '-C', email_comment,
-                '-f', str(self.private_key_path),
-                '-N', '',  # No passphrase for automation
-            ], check=True, capture_output=True, text=True)
+            subprocess.run(
+                [
+                    "ssh-keygen",
+                    "-t",
+                    "rsa",
+                    "-b",
+                    "4096",
+                    "-C",
+                    email_comment,
+                    "-f",
+                    str(self.private_key_path),
+                    "-N",
+                    "",  # No passphrase for automation
+                ],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
 
             # Set proper permissions
             os.chmod(self.private_key_path, 0o600)
@@ -67,15 +77,17 @@ class SSHKeyManager:
             public_key = self.public_key_path.read_text()
 
             # Get fingerprint
-            fingerprint_result = subprocess.run([
-                'ssh-keygen',
-                '-lf', str(self.public_key_path),
-                '-E', 'sha256'
-            ], capture_output=True, text=True, check=True)
+            fingerprint_result = subprocess.run(
+                ["ssh-keygen", "-lf", str(self.public_key_path), "-E", "sha256"],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
             fingerprint = fingerprint_result.stdout.strip()
 
             # Update user profile
             from apps.accounts_app.models import UserProfile
+
             profile, _ = UserProfile.objects.get_or_create(user=self.user)
             profile.ssh_public_key = public_key
             profile.ssh_key_fingerprint = fingerprint
@@ -97,6 +109,7 @@ class SSHKeyManager:
                 return self.public_key_path.read_text()
             # Try to get from database
             from apps.accounts_app.models import UserProfile
+
             try:
                 profile = UserProfile.objects.get(user=self.user)
                 return profile.ssh_public_key
@@ -113,17 +126,27 @@ class SSHKeyManager:
         """Delete user's SSH key pair."""
         try:
             import shutil
+
             if self.ssh_dir.exists():
                 shutil.rmtree(self.ssh_dir)
 
             # Update database
             from apps.accounts_app.models import UserProfile
+
             try:
                 profile = UserProfile.objects.get(user=self.user)
-                profile.ssh_public_key = ''  # CharField with blank=True requires empty string, not None
-                profile.ssh_key_fingerprint = ''  # CharField with blank=True requires empty string, not None
-                profile.ssh_key_created_at = None  # DateTimeField with null=True can be None
-                profile.ssh_key_last_used_at = None  # DateTimeField with null=True can be None
+                profile.ssh_public_key = (
+                    ""  # CharField with blank=True requires empty string, not None
+                )
+                profile.ssh_key_fingerprint = (
+                    ""  # CharField with blank=True requires empty string, not None
+                )
+                profile.ssh_key_created_at = (
+                    None  # DateTimeField with null=True can be None
+                )
+                profile.ssh_key_last_used_at = (
+                    None  # DateTimeField with null=True can be None
+                )
                 profile.save()
             except UserProfile.DoesNotExist:
                 pass
@@ -136,9 +159,10 @@ class SSHKeyManager:
         """Update last_used_at timestamp for the SSH key."""
         try:
             from apps.accounts_app.models import UserProfile
+
             profile = UserProfile.objects.get(user=self.user)
             profile.ssh_key_last_used_at = timezone.now()
-            profile.save(update_fields=['ssh_key_last_used_at'])
+            profile.save(update_fields=["ssh_key_last_used_at"])
         except UserProfile.DoesNotExist:
             pass
 
@@ -157,10 +181,10 @@ class SSHKeyManager:
 
         if self.has_ssh_key():
             # Use GIT_SSH_COMMAND to specify SSH key and options
-            env['GIT_SSH_COMMAND'] = (
-                f'ssh -i {self.private_key_path} '
-                f'-o StrictHostKeyChecking=accept-new '
-                f'-o UserKnownHostsFile=/dev/null'
+            env["GIT_SSH_COMMAND"] = (
+                f"ssh -i {self.private_key_path} "
+                f"-o StrictHostKeyChecking=accept-new "
+                f"-o UserKnownHostsFile=/dev/null"
             )
 
         return env

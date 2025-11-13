@@ -38,8 +38,11 @@
   border-radius: var(--border-radius-2);
   cursor: pointer;
   text-decoration: none;
-  transition: background-color var(--transition-duration-fast) var(--transition-timing-default),
-              border-color var(--transition-duration-fast) var(--transition-timing-default);
+  transition:
+    background-color var(--transition-duration-fast)
+      var(--transition-timing-default),
+    border-color var(--transition-duration-fast)
+      var(--transition-timing-default);
   user-select: none;
   white-space: nowrap;
 }

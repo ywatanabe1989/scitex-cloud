@@ -1,97 +1,97 @@
 /* Writer App Common Styles */
-@import './variables.css';
+@import "./variables.css";
 
 .writer-app-container {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    font-family: var(--font-sans);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  font-family: var(--font-sans);
 }
 
 .writer-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: var(--spacing-md);
-    background: var(--writer-background);
-    border-bottom: var(--border-width) solid var(--writer-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md);
+  background: var(--writer-background);
+  border-bottom: var(--border-width) solid var(--writer-border);
 }
 
 .writer-main {
-    display: flex;
-    flex: 1;
-    overflow: hidden;
+  display: flex;
+  flex: 1;
+  overflow: hidden;
 }
 
 .writer-sidebar {
-    width: 250px;
-    background: var(--writer-surface);
-    border-right: var(--border-width) solid var(--writer-border);
-    overflow-y: auto;
+  width: 250px;
+  background: var(--writer-surface);
+  border-right: var(--border-width) solid var(--writer-border);
+  overflow-y: auto;
 }
 
 .writer-content {
-    flex: 1;
-    overflow: auto;
-    padding: var(--spacing-lg);
+  flex: 1;
+  overflow: auto;
+  padding: var(--spacing-lg);
 }
 
 /* Buttons */
 .btn-primary {
-    background: var(--writer-primary);
-    color: white;
-    padding: var(--spacing-sm) var(--spacing-md);
-    border: none;
-    border-radius: var(--border-radius);
-    cursor: pointer;
-    font-size: 0.875rem;
+  background: var(--writer-primary);
+  color: white;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-size: 0.875rem;
 }
 
 .btn-primary:hover {
-    background: var(--writer-primary-hover);
+  background: var(--writer-primary-hover);
 }
 
 .btn-secondary {
-    background: var(--writer-secondary);
-    color: white;
-    padding: var(--spacing-sm) var(--spacing-md);
-    border: none;
-    border-radius: var(--border-radius);
-    cursor: pointer;
-    font-size: 0.875rem;
+  background: var(--writer-secondary);
+  color: white;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-size: 0.875rem;
 }
 
 .btn-toolbar {
-    background: transparent;
-    border: var(--border-width) solid var(--writer-border);
-    padding: var(--spacing-xs) var(--spacing-sm);
-    border-radius: var(--border-radius);
-    cursor: pointer;
+  background: transparent;
+  border: var(--border-width) solid var(--writer-border);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius);
+  cursor: pointer;
 }
 
 /* Forms */
 .form-control {
-    width: 100%;
-    padding: var(--spacing-sm);
-    border: var(--border-width) solid var(--writer-border);
-    border-radius: var(--border-radius);
-    font-size: 0.875rem;
+  width: 100%;
+  padding: var(--spacing-sm);
+  border: var(--border-width) solid var(--writer-border);
+  border-radius: var(--border-radius);
+  font-size: 0.875rem;
 }
 
 .form-group {
-    margin-bottom: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
 }
 
 .form-group label {
-    display: block;
-    margin-bottom: var(--spacing-xs);
-    font-weight: 500;
-    color: var(--writer-text);
+  display: block;
+  margin-bottom: var(--spacing-xs);
+  font-weight: 500;
+  color: var(--writer-text);
 }
 
 /* Utilities */
 .empty-message {
-    text-align: center;
-    color: var(--writer-text-muted);
-    padding: var(--spacing-xl);
+  text-align: center;
+  color: var(--writer-text-muted);
+  padding: var(--spacing-xl);
 }

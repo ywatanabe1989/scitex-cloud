@@ -91,7 +91,7 @@ SECTION_HIERARCHY = {
                 "view_only": True,
                 "is_compiled": True,
                 "no_preview": True,
-                "instruction": "This is the compiled full manuscript. Click 'Compile Full Manuscript' to regenerate."
+                "instruction": "This is the compiled full manuscript. Click 'Compile Full Manuscript' to regenerate.",
             },
         ],
     },
@@ -119,7 +119,7 @@ SECTION_HIERARCHY = {
                 "view_only": True,
                 "is_compiled": True,
                 "no_preview": True,
-                "instruction": "This is the compiled full supplementary file. Click 'Compile Full Supplementary' to regenerate."
+                "instruction": "This is the compiled full supplementary file. Click 'Compile Full Supplementary' to regenerate.",
             },
         ],
     },
@@ -160,7 +160,7 @@ SECTION_HIERARCHY = {
                 "view_only": True,
                 "is_compiled": True,
                 "no_preview": True,
-                "instruction": "This is the compiled full revision document. Click 'Compile Full Revision' to regenerate."
+                "instruction": "This is the compiled full revision document. Click 'Compile Full Revision' to regenerate.",
             },
         ],
     },

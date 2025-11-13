@@ -3,32 +3,34 @@
  * Corresponds to: templates/writer_app/editor/editor.html
  */
 
-console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/editor/editor.ts loaded");
+console.log(
+  "[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/editor/editor.ts loaded",
+);
 class EditorPage {
-    // @ts-expect-error - Placeholder for future editor integration
-    private _editor: any;
-    // @ts-expect-error - Placeholder for future PDF preview
-    private _pdfPreview: HTMLElement | null;
+  // @ts-expect-error - Placeholder for future editor integration
+  private _editor: any;
+  // @ts-expect-error - Placeholder for future PDF preview
+  private _pdfPreview: HTMLElement | null;
 
-    constructor() {
-        this._pdfPreview = document.getElementById('pdf-preview');
-        this.init();
-    }
+  constructor() {
+    this._pdfPreview = document.getElementById("pdf-preview");
+    this.init();
+  }
 
-    private init(): void {
-        console.log('[Editor] Initializing editor page');
-        this.setupEditor();
-    }
+  private init(): void {
+    console.log("[Editor] Initializing editor page");
+    this.setupEditor();
+  }
 
-    private setupEditor(): void {
-        console.log('[Editor] Setting up Monaco editor');
-    }
+  private setupEditor(): void {
+    console.log("[Editor] Setting up Monaco editor");
+  }
 
-    public compile(): void {
-        console.log('[Editor] Starting compilation');
-    }
+  public compile(): void {
+    console.log("[Editor] Starting compilation");
+  }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    new EditorPage();
+document.addEventListener("DOMContentLoaded", () => {
+  new EditorPage();
 });

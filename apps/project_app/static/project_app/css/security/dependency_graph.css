@@ -1,19 +1,19 @@
 /* Security dependency graph page styles */
-@import url('shared/variables.css');
+@import url("shared/variables.css");
 
 .dependency-graph-container {
-    padding: 2rem;
+  padding: 2rem;
 }
 
 .graph-controls {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .dependency-graph {
-    min-height: 600px;
-    border: 1px solid var(--border-color, #ddd);
-    border-radius: 0.375rem;
-    background: var(--bg-secondary, #f8f9fa);
+  min-height: 600px;
+  border: 1px solid var(--border-color, #ddd);
+  border-radius: 0.375rem;
+  background: var(--bg-secondary, #f8f9fa);
 }

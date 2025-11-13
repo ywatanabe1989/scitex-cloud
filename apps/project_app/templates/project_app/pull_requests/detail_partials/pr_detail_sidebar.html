@@ -5,109 +5,110 @@
         <div class="mb-3">
             <h6 class="text-muted mb-2">Reviewers</h6>
             {% if pr.reviewers.all %}
-            <ul class="list-unstyled">
-                {% for reviewer in pr.reviewers.all %}
-                <li class="mb-1">
-                    <i class="bi bi-person-circle"></i> {{ reviewer.username }}
-                </li>
-                {% endfor %}
-            </ul>
+                <ul class="list-unstyled">
+                    {% for reviewer in pr.reviewers.all %}
+                        <li class="mb-1">
+                            <i class="bi bi-person-circle"></i> {{ reviewer.username }}
+                        </li>
+                    {% endfor %}
+                </ul>
             {% else %}
-            <p class="text-muted small">No reviewers assigned</p>
+                <p class="text-muted small">No reviewers assigned</p>
             {% endif %}
         </div>
-
-        <hr>
-
+        <hr />
         <!-- Assignees -->
         <div class="mb-3">
             <h6 class="text-muted mb-2">Assignees</h6>
             {% if pr.assignees.all %}
-            <ul class="list-unstyled">
-                {% for assignee in pr.assignees.all %}
-                <li class="mb-1">
-                    <i class="bi bi-person-circle"></i> {{ assignee.username }}
-                </li>
-                {% endfor %}
-            </ul>
+                <ul class="list-unstyled">
+                    {% for assignee in pr.assignees.all %}
+                        <li class="mb-1">
+                            <i class="bi bi-person-circle"></i> {{ assignee.username }}
+                        </li>
+                    {% endfor %}
+                </ul>
             {% else %}
-            <p class="text-muted small">No one assigned</p>
+                <p class="text-muted small">No one assigned</p>
             {% endif %}
         </div>
-
-        <hr>
-
+        <hr />
         <!-- Labels -->
         <div class="mb-3">
             <h6 class="text-muted mb-2">Labels</h6>
             {% if pr.labels %}
-            <div class="d-flex flex-wrap gap-1">
-                {% for label in pr.labels %}
-                <span class="badge" style="background-color: #0969da">{{ label }}</span>
-                {% endfor %}
-            </div>
+                <div class="d-flex flex-wrap gap-1">
+                    {% for label in pr.labels %}<span class="badge" style="background-color: #0969da">{{ label }}</span>{% endfor %}
+                </div>
             {% else %}
-            <p class="text-muted small">None yet</p>
+                <p class="text-muted small">None yet</p>
             {% endif %}
         </div>
-
-        <hr>
-
+        <hr />
         <!-- Stats -->
         <div class="mb-3">
             <h6 class="text-muted mb-2">Statistics</h6>
             <ul class="list-unstyled small">
-                <li><strong>{{ pr.commits.count }}</strong> commits</li>
-                <li><strong>{{ changed_files|length }}</strong> files changed</li>
-                <li><strong>{{ pr.comments.count }}</strong> comments</li>
+                <li>
+                    <strong>{{ pr.commits.count }}</strong> commits
+                </li>
+                <li>
+                    <strong>{{ changed_files|length }}</strong> files changed
+                </li>
+                <li>
+                    <strong>{{ pr.comments.count }}</strong> comments
+                </li>
             </ul>
         </div>
     </div>
 </div>
-
 <!-- Merge Status -->
 {% if pr.is_open %}
-<div class="card mt-3">
-    <div class="card-body">
-        <h6 class="mb-3">Merge Status</h6>
-
-        <!-- Approval status -->
-        <div class="approval-status">
-            {% if approval_status.is_approved %}
-            <i class="bi bi-check-circle-fill text-success"></i>
-            <span class="text-success">Approved</span>
+    <div class="card mt-3">
+        <div class="card-body">
+            <h6 class="mb-3">Merge Status</h6>
+            <!-- Approval status -->
+            <div class="approval-status">
+                {% if approval_status.is_approved %}
+                    <i class="bi bi-check-circle-fill text-success"></i>
+                    <span class="text-success">Approved</span>
+                {% else %}
+                    <i class="bi bi-x-circle-fill text-warning"></i>
+                    <span class="text-warning">
+                        {{ approval_status.approved_count }}/{{ pr.required_approvals }}
+                        approvals
+                    </span>
+                {% endif %}
+            </div>
+            <!-- Conflicts -->
+            {% if pr.has_conflicts %}
+                <div class="alert alert-danger small mb-2">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    This branch has conflicts that must be resolved
+                </div>
             {% else %}
-            <i class="bi bi-x-circle-fill text-warning"></i>
-            <span class="text-warning">
-                {{ approval_status.approved_count }}/{{ pr.required_approvals }} approvals
-            </span>
+                <div class="alert alert-success small mb-2">
+                    <i class="bi bi-check-circle"></i>
+                    This branch has no conflicts with the base branch
+                </div>
+            {% endif %}
+            <!-- Merge button -->
+            {% if can_merge %}
+                <button type="button"
+                        class="btn btn-success w-100"
+                        data-bs-toggle="modal"
+                        data-bs-target="#mergeModal">
+                    <i class="bi bi-check2-circle"></i> Merge pull request
+                </button>
+            {% else %}
+                <button type="button"
+                        class="btn btn-secondary w-100"
+                        disabled
+                        title="{{ merge_reason }}">
+                    <i class="bi bi-lock"></i> Merge pull request
+                </button>
+                <small class="text-muted mt-1 d-block">{{ merge_reason }}</small>
             {% endif %}
         </div>
-
-        <!-- Conflicts -->
-        {% if pr.has_conflicts %}
-        <div class="alert alert-danger small mb-2">
-            <i class="bi bi-exclamation-triangle"></i>
-            This branch has conflicts that must be resolved
-        </div>
-        {% else %}
-        <div class="alert alert-success small mb-2">
-            <i class="bi bi-check-circle"></i>
-            This branch has no conflicts with the base branch
-        </div>
-        {% endif %}
-
-        <!-- Merge button -->
-        {% if can_merge %}
-        <button type="button" class="btn btn-success w-100" data-bs-toggle="modal" data-bs-target="#mergeModal">
-            <i class="bi bi-check2-circle"></i> Merge pull request
-        </button>
-        {% else %}
-        <button type="button" class="btn btn-secondary w-100" disabled title="{{ merge_reason }}">
-            <i class="bi bi-lock"></i> Merge pull request
-        </button>
-        <small class="text-muted mt-1 d-block">{{ merge_reason }}</small>
-        {% endif %}
     </div>
-</div>
 {% endif %}

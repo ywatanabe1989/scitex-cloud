@@ -1,11 +1,15 @@
 {% extends "cloud_app/base.html" %}
-
-{% block title %}Pricing Plans - SciTeX Cloud{% endblock %}
-
-{% block meta_description %}SciTeX pricing plans - from free tier to enterprise solutions. Access AI-powered research tools including SciTeX Search, Doc, Code, Viz, and Engine.{% endblock %}
-
+{% block title %}
+    Pricing Plans - SciTeX
+    Cloud
+{% endblock %}
+{% block meta_description %}
+    SciTeX pricing plans - from free
+    tier to enterprise solutions. Access AI-powered research tools including SciTeX
+    Search, Doc, Code, Viz, and Engine.
+{% endblock %}
 {% block extra_css %}
-<style>
+    <style>
   /* Header Section */
   .pricing-header {
     background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
@@ -290,302 +294,435 @@
       padding: 0.75rem 0.5rem;
     }
   }
-</style>
+    </style>
 {% endblock %}
-
 {% block content %}
-<!-- Header Section -->
-<section class="pricing-header">
-  <div class="container">
-    <div class="text-center">
-      <h1 class="display-4">Transform Your Research with SciTeX</h1>
-      <p class="lead">Choose the plan that accelerates your scientific discovery</p>
-      <p class="text-muted">All plans include access to our open-source tools. Premium features enhance your research capabilities.</p>
+    <!-- Header Section -->
+    <section class="pricing-header">
+        <div class="container">
+            <div class="text-center">
+                <h1 class="display-4">Transform Your Research with SciTeX</h1>
+                <p class="lead">Choose the plan that accelerates your scientific discovery</p>
+                <p class="text-muted">
+                    All plans include access to our open-source tools. Premium features
+                    enhance your research capabilities.
+                </p>
+            </div>
+        </div>
+    </section>
+    <!-- Main Pricing Section -->
+    <div class="pricing-container">
+        <div class="pricing-grid">
+            <!-- Free Plan -->
+            <div class="pricing-card">
+                <h3 class="plan-name">Free</h3>
+                <div class="plan-price">
+                    <span class="currency">$</span>0
+                    <span class="period">/ forever</span>
+                </div>
+                <p class="plan-description">Perfect for individual researchers getting started with SciTeX</p>
+                <ul class="feature-list">
+                    <li>
+                        <i class="fas fa-check"></i> <strong>SciTeX Search & Doc</strong> -
+                        Full access
+                    </li>
+                    <li>
+                        <i class="fas fa-check"></i> 1 active project
+                    </li>
+                    <li>
+                        <i class="fas fa-check"></i> 5 GB storage
+                    </li>
+                    <li>
+                        <i class="fas fa-check limited"></i> <strong>SciTeX Code</strong> -
+                        Limited to 2 CPU cores, 2 GB VRAM
+                    </li>
+                    <li>
+                        <i class="fas fa-check"></i> Community support
+                    </li>
+                    <li>
+                        <i class="fas fa-check"></i> Access to open-source tools
+                    </li>
+                </ul>
+                <div class="feature-category">
+                    <div class="feature-category-title">Requirements:</div>
+                    <ul class="feature-list">
+                        <li>
+                            <i class="fas fa-info-circle"></i> Must cite SciTeX in publications
+                        </li>
+                        <li>
+                            <i class="fas fa-info-circle"></i> ORCID or institutional email
+                            required
+                        </li>
+                        <li>
+                            <i class="fas fa-info-circle"></i> Research must use SciTeX Archive
+                        </li>
+                        <li>
+                            <i class="fas fa-info-circle"></i> Code includes attribution
+                            watermark
+                        </li>
+                    </ul>
+                </div>
+                <a href="{% url 'cloud_app:signup' %}" class="plan-cta secondary">Get Started Free</a>
+            </div>
+            <!-- Premium Plan A -->
+            <div class="pricing-card featured">
+                <span class="plan-badge">Most Popular</span>
+                <h3 class="plan-name">Premium A</h3>
+                <div class="plan-price">
+                    <span class="currency">$</span>29
+                    <span class="period">/ month</span>
+                </div>
+                <p class="plan-description">For active researchers and small research teams</p>
+                <ul class="feature-list">
+                    <li>
+                        <i class="fas fa-check"></i> Everything in Free, plus:
+                    </li>
+                    <li>
+                        <i class="fas fa-check premium"></i> <strong>100 GB storage</strong>
+                    </li>
+                    <li>
+                        <i class="fas fa-check premium"></i>
+                        <strong>8 CPU cores, 8 GB VRAM GPU</strong>
+                    </li>
+                    <li>
+                        <i class="fas fa-check premium"></i> Up to <strong>5 projects</strong>
+                    </li>
+                    <li>
+                        <i class="fas fa-check"></i> Priority support
+                    </li>
+                    <li>
+                        <i class="fas fa-check"></i> Advanced analytics
+                    </li>
+                    <li>
+                        <i class="fas fa-check"></i> No watermarks
+                    </li>
+                    <li>
+                        <i class="fas fa-check"></i> Private repositories
+                    </li>
+                </ul>
+                <div class="feature-category">
+                    <div class="feature-category-title">Advanced Features:</div>
+                    <ul class="feature-list">
+                        <li>
+                            <i class="fas fa-star"></i> AI-powered revision assistance
+                        </li>
+                        <li>
+                            <i class="fas fa-star"></i> Custom LaTeX templates
+                        </li>
+                        <li>
+                            <i class="fas fa-star"></i> Extended computational resources
+                        </li>
+                    </ul>
+                </div>
+                <a href="{% url 'cloud_app:signup' %}?plan=premium-a"
+                   class="plan-cta primary">Start Premium A</a>
+            </div>
+            <!-- Premium Plan B -->
+            <div class="pricing-card">
+                <h3 class="plan-name">Premium B</h3>
+                <div class="plan-price">
+                    <span class="currency">$</span>99
+                    <span class="period">/ month</span>
+                </div>
+                <p class="plan-description">For research groups and intensive computational needs</p>
+                <ul class="feature-list">
+                    <li>
+                        <i class="fas fa-check"></i> Everything in Premium A, plus:
+                    </li>
+                    <li>
+                        <i class="fas fa-check premium"></i> <strong>500 GB storage</strong>
+                    </li>
+                    <li>
+                        <i class="fas fa-check premium"></i>
+                        <strong>32 CPU cores, 24 GB VRAM GPU</strong>
+                    </li>
+                    <li>
+                        <i class="fas fa-check premium"></i>
+                        <strong>Unlimited projects</strong>
+                    </li>
+                    <li>
+                        <i class="fas fa-check"></i> Dedicated support
+                    </li>
+                    <li>
+                        <i class="fas fa-check"></i> Team collaboration tools
+                    </li>
+                    <li>
+                        <i class="fas fa-check"></i> API access
+                    </li>
+                    <li>
+                        <i class="fas fa-check"></i> Custom integrations
+                    </li>
+                </ul>
+                <div class="feature-category">
+                    <div class="feature-category-title">Enterprise Features:</div>
+                    <ul class="feature-list">
+                        <li>
+                            <i class="fas fa-star"></i> Priority job scheduling
+                        </li>
+                        <li>
+                            <i class="fas fa-star"></i> Advanced security options
+                        </li>
+                        <li>
+                            <i class="fas fa-star"></i> Usage analytics dashboard
+                        </li>
+                    </ul>
+                </div>
+                <a href="{% url 'cloud_app:signup' %}?plan=premium-b"
+                   class="plan-cta secondary">Start Premium B</a>
+            </div>
+        </div>
+        <!-- Custom Plan Section -->
+        <div class="custom-plan-section">
+            <h2>Need an Enterprise or On-Premise Solution?</h2>
+            <p class="lead">We offer custom plans for institutions, research labs, and enterprises</p>
+            <ul class="list-inline text-center mt-3">
+                <li class="list-inline-item">
+                    <i class="fas fa-check text-success"></i> Unlimited resources
+                </li>
+                <li class="list-inline-item">
+                    <i class="fas fa-check text-success"></i> On-premise deployment
+                </li>
+                <li class="list-inline-item">
+                    <i class="fas fa-check text-success"></i> Custom SLAs
+                </li>
+                <li class="list-inline-item">
+                    <i class="fas fa-check text-success"></i> Dedicated support team
+                </li>
+            </ul>
+            <a href="{% url 'cloud_app:contact' %}"
+               class="btn btn-primary btn-lg mt-3">Contact Sales</a>
+        </div>
+        <!-- Important Notes -->
+        <div class="important-notes">
+            <h3>
+                <i class="fas fa-exclamation-triangle"></i> Important Information
+            </h3>
+            <ul>
+                <li>
+                    All users must associate their account with ORCID or an institutional
+                    email address
+                </li>
+                <li>Free tier users must acknowledge SciTeX usage in all publications</li>
+                <li>Storage and computational limits are strictly enforced</li>
+                <li>Academic discounts available - contact us for details</li>
+            </ul>
+        </div>
+        <!-- Detailed Comparison Table -->
+        <div class="comparison-section">
+            <h2 class="text-center mb-4">Detailed Feature Comparison</h2>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Free</th>
+                        <th>Premium A</th>
+                        <th>Premium B</th>
+                        <th>Custom</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Core Features -->
+                    <tr>
+                        <td>
+                            <strong>Core Modules</strong>
+                        </td>
+                        <td colspan="4"></td>
+                    </tr>
+                    <tr>
+                        <td>SciTeX Search</td>
+                        <td>
+                            <i class="fas fa-check check-icon"></i>
+                        </td>
+                        <td>
+                            <i class="fas fa-check check-icon"></i>
+                        </td>
+                        <td>
+                            <i class="fas fa-check check-icon"></i>
+                        </td>
+                        <td>
+                            <i class="fas fa-check check-icon"></i>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>SciTeX Doc</td>
+                        <td>
+                            <i class="fas fa-check check-icon"></i>
+                        </td>
+                        <td>
+                            <i class="fas fa-check check-icon"></i>
+                        </td>
+                        <td>
+                            <i class="fas fa-check check-icon"></i>
+                        </td>
+                        <td>
+                            <i class="fas fa-check check-icon"></i>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>SciTeX Code</td>
+                        <td>Limited</td>
+                        <td>
+                            <i class="fas fa-check check-icon"></i>
+                        </td>
+                        <td>
+                            <i class="fas fa-check check-icon"></i>
+                        </td>
+                        <td>
+                            <i class="fas fa-check check-icon"></i>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>SciTeX Viz</td>
+                        <td>Basic</td>
+                        <td>
+                            <i class="fas fa-check check-icon"></i>
+                        </td>
+                        <td>
+                            <i class="fas fa-check check-icon"></i>
+                        </td>
+                        <td>
+                            <i class="fas fa-check check-icon"></i>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>SciTeX Engine</td>
+                        <td>Basic</td>
+                        <td>Advanced</td>
+                        <td>Full</td>
+                        <td>Custom</td>
+                    </tr>
+                    <!-- Resources -->
+                    <tr>
+                        <td>
+                            <strong>Resources</strong>
+                        </td>
+                        <td colspan="4"></td>
+                    </tr>
+                    <tr>
+                        <td>Storage</td>
+                        <td>5 GB</td>
+                        <td>100 GB</td>
+                        <td>500 GB</td>
+                        <td>Unlimited</td>
+                    </tr>
+                    <tr>
+                        <td>CPU Cores</td>
+                        <td>2</td>
+                        <td>8</td>
+                        <td>32</td>
+                        <td>Custom</td>
+                    </tr>
+                    <tr>
+                        <td>GPU Memory</td>
+                        <td>2 GB</td>
+                        <td>8 GB</td>
+                        <td>24 GB</td>
+                        <td>Custom</td>
+                    </tr>
+                    <tr>
+                        <td>Active Projects</td>
+                        <td>1</td>
+                        <td>5</td>
+                        <td>Unlimited</td>
+                        <td>Unlimited</td>
+                    </tr>
+                    <!-- Features -->
+                    <tr>
+                        <td>
+                            <strong>Features</strong>
+                        </td>
+                        <td colspan="4"></td>
+                    </tr>
+                    <tr>
+                        <td>AI Revision Assistant</td>
+                        <td>
+                            <i class="fas fa-times x-icon"></i>
+                        </td>
+                        <td>
+                            <i class="fas fa-check check-icon"></i>
+                        </td>
+                        <td>
+                            <i class="fas fa-check check-icon"></i>
+                        </td>
+                        <td>
+                            <i class="fas fa-check check-icon"></i>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Custom Templates</td>
+                        <td>
+                            <i class="fas fa-times x-icon"></i>
+                        </td>
+                        <td>
+                            <i class="fas fa-check check-icon"></i>
+                        </td>
+                        <td>
+                            <i class="fas fa-check check-icon"></i>
+                        </td>
+                        <td>
+                            <i class="fas fa-check check-icon"></i>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>API Access</td>
+                        <td>
+                            <i class="fas fa-times x-icon"></i>
+                        </td>
+                        <td>Limited</td>
+                        <td>
+                            <i class="fas fa-check check-icon"></i>
+                        </td>
+                        <td>
+                            <i class="fas fa-check check-icon"></i>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Priority Support</td>
+                        <td>
+                            <i class="fas fa-times x-icon"></i>
+                        </td>
+                        <td>
+                            <i class="fas fa-check check-icon"></i>
+                        </td>
+                        <td>
+                            <i class="fas fa-check check-icon"></i>
+                        </td>
+                        <td>Dedicated</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- Call to Action -->
+        <div class="text-center py-5">
+            <h2>Ready to Accelerate Your Research?</h2>
+            <p class="lead mb-4">
+                Join thousands of researchers using SciTeX to transform their scientific
+                workflow
+            </p>
+            <a href="{% url 'cloud_app:signup' %}" class="btn btn-primary btn-lg">Start Your Free Account</a>
+            <p class="text-muted mt-3">No credit card required • Full access to SciTeX Search & Doc</p>
+        </div>
     </div>
-  </div>
-</section>
-
-<!-- Main Pricing Section -->
-<div class="pricing-container">
-  <div class="pricing-grid">
-    
-    <!-- Free Plan -->
-    <div class="pricing-card">
-      <h3 class="plan-name">Free</h3>
-      <div class="plan-price">
-        <span class="currency">$</span>0
-        <span class="period">/ forever</span>
-      </div>
-      <p class="plan-description">Perfect for individual researchers getting started with SciTeX</p>
-      
-      <ul class="feature-list">
-        <li><i class="fas fa-check"></i> <strong>SciTeX Search & Doc</strong> - Full access</li>
-        <li><i class="fas fa-check"></i> 1 active project</li>
-        <li><i class="fas fa-check"></i> 5 GB storage</li>
-        <li><i class="fas fa-check limited"></i> <strong>SciTeX Code</strong> - Limited to 2 CPU cores, 2 GB VRAM</li>
-        <li><i class="fas fa-check"></i> Community support</li>
-        <li><i class="fas fa-check"></i> Access to open-source tools</li>
-      </ul>
-      
-      <div class="feature-category">
-        <div class="feature-category-title">Requirements:</div>
-        <ul class="feature-list">
-          <li><i class="fas fa-info-circle"></i> Must cite SciTeX in publications</li>
-          <li><i class="fas fa-info-circle"></i> ORCID or institutional email required</li>
-          <li><i class="fas fa-info-circle"></i> Research must use SciTeX Archive</li>
-          <li><i class="fas fa-info-circle"></i> Code includes attribution watermark</li>
-        </ul>
-      </div>
-      
-      <a href="{% url 'cloud_app:signup' %}" class="plan-cta secondary">Get Started Free</a>
-    </div>
-    
-    <!-- Premium Plan A -->
-    <div class="pricing-card featured">
-      <span class="plan-badge">Most Popular</span>
-      <h3 class="plan-name">Premium A</h3>
-      <div class="plan-price">
-        <span class="currency">$</span>29
-        <span class="period">/ month</span>
-      </div>
-      <p class="plan-description">For active researchers and small research teams</p>
-      
-      <ul class="feature-list">
-        <li><i class="fas fa-check"></i> Everything in Free, plus:</li>
-        <li><i class="fas fa-check premium"></i> <strong>100 GB storage</strong></li>
-        <li><i class="fas fa-check premium"></i> <strong>8 CPU cores, 8 GB VRAM GPU</strong></li>
-        <li><i class="fas fa-check premium"></i> Up to <strong>5 projects</strong></li>
-        <li><i class="fas fa-check"></i> Priority support</li>
-        <li><i class="fas fa-check"></i> Advanced analytics</li>
-        <li><i class="fas fa-check"></i> No watermarks</li>
-        <li><i class="fas fa-check"></i> Private repositories</li>
-      </ul>
-      
-      <div class="feature-category">
-        <div class="feature-category-title">Advanced Features:</div>
-        <ul class="feature-list">
-          <li><i class="fas fa-star"></i> AI-powered revision assistance</li>
-          <li><i class="fas fa-star"></i> Custom LaTeX templates</li>
-          <li><i class="fas fa-star"></i> Extended computational resources</li>
-        </ul>
-      </div>
-      
-      <a href="{% url 'cloud_app:signup' %}?plan=premium-a" class="plan-cta primary">Start Premium A</a>
-    </div>
-    
-    <!-- Premium Plan B -->
-    <div class="pricing-card">
-      <h3 class="plan-name">Premium B</h3>
-      <div class="plan-price">
-        <span class="currency">$</span>99
-        <span class="period">/ month</span>
-      </div>
-      <p class="plan-description">For research groups and intensive computational needs</p>
-      
-      <ul class="feature-list">
-        <li><i class="fas fa-check"></i> Everything in Premium A, plus:</li>
-        <li><i class="fas fa-check premium"></i> <strong>500 GB storage</strong></li>
-        <li><i class="fas fa-check premium"></i> <strong>32 CPU cores, 24 GB VRAM GPU</strong></li>
-        <li><i class="fas fa-check premium"></i> <strong>Unlimited projects</strong></li>
-        <li><i class="fas fa-check"></i> Dedicated support</li>
-        <li><i class="fas fa-check"></i> Team collaboration tools</li>
-        <li><i class="fas fa-check"></i> API access</li>
-        <li><i class="fas fa-check"></i> Custom integrations</li>
-      </ul>
-      
-      <div class="feature-category">
-        <div class="feature-category-title">Enterprise Features:</div>
-        <ul class="feature-list">
-          <li><i class="fas fa-star"></i> Priority job scheduling</li>
-          <li><i class="fas fa-star"></i> Advanced security options</li>
-          <li><i class="fas fa-star"></i> Usage analytics dashboard</li>
-        </ul>
-      </div>
-      
-      <a href="{% url 'cloud_app:signup' %}?plan=premium-b" class="plan-cta secondary">Start Premium B</a>
-    </div>
-    
-  </div>
-  
-  <!-- Custom Plan Section -->
-  <div class="custom-plan-section">
-    <h2>Need an Enterprise or On-Premise Solution?</h2>
-    <p class="lead">We offer custom plans for institutions, research labs, and enterprises</p>
-    <ul class="list-inline text-center mt-3">
-      <li class="list-inline-item"><i class="fas fa-check text-success"></i> Unlimited resources</li>
-      <li class="list-inline-item"><i class="fas fa-check text-success"></i> On-premise deployment</li>
-      <li class="list-inline-item"><i class="fas fa-check text-success"></i> Custom SLAs</li>
-      <li class="list-inline-item"><i class="fas fa-check text-success"></i> Dedicated support team</li>
-    </ul>
-    <a href="{% url 'cloud_app:contact' %}" class="btn btn-primary btn-lg mt-3">Contact Sales</a>
-  </div>
-  
-  <!-- Important Notes -->
-  <div class="important-notes">
-    <h3><i class="fas fa-exclamation-triangle"></i> Important Information</h3>
-    <ul>
-      <li>All users must associate their account with ORCID or an institutional email address</li>
-      <li>Free tier users must acknowledge SciTeX usage in all publications</li>
-      <li>Storage and computational limits are strictly enforced</li>
-      <li>Academic discounts available - contact us for details</li>
-    </ul>
-  </div>
-  
-  <!-- Detailed Comparison Table -->
-  <div class="comparison-section">
-    <h2 class="text-center mb-4">Detailed Feature Comparison</h2>
-    <table class="comparison-table">
-      <thead>
-        <tr>
-          <th>Feature</th>
-          <th>Free</th>
-          <th>Premium A</th>
-          <th>Premium B</th>
-          <th>Custom</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Core Features -->
-        <tr>
-          <td><strong>Core Modules</strong></td>
-          <td colspan="4"></td>
-        </tr>
-        <tr>
-          <td>SciTeX Search</td>
-          <td><i class="fas fa-check check-icon"></i></td>
-          <td><i class="fas fa-check check-icon"></i></td>
-          <td><i class="fas fa-check check-icon"></i></td>
-          <td><i class="fas fa-check check-icon"></i></td>
-        </tr>
-        <tr>
-          <td>SciTeX Doc</td>
-          <td><i class="fas fa-check check-icon"></i></td>
-          <td><i class="fas fa-check check-icon"></i></td>
-          <td><i class="fas fa-check check-icon"></i></td>
-          <td><i class="fas fa-check check-icon"></i></td>
-        </tr>
-        <tr>
-          <td>SciTeX Code</td>
-          <td>Limited</td>
-          <td><i class="fas fa-check check-icon"></i></td>
-          <td><i class="fas fa-check check-icon"></i></td>
-          <td><i class="fas fa-check check-icon"></i></td>
-        </tr>
-        <tr>
-          <td>SciTeX Viz</td>
-          <td>Basic</td>
-          <td><i class="fas fa-check check-icon"></i></td>
-          <td><i class="fas fa-check check-icon"></i></td>
-          <td><i class="fas fa-check check-icon"></i></td>
-        </tr>
-        <tr>
-          <td>SciTeX Engine</td>
-          <td>Basic</td>
-          <td>Advanced</td>
-          <td>Full</td>
-          <td>Custom</td>
-        </tr>
-        
-        <!-- Resources -->
-        <tr>
-          <td><strong>Resources</strong></td>
-          <td colspan="4"></td>
-        </tr>
-        <tr>
-          <td>Storage</td>
-          <td>5 GB</td>
-          <td>100 GB</td>
-          <td>500 GB</td>
-          <td>Unlimited</td>
-        </tr>
-        <tr>
-          <td>CPU Cores</td>
-          <td>2</td>
-          <td>8</td>
-          <td>32</td>
-          <td>Custom</td>
-        </tr>
-        <tr>
-          <td>GPU Memory</td>
-          <td>2 GB</td>
-          <td>8 GB</td>
-          <td>24 GB</td>
-          <td>Custom</td>
-        </tr>
-        <tr>
-          <td>Active Projects</td>
-          <td>1</td>
-          <td>5</td>
-          <td>Unlimited</td>
-          <td>Unlimited</td>
-        </tr>
-        
-        <!-- Features -->
-        <tr>
-          <td><strong>Features</strong></td>
-          <td colspan="4"></td>
-        </tr>
-        <tr>
-          <td>AI Revision Assistant</td>
-          <td><i class="fas fa-times x-icon"></i></td>
-          <td><i class="fas fa-check check-icon"></i></td>
-          <td><i class="fas fa-check check-icon"></i></td>
-          <td><i class="fas fa-check check-icon"></i></td>
-        </tr>
-        <tr>
-          <td>Custom Templates</td>
-          <td><i class="fas fa-times x-icon"></i></td>
-          <td><i class="fas fa-check check-icon"></i></td>
-          <td><i class="fas fa-check check-icon"></i></td>
-          <td><i class="fas fa-check check-icon"></i></td>
-        </tr>
-        <tr>
-          <td>API Access</td>
-          <td><i class="fas fa-times x-icon"></i></td>
-          <td>Limited</td>
-          <td><i class="fas fa-check check-icon"></i></td>
-          <td><i class="fas fa-check check-icon"></i></td>
-        </tr>
-        <tr>
-          <td>Priority Support</td>
-          <td><i class="fas fa-times x-icon"></i></td>
-          <td><i class="fas fa-check check-icon"></i></td>
-          <td><i class="fas fa-check check-icon"></i></td>
-          <td>Dedicated</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  
-  <!-- Call to Action -->
-  <div class="text-center py-5">
-    <h2>Ready to Accelerate Your Research?</h2>
-    <p class="lead mb-4">Join thousands of researchers using SciTeX to transform their scientific workflow</p>
-    <a href="{% url 'cloud_app:signup' %}" class="btn btn-primary btn-lg">Start Your Free Account</a>
-    <p class="text-muted mt-3">No credit card required • Full access to SciTeX Search & Doc</p>
-  </div>
-</div>
 {% endblock %}
-
 {% block extra_js %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  // Add hover effects to pricing cards
-  const pricingCards = document.querySelectorAll('.pricing-card');
-  
-  pricingCards.forEach(card => {
-    card.addEventListener('mouseenter', function() {
-      if (!this.classList.contains('featured')) {
-        this.style.borderColor = '#e2e8f0';
-      }
-    });
-    
-    card.addEventListener('mouseleave', function() {
-      if (!this.classList.contains('featured')) {
-        this.style.borderColor = 'transparent';
-      }
+    <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Add hover effects to pricing cards
+    const pricingCards = document.querySelectorAll(".pricing-card");
+
+    pricingCards.forEach((card) => {
+      card.addEventListener("mouseenter", function () {
+        if (!this.classList.contains("featured")) {
+          this.style.borderColor = "#e2e8f0";
+        }
+      });
+
+      card.addEventListener("mouseleave", function () {
+        if (!this.classList.contains("featured")) {
+          this.style.borderColor = "transparent";
+        }
+      });
     });
   });
-});
-</script>
+    </script>
 {% endblock %}

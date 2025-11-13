@@ -50,10 +50,12 @@
    * =========================================================================== */
 
   /* Font families */
-  --font-family-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-                      "Helvetica Neue", Arial, sans-serif;
-  --font-family-mono: "SF Mono", Monaco, Inconsolata, "Fira Mono",
-                      "Droid Sans Mono", "Source Code Pro", monospace;
+  --font-family-sans:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, sans-serif;
+  --font-family-mono:
+    "SF Mono", Monaco, Inconsolata, "Fira Mono", "Droid Sans Mono",
+    "Source Code Pro", monospace;
 
   /* Font sizes */
   --font-size-xs: 11px;
@@ -84,14 +86,14 @@
    * =========================================================================== */
 
   --space-0: 0;
-  --space-1: 4px;   /* 0.25rem */
-  --space-2: 8px;   /* 0.5rem */
-  --space-3: 12px;  /* 0.75rem */
-  --space-4: 16px;  /* 1rem */
-  --space-5: 20px;  /* 1.25rem */
-  --space-6: 24px;  /* 1.5rem */
-  --space-7: 28px;  /* 1.75rem */
-  --space-8: 32px;  /* 2rem */
+  --space-1: 4px; /* 0.25rem */
+  --space-2: 8px; /* 0.5rem */
+  --space-3: 12px; /* 0.75rem */
+  --space-4: 16px; /* 1rem */
+  --space-5: 20px; /* 1.25rem */
+  --space-6: 24px; /* 1.5rem */
+  --space-7: 28px; /* 1.75rem */
+  --space-8: 32px; /* 2rem */
   --space-10: 40px; /* 2.5rem */
   --space-12: 48px; /* 3rem */
   --space-16: 64px; /* 4rem */
@@ -240,31 +242,75 @@
  * ============================================================================= */
 
 /* Spacing utilities */
-.m-0 { margin: var(--space-0); }
-.m-1 { margin: var(--space-1); }
-.m-2 { margin: var(--space-2); }
-.m-3 { margin: var(--space-3); }
-.m-4 { margin: var(--space-4); }
+.m-0 {
+  margin: var(--space-0);
+}
+.m-1 {
+  margin: var(--space-1);
+}
+.m-2 {
+  margin: var(--space-2);
+}
+.m-3 {
+  margin: var(--space-3);
+}
+.m-4 {
+  margin: var(--space-4);
+}
 
-.p-0 { padding: var(--space-0); }
-.p-1 { padding: var(--space-1); }
-.p-2 { padding: var(--space-2); }
-.p-3 { padding: var(--space-3); }
-.p-4 { padding: var(--space-4); }
+.p-0 {
+  padding: var(--space-0);
+}
+.p-1 {
+  padding: var(--space-1);
+}
+.p-2 {
+  padding: var(--space-2);
+}
+.p-3 {
+  padding: var(--space-3);
+}
+.p-4 {
+  padding: var(--space-4);
+}
 
 /* Text utilities */
-.text-sm { font-size: var(--font-size-sm); }
-.text-base { font-size: var(--font-size-base); }
-.text-md { font-size: var(--font-size-md); }
-.text-lg { font-size: var(--font-size-lg); }
+.text-sm {
+  font-size: var(--font-size-sm);
+}
+.text-base {
+  font-size: var(--font-size-base);
+}
+.text-md {
+  font-size: var(--font-size-md);
+}
+.text-lg {
+  font-size: var(--font-size-lg);
+}
 
-.text-bold { font-weight: var(--font-weight-bold); }
-.text-semibold { font-weight: var(--font-weight-semibold); }
-.text-normal { font-weight: var(--font-weight-normal); }
+.text-bold {
+  font-weight: var(--font-weight-bold);
+}
+.text-semibold {
+  font-weight: var(--font-weight-semibold);
+}
+.text-normal {
+  font-weight: var(--font-weight-normal);
+}
 
 /* Color utilities */
-.text-muted { color: var(--color-fg-muted); }
-.text-default { color: var(--color-fg-default); }
-.text-success { color: var(--color-success-fg); }
-.text-warning { color: var(--color-warning-fg); }
-.text-danger { color: var(--color-danger-fg); }
+.text-muted {
+  color: var(--color-fg-muted);
+}
+.text-default {
+  color: var(--color-fg-default);
+}
+.text-success {
+  color: var(--color-success-fg);
+}
+.text-warning {
+  color: var(--color-warning-fg);
+}
+.text-danger {
+  color: var(--color-danger-fg);
+}

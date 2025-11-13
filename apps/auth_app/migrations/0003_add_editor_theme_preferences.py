@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("auth_app", "0002_userprofile_code_theme_dark_and_more"),
     ]

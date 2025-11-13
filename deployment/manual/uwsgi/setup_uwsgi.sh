@@ -69,7 +69,7 @@ create_directories() {
 
     if [ "$env" = "dev" ]; then
         mkdir -p /run
-        chown www-data:www-data /run 2>/dev/null || true
+        chown www-data:www-data /run 2> /dev/null || true
     else
         mkdir -p /run/scitex_cloud
         chown www-data:www-data /run/scitex_cloud
@@ -167,11 +167,11 @@ main() {
 
     while [[ $# -gt 0 ]]; do
         case $1 in
-            -e|--env)
+            -e | --env)
                 ENV="$2"
                 shift 2
                 ;;
-            -h|--help)
+            -h | --help)
                 usage
                 ;;
             *)

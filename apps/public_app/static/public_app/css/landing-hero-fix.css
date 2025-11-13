@@ -50,12 +50,22 @@
 
 /* Demonstration Section Background */
 .section-demos {
-  background: linear-gradient(180deg, var(--scitex-color-07) 0%, var(--scitex-color-06) 50%, var(--bg-page) 100%);
+  background: linear-gradient(
+    180deg,
+    var(--scitex-color-07) 0%,
+    var(--scitex-color-06) 50%,
+    var(--bg-page) 100%
+  );
   padding: var(--spacing-xxl) 0;
 }
 
 [data-theme="dark"] .section-demos {
-  background: linear-gradient(180deg, var(--scitex-color-02) 0%, var(--scitex-color-01) 50%, var(--bg-page) 100%);
+  background: linear-gradient(
+    180deg,
+    var(--scitex-color-02) 0%,
+    var(--scitex-color-01) 50%,
+    var(--bg-page) 100%
+  );
 }
 
 /* Responsive adjustments */

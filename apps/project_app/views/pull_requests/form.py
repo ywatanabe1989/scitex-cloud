@@ -8,6 +8,7 @@ Pull Request Form Views
 
 Handles PR creation and branch comparison.
 """
+
 from __future__ import annotations
 
 import logging
@@ -39,23 +40,23 @@ def pr_create(request, username, slug):
     # Check permissions
     if not project.can_edit(request.user):
         messages.error(request, "You don't have permission to create pull requests")
-        return redirect('user_projects:detail', username=username, slug=slug)
+        return redirect("user_projects:detail", username=username, slug=slug)
 
     # Get compare parameters (base and head branches)
-    base_branch = request.GET.get('base', project.current_branch or 'main')
-    head_branch = request.GET.get('head', '')
+    base_branch = request.GET.get("base", project.current_branch or "main")
+    head_branch = request.GET.get("head", "")
 
     # Get list of branches
     branches = get_project_branches(project)
 
-    if request.method == 'POST':
+    if request.method == "POST":
         # Create PR
-        title = request.POST.get('title', '').strip()
-        description = request.POST.get('description', '').strip()
-        base = request.POST.get('base', base_branch)
-        head = request.POST.get('head', head_branch)
-        is_draft = request.POST.get('is_draft') == 'on'
-        reviewers = request.POST.getlist('reviewers')
+        title = request.POST.get("title", "").strip()
+        description = request.POST.get("description", "").strip()
+        base = request.POST.get("base", base_branch)
+        head = request.POST.get("head", head_branch)
+        is_draft = request.POST.get("is_draft") == "on"
+        reviewers = request.POST.getlist("reviewers")
 
         # Validation
         if not title:
@@ -74,13 +75,14 @@ def pr_create(request, username, slug):
                     author=request.user,
                     source_branch=head,
                     target_branch=base,
-                    state='draft' if is_draft else 'open',
+                    state="draft" if is_draft else "open",
                     is_draft=is_draft,
                 )
 
                 # Add reviewers
                 if reviewers:
                     from django.contrib.auth.models import User
+
                     reviewer_users = User.objects.filter(username__in=reviewers)
                     pr.reviewers.set(reviewer_users)
 
@@ -93,12 +95,19 @@ def pr_create(request, username, slug):
                 # Create event
                 PullRequestEvent.objects.create(
                     pull_request=pr,
-                    event_type='opened',
+                    event_type="opened",
                     actor=request.user,
                 )
 
-                messages.success(request, f"Pull request #{pr.number} created successfully")
-                return redirect('user_projects:pr_detail', username=username, slug=slug, pr_number=pr.number)
+                messages.success(
+                    request, f"Pull request #{pr.number} created successfully"
+                )
+                return redirect(
+                    "user_projects:pr_detail",
+                    username=username,
+                    slug=slug,
+                    pr_number=pr.number,
+                )
 
             except Exception as e:
                 logger.error(f"Failed to create PR: {e}")
@@ -113,15 +122,15 @@ def pr_create(request, username, slug):
     potential_reviewers = project.collaborators.exclude(id=request.user.id)
 
     context = {
-        'project': project,
-        'base_branch': base_branch,
-        'head_branch': head_branch,
-        'branches': branches,
-        'comparison': comparison,
-        'potential_reviewers': potential_reviewers,
+        "project": project,
+        "base_branch": base_branch,
+        "head_branch": head_branch,
+        "branches": branches,
+        "comparison": comparison,
+        "potential_reviewers": potential_reviewers,
     }
 
-    return render(request, 'project_app/pull_requests/form.html', context)
+    return render(request, "project_app/pull_requests/form.html", context)
 
 
 def pr_compare(request, username, slug):
@@ -137,12 +146,12 @@ def pr_compare(request, username, slug):
         raise Http404("Project not found")
 
     # Get compare parameters
-    compare_str = request.GET.get('compare', '')
-    if '...' in compare_str:
-        base, head = compare_str.split('...')
+    compare_str = request.GET.get("compare", "")
+    if "..." in compare_str:
+        base, head = compare_str.split("...")
     else:
-        base = project.current_branch or 'main'
-        head = ''
+        base = project.current_branch or "main"
+        head = ""
 
     # Get list of branches
     branches = get_project_branches(project)
@@ -153,20 +162,21 @@ def pr_compare(request, username, slug):
         comparison = compare_branches(project, base, head)
 
     context = {
-        'project': project,
-        'base_branch': base,
-        'head_branch': head,
-        'branches': branches,
-        'comparison': comparison,
-        'can_create': project.can_edit(request.user),
+        "project": project,
+        "base_branch": base,
+        "head_branch": head,
+        "branches": branches,
+        "comparison": comparison,
+        "can_create": project.can_edit(request.user),
     }
 
-    return render(request, 'project_app/pull_requests/form.html', context)
+    return render(request, "project_app/pull_requests/form.html", context)
 
 
 # ============================================================================
 # Helper Functions
 # ============================================================================
+
 
 def get_project_branches(project):
     """
@@ -176,7 +186,10 @@ def get_project_branches(project):
         list: Branch names
     """
     try:
-        from apps.project_app.services.project_filesystem import get_project_filesystem_manager
+        from apps.project_app.services.project_filesystem import (
+            get_project_filesystem_manager,
+        )
+
         manager = get_project_filesystem_manager(project.owner)
         project_path = manager.get_project_root_path(project)
 
@@ -185,11 +198,11 @@ def get_project_branches(project):
 
         # Get branches from git
         result = subprocess.run(
-            ['git', 'branch', '-a'],
+            ["git", "branch", "-a"],
             cwd=project_path,
             capture_output=True,
             text=True,
-            timeout=10
+            timeout=10,
         )
 
         if result.returncode != 0:
@@ -197,11 +210,11 @@ def get_project_branches(project):
 
         # Parse branch names
         branches = []
-        for line in result.stdout.split('\n'):
+        for line in result.stdout.split("\n"):
             line = line.strip()
-            if line and not line.startswith('*'):
+            if line and not line.startswith("*"):
                 # Remove remote prefix
-                branch = line.replace('remotes/origin/', '')
+                branch = line.replace("remotes/origin/", "")
                 if branch not in branches:
                     branches.append(branch)
 
@@ -220,7 +233,10 @@ def compare_branches(project, base, head):
         dict: Comparison data (commits, files changed, diff)
     """
     try:
-        from apps.project_app.services.project_filesystem import get_project_filesystem_manager
+        from apps.project_app.services.project_filesystem import (
+            get_project_filesystem_manager,
+        )
+
         manager = get_project_filesystem_manager(project.owner)
         project_path = manager.get_project_root_path(project)
 
@@ -229,11 +245,11 @@ def compare_branches(project, base, head):
 
         # Get diff between branches
         result = subprocess.run(
-            ['git', 'diff', f'{base}...{head}', '--stat'],
+            ["git", "diff", f"{base}...{head}", "--stat"],
             cwd=project_path,
             capture_output=True,
             text=True,
-            timeout=30
+            timeout=30,
         )
 
         if result.returncode != 0:
@@ -241,20 +257,22 @@ def compare_branches(project, base, head):
 
         # Get commit count
         commit_result = subprocess.run(
-            ['git', 'rev-list', '--count', f'{base}..{head}'],
+            ["git", "rev-list", "--count", f"{base}..{head}"],
             cwd=project_path,
             capture_output=True,
             text=True,
-            timeout=10
+            timeout=10,
         )
 
-        commit_count = int(commit_result.stdout.strip()) if commit_result.returncode == 0 else 0
+        commit_count = (
+            int(commit_result.stdout.strip()) if commit_result.returncode == 0 else 0
+        )
 
         return {
-            'base': base,
-            'head': head,
-            'commit_count': commit_count,
-            'diff_stat': result.stdout,
+            "base": base,
+            "head": head,
+            "commit_count": commit_count,
+            "diff_stat": result.stdout,
         }
 
     except Exception as e:
@@ -270,7 +288,9 @@ def sync_pr_commits(pr):
         pr: PullRequest instance
     """
     try:
-        from apps.project_app.services.project_filesystem import get_project_filesystem_manager
+        from apps.project_app.services.project_filesystem import (
+            get_project_filesystem_manager,
+        )
         from apps.project_app.models import PullRequestCommit
 
         manager = get_project_filesystem_manager(pr.project.owner)
@@ -281,22 +301,27 @@ def sync_pr_commits(pr):
 
         # Get commits between base and head
         result = subprocess.run(
-            ['git', 'log', f'{pr.target_branch}..{pr.source_branch}', '--format=%H|%an|%ae|%at|%s'],
+            [
+                "git",
+                "log",
+                f"{pr.target_branch}..{pr.source_branch}",
+                "--format=%H|%an|%ae|%at|%s",
+            ],
             cwd=project_path,
             capture_output=True,
             text=True,
-            timeout=30
+            timeout=30,
         )
 
         if result.returncode != 0:
             return
 
         # Parse and create commit records
-        for line in result.stdout.split('\n'):
+        for line in result.stdout.split("\n"):
             if not line.strip():
                 continue
 
-            parts = line.split('|')
+            parts = line.split("|")
             if len(parts) >= 5:
                 commit_hash, author_name, author_email, timestamp, message = parts[:5]
 
@@ -305,11 +330,11 @@ def sync_pr_commits(pr):
                     pull_request=pr,
                     commit_hash=commit_hash,
                     defaults={
-                        'commit_message': message,
-                        'author_name': author_name,
-                        'author_email': author_email,
-                        'committed_at': timezone.datetime.fromtimestamp(int(timestamp)),
-                    }
+                        "commit_message": message,
+                        "author_name": author_name,
+                        "author_email": author_email,
+                        "committed_at": timezone.datetime.fromtimestamp(int(timestamp)),
+                    },
                 )
 
     except Exception as e:
@@ -324,7 +349,10 @@ def check_pr_conflicts(pr):
         pr: PullRequest instance
     """
     try:
-        from apps.project_app.services.project_filesystem import get_project_filesystem_manager
+        from apps.project_app.services.project_filesystem import (
+            get_project_filesystem_manager,
+        )
+
         manager = get_project_filesystem_manager(pr.project.owner)
         project_path = manager.get_project_root_path(pr.project)
 
@@ -333,30 +361,30 @@ def check_pr_conflicts(pr):
 
         # Try to merge (dry run)
         result = subprocess.run(
-            ['git', 'merge-tree', pr.target_branch, pr.source_branch],
+            ["git", "merge-tree", pr.target_branch, pr.source_branch],
             cwd=project_path,
             capture_output=True,
             text=True,
-            timeout=30
+            timeout=30,
         )
 
         # Check for conflicts in output
-        has_conflicts = 'CONFLICT' in result.stdout
+        has_conflicts = "CONFLICT" in result.stdout
 
         # Update PR
         pr.has_conflicts = has_conflicts
         if has_conflicts:
             # Parse conflict files
             conflict_files = []
-            for line in result.stdout.split('\n'):
-                if 'CONFLICT' in line:
+            for line in result.stdout.split("\n"):
+                if "CONFLICT" in line:
                     # Extract filename from conflict message
                     parts = line.split()
                     if len(parts) > 2:
                         conflict_files.append(parts[-1])
             pr.conflict_files = conflict_files
 
-        pr.save(update_fields=['has_conflicts', 'conflict_files'])
+        pr.save(update_fields=["has_conflicts", "conflict_files"])
 
     except Exception as e:
         logger.error(f"Failed to check PR conflicts: {e}")

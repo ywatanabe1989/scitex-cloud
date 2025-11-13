@@ -1,83 +1,140 @@
 {% extends "global_base.html" %}
-
-{% block title %}{{ section_title }} - SciTeX Design System{% endblock %}
-
-{% block meta_description %}{{ section_description }}{% endblock %}
-
+{% block title %}
+    {{ section_title }} - SciTeX
+    Design System
+{% endblock %}
+{% block meta_description %}
+    {{ section_description
+    }}
+{% endblock %}
 {% block extra_css %}
-{% load static %}
-<link rel="stylesheet" href="{% static 'shared/css/common.css' %}">
-<link rel="stylesheet" href="{% static 'shared/css/components/code-blocks.css' %}">
-<link rel="stylesheet" href="{% static 'shared/css/components/theme-cards.css' %}">
-<link rel="stylesheet" href="{% static 'dev_app/styles/design.css' %}">
-
-<!-- Highlight.js themes for live preview -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/tokyo-night-dark.min.css" data-code-theme="tokyo-night-dark" class="hljs-code-theme" disabled>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/base16/dracula.min.css" data-code-theme="dracula" class="hljs-code-theme" disabled>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/monokai.min.css" data-code-theme="monokai" class="hljs-code-theme" disabled>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/nord.min.css" data-code-theme="nord" class="hljs-code-theme" disabled>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" data-code-theme="atom-one-dark" class="hljs-code-theme" disabled>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" data-code-theme="github-dark" class="hljs-code-theme" disabled>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/vs2015.min.css" data-code-theme="vs2015" class="hljs-code-theme" disabled>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/tokyo-night-light.min.css" data-code-theme="tokyo-night-light" class="hljs-code-theme" disabled>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css" data-code-theme="atom-one-light" class="hljs-code-theme" disabled>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" data-code-theme="github" class="hljs-code-theme" disabled>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/stackoverflow-light.min.css" data-code-theme="stackoverflow-light" class="hljs-code-theme" disabled>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" data-code-theme="default" class="hljs-code-theme" disabled>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/xcode.min.css" data-code-theme="xcode" class="hljs-code-theme" disabled>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'shared/css/common.css' %}" />
+    <link rel="stylesheet"
+          href="{% static 'shared/css/components/code-blocks.css' %}" />
+    <link rel="stylesheet"
+          href="{% static 'shared/css/components/theme-cards.css' %}" />
+    <link rel="stylesheet" href="{% static 'dev_app/styles/design.css' %}" />
+    <!-- Highlight.js themes for live preview -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/tokyo-night-dark.min.css"
+          data-code-theme="tokyo-night-dark"
+          class="hljs-code-theme"
+          disabled />
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/base16/dracula.min.css"
+          data-code-theme="dracula"
+          class="hljs-code-theme"
+          disabled />
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/monokai.min.css"
+          data-code-theme="monokai"
+          class="hljs-code-theme"
+          disabled />
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/nord.min.css"
+          data-code-theme="nord"
+          class="hljs-code-theme"
+          disabled />
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css"
+          data-code-theme="atom-one-dark"
+          class="hljs-code-theme"
+          disabled />
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css"
+          data-code-theme="github-dark"
+          class="hljs-code-theme"
+          disabled />
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/vs2015.min.css"
+          data-code-theme="vs2015"
+          class="hljs-code-theme"
+          disabled />
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/tokyo-night-light.min.css"
+          data-code-theme="tokyo-night-light"
+          class="hljs-code-theme"
+          disabled />
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css"
+          data-code-theme="atom-one-light"
+          class="hljs-code-theme"
+          disabled />
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css"
+          data-code-theme="github"
+          class="hljs-code-theme"
+          disabled />
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/stackoverflow-light.min.css"
+          data-code-theme="stackoverflow-light"
+          class="hljs-code-theme"
+          disabled />
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css"
+          data-code-theme="default"
+          class="hljs-code-theme"
+          disabled />
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/xcode.min.css"
+          data-code-theme="xcode"
+          class="hljs-code-theme"
+          disabled />
 {% endblock %}
-
 {% block content %}
-{% include 'dev_app/design_partial/hero.html' %}
-
-<div class="container py-5">
-  <div style="display: flex; gap: 2rem;">
-    {% include 'dev_app/design_partial/sidebar.html' %}
-    <main style="flex: 1; min-width: 0;">
-      {% include section_template %}
-    </main>
-  </div>
-</div>
+    {% include 'dev_app/design_partial/hero.html' %}
+    <div class="container py-5">
+        <div style="display: flex; gap: 2rem">
+            {% include 'dev_app/design_partial/sidebar.html' %}
+            <main style="flex: 1; min-width: 0">
+                {% include section_template %}
+            </main>
+        </div>
+    </div>
 {% endblock %}
-
 {% block extra_js %}
-{% load static %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlightjs-line-numbers.js/2.8.0/highlightjs-line-numbers.min.js"></script>
-
-<!-- Custom Language Definitions for Highlight.js -->
-<script src="{% static 'shared/js/utils/highlight-js-bibtex.js' %}"></script>
-
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
+    {% load static %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlightjs-line-numbers.js/2.8.0/highlightjs-line-numbers.min.js"></script>
+    <!-- Custom Language Definitions for Highlight.js -->
+    <script src="{% static 'shared/js/utils/highlight-js-bibtex.js' %}"></script>
+    <script>
+  document.addEventListener("DOMContentLoaded", function () {
     // Highlight all code blocks on page load
-    document.querySelectorAll('pre code').forEach((block) => {
+    document.querySelectorAll("pre code").forEach((block) => {
       hljs.highlightElement(block);
       hljs.lineNumbersBlock(block);
     });
 
     // Live preview functionality for code blocks design page
-    const darkSelector = document.getElementById('design-code-theme-dark-selector');
-    const lightSelector = document.getElementById('design-code-theme-light-selector');
-    const codePreview = document.getElementById('design-code-preview');
+    const darkSelector = document.getElementById(
+      "design-code-theme-dark-selector",
+    );
+    const lightSelector = document.getElementById(
+      "design-code-theme-light-selector",
+    );
+    const codePreview = document.getElementById("design-code-preview");
 
     if (darkSelector && lightSelector && codePreview) {
       let originalCodeContent = codePreview.textContent;
 
       // Switch code theme preview
       function switchCodeThemePreview(themeName) {
-        console.log('Switching to theme:', themeName);
+        console.log("Switching to theme:", themeName);
 
         // Disable all themes
-        document.querySelectorAll('.hljs-code-theme').forEach(link => {
+        document.querySelectorAll(".hljs-code-theme").forEach((link) => {
           link.disabled = true;
         });
 
         // Enable selected theme
-        const themeLink = document.querySelector(`.hljs-code-theme[data-code-theme="${themeName}"]`);
+        const themeLink = document.querySelector(
+          `.hljs-code-theme[data-code-theme="${themeName}"]`,
+        );
         if (themeLink) {
           themeLink.disabled = false;
-          console.log('Enabled theme:', themeName);
+          console.log("Enabled theme:", themeName);
 
           // Re-highlight code
           if (originalCodeContent) {
@@ -86,15 +143,17 @@
             delete codePreview.dataset.highlighted;
             hljs.highlightElement(codePreview);
             hljs.lineNumbersBlock(codePreview);
-            console.log('Re-highlighted code block');
+            console.log("Re-highlighted code block");
           }
         }
       }
 
       // Update preview based on current site theme
       function updateCodePreview() {
-        const currentSiteTheme = document.documentElement.getAttribute('data-theme') || 'dark';
-        const selector = currentSiteTheme === 'dark' ? darkSelector : lightSelector;
+        const currentSiteTheme =
+          document.documentElement.getAttribute("data-theme") || "dark";
+        const selector =
+          currentSiteTheme === "dark" ? darkSelector : lightSelector;
 
         if (selector) {
           switchCodeThemePreview(selector.value);
@@ -105,25 +164,30 @@
       updateCodePreview();
 
       // Handle theme selector changes
-      darkSelector.addEventListener('change', function() {
-        const currentSiteTheme = document.documentElement.getAttribute('data-theme') || 'dark';
-        if (currentSiteTheme === 'dark') {
+      darkSelector.addEventListener("change", function () {
+        const currentSiteTheme =
+          document.documentElement.getAttribute("data-theme") || "dark";
+        if (currentSiteTheme === "dark") {
           switchCodeThemePreview(this.value);
         }
       });
 
-      lightSelector.addEventListener('change', function() {
-        const currentSiteTheme = document.documentElement.getAttribute('data-theme') || 'dark';
-        if (currentSiteTheme === 'light') {
+      lightSelector.addEventListener("change", function () {
+        const currentSiteTheme =
+          document.documentElement.getAttribute("data-theme") || "dark";
+        if (currentSiteTheme === "light") {
           switchCodeThemePreview(this.value);
         }
       });
 
       // Watch for site theme changes (light/dark toggle)
-      const themeObserver = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-          if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme') {
-            console.log('Site theme changed, updating preview');
+      const themeObserver = new MutationObserver(function (mutations) {
+        mutations.forEach(function (mutation) {
+          if (
+            mutation.type === "attributes" &&
+            mutation.attributeName === "data-theme"
+          ) {
+            console.log("Site theme changed, updating preview");
             updateCodePreview();
           }
         });
@@ -131,11 +195,11 @@
 
       themeObserver.observe(document.documentElement, {
         attributes: true,
-        attributeFilter: ['data-theme']
+        attributeFilter: ["data-theme"],
       });
     }
   });
-</script>
-<script src="{% static 'shared/js/code-blocks.js' %}"></script>
-<script src="{% static 'dev_app/scripts/design.js' %}"></script>
+    </script>
+    <script src="{% static 'shared/js/code-blocks.js' %}"></script>
+    <script src="{% static 'dev_app/scripts/design.js' %}"></script>
 {% endblock %}

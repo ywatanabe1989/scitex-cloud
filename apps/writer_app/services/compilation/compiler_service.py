@@ -5,9 +5,8 @@
 # ----------------------------------------
 from __future__ import annotations
 import os
-__FILE__ = (
-    "./apps/writer_app/services/compilation/compiler_service.py"
-)
+
+__FILE__ = "./apps/writer_app/services/compilation/compiler_service.py"
 __DIR__ = os.path.dirname(__FILE__)
 # ----------------------------------------
 """
@@ -133,9 +132,7 @@ class CompilerService:
         raise NotImplementedError("To be implemented")
 
     @staticmethod
-    def get_pdf_path(
-        manuscript, doc_type: str = "manuscript"
-    ) -> Optional[Path]:
+    def get_pdf_path(manuscript, doc_type: str = "manuscript") -> Optional[Path]:
         """
         Get path to compiled PDF.
 

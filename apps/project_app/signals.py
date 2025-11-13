@@ -56,9 +56,7 @@ def create_gitea_repository(sender, instance, created, **kwargs):
 
         # Prepare repository data
         repo_name = instance.slug
-        description = (
-            instance.description or f"SciTeX project: {instance.name}"
-        )
+        description = instance.description or f"SciTeX project: {instance.name}"
         is_private = instance.visibility == "private"
 
         # Check if repository already exists
@@ -106,12 +104,8 @@ def create_gitea_repository(sender, instance, created, **kwargs):
             )
             return
         except GiteaUserCreationError as e:
-            logger.error(
-                f"Failed to create Gitea user {instance.owner.username}: {e}"
-            )
-            logger.error(
-                f"Cannot create repository without Gitea user account"
-            )
+            logger.error(f"Failed to create Gitea user {instance.owner.username}: {e}")
+            logger.error(f"Cannot create repository without Gitea user account")
             return
 
         # Create repository in Gitea under the project owner
@@ -153,19 +147,15 @@ def create_gitea_repository(sender, instance, created, **kwargs):
         # Clone repository to Django data directory
         _clone_gitea_repo_to_data_dir(instance)
 
-    except (requests.exceptions.ConnectionError, ConnectionRefusedError) as e:
+    except (requests.exceptions.ConnectionError, ConnectionRefusedError):
         # Gitea unavailable - log warning but don't fail project creation
-        logger.warning(
-            f"Gitea unavailable for {instance.slug}: Connection refused"
-        )
+        logger.warning(f"Gitea unavailable for {instance.slug}: Connection refused")
         logger.info(
             "Project created without Gitea repository. Repository will be created when Gitea becomes available."
         )
     except Exception as e:
         # Log error but don't fail project creation
-        logger.error(
-            f"Failed to create Gitea repository for {instance.slug}: {e}"
-        )
+        logger.error(f"Failed to create Gitea repository for {instance.slug}: {e}")
         logger.exception("Full traceback:")
 
 
@@ -183,7 +173,6 @@ def _initialize_writer_structure(project, project_dir):
         project: Project model instance
         project_dir: Path to project root (with .git from Gitea)
     """
-    from pathlib import Path
     import subprocess
 
     try:
@@ -207,9 +196,7 @@ def _initialize_writer_structure(project, project_dir):
         # Get branch and tag from settings
         # In development: tag=v2.0.0-beta, branch=None
         # In production: tag=None, branch=main
-        template_branch = getattr(
-            settings, "SCITEX_WRITER_TEMPLATE_BRANCH", None
-        )
+        template_branch = getattr(settings, "SCITEX_WRITER_TEMPLATE_BRANCH", None)
         template_tag = getattr(settings, "SCITEX_WRITER_TEMPLATE_TAG", None)
 
         writer = Writer(
@@ -225,9 +212,7 @@ def _initialize_writer_structure(project, project_dir):
         logger.info(f"  - Git root: {writer.git_root}")
 
         # Commit the new structure
-        subprocess.run(
-            ["git", "add", "-A"], cwd=project_dir, capture_output=True
-        )
+        subprocess.run(["git", "add", "-A"], cwd=project_dir, capture_output=True)
         result = subprocess.run(
             ["git", "commit", "-m", "Initialize scitex writer structure"],
             cwd=project_dir,
@@ -254,9 +239,7 @@ def _initialize_writer_structure(project, project_dir):
             logger.info("No changes to commit (structure may already exist)")
 
     except Exception as e:
-        logger.error(
-            f"Failed to initialize writer structure for {project.slug}: {e}"
-        )
+        logger.error(f"Failed to initialize writer structure for {project.slug}: {e}")
         logger.exception("Full traceback:")
 
 
@@ -281,9 +264,7 @@ def _clone_gitea_repo_to_data_dir(project):
 
         # Skip if directory already exists and is a git repo
         if project_dir.exists() and (project_dir / ".git").exists():
-            logger.info(
-                f"Project directory already exists as git repo: {project_dir}"
-            )
+            logger.info(f"Project directory already exists as git repo: {project_dir}")
             return
 
         # Remove directory if exists but not a git repo
@@ -300,6 +281,7 @@ def _clone_gitea_repo_to_data_dir(project):
         # Clone URL format from Gitea: http://gitea:3000/owner/repo.git
         # Authenticated format needed: http://{token}@gitea:3000/owner/repo.git
         from django.conf import settings
+
         gitea_token = settings.GITEA_TOKEN
 
         if gitea_token and clone_url:
@@ -393,9 +375,7 @@ def ensure_bibliography_structure(sender, instance, created, **kwargs):
         if project_path.exists():
             results = ensure_structure(project_path)
             if results["success"]:
-                logger.info(
-                    f"✓ Bibliography structure initialized for {instance.slug}"
-                )
+                logger.info(f"✓ Bibliography structure initialized for {instance.slug}")
             else:
                 logger.warning(
                     f"Bibliography structure initialization had errors: {results['errors']}"
@@ -442,9 +422,7 @@ def sync_project_visibility(sender, instance, created, **kwargs):
         endpoint = f"/repos/{instance.owner.username}/{instance.slug}"
         client._request("PATCH", endpoint, json={"private": is_private})
 
-        logger.info(
-            f"✓ Synced visibility for {instance.slug}: {instance.visibility}"
-        )
+        logger.info(f"✓ Synced visibility for {instance.slug}: {instance.visibility}")
 
     except Exception as e:
         logger.error(f"Failed to sync visibility for {instance.slug}: {e}")
@@ -508,9 +486,7 @@ def delete_gitea_repository(sender, instance, **kwargs):
 
         # Delete repository in Gitea
         try:
-            client.delete_repository(
-                owner=instance.owner.username, repo=instance.slug
-            )
+            client.delete_repository(owner=instance.owner.username, repo=instance.slug)
             logger.info(
                 f"✓ Gitea repository deleted: {instance.owner.username}/{instance.slug}"
             )
@@ -520,17 +496,14 @@ def delete_gitea_repository(sender, instance, **kwargs):
             )
             logger.debug(f"Error details: {e}")
 
-    except (requests.exceptions.ConnectionError, ConnectionRefusedError) as e:
-        logger.warning(
-            f"Gitea unavailable for {instance.slug}: Connection refused"
-        )
+    except (requests.exceptions.ConnectionError, ConnectionRefusedError):
+        logger.warning(f"Gitea unavailable for {instance.slug}: Connection refused")
         logger.warning(
             "Gitea repository was NOT deleted. Please manually delete it or use cleanup command."
         )
     except Exception as e:
-        logger.error(
-            f"Failed to delete Gitea repository for {instance.slug}: {e}"
-        )
+        logger.error(f"Failed to delete Gitea repository for {instance.slug}: {e}")
         logger.exception("Full traceback:")
+
 
 # EOF

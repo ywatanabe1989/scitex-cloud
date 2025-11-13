@@ -12,10 +12,10 @@ from .models import (
 )
 
 __all__ = [
-    'Issue',
-    'IssueComment',
-    'IssueLabel',
-    'IssueMilestone',
-    'IssueAssignment',
-    'IssueEvent',
+    "Issue",
+    "IssueComment",
+    "IssueLabel",
+    "IssueMilestone",
+    "IssueAssignment",
+    "IssueEvent",
 ]

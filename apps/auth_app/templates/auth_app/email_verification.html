@@ -1,220 +1,297 @@
 {% extends "auth_app/auth_base.html" %}
-
-{% block title %}Verify Your Email - SciTeX{% endblock %}
-
+{% block title %}
+    Verify Your Email -
+    SciTeX
+{% endblock %}
 {% block auth_content %}
-<div class="container mt-5">
-  <div class="row justify-content-center">
-    <div class="col-md-6">
-      <div class="card">
-        <div class="card-body text-center">
-          <i class="fas fa-envelope-open fa-4x text-primary mb-3"></i>
-          <h3>Verify Your Email</h3>
-          <p>Enter the 6-digit code sent to <strong id="user-email"></strong></p>
-          
-          <div class="alert-banner alert-banner-success" id="success-msg" style="display:none; margin-bottom: 1rem;">
-            <div class="warning-banner-container">
-              <div class="warning-banner-content">
-                <i class="warning-banner-icon fas fa-check-circle"></i>
-                <div class="warning-banner-text">
-                  <div class="warning-banner-description" id="success-msg-text"></div>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-envelope-open fa-4x text-primary mb-3"></i>
+                        <h3>Verify Your Email</h3>
+                        <p>
+                            Enter the 6-digit code sent to <strong id="user-email"></strong>
+                        </p>
+                        <div class="alert-banner alert-banner-success"
+                             id="success-msg"
+                             style="display: none;
+                                    margin-bottom: 1rem">
+                            <div class="warning-banner-container">
+                                <div class="warning-banner-content">
+                                    <i class="warning-banner-icon fas fa-check-circle"></i>
+                                    <div class="warning-banner-text">
+                                        <div class="warning-banner-description" id="success-msg-text"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="alert-banner alert-banner-danger"
+                             id="error-msg"
+                             style="display: none;
+                                    margin-bottom: 1rem">
+                            <div class="warning-banner-container">
+                                <div class="warning-banner-content">
+                                    <i class="warning-banner-icon fas fa-exclamation-circle"></i>
+                                    <div class="warning-banner-text">
+                                        <div class="warning-banner-description" id="error-msg-text"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <form id="verify-form">
+                            <div class="otp-input-container mb-4"
+                                 style="display: flex;
+                                        justify-content: center;
+                                        gap: 10px">
+                                <input type="text"
+                                       class="form-control otp-digit"
+                                       maxlength="1"
+                                       style="width: 50px;
+                                              height: 60px;
+                                              text-align: center;
+                                              font-size: 2rem;
+                                              font-weight: bold;
+                                              border: 2px solid #ddd;
+                                              border-radius: 8px" />
+                                <input type="text"
+                                       class="form-control otp-digit"
+                                       maxlength="1"
+                                       style="width: 50px;
+                                              height: 60px;
+                                              text-align: center;
+                                              font-size: 2rem;
+                                              font-weight: bold;
+                                              border: 2px solid #ddd;
+                                              border-radius: 8px" />
+                                <input type="text"
+                                       class="form-control otp-digit"
+                                       maxlength="1"
+                                       style="width: 50px;
+                                              height: 60px;
+                                              text-align: center;
+                                              font-size: 2rem;
+                                              font-weight: bold;
+                                              border: 2px solid #ddd;
+                                              border-radius: 8px" />
+                                <input type="text"
+                                       class="form-control otp-digit"
+                                       maxlength="1"
+                                       style="width: 50px;
+                                              height: 60px;
+                                              text-align: center;
+                                              font-size: 2rem;
+                                              font-weight: bold;
+                                              border: 2px solid #ddd;
+                                              border-radius: 8px" />
+                                <input type="text"
+                                       class="form-control otp-digit"
+                                       maxlength="1"
+                                       style="width: 50px;
+                                              height: 60px;
+                                              text-align: center;
+                                              font-size: 2rem;
+                                              font-weight: bold;
+                                              border: 2px solid #ddd;
+                                              border-radius: 8px" />
+                                <input type="text"
+                                       class="form-control otp-digit"
+                                       maxlength="1"
+                                       style="width: 50px;
+                                              height: 60px;
+                                              text-align: center;
+                                              font-size: 2rem;
+                                              font-weight: bold;
+                                              border: 2px solid #ddd;
+                                              border-radius: 8px" />
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-lg w-100" id="verify-btn">Verify Email</button>
+                        </form>
+                        <button type="button" class="btn btn-outline-secondary mt-3" id="resend-btn">Resend Code</button>
+                    </div>
                 </div>
-              </div>
             </div>
-          </div>
-          <div class="alert-banner alert-banner-danger" id="error-msg" style="display:none; margin-bottom: 1rem;">
-            <div class="warning-banner-container">
-              <div class="warning-banner-content">
-                <i class="warning-banner-icon fas fa-exclamation-circle"></i>
-                <div class="warning-banner-text">
-                  <div class="warning-banner-description" id="error-msg-text"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <form id="verify-form">
-            <div class="otp-input-container mb-4" style="display: flex; justify-content: center; gap: 10px;">
-              <input type="text" class="form-control otp-digit" maxlength="1" style="width: 50px; height: 60px; text-align: center; font-size: 2rem; font-weight: bold; border: 2px solid #ddd; border-radius: 8px;">
-              <input type="text" class="form-control otp-digit" maxlength="1" style="width: 50px; height: 60px; text-align: center; font-size: 2rem; font-weight: bold; border: 2px solid #ddd; border-radius: 8px;">
-              <input type="text" class="form-control otp-digit" maxlength="1" style="width: 50px; height: 60px; text-align: center; font-size: 2rem; font-weight: bold; border: 2px solid #ddd; border-radius: 8px;">
-              <input type="text" class="form-control otp-digit" maxlength="1" style="width: 50px; height: 60px; text-align: center; font-size: 2rem; font-weight: bold; border: 2px solid #ddd; border-radius: 8px;">
-              <input type="text" class="form-control otp-digit" maxlength="1" style="width: 50px; height: 60px; text-align: center; font-size: 2rem; font-weight: bold; border: 2px solid #ddd; border-radius: 8px;">
-              <input type="text" class="form-control otp-digit" maxlength="1" style="width: 50px; height: 60px; text-align: center; font-size: 2rem; font-weight: bold; border: 2px solid #ddd; border-radius: 8px;">
-            </div>
-            <button type="submit" class="btn btn-primary btn-lg w-100" id="verify-btn">Verify Email</button>
-          </form>
-          
-          <button type="button" class="btn btn-outline-secondary mt-3" id="resend-btn">Resend Code</button>
         </div>
-      </div>
     </div>
-  </div>
-</div>
+    <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("verify-form");
+    const otpDigits = document.querySelectorAll(".otp-digit");
+    const verifyBtn = document.getElementById("verify-btn");
+    const successMsg = document.getElementById("success-msg");
+    const errorMsg = document.getElementById("error-msg");
+    const userEmailSpan = document.getElementById("user-email");
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  const form = document.getElementById('verify-form');
-  const otpDigits = document.querySelectorAll('.otp-digit');
-  const verifyBtn = document.getElementById('verify-btn');
-  const successMsg = document.getElementById('success-msg');
-  const errorMsg = document.getElementById('error-msg');
-  const userEmailSpan = document.getElementById('user-email');
-  
-  const email = new URLSearchParams(window.location.search).get('email') || 
-                localStorage.getItem('pending-verification-email');
-  
-  if (!email) {
-    window.location.href = '/signup/';
-    return;
-  }
-  
-  userEmailSpan.textContent = email;
-  
-  // Setup OTP digit inputs
-  otpDigits.forEach((digit, index) => {
-    digit.addEventListener('input', function(e) {
-      // Only allow digits
-      this.value = this.value.replace(/[^0-9]/g, '');
-      
-      // Auto-advance to next digit
-      if (this.value && index < otpDigits.length - 1) {
-        otpDigits[index + 1].focus();
-      }
-      
-      // Auto-submit when all digits are filled
-      const otpCode = getOTPCode();
-      if (otpCode.length === 6) {
-        setTimeout(() => form.dispatchEvent(new Event('submit')), 100);
-      }
-    });
-    
-    digit.addEventListener('keydown', function(e) {
-      // Handle backspace to go to previous digit
-      if (e.key === 'Backspace' && !this.value && index > 0) {
-        otpDigits[index - 1].focus();
-      }
-      
-      // Handle arrow keys
-      if (e.key === 'ArrowLeft' && index > 0) {
-        otpDigits[index - 1].focus();
-      }
-      if (e.key === 'ArrowRight' && index < otpDigits.length - 1) {
-        otpDigits[index + 1].focus();
-      }
-    });
-    
-    digit.addEventListener('paste', function(e) {
-      e.preventDefault();
-      const pastedData = e.clipboardData.getData('text').replace(/[^0-9]/g, '').slice(0, 6);
-      
-      // Fill the digits with pasted data
-      for (let i = 0; i < pastedData.length && i < otpDigits.length; i++) {
-        otpDigits[i].value = pastedData[i];
-      }
-      
-      // Focus on the next empty digit or last digit
-      const nextEmptyIndex = Math.min(pastedData.length, otpDigits.length - 1);
-      otpDigits[nextEmptyIndex].focus();
-      
-      // Auto-submit if complete
-      if (pastedData.length === 6) {
-        setTimeout(() => form.dispatchEvent(new Event('submit')), 100);
-      }
-    });
-    
-    digit.addEventListener('focus', function() {
-      this.style.borderColor = '#667eea';
-    });
-    
-    digit.addEventListener('blur', function() {
-      this.style.borderColor = '#ddd';
-    });
-  });
-  
-  function getOTPCode() {
-    return Array.from(otpDigits).map(digit => digit.value).join('');
-  }
-  
-  // Focus on first digit
-  otpDigits[0].focus();
-  
-  form.addEventListener('submit', function(e) {
-    e.preventDefault();
-    const otpCode = getOTPCode();
-    if (otpCode.length !== 6) {
-      showError('Please enter all 6 digits.');
+    const email =
+      new URLSearchParams(window.location.search).get("email") ||
+      localStorage.getItem("pending-verification-email");
+
+    if (!email) {
+      window.location.href = "/signup/";
       return;
     }
-    
-    verifyBtn.disabled = true;
-    verifyBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
-    
-    fetch('/auth/api/verify-email/', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({email: email, otp_code: otpCode})
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        showSuccess('Email verified! Redirecting...');
-        localStorage.removeItem('pending-verification-email');
-        setTimeout(() => window.location.href = data.redirect_url || '/dashboard/', 2000);
-      } else {
-        showError(data.error || 'Verification failed. Please try again.');
-        resetButton();
-      }
-    })
-    .catch(error => {
-      showError('Network error. Please try again.');
-      resetButton();
-    });
-  });
-  
-  document.getElementById('resend-btn').addEventListener('click', function() {
-    const btn = this;
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
-    
-    fetch('/auth/api/resend-otp/', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({email: email})
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        showSuccess(data.message || 'New verification code sent!');
-      } else {
-        showError(data.error || 'Failed to resend code.');
-      }
-      btn.disabled = false;
-      btn.innerHTML = 'Resend Code';
-    })
-    .catch(error => {
-      showError('Network error. Please try again.');
-      btn.disabled = false;
-      btn.innerHTML = 'Resend Code';
-    });
-  });
-  
-  function showSuccess(message) {
-    document.getElementById('success-msg-text').textContent = message;
-    successMsg.style.display = 'block';
-    errorMsg.style.display = 'none';
-  }
 
-  function showError(message) {
-    document.getElementById('error-msg-text').textContent = message;
-    errorMsg.style.display = 'block';
-    successMsg.style.display = 'none';
-  }
-  
-  function resetButton() {
-    verifyBtn.disabled = false;
-    verifyBtn.innerHTML = 'Verify Email';
-  }
-});
-</script>
+    userEmailSpan.textContent = email;
+
+    // Setup OTP digit inputs
+    otpDigits.forEach((digit, index) => {
+      digit.addEventListener("input", function (e) {
+        // Only allow digits
+        this.value = this.value.replace(/[^0-9]/g, "");
+
+        // Auto-advance to next digit
+        if (this.value && index < otpDigits.length - 1) {
+          otpDigits[index + 1].focus();
+        }
+
+        // Auto-submit when all digits are filled
+        const otpCode = getOTPCode();
+        if (otpCode.length === 6) {
+          setTimeout(() => form.dispatchEvent(new Event("submit")), 100);
+        }
+      });
+
+      digit.addEventListener("keydown", function (e) {
+        // Handle backspace to go to previous digit
+        if (e.key === "Backspace" && !this.value && index > 0) {
+          otpDigits[index - 1].focus();
+        }
+
+        // Handle arrow keys
+        if (e.key === "ArrowLeft" && index > 0) {
+          otpDigits[index - 1].focus();
+        }
+        if (e.key === "ArrowRight" && index < otpDigits.length - 1) {
+          otpDigits[index + 1].focus();
+        }
+      });
+
+      digit.addEventListener("paste", function (e) {
+        e.preventDefault();
+        const pastedData = e.clipboardData
+          .getData("text")
+          .replace(/[^0-9]/g, "")
+          .slice(0, 6);
+
+        // Fill the digits with pasted data
+        for (let i = 0; i < pastedData.length && i < otpDigits.length; i++) {
+          otpDigits[i].value = pastedData[i];
+        }
+
+        // Focus on the next empty digit or last digit
+        const nextEmptyIndex = Math.min(
+          pastedData.length,
+          otpDigits.length - 1,
+        );
+        otpDigits[nextEmptyIndex].focus();
+
+        // Auto-submit if complete
+        if (pastedData.length === 6) {
+          setTimeout(() => form.dispatchEvent(new Event("submit")), 100);
+        }
+      });
+
+      digit.addEventListener("focus", function () {
+        this.style.borderColor = "#667eea";
+      });
+
+      digit.addEventListener("blur", function () {
+        this.style.borderColor = "#ddd";
+      });
+    });
+
+    function getOTPCode() {
+      return Array.from(otpDigits)
+        .map((digit) => digit.value)
+        .join("");
+    }
+
+    // Focus on first digit
+    otpDigits[0].focus();
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const otpCode = getOTPCode();
+      if (otpCode.length !== 6) {
+        showError("Please enter all 6 digits.");
+        return;
+      }
+
+      verifyBtn.disabled = true;
+      verifyBtn.innerHTML =
+        '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+
+      fetch("/auth/api/verify-email/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email, otp_code: otpCode }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            showSuccess("Email verified! Redirecting...");
+            localStorage.removeItem("pending-verification-email");
+            setTimeout(
+              () => (window.location.href = data.redirect_url || "/dashboard/"),
+              2000,
+            );
+          } else {
+            showError(data.error || "Verification failed. Please try again.");
+            resetButton();
+          }
+        })
+        .catch((error) => {
+          showError("Network error. Please try again.");
+          resetButton();
+        });
+    });
+
+    document
+      .getElementById("resend-btn")
+      .addEventListener("click", function () {
+        const btn = this;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+
+        fetch("/auth/api/resend-otp/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: email }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              showSuccess(data.message || "New verification code sent!");
+            } else {
+              showError(data.error || "Failed to resend code.");
+            }
+            btn.disabled = false;
+            btn.innerHTML = "Resend Code";
+          })
+          .catch((error) => {
+            showError("Network error. Please try again.");
+            btn.disabled = false;
+            btn.innerHTML = "Resend Code";
+          });
+      });
+
+    function showSuccess(message) {
+      document.getElementById("success-msg-text").textContent = message;
+      successMsg.style.display = "block";
+      errorMsg.style.display = "none";
+    }
+
+    function showError(message) {
+      document.getElementById("error-msg-text").textContent = message;
+      errorMsg.style.display = "block";
+      successMsg.style.display = "none";
+    }
+
+    function resetButton() {
+      verifyBtn.disabled = false;
+      verifyBtn.innerHTML = "Verify Email";
+    }
+  });
+    </script>
 {% endblock %}

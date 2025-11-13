@@ -5,6 +5,7 @@ Project Delete View
 
 Handle project deletion.
 """
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -21,9 +22,7 @@ def project_delete(request, username, slug):
 
     # Only project owner can delete
     if project.owner != request.user:
-        messages.error(
-            request, "You don't have permission to delete this project."
-        )
+        messages.error(request, "You don't have permission to delete this project.")
         return redirect("project_app:detail", username=username, slug=slug)
 
     if request.method == "POST":
@@ -44,9 +43,7 @@ def project_delete(request, username, slug):
 
         project_name = project.name
         project.delete()
-        messages.success(
-            request, f'Project "{project_name}" deleted successfully'
-        )
+        messages.success(request, f'Project "{project_name}" deleted successfully')
         return redirect("project_app:list")
 
     context = {"project": project}

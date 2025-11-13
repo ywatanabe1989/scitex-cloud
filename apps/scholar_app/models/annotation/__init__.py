@@ -12,10 +12,10 @@ from .models import (
 )
 
 __all__ = [
-    'Annotation',
-    'AnnotationReply',
-    'AnnotationVote',
-    'AnnotationTag',
-    'CollaborationGroup',
-    'GroupMembership',
+    "Annotation",
+    "AnnotationReply",
+    "AnnotationVote",
+    "AnnotationTag",
+    "CollaborationGroup",
+    "GroupMembership",
 ]

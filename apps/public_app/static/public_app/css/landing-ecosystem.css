@@ -12,7 +12,11 @@
 }
 
 [data-theme="dark"] .section-ecosystem {
-  background: linear-gradient(180deg, var(--bg-page) 0%, var(--scitex-color-01) 100%);
+  background: linear-gradient(
+    180deg,
+    var(--bg-page) 0%,
+    var(--scitex-color-01) 100%
+  );
 }
 
 /* Section Heading */

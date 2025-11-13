@@ -8,6 +8,7 @@ Repository File History
 
 Handles file history viewing functionality.
 """
+
 from __future__ import annotations
 
 import logging
@@ -48,9 +49,7 @@ def file_history_view(request, username, slug, branch, file_path):
     )
 
     if not has_access:
-        messages.error(
-            request, "You don't have permission to access this file."
-        )
+        messages.error(request, "You don't have permission to access this file.")
         return redirect("user_projects:detail", username=username, slug=slug)
 
     # Get project path
@@ -78,7 +77,9 @@ def file_history_view(request, username, slug, branch, file_path):
                 {"name": part, "url": f"/{username}/{slug}/{current_path}"}
             )
         else:  # File
-            breadcrumbs.append({"name": part, "url": f"/{username}/{slug}/blob/{file_path}"})
+            breadcrumbs.append(
+                {"name": part, "url": f"/{username}/{slug}/blob/{file_path}"}
+            )
 
     # Get filter parameters
     author_filter = request.GET.get("author", "").strip()
@@ -95,66 +96,86 @@ def file_history_view(request, username, slug, branch, file_path):
         # Build git log command
         # Format: hash|author_name|author_email|timestamp|relative_time|subject
         git_cmd = [
-            'git', 'log', '--follow',
-            '--format=%H|%an|%ae|%at|%ar|%s',
-            '--', file_path
+            "git",
+            "log",
+            "--follow",
+            "--format=%H|%an|%ae|%at|%ar|%s",
+            "--",
+            file_path,
         ]
 
         # Add author filter if specified
         if author_filter:
-            git_cmd.insert(3, f'--author={author_filter}')
+            git_cmd.insert(3, f"--author={author_filter}")
 
         result = subprocess.run(
-            git_cmd,
-            cwd=project_path,
-            capture_output=True,
-            text=True,
-            timeout=30
+            git_cmd, cwd=project_path, capture_output=True, text=True, timeout=30
         )
 
         if result.returncode == 0 and result.stdout.strip():
-            for line in result.stdout.strip().split('\n'):
+            for line in result.stdout.strip().split("\n"):
                 if not line:
                     continue
 
-                parts = line.split('|', 5)
+                parts = line.split("|", 5)
                 if len(parts) < 6:
                     continue
 
-                commit_hash, author_name, author_email, timestamp, relative_time, subject = parts
+                (
+                    commit_hash,
+                    author_name,
+                    author_email,
+                    timestamp,
+                    relative_time,
+                    subject,
+                ) = parts
 
                 # Get file-specific stats for this commit
                 stats_result = subprocess.run(
-                    ['git', 'show', '--numstat', '--format=', commit_hash, '--', file_path],
+                    [
+                        "git",
+                        "show",
+                        "--numstat",
+                        "--format=",
+                        commit_hash,
+                        "--",
+                        file_path,
+                    ],
                     cwd=project_path,
                     capture_output=True,
                     text=True,
-                    timeout=5
+                    timeout=5,
                 )
 
                 additions = 0
                 deletions = 0
                 if stats_result.returncode == 0 and stats_result.stdout.strip():
-                    stat_line = stats_result.stdout.strip().split('\n')[0]
-                    stat_parts = stat_line.split('\t')
+                    stat_line = stats_result.stdout.strip().split("\n")[0]
+                    stat_parts = stat_line.split("\t")
                     if len(stat_parts) >= 2:
                         try:
-                            additions = int(stat_parts[0]) if stat_parts[0] != '-' else 0
-                            deletions = int(stat_parts[1]) if stat_parts[1] != '-' else 0
+                            additions = (
+                                int(stat_parts[0]) if stat_parts[0] != "-" else 0
+                            )
+                            deletions = (
+                                int(stat_parts[1]) if stat_parts[1] != "-" else 0
+                            )
                         except ValueError:
                             pass
 
-                commits.append({
-                    'hash': commit_hash,
-                    'short_hash': commit_hash[:7],
-                    'author_name': author_name,
-                    'author_email': author_email,
-                    'timestamp': int(timestamp),
-                    'relative_time': relative_time,
-                    'subject': subject,
-                    'additions': additions,
-                    'deletions': deletions,
-                })
+                commits.append(
+                    {
+                        "hash": commit_hash,
+                        "short_hash": commit_hash[:7],
+                        "author_name": author_name,
+                        "author_email": author_email,
+                        "timestamp": int(timestamp),
+                        "relative_time": relative_time,
+                        "subject": subject,
+                        "additions": additions,
+                        "deletions": deletions,
+                    }
+                )
 
     except subprocess.TimeoutExpired:
         logger.error(f"Git log timeout for {file_path} in {project.slug}")
@@ -168,7 +189,7 @@ def file_history_view(request, username, slug, branch, file_path):
     commits_page = paginator.get_page(page_number)
 
     # Get unique authors for filter dropdown
-    unique_authors = sorted(set(c['author_name'] for c in commits))
+    unique_authors = sorted(set(c["author_name"] for c in commits))
 
     context = {
         "project": project,

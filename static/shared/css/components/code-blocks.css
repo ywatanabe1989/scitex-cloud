@@ -28,13 +28,17 @@ pre {
 
 /* Header bar for language label and copy button */
 pre::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   height: 2.75rem;
-  background: linear-gradient(135deg, var(--scitex-color-04) 0%, var(--scitex-color-05) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--scitex-color-04) 0%,
+    var(--scitex-color-05) 100%
+  );
   border-bottom: 1px solid var(--border-default);
   border-radius: 6px 6px 0 0;
   z-index: -1;
@@ -166,7 +170,8 @@ pre code span::-webkit-selection {
 }
 
 /* Numbers, literals, attributes - light blue/cyan */
-.hljs-number, .hljs-literal {
+.hljs-number,
+.hljs-literal {
   color: #8cd0d3 !important;
 }
 
@@ -185,7 +190,8 @@ pre code span::-webkit-selection {
 }
 
 /* Tags and names - pink/light magenta */
-.hljs-name, .hljs-tag {
+.hljs-name,
+.hljs-tag {
   color: #dca3a3 !important;
 }
 
@@ -195,7 +201,8 @@ pre code span::-webkit-selection {
 }
 
 /* Symbols and bullets - cyan */
-.hljs-symbol, .hljs-bullet {
+.hljs-symbol,
+.hljs-bullet {
   color: #8cd0d3 !important;
 }
 
@@ -205,7 +212,8 @@ pre code span::-webkit-selection {
 }
 
 /* Title/section - light red */
-.hljs-title, .hljs-section {
+.hljs-title,
+.hljs-section {
   color: #dca3a3 !important;
 }
 
@@ -226,9 +234,20 @@ pre code span::-webkit-selection {
 }
 
 /* Generic cleanup for all hljs spans */
-.hljs-number, .hljs-literal, .hljs-attr, .hljs-string, .hljs-name,
-.hljs-type, .hljs-symbol, .hljs-bullet, .hljs-link,
-.hljs-title, .hljs-section, .hljs-emphasis, .hljs-strong, .hljs-params {
+.hljs-number,
+.hljs-literal,
+.hljs-attr,
+.hljs-string,
+.hljs-name,
+.hljs-type,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-link,
+.hljs-title,
+.hljs-section,
+.hljs-emphasis,
+.hljs-strong,
+.hljs-params {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
@@ -251,7 +270,7 @@ pre::before {
   z-index: 2;
   font-family: var(--font-body);
   white-space: nowrap;
-  content: 'plaintext';
+  content: "plaintext";
 }
 
 pre[data-language]::before {
@@ -356,7 +375,11 @@ pre[data-language="tex"]::before {
 }
 
 [data-theme="dark"] pre::after {
-  background: linear-gradient(135deg, var(--scitex-color-04) 0%, var(--scitex-color-05) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--scitex-color-04) 0%,
+    var(--scitex-color-05) 100%
+  );
   border-bottom: 1px solid var(--border-default);
   opacity: 0.25;
 }
@@ -369,11 +392,11 @@ pre[data-language="tex"]::before {
 .hljs-ln-numbers {
   text-align: right;
   min-width: 3ch;
-  padding-right: 1rem !important;  /* Space between line numbers and code */
+  padding-right: 1rem !important; /* Space between line numbers and code */
   padding-left: 0.75rem;
   color: var(--text-muted);
   background-color: transparent;
-  font-family: var(--font-mono, 'SF Mono', Monaco, 'Cascadia Code', monospace);
+  font-family: var(--font-mono, "SF Mono", Monaco, "Cascadia Code", monospace);
   font-size: 0.85em;
   font-weight: 400;
   user-select: none;
@@ -383,7 +406,7 @@ pre[data-language="tex"]::before {
 
 /* Line code */
 .hljs-ln-code {
-  padding-left: 1.5rem;  /* Space between numbers and code */
+  padding-left: 1.5rem; /* Space between numbers and code */
   padding-right: 0;
 }
 

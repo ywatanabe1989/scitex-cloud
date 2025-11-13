@@ -6,13 +6,10 @@ This module provides a Python wrapper for the Gitea REST API.
 
 import requests
 import re
-from typing import Optional, Dict, List
+from typing import Dict, List
 from django.conf import settings
 from .exceptions import (
     GiteaAPIError,
-    GiteaConnectionError,
-    GiteaRepositoryCreationError,
-    GiteaUserCreationError,
 )
 
 
@@ -34,16 +31,16 @@ def convert_git_url_to_https(git_url: str) -> str:
     git_url = git_url.strip()
 
     # Pattern 1: SSH format (git@host:user/repo.git)
-    ssh_pattern = r'git@([^:]+):(.+?)(?:\.git)?$'
+    ssh_pattern = r"git@([^:]+):(.+?)(?:\.git)?$"
     match = re.match(ssh_pattern, git_url)
     if match:
         host = match.group(1)
         path = match.group(2)
-        return f'https://{host}/{path}'
+        return f"https://{host}/{path}"
 
     # Pattern 2: HTTPS format - just remove .git if present
-    if git_url.startswith('https://') or git_url.startswith('http://'):
-        return git_url.rstrip('.git')
+    if git_url.startswith("https://") or git_url.startswith("http://"):
+        return git_url.rstrip(".git")
 
     # If no match, return as-is (might be already correct)
     return git_url
@@ -74,8 +71,8 @@ class GiteaClient:
     def _get_headers(self, extra_headers: Dict = None) -> Dict:
         """Build request headers with authentication"""
         headers = {
-            'Authorization': f'token {self.token}',
-            'Content-Type': 'application/json',
+            "Authorization": f"token {self.token}",
+            "Content-Type": "application/json",
         }
         if extra_headers:
             headers.update(extra_headers)
@@ -97,24 +94,21 @@ class GiteaClient:
             GiteaAPIError: If request fails
         """
         url = f"{self.api_url}{endpoint}"
-        headers = self._get_headers(kwargs.pop('headers', None))
+        headers = self._get_headers(kwargs.pop("headers", None))
 
         try:
             response = requests.request(
-                method=method,
-                url=url,
-                headers=headers,
-                **kwargs
+                method=method, url=url, headers=headers, **kwargs
             )
             response.raise_for_status()
             return response
-        except requests.HTTPError as e:
+        except requests.HTTPError:
             # Parse error message from Gitea response
             error_msg = f"Gitea API error ({response.status_code})"
             try:
                 error_data = response.json()
-                if 'message' in error_data:
-                    error_msg = error_data['message']
+                if "message" in error_data:
+                    error_msg = error_data["message"]
             except (ValueError, requests.RequestException):
                 # JSON parsing failed, use response text instead
                 if response.text:
@@ -130,7 +124,7 @@ class GiteaClient:
 
     def get_current_user(self) -> Dict:
         """Get current authenticated user info"""
-        response = self._request('GET', '/user')
+        response = self._request("GET", "/user")
         return response.json()
 
     def delete_user(self, username: str) -> bool:
@@ -143,7 +137,7 @@ class GiteaClient:
         Returns:
             True if successful
         """
-        self._request('DELETE', f'/admin/users/{username}')
+        self._request("DELETE", f"/admin/users/{username}")
         return True
 
     # ----------------------------------------
@@ -161,17 +155,24 @@ class GiteaClient:
             List of repository objects
         """
         if username:
-            endpoint = f'/users/{username}/repos'
+            endpoint = f"/users/{username}/repos"
         else:
-            endpoint = '/user/repos'
+            endpoint = "/user/repos"
 
-        response = self._request('GET', endpoint)
+        response = self._request("GET", endpoint)
         return response.json()
 
-    def create_repository(self, name: str, description: str = '',
-                         private: bool = False, auto_init: bool = True,
-                         gitignores: str = '', license: str = '',
-                         readme: str = 'Default', owner: str = None) -> Dict:
+    def create_repository(
+        self,
+        name: str,
+        description: str = "",
+        private: bool = False,
+        auto_init: bool = True,
+        gitignores: str = "",
+        license: str = "",
+        readme: str = "Default",
+        owner: str = None,
+    ) -> Dict:
         """
         Create a new repository
 
@@ -189,26 +190,26 @@ class GiteaClient:
             Created repository object
         """
         data = {
-            'name': name,
-            'description': description,
-            'private': private,
-            'auto_init': auto_init,
+            "name": name,
+            "description": description,
+            "private": private,
+            "auto_init": auto_init,
         }
 
         if gitignores:
-            data['gitignores'] = gitignores
+            data["gitignores"] = gitignores
         if license:
-            data['license'] = license
+            data["license"] = license
         if readme:
-            data['readme'] = readme
+            data["readme"] = readme
 
         # Use admin endpoint to create repo for specific user
         if owner:
-            endpoint = f'/admin/users/{owner}/repos'
+            endpoint = f"/admin/users/{owner}/repos"
         else:
-            endpoint = '/user/repos'
+            endpoint = "/user/repos"
 
-        response = self._request('POST', endpoint, json=data)
+        response = self._request("POST", endpoint, json=data)
         return response.json()
 
     def get_repository(self, owner: str, repo: str) -> Dict:
@@ -222,7 +223,7 @@ class GiteaClient:
         Returns:
             Repository object
         """
-        response = self._request('GET', f'/repos/{owner}/{repo}')
+        response = self._request("GET", f"/repos/{owner}/{repo}")
         return response.json()
 
     def delete_repository(self, owner: str, repo: str) -> bool:
@@ -236,20 +237,29 @@ class GiteaClient:
         Returns:
             True if successful
         """
-        self._request('DELETE', f'/repos/{owner}/{repo}')
+        self._request("DELETE", f"/repos/{owner}/{repo}")
         return True
 
     # ----------------------------------------
     # Migration/Import Operations
     # ----------------------------------------
 
-    def migrate_repository(self, clone_addr: str, repo_name: str = None,
-                          service: str = 'github', auth_token: str = '',
-                          mirror: bool = False, private: bool = False,
-                          description: str = '', wiki: bool = True,
-                          milestones: bool = True, labels: bool = True,
-                          issues: bool = True, pull_requests: bool = True,
-                          releases: bool = True) -> Dict:
+    def migrate_repository(
+        self,
+        clone_addr: str,
+        repo_name: str = None,
+        service: str = "github",
+        auth_token: str = "",
+        mirror: bool = False,
+        private: bool = False,
+        description: str = "",
+        wiki: bool = True,
+        milestones: bool = True,
+        labels: bool = True,
+        issues: bool = True,
+        pull_requests: bool = True,
+        releases: bool = True,
+    ) -> Dict:
         """
         Migrate/import repository from external source
 
@@ -277,38 +287,39 @@ class GiteaClient:
         # Extract repo name from URL if not provided
         # Preserves original name from the source repository
         if not repo_name:
-            repo_name = clone_addr.rstrip('/').split('/')[-1]
+            repo_name = clone_addr.rstrip("/").split("/")[-1]
             # Remove .git suffix while preserving case and other characters
-            if repo_name.endswith('.git'):
+            if repo_name.endswith(".git"):
                 repo_name = repo_name[:-4]
 
         data = {
-            'clone_addr': clone_addr,
-            'service': service,
-            'repo_name': repo_name,
-            'mirror': mirror,
-            'private': private,
-            'description': description or f'Imported from {clone_addr}',
-            'wiki': wiki,
-            'milestones': milestones,
-            'labels': labels,
-            'issues': issues,
-            'pull_requests': pull_requests,
-            'releases': releases,
+            "clone_addr": clone_addr,
+            "service": service,
+            "repo_name": repo_name,
+            "mirror": mirror,
+            "private": private,
+            "description": description or f"Imported from {clone_addr}",
+            "wiki": wiki,
+            "milestones": milestones,
+            "labels": labels,
+            "issues": issues,
+            "pull_requests": pull_requests,
+            "releases": releases,
         }
 
         if auth_token:
-            data['auth_token'] = auth_token
+            data["auth_token"] = auth_token
 
-        response = self._request('POST', '/repos/migrate', json=data)
+        response = self._request("POST", "/repos/migrate", json=data)
         return response.json()
 
     # ----------------------------------------
     # File Operations
     # ----------------------------------------
 
-    def get_file_contents(self, owner: str, repo: str, filepath: str,
-                         ref: str = 'main') -> Dict:
+    def get_file_contents(
+        self, owner: str, repo: str, filepath: str, ref: str = "main"
+    ) -> Dict:
         """
         Get file contents from repository
 
@@ -322,14 +333,13 @@ class GiteaClient:
             File content object (base64 encoded)
         """
         response = self._request(
-            'GET',
-            f'/repos/{owner}/{repo}/contents/{filepath}',
-            params={'ref': ref}
+            "GET", f"/repos/{owner}/{repo}/contents/{filepath}", params={"ref": ref}
         )
         return response.json()
 
-    def list_files(self, owner: str, repo: str, path: str = '',
-                  ref: str = 'main') -> List[Dict]:
+    def list_files(
+        self, owner: str, repo: str, path: str = "", ref: str = "main"
+    ) -> List[Dict]:
         """
         List files in repository directory
 
@@ -342,20 +352,25 @@ class GiteaClient:
         Returns:
             List of file/directory objects
         """
-        endpoint = f'/repos/{owner}/{repo}/contents'
+        endpoint = f"/repos/{owner}/{repo}/contents"
         if path:
-            endpoint += f'/{path}'
+            endpoint += f"/{path}"
 
-        response = self._request('GET', endpoint, params={'ref': ref})
+        response = self._request("GET", endpoint, params={"ref": ref})
         return response.json()
 
     # ----------------------------------------
     # Organization Operations
     # ----------------------------------------
 
-    def create_organization(self, name: str, full_name: str = '',
-                           description: str = '', website: str = '',
-                           location: str = '') -> Dict:
+    def create_organization(
+        self,
+        name: str,
+        full_name: str = "",
+        description: str = "",
+        website: str = "",
+        location: str = "",
+    ) -> Dict:
         """
         Create an organization
 
@@ -370,27 +385,26 @@ class GiteaClient:
             Created organization object
         """
         data = {
-            'username': name,
-            'full_name': full_name or name,
-            'description': description,
-            'website': website,
-            'location': location,
+            "username": name,
+            "full_name": full_name or name,
+            "description": description,
+            "website": website,
+            "location": location,
         }
 
-        response = self._request('POST', '/orgs', json=data)
+        response = self._request("POST", "/orgs", json=data)
         return response.json()
 
     def list_organizations(self) -> List[Dict]:
         """List organizations for current user"""
-        response = self._request('GET', '/user/orgs')
+        response = self._request("GET", "/user/orgs")
         return response.json()
 
     # ----------------------------------------
     # Fork Operations
     # ----------------------------------------
 
-    def fork_repository(self, owner: str, repo: str,
-                       organization: str = None) -> Dict:
+    def fork_repository(self, owner: str, repo: str, organization: str = None) -> Dict:
         """
         Fork a repository
 
@@ -404,7 +418,7 @@ class GiteaClient:
         """
         data = {}
         if organization:
-            data['organization'] = organization
+            data["organization"] = organization
 
-        response = self._request('POST', f'/repos/{owner}/{repo}/forks', json=data)
+        response = self._request("POST", f"/repos/{owner}/{repo}/forks", json=data)
         return response.json()

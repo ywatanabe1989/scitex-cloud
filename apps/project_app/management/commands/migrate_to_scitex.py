@@ -17,35 +17,31 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    help = 'Migrate existing projects to use SciTeX metadata (scitex/.metadata/)'
+    help = "Migrate existing projects to use SciTeX metadata (scitex/.metadata/)"
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--dry-run',
-            action='store_true',
-            help='Show what would be done without making changes'
+            "--dry-run",
+            action="store_true",
+            help="Show what would be done without making changes",
         )
         parser.add_argument(
-            '--username',
-            type=str,
-            help='Only migrate projects for specific user'
+            "--username", type=str, help="Only migrate projects for specific user"
         )
         parser.add_argument(
-            '--project-id',
-            type=int,
-            help='Only migrate specific project by ID'
+            "--project-id", type=int, help="Only migrate specific project by ID"
         )
         parser.add_argument(
-            '--force',
-            action='store_true',
-            help='Force migration even if directory does not exist'
+            "--force",
+            action="store_true",
+            help="Force migration even if directory does not exist",
         )
 
     def handle(self, *args, **options):
-        dry_run = options['dry_run']
-        username = options.get('username')
-        project_id = options.get('project_id')
-        force = options.get('force')
+        dry_run = options["dry_run"]
+        username = options.get("username")
+        project_id = options.get("project_id")
+        force = options.get("force")
 
         # Build queryset
         projects = Project.objects.all()
@@ -72,9 +68,9 @@ class Command(BaseCommand):
         skipped = 0
         errors = 0
 
-        self.stdout.write("="*60)
+        self.stdout.write("=" * 60)
         self.stdout.write(f"Found {total} projects to process")
-        self.stdout.write("="*60)
+        self.stdout.write("=" * 60)
 
         for project in projects:
             project_label = f"{project.owner.username}/{project.slug}"
@@ -111,18 +107,18 @@ class Command(BaseCommand):
                 self.stdout.write(f"  WOULD MIGRATE: {project_label}")
                 self.stdout.write(f"    Path: {local_path}")
                 self.stdout.write(f"    Name: {project.name}")
-                self.stdout.write(f"    Description: {project.description[:50]}..." if len(project.description) > 50 else f"    Description: {project.description}")
+                self.stdout.write(
+                    f"    Description: {project.description[:50]}..."
+                    if len(project.description) > 50
+                    else f"    Description: {project.description}"
+                )
                 migrated += 1
                 continue
 
             # Migrate project
             try:
                 scitex_project = project.initialize_scitex_metadata()
-                self.stdout.write(
-                    self.style.SUCCESS(
-                        f"  ✓ MIGRATED: {project_label}"
-                    )
-                )
+                self.stdout.write(self.style.SUCCESS(f"  ✓ MIGRATED: {project_label}"))
                 self.stdout.write(f"    SciTeX ID: {scitex_project.project_id}")
                 self.stdout.write(f"    Local path: {local_path}")
                 migrated += 1
@@ -137,11 +133,7 @@ class Command(BaseCommand):
                 errors += 1
 
             except FileExistsError as e:
-                self.stdout.write(
-                    self.style.WARNING(
-                        f"  SKIP: {project_label} - {e}"
-                    )
-                )
+                self.stdout.write(self.style.WARNING(f"  SKIP: {project_label} - {e}"))
                 skipped += 1
 
             except Exception as e:
@@ -152,14 +144,14 @@ class Command(BaseCommand):
                 )
                 logger.error(
                     f"Migration failed for project {project.id} ({project_label}): {e}",
-                    exc_info=True
+                    exc_info=True,
                 )
                 errors += 1
 
         # Summary
-        self.stdout.write("\n" + "="*60)
+        self.stdout.write("\n" + "=" * 60)
         self.stdout.write("MIGRATION SUMMARY")
-        self.stdout.write("="*60)
+        self.stdout.write("=" * 60)
         self.stdout.write(f"Total projects: {total}")
         if migrated > 0:
             self.stdout.write(self.style.SUCCESS(f"Migrated: {migrated}"))
@@ -169,13 +161,25 @@ class Command(BaseCommand):
             self.stdout.write(self.style.ERROR(f"Errors: {errors}"))
 
         if dry_run:
-            self.stdout.write("\n" + self.style.WARNING("This was a dry run. Use without --dry-run to actually migrate."))
+            self.stdout.write(
+                "\n"
+                + self.style.WARNING(
+                    "This was a dry run. Use without --dry-run to actually migrate."
+                )
+            )
         elif migrated > 0:
-            self.stdout.write("\n" + self.style.SUCCESS("Migration completed successfully!"))
+            self.stdout.write(
+                "\n" + self.style.SUCCESS("Migration completed successfully!")
+            )
 
         # Exit code
         if errors > 0:
-            self.stdout.write(self.style.ERROR("\nMigration completed with errors. Check logs for details."))
+            self.stdout.write(
+                self.style.ERROR(
+                    "\nMigration completed with errors. Check logs for details."
+                )
+            )
             exit(1)
+
 
 # EOF

@@ -17,9 +17,7 @@ from pathlib import Path
 logger = logging.getLogger(__name__)
 
 
-def ensure_bibliography_structure(
-    project_path: Path, force: bool = False
-) -> dict:
+def ensure_bibliography_structure(project_path: Path, force: bool = False) -> dict:
     """
     Ensure bibliography directory structure exists.
 
@@ -110,14 +108,9 @@ def ensure_bibliography_structure(
         # Create symlink so writer's merge script can pick up scholar bibliography
         writer_scholar_link = writer_bib_dir / "merged_scholar.bib"
         if not writer_scholar_link.exists() or force:
-            if (
-                writer_scholar_link.exists()
-                or writer_scholar_link.is_symlink()
-            ):
+            if writer_scholar_link.exists() or writer_scholar_link.is_symlink():
                 writer_scholar_link.unlink()
-            relative_path = os.path.relpath(
-                scholar_merged, writer_scholar_link.parent
-            )
+            relative_path = os.path.relpath(scholar_merged, writer_scholar_link.parent)
             writer_scholar_link.symlink_to(relative_path)
             results["symlinks_created"].append(
                 f"writer/00_shared/bib_files/merged_scholar.bib → {relative_path}"
@@ -132,17 +125,13 @@ def ensure_bibliography_structure(
         return results
 
     except Exception as e:
-        logger.error(
-            f"Error ensuring bibliography structure: {e}", exc_info=True
-        )
+        logger.error(f"Error ensuring bibliography structure: {e}", exc_info=True)
         results["success"] = False
         results["errors"].append(str(e))
         return results
 
 
-def regenerate_bibliography(
-    project_path: Path, project_name: str = None
-) -> dict:
+def regenerate_bibliography(project_path: Path, project_name: str = None) -> dict:
     """
     Regenerate merged_scholar.bib by merging all scholar .bib files with deduplication.
 
@@ -195,9 +184,7 @@ def regenerate_bibliography(
 
         scholar_bib_dir = scitex_root / "scholar" / "bib_files"
         scholar_files = [
-            f
-            for f in scholar_bib_dir.glob("*.bib")
-            if not f.name.startswith("merged_")
+            f for f in scholar_bib_dir.glob("*.bib") if not f.name.startswith("merged_")
         ]
 
         if not scholar_files:
@@ -232,9 +219,7 @@ def regenerate_bibliography(
                 )
 
                 metadata = {"doi": doi, "title": title, "year": year}
-                fingerprint = dedup_manager._generate_paper_fingerprint(
-                    metadata
-                )
+                fingerprint = dedup_manager._generate_paper_fingerprint(metadata)
 
                 if fingerprint and fingerprint not in seen_fingerprints:
                     all_papers.append(paper)
@@ -259,5 +244,6 @@ def regenerate_bibliography(
         results["success"] = False
         results["errors"].append(str(e))
         return results
+
 
 # EOF

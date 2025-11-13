@@ -5,15 +5,13 @@ from django.db import migrations
 
 def convert_collaborators(apps, schema_editor):
     """Convert existing project collaborators to ProjectMembers."""
-    Project = apps.get_model('project_app', 'Project')
-    ProjectMember = apps.get_model('permissions_app', 'ProjectMember')
+    Project = apps.get_model("project_app", "Project")
+    ProjectMember = apps.get_model("permissions_app", "ProjectMember")
 
     for project in Project.objects.all():
         # Create Owner membership
         ProjectMember.objects.get_or_create(
-            project=project,
-            user=project.owner,
-            defaults={'role': 'owner'}
+            project=project, user=project.owner, defaults={"role": "owner"}
         )
 
         # Convert existing collaborators to Developers
@@ -21,12 +19,11 @@ def convert_collaborators(apps, schema_editor):
             ProjectMember.objects.get_or_create(
                 project=project,
                 user=collaborator,
-                defaults={'role': 'developer', 'invited_by': project.owner}
+                defaults={"role": "developer", "invited_by": project.owner},
             )
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("permissions_app", "0001_initial"),
         ("project_app", "0004_alter_project_collaborators"),

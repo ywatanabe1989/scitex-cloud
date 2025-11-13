@@ -5,24 +5,24 @@
 
 /* PDF Preview Container - direct container for iframe (no custom scrollbar) */
 .pdf-preview-container {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
 }
 
 .pdf-preview-viewer {
-    width: 100%;
-    height: 100%;
+  width: 100%;
+  height: 100%;
 }
 
 .pdf-preview-viewer iframe {
-    display: block;
-    width: 100%;
-    height: 100%;
-    border: none;
-    margin: 0;
-    padding: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: none;
+  margin: 0;
+  padding: 0;
 }
 
 /* Note: The iframe's internal scrollbar cannot be styled from CSS due to browser
@@ -31,90 +31,90 @@
 
 /* PDF.js scroll container - replaces iframe */
 .pdfjs-scroll-container {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    background: #525659;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #525659;
 }
 
 /* Pages container - scrollable area */
 .pdfjs-pages-container {
-    width: 100%;
-    height: 100%;
-    overflow-y: auto;
-    overflow-x: hidden;
-    background: #525659;
-    padding: 1rem 0;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: #525659;
+  padding: 1rem 0;
 }
 
 /* Individual page container */
 .pdfjs-page-container {
-    margin: 0 auto 1rem auto;
-    background: white;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-    position: relative;
+  margin: 0 auto 1rem auto;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  position: relative;
 }
 
 .pdfjs-page {
-    margin: 0 auto 1rem auto;
-    background: white;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  margin: 0 auto 1rem auto;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 /* Theme-responsive scrollbar for PDF.js */
 .pdfjs-pages-container::-webkit-scrollbar {
-    width: 12px;
+  width: 12px;
 }
 
 .pdfjs-pages-container::-webkit-scrollbar-track {
-    background: var(--color-canvas-subtle);
+  background: var(--color-canvas-subtle);
 }
 
 .pdfjs-pages-container::-webkit-scrollbar-thumb {
-    background: var(--color-border-default);
-    border-radius: 6px;
-    border: 2px solid var(--color-canvas-subtle);
+  background: var(--color-border-default);
+  border-radius: 6px;
+  border: 2px solid var(--color-canvas-subtle);
 }
 
 .pdfjs-pages-container::-webkit-scrollbar-thumb:hover {
-    background: var(--color-fg-muted);
+  background: var(--color-fg-muted);
 }
 
 /* Firefox scrollbar */
 .pdfjs-pages-container {
-    scrollbar-width: thin;
-    scrollbar-color: var(--color-border-default) var(--color-canvas-subtle);
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-default) var(--color-canvas-subtle);
 }
 
 /* Dark mode adjustments for PDF pages */
 [data-theme="dark"] .pdfjs-page-container,
 [data-theme="dark"] .pdfjs-page {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 }
 
 /* Loading state */
 .pdfjs-loading {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    color: var(--color-fg-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--color-fg-muted);
 }
 
 /* Error state */
 .pdf-error {
-    padding: 2rem;
-    text-align: center;
-    color: var(--color-danger-fg);
+  padding: 2rem;
+  text-align: center;
+  color: var(--color-danger-fg);
 }
 
 /* Ensure PDF.js container takes full space */
 .pdf-preview-container .pdfjs-scroll-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
 
 /* Note: PDF Preview Container scrollbar styles are defined above */
@@ -142,53 +142,53 @@
 
 /* Link annotation layer - NOT USED (iframe-based viewing) */
 .pdfjs-annotation-layer {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 10;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
 }
 
 /* Individual link annotations - NOT USED (iframe-based viewing) */
 .pdfjs-link-annotation {
-    display: block;
-    text-decoration: none;
-    pointer-events: auto;
-    cursor: pointer;
-    border: 1.5px solid rgba(0, 102, 204, 0.5);
-    background: rgba(0, 102, 204, 0.08);
-    border-radius: 2px;
-    transition: all 0.2s ease;
+  display: block;
+  text-decoration: none;
+  pointer-events: auto;
+  cursor: pointer;
+  border: 1.5px solid rgba(0, 102, 204, 0.5);
+  background: rgba(0, 102, 204, 0.08);
+  border-radius: 2px;
+  transition: all 0.2s ease;
 }
 
 /* Dark theme link annotations - NOT USED (iframe-based viewing) */
 [data-theme="dark"] .pdfjs-link-annotation {
-    border-color: rgba(100, 149, 237, 0.6);
-    background: rgba(100, 149, 237, 0.1);
+  border-color: rgba(100, 149, 237, 0.6);
+  background: rgba(100, 149, 237, 0.1);
 }
 
 /* Hover state - NOT USED (iframe-based viewing) */
 .pdfjs-link-annotation:hover {
-    background: rgba(0, 102, 204, 0.15);
-    border-color: rgba(0, 102, 204, 0.8);
+  background: rgba(0, 102, 204, 0.15);
+  border-color: rgba(0, 102, 204, 0.8);
 }
 
 [data-theme="dark"] .pdfjs-link-annotation:hover {
-    background: rgba(100, 149, 237, 0.2);
-    border-color: rgba(100, 149, 237, 0.9);
+  background: rgba(100, 149, 237, 0.2);
+  border-color: rgba(100, 149, 237, 0.9);
 }
 
 /* Active state (when clicking) - NOT USED (iframe-based viewing) */
 .pdfjs-link-annotation:active {
-    background: rgba(0, 102, 204, 0.25);
-    border-color: rgba(0, 102, 204, 1);
+  background: rgba(0, 102, 204, 0.25);
+  border-color: rgba(0, 102, 204, 1);
 }
 
 [data-theme="dark"] .pdfjs-link-annotation:active {
-    background: rgba(100, 149, 237, 0.3);
-    border-color: rgba(100, 149, 237, 1);
+  background: rgba(100, 149, 237, 0.3);
+  border-color: rgba(100, 149, 237, 1);
 }
 
 /* EOF */

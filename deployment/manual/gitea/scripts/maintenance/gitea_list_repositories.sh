@@ -46,9 +46,9 @@ set -euo pipefail
 
 # Detect environment
 detect_environment() {
-    if docker ps 2>/dev/null | grep -q scitex-gitea-dev; then
+    if docker ps 2> /dev/null | grep -q scitex-gitea-dev; then
         echo "development"
-    elif systemctl is-active --quiet gitea 2>/dev/null; then
+    elif systemctl is-active --quiet gitea 2> /dev/null; then
         echo "production"
     else
         echo "unknown"
@@ -83,7 +83,7 @@ get_api_config() {
     fi
 
     # Validate token by testing API access
-    local test_response=$(curl -s -H "Authorization: token $GITEA_TOKEN" "$GITEA_URL/api/v1/user" 2>/dev/null)
+    local test_response=$(curl -s -H "Authorization: token $GITEA_TOKEN" "$GITEA_URL/api/v1/user" 2> /dev/null)
 
     if echo "$test_response" | grep -q '"message":"token is required"'; then
         echo_error "Invalid or expired token!"
@@ -98,7 +98,7 @@ get_api_config() {
         echo_error "Current token: ${GITEA_TOKEN:0:8}...${GITEA_TOKEN: -8}"
         exit 1
     elif echo "$test_response" | grep -q '"message"'; then
-        echo_error "API Error: $(echo "$test_response" | python3 -c "import sys,json; print(json.load(sys.stdin).get('message','Unknown error'))" 2>/dev/null || echo "Unknown error")"
+        echo_error "API Error: $(echo "$test_response" | python3 -c "import sys,json; print(json.load(sys.stdin).get('message','Unknown error'))" 2> /dev/null || echo "Unknown error")"
         exit 1
     fi
 }
@@ -109,8 +109,8 @@ list_all_users() {
     local token="$2"
 
     curl -s -H "Authorization: token $token" \
-        "$url/api/v1/admin/users" 2>/dev/null | \
-        python3 -c "
+        "$url/api/v1/admin/users" 2> /dev/null \
+        | python3 -c "
 import sys, json
 try:
     users = json.load(sys.stdin)
@@ -127,7 +127,7 @@ list_user_repos() {
     local username="$3"
 
     curl -s -H "Authorization: token $token" \
-        "$url/api/v1/users/$username/repos" 2>/dev/null
+        "$url/api/v1/users/$username/repos" 2> /dev/null
 }
 
 # Format repository info
@@ -188,7 +188,7 @@ show_repo_details() {
     echo
 
     local response=$(curl -s -H "Authorization: token $token" \
-        "$url/api/v1/repos/$owner/$repo" 2>/dev/null)
+        "$url/api/v1/repos/$owner/$repo" 2> /dev/null)
 
     echo "$response" | python3 << 'EOF'
 import sys
@@ -254,19 +254,19 @@ main() {
     # Parse arguments
     while [[ $# -gt 0 ]]; do
         case $1 in
-            -u|--user)
+            -u | --user)
                 user="$2"
                 shift 2
                 ;;
-            -a|--all)
+            -a | --all)
                 all_repos=true
                 shift
                 ;;
-            -d|--detail)
+            -d | --detail)
                 detail_repo="$2"
                 shift 2
                 ;;
-            -h|--help)
+            -h | --help)
                 usage
                 exit 0
                 ;;

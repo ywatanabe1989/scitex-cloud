@@ -42,15 +42,15 @@ parse_args() {
 
     while [[ $# -gt 0 ]]; do
         case $1 in
-            -e|--env)
+            -e | --env)
                 ENV="$2"
                 shift 2
                 ;;
-            -u|--user)
+            -u | --user)
                 USERNAME="$2"
                 shift 2
                 ;;
-            -h|--help)
+            -h | --help)
                 usage
                 ;;
             *)
@@ -92,7 +92,7 @@ set_environment_variables() {
 }
 
 check_database() {
-    if ! sudo -u postgres psql -lqt 2>/dev/null | cut -d \| -f 1 | grep -qw "$GITEA_DB_NAME"; then
+    if ! sudo -u postgres psql -lqt 2> /dev/null | cut -d \| -f 1 | grep -qw "$GITEA_DB_NAME"; then
         echo_error "Database not found: $GITEA_DB_NAME"
         echo_warning "Run: sudo ./deployment/gitea/setup_gitea.sh -e $ENV"
         exit 1
@@ -127,12 +127,12 @@ list_repositories() {
     SQL_QUERY="$SQL_QUERY ORDER BY r.updated_unix DESC;"
 
     # Get repository count
-    TOTAL_REPOS=$(sudo -u postgres psql -d "$GITEA_DB_NAME" -tAc "SELECT COUNT(*) FROM repository;" 2>/dev/null || echo "0")
+    TOTAL_REPOS=$(sudo -u postgres psql -d "$GITEA_DB_NAME" -tAc "SELECT COUNT(*) FROM repository;" 2> /dev/null || echo "0")
     echo_info "Total repositories: $TOTAL_REPOS"
     echo ""
 
     # Execute query and format output
-    RESULT=$(sudo -u postgres psql -d "$GITEA_DB_NAME" -c "$SQL_QUERY" 2>/dev/null)
+    RESULT=$(sudo -u postgres psql -d "$GITEA_DB_NAME" -c "$SQL_QUERY" 2> /dev/null)
 
     if [ -z "$RESULT" ] || [ "$TOTAL_REPOS" = "0" ]; then
         echo_warning "No repositories found"
@@ -158,8 +158,8 @@ list_repositories() {
     echo ""
 
     # Count by type
-    PUBLIC_REPOS=$(sudo -u postgres psql -d "$GITEA_DB_NAME" -tAc "SELECT COUNT(*) FROM repository WHERE is_private = false;" 2>/dev/null || echo "0")
-    PRIVATE_REPOS=$(sudo -u postgres psql -d "$GITEA_DB_NAME" -tAc "SELECT COUNT(*) FROM repository WHERE is_private = true;" 2>/dev/null || echo "0")
+    PUBLIC_REPOS=$(sudo -u postgres psql -d "$GITEA_DB_NAME" -tAc "SELECT COUNT(*) FROM repository WHERE is_private = false;" 2> /dev/null || echo "0")
+    PRIVATE_REPOS=$(sudo -u postgres psql -d "$GITEA_DB_NAME" -tAc "SELECT COUNT(*) FROM repository WHERE is_private = true;" 2> /dev/null || echo "0")
 
     echo_info "Repository Types:"
     echo "  Public:  $PUBLIC_REPOS"
@@ -167,14 +167,14 @@ list_repositories() {
     echo ""
 
     # Total size
-    TOTAL_SIZE=$(sudo -u postgres psql -d "$GITEA_DB_NAME" -tAc "SELECT SUM(size) FROM repository;" 2>/dev/null || echo "0")
+    TOTAL_SIZE=$(sudo -u postgres psql -d "$GITEA_DB_NAME" -tAc "SELECT SUM(size) FROM repository;" 2> /dev/null || echo "0")
     TOTAL_SIZE_MB=$((TOTAL_SIZE / 1024 / 1024))
 
     echo_info "Total Size: ${TOTAL_SIZE_MB} MB"
     echo ""
 
     # Active users
-    ACTIVE_USERS=$(sudo -u postgres psql -d "$GITEA_DB_NAME" -tAc "SELECT COUNT(DISTINCT owner_id) FROM repository;" 2>/dev/null || echo "0")
+    ACTIVE_USERS=$(sudo -u postgres psql -d "$GITEA_DB_NAME" -tAc "SELECT COUNT(DISTINCT owner_id) FROM repository;" 2> /dev/null || echo "0")
     echo_info "Active Repository Owners: $ACTIVE_USERS"
     echo ""
 }
@@ -191,7 +191,7 @@ list_clone_commands() {
         FROM repository r
         JOIN \"user\" u ON r.owner_id = u.id
         ORDER BY r.updated_unix DESC
-        LIMIT 10;" 2>/dev/null)
+        LIMIT 10;" 2> /dev/null)
 
     if [ -z "$REPO_LIST" ]; then
         echo_warning "No repositories to clone"

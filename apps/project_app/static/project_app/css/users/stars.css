@@ -1,18 +1,18 @@
 /* User stars page styles */
-@import url('shared/variables.css');
+@import url("shared/variables.css");
 
 .user-stars-container {
-    padding: 2rem;
+  padding: 2rem;
 }
 
 .stars-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .starred-project {
-    padding: 1.5rem;
-    border: 1px solid var(--border-color, #ddd);
-    border-radius: 0.375rem;
+  padding: 1.5rem;
+  border: 1px solid var(--border-color, #ddd);
+  border-radius: 0.375rem;
 }

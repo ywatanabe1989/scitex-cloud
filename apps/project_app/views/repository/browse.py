@@ -8,11 +8,11 @@ Repository Browse Views
 
 Handles directory browsing functionality for projects.
 """
+
 from __future__ import annotations
 
 import logging
 import subprocess
-from pathlib import Path
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
@@ -49,12 +49,8 @@ def project_directory_dynamic(request, username, slug, directory_path):
 
             return redirect_to_login(request.get_full_path())
         else:
-            messages.error(
-                request, "You don't have permission to access this project."
-            )
-            return redirect(
-                "user_projects:detail", username=username, slug=slug
-            )
+            messages.error(request, "You don't have permission to access this project.")
+            return redirect("user_projects:detail", username=username, slug=slug)
 
     # Get project path
     from apps.project_app.services.project_filesystem import (
@@ -74,13 +70,9 @@ def project_directory_dynamic(request, username, slug, directory_path):
     # Security check: ensure path is within project directory
     try:
         full_directory_path = full_directory_path.resolve()
-        if not str(full_directory_path).startswith(
-            str(project_path.resolve())
-        ):
+        if not str(full_directory_path).startswith(str(project_path.resolve())):
             messages.error(request, "Invalid directory path.")
-            return redirect(
-                "user_projects:detail", username=username, slug=slug
-            )
+            return redirect("user_projects:detail", username=username, slug=slug)
     except Exception:
         messages.error(request, "Invalid directory path.")
         return redirect("user_projects:detail", username=username, slug=slug)
@@ -131,16 +123,22 @@ def project_directory_dynamic(request, username, slug, directory_path):
     contents.sort(key=lambda x: (x["type"] == "file", x["name"].lower()))
 
     # Build breadcrumb navigation
-    breadcrumbs = [{"name": project.name, "url": f"/{username}/{slug}/", "is_last": False}]
+    breadcrumbs = [
+        {"name": project.name, "url": f"/{username}/{slug}/", "is_last": False}
+    ]
 
     # Add each path component to breadcrumbs
     path_parts = [p for p in directory_path.split("/") if p]  # Filter empty strings
     current_path = ""
     for idx, part in enumerate(path_parts):
         current_path += part + "/"
-        is_last = (idx == len(path_parts) - 1)  # Last item in the path
+        is_last = idx == len(path_parts) - 1  # Last item in the path
         breadcrumbs.append(
-            {"name": part, "url": f"/{username}/{slug}/{current_path}", "is_last": is_last}
+            {
+                "name": part,
+                "url": f"/{username}/{slug}/{current_path}",
+                "is_last": is_last,
+            }
         )
 
     context = {
@@ -182,9 +180,7 @@ def project_directory(request, username, slug, directory, subpath=None):
 
             return redirect_to_login(request.get_full_path())
         else:
-            messages.error(
-                request, "You don't have permission to access this project."
-            )
+            messages.error(request, "You don't have permission to access this project.")
             return redirect("project_app:detail", username=username, slug=slug)
 
     # Get the project directory manager
@@ -231,30 +227,34 @@ def project_directory(request, username, slug, directory, subpath=None):
             try:
                 # Get last commit for this file (including hash)
                 result = subprocess.run(
-                    ['git', 'log', '-1', '--format=%an|%ar|%s|%h', '--', str(path.name)],
+                    [
+                        "git",
+                        "log",
+                        "-1",
+                        "--format=%an|%ar|%s|%h",
+                        "--",
+                        str(path.name),
+                    ],
                     cwd=project_path,
                     capture_output=True,
                     text=True,
-                    timeout=5
+                    timeout=5,
                 )
 
                 if result.returncode == 0 and result.stdout.strip():
-                    author, time_ago, message, commit_hash = result.stdout.strip().split('|', 3)
+                    author, time_ago, message, commit_hash = (
+                        result.stdout.strip().split("|", 3)
+                    )
                     return {
-                        'author': author,
-                        'time_ago': time_ago,
-                        'message': message[:80],  # Truncate to 80 chars
-                        'hash': commit_hash
+                        "author": author,
+                        "time_ago": time_ago,
+                        "message": message[:80],  # Truncate to 80 chars
+                        "hash": commit_hash,
                     }
             except Exception as e:
                 logger.debug(f"Error getting git info for {path}: {e}")
 
-            return {
-                'author': '',
-                'time_ago': '',
-                'message': '',
-                'hash': ''
-            }
+            return {"author": "", "time_ago": "", "message": "", "hash": ""}
 
         for item in directory_path.iterdir():
             # Show all files and directories including dotfiles
@@ -268,10 +268,10 @@ def project_directory(request, username, slug, directory, subpath=None):
                         "size": item.stat().st_size,
                         "modified": item.stat().st_mtime,
                         "path": str(item.relative_to(project_path)),
-                        "author": git_info.get('author', ''),
-                        "time_ago": git_info.get('time_ago', ''),
-                        "message": git_info.get('message', ''),
-                        "hash": git_info.get('hash', ''),
+                        "author": git_info.get("author", ""),
+                        "time_ago": git_info.get("time_ago", ""),
+                        "message": git_info.get("message", ""),
+                        "hash": git_info.get("hash", ""),
                     }
                 )
             elif item.is_dir():
@@ -280,10 +280,10 @@ def project_directory(request, username, slug, directory, subpath=None):
                         "name": item.name,
                         "type": "directory",
                         "path": str(item.relative_to(project_path)),
-                        "author": git_info.get('author', ''),
-                        "time_ago": git_info.get('time_ago', ''),
-                        "message": git_info.get('message', ''),
-                        "hash": git_info.get('hash', ''),
+                        "author": git_info.get("author", ""),
+                        "time_ago": git_info.get("time_ago", ""),
+                        "message": git_info.get("message", ""),
+                        "hash": git_info.get("hash", ""),
                     }
                 )
     except PermissionError:

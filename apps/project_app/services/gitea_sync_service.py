@@ -34,7 +34,7 @@ def sync_user_to_gitea(user: User, password: Optional[str] = None) -> bool:
 
         # Check if user exists in Gitea
         try:
-            gitea_user = client._request('GET', f'/users/{user.username}').json()
+            gitea_user = client._request("GET", f"/users/{user.username}").json()
             logger.info(f"Gitea user already exists: {user.username}")
             return True
         except GiteaAPIError:
@@ -43,19 +43,21 @@ def sync_user_to_gitea(user: User, password: Optional[str] = None) -> bool:
 
         # Create new Gitea user (requires admin token)
         if not password:
-            logger.warning(f"Cannot create Gitea user {user.username}: password required")
+            logger.warning(
+                f"Cannot create Gitea user {user.username}: password required"
+            )
             return False
 
         user_data = {
-            'username': user.username,
-            'email': user.email,
-            'password': password,
-            'full_name': user.get_full_name() or user.username,
-            'send_notify': False,
-            'must_change_password': False,
+            "username": user.username,
+            "email": user.email,
+            "password": password,
+            "full_name": user.get_full_name() or user.username,
+            "send_notify": False,
+            "must_change_password": False,
         }
 
-        response = client._request('POST', '/admin/users', json=user_data)
+        response = client._request("POST", "/admin/users", json=user_data)
         gitea_user = response.json()
 
         logger.info(f"✓ Created Gitea user: {user.username}")
@@ -105,7 +107,7 @@ def ensure_gitea_user_exists(user: User) -> bool:
     """
     try:
         client = GiteaClient()
-        gitea_user = client._request('GET', f'/users/{user.username}').json()
+        gitea_user = client._request("GET", f"/users/{user.username}").json()
         return True
     except GiteaAPIError:
         logger.warning(f"Gitea user not found: {user.username}")

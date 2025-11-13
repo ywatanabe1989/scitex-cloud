@@ -5,8 +5,7 @@ Handles manuscript version control, branching, merging, and diff generation.
 Provides Git-like functionality for collaborative manuscript editing.
 """
 
-from typing import Optional, Dict, Any, List, Tuple
-from django.core.exceptions import ValidationError, PermissionDenied
+from typing import Optional, Dict, Any, List
 from django.db import transaction
 from django.contrib.auth.models import User
 
@@ -14,7 +13,7 @@ from ...models.version_control import (
     ManuscriptVersion,
     ManuscriptBranch,
     MergeRequest,
-    DiffResult
+    DiffResult,
 )
 
 
@@ -29,7 +28,7 @@ class VersionControlService:
         version_number: str,
         message: str,
         content: Optional[str] = None,
-        is_auto_save: bool = False
+        is_auto_save: bool = False,
     ) -> ManuscriptVersion:
         """
         Create a new manuscript version.
@@ -69,9 +68,7 @@ class VersionControlService:
 
     @staticmethod
     def get_version_history(
-        manuscript,
-        limit: int = 50,
-        branch: Optional[ManuscriptBranch] = None
+        manuscript, limit: int = 50, branch: Optional[ManuscriptBranch] = None
     ) -> List[ManuscriptVersion]:
         """
         Get version history for a manuscript.
@@ -87,7 +84,7 @@ class VersionControlService:
         queryset = ManuscriptVersion.objects.filter(manuscript=manuscript)
         if branch:
             queryset = queryset.filter(branch=branch)
-        return list(queryset.order_by('-created_at')[:limit])
+        return list(queryset.order_by("-created_at")[:limit])
 
     @staticmethod
     @transaction.atomic
@@ -96,7 +93,7 @@ class VersionControlService:
         user: User,
         branch_name: str,
         from_version: Optional[ManuscriptVersion] = None,
-        description: str = ""
+        description: str = "",
     ) -> ManuscriptBranch:
         """
         Create a new branch.
@@ -152,8 +149,8 @@ class VersionControlService:
         source_branch: ManuscriptBranch,
         target_branch: ManuscriptBranch,
         user: User,
-        strategy: str = 'auto',
-        message: Optional[str] = None
+        strategy: str = "auto",
+        message: Optional[str] = None,
     ) -> MergeRequest:
         """
         Merge one branch into another.
@@ -179,8 +176,8 @@ class VersionControlService:
     def generate_diff(
         version1: ManuscriptVersion,
         version2: ManuscriptVersion,
-        diff_type: str = 'unified',
-        context_lines: int = 3
+        diff_type: str = "unified",
+        context_lines: int = 3,
     ) -> DiffResult:
         """
         Generate diff between two versions.
@@ -202,8 +199,7 @@ class VersionControlService:
 
     @staticmethod
     def compare_versions(
-        version1: ManuscriptVersion,
-        version2: ManuscriptVersion
+        version1: ManuscriptVersion, version2: ManuscriptVersion
     ) -> Dict[str, Any]:
         """
         Compare two versions and return detailed comparison.
@@ -229,7 +225,7 @@ class VersionControlService:
         manuscript,
         version: ManuscriptVersion,
         user: User,
-        create_new_version: bool = True
+        create_new_version: bool = True,
     ) -> ManuscriptVersion:
         """
         Revert manuscript to a specific version.
@@ -251,8 +247,7 @@ class VersionControlService:
 
     @staticmethod
     def get_merge_conflicts(
-        source_branch: ManuscriptBranch,
-        target_branch: ManuscriptBranch
+        source_branch: ManuscriptBranch, target_branch: ManuscriptBranch
     ) -> List[Dict[str, Any]]:
         """
         Detect merge conflicts between branches.
@@ -278,7 +273,7 @@ class VersionControlService:
         merge_request: MergeRequest,
         conflict_id: int,
         resolution: str,
-        resolved_content: str
+        resolved_content: str,
     ) -> MergeRequest:
         """
         Resolve a specific merge conflict.

@@ -18,8 +18,7 @@ from typing import Optional, Tuple
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.db import transaction
-from apps.project_app.models import Project, ProjectMembership, VisitorAllocation
-from pathlib import Path
+from apps.project_app.models import Project, VisitorAllocation
 
 logger = logging.getLogger(__name__)
 
@@ -108,6 +107,7 @@ class VisitorPool:
 
                     # Initialize writer workspace for visitor projects
                     from pathlib import Path
+
                     _initialize_visitor_writer_workspace(project, Path(project_path))
 
                     created_count += 1
@@ -124,6 +124,7 @@ class VisitorPool:
 
                 # Initialize writer workspace - let Writer() handle structure validation
                 from pathlib import Path
+
                 logger.info(
                     f"[VisitorPool] Ensuring writer workspace for {project_slug}..."
                 )
@@ -192,7 +193,9 @@ class VisitorPool:
                 User.DoesNotExist,
                 Project.DoesNotExist,
             ):
-                logger.warning(f"[VisitorPool] Invalid allocation token, clearing session and reallocating")
+                logger.warning(
+                    f"[VisitorPool] Invalid allocation token, clearing session and reallocating"
+                )
                 # Clear stale session data before reallocating
                 session.pop(cls.SESSION_KEY_PROJECT_ID, None)
                 session.pop(cls.SESSION_KEY_VISITOR_ID, None)
@@ -422,6 +425,7 @@ class VisitorPool:
 
                 # Initialize writer workspace for the fresh visitor project
                 from pathlib import Path
+
                 _initialize_visitor_writer_workspace(project, Path(project_path))
             else:
                 logger.error(
@@ -504,38 +508,45 @@ def _initialize_visitor_writer_workspace(project, project_path):
         from scitex.writer import Writer
         from django.conf import settings
 
-        template_branch = getattr(settings, 'SCITEX_WRITER_TEMPLATE_BRANCH', None)
-        template_tag = getattr(settings, 'SCITEX_WRITER_TEMPLATE_TAG', None)
+        template_branch = getattr(settings, "SCITEX_WRITER_TEMPLATE_BRANCH", None)
+        template_tag = getattr(settings, "SCITEX_WRITER_TEMPLATE_TAG", None)
 
         # branch and tag are mutually exclusive - only pass the one that's set
         writer_kwargs = {
-            'project_dir': writer_dir,
-            'git_strategy': None,  # No git for visitor projects
+            "project_dir": writer_dir,
+            "git_strategy": None,  # No git for visitor projects
         }
         if template_tag:
-            writer_kwargs['tag'] = template_tag
+            writer_kwargs["tag"] = template_tag
         elif template_branch:
-            writer_kwargs['branch'] = template_branch
+            writer_kwargs["branch"] = template_branch
 
         writer = Writer(**writer_kwargs)
 
         # Verify creation
         manuscript_dir = writer_dir / "01_manuscript"
         if manuscript_dir.exists():
-            logger.info(f"[VisitorPool] Writer workspace initialized for {project.slug}")
+            logger.info(
+                f"[VisitorPool] Writer workspace initialized for {project.slug}"
+            )
 
             # Create manuscript record (writer_initialized is a computed property, not a field)
             from apps.writer_app.models import Manuscript
+
             Manuscript.objects.get_or_create(
                 project=project,
                 owner=project.owner,
-                defaults={'title': f'{project.name} Manuscript'}
+                defaults={"title": f"{project.name} Manuscript"},
             )
         else:
-            logger.warning(f"[VisitorPool] Writer workspace incomplete for {project.slug}")
+            logger.warning(
+                f"[VisitorPool] Writer workspace incomplete for {project.slug}"
+            )
 
     except Exception as e:
-        logger.error(f"[VisitorPool] Failed to initialize writer workspace for {project.slug}: {e}")
+        logger.error(
+            f"[VisitorPool] Failed to initialize writer workspace for {project.slug}: {e}"
+        )
         logger.exception("Full traceback:")
 
 

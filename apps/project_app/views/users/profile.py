@@ -5,6 +5,7 @@ User Profile Views
 
 Handle user profile and bio pages.
 """
+
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
@@ -28,6 +29,7 @@ def user_profile(request, username):
     """
     # Check if username is a reserved path
     from config.urls import RESERVED_PATHS
+
     if username.lower() in [path.lower() for path in RESERVED_PATHS]:
         raise Http404("This path is reserved and not a valid username")
 
@@ -38,12 +40,15 @@ def user_profile(request, username):
         return user_project_list(request, username)
     elif tab == "overview":
         from .overview import user_overview
+
         return user_overview(request, username)
     elif tab == "projects":
         from .board import user_projects_board
+
         return user_projects_board(request, username)
     elif tab == "stars":
         from .stars import user_stars
+
         return user_stars(request, username)
     else:
         # Invalid tab - redirect to repositories
@@ -62,8 +67,7 @@ def user_project_list(request, username):
         if request.user.is_authenticated:
             # Show public projects + projects where user is a collaborator
             user_projects = user_projects.filter(
-                models.Q(visibility="public")
-                | models.Q(memberships__user=request.user)
+                models.Q(visibility="public") | models.Q(memberships__user=request.user)
             ).distinct()
         else:
             # Anonymous users only see public projects
@@ -80,7 +84,7 @@ def user_project_list(request, username):
     projects = paginator.get_page(page_number)
 
     # Get social stats
-    from apps.social_app.models import UserFollow, RepositoryStar
+    from apps.social_app.models import UserFollow
 
     followers_count = UserFollow.get_followers_count(user)
     following_count = UserFollow.get_following_count(user)

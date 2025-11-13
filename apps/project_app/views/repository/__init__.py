@@ -8,6 +8,7 @@ Repository Feature Views
 
 Exports all repository-related view functions.
 """
+
 from .browse import project_directory_dynamic, project_directory
 from .file_view import project_file_view
 from .file_edit import project_file_edit
@@ -24,24 +25,21 @@ from .api import (
 
 __all__ = [
     # Browse
-    'project_directory_dynamic',
-    'project_directory',
-
+    "project_directory_dynamic",
+    "project_directory",
     # File operations
-    'project_file_view',
-    'project_file_edit',
-
+    "project_file_view",
+    "project_file_edit",
     # History
-    'file_history_view',
-    'commit_detail',
-
+    "file_history_view",
+    "commit_detail",
     # APIs
-    'api_file_tree',
-    'api_concatenate_directory',
-    'api_repository_health',
-    'api_repository_cleanup',
-    'api_repository_sync',
-    'api_repository_restore',
+    "api_file_tree",
+    "api_concatenate_directory",
+    "api_repository_health",
+    "api_repository_cleanup",
+    "api_repository_sync",
+    "api_repository_restore",
 ]
 
 # EOF

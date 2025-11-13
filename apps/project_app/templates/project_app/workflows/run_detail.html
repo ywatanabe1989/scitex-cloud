@@ -1,138 +1,139 @@
 {% extends 'global_base.html' %}
 {% load static %}
-
-{% block title %}Run #{{ run.run_number }} - {{ workflow.name }} - {{ project.name }}{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'project_app/css/project_app.css' %}">
-
+{% block title %}
+    Run #{{
+    run.run_number }} - {{ workflow.name }} - {{ project.name }}
 {% endblock %}
-
+{%
+block extra_css %}
+<link rel="stylesheet"
+      href="{% static 'project_app/css/project_app.css' %}" />
+{% endblock %}
 {% block content %}
-<div class="container-fluid" style="max-width: 1280px;" data-run-status="{{ run.status }}">
-    {% include 'project_app/repository/browse_partials/browse_header.html' %}
-    {% include 'project_app/repository/browse_partials/browse_tabs.html' with active_tab='actions' %}
-
-    <!-- Run Header -->
-    <div class="run-header">
-        <div class="run-title">
-            {{ workflow.name }} #{{ run.run_number }}
-            <span class="run-status-badge {{ run.conclusion|default:run.status }}">
-                {% if run.conclusion == 'success' %}
-                    <i class="bi bi-check-circle-fill"></i> Success
-                {% elif run.conclusion == 'failure' %}
-                    <i class="bi bi-x-circle-fill"></i> Failure
-                {% elif run.status == 'in_progress' %}
-                    <i class="bi bi-arrow-repeat"></i> In progress
-                {% else %}
-                    <i class="bi bi-circle"></i> {{ run.status|title }}
-                {% endif %}
-            </span>
-        </div>
-
-        <div class="run-meta">
-            <div>
-                <i class="bi bi-git"></i>
-                <strong>Branch:</strong> <code>{{ run.branch|default:"main" }}</code>
+    <div class="container-fluid"
+         style="max-width: 1280px"
+         data-run-status="{{ run.status }}">
+        {% include 'project_app/repository/browse_partials/browse_header.html' %}
+        {%
+        include 'project_app/repository/browse_partials/browse_tabs.html' with
+        active_tab='actions' %}
+        <!-- Run Header -->
+        <div class="run-header">
+            <div class="run-title">
+                {{ workflow.name }} #{{ run.run_number }}
+                <span class="run-status-badge {{ run.conclusion|default:run.status }}">
+                    {% if run.conclusion == 'success' %}
+                        <i class="bi bi-check-circle-fill"></i> Success
+                    {% elif run.conclusion
+                        == 'failure' %}
+                        <i class="bi bi-x-circle-fill"></i> Failure
+                    {% elif
+                        run.status == 'in_progress' %}
+                        <i class="bi bi-arrow-repeat"></i> In
+                        progress
+                    {% else %}
+                        <i class="bi bi-circle"></i> {{ run.status|title }}
+                    {% endif %}
+                </span>
             </div>
-            <div>
-                <i class="bi bi-tag"></i>
-                <strong>Commit:</strong> <code>{{ run.commit_sha|slice:":7"|default:"-" }}</code>
-            </div>
-            <div>
-                <i class="bi bi-lightning"></i>
-                <strong>Triggered by:</strong>
-                {% if run.trigger_user %}
-                    {{ run.trigger_user.username }}
-                {% else %}
-                    {{ run.trigger_event }}
-                {% endif %}
-            </div>
-            {% if run.started_at %}
-            <div>
-                <i class="bi bi-clock"></i>
-                <strong>Started:</strong> {{ run.started_at|timesince }} ago
-            </div>
-            {% endif %}
-            {% if duration_text %}
-            <div>
-                <i class="bi bi-hourglass"></i>
-                <strong>Duration:</strong> {{ duration_text }}
-            </div>
-            {% endif %}
-        </div>
-    </div>
-
-    <!-- Jobs -->
-    <div class="jobs-section">
-        <h2 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem;">Jobs</h2>
-
-        {% if jobs %}
-            {% for job in jobs %}
-            <div class="job-card">
-                <div class="job-header" onclick="toggleJob({{ job.id }})">
-                    <div class="job-title">
-                        <span class="step-status-icon {{ job.conclusion|default:job.status }}"></span>
-                        {{ job.name }}
-                        {% if job.matrix_config %}
-                        <span class="badge bg-secondary">{{ job.matrix_config }}</span>
-                        {% endif %}
-                    </div>
-                    <div class="job-duration">
-                        {% if job.duration_seconds %}
-                            {{ job.duration_seconds }}s
-                        {% else %}
-                            -
-                        {% endif %}
-                        <i class="bi bi-chevron-down" id="job-{{ job.id }}-chevron"></i>
-                    </div>
+            <div class="run-meta">
+                <div>
+                    <i class="bi bi-git"></i>
+                    <strong>Branch:</strong> <code>{{ run.branch|default:"main" }}</code>
                 </div>
-
-                <div class="job-steps" id="job-{{ job.id }}-steps">
-                    {% for step in job.steps.all %}
-                    <div class="step-item" onclick="toggleStep({{ step.id }})">
-                        <div class="step-header">
-                            <div class="step-name">
-                                <span class="step-status-icon {{ step.conclusion|default:step.status }}"></span>
-                                {{ step.name }}
+                <div>
+                    <i class="bi bi-tag"></i>
+                    <strong>Commit:</strong>
+                    <code>{{ run.commit_sha|slice:":7"|default:"-" }}</code>
+                </div>
+                <div>
+                    <i class="bi bi-lightning"></i>
+                    <strong>Triggered by:</strong>
+                    {% if run.trigger_user %}
+                        {{ run.trigger_user.username }}
+                    {% else %}
+                        {{
+                        run.trigger_event }}
+                    {% endif %}
+                </div>
+                {% if run.started_at %}
+                    <div>
+                        <i class="bi bi-clock"></i>
+                        <strong>Started:</strong> {{ run.started_at|timesince }} ago
+                    </div>
+                {% endif %}
+                {% if duration_text %}
+                    <div>
+                        <i class="bi bi-hourglass"></i>
+                        <strong>Duration:</strong> {{ duration_text }}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        <!-- Jobs -->
+        <div class="jobs-section">
+            <h2 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem">Jobs</h2>
+            {% if jobs %}
+                {% for job in jobs %}
+                    <div class="job-card">
+                        <div class="job-header" onclick="toggleJob({{ job.id }})">
+                            <div class="job-title">
+                                <span class="step-status-icon {{ job.conclusion|default:job.status }}"></span>
+                                {{ job.name }}
+                                {% if job.matrix_config %}<span class="badge bg-secondary">{{ job.matrix_config }}</span>{% endif %}
                             </div>
-                            <div style="font-size: 0.875rem; color: var(--color-fg-muted);">
-                                {% if step.duration_seconds %}
-                                    {{ step.duration_seconds }}s
+                            <div class="job-duration">
+                                {% if job.duration_seconds %}
+                                    {{ job.duration_seconds }}s
+                                {% else %}
+                                    -
                                 {% endif %}
-                                <i class="bi bi-chevron-down" id="step-{{ step.id }}-chevron"></i>
+                                <i class="bi bi-chevron-down" id="job-{{ job.id }}-chevron"></i>
                             </div>
                         </div>
-
-                        <div class="step-output" id="step-{{ step.id }}-output">
-                            {% if step.output %}
-                            <pre>{{ step.output }}</pre>
-                            {% endif %}
-                            {% if step.error_output %}
-                            <pre style="color: var(--color-danger-fg);">{{ step.error_output }}</pre>
-                            {% endif %}
-                            {% if not step.output and not step.error_output %}
-                            <pre>No output</pre>
-                            {% endif %}
+                        <div class="job-steps" id="job-{{ job.id }}-steps">
+                            {% for step in job.steps.all %}
+                                <div class="step-item" onclick="toggleStep({{ step.id }})">
+                                    <div class="step-header">
+                                        <div class="step-name">
+                                            <span class="step-status-icon {{ step.conclusion|default:step.status }}"></span>
+                                            {{ step.name }}
+                                        </div>
+                                        <div style="font-size: 0.875rem; color: var(--color-fg-muted)">
+                                            {% if step.duration_seconds %}
+                                                {{ step.duration_seconds }}s {%
+                                                endif %}
+                                                <i class="bi bi-chevron-down" id="step-{{ step.id }}-chevron"></i>
+                                            </div>
+                                        </div>
+                                        <div class="step-output" id="step-{{ step.id }}-output">
+                                            {% if step.output %}<pre>{{ step.output }}</pre>{% endif %}
+                                            {% if step.error_output %}
+                                                <pre style="color: var(--color-danger-fg)">
+{{ step.error_output }}</pre>
+                                            {% endif %}
+                                            {% if not step.output and not step.error_output %}<pre>No output</pre>{% endif %}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
                         </div>
-                    </div>
                     {% endfor %}
-                </div>
+                {% else %}
+                    <div class="empty-state"
+                         style="text-align: center;
+                                padding: 3rem;
+                                color: var(--color-fg-muted)">
+                        <div style="font-size: 3rem; margin-bottom: 1rem">
+                            <i class="bi bi-inbox"></i>
+                        </div>
+                        <h3>No jobs yet</h3>
+                        <p>This run has no jobs.</p>
+                    </div>
+                {% endif %}
             </div>
-            {% endfor %}
-        {% else %}
-            <div class="empty-state" style="text-align: center; padding: 3rem; color: var(--color-fg-muted);">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">
-                    <i class="bi bi-inbox"></i>
-                </div>
-                <h3>No jobs yet</h3>
-                <p>This run has no jobs.</p>
-            </div>
-        {% endif %}
-    </div>
-</div>
-{% endblock %}
-
-{% block extra_js %}
-<script src="{% static 'project_app/js/workflows/run_detail.js' %}"></script>
-{% endblock %}
+        </div>
+    {% endblock %}
+    {% block extra_js %}
+        <script src="{% static 'project_app/js/workflows/run_detail.js' %}"></script>
+    {% endblock %}

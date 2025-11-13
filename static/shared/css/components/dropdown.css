@@ -67,7 +67,7 @@
 }
 
 .dropdown-toggle::after {
-  content: '';
+  content: "";
   display: inline-block;
   margin-left: 0.5rem;
   vertical-align: middle;
@@ -166,7 +166,7 @@
     box-shadow: none;
     padding-left: 1rem;
   }
-  
+
   .dropdown-item {
     color: var(--text-primary);
     padding: 0.5rem 0;

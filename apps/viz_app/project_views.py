@@ -11,6 +11,6 @@ def project_viz(request, project_id):
     project = get_object_or_404(Project, id=project_id)
 
     context = {
-        'project': project,
+        "project": project,
     }
-    return render(request, 'viz_app/project_viz.html', context)
+    return render(request, "viz_app/project_viz.html", context)

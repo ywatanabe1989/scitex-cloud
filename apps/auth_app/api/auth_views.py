@@ -108,9 +108,7 @@ def api_login(request):
         login(request, user)
 
         # Generate a simple token
-        token = hashlib.sha256(
-            f"{user.username}{time.time()}".encode()
-        ).hexdigest()
+        token = hashlib.sha256(f"{user.username}{time.time()}".encode()).hexdigest()
 
         return JsonResponse(
             {
@@ -185,6 +183,4 @@ def api_logout(request):
     """
     logout(request)
 
-    return JsonResponse(
-        {"success": True, "message": "Successfully logged out"}
-    )
+    return JsonResponse({"success": True, "message": "Successfully logged out"})

@@ -5,7 +5,6 @@ Decorators for project-based access control.
 from functools import wraps
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from .models import Project
 
 
@@ -22,6 +21,7 @@ def project_required(view_func):
         def my_view(request):
             ...
     """
+
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
         # Check if user has any projects
@@ -30,9 +30,9 @@ def project_required(view_func):
         if not user_projects.exists():
             messages.warning(
                 request,
-                'You need to create a project first. Projects help organize your research work across Scholar, Writer, Code, and Viz modules.'
+                "You need to create a project first. Projects help organize your research work across Scholar, Writer, Code, and Viz modules.",
             )
-            return redirect('project_app:create')
+            return redirect("project_app:create")
 
         return view_func(request, *args, **kwargs)
 
@@ -53,6 +53,7 @@ def project_access_required(view_func):
             project = request.project  # Available in request
             ...
     """
+
     @wraps(view_func)
     def wrapper(request, username, slug, *args, **kwargs):
         from django.contrib.auth.models import User
@@ -62,33 +63,32 @@ def project_access_required(view_func):
         project = get_object_or_404(Project, slug=slug, owner=user)
 
         # Check access based on visibility
-        if hasattr(project, 'visibility'):
+        if hasattr(project, "visibility"):
             # If public, anyone can view
-            if project.visibility == 'public':
+            if project.visibility == "public":
                 has_access = True
             # If private, only owner, collaborators, or staff
-            elif project.visibility == 'private':
-                has_access = (
-                    request.user.is_authenticated and (
-                        project.owner == request.user or
-                        project.collaborators.filter(id=request.user.id).exists() or
-                        request.user.is_staff
-                    )
+            elif project.visibility == "private":
+                has_access = request.user.is_authenticated and (
+                    project.owner == request.user
+                    or project.collaborators.filter(id=request.user.id).exists()
+                    or request.user.is_staff
                 )
             else:
                 has_access = False
         else:
             # Fallback for projects without visibility field (legacy)
             has_access = (
-                project.owner == request.user or
-                project.collaborators.filter(id=request.user.id).exists() or
-                request.user.is_staff
+                project.owner == request.user
+                or project.collaborators.filter(id=request.user.id).exists()
+                or request.user.is_staff
             )
 
         if not has_access:
             # Treat private projects as non-existent (404) instead of revealing they are private
             # This prevents leaking information about which projects exist
             from django.http import Http404
+
             raise Http404("Project not found")
 
         # Attach project to request for convenience

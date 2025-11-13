@@ -8,7 +8,7 @@ THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
 LOG_PATH="$THIS_DIR/.$(basename $0).log"
 echo > "$LOG_PATH"
 
-GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
+GIT_ROOT="$(git rev-parse --show-toplevel 2> /dev/null)"
 
 GRAY='\033[0;90m'
 GREEN='\033[0;32m'
@@ -60,7 +60,6 @@ _tree_frontend() {
     fi
 }
 
-
 _tree_backend() {
     local backend_type=$1
     local specific_app=$2
@@ -86,7 +85,6 @@ _tree_backend() {
     fi
 }
 
-
 tree_templates() { _tree_frontend templates "$1"; }
 tree_static() { _tree_frontend static "$1"; }
 tree_models() { _tree_backend models "$1"; }
@@ -97,7 +95,7 @@ main() {
 
     while [[ $# -gt 0 ]]; do
         case $1 in
-            -h|--help)
+            -h | --help)
                 usage
                 exit 0
                 ;;

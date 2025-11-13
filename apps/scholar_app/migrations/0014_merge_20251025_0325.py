@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("scholar_app", "0005_merge_20251020_1112"),
         ("scholar_app", "0013_bibtexenrichmentjob_use_cache"),

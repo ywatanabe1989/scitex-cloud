@@ -10,4 +10,5 @@ from django.test import TestCase
 
 class WriterAPITestCase(TestCase):
     """Placeholder for new API tests."""
+
     pass

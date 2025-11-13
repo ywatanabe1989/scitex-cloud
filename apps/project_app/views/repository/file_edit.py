@@ -8,6 +8,7 @@ Repository File Edit
 
 Handles file editing functionality.
 """
+
 from __future__ import annotations
 
 import logging
@@ -35,9 +36,7 @@ def project_file_edit(request, username, slug, file_path):
     # Only project owner can edit files
     if not (project.owner == request.user):
         messages.error(request, "Only project owner can edit files.")
-        return redirect(
-            "user_projects:detail", username=username, slug=slug
-        )
+        return redirect("user_projects:detail", username=username, slug=slug)
 
     # Get file path
     from apps.project_app.services.project_filesystem import (
@@ -58,9 +57,7 @@ def project_file_edit(request, username, slug, file_path):
         full_file_path = full_file_path.resolve()
         if not str(full_file_path).startswith(str(project_path.resolve())):
             messages.error(request, "Invalid file path.")
-            return redirect(
-                "user_projects:detail", username=username, slug=slug
-            )
+            return redirect("user_projects:detail", username=username, slug=slug)
     except Exception:
         messages.error(request, "Invalid file path.")
         return redirect("user_projects:detail", username=username, slug=slug)
@@ -90,15 +87,11 @@ def project_file_edit(request, username, slug, file_path):
 
     # Read current content for editing
     try:
-        with open(
-            full_file_path, "r", encoding="utf-8", errors="ignore"
-        ) as f:
+        with open(full_file_path, "r", encoding="utf-8", errors="ignore") as f:
             file_content = f.read()
     except Exception as e:
         messages.error(request, f"Error reading file: {e}")
-        return redirect(
-            "user_projects:detail", username=username, slug=slug
-        )
+        return redirect("user_projects:detail", username=username, slug=slug)
 
     # Build breadcrumb
     breadcrumbs = [{"name": project.name, "url": f"/{username}/{slug}/"}]

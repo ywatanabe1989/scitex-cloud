@@ -1,86 +1,118 @@
 {% extends "auth_app/auth_base.html" %}
 {% load static %}
-
-{% block title %}Sign In - SciTeX{% endblock %}
-
-{% block meta_description %}Sign in to your SciTeX account to access your research tools, documents, and settings.{% endblock %}
-
-{% block auth_content %}
+{% block title %}
+    Sign
+    In - SciTeX
+{% endblock %}
+{% block meta_description %}
+    Sign in to your SciTeX
+    account to access your research tools, documents, and settings.
+{% endblock %}
+{%
+block auth_content %}
 <div class="container auth-container">
-  <div class="auth-form">
-    <h2 class="mb-4">Sign In</h2>
-
-    {% if messages %}
-      {% for message in messages %}
-        <div class="alert-banner alert-banner-{% if message.tags == 'error' %}danger{% elif message.tags == 'success' %}success{% elif message.tags == 'warning' %}warning{% else %}info{% endif %}" style="margin-bottom: var(--spacing-md);">
-          <div class="warning-banner-container">
-            <div class="warning-banner-content">
-              <i class="warning-banner-icon fas fa-{% if message.tags == 'error' %}exclamation-circle{% elif message.tags == 'success' %}check-circle{% elif message.tags == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
-              <div class="warning-banner-text">
-                <div class="warning-banner-description">{{ message }}</div>
-              </div>
+    <div class="auth-form">
+        <h2 class="mb-4">Sign In</h2>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert-banner alert-banner-{% if message.tags == 'error' %}danger{% elif message.tags == 'success' %}success{% elif message.tags == 'warning' %}warning{% else %}info{% endif %}"
+                     style="margin-bottom: var(--spacing-md)">
+                    <div class="warning-banner-container">
+                        <div class="warning-banner-content">
+                            <i class="warning-banner-icon fas fa-{% if message.tags == 'error' %}exclamation-circle{% elif message.tags == 'success' %}check-circle{% elif message.tags == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+                            <div class="warning-banner-text">
+                                <div class="warning-banner-description">{{ message }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+        <form id="login-form"
+              method="post"
+              action="{% url 'auth_app:login' %}"
+              autocomplete="on">
+            {% csrf_token %}
+            <div class="form-group mb-3">
+                <label for="username" class="form-label">
+                    Username or Email <span class="text-danger">*</span>
+                </label>
+                <input type="text"
+                       class="form-control"
+                       id="username"
+                       name="username"
+                       autocomplete="username"
+                       required />
             </div>
-          </div>
+            <div class="form-group mb-3">
+                <label for="password" class="form-label">
+                    Password <span class="text-danger">*</span>
+                </label>
+                <div class="input-group">
+                    <input type="password"
+                           class="form-control"
+                           id="password"
+                           name="password"
+                           autocomplete="current-password"
+                           required />
+                    <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                        <i class="fas fa-eye" id="togglePasswordIcon"></i>
+                    </button>
+                </div>
+                <!-- Password Requirements (shown as hint during typing) -->
+                <div class="password-rules"
+                     id="password-requirements"
+                     style="display: none;
+                            margin-top: 0.5rem">
+                    <div class="password-rules-title">Password Requirements:</div>
+                    <div class="password-rule invalid" id="rule-length">
+                        <i class="fas fa-times"></i> At least 8 characters
+                    </div>
+                    <div class="password-rule invalid" id="rule-lowercase">
+                        <i class="fas fa-times"></i> At least one lowercase letter
+                    </div>
+                    <div class="password-rule invalid" id="rule-uppercase">
+                        <i class="fas fa-times"></i> At least one uppercase letter
+                    </div>
+                    <div class="password-rule invalid" id="rule-number">
+                        <i class="fas fa-times"></i> At least one number
+                    </div>
+                    <div class="password-rule invalid" id="rule-special">
+                        <i class="fas fa-times"></i> At least one special character
+                        (!@#$%^&*)
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="form-check">
+                    <input class="form-check-input"
+                           type="checkbox"
+                           id="remember-me"
+                           name="remember-me" />
+                    <label class="form-check-label" for="remember-me">Remember me</label>
+                </div>
+                <a href="{% url 'auth_app:forgot-password' %}" class="text-link">Forgot password?</a>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Sign In</button>
+        </form>
+        <div class="text-center mt-3">
+            <p>
+                Don't have an account?
+                <a href="{% url 'auth_app:signup' %}" class="text-link">Sign Up</a>
+            </p>
         </div>
-      {% endfor %}
-    {% endif %}
-
-    <form id="login-form" method="post" action="{% url 'auth_app:login' %}" autocomplete="on">
-      {% csrf_token %}
-      <div class="form-group mb-3">
-        <label for="username" class="form-label">Username or Email <span class="text-danger">*</span></label>
-        <input type="text" class="form-control" id="username" name="username" autocomplete="username" required>
-      </div>
-
-      <div class="form-group mb-3">
-        <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
-        <div class="input-group">
-          <input type="password" class="form-control" id="password" name="password" autocomplete="current-password" required>
-          <button class="btn btn-outline-secondary" type="button" id="togglePassword">
-            <i class="fas fa-eye" id="togglePasswordIcon"></i>
-          </button>
-        </div>
-
-        <!-- Password Requirements (shown as hint during typing) -->
-        <div class="password-rules" id="password-requirements" style="display: none; margin-top: 0.5rem;">
-          <div class="password-rules-title">Password Requirements:</div>
-          <div class="password-rule invalid" id="rule-length"><i class="fas fa-times"></i> At least 8 characters</div>
-          <div class="password-rule invalid" id="rule-lowercase"><i class="fas fa-times"></i> At least one lowercase letter</div>
-          <div class="password-rule invalid" id="rule-uppercase"><i class="fas fa-times"></i> At least one uppercase letter</div>
-          <div class="password-rule invalid" id="rule-number"><i class="fas fa-times"></i> At least one number</div>
-          <div class="password-rule invalid" id="rule-special"><i class="fas fa-times"></i> At least one special character (!@#$%^&*)</div>
-        </div>
-      </div>
-
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <div class="form-check">
-          <input class="form-check-input" type="checkbox" id="remember-me" name="remember-me">
-          <label class="form-check-label" for="remember-me">
-            Remember me
-          </label>
-        </div>
-        <a href="{% url 'auth_app:forgot-password' %}" class="text-link">Forgot password?</a>
-      </div>
-
-      <button type="submit" class="btn btn-primary w-100">Sign In</button>
-    </form>
-
-    <div class="text-center mt-3">
-      <p>Don't have an account? <a href="{% url 'auth_app:signup' %}" class="text-link">Sign Up</a></p>
     </div>
-  </div>
 </div>
 {% endblock %}
-
 {% block auth_extra_js %}
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('login-form');
-    const usernameInput = document.getElementById('username');
-    const passwordInput = document.getElementById('password');
-    const successMessage = document.querySelector('.form-message.success');
-    const errorMessage = document.querySelector('.form-message.error');
-    const errorText = document.getElementById('error-message');
+    <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("login-form");
+    const usernameInput = document.getElementById("username");
+    const passwordInput = document.getElementById("password");
+    const successMessage = document.querySelector(".form-message.success");
+    const errorMessage = document.querySelector(".form-message.error");
+    const errorText = document.getElementById("error-message");
 
     // Use standard Django form submission instead of problematic API endpoint
     // The form will now submit normally to the Django login view
@@ -90,83 +122,95 @@
   });
 
   // Password visibility toggle - separate event listener
-  document.addEventListener('DOMContentLoaded', function() {
-    const togglePassword = document.getElementById('togglePassword');
-    const passwordInput = document.getElementById('password');
-    const togglePasswordIcon = document.getElementById('togglePasswordIcon');
+  document.addEventListener("DOMContentLoaded", function () {
+    const togglePassword = document.getElementById("togglePassword");
+    const passwordInput = document.getElementById("password");
+    const togglePasswordIcon = document.getElementById("togglePasswordIcon");
 
     if (togglePassword && passwordInput && togglePasswordIcon) {
-      togglePassword.addEventListener('click', function() {
-        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-        passwordInput.setAttribute('type', type);
+      togglePassword.addEventListener("click", function () {
+        const type =
+          passwordInput.getAttribute("type") === "password"
+            ? "text"
+            : "password";
+        passwordInput.setAttribute("type", type);
 
         // Toggle the eye icon
-        if (type === 'password') {
-          togglePasswordIcon.classList.remove('fa-eye-slash');
-          togglePasswordIcon.classList.add('fa-eye');
+        if (type === "password") {
+          togglePasswordIcon.classList.remove("fa-eye-slash");
+          togglePasswordIcon.classList.add("fa-eye");
         } else {
-          togglePasswordIcon.classList.remove('fa-eye');
-          togglePasswordIcon.classList.add('fa-eye-slash');
+          togglePasswordIcon.classList.remove("fa-eye");
+          togglePasswordIcon.classList.add("fa-eye-slash");
         }
       });
     }
   });
 
   // Password requirements validation (hint during typing)
-  document.addEventListener('DOMContentLoaded', function() {
-    const passwordInput = document.getElementById('password');
-    const requirementsDiv = document.getElementById('password-requirements');
-    const ruleLength = document.getElementById('rule-length');
-    const ruleLowercase = document.getElementById('rule-lowercase');
-    const ruleUppercase = document.getElementById('rule-uppercase');
-    const ruleNumber = document.getElementById('rule-number');
-    const ruleSpecial = document.getElementById('rule-special');
+  document.addEventListener("DOMContentLoaded", function () {
+    const passwordInput = document.getElementById("password");
+    const requirementsDiv = document.getElementById("password-requirements");
+    const ruleLength = document.getElementById("rule-length");
+    const ruleLowercase = document.getElementById("rule-lowercase");
+    const ruleUppercase = document.getElementById("rule-uppercase");
+    const ruleNumber = document.getElementById("rule-number");
+    const ruleSpecial = document.getElementById("rule-special");
 
     // Helper function to update rule state
     function updatePasswordRule(element, isValid) {
-      element.classList.remove('valid', 'invalid');
+      element.classList.remove("valid", "invalid");
       if (isValid) {
-        element.classList.add('valid');
-        element.querySelector('i').className = 'fas fa-check';
+        element.classList.add("valid");
+        element.querySelector("i").className = "fas fa-check";
       } else {
         // Invalid state: red X (default)
-        element.classList.add('invalid');
-        element.querySelector('i').className = 'fas fa-times';
+        element.classList.add("invalid");
+        element.querySelector("i").className = "fas fa-times";
       }
     }
 
     // Show requirements when user starts typing
-    passwordInput.addEventListener('focus', function() {
+    passwordInput.addEventListener("focus", function () {
       if (requirementsDiv) {
-        requirementsDiv.style.display = 'block';
+        requirementsDiv.style.display = "block";
       }
     });
 
     // Hide requirements when field loses focus and is empty
-    passwordInput.addEventListener('blur', function() {
+    passwordInput.addEventListener("blur", function () {
       if (requirementsDiv && this.value.length === 0) {
-        requirementsDiv.style.display = 'none';
+        requirementsDiv.style.display = "none";
       }
     });
 
     // Real-time validation
-    passwordInput.addEventListener('input', function() {
+    passwordInput.addEventListener("input", function () {
       const password = this.value;
 
       // Show requirements if typing
       if (password.length > 0 && requirementsDiv) {
-        requirementsDiv.style.display = 'block';
+        requirementsDiv.style.display = "block";
       }
 
-      if (ruleLength && ruleLowercase && ruleUppercase && ruleNumber && ruleSpecial) {
+      if (
+        ruleLength &&
+        ruleLowercase &&
+        ruleUppercase &&
+        ruleNumber &&
+        ruleSpecial
+      ) {
         // Check each requirement
         updatePasswordRule(ruleLength, password.length >= 8);
         updatePasswordRule(ruleLowercase, /[a-z]/.test(password));
         updatePasswordRule(ruleUppercase, /[A-Z]/.test(password));
         updatePasswordRule(ruleNumber, /\d/.test(password));
-        updatePasswordRule(ruleSpecial, /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password));
+        updatePasswordRule(
+          ruleSpecial,
+          /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password),
+        );
       }
     });
   });
-</script>
+    </script>
 {% endblock %}
