@@ -66,6 +66,7 @@ export class PDFScrollZoomHandler {
   private scrollSaveTimeout: number | null = null;
   private isWaitingForCommand: boolean = false;
   private commandTimeout: number | null = null;
+  private currentMode: "text" | "hand" | "zoom" = "text"; // Default to text selection mode
 
   constructor(options: PDFScrollZoomOptions) {
     this.container = document.getElementById(options.containerId);
@@ -520,20 +521,30 @@ export class PDFScrollZoomHandler {
       switch (e.key.toLowerCase()) {
         case "t":
           console.log("[PDFScrollZoom] 📝 Text selection mode activated");
-          // Text selection is the default - just show message
+          this.currentMode = "text";
+          this.isSpacePressed = false; // Disable hand mode
+          if (this.pdfViewer) {
+            this.pdfViewer.style.cursor = "auto"; // Default cursor for text selection
+          }
           this.showModeMessage("Text Selection Mode");
           break;
         case "h":
           console.log("[PDFScrollZoom] ✋ Hand/Pan mode activated");
+          this.currentMode = "hand";
           this.isSpacePressed = true;
           if (this.pdfViewer) {
             this.originalCursor = this.pdfViewer.style.cursor;
             this.pdfViewer.style.cursor = "grab";
           }
-          this.showModeMessage("Hand/Pan Mode (click ESC to exit)");
+          this.showModeMessage("Hand/Pan Mode (press ESC to exit)");
           break;
         case "z":
           console.log("[PDFScrollZoom] 🔍 Zoom mode activated - Use Ctrl+drag or Ctrl+wheel");
+          this.currentMode = "zoom";
+          this.isSpacePressed = false; // Disable hand mode
+          if (this.pdfViewer) {
+            this.pdfViewer.style.cursor = "crosshair"; // Zoom cursor
+          }
           this.showModeMessage("Zoom Mode - Use Ctrl+drag or Ctrl+wheel");
           break;
         default:
@@ -543,20 +554,22 @@ export class PDFScrollZoomHandler {
       return;
     }
 
-    // Escape: Exit hand mode or command mode
+    // Escape: Exit hand/zoom mode to text mode, or cancel command mode
     if (e.key === "Escape") {
       if (this.isWaitingForCommand) {
         this.isWaitingForCommand = false;
         if (this.commandTimeout) clearTimeout(this.commandTimeout);
         this.hideCommandModeIndicator();
         console.log("[PDFScrollZoom] Command mode cancelled");
-      } else if (this.isSpacePressed) {
+      } else if (this.currentMode !== "text") {
+        // Reset to text selection mode
+        this.currentMode = "text";
         this.isSpacePressed = false;
         if (this.pdfViewer) {
-          this.pdfViewer.style.cursor = this.originalCursor || "auto";
+          this.pdfViewer.style.cursor = "auto";
         }
-        this.showModeMessage("Hand mode deactivated");
-        console.log("[PDFScrollZoom] Hand mode deactivated via Escape");
+        this.showModeMessage("Text Selection Mode (default)");
+        console.log("[PDFScrollZoom] Returned to text selection mode via Escape");
       }
       return;
     }
@@ -635,8 +648,13 @@ export class PDFScrollZoomHandler {
     const isOverPDF = this.container.contains(e.target as Node);
     if (!isOverPDF) return;
 
-    // Spacebar + left click OR middle mouse button for panning (like PDF Studio)
-    if ((e.button === 0 && this.isSpacePressed) || e.button === 1) {
+    // Spacebar + left click OR middle mouse button OR hand mode for panning
+    // But NOT in text selection mode
+    const canPan = (e.button === 0 && this.isSpacePressed) ||
+                   (e.button === 1) ||
+                   (e.button === 0 && this.currentMode === "hand");
+
+    if (canPan && this.currentMode !== "text") {
       e.preventDefault();
       this.isPanning = true;
       this.dragStartX = e.clientX;
