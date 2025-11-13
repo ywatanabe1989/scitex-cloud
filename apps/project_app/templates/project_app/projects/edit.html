@@ -1,37 +1,34 @@
 {% extends 'global_base.html' %}
 {% load static %}
-
-{% block title %}Edit {{ project.name }} - SciTeX Cloud{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'project_app/css/project_app.css' %}">
-<link rel="stylesheet" href="{% static 'project_app/css/shared/buttons.css' %}">
-
+{% block title %}
+    Edit {{
+    project.name }} - SciTeX Cloud
 {% endblock %}
-
+{% block extra_css %}
+    <link rel="stylesheet"
+          href="{% static 'project_app/css/project_app.css' %}" />
+    <link rel="stylesheet"
+          href="{% static 'project_app/css/shared/buttons.css' %}" />
+{% endblock %}
 {% block content %}
-<div class="container-fluid">
-    <!-- Breadcrumb -->
-    {% include 'project_app/projects/edit_partials/edit_breadcrumb.html' %}
-
-    <h1>Edit Project</h1>
-
-    <div class="edit-form">
-        <form method="post">
-            {% csrf_token %}
-
-            <!-- Name Field -->
-            {% include 'project_app/projects/edit_partials/edit_name_field.html' %}
-
-            <!-- Description Field -->
-            {% include 'project_app/projects/edit_partials/edit_description_field.html' %}
-
-            <!-- Source Code URL Field -->
-            {% include 'project_app/projects/edit_partials/edit_source_url_field.html' %}
-
-            <!-- Form Actions -->
-            {% include 'project_app/projects/edit_partials/edit_form_actions.html' %}
-        </form>
+    <div class="container-fluid">
+        <!-- Breadcrumb -->
+        {% include 'project_app/projects/edit_partials/edit_breadcrumb.html' %}
+        <h1>Edit Project</h1>
+        <div class="edit-form">
+            <form method="post">
+                {% csrf_token %}
+                <!-- Name Field -->
+                {% include 'project_app/projects/edit_partials/edit_name_field.html' %}
+                <!-- Description Field -->
+                {% include
+                'project_app/projects/edit_partials/edit_description_field.html' %}
+                <!-- Source Code URL Field -->
+                {% include 'project_app/projects/edit_partials/edit_source_url_field.html'
+                %}
+                <!-- Form Actions -->
+                {% include 'project_app/projects/edit_partials/edit_form_actions.html' %}
+            </form>
+        </div>
     </div>
-</div>
 {% endblock %}

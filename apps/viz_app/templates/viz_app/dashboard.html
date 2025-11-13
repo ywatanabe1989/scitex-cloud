@@ -1,316 +1,329 @@
 {% extends "viz_app/viz_base.html" %}
 {% load static %}
-
-{% block title %}SciTeX Viz - Dashboard{% endblock %}
-
-{% block extra_css %}
-<link href="https://cdn.jsdelivr.net/npm/plotly.js@2.18.0/dist/plotly.min.css" rel="stylesheet">
-<style>
-    .viz-card {
-        transition: all 0.3s ease;
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        overflow: hidden;
-    }
-    .viz-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-    .viz-preview {
-        height: 200px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 18px;
-    }
-    .stats-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border-radius: 10px;
-        padding: 20px;
-        text-align: center;
-    }
-    .stats-number {
-        font-size: 2.5rem;
-        font-weight: bold;
-    }
-</style>
+{% block title %}
+    SciTeX
+    Viz - Dashboard
 {% endblock %}
-
+{% block extra_css %}
+    <link href="https://cdn.jsdelivr.net/npm/plotly.js@2.18.0/dist/plotly.min.css"
+          rel="stylesheet" />
+    <style>
+  .viz-card {
+    transition: all 0.3s ease;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .viz-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  .viz-preview {
+    height: 200px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 18px;
+  }
+  .stats-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+  }
+  .stats-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+  }
+    </style>
+{% endblock %}
 {% block content %}
-<div class="container-fluid py-4">
-    <!-- Header -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h1 class="h3 mb-0">SciTeX Viz Dashboard</h1>
-                    <p class="text-muted">Create, manage and share your data visualizations</p>
+    <div class="container-fluid py-4">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="h3 mb-0">SciTeX Viz Dashboard</h1>
+                        <p class="text-muted">Create, manage and share your data visualizations</p>
+                    </div>
+                    <div>
+                        <a href="{% url 'viz_app:create_visualization' %}"
+                           class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Create Visualization
+                        </a>
+                        <a href="{% url 'viz_app:create_dashboard' %}"
+                           class="btn btn-outline-primary ms-2">
+                            <i class="fas fa-th-large"></i> Create Dashboard
+                        </a>
+                    </div>
                 </div>
-                <div>
-                    <a href="{% url 'viz_app:create_visualization' %}" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Create Visualization
-                    </a>
-                    <a href="{% url 'viz_app:create_dashboard' %}" class="btn btn-outline-primary ms-2">
-                        <i class="fas fa-th-large"></i> Create Dashboard
-                    </a>
+            </div>
+        </div>
+        <!-- Stats Row -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <div class="stats-number">{{ total_visualizations }}</div>
+                    <div>Total Visualizations</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card"
+                     style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%)">
+                    <div class="stats-number">{{ published_count }}</div>
+                    <div>Published</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card"
+                     style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)">
+                    <div class="stats-number">{{ analytics.total_views|default:0 }}</div>
+                    <div>Total Views</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card"
+                     style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)">
+                    <div class="stats-number">{{ dashboards.count }}</div>
+                    <div>Dashboards</div>
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Stats Row -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="stats-card">
-                <div class="stats-number">{{ total_visualizations }}</div>
-                <div>Total Visualizations</div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="stats-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-                <div class="stats-number">{{ published_count }}</div>
-                <div>Published</div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="stats-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-                <div class="stats-number">{{ analytics.total_views|default:0 }}</div>
-                <div>Total Views</div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="stats-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
-                <div class="stats-number">{{ dashboards.count }}</div>
-                <div>Dashboards</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Quick Actions -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Quick Actions</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-3">
-                            <a href="{% url 'viz_app:create_visualization' %}?type=basic" class="btn btn-outline-primary w-100 mb-2">
-                                <i class="fas fa-chart-line"></i><br>Line Chart
-                            </a>
-                        </div>
-                        <div class="col-md-3">
-                            <a href="{% url 'viz_app:create_visualization' %}?type=bar" class="btn btn-outline-success w-100 mb-2">
-                                <i class="fas fa-chart-bar"></i><br>Bar Chart
-                            </a>
-                        </div>
-                        <div class="col-md-3">
-                            <a href="{% url 'viz_app:create_visualization' %}?type=scatter" class="btn btn-outline-info w-100 mb-2">
-                                <i class="fas fa-chart-scatter"></i><br>Scatter Plot
-                            </a>
-                        </div>
-                        <div class="col-md-3">
-                            <a href="{% url 'viz_app:data_source_management' %}" class="btn btn-outline-warning w-100 mb-2">
-                                <i class="fas fa-database"></i><br>Data Sources
-                            </a>
+        <!-- Quick Actions -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Quick Actions</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <a href="{% url 'viz_app:create_visualization' %}?type=basic"
+                                   class="btn btn-outline-primary w-100 mb-2">
+                                    <i class="fas fa-chart-line"></i>
+                                    <br />
+                                    Line Chart
+                                </a>
+                            </div>
+                            <div class="col-md-3">
+                                <a href="{% url 'viz_app:create_visualization' %}?type=bar"
+                                   class="btn btn-outline-success w-100 mb-2">
+                                    <i class="fas fa-chart-bar"></i>
+                                    <br />
+                                    Bar Chart
+                                </a>
+                            </div>
+                            <div class="col-md-3">
+                                <a href="{% url 'viz_app:create_visualization' %}?type=scatter"
+                                   class="btn btn-outline-info w-100 mb-2">
+                                    <i class="fas fa-chart-scatter"></i>
+                                    <br />
+                                    Scatter Plot
+                                </a>
+                            </div>
+                            <div class="col-md-3">
+                                <a href="{% url 'viz_app:data_source_management' %}"
+                                   class="btn btn-outline-warning w-100 mb-2">
+                                    <i class="fas fa-database"></i>
+                                    <br />
+                                    Data Sources
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-
-    <div class="row">
-        <!-- Recent Visualizations -->
-        <div class="col-lg-8">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Recent Visualizations</h5>
-                    <div class="btn-group" role="group">
-                        <input type="radio" class="btn-check" name="view-mode" id="grid-view" checked>
-                        <label class="btn btn-outline-secondary btn-sm" for="grid-view">
-                            <i class="fas fa-th"></i>
-                        </label>
-                        <input type="radio" class="btn-check" name="view-mode" id="list-view">
-                        <label class="btn btn-outline-secondary btn-sm" for="list-view">
-                            <i class="fas fa-list"></i>
-                        </label>
+        <div class="row">
+            <!-- Recent Visualizations -->
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Recent Visualizations</h5>
+                        <div class="btn-group" role="group">
+                            <input type="radio"
+                                   class="btn-check"
+                                   name="view-mode"
+                                   id="grid-view"
+                                   checked />
+                            <label class="btn btn-outline-secondary btn-sm" for="grid-view">
+                                <i class="fas fa-th"></i>
+                            </label>
+                            <input type="radio" class="btn-check" name="view-mode" id="list-view" />
+                            <label class="btn btn-outline-secondary btn-sm" for="list-view">
+                                <i class="fas fa-list"></i>
+                            </label>
+                        </div>
                     </div>
-                </div>
-                <div class="card-body">
-                    {% if page_obj %}
-                        <div id="visualizations-grid" class="row">
-                            {% for viz in page_obj %}
-                                <div class="col-lg-6 col-xl-4 mb-4">
-                                    <div class="viz-card">
-                                        <div class="viz-preview">
-                                            <i class="fas fa-chart-{{ viz.visualization_type.name|lower }} fa-3x"></i>
-                                        </div>
-                                        <div class="card-body p-3">
-                                            <h6 class="card-title mb-1">{{ viz.title|truncatechars:30 }}</h6>
-                                            <p class="card-text text-muted small mb-2">
-                                                {{ viz.visualization_type.display_name }}
-                                            </p>
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <small class="text-muted">
-                                                    <i class="fas fa-eye"></i> {{ viz.view_count }}
-                                                    <span class="ms-2">
-                                                        <i class="fas fa-calendar"></i> {{ viz.updated_at|date:"M d" }}
-                                                    </span>
-                                                </small>
-                                                <div class="btn-group btn-group-sm">
-                                                    <a href="{% url 'viz_app:view_visualization' viz.pk %}" 
-                                                       class="btn btn-outline-primary btn-sm">
-                                                        <i class="fas fa-eye"></i>
-                                                    </a>
-                                                    <a href="{% url 'viz_app:edit_visualization' viz.pk %}" 
-                                                       class="btn btn-outline-secondary btn-sm">
-                                                        <i class="fas fa-edit"></i>
-                                                    </a>
-                                                </div>
+                    <div class="card-body">
+                        {% if page_obj %}
+                            <div id="visualizations-grid" class="row">
+                                {% for viz in page_obj %}
+                                    <div class="col-lg-6 col-xl-4 mb-4">
+                                        <div class="viz-card">
+                                            <div class="viz-preview">
+                                                <i class="fas fa-chart-{{ viz.visualization_type.name|lower }} fa-3x"></i>
                                             </div>
-                                            <div class="mt-2">
-                                                <span class="badge bg-{{ viz.status|yesno:'success,warning,secondary' }}">
-                                                    {{ viz.get_status_display }}
-                                                </span>
-                                                {% if viz.is_public %}
-                                                    <span class="badge bg-info">Public</span>
-                                                {% endif %}
+                                            <div class="card-body p-3">
+                                                <h6 class="card-title mb-1">{{ viz.title|truncatechars:30 }}</h6>
+                                                <p class="card-text text-muted small mb-2">{{ viz.visualization_type.display_name }}</p>
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-eye"></i> {{ viz.view_count }}
+                                                        <span class="ms-2">
+                                                            <i class="fas fa-calendar"></i> {{
+                                                            viz.updated_at|date:"M d" }}
+                                                        </span>
+                                                    </small>
+                                                    <div class="btn-group btn-group-sm">
+                                                        <a href="{% url 'viz_app:view_visualization' viz.pk %}"
+                                                           class="btn btn-outline-primary btn-sm">
+                                                            <i class="fas fa-eye"></i>
+                                                        </a>
+                                                        <a href="{% url 'viz_app:edit_visualization' viz.pk %}"
+                                                           class="btn btn-outline-secondary btn-sm">
+                                                            <i class="fas fa-edit"></i>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                                <div class="mt-2">
+                                                    <span class="badge bg-{{ viz.status|yesno:'success,warning,secondary' }}">{{ viz.get_status_display }}</span>
+                                                    {% if viz.is_public %}<span class="badge bg-info">Public</span>{% endif %}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            {% endfor %}
-                        </div>
-
-                        <!-- Pagination -->
-                        {% if page_obj.has_other_pages %}
-                            <nav aria-label="Visualizations pagination">
-                                <ul class="pagination justify-content-center">
-                                    {% if page_obj.has_previous %}
-                                        <li class="page-item">
-                                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
-                                        </li>
-                                    {% endif %}
-                                    {% for num in page_obj.paginator.page_range %}
-                                        {% if page_obj.number == num %}
-                                            <li class="page-item active">
-                                                <span class="page-link">{{ num }}</span>
-                                            </li>
-                                        {% else %}
+                                {% endfor %}
+                            </div>
+                            <!-- Pagination -->
+                            {% if page_obj.has_other_pages %}
+                                <nav aria-label="Visualizations pagination">
+                                    <ul class="pagination justify-content-center">
+                                        {% if page_obj.has_previous %}
                                             <li class="page-item">
-                                                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
                                             </li>
                                         {% endif %}
-                                    {% endfor %}
-                                    {% if page_obj.has_next %}
-                                        <li class="page-item">
-                                            <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
-                                        </li>
-                                    {% endif %}
-                                </ul>
-                            </nav>
+                                        {% for num in page_obj.paginator.page_range %}
+                                            {% if
+                                                page_obj.number == num %}
+                                                <li class="page-item active">
+                                                    <span class="page-link">{{ num }}</span>
+                                                </li>
+                                            {% else %}
+                                                <li class="page-item">
+                                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                                </li>
+                                            {% endif %}
+                                        {% endfor %}
+                                        {% if page_obj.has_next %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                                            </li>
+                                        {% endif %}
+                                    </ul>
+                                </nav>
+                            {% endif %}
+                        {% else %}
+                            <div class="text-center py-5">
+                                <i class="fas fa-chart-line fa-4x text-muted mb-3"></i>
+                                <h5>No visualizations yet</h5>
+                                <p class="text-muted">Create your first visualization to get started</p>
+                                <a href="{% url 'viz_app:create_visualization' %}"
+                                   class="btn btn-primary">
+                                    <i class="fas fa-plus"></i> Create Visualization
+                                </a>
+                            </div>
                         {% endif %}
-                    {% else %}
-                        <div class="text-center py-5">
-                            <i class="fas fa-chart-line fa-4x text-muted mb-3"></i>
-                            <h5>No visualizations yet</h5>
-                            <p class="text-muted">Create your first visualization to get started</p>
-                            <a href="{% url 'viz_app:create_visualization' %}" class="btn btn-primary">
-                                <i class="fas fa-plus"></i> Create Visualization
-                            </a>
-                        </div>
-                    {% endif %}
+                    </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Sidebar -->
-        <div class="col-lg-4">
-            <!-- Dashboards -->
-            <div class="card mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0">Recent Dashboards</h6>
-                    <a href="{% url 'viz_app:dashboard_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
-                </div>
-                <div class="card-body">
-                    {% if dashboards %}
-                        {% for dashboard in dashboards %}
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <div>
-                                    <div class="fw-bold">{{ dashboard.title|truncatechars:25 }}</div>
-                                    <small class="text-muted">{{ dashboard.viz_count }} visualizations</small>
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Dashboards -->
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">Recent Dashboards</h6>
+                        <a href="{% url 'viz_app:dashboard_list' %}"
+                           class="btn btn-sm btn-outline-primary">View All</a>
+                    </div>
+                    <div class="card-body">
+                        {% if dashboards %}
+                            {% for dashboard in dashboards %}
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div>
+                                        <div class="fw-bold">{{ dashboard.title|truncatechars:25 }}</div>
+                                        <small class="text-muted">{{ dashboard.viz_count }} visualizations</small>
+                                    </div>
+                                    <a href="#" class="btn btn-sm btn-outline-secondary">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
                                 </div>
-                                <a href="#" class="btn btn-sm btn-outline-secondary">
-                                    <i class="fas fa-external-link-alt"></i>
-                                </a>
-                            </div>
-                        {% endfor %}
-                    {% else %}
-                        <p class="text-muted">No dashboards created yet</p>
-                    {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-muted">No dashboards created yet</p>
+                        {% endif %}
+                    </div>
                 </div>
-            </div>
-
-            <!-- Shared with Me -->
-            <div class="card">
-                <div class="card-header">
-                    <h6 class="mb-0">Shared with Me</h6>
-                </div>
-                <div class="card-body">
-                    {% if shared_with_me %}
-                        {% for share in shared_with_me %}
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <div>
-                                    <div class="fw-bold">{{ share.visualization.title|truncatechars:25 }}</div>
-                                    <small class="text-muted">by {{ share.shared_by.username }}</small>
+                <!-- Shared with Me -->
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0">Shared with Me</h6>
+                    </div>
+                    <div class="card-body">
+                        {% if shared_with_me %}
+                            {% for share in shared_with_me %}
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div>
+                                        <div class="fw-bold">{{ share.visualization.title|truncatechars:25 }}</div>
+                                        <small class="text-muted">by {{ share.shared_by.username }}</small>
+                                    </div>
+                                    <a href="{% url 'viz_app:view_visualization' share.visualization.pk %}"
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
                                 </div>
-                                <a href="{% url 'viz_app:view_visualization' share.visualization.pk %}" 
-                                   class="btn btn-sm btn-outline-primary">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                            </div>
-                        {% endfor %}
-                    {% else %}
-                        <p class="text-muted">No visualizations shared with you</p>
-                    {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-muted">No visualizations shared with you</p>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 {% endblock %}
-
 {% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/plotly.js@2.18.0/dist/plotly.min.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
+    <script src="https://cdn.jsdelivr.net/npm/plotly.js@2.18.0/dist/plotly.min.js"></script>
+    <script>
+  document.addEventListener("DOMContentLoaded", function () {
     // View mode toggle
-    const gridView = document.getElementById('grid-view');
-    const listView = document.getElementById('list-view');
-    const visualizationsGrid = document.getElementById('visualizations-grid');
-    
-    listView.addEventListener('change', function() {
-        if (this.checked) {
-            visualizationsGrid.className = 'row';
-            visualizationsGrid.querySelectorAll('.col-lg-6').forEach(col => {
-                col.className = 'col-12 mb-2';
-            });
-        }
+    const gridView = document.getElementById("grid-view");
+    const listView = document.getElementById("list-view");
+    const visualizationsGrid = document.getElementById("visualizations-grid");
+
+    listView.addEventListener("change", function () {
+      if (this.checked) {
+        visualizationsGrid.className = "row";
+        visualizationsGrid.querySelectorAll(".col-lg-6").forEach((col) => {
+          col.className = "col-12 mb-2";
+        });
+      }
     });
-    
-    gridView.addEventListener('change', function() {
-        if (this.checked) {
-            visualizationsGrid.className = 'row';
-            visualizationsGrid.querySelectorAll('.col-12').forEach(col => {
-                col.className = 'col-lg-6 col-xl-4 mb-4';
-            });
-        }
+
+    gridView.addEventListener("change", function () {
+      if (this.checked) {
+        visualizationsGrid.className = "row";
+        visualizationsGrid.querySelectorAll(".col-12").forEach((col) => {
+          col.className = "col-lg-6 col-xl-4 mb-4";
+        });
+      }
     });
-});
-</script>
+  });
+    </script>
 {% endblock %}

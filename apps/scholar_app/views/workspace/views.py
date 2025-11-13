@@ -1,4 +1,5 @@
 """Default workspace views for Scholar app."""
+
 from django.shortcuts import render
 from apps.project_app.services.anonymous_storage import get_anonymous_storage_path
 
@@ -21,16 +22,16 @@ def guest_session_view(request, username):
         display_username = request.user.username
 
     context = {
-        'is_guest_session': True,
-        'guest_username': username,
-        'is_anonymous': is_anonymous,
-        'storage_path': storage_path,
-        'display_username': display_username,
-        'module_name': 'Scholar',
-        'module_icon': 'fa-search',
-        'show_save_prompt': is_anonymous,  # Show "Sign up to save" prompts
+        "is_guest_session": True,
+        "guest_username": username,
+        "is_anonymous": is_anonymous,
+        "storage_path": storage_path,
+        "display_username": display_username,
+        "module_name": "Scholar",
+        "module_icon": "fa-search",
+        "show_save_prompt": is_anonymous,  # Show "Sign up to save" prompts
     }
-    return render(request, 'scholar_app/default_workspace.html', context)
+    return render(request, "scholar_app/default_workspace.html", context)
 
 
 def user_default_workspace(request):
@@ -53,13 +54,13 @@ def user_default_workspace(request):
         display_username = username
 
     context = {
-        'is_guest_session': False,
-        'is_anonymous': is_anonymous,
-        'username': username,
-        'display_username': display_username,
-        'storage_path': storage_path,
-        'module_name': 'Scholar',
-        'module_icon': 'fa-search',
-        'show_save_prompt': is_anonymous,  # Show "Sign up to save" prompts
+        "is_guest_session": False,
+        "is_anonymous": is_anonymous,
+        "username": username,
+        "display_username": display_username,
+        "storage_path": storage_path,
+        "module_name": "Scholar",
+        "module_icon": "fa-search",
+        "show_save_prompt": is_anonymous,  # Show "Sign up to save" prompts
     }
-    return render(request, 'scholar_app/default_workspace.html', context)
+    return render(request, "scholar_app/default_workspace.html", context)

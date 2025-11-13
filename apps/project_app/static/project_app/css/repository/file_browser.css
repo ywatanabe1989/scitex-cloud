@@ -2,70 +2,69 @@
 /* PROJECT_FILES */
 /* ============================================================================= */
 
-
 .file-manager {
-    border: 1px solid #e5e5e5;
-    border-radius: 8px;
-    background: white;
-    min-height: 600px;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  background: white;
+  min-height: 600px;
 }
 
 .file-manager-header {
-    padding: 1rem;
-    border-bottom: 1px solid #e5e5e5;
-    background: #f8f9fa;
-    border-radius: 8px 8px 0 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid #e5e5e5;
+  background: #f8f9fa;
+  border-radius: 8px 8px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .file-manager-toolbar {
-    padding: 1rem;
-    border-bottom: 1px solid #e5e5e5;
-    display: flex;
-    gap: 1rem;
-    align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid #e5e5e5;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
 }
 
 .file-manager-content {
-    padding: 1rem;
+  padding: 1rem;
 }
 
 .file-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 1rem;
-    margin-top: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
 }
 
 .file-item {
-    border: 1px solid #e5e5e5;
-    border-radius: 6px;
-    padding: 1rem;
-    text-align: center;
-    transition: border-color 0.2s ease;
-    cursor: pointer;
+  border: 1px solid #e5e5e5;
+  border-radius: 6px;
+  padding: 1rem;
+  text-align: center;
+  transition: border-color 0.2s ease;
+  cursor: pointer;
 }
 
 .file-item:hover {
-    border-color: #007acc;
+  border-color: #007acc;
 }
 
 .file-icon {
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
 }
 
 .file-name {
-    font-weight: 500;
-    margin-bottom: 0.25rem;
-    word-break: break-word;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+  word-break: break-word;
 }
 
 .file-meta {
-    font-size: 0.85rem;
-    color: #666;
+  font-size: 0.85rem;
+  color: #666;
 }
 
 /* ============================================================================= */
@@ -74,158 +73,157 @@
 
 /* File table container */
 .file-table {
-    width: 100%;
-    border-collapse: collapse;
-    border: 1px solid var(--color-border-default, #d0d7de);
-    border-radius: 6px;
-    overflow: hidden;
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid var(--color-border-default, #d0d7de);
+  border-radius: 6px;
+  overflow: hidden;
 }
 
 /* Table header */
 .file-table thead {
-    background-color: var(--color-canvas-subtle, #f6f8fa);
+  background-color: var(--color-canvas-subtle, #f6f8fa);
 }
 
 .file-table thead th {
-    padding: 8px 16px;
-    text-align: left;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--color-fg-muted, #57606a);
-    border-bottom: 1px solid var(--color-border-default, #d0d7de);
+  padding: 8px 16px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-fg-muted, #57606a);
+  border-bottom: 1px solid var(--color-border-default, #d0d7de);
 }
 
 /* Table body */
 .file-table tbody tr {
-    border-bottom: 1px solid var(--color-border-muted, #d0d7de);
-    transition: background-color 0.15s ease-out, box-shadow 0.15s ease-out;
+  border-bottom: 1px solid var(--color-border-muted, #d0d7de);
+  transition:
+    background-color 0.15s ease-out,
+    box-shadow 0.15s ease-out;
 }
 
 .file-table tbody tr:last-child {
-    border-bottom: none;
+  border-bottom: none;
 }
 
 /* Row hover effect - GitHub-style subtle background change */
 .file-table tbody tr:hover {
-    background-color: var(--color-canvas-subtle, #f6f8fa);
-    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.03);
+  background-color: var(--color-canvas-subtle, #f6f8fa);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.03);
 }
 
 /* Table cells */
 .file-table tbody td {
-    padding: 8px 16px;
-    vertical-align: middle;
-    font-size: 14px;
+  padding: 8px 16px;
+  vertical-align: middle;
+  font-size: 14px;
 }
 
 /* File icon cell */
 .file-table-icon {
-    width: 24px;
-    padding-right: 8px;
+  width: 24px;
+  padding-right: 8px;
 }
 
 .file-table-icon svg,
 .file-table-icon img {
-    width: 16px;
-    height: 16px;
-    vertical-align: text-bottom;
+  width: 16px;
+  height: 16px;
+  vertical-align: text-bottom;
 }
 
 /* File name cell */
 .file-table-name {
-    font-weight: 500;
-    color: var(--color-accent-fg, #0969da);
-    cursor: pointer;
+  font-weight: 500;
+  color: var(--color-accent-fg, #0969da);
+  cursor: pointer;
 }
 
 .file-table-name:hover {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
 /* File metadata cell */
 .file-table-meta {
-    color: var(--color-fg-muted, #57606a);
-    font-size: 12px;
-    width: 200px;
+  color: var(--color-fg-muted, #57606a);
+  font-size: 12px;
+  width: 200px;
 }
 
 /* File size cell */
 .file-table-size {
-    color: var(--color-fg-muted, #57606a);
-    font-size: 12px;
-    width: 100px;
-    text-align: right;
+  color: var(--color-fg-muted, #57606a);
+  font-size: 12px;
+  width: 100px;
+  text-align: right;
 }
 
 /* Make entire row clickable */
 .file-table tbody tr {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 /* Dark theme support */
 [data-theme="dark"] .file-table {
-    border-color: var(--color-border-default, #30363d);
+  border-color: var(--color-border-default, #30363d);
 }
 
 [data-theme="dark"] .file-table thead {
-    background-color: var(--color-canvas-subtle, #161b22);
+  background-color: var(--color-canvas-subtle, #161b22);
 }
 
 [data-theme="dark"] .file-table thead th {
-    color: var(--color-fg-muted, #8b949e);
-    border-bottom-color: var(--color-border-default, #30363d);
+  color: var(--color-fg-muted, #8b949e);
+  border-bottom-color: var(--color-border-default, #30363d);
 }
 
 [data-theme="dark"] .file-table tbody tr {
-    border-bottom-color: var(--color-border-muted, #21262d);
+  border-bottom-color: var(--color-border-muted, #21262d);
 }
 
 [data-theme="dark"] .file-table tbody tr:hover {
-    background-color: var(--color-canvas-subtle, #161b22);
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  background-color: var(--color-canvas-subtle, #161b22);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
 }
 
 [data-theme="dark"] .file-table-name {
-    color: var(--color-accent-fg, #58a6ff);
+  color: var(--color-accent-fg, #58a6ff);
 }
 
 [data-theme="dark"] .file-table-meta,
 [data-theme="dark"] .file-table-size {
-    color: var(--color-fg-muted, #8b949e);
+  color: var(--color-fg-muted, #8b949e);
 }
 
 .breadcrumb {
-    margin-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .breadcrumb a {
-    color: #007acc;
-    text-decoration: none;
+  color: #007acc;
+  text-decoration: none;
 }
 
 .breadcrumb a:hover {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
 .upload-zone {
-    border: 2px dashed #ddd;
-    border-radius: 8px;
-    padding: 2rem;
-    text-align: center;
-    margin-bottom: 2rem;
-    background: #fafafa;
+  border: 2px dashed #ddd;
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+  margin-bottom: 2rem;
+  background: #fafafa;
 }
 
 .upload-zone.dragover {
-    border-color: #007acc;
-    background: #f0f8ff;
+  border-color: #007acc;
+  background: #f0f8ff;
 }
 
 .empty-state {
-    text-align: center;
-    padding: 3rem;
-    color: #666;
+  text-align: center;
+  padding: 3rem;
+  color: #666;
 }
-
-
-

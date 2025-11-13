@@ -2,6 +2,6 @@ from django.apps import AppConfig
 
 
 class VizAppConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'apps.viz_app'
-    verbose_name = 'Viz'
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "apps.viz_app"
+    verbose_name = "Viz"

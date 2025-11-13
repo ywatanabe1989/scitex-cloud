@@ -5,6 +5,7 @@ Workflow Utilities
 
 Helper functions for workflow management.
 """
+
 from pathlib import Path
 import logging
 
@@ -14,7 +15,7 @@ logger = logging.getLogger(__name__)
 def get_workflow_template(template_name):
     """Get workflow template YAML content"""
     templates = {
-        'python-test': '''name: Python Tests
+        "python-test": """name: Python Tests
 on:
   push:
     branches: [ main, develop ]
@@ -41,8 +42,8 @@ jobs:
       - name: Run tests
         run: |
           pytest tests/ -v
-''',
-        'latex-build': '''name: LaTeX Build
+""",
+        "latex-build": """name: LaTeX Build
 on:
   push:
     branches: [ main ]
@@ -70,8 +71,8 @@ jobs:
         with:
           name: manuscript
           path: scitex/writer/00_shared/main.pdf
-''',
-        'code-lint': '''name: Code Linting
+""",
+        "code-lint": """name: Code Linting
 on:
   push:
     branches: [ main, develop ]
@@ -101,8 +102,8 @@ jobs:
 
       - name: Run mypy
         run: mypy . --ignore-missing-imports
-''',
-        'docker-build': '''name: Docker Build
+""",
+        "docker-build": """name: Docker Build
 on:
   push:
     branches: [ main ]
@@ -126,45 +127,47 @@ jobs:
       - name: Test Docker image
         run: |
           docker run myapp:latest pytest
-''',
+""",
     }
 
-    return templates.get(template_name, '')
+    return templates.get(template_name, "")
 
 
 def get_available_templates():
     """Get list of available workflow templates"""
     return [
         {
-            'id': 'python-test',
-            'name': 'Python Tests',
-            'description': 'Run pytest tests on push and pull requests',
-            'icon': 'python',
+            "id": "python-test",
+            "name": "Python Tests",
+            "description": "Run pytest tests on push and pull requests",
+            "icon": "python",
         },
         {
-            'id': 'latex-build',
-            'name': 'LaTeX Build',
-            'description': 'Compile LaTeX documents and generate PDFs',
-            'icon': 'document',
+            "id": "latex-build",
+            "name": "LaTeX Build",
+            "description": "Compile LaTeX documents and generate PDFs",
+            "icon": "document",
         },
         {
-            'id': 'code-lint',
-            'name': 'Code Linting',
-            'description': 'Run black, flake8, and mypy for code quality',
-            'icon': 'check',
+            "id": "code-lint",
+            "name": "Code Linting",
+            "description": "Run black, flake8, and mypy for code quality",
+            "icon": "check",
         },
         {
-            'id': 'docker-build',
-            'name': 'Docker Build',
-            'description': 'Build and test Docker images',
-            'icon': 'container',
+            "id": "docker-build",
+            "name": "Docker Build",
+            "description": "Build and test Docker images",
+            "icon": "container",
         },
     ]
 
 
 def save_workflow_to_filesystem(workflow):
     """Save workflow YAML to project filesystem"""
-    from apps.project_app.services.project_filesystem import get_project_filesystem_manager
+    from apps.project_app.services.project_filesystem import (
+        get_project_filesystem_manager,
+    )
 
     try:
         manager = get_project_filesystem_manager(workflow.project.owner)
@@ -175,7 +178,7 @@ def save_workflow_to_filesystem(workflow):
             return False
 
         # Create .scitex/workflows directory
-        workflows_dir = project_path / '.scitex' / 'workflows'
+        workflows_dir = project_path / ".scitex" / "workflows"
         workflows_dir.mkdir(parents=True, exist_ok=True)
 
         # Save workflow YAML
@@ -192,7 +195,9 @@ def save_workflow_to_filesystem(workflow):
 
 def delete_workflow_from_filesystem(project, workflow):
     """Delete workflow YAML from project filesystem"""
-    from apps.project_app.services.project_filesystem import get_project_filesystem_manager
+    from apps.project_app.services.project_filesystem import (
+        get_project_filesystem_manager,
+    )
 
     try:
         manager = get_project_filesystem_manager(project.owner)

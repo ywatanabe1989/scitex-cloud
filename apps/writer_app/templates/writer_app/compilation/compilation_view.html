@@ -1,52 +1,43 @@
 {% extends "writer_app/base/app_base.html" %}
 {% load static %}
-
 {% comment %}
-Compilation history and status view
-{% endcomment %}
-
+Compilation history and status view {% endcomment %}
 {% block writer_css %}
-<link rel="stylesheet" href="{% static 'writer_app/css/compilation/compilation_view.css' %}">
+    <link rel="stylesheet"
+          href="{% static 'writer_app/css/compilation/compilation_view.css' %}" />
 {% endblock %}
-
 {% block writer_sidebar %}
-{% include "writer_app/shared/_sidebar.html" %}
+    {% include
+    "writer_app/shared/_sidebar.html" %}
 {% endblock %}
-
 {% block writer_content %}
-<div class="compilation-container">
-    <header class="compilation-header">
-        <h2>Compilation History</h2>
-        <button class="btn-primary" id="btn-new-compilation">New Compilation</button>
-    </header>
-
-    <div class="compilation-list">
-        {% if compilations %}
-            {% for compilation in compilations %}
-            <div class="compilation-item" data-job-id="{{ compilation.job_id }}">
-                <div class="compilation-info">
-                    <span class="compilation-time">{{ compilation.created_at }}</span>
-                    <span class="compilation-status status-{{ compilation.status }}">
-                        {{ compilation.status }}
-                    </span>
-                </div>
-                <div class="compilation-actions">
-                    {% if compilation.status == 'completed' %}
-                    <a href="{{ compilation.pdf_url }}" class="btn-download">Download PDF</a>
-                    {% endif %}
-                    <button class="btn-view-log" data-job-id="{{ compilation.job_id }}">
-                        View Log
-                    </button>
-                </div>
-            </div>
-            {% endfor %}
-        {% else %}
-            <p class="empty-message">No compilations yet. Start by compiling your manuscript.</p>
-        {% endif %}
+    <div class="compilation-container">
+        <header class="compilation-header">
+            <h2>Compilation History</h2>
+            <button class="btn-primary" id="btn-new-compilation">New Compilation</button>
+        </header>
+        <div class="compilation-list">
+            {% if compilations %}
+                {% for compilation in compilations %}
+                    <div class="compilation-item" data-job-id="{{ compilation.job_id }}">
+                        <div class="compilation-info">
+                            <span class="compilation-time">{{ compilation.created_at }}</span>
+                            <span class="compilation-status status-{{ compilation.status }}">{{ compilation.status }}</span>
+                        </div>
+                        <div class="compilation-actions">
+                            {% if compilation.status == 'completed' %}
+                                <a href="{{ compilation.pdf_url }}" class="btn-download">Download PDF</a>
+                            {% endif %}
+                            <button class="btn-view-log" data-job-id="{{ compilation.job_id }}">View Log</button>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p class="empty-message">No compilations yet. Start by compiling your manuscript.</p>
+            {% endif %}
+        </div>
     </div>
-</div>
 {% endblock %}
-
 {% block writer_js %}
-<script src="{% static 'writer_app/js/compilation/compilation.js' %}"></script>
+    <script src="{% static 'writer_app/js/compilation/compilation.js' %}"></script>
 {% endblock %}

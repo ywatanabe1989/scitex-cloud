@@ -67,7 +67,9 @@ class WriterService:
             from apps.project_app.models import Project
 
             project = Project.objects.get(id=self.project_id)
-            logger.info(f"WriterService: Creating Writer instance for project {self.project_id} at {self.writer_dir}")
+            logger.info(
+                f"WriterService: Creating Writer instance for project {self.project_id} at {self.writer_dir}"
+            )
 
             # NOTE: No need to create parent directories here!
             # scitex.template._clone_project now handles mkdir -p for parent directories.
@@ -75,8 +77,8 @@ class WriterService:
 
             # Get template version from Django settings
             # These are read from SCITEX_WRITER_TEMPLATE_BRANCH and SCITEX_WRITER_TEMPLATE_TAG env vars
-            template_branch = getattr(settings, 'SCITEX_WRITER_TEMPLATE_BRANCH', None)
-            template_tag = getattr(settings, 'SCITEX_WRITER_TEMPLATE_TAG', None)
+            template_branch = getattr(settings, "SCITEX_WRITER_TEMPLATE_BRANCH", None)
+            template_tag = getattr(settings, "SCITEX_WRITER_TEMPLATE_TAG", None)
 
             # Convert "null" string to None (from environment variables)
             if template_branch == "null":
@@ -84,7 +86,9 @@ class WriterService:
             if template_tag == "null":
                 template_tag = None
 
-            logger.info(f"WriterService: Using template version - branch: {template_branch}, tag: {template_tag}")
+            logger.info(
+                f"WriterService: Using template version - branch: {template_branch}, tag: {template_tag}"
+            )
 
             try:
                 # IMPORTANT: Do NOT pass 'name' parameter to Writer
@@ -117,7 +121,10 @@ class WriterService:
                 )
                 logger.info(f"WriterService: Writer instance created successfully")
             except Exception as e:
-                logger.error(f"WriterService: Failed to create Writer instance: {e}", exc_info=True)
+                logger.error(
+                    f"WriterService: Failed to create Writer instance: {e}",
+                    exc_info=True,
+                )
                 raise RuntimeError(f"Failed to initialize Writer: {e}") from e
 
         return self._writer
@@ -135,16 +142,22 @@ class WriterService:
             Section content as string
         """
         try:
-            logger.info(f"[ReadSection] section_name={section_name}, doc_type={doc_type}")
+            logger.info(
+                f"[ReadSection] section_name={section_name}, doc_type={doc_type}"
+            )
 
             # Special handling for compiled sections (not applicable to shared)
             if section_name == "compiled_pdf" or section_name == "compiled_tex":
                 if doc_type == "shared":
-                    logger.warning("[ReadSection] Compiled sections not available for 'shared' doc_type")
+                    logger.warning(
+                        "[ReadSection] Compiled sections not available for 'shared' doc_type"
+                    )
                     return ""
                 logger.info(f"[ReadSection] Reading compiled tex for {doc_type}")
                 content = self._read_compiled_tex(doc_type)
-                logger.info(f"[ReadSection] Compiled tex length: {len(content)}, first 100 chars: {content[:100]}")
+                logger.info(
+                    f"[ReadSection] Compiled tex length: {len(content)}, first 100 chars: {content[:100]}"
+                )
                 return content
 
             # Get the appropriate document tree
@@ -159,7 +172,9 @@ class WriterService:
             elif doc_type == "manuscript":
                 doc = self.writer.manuscript
                 if not hasattr(doc.contents, section_name):
-                    logger.info(f"Section {section_name} not found for {doc_type}: ManuscriptContents does not have attribute '{section_name}'")
+                    logger.info(
+                        f"Section {section_name} not found for {doc_type}: ManuscriptContents does not have attribute '{section_name}'"
+                    )
                     return ""
                 section = getattr(doc.contents, section_name)
             elif doc_type == "supplementary":
@@ -181,7 +196,7 @@ class WriterService:
 
             # Convert to string if it's a list (from scitex.io.load)
             if isinstance(content, list):
-                content = '\n'.join(content)
+                content = "\n".join(content)
             elif content is None:
                 content = ""
 
@@ -227,7 +242,7 @@ class WriterService:
 
         # Read and return the compiled TeX
         try:
-            with open(compiled_tex_path, 'r', encoding='utf-8') as f:
+            with open(compiled_tex_path, "r", encoding="utf-8") as f:
                 return f.read()
         except Exception as e:
             logger.error(f"Error reading compiled TeX: {e}")
@@ -271,9 +286,9 @@ class WriterService:
 
             # Get template content from the section's template
             # The Writer class should have a method or property to access template content
-            if hasattr(section, 'template'):
+            if hasattr(section, "template"):
                 return section.template
-            elif hasattr(section, 'get_template'):
+            elif hasattr(section, "get_template"):
                 return section.get_template()
             else:
                 # Fallback: return empty string with comment
@@ -281,7 +296,9 @@ class WriterService:
                 return f"% Template for {section_name}\n\n"
 
         except Exception as e:
-            logger.error(f"Error getting template content for {section_name}: {e}", exc_info=True)
+            logger.error(
+                f"Error getting template content for {section_name}: {e}", exc_info=True
+            )
             return None
 
     def write_section(
@@ -307,7 +324,12 @@ class WriterService:
                 doc = self.writer.shared
                 # For shared, sections are at the root level (no .contents)
                 if not hasattr(doc, section_name):
-                    available_sections = [attr for attr in dir(doc) if not attr.startswith('_') and hasattr(getattr(doc, attr), 'path')]
+                    available_sections = [
+                        attr
+                        for attr in dir(doc)
+                        if not attr.startswith("_")
+                        and hasattr(getattr(doc, attr), "path")
+                    ]
                     raise ValueError(
                         f"Section '{section_name}' not found in shared tree. "
                         f"Available sections: {', '.join(available_sections)}"
@@ -316,7 +338,12 @@ class WriterService:
             elif doc_type == "manuscript":
                 doc = self.writer.manuscript
                 if not hasattr(doc.contents, section_name):
-                    available_sections = [attr for attr in dir(doc.contents) if not attr.startswith('_') and hasattr(getattr(doc.contents, attr), 'path')]
+                    available_sections = [
+                        attr
+                        for attr in dir(doc.contents)
+                        if not attr.startswith("_")
+                        and hasattr(getattr(doc.contents, attr), "path")
+                    ]
                     raise ValueError(
                         f"Section '{section_name}' not found in manuscript.contents. "
                         f"Available sections: {', '.join(available_sections)}"
@@ -325,7 +352,12 @@ class WriterService:
             elif doc_type == "supplementary":
                 doc = self.writer.supplementary
                 if not hasattr(doc.contents, section_name):
-                    available_sections = [attr for attr in dir(doc.contents) if not attr.startswith('_') and hasattr(getattr(doc.contents, attr), 'path')]
+                    available_sections = [
+                        attr
+                        for attr in dir(doc.contents)
+                        if not attr.startswith("_")
+                        and hasattr(getattr(doc.contents, attr), "path")
+                    ]
                     raise ValueError(
                         f"Section '{section_name}' not found in supplementary.contents. "
                         f"Available sections: {', '.join(available_sections)}"
@@ -334,7 +366,12 @@ class WriterService:
             elif doc_type == "revision":
                 doc = self.writer.revision
                 if not hasattr(doc.contents, section_name):
-                    available_sections = [attr for attr in dir(doc.contents) if not attr.startswith('_') and hasattr(getattr(doc.contents, attr), 'path')]
+                    available_sections = [
+                        attr
+                        for attr in dir(doc.contents)
+                        if not attr.startswith("_")
+                        and hasattr(getattr(doc.contents, attr), "path")
+                    ]
                     raise ValueError(
                         f"Section '{section_name}' not found in revision.contents. "
                         f"Available sections: {', '.join(available_sections)}"
@@ -348,14 +385,24 @@ class WriterService:
 
             # Verify write succeeded
             if not write_result:
-                expected_path = section.path if hasattr(section, 'path') else f"{doc_type}/contents/{section_name}.tex"
-                raise IOError(f"Failed to write to {section_name} (expected at: {expected_path})")
+                expected_path = (
+                    section.path
+                    if hasattr(section, "path")
+                    else f"{doc_type}/contents/{section_name}.tex"
+                )
+                raise IOError(
+                    f"Failed to write to {section_name} (expected at: {expected_path})"
+                )
 
-            logger.info(f"Successfully wrote {len(content)} chars to {doc_type}/{section_name}")
+            logger.info(
+                f"Successfully wrote {len(content)} chars to {doc_type}/{section_name}"
+            )
             return True
 
         except Exception as e:
-            logger.error(f"Error writing section {doc_type}/{section_name}: {e}", exc_info=True)
+            logger.error(
+                f"Error writing section {doc_type}/{section_name}: {e}", exc_info=True
+            )
             raise
 
     def commit_section(
@@ -376,25 +423,33 @@ class WriterService:
             if doc_type == "shared":
                 doc = self.writer.shared
                 if not hasattr(doc, section_name):
-                    logger.warning(f"Cannot commit non-existent section {section_name} in shared tree")
+                    logger.warning(
+                        f"Cannot commit non-existent section {section_name} in shared tree"
+                    )
                     return False
                 section = getattr(doc, section_name)
             elif doc_type == "manuscript":
                 doc = self.writer.manuscript
                 if not hasattr(doc.contents, section_name):
-                    logger.warning(f"Cannot commit non-existent section {section_name} for {doc_type}")
+                    logger.warning(
+                        f"Cannot commit non-existent section {section_name} for {doc_type}"
+                    )
                     return False
                 section = getattr(doc.contents, section_name)
             elif doc_type == "supplementary":
                 doc = self.writer.supplementary
                 if not hasattr(doc.contents, section_name):
-                    logger.warning(f"Cannot commit non-existent section {section_name} for {doc_type}")
+                    logger.warning(
+                        f"Cannot commit non-existent section {section_name} for {doc_type}"
+                    )
                     return False
                 section = getattr(doc.contents, section_name)
             elif doc_type == "revision":
                 doc = self.writer.revision
                 if not hasattr(doc.contents, section_name):
-                    logger.warning(f"Cannot commit non-existent section {section_name} for {doc_type}")
+                    logger.warning(
+                        f"Cannot commit non-existent section {section_name} for {doc_type}"
+                    )
                     return False
                 section = getattr(doc.contents, section_name)
             else:
@@ -403,9 +458,11 @@ class WriterService:
             logger.info(f"Committing section {section_name} with message: {message}")
 
             # Check if section has commit method
-            if not hasattr(section, 'commit'):
+            if not hasattr(section, "commit"):
                 logger.error(f"Section {section_name} does not have commit method")
-                raise AttributeError(f"Section {section_name} does not support git commits")
+                raise AttributeError(
+                    f"Section {section_name} does not support git commits"
+                )
 
             result = section.commit(message)
             logger.info(f"Commit result for {section_name}: {result}")
@@ -427,7 +484,7 @@ class WriterService:
             Modified LaTeX content with color commands
         """
         # Skip color injection for light mode (default LaTeX colors)
-        if color_mode == 'light':
+        if color_mode == "light":
             return latex_content
 
         # Define dark mode colors - Eye-friendly soft dark gray background with off-white text
@@ -442,16 +499,25 @@ class WriterService:
 """
 
         # Find the position to inject
-        if '\\begin{document}' in latex_content:
+        if "\\begin{document}" in latex_content:
             # Insert right before \begin{document}
-            latex_content = latex_content.replace('\\begin{document}', f'{color_commands}\\begin{{document}}', 1)
+            latex_content = latex_content.replace(
+                "\\begin{document}", f"{color_commands}\\begin{{document}}", 1
+            )
         else:
             # Just prepend if no \begin{document} found
             latex_content = color_commands + latex_content
 
         return latex_content
 
-    def compile_preview(self, latex_content: str, timeout: int = 60, color_mode: str = 'light', section_name: str = 'preview', doc_type: str = 'manuscript') -> dict:
+    def compile_preview(
+        self,
+        latex_content: str,
+        timeout: int = 60,
+        color_mode: str = "light",
+        section_name: str = "preview",
+        doc_type: str = "manuscript",
+    ) -> dict:
         """Compile a quick preview of provided LaTeX content (not from workspace).
 
         This is used for live preview of the current section being edited.
@@ -486,38 +552,48 @@ class WriterService:
 
             # Ensure bibliography is accessible for citations
             # Link bibliography from 00_shared/bib_files to preview directory
-            bib_source = self.writer_dir / "00_shared" / "bib_files" / "bibliography.bib"
+            bib_source = (
+                self.writer_dir / "00_shared" / "bib_files" / "bibliography.bib"
+            )
             bib_link = preview_dir / "bibliography.bib"
             if bib_source.exists() and not bib_link.exists():
                 try:
                     bib_link.symlink_to(bib_source)
-                    logger.info(f"[CompilePreview] Created bibliography symlink for citations")
+                    logger.info(
+                        f"[CompilePreview] Created bibliography symlink for citations"
+                    )
                 except Exception as e:
-                    logger.warning(f"[CompilePreview] Could not create bibliography symlink: {e}")
+                    logger.warning(
+                        f"[CompilePreview] Could not create bibliography symlink: {e}"
+                    )
 
             # Write content to temporary .tex file in .preview directory
             # Include theme in temp filename to avoid conflicts with parallel compilations
             temp_tex = preview_dir / f"preview-{section_name}-{color_mode}-temp.tex"
-            logger.info(f"[CompilePreview] Creating preview file: {temp_tex} for section: {section_name}, theme: {color_mode}")
-            temp_tex.write_text(latex_content, encoding='utf-8')
+            logger.info(
+                f"[CompilePreview] Creating preview file: {temp_tex} for section: {section_name}, theme: {color_mode}"
+            )
+            temp_tex.write_text(latex_content, encoding="utf-8")
 
-            logger.info(f"[CompilePreview] Compiling {color_mode} preview with latexmk ({len(latex_content)} chars) timeout={timeout}s")
+            logger.info(
+                f"[CompilePreview] Compiling {color_mode} preview with latexmk ({len(latex_content)} chars) timeout={timeout}s"
+            )
 
             # Use latexmk for intelligent multi-pass compilation (handles citations automatically)
             # This matches the behavior of full manuscript compilation
             result = subprocess.run(
                 [
                     "latexmk",
-                    "-pdf",                              # Generate PDF output
-                    "-interaction=nonstopmode",          # Don't stop on errors
+                    "-pdf",  # Generate PDF output
+                    "-interaction=nonstopmode",  # Don't stop on errors
                     f"-output-directory={preview_dir}",  # Output to preview directory
-                    "-silent",                           # Reduce verbosity
-                    str(temp_tex)
+                    "-silent",  # Reduce verbosity
+                    str(temp_tex),
                 ],
                 capture_output=True,
                 text=True,
                 timeout=timeout,
-                cwd=str(preview_dir)                     # Run from preview directory for relative paths
+                cwd=str(preview_dir),  # Run from preview directory for relative paths
             )
 
             log_content = result.stdout + result.stderr
@@ -534,12 +610,25 @@ class WriterService:
             # Note: latexmk return code may be non-zero even on successful compilation
             # with -interaction=nonstopmode, so we check for the PDF file instead
             if temp_pdf.exists():
-                logger.info(f"[CompilePreview] {color_mode} PDF compiled successfully with citations at {temp_pdf}")
+                logger.info(
+                    f"[CompilePreview] {color_mode} PDF compiled successfully with citations at {temp_pdf}"
+                )
 
                 # Clean up auxiliary files to keep preview directory tidy
                 # Keep: .pdf, .tex, bibliography.bib (symlink)
                 # Remove: .aux, .log, .fls, .fdb_latexmk, .bbl, .blg, .out, .toc
-                aux_extensions = ['.aux', '.log', '.fls', '.fdb_latexmk', '.bbl', '.blg', '.out', '.toc', '.nav', '.snm']
+                aux_extensions = [
+                    ".aux",
+                    ".log",
+                    ".fls",
+                    ".fdb_latexmk",
+                    ".bbl",
+                    ".blg",
+                    ".out",
+                    ".toc",
+                    ".nav",
+                    ".snm",
+                ]
                 base_name = temp_tex.stem
                 for ext in aux_extensions:
                     aux_file = preview_dir / f"{base_name}{ext}"
@@ -547,13 +636,17 @@ class WriterService:
                         try:
                             aux_file.unlink()
                         except Exception as e:
-                            logger.debug(f"[CompilePreview] Could not remove auxiliary file {aux_file.name}: {e}")
+                            logger.debug(
+                                f"[CompilePreview] Could not remove auxiliary file {aux_file.name}: {e}"
+                            )
 
                 # Rename from temp filename to final filename
                 if temp_pdf != output_pdf:
                     shutil.move(str(temp_pdf), str(output_pdf))
 
-                logger.info(f"WriterService: Preview compilation succeeded for {section_name} ({color_mode}): {output_pdf}")
+                logger.info(
+                    f"WriterService: Preview compilation succeeded for {section_name} ({color_mode}): {output_pdf}"
+                )
 
                 return {
                     "success": True,
@@ -562,7 +655,9 @@ class WriterService:
                     "error": None,
                 }
             else:
-                logger.error(f"WriterService: Preview compilation failed - PDF not found at {temp_pdf}")
+                logger.error(
+                    f"WriterService: Preview compilation failed - PDF not found at {temp_pdf}"
+                )
                 logger.error(f"latexmk return code: {result.returncode}")
                 logger.error(f"latexmk output:\n{log_content}")
                 return {
@@ -581,7 +676,9 @@ class WriterService:
                 "error": f"Compilation timeout",
             }
         except Exception as e:
-            logger.error(f"WriterService: Preview compilation error: {e}", exc_info=True)
+            logger.error(
+                f"WriterService: Preview compilation error: {e}", exc_info=True
+            )
             return {
                 "success": False,
                 "output_pdf": None,
@@ -600,7 +697,7 @@ class WriterService:
         quiet: bool = False,
         verbose: bool = False,
         force: bool = False,
-        **kwargs  # Catch any unexpected arguments
+        **kwargs,  # Catch any unexpected arguments
     ) -> dict:
         """Compile manuscript with optional callbacks for live updates.
 
@@ -640,9 +737,9 @@ class WriterService:
             )
             # Build log from stdout/stderr
             log_content = ""
-            if hasattr(result, 'stdout') and result.stdout:
+            if hasattr(result, "stdout") and result.stdout:
                 log_content += result.stdout
-            if hasattr(result, 'stderr') and result.stderr:
+            if hasattr(result, "stderr") and result.stderr:
                 if log_content:
                     log_content += "\n"
                 log_content += result.stderr
@@ -671,7 +768,7 @@ class WriterService:
         ppt2tif: bool = False,
         crop_tif: bool = False,
         quiet: bool = False,
-        **kwargs  # Catch any unexpected arguments
+        **kwargs,  # Catch any unexpected arguments
     ) -> dict:
         """Compile supplementary material.
 
@@ -700,9 +797,9 @@ class WriterService:
             )
             # Build log from stdout/stderr
             log_content = ""
-            if hasattr(result, 'stdout') and result.stdout:
+            if hasattr(result, "stdout") and result.stdout:
                 log_content += result.stdout
-            if hasattr(result, 'stderr') and result.stderr:
+            if hasattr(result, "stderr") and result.stderr:
                 if log_content:
                     log_content += "\n"
                 log_content += result.stderr
@@ -728,7 +825,7 @@ class WriterService:
         log_callback=None,
         progress_callback=None,
         track_changes: bool = False,
-        **kwargs  # Catch any unexpected arguments
+        **kwargs,  # Catch any unexpected arguments
     ) -> dict:
         """Compile revision response document.
 
@@ -751,9 +848,9 @@ class WriterService:
             )
             # Build log from stdout/stderr
             log_content = ""
-            if hasattr(result, 'stdout') and result.stdout:
+            if hasattr(result, "stdout") and result.stdout:
                 log_content += result.stdout
-            if hasattr(result, 'stderr') and result.stderr:
+            if hasattr(result, "stderr") and result.stderr:
                 if log_content:
                     log_content += "\n"
                 log_content += result.stderr
@@ -775,7 +872,9 @@ class WriterService:
 
     # ===== Git Operations =====
 
-    def get_section_history(self, section_name: str, doc_type: str = "manuscript") -> list:
+    def get_section_history(
+        self, section_name: str, doc_type: str = "manuscript"
+    ) -> list:
         """Get git history for a section.
 
         Args:
@@ -790,25 +889,33 @@ class WriterService:
             if doc_type == "shared":
                 doc = self.writer.shared
                 if not hasattr(doc, section_name):
-                    logger.warning(f"Cannot get history for non-existent section {section_name} in shared tree")
+                    logger.warning(
+                        f"Cannot get history for non-existent section {section_name} in shared tree"
+                    )
                     return []
                 section = getattr(doc, section_name)
             elif doc_type == "manuscript":
                 doc = self.writer.manuscript
                 if not hasattr(doc.contents, section_name):
-                    logger.warning(f"Cannot get history for non-existent section {section_name}")
+                    logger.warning(
+                        f"Cannot get history for non-existent section {section_name}"
+                    )
                     return []
                 section = getattr(doc.contents, section_name)
             elif doc_type == "supplementary":
                 doc = self.writer.supplementary
                 if not hasattr(doc.contents, section_name):
-                    logger.warning(f"Cannot get history for non-existent section {section_name}")
+                    logger.warning(
+                        f"Cannot get history for non-existent section {section_name}"
+                    )
                     return []
                 section = getattr(doc.contents, section_name)
             elif doc_type == "revision":
                 doc = self.writer.revision
                 if not hasattr(doc.contents, section_name):
-                    logger.warning(f"Cannot get history for non-existent section {section_name}")
+                    logger.warning(
+                        f"Cannot get history for non-existent section {section_name}"
+                    )
                     return []
                 section = getattr(doc.contents, section_name)
             else:
@@ -837,25 +944,33 @@ class WriterService:
             if doc_type == "shared":
                 doc = self.writer.shared
                 if not hasattr(doc, section_name):
-                    logger.warning(f"Cannot get diff for non-existent section {section_name} in shared tree")
+                    logger.warning(
+                        f"Cannot get diff for non-existent section {section_name} in shared tree"
+                    )
                     return ""
                 section = getattr(doc, section_name)
             elif doc_type == "manuscript":
                 doc = self.writer.manuscript
                 if not hasattr(doc.contents, section_name):
-                    logger.warning(f"Cannot get diff for non-existent section {section_name}")
+                    logger.warning(
+                        f"Cannot get diff for non-existent section {section_name}"
+                    )
                     return ""
                 section = getattr(doc.contents, section_name)
             elif doc_type == "supplementary":
                 doc = self.writer.supplementary
                 if not hasattr(doc.contents, section_name):
-                    logger.warning(f"Cannot get diff for non-existent section {section_name}")
+                    logger.warning(
+                        f"Cannot get diff for non-existent section {section_name}"
+                    )
                     return ""
                 section = getattr(doc.contents, section_name)
             elif doc_type == "revision":
                 doc = self.writer.revision
                 if not hasattr(doc.contents, section_name):
-                    logger.warning(f"Cannot get diff for non-existent section {section_name}")
+                    logger.warning(
+                        f"Cannot get diff for non-existent section {section_name}"
+                    )
                     return ""
                 section = getattr(doc.contents, section_name)
             else:
@@ -884,25 +999,33 @@ class WriterService:
             if doc_type == "shared":
                 doc = self.writer.shared
                 if not hasattr(doc, section_name):
-                    logger.warning(f"Cannot checkout non-existent section {section_name} in shared tree")
+                    logger.warning(
+                        f"Cannot checkout non-existent section {section_name} in shared tree"
+                    )
                     return False
                 section = getattr(doc, section_name)
             elif doc_type == "manuscript":
                 doc = self.writer.manuscript
                 if not hasattr(doc.contents, section_name):
-                    logger.warning(f"Cannot checkout non-existent section {section_name}")
+                    logger.warning(
+                        f"Cannot checkout non-existent section {section_name}"
+                    )
                     return False
                 section = getattr(doc.contents, section_name)
             elif doc_type == "supplementary":
                 doc = self.writer.supplementary
                 if not hasattr(doc.contents, section_name):
-                    logger.warning(f"Cannot checkout non-existent section {section_name}")
+                    logger.warning(
+                        f"Cannot checkout non-existent section {section_name}"
+                    )
                     return False
                 section = getattr(doc.contents, section_name)
             elif doc_type == "revision":
                 doc = self.writer.revision
                 if not hasattr(doc.contents, section_name):
-                    logger.warning(f"Cannot checkout non-existent section {section_name}")
+                    logger.warning(
+                        f"Cannot checkout non-existent section {section_name}"
+                    )
                     return False
                 section = getattr(doc.contents, section_name)
             else:
@@ -958,7 +1081,7 @@ class WriterService:
             raise ValueError(f"Not a file: {file_path}")
 
         try:
-            return full_path.read_text(encoding='utf-8')
+            return full_path.read_text(encoding="utf-8")
         except Exception as e:
             logger.error(f"Error reading file {file_path}: {e}")
             raise

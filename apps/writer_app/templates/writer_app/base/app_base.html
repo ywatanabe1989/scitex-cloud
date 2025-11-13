@@ -1,52 +1,44 @@
 {% extends "global_base.html" %}
 {% load static %}
-
 {% comment %}
 Base template for Writer App
 All writer_app templates should extend from this template.
-
 Features:
 - Writer-specific navigation
 - Common CSS/JS includes
 - Project context
 {% endcomment %}
-
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'writer_app/css/shared/variables.css' %}">
-<link rel="stylesheet" href="{% static 'writer_app/css/shared/common.css' %}">
-{% block writer_css %}{% endblock %}
+    <link rel="stylesheet"
+          href="{% static 'writer_app/css/shared/variables.css' %}" />
+    <link rel="stylesheet"
+          href="{% static 'writer_app/css/shared/common.css' %}" />
+    {% block writer_css %}{% endblock %}
 {% endblock %}
-
 {% block content %}
-<div class="writer-app-container">
-    {% block writer_header %}
-    <header class="writer-header">
-        <div class="writer-logo">
-            <h1>SciTeX Writer</h1>
-        </div>
-        {% if project %}
-        <div class="project-context">
-            <span class="project-name">{{ project.name }}</span>
-        </div>
-        {% endif %}
-    </header>
-    {% endblock %}
-
-    <div class="writer-main">
-        {% block writer_sidebar %}
-        {# Sidebar can be overridden by individual templates #}
+    <div class="writer-app-container">
+        {% block writer_header %}
+            <header class="writer-header">
+                <div class="writer-logo">
+                    <h1>SciTeX Writer</h1>
+                </div>
+                {% if project %}
+                    <div class="project-context">
+                        <span class="project-name">{{ project.name }}</span>
+                    </div>
+                {% endif %}
+            </header>
         {% endblock %}
-
-        <main class="writer-content">
-            {% block writer_content %}
-            {# Main content area - must be overridden #}
-            {% endblock %}
-        </main>
+        <div class="writer-main">
+            {% block writer_sidebar %}{# Sidebar can be overridden by individual templates #}{% endblock %}
+            <main class="writer-content">
+                {% block writer_content %}{# Main content area - must be overridden #}{% endblock %}
+            </main>
+        </div>
     </div>
-</div>
 {% endblock %}
-
 {% block extra_js %}
-<script src="{% static 'writer_app/js/shared/utils.js' %}"></script>
-{% block writer_js %}{% endblock %}
+    <script src="{% static 'writer_app/js/shared/utils.js' %}"></script>
+    {% block writer_js %}
+    {% endblock %}
 {% endblock %}

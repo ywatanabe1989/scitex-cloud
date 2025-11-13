@@ -3,19 +3,20 @@
  * Corresponds to: templates/project_app/issues/milestone_manage.html
  */
 
-
-console.log("[DEBUG] apps/project_app/static/project_app/ts/issues/milestone_manage.ts loaded");
+console.log(
+  "[DEBUG] apps/project_app/static/project_app/ts/issues/milestone_manage.ts loaded",
+);
 
 class IssueMilestoneManagePage {
-    constructor() {
-        this.init();
-    }
+  constructor() {
+    this.init();
+  }
 
-    private init(): void {
-        console.log('[IssueMilestoneManage] Initializing milestone management');
-    }
+  private init(): void {
+    console.log("[IssueMilestoneManage] Initializing milestone management");
+  }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    new IssueMilestoneManagePage();
+document.addEventListener("DOMContentLoaded", () => {
+  new IssueMilestoneManagePage();
 });

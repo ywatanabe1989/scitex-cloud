@@ -1,51 +1,74 @@
 <!-- Directory Contents - GitHub Style -->
 {% if contents %}
-<div class="file-browser">
-    <table class="file-table">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Last commit message</th>
-                <th>Last commit date</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in contents %}
-            <tr data-href="{% if item.type == 'directory' %}/{{ project.owner.username }}/{{ project.slug }}/{{ item.path }}/{% else %}/{{ project.owner.username }}/{{ project.slug }}/blob/{{ item.path }}{% endif %}" class="clickable-row">
-                <td class="file-table-name">
-                    <a href="{% if item.type == 'directory' %}/{{ project.owner.username }}/{{ project.slug }}/{{ item.path }}/{% else %}/{{ project.owner.username }}/{{ project.slug }}/blob/{{ item.path }}{% endif %}" onclick="event.stopPropagation();">
-                        {% if item.type == 'directory' %}
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" class="icon-folder" style="fill: var(--color-accent-fg);"><path d="M1.75 1A1.75 1.75 0 0 0 0 2.75v10.5C0 14.216.784 15 1.75 15h12.5A1.75 1.75 0 0 0 16 13.25v-8.5A1.75 1.75 0 0 0 14.25 3H7.5a.25.25 0 0 1-.2-.1l-.9-1.2C6.07 1.26 5.55 1 5 1H1.75Z"></path></svg>
-                        {% else %}
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" class="icon-file" style="fill: var(--color-fg-muted);"><path d="M2 1.75C2 .784 2.784 0 3.75 0h6.586c.464 0 .909.184 1.237.513l2.914 2.914c.329.328.513.773.513 1.237v9.586A1.75 1.75 0 0 1 13.25 16h-9.5A1.75 1.75 0 0 1 2 14.25Zm1.75-.25a.25.25 0 0 0-.25.25v12.5c0 .138.112.25.25.25h9.5a.25.25 0 0 0 .25-.25V6h-2.75A1.75 1.75 0 0 1 9 4.25V1.5Zm6.75.062V4.25c0 .138.112.25.25.25h2.688l-.011-.013-2.914-2.914-.013-.011Z"></path></svg>
-                        {% endif %}
-                        <span class="file-table-name-text">{{ item.name }}</span>
-                    </a>
-                </td>
-                <td class="file-table-meta">
-                    {% if item.message %}
-                        {% if item.hash %}
-                            <a href="/{{ project.owner.username }}/{{ project.slug }}/commit/{{ item.hash }}/" onclick="event.stopPropagation();" title="{{ item.message }}">{{ item.message }}</a>
-                            <a href="/{{ project.owner.username }}/{{ project.slug }}/commit/{{ item.hash }}/" class="commit-hash" data-hash="{{ item.hash }}" onclick="event.stopPropagation();">{{ item.hash|slice:":7" }}</a>
-                        {% else %}
-                            {{ item.message }}
-                        {% endif %}
-                    {% else %}
-                        <span style="color: var(--color-fg-muted);">No commit message</span>
-                    {% endif %}
-                </td>
-                <td class="file-table-meta">
-                    {% if item.time_ago %}{{ item.time_ago }}{% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+    <div class="file-browser">
+        <table class="file-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Last commit message</th>
+                    <th>Last commit date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in contents %}
+                    <tr data-href="{% if item.type == 'directory' %}/{{ project.owner.username }}/{{ project.slug }}/{{ item.path }}/{% else %}/{{ project.owner.username }}/{{ project.slug }}/blob/{{ item.path }}{% endif %}"
+                        class="clickable-row">
+                        <td class="file-table-name">
+                            <a href="{% if item.type == 'directory' %}/{{ project.owner.username }}/{{ project.slug }}/{{ item.path }}/{% else %}/{{ project.owner.username }}/{{ project.slug }}/blob/{{ item.path }}{% endif %}"
+                               onclick="event.stopPropagation();">
+                                {% if item.type == 'directory' %}
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                         viewBox="0 0 16 16"
+                                         width="16"
+                                         height="16"
+                                         class="icon-folder"
+                                         style="fill: var(--color-accent-fg)">
+                                        <path d="M1.75 1A1.75 1.75 0 0 0 0 2.75v10.5C0 14.216.784 15 1.75 15h12.5A1.75 1.75 0 0 0 16 13.25v-8.5A1.75 1.75 0 0 0 14.25 3H7.5a.25.25 0 0 1-.2-.1l-.9-1.2C6.07 1.26 5.55 1 5 1H1.75Z">
+                                        </path>
+                                    </svg>
+                                {% else %}
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                         viewBox="0 0 16 16"
+                                         width="16"
+                                         height="16"
+                                         class="icon-file"
+                                         style="fill: var(--color-fg-muted)">
+                                        <path d="M2 1.75C2 .784 2.784 0 3.75 0h6.586c.464 0 .909.184 1.237.513l2.914 2.914c.329.328.513.773.513 1.237v9.586A1.75 1.75 0 0 1 13.25 16h-9.5A1.75 1.75 0 0 1 2 14.25Zm1.75-.25a.25.25 0 0 0-.25.25v12.5c0 .138.112.25.25.25h9.5a.25.25 0 0 0 .25-.25V6h-2.75A1.75 1.75 0 0 1 9 4.25V1.5Zm6.75.062V4.25c0 .138.112.25.25.25h2.688l-.011-.013-2.914-2.914-.013-.011Z">
+                                        </path>
+                                    </svg>
+                                {% endif %}
+                                <span class="file-table-name-text">{{ item.name }}</span>
+                            </a>
+                        </td>
+                        <td class="file-table-meta">
+                            {% if item.message %}
+                                {% if item.hash %}
+                                    <a href="/{{ project.owner.username }}/{{ project.slug }}/commit/{{ item.hash }}/"
+                                       onclick="event.stopPropagation();"
+                                       title="{{ item.message }}">{{ item.message }}</a>
+                                    <a href="/{{ project.owner.username }}/{{ project.slug }}/commit/{{ item.hash }}/"
+                                       class="commit-hash"
+                                       data-hash="{{ item.hash }}"
+                                       onclick="event.stopPropagation();">{{ item.hash|slice:":7" }}</a>
+                                {% else %}
+                                    {{ item.message }}
+                                {% endif %}
+                            {% else %}
+                                <span style="color: var(--color-fg-muted)">No commit message</span>
+                            {% endif %}
+                        </td>
+                        <td class="file-table-meta">
+                            {% if item.time_ago %}{{ item.time_ago }}{% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 {% else %}
-<div class="empty-directory">
-    <i class="fas fa-folder-open fa-3x mb-3" style="opacity: 0.3;"></i>
-    <h4>Empty Directory</h4>
-    <p>This directory doesn't contain any files or folders yet.</p>
-</div>
+    <div class="empty-directory">
+        <i class="fas fa-folder-open fa-3x mb-3" style="opacity: 0.3"></i>
+        <h4>Empty Directory</h4>
+        <p>This directory doesn't contain any files or folders yet.</p>
+    </div>
 {% endif %}

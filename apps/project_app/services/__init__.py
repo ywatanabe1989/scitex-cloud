@@ -22,14 +22,14 @@ from .email_service import EmailService
 from .project_utils import (
     get_current_project,
     set_current_project,
-    get_or_create_default_project
+    get_or_create_default_project,
 )
 
 __all__ = [
-    'EmailService',
-    'get_current_project',
-    'set_current_project',
-    'get_or_create_default_project',
+    "EmailService",
+    "get_current_project",
+    "set_current_project",
+    "get_or_create_default_project",
 ]
 
 # EOF

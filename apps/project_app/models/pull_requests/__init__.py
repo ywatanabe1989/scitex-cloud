@@ -12,10 +12,10 @@ from .models import (
 )
 
 __all__ = [
-    'PullRequest',
-    'PullRequestReview',
-    'PullRequestComment',
-    'PullRequestCommit',
-    'PullRequestLabel',
-    'PullRequestEvent',
+    "PullRequest",
+    "PullRequestReview",
+    "PullRequestComment",
+    "PullRequestCommit",
+    "PullRequestLabel",
+    "PullRequestEvent",
 ]

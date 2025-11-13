@@ -14,7 +14,6 @@ from django.urls import path
 from ..views.directory_views import (
     project_directory_dynamic,
     project_file_view,
-    project_directory,
     file_history_view,
     commit_detail,
 )
@@ -31,31 +30,31 @@ from ..views.api_views import (
 urlpatterns = [
     # Project root - Repository overview
     # /<username>/<slug>/
-    path('', project_detail, name='detail'),
-
+    path("", project_detail, name="detail"),
     # API endpoint for file tree (sidebar navigation)
-    path('api/file-tree/', api_file_tree, name='api_file_tree'),
-
+    path("api/file-tree/", api_file_tree, name="api_file_tree"),
     # API endpoint to concatenate all files in a directory
-    path('api/concatenate/', api_concatenate_directory, name='api_concatenate_root'),
-    path('api/concatenate/<path:directory_path>', api_concatenate_directory, name='api_concatenate'),
-
+    path("api/concatenate/", api_concatenate_directory, name="api_concatenate_root"),
+    path(
+        "api/concatenate/<path:directory_path>",
+        api_concatenate_directory,
+        name="api_concatenate",
+    ),
     # File viewer - GitHub-style /blob/ for viewing files
     # /<username>/<slug>/blob/<file-path> - default view
     # /<username>/<slug>/blob/<file-path>?mode=edit - edit mode
     # /<username>/<slug>/blob/<file-path>?mode=raw - raw mode
-    path('blob/<path:file_path>', project_file_view, name='file_view'),
-
+    path("blob/<path:file_path>", project_file_view, name="file_view"),
     # File history - GitHub-style /commits/<branch>/<file-path>
     # /<username>/<slug>/commits/<branch>/<file-path>
-    path('commits/<str:branch>/<path:file_path>', file_history_view, name='file_history'),
-
+    path(
+        "commits/<str:branch>/<path:file_path>", file_history_view, name="file_history"
+    ),
     # Commit detail - GitHub-style /commit/<commit-hash>/
     # /<username>/<slug>/commit/<commit-hash>/
-    path('commit/<str:commit_hash>/', commit_detail, name='commit_detail'),
-
+    path("commit/<str:commit_hash>/", commit_detail, name="commit_detail"),
     # Dynamic directory browsing - catches ANY directory path (MUST BE LAST!)
     # /<username>/<slug>/<any-directory>/
     # /<username>/<slug>/<any-directory>/<any-subdirectory>/...
-    path('<path:directory_path>/', project_directory_dynamic, name='directory_browse'),
+    path("<path:directory_path>/", project_directory_dynamic, name="directory_browse"),
 ]

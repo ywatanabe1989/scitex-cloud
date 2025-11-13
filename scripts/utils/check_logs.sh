@@ -24,7 +24,7 @@ NC='\033[0m' # No Color
 if [ ! -d "$LOG_DIR" ]; then
     echo -e "${RED}Error: Log directory $LOG_DIR does not exist!${NC}"
     echo "Are you in development mode? Checking for logs/ directory..."
-    
+
     if [ -d "./logs" ]; then
         LOG_DIR="./logs"
         echo -e "${GREEN}Found local logs directory. Using it instead.${NC}"
@@ -41,7 +41,7 @@ function show_log {
     local file=$1
     local title=$2
     local lines=$3
-    
+
     if [ -f "$file" ]; then
         echo -e "\n${BLUE}=== $title (last $lines lines) ===${NC}"
         if [ -s "$file" ]; then
@@ -92,7 +92,7 @@ case "$LOG_TYPE" in
         show_log "$LOG_DIR/uwsgi.log" "uWSGI" $LINES
         show_log "$LOG_DIR/gunicorn-access.log" "Gunicorn Access" $LINES
         show_log "$LOG_DIR/gunicorn-error.log" "Gunicorn Error" $LINES
-        
+
         # Check if Nginx is installed and logs exist
         if [ -f "/var/log/nginx/scitex-cloud-access.log" ]; then
             show_log "/var/log/nginx/scitex-cloud-access.log" "Nginx Access" $LINES

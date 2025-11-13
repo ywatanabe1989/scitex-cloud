@@ -11,7 +11,6 @@ GitHub-style patterns:
 Note: Currently commented out pending Workflow model implementation.
 """
 
-from django.urls import path
 
 # No app_name here - namespace is provided by parent (user_projects)
 

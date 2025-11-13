@@ -29,23 +29,23 @@ def security_dependency_graph(request, username, slug):
     dependencies = DependencyGraph.objects.filter(project=project)
 
     # Get direct dependencies only for display
-    direct_deps = dependencies.filter(is_direct=True).order_by('package_name')
+    direct_deps = dependencies.filter(is_direct=True).order_by("package_name")
 
     # Count statistics
     stats = {
-        'total': dependencies.count(),
-        'direct': direct_deps.count(),
-        'vulnerable': dependencies.filter(has_vulnerabilities=True).count(),
-        'dev': dependencies.filter(is_dev_dependency=True).count(),
+        "total": dependencies.count(),
+        "direct": direct_deps.count(),
+        "vulnerable": dependencies.filter(has_vulnerabilities=True).count(),
+        "dev": dependencies.filter(is_dev_dependency=True).count(),
     }
 
     context = {
-        'project': project,
-        'dependencies': direct_deps,
-        'stats': stats,
+        "project": project,
+        "dependencies": direct_deps,
+        "stats": stats,
     }
 
-    return render(request, 'project_app/security/dependency_graph.html', context)
+    return render(request, "project_app/security/dependency_graph.html", context)
 
 
 @login_required
@@ -58,9 +58,9 @@ def api_dependency_tree(request, username, slug, dependency_id):
 
     # Check permissions
     if not project.can_view(request.user):
-        return JsonResponse({'error': 'Permission denied'}, status=403)
+        return JsonResponse({"error": "Permission denied"}, status=403)
 
     # Get dependency tree
     tree = dependency.get_dependency_tree()
 
-    return JsonResponse({'tree': tree})
+    return JsonResponse({"tree": tree})

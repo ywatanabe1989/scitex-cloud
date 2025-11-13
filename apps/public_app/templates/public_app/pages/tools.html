@@ -1,12 +1,13 @@
 {% extends "global_base.html" %}
-
 {% block title %}Research Tools - SciTeX{% endblock %}
-
-{% block meta_description %}Free browser-based tools for researchers: bookmarklets for element inspection, citation scraping, and more. Works on any website, no installation required.{% endblock %}
-
+{% block meta_description %}
+    Free browser-based tools for
+    researchers: bookmarklets for element inspection, citation scraping, and more.
+    Works on any website, no installation required.
+{% endblock %}
 {% block extra_css %}
-{% load static %}
-<style>
+        {% load static %}
+        <style>
   .tools-container {
     max-width: 1200px;
     margin: 0 auto;
@@ -124,28 +125,24 @@
     color: white;
     text-decoration: none;
   }
-</style>
-{% endblock %}
-
-{% block content %}
-<div class="tools-container">
-  <!-- Tools Grid -->
-  <div class="tools-grid">
-    {% for tool in tools_list %}
-    <div class="tool-card">
-      <span class="tool-icon">{{ tool.icon }}</span>
-      <div class="tool-card-content">
-        <h3 class="tool-card-title">{{ tool.name }}</h3>
-        <p class="tool-description">{{ tool.description }}</p>
-      </div>
-      <div class="tool-card-footer">
-        <a href="{{ tool.bookmarklet_url }}" class="btn-tool btn-tool-primary">
-          Get Tool →
-        </a>
-      </div>
-    </div>
-    {% endfor %}
-  </div>
-
-</div>
-{% endblock %}
+        </style>
+    {% endblock %}
+    {% block content %}
+        <div class="tools-container">
+            <!-- Tools Grid -->
+            <div class="tools-grid">
+                {% for tool in tools_list %}
+                    <div class="tool-card">
+                        <span class="tool-icon">{{ tool.icon }}</span>
+                        <div class="tool-card-content">
+                            <h3 class="tool-card-title">{{ tool.name }}</h3>
+                            <p class="tool-description">{{ tool.description }}</p>
+                        </div>
+                        <div class="tool-card-footer">
+                            <a href="{{ tool.bookmarklet_url }}" class="btn-tool btn-tool-primary">Get Tool →</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endblock %}

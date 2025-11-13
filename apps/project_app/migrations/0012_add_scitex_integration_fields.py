@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("project_app", "0011_add_gitea_uniqueness_constraints"),
     ]

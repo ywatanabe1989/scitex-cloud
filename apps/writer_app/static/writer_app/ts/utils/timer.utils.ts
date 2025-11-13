@@ -6,11 +6,13 @@
  * Debounce function to delay execution
  */
 
-console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/utils/timer.utils.ts loaded");
+console.log(
+  "[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/utils/timer.utils.ts loaded",
+);
 export function debounce<T extends (...args: any[]) => any>(
   func: T,
   wait: number,
-  immediate: boolean = false
+  immediate: boolean = false,
 ): (...args: Parameters<T>) => void {
   let timeout: NodeJS.Timeout | null = null;
 
@@ -33,7 +35,7 @@ export function debounce<T extends (...args: any[]) => any>(
  */
 export function throttle<T extends (...args: any[]) => any>(
   func: T,
-  limit: number
+  limit: number,
 ): (...args: Parameters<T>) => void {
   let inThrottle: boolean = false;
 
@@ -109,13 +111,16 @@ export class SimpleTimer {
  * Wait for specified time
  */
 export function wait(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 /**
  * Create a cancellable timeout
  */
-export function createTimeout(callback: () => void, ms: number): { cancel: () => void } {
+export function createTimeout(
+  callback: () => void,
+  ms: number,
+): { cancel: () => void } {
   const timeout = setTimeout(callback, ms);
   return {
     cancel: () => clearTimeout(timeout),

@@ -2,7 +2,8 @@
 
 /* Hero Section */
 .dev-hero {
-  background: linear-gradient(135deg,
+  background: linear-gradient(
+    135deg,
     var(--scitex-color-01) 0%,
     var(--scitex-color-02) 50%,
     var(--scitex-color-03) 100%

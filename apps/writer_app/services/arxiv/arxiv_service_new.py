@@ -7,7 +7,6 @@ and status tracking. This service wraps arXiv API interactions.
 
 from typing import Optional, Dict, Any, List
 from pathlib import Path
-from django.core.exceptions import ValidationError, PermissionDenied
 from django.db import transaction
 from django.contrib.auth.models import User
 
@@ -17,7 +16,7 @@ from ...models.arxiv import (
     ArxivAccount,
     ArxivCategory,
     ArxivSubmissionHistory,
-    ArxivApiResponse
+    ArxivApiResponse,
 )
 
 
@@ -33,7 +32,7 @@ class ArxivService:
         secondary_categories: Optional[List[ArxivCategory]] = None,
         comments: str = "",
         journal_ref: str = "",
-        doi: str = ""
+        doi: str = "",
     ) -> ArxivSubmission:
         """
         Create a new arXiv submission.
@@ -86,9 +85,7 @@ class ArxivService:
     @staticmethod
     @transaction.atomic
     def submit_to_arxiv(
-        submission: ArxivSubmission,
-        arxiv_account: ArxivAccount,
-        force: bool = False
+        submission: ArxivSubmission, arxiv_account: ArxivAccount, force: bool = False
     ) -> ArxivSubmissionHistory:
         """
         Submit manuscript to arXiv.
@@ -151,13 +148,11 @@ class ArxivService:
         Returns:
             List of ArxivCategory objects
         """
-        return list(ArxivCategory.objects.all().order_by('category'))
+        return list(ArxivCategory.objects.all().order_by("category"))
 
     @staticmethod
     def format_for_arxiv(
-        manuscript,
-        include_source: bool = True,
-        include_pdf: bool = True
+        manuscript, include_source: bool = True, include_pdf: bool = True
     ) -> Path:
         """
         Format manuscript for arXiv submission.
@@ -199,7 +194,7 @@ class ArxivService:
 
     @staticmethod
     def get_submission_history(
-        submission: ArxivSubmission
+        submission: ArxivSubmission,
     ) -> List[ArxivSubmissionHistory]:
         """
         Get submission history.
@@ -211,9 +206,9 @@ class ArxivService:
             List of ArxivSubmissionHistory entries ordered by timestamp
         """
         return list(
-            ArxivSubmissionHistory.objects
-            .filter(submission=submission)
-            .order_by('-submitted_at')
+            ArxivSubmissionHistory.objects.filter(submission=submission).order_by(
+                "-submitted_at"
+            )
         )
 
     @staticmethod
@@ -223,7 +218,7 @@ class ArxivService:
         title: Optional[str] = None,
         abstract: Optional[str] = None,
         authors: Optional[List[str]] = None,
-        comments: Optional[str] = None
+        comments: Optional[str] = None,
     ) -> ArxivSubmission:
         """
         Update submission metadata.
@@ -247,9 +242,7 @@ class ArxivService:
     @staticmethod
     @transaction.atomic
     def withdraw_submission(
-        submission: ArxivSubmission,
-        user: User,
-        reason: str
+        submission: ArxivSubmission, user: User, reason: str
     ) -> ArxivSubmissionHistory:
         """
         Withdraw an arXiv submission.

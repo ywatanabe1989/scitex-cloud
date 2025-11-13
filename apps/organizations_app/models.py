@@ -18,6 +18,7 @@ class Organization(models.Model):
     Canonical source for Organization model - previously duplicated in
     workspace_app and project_app.
     """
+
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     website = models.URLField(blank=True)
@@ -26,13 +27,11 @@ class Organization(models.Model):
 
     # Optional: Members relationship through OrganizationMembership
     members = models.ManyToManyField(
-        User,
-        through='OrganizationMembership',
-        related_name='organizations'
+        User, through="OrganizationMembership", related_name="organizations"
     )
 
     class Meta:
-        ordering = ['name']
+        ordering = ["name"]
 
     def __str__(self):
         return self.name
@@ -44,20 +43,25 @@ class OrganizationMembership(models.Model):
 
     Defines user membership in organizations with role-based access.
     """
+
     ROLES = [
-        ('admin', 'Administrator'),
-        ('member', 'Member'),
-        ('viewer', 'Viewer'),
+        ("admin", "Administrator"),
+        ("member", "Member"),
+        ("viewer", "Viewer"),
     ]
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='organization_memberships')
-    organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name='memberships')
-    role = models.CharField(max_length=20, choices=ROLES, default='member')
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="organization_memberships"
+    )
+    organization = models.ForeignKey(
+        Organization, on_delete=models.CASCADE, related_name="memberships"
+    )
+    role = models.CharField(max_length=20, choices=ROLES, default="member")
     joined_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('user', 'organization')
-        ordering = ['joined_at']
+        unique_together = ("user", "organization")
+        ordering = ["joined_at"]
 
     def __str__(self):
         return f"{self.user.username} - {self.organization.name} ({self.role})"
@@ -69,19 +73,18 @@ class ResearchGroup(models.Model):
 
     Research groups are sub-units within organizations (e.g., labs within universities).
     """
+
     name = models.CharField(max_length=200)
     organization = models.ForeignKey(
-        Organization,
-        on_delete=models.CASCADE,
-        related_name='research_groups'
+        Organization, on_delete=models.CASCADE, related_name="research_groups"
     )
     leader = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name='led_research_groups',
-        help_text="Principal Investigator or group leader"
+        related_name="led_research_groups",
+        help_text="Principal Investigator or group leader",
     )
     description = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -89,13 +92,11 @@ class ResearchGroup(models.Model):
 
     # Members relationship through ResearchGroupMembership
     members = models.ManyToManyField(
-        User,
-        through='ResearchGroupMembership',
-        related_name='research_groups'
+        User, through="ResearchGroupMembership", related_name="research_groups"
     )
 
     class Meta:
-        ordering = ['organization__name', 'name']
+        ordering = ["organization__name", "name"]
 
     def __str__(self):
         return f"{self.name} ({self.organization.name})"
@@ -108,37 +109,40 @@ class ResearchGroupMembership(models.Model):
     Defines user membership in research groups with role-based permissions
     and academic position tracking.
     """
+
     GROUP_ROLES = [
-        ('pi', 'Principal Investigator'),
-        ('postdoc', 'Postdoctoral Researcher'),
-        ('phd', 'PhD Student'),
-        ('masters', 'Masters Student'),
-        ('undergrad', 'Undergraduate Student'),
-        ('researcher', 'Research Staff'),
-        ('visiting', 'Visiting Researcher'),
-        ('collaborator', 'External Collaborator'),
+        ("pi", "Principal Investigator"),
+        ("postdoc", "Postdoctoral Researcher"),
+        ("phd", "PhD Student"),
+        ("masters", "Masters Student"),
+        ("undergrad", "Undergraduate Student"),
+        ("researcher", "Research Staff"),
+        ("visiting", "Visiting Researcher"),
+        ("collaborator", "External Collaborator"),
     ]
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='group_memberships')
-    group = models.ForeignKey(ResearchGroup, on_delete=models.CASCADE, related_name='memberships')
-    role = models.CharField(max_length=20, choices=GROUP_ROLES, default='researcher')
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="group_memberships"
+    )
+    group = models.ForeignKey(
+        ResearchGroup, on_delete=models.CASCADE, related_name="memberships"
+    )
+    role = models.CharField(max_length=20, choices=GROUP_ROLES, default="researcher")
 
     # Permissions within group
     can_create_projects = models.BooleanField(
-        default=True,
-        help_text="Can create new projects for the group"
+        default=True, help_text="Can create new projects for the group"
     )
     can_invite_collaborators = models.BooleanField(
-        default=False,
-        help_text="Can invite external collaborators"
+        default=False, help_text="Can invite external collaborators"
     )
 
     joined_at = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
 
     class Meta:
-        unique_together = ('user', 'group')
-        ordering = ['joined_at']
+        unique_together = ("user", "group")
+        ordering = ["joined_at"]
 
     def __str__(self):
         user_display = self.user.get_full_name() or self.user.username

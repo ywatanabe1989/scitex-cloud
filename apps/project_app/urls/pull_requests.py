@@ -21,5 +21,5 @@ from ..views.pr_views import (
 urlpatterns = [
     # Pull Request list only
     # Individual PRs are at /pull/ (singular) not /pulls/
-    path('', pr_list, name='list'),
+    path("", pr_list, name="list"),
 ]

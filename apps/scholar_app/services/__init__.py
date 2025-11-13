@@ -23,12 +23,12 @@ from .repository import (
 
 __all__ = [
     # DOI Services
-    'auto_assign_doi_on_publish',
-    'validate_and_format_doi',
-    'get_doi_metadata',
+    "auto_assign_doi_on_publish",
+    "validate_and_format_doi",
+    "get_doi_metadata",
     # Repository Services
-    'sync_dataset_with_repository',
-    'upload_dataset_to_repository',
+    "sync_dataset_with_repository",
+    "upload_dataset_to_repository",
 ]
 
 # EOF

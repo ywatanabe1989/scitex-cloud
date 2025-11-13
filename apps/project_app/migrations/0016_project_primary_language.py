@@ -4,15 +4,22 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('project_app', '0015_issue_issueassignment_issue_assignees_issuelabel_and_more'),
+        (
+            "project_app",
+            "0015_issue_issueassignment_issue_assignees_issuelabel_and_more",
+        ),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='project',
-            name='primary_language',
-            field=models.CharField(blank=True, default='', help_text='Auto-detected primary programming language', max_length=50),
+            model_name="project",
+            name="primary_language",
+            field=models.CharField(
+                blank=True,
+                default="",
+                help_text="Auto-detected primary programming language",
+                max_length=50,
+            ),
         ),
     ]

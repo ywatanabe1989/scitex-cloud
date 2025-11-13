@@ -2,14 +2,10 @@
 /* PULL_REQUESTS / PR_LIST */
 /* ============================================================================= */
 
-
 .list-group-item:hover {
-    background-color: #f8f9fa;
+  background-color: #f8f9fa;
 }
 
 .badge {
-    font-size: 0.75rem;
+  font-size: 0.75rem;
 }
-
-
-

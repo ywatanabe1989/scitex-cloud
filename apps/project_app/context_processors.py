@@ -10,7 +10,9 @@ from apps.project_app.models import Project
 def version_context(request):
     """Add SciTeX version to all templates."""
     return {
-        "SCITEX_CLOUD_VERSION": getattr(settings, "SCITEX_CLOUD_VERSION", "0.1.0-alpha"),
+        "SCITEX_CLOUD_VERSION": getattr(
+            settings, "SCITEX_CLOUD_VERSION", "0.1.0-alpha"
+        ),
     }
 
 

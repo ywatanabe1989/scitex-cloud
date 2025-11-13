@@ -8,7 +8,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 # Check if scitex package is installed
-if ! python -c "import scitex.security" 2>/dev/null; then
+if ! python -c "import scitex.security" 2> /dev/null; then
     echo "ERROR: scitex.security module not found"
     echo "Install: cd ~/proj/scitex-code && pip install -e ."
     exit 1

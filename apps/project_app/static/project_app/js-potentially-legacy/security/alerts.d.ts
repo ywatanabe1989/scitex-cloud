@@ -3,7 +3,7 @@
  * Corresponds to: templates/project_app/security/alerts.html
  */
 declare class SecurityAlertsPage {
-    constructor();
-    private init;
+  constructor();
+  private init;
 }
 //# sourceMappingURL=alerts.d.ts.map

@@ -40,9 +40,9 @@ set -euo pipefail
 
 # Detect environment
 detect_environment() {
-    if docker ps 2>/dev/null | grep -q scitex-gitea-dev; then
+    if docker ps 2> /dev/null | grep -q scitex-gitea-dev; then
         echo "development"
-    elif systemctl is-active --quiet gitea 2>/dev/null; then
+    elif systemctl is-active --quiet gitea 2> /dev/null; then
         echo "production"
     else
         echo "unknown"
@@ -77,7 +77,7 @@ get_api_config() {
     fi
 
     # Validate token by testing API access
-    local test_response=$(curl -s -H "Authorization: token $GITEA_TOKEN" "$GITEA_URL/api/v1/user" 2>/dev/null)
+    local test_response=$(curl -s -H "Authorization: token $GITEA_TOKEN" "$GITEA_URL/api/v1/user" 2> /dev/null)
 
     if echo "$test_response" | grep -q '"message":"token is required"'; then
         echo_error "Invalid or expired token!"
@@ -92,7 +92,7 @@ get_api_config() {
         echo_error "Current token: ${GITEA_TOKEN:0:8}...${GITEA_TOKEN: -8}"
         exit 1
     elif echo "$test_response" | grep -q '"message"'; then
-        echo_error "API Error: $(echo "$test_response" | python3 -c "import sys,json; print(json.load(sys.stdin).get('message','Unknown error'))" 2>/dev/null || echo "Unknown error")"
+        echo_error "API Error: $(echo "$test_response" | python3 -c "import sys,json; print(json.load(sys.stdin).get('message','Unknown error'))" 2> /dev/null || echo "Unknown error")"
         exit 1
     fi
 }
@@ -103,7 +103,7 @@ list_all_users() {
     local token="$2"
 
     curl -s -H "Authorization: token $token" \
-        "$url/api/v1/admin/users" 2>/dev/null
+        "$url/api/v1/admin/users" 2> /dev/null
 }
 
 # Search users (public API)
@@ -117,8 +117,8 @@ search_users() {
         endpoint="$endpoint?q=$query"
     fi
 
-    curl -s -H "Authorization: token $token" "$endpoint" 2>/dev/null | \
-        python3 -c "import sys, json; data = json.load(sys.stdin); print(json.dumps(data.get('data', [])))"
+    curl -s -H "Authorization: token $token" "$endpoint" 2> /dev/null \
+        | python3 -c "import sys, json; data = json.load(sys.stdin); print(json.dumps(data.get('data', [])))"
 }
 
 # Get user details
@@ -128,7 +128,7 @@ get_user_details() {
     local username="$3"
 
     curl -s -H "Authorization: token $token" \
-        "$url/api/v1/users/$username" 2>/dev/null
+        "$url/api/v1/users/$username" 2> /dev/null
 }
 
 # Format user list
@@ -275,19 +275,19 @@ main() {
     # Parse arguments
     while [[ $# -gt 0 ]]; do
         case $1 in
-            -s|--search)
+            -s | --search)
                 search_query="$2"
                 shift 2
                 ;;
-            -d|--detail)
+            -d | --detail)
                 detail_user="$2"
                 shift 2
                 ;;
-            -a|--admins)
+            -a | --admins)
                 admins_only=true
                 shift
                 ;;
-            -h|--help)
+            -h | --help)
                 usage
                 exit 0
                 ;;

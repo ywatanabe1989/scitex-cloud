@@ -1,0 +1,49 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Python virtual environments
+venv/
+.venv/
+env/
+.env/
+
+# External/third-party code
+externals/
+vendor/
+
+# Build artifacts
+dist/
+build/
+*.min.js
+*.min.css
+
+# User data
+data/
+
+# Git
+.git/
+
+# Docker
+deployment/docker/
+
+# Generated files
+staticfiles/
+media/
+
+# Logs
+logs/
+*.log
+
+# Documentation builds
+docs/_build/
+docs/.doctrees/
+
+# Test coverage
+htmlcov/
+.coverage
+
+# Django templates (Prettier breaks Django template syntax - use djLint instead)
+**/templates/**/*.html
+**/*.html
+*.html

@@ -11,30 +11,28 @@ principle: Local ↔ Django ↔ Gitea
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 from apps.project_app.models import Project
-from apps.gitea_app.api_client import GiteaClient, GiteaAPIError
+from apps.gitea_app.api_client import GiteaClient
 import logging
 
 logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    help = 'Find and optionally delete orphaned Gitea repositories'
+    help = "Find and optionally delete orphaned Gitea repositories"
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--delete',
-            action='store_true',
-            help='Actually delete orphaned repositories (default: dry run)'
+            "--delete",
+            action="store_true",
+            help="Actually delete orphaned repositories (default: dry run)",
         )
         parser.add_argument(
-            '--username',
-            type=str,
-            help='Only check repositories for specific user'
+            "--username", type=str, help="Only check repositories for specific user"
         )
 
     def handle(self, *args, **options):
-        delete_mode = options['delete']
-        username_filter = options.get('username')
+        delete_mode = options["delete"]
+        username_filter = options.get("username")
 
         self.stdout.write(
             self.style.WARNING(
@@ -77,13 +75,13 @@ class Command(BaseCommand):
 
                 # Get all Django projects for this user
                 django_projects = set(
-                    Project.objects.filter(owner=user).values_list('slug', flat=True)
+                    Project.objects.filter(owner=user).values_list("slug", flat=True)
                 )
 
                 # Find orphaned repos
                 for repo in gitea_repos:
-                    repo_name = repo['name']
-                    repo_id = repo['id']
+                    repo_name = repo["name"]
+                    repo_id = repo["id"]
 
                     if repo_name not in django_projects:
                         # Orphaned repository found!
@@ -99,9 +97,7 @@ class Command(BaseCommand):
                                 client.delete_repository(user.username, repo_name)
                                 total_deleted += 1
                                 self.stdout.write(
-                                    self.style.SUCCESS(
-                                        f"     ✓ DELETED from Gitea"
-                                    )
+                                    self.style.SUCCESS(f"     ✓ DELETED from Gitea")
                                 )
                             except Exception as del_error:
                                 errors += 1
@@ -112,7 +108,7 @@ class Command(BaseCommand):
                                 )
                                 logger.error(
                                     f"Failed to delete {user.username}/{repo_name}: {del_error}",
-                                    exc_info=True
+                                    exc_info=True,
                                 )
                     else:
                         # Has Django project - this is correct
@@ -123,13 +119,10 @@ class Command(BaseCommand):
             except Exception as e:
                 errors += 1
                 self.stdout.write(
-                    self.style.ERROR(
-                        f"  ✗ ERROR checking {user.username}: {e}"
-                    )
+                    self.style.ERROR(f"  ✗ ERROR checking {user.username}: {e}")
                 )
                 logger.error(
-                    f"Failed to check user {user.username}: {e}",
-                    exc_info=True
+                    f"Failed to check user {user.username}: {e}", exc_info=True
                 )
 
         # Summary

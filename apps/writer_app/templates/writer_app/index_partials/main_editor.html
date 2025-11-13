@@ -1,573 +1,968 @@
 <!-- Main Editor -->
 <div class="writer-main" id="editor-main">
-  <!-- Sticky Toolbar -->
-  <div class="writer-toolbar-sticky">
-    <div class="toolbar-left">
-      <!-- Left toolbar items will be minimal -->
-    </div>
+    <!-- Sticky Toolbar -->
+    <div class="writer-toolbar-sticky">
+        <div class="toolbar-left">
+            <!-- Left toolbar items will be minimal -->
+        </div>
 
-    <div class="toolbar-center">
-      <!-- Editor Tools: Reserved for future additions -->
     </div>
-
-    <div class="toolbar-right">
-      <!-- Toolbar right is now empty - buttons moved to panel headers -->
-    </div>
-  </div>
-
-  <div class="writer-editor">
-    <!-- Split View Only -->
-    <div class="editor-content-wrapper">
-      <!-- Split View -->
-      <div id="editor-view-split" class="editor-view split-view active">
-        <div class="latex-panel">
-          <div class="panel-header">
-            <div class="header-left">
-              <!-- Document Type & Section Selectors replace title -->
-              <div class="horizontal-selector-group">
-                <div class="horizontal-selector">
-                  <label for="doctype-selector" class="selector-label"><i class="fas fa-file-alt me-1"></i></label>
-                  <select id="doctype-selector" class="form-select form-select-sm">
-                    <option value="shared">Shared</option>
-                    <option value="manuscript" selected>Manuscript</option>
-                    <option value="supplementary">Supplementary</option>
-                    <option value="revision">Revision</option>
-                  </select>
-                </div>
-                <!-- Custom Section Selector with Drag & Drop -->
-                <div class="horizontal-selector">
-                  <label for="section-selector-toggle" class="selector-label"><i class="fas fa-file-code me-1"></i></label>
-                  <div class="custom-section-selector">
-                    <button id="section-selector-toggle" class="section-selector-btn" type="button">
-                      <span id="section-selector-text">Loading...</span>
-                      <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" style="margin-left: 4px;">
-                        <path d="M4 6l4 4 4-4H4z"/>
-                      </svg>
-                    </button>
-                    <div id="section-selector-dropdown" class="section-selector-dropdown" style="display: none;">
-                      <!-- Sections will be populated here -->
+    <div class="writer-editor">
+        <!-- Split View Only -->
+        <div class="editor-content-wrapper">
+            <!-- Split View -->
+            <div id="editor-view-split" class="editor-view split-view active">
+                <div class="latex-panel">
+                    <div class="panel-header">
+                        <div class="header-left">
+                            <!-- Document Type & Section Selectors replace title -->
+                            <div class="horizontal-selector-group">
+                                <div class="horizontal-selector">
+                                    <select id="doctype-selector" class="form-select form-select-sm">
+                                        <option value="shared">Shared</option>
+                                        <option value="manuscript" selected>Manuscript</option>
+                                        <option value="supplementary">Supplementary</option>
+                                        <option value="revision">Revision</option>
+                                    </select>
+                                </div>
+                                <!-- Custom Section Selector with Drag & Drop -->
+                                <div class="horizontal-selector">
+                                    <div class="custom-section-selector">
+                                        <button id="section-selector-toggle"
+                                                class="section-selector-btn"
+                                                type="button">
+                                            <span id="section-selector-text">Loading...</span>
+                                            <svg width="12"
+                                                 height="12"
+                                                 viewBox="0 0 16 16"
+                                                 fill="currentColor"
+                                                 style="margin-left: 4px">
+                                                <path d="M4 6l4 4 4-4H4z" />
+                                            </svg>
+                                        </button>
+                                        <div id="section-selector-dropdown"
+                                             class="section-selector-dropdown"
+                                             style="display: none">
+                                            <!-- Sections will be populated here -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Git Operations -->
+                            <div style="display: flex;
+                                        align-items: center;
+                                        gap: 0.25rem">
+                                <button id="git-status-display"
+                                        class="btn btn-sm"
+                                        style="padding: 0.2rem 0.5rem;
+                                               display: flex;
+                                               align-items: center;
+                                               gap: 0.25rem;
+                                               border: none;
+                                               background: transparent;
+                                               font-size: 0.75rem;
+                                               color: var(--color-fg-muted)"
+                                        title="Git branch"
+                                        onclick="void(0)">
+                                    <i class="fas fa-code-branch" style="font-size: 0.7rem"></i>
+                                    <span id="git-branch-name">main</span>
+                                    <span id="git-unpushed-count" style="display: none">↑<span>0</span></span>
+                                </button>
+                                <button id="git-commit-btn"
+                                        class="btn btn-sm btn-outline-secondary"
+                                        title="Create git commit for current changes">
+                                    <i class="fas fa-code-branch"></i>
+                                </button>
+                            </div>
+                            <!-- Word Count -->
+                            <div class="word-count-inline" title="Current section word count">
+                                <span id="current-word-count">0</span> words
+                            </div>
+                            <!-- Keyboard Shortcuts Button -->
+                            <button id="shortcuts-btn"
+                                    class="btn btn-sm btn-outline-secondary"
+                                    title="View keyboard shortcuts"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#shortcuts-modal"
+                                    style="font-size: 0.75rem;
+                                           padding: 0.25rem 0.5rem">
+                                <i class="fas fa-keyboard"></i>
+                            </button>
+                        </div>
+                        <div class="header-right">
+                            <!-- Font Size Controls -->
+                            <select id="font-size-select"
+                                    class="form-select form-select-sm"
+                                    style="width: auto;
+                                           font-size: 0.75rem;
+                                           padding: 0.2rem 0.5rem"
+                                    aria-label="Font Size">
+                                <option value="10">10px</option>
+                                <option value="11">11px</option>
+                                <option value="12">12px</option>
+                                <option value="13">13px</option>
+                                <option value="14" selected>14px</option>
+                                <option value="15">15px</option>
+                                <option value="16">16px</option>
+                                <option value="17">17px</option>
+                                <option value="18">18px</option>
+                                <option value="19">19px</option>
+                                <option value="20">20px</option>
+                            </select>
+                            <!-- Keybinding Selector - Hidden (not working with Monaco) -->
+                            <label for="keybinding-selector"
+                                   class="form-label"
+                                   style="font-size: 0.75rem;
+                                          margin: 0;
+                                          display: none;
+                                          align-items: center;
+                                          gap: 0.25rem">
+                                <i class="fas fa-keyboard"></i>
+                                <span class="visually-hidden">Keybinding</span>
+                            </label>
+                            <select id="keybinding-selector"
+                                    class="form-select form-select-sm"
+                                    style="width: auto;
+                                           font-size: 0.75rem;
+                                           display: none"
+                                    aria-label="Keybinding">
+                                <option value="default">Keymap: Default</option>
+                            </select>
+                            <!-- Theme Selector - Hidden, using vs-dark -->
+                            <label for="theme-selector"
+                                   class="form-label"
+                                   style="font-size: 0.75rem;
+                                          margin: 0;
+                                          display: none;
+                                          align-items: center;
+                                          gap: 0.25rem">
+                                <i class="fas fa-palette"></i>
+                                <span class="visually-hidden">Theme</span>
+                            </label>
+                            <select id="theme-selector"
+                                    class="form-select form-select-sm"
+                                    style="width: auto;
+                                           font-size: 0.75rem;
+                                           display: none"
+                                    aria-label="Theme">
+                                <option value="vs-dark" selected>Dark</option>
+                            </select>
+                        </div>
                     </div>
-                  </div>
+                    <textarea id="latex-editor-textarea"
+                              class="latex-editor-textarea"
+                              placeholder="LaTeX code..."></textarea>
                 </div>
-
-                <!-- Keep delete button only -->
-                <div class="section-management-btns">
-                  <button id="delete-section-btn" class="btn btn-sm btn-outline-danger"
-                          title="Delete Current Section" style="display: none;">
-                    <i class="fas fa-trash-alt"></i>
-                  </button>
+                <!-- Resizable Panel Divider -->
+                <div class="panel-resizer"
+                     id="panel-resizer"
+                     title="Drag to resize panels"></div>
+                <div class="preview-panel">
+                    <!-- PDF View (default visible) -->
+                    <div id="pdf-view" class="right-panel-view">
+                        <!-- PDF Header -->
+                        <div class="panel-header" id="pdf-panel-header">
+                            <div class="header-left">
+                                <!-- View Toggle -->
+                                <div class="view-switcher me-2" role="group">
+                                    <button type="button"
+                                            id="show-pdf-btn"
+                                            class="view-switch-btn active"
+                                            onclick="switchRightPanel('pdf')"
+                                            title="Toggle PDF Preview (Ctrl+2)">
+                                        <i class="fas fa-file-pdf"></i>
+                                        <span class="visually-hidden">PDF Pane</span>
+                                    </button>
+                                    <button type="button"
+                                            id="show-citations-btn"
+                                            class="view-switch-btn"
+                                            onclick="switchRightPanel('citations')"
+                                            title="Toggle Citations (Ctrl+3)">
+                                        <i class="fas fa-book"></i>
+                                        <span class="visually-hidden">Citations Pane</span>
+                                    </button>
+                                </div>
+                                <!-- Compile Button (hidden, triggered from dropdown) -->
+                                <button id="compile-btn-toolbar"
+                                        class="btn btn-sm btn-primary"
+                                        style="display: none"
+                                        title="Compile entire manuscript to PDF (all sections combined)">
+                                    <i class="fas fa-rocket me-1"></i><span id="compile-btn-text">Compile Full Manuscript</span>
+                                </button>
+                            </div>
+                            <div class="header-right">
+                                <!-- 1. Preview Compilation Controls -->
+                                <div class="status-indicator-group">
+                                    <span class="status-indicator-label">Preview</span>
+                                    <span class="status-lamp-dot"
+                                          id="preview-status-lamp"
+                                          data-status="idle"
+                                          title="Preview status (click to view log)"
+                                          onclick="togglePreviewLog()"
+                                          style="cursor: pointer"></span>
+                                    <button class="btn btn-sm btn-outline-secondary"
+                                            id="preview-toggle-button"
+                                            onclick="handlePreviewClick()"
+                                            style="padding: 0.15rem 0.4rem;
+                                                   font-size: 0.7rem;
+                                                   line-height: 1"
+                                            title="Start preview compilation (Alt+Enter)">
+                                        <i class="fas fa-play"></i>
+                                    </button>
+                                </div>
+                                <!-- 2. Full Compilation Controls -->
+                                <div class="status-indicator-group">
+                                    <span class="status-indicator-label">Full</span>
+                                    <span class="status-lamp-dot"
+                                          id="fullcompile-status-lamp"
+                                          data-status="idle"
+                                          title="Full compilation status (click to view log)"
+                                          onclick="toggleFullLog()"
+                                          style="cursor: pointer"></span>
+                                    <button class="btn btn-sm btn-outline-secondary"
+                                            id="fullcompile-toggle-button"
+                                            onclick="handleFullCompileClick()"
+                                            style="padding: 0.15rem 0.4rem;
+                                                   font-size: 0.7rem;
+                                                   line-height: 1"
+                                            title="Start full compilation (Alt+Shift+Enter)">
+                                        <i class="fas fa-play"></i>
+                                    </button>
+                                </div>
+                                <!-- 3. Compilation Settings Gear -->
+                                <button id="compilation-settings-btn"
+                                        class="btn btn-sm btn-outline-secondary"
+                                        title="Compilation Settings"
+                                        style="padding: 0.2rem 0.5rem">
+                                    <i class="fas fa-cog"></i>
+                                </button>
+                                <!-- Hidden checkboxes (controlled by settings modal) -->
+                                <input type="checkbox"
+                                       id="auto-preview-checkbox-panel"
+                                       class="form-check-input"
+                                       style="display: none"
+                                       checked />
+                                <input type="checkbox"
+                                       id="auto-fullcompile-checkbox"
+                                       class="form-check-input"
+                                       style="display: none" />
+                                <!-- 4. PDF Zoom Selector (Size Dropdown) -->
+                                <select id="pdf-zoom-select"
+                                        class="form-select form-select-sm"
+                                        style="width: auto;
+                                               font-size: 0.75rem;
+                                               padding: 0.2rem 0.5rem"
+                                        aria-label="PDF Zoom Level">
+                                    <option value="50">50%</option>
+                                    <option value="75">75%</option>
+                                    <option value="100">100%</option>
+                                    <option value="125" selected>125%</option>
+                                    <option value="150">150%</option>
+                                    <option value="200">200%</option>
+                                </select>
+                                <!-- 5. PDF Theme Toggle (Light/Dark) -->
+                                <button id="pdf-color-mode-btn"
+                                        class="btn btn-sm btn-outline-secondary"
+                                        title="PDF Theme: Light (Click to toggle)">
+                                    <span class="theme-icon" style="font-size: 1rem">☀️</span>
+                                </button>
+                                <!-- 6. Download Current PDF Button -->
+                                <button id="download-btn-toolbar"
+                                        class="btn btn-sm btn-outline-secondary"
+                                        title="Download PDF"
+                                        data-bs-toggle="tooltip"
+                                        data-bs-placement="bottom"
+                                        onclick="handleDownloadCurrentPDF(event)">
+                                    <i class="fas fa-download"></i>
+                                    <span class="visually-hidden">Download PDF</span>
+                                </button>
+                                <!-- Background compilation status indicator -->
+                                <div id="background-compile-status"
+                                     class="status-indicator"
+                                     style="opacity: 0;
+                                            transition: opacity 0.3s"></div>
+                                <!-- Minimized compilation status (clickable to restore) -->
+                                <button id="minimized-compilation-status"
+                                        class="minimized-compilation-status"
+                                        style="display: none"
+                                        title="Click to show compilation details">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                    <span id="minimized-compilation-text">Compiling...</span>
+                                    <span id="minimized-compilation-progress">0%</span>
+                                </button>
+                                <!-- Countdown indicator -->
+                                <div id="compile-countdown-indicator"
+                                     class="countdown-indicator"
+                                     style="opacity: 0;
+                                            transition: opacity 0.3s"></div>
+                            </div>
+                        </div>
+                        <!-- Slim Progress Bar (tqdm-style, hidden by default) -->
+                        <div id="compilation-slim-progress"
+                             class="compilation-slim-progress"
+                             style="display: none">
+                            <div class="slim-progress-bar">
+                                <div id="slim-progress-fill" class="slim-progress-fill" style="width: 0%"></div>
+                            </div>
+                            <div class="slim-progress-text">
+                                <span id="slim-progress-percent">0%</span>
+                                <span id="slim-progress-status">Initializing...</span>
+                                <span id="slim-progress-eta"></span>
+                            </div>
+                        </div>
+                        <!-- PDF Content -->
+                        <div id="text-preview" class="text-preview"></div>
+                    </div>
+                    <!-- Citations View (hidden by default) -->
+                    <div id="citations-view" class="right-panel-view" style="display: none">
+                        <!-- Citations Header -->
+                        <div class="panel-header" id="citations-panel-header">
+                            <div class="header-left">
+                                <!-- View Toggle -->
+                                <div class="view-switcher me-2" role="group">
+                                    <button type="button"
+                                            class="view-switch-btn"
+                                            onclick="switchRightPanel('pdf')"
+                                            title="Back to PDF Preview (Ctrl+2)">
+                                        <i class="fas fa-file-pdf"></i>
+                                        <span class="visually-hidden">PDF Pane</span>
+                                    </button>
+                                    <button type="button"
+                                            class="view-switch-btn active"
+                                            onclick="switchRightPanel('citations')"
+                                            title="Citations (Ctrl+3)">
+                                        <i class="fas fa-book"></i>
+                                        <span class="visually-hidden">Citations Pane</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="header-right" style="display: flex; align-items: center; gap: 0.5rem; flex: 1">
+                                <!-- 1. Citations Selection Count -->
+                                <span id="citations-selected-toolbar" style="font-size: 0.75rem; color: var(--color-fg-muted); white-space: nowrap">
+                                    <span id="citations-selected-count-toolbar">0</span>/<span id="citations-total-for-selection-toolbar">0</span> Selected
+                                </span>
+                                <!-- 2. Search Input (Compact) -->
+                                <div style="position: relative; flex: 1; max-width: 250px">
+                                    <i class="fas fa-search" style="position: absolute; left: 0.5rem; top: 50%; transform: translateY(-50%); font-size: 0.7rem; color: var(--color-fg-muted); pointer-events: none"></i>
+                                    <input type="text"
+                                           id="citations-search-toolbar"
+                                           class="form-control form-control-sm"
+                                           placeholder="Search Citations..."
+                                           style="padding-left: 1.75rem; padding-right: 2.25rem; font-size: 0.75rem; height: 28px" />
+                                    <kbd style="position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); font-size: 0.65rem; padding: 0.1rem 0.3rem; background: var(--color-canvas-subtle); border: 1px solid var(--color-border-default); border-radius: 3px; color: var(--color-fg-muted); pointer-events: none">Ctrl+K</kbd>
+                                </div>
+                                <!-- 3. Sort Select (Compact) -->
+                                <div style="position: relative; display: inline-flex; align-items: center">
+                                    <i class="fas fa-sort-amount-down" style="position: absolute; left: 0.5rem; font-size: 0.7rem; color: var(--color-fg-muted); pointer-events: none; z-index: 1"></i>
+                                    <select id="citations-sort-toolbar" class="form-select form-select-sm" style="width: auto; font-size: 0.75rem; padding: 0.2rem 1.5rem 0.2rem 1.75rem; height: 28px">
+                                        <option value="citation-count">Citations ↓</option>
+                                        <option value="year-desc">Year ↓</option>
+                                        <option value="year-asc">Year ↑</option>
+                                        <option value="alpha">A→Z</option>
+                                    </select>
+                                </div>
+                                <!-- 4. Download Citations as BibTeX Button (Far Right) -->
+                                <button class="btn btn-sm btn-outline-secondary"
+                                        id="download-citations-bibtex"
+                                        title="Download Citations (BibTeX)"
+                                        onclick="handleDownloadCitationsBibTeX(event)">
+                                    <i class="fas fa-download"></i>
+                                    <span class="visually-hidden">Download BibTeX</span>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Citations Content -->
+                        {% include "writer_app/index_partials/citations_panel.html" %}
+                    </div>
                 </div>
-              </div>
-
-              <!-- Word count indicator -->
-              <div class="word-count-inline">
-                <i class="fas fa-pencil-alt"></i>
-                <span id="current-word-count">0</span>
-              </div>
-              <!-- Save Status Indicator -->
-              <div id="save-status" class="save-status-inline">
-                <i class="fas fa-check-circle text-success"></i>
-                <span class="status-text">Saved</span>
-              </div>
-              <!-- Git Commit Button -->
-              <button id="git-commit-btn" class="btn btn-sm btn-outline-primary"
-                      title="Create git commit for current changes"
-                      style="font-size: 0.75rem; padding: 0.25rem 0.5rem;">
-                <i class="fas fa-code-branch me-1"></i>Commit
-              </button>
-              <!-- Keyboard Shortcuts Button -->
-              <button id="shortcuts-btn" class="btn btn-sm btn-outline-secondary"
-                      title="View keyboard shortcuts"
-                      data-bs-toggle="modal"
-                      data-bs-target="#shortcuts-modal"
-                      style="font-size: 0.75rem; padding: 0.25rem 0.5rem;">
-                <i class="fas fa-keyboard"></i>
-              </button>
             </div>
-            <div class="header-right">
-              <!-- Font Size Selector -->
-              <label for="font-size-selector" class="form-label" style="font-size: 0.75rem; margin: 0; display: flex; align-items: center; gap: 0.25rem;">
-                <i class="fas fa-text-height"></i>
-                <span class="visually-hidden">Font Size</span>
-              </label>
-              <select id="font-size-selector" class="form-select form-select-sm" style="min-width: 70px; font-size: 0.75rem;" aria-label="Font Size">
-                <option value="10">10px</option>
-                <option value="11">11px</option>
-                <option value="12">12px</option>
-                <option value="13">13px</option>
-                <option value="14" selected>14px</option>
-                <option value="15">15px</option>
-                <option value="16">16px</option>
-                <option value="17">17px</option>
-                <option value="18">18px</option>
-                <option value="19">19px</option>
-                <option value="20">20px</option>
-              </select>
-              <!-- Keybinding Selector - Hidden (not working with Monaco) -->
-              <label for="keybinding-selector" class="form-label" style="font-size: 0.75rem; margin: 0; display: none; align-items: center; gap: 0.25rem;">
-                <i class="fas fa-keyboard"></i>
-                <span class="visually-hidden">Keybinding</span>
-              </label>
-              <select id="keybinding-selector" class="form-select form-select-sm" style="width: auto; font-size: 0.75rem; display: none;" aria-label="Keybinding">
-                <option value="default">Keymap: Default</option>
-              </select>
-              <!-- Theme Selector - Hidden, using vs-dark -->
-              <label for="theme-selector" class="form-label" style="font-size: 0.75rem; margin: 0; display: none; align-items: center; gap: 0.25rem;">
-                <i class="fas fa-palette"></i>
-                <span class="visually-hidden">Theme</span>
-              </label>
-              <select id="theme-selector" class="form-select form-select-sm" style="width: auto; font-size: 0.75rem; display: none;" aria-label="Theme">
-                <option value="vs-dark" selected>Dark</option>
-              </select>
-            </div>
-          </div>
-          <textarea id="latex-editor-textarea" class="latex-editor-textarea" placeholder="LaTeX code..."></textarea>
         </div>
-        <!-- Resizable Panel Divider -->
-        <div class="panel-resizer" id="panel-resizer" title="Drag to resize panels"></div>
-        <div class="preview-panel">
-          <!-- PDF View (default visible) -->
-          <div id="pdf-view" class="right-panel-view">
-            <!-- PDF Header -->
-            <div class="panel-header" id="pdf-panel-header">
-              <div class="header-left">
-                <!-- View Toggle -->
-                <div class="view-switcher me-2" role="group">
-                  <button type="button" id="show-pdf-btn" class="view-switch-btn active" onclick="switchRightPanel('pdf')" title="PDF Preview">
-                    <i class="fas fa-file-pdf me-1"></i>PDF Pane
-                  </button>
-                  <button type="button" id="show-citations-btn" class="view-switch-btn" onclick="switchRightPanel('citations')" title="Citations">
-                    <i class="fas fa-book me-1"></i>Citations Pane
-                  </button>
+        <!-- Inline Compilation Output (Initially Hidden) -->
+        <div id="compilation-output"
+             class="compilation-output"
+             style="display: none">
+            <!-- Progress Bar -->
+            <div id="compilation-progress-container"
+                 style="display: none;
+                        padding: 0.75rem 1rem;
+                        border-bottom: 1px solid var(--color-border-default)">
+                <div style="display: flex;
+                            justify-content: space-between;
+                            margin-bottom: 0.4rem;
+                            font-size: 0.85rem">
+                    <span id="compilation-progress-percent">0%</span>
+                    <span id="compilation-progress-status">Initializing...</span>
                 </div>
-
-                <!-- Compile Button (hidden, triggered from dropdown) -->
-                <button id="compile-btn-toolbar" class="btn btn-sm btn-primary" style="display: none;"
-                        title="Compile entire manuscript to PDF (all sections combined)">
-                  <i class="fas fa-rocket me-1"></i><span id="compile-btn-text">Compile Full Manuscript</span>
-                </button>
-
-                <!-- Download Current PDF Button -->
-                <button id="download-btn-toolbar" class="btn btn-sm btn-outline-secondary"
-                        title="Download currently displayed PDF"
-                        data-bs-toggle="tooltip"
-                        data-bs-placement="bottom"
-                        onclick="handleDownloadCurrentPDF(event)">
-                  <i class="fas fa-download me-1"></i><span id="download-btn-text">Download PDF</span>
-                </button>
-              </div>
-              <div class="header-right">
-                <!-- PDF Theme Toggle (independent from global theme) -->
-                <button id="pdf-color-mode-btn" class="btn btn-sm btn-outline-secondary" title="PDF Theme: Light (Click to toggle)">
-                  <span class="theme-icon" style="font-size: 1rem;">☀️</span>
-                </button>
-
-                <!-- Auto Preview Checkbox -->
-                <div class="auto-preview-control-panel">
-                  <input type="checkbox" id="auto-preview-checkbox-panel" class="form-check-input" checked>
-                  <label for="auto-preview-checkbox-panel" class="form-check-label" style="margin: 0; font-size: 0.7rem; cursor: pointer;">
-                    <i class="fas fa-magic me-1"></i>Auto (5s)
-                  </label>
+                <div style="background: var(--color-canvas-subtle);
+                            height: 6px;
+                            border-radius: 3px;
+                            overflow: hidden">
+                    <div id="compilation-progress-bar"
+                         style="background: var(--color-accent-emphasis);
+                                height: 100%;
+                                width: 0%;
+                                transition: width 0.3s ease;
+                                border-radius: 3px"></div>
                 </div>
-                <!-- PDF Zoom Controls -->
-                <div class="pdf-zoom-controls" style="display: flex; align-items: center; gap: 0.3rem; margin-left: 0.75rem; padding-left: 0.75rem; border-left: 1px solid var(--color-border-muted);">
-                  <button id="pdf-zoom-out" class="btn btn-sm btn-outline-secondary" style="padding: 0.2rem 0.4rem; font-size: 0.7rem; line-height: 1;" title="Zoom Out">
-                    <i class="fas fa-search-minus"></i>
-                  </button>
-                  <select id="pdf-zoom-selector" class="form-select form-select-sm" style="min-width: 70px; font-size: 0.75rem; padding: 0.2rem 0.5rem;" aria-label="PDF Zoom">
-                    <option value="100">100%</option>
-                    <option value="125" selected>125%</option>
-                    <option value="150">150%</option>
-                    <option value="175">175%</option>
-                    <option value="200">200%</option>
-                  </select>
-                  <button id="pdf-zoom-in" class="btn btn-sm btn-outline-secondary" style="padding: 0.2rem 0.4rem; font-size: 0.7rem; line-height: 1;" title="Zoom In">
-                    <i class="fas fa-search-plus"></i>
-                  </button>
-                </div>
-                <!-- Preview/Reload Button -->
-                <button id="preview-btn-panel" class="preview-btn-inline" title="Refresh PDF Preview">
-                  <i class="fas fa-sync-alt"></i>
-                </button>
-                <!-- Background compilation status indicator -->
-                <div id="background-compile-status" class="status-indicator" style="opacity: 0; transition: opacity 0.3s;"></div>
-                <!-- Countdown indicator -->
-                <div id="compile-countdown-indicator" class="countdown-indicator" style="opacity: 0; transition: opacity 0.3s;"></div>
-              </div>
             </div>
-            <!-- PDF Content -->
-            <div id="text-preview" class="text-preview"></div>
-          </div>
-
-          <!-- Citations View (hidden by default) -->
-          <div id="citations-view" class="right-panel-view" style="display: none;">
-            <!-- Citations Header -->
-            <div class="panel-header" id="citations-panel-header">
-              <div class="header-left">
-                <!-- View Toggle -->
-                <div class="view-switcher me-2" role="group">
-                  <button type="button" class="view-switch-btn" onclick="switchRightPanel('pdf')" title="Back to PDF">
-                    <i class="fas fa-file-pdf me-1"></i>PDF Pane
-                  </button>
-                  <button type="button" class="view-switch-btn active" onclick="switchRightPanel('citations')" title="Citations">
-                    <i class="fas fa-book me-1"></i>Citations Pane
-                  </button>
-                </div>
-
-                <!-- Download Current PDF Button -->
-                <button class="btn btn-sm btn-outline-secondary"
-                        title="Download currently displayed PDF"
-                        onclick="handleDownloadCurrentPDF(event)">
-                  <i class="fas fa-download me-1"></i>Download PDF
-                </button>
-              </div>
-              <div class="header-right">
-                <!-- Citations-specific controls could go here -->
-                <small class="text-muted" style="font-size: 0.75rem;">
-                  <i class="fas fa-info-circle me-1"></i>Drag cards to editor to insert citations
-                </small>
-              </div>
+            <!-- Alert Banner for Compilation Status -->
+            <div id="compilation-alert-banner"
+                 style="display: none;
+                        padding: 0.75rem 1rem">
+                <!-- Will be populated dynamically with alert-banner classes -->
             </div>
-            <!-- Citations Content -->
-            {% include "writer_app/index_partials/citations_panel.html" %}
-          </div>
+            <!-- Log Output (direct display without header/wrapper) -->
+            <div id="compilation-log-inline"
+                 class="terminal-log terminal-log--medium"
+                 style="border-radius: 0;
+                        flex: 1;
+                        min-height: 200px">Click "Compile" to start compilation...</div>
+            <!-- Success/Error Messages -->
+            <div id="compilation-result-inline"
+                 style="display: none;
+                        padding: 1rem;
+                        border-top: 1px solid var(--color-border-default)"></div>
         </div>
-      </div>
+        <!-- Compilation Panel (hidden by default) -->
+        <div id="compilation-panel" class="split-editor" style="display: none">
+            <!-- Horizontal: Compile Button & Log -->
+            <div class="compilation-grid">
+                <!-- Left: Compile/Stop Button -->
+                <div class="compilation-buttons">
+                    <button id="compile-btn-panel" class="btn btn-primary w-100 btn-lg mb-2">
+                        <i class="fas fa-file-pdf me-2"></i>Compile PDF
+                    </button>
+                    <button id="quick-compile-btn-panel"
+                            class="btn btn-outline-primary w-100 mb-2">
+                        <i class="fas fa-bolt me-2"></i>Quick Compile (text only)
+                    </button>
+                    <button id="stop-compile-btn"
+                            class="btn btn-danger w-100"
+                            style="display: none">
+                        <i class="fas fa-stop me-2"></i>Stop
+                    </button>
+                </div>
+                <!-- Right: Log Viewer (fills available space) -->
+                <div id="compilation-log-panel" class="compilation-log-panel">Click "Compile PDF" to start compilation...</div>
+            </div>
+            <!-- Side-by-Side PDFs with Outlines -->
+            <div class="pdf-comparison-grid">
+                <!-- Manuscript PDF (Left) -->
+                <div class="flex-column">
+                    <div class="flex-center-between mb-2">
+                        <h6 style="color: var(--color-fg-default); margin: 0">
+                            <i class="fas fa-file-pdf text-danger me-2"></i>Manuscript
+                        </h6>
+                        <div>
+                            <button id="toggle-outline-main"
+                                    class="btn btn-sm btn-outline-secondary me-1"
+                                    title="Toggle outline">
+                                <i class="fas fa-list"></i>
+                            </button>
+                            <a id="pdf-view-link-panel"
+                               href="#"
+                               target="_blank"
+                               class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-external-link-alt"></i>
+                            </a>
+                            <a id="pdf-download-link-panel"
+                               href="#"
+                               download
+                               class="btn btn-sm btn-outline-secondary">
+                                <i class="fas fa-download"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="pdf-pdf-container">
+                        <div id="pdf-outline-main" class="pdf-outline-panel">
+                            <div class="pdf-outline-title">Outline</div>
+                            <div id="pdf-outline-items-main"></div>
+                        </div>
+                        <div id="pdf-viewer-panel"
+                             style="flex: 1;
+                                    border: 1px solid var(--color-border-default);
+                                    border-radius: 4px;
+                                    background: white">
+                            <div class="pdf-viewer-loading">
+                                <i class="fas fa-spinner fa-spin me-2"></i>Loading PDF...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Diff PDF (Right) -->
+                <div class="flex-column">
+                    <div class="flex-center-between mb-2">
+                        <h6 style="color: var(--color-fg-default); margin: 0">
+                            <i class="fas fa-code-branch text-info me-2"></i>Diff PDF
+                            (Changes)
+                        </h6>
+                        <div>
+                            <button id="toggle-outline-diff"
+                                    class="btn btn-sm btn-outline-secondary me-1"
+                                    title="Toggle outline"
+                                    style="display: none">
+                                <i class="fas fa-list"></i>
+                            </button>
+                            <a id="diff-pdf-view-link-panel"
+                               href="#"
+                               target="_blank"
+                               class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-external-link-alt"></i>
+                            </a>
+                            <a id="diff-pdf-download-link-panel"
+                               href="#"
+                               download
+                               class="btn btn-sm btn-outline-secondary">
+                                <i class="fas fa-download"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="pdf-pdf-container">
+                        <div id="pdf-outline-diff" class="pdf-outline-panel">
+                            <div class="pdf-outline-title">Outline</div>
+                            <div id="pdf-outline-items-diff"></div>
+                        </div>
+                        <div style="flex: 1; position: relative">
+                            <div id="diff-pdf-placeholder"
+                                 style="width: 100%;
+                                        height: 100%;
+                                        border: 1px solid var(--color-border-default);
+                                        border-radius: 4px;
+                                        background: var(--color-canvas-subtle);
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: center;
+                                        color: var(--color-fg-muted);
+                                        position: absolute">
+                                <div style="text-align: center">
+                                    <i class="fas fa-info-circle fa-2x mb-3"></i>
+                                    <p>Diff PDF will appear after compilation</p>
+                                    <small>Shows tracked changes from previous version</small>
+                                </div>
+                            </div>
+                            <div id="diff-pdf-viewer-panel"
+                                 style="width: 100%;
+                                        height: 100%;
+                                        border: 1px solid var(--color-border-default);
+                                        border-radius: 4px;
+                                        background: white;
+                                        display: none"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-
-    <!-- Inline Compilation Output (Initially Hidden) -->
-    <div id="compilation-output" class="compilation-output" style="display: none;">
-      <div class="compilation-output-header">
-        <div style="display: flex; align-items: center; gap: 0.5rem;">
-          <i id="compilation-icon" class="fas fa-terminal"></i>
-          <span id="compilation-header-title">Compilation Output</span>
-        </div>
-        <button id="close-compilation-output" class="btn btn-sm btn-outline-secondary">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-
-      <!-- Progress Bar -->
-      <div id="compilation-progress-container" style="display: none; padding: 0.75rem 1rem; border-bottom: 1px solid var(--color-border-default);">
-        <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem; font-size: 0.85rem;">
-          <span id="compilation-progress-percent">0%</span>
-          <span id="compilation-progress-status">Initializing...</span>
-        </div>
-        <div style="background: var(--color-canvas-subtle); height: 6px; border-radius: 3px; overflow: hidden;">
-          <div id="compilation-progress-bar" style="background: var(--color-accent-emphasis); height: 100%; width: 0%; transition: width 0.3s ease; border-radius: 3px;"></div>
-        </div>
-      </div>
-
-      <!-- Alert Banner for Compilation Status -->
-      <div id="compilation-alert-banner" style="display: none; padding: 0.75rem 1rem;">
-        <!-- Will be populated dynamically with alert-banner classes -->
-      </div>
-
-      <!-- Log Output (collapsible terminal) -->
-      <details id="compilation-log-details" style="border-top: 1px solid var(--color-border-default);" open>
-        <summary style="padding: 0.75rem 1rem; cursor: pointer; user-select: none; font-size: 0.85rem; color: var(--color-fg-muted);">
-          <i class="fas fa-terminal me-2"></i>Compilation log
-        </summary>
-        <div id="compilation-log-inline" class="terminal-log terminal-log--medium" style="border-top: 1px solid var(--color-border-default); border-radius: 0;">
-          Click "Compile" to start compilation...
-        </div>
-      </details>
-
-      <!-- Success/Error Messages -->
-      <div id="compilation-result-inline" style="display: none; padding: 1rem; border-top: 1px solid var(--color-border-default);">
-      </div>
-    </div>
-
-    <!-- Compilation Panel (hidden by default) -->
-    <div id="compilation-panel" class="split-editor" style="display: none;">
-      <!-- Horizontal: Compile Button & Log -->
-      <div class="compilation-grid">
-        <!-- Left: Compile/Stop Button -->
-        <div class="compilation-buttons">
-          <button id="compile-btn-panel" class="btn btn-primary w-100 btn-lg mb-2">
-            <i class="fas fa-file-pdf me-2"></i>Compile PDF
-          </button>
-          <button id="quick-compile-btn-panel" class="btn btn-outline-primary w-100 mb-2">
-            <i class="fas fa-bolt me-2"></i>Quick Compile (text only)
-          </button>
-          <button id="stop-compile-btn" class="btn btn-danger w-100" style="display: none;">
-            <i class="fas fa-stop me-2"></i>Stop
-          </button>
-        </div>
-
-        <!-- Right: Log Viewer (fills available space) -->
-        <div id="compilation-log-panel" class="compilation-log-panel">Click "Compile PDF" to start compilation...</div>
-      </div>
-
-      <!-- Side-by-Side PDFs with Outlines -->
-      <div class="pdf-comparison-grid">
-        <!-- Manuscript PDF (Left) -->
-        <div class="flex-column">
-          <div class="flex-center-between mb-2">
-            <h6 style="color: var(--color-fg-default); margin: 0;">
-              <i class="fas fa-file-pdf text-danger me-2"></i>Manuscript
-            </h6>
-            <div>
-              <button id="toggle-outline-main" class="btn btn-sm btn-outline-secondary me-1" title="Toggle outline">
-                <i class="fas fa-list"></i>
-              </button>
-              <a id="pdf-view-link-panel" href="#" target="_blank" class="btn btn-sm btn-outline-primary">
-                <i class="fas fa-external-link-alt"></i>
-              </a>
-              <a id="pdf-download-link-panel" href="#" download class="btn btn-sm btn-outline-secondary">
-                <i class="fas fa-download"></i>
-              </a>
-            </div>
-          </div>
-          <div class="pdf-pdf-container">
-            <div id="pdf-outline-main" class="pdf-outline-panel">
-              <div class="pdf-outline-title">Outline</div>
-              <div id="pdf-outline-items-main"></div>
-            </div>
-            <div id="pdf-viewer-panel" style="flex: 1; border: 1px solid var(--color-border-default); border-radius: 4px; background: white;">
-              <div class="pdf-viewer-loading">
-                <i class="fas fa-spinner fa-spin me-2"></i>Loading PDF...
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Diff PDF (Right) -->
-        <div class="flex-column">
-          <div class="flex-center-between mb-2">
-            <h6 style="color: var(--color-fg-default); margin: 0;">
-              <i class="fas fa-code-branch text-info me-2"></i>Diff PDF (Changes)
-            </h6>
-            <div>
-              <button id="toggle-outline-diff" class="btn btn-sm btn-outline-secondary me-1" title="Toggle outline" style="display: none;">
-                <i class="fas fa-list"></i>
-              </button>
-              <a id="diff-pdf-view-link-panel" href="#" target="_blank" class="btn btn-sm btn-outline-primary">
-                <i class="fas fa-external-link-alt"></i>
-              </a>
-              <a id="diff-pdf-download-link-panel" href="#" download class="btn btn-sm btn-outline-secondary">
-                <i class="fas fa-download"></i>
-              </a>
-            </div>
-          </div>
-          <div class="pdf-pdf-container">
-            <div id="pdf-outline-diff" class="pdf-outline-panel">
-              <div class="pdf-outline-title">Outline</div>
-              <div id="pdf-outline-items-diff"></div>
-            </div>
-            <div style="flex: 1; position: relative;">
-              <div id="diff-pdf-placeholder" style="width: 100%; height: 100%; border: 1px solid var(--color-border-default); border-radius: 4px; background: var(--color-canvas-subtle); display: flex; align-items: center; justify-content: center; color: var(--color-fg-muted); position: absolute;">
-                <div style="text-align: center;">
-                  <i class="fas fa-info-circle fa-2x mb-3"></i>
-                  <p>Diff PDF will appear after compilation</p>
-                  <small>Shows tracked changes from previous version</small>
-                </div>
-              </div>
-              <div id="diff-pdf-viewer-panel" style="width: 100%; height: 100%; border: 1px solid var(--color-border-default); border-radius: 4px; background: white; display: none;"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
-
 <!-- Add Section Modal -->
-<div class="modal fade" id="add-section-modal" tabindex="-1" aria-labelledby="add-section-modal-label" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="add-section-modal-label">
-          <i class="fas fa-plus me-2"></i>Add New Section
-        </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="mb-3">
-          <label for="new-section-name" class="form-label">Section Name</label>
-          <input type="text" id="new-section-name" class="form-control"
-                 placeholder="e.g., background, limitations, future_work"
-                 required>
-          <div class="form-text">
-            <i class="fas fa-info-circle me-1"></i>
-            Use lowercase letters, numbers, and underscores only
-          </div>
+<div class="modal fade"
+     id="add-section-modal"
+     tabindex="-1"
+     aria-labelledby="add-section-modal-label"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="add-section-modal-label">
+                    <i class="fas fa-plus me-2"></i>Add New Section
+                </h5>
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="new-section-name" class="form-label">Section Name</label>
+                    <input type="text"
+                           id="new-section-name"
+                           class="form-control"
+                           placeholder="e.g., background, limitations, future_work"
+                           required />
+                    <div class="form-text">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Use lowercase letters, numbers, and underscores only
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="new-section-label" class="form-label">Display Label (Optional)</label>
+                    <input type="text"
+                           id="new-section-label"
+                           class="form-control"
+                           placeholder="e.g., Background, Limitations, Future Work" />
+                    <div class="form-text">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Leave blank to auto-generate from section name
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" id="confirm-add-section-btn" class="btn btn-primary">
+                    <i class="fas fa-check me-1"></i>Add Section
+                </button>
+            </div>
         </div>
-        <div class="mb-3">
-          <label for="new-section-label" class="form-label">Display Label (Optional)</label>
-          <input type="text" id="new-section-label" class="form-control"
-                 placeholder="e.g., Background, Limitations, Future Work">
-          <div class="form-text">
-            <i class="fas fa-info-circle me-1"></i>
-            Leave blank to auto-generate from section name
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" id="confirm-add-section-btn" class="btn btn-primary">
-          <i class="fas fa-check me-1"></i>Add Section
-        </button>
-      </div>
     </div>
-  </div>
 </div>
-
 <!-- Delete Section Modal -->
-<div class="modal fade" id="delete-section-modal" tabindex="-1" aria-labelledby="delete-section-modal-label" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="delete-section-modal-label">
-          <i class="fas fa-trash-alt text-danger me-2"></i>Delete Section
-        </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="alert alert-danger" role="alert">
-          <i class="fas fa-exclamation-triangle me-2"></i>
-          <strong>Warning:</strong> This action cannot be undone!
+<div class="modal fade"
+     id="delete-section-modal"
+     tabindex="-1"
+     aria-labelledby="delete-section-modal-label"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="delete-section-modal-label">
+                    <i class="fas fa-trash-alt text-danger me-2"></i>Delete Section
+                </h5>
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Warning:</strong> This action cannot be undone!
+                </div>
+                <p>
+                    Are you sure you want to delete the section "<strong id="delete-section-name-display"></strong>"?
+                </p>
+                <p class="text-muted mb-0">
+                    <i class="fas fa-info-circle me-1"></i>
+                    The .tex file will be permanently deleted from your project.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" id="confirm-delete-section-btn" class="btn btn-danger">
+                    <i class="fas fa-trash-alt me-1"></i>Delete Section
+                </button>
+            </div>
         </div>
-        <p>Are you sure you want to delete the section "<strong id="delete-section-name-display"></strong>"?</p>
-        <p class="text-muted mb-0">
-          <i class="fas fa-info-circle me-1"></i>
-          The .tex file will be permanently deleted from your project.
-        </p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" id="confirm-delete-section-btn" class="btn btn-danger">
-          <i class="fas fa-trash-alt me-1"></i>Delete Section
-        </button>
-      </div>
     </div>
-  </div>
 </div>
-
 <!-- Git Commit Modal -->
-<div class="scitex-modal-overlay" id="git-commit-modal" style="display: none;">
-  <div class="scitex-modal-content" style="max-width: 480px;">
-    <div class="scitex-modal-header">
-      <h3><i class="fas fa-code-branch me-2"></i>Commit Changes</h3>
-      <button type="button" class="scitex-modal-close">&times;</button>
-    </div>
-    <div class="scitex-modal-body">
-      <div class="mb-3">
-        <label for="commit-message-input" class="form-label" style="font-size: 0.875rem; margin-bottom: 0.5rem; color: var(--color-fg-default);">Commit Message</label>
-        <input
-          type="text"
-          id="commit-message-input"
-          class="form-control"
-          placeholder="Update manuscript"
-          style="font-size: 0.875rem; background: var(--color-canvas-subtle); border-color: var(--color-border-default); color: var(--color-fg-default);">
-        <div class="form-text" style="font-size: 0.75rem; margin-top: 0.375rem; color: var(--color-fg-muted);">
-          <i class="fas fa-info-circle me-1"></i>Auto-saved changes will be committed
+<div class="scitex-modal-overlay"
+     id="git-commit-modal"
+     style="display: none">
+    <div class="scitex-modal-content" style="max-width: 480px">
+        <div class="scitex-modal-header">
+            <h3>
+                <i class="fas fa-code-branch me-2"></i>Commit Changes
+            </h3>
+            <button type="button" class="scitex-modal-close">&times;</button>
         </div>
-      </div>
+        <div class="scitex-modal-body">
+            <div class="mb-3">
+                <label for="commit-message-input"
+                       class="form-label"
+                       style="font-size: 0.875rem;
+                              margin-bottom: 0.5rem;
+                              color: var(--color-fg-default)">Commit Message</label>
+                <input type="text"
+                       id="commit-message-input"
+                       class="form-control"
+                       placeholder="Update manuscript"
+                       style="font-size: 0.875rem;
+                              background: var(--color-canvas-subtle);
+                              border-color: var(--color-border-default);
+                              color: var(--color-fg-default)" />
+                <div class="form-text"
+                     style="font-size: 0.75rem;
+                            margin-top: 0.375rem;
+                            color: var(--color-fg-muted)">
+                    <i class="fas fa-info-circle me-1"></i>Auto-saved changes will be
+                    committed
+                </div>
+            </div>
+        </div>
+        <div class="scitex-modal-footer">
+            <button type="button"
+                    class="scitex-btn scitex-btn-secondary scitex-modal-close">Cancel</button>
+            <button type="button"
+                    id="confirm-commit-btn"
+                    class="scitex-btn scitex-btn-primary">
+                <i class="fas fa-check me-1"></i>Commit
+            </button>
+        </div>
     </div>
-    <div class="scitex-modal-footer">
-      <button type="button" class="scitex-btn scitex-btn-secondary scitex-modal-close">Cancel</button>
-      <button type="button" id="confirm-commit-btn" class="scitex-btn scitex-btn-primary">
-        <i class="fas fa-check me-1"></i>Commit
-      </button>
-    </div>
-  </div>
 </div>
-
 <!-- Keyboard Shortcuts Modal -->
-<div class="modal fade" id="shortcuts-modal" tabindex="-1" aria-labelledby="shortcuts-modal-label" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="shortcuts-modal-label">
-          <i class="fas fa-keyboard me-2"></i>Keyboard Shortcuts
-        </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col-md-6">
-            <h6 class="text-primary"><i class="fas fa-save me-2"></i>File Operations</h6>
-            <table class="table table-sm">
-              <tbody>
-                <tr><td><kbd>Ctrl+S</kbd></td><td>Save current section</td></tr>
-                <tr><td><kbd>Ctrl+Shift+X</kbd></td><td>Compile manuscript PDF</td></tr>
-              </tbody>
-            </table>
-
-            <h6 class="text-primary mt-3"><i class="fas fa-edit me-2"></i>Editing</h6>
-            <table class="table table-sm">
-              <tbody>
-                <tr><td><kbd>Ctrl+Z</kbd></td><td>Undo</td></tr>
-                <tr><td><kbd>Ctrl+Y</kbd></td><td>Redo</td></tr>
-                <tr><td><kbd>Ctrl+F</kbd></td><td>Find</td></tr>
-                <tr><td><kbd>Ctrl+H</kbd></td><td>Find and replace</td></tr>
-                <tr><td><kbd>Ctrl+/</kbd></td><td>Toggle line comment</td></tr>
-                <tr><td><kbd>Ctrl+;</kbd></td><td>Toggle LaTeX comment (%)</td></tr>
-                <tr><td><kbd>Ctrl+Shift+B</kbd></td><td>Bold \textbf{}</td></tr>
-                <tr><td><kbd>Ctrl+Shift+E</kbd></td><td>Italic \emph{}</td></tr>
-                <tr><td><kbd>Ctrl+Shift+M</kbd></td><td>Math mode $$</td></tr>
-              </tbody>
-            </table>
-
-            <h6 class="text-primary mt-3"><i class="fas fa-book me-2"></i>Citation</h6>
-            <table class="table table-sm">
-              <tbody>
-                <tr><td><kbd>Ctrl+Shift+C</kbd></td><td>Quick cite (search BibTeX)</td></tr>
-                <tr><td><kbd>Ctrl+Shift+R</kbd></td><td>Add reference</td></tr>
-                <tr><td><kbd>\cite{</kbd></td><td>Auto-complete citation</td></tr>
-              </tbody>
-            </table>
-          </div>
-
-          <div class="col-md-6">
-            <h6 class="text-primary"><i class="fas fa-compass me-2"></i>Navigation</h6>
-            <table class="table table-sm">
-              <tbody>
-                <tr><td><kbd>Ctrl+1</kbd></td><td>Jump to Abstract</td></tr>
-                <tr><td><kbd>Ctrl+2</kbd></td><td>Jump to Introduction</td></tr>
-                <tr><td><kbd>Ctrl+3</kbd></td><td>Jump to Methods</td></tr>
-                <tr><td><kbd>Ctrl+4</kbd></td><td>Jump to Results</td></tr>
-                <tr><td><kbd>Ctrl+5</kbd></td><td>Jump to Discussion</td></tr>
-                <tr><td><kbd>Ctrl+6</kbd></td><td>Jump to References</td></tr>
-                <tr><td><kbd>Ctrl+7</kbd></td><td>Jump to Figures</td></tr>
-                <tr><td><kbd>Alt+Shift+Up</kbd></td><td>Previous section</td></tr>
-                <tr><td><kbd>Alt+Shift+Down</kbd></td><td>Next section</td></tr>
-              </tbody>
-            </table>
-
-            <h6 class="text-primary mt-3"><i class="fas fa-search me-2"></i>PDF Controls</h6>
-            <table class="table table-sm">
-              <tbody>
-                <tr><td><kbd>Ctrl+Drag</kbd></td><td>Zoom PDF (vertical drag)</td></tr>
-                <tr><td><kbd>Ctrl++</kbd></td><td>Zoom in</td></tr>
-                <tr><td><kbd>Ctrl+-</kbd></td><td>Zoom out</td></tr>
-                <tr><td><kbd>Ctrl+0</kbd></td><td>Reset zoom</td></tr>
-              </tbody>
-            </table>
-
-            <h6 class="text-primary mt-3"><i class="fas fa-text-height me-2"></i>Editor Font Size</h6>
-            <table class="table table-sm">
-              <tbody>
-                <tr><td><kbd>Ctrl+Wheel</kbd></td><td>Adjust font size (over editor)</td></tr>
-                <tr><td><kbd>Ctrl++</kbd></td><td>Increase font size</td></tr>
-                <tr><td><kbd>Ctrl+-</kbd></td><td>Decrease font size</td></tr>
-                <tr><td><kbd>Ctrl+0</kbd></td><td>Reset to default (14px)</td></tr>
-              </tbody>
-            </table>
-          </div>
+<div class="modal fade"
+     id="shortcuts-modal"
+     tabindex="-1"
+     aria-labelledby="shortcuts-modal-label"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="shortcuts-modal-label">
+                    <i class="fas fa-keyboard me-2"></i>Keyboard Shortcuts
+                </h5>
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-primary">
+                            <i class="fas fa-save me-2"></i>File Operations
+                        </h6>
+                        <table class="table table-sm">
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <kbd>Ctrl+S</kbd>
+                                    </td>
+                                    <td>Save current section</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <kbd>Alt+Enter</kbd>
+                                    </td>
+                                    <td>Compile preview (quick)</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <kbd>Alt+Shift+Enter</kbd>
+                                    </td>
+                                    <td>Compile full manuscript</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <kbd>Ctrl+Shift+X</kbd>
+                                    </td>
+                                    <td>Compile manuscript PDF (legacy)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h6 class="text-primary mt-3">
+                            <i class="fas fa-edit me-2"></i>Editing
+                        </h6>
+                        <table class="table table-sm">
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <kbd>Ctrl+Z</kbd>
+                                    </td>
+                                    <td>Undo</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <kbd>Ctrl+Y</kbd>
+                                    </td>
+                                    <td>Redo</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <kbd>Ctrl+F</kbd>
+                                    </td>
+                                    <td>Find</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <kbd>Ctrl+H</kbd>
+                                    </td>
+                                    <td>Find and replace</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <kbd>Ctrl+/</kbd>
+                                    </td>
+                                    <td>Toggle line comment</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <kbd>Ctrl+;</kbd>
+                                    </td>
+                                    <td>Toggle LaTeX comment (%)</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <kbd>Ctrl+Shift+B</kbd>
+                                    </td>
+                                    <td>Bold \textbf{}</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <kbd>Ctrl+Shift+E</kbd>
+                                    </td>
+                                    <td>Italic \emph{}</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <kbd>Ctrl+Shift+M</kbd>
+                                    </td>
+                                    <td>Math mode $$</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h6 class="text-primary mt-3">
+                            <i class="fas fa-book me-2"></i>Citation
+                        </h6>
+                        <table class="table table-sm">
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <kbd>Ctrl+Shift+C</kbd>
+                                    </td>
+                                    <td>Quick cite (search BibTeX)</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <kbd>Ctrl+Shift+R</kbd>
+                                    </td>
+                                    <td>Add reference</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <kbd>\cite{</kbd>
+                                    </td>
+                                    <td>Auto-complete citation</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-primary">
+                            <i class="fas fa-compass me-2"></i>Navigation
+                        </h6>
+                        <table class="table table-sm">
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <kbd>Ctrl+1</kbd>
+                                    </td>
+                                    <td>Jump to Abstract</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <kbd>Ctrl+2</kbd>
+                                    </td>
+                                    <td>Jump to Introduction</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <kbd>Ctrl+3</kbd>
+                                    </td>
+                                    <td>Jump to Methods</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <kbd>Ctrl+4</kbd>
+                                    </td>
+                                    <td>Jump to Results</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <kbd>Ctrl+5</kbd>
+                                    </td>
+                                    <td>Jump to Discussion</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <kbd>Ctrl+6</kbd>
+                                    </td>
+                                    <td>Jump to References</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <kbd>Ctrl+7</kbd>
+                                    </td>
+                                    <td>Jump to Figures</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <kbd>Alt+Shift+Up</kbd>
+                                    </td>
+                                    <td>Previous section</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <kbd>Alt+Shift+Down</kbd>
+                                    </td>
+                                    <td>Next section</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h6 class="text-primary mt-3">
+                            <i class="fas fa-search me-2"></i>PDF Controls
+                        </h6>
+                        <table class="table table-sm">
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <kbd>Ctrl+Drag</kbd>
+                                    </td>
+                                    <td>Zoom PDF (vertical drag)</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <kbd>Ctrl++</kbd>
+                                    </td>
+                                    <td>Zoom in</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <kbd>Ctrl+-</kbd>
+                                    </td>
+                                    <td>Zoom out</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <kbd>Ctrl+0</kbd>
+                                    </td>
+                                    <td>Reset zoom</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h6 class="text-primary mt-3">
+                            <i class="fas fa-text-height me-2"></i>Editor Font Size
+                        </h6>
+                        <table class="table table-sm">
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <kbd>Ctrl+Wheel</kbd>
+                                    </td>
+                                    <td>Adjust font size (over editor)</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <kbd>Ctrl++</kbd>
+                                    </td>
+                                    <td>Increase font size</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <kbd>Ctrl+-</kbd>
+                                    </td>
+                                    <td>Decrease font size</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <kbd>Ctrl+0</kbd>
+                                    </td>
+                                    <td>Reset to default (14px)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="alert alert-info mt-3" role="alert">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Tip:</strong> Use <kbd>Ctrl+Wheel</kbd> over the editor to
+                    quickly adjust font size.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
         </div>
-
-        <div class="alert alert-info mt-3" role="alert">
-          <i class="fas fa-info-circle me-2"></i>
-          <strong>Tip:</strong> Use <kbd>Ctrl+Wheel</kbd> over the editor to quickly adjust font size.
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-      </div>
     </div>
-  </div>
-</div>
-
 </div>

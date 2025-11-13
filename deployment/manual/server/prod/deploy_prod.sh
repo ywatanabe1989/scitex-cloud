@@ -6,7 +6,7 @@
 # SciTeX Cloud Production Deployment Script
 # Based on best practices from airight project
 
-set -e  # Exit on any error
+set -e # Exit on any error
 
 APP_HOME="/home/ywatanabe/proj/scitex-cloud"
 LOG_DIR="/var/log/uwsgi"
@@ -73,15 +73,15 @@ check_dependencies() {
 
 create_directories() {
     echo_info "Creating required directories..."
-    
+
     # Create log directory
     sudo mkdir -p "$LOG_DIR" || echo_warning "Could not create $LOG_DIR"
-    sudo chown -R www-data:www-data "$LOG_DIR" 2>/dev/null || echo_warning "Could not set ownership for $LOG_DIR"
-    
+    sudo chown -R www-data:www-data "$LOG_DIR" 2> /dev/null || echo_warning "Could not set ownership for $LOG_DIR"
+
     # Create run directory for PID files and sockets
     sudo mkdir -p "$RUN_DIR" || echo_warning "Could not create $RUN_DIR"
-    sudo chown -R www-data:www-data "$RUN_DIR" 2>/dev/null || echo_warning "Could not set ownership for $RUN_DIR"
-    
+    sudo chown -R www-data:www-data "$RUN_DIR" 2> /dev/null || echo_warning "Could not set ownership for $RUN_DIR"
+
     echo_success "Directories created"
 }
 
@@ -122,13 +122,13 @@ stop_services() {
     echo_info "Stopping services..."
 
     # Stop uWSGI systemd service
-    sudo systemctl stop scitex_cloud_prod 2>/dev/null || echo_warning "scitex_cloud_prod service not running"
+    sudo systemctl stop scitex_cloud_prod 2> /dev/null || echo_warning "scitex_cloud_prod service not running"
 
     # Stop any remaining uWSGI processes
-    sudo pkill -f uwsgi 2>/dev/null || echo_warning "No additional uWSGI processes to stop"
+    sudo pkill -f uwsgi 2> /dev/null || echo_warning "No additional uWSGI processes to stop"
 
     # Remove socket files
-    sudo rm -f "$RUN_DIR/scitex_cloud.sock" 2>/dev/null || true
+    sudo rm -f "$RUN_DIR/scitex_cloud.sock" 2> /dev/null || true
 
     echo_success "Services stopped"
 }
@@ -161,7 +161,7 @@ start_services() {
 
     # Restart Nginx
     echo_info "Restarting Nginx..."
-    sudo systemctl restart nginx 2>/dev/null || echo_warning "Could not restart Nginx"
+    sudo systemctl restart nginx 2> /dev/null || echo_warning "Could not restart Nginx"
 
     if sudo systemctl is-active --quiet nginx; then
         echo_success "Nginx is running"
@@ -227,7 +227,7 @@ DO_INSTALL=false
 
 while [[ $# -gt 0 ]]; do
     case $1 in
-        -d|--deploy)
+        -d | --deploy)
             DO_DEPLOY=true
             DO_INSTALL=true
             DO_MIGRATE=true
@@ -235,27 +235,27 @@ while [[ $# -gt 0 ]]; do
             DO_RESTART=true
             shift
             ;;
-        -i|--install)
+        -i | --install)
             DO_INSTALL=true
             shift
             ;;
-        -m|--migrate)
+        -m | --migrate)
             DO_MIGRATE=true
             shift
             ;;
-        -s|--static)
+        -s | --static)
             DO_STATIC=true
             shift
             ;;
-        -r|--restart)
+        -r | --restart)
             DO_RESTART=true
             shift
             ;;
-        -c|--check)
+        -c | --check)
             DO_CHECK=true
             shift
             ;;
-        -h|--help)
+        -h | --help)
             usage
             ;;
         *)
@@ -308,4 +308,3 @@ if [ "$DO_DEPLOY" = true ]; then
     echo_info "- Logs: $LOG_DIR"
     echo_info "=========================="
 fi
-

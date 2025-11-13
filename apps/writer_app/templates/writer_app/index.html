@@ -1,192 +1,208 @@
 {% extends "writer_app/writer_base.html" %}
 {% load static %}
-
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'writer_app/css/editor/tex-view-main.css' %}?v={{ request.timestamp|default:'1' }}">
-<link rel="stylesheet" href="{% static 'writer_app/css/editor/index-editor-panels.css' %}?v={{ request.timestamp|default:'1' }}">
-<link rel="stylesheet" href="{% static 'writer_app/css/editor/pdf-view-main.css' %}?v={{ request.timestamp|default:'1' }}">
-<link rel="stylesheet" href="{% static 'writer_app/css/editor/citations-panel.css' %}?v={{ request.timestamp|default:'1' }}">
-<link rel="stylesheet" href="{% static 'writer_app/css/components/pdfjs-viewer.css' %}?v={{ request.timestamp|default:'1' }}">
-<link rel="stylesheet" href="{% static 'shared/css/components/alerts.css' %}?v={{ request.timestamp|default:'1' }}">
-<link rel="stylesheet" href="{% static 'shared/css/components/terminal-log.css' %}?v={{ request.timestamp|default:'1' }}">
-<link rel="stylesheet" href="{% static 'writer_app/css/shared/history-timeline.css' %}?v={{ request.timestamp|default:'1' }}">
-<link rel="stylesheet" href="{% static 'writer_app/css/shared/index-ui-components.css' %}?v=2">
-{% include "writer_app/index_partials/codemirror_css.html" %}
+    <link rel="stylesheet"
+          href="{% static 'writer_app/css/editor/tex-view-main.css' %}?v={{ request.timestamp|default:'1' }}" />
+    <link rel="stylesheet"
+          href="{% static 'writer_app/css/editor/index-editor-panels.css' %}?v={{ request.timestamp|default:'1' }}" />
+    <link rel="stylesheet"
+          href="{% static 'writer_app/css/editor/pdf-view-main.css' %}?v={{ request.timestamp|default:'1' }}" />
+    <link rel="stylesheet"
+          href="{% static 'writer_app/css/editor/citations-panel.css' %}?v={{ request.timestamp|default:'1' }}" />
+    <link rel="stylesheet"
+          href="{% static 'writer_app/css/components/pdfjs-viewer.css' %}?v={{ request.timestamp|default:'1' }}" />
+    <link rel="stylesheet"
+          href="{% static 'shared/css/components/alerts.css' %}?v={{ request.timestamp|default:'1' }}" />
+    <link rel="stylesheet"
+          href="{% static 'shared/css/components/terminal-log.css' %}?v={{ request.timestamp|default:'1' }}" />
+    <link rel="stylesheet"
+          href="{% static 'writer_app/css/shared/history-timeline.css' %}?v={{ request.timestamp|default:'1' }}" />
+    <link rel="stylesheet"
+          href="{% static 'writer_app/css/shared/index-ui-components.css' %}?v=2" />
+    <link rel="stylesheet"
+          href="{% static 'writer_app/css/components/status-lamp.css' %}?v={{ request.timestamp|default:'1' }}" />
+    <link rel="stylesheet"
+          href="{% static 'writer_app/css/components/shortcuts-modal.css' %}?v={{ request.timestamp|default:'1' }}" />
+    {% include "writer_app/index_partials/codemirror_css.html" %}
 {% endblock %}
-
 {% block writer_content %}
-{% include "writer_app/index_partials/demo_banner.html" %}
-
-<!-- Show message if visitor pool has errors -->
-{% if pool_error %}
-<div id="pool-error-message" class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card shadow-sm border-warning">
-                <div class="card-body text-center p-5">
-                    <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
-                    <h3 class="mb-3">Visitor Pool Not Initialized</h3>
-                    <p class="text-muted mb-4">
-                        The visitor pool needs to be set up before anonymous users can try Writer.
-                    </p>
-                    <div class="alert alert-info text-start mb-4">
-                        <strong>For Administrators:</strong>
-                        <pre class="mt-2 mb-0"><code>python manage.py create_visitor_pool</code></pre>
-                        <p class="mt-2 mb-0 small">This will create 32 pre-allocated visitor accounts for anonymous users.</p>
+    {% include "writer_app/index_partials/demo_banner.html" %}
+    <!-- Show message if visitor pool has errors -->
+    {% if pool_error %}
+        <div id="pool-error-message" class="container py-5">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card shadow-sm border-warning">
+                        <div class="card-body text-center p-5">
+                            <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                            <h3 class="mb-3">Visitor Pool Not Initialized</h3>
+                            <p class="text-muted mb-4">
+                                The visitor pool needs to be set up before anonymous users can try
+                                Writer.
+                            </p>
+                            <div class="alert alert-info text-start mb-4">
+                                <strong>For Administrators:</strong>
+                                <pre class="mt-2 mb-0"><code>python manage.py create_visitor_pool</code></pre>
+                                <p class="mt-2 mb-0 small">
+                                    This will create 32 pre-allocated visitor accounts for anonymous
+                                    users.
+                                </p>
+                            </div>
+                            <p class="mb-3">Already have an account?</p>
+                            <a href="{% url 'auth_app:login' %}" class="btn btn-primary btn-lg me-2">
+                                <i class="fas fa-sign-in-alt me-2"></i>Log In
+                            </a>
+                            <a href="{% url 'auth_app:signup' %}"
+                               class="btn btn-outline-primary btn-lg">
+                                <i class="fas fa-user-plus me-2"></i>Sign Up
+                            </a>
+                        </div>
                     </div>
-                    <p class="mb-3">Already have an account?</p>
-                    <a href="{% url 'auth_app:login' %}" class="btn btn-primary btn-lg me-2">
-                        <i class="fas fa-sign-in-alt me-2"></i>Log In
-                    </a>
-                    <a href="{% url 'auth_app:signup' %}" class="btn btn-outline-primary btn-lg">
-                        <i class="fas fa-user-plus me-2"></i>Sign Up
-                    </a>
                 </div>
             </div>
         </div>
-    </div>
-</div>
-{% elif pool_exhausted %}
-<div id="pool-exhausted-message" class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card shadow-sm border-warning">
-                <div class="card-body text-center p-5">
-                    <i class="fas fa-users fa-3x text-warning mb-3"></i>
-                    <h3 class="mb-3">High Traffic</h3>
-                    <p class="text-muted mb-4">
-                        All visitor slots are currently in use. Please try again in a few minutes, or sign up for immediate access.
-                    </p>
-                    <a href="{% url 'auth_app:signup' %}" class="btn btn-primary btn-lg me-2">
-                        <i class="fas fa-user-plus me-2"></i>Sign Up Now
-                    </a>
-                    <a href="{% url 'auth_app:login' %}" class="btn btn-outline-primary btn-lg">
-                        <i class="fas fa-sign-in-alt me-2"></i>Log In
-                    </a>
+    {% elif pool_exhausted %}
+        <div id="pool-exhausted-message" class="container py-5">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card shadow-sm border-warning">
+                        <div class="card-body text-center p-5">
+                            <i class="fas fa-users fa-3x text-warning mb-3"></i>
+                            <h3 class="mb-3">High Traffic</h3>
+                            <p class="text-muted mb-4">
+                                All visitor slots are currently in use. Please try again in a few
+                                minutes, or sign up for immediate access.
+                            </p>
+                            <a href="{% url 'auth_app:signup' %}"
+                               class="btn btn-primary btn-lg me-2">
+                                <i class="fas fa-user-plus me-2"></i>Sign Up Now
+                            </a>
+                            <a href="{% url 'auth_app:login' %}"
+                               class="btn btn-outline-primary btn-lg">
+                                <i class="fas fa-sign-in-alt me-2"></i>Log In
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
-{% elif needs_project_creation %}
-<div id="no-project-message" class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-6">
-            <div class="card shadow-sm">
-                <div class="card-body text-center p-5">
-                    <i class="fas fa-folder-open fa-3x text-primary mb-3"></i>
-                    <h3 class="mb-3">No Project Found</h3>
-                    <p class="text-muted mb-4">
-                        SciTeX Writer works with projects. Please create a project first to start writing your manuscript.
-                    </p>
-                    <a href="{% url 'core:index' %}" class="btn btn-primary btn-lg">
-                        <i class="fas fa-plus me-2"></i>Create a Project
-                    </a>
+    {% elif needs_project_creation %}
+        <div id="no-project-message" class="container py-5">
+            <div class="row justify-content-center">
+                <div class="col-lg-6">
+                    <div class="card shadow-sm">
+                        <div class="card-body text-center p-5">
+                            <i class="fas fa-folder-open fa-3x text-primary mb-3"></i>
+                            <h3 class="mb-3">No Project Found</h3>
+                            <p class="text-muted mb-4">
+                                SciTeX Writer works with projects. Please create a project first to
+                                start writing your manuscript.
+                            </p>
+                            <a href="{% url 'core:index' %}" class="btn btn-primary btn-lg">
+                                <i class="fas fa-plus me-2"></i>Create a Project
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
-{% else %}
-{% include "writer_app/index_partials/init_prompt.html" %}
+    {% else %}
+        {% include "writer_app/index_partials/init_prompt.html" %}
+        <div class="writer-container"
+             {% if not writer_initialized and not is_demo %}hidden{% endif %}>
+            {% include "writer_app/index_partials/main_editor.html" %}
+        </div>
+        {% include "writer_app/index_partials/word_count.html" %}
+        <!-- Compilation Options Modal (without redundant header) -->
+        {% include "writer_app/compilation_view_partials/compilation_modal.html" %}
+        {% include "writer_app/compilation_view_partials/ai2_modal.html" %}
+        {% include "writer_app/index_partials/compilation_settings_modal.html" %}
+    {% endif %}
+    {% if not needs_project_creation and not pool_error and not pool_exhausted %}
+        <!-- Editor Loader (TypeScript-compiled) - Handles CodeMirror and Monaco initialization -->
+        <script type="module">
+  import { editorLoader } from '{% static "writer_app/js/loaders/editor-loader.js" %}';
 
-<div class="writer-container" {% if not writer_initialized and not is_demo %}hidden{% endif %}>
-    {% include "writer_app/index_partials/main_editor.html" %}
-</div>
-
-{% include "writer_app/index_partials/word_count.html" %}
-
-<!-- Compilation Options Modal (without redundant header) -->
-{% include "writer_app/compilation_view_partials/compilation_modal.html" %}
-{% include "writer_app/compilation_view_partials/ai2_modal.html" %}
-{% endif %}
-
-{% if not needs_project_creation and not pool_error and not pool_exhausted %}
-<!-- Editor Loader (TypeScript-compiled) - Handles CodeMirror and Monaco initialization -->
-<script type="module">
-import { editorLoader } from '{% static "writer_app/js/loaders/editor-loader.js" %}';
-
-// Initialize editors (CodeMirror + Monaco) before anything else
-(async () => {
+  // Initialize editors (CodeMirror + Monaco) before anything else
+  (async () => {
     try {
-        await editorLoader.initialize();
+      await editorLoader.initialize();
     } catch (error) {
-        console.error('[Writer] Failed to initialize editors:', error);
+      console.error("[Writer] Failed to initialize editors:", error);
     }
-})();
-</script>
-<!-- Initialize global variables for writer app -->
-<script>
-    // Pass Django context to JavaScript (must use window. to make it globally accessible)
-    window.WRITER_CONFIG = {
-        projectId: {% if project %}{{ project.id }}{% else %}0{% endif %},  // Real project ID for all users (including demo)
-        projectName: {% if project %}'{{ project.name|escapejs }}'{% else %}'Demo Project'{% endif %},
-        projectSlug: {% if project %}'{{ project.slug|escapejs }}'{% else %}'demo-project'{% endif %},
-        projectOwner: {% if project %}'{{ project.owner.username|escapejs }}'{% else %}null{% endif %},
-        manuscriptTitle: {% if manuscript %}'{{ manuscript.title|escapejs }}'{% else %}'Untitled'{% endif %},
-        userId: {% if user.is_authenticated %}{{ user.id }}{% else %}null{% endif %},
-        username: {% if user.is_authenticated %}'{{ user.username|escapejs }}'{% else %}null{% endif %},
-        visitorUsername: {% if visitor_username %}'{{ visitor_username|escapejs }}'{% else %}null{% endif %},
-        isDemo: {% if is_demo %}true{% else %}false{% endif %},
-        isAnonymous: {% if is_anonymous %}true{% else %}false{% endif %},
-        isAuthenticated: {% if user.is_authenticated %}true{% else %}false{% endif %},
-        writerInitialized: {% if writer_initialized %}true{% else %}false{% endif %},
-        documentType: '{{ document_type|default:"manuscript" }}',  // Current document type
-        // Manuscript word counts
-        wordCounts: {
-            abstract: {% if manuscript %}{{ manuscript.word_count_abstract|default:0 }}{% else %}0{% endif %},
-            introduction: {% if manuscript %}{{ manuscript.word_count_introduction|default:0 }}{% else %}0{% endif %},
-            methods: {% if manuscript %}{{ manuscript.word_count_methods|default:0 }}{% else %}0{% endif %},
-            results: {% if manuscript %}{{ manuscript.word_count_results|default:0 }}{% else %}0{% endif %},
-            discussion: {% if manuscript %}{{ manuscript.word_count_discussion|default:0 }}{% else %}0{% endif %}
-        },
-        // Sections content
-        sections: {
-            abstract: `{{ sections.abstract|default:""|escapejs }}`,
-            highlights: `{{ sections.highlights|default:""|escapejs }}`,
-            introduction: `{{ sections.introduction|default:""|escapejs }}`,
-            methods: `{{ sections.methods|default:""|escapejs }}`,
-            results: `{{ sections.results|default:""|escapejs }}`,
-            discussion: `{{ sections.discussion|default:""|escapejs }}`,
-            conclusion: `{{ sections.conclusion|default:""|escapejs }}`
-        },
-        csrfToken: '{{ csrf_token }}'
-    };
+  })();
+        </script>
+        <!-- Initialize global variables for writer app -->
+        <script>
+  // Pass Django context to JavaScript (must use window. to make it globally accessible)
+  window.WRITER_CONFIG = {
+      projectId: {% if project %}{{ project.id }}{% else %}0{% endif %},  // Real project ID for all users (including demo)
+      projectName: {% if project %}'{{ project.name|escapejs }}'{% else %}'Demo Project'{% endif %},
+      projectSlug: {% if project %}'{{ project.slug|escapejs }}'{% else %}'demo-project'{% endif %},
+      projectOwner: {% if project %}'{{ project.owner.username|escapejs }}'{% else %}null{% endif %},
+      manuscriptTitle: {% if manuscript %}'{{ manuscript.title|escapejs }}'{% else %}'Untitled'{% endif %},
+      userId: {% if user.is_authenticated %}{{ user.id }}{% else %}null{% endif %},
+      username: {% if user.is_authenticated %}'{{ user.username|escapejs }}'{% else %}null{% endif %},
+      visitorUsername: {% if visitor_username %}'{{ visitor_username|escapejs }}'{% else %}null{% endif %},
+      isDemo: {% if is_demo %}true{% else %}false{% endif %},
+      isAnonymous: {% if is_anonymous %}true{% else %}false{% endif %},
+      isAuthenticated: {% if user.is_authenticated %}true{% else %}false{% endif %},
+      writerInitialized: {% if writer_initialized %}true{% else %}false{% endif %},
+      documentType: '{{ document_type|default:"manuscript" }}',  // Current document type
+      // Manuscript word counts
+      wordCounts: {
+          abstract: {% if manuscript %}{{ manuscript.word_count_abstract|default:0 }}{% else %}0{% endif %},
+          introduction: {% if manuscript %}{{ manuscript.word_count_introduction|default:0 }}{% else %}0{% endif %},
+          methods: {% if manuscript %}{{ manuscript.word_count_methods|default:0 }}{% else %}0{% endif %},
+          results: {% if manuscript %}{{ manuscript.word_count_results|default:0 }}{% else %}0{% endif %},
+          discussion: {% if manuscript %}{{ manuscript.word_count_discussion|default:0 }}{% else %}0{% endif %}
+      },
+      // Sections content
+      sections: {
+          abstract: `{{ sections.abstract|default:""|escapejs }}`,
+          highlights: `{{ sections.highlights|default:""|escapejs }}`,
+          introduction: `{{ sections.introduction|default:""|escapejs }}`,
+          methods: `{{ sections.methods|default:""|escapejs }}`,
+          results: `{{ sections.results|default:""|escapejs }}`,
+          discussion: `{{ sections.discussion|default:""|escapejs }}`,
+          conclusion: `{{ sections.conclusion|default:""|escapejs }}`
+      },
+      csrfToken: '{{ csrf_token }}'
+  };
 
-    // Log visitor allocation info
-    if (window.WRITER_CONFIG.isAnonymous && window.WRITER_CONFIG.visitorUsername) {
-        console.log('%c[VisitorPool] ✓ Allocated:', 'color: #4CAF50; font-weight: bold', window.WRITER_CONFIG.visitorUsername);
-        console.log('%c[VisitorPool] Project ID:', 'color: #2196F3', window.WRITER_CONFIG.projectId);
-        console.log('%c[VisitorPool] Project:', 'color: #2196F3', window.WRITER_CONFIG.projectName);
-    } else if (window.WRITER_CONFIG.isAuthenticated) {
-        console.log('%c[Writer] User:', 'color: #4CAF50; font-weight: bold', window.WRITER_CONFIG.username);
-        console.log('%c[Writer] Project ID:', 'color: #2196F3', window.WRITER_CONFIG.projectId);
-    }
-</script>
-
-<!-- Import map for module resolution -->
-<script type="importmap">
-{
-  "imports": {
-    "@/types": "{% static 'shared/js/types/index.js' %}",
-    "@/types/": "{% static 'shared/js/types/' %}",
-    "@/utils/csrf": "{% static 'shared/js/utils/csrf.js' %}",
-    "@/utils/storage": "{% static 'shared/js/utils/storage.js' %}",
-    "@/utils/api": "{% static 'shared/js/utils/api.js' %}",
-    "@/utils/": "{% static 'shared/js/utils/' %}",
-    "@/utils": "{% static 'shared/js/utils/index.js' %}",
-    "@/writer/utils": "{% static 'writer_app/js/utils/index.js' %}",
-    "@/writer/utils/": "{% static 'writer_app/js/utils/' %}",
-    "@/writer/": "{% static 'writer_app/js/' %}",
-    "@/": "{% static 'shared/js/' %}"
+  // Log visitor allocation info
+  if (window.WRITER_CONFIG.isAnonymous && window.WRITER_CONFIG.visitorUsername) {
+      console.log('%c[VisitorPool] ✓ Allocated:', 'color: #4CAF50; font-weight: bold', window.WRITER_CONFIG.visitorUsername);
+      console.log('%c[VisitorPool] Project ID:', 'color: #2196F3', window.WRITER_CONFIG.projectId);
+      console.log('%c[VisitorPool] Project:', 'color: #2196F3', window.WRITER_CONFIG.projectName);
+  } else if (window.WRITER_CONFIG.isAuthenticated) {
+      console.log('%c[Writer] User:', 'color: #4CAF50; font-weight: bold', window.WRITER_CONFIG.username);
+      console.log('%c[Writer] Project ID:', 'color: #2196F3', window.WRITER_CONFIG.projectId);
   }
-}
-</script>
-
-<!-- TypeScript-compiled Writer Application Bundle -->
-<script type="module" src="{% static 'writer_app/js/index.js' %}?v={{ build_id|default:'dev' }}"></script>
-
-<!-- Real-Time Collaboration Script (TypeScript-compiled ES6 module) -->
-<script type="module" src="{% static 'shared/js/collaboration/writer-collaboration.js' %}?v={{ build_id|default:'dev' }}"></script>
-{% endif %}
+        </script>
+        <!-- Import map for module resolution -->
+        <script type="importmap">
+  {
+    "imports": {
+      "@/types": "{% static 'shared/js/types/index.js' %}",
+      "@/types/": "{% static 'shared/js/types/' %}",
+      "@/utils/csrf": "{% static 'shared/js/utils/csrf.js' %}",
+      "@/utils/storage": "{% static 'shared/js/utils/storage.js' %}",
+      "@/utils/api": "{% static 'shared/js/utils/api.js' %}",
+      "@/utils/": "{% static 'shared/js/utils/' %}",
+      "@/utils": "{% static 'shared/js/utils/index.js' %}",
+      "@/writer/utils": "{% static 'writer_app/js/utils/index.js' %}",
+      "@/writer/utils/": "{% static 'writer_app/js/utils/' %}",
+      "@/writer/": "{% static 'writer_app/js/' %}",
+      "@/": "{% static 'shared/js/' %}"
+    }
+  }
+        </script>
+        <!-- TypeScript-compiled Writer Application Bundle -->
+        <script type="module"
+                src="{% static 'writer_app/js/index.js' %}?v={{ build_id|default:'dev' }}"></script>
+        <!-- Real-Time Collaboration Script (TypeScript-compiled ES6 module) -->
+        <script type="module"
+                src="{% static 'shared/js/collaboration/writer-collaboration.js' %}?v={{ build_id|default:'dev' }}"></script>
+    {% endif %}
 {% endblock %}

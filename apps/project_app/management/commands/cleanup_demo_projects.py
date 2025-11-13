@@ -13,57 +13,68 @@ from apps.project_app.services.demo_project_pool import DemoProjectPool
 
 
 class Command(BaseCommand):
-    help = 'Clean up expired demo projects and orphaned demo users'
+    help = "Clean up expired demo projects and orphaned demo users"
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--hours',
+            "--hours",
             type=int,
             default=None,
-            help='Clean up projects older than this many hours (default: 24)',
+            help="Clean up projects older than this many hours (default: 24)",
         )
         parser.add_argument(
-            '--dry-run',
-            action='store_true',
-            help='Show what would be deleted without actually deleting',
+            "--dry-run",
+            action="store_true",
+            help="Show what would be deleted without actually deleting",
         )
         parser.add_argument(
-            '--orphaned-only',
-            action='store_true',
-            help='Only clean up orphaned demo users (no project cleanup)',
+            "--orphaned-only",
+            action="store_true",
+            help="Only clean up orphaned demo users (no project cleanup)",
         )
 
     def handle(self, *args, **options):
-        dry_run = options['dry_run']
-        hours = options['hours']
-        orphaned_only = options['orphaned_only']
+        dry_run = options["dry_run"]
+        hours = options["hours"]
+        orphaned_only = options["orphaned_only"]
 
         if dry_run:
-            self.stdout.write(self.style.WARNING('DRY RUN MODE - No actual deletions will occur'))
+            self.stdout.write(
+                self.style.WARNING("DRY RUN MODE - No actual deletions will occur")
+            )
 
         if orphaned_only:
             # Only clean up orphaned users
-            self.stdout.write('Cleaning up orphaned demo users...')
+            self.stdout.write("Cleaning up orphaned demo users...")
             deleted = DemoProjectPool.cleanup_orphaned_users(dry_run=dry_run)
-            self.stdout.write(self.style.SUCCESS(f'✓ Cleaned up {deleted} orphaned demo users'))
+            self.stdout.write(
+                self.style.SUCCESS(f"✓ Cleaned up {deleted} orphaned demo users")
+            )
         else:
             # Clean up projects
             hours_msg = f"{hours} hours" if hours else "24 hours (default)"
-            self.stdout.write(f'Cleaning up demo projects older than {hours_msg}...')
+            self.stdout.write(f"Cleaning up demo projects older than {hours_msg}...")
 
             deleted_projects = DemoProjectPool.cleanup_expired_projects(
-                older_than_hours=hours,
-                dry_run=dry_run
+                older_than_hours=hours, dry_run=dry_run
             )
 
-            self.stdout.write(self.style.SUCCESS(f'✓ Cleaned up {deleted_projects} expired demo projects'))
+            self.stdout.write(
+                self.style.SUCCESS(
+                    f"✓ Cleaned up {deleted_projects} expired demo projects"
+                )
+            )
 
             # Also clean up orphaned users
-            self.stdout.write('Cleaning up orphaned demo users...')
+            self.stdout.write("Cleaning up orphaned demo users...")
             deleted_users = DemoProjectPool.cleanup_orphaned_users(dry_run=dry_run)
-            self.stdout.write(self.style.SUCCESS(f'✓ Cleaned up {deleted_users} orphaned demo users'))
+            self.stdout.write(
+                self.style.SUCCESS(f"✓ Cleaned up {deleted_users} orphaned demo users")
+            )
 
         if dry_run:
-            self.stdout.write(self.style.WARNING('DRY RUN COMPLETE - No actual changes were made'))
+            self.stdout.write(
+                self.style.WARNING("DRY RUN COMPLETE - No actual changes were made")
+            )
         else:
-            self.stdout.write(self.style.SUCCESS('Cleanup complete!'))
+            self.stdout.write(self.style.SUCCESS("Cleanup complete!"))

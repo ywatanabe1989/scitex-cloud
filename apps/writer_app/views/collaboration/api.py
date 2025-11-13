@@ -22,13 +22,12 @@ def join_api(request):
     """
     try:
         data = json.loads(request.body)
-        project_id = data.get('project_id')
+        project_id = data.get("project_id")
 
         if not project_id:
-            return JsonResponse({
-                'success': False,
-                'error': 'project_id required'
-            }, status=400)
+            return JsonResponse(
+                {"success": False, "error": "project_id required"}, status=400
+            )
 
         collab_service = CollaborationService(project_id, request.user.id)
         result = collab_service.join_session()
@@ -37,10 +36,7 @@ def join_api(request):
 
     except Exception as e:
         logger.error(f"Error joining session: {e}", exc_info=True)
-        return JsonResponse({
-            'success': False,
-            'error': str(e)
-        }, status=500)
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
 
 
 @login_required
@@ -55,13 +51,12 @@ def leave_api(request):
     """
     try:
         data = json.loads(request.body)
-        project_id = data.get('project_id')
+        project_id = data.get("project_id")
 
         if not project_id:
-            return JsonResponse({
-                'success': False,
-                'error': 'project_id required'
-            }, status=400)
+            return JsonResponse(
+                {"success": False, "error": "project_id required"}, status=400
+            )
 
         collab_service = CollaborationService(project_id, request.user.id)
         result = collab_service.leave_session()
@@ -70,10 +65,7 @@ def leave_api(request):
 
     except Exception as e:
         logger.error(f"Error leaving session: {e}", exc_info=True)
-        return JsonResponse({
-            'success': False,
-            'error': str(e)
-        }, status=500)
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
 
 
 @login_required
@@ -89,14 +81,14 @@ def lock_section_api(request):
     """
     try:
         data = json.loads(request.body)
-        project_id = data.get('project_id')
-        section_name = data.get('section_name')
+        project_id = data.get("project_id")
+        section_name = data.get("section_name")
 
         if not all([project_id, section_name]):
-            return JsonResponse({
-                'success': False,
-                'error': 'project_id and section_name required'
-            }, status=400)
+            return JsonResponse(
+                {"success": False, "error": "project_id and section_name required"},
+                status=400,
+            )
 
         collab_service = CollaborationService(project_id, request.user.id)
         result = collab_service.lock_section(section_name)
@@ -105,10 +97,7 @@ def lock_section_api(request):
 
     except Exception as e:
         logger.error(f"Error locking section: {e}", exc_info=True)
-        return JsonResponse({
-            'success': False,
-            'error': str(e)
-        }, status=500)
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
 
 
 @login_required
@@ -124,14 +113,14 @@ def unlock_section_api(request):
     """
     try:
         data = json.loads(request.body)
-        project_id = data.get('project_id')
-        section_name = data.get('section_name')
+        project_id = data.get("project_id")
+        section_name = data.get("section_name")
 
         if not all([project_id, section_name]):
-            return JsonResponse({
-                'success': False,
-                'error': 'project_id and section_name required'
-            }, status=400)
+            return JsonResponse(
+                {"success": False, "error": "project_id and section_name required"},
+                status=400,
+            )
 
         collab_service = CollaborationService(project_id, request.user.id)
         result = collab_service.unlock_section(section_name)
@@ -140,7 +129,4 @@ def unlock_section_api(request):
 
     except Exception as e:
         logger.error(f"Error unlocking section: {e}", exc_info=True)
-        return JsonResponse({
-            'success': False,
-            'error': str(e)
-        }, status=500)
+        return JsonResponse({"success": False, "error": str(e)}, status=500)

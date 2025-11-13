@@ -27,7 +27,7 @@ EXPECTED_IP="162.43.35.139"
 
 # Get actual server IP
 echo_header "Server Information"
-ACTUAL_IP=$(curl -s ifconfig.me 2>/dev/null || echo "unknown")
+ACTUAL_IP=$(curl -s ifconfig.me 2> /dev/null || echo "unknown")
 if [ "$ACTUAL_IP" = "unknown" ]; then
     echo_warning "Could not detect server IP"
     echo_info "Please check internet connection"
@@ -37,7 +37,7 @@ fi
 
 # Check DNS A Record
 echo_header "DNS A Record Check"
-DNS_IP=$(dig +short $DOMAIN A 2>/dev/null | head -n1)
+DNS_IP=$(dig +short $DOMAIN A 2> /dev/null | head -n1)
 
 if [ -z "$DNS_IP" ]; then
     echo_error "No DNS A record found for $DOMAIN"
@@ -116,9 +116,9 @@ else
     # Check certificate expiry
     if command -v openssl &> /dev/null; then
         EXPIRY_DATE=$(openssl x509 -enddate -noout -in "$SSL_CERT" | cut -d= -f2)
-        EXPIRY_EPOCH=$(date -d "$EXPIRY_DATE" +%s 2>/dev/null || echo "0")
+        EXPIRY_EPOCH=$(date -d "$EXPIRY_DATE" +%s 2> /dev/null || echo "0")
         NOW_EPOCH=$(date +%s)
-        DAYS_LEFT=$(( ($EXPIRY_EPOCH - $NOW_EPOCH) / 86400 ))
+        DAYS_LEFT=$((($EXPIRY_EPOCH - $NOW_EPOCH) / 86400))
 
         if [ $DAYS_LEFT -lt 0 ]; then
             echo_error "Certificate EXPIRED!"
@@ -174,7 +174,7 @@ fi
 echo_header "Gitea Service Check"
 if systemctl is-active --quiet gitea; then
     echo_success "Gitea service: running"
-    
+
     # Check if accessible locally
     if curl -s http://localhost:3000 > /dev/null 2>&1; then
         echo_success "Gitea responding on port 3000"

@@ -1,65 +1,74 @@
 {% extends 'global_base.html' %}
 {% load static %}
-
-{% block title %}{% if edit_mode %}Edit Issue{% else %}New Issue{% endif %} - {{ project.name }} - SciTeX Cloud{% endblock %}
-
+{% block title %}
+    {% if
+        edit_mode %}
+        Edit Issue
+    {% else %}
+        New Issue
+    {% endif %}
+    - {{ project.name }} -
+    SciTeX Cloud
+{% endblock %}
 {% block content %}
-<div class="container-fluid" style="max-width: 900px;">
-    <h2 style="margin: 2rem 0 1rem;">{% if edit_mode %}Edit Issue #{{ issue.number }}{% else %}New Issue{% endif %}</h2>
-
-    <form method="POST">
-        {% csrf_token %}
-
-        <div class="form-group" style="margin-bottom: 1rem;">
-            <label for="title">Title</label>
-            <input type="text" name="title" id="title" class="form-control"
-                   value="{% if edit_mode %}{{ issue.title }}{% endif %}"
-                   placeholder="Issue title" required>
-        </div>
-
-        <div class="form-group" style="margin-bottom: 1rem;">
-            <label for="description">Description</label>
-            <textarea name="description" id="description" class="form-control"
-                      rows="10" placeholder="Leave a comment">{% if edit_mode %}{{ issue.description }}{% endif %}</textarea>
-        </div>
-
-        {% if not edit_mode %}
-        <div class="form-group" style="margin-bottom: 1rem;">
-            <label for="labels">Labels (optional)</label>
-            <select name="labels" id="labels" class="form-control" multiple>
-                {% for label in labels %}
-                <option value="{{ label.id }}">{{ label.name }}</option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <div class="form-group" style="margin-bottom: 1rem;">
-            <label for="milestone">Milestone (optional)</label>
-            <select name="milestone" id="milestone" class="form-control">
-                <option value="">No milestone</option>
-                {% for milestone in milestones %}
-                <option value="{{ milestone.id }}">{{ milestone.title }}</option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <div class="form-group" style="margin-bottom: 1rem;">
-            <label for="assignees">Assignees (optional)</label>
-            <select name="assignees" id="assignees" class="form-control" multiple>
-                {% for user in assignable_users %}
-                <option value="{{ user.id }}">{{ user.username }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        {% endif %}
-
-        <div style="display: flex; gap: 0.5rem;">
-            <button type="submit" class="btn btn-primary">
-                {% if edit_mode %}Update issue{% else %}Submit new issue{% endif %}
-            </button>
-            <a href="{% if edit_mode %}{{ issue.get_absolute_url }}{% else %}{% url 'user_projects:issues_list' username=project.owner.username slug=project.slug %}{% endif %}"
-               class="btn btn-secondary">Cancel</a>
-        </div>
-    </form>
-</div>
+    <div class="container-fluid" style="max-width: 900px">
+        <h2 style="margin: 2rem 0 1rem">
+            {% if edit_mode %}
+                Edit Issue #{{ issue.number }}
+            {% else %}
+                New Issue
+            {% endif
+            %}
+        </h2>
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-group" style="margin-bottom: 1rem">
+                <label for="title">Title</label>
+                <input type="text"
+                       name="title"
+                       id="title"
+                       class="form-control"
+                       value="{% if edit_mode %}{{ issue.title }}{% endif %}"
+                       placeholder="Issue title"
+                       required />
+            </div>
+            <div class="form-group" style="margin-bottom: 1rem">
+                <label for="description">Description</label>
+                <textarea name="description" id="description" class="form-control" rows="10" placeholder="Leave a comment">
+{% if edit_mode %}{{ issue.description }}{% endif %}</textarea>
+            </div>
+            {% if not edit_mode %}
+                <div class="form-group" style="margin-bottom: 1rem">
+                    <label for="labels">Labels (optional)</label>
+                    <select name="labels" id="labels" class="form-control" multiple>
+                        {% for label in labels %}<option value="{{ label.id }}">{{ label.name }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="form-group" style="margin-bottom: 1rem">
+                    <label for="milestone">Milestone (optional)</label>
+                    <select name="milestone" id="milestone" class="form-control">
+                        <option value="">No milestone</option>
+                        {% for milestone in milestones %}<option value="{{ milestone.id }}">{{ milestone.title }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="form-group" style="margin-bottom: 1rem">
+                    <label for="assignees">Assignees (optional)</label>
+                    <select name="assignees" id="assignees" class="form-control" multiple>
+                        {% for user in assignable_users %}<option value="{{ user.id }}">{{ user.username }}</option>{% endfor %}
+                    </select>
+                </div>
+            {% endif %}
+            <div style="display: flex; gap: 0.5rem">
+                <button type="submit" class="btn btn-primary">
+                    {% if edit_mode %}
+                        Update issue
+                    {% else %}
+                        Submit new issue
+                    {% endif %}
+                </button>
+                <a href="{% if edit_mode %}{{ issue.get_absolute_url }}{% else %}{% url 'user_projects:issues_list' username=project.owner.username slug=project.slug %}{% endif %}"
+                   class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
 {% endblock %}

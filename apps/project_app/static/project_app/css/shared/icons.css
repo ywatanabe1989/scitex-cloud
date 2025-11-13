@@ -2,114 +2,114 @@
 
 /* Base icon styles */
 .octicon {
-    display: inline-block;
-    vertical-align: text-bottom;
-    fill: currentColor;
+  display: inline-block;
+  vertical-align: text-bottom;
+  fill: currentColor;
 }
 
 .octicon-16 {
-    width: 16px;
-    height: 16px;
+  width: 16px;
+  height: 16px;
 }
 
 .octicon-24 {
-    width: 24px;
-    height: 24px;
+  width: 24px;
+  height: 24px;
 }
 
 /* Icon colors */
 .icon-default {
-    color: var(--color-fg-default, #1f2328);
+  color: var(--color-fg-default, #1f2328);
 }
 
 .icon-muted {
-    color: var(--color-fg-muted, #656d76);
+  color: var(--color-fg-muted, #656d76);
 }
 
 .icon-success {
-    color: var(--color-success-fg, #1a7f37);
+  color: var(--color-success-fg, #1a7f37);
 }
 
 .icon-danger {
-    color: var(--color-danger-fg, #d1242f);
+  color: var(--color-danger-fg, #d1242f);
 }
 
 .icon-warning {
-    color: var(--color-attention-fg, #bf8700);
+  color: var(--color-attention-fg, #bf8700);
 }
 
 .icon-folder {
-    color: #54aeff;
+  color: #54aeff;
 }
 
 .icon-file {
-    color: #57606a;
+  color: #57606a;
 }
 
 /* Icon hover states */
 a .octicon,
 button .octicon,
 .clickable-row .octicon {
-    transition: color 0.15s ease;
+  transition: color 0.15s ease;
 }
 
 a:hover .octicon,
 button:hover .octicon,
 .clickable-row:hover .octicon {
-    opacity: 0.8;
+  opacity: 0.8;
 }
 
 /* Icon spacing */
 .icon-left {
-    margin-right: 8px;
+  margin-right: 8px;
 }
 
 .icon-right {
-    margin-left: 8px;
+  margin-left: 8px;
 }
 
 /* File type icons */
 .file-icon {
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-    vertical-align: middle;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
 }
 
 /* Status icons */
 .status-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 16px;
-    height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
 }
 
 .status-icon.success {
-    color: #1a7f37;
+  color: #1a7f37;
 }
 
 .status-icon.error {
-    color: #d1242f;
+  color: #d1242f;
 }
 
 .status-icon.warning {
-    color: #bf8700;
+  color: #bf8700;
 }
 
 /* Button icons */
 .btn .octicon {
-    margin-right: 4px;
+  margin-right: 4px;
 }
 
 .btn-icon-only .octicon {
-    margin: 0;
+  margin: 0;
 }
 
 /* Responsive icon sizing */
 @media (max-width: 768px) {
-    .octicon-responsive {
-        width: 14px;
-        height: 14px;
-    }
+  .octicon-responsive {
+    width: 14px;
+    height: 14px;
+  }
 }

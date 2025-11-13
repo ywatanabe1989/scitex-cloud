@@ -34,17 +34,16 @@ from .collaboration import CollaborationService
 # from .arxiv import ArxivService
 
 __all__ = [
-    'DocumentService',
-    'CompilerService',
-    'VersionControlService',
-    'CollaborationService',
+    "DocumentService",
+    "CompilerService",
+    "VersionControlService",
+    "CollaborationService",
     # 'ArxivService',  # To be added after migration
 ]
 
 # Legacy exports for backward compatibility during migration
 # These will be removed once all views are updated
-from .writer_service import WriterService
 
 __legacy_exports__ = [
-    'WriterService',
+    "WriterService",
 ]

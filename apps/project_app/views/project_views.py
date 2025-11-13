@@ -12,17 +12,15 @@ This module contains view functions related to project management:
 - Project creation, editing, and deletion
 - User overview and project boards
 """
+
 from __future__ import annotations
-import os
-import json
 import logging
 
 # Django imports
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.http import JsonResponse, HttpResponse, Http404
-from django.views.decorators.http import require_http_methods
+from django.http import Http404
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db import models
@@ -30,9 +28,8 @@ from django.utils.text import slugify
 from django.utils.safestring import mark_safe
 
 # Local imports
-from ..models import Project, ProjectMembership
-from apps.organizations_app.models import Organization, ResearchGroup
-from ..decorators import project_required, project_access_required
+from ..models import Project
+from ..decorators import project_access_required
 
 logger = logging.getLogger(__name__)
 
@@ -57,6 +54,7 @@ def user_profile(request, username):
     """
     # Check if username is a reserved path
     from config.urls import RESERVED_PATHS
+
     if username.lower() in [path.lower() for path in RESERVED_PATHS]:
         raise Http404("This path is reserved and not a valid username")
 
@@ -88,8 +86,7 @@ def user_project_list(request, username):
         if request.user.is_authenticated:
             # Show public projects + projects where user is a collaborator
             user_projects = user_projects.filter(
-                models.Q(visibility="public")
-                | models.Q(memberships__user=request.user)
+                models.Q(visibility="public") | models.Q(memberships__user=request.user)
             ).distinct()
         else:
             # Anonymous users only see public projects
@@ -106,7 +103,7 @@ def user_project_list(request, username):
     projects = paginator.get_page(page_number)
 
     # Get social stats
-    from apps.social_app.models import UserFollow, RepositoryStar
+    from apps.social_app.models import UserFollow
 
     followers_count = UserFollow.get_followers_count(user)
     following_count = UserFollow.get_following_count(user)
@@ -189,6 +186,7 @@ def project_detail(request, username, slug):
     # Handle concatenated view
     if view == "concatenated":
         from .api_views import api_concatenate_directory
+
         return api_concatenate_directory(request, username, slug, "")
 
     # Route to appropriate module based on mode
@@ -227,34 +225,37 @@ def project_detail(request, username, slug):
                 """Get last commit message, author, hash, and time for a file/folder"""
                 try:
                     import subprocess
-                    from datetime import datetime
 
                     # Get last commit for this file (including hash)
                     result = subprocess.run(
-                        ['git', 'log', '-1', '--format=%an|%ar|%s|%h', '--', str(path.name)],
+                        [
+                            "git",
+                            "log",
+                            "-1",
+                            "--format=%an|%ar|%s|%h",
+                            "--",
+                            str(path.name),
+                        ],
                         cwd=project_path,
                         capture_output=True,
                         text=True,
-                        timeout=5
+                        timeout=5,
                     )
 
                     if result.returncode == 0 and result.stdout.strip():
-                        author, time_ago, message, commit_hash = result.stdout.strip().split('|', 3)
+                        author, time_ago, message, commit_hash = (
+                            result.stdout.strip().split("|", 3)
+                        )
                         return {
-                            'author': author,
-                            'time_ago': time_ago,
-                            'message': message[:80],  # Truncate to 80 chars
-                            'hash': commit_hash
+                            "author": author,
+                            "time_ago": time_ago,
+                            "message": message[:80],  # Truncate to 80 chars
+                            "hash": commit_hash,
                         }
                 except Exception as e:
                     logger.debug(f"Error getting git info for {path}: {e}")
 
-                return {
-                    'author': '',
-                    'time_ago': '',
-                    'message': '',
-                    'hash': ''
-                }
+                return {"author": "", "time_ago": "", "message": "", "hash": ""}
 
             for item in project_path.iterdir():
                 # Show all files including dotfiles
@@ -267,10 +268,10 @@ def project_detail(request, username, slug):
                             "path": str(item.relative_to(project_path)),
                             "size": item.stat().st_size,
                             "modified": item.stat().st_mtime,
-                            "author": git_info.get('author', ''),
-                            "time_ago": git_info.get('time_ago', ''),
-                            "message": git_info.get('message', ''),
-                            "hash": git_info.get('hash', ''),
+                            "author": git_info.get("author", ""),
+                            "time_ago": git_info.get("time_ago", ""),
+                            "message": git_info.get("message", ""),
+                            "hash": git_info.get("hash", ""),
                         }
                     )
                 elif item.is_dir():
@@ -278,10 +279,10 @@ def project_detail(request, username, slug):
                         {
                             "name": item.name,
                             "path": str(item.relative_to(project_path)),
-                            "author": git_info.get('author', ''),
-                            "time_ago": git_info.get('time_ago', ''),
-                            "message": git_info.get('message', ''),
-                            "hash": git_info.get('hash', ''),
+                            "author": git_info.get("author", ""),
+                            "time_ago": git_info.get("time_ago", ""),
+                            "message": git_info.get("message", ""),
+                            "hash": git_info.get("hash", ""),
                         }
                     )
 
@@ -296,7 +297,7 @@ def project_detail(request, username, slug):
                     readme_content,
                     extensions=["fenced_code", "tables", "nl2br"],
                 )
-        except Exception as e:
+        except Exception:
             pass
 
     # Sort: directories first, then files
@@ -305,28 +306,29 @@ def project_detail(request, username, slug):
 
     # Get branches for branch selector
     branches = []
-    current_branch = project.current_branch or 'develop'
+    current_branch = project.current_branch or "develop"
     if project_path and project_path.exists():
         try:
             import subprocess
+
             result = subprocess.run(
-                ['git', 'branch', '-a'],
+                ["git", "branch", "-a"],
                 cwd=project_path,
                 capture_output=True,
                 text=True,
-                timeout=5
+                timeout=5,
             )
             if result.returncode == 0:
-                for line in result.stdout.split('\n'):
+                for line in result.stdout.split("\n"):
                     line = line.strip()
                     if line:
                         # Remove * prefix and remotes/origin/ prefix
-                        branch = line.replace('*', '').strip()
-                        branch = branch.replace('remotes/origin/', '')
+                        branch = line.replace("*", "").strip()
+                        branch = branch.replace("remotes/origin/", "")
                         if branch and branch not in branches:
                             branches.append(branch)
                         # Check if this is the current branch
-                        if line.startswith('*'):
+                        if line.startswith("*"):
                             current_branch = branch
         except Exception as e:
             logger.debug(f"Error getting branches: {e}")
@@ -336,6 +338,7 @@ def project_detail(request, username, slug):
 
     # Get social interaction counts
     from apps.project_app.models import ProjectWatch, ProjectStar, ProjectFork
+
     watch_count = ProjectWatch.objects.filter(project=project).count()
     star_count = ProjectStar.objects.filter(project=project).count()
     fork_count = ProjectFork.objects.filter(original_project=project).count()
@@ -344,8 +347,12 @@ def project_detail(request, username, slug):
     is_watching = False
     is_starred = False
     if request.user.is_authenticated:
-        is_watching = ProjectWatch.objects.filter(user=request.user, project=project).exists()
-        is_starred = ProjectStar.objects.filter(user=request.user, project=project).exists()
+        is_watching = ProjectWatch.objects.filter(
+            user=request.user, project=project
+        ).exists()
+        is_starred = ProjectStar.objects.filter(
+            user=request.user, project=project
+        ).exists()
 
     context = {
         "project": project,
@@ -448,24 +455,25 @@ def project_create(request):
         # This is a final safeguard before creation
         try:
             from apps.gitea_app.api_client import GiteaClient, GiteaAPIError
+
             client = GiteaClient()
 
             try:
                 existing_repo = client.get_repository(
-                    owner=request.user.username,
-                    repo=unique_slug
+                    owner=request.user.username, repo=unique_slug
                 )
                 if existing_repo:
                     # Gitea repo exists - this is a critical conflict
                     error_msg = (
                         f'Repository "{unique_slug}" already exists in Gitea. '
-                        f'This is likely an orphaned repository from a previous project. '
+                        f"This is likely an orphaned repository from a previous project. "
                         f'Please visit your <a href="/{request.user.username}/settings/repositories/">repository maintenance page</a> to clean it up.'
                     )
                     messages.error(request, mark_safe(error_msg))
                     # Get templates for re-rendering form
                     try:
                         from scitex.template import get_available_templates_info
+
                         available_templates = get_available_templates_info()
                     except ImportError:
                         available_templates = []
@@ -484,7 +492,7 @@ def project_create(request):
             logger.warning(f"Could not verify Gitea repository availability: {e}")
             messages.warning(
                 request,
-                "Could not verify repository name with Gitea. Proceeding with caution."
+                "Could not verify repository name with Gitea. Proceeding with caution.",
             )
 
         try:
@@ -514,9 +522,16 @@ def project_create(request):
                 # Check if clone already succeeded (done by signal)
                 from pathlib import Path
                 from django.conf import settings
-                project_dir = Path(settings.BASE_DIR) / 'data' / 'users' / project.owner.username / project.slug
 
-                if not project_dir.exists() or not (project_dir / '.git').exists():
+                project_dir = (
+                    Path(settings.BASE_DIR)
+                    / "data"
+                    / "users"
+                    / project.owner.username
+                    / project.slug
+                )
+
+                if not project_dir.exists() or not (project_dir / ".git").exists():
                     # Clone to local directory if not done by signal
                     success, result = project.clone_gitea_to_local()
                 else:
@@ -549,9 +564,7 @@ def project_create(request):
                         "available_templates": available_templates,
                         "error": f"Clone failed: {result}",
                     }
-                    return render(
-                        request, "project_app/create.html", context
-                    )
+                    return render(request, "project_app/create.html", context)
 
             except Exception as e:
                 error_msg = str(e)
@@ -561,9 +574,7 @@ def project_create(request):
                         f'Repository "{name}" already exists in Gitea. Please choose a different name.',
                     )
                 else:
-                    messages.error(
-                        request, f"Failed to create repository: {error_msg}"
-                    )
+                    messages.error(request, f"Failed to create repository: {error_msg}")
                 logger.error(f"Gitea creation failed for {project.slug}: {e}")
                 project.delete()
                 # Get templates for re-rendering form
@@ -579,16 +590,12 @@ def project_create(request):
                     "description": description,
                     "error": error_msg,
                 }
-                return render(
-                    request, "project_app/create.html", context
-                )
+                return render(request, "project_app/create.html", context)
 
         elif init_type == "github":
             # Import from GitHub/GitLab - Use direct Git clone instead of Gitea
             if not git_url:
-                messages.error(
-                    request, "Repository URL is required for importing"
-                )
+                messages.error(request, "Repository URL is required for importing")
                 project.delete()
                 # Get templates for re-rendering form
                 try:
@@ -604,9 +611,7 @@ def project_create(request):
                     "init_type": "github",
                     "git_url": git_url,
                 }
-                return render(
-                    request, "project_app/create.html", context
-                )
+                return render(request, "project_app/create.html", context)
 
             try:
                 # Clone from Git repository directly (no Gitea needed)
@@ -618,9 +623,7 @@ def project_create(request):
                         f'Project "{project.name}" imported from Git repository successfully',
                     )
                 else:
-                    messages.error(
-                        request, f"Failed to clone repository: {error_msg}"
-                    )
+                    messages.error(request, f"Failed to clone repository: {error_msg}")
                     project.delete()
                     return redirect("new")
 
@@ -640,9 +643,7 @@ def project_create(request):
                     f'Project "{project.name}" created with {template_type} template',
                 )
             else:
-                messages.error(
-                    request, f"Failed to create project with template"
-                )
+                messages.error(request, f"Failed to create project with template")
                 project.delete()
                 return redirect("project_app:list")
 
@@ -695,13 +696,12 @@ def project_create(request):
             success, writer_path = manager.initialize_scitex_writer_template(project)
             if success:
                 messages.success(
-                    request,
-                    f'SciTeX Writer template initialized at scitex/writer/'
+                    request, f"SciTeX Writer template initialized at scitex/writer/"
                 )
             else:
                 messages.warning(
                     request,
-                    f'Project created but SciTeX Writer template initialization failed'
+                    f"Project created but SciTeX Writer template initialization failed",
                 )
 
         return redirect(
@@ -747,9 +747,7 @@ def project_create_from_template(request, username, slug):
 
     # Only project owner can create template
     if project.owner != request.user:
-        messages.error(
-            request, "Only project owner can create template structure."
-        )
+        messages.error(request, "Only project owner can create template structure.")
         return redirect("user_projects:detail", username=username, slug=slug)
 
     if request.method == "POST":
@@ -787,9 +785,7 @@ def project_edit(request, username, slug):
 
     # Only project owner can edit
     if project.owner != request.user:
-        messages.error(
-            request, "You don't have permission to edit this project."
-        )
+        messages.error(request, "You don't have permission to edit this project.")
         return redirect("project_app:detail", username=username, slug=slug)
 
     if request.method == "POST":
@@ -803,9 +799,7 @@ def project_edit(request, username, slug):
 
         project.save()
         messages.success(request, "Project updated successfully")
-        return redirect(
-            "project_app:detail", username=username, slug=project.slug
-        )
+        return redirect("project_app:detail", username=username, slug=project.slug)
 
     context = {"project": project}
     return render(request, "project_app/projects/edit.html", context)
@@ -819,9 +813,7 @@ def project_delete(request, username, slug):
 
     # Only project owner can delete
     if project.owner != request.user:
-        messages.error(
-            request, "You don't have permission to delete this project."
-        )
+        messages.error(request, "You don't have permission to delete this project.")
         return redirect("project_app:detail", username=username, slug=slug)
 
     if request.method == "POST":
@@ -842,9 +834,7 @@ def project_delete(request, username, slug):
 
         project_name = project.name
         project.delete()
-        messages.success(
-            request, f'Project "{project_name}" deleted successfully'
-        )
+        messages.success(request, f'Project "{project_name}" deleted successfully')
         return redirect("project_app:list")
 
     context = {"project": project}
@@ -888,7 +878,7 @@ def user_overview(request, username):
     recent_projects = recent_projects.order_by("-updated_at")[:6]
 
     # Get social stats
-    from apps.social_app.models import UserFollow, RepositoryStar
+    from apps.social_app.models import UserFollow
 
     followers_count = UserFollow.get_followers_count(user)
     following_count = UserFollow.get_following_count(user)

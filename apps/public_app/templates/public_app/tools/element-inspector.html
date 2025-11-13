@@ -1,20 +1,31 @@
 {% extends "global_base.html" %}
-
-{% block title %}Element Inspector - Browser Tool | SciTeX{% endblock %}
-
-{% block meta_description %}Visual debugging tool for web developers. Inspect any element on any website with keyboard shortcuts (Alt+I). Click elements to copy debug info for AI assistants.{% endblock %}
-
-{% block head_extra %}
+{% block title %}
+    Element Inspector - Browser
+    Tool | SciTeX
+{% endblock %}
+{% block meta_description %}
+    Visual debugging tool
+    for web developers. Inspect any element on any website with keyboard shortcuts
+    (Alt+I). Click elements to copy debug info for AI assistants.
+{% endblock %}
+{%
+block head_extra %}
 {% load static %}
 <!-- Override favicon for bookmarklet icon -->
-<link rel="icon" type="image/png" sizes="192x192" href="{% static 'images/vectorstock_38853699/vectorstock_38853699-navy-inverted-192x192.png' %}?v=3">
-<link rel="icon" type="image/png" sizes="48x48" href="{% static 'images/vectorstock_38853699/vectorstock_38853699-navy-inverted-48x48.png' %}?v=3">
-<link rel="shortcut icon" href="{% static 'images/vectorstock_38853699/vectorstock_38853699-navy.ico' %}?v=3">
+<link rel="icon"
+      type="image/png"
+      sizes="192x192"
+      href="{% static 'images/vectorstock_38853699/vectorstock_38853699-navy-inverted-192x192.png' %}?v=3" />
+<link rel="icon"
+      type="image/png"
+      sizes="48x48"
+      href="{% static 'images/vectorstock_38853699/vectorstock_38853699-navy-inverted-48x48.png' %}?v=3" />
+<link rel="shortcut icon"
+      href="{% static 'images/vectorstock_38853699/vectorstock_38853699-navy.ico' %}?v=3" />
 {% endblock %}
-
 {% block extra_css %}
-{% load static %}
-<style>
+    {% load static %}
+    <style>
   .tool-detail-container {
     max-width: 900px;
     margin: 0 auto;
@@ -163,7 +174,7 @@
     background: var(--bg-tertiary);
     padding: 4px 8px;
     border-radius: 4px;
-    font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+    font-family: "Monaco", "Menlo", "Consolas", monospace;
     font-size: 13px;
     border: 1px solid var(--border-default);
     color: var(--text-primary);
@@ -212,144 +223,171 @@
   .tip-box strong {
     color: #f59e0b;
   }
-</style>
+    </style>
 {% endblock %}
-
 {% block content %}
-<div class="tool-detail-container">
-  <!-- Breadcrumb -->
-  <div class="tool-breadcrumb">
-    <a href="{% url 'public_app:tools' %}">← Back to Tools</a>
-  </div>
-
-  <!-- Header -->
-  <div class="tool-header">
-    <div class="tool-icon-large">🔍</div>
-    <h1 class="tool-title">Element Inspector</h1>
-    <p class="tool-subtitle">
-      Visual debugging tool for web developers. Inspect any element on any website with colored overlays, click to copy comprehensive debug info formatted for AI assistants.
-    </p>
-  </div>
-
-  <!-- Installation -->
-  <div class="bookmarklet-install">
-    <h2 class="bookmarklet-install-title">📌 Drag to Bookmarks Bar</h2>
-    <a href="javascript:(function(){if(window.elementInspector){window.elementInspector.toggle();}else{const s=document.createElement('script');s.type='module';s.src='https://{{ request.get_host }}{% static 'shared/js/utils/element-inspector.js' %}';s.onload=()=>{if(window.elementInspector){window.elementInspector.activate();}};document.body.appendChild(s);}})();" class="bookmarklet-link">
-      🔍 SciTeX: Element Inspector
-    </a>
-    <p class="install-hint">
-      💡 Drag the button above to your bookmarks bar, then click it on any website!
-    </p>
-  </div>
-
-  <!-- How to Use -->
-  <div class="tool-section">
-    <h2 class="tool-section-title">📖 How to Use</h2>
-    <div class="tool-section-content">
-      <ol class="usage-steps">
-        <li><strong>Drag</strong> the button above to your bookmarks bar</li>
-        <li><strong>Navigate</strong> to any website you want to inspect</li>
-        <li><strong>Click</strong> the bookmark OR press <span class="keyboard-shortcut">Alt+I</span></li>
-        <li><strong>Click</strong> any element to copy its debug info to clipboard</li>
-        <li><strong>OR</strong> press <span class="keyboard-shortcut">Ctrl+Alt+I</span> for selection mode (drag to select area)</li>
-        <li><strong>Press</strong> <span class="keyboard-shortcut">Escape</span> to close when done</li>
-      </ol>
+    <div class="tool-detail-container">
+        <!-- Breadcrumb -->
+        <div class="tool-breadcrumb">
+            <a href="{% url 'public_app:tools' %}">← Back to Tools</a>
+        </div>
+        <!-- Header -->
+        <div class="tool-header">
+            <div class="tool-icon-large">🔍</div>
+            <h1 class="tool-title">Element Inspector</h1>
+            <p class="tool-subtitle">
+                Visual debugging tool for web developers. Inspect any element on any
+                website with colored overlays, click to copy comprehensive debug info
+                formatted for AI assistants.
+            </p>
+        </div>
+        <!-- Installation -->
+        <div class="bookmarklet-install">
+            <h2 class="bookmarklet-install-title">📌 Drag to Bookmarks Bar</h2>
+            <a href="javascript:(function(){if(window.elementInspector){window.elementInspector.toggle();}else{const s=document.createElement('script');s.type='module';s.src='https://{{ request.get_host }}{% static 'shared/js/utils/element-inspector.js' %}';s.onload=()=>{if(window.elementInspector){window.elementInspector.activate();}};document.body.appendChild(s);}})();"
+               class="bookmarklet-link">🔍 SciTeX: Element Inspector</a>
+            <p class="install-hint">
+                💡 Drag the button above to your bookmarks bar, then click it on any
+                website!
+            </p>
+        </div>
+        <!-- How to Use -->
+        <div class="tool-section">
+            <h2 class="tool-section-title">📖 How to Use</h2>
+            <div class="tool-section-content">
+                <ol class="usage-steps">
+                    <li>
+                        <strong>Drag</strong> the button above to your bookmarks bar
+                    </li>
+                    <li>
+                        <strong>Navigate</strong> to any website you want to inspect
+                    </li>
+                    <li>
+                        <strong>Click</strong> the bookmark OR press
+                        <span class="keyboard-shortcut">Alt+I</span>
+                    </li>
+                    <li>
+                        <strong>Click</strong> any element to copy its debug info to clipboard
+                    </li>
+                    <li>
+                        <strong>OR</strong> press
+                        <span class="keyboard-shortcut">Ctrl+Alt+I</span> for selection mode
+                        (drag to select area)
+                    </li>
+                    <li>
+                        <strong>Press</strong>
+                        <span class="keyboard-shortcut">Escape</span> to close when done
+                    </li>
+                </ol>
+            </div>
+        </div>
+        <!-- Features -->
+        <div class="tool-section">
+            <h2 class="tool-section-title">✨ Features</h2>
+            <div class="features-grid">
+                <div class="feature-item">
+                    <span class="feature-icon">⌨️</span>
+                    <div class="feature-text">
+                        <div class="feature-title">Keyboard Shortcuts</div>
+                        <div class="feature-desc">Alt+I to toggle, Ctrl+Alt+I for selection mode, Escape to close</div>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">🎨</span>
+                    <div class="feature-text">
+                        <div class="feature-title">Visual Overlay</div>
+                        <div class="feature-desc">Colored borders show element hierarchy</div>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">📋</span>
+                    <div class="feature-text">
+                        <div class="feature-title">Click to Copy</div>
+                        <div class="feature-desc">Comprehensive debug info in one click</div>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">🤖</span>
+                    <div class="feature-text">
+                        <div class="feature-title">AI-Ready Format</div>
+                        <div class="feature-desc">Output optimized for AI assistants</div>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">🌐</span>
+                    <div class="feature-text">
+                        <div class="feature-title">Universal</div>
+                        <div class="feature-desc">Works on any website, any browser</div>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">🔲</span>
+                    <div class="feature-text">
+                        <div class="feature-title">Selection Mode</div>
+                        <div class="feature-desc">Drag to select area, snipping tool style with overlay</div>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">🔒</span>
+                    <div class="feature-text">
+                        <div class="feature-title">Privacy-First</div>
+                        <div class="feature-desc">Runs locally, no data sent anywhere</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- What Gets Copied -->
+        <div class="tool-section">
+            <h2 class="tool-section-title">📦 What Gets Copied</h2>
+            <div class="tool-section-content">
+                <p>
+                    <strong>Single Element Mode (Click):</strong>
+                </p>
+                <ul>
+                    <li>Element tag, ID, classes, and CSS selector</li>
+                    <li>All HTML attributes (href, src, data-*, aria-*, etc.)</li>
+                    <li>Computed CSS styles (display, position, colors, fonts, etc.)</li>
+                    <li>Dimensions and position on page</li>
+                    <li>Text content preview (first 200 characters)</li>
+                </ul>
+                <p>
+                    <strong>Selection Mode (Ctrl+Alt+I + Drag):</strong>
+                </p>
+                <ul>
+                    <li>All elements within selected area</li>
+                    <li>Hierarchical structure showing parent-child relationships</li>
+                    <li>Debug info for each element in the selection</li>
+                </ul>
+                <div class="tip-box">
+                    <strong>💡 Pro Tip:</strong> Paste the copied info into your
+                    conversation with Claude Code or other AI assistants for instant
+                    debugging help!
+                </div>
+            </div>
+        </div>
+        <!-- Troubleshooting -->
+        <div class="tool-section">
+            <h2 class="tool-section-title">🔧 Troubleshooting</h2>
+            <div class="tool-section-content">
+                <ul>
+                    <li>
+                        <strong>Bookmarklet doesn't work?</strong> Make sure you dragged it to
+                        the bookmarks bar, not just clicked it
+                    </li>
+                    <li>
+                        <strong>Can't see overlay?</strong> Click the bookmark again - it
+                        might be toggled off
+                    </li>
+                    <li>
+                        <strong>Copy failed?</strong> Some sites block clipboard access -
+                        check browser console for details
+                    </li>
+                    <li>
+                        <strong>Keyboard shortcuts not working?</strong> Make sure you're not
+                        in an input field when pressing Alt+I
+                    </li>
+                </ul>
+            </div>
+        </div>
     </div>
-  </div>
-
-  <!-- Features -->
-  <div class="tool-section">
-    <h2 class="tool-section-title">✨ Features</h2>
-    <div class="features-grid">
-      <div class="feature-item">
-        <span class="feature-icon">⌨️</span>
-        <div class="feature-text">
-          <div class="feature-title">Keyboard Shortcuts</div>
-          <div class="feature-desc">Alt+I to toggle, Ctrl+Alt+I for selection mode, Escape to close</div>
-        </div>
-      </div>
-      <div class="feature-item">
-        <span class="feature-icon">🎨</span>
-        <div class="feature-text">
-          <div class="feature-title">Visual Overlay</div>
-          <div class="feature-desc">Colored borders show element hierarchy</div>
-        </div>
-      </div>
-      <div class="feature-item">
-        <span class="feature-icon">📋</span>
-        <div class="feature-text">
-          <div class="feature-title">Click to Copy</div>
-          <div class="feature-desc">Comprehensive debug info in one click</div>
-        </div>
-      </div>
-      <div class="feature-item">
-        <span class="feature-icon">🤖</span>
-        <div class="feature-text">
-          <div class="feature-title">AI-Ready Format</div>
-          <div class="feature-desc">Output optimized for AI assistants</div>
-        </div>
-      </div>
-      <div class="feature-item">
-        <span class="feature-icon">🌐</span>
-        <div class="feature-text">
-          <div class="feature-title">Universal</div>
-          <div class="feature-desc">Works on any website, any browser</div>
-        </div>
-      </div>
-      <div class="feature-item">
-        <span class="feature-icon">🔲</span>
-        <div class="feature-text">
-          <div class="feature-title">Selection Mode</div>
-          <div class="feature-desc">Drag to select area, snipping tool style with overlay</div>
-        </div>
-      </div>
-      <div class="feature-item">
-        <span class="feature-icon">🔒</span>
-        <div class="feature-text">
-          <div class="feature-title">Privacy-First</div>
-          <div class="feature-desc">Runs locally, no data sent anywhere</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- What Gets Copied -->
-  <div class="tool-section">
-    <h2 class="tool-section-title">📦 What Gets Copied</h2>
-    <div class="tool-section-content">
-      <p><strong>Single Element Mode (Click):</strong></p>
-      <ul>
-        <li>Element tag, ID, classes, and CSS selector</li>
-        <li>All HTML attributes (href, src, data-*, aria-*, etc.)</li>
-        <li>Computed CSS styles (display, position, colors, fonts, etc.)</li>
-        <li>Dimensions and position on page</li>
-        <li>Text content preview (first 200 characters)</li>
-      </ul>
-
-      <p><strong>Selection Mode (Ctrl+Alt+I + Drag):</strong></p>
-      <ul>
-        <li>All elements within selected area</li>
-        <li>Hierarchical structure showing parent-child relationships</li>
-        <li>Debug info for each element in the selection</li>
-      </ul>
-
-      <div class="tip-box">
-        <strong>💡 Pro Tip:</strong> Paste the copied info into your conversation with Claude Code or other AI assistants for instant debugging help!
-      </div>
-    </div>
-  </div>
-
-  <!-- Troubleshooting -->
-  <div class="tool-section">
-    <h2 class="tool-section-title">🔧 Troubleshooting</h2>
-    <div class="tool-section-content">
-      <ul>
-        <li><strong>Bookmarklet doesn't work?</strong> Make sure you dragged it to the bookmarks bar, not just clicked it</li>
-        <li><strong>Can't see overlay?</strong> Click the bookmark again - it might be toggled off</li>
-        <li><strong>Copy failed?</strong> Some sites block clipboard access - check browser console for details</li>
-        <li><strong>Keyboard shortcuts not working?</strong> Make sure you're not in an input field when pressing Alt+I</li>
-      </ul>
-    </div>
-  </div>
-</div>
 {% endblock %}

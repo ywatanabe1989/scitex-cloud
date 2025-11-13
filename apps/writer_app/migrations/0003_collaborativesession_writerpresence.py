@@ -7,51 +7,99 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('project_app', '0018_add_visitor_allocation'),
-        ('writer_app', '0002_remove_arxivaccount_user_and_more'),
+        ("project_app", "0018_add_visitor_allocation"),
+        ("writer_app", "0002_remove_arxivaccount_user_and_more"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='CollaborativeSession',
+            name="CollaborativeSession",
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('session_id', models.CharField(max_length=100)),
-                ('started_at', models.DateTimeField(auto_now_add=True)),
-                ('ended_at', models.DateTimeField(blank=True, null=True)),
-                ('last_activity', models.DateTimeField(auto_now=True)),
-                ('is_active', models.BooleanField(default=True)),
-                ('locked_sections', models.JSONField(blank=True, default=list)),
-                ('cursor_position', models.JSONField(blank=True, default=dict)),
-                ('characters_typed', models.IntegerField(default=0)),
-                ('operations_count', models.IntegerField(default=0)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('manuscript', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='collaborative_sessions', to='writer_app.manuscript')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='writing_sessions', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                ("session_id", models.CharField(max_length=100)),
+                ("started_at", models.DateTimeField(auto_now_add=True)),
+                ("ended_at", models.DateTimeField(blank=True, null=True)),
+                ("last_activity", models.DateTimeField(auto_now=True)),
+                ("is_active", models.BooleanField(default=True)),
+                ("locked_sections", models.JSONField(blank=True, default=list)),
+                ("cursor_position", models.JSONField(blank=True, default=dict)),
+                ("characters_typed", models.IntegerField(default=0)),
+                ("operations_count", models.IntegerField(default=0)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "manuscript",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="collaborative_sessions",
+                        to="writer_app.manuscript",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="writing_sessions",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'ordering': ['-last_activity'],
-                'unique_together': {('manuscript', 'user', 'session_id')},
+                "ordering": ["-last_activity"],
+                "unique_together": {("manuscript", "user", "session_id")},
             },
         ),
         migrations.CreateModel(
-            name='WriterPresence',
+            name="WriterPresence",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('current_section', models.CharField(blank=True, max_length=100)),
-                ('last_seen', models.DateTimeField(auto_now=True)),
-                ('is_active', models.BooleanField(default=True)),
-                ('project', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='writer_presences', to='project_app.project')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='writer_presences', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("current_section", models.CharField(blank=True, max_length=100)),
+                ("last_seen", models.DateTimeField(auto_now=True)),
+                ("is_active", models.BooleanField(default=True)),
+                (
+                    "project",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="writer_presences",
+                        to="project_app.project",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="writer_presences",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'ordering': ['-last_seen'],
-                'indexes': [models.Index(fields=['project', 'is_active', 'last_seen'], name='writer_app__project_e4ef48_idx')],
-                'unique_together': {('user', 'project')},
+                "ordering": ["-last_seen"],
+                "indexes": [
+                    models.Index(
+                        fields=["project", "is_active", "last_seen"],
+                        name="writer_app__project_e4ef48_idx",
+                    )
+                ],
+                "unique_together": {("user", "project")},
             },
         ),
     ]

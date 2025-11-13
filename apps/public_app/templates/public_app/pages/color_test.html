@@ -1,479 +1,785 @@
 {% extends 'public_app/cloud_base.html' %}
 {% load static %}
-
-{% block title %}Color Test - SciTeX Cloud{% endblock %}
-
+{% block title
+    %}
+    Color Test - SciTeX Cloud
+{% endblock %}
 {% block content %}
-<section class="container py-5">
-    <h1 class="mb-4"><i class="fas fa-palette me-2"></i>SciTeX Navy Blue Theme</h1>
-    <p class="lead mb-3">This page showcases our new navy blue color theme with Bootstrap 5.3.</p>
-    <div class="alert alert-primary mb-5">
-        <h5><i class="fas fa-circle-info me-2"></i>Navy Blue Theme</h5>
-        <p class="mb-0">Our professional navy blue color palette conveys trust, stability, and professionalism, providing a consistent look and feel across the application.</p>
-    </div>
-
-    <!-- Primary Colors -->
-    <div class="row mb-5">
-        <div class="col-12">
-            <h2 class="mb-3"><i class="fas fa-swatchbook me-2"></i>Primary Colors</h2>
-            <div class="d-flex flex-wrap gap-2">
-                <div class="p-3 rounded" style="background-color: #1a365d; color: white; width: 120px; height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                    <div>Primary</div>
-                    <small>#1a365d</small>
-                </div>
-                <div class="p-3 rounded" style="background-color: #2a4a7f; color: white; width: 120px; height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                    <div>Primary Light</div>
-                    <small>#2a4a7f</small>
-                </div>
-                <div class="p-3 rounded" style="background-color: #0f2342; color: white; width: 120px; height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                    <div>Primary Dark</div>
-                    <small>#0f2342</small>
-                </div>
-                <div class="p-3 rounded" style="background-color: #4299e1; color: white; width: 120px; height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                    <div>Secondary</div>
-                    <small>#4299e1</small>
-                </div>
-                <div class="p-3 rounded" style="background-color: #e53e3e; color: white; width: 120px; height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                    <div>Accent</div>
-                    <small>#e53e3e</small>
+    <section class="container py-5">
+        <h1 class="mb-4">
+            <i class="fas fa-palette me-2"></i>SciTeX Navy Blue Theme
+        </h1>
+        <p class="lead mb-3">This page showcases our new navy blue color theme with Bootstrap 5.3.</p>
+        <div class="alert alert-primary mb-5">
+            <h5>
+                <i class="fas fa-circle-info me-2"></i>Navy Blue Theme
+            </h5>
+            <p class="mb-0">
+                Our professional navy blue color palette conveys trust, stability, and
+                professionalism, providing a consistent look and feel across the
+                application.
+            </p>
+        </div>
+        <!-- Primary Colors -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <h2 class="mb-3">
+                    <i class="fas fa-swatchbook me-2"></i>Primary Colors
+                </h2>
+                <div class="d-flex flex-wrap gap-2">
+                    <div class="p-3 rounded"
+                         style="background-color: #1a365d;
+                                color: white;
+                                width: 120px;
+                                height: 120px;
+                                display: flex;
+                                flex-direction: column;
+                                justify-content: center;
+                                align-items: center">
+                        <div>Primary</div>
+                        <small>#1a365d</small>
+                    </div>
+                    <div class="p-3 rounded"
+                         style="background-color: #2a4a7f;
+                                color: white;
+                                width: 120px;
+                                height: 120px;
+                                display: flex;
+                                flex-direction: column;
+                                justify-content: center;
+                                align-items: center">
+                        <div>Primary Light</div>
+                        <small>#2a4a7f</small>
+                    </div>
+                    <div class="p-3 rounded"
+                         style="background-color: #0f2342;
+                                color: white;
+                                width: 120px;
+                                height: 120px;
+                                display: flex;
+                                flex-direction: column;
+                                justify-content: center;
+                                align-items: center">
+                        <div>Primary Dark</div>
+                        <small>#0f2342</small>
+                    </div>
+                    <div class="p-3 rounded"
+                         style="background-color: #4299e1;
+                                color: white;
+                                width: 120px;
+                                height: 120px;
+                                display: flex;
+                                flex-direction: column;
+                                justify-content: center;
+                                align-items: center">
+                        <div>Secondary</div>
+                        <small>#4299e1</small>
+                    </div>
+                    <div class="p-3 rounded"
+                         style="background-color: #e53e3e;
+                                color: white;
+                                width: 120px;
+                                height: 120px;
+                                display: flex;
+                                flex-direction: column;
+                                justify-content: center;
+                                align-items: center">
+                        <div>Accent</div>
+                        <small>#e53e3e</small>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Utility Colors -->
-    <div class="row mb-5">
-        <div class="col-12">
-            <h2 class="mb-3"><i class="fas fa-gear me-2"></i>Utility Colors</h2>
-            <div class="d-flex flex-wrap gap-2">
-                <div class="p-3 rounded" style="background-color: #38a169; color: white; width: 120px; height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                    <div>Success</div>
-                    <small>#38a169</small>
-                </div>
-                <div class="p-3 rounded" style="background-color: #dd6b20; color: white; width: 120px; height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                    <div>Warning</div>
-                    <small>#dd6b20</small>
-                </div>
-                <div class="p-3 rounded" style="background-color: #e53e3e; color: white; width: 120px; height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                    <div>Error</div>
-                    <small>#e53e3e</small>
-                </div>
-                <div class="p-3 rounded" style="background-color: #4299e1; color: white; width: 120px; height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                    <div>Info</div>
-                    <small>#4299e1</small>
-                </div>
-                <div class="p-3 rounded" style="background-color: #2d3748; color: white; width: 120px; height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                    <div>Text</div>
-                    <small>#2d3748</small>
-                </div>
-                <div class="p-3 rounded" style="background-color: #ebf8ff; color: #2d3748; width: 120px; height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center; border: 1px solid #cbd5e0;">
-                    <div>Light BG</div>
-                    <small>#ebf8ff</small>
+        <!-- Utility Colors -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <h2 class="mb-3">
+                    <i class="fas fa-gear me-2"></i>Utility Colors
+                </h2>
+                <div class="d-flex flex-wrap gap-2">
+                    <div class="p-3 rounded"
+                         style="background-color: #38a169;
+                                color: white;
+                                width: 120px;
+                                height: 120px;
+                                display: flex;
+                                flex-direction: column;
+                                justify-content: center;
+                                align-items: center">
+                        <div>Success</div>
+                        <small>#38a169</small>
+                    </div>
+                    <div class="p-3 rounded"
+                         style="background-color: #dd6b20;
+                                color: white;
+                                width: 120px;
+                                height: 120px;
+                                display: flex;
+                                flex-direction: column;
+                                justify-content: center;
+                                align-items: center">
+                        <div>Warning</div>
+                        <small>#dd6b20</small>
+                    </div>
+                    <div class="p-3 rounded"
+                         style="background-color: #e53e3e;
+                                color: white;
+                                width: 120px;
+                                height: 120px;
+                                display: flex;
+                                flex-direction: column;
+                                justify-content: center;
+                                align-items: center">
+                        <div>Error</div>
+                        <small>#e53e3e</small>
+                    </div>
+                    <div class="p-3 rounded"
+                         style="background-color: #4299e1;
+                                color: white;
+                                width: 120px;
+                                height: 120px;
+                                display: flex;
+                                flex-direction: column;
+                                justify-content: center;
+                                align-items: center">
+                        <div>Info</div>
+                        <small>#4299e1</small>
+                    </div>
+                    <div class="p-3 rounded"
+                         style="background-color: #2d3748;
+                                color: white;
+                                width: 120px;
+                                height: 120px;
+                                display: flex;
+                                flex-direction: column;
+                                justify-content: center;
+                                align-items: center">
+                        <div>Text</div>
+                        <small>#2d3748</small>
+                    </div>
+                    <div class="p-3 rounded"
+                         style="background-color: #ebf8ff;
+                                color: #2d3748;
+                                width: 120px;
+                                height: 120px;
+                                display: flex;
+                                flex-direction: column;
+                                justify-content: center;
+                                align-items: center;
+                                border: 1px solid #cbd5e0">
+                        <div>Light BG</div>
+                        <small>#ebf8ff</small>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Navy Theme Color Scale -->
-    <div class="row mb-5">
-        <div class="col-12">
-            <h2 class="mb-3"><i class="fas fa-rainbow me-2"></i>Navy Theme Color Scale</h2>
-            <div class="row g-2">
-                <div class="col-12 mb-3">
-                    <div class="card shadow-sm">
-                        <div class="card-header bg-primary text-white">
-                            <strong>Primary (Navy Blue)</strong>
+        <!-- Navy Theme Color Scale -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <h2 class="mb-3">
+                    <i class="fas fa-rainbow me-2"></i>Navy Theme Color Scale
+                </h2>
+                <div class="row g-2">
+                    <div class="col-12 mb-3">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-primary text-white">
+                                <strong>Primary (Navy Blue)</strong>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex flex-wrap gap-2">
+                                    <div class="p-3 rounded"
+                                         style="background-color: #ebf8ff;
+                                                color: #2d3748;
+                                                width: 100px;
+                                                height: 80px;
+                                                display: flex;
+                                                flex-direction: column;
+                                                justify-content: center;
+                                                align-items: center;
+                                                border: 1px solid #cbd5e0">
+                                        <div>100</div>
+                                        <small>#ebf8ff</small>
+                                    </div>
+                                    <div class="p-3 rounded"
+                                         style="background-color: #bee3f8;
+                                                color: #2d3748;
+                                                width: 100px;
+                                                height: 80px;
+                                                display: flex;
+                                                flex-direction: column;
+                                                justify-content: center;
+                                                align-items: center">
+                                        <div>200</div>
+                                        <small>#bee3f8</small>
+                                    </div>
+                                    <div class="p-3 rounded"
+                                         style="background-color: #90cdf4;
+                                                color: #2d3748;
+                                                width: 100px;
+                                                height: 80px;
+                                                display: flex;
+                                                flex-direction: column;
+                                                justify-content: center;
+                                                align-items: center">
+                                        <div>300</div>
+                                        <small>#90cdf4</small>
+                                    </div>
+                                    <div class="p-3 rounded"
+                                         style="background-color: #63b3ed;
+                                                color: #2d3748;
+                                                width: 100px;
+                                                height: 80px;
+                                                display: flex;
+                                                flex-direction: column;
+                                                justify-content: center;
+                                                align-items: center">
+                                        <div>400</div>
+                                        <small>#63b3ed</small>
+                                    </div>
+                                    <div class="p-3 rounded"
+                                         style="background-color: #4299e1;
+                                                color: white;
+                                                width: 100px;
+                                                height: 80px;
+                                                display: flex;
+                                                flex-direction: column;
+                                                justify-content: center;
+                                                align-items: center">
+                                        <div>500</div>
+                                        <small>#4299e1</small>
+                                    </div>
+                                    <div class="p-3 rounded"
+                                         style="background-color: #3182ce;
+                                                color: white;
+                                                width: 100px;
+                                                height: 80px;
+                                                display: flex;
+                                                flex-direction: column;
+                                                justify-content: center;
+                                                align-items: center">
+                                        <div>600</div>
+                                        <small>#3182ce</small>
+                                    </div>
+                                    <div class="p-3 rounded"
+                                         style="background-color: #2b6cb0;
+                                                color: white;
+                                                width: 100px;
+                                                height: 80px;
+                                                display: flex;
+                                                flex-direction: column;
+                                                justify-content: center;
+                                                align-items: center">
+                                        <div>700</div>
+                                        <small>#2b6cb0</small>
+                                    </div>
+                                    <div class="p-3 rounded"
+                                         style="background-color: #2a4a7f;
+                                                color: white;
+                                                width: 100px;
+                                                height: 80px;
+                                                display: flex;
+                                                flex-direction: column;
+                                                justify-content: center;
+                                                align-items: center">
+                                        <div>800</div>
+                                        <small>#2a4a7f</small>
+                                    </div>
+                                    <div class="p-3 rounded"
+                                         style="background-color: #1a365d;
+                                                color: white;
+                                                width: 100px;
+                                                height: 80px;
+                                                display: flex;
+                                                flex-direction: column;
+                                                justify-content: center;
+                                                align-items: center">
+                                        <div>900</div>
+                                        <small>#1a365d</small>
+                                    </div>
+                                    <div class="p-3 rounded"
+                                         style="background-color: #0f2342;
+                                                color: white;
+                                                width: 100px;
+                                                height: 80px;
+                                                display: flex;
+                                                flex-direction: column;
+                                                justify-content: center;
+                                                align-items: center">
+                                        <div>950</div>
+                                        <small>#0f2342</small>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="card-body">
-                            <div class="d-flex flex-wrap gap-2">
-                                <div class="p-3 rounded" style="background-color: #ebf8ff; color: #2d3748; width: 100px; height: 80px; display: flex; flex-direction: column; justify-content: center; align-items: center; border: 1px solid #cbd5e0;">
-                                    <div>100</div>
-                                    <small>#ebf8ff</small>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-header bg-secondary text-white">
+                                <strong>Secondary (Bright Blue)</strong>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex flex-wrap gap-2">
+                                    <div class="p-3 rounded"
+                                         style="background-color: #ebf8ff;
+                                                color: #2d3748;
+                                                width: 80px;
+                                                height: 80px;
+                                                display: flex;
+                                                flex-direction: column;
+                                                justify-content: center;
+                                                align-items: center;
+                                                border: 1px solid #cbd5e0">
+                                        <div>100</div>
+                                        <small>#ebf8ff</small>
+                                    </div>
+                                    <div class="p-3 rounded"
+                                         style="background-color: #63b3ed;
+                                                color: #2d3748;
+                                                width: 80px;
+                                                height: 80px;
+                                                display: flex;
+                                                flex-direction: column;
+                                                justify-content: center;
+                                                align-items: center">
+                                        <div>400</div>
+                                        <small>#63b3ed</small>
+                                    </div>
+                                    <div class="p-3 rounded"
+                                         style="background-color: #4299e1;
+                                                color: white;
+                                                width: 80px;
+                                                height: 80px;
+                                                display: flex;
+                                                flex-direction: column;
+                                                justify-content: center;
+                                                align-items: center">
+                                        <div>600</div>
+                                        <small>#4299e1</small>
+                                    </div>
+                                    <div class="p-3 rounded"
+                                         style="background-color: #2b6cb0;
+                                                color: white;
+                                                width: 80px;
+                                                height: 80px;
+                                                display: flex;
+                                                flex-direction: column;
+                                                justify-content: center;
+                                                align-items: center">
+                                        <div>800</div>
+                                        <small>#2b6cb0</small>
+                                    </div>
                                 </div>
-                                <div class="p-3 rounded" style="background-color: #bee3f8; color: #2d3748; width: 100px; height: 80px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                                    <div>200</div>
-                                    <small>#bee3f8</small>
-                                </div>
-                                <div class="p-3 rounded" style="background-color: #90cdf4; color: #2d3748; width: 100px; height: 80px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                                    <div>300</div>
-                                    <small>#90cdf4</small>
-                                </div>
-                                <div class="p-3 rounded" style="background-color: #63b3ed; color: #2d3748; width: 100px; height: 80px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                                    <div>400</div>
-                                    <small>#63b3ed</small>
-                                </div>
-                                <div class="p-3 rounded" style="background-color: #4299e1; color: white; width: 100px; height: 80px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                                    <div>500</div>
-                                    <small>#4299e1</small>
-                                </div>
-                                <div class="p-3 rounded" style="background-color: #3182ce; color: white; width: 100px; height: 80px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                                    <div>600</div>
-                                    <small>#3182ce</small>
-                                </div>
-                                <div class="p-3 rounded" style="background-color: #2b6cb0; color: white; width: 100px; height: 80px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                                    <div>700</div>
-                                    <small>#2b6cb0</small>
-                                </div>
-                                <div class="p-3 rounded" style="background-color: #2a4a7f; color: white; width: 100px; height: 80px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                                    <div>800</div>
-                                    <small>#2a4a7f</small>
-                                </div>
-                                <div class="p-3 rounded" style="background-color: #1a365d; color: white; width: 100px; height: 80px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                                    <div>900</div>
-                                    <small>#1a365d</small>
-                                </div>
-                                <div class="p-3 rounded" style="background-color: #0f2342; color: white; width: 100px; height: 80px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                                    <div>950</div>
-                                    <small>#0f2342</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-header bg-danger text-white">
+                                <strong>Accent (Red)</strong>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex flex-wrap gap-2">
+                                    <div class="p-3 rounded"
+                                         style="background-color: #fed7d7;
+                                                color: #2d3748;
+                                                width: 80px;
+                                                height: 80px;
+                                                display: flex;
+                                                flex-direction: column;
+                                                justify-content: center;
+                                                align-items: center">
+                                        <div>100</div>
+                                        <small>#fed7d7</small>
+                                    </div>
+                                    <div class="p-3 rounded"
+                                         style="background-color: #fc8181;
+                                                color: #2d3748;
+                                                width: 80px;
+                                                height: 80px;
+                                                display: flex;
+                                                flex-direction: column;
+                                                justify-content: center;
+                                                align-items: center">
+                                        <div>400</div>
+                                        <small>#fc8181</small>
+                                    </div>
+                                    <div class="p-3 rounded"
+                                         style="background-color: #e53e3e;
+                                                color: white;
+                                                width: 80px;
+                                                height: 80px;
+                                                display: flex;
+                                                flex-direction: column;
+                                                justify-content: center;
+                                                align-items: center">
+                                        <div>600</div>
+                                        <small>#e53e3e</small>
+                                    </div>
+                                    <div class="p-3 rounded"
+                                         style="background-color: #c53030;
+                                                color: white;
+                                                width: 80px;
+                                                height: 80px;
+                                                display: flex;
+                                                flex-direction: column;
+                                                justify-content: center;
+                                                align-items: center">
+                                        <div>800</div>
+                                        <small>#c53030</small>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                
-                <div class="col-md-6 mb-3">
-                    <div class="card shadow-sm h-100">
-                        <div class="card-header bg-secondary text-white">
-                            <strong>Secondary (Bright Blue)</strong>
-                        </div>
-                        <div class="card-body">
-                            <div class="d-flex flex-wrap gap-2">
-                                <div class="p-3 rounded" style="background-color: #ebf8ff; color: #2d3748; width: 80px; height: 80px; display: flex; flex-direction: column; justify-content: center; align-items: center; border: 1px solid #cbd5e0;">
-                                    <div>100</div>
-                                    <small>#ebf8ff</small>
-                                </div>
-                                <div class="p-3 rounded" style="background-color: #63b3ed; color: #2d3748; width: 80px; height: 80px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                                    <div>400</div>
-                                    <small>#63b3ed</small>
-                                </div>
-                                <div class="p-3 rounded" style="background-color: #4299e1; color: white; width: 80px; height: 80px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                                    <div>600</div>
-                                    <small>#4299e1</small>
-                                </div>
-                                <div class="p-3 rounded" style="background-color: #2b6cb0; color: white; width: 80px; height: 80px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                                    <div>800</div>
-                                    <small>#2b6cb0</small>
+            </div>
+        </div>
+        <!-- Navbar Example -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <h2 class="mb-4">
+                    <i class="fas fa-bars me-2"></i>Navbar with Navy Theme
+                </h2>
+                <div class="card shadow-sm">
+                    <div class="card-body p-0">
+                        <!-- Sample navbar -->
+                        <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-0">
+                            <div class="container-fluid">
+                                <a class="navbar-brand" href="#">
+                                    <i class="fas fa-flask me-2"></i>SciTeX
+                                </a>
+                                <button class="navbar-toggler"
+                                        type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#navbarSupportedContent"
+                                        aria-controls="navbarSupportedContent"
+                                        aria-expanded="false"
+                                        aria-label="Toggle navigation">
+                                    <span class="navbar-toggler-icon"></span>
+                                </button>
+                                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                                        <li class="nav-item">
+                                            <a class="nav-link active" aria-current="page" href="#">Home</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" href="#">Features</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="nav-link dropdown-toggle"
+                                               href="#"
+                                               id="navbarDropdown"
+                                               role="button"
+                                               data-bs-toggle="dropdown"
+                                               aria-expanded="false">Products</a>
+                                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                                <li>
+                                                    <a class="dropdown-item" href="#">SciTeX Cloud</a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item" href="#">SciTeX Search</a>
+                                                </li>
+                                                <li>
+                                                    <hr class="dropdown-divider" />
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item" href="#">All Products</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" href="#">Pricing</a>
+                                        </li>
+                                    </ul>
+                                    <form class="d-flex">
+                                        <input class="form-control me-2"
+                                               type="search"
+                                               placeholder="Search"
+                                               aria-label="Search" />
+                                        <button class="btn btn-outline-light" type="submit">Search</button>
+                                    </form>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-md-6 mb-3">
-                    <div class="card shadow-sm h-100">
-                        <div class="card-header bg-danger text-white">
-                            <strong>Accent (Red)</strong>
-                        </div>
-                        <div class="card-body">
-                            <div class="d-flex flex-wrap gap-2">
-                                <div class="p-3 rounded" style="background-color: #fed7d7; color: #2d3748; width: 80px; height: 80px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                                    <div>100</div>
-                                    <small>#fed7d7</small>
-                                </div>
-                                <div class="p-3 rounded" style="background-color: #fc8181; color: #2d3748; width: 80px; height: 80px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                                    <div>400</div>
-                                    <small>#fc8181</small>
-                                </div>
-                                <div class="p-3 rounded" style="background-color: #e53e3e; color: white; width: 80px; height: 80px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                                    <div>600</div>
-                                    <small>#e53e3e</small>
-                                </div>
-                                <div class="p-3 rounded" style="background-color: #c53030; color: white; width: 80px; height: 80px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                                    <div>800</div>
-                                    <small>#c53030</small>
-                                </div>
-                            </div>
-                        </div>
+                        </nav>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Navbar Example -->
-    <div class="row mb-5">
-        <div class="col-12">
-            <h2 class="mb-4"><i class="fas fa-bars me-2"></i>Navbar with Navy Theme</h2>
-            
-            <div class="card shadow-sm">
-                <div class="card-body p-0">
-                    <!-- Sample navbar -->
-                    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-0">
-                        <div class="container-fluid">
-                            <a class="navbar-brand" href="#">
-                                <i class="fas fa-flask me-2"></i>SciTeX
-                            </a>
-                            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                                <span class="navbar-toggler-icon"></span>
+        <!-- UI Components with Navy Theme -->
+        <div class="row mb-5">
+            <div class="col-12 mb-4">
+                <h2 class="mb-4">
+                    <i class="fas fa-circle-dot me-2"></i>UI Components with Navy Theme
+                </h2>
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header">
+                        <strong>Buttons</strong>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="mb-3">Solid Buttons</h5>
+                        <div class="d-flex flex-wrap gap-2 mb-4">
+                            <button class="btn btn-primary">Primary</button>
+                            <button class="btn btn-secondary">Secondary</button>
+                            <button class="btn btn-success">Success</button>
+                            <button class="btn btn-danger">Danger</button>
+                            <button class="btn btn-warning">Warning</button>
+                            <button class="btn btn-info">Info</button>
+                            <button class="btn btn-dark">Dark</button>
+                            <button class="btn btn-light">Light</button>
+                        </div>
+                        <h5 class="mb-3">Outline Buttons</h5>
+                        <div class="d-flex flex-wrap gap-2 mb-4">
+                            <button class="btn btn-outline-primary">Primary</button>
+                            <button class="btn btn-outline-secondary">Secondary</button>
+                            <button class="btn btn-outline-success">Success</button>
+                            <button class="btn btn-outline-danger">Danger</button>
+                            <button class="btn btn-outline-warning">Warning</button>
+                            <button class="btn btn-outline-info">Info</button>
+                            <button class="btn btn-outline-dark">Dark</button>
+                            <button class="btn btn-outline-light">Light</button>
+                        </div>
+                        <h5 class="mb-3">Button with Icons</h5>
+                        <div class="d-flex flex-wrap gap-2">
+                            <button class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Save
                             </button>
-                            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                                    <li class="nav-item">
-                                        <a class="nav-link active" aria-current="page" href="#">Home</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="#">Features</a>
-                                    </li>
-                                    <li class="nav-item dropdown">
-                                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                            Products
-                                        </a>
-                                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                            <li><a class="dropdown-item" href="#">SciTeX Cloud</a></li>
-                                            <li><a class="dropdown-item" href="#">SciTeX Search</a></li>
-                                            <li><hr class="dropdown-divider"></li>
-                                            <li><a class="dropdown-item" href="#">All Products</a></li>
-                                        </ul>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="#">Pricing</a>
-                                    </li>
-                                </ul>
-                                <form class="d-flex">
-                                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                                    <button class="btn btn-outline-light" type="submit">Search</button>
-                                </form>
-                            </div>
-                        </div>
-                    </nav>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- UI Components with Navy Theme -->
-    <div class="row mb-5">
-        <div class="col-12 mb-4">
-            <h2 class="mb-4"><i class="fas fa-circle-dot me-2"></i>UI Components with Navy Theme</h2>
-            
-            <div class="card shadow-sm mb-4">
-                <div class="card-header">
-                    <strong>Buttons</strong>
-                </div>
-                <div class="card-body">
-                    <h5 class="mb-3">Solid Buttons</h5>
-                    <div class="d-flex flex-wrap gap-2 mb-4">
-                        <button class="btn btn-primary">Primary</button>
-                        <button class="btn btn-secondary">Secondary</button>
-                        <button class="btn btn-success">Success</button>
-                        <button class="btn btn-danger">Danger</button>
-                        <button class="btn btn-warning">Warning</button>
-                        <button class="btn btn-info">Info</button>
-                        <button class="btn btn-dark">Dark</button>
-                        <button class="btn btn-light">Light</button>
-                    </div>
-                    
-                    <h5 class="mb-3">Outline Buttons</h5>
-                    <div class="d-flex flex-wrap gap-2 mb-4">
-                        <button class="btn btn-outline-primary">Primary</button>
-                        <button class="btn btn-outline-secondary">Secondary</button>
-                        <button class="btn btn-outline-success">Success</button>
-                        <button class="btn btn-outline-danger">Danger</button>
-                        <button class="btn btn-outline-warning">Warning</button>
-                        <button class="btn btn-outline-info">Info</button>
-                        <button class="btn btn-outline-dark">Dark</button>
-                        <button class="btn btn-outline-light">Light</button>
-                    </div>
-                    
-                    <h5 class="mb-3">Button with Icons</h5>
-                    <div class="d-flex flex-wrap gap-2">
-                        <button class="btn btn-primary">
-                            <i class="fas fa-save me-2"></i>Save
-                        </button>
-                        <button class="btn btn-success">
-                            <i class="fas fa-check me-2"></i>Submit
-                        </button>
-                        <button class="btn btn-danger">
-                            <i class="fas fa-trash me-2"></i>Delete
-                        </button>
-                        <button class="btn btn-secondary">
-                            <i class="fas fa-search me-2"></i>Search
-                        </button>
-                        <button class="btn btn-outline-primary">
-                            <i class="fas fa-download me-2"></i>Download
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row g-4">
-                <div class="col-md-6">
-                    <div class="card shadow-sm h-100">
-                        <div class="card-header">
-                            <strong>Alerts</strong>
-                        </div>
-                        <div class="card-body">
-                            <div class="alert alert-primary" role="alert">
-                                <i class="fas fa-info-circle me-2"></i>This is a primary alert with the navy theme.
-                            </div>
-                            <div class="alert alert-secondary" role="alert">
-                                <i class="fas fa-bell me-2"></i>This is a secondary alert with the navy theme.
-                            </div>
-                            <div class="alert alert-success" role="alert">
-                                <i class="fas fa-check-circle me-2"></i>This is a success alert with the navy theme.
-                            </div>
-                            <div class="alert alert-danger" role="alert">
-                                <i class="fas fa-exclamation-circle me-2"></i>This is a danger alert with the navy theme.
-                            </div>
+                            <button class="btn btn-success">
+                                <i class="fas fa-check me-2"></i>Submit
+                            </button>
+                            <button class="btn btn-danger">
+                                <i class="fas fa-trash me-2"></i>Delete
+                            </button>
+                            <button class="btn btn-secondary">
+                                <i class="fas fa-search me-2"></i>Search
+                            </button>
+                            <button class="btn btn-outline-primary">
+                                <i class="fas fa-download me-2"></i>Download
+                            </button>
                         </div>
                     </div>
                 </div>
-                
-                <div class="col-md-6">
-                    <div class="card shadow-sm h-100">
-                        <div class="card-header">
-                            <strong>Badges & Pills</strong>
-                        </div>
-                        <div class="card-body">
-                            <h5 class="mb-3">Badges</h5>
-                            <div class="mb-3">
-                                <span class="badge bg-primary">Primary</span>
-                                <span class="badge bg-secondary">Secondary</span>
-                                <span class="badge bg-success">Success</span>
-                                <span class="badge bg-danger">Danger</span>
-                                <span class="badge bg-warning text-dark">Warning</span>
-                                <span class="badge bg-info text-dark">Info</span>
-                                <span class="badge bg-light text-dark">Light</span>
-                                <span class="badge bg-dark">Dark</span>
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-header">
+                                <strong>Alerts</strong>
                             </div>
-                            
-                            <h5 class="mb-3">Pill Badges</h5>
-                            <div>
-                                <span class="badge rounded-pill bg-primary">Primary</span>
-                                <span class="badge rounded-pill bg-secondary">Secondary</span>
-                                <span class="badge rounded-pill bg-success">Success</span>
-                                <span class="badge rounded-pill bg-danger">Danger</span>
-                                <span class="badge rounded-pill bg-warning text-dark">Warning</span>
-                                <span class="badge rounded-pill bg-info text-dark">Info</span>
-                                <span class="badge rounded-pill bg-light text-dark">Light</span>
-                                <span class="badge rounded-pill bg-dark">Dark</span>
+                            <div class="card-body">
+                                <div class="alert alert-primary" role="alert">
+                                    <i class="fas fa-info-circle me-2"></i>This is a primary alert
+                                    with the navy theme.
+                                </div>
+                                <div class="alert alert-secondary" role="alert">
+                                    <i class="fas fa-bell me-2"></i>This is a secondary alert with
+                                    the navy theme.
+                                </div>
+                                <div class="alert alert-success" role="alert">
+                                    <i class="fas fa-check-circle me-2"></i>This is a success alert
+                                    with the navy theme.
+                                </div>
+                                <div class="alert alert-danger" role="alert">
+                                    <i class="fas fa-exclamation-circle me-2"></i>This is a danger
+                                    alert with the navy theme.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-header">
+                                <strong>Badges & Pills</strong>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="mb-3">Badges</h5>
+                                <div class="mb-3">
+                                    <span class="badge bg-primary">Primary</span>
+                                    <span class="badge bg-secondary">Secondary</span>
+                                    <span class="badge bg-success">Success</span>
+                                    <span class="badge bg-danger">Danger</span>
+                                    <span class="badge bg-warning text-dark">Warning</span>
+                                    <span class="badge bg-info text-dark">Info</span>
+                                    <span class="badge bg-light text-dark">Light</span>
+                                    <span class="badge bg-dark">Dark</span>
+                                </div>
+                                <h5 class="mb-3">Pill Badges</h5>
+                                <div>
+                                    <span class="badge rounded-pill bg-primary">Primary</span>
+                                    <span class="badge rounded-pill bg-secondary">Secondary</span>
+                                    <span class="badge rounded-pill bg-success">Success</span>
+                                    <span class="badge rounded-pill bg-danger">Danger</span>
+                                    <span class="badge rounded-pill bg-warning text-dark">Warning</span>
+                                    <span class="badge rounded-pill bg-info text-dark">Info</span>
+                                    <span class="badge rounded-pill bg-light text-dark">Light</span>
+                                    <span class="badge rounded-pill bg-dark">Dark</span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Bootstrap 5.3 Components -->
-    <div class="row mb-5">
-        <div class="col-12">
-            <h2 class="mb-3"><i class="fab fa-bootstrap me-2"></i>Bootstrap 5.3 Components</h2>
-            <p>These components demonstrate new features in Bootstrap 5.3.</p>
-            
-            <!-- Accordion -->
-            <h4 class="mt-4 mb-3"><i class="fas fa-bars-staggered me-2"></i>Accordion</h4>
-            <div class="accordion" id="bootstrapAccordion">
-                <div class="accordion-item">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                            Primary Colors
-                        </button>
-                    </h2>
-                    <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#bootstrapAccordion">
-                        <div class="accordion-body">
-                            Our primary color palette consists of navy blue shades (#2c3e50) that convey trust, professionalism, and stability.
+        <!-- Bootstrap 5.3 Components -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <h2 class="mb-3">
+                    <i class="fab fa-bootstrap me-2"></i>Bootstrap 5.3 Components
+                </h2>
+                <p>These components demonstrate new features in Bootstrap 5.3.</p>
+                <!-- Accordion -->
+                <h4 class="mt-4 mb-3">
+                    <i class="fas fa-bars-staggered me-2"></i>Accordion
+                </h4>
+                <div class="accordion" id="bootstrapAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#collapseOne"
+                                    aria-expanded="true"
+                                    aria-controls="collapseOne">Primary Colors</button>
+                        </h2>
+                        <div id="collapseOne"
+                             class="accordion-collapse collapse show"
+                             data-bs-parent="#bootstrapAccordion">
+                            <div class="accordion-body">
+                                Our primary color palette consists of navy blue shades (#2c3e50)
+                                that convey trust, professionalism, and stability.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#collapseTwo"
+                                    aria-expanded="false"
+                                    aria-controls="collapseTwo">Secondary Colors</button>
+                        </h2>
+                        <div id="collapseTwo"
+                             class="accordion-collapse collapse"
+                             data-bs-parent="#bootstrapAccordion">
+                            <div class="accordion-body">
+                                Our secondary color palette consists of bright, vibrant blue
+                                shades (#3498db) for interactive elements and accents.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#collapseThree"
+                                    aria-expanded="false"
+                                    aria-controls="collapseThree">Accent Colors</button>
+                        </h2>
+                        <div id="collapseThree"
+                             class="accordion-collapse collapse"
+                             data-bs-parent="#bootstrapAccordion">
+                            <div class="accordion-body">
+                                Our accent color palette consists of warm red shades (#e74c3c) for
+                                important actions, highlights, and CTA buttons.
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="accordion-item">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                            Secondary Colors
-                        </button>
-                    </h2>
-                    <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#bootstrapAccordion">
-                        <div class="accordion-body">
-                            Our secondary color palette consists of bright, vibrant blue shades (#3498db) for interactive elements and accents.
+                <!-- Toasts -->
+                <h4 class="mt-4 mb-3">
+                    <i class="fas fa-message me-2"></i>Toasts
+                </h4>
+                <div class="mb-3">
+                    <button type="button" class="btn btn-primary" id="liveToastBtn">Show Toast Notification</button>
+                </div>
+                <div class="toast-container position-fixed bottom-0 end-0 p-3">
+                    <div id="liveToast"
+                         class="toast"
+                         role="alert"
+                         aria-live="assertive"
+                         aria-atomic="true">
+                        <div class="toast-header">
+                            <div class="rounded me-2"
+                                 style="width: 20px;
+                                        height: 20px;
+                                        background-color: #2c3e50"></div>
+                            <strong class="me-auto">SciTeX Design</strong>
+                            <small>Just now</small>
+                            <button type="button"
+                                    class="btn-close"
+                                    data-bs-dismiss="toast"
+                                    aria-label="Close"></button>
                         </div>
+                        <div class="toast-body">Bootstrap 5.3 toast notification example</div>
                     </div>
                 </div>
-                <div class="accordion-item">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                            Accent Colors
-                        </button>
-                    </h2>
-                    <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#bootstrapAccordion">
-                        <div class="accordion-body">
-                            Our accent color palette consists of warm red shades (#e74c3c) for important actions, highlights, and CTA buttons.
+                <!-- Offcanvas -->
+                <h4 class="mt-4 mb-3">
+                    <i class="fas fa-arrow-left-long me-2"></i>Offcanvas
+                </h4>
+                <button class="btn btn-primary"
+                        type="button"
+                        data-bs-toggle="offcanvas"
+                        data-bs-target="#offcanvasExample"
+                        aria-controls="offcanvasExample">Open Offcanvas Sidebar</button>
+                <div class="offcanvas offcanvas-start"
+                     tabindex="-1"
+                     id="offcanvasExample"
+                     aria-labelledby="offcanvasExampleLabel">
+                    <div class="offcanvas-header">
+                        <h5 class="offcanvas-title" id="offcanvasExampleLabel">SciTeX Design System</h5>
+                        <button type="button"
+                                class="btn-close"
+                                data-bs-dismiss="offcanvas"
+                                aria-label="Close"></button>
+                    </div>
+                    <div class="offcanvas-body">
+                        <div>
+                            This is an example of the offcanvas component introduced in
+                            Bootstrap 5. It can be used for menus, filter panels, and more.
                         </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Toasts -->
-            <h4 class="mt-4 mb-3"><i class="fas fa-message me-2"></i>Toasts</h4>
-            <div class="mb-3">
-                <button type="button" class="btn btn-primary" id="liveToastBtn">Show Toast Notification</button>
-            </div>
-            
-            <div class="toast-container position-fixed bottom-0 end-0 p-3">
-                <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-                    <div class="toast-header">
-                        <div class="rounded me-2" style="width: 20px; height: 20px; background-color: #2c3e50;"></div>
-                        <strong class="me-auto">SciTeX Design</strong>
-                        <small>Just now</small>
-                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                    </div>
-                    <div class="toast-body">
-                        Bootstrap 5.3 toast notification example
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Offcanvas -->
-            <h4 class="mt-4 mb-3"><i class="fas fa-arrow-left-long me-2"></i>Offcanvas</h4>
-            <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" aria-controls="offcanvasExample">
-                Open Offcanvas Sidebar
-            </button>
-            
-            <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
-                <div class="offcanvas-header">
-                    <h5 class="offcanvas-title" id="offcanvasExampleLabel">SciTeX Design System</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-                </div>
-                <div class="offcanvas-body">
-                    <div>
-                        This is an example of the offcanvas component introduced in Bootstrap 5. It can be used for menus, filter panels, and more.
-                    </div>
-                    <div class="dropdown mt-3">
-                        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                            Color options
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#">Primary colors</a></li>
-                            <li><a class="dropdown-item" href="#">Secondary colors</a></li>
-                            <li><a class="dropdown-item" href="#">Accent colors</a></li>
-                        </ul>
+                        <div class="dropdown mt-3">
+                            <button class="btn btn-secondary dropdown-toggle"
+                                    type="button"
+                                    data-bs-toggle="dropdown">Color options</button>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item" href="#">Primary colors</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="#">Secondary colors</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="#">Accent colors</a>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+        <!-- Link to Design System -->
+        <div class="text-center mb-5">
+            <a href="{% url 'public_app:design' %}"
+               class="btn btn-outline-primary btn-lg">
+                <i class="fas fa-palette me-2"></i>View Complete Design System
+            </a>
+        </div>
+        <!-- Bootstrap 5.3 toast initialization script -->
+        {% block extra_js %}
+            <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const toastTrigger = document.getElementById("liveToastBtn");
+      const toastLiveExample = document.getElementById("liveToast");
 
-    <!-- Link to Design System -->
-    <div class="text-center mb-5">
-        <a href="{% url 'public_app:design' %}" class="btn btn-outline-primary btn-lg">
-            <i class="fas fa-palette me-2"></i>View Complete Design System
-        </a>
-    </div>
-    
-    <!-- Bootstrap 5.3 toast initialization script -->
-    {% block extra_js %}
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const toastTrigger = document.getElementById('liveToastBtn')
-            const toastLiveExample = document.getElementById('liveToast')
-            
-            if (toastTrigger) {
-                toastTrigger.addEventListener('click', function() {
-                    const toast = new bootstrap.Toast(toastLiveExample)
-                    toast.show()
-                })
-            }
+      if (toastTrigger) {
+        toastTrigger.addEventListener("click", function () {
+          const toast = new bootstrap.Toast(toastLiveExample);
+          toast.show();
         });
-    </script>
-    {% endblock %}
-</section>
+      }
+    });
+            </script>
+        {% endblock %}
+    </section>
 {% endblock %}

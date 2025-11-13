@@ -20,10 +20,11 @@ def require_permission(action: str, module: str = None):
             # User has write permission for writer module
             pass
     """
+
     def decorator(view_func):
         @wraps(view_func)
         def wrapper(request, *args, **kwargs):
-            project_id = kwargs.get('project_id')
+            project_id = kwargs.get("project_id")
             if not project_id:
                 return HttpResponseForbidden("No project specified")
 
@@ -31,20 +32,20 @@ def require_permission(action: str, module: str = None):
 
             # Check permission
             has_perm = PermissionService.check_permission(
-                request.user,
-                project,
-                action,
-                module
+                request.user, project, action, module
             )
 
             if not has_perm:
-                return HttpResponseForbidden(f"You don't have {action} permission for this project")
+                return HttpResponseForbidden(
+                    f"You don't have {action} permission for this project"
+                )
 
             # Add project to request for convenience
             request.project = project
             return view_func(request, *args, **kwargs)
 
         return wrapper
+
     return decorator
 
 
@@ -58,10 +59,11 @@ def require_role(min_role: str, module: str = None):
             # User is Developer, Maintainer, or Owner
             pass
     """
+
     def decorator(view_func):
         @wraps(view_func)
         def wrapper(request, *args, **kwargs):
-            project_id = kwargs.get('project_id')
+            project_id = kwargs.get("project_id")
             if not project_id:
                 return HttpResponseForbidden("No project specified")
 
@@ -72,7 +74,7 @@ def require_role(min_role: str, module: str = None):
                 return HttpResponseForbidden("You are not a member of this project")
 
             # Check role hierarchy
-            from .models import Role
+
             role_levels = PermissionService.ROLE_HIERARCHY
 
             if role_levels.get(user_role, 0) < role_levels.get(min_role, 999):
@@ -83,4 +85,5 @@ def require_role(min_role: str, module: str = None):
             return view_func(request, *args, **kwargs)
 
         return wrapper
+
     return decorator

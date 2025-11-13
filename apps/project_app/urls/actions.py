@@ -17,8 +17,8 @@ from ..api_views_module.api_views import (
 
 urlpatterns = [
     # Social interaction API endpoints (Watch, Star, Fork)
-    path('watch/', api_project_watch, name='watch'),
-    path('star/', api_project_star, name='star'),
-    path('fork/', api_project_fork, name='fork'),
-    path('stats/', api_project_stats, name='stats'),
+    path("watch/", api_project_watch, name="watch"),
+    path("star/", api_project_star, name="star"),
+    path("fork/", api_project_fork, name="fork"),
+    path("stats/", api_project_stats, name="stats"),
 ]

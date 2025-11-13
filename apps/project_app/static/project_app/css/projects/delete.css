@@ -2,55 +2,51 @@
 /* PROJECT_DELETE */
 /* ============================================================================= */
 
-
 .delete-form {
-    background: white;
-    border: 1px solid #dc3545;
-    border-radius: 8px;
-    padding: 2rem;
-    max-width: 600px;
+  background: white;
+  border: 1px solid #dc3545;
+  border-radius: 8px;
+  padding: 2rem;
+  max-width: 600px;
 }
 
 .warning-box {
-    background: #fff3cd;
-    border: 1px solid #ffeaa7;
-    border-radius: 6px;
-    padding: 1rem;
-    margin-bottom: 1.5rem;
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 6px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .warning-icon {
-    color: #856404;
-    font-size: 1.25rem;
-    margin-right: 0.5rem;
+  color: #856404;
+  font-size: 1.25rem;
+  margin-right: 0.5rem;
 }
 
 .breadcrumb {
-    margin-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .breadcrumb a {
-    color: #007acc;
-    text-decoration: none;
+  color: #007acc;
+  text-decoration: none;
 }
 
 .breadcrumb a:hover {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
 .form-actions {
-    display: flex;
-    gap: 1rem;
-    margin-top: 2rem;
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
 }
 
 .project-info {
-    background: #f8f9fa;
-    border: 1px solid #e9ecef;
-    border-radius: 6px;
-    padding: 1rem;
-    margin-bottom: 1.5rem;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
 }
-
-
-

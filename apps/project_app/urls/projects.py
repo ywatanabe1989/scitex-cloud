@@ -34,13 +34,16 @@ from ..views.integration_views import (
 # Note: slug and username are passed via kwargs from parent URL pattern
 urlpatterns = [
     # Project edit/delete
-    path('edit/', project_edit, name='edit'),
-    path('delete/', project_delete, name='delete'),
-    path('create-from-template/', project_create_from_template, name='create_from_template'),
-
+    path("edit/", project_edit, name="edit"),
+    path("delete/", project_delete, name="delete"),
+    path(
+        "create-from-template/",
+        project_create_from_template,
+        name="create_from_template",
+    ),
     # Settings URLs (GitHub-style /settings/ pattern)
-    path('settings/', project_settings, name='settings'),
-    path('settings/collaboration/', project_collaborate, name='collaborate'),
-    path('settings/members/', project_members, name='members'),
-    path('settings/integrations/', github_integration, name='github'),
+    path("settings/", project_settings, name="settings"),
+    path("settings/collaboration/", project_collaborate, name="collaborate"),
+    path("settings/members/", project_members, name="members"),
+    path("settings/integrations/", github_integration, name="github"),
 ]

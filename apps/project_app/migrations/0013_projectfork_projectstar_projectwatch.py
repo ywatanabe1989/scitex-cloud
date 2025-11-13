@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("project_app", "0012_add_scitex_integration_fields"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),

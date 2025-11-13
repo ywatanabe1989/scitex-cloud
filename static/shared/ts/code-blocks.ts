@@ -2,13 +2,15 @@
  * Code Block Copy Button Handler
  * Adds copy-to-clipboard functionality to all code blocks
  * Also applies syntax highlighting and line numbers
- * 
+ *
  * Note: Suppresses highlight.js warnings about unescaped HTML in code blocks.
  * These are false positives that occur when markdown table syntax is displayed
  * as examples in documentation. The HTML is properly escaped by the markdown renderer.
  */
 
-console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/static/ts/code-blocks.ts loaded");
+console.log(
+  "[DEBUG] /home/ywatanabe/proj/scitex-cloud/static/ts/code-blocks.ts loaded",
+);
 interface CodeBlockConfig {
   showLineNumbers: boolean;
   enableCopyButton: boolean;
@@ -17,7 +19,7 @@ interface CodeBlockConfig {
 class CodeBlockManager {
   private config: CodeBlockConfig;
   private originalWarn: typeof console.warn;
-  private warningKeywords = ['unescaped HTML', 'security risk'];
+  private warningKeywords = ["unescaped HTML", "security risk"];
 
   constructor(config: Partial<CodeBlockConfig> = {}) {
     this.config = {
@@ -37,9 +39,9 @@ class CodeBlockManager {
    */
   private installGlobalWarningFilter(): void {
     const self = this;
-    console.warn = function(...args: any[]) {
-      const message = args[0]?.toString() || '';
-      if (self.warningKeywords.some(keyword => message.includes(keyword))) {
+    console.warn = function (...args: any[]) {
+      const message = args[0]?.toString() || "";
+      if (self.warningKeywords.some((keyword) => message.includes(keyword))) {
         // Suppress these false positive warnings from highlight.js
         // about unescaped HTML in code blocks when displaying markdown examples
         return;
@@ -56,7 +58,7 @@ class CodeBlockManager {
     try {
       callback();
     } catch (error) {
-      console.error('Error during code block highlighting:', error);
+      console.error("Error during code block highlighting:", error);
     }
   }
 
@@ -64,19 +66,19 @@ class CodeBlockManager {
    * Initialize code block handling
    */
   public init(): void {
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener("DOMContentLoaded", () => {
       this.processCodeBlocks();
     });
 
     // Also process dynamically added code blocks
-    if ('MutationObserver' in window) {
+    if ("MutationObserver" in window) {
       const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
           if (mutation.addedNodes.length) {
             mutation.addedNodes.forEach((node) => {
               if (node.nodeType === Node.ELEMENT_NODE) {
                 const element = node as Element;
-                if (element.matches('code') || element.querySelector('code')) {
+                if (element.matches("code") || element.querySelector("code")) {
                   this.processCodeBlocks();
                 }
               }
@@ -96,7 +98,7 @@ class CodeBlockManager {
    * Process all code blocks on the page
    */
   private processCodeBlocks(): void {
-    const preElements = document.querySelectorAll('pre code');
+    const preElements = document.querySelectorAll("pre code");
 
     preElements.forEach((codeBlock) => {
       this.processCodeBlock(codeBlock as HTMLElement);
@@ -108,14 +110,21 @@ class CodeBlockManager {
    */
   private processCodeBlock(codeBlock: HTMLElement): void {
     // Apply syntax highlighting if hljs is available
-    if (typeof (window as any).hljs !== 'undefined' && !codeBlock.dataset.highlighted) {
+    if (
+      typeof (window as any).hljs !== "undefined" &&
+      !codeBlock.dataset.highlighted
+    ) {
       this.suppressHighlightWarnings(() => {
         (window as any).hljs.highlightElement(codeBlock);
       });
     }
 
     // Apply line numbers if available
-    if (this.config.showLineNumbers && typeof (window as any).hljs !== 'undefined' && (window as any).hljs.lineNumbersBlock) {
+    if (
+      this.config.showLineNumbers &&
+      typeof (window as any).hljs !== "undefined" &&
+      (window as any).hljs.lineNumbersBlock
+    ) {
       (window as any).hljs.lineNumbersBlock(codeBlock);
     }
 
@@ -123,7 +132,7 @@ class CodeBlockManager {
     if (!preElement) return;
 
     // Skip if copy button already exists
-    if (preElement.querySelector('.code-copy-button')) {
+    if (preElement.querySelector(".code-copy-button")) {
       return;
     }
 
@@ -140,10 +149,10 @@ class CodeBlockManager {
    * Add copy button to code block
    */
   private addCopyButton(codeBlock: HTMLElement, preElement: HTMLElement): void {
-    const copyButton = document.createElement('button');
-    copyButton.className = 'code-copy-button';
-    copyButton.setAttribute('aria-label', 'Copy code to clipboard');
-    copyButton.setAttribute('title', 'Copy code');
+    const copyButton = document.createElement("button");
+    copyButton.className = "code-copy-button";
+    copyButton.setAttribute("aria-label", "Copy code to clipboard");
+    copyButton.setAttribute("title", "Copy code");
 
     // SVG clipboard icon
     const copyIcon = `
@@ -162,7 +171,7 @@ class CodeBlockManager {
     copyButton.innerHTML = copyIcon;
 
     // Add click handler
-    copyButton.addEventListener('click', (e) => {
+    copyButton.addEventListener("click", (e) => {
       e.preventDefault();
       this.copyToClipboard(copyButton, codeBlock, copyIcon, checkIcon);
     });
@@ -178,7 +187,7 @@ class CodeBlockManager {
     button: HTMLElement,
     codeBlock: HTMLElement,
     copyIcon: string,
-    checkIcon: string
+    checkIcon: string,
   ): void {
     const codeText = codeBlock.textContent;
     if (!codeText) return;
@@ -187,20 +196,20 @@ class CodeBlockManager {
       .writeText(codeText)
       .then(() => {
         // Show success state
-        button.classList.add('copied');
+        button.classList.add("copied");
         button.innerHTML = checkIcon;
 
         // Reset after 2 seconds
         setTimeout(() => {
-          button.classList.remove('copied');
+          button.classList.remove("copied");
           button.innerHTML = copyIcon;
         }, 2000);
       })
       .catch((err) => {
-        console.error('Failed to copy code:', err);
-        button.classList.add('error');
+        console.error("Failed to copy code:", err);
+        button.classList.add("error");
         setTimeout(() => {
-          button.classList.remove('error');
+          button.classList.remove("error");
           button.innerHTML = copyIcon;
         }, 2000);
       });
@@ -209,9 +218,12 @@ class CodeBlockManager {
   /**
    * Setup Ctrl+A handler to select only code content
    */
-  private setupSelectAllHandler(codeBlock: HTMLElement, preElement: HTMLElement): void {
-    document.addEventListener('keydown', (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
+  private setupSelectAllHandler(
+    codeBlock: HTMLElement,
+    preElement: HTMLElement,
+  ): void {
+    document.addEventListener("keydown", (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "a") {
         // Check if cursor is inside this code block
         const selection = window.getSelection();
         const selectedNode = selection?.anchorNode;
@@ -226,7 +238,7 @@ class CodeBlockManager {
           selection?.removeAllRanges();
           selection?.addRange(range);
 
-          console.log('Ctrl+A: Selected code block content only');
+          console.log("Ctrl+A: Selected code block content only");
         }
       }
     });
@@ -234,8 +246,8 @@ class CodeBlockManager {
 }
 
 // Initialize when document is ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", () => {
     const manager = new CodeBlockManager();
     manager.init();
   });

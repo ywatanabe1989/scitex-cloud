@@ -29,7 +29,7 @@
   background: var(--color-cta-hover) !important;
   transform: translateY(-2px) !important;
   box-shadow: 0 6px 16px var(--color-cta-subtle) !important;
-  color: white
+  color: white;
 }
 
 .btn-cta:active {
@@ -151,7 +151,7 @@
 }
 
 .btn-cta.loading::after {
-  content: '';
+  content: "";
   position: absolute;
   width: 16px;
   height: 16px;
@@ -166,7 +166,9 @@
 }
 
 @keyframes btn-cta-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Dark Mode Adjustments */

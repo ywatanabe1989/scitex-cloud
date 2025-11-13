@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("organizations_app", "0001_initial"),
         ("project_app", "0010_alter_project_organization_and_more"),

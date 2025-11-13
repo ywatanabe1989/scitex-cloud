@@ -4,10 +4,8 @@
 
 import json
 import subprocess
-from datetime import datetime
 
 from django.core.management.base import BaseCommand
-from django.utils import timezone
 
 from apps.public_app.models import Contributor
 
@@ -163,9 +161,7 @@ class Command(BaseCommand):
 
         except subprocess.CalledProcessError as e:
             self.stdout.write(
-                self.style.ERROR(
-                    f"Error fetching contributors from GitHub: {e.stderr}"
-                )
+                self.style.ERROR(f"Error fetching contributors from GitHub: {e.stderr}")
             )
             self.stdout.write(
                 self.style.WARNING(
@@ -178,6 +174,4 @@ class Command(BaseCommand):
                 self.style.ERROR(f"Error parsing GitHub API response: {str(e)}")
             )
         except Exception as e:
-            self.stdout.write(
-                self.style.ERROR(f"Unexpected error: {str(e)}")
-            )
+            self.stdout.write(self.style.ERROR(f"Unexpected error: {str(e)}"))

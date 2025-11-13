@@ -27,72 +27,90 @@ def require_api_key(scopes=None):
     Args:
         scopes: List of required scopes (optional)
     """
+
     def decorator(view_func):
         @wraps(view_func)
         def wrapper(request, *args, **kwargs):
             # Check for API key in Authorization header
-            auth_header = request.headers.get('Authorization', '')
+            auth_header = request.headers.get("Authorization", "")
 
             if not auth_header:
-                return JsonResponse({
-                    'success': False,
-                    'error': 'Missing Authorization header',
-                    'detail': 'Include "Authorization: Bearer YOUR_API_KEY" header'
-                }, status=401)
+                return JsonResponse(
+                    {
+                        "success": False,
+                        "error": "Missing Authorization header",
+                        "detail": 'Include "Authorization: Bearer YOUR_API_KEY" header',
+                    },
+                    status=401,
+                )
 
             # Extract token
-            if not auth_header.startswith('Bearer '):
-                return JsonResponse({
-                    'success': False,
-                    'error': 'Invalid Authorization header format',
-                    'detail': 'Use "Bearer YOUR_API_KEY" format'
-                }, status=401)
+            if not auth_header.startswith("Bearer "):
+                return JsonResponse(
+                    {
+                        "success": False,
+                        "error": "Invalid Authorization header format",
+                        "detail": 'Use "Bearer YOUR_API_KEY" format',
+                    },
+                    status=401,
+                )
 
             token = auth_header[7:]  # Remove "Bearer " prefix
 
             # Validate token format
-            if not token.startswith('scitex_'):
-                return JsonResponse({
-                    'success': False,
-                    'error': 'Invalid API key format',
-                    'detail': 'API key must start with "scitex_"'
-                }, status=401)
+            if not token.startswith("scitex_"):
+                return JsonResponse(
+                    {
+                        "success": False,
+                        "error": "Invalid API key format",
+                        "detail": 'API key must start with "scitex_"',
+                    },
+                    status=401,
+                )
 
             # Find and verify API key
             key_hash = APIKey.hash_key(token)
             try:
-                api_key = APIKey.objects.select_related('user').get(
-                    key_hash=key_hash,
-                    is_active=True
+                api_key = APIKey.objects.select_related("user").get(
+                    key_hash=key_hash, is_active=True
                 )
             except APIKey.DoesNotExist:
-                return JsonResponse({
-                    'success': False,
-                    'error': 'Invalid API key',
-                    'detail': 'API key not found or inactive'
-                }, status=401)
+                return JsonResponse(
+                    {
+                        "success": False,
+                        "error": "Invalid API key",
+                        "detail": "API key not found or inactive",
+                    },
+                    status=401,
+                )
 
             # Check expiration
             if not api_key.is_valid():
-                return JsonResponse({
-                    'success': False,
-                    'error': 'API key expired or inactive',
-                    'detail': 'Please generate a new API key'
-                }, status=401)
+                return JsonResponse(
+                    {
+                        "success": False,
+                        "error": "API key expired or inactive",
+                        "detail": "Please generate a new API key",
+                    },
+                    status=401,
+                )
 
             # Check scopes if required
             if scopes:
                 for scope in scopes:
                     if scope not in api_key.scopes:
-                        return JsonResponse({
-                            'success': False,
-                            'error': 'Insufficient permissions',
-                            'detail': f'Required scope: {scope}'
-                        }, status=403)
+                        return JsonResponse(
+                            {
+                                "success": False,
+                                "error": "Insufficient permissions",
+                                "detail": f"Required scope: {scope}",
+                            },
+                            status=403,
+                        )
 
             # Update last used timestamp
             api_key.last_used_at = timezone.now()
-            api_key.save(update_fields=['last_used_at'])
+            api_key.save(update_fields=["last_used_at"])
 
             # Attach user to request
             request.api_user = api_key.user
@@ -101,6 +119,7 @@ def require_api_key(scopes=None):
             return view_func(request, *args, **kwargs)
 
         return wrapper
+
     return decorator
 
 
@@ -109,25 +128,25 @@ def api_key_optional(view_func):
     Decorator that accepts both API key and session authentication.
     If API key is provided, uses that. Otherwise falls back to session auth.
     """
+
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
         # Try API key first
-        auth_header = request.headers.get('Authorization', '')
+        auth_header = request.headers.get("Authorization", "")
 
-        if auth_header and auth_header.startswith('Bearer '):
+        if auth_header and auth_header.startswith("Bearer "):
             token = auth_header[7:]
 
-            if token.startswith('scitex_'):
+            if token.startswith("scitex_"):
                 key_hash = APIKey.hash_key(token)
                 try:
-                    api_key = APIKey.objects.select_related('user').get(
-                        key_hash=key_hash,
-                        is_active=True
+                    api_key = APIKey.objects.select_related("user").get(
+                        key_hash=key_hash, is_active=True
                     )
                     if api_key.is_valid():
                         # Update last used
                         api_key.last_used_at = timezone.now()
-                        api_key.save(update_fields=['last_used_at'])
+                        api_key.save(update_fields=["last_used_at"])
 
                         # Use API key user
                         request.api_user = api_key.user

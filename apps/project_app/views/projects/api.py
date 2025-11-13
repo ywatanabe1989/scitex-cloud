@@ -10,6 +10,7 @@ This module contains API endpoints for:
 - Name availability checking
 - Project CRUD operations (list, create, detail)
 """
+
 from __future__ import annotations
 import json
 import logging
@@ -28,6 +29,7 @@ logger = logging.getLogger(__name__)
 # Name Availability API
 # ============================================================================
 
+
 @login_required
 @require_http_methods(["GET"])
 def api_check_name_availability(request):
@@ -40,18 +42,15 @@ def api_check_name_availability(request):
     name = request.GET.get("name", "").strip()
 
     if not name:
-        return JsonResponse(
-            {"available": False, "message": "Project name is required"}
-        )
+        return JsonResponse({"available": False, "message": "Project name is required"})
 
     # Validate name using scitex.project validator
     try:
         from scitex.project import validate_name
+
         is_valid, error = validate_name(name)
         if not is_valid:
-            return JsonResponse(
-                {"available": False, "message": error}
-            )
+            return JsonResponse({"available": False, "message": error})
     except ImportError:
         # Fallback to basic validation if scitex.project not available
         pass
@@ -69,16 +68,17 @@ def api_check_name_availability(request):
     # Check 2: Gitea repository (enforce 1:1 mapping)
     # Generate slug to check in Gitea
     from django.utils.text import slugify
+
     slug = slugify(name)
 
     try:
         from apps.gitea_app.api_client import GiteaClient, GiteaAPIError
+
         client = GiteaClient()
 
         try:
             existing_repo = client.get_repository(
-                owner=request.user.username,
-                repo=slug
+                owner=request.user.username, repo=slug
             )
             if existing_repo:
                 # Gitea repo exists - check if it's orphaned (no Django project)
@@ -102,14 +102,13 @@ def api_check_name_availability(request):
         logger.warning(f"Gitea availability check failed: {e}")
         pass  # Continue, assume available
 
-    return JsonResponse(
-        {"available": True, "message": f'"{name}" is available'}
-    )
+    return JsonResponse({"available": True, "message": f'"{name}" is available'})
 
 
 # ============================================================================
 # Project CRUD APIs
 # ============================================================================
+
 
 @login_required
 @require_http_methods(["GET"])
@@ -131,9 +130,7 @@ def api_project_create(request):
         description = data.get("description", "").strip()
 
         if not name:
-            return JsonResponse(
-                {"success": False, "error": "Project name is required"}
-            )
+            return JsonResponse({"success": False, "error": "Project name is required"})
 
         # Ensure unique name
         unique_name = Project.generate_unique_name(name, request.user)

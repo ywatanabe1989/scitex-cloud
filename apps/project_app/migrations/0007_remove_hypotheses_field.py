@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("project_app", "0006_project_git_clone_path_project_git_url_and_more"),
     ]

@@ -3,19 +3,20 @@
  * Corresponds to: templates/project_app/users/overview.html
  */
 
-
-console.log("[DEBUG] apps/project_app/static/project_app/ts/users/overview.ts loaded");
+console.log(
+  "[DEBUG] apps/project_app/static/project_app/ts/users/overview.ts loaded",
+);
 
 class UserOverviewPage {
-    constructor() {
-        this.init();
-    }
+  constructor() {
+    this.init();
+  }
 
-    private init(): void {
-        console.log('[UserOverview] Initializing user overview');
-    }
+  private init(): void {
+    console.log("[UserOverview] Initializing user overview");
+  }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    new UserOverviewPage();
+document.addEventListener("DOMContentLoaded", () => {
+  new UserOverviewPage();
 });

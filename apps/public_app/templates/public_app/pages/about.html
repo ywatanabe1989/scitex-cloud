@@ -1,385 +1,387 @@
 {% extends "global_base.html" %}
-
-{% block title %}About SciTeX - Purpose, Mission & Vision{% endblock %}
-
-{% block meta_description %}Learn about SciTeX's purpose, mission, vision, and core values. Building open, reproducible, and collaborative research infrastructure for scientists everywhere.{% endblock %}
-
-{% block extra_css %}
-{% load static %}
-<link rel="stylesheet" href="{% static 'public_app/css/about.css' %}">
+{% block title %}
+    About SciTeX - Purpose,
+    Mission & Vision
 {% endblock %}
-
+{% block meta_description %}
+    Learn about SciTeX's
+    purpose, mission, vision, and core values. Building open, reproducible, and
+    collaborative research infrastructure for scientists everywhere.
+{% endblock %}
+{% block extra_css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'public_app/css/about.css' %}" />
+{% endblock %}
 {% block content %}
-<div class="about-container">
-  <!-- Hero Section -->
-  <header class="about-hero">
-    <div class="about-hero-content">
-      <div class="about-hero-eyebrow">🎯 Our Purpose</div>
-      <h1 class="about-hero-title">Accelerating Scientific Discovery</h1>
-      <p class="about-hero-subtitle">
-        Making research workflows centralized, reproducible, and universally accessible for researchers everywhere
-      </p>
-
-      <div class="about-hero-cta">
-        <a href="https://github.com/scitex-ai" class="btn btn-primary btn-lg" target="_blank">
-          <i class="fab fa-github"></i> Star on GitHub
-        </a>
-        <a href="{% url 'public_app:contributors' %}" class="btn btn-outline-primary btn-lg">
-          <i class="fas fa-users"></i> Meet the Team
-        </a>
-      </div>
+    <div class="about-container">
+        <!-- Hero Section -->
+        <header class="about-hero">
+            <div class="about-hero-content">
+                <div class="about-hero-eyebrow">🎯 Our Purpose</div>
+                <h1 class="about-hero-title">Accelerating Scientific Discovery</h1>
+                <p class="about-hero-subtitle">
+                    Making research workflows centralized, reproducible, and universally
+                    accessible for researchers everywhere
+                </p>
+                <div class="about-hero-cta">
+                    <a href="https://github.com/scitex-ai"
+                       class="btn btn-primary btn-lg"
+                       target="_blank">
+                        <i class="fab fa-github"></i> Star on GitHub
+                    </a>
+                    <a href="{% url 'public_app:contributors' %}"
+                       class="btn btn-outline-primary btn-lg">
+                        <i class="fas fa-users"></i> Meet the Team
+                    </a>
+                </div>
+            </div>
+        </header>
+        <!-- Mission Section -->
+        <section class="about-section">
+            <div class="about-section-header">
+                <span class="about-section-emoji">🚀</span>
+                <h2 class="about-section-title">Mission</h2>
+                <p class="about-section-subtitle">
+                    Build an open, secure, and integrated research platform that empowers
+                    researchers worldwide
+                </p>
+            </div>
+            <div class="about-mission-grid">
+                <div class="about-mission-card">
+                    <span class="about-mission-icon">⚡</span>
+                    <h3 class="about-mission-title">Automate Repetitive Work</h3>
+                    <p class="about-mission-text">So researchers focus on discovery, not tooling</p>
+                </div>
+                <div class="about-mission-card">
+                    <span class="about-mission-icon">🔬</span>
+                    <h3 class="about-mission-title">Enable Reproducibility</h3>
+                    <p class="about-mission-text">By default, not as an afterthought</p>
+                </div>
+                <div class="about-mission-card">
+                    <span class="about-mission-icon">🤝</span>
+                    <h3 class="about-mission-title">Empower Researchers</h3>
+                    <p class="about-mission-text">To think, learn, create, and collaborate without barriers</p>
+                </div>
+            </div>
+            <p class="about-section-subtitle">
+                We do this <strong>for all researchers, everywhere</strong> — regardless
+                of background, resources, or institution.
+            </p>
+        </section>
+        <!-- Vision Section -->
+        <section class="about-section">
+            <div class="about-section-header">
+                <span class="about-section-emoji">🌍</span>
+                <h2 class="about-section-title">Vision</h2>
+                <p class="about-section-subtitle">
+                    A world where scientific knowledge and research capabilities are truly
+                    universal
+                </p>
+            </div>
+            <div class="about-principles-grid">
+                <div class="about-principle-card">
+                    <span class="about-principle-card-icon">🔓</span>
+                    <h3 class="about-principle-card-title">Open</h3>
+                    <p class="about-principle-card-text">Freely shared across borders and disciplines</p>
+                </div>
+                <div class="about-principle-card">
+                    <span class="about-principle-card-icon">🌐</span>
+                    <h3 class="about-principle-card-title">Accessible</h3>
+                    <p class="about-principle-card-text">Available to anyone, anywhere</p>
+                </div>
+                <div class="about-principle-card">
+                    <span class="about-principle-card-icon">👥</span>
+                    <h3 class="about-principle-card-title">Collaborative</h3>
+                    <p class="about-principle-card-text">Connecting researchers asynchronously worldwide</p>
+                </div>
+                <div class="about-principle-card">
+                    <span class="about-principle-card-icon">📚</span>
+                    <h3 class="about-principle-card-title">Cumulative</h3>
+                    <p class="about-principle-card-text">Built and improved by the community</p>
+                </div>
+                <div class="about-principle-card">
+                    <span class="about-principle-card-icon">✅</span>
+                    <h3 class="about-principle-card-title">Reproducible</h3>
+                    <p class="about-principle-card-text">Verifiable and trustworthy by design</p>
+                </div>
+                <div class="about-principle-card">
+                    <span class="about-principle-card-icon">🔍</span>
+                    <h3 class="about-principle-card-title">Transparent</h3>
+                    <p class="about-principle-card-text">Traceable from data to publication</p>
+                </div>
+            </div>
+            <p class="about-section-subtitle">
+                We envision a future where tools accelerate discovery, and progress is
+                driven by a global, open scientific community working together.
+            </p>
+        </section>
+        <!-- Core Values Section -->
+        <section class="about-section">
+            <div class="about-section-header">
+                <span class="about-section-emoji">⭐</span>
+                <h2 class="about-section-title">Core Values</h2>
+            </div>
+            <!-- Value 1: True Openness -->
+            <div class="about-value-card">
+                <span class="about-value-card-number">1</span>
+                <h3 class="about-value-card-title">True Openness</h3>
+                <p class="about-value-card-subtitle">
+                    Research tools, methods, and knowledge should be genuinely free and
+                    open.
+                </p>
+                <p>
+                    <strong>We believe:</strong>
+                </p>
+                <ul class="about-value-card-list">
+                    <li>Anyone can use, study, modify, and redistribute SciTeX</li>
+                    <li>No proprietary lock-in, no hidden costs, no restrictions</li>
+                    <li>Scientific infrastructure belongs to the scientific community</li>
+                    <li>Open source means both free software and transparent development</li>
+                </ul>
+            </div>
+            <!-- Value 2: Reproducibility by Default -->
+            <div class="about-value-card">
+                <span class="about-value-card-number">2</span>
+                <h3 class="about-value-card-title">Reproducibility by Default</h3>
+                <p class="about-value-card-subtitle">
+                    Scientific results must be verifiable, traceable, and trustworthy — not
+                    as an option, but as a foundation.
+                </p>
+                <p>
+                    <strong>We ensure:</strong>
+                </p>
+                <ul class="about-value-card-list">
+                    <li>Every analysis is version-controlled automatically</li>
+                    <li>Data provenance is transparent and traceable</li>
+                    <li>Methods are documented by design</li>
+                    <li>Results can be independently verified by anyone</li>
+                </ul>
+            </div>
+            <!-- Value 3: Shared Efficiency -->
+            <div class="about-value-card">
+                <span class="about-value-card-number">3</span>
+                <h3 class="about-value-card-title">Shared Efficiency</h3>
+                <p class="about-value-card-subtitle">
+                    Repetitive research tasks should be automated once, then shared widely —
+                    not rebuilt in isolation across thousands of labs.
+                </p>
+                <p>
+                    <strong>We enable:</strong>
+                </p>
+                <ul class="about-value-card-list">
+                    <li>Reusable workflows and templates</li>
+                    <li>Community-contributed extensions</li>
+                    <li>Standardized research infrastructure</li>
+                    <li>Collaborative tool development</li>
+                </ul>
+            </div>
+            <!-- Value 4: Universal Accessibility -->
+            <div class="about-value-card">
+                <span class="about-value-card-number">4</span>
+                <h3 class="about-value-card-title">Universal Accessibility</h3>
+                <p class="about-value-card-subtitle">
+                    Every researcher deserves powerful, reliable tools — regardless of
+                    geography, affiliation, or institutional resources.
+                </p>
+                <p>
+                    <strong>We achieve this through:</strong>
+                </p>
+                <ul class="about-value-card-list">
+                    <li>Self-hosting capabilities (no mandatory cloud)</li>
+                    <li>Low resource requirements</li>
+                    <li>Multi-language support</li>
+                    <li>Free and permissive licensing (MIT)</li>
+                </ul>
+            </div>
+            <!-- Value 5: Human-Centered AI -->
+            <div class="about-value-card">
+                <span class="about-value-card-number">5</span>
+                <h3 class="about-value-card-title">Human-Centered AI</h3>
+                <p class="about-value-card-subtitle">
+                    AI should enhance human thinking, creativity, and scientific rigor —
+                    never replace human judgment, ownership, or responsibility.
+                </p>
+                <p>
+                    <strong>We design AI to:</strong>
+                </p>
+                <ul class="about-value-card-list">
+                    <li>Augment research capabilities, not replace researchers</li>
+                    <li>Automate tedious tasks, not scientific decisions</li>
+                    <li>Suggest connections, not dictate conclusions</li>
+                    <li>Keep researchers in full control</li>
+                    <li>Operate transparently</li>
+                </ul>
+            </div>
+            <!-- Value 6: Privacy & Data Sovereignty -->
+            <div class="about-value-card">
+                <span class="about-value-card-number">6</span>
+                <h3 class="about-value-card-title">Privacy & Data Sovereignty</h3>
+                <p class="about-value-card-subtitle">
+                    Researchers own their ideas, data, and workflows completely. Privacy,
+                    ethics, and scientific trust come first — always.
+                </p>
+                <p>
+                    <strong>We guarantee:</strong>
+                </p>
+                <ul class="about-value-card-list">
+                    <li>Complete data ownership and control</li>
+                    <li>Self-hosting options for sensitive research</li>
+                    <li>No unauthorized data collection or surveillance</li>
+                    <li>Transparent, ethical data practices</li>
+                    <li>Researchers decide where their data lives</li>
+                </ul>
+            </div>
+        </section>
+        <!-- How We Work Section -->
+        <section class="about-section">
+            <div class="about-section-header">
+                <span class="about-section-emoji">🛠️</span>
+                <h2 class="about-section-title">How We Work</h2>
+            </div>
+            <div class="about-value-card">
+                <h3 class="about-value-card-title">Community-Driven Development</h3>
+                <ul class="about-value-card-list">
+                    <li>Open roadmap shaped by researcher needs</li>
+                    <li>Transparent decision-making process</li>
+                    <li>Contributions welcome from anyone, anywhere</li>
+                    <li>Governed by community, not corporate interests</li>
+                </ul>
+            </div>
+            <div class="about-value-card">
+                <h3 class="about-value-card-title">Sustainable & Independent</h3>
+                <ul class="about-value-card-list">
+                    <li>No venture capital dependencies that could compromise values</li>
+                    <li>No pressure to add restrictions for short-term profit</li>
+                    <li>Long-term commitment to openness over growth metrics</li>
+                    <li>Funded by voluntary support and ethical partnerships</li>
+                </ul>
+            </div>
+            <div class="about-value-card">
+                <h3 class="about-value-card-title">Built by Researchers, for Researchers</h3>
+                <ul class="about-value-card-list">
+                    <li>Designed around actual research workflows</li>
+                    <li>Battle-tested in real laboratories</li>
+                    <li>Continuously refined through user feedback</li>
+                    <li>Dogfooded by the developers themselves</li>
+                </ul>
+            </div>
+        </section>
+        <!-- The SciTeX Difference Section - Emphasized -->
+        <section class="about-difference-section">
+            <div class="about-section-header">
+                <span class="about-section-emoji">🌟</span>
+                <h2 class="about-section-title">The SciTeX Difference</h2>
+            </div>
+            <ul class="about-difference-list">
+                <li class="about-difference-item">
+                    <div class="about-difference-item-title">Not just another tool</div>
+                    <div class="about-difference-item-text">But a foundation for open, reproducible, collaborative science</div>
+                </li>
+                <li class="about-difference-item">
+                    <div class="about-difference-item-title">Not just open source</div>
+                    <div class="about-difference-item-text">
+                        But genuinely free software with permissive licensing that respects
+                        your freedom
+                    </div>
+                </li>
+                <li class="about-difference-item">
+                    <div class="about-difference-item-title">Not just accessible</div>
+                    <div class="about-difference-item-text">
+                        But designed from the ground up to give researchers complete control
+                        over their research infrastructure
+                    </div>
+                </li>
+            </ul>
+            <div class="about-highlight-box">
+                <h3 class="about-highlight-title">Our Commitment</h3>
+                <p class="about-highlight-text">
+                    We're building the research infrastructure that science deserves — and
+                    that remains open forever.
+                </p>
+            </div>
+        </section>
+        <!-- Beyond Software Section -->
+        <section class="about-section">
+            <div class="about-section-header">
+                <span class="about-section-emoji">📖</span>
+                <h2 class="about-section-title">Beyond Software</h2>
+                <p class="about-section-subtitle">
+                    Just as free software respects users' freedom, research outputs should
+                    be free for the same reasons
+                </p>
+            </div>
+            <div class="about-principles-grid">
+                <div class="about-principle-card">
+                    <span class="about-principle-card-icon">💾</span>
+                    <h3 class="about-principle-card-title">Research Data</h3>
+                    <p class="about-principle-card-text">Should be shareable and reusable</p>
+                </div>
+                <div class="about-principle-card">
+                    <span class="about-principle-card-icon">🔬</span>
+                    <h3 class="about-principle-card-title">Scientific Methods</h3>
+                    <p class="about-principle-card-text">Should be transparent and reproducible</p>
+                </div>
+                <div class="about-principle-card">
+                    <span class="about-principle-card-icon">📚</span>
+                    <h3 class="about-principle-card-title">Educational Materials</h3>
+                    <p class="about-principle-card-text">Should be freely accessible</p>
+                </div>
+                <div class="about-principle-card">
+                    <span class="about-principle-card-icon">📄</span>
+                    <h3 class="about-principle-card-title">Research Publications</h3>
+                    <p class="about-principle-card-text">Should belong to science, not publishers</p>
+                </div>
+            </div>
+            <p class="about-section-subtitle">SciTeX is designed to make this natural and automatic.</p>
+        </section>
+        <!-- Join Us CTA Section -->
+        <section class="about-cta-section">
+            <h2 class="about-cta-title">🤝 Join Us</h2>
+            <p class="about-cta-text">SciTeX is free and open software — we welcome your participation</p>
+            <div class="about-join-grid">
+                <div class="about-join-card">
+                    <span class="about-join-icon">🚀</span>
+                    <h3 class="about-join-title">Use it</h3>
+                    <p class="about-join-text">For your research</p>
+                </div>
+                <div class="about-join-card">
+                    <span class="about-join-icon">📖</span>
+                    <h3 class="about-join-title">Study it</h3>
+                    <p class="about-join-text">To understand how it works</p>
+                </div>
+                <div class="about-join-card">
+                    <span class="about-join-icon">🔧</span>
+                    <h3 class="about-join-title">Modify it</h3>
+                    <p class="about-join-text">To suit your needs</p>
+                </div>
+                <div class="about-join-card">
+                    <span class="about-join-icon">🌐</span>
+                    <h3 class="about-join-title">Share it</h3>
+                    <p class="about-join-text">With other researchers</p>
+                </div>
+                <div class="about-join-card">
+                    <span class="about-join-icon">💡</span>
+                    <h3 class="about-join-title">Contribute</h3>
+                    <p class="about-join-text">Improvements back to the community</p>
+                </div>
+            </div>
+            <div class="about-cta-buttons">
+                <a href="https://github.com/scitex-ai" class="btn btn-primary btn-lg">
+                    <i class="fab fa-github"></i> View on GitHub
+                </a>
+                <a href="{% url 'public_app:contributors' %}"
+                   class="btn btn-outline-primary btn-lg">
+                    <i class="fas fa-users"></i> Meet the Team
+                </a>
+                <a href="{% url 'public_app:contact' %}"
+                   class="btn btn-outline-secondary btn-lg">
+                    <i class="fas fa-envelope"></i> Get in Touch
+                </a>
+            </div>
+            <p class="about-cta-text">
+                Together, we're building the research infrastructure that science
+                deserves.
+            </p>
+        </section>
     </div>
-  </header>
-
-  <!-- Mission Section -->
-  <section class="about-section">
-    <div class="about-section-header">
-      <span class="about-section-emoji">🚀</span>
-      <h2 class="about-section-title">Mission</h2>
-      <p class="about-section-subtitle">
-        Build an open, secure, and integrated research platform that empowers researchers worldwide
-      </p>
-    </div>
-
-    <div class="about-mission-grid">
-      <div class="about-mission-card">
-        <span class="about-mission-icon">⚡</span>
-        <h3 class="about-mission-title">Automate Repetitive Work</h3>
-        <p class="about-mission-text">
-          So researchers focus on discovery, not tooling
-        </p>
-      </div>
-      <div class="about-mission-card">
-        <span class="about-mission-icon">🔬</span>
-        <h3 class="about-mission-title">Enable Reproducibility</h3>
-        <p class="about-mission-text">
-          By default, not as an afterthought
-        </p>
-      </div>
-      <div class="about-mission-card">
-        <span class="about-mission-icon">🤝</span>
-        <h3 class="about-mission-title">Empower Researchers</h3>
-        <p class="about-mission-text">
-          To think, learn, create, and collaborate without barriers
-        </p>
-      </div>
-    </div>
-
-    <p class="about-section-subtitle">
-      We do this <strong>for all researchers, everywhere</strong> — regardless of background, resources, or institution.
-    </p>
-  </section>
-
-  <!-- Vision Section -->
-  <section class="about-section">
-    <div class="about-section-header">
-      <span class="about-section-emoji">🌍</span>
-      <h2 class="about-section-title">Vision</h2>
-      <p class="about-section-subtitle">
-        A world where scientific knowledge and research capabilities are truly universal
-      </p>
-    </div>
-
-    <div class="about-principles-grid">
-      <div class="about-principle-card">
-        <span class="about-principle-card-icon">🔓</span>
-        <h3 class="about-principle-card-title">Open</h3>
-        <p class="about-principle-card-text">Freely shared across borders and disciplines</p>
-      </div>
-      <div class="about-principle-card">
-        <span class="about-principle-card-icon">🌐</span>
-        <h3 class="about-principle-card-title">Accessible</h3>
-        <p class="about-principle-card-text">Available to anyone, anywhere</p>
-      </div>
-      <div class="about-principle-card">
-        <span class="about-principle-card-icon">👥</span>
-        <h3 class="about-principle-card-title">Collaborative</h3>
-        <p class="about-principle-card-text">Connecting researchers asynchronously worldwide</p>
-      </div>
-      <div class="about-principle-card">
-        <span class="about-principle-card-icon">📚</span>
-        <h3 class="about-principle-card-title">Cumulative</h3>
-        <p class="about-principle-card-text">Built and improved by the community</p>
-      </div>
-      <div class="about-principle-card">
-        <span class="about-principle-card-icon">✅</span>
-        <h3 class="about-principle-card-title">Reproducible</h3>
-        <p class="about-principle-card-text">Verifiable and trustworthy by design</p>
-      </div>
-      <div class="about-principle-card">
-        <span class="about-principle-card-icon">🔍</span>
-        <h3 class="about-principle-card-title">Transparent</h3>
-        <p class="about-principle-card-text">Traceable from data to publication</p>
-      </div>
-    </div>
-
-    <p class="about-section-subtitle">
-      We envision a future where tools accelerate discovery, and progress is driven by a global, open scientific community working together.
-    </p>
-  </section>
-
-  <!-- Core Values Section -->
-  <section class="about-section">
-    <div class="about-section-header">
-      <span class="about-section-emoji">⭐</span>
-      <h2 class="about-section-title">Core Values</h2>
-    </div>
-
-    <!-- Value 1: True Openness -->
-    <div class="about-value-card">
-      <span class="about-value-card-number">1</span>
-      <h3 class="about-value-card-title">True Openness</h3>
-      <p class="about-value-card-subtitle">
-        Research tools, methods, and knowledge should be genuinely free and open.
-      </p>
-      <p><strong>We believe:</strong></p>
-      <ul class="about-value-card-list">
-        <li>Anyone can use, study, modify, and redistribute SciTeX</li>
-        <li>No proprietary lock-in, no hidden costs, no restrictions</li>
-        <li>Scientific infrastructure belongs to the scientific community</li>
-        <li>Open source means both free software and transparent development</li>
-      </ul>
-    </div>
-
-    <!-- Value 2: Reproducibility by Default -->
-    <div class="about-value-card">
-      <span class="about-value-card-number">2</span>
-      <h3 class="about-value-card-title">Reproducibility by Default</h3>
-      <p class="about-value-card-subtitle">
-        Scientific results must be verifiable, traceable, and trustworthy — not as an option, but as a foundation.
-      </p>
-      <p><strong>We ensure:</strong></p>
-      <ul class="about-value-card-list">
-        <li>Every analysis is version-controlled automatically</li>
-        <li>Data provenance is transparent and traceable</li>
-        <li>Methods are documented by design</li>
-        <li>Results can be independently verified by anyone</li>
-      </ul>
-    </div>
-
-    <!-- Value 3: Shared Efficiency -->
-    <div class="about-value-card">
-      <span class="about-value-card-number">3</span>
-      <h3 class="about-value-card-title">Shared Efficiency</h3>
-      <p class="about-value-card-subtitle">
-        Repetitive research tasks should be automated once, then shared widely — not rebuilt in isolation across thousands of labs.
-      </p>
-      <p><strong>We enable:</strong></p>
-      <ul class="about-value-card-list">
-        <li>Reusable workflows and templates</li>
-        <li>Community-contributed extensions</li>
-        <li>Standardized research infrastructure</li>
-        <li>Collaborative tool development</li>
-      </ul>
-    </div>
-
-    <!-- Value 4: Universal Accessibility -->
-    <div class="about-value-card">
-      <span class="about-value-card-number">4</span>
-      <h3 class="about-value-card-title">Universal Accessibility</h3>
-      <p class="about-value-card-subtitle">
-        Every researcher deserves powerful, reliable tools — regardless of geography, affiliation, or institutional resources.
-      </p>
-      <p><strong>We achieve this through:</strong></p>
-      <ul class="about-value-card-list">
-        <li>Self-hosting capabilities (no mandatory cloud)</li>
-        <li>Low resource requirements</li>
-        <li>Multi-language support</li>
-        <li>Free and permissive licensing (MIT)</li>
-      </ul>
-    </div>
-
-    <!-- Value 5: Human-Centered AI -->
-    <div class="about-value-card">
-      <span class="about-value-card-number">5</span>
-      <h3 class="about-value-card-title">Human-Centered AI</h3>
-      <p class="about-value-card-subtitle">
-        AI should enhance human thinking, creativity, and scientific rigor — never replace human judgment, ownership, or responsibility.
-      </p>
-      <p><strong>We design AI to:</strong></p>
-      <ul class="about-value-card-list">
-        <li>Augment research capabilities, not replace researchers</li>
-        <li>Automate tedious tasks, not scientific decisions</li>
-        <li>Suggest connections, not dictate conclusions</li>
-        <li>Keep researchers in full control</li>
-        <li>Operate transparently</li>
-      </ul>
-    </div>
-
-    <!-- Value 6: Privacy & Data Sovereignty -->
-    <div class="about-value-card">
-      <span class="about-value-card-number">6</span>
-      <h3 class="about-value-card-title">Privacy & Data Sovereignty</h3>
-      <p class="about-value-card-subtitle">
-        Researchers own their ideas, data, and workflows completely. Privacy, ethics, and scientific trust come first — always.
-      </p>
-      <p><strong>We guarantee:</strong></p>
-      <ul class="about-value-card-list">
-        <li>Complete data ownership and control</li>
-        <li>Self-hosting options for sensitive research</li>
-        <li>No unauthorized data collection or surveillance</li>
-        <li>Transparent, ethical data practices</li>
-        <li>Researchers decide where their data lives</li>
-      </ul>
-    </div>
-  </section>
-
-  <!-- How We Work Section -->
-  <section class="about-section">
-    <div class="about-section-header">
-      <span class="about-section-emoji">🛠️</span>
-      <h2 class="about-section-title">How We Work</h2>
-    </div>
-
-    <div class="about-value-card">
-      <h3 class="about-value-card-title">Community-Driven Development</h3>
-      <ul class="about-value-card-list">
-        <li>Open roadmap shaped by researcher needs</li>
-        <li>Transparent decision-making process</li>
-        <li>Contributions welcome from anyone, anywhere</li>
-        <li>Governed by community, not corporate interests</li>
-      </ul>
-    </div>
-
-    <div class="about-value-card">
-      <h3 class="about-value-card-title">Sustainable & Independent</h3>
-      <ul class="about-value-card-list">
-        <li>No venture capital dependencies that could compromise values</li>
-        <li>No pressure to add restrictions for short-term profit</li>
-        <li>Long-term commitment to openness over growth metrics</li>
-        <li>Funded by voluntary support and ethical partnerships</li>
-      </ul>
-    </div>
-
-    <div class="about-value-card">
-      <h3 class="about-value-card-title">Built by Researchers, for Researchers</h3>
-      <ul class="about-value-card-list">
-        <li>Designed around actual research workflows</li>
-        <li>Battle-tested in real laboratories</li>
-        <li>Continuously refined through user feedback</li>
-        <li>Dogfooded by the developers themselves</li>
-      </ul>
-    </div>
-  </section>
-
-  <!-- The SciTeX Difference Section - Emphasized -->
-  <section class="about-difference-section">
-    <div class="about-section-header">
-      <span class="about-section-emoji">🌟</span>
-      <h2 class="about-section-title">The SciTeX Difference</h2>
-    </div>
-
-    <ul class="about-difference-list">
-      <li class="about-difference-item">
-        <div class="about-difference-item-title">Not just another tool</div>
-        <div class="about-difference-item-text">But a foundation for open, reproducible, collaborative science</div>
-      </li>
-      <li class="about-difference-item">
-        <div class="about-difference-item-title">Not just open source</div>
-        <div class="about-difference-item-text">But genuinely free software with permissive licensing that respects your freedom</div>
-      </li>
-      <li class="about-difference-item">
-        <div class="about-difference-item-title">Not just accessible</div>
-        <div class="about-difference-item-text">But designed from the ground up to give researchers complete control over their research infrastructure</div>
-      </li>
-    </ul>
-
-    <div class="about-highlight-box">
-      <h3 class="about-highlight-title">Our Commitment</h3>
-      <p class="about-highlight-text">
-        We're building the research infrastructure that science deserves — and that remains open forever.
-      </p>
-    </div>
-  </section>
-
-  <!-- Beyond Software Section -->
-  <section class="about-section">
-    <div class="about-section-header">
-      <span class="about-section-emoji">📖</span>
-      <h2 class="about-section-title">Beyond Software</h2>
-      <p class="about-section-subtitle">
-        Just as free software respects users' freedom, research outputs should be free for the same reasons
-      </p>
-    </div>
-
-    <div class="about-principles-grid">
-      <div class="about-principle-card">
-        <span class="about-principle-card-icon">💾</span>
-        <h3 class="about-principle-card-title">Research Data</h3>
-        <p class="about-principle-card-text">Should be shareable and reusable</p>
-      </div>
-      <div class="about-principle-card">
-        <span class="about-principle-card-icon">🔬</span>
-        <h3 class="about-principle-card-title">Scientific Methods</h3>
-        <p class="about-principle-card-text">Should be transparent and reproducible</p>
-      </div>
-      <div class="about-principle-card">
-        <span class="about-principle-card-icon">📚</span>
-        <h3 class="about-principle-card-title">Educational Materials</h3>
-        <p class="about-principle-card-text">Should be freely accessible</p>
-      </div>
-      <div class="about-principle-card">
-        <span class="about-principle-card-icon">📄</span>
-        <h3 class="about-principle-card-title">Research Publications</h3>
-        <p class="about-principle-card-text">Should belong to science, not publishers</p>
-      </div>
-    </div>
-
-    <p class="about-section-subtitle">
-      SciTeX is designed to make this natural and automatic.
-    </p>
-  </section>
-
-  <!-- Join Us CTA Section -->
-  <section class="about-cta-section">
-    <h2 class="about-cta-title">🤝 Join Us</h2>
-    <p class="about-cta-text">
-      SciTeX is free and open software — we welcome your participation
-    </p>
-
-    <div class="about-join-grid">
-      <div class="about-join-card">
-        <span class="about-join-icon">🚀</span>
-        <h3 class="about-join-title">Use it</h3>
-        <p class="about-join-text">For your research</p>
-      </div>
-      <div class="about-join-card">
-        <span class="about-join-icon">📖</span>
-        <h3 class="about-join-title">Study it</h3>
-        <p class="about-join-text">To understand how it works</p>
-      </div>
-      <div class="about-join-card">
-        <span class="about-join-icon">🔧</span>
-        <h3 class="about-join-title">Modify it</h3>
-        <p class="about-join-text">To suit your needs</p>
-      </div>
-      <div class="about-join-card">
-        <span class="about-join-icon">🌐</span>
-        <h3 class="about-join-title">Share it</h3>
-        <p class="about-join-text">With other researchers</p>
-      </div>
-      <div class="about-join-card">
-        <span class="about-join-icon">💡</span>
-        <h3 class="about-join-title">Contribute</h3>
-        <p class="about-join-text">Improvements back to the community</p>
-      </div>
-    </div>
-
-    <div class="about-cta-buttons">
-      <a href="https://github.com/scitex-ai" class="btn btn-primary btn-lg">
-        <i class="fab fa-github"></i> View on GitHub
-      </a>
-      <a href="{% url 'public_app:contributors' %}" class="btn btn-outline-primary btn-lg">
-        <i class="fas fa-users"></i> Meet the Team
-      </a>
-      <a href="{% url 'public_app:contact' %}" class="btn btn-outline-secondary btn-lg">
-        <i class="fas fa-envelope"></i> Get in Touch
-      </a>
-    </div>
-
-    <p class="about-cta-text">
-      Together, we're building the research infrastructure that science deserves.
-    </p>
-  </section>
-</div>
 {% endblock %}

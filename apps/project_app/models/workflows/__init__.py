@@ -12,10 +12,10 @@ from .models import (
 )
 
 __all__ = [
-    'Workflow',
-    'WorkflowRun',
-    'WorkflowJob',
-    'WorkflowStep',
-    'WorkflowSecret',
-    'WorkflowArtifact',
+    "Workflow",
+    "WorkflowRun",
+    "WorkflowJob",
+    "WorkflowStep",
+    "WorkflowSecret",
+    "WorkflowArtifact",
 ]

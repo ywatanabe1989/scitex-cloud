@@ -23,9 +23,9 @@ def version_control_index(request):
     current_project = get_current_project(request, user=request.user)
 
     context = {
-        'project': current_project,
-        'commits': [],
-        'branches': [],
+        "project": current_project,
+        "commits": [],
+        "branches": [],
     }
 
     if current_project:
@@ -34,9 +34,9 @@ def version_control_index(request):
             commits = vc_service.get_history()
             branches = vc_service.get_branches()
 
-            context['commits'] = commits
-            context['branches'] = branches
+            context["commits"] = commits
+            context["branches"] = branches
         except Exception as e:
             logger.error(f"Error loading version control data: {e}")
 
-    return render(request, 'writer_app/version_control/index.html', context)
+    return render(request, "writer_app/version_control/index.html", context)

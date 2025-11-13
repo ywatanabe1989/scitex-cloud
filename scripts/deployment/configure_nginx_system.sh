@@ -118,7 +118,7 @@ test_and_reload() {
     if nginx -t; then
         echo_success "Configuration valid"
         echo_info "Reloading nginx..."
-        systemctl reload nginx 2>/dev/null || systemctl start nginx
+        systemctl reload nginx 2> /dev/null || systemctl start nginx
         echo_success "Nginx reloaded"
         return 0
     else
@@ -149,7 +149,7 @@ print_summary() {
 main() {
     while [[ $# -gt 0 ]]; do
         case $1 in
-            -h|--help)
+            -h | --help)
                 usage
                 ;;
             *)

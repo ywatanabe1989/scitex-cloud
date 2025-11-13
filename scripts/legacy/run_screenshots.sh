@@ -64,7 +64,7 @@ if [ $exit_code -eq 0 ]; then
         if command -v xdg-open &> /dev/null; then
             echo ""
             echo -e "${YELLOW}Opening in browser...${NC}"
-            xdg-open "$PROJECT_ROOT/$LATEST_DIR/index.html" 2>/dev/null || true
+            xdg-open "$PROJECT_ROOT/$LATEST_DIR/index.html" 2> /dev/null || true
         fi
     fi
 else

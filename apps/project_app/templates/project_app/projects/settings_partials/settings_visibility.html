@@ -5,29 +5,69 @@
         <h2 class="settings-title">Repository visibility</h2>
         <p class="settings-description">Control who can see this repository</p>
     </div>
-
     <div class="radio-group">
         <label class="radio-option {% if project.visibility == 'public' %}selected{% endif %}">
-            <input type="radio" name="visibility" value="public" {% if project.visibility == 'public' %}checked{% endif %}>
-            <div class="radio-label">
-                <div class="radio-title">🌐 Public</div>
-                <div class="radio-desc">Anyone on the internet can see this repository. You choose who can commit.</div>
+            <input
+                type="radio"
+                name="visibility"
+                value="public"
+                {%
+                if
+                project.visibility=""
+                ="public"
+                %}checked{%
+                endif
+                %}
+                />
+                <div class="radio-label">
+                    <div class="radio-title">🌐 Public</div>
+                    <div class="radio-desc">
+                        Anyone on the internet can see this repository. You choose who can
+                        commit.
+                    </div>
+                </div>
+            </label>
+            <label class="radio-option {% if project.visibility == 'private' %}selected{% endif %}">
+                <input
+                    type="radio"
+                    name="visibility"
+                    value="private"
+                    {%
+                    if
+                    project.visibility=""
+                    ="private"
+                    %}checked{%
+                    endif
+                    %}
+                    />
+                    <div class="radio-label">
+                        <div class="radio-title">
+                            <img src="{% static 'project_app/icons/lock.svg' %}"
+                                 alt=""
+                                 style="width: 16px;
+                                        height: 16px;
+                                        vertical-align: text-bottom;
+                                        margin-right: 4px" />
+                            Private
+                        </div>
+                        <div class="radio-desc">You choose who can see and commit to this repository.</div>
+                    </div>
+                </label>
             </div>
-        </label>
-
-        <label class="radio-option {% if project.visibility == 'private' %}selected{% endif %}">
-            <input type="radio" name="visibility" value="private" {% if project.visibility == 'private' %}checked{% endif %}>
-            <div class="radio-label">
-                <div class="radio-title"><img src="{% static 'project_app/icons/lock.svg' %}" alt="" style="width: 16px; height: 16px; vertical-align: text-bottom; margin-right: 4px;">Private</div>
-                <div class="radio-desc">You choose who can see and commit to this repository.</div>
+            <div style="margin-top: 16px;
+                        padding-top: 16px;
+                        border-top: 1px solid var(--color-border-default)">
+                <button type="submit"
+                        name="action"
+                        value="update_visibility"
+                        class="btn btn-sm"
+                        style="background: var(--color-btn-primary-bg);
+                               color: var(--color-btn-primary-text);
+                               border: none;
+                               padding: 8px 16px;
+                               border-radius: 6px">
+                    <i class="fas fa-check"></i>
+                    Update visibility
+                </button>
             </div>
-        </label>
-    </div>
-
-    <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--color-border-default);">
-        <button type="submit" name="action" value="update_visibility" class="btn btn-sm" style="background: var(--color-btn-primary-bg); color: var(--color-btn-primary-text); border: none; padding: 8px 16px; border-radius: 6px;">
-            <i class="fas fa-check"></i>
-            Update visibility
-        </button>
-    </div>
-</div>
+        </div>

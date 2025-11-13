@@ -8,7 +8,7 @@ THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
 LOG_PATH="$THIS_DIR/.$(basename $0).log"
 echo > "$LOG_PATH"
 
-GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
+GIT_ROOT="$(git rev-parse --show-toplevel 2> /dev/null)"
 
 GRAY='\033[0;90m'
 GREEN='\033[0;32m'
@@ -45,12 +45,12 @@ try_scitex_installation_in_editable_mode() {
         # Check if scitex-code is a valid Python project
         if [ -f "/scitex-code/pyproject.toml" ] || [ -f "/scitex-code/setup.py" ]; then
             # Check if scitex is already installed in editable mode from /scitex-code
-            if pip show -f scitex 2>/dev/null | grep -q "/scitex-code"; then
+            if pip show -f scitex 2> /dev/null | grep -q "/scitex-code"; then
                 echo -e "${GREEN}✅ Scitex already installed in editable mode${NC}"
             else
                 echo_info "Installing scitex (editable mode)..."
 
-                uv pip install -e "/scitex-code[dl,ml,jupyter,neuro,web,scholar,writer,dev]" --link-mode=copy >/dev/null
+                uv pip install -e "/scitex-code[dl,ml,jupyter,neuro,web,scholar,writer,dev]" --link-mode=copy > /dev/null
             fi
             verify_scitex_package
         else
@@ -66,7 +66,7 @@ try_scitex_installation_in_editable_mode() {
 try_scitex_installation_in_editable_mode
 
 add_insufficient_python_packages() {
-    pip install pygments >/dev/null 2>&1 || true
+    pip install pygments > /dev/null 2>&1 || true
 }
 add_insufficient_python_packages
 
@@ -86,7 +86,7 @@ start_typescript_build_watcher() {
 
         # Start unified TypeScript compiler in watch mode for ALL apps (background)
         nohup npm run build:all:watch \
-              > /app/logs/tsc-watch-all.log 2>&1 &
+            > /app/logs/tsc-watch-all.log 2>&1 &
         TSC_ALL_PID=$!
         echo_success "TypeScript watch (ALL apps) started (PID: $TSC_ALL_PID)"
         echo "   Watching: static/ts/**, apps/*/static/*/ts/**"

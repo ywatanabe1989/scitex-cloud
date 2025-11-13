@@ -19,7 +19,7 @@ echo -e "${BLUE}======================================${NC}"
 echo ""
 
 # Wait for server to be ready
-MAX_WAIT=300  # 5 minutes
+MAX_WAIT=300 # 5 minutes
 WAIT_TIME=0
 INTERVAL=5
 

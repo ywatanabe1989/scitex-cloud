@@ -1,20 +1,24 @@
 <!-- API Key Alert -->
 {% if missing_api_keys %}
-<div class="alert-banner alert-banner-warning">
-  <div class="warning-banner-container">
-    <div class="warning-banner-content">
-      <i class="warning-banner-icon fas fa-key"></i>
-      <div class="warning-banner-text">
-        <div class="warning-banner-title">Improve Your Search Performance!</div>
-        <div class="warning-banner-description">
-          Missing API keys for: <strong>{{ missing_api_keys|join:", "|title }}</strong>.
-          Add them for higher rate limits and more comprehensive results.
-          <a href="{% url 'scholar_app:api_keys' %}" class="btn btn-warning btn-sm" style="margin-top: 0.75rem; display: inline-block;">
-            <i class="fas fa-plus"></i> Add API Keys
-          </a>
+    <div class="alert-banner alert-banner-warning">
+        <div class="warning-banner-container">
+            <div class="warning-banner-content">
+                <i class="warning-banner-icon fas fa-key"></i>
+                <div class="warning-banner-text">
+                    <div class="warning-banner-title">Improve Your Search Performance!</div>
+                    <div class="warning-banner-description">
+                        Missing API keys for:
+                        <strong>{{ missing_api_keys|join:", "|title }}</strong>. Add them for
+                        higher rate limits and more comprehensive results.
+                        <a href="{% url 'scholar_app:api_keys' %}"
+                           class="btn btn-warning btn-sm"
+                           style="margin-top: 0.75rem;
+                                  display: inline-block">
+                            <i class="fas fa-plus"></i> Add API Keys
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
-</div>
 {% endif %}

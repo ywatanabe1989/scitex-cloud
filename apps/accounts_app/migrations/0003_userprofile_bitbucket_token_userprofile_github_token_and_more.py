@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("accounts_app", "0002_userprofile_ssh_key_created_at_and_more"),
     ]

@@ -32,23 +32,23 @@ from .permissions import (
 
 __all__ = [
     # Serializers
-    'PaperSerializer',
-    'CollectionSerializer',
-    'SavedSearchSerializer',
-    'AnnotationSerializer',
-    'RepositoryConnectionSerializer',
-    'DatasetMetadataSerializer',
+    "PaperSerializer",
+    "CollectionSerializer",
+    "SavedSearchSerializer",
+    "AnnotationSerializer",
+    "RepositoryConnectionSerializer",
+    "DatasetMetadataSerializer",
     # ViewSets
-    'PaperViewSet',
-    'CollectionViewSet',
-    'SavedSearchViewSet',
-    'AnnotationViewSet',
+    "PaperViewSet",
+    "CollectionViewSet",
+    "SavedSearchViewSet",
+    "AnnotationViewSet",
     # Permissions
-    'IsOwner',
-    'IsOwnerOrReadOnly',
-    'CanAccessPaper',
-    'CanAccessCollection',
-    'CanAccessAnnotation',
+    "IsOwner",
+    "IsOwnerOrReadOnly",
+    "CanAccessPaper",
+    "CanAccessCollection",
+    "CanAccessAnnotation",
 ]
 
 # EOF

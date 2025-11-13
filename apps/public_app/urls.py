@@ -5,9 +5,8 @@
 # ----------------------------------------
 from __future__ import annotations
 import os
-__FILE__ = (
-    "./apps/public_app/urls.py"
-)
+
+__FILE__ = "./apps/public_app/urls.py"
 __DIR__ = os.path.dirname(__FILE__)
 # ----------------------------------------
 
@@ -43,8 +42,16 @@ urlpatterns = [
     path("releases/", views.releases_view, name="releases"),
     # Research Tools
     path("tools/", views.tools, name="tools"),
-    path("tools/element-inspector/", views.tool_element_inspector, name="tool_element_inspector"),
-    path("tools/asta-citation-scraper/", views.tool_asta_citation_scraper, name="tool_asta_citation_scraper"),
+    path(
+        "tools/element-inspector/",
+        views.tool_element_inspector,
+        name="tool_element_inspector",
+    ),
+    path(
+        "tools/asta-citation-scraper/",
+        views.tool_asta_citation_scraper,
+        name="tool_asta_citation_scraper",
+    ),
 ]
 
 # EOF

@@ -74,7 +74,8 @@
 
 .card--interactive {
   cursor: pointer;
-  transition: all var(--transition-duration-fast) var(--transition-timing-default);
+  transition: all var(--transition-duration-fast)
+    var(--transition-timing-default);
 }
 
 .card--interactive:hover {

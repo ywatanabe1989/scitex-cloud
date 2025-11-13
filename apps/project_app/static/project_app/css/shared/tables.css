@@ -38,7 +38,8 @@
 /* Table body */
 .table tbody tr {
   border-bottom: 1px solid var(--color-border-default);
-  transition: background-color var(--transition-duration-fast) var(--transition-timing-default);
+  transition: background-color var(--transition-duration-fast)
+    var(--transition-timing-default);
 }
 
 .table td {

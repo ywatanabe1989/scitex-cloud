@@ -71,9 +71,7 @@ class Command(BaseCommand):
 
         if not confirm and not dry_run:
             self.stdout.write(
-                self.style.ERROR(
-                    "⚠️  DANGER: This will delete all users and projects!"
-                )
+                self.style.ERROR("⚠️  DANGER: This will delete all users and projects!")
             )
             self.stdout.write(
                 self.style.ERROR(
@@ -171,16 +169,12 @@ class Command(BaseCommand):
                     project.delete()
                     projects_deleted += 1
                     self.stdout.write(
-                        self.style.SUCCESS(
-                            f"   ✓ Deleted project: {project_name}"
-                        )
+                        self.style.SUCCESS(f"   ✓ Deleted project: {project_name}")
                     )
 
             except Exception as e:
                 self.stdout.write(
-                    self.style.ERROR(
-                        f"   ✗ Error deleting project {project.slug}: {e}"
-                    )
+                    self.style.ERROR(f"   ✗ Error deleting project {project.slug}: {e}")
                 )
                 errors += 1
 
@@ -193,32 +187,33 @@ class Command(BaseCommand):
         else:
             manuscripts_deleted = Manuscript.objects.all().delete()[0]
             self.stdout.write(
-                self.style.SUCCESS(
-                    f"   ✓ Deleted {manuscripts_deleted} manuscripts"
-                )
+                self.style.SUCCESS(f"   ✓ Deleted {manuscripts_deleted} manuscripts")
             )
 
         # Step 2.5: Clean up incomplete writer directories
         self.stdout.write("\n🧹 Step 2.5: Cleaning incomplete writer directories...")
         from django.conf import settings
-        data_dir = Path(settings.BASE_DIR) / 'data' / 'users'
+
+        data_dir = Path(settings.BASE_DIR) / "data" / "users"
         incomplete_dirs_cleaned = 0
 
         if data_dir.exists():
             for user_dir in data_dir.iterdir():
-                if not user_dir.is_dir() or user_dir.name.startswith('.'):
+                if not user_dir.is_dir() or user_dir.name.startswith("."):
                     continue
 
                 for project_dir in user_dir.iterdir():
-                    if not project_dir.is_dir() or project_dir.name.startswith('.'):
+                    if not project_dir.is_dir() or project_dir.name.startswith("."):
                         continue
 
-                    writer_dir = project_dir / 'scitex' / 'writer'
+                    writer_dir = project_dir / "scitex" / "writer"
                     if writer_dir.exists():
                         # Check if writer directory is incomplete
                         # (has old bib_files/ structure OR missing required directories)
-                        old_structure = (writer_dir / 'bib_files').exists()
-                        missing_required = not (writer_dir / '02_supplementary').exists()
+                        old_structure = (writer_dir / "bib_files").exists()
+                        missing_required = not (
+                            writer_dir / "02_supplementary"
+                        ).exists()
 
                         if old_structure or missing_required:
                             if dry_run:
@@ -248,9 +243,7 @@ class Command(BaseCommand):
 
         # Step 3: Delete users
         if not keep_users:
-            self.stdout.write(
-                "\n👤 Step 3: Deleting users (except superusers)..."
-            )
+            self.stdout.write("\n👤 Step 3: Deleting users (except superusers)...")
             users_deleted = 0
 
             for user in non_superusers:
@@ -266,9 +259,7 @@ class Command(BaseCommand):
                         self.style.SUCCESS(f"   ✓ Deleted user: {username}")
                     )
         else:
-            self.stdout.write(
-                "\n👤 Step 3: Skipping user deletion (--keep-users flag)"
-            )
+            self.stdout.write("\n👤 Step 3: Skipping user deletion (--keep-users flag)")
             users_deleted = 0
 
         # Summary
@@ -294,5 +285,6 @@ class Command(BaseCommand):
                     "✨ Fresh start ready! You can now create new projects."
                 )
             )
+
 
 # EOF

@@ -22,16 +22,16 @@ def compilation_view(request):
     current_project = get_current_project(request, user=request.user)
 
     context = {
-        'project': current_project,
-        'compilations': [],
+        "project": current_project,
+        "compilations": [],
     }
 
     if current_project:
         try:
             compilation_service = CompilerService(current_project.id, request.user.id)
             compilations = compilation_service.get_history()
-            context['compilations'] = compilations
+            context["compilations"] = compilations
         except Exception as e:
             logger.error(f"Error loading compilation history: {e}")
 
-    return render(request, 'writer_app/compilation/compilation_view.html', context)
+    return render(request, "writer_app/compilation/compilation_view.html", context)

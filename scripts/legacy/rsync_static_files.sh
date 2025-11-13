@@ -21,7 +21,7 @@ echo_warning() { echo -e "${YELLOW}$1${NC}"; }
 echo_error() { echo -e "${RED}$1${NC}"; }
 # ---------------------------------------
 
-  rsync -avz --delete \
+rsync -avz --delete \
     /home/ywatanabe/proj/scitex-cloud/static/ \
     ywatanabe@162.43.35.139:/home/ywatanabe/proj/scitex-cloud/static/ \
     2>&1 | grep -v "protocol version

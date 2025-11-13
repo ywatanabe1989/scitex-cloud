@@ -5,13 +5,12 @@ Project Detail View
 
 Display project details with GitHub-style file browser and README.
 """
+
 from __future__ import annotations
 import logging
-from pathlib import Path
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.http import Http404
 
 from ...models import Project, ProjectWatch, ProjectStar, ProjectFork
 from ...decorators import project_access_required
@@ -35,6 +34,7 @@ def project_detail(request, username, slug):
     # Special case: if slug matches username, this is a bio/profile README page
     if slug == username:
         from ..users.profile import user_bio_page
+
         return user_bio_page(request, username)
 
     # project available in request.project from decorator
@@ -51,17 +51,21 @@ def project_detail(request, username, slug):
     # Handle concatenated view
     if view == "concatenated":
         from ..api_views import api_concatenate_directory
+
         return api_concatenate_directory(request, username, slug, "")
 
     # Route to appropriate module based on mode
     if mode == "writer":
         from apps.writer_app import views as writer_views
+
         return writer_views.project_writer(request, project.id)
     elif mode == "code":
         from apps.code_app import views as code_views
+
         return code_views.project_code(request, project.id)
     elif mode == "viz":
         from apps.viz_app import views as viz_views
+
         return viz_views.project_viz(request, project.id)
 
     # Default mode: overview - GitHub-style file browser with README
@@ -86,34 +90,37 @@ def project_detail(request, username, slug):
                 """Get last commit message, author, hash, and time for a file/folder"""
                 try:
                     import subprocess
-                    from datetime import datetime
 
                     # Get last commit for this file (including hash)
                     result = subprocess.run(
-                        ['git', 'log', '-1', '--format=%an|%ar|%s|%h', '--', str(path.name)],
+                        [
+                            "git",
+                            "log",
+                            "-1",
+                            "--format=%an|%ar|%s|%h",
+                            "--",
+                            str(path.name),
+                        ],
                         cwd=project_path,
                         capture_output=True,
                         text=True,
-                        timeout=5
+                        timeout=5,
                     )
 
                     if result.returncode == 0 and result.stdout.strip():
-                        author, time_ago, message, commit_hash = result.stdout.strip().split('|', 3)
+                        author, time_ago, message, commit_hash = (
+                            result.stdout.strip().split("|", 3)
+                        )
                         return {
-                            'author': author,
-                            'time_ago': time_ago,
-                            'message': message[:80],  # Truncate to 80 chars
-                            'hash': commit_hash
+                            "author": author,
+                            "time_ago": time_ago,
+                            "message": message[:80],  # Truncate to 80 chars
+                            "hash": commit_hash,
                         }
                 except Exception as e:
                     logger.debug(f"Error getting git info for {path}: {e}")
 
-                return {
-                    'author': '',
-                    'time_ago': '',
-                    'message': '',
-                    'hash': ''
-                }
+                return {"author": "", "time_ago": "", "message": "", "hash": ""}
 
             for item in project_path.iterdir():
                 # Show all files including dotfiles
@@ -126,10 +133,10 @@ def project_detail(request, username, slug):
                             "path": str(item.relative_to(project_path)),
                             "size": item.stat().st_size,
                             "modified": item.stat().st_mtime,
-                            "author": git_info.get('author', ''),
-                            "time_ago": git_info.get('time_ago', ''),
-                            "message": git_info.get('message', ''),
-                            "hash": git_info.get('hash', ''),
+                            "author": git_info.get("author", ""),
+                            "time_ago": git_info.get("time_ago", ""),
+                            "message": git_info.get("message", ""),
+                            "hash": git_info.get("hash", ""),
                         }
                     )
                 elif item.is_dir():
@@ -137,10 +144,10 @@ def project_detail(request, username, slug):
                         {
                             "name": item.name,
                             "path": str(item.relative_to(project_path)),
-                            "author": git_info.get('author', ''),
-                            "time_ago": git_info.get('time_ago', ''),
-                            "message": git_info.get('message', ''),
-                            "hash": git_info.get('hash', ''),
+                            "author": git_info.get("author", ""),
+                            "time_ago": git_info.get("time_ago", ""),
+                            "message": git_info.get("message", ""),
+                            "hash": git_info.get("hash", ""),
                         }
                     )
 
@@ -155,7 +162,7 @@ def project_detail(request, username, slug):
                     readme_content,
                     extensions=["fenced_code", "tables", "nl2br"],
                 )
-        except Exception as e:
+        except Exception:
             pass
 
     # Sort: directories first, then files
@@ -164,28 +171,29 @@ def project_detail(request, username, slug):
 
     # Get branches for branch selector
     branches = []
-    current_branch = project.current_branch or 'develop'
+    current_branch = project.current_branch or "develop"
     if project_path and project_path.exists():
         try:
             import subprocess
+
             result = subprocess.run(
-                ['git', 'branch', '-a'],
+                ["git", "branch", "-a"],
                 cwd=project_path,
                 capture_output=True,
                 text=True,
-                timeout=5
+                timeout=5,
             )
             if result.returncode == 0:
-                for line in result.stdout.split('\n'):
+                for line in result.stdout.split("\n"):
                     line = line.strip()
                     if line:
                         # Remove * prefix and remotes/origin/ prefix
-                        branch = line.replace('*', '').strip()
-                        branch = branch.replace('remotes/origin/', '')
+                        branch = line.replace("*", "").strip()
+                        branch = branch.replace("remotes/origin/", "")
                         if branch and branch not in branches:
                             branches.append(branch)
                         # Check if this is the current branch
-                        if line.startswith('*'):
+                        if line.startswith("*"):
                             current_branch = branch
         except Exception as e:
             logger.debug(f"Error getting branches: {e}")
@@ -202,8 +210,12 @@ def project_detail(request, username, slug):
     is_watching = False
     is_starred = False
     if request.user.is_authenticated:
-        is_watching = ProjectWatch.objects.filter(user=request.user, project=project).exists()
-        is_starred = ProjectStar.objects.filter(user=request.user, project=project).exists()
+        is_watching = ProjectWatch.objects.filter(
+            user=request.user, project=project
+        ).exists()
+        is_starred = ProjectStar.objects.filter(
+            user=request.user, project=project
+        ).exists()
 
     context = {
         "project": project,

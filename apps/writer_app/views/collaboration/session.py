@@ -23,9 +23,9 @@ def collaboration_session(request):
     current_project = get_current_project(request, user=request.user)
 
     context = {
-        'project': current_project,
-        'active_users': [],
-        'locked_sections': [],
+        "project": current_project,
+        "active_users": [],
+        "locked_sections": [],
     }
 
     if current_project:
@@ -34,12 +34,12 @@ def collaboration_session(request):
             active_users = collab_service.get_active_users()
             locked_sections = collab_service.get_locked_sections()
 
-            context['active_users'] = active_users
-            context['locked_sections'] = locked_sections
+            context["active_users"] = active_users
+            context["locked_sections"] = locked_sections
         except Exception as e:
             logger.error(f"Error loading collaboration session: {e}")
 
-    return render(request, 'writer_app/collaboration/session.html', context)
+    return render(request, "writer_app/collaboration/session.html", context)
 
 
 @login_required
@@ -52,14 +52,14 @@ def session_list(request):
     - Join/leave options
     """
     context = {
-        'sessions': [],
+        "sessions": [],
     }
 
     try:
         collab_service = CollaborationService(None, request.user.id)
         sessions = collab_service.get_active_sessions()
-        context['sessions'] = sessions
+        context["sessions"] = sessions
     except Exception as e:
         logger.error(f"Error loading sessions: {e}")
 
-    return render(request, 'writer_app/collaboration/session_list.html', context)
+    return render(request, "writer_app/collaboration/session_list.html", context)

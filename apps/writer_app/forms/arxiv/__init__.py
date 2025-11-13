@@ -1,3 +1,3 @@
 from .submission_forms import ArxivSubmissionForm
 
-__all__ = ['ArxivSubmissionForm']
+__all__ = ["ArxivSubmissionForm"]

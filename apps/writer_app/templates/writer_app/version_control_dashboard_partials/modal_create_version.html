@@ -9,34 +9,41 @@
             <form id="createVersionForm">
                 <div class="form-group">
                     <label class="form-label">Commit Message</label>
-                    <input type="text" class="form-control" id="commitMessage" placeholder="Describe your changes..." required>
+                    <input type="text"
+                           class="form-control"
+                           id="commitMessage"
+                           placeholder="Describe your changes..."
+                           required />
                 </div>
                 <div class="form-group">
                     <label class="form-label">Version Tag (optional)</label>
-                    <input type="text" class="form-control" id="versionTag" placeholder="e.g., Initial Draft, Final Version">
+                    <input type="text"
+                           class="form-control"
+                           id="versionTag"
+                           placeholder="e.g., Initial Draft, Final Version" />
                 </div>
                 <div class="form-group">
                     <label class="form-label">Branch</label>
                     <select class="form-control" id="branchName">
                         <option value="main">main</option>
                         {% for branch in branches %}
-                            {% if branch.name != 'main' %}
-                                <option value="{{ branch.name }}">{{ branch.name }}</option>
-                            {% endif %}
+                            {% if branch.name != 'main' %}<option value="{{ branch.name }}">{{ branch.name }}</option>{% endif %}
                         {% endfor %}
                     </select>
                 </div>
                 <div class="form-group">
                     <label>
-                        <input type="checkbox" id="isMajor"> Major Version
+                        <input type="checkbox" id="isMajor" />
+                        Major Version
                     </label>
                 </div>
                 <div class="text-right mt-1-5">
-                    <button type="button" class="btn-secondary" onclick="closeModal('createVersionModal')">Cancel</button>
+                    <button type="button"
+                            class="btn-secondary"
+                            onclick="closeModal('createVersionModal')">Cancel</button>
                     <button type="submit" class="btn-primary">Create Version</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
-

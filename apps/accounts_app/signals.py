@@ -15,11 +15,16 @@ def create_user_profile(sender, instance, created, **kwargs):
 
         # Create Gitea user account automatically
         try:
-            from apps.gitea_app.services.gitea_sync_service import ensure_gitea_user_exists
+            from apps.gitea_app.services.gitea_sync_service import (
+                ensure_gitea_user_exists,
+            )
+
             ensure_gitea_user_exists(instance)
             logger.info(f"Gitea user auto-created for {instance.username}")
         except Exception as e:
-            logger.warning(f"Failed to auto-create Gitea user for {instance.username}: {e}")
+            logger.warning(
+                f"Failed to auto-create Gitea user for {instance.username}: {e}"
+            )
             # Don't fail user creation if Gitea sync fails
 
         # Create a default project for the new user
@@ -29,7 +34,7 @@ def create_user_profile(sender, instance, created, **kwargs):
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
     """Save UserProfile when User is saved"""
-    if hasattr(instance, 'profile'):
+    if hasattr(instance, "profile"):
         instance.profile.save()
 
 
@@ -51,7 +56,7 @@ def create_default_project_for_user(user):
             slug=default_project_name,  # Simple slug without numeric suffix
             description=f"Default project for {user.username}",
             owner=user,
-            visibility='private'
+            visibility="private",
         )
 
         # Set as last active repository
@@ -61,5 +66,8 @@ def create_default_project_for_user(user):
     except Exception as e:
         # Log error but don't break user creation
         import logging
+
         logger = logging.getLogger(__name__)
-        logger.error(f"Error creating default project for user {user.username}: {str(e)}")
+        logger.error(
+            f"Error creating default project for user {user.username}: {str(e)}"
+        )

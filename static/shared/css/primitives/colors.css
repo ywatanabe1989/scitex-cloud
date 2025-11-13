@@ -56,19 +56,25 @@
    * =========================================================================== */
 
   /* Text - Richer, more professional */
-  --text-primary: var(--_scitex-01);      /* Deep bluish-gray for excellent readability */
-  --text-secondary: var(--_scitex-02);    /* Medium for secondary text (was 03, now richer) */
-  --text-muted: var(--_scitex-04);        /* Light for muted text */
+  --text-primary: var(
+    --_scitex-01
+  ); /* Deep bluish-gray for excellent readability */
+  --text-secondary: var(
+    --_scitex-02
+  ); /* Medium for secondary text (was 03, now richer) */
+  --text-muted: var(--_scitex-04); /* Light for muted text */
   --text-inverse: var(--_white);
 
   /* Background - Professional warm tones */
-  --bg-page: var(--_warm-white);          /* Soft warm off-white (was pure white) */
-  --bg-surface: var(--_white);            /* Crisp white for cards (was gray-subtle) */
-  --bg-muted: var(--_gray-subtle);        /* Subtle gray for secondary surfaces */
+  --bg-page: var(--_warm-white); /* Soft warm off-white (was pure white) */
+  --bg-surface: var(--_white); /* Crisp white for cards (was gray-subtle) */
+  --bg-muted: var(--_gray-subtle); /* Subtle gray for secondary surfaces */
 
   /* Border - Slightly stronger for definition */
-  --border-default: var(--_scitex-05);    /* Medium border (was 06, now stronger) */
-  --border-muted: var(--_scitex-06);      /* Subtle border */
+  --border-default: var(
+    --_scitex-05
+  ); /* Medium border (was 06, now stronger) */
+  --border-muted: var(--_scitex-06); /* Subtle border */
 
   /* Status */
   --status-success: var(--_success);
@@ -98,7 +104,7 @@
   --color-border-muted: var(--border-muted);
   --color-accent-fg: var(--text-primary);
   --color-accent-emphasis: var(--text-primary);
-  --color-accent-subtle: #e8f4f8;  /* Light blue-gray for better visibility (was var(--bg-muted)) */
+  --color-accent-subtle: #e8f4f8; /* Light blue-gray for better visibility (was var(--bg-muted)) */
   --color-danger-fg: var(--status-error);
   --color-danger-emphasis: var(--status-error);
   --color-danger-subtle: var(--status-error);

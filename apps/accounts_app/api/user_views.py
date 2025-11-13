@@ -25,9 +25,7 @@ def api_search_users(request):
         return JsonResponse({"users": []})
 
     # Search by username (case-insensitive, contains)
-    users = User.objects.filter(username__icontains=query)[
-        :10
-    ]  # Limit to 10 results
+    users = User.objects.filter(username__icontains=query)[:10]  # Limit to 10 results
 
     users_data = [
         {

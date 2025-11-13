@@ -28,9 +28,9 @@ echo_error() { echo -e "${RED}$1${NC}"; }
 # Script directory - resolve symlinks to get actual location
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do
-  SCRIPT_DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
-  SOURCE="$(readlink "$SOURCE")"
-  [[ $SOURCE != /* ]] && SOURCE="$SCRIPT_DIR/$SOURCE"
+    SCRIPT_DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
+    SOURCE="$(readlink "$SOURCE")"
+    [[ $SOURCE != /* ]] && SOURCE="$SCRIPT_DIR/$SOURCE"
 done
 SCRIPT_DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 # Go up two levels: scripts/server/ -> scripts/ -> project_root/
@@ -101,27 +101,27 @@ COMMAND="start"
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
     case $1 in
-        start|stop|restart|status|logs|clean|test|shell|migrate|static)
+        start | stop | restart | status | logs | clean | test | shell | migrate | static)
             COMMAND="$1"
             shift
             ;;
-        -m|--mode)
+        -m | --mode)
             MODE="$2"
             shift 2
             ;;
-        -p|--port)
+        -p | --port)
             PORT="$2"
             shift 2
             ;;
-        -c|--clean)
+        -c | --clean)
             DO_CLEAN=true
             shift
             ;;
-        -s|--static)
+        -s | --static)
             DO_STATIC=true
             shift
             ;;
-        -h|--help)
+        -h | --help)
             show_usage
             exit 0
             ;;
@@ -163,13 +163,13 @@ stop_server() {
     log_info "Stopping SciTeX Cloud processes..."
 
     # Stop systemd services if running and kill Django dev server
-    if systemctl is-active --quiet scitex_cloud_prod 2>/dev/null; then
+    if systemctl is-active --quiet scitex_cloud_prod 2> /dev/null; then
         log_info "Stopping systemd uWSGI service..."
-        sudo systemctl stop scitex_cloud_prod 2>/dev/null || true
+        sudo systemctl stop scitex_cloud_prod 2> /dev/null || true
     fi
 
     # Kill Django development server
-    pkill -f "python.*manage.py runserver" 2>/dev/null || true
+    pkill -f "python.*manage.py runserver" 2> /dev/null || true
 
     log_success "All processes stopped"
 }
@@ -177,10 +177,10 @@ stop_server() {
 # Clean temporary files
 clean_temp() {
     log_info "Cleaning temporary files..."
-    find "$PROJECT_ROOT" -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
-    find "$PROJECT_ROOT" -type f -name "*.pyc" -delete 2>/dev/null || true
-    find "$PROJECT_ROOT" -type f -name ".DS_Store" -delete 2>/dev/null || true
-    rm -rf "$PROJECT_ROOT/staticfiles/*" 2>/dev/null || true
+    find "$PROJECT_ROOT" -type d -name "__pycache__" -exec rm -rf {} + 2> /dev/null || true
+    find "$PROJECT_ROOT" -type f -name "*.pyc" -delete 2> /dev/null || true
+    find "$PROJECT_ROOT" -type f -name ".DS_Store" -delete 2> /dev/null || true
+    rm -rf "$PROJECT_ROOT/staticfiles/*" 2> /dev/null || true
     log_success "Cleanup complete"
 }
 
@@ -208,7 +208,7 @@ start_dev() {
     cd "$PROJECT_ROOT"
 
     if [[ "$MODE" == "windows" ]]; then
-        WSL_IP=$(ip -4 addr show eth0 2>/dev/null | grep -oP '(?<=inet\s)\d+(\.\d+){3}' || echo "127.0.0.1")
+        WSL_IP=$(ip -4 addr show eth0 2> /dev/null | grep -oP '(?<=inet\s)\d+(\.\d+){3}' || echo "127.0.0.1")
         log_success "Starting development server for Windows access..."
         log_info ""
         log_info "===================================================="
@@ -275,12 +275,12 @@ show_status() {
     echo "============================"
 
     # Check systemd uWSGI service
-    if systemctl is-active --quiet scitex_cloud_prod 2>/dev/null; then
+    if systemctl is-active --quiet scitex_cloud_prod 2> /dev/null; then
         log_success "Systemd uWSGI service (scitex_cloud_prod): RUNNING"
         systemctl status scitex_cloud_prod --no-pager -l | head -n 15
         echo ""
         log_info "Socket status:"
-        ls -l "$PROJECT_ROOT/run/scitex_cloud.sock" 2>/dev/null || log_warning "Socket not found"
+        ls -l "$PROJECT_ROOT/run/scitex_cloud.sock" 2> /dev/null || log_warning "Socket not found"
     else
         log_warning "Systemd uWSGI service (scitex_cloud_prod): NOT RUNNING"
     fi
@@ -288,7 +288,7 @@ show_status() {
     echo ""
 
     # Check Nginx
-    if systemctl is-active --quiet nginx 2>/dev/null; then
+    if systemctl is-active --quiet nginx 2> /dev/null; then
         log_success "Nginx: RUNNING"
     else
         log_warning "Nginx: NOT RUNNING"
@@ -310,15 +310,15 @@ view_logs() {
     log_info "Viewing SciTeX Cloud logs..."
 
     # Check if production service is running
-    if systemctl is-active --quiet scitex_cloud_prod 2>/dev/null; then
+    if systemctl is-active --quiet scitex_cloud_prod 2> /dev/null; then
         log_info "Showing systemd uWSGI logs (Ctrl+C to exit)..."
         sudo journalctl -u scitex_cloud_prod -f
     else
         # Use multitail if available
         if command -v multitail &> /dev/null; then
             multitail -f "$LOG_DIR/django.log" \
-                      -f "$LOG_DIR/app.log" 2>/dev/null || \
-            tail -f "$LOG_DIR"/*.log
+                -f "$LOG_DIR/app.log" 2> /dev/null \
+                || tail -f "$LOG_DIR"/*.log
         else
             # Fall back to regular tail
             tail -f "$LOG_DIR"/*.log
@@ -340,7 +340,7 @@ case $COMMAND in
                     exit 1
                 fi
                 ;;
-            dev|windows)
+            dev | windows)
                 export SCITEX_CLOUD_ENV=development
                 export SCITEX_CLOUD_DJANGO_SECRET_KEY="${SCITEX_CLOUD_DJANGO_SECRET_KEY:-dev-secret-key-123}"
                 ;;
@@ -359,8 +359,8 @@ case $COMMAND in
             log_info "Preparing production deployment..."
 
             # Kill any remaining processes (non-sudo)
-            pkill -9 -f "uwsgi" 2>/dev/null || true
-            pkill -f "python.*manage.py runserver" 2>/dev/null || true
+            pkill -9 -f "uwsgi" 2> /dev/null || true
+            pkill -f "python.*manage.py runserver" 2> /dev/null || true
 
             # Collect static files first
             collect_static

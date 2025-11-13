@@ -2,12 +2,12 @@
 Collaboration Views
 Handles project invitations, members, and permissions.
 """
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
-from apps.project_app.models import Project, ProjectMembership, ProjectInvitation
-from django.utils import timezone
+from apps.project_app.models import Project, ProjectInvitation
 import logging
 
 logger = logging.getLogger(__name__)
@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 def project_collaborate(request, username, slug):
     """Project collaboration management - redirects to settings with collaborators tab"""
     # Redirect to main settings page with collaborators section
-    return redirect(f'/{username}/{slug}/settings/#collaborators')
+    return redirect(f"/{username}/{slug}/settings/#collaborators")
 
 
 @login_required
@@ -50,31 +50,30 @@ def accept_invitation(request, token):
         # Check if invitation is for current user
         if invitation.invited_user != request.user:
             messages.error(request, "This invitation is not for you")
-            return redirect('/')
+            return redirect("/")
 
         # Check if expired
         if invitation.is_expired():
             messages.error(request, "This invitation has expired")
-            return redirect('/')
+            return redirect("/")
 
         # Accept invitation
         if invitation.accept():
             messages.success(
-                request,
-                f"You're now a collaborator on {invitation.project.name}!"
+                request, f"You're now a collaborator on {invitation.project.name}!"
             )
             # Redirect to project
             return redirect(
-                f'/{invitation.project.owner.username}/{invitation.project.slug}/'
+                f"/{invitation.project.owner.username}/{invitation.project.slug}/"
             )
         else:
             messages.error(request, "Invitation has already been responded to")
-            return redirect('/')
+            return redirect("/")
 
     except Exception as e:
         logger.error(f"Error accepting invitation: {e}")
         messages.error(request, "Error accepting invitation")
-        return redirect('/')
+        return redirect("/")
 
 
 @login_required
@@ -86,23 +85,22 @@ def decline_invitation(request, token):
         # Check if invitation is for current user
         if invitation.invited_user != request.user:
             messages.error(request, "This invitation is not for you")
-            return redirect('/')
+            return redirect("/")
 
         # Decline invitation
         if invitation.decline():
             messages.success(
-                request,
-                f"Invitation to {invitation.project.name} declined"
+                request, f"Invitation to {invitation.project.name} declined"
             )
         else:
             messages.error(request, "Invitation has already been responded to")
 
-        return redirect('/')
+        return redirect("/")
 
     except Exception as e:
         logger.error(f"Error declining invitation: {e}")
         messages.error(request, "Error declining invitation")
-        return redirect('/')
+        return redirect("/")
 
 
 # EOF

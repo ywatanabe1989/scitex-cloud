@@ -1,18 +1,18 @@
 /* File directory view styles */
-@import url('shared/variables.css');
+@import url("shared/variables.css");
 
 .file-directory-container {
-    padding: 1.5rem;
+  padding: 1.5rem;
 }
 
 .file-list {
-    margin-top: 1rem;
+  margin-top: 1rem;
 }
 
 .file-item {
-    padding: 0.75rem;
-    border-bottom: 1px solid var(--border-color, #ddd);
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--border-color, #ddd);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }

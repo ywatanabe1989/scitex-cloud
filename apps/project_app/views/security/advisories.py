@@ -28,21 +28,20 @@ def security_advisories(request, username, slug):
 
     # Get advisories
     advisories = SecurityAdvisory.objects.filter(
-        project=project,
-        status='published'
-    ).order_by('-published_at')
+        project=project, status="published"
+    ).order_by("-published_at")
 
     # Pagination
     paginator = Paginator(advisories, 20)
-    page_number = request.GET.get('page')
+    page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
     context = {
-        'project': project,
-        'page_obj': page_obj,
+        "project": project,
+        "page_obj": page_obj,
     }
 
-    return render(request, 'project_app/security/advisories.html', context)
+    return render(request, "project_app/security/advisories.html", context)
 
 
 @login_required
@@ -52,10 +51,7 @@ def security_advisory_detail(request, username, slug, advisory_id):
     """
     project = get_object_or_404(Project, slug=slug, owner__username=username)
     advisory = get_object_or_404(
-        SecurityAdvisory,
-        id=advisory_id,
-        project=project,
-        status='published'
+        SecurityAdvisory, id=advisory_id, project=project, status="published"
     )
 
     # Check permissions
@@ -63,8 +59,8 @@ def security_advisory_detail(request, username, slug, advisory_id):
         return HttpResponseForbidden("You don't have permission to view this project")
 
     context = {
-        'project': project,
-        'advisory': advisory,
+        "project": project,
+        "advisory": advisory,
     }
 
-    return render(request, 'project_app/security/advisory_detail.html', context)
+    return render(request, "project_app/security/advisory_detail.html", context)

@@ -267,7 +267,7 @@ body {
 }
 
 .nav-tabs .nav-link::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: -1px;
   left: 1.25rem;
@@ -380,7 +380,7 @@ body {
 }
 
 .nav-underline .nav-link::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: -1px;
   left: 1.25rem;
@@ -435,7 +435,9 @@ body {
   color: var(--text-secondary);
 }
 
-[data-theme="dark"] .nav-tabs .nav-link:hover:not(.active):not(.disabled)::after {
+[data-theme="dark"]
+  .nav-tabs
+  .nav-link:hover:not(.active):not(.disabled)::after {
   background-color: var(--text-secondary);
 }
 
@@ -484,7 +486,9 @@ body {
   color: var(--text-primary);
 }
 
-[data-theme="dark"] .nav-underline .nav-link:hover:not(.active):not(.disabled)::after {
+[data-theme="dark"]
+  .nav-underline
+  .nav-link:hover:not(.active):not(.disabled)::after {
   background-color: var(--text-secondary);
 }
 

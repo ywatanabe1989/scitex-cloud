@@ -6,149 +6,144 @@ to auto-detect the primary language of a project.
 """
 
 from pathlib import Path
-from typing import Optional, Dict, List
+from typing import Optional, List
 from collections import defaultdict
 
 # Language color mapping from GitHub/GitLab
 LANGUAGE_COLORS = {
-    'Python': '#3572A5',
-    'JavaScript': '#f1e05a',
-    'TypeScript': '#3178c6',
-    'Java': '#b07219',
-    'C': '#555555',
-    'C++': '#f34b7d',
-    'C#': '#239120',
-    'Go': '#00ADD8',
-    'Rust': '#CE422B',
-    'Ruby': '#CC342D',
-    'PHP': '#777BB4',
-    'Swift': '#FA7343',
-    'Kotlin': '#7F52FF',
-    'R': '#198CE7',
-    'MATLAB': '#0E7490',
-    'Julia': '#9558B2',
-    'Scala': '#DC322F',
-    'Haskell': '#5E5086',
-    'Clojure': '#DB5855',
-    'Perl': '#0298C3',
-    'Shell': '#89E051',
-    'HTML': '#E34C26',
-    'CSS': '#563D7C',
-    'SCSS': '#c6538c',
-    'Markdown': '#083fa1',
-    'LaTeX': '#3D6117',
-    'BibTeX': '#2D5F3F',
-    'JSON': '#292929',
-    'YAML': '#CB171E',
-    'XML': '#0D8C55',
-    'SQL': '#336791',
-    'Other': '#858585',
+    "Python": "#3572A5",
+    "JavaScript": "#f1e05a",
+    "TypeScript": "#3178c6",
+    "Java": "#b07219",
+    "C": "#555555",
+    "C++": "#f34b7d",
+    "C#": "#239120",
+    "Go": "#00ADD8",
+    "Rust": "#CE422B",
+    "Ruby": "#CC342D",
+    "PHP": "#777BB4",
+    "Swift": "#FA7343",
+    "Kotlin": "#7F52FF",
+    "R": "#198CE7",
+    "MATLAB": "#0E7490",
+    "Julia": "#9558B2",
+    "Scala": "#DC322F",
+    "Haskell": "#5E5086",
+    "Clojure": "#DB5855",
+    "Perl": "#0298C3",
+    "Shell": "#89E051",
+    "HTML": "#E34C26",
+    "CSS": "#563D7C",
+    "SCSS": "#c6538c",
+    "Markdown": "#083fa1",
+    "LaTeX": "#3D6117",
+    "BibTeX": "#2D5F3F",
+    "JSON": "#292929",
+    "YAML": "#CB171E",
+    "XML": "#0D8C55",
+    "SQL": "#336791",
+    "Other": "#858585",
 }
 
 # File extension to language mapping
 FILE_EXTENSION_MAP = {
     # Python
-    '.py': 'Python',
-    '.pyw': 'Python',
-
+    ".py": "Python",
+    ".pyw": "Python",
     # JavaScript/TypeScript
-    '.js': 'JavaScript',
-    '.jsx': 'JavaScript',
-    '.ts': 'TypeScript',
-    '.tsx': 'TypeScript',
-
+    ".js": "JavaScript",
+    ".jsx": "JavaScript",
+    ".ts": "TypeScript",
+    ".tsx": "TypeScript",
     # Java
-    '.java': 'Java',
-    '.class': 'Java',
-
+    ".java": "Java",
+    ".class": "Java",
     # C/C++
-    '.c': 'C',
-    '.h': 'C',
-    '.cpp': 'C++',
-    '.cc': 'C++',
-    '.cxx': 'C++',
-    '.hpp': 'C++',
-
+    ".c": "C",
+    ".h": "C",
+    ".cpp": "C++",
+    ".cc": "C++",
+    ".cxx": "C++",
+    ".hpp": "C++",
     # C#
-    '.cs': 'C#',
-
+    ".cs": "C#",
     # Go
-    '.go': 'Go',
-
+    ".go": "Go",
     # Rust
-    '.rs': 'Rust',
-
+    ".rs": "Rust",
     # Ruby
-    '.rb': 'Ruby',
-    '.erb': 'Ruby',
-
+    ".rb": "Ruby",
+    ".erb": "Ruby",
     # PHP
-    '.php': 'PHP',
-
+    ".php": "PHP",
     # Swift
-    '.swift': 'Swift',
-
+    ".swift": "Swift",
     # Kotlin
-    '.kt': 'Kotlin',
-    '.kts': 'Kotlin',
-
+    ".kt": "Kotlin",
+    ".kts": "Kotlin",
     # R
-    '.r': 'R',
-    '.R': 'R',
-
+    ".r": "R",
+    ".R": "R",
     # MATLAB
-    '.m': 'MATLAB',
-
+    ".m": "MATLAB",
     # Julia
-    '.jl': 'Julia',
-
+    ".jl": "Julia",
     # Scala
-    '.scala': 'Scala',
-
+    ".scala": "Scala",
     # Haskell
-    '.hs': 'Haskell',
-
+    ".hs": "Haskell",
     # Clojure
-    '.clj': 'Clojure',
-    '.cljs': 'Clojure',
-
+    ".clj": "Clojure",
+    ".cljs": "Clojure",
     # Perl
-    '.pl': 'Perl',
-
+    ".pl": "Perl",
     # Shell
-    '.sh': 'Shell',
-    '.bash': 'Shell',
-    '.zsh': 'Shell',
-
+    ".sh": "Shell",
+    ".bash": "Shell",
+    ".zsh": "Shell",
     # Markup
-    '.html': 'HTML',
-    '.htm': 'HTML',
-    '.css': 'CSS',
-    '.scss': 'SCSS',
-    '.sass': 'SCSS',
-    '.md': 'Markdown',
-    '.markdown': 'Markdown',
-    '.tex': 'LaTeX',
-    '.latex': 'LaTeX',
-    '.bib': 'BibTeX',
-
+    ".html": "HTML",
+    ".htm": "HTML",
+    ".css": "CSS",
+    ".scss": "SCSS",
+    ".sass": "SCSS",
+    ".md": "Markdown",
+    ".markdown": "Markdown",
+    ".tex": "LaTeX",
+    ".latex": "LaTeX",
+    ".bib": "BibTeX",
     # Data/Config
-    '.json': 'JSON',
-    '.yaml': 'YAML',
-    '.yml': 'YAML',
-    '.xml': 'XML',
-    '.sql': 'SQL',
+    ".json": "JSON",
+    ".yaml": "YAML",
+    ".yml": "YAML",
+    ".xml": "XML",
+    ".sql": "SQL",
 }
 
 # Files to ignore when detecting language
 IGNORE_PATTERNS = {
-    '.git', '__pycache__', 'node_modules', '.venv', 'venv',
-    '.env', '.idea', '.vscode', 'dist', 'build', '.DS_Store',
-    'scitex', 'docs', 'data', 'results', 'temp'
+    ".git",
+    "__pycache__",
+    "node_modules",
+    ".venv",
+    "venv",
+    ".env",
+    ".idea",
+    ".vscode",
+    "dist",
+    "build",
+    ".DS_Store",
+    "scitex",
+    "docs",
+    "data",
+    "results",
+    "temp",
 }
 
 
-def detect_language_from_files(project_path: Path, max_files: int = 1000) -> Optional[str]:
+def detect_language_from_files(
+    project_path: Path, max_files: int = 1000
+) -> Optional[str]:
     """
     Detect the primary programming language of a project by analyzing file extensions.
 
@@ -166,7 +161,7 @@ def detect_language_from_files(project_path: Path, max_files: int = 1000) -> Opt
     file_count = 0
 
     try:
-        for path in project_path.rglob('*'):
+        for path in project_path.rglob("*"):
             if file_count >= max_files:
                 break
 
@@ -196,10 +191,10 @@ def detect_language_from_files(project_path: Path, max_files: int = 1000) -> Opt
 def get_language_color(language: Optional[str]) -> str:
     """Get the color hex code for a language."""
     if language is None:
-        language = 'Other'
-    return LANGUAGE_COLORS.get(language, LANGUAGE_COLORS['Other'])
+        language = "Other"
+    return LANGUAGE_COLORS.get(language, LANGUAGE_COLORS["Other"])
 
 
 def get_all_languages() -> List[tuple]:
     """Get all supported languages as tuples for Django choices."""
-    return sorted(set(LANGUAGE_COLORS.keys()), key=lambda x: (x == 'Other', x))
+    return sorted(set(LANGUAGE_COLORS.keys()), key=lambda x: (x == "Other", x))

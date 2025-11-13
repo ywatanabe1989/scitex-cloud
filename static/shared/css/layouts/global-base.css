@@ -1,0 +1,139 @@
+/**
+ * @component Global Base Layout
+ * @description Base layout styles for global_base.html template
+ * @category Layouts
+ * @file /static/shared/css/layouts/global-base.css
+ * @darkmode true
+ */
+
+/* =========================
+   Body Layout
+   ========================= */
+
+body {
+  background-color: var(--bg-page);
+  color: var(--text-primary);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* =========================
+   Main Content Area
+   ========================= */
+
+#main-content {
+  flex: 1;
+}
+
+/* =========================
+   Django Messages Container
+   ========================= */
+
+.django-messages-container {
+  margin-top: var(--spacing-md);
+}
+
+/* =========================
+   Django Alert Styles
+   ========================= */
+
+.django-alert {
+  position: relative;
+  padding: 1rem 3rem 1rem 1rem;
+  margin-bottom: var(--spacing-md);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Alert variants using Bootstrap-compatible classes */
+.alert-success {
+  background-color: var(--success-color);
+  color: white;
+  border: 1px solid var(--success-color);
+}
+
+.alert-danger {
+  background-color: var(--error-color);
+  color: white;
+  border: 1px solid var(--error-color);
+}
+
+.alert-warning {
+  background-color: var(--warning-color);
+  color: white;
+  border: 1px solid var(--warning-color);
+}
+
+.alert-info {
+  background-color: var(--info-color);
+  color: white;
+  border: 1px solid var(--info-color);
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] .alert-success,
+[data-theme="dark"] .alert-danger,
+[data-theme="dark"] .alert-warning,
+[data-theme="dark"] .alert-info {
+  /* Colors remain consistent with button variants */
+  opacity: 0.95;
+}
+
+/* =========================
+   Alert Close Button
+   ========================= */
+
+.alert-close-btn {
+  position: absolute;
+  top: 50%;
+  right: 1rem;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  opacity: 0.5;
+  line-height: 1;
+  color: inherit;
+  transition: opacity 0.2s ease;
+  padding: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.alert-close-btn:hover {
+  opacity: 1;
+}
+
+.alert-close-btn:focus {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* Fade out animation for dismissing alerts */
+.alert-dismissing {
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+}
+
+/* =========================
+   Responsive Adjustments
+   ========================= */
+
+@media (max-width: 768px) {
+  .django-alert {
+    padding: 0.875rem 2.5rem 0.875rem 0.875rem;
+    font-size: 0.9rem;
+  }
+
+  .alert-close-btn {
+    right: 0.75rem;
+    font-size: 1.25rem;
+  }
+}

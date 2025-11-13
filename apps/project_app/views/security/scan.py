@@ -11,6 +11,7 @@ from django.core.paginator import Paginator
 import logging
 
 from apps.project_app.models import Project
+
 # TODO: Fix when security models are properly structured
 # from apps.project_app.models.security import SecurityScanResult
 from apps.project_app.services.security_scanning import SecurityScanner
@@ -30,23 +31,23 @@ def security_scan_history(request, username, slug):
         return HttpResponseForbidden("You don't have permission to view this project")
 
     # Get scan history
-    scans = SecurityScanResult.objects.filter(project=project).order_by('-started_at')
+    scans = SecurityScanResult.objects.filter(project=project).order_by("-started_at")
 
     # Pagination
     paginator = Paginator(scans, 25)
-    page_number = request.GET.get('page')
+    page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
     context = {
-        'project': project,
-        'page_obj': page_obj,
+        "project": project,
+        "page_obj": page_obj,
     }
 
-    return render(request, 'project_app/security/scan_history.html', context)
+    return render(request, "project_app/security/scan_history.html", context)
 
 
 @login_required
-@require_http_methods(['POST'])
+@require_http_methods(["POST"])
 def trigger_security_scan(request, username, slug):
     """
     Trigger a security scan for the project
@@ -55,7 +56,7 @@ def trigger_security_scan(request, username, slug):
 
     # Check permissions
     if not project.can_edit(request.user):
-        return JsonResponse({'error': 'Permission denied'}, status=403)
+        return JsonResponse({"error": "Permission denied"}, status=403)
 
     try:
         # Create scanner and run scan
@@ -64,21 +65,23 @@ def trigger_security_scan(request, username, slug):
 
         messages.success(
             request,
-            f"Security scan completed. Found {results['critical'] + results['high']} critical/high severity issues."
+            f"Security scan completed. Found {results['critical'] + results['high']} critical/high severity issues.",
         )
 
-        return JsonResponse({
-            'success': True,
-            'scan_id': results.get('scan_id'),
-            'alerts': {
-                'critical': results['critical'],
-                'high': results['high'],
-                'medium': results['medium'],
-                'low': results['low'],
-            },
-            'duration': results.get('duration', 0),
-        })
+        return JsonResponse(
+            {
+                "success": True,
+                "scan_id": results.get("scan_id"),
+                "alerts": {
+                    "critical": results["critical"],
+                    "high": results["high"],
+                    "medium": results["medium"],
+                    "low": results["low"],
+                },
+                "duration": results.get("duration", 0),
+            }
+        )
 
     except Exception as e:
         logger.error(f"Security scan failed: {e}")
-        return JsonResponse({'error': str(e)}, status=500)
+        return JsonResponse({"error": str(e)}, status=500)

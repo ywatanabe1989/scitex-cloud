@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("scholar_app", "0012_bibtexenrichmentjob_original_filename_and_more"),
     ]

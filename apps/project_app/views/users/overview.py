@@ -5,6 +5,7 @@ User Overview View
 
 Display user profile overview.
 """
+
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.models import User
 
@@ -23,7 +24,7 @@ def user_overview(request, username):
     recent_projects = recent_projects.order_by("-updated_at")[:6]
 
     # Get social stats
-    from apps.social_app.models import UserFollow, RepositoryStar
+    from apps.social_app.models import UserFollow
 
     followers_count = UserFollow.get_followers_count(user)
     following_count = UserFollow.get_following_count(user)

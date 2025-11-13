@@ -3,8 +3,8 @@
 Screenshot comparison script for GitHub vs Local SciTeX
 Takes screenshots of specified pages and saves them for comparison
 """
+
 import asyncio
-import os
 from pathlib import Path
 from playwright.async_api import async_playwright
 
@@ -48,14 +48,20 @@ async def take_screenshots():
 
             # GitHub screenshot
             print(f"Taking GitHub screenshot: {pair['github']}")
-            github_context = await browser.new_context(viewport={"width": 1920, "height": 1080})
+            github_context = await browser.new_context(
+                viewport={"width": 1920, "height": 1080}
+            )
             github_page = await github_context.new_page()
 
             try:
-                await github_page.goto(pair['github'], wait_until='networkidle', timeout=30000)
+                await github_page.goto(
+                    pair["github"], wait_until="networkidle", timeout=30000
+                )
                 await github_page.wait_for_timeout(2000)  # Wait for animations
                 github_screenshot_path = OUTPUT_DIR / f"{pair['name']}_github.png"
-                await github_page.screenshot(path=str(github_screenshot_path), full_page=True)
+                await github_page.screenshot(
+                    path=str(github_screenshot_path), full_page=True
+                )
                 print(f"  Saved: {github_screenshot_path}")
             except Exception as e:
                 print(f"  Error taking GitHub screenshot: {e}")
@@ -64,20 +70,26 @@ async def take_screenshots():
 
             # Local screenshot (with login)
             print(f"Taking local screenshot: {pair['local']}")
-            local_context = await browser.new_context(viewport={"width": 1920, "height": 1080})
+            local_context = await browser.new_context(
+                viewport={"width": 1920, "height": 1080}
+            )
             local_page = await local_context.new_page()
 
             try:
                 # First, try to access the page
-                response = await local_page.goto(pair['local'], wait_until='domcontentloaded', timeout=30000)
+                response = await local_page.goto(
+                    pair["local"], wait_until="domcontentloaded", timeout=30000
+                )
 
                 # Check if we're redirected to login
                 current_url = local_page.url
-                if '/login' in current_url or response.status == 401:
+                if "/login" in current_url or response.status == 401:
                     print("  Login required, attempting login...")
 
                     # Fill login form
-                    await local_page.wait_for_selector('input[name="username"]', timeout=5000)
+                    await local_page.wait_for_selector(
+                        'input[name="username"]', timeout=5000
+                    )
                     await local_page.fill('input[name="username"]', LOCAL_USERNAME)
                     await local_page.fill('input[name="password"]', LOCAL_PASSWORD)
 
@@ -85,14 +97,18 @@ async def take_screenshots():
                     await local_page.click('button[type="submit"]')
 
                     # Wait for navigation
-                    await local_page.wait_for_load_state('networkidle', timeout=10000)
+                    await local_page.wait_for_load_state("networkidle", timeout=10000)
 
                     # Navigate to the target page again
-                    await local_page.goto(pair['local'], wait_until='networkidle', timeout=30000)
+                    await local_page.goto(
+                        pair["local"], wait_until="networkidle", timeout=30000
+                    )
 
                 await local_page.wait_for_timeout(2000)  # Wait for animations
                 local_screenshot_path = OUTPUT_DIR / f"{pair['name']}_local.png"
-                await local_page.screenshot(path=str(local_screenshot_path), full_page=True)
+                await local_page.screenshot(
+                    path=str(local_screenshot_path), full_page=True
+                )
                 print(f"  Saved: {local_screenshot_path}")
 
                 # Also capture the page title and URL for comparison
@@ -104,8 +120,12 @@ async def take_screenshots():
                 print(f"  Error taking local screenshot: {e}")
                 # Take screenshot anyway to see what's happening
                 try:
-                    error_screenshot_path = OUTPUT_DIR / f"{pair['name']}_local_error.png"
-                    await local_page.screenshot(path=str(error_screenshot_path), full_page=True)
+                    error_screenshot_path = (
+                        OUTPUT_DIR / f"{pair['name']}_local_error.png"
+                    )
+                    await local_page.screenshot(
+                        path=str(error_screenshot_path), full_page=True
+                    )
                     print(f"  Error screenshot saved: {error_screenshot_path}")
                 except:
                     pass

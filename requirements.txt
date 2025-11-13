@@ -44,6 +44,7 @@ whitenoise==6.11.0
 # Development tools (optional in production)
 ipython==8.22.2
 django-debug-toolbar==6.0.0
+djlint --break-system-packages
 
 # Monitoring and logging
 sentry-sdk==1.45.0

@@ -2,7 +2,9 @@
  * Keyboard event utilities
  */
 
-console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/utils/keyboard.utils.ts loaded");
+console.log(
+  "[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/utils/keyboard.utils.ts loaded",
+);
 export interface KeyboardShortcut {
   key: string;
   ctrl?: boolean;
@@ -23,7 +25,7 @@ export function matchesShortcut(
     shift?: boolean;
     alt?: boolean;
     meta?: boolean;
-  }
+  },
 ): boolean {
   const keyMatch = event.key.toLowerCase() === key.toLowerCase();
   const ctrlMatch = (options?.ctrl ?? false) === event.ctrlKey;
@@ -52,10 +54,10 @@ export function registerShortcut(shortcut: KeyboardShortcut): () => void {
     }
   };
 
-  document.addEventListener('keydown', handler);
+  document.addEventListener("keydown", handler);
 
   // Return unregister function
-  return () => document.removeEventListener('keydown', handler);
+  return () => document.removeEventListener("keydown", handler);
 }
 
 /**
@@ -64,20 +66,23 @@ export function registerShortcut(shortcut: KeyboardShortcut): () => void {
 export function formatShortcut(shortcut: KeyboardShortcut): string {
   const parts: string[] = [];
 
-  if (shortcut.ctrl) parts.push('Ctrl');
-  if (shortcut.alt) parts.push('Alt');
-  if (shortcut.shift) parts.push('Shift');
-  if (shortcut.meta) parts.push('Meta');
+  if (shortcut.ctrl) parts.push("Ctrl");
+  if (shortcut.alt) parts.push("Alt");
+  if (shortcut.shift) parts.push("Shift");
+  if (shortcut.meta) parts.push("Meta");
 
   parts.push(shortcut.key.toUpperCase());
 
-  return parts.join('+');
+  return parts.join("+");
 }
 
 /**
  * Check if event is from input element
  */
 export function isInputElement(element: Element): boolean {
-  const inputElements = ['INPUT', 'TEXTAREA', 'SELECT'];
-  return inputElements.includes(element.tagName) || element.getAttribute('contenteditable') === 'true';
+  const inputElements = ["INPUT", "TEXTAREA", "SELECT"];
+  return (
+    inputElements.includes(element.tagName) ||
+    element.getAttribute("contenteditable") === "true"
+  );
 }

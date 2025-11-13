@@ -16,64 +16,65 @@
 
 /* Slide animations - for panels, modals, sidebars */
 @keyframes slideIn {
-    from {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 @keyframes slideOut {
-    from {
-        transform: translateX(0);
-        opacity: 1;
-    }
-    to {
-        transform: translateX(100%);
-        opacity: 0;
-    }
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
 }
 
 /* Fade animations */
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes fadeOut {
-    from {
-        opacity: 1;
-    }
-    to {
-        opacity: 0;
-    }
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
 
 /* Pulse animation - for loading indicators */
 @keyframes pulse {
-    0%, 100% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0.5;
-    }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 /* Spin animation - for loading spinners */
 @keyframes spin {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* =============================================================================
@@ -82,78 +83,78 @@
 
 /* Visibility utilities */
 .u-hidden {
-    display: none !important;
+  display: none !important;
 }
 
 .u-visible {
-    display: block !important;
+  display: block !important;
 }
 
 .u-invisible {
-    visibility: hidden !important;
+  visibility: hidden !important;
 }
 
 /* Screen reader only */
 .u-sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border-width: 0;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }
 
 /* Text utilities */
 .u-text-truncate {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .u-text-break {
-    word-break: break-word;
-    overflow-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 /* Flexbox utilities */
 .u-flex {
-    display: flex !important;
+  display: flex !important;
 }
 
 .u-flex-column {
-    flex-direction: column !important;
+  flex-direction: column !important;
 }
 
 .u-flex-wrap {
-    flex-wrap: wrap !important;
+  flex-wrap: wrap !important;
 }
 
 .u-flex-center {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
 .u-flex-between {
-    display: flex !important;
-    justify-content: space-between !important;
+  display: flex !important;
+  justify-content: space-between !important;
 }
 
 .u-flex-end {
-    display: flex !important;
-    justify-content: flex-end !important;
+  display: flex !important;
+  justify-content: flex-end !important;
 }
 
 /* Pointer utilities */
 .u-pointer {
-    cursor: pointer !important;
+  cursor: pointer !important;
 }
 
 .u-not-allowed {
-    cursor: not-allowed !important;
+  cursor: not-allowed !important;
 }
 
 /* =============================================================================
@@ -162,115 +163,115 @@
 
 /* Loading indicator */
 .loading {
-    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 /* Loading spinner */
 .spinner {
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    border: 2px solid var(--color-border-default);
-    border-top-color: var(--color-accent-emphasis);
-    border-radius: 50%;
-    animation: spin 0.6s linear infinite;
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--color-border-default);
+  border-top-color: var(--color-accent-emphasis);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
 }
 
 .spinner--lg {
-    width: 32px;
-    height: 32px;
-    border-width: 3px;
+  width: 32px;
+  height: 32px;
+  border-width: 3px;
 }
 
 /* Empty state */
 .empty-state {
-    padding: var(--space-12) var(--space-4);
-    text-align: center;
-    color: var(--color-fg-muted);
+  padding: var(--space-12) var(--space-4);
+  text-align: center;
+  color: var(--color-fg-muted);
 }
 
 .empty-state__icon {
-    font-size: 48px;
-    margin-bottom: var(--space-4);
-    opacity: 0.5;
+  font-size: 48px;
+  margin-bottom: var(--space-4);
+  opacity: 0.5;
 }
 
 .empty-state__title {
-    font-size: var(--font-size-lg);
-    font-weight: var(--font-weight-semibold);
-    color: var(--color-fg-default);
-    margin-bottom: var(--space-2);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-default);
+  margin-bottom: var(--space-2);
 }
 
 .empty-state__description {
-    font-size: var(--font-size-base);
-    color: var(--color-fg-muted);
+  font-size: var(--font-size-base);
+  color: var(--color-fg-muted);
 }
 
 /* Divider */
 .divider {
-    height: 1px;
-    background-color: var(--color-border-default);
-    border: none;
-    margin: var(--space-4) 0;
+  height: 1px;
+  background-color: var(--color-border-default);
+  border: none;
+  margin: var(--space-4) 0;
 }
 
 .divider--vertical {
-    width: 1px;
-    height: auto;
-    margin: 0 var(--space-4);
+  width: 1px;
+  height: auto;
+  margin: 0 var(--space-4);
 }
 
 /* Avatar */
 .avatar {
-    display: inline-block;
-    width: var(--avatar-size-md);
-    height: var(--avatar-size-md);
-    border-radius: 50%;
-    object-fit: cover;
+  display: inline-block;
+  width: var(--avatar-size-md);
+  height: var(--avatar-size-md);
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .avatar--sm {
-    width: var(--avatar-size-sm);
-    height: var(--avatar-size-sm);
+  width: var(--avatar-size-sm);
+  height: var(--avatar-size-sm);
 }
 
 .avatar--lg {
-    width: var(--avatar-size-lg);
-    height: var(--avatar-size-lg);
+  width: var(--avatar-size-lg);
+  height: var(--avatar-size-lg);
 }
 
 .avatar--xl {
-    width: var(--avatar-size-xl);
-    height: var(--avatar-size-xl);
+  width: var(--avatar-size-xl);
+  height: var(--avatar-size-xl);
 }
 
 /* Tooltip */
 .tooltip {
-    position: relative;
-    display: inline-block;
+  position: relative;
+  display: inline-block;
 }
 
 .tooltip__content {
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: var(--space-1) var(--space-2);
-    margin-bottom: var(--space-1);
-    background-color: var(--color-fg-default);
-    color: var(--color-canvas-default);
-    font-size: var(--font-size-xs);
-    white-space: nowrap;
-    border-radius: var(--border-radius-1);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity var(--transition-duration-fast);
-    z-index: var(--z-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: var(--space-1) var(--space-2);
+  margin-bottom: var(--space-1);
+  background-color: var(--color-fg-default);
+  color: var(--color-canvas-default);
+  font-size: var(--font-size-xs);
+  white-space: nowrap;
+  border-radius: var(--border-radius-1);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-duration-fast);
+  z-index: var(--z-tooltip);
 }
 
 .tooltip:hover .tooltip__content {
-    opacity: 1;
+  opacity: 1;
 }
 
 /* =============================================================================
@@ -279,6 +280,5 @@
 
 /* Add top margin spacing after repository tabs (code, issues, pulls, settings tabs) */
 .tab-content-spacing {
-    margin-top: 1rem;
+  margin-top: 1rem;
 }
-

@@ -1,11 +1,17 @@
 {% extends "public_app/cloud_base.html" %}
-
-{% block title %}Submit a Feature Request - SciTeX{% endblock %}
-
-{% block meta_description %}Submit your ideas for new features or improvements to SciTeX. Help shape the future of our open scientific research ecosystem by contributing your suggestions.{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.css">
+{% block title %}
+    Submit a Feature
+    Request - SciTeX
+{% endblock %}
+{% block meta_description %}
+    Submit your ideas for
+    new features or improvements to SciTeX. Help shape the future of our open
+    scientific research ecosystem by contributing your suggestions.
+{% endblock %}
+{%
+block extra_css %}
+<link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.css" />
 <style>
   .feature-header {
     background-color: #eef2ff;
@@ -24,7 +30,7 @@
   .feature-card {
     background-color: #fff;
     border-radius: 8px;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
     padding: 1.5rem;
     transition: transform 0.3s ease;
     height: 100%;
@@ -33,7 +39,7 @@
   }
   .feature-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
   }
   .feature-icon {
     font-size: 2.5rem;
@@ -47,7 +53,7 @@
   .feature-form {
     background-color: #fff;
     border-radius: 8px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     padding: 2rem;
     margin-bottom: 2rem;
   }
@@ -147,7 +153,7 @@
     text-align: center;
     margin-top: 2rem;
   }
-  
+
   @media (max-width: 768px) {
     .feature-grid {
       grid-template-columns: 1fr;
@@ -155,254 +161,289 @@
   }
 </style>
 {% endblock %}
-
 {% block content %}
-<div class="feature-header">
-  <div class="container">
-    <h1 class="display-4 text-center">Feature Request</h1>
-    <p class="lead text-center">Help shape the future of SciTeX by submitting your ideas</p>
-  </div>
-</div>
-
-<div class="container">
-  <!-- Introduction -->
-  <section class="feature-section">
-    <div class="row">
-      <div class="col-lg-8 mx-auto">
-        <p class="lead">
-          As an open source community project, SciTeX is driven by the needs and ideas of researchers and developers like you. Your input directly influences our development priorities and helps us build tools that truly serve the scientific community.
-        </p>
-        <div class="feature-tips">
-          <h3>Why Submit Feature Requests?</h3>
-          <div class="feature-tip-item">Your ideas help prioritize what gets built next</div>
-          <div class="feature-tip-item">Features with community support get implemented faster</div>
-          <div class="feature-tip-item">You help improve the research experience for all scientists</div>
-          <div class="feature-tip-item">Contributors can help implement their own feature requests</div>
+    <div class="feature-header">
+        <div class="container">
+            <h1 class="display-4 text-center">Feature Request</h1>
+            <p class="lead text-center">Help shape the future of SciTeX by submitting your ideas</p>
         </div>
-      </div>
     </div>
-  </section>
-
-  <!-- Feature Request Form -->
-  <section class="feature-section">
-    <div class="row">
-      <div class="col-lg-8 mx-auto">
-        <div class="feature-form">
-          <h2>Submit Your Feature Request</h2>
-          
-          <!-- Success/Error Messages (would be shown via Django template logic) -->
-          <div class="form-message success" style="display: none;">
-            <p><strong>Thank you for your submission!</strong> Your feature request has been received and will be reviewed by our team.</p>
-          </div>
-          
-          <form id="feature-request-form">
-            <div class="form-group mb-3">
-              <label for="title" class="form-label">Feature Title</label>
-              <input type="text" class="form-control" id="title" placeholder="A short, descriptive title for your feature request" required>
-              <div class="form-text">Keep it concise and specific (e.g., "LaTeX template for Nature journal")</div>
+    <div class="container">
+        <!-- Introduction -->
+        <section class="feature-section">
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <p class="lead">
+                        As an open source community project, SciTeX is driven by the needs and
+                        ideas of researchers and developers like you. Your input directly
+                        influences our development priorities and helps us build tools that
+                        truly serve the scientific community.
+                    </p>
+                    <div class="feature-tips">
+                        <h3>Why Submit Feature Requests?</h3>
+                        <div class="feature-tip-item">Your ideas help prioritize what gets built next</div>
+                        <div class="feature-tip-item">Features with community support get implemented faster</div>
+                        <div class="feature-tip-item">You help improve the research experience for all scientists</div>
+                        <div class="feature-tip-item">Contributors can help implement their own feature requests</div>
+                    </div>
+                </div>
             </div>
-            
-            <div class="form-group mb-3">
-              <label for="description" class="form-label">Description</label>
-              <textarea class="form-control" id="description" rows="4" placeholder="Describe the feature and how it would work" required></textarea>
-              <div class="form-text">Explain what the feature does and why it would be valuable</div>
+        </section>
+        <!-- Feature Request Form -->
+        <section class="feature-section">
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <div class="feature-form">
+                        <h2>Submit Your Feature Request</h2>
+                        <!-- Success/Error Messages (would be shown via Django template logic) -->
+                        <div class="form-message success" style="display: none">
+                            <p>
+                                <strong>Thank you for your submission!</strong> Your feature
+                                request has been received and will be reviewed by our team.
+                            </p>
+                        </div>
+                        <form id="feature-request-form">
+                            <div class="form-group mb-3">
+                                <label for="title" class="form-label">Feature Title</label>
+                                <input type="text"
+                                       class="form-control"
+                                       id="title"
+                                       placeholder="A short, descriptive title for your feature request"
+                                       required />
+                                <div class="form-text">
+                                    Keep it concise and specific (e.g., "LaTeX template for Nature
+                                    journal")
+                                </div>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="description" class="form-label">Description</label>
+                                <textarea class="form-control"
+                                          id="description"
+                                          rows="4"
+                                          placeholder="Describe the feature and how it would work"
+                                          required></textarea>
+                                <div class="form-text">Explain what the feature does and why it would be valuable</div>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="use-case" class="form-label">Use Case</label>
+                                <textarea class="form-control"
+                                          id="use-case"
+                                          rows="3"
+                                          placeholder="Describe how you would use this feature in your research workflow"></textarea>
+                                <div class="form-text">
+                                    Help us understand the real-world problem this feature would
+                                    solve
+                                </div>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="category" class="form-label">Category</label>
+                                <select class="form-select" id="category" required>
+                                    <option value="" selected disabled>Select a category</option>
+                                    <option value="cloud">SciTeX Cloud</option>
+                                    <option value="code">SciTeX Code</option>
+                                    <option value="doc">SciTeX Doc</option>
+                                    <option value="engine">SciTeX Engine</option>
+                                    <option value="viz">SciTeX Viz</option>
+                                    <option value="search">SciTeX Search</option>
+                                    <option value="integration">Integration</option>
+                                    <option value="ui">User Interface</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="priority" class="form-label">Priority</label>
+                                <select class="form-select" id="priority">
+                                    <option value="low">Low - Nice to have</option>
+                                    <option value="medium" selected>Medium - Important</option>
+                                    <option value="high">High - Critical</option>
+                                </select>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="email" class="form-label">Your Email (optional)</label>
+                                <input type="email"
+                                       class="form-control"
+                                       id="email"
+                                       placeholder="your.email@example.com" />
+                                <div class="form-text">We'll notify you about updates to this feature request</div>
+                            </div>
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="contribute" />
+                                <label class="form-check-label" for="contribute">
+                                    I'm interested in contributing to the implementation of this
+                                    feature
+                                </label>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Submit Feature Request</button>
+                        </form>
+                    </div>
+                </div>
             </div>
-            
-            <div class="form-group mb-3">
-              <label for="use-case" class="form-label">Use Case</label>
-              <textarea class="form-control" id="use-case" rows="3" placeholder="Describe how you would use this feature in your research workflow"></textarea>
-              <div class="form-text">Help us understand the real-world problem this feature would solve</div>
+        </section>
+        <!-- Popular Feature Requests -->
+        <section class="feature-section">
+            <h2 class="text-center mb-4">Popular Feature Requests</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3 class="feature-title">Real-time Collaborative LaTeX Editing</h3>
+                    <p>
+                        Google Docs-style collaborative editing for LaTeX documents with
+                        presence indicators and real-time updates.
+                    </p>
+                    <div>
+                        <span class="category-label">SciTeX Doc</span>
+                        <span class="status-indicator status-progress">In Progress</span>
+                    </div>
+                    <div class="votes">
+                        <span class="vote-count">42</span>
+                        <button class="vote-btn voted">
+                            <i class="fas fa-thumbs-up"></i> Upvoted
+                        </button>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <h3 class="feature-title">Journal Template Library Expansion</h3>
+                    <p>
+                        Add templates for Nature journals, IEEE, and more specialized
+                        scientific publications with automatic formatting.
+                    </p>
+                    <div>
+                        <span class="category-label">SciTeX Doc</span>
+                        <span class="status-indicator status-planned">Planned</span>
+                    </div>
+                    <div class="votes">
+                        <span class="vote-count">38</span>
+                        <button class="vote-btn">
+                            <i class="fas fa-thumbs-up"></i> Upvote
+                        </button>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <h3 class="feature-title">AI-Powered Literature Review Assistant</h3>
+                    <p>
+                        Automatically search, summarize, and organize relevant papers for your
+                        research domain.
+                    </p>
+                    <div>
+                        <span class="category-label">SciTeX Engine</span>
+                        <span class="category-label">SciTeX Search</span>
+                        <span class="status-indicator status-review">In Review</span>
+                    </div>
+                    <div class="votes">
+                        <span class="vote-count">37</span>
+                        <button class="vote-btn">
+                            <i class="fas fa-thumbs-up"></i> Upvote
+                        </button>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <h3 class="feature-title">Interactive Figure Builder</h3>
+                    <p>
+                        WYSIWYG interface for creating publication-quality figures with
+                        customizable templates and interactive elements.
+                    </p>
+                    <div>
+                        <span class="category-label">SciTeX Viz</span>
+                        <span class="status-indicator status-progress">In Progress</span>
+                    </div>
+                    <div class="votes">
+                        <span class="vote-count">29</span>
+                        <button class="vote-btn">
+                            <i class="fas fa-thumbs-up"></i> Upvote
+                        </button>
+                    </div>
+                </div>
             </div>
-            
-            <div class="form-group mb-3">
-              <label for="category" class="form-label">Category</label>
-              <select class="form-select" id="category" required>
-                <option value="" selected disabled>Select a category</option>
-                <option value="cloud">SciTeX Cloud</option>
-                <option value="code">SciTeX Code</option>
-                <option value="doc">SciTeX Doc</option>
-                <option value="engine">SciTeX Engine</option>
-                <option value="viz">SciTeX Viz</option>
-                <option value="search">SciTeX Search</option>
-                <option value="integration">Integration</option>
-                <option value="ui">User Interface</option>
-                <option value="other">Other</option>
-              </select>
+            <div class="view-all">
+                <a href="#" class="btn btn-outline-primary">View All Feature Requests</a>
             </div>
-            
-            <div class="form-group mb-3">
-              <label for="priority" class="form-label">Priority</label>
-              <select class="form-select" id="priority">
-                <option value="low">Low - Nice to have</option>
-                <option value="medium" selected>Medium - Important</option>
-                <option value="high">High - Critical</option>
-              </select>
+        </section>
+        <!-- Development Roadmap -->
+        <section class="feature-section">
+            <h2 class="text-center mb-4">Development Roadmap</h2>
+            <p class="text-center mb-4">Here's what we're working on now and planning for the future</p>
+            <div class="mermaid">
+                gantt title SciTeX Development Timeline dateFormat YYYY-MM-DD section
+                SciTeX-Cloud Web Interface :done, cloud1, 2025-01-01, 90d User
+                Authentication :done, cloud2, after cloud1, 60d Collaboration Features
+                :active, cloud3, after cloud2, 90d API Integration : cloud4, after cloud3,
+                120d section SciTeX-Doc LaTeX Compilation :done, doc1, 2025-01-01, 120d
+                Document Templates :done, doc2, after doc1, 60d Revision System :active,
+                doc3, after doc2, 90d Bibliography Management: doc4, after doc3, 60d
+                section SciTeX-Code Analysis Framework :active, code1, 2025-04-01, 120d
+                Data Visualization : code2, after code1, 90d Notebook Integration : code3,
+                after code2, 60d section SciTeX-Search Basic Search :done, search1,
+                2025-04-01, 60d Semantic Understanding :active, search2, after search1,
+                90d Citation Network : search3, after search2, 60d section SciTeX-Engine
+                Emacs Integration : engine1, 2025-07-01, 90d AI Assistant : engine2, after
+                engine1, 120d section SciTeX-Viz Figure Generation :active, viz1,
+                2025-04-01, 90d Interactive Plots : viz2, after viz1, 60d
             </div>
-            
-            <div class="form-group mb-3">
-              <label for="email" class="form-label">Your Email (optional)</label>
-              <input type="email" class="form-control" id="email" placeholder="your.email@example.com">
-              <div class="form-text">We'll notify you about updates to this feature request</div>
+            <div class="text-center mt-4">
+                <a href="{% url 'roadmap' %}" class="btn btn-primary">View Detailed Roadmap</a>
             </div>
-            
-            <div class="form-check mb-3">
-              <input class="form-check-input" type="checkbox" id="contribute">
-              <label class="form-check-label" for="contribute">
-                I'm interested in contributing to the implementation of this feature
-              </label>
+        </section>
+        <!-- Contribution Process -->
+        <section class="feature-section">
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <h2 class="text-center mb-4">How We Handle Feature Requests</h2>
+                    <div class="feature-tips">
+                        <h4>Our Process:</h4>
+                        <ol>
+                            <li>
+                                <strong>Submission</strong>: You submit your feature request using
+                                the form above
+                            </li>
+                            <li>
+                                <strong>Review</strong>: Our team reviews the request for
+                                feasibility and alignment with our roadmap
+                            </li>
+                            <li>
+                                <strong>Community Voting</strong>: The community votes on feature
+                                requests to indicate priority
+                            </li>
+                            <li>
+                                <strong>Planning</strong>: High-priority features are added to our
+                                development roadmap
+                            </li>
+                            <li>
+                                <strong>Implementation</strong>: Features are developed, often
+                                with community participation
+                            </li>
+                            <li>
+                                <strong>Release</strong>: The feature is released and you're
+                                notified if you provided your email
+                            </li>
+                        </ol>
+                        <p class="mb-0">
+                            Want to help implement features?
+                            <a href="{% url 'repositories' %}">Check out our GitHub repositories</a>
+                            and join our development community!
+                        </p>
+                    </div>
+                </div>
             </div>
-            
-            <button type="submit" class="btn btn-primary">Submit Feature Request</button>
-          </form>
-        </div>
-      </div>
+        </section>
+        <!-- Call to Action -->
+        <section class="feature-section text-center py-5">
+            <h2>Help Shape the Future of Scientific Research</h2>
+            <p class="lead">Your ideas can improve research workflows for scientists worldwide</p>
+            <div class="mt-4">
+                <a href="#feature-request-form" class="btn btn-primary btn-lg mx-2">Submit a Feature Request</a>
+                <a href="{% url 'repositories' %}"
+                   class="btn btn-outline-secondary btn-lg mx-2">Contribute on GitHub</a>
+            </div>
+        </section>
     </div>
-  </section>
-
-  <!-- Popular Feature Requests -->
-  <section class="feature-section">
-    <h2 class="text-center mb-4">Popular Feature Requests</h2>
-    <div class="feature-grid">
-      <div class="feature-card">
-        <h3 class="feature-title">Real-time Collaborative LaTeX Editing</h3>
-        <p>Google Docs-style collaborative editing for LaTeX documents with presence indicators and real-time updates.</p>
-        <div>
-          <span class="category-label">SciTeX Doc</span>
-          <span class="status-indicator status-progress">In Progress</span>
-        </div>
-        <div class="votes">
-          <span class="vote-count">42</span>
-          <button class="vote-btn voted"><i class="fas fa-thumbs-up"></i> Upvoted</button>
-        </div>
-      </div>
-      
-      <div class="feature-card">
-        <h3 class="feature-title">Journal Template Library Expansion</h3>
-        <p>Add templates for Nature journals, IEEE, and more specialized scientific publications with automatic formatting.</p>
-        <div>
-          <span class="category-label">SciTeX Doc</span>
-          <span class="status-indicator status-planned">Planned</span>
-        </div>
-        <div class="votes">
-          <span class="vote-count">38</span>
-          <button class="vote-btn"><i class="fas fa-thumbs-up"></i> Upvote</button>
-        </div>
-      </div>
-      
-      <div class="feature-card">
-        <h3 class="feature-title">AI-Powered Literature Review Assistant</h3>
-        <p>Automatically search, summarize, and organize relevant papers for your research domain.</p>
-        <div>
-          <span class="category-label">SciTeX Engine</span>
-          <span class="category-label">SciTeX Search</span>
-          <span class="status-indicator status-review">In Review</span>
-        </div>
-        <div class="votes">
-          <span class="vote-count">37</span>
-          <button class="vote-btn"><i class="fas fa-thumbs-up"></i> Upvote</button>
-        </div>
-      </div>
-      
-      <div class="feature-card">
-        <h3 class="feature-title">Interactive Figure Builder</h3>
-        <p>WYSIWYG interface for creating publication-quality figures with customizable templates and interactive elements.</p>
-        <div>
-          <span class="category-label">SciTeX Viz</span>
-          <span class="status-indicator status-progress">In Progress</span>
-        </div>
-        <div class="votes">
-          <span class="vote-count">29</span>
-          <button class="vote-btn"><i class="fas fa-thumbs-up"></i> Upvote</button>
-        </div>
-      </div>
-    </div>
-    
-    <div class="view-all">
-      <a href="#" class="btn btn-outline-primary">View All Feature Requests</a>
-    </div>
-  </section>
-
-  <!-- Development Roadmap -->
-  <section class="feature-section">
-    <h2 class="text-center mb-4">Development Roadmap</h2>
-    <p class="text-center mb-4">Here's what we're working on now and planning for the future</p>
-    
-    <div class="mermaid">
-      gantt
-        title SciTeX Development Timeline
-        dateFormat  YYYY-MM-DD
-        section SciTeX-Cloud
-          Web Interface           :done, cloud1, 2025-01-01, 90d
-          User Authentication     :done, cloud2, after cloud1, 60d
-          Collaboration Features  :active, cloud3, after cloud2, 90d
-          API Integration         :       cloud4, after cloud3, 120d
-        section SciTeX-Doc
-          LaTeX Compilation      :done, doc1, 2025-01-01, 120d
-          Document Templates     :done, doc2, after doc1, 60d
-          Revision System        :active, doc3, after doc2, 90d
-          Bibliography Management:       doc4, after doc3, 60d
-        section SciTeX-Code
-          Analysis Framework     :active, code1, 2025-04-01, 120d
-          Data Visualization     :       code2, after code1, 90d
-          Notebook Integration   :       code3, after code2, 60d
-        section SciTeX-Search
-          Basic Search           :done, search1, 2025-04-01, 60d
-          Semantic Understanding :active, search2, after search1, 90d
-          Citation Network       :       search3, after search2, 60d
-        section SciTeX-Engine
-          Emacs Integration      :       engine1, 2025-07-01, 90d
-          AI Assistant           :       engine2, after engine1, 120d
-        section SciTeX-Viz
-          Figure Generation      :active, viz1, 2025-04-01, 90d
-          Interactive Plots      :       viz2, after viz1, 60d
-    </div>
-    
-    <div class="text-center mt-4">
-      <a href="{% url 'roadmap' %}" class="btn btn-primary">View Detailed Roadmap</a>
-    </div>
-  </section>
-
-  <!-- Contribution Process -->
-  <section class="feature-section">
-    <div class="row">
-      <div class="col-lg-8 mx-auto">
-        <h2 class="text-center mb-4">How We Handle Feature Requests</h2>
-        <div class="feature-tips">
-          <h4>Our Process:</h4>
-          <ol>
-            <li><strong>Submission</strong>: You submit your feature request using the form above</li>
-            <li><strong>Review</strong>: Our team reviews the request for feasibility and alignment with our roadmap</li>
-            <li><strong>Community Voting</strong>: The community votes on feature requests to indicate priority</li>
-            <li><strong>Planning</strong>: High-priority features are added to our development roadmap</li>
-            <li><strong>Implementation</strong>: Features are developed, often with community participation</li>
-            <li><strong>Release</strong>: The feature is released and you're notified if you provided your email</li>
-          </ol>
-          <p class="mb-0">Want to help implement features? <a href="{% url 'repositories' %}">Check out our GitHub repositories</a> and join our development community!</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Call to Action -->
-  <section class="feature-section text-center py-5">
-    <h2>Help Shape the Future of Scientific Research</h2>
-    <p class="lead">Your ideas can improve research workflows for scientists worldwide</p>
-    <div class="mt-4">
-      <a href="#feature-request-form" class="btn btn-primary btn-lg mx-2">Submit a Feature Request</a>
-      <a href="{% url 'repositories' %}" class="btn btn-outline-secondary btn-lg mx-2">Contribute on GitHub</a>
-    </div>
-  </section>
-</div>
 {% endblock %}
-
 {% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>
+  document.addEventListener("DOMContentLoaded", function () {
     // Initialize Mermaid.js
     mermaid.initialize({
       startOnLoad: true,
-      theme: 'neutral',
+      theme: "neutral",
       gantt: {
         titleTopMargin: 25,
         barHeight: 20,
@@ -413,54 +454,54 @@
         fontSize: 11,
         fontFamily: '"Open Sans", sans-serif',
         numberSectionStyles: 4,
-        axisFormat: '%b %Y'
-      }
+        axisFormat: "%b %Y",
+      },
     });
-    
+
     // Feature request form handling
-    const featureForm = document.getElementById('feature-request-form');
-    const successMessage = document.querySelector('.form-message.success');
-    
+    const featureForm = document.getElementById("feature-request-form");
+    const successMessage = document.querySelector(".form-message.success");
+
     if (featureForm) {
-      featureForm.addEventListener('submit', function(e) {
+      featureForm.addEventListener("submit", function (e) {
         e.preventDefault();
-        
+
         // In a real implementation, we would send the form data to the server here
         // For now, just show the success message
-        successMessage.style.display = 'block';
+        successMessage.style.display = "block";
         featureForm.reset();
-        
+
         // Scroll to the success message
-        successMessage.scrollIntoView({ behavior: 'smooth' });
+        successMessage.scrollIntoView({ behavior: "smooth" });
       });
     }
-    
+
     // Upvote button handling
-    const voteButtons = document.querySelectorAll('.vote-btn');
-    
-    voteButtons.forEach(button => {
-      button.addEventListener('click', function() {
+    const voteButtons = document.querySelectorAll(".vote-btn");
+
+    voteButtons.forEach((button) => {
+      button.addEventListener("click", function () {
         // Toggle the voted class
-        this.classList.toggle('voted');
-        
+        this.classList.toggle("voted");
+
         // Get the current vote count
         const voteCount = this.previousElementSibling;
         let count = parseInt(voteCount.textContent);
-        
+
         // Update the vote count
-        if (this.classList.contains('voted')) {
+        if (this.classList.contains("voted")) {
           count++;
           this.innerHTML = '<i class="fas fa-thumbs-up"></i> Upvoted';
         } else {
           count--;
           this.innerHTML = '<i class="fas fa-thumbs-up"></i> Upvote';
         }
-        
+
         voteCount.textContent = count;
-        
+
         // In a real implementation, we would send an API request to update the vote count
       });
     });
   });
-</script>
+    </script>
 {% endblock %}

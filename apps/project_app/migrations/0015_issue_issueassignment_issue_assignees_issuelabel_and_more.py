@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("project_app", "0014_pullrequest_pullrequestcommit_pullrequestevent_and_more"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),

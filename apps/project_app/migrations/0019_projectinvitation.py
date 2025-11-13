@@ -6,31 +6,94 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('project_app', '0018_add_visitor_allocation'),
+        ("project_app", "0018_add_visitor_allocation"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='ProjectInvitation',
+            name="ProjectInvitation",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('role', models.CharField(choices=[('owner', 'Owner'), ('admin', 'Administrator'), ('collaborator', 'Collaborator'), ('viewer', 'Viewer')], default='collaborator', max_length=20)),
-                ('permission_level', models.CharField(choices=[('read', 'Read Only'), ('write', 'Read/Write'), ('admin', 'Full Admin')], default='write', max_length=20)),
-                ('status', models.CharField(choices=[('pending', 'Pending'), ('accepted', 'Accepted'), ('declined', 'Declined'), ('expired', 'Expired')], default='pending', max_length=20)),
-                ('token', models.CharField(db_index=True, max_length=64, unique=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('expires_at', models.DateTimeField()),
-                ('responded_at', models.DateTimeField(blank=True, null=True)),
-                ('invited_by', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='sent_invitations', to=settings.AUTH_USER_MODEL)),
-                ('invited_user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='project_invitations', to=settings.AUTH_USER_MODEL)),
-                ('project', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='invitations', to='project_app.project')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "role",
+                    models.CharField(
+                        choices=[
+                            ("owner", "Owner"),
+                            ("admin", "Administrator"),
+                            ("collaborator", "Collaborator"),
+                            ("viewer", "Viewer"),
+                        ],
+                        default="collaborator",
+                        max_length=20,
+                    ),
+                ),
+                (
+                    "permission_level",
+                    models.CharField(
+                        choices=[
+                            ("read", "Read Only"),
+                            ("write", "Read/Write"),
+                            ("admin", "Full Admin"),
+                        ],
+                        default="write",
+                        max_length=20,
+                    ),
+                ),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("pending", "Pending"),
+                            ("accepted", "Accepted"),
+                            ("declined", "Declined"),
+                            ("expired", "Expired"),
+                        ],
+                        default="pending",
+                        max_length=20,
+                    ),
+                ),
+                ("token", models.CharField(db_index=True, max_length=64, unique=True)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("expires_at", models.DateTimeField()),
+                ("responded_at", models.DateTimeField(blank=True, null=True)),
+                (
+                    "invited_by",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="sent_invitations",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "invited_user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="project_invitations",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "project",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="invitations",
+                        to="project_app.project",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['-created_at'],
-                'unique_together': {('project', 'invited_user')},
+                "ordering": ["-created_at"],
+                "unique_together": {("project", "invited_user")},
             },
         ),
     ]

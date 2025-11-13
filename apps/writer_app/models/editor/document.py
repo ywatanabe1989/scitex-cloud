@@ -17,31 +17,30 @@ class Manuscript(models.Model):
 
     # Links to project
     project = models.OneToOneField(
-        'project_app.Project',
+        "project_app.Project",
         on_delete=models.CASCADE,
-        related_name='manuscript',
+        related_name="manuscript",
         null=True,
         blank=True,
-        help_text="Project this manuscript belongs to"
+        help_text="Project this manuscript belongs to",
     )
 
     owner = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='manuscripts',
-        help_text="User who owns this manuscript"
+        related_name="manuscripts",
+        help_text="User who owns this manuscript",
     )
 
     # Metadata for UI
     title = models.CharField(
         max_length=500,
         default="Untitled Manuscript",
-        help_text="Display title (informational only)"
+        help_text="Display title (informational only)",
     )
 
     description = models.TextField(
-        blank=True,
-        help_text="Short description of the manuscript"
+        blank=True, help_text="Short description of the manuscript"
     )
 
     # Timestamps
@@ -49,7 +48,7 @@ class Manuscript(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['-updated_at']
+        ordering = ["-updated_at"]
         verbose_name = "Manuscript"
         verbose_name_plural = "Manuscripts"
 

@@ -1,34 +1,39 @@
 {% extends 'global_base.html' %}
 {% load static %}
-
-{% block title %}Delete Workflow - {{ workflow.name }}{% endblock %}
-
+{% block title %}
+    Delete
+    Workflow - {{ workflow.name }}
+{% endblock %}
 {% block content %}
-<div class="container" style="max-width: 600px; margin-top: 3rem;">
-    <div class="card border-danger">
-        <div class="card-header bg-danger text-white">
-            <h3 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Delete Workflow</h3>
-        </div>
-        <div class="card-body">
-            <p class="lead">Are you sure you want to delete the workflow <strong>{{ workflow.name }}</strong>?</p>
-
-            <div class="alert alert-warning">
-                <i class="bi bi-info-circle"></i>
-                <strong>Warning:</strong> This action cannot be undone. All workflow runs and associated data will be preserved, but the workflow definition will be deleted.
+    <div class="container" style="max-width: 600px; margin-top: 3rem">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h3 class="mb-0">
+                    <i class="bi bi-exclamation-triangle"></i> Delete Workflow
+                </h3>
             </div>
-
-            <form method="post">
-                {% csrf_token %}
-                <div class="d-flex gap-2 justify-content-end">
-                    <a href="{% url 'user_projects:workflow_detail' project.owner.username project.slug workflow.id %}" class="btn btn-secondary">
-                        Cancel
-                    </a>
-                    <button type="submit" class="btn btn-danger">
-                        <i class="bi bi-trash"></i> Delete Workflow
-                    </button>
+            <div class="card-body">
+                <p class="lead">
+                    Are you sure you want to delete the workflow
+                    <strong>{{ workflow.name }}</strong>?
+                </p>
+                <div class="alert alert-warning">
+                    <i class="bi bi-info-circle"></i>
+                    <strong>Warning:</strong> This action cannot be undone. All workflow
+                    runs and associated data will be preserved, but the workflow definition
+                    will be deleted.
                 </div>
-            </form>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex gap-2 justify-content-end">
+                        <a href="{% url 'user_projects:workflow_detail' project.owner.username project.slug workflow.id %}"
+                           class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i> Delete Workflow
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-</div>
 {% endblock %}

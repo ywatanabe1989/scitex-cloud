@@ -1,216 +1,221 @@
 /* Landing Commitment Section Styles */
 
 .section-commitment {
-    padding: 6rem 0;
+  padding: 6rem 0;
 }
 
 .commitment-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
 }
 
 .commitment-card {
-    background: linear-gradient(135deg, #34495e 0%, #506b7a 50%, #6c8ba0 100%);
-    border-radius: 12px;
-    padding: 4rem 2rem;
-    color: white;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(135deg, #34495e 0%, #506b7a 50%, #6c8ba0 100%);
+  border-radius: 12px;
+  padding: 4rem 2rem;
+  color: white;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
 /* Grid pattern overlay */
 .commitment-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.2;
-    background-image:
-        linear-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px);
-    background-size: 70px 70px;
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.2;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+  background-size: 70px 70px;
 }
 
 /* Ensure content stays above pattern */
 .commitment-card > * {
-    position: relative;
-    z-index: 1;
+  position: relative;
+  z-index: 1;
 }
 
 .commitment-title {
-    color: white;
-    text-align: center;
-    margin-bottom: 1.5rem;
-    font-size: 2.5rem;
+  color: white;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 2.5rem;
 }
 
 .commitment-subtitle {
-    color: rgba(255, 255, 255, 0.95);
-    text-align: center;
-    margin-bottom: 3rem;
-    max-width: 800px;
-    margin-left: auto;
-    margin-right: auto;
-    font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.95);
+  text-align: center;
+  margin-bottom: 3rem;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 1.1rem;
 }
 
 .commitment-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 2.5rem;
-    max-width: 1100px;
-    margin: 0 auto 3rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2.5rem;
+  max-width: 1100px;
+  margin: 0 auto 3rem;
 }
 
 .commitment-feature-card {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    border-radius: 12px;
-    padding: 2.5rem;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 2.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .commitment-feature-title {
-    color: white;
-    margin-bottom: 1.5rem;
-    font-size: 1.5rem;
+  color: white;
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
 }
 
 .commitment-feature-list {
-    color: rgba(255, 255, 255, 0.95);
-    line-height: 2;
-    list-style: none;
-    padding: 0;
-    font-size: 1rem;
+  color: rgba(255, 255, 255, 0.95);
+  line-height: 2;
+  list-style: none;
+  padding: 0;
+  font-size: 1rem;
 }
 
 /* Dark mode */
 [data-theme="dark"] .commitment-card {
-    background: linear-gradient(135deg, var(--scitex-color-02) 0%, var(--scitex-color-03) 50%, var(--scitex-color-04) 100%);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  background: linear-gradient(
+    135deg,
+    var(--scitex-color-02) 0%,
+    var(--scitex-color-03) 50%,
+    var(--scitex-color-04) 100%
+  );
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
 }
 
 [data-theme="dark"] .commitment-card::before {
-    opacity: 0.15;
+  opacity: 0.15;
 }
 
 .commitment-actions {
-    text-align: center;
-    margin-top: 2rem;
+  text-align: center;
+  margin-top: 2rem;
 }
 
 .commitment-btn {
-    padding: 1rem 2.5rem;
-    border-radius: 6px;
-    text-decoration: none;
-    font-weight: 600;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-right: 1rem;
-    font-size: 1.05rem;
-    transition: all 0.3s ease;
+  padding: 1rem 2.5rem;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-right: 1rem;
+  font-size: 1.05rem;
+  transition: all 0.3s ease;
 }
 
 .commitment-btn-github {
-    background: black;
-    color: white;
+  background: black;
+  color: white;
 }
 
 .commitment-btn-github:hover {
-    background: #333;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+  background: #333;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
 }
 
 .commitment-btn-vision {
-    background: transparent;
-    border: 2px solid white;
-    color: white;
+  background: transparent;
+  border: 2px solid white;
+  color: white;
 }
 
 .commitment-btn-vision:hover {
-    background: rgba(255, 255, 255, 0.1);
-    transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
 }
 
 /* Call to Action Section */
 .commitment-cta {
-    margin-top: 4rem;
-    padding-top: 3rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
-    text-align: center;
+  margin-top: 4rem;
+  padding-top: 3rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  text-align: center;
 }
 
 .commitment-cta-title {
-    color: white;
-    font-size: 2rem;
-    margin-bottom: 0.75rem;
-    font-weight: 700;
+  color: white;
+  font-size: 2rem;
+  margin-bottom: 0.75rem;
+  font-weight: 700;
 }
 
 .commitment-cta-subtitle {
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 1.05rem;
-    margin-bottom: 2rem;
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.05rem;
+  margin-bottom: 2rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 @media (max-width: 768px) {
-    .commitment-card {
-        padding: 3rem 1.5rem;
-    }
+  .commitment-card {
+    padding: 3rem 1.5rem;
+  }
 
-    .commitment-title {
-        font-size: 2rem;
-    }
+  .commitment-title {
+    font-size: 2rem;
+  }
 
-    .commitment-subtitle {
-        font-size: 1rem;
-    }
+  .commitment-subtitle {
+    font-size: 1rem;
+  }
 
-    .commitment-grid {
-        grid-template-columns: 1fr;
-    }
+  .commitment-grid {
+    grid-template-columns: 1fr;
+  }
 
-    .commitment-actions {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        align-items: center;
-    }
+  .commitment-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+  }
 
-    .commitment-btn {
-        margin-right: 0;
-        width: 100%;
-        max-width: 300px;
-        justify-content: center;
-    }
+  .commitment-btn {
+    margin-right: 0;
+    width: 100%;
+    max-width: 300px;
+    justify-content: center;
+  }
 
-    .commitment-cta-title {
-        font-size: 1.5rem;
-    }
+  .commitment-cta-title {
+    font-size: 1.5rem;
+  }
 
-    .commitment-cta-subtitle {
-        font-size: 0.95rem;
-    }
+  .commitment-cta-subtitle {
+    font-size: 0.95rem;
+  }
 
-    .commitment-cta-buttons {
-        flex-direction: column;
-        gap: 1rem;
-    }
+  .commitment-cta-buttons {
+    flex-direction: column;
+    gap: 1rem;
+  }
 
-    .commitment-cta-btn {
-        width: 100%;
-        max-width: 300px;
-        justify-content: center;
-    }
+  .commitment-cta-btn {
+    width: 100%;
+    max-width: 300px;
+    justify-content: center;
+  }
 }

@@ -6,7 +6,7 @@
 ORIG_DIR="$(pwd)"
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
 
-GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
+GIT_ROOT="$(git rev-parse --show-toplevel 2> /dev/null)"
 if [ -z "$GIT_ROOT" ]; then
     echo "ERROR: Not in a git repository. Please run from within scitex-cloud directory."
     exit 1
@@ -84,7 +84,7 @@ verify_env_setup() {
     echo_info "deployment/docker/docker_dev/.env -> ../../../SECRET/.env.dev"
 
     # Verify critical environment variables
-    source "$DOCKER_DIR"/.env 2>/dev/null
+    source "$DOCKER_DIR"/.env 2> /dev/null
 
     local critical_vars=(
         "SCITEX_CLOUD_GITEA_URL_IN_CONTAINER_DEV"
@@ -132,7 +132,7 @@ prepare_environment_files() {
     fi
 
     set -a
-    source "$DOCKER_DIR"/.env 2>/dev/null
+    source "$DOCKER_DIR"/.env 2> /dev/null
     set +a
     echo_success "Loaded environment from SECRET/.env.dev (single source of truth via symlinks)"
 
@@ -148,7 +148,7 @@ list_env_dev() {
 
     prepare_environment_files
     cd "$DOCKER_DIR"
-    source .env 2>/dev/null || true
+    source .env 2> /dev/null || true
 
     REQUIRED_ENV_VARS=(
         "SCITEX_CLOUD_ENV"
@@ -185,7 +185,7 @@ list_env_dev() {
 }
 
 detect_wsl_environment() {
-    if grep -qi microsoft /proc/version 2>/dev/null; then
+    if grep -qi microsoft /proc/version 2> /dev/null; then
         export WINDOWS_HOST_IP="$(
             ip route | grep default | awk '{print $3}'
         )"
@@ -252,12 +252,12 @@ check_docker_setup() {
     if ! command -v docker &> /dev/null; then
         echo_error "Docker not installed. Run: sudo apt install -y docker.io"
         all_good=false
-    elif docker --version &>/dev/null; then
+    elif docker --version &> /dev/null; then
         echo_success "Docker installed: $(docker --version)"
     fi
 
     # Check Docker Compose
-    if ! docker compose version &>/dev/null; then
+    if ! docker compose version &> /dev/null; then
         echo_error "Docker Compose not installed. Run: sudo apt install -y docker-compose-plugin"
         all_good=false
     else
@@ -265,7 +265,7 @@ check_docker_setup() {
     fi
 
     # Check Docker daemon
-    if ! docker ps &>/dev/null; then
+    if ! docker ps &> /dev/null; then
         echo_error "Docker daemon not running. Run: sudo systemctl start docker"
         all_good=false
     else
@@ -273,7 +273,7 @@ check_docker_setup() {
     fi
 
     # Check BuildKit/Buildx
-    if ! docker buildx version &>/dev/null; then
+    if ! docker buildx version &> /dev/null; then
         echo_warning "Docker Buildx not installed (optional but recommended for faster builds)"
         echo_info "Install: mkdir -p ~/.docker/cli-plugins && curl -L https://github.com/docker/buildx/releases/download/v0.13.0/buildx-v0.13.0.linux-amd64 -o ~/.docker/cli-plugins/docker-buildx && chmod +x ~/.docker/cli-plugins/docker-buildx"
     else
@@ -294,30 +294,30 @@ stop_conflicting_services() {
 
     # Stop system services only if sudo is available
     if [ "$HAVE_SUDO" = true ]; then
-        sudo systemctl stop uwsgi_dev 2>/dev/null || true
-        sudo systemctl stop uwsgi_prod 2>/dev/null || true
-        sudo systemctl stop nginx 2>/dev/null || true
-        sudo systemctl stop gitea 2>/dev/null || true
+        sudo systemctl stop uwsgi_dev 2> /dev/null || true
+        sudo systemctl stop uwsgi_prod 2> /dev/null || true
+        sudo systemctl stop nginx 2> /dev/null || true
+        sudo systemctl stop gitea 2> /dev/null || true
 
         GITEA_PID=$(
             sudo lsof -ti :${SCITEX_CLOUD_GITEA_HTTP_PORT_DEV:-3000} \
-            2>/dev/null
+                2> /dev/null
         )
         if [ ! -z "$GITEA_PID" ]; then
             echo_warning \
                 "Found Gitea process (PID $GITEA_PID), killing..."
-            sudo kill -9 $GITEA_PID 2>/dev/null || true
+            sudo kill -9 $GITEA_PID 2> /dev/null || true
         fi
     else
         # Try without sudo for processes owned by current user
         GITEA_PID=$(
             lsof -ti :${SCITEX_CLOUD_GITEA_HTTP_PORT_DEV:-3000} \
-            2>/dev/null || true
+                2> /dev/null || true
         )
         if [ ! -z "$GITEA_PID" ]; then
             echo_warning \
                 "Found Gitea process (PID $GITEA_PID), attempting to kill..."
-            kill -9 $GITEA_PID 2>/dev/null || echo_warning "Could not kill process (may need sudo)"
+            kill -9 $GITEA_PID 2> /dev/null || echo_warning "Could not kill process (may need sudo)"
         fi
     fi
 }
@@ -325,7 +325,7 @@ stop_conflicting_services() {
 verify_ports_free() {
     for ii in {1..3}; do
         if lsof -i :${SCITEX_CLOUD_HTTP_PORT_DEV:-8000} \
-            >/dev/null 2>&1; then
+            > /dev/null 2>&1; then
             echo_warning \
                 "Port ${SCITEX_CLOUD_HTTP_PORT_DEV:-8000} " \
                 "still in use, waiting..."
@@ -340,20 +340,20 @@ verify_ports_free() {
 
     for ii in {1..3}; do
         if lsof -i :${SCITEX_CLOUD_GITEA_HTTP_PORT_DEV:-3000} \
-            >/dev/null 2>&1; then
+            > /dev/null 2>&1; then
             echo_warning \
                 "Port ${SCITEX_CLOUD_GITEA_HTTP_PORT_DEV:-3000} " \
                 "still in use, killing..."
             fuser -k \
                 ${SCITEX_CLOUD_GITEA_HTTP_PORT_DEV:-3000}/tcp \
-                2>/dev/null || true
+                2> /dev/null || true
             pkill -f gitea || true
-            killall gitea 2>/dev/null || true
+            killall gitea 2> /dev/null || true
             GITEA_CONTAINER=$(
-                docker ps | \
-                grep \
-                "0.0.0.0:${SCITEX_CLOUD_GITEA_HTTP_PORT_DEV:-3000}" | \
-                awk '{print $1}'
+                docker ps \
+                    | grep \
+                        "0.0.0.0:${SCITEX_CLOUD_GITEA_HTTP_PORT_DEV:-3000}" \
+                    | awk '{print $1}'
             )
             if [ ! -z "$GITEA_CONTAINER" ]; then
                 echo_warning \
@@ -377,9 +377,8 @@ cleanup_containers() {
     docker compose -f docker-compose.yml down
     docker rm -f \
         scitex-cloud-dev-db-1 scitex-cloud-dev-web-1 scitex-cloud-dev-redis-1 scitex-cloud-dev-gitea-1 \
-        2>/dev/null || true
+        2> /dev/null || true
 }
-
 
 check_database_credentials() {
     if docker ps | grep -q scitex-cloud-dev-db-1; then
@@ -388,7 +387,7 @@ check_database_credentials() {
     fi
 
     if docker volume inspect scitex-cloud-dev_postgres_data \
-        >/dev/null 2>&1; then
+        > /dev/null 2>&1; then
         echo_info \
             "Database volume exists, checking credentials..."
         docker compose -f docker-compose.yml up -d db
@@ -396,7 +395,7 @@ check_database_credentials() {
         if ! docker compose -f docker-compose.yml exec -T db \
             psql -U "${SCITEX_CLOUD_POSTGRES_USER:-scitex_dev}" \
             -d "${SCITEX_CLOUD_POSTGRES_DB:-scitex_cloud_dev}" \
-            -c "SELECT 1" >/dev/null 2>&1; then
+            -c "SELECT 1" > /dev/null 2>&1; then
             echo_warning \
                 "Credentials mismatch. " \
                 "Recreating database volume..."
@@ -418,22 +417,22 @@ rebuild_and_nuclear_cleanup() {
     if [ ! -z "$ALL_CONTAINERS" ]; then
         echo_warning \
             "Stopping all Docker containers to free ports..."
-        docker stop $ALL_CONTAINERS 2>/dev/null || true
+        docker stop $ALL_CONTAINERS 2> /dev/null || true
     fi
 
     docker network prune -f || true
     docker ps -aq \
         --filter \
-        "publish=${SCITEX_CLOUD_GITEA_HTTP_PORT_DEV:-3000}" | \
-        xargs -r docker rm -f 2>/dev/null || true
+        "publish=${SCITEX_CLOUD_GITEA_HTTP_PORT_DEV:-3000}" \
+        | xargs -r docker rm -f 2> /dev/null || true
     fuser -k \
         ${SCITEX_CLOUD_GITEA_HTTP_PORT_DEV:-3000}/tcp \
-        2>/dev/null || true
+        2> /dev/null || true
     docker system prune -f || true
     sleep 3
 
     if lsof -i :${SCITEX_CLOUD_GITEA_HTTP_PORT_DEV:-3000} \
-        >/dev/null 2>&1; then
+        > /dev/null 2>&1; then
         echo_error \
             "Port ${SCITEX_CLOUD_GITEA_HTTP_PORT_DEV:-3000} " \
             "STILL in use!"
@@ -444,9 +443,9 @@ rebuild_and_nuclear_cleanup() {
         return 1
     fi
 
-    if netstat -tlnp 2>/dev/null | \
-        grep ":${SCITEX_CLOUD_GITEA_HTTP_PORT_DEV:-3000}" | \
-        grep -q "docker-proxy"; then
+    if netstat -tlnp 2> /dev/null \
+        | grep ":${SCITEX_CLOUD_GITEA_HTTP_PORT_DEV:-3000}" \
+        | grep -q "docker-proxy"; then
         echo_error \
             "Docker userland proxy stale binding detected"
 
@@ -480,7 +479,7 @@ cleanup_corrupted_containers() {
     # Also check for containers that docker compose can't manage
     if docker compose -f docker-compose.yml ps 2>&1 | grep -q "ContainerConfig"; then
         echo_warning "Docker Compose state corrupted, forcing cleanup"
-        docker compose -f docker-compose.yml down --remove-orphans 2>/dev/null || true
+        docker compose -f docker-compose.yml down --remove-orphans 2> /dev/null || true
         echo_success "Forced cleanup complete"
     fi
 }
@@ -501,7 +500,7 @@ wait_for_services_healthy() {
         done' \
         && echo_success "Gitea is ready!" \
         || echo_warning \
-        "Gitea taking longer, continuing anyway..."
+            "Gitea taking longer, continuing anyway..."
     wait_for_web_healthy
 }
 
@@ -540,7 +539,7 @@ setup_gitea_token() {
 
         # Verify token still works
         if curl -s -f -H "Authorization: token $SCITEX_CLOUD_GITEA_TOKEN_DEV" \
-            "${GITEA_API_URL}/api/v1/user" >/dev/null 2>&1; then
+            "${GITEA_API_URL}/api/v1/user" > /dev/null 2>&1; then
             echo_success "Existing token is valid"
             return 0
         else
@@ -557,14 +556,14 @@ setup_gitea_token() {
     local ADMIN_EMAIL="${SCITEX_CLOUD_GITEA_ADMIN_EMAIL:-admin@scitex.local}"
 
     # Check if admin user exists, create if not
-    if ! docker exec -u git scitex-cloud-dev-gitea-1 gitea admin user list 2>/dev/null | grep -q "$ADMIN_USERNAME"; then
+    if ! docker exec -u git scitex-cloud-dev-gitea-1 gitea admin user list 2> /dev/null | grep -q "$ADMIN_USERNAME"; then
         echo_info "Creating Gitea admin user: $ADMIN_USERNAME"
         docker exec -u git scitex-cloud-dev-gitea-1 gitea admin user create \
             --username "$ADMIN_USERNAME" \
             --password "$ADMIN_PASSWORD" \
             --email "$ADMIN_EMAIL" \
             --admin \
-            --must-change-password=false 2>/dev/null || true
+            --must-change-password=false 2> /dev/null || true
         echo_success "Admin user created:\n    Username: $ADMIN_USERNAME\n    Password: $ADMIN_PASSWORD"
     fi
 
@@ -573,7 +572,7 @@ setup_gitea_token() {
         --username "$ADMIN_USERNAME" \
         --token-name "scitex-dev-$(date +%Y%m%d)" \
         --scopes "write:repository,write:user,write:admin" \
-        2>/dev/null | grep -oE '[a-f0-9]{40}' | head -1)
+        2> /dev/null | grep -oE '[a-f0-9]{40}' | head -1)
 
     if [ -n "$NEW_TOKEN" ]; then
         # Update .env (single source of truth)
@@ -602,7 +601,7 @@ verify_gitea_api() {
     GITEA_TOKEN="${SCITEX_CLOUD_GITEA_TOKEN_DEV}"
 
     # Test Gitea API version
-    if curl -f -s "${GITEA_URL}/api/v1/version" >/dev/null 2>&1; then
+    if curl -f -s "${GITEA_URL}/api/v1/version" > /dev/null 2>&1; then
         echo_success "Gitea API is accessible"
     else
         echo_error "Gitea API is not accessible at ${GITEA_URL}"
@@ -611,7 +610,7 @@ verify_gitea_api() {
 
     # Test authentication
     AUTH_RESPONSE=$(curl -s -H "Authorization: token ${GITEA_TOKEN}" \
-        "${GITEA_URL}/api/v1/user" 2>/dev/null)
+        "${GITEA_URL}/api/v1/user" 2> /dev/null)
 
     if echo "$AUTH_RESPONSE" | grep -q '"login"'; then
         GITEA_USER=$(echo "$AUTH_RESPONSE" | grep -o '"login":"[^"]*"' | cut -d'"' -f4)
@@ -650,10 +649,10 @@ EOH
 
     # Step 2: Verify deletion from Gitea (check via API)
     echo_info "Verifying deletion from Gitea..."
-    sleep 2  # Give signal time to propagate
+    sleep 2 # Give signal time to propagate
 
     GITEA_CHECK=$(curl -s -H "Authorization: token ${GITEA_TOKEN}" \
-        "${GITEA_URL}/api/v1/users/${USERNAME}" 2>/dev/null)
+        "${GITEA_URL}/api/v1/users/${USERNAME}" 2> /dev/null)
 
     if echo "$GITEA_CHECK" | grep -q '"message"'; then
         echo_success "✓ User deleted from Gitea"
@@ -704,8 +703,9 @@ verify_test_user() {
 
     # Check Django
     echo_info "Checking Django..."
-    local django_check=$(docker compose -f docker-compose.yml exec -T web \
-        python manage.py shell << EOH
+    local django_check=$(
+        docker compose -f docker-compose.yml exec -T web \
+            python manage.py shell << EOH
 import json
 from django.contrib.auth import get_user_model
 
@@ -721,7 +721,7 @@ try:
 except User.DoesNotExist:
     print(json.dumps({'exists': False}))
 EOH
-)
+    )
 
     if echo "$django_check" | grep -q '"exists": true'; then
         echo_success "✓ Django user exists: $USERNAME"
@@ -736,7 +736,7 @@ EOH
     echo_info "Checking Gitea..."
     if [ -n "$GITEA_TOKEN" ]; then
         local gitea_check=$(curl -s -H "Authorization: token ${GITEA_TOKEN}" \
-            "${GITEA_URL}/api/v1/users/${USERNAME}" 2>/dev/null)
+            "${GITEA_URL}/api/v1/users/${USERNAME}" 2> /dev/null)
 
         if echo "$gitea_check" | grep -q '"login"'; then
             echo_success "✓ Gitea user exists: $USERNAME"
@@ -775,9 +775,9 @@ wait_for_web_healthy() {
 
     while [ $((SECONDS - START_TIME)) -lt $TIMEOUT ]; do
         # Check if container is healthy (matches "Up ... (healthy)" format)
-        if docker compose -f docker-compose.yml ps | \
-            grep scitex-cloud-dev-web-1 | \
-            grep -q "(healthy)"; then
+        if docker compose -f docker-compose.yml ps \
+            | grep scitex-cloud-dev-web-1 \
+            | grep -q "(healthy)"; then
             echo ""
             echo_success \
                 "Web container is healthy! " \
@@ -869,7 +869,6 @@ restart_dev() {
         http://localhost:${SCITEX_CLOUD_GITEA_HTTP_PORT_DEV:-3000}
 }
 
-
 usage() {
     echo "Usage: $0 [-a|--action <start|restart|list_env>] [-l|--list-env] [-h|--help]"
     echo
@@ -903,7 +902,7 @@ main() {
 
     # Check if sudo is available (optional, for some cleanup operations)
     HAVE_SUDO=false
-    if sudo -n true 2>/dev/null; then
+    if sudo -n true 2> /dev/null; then
         HAVE_SUDO=true
         echo_info "Sudo access available (will use for system service cleanup)"
     else
@@ -914,15 +913,15 @@ main() {
 
     while [[ $# -gt 0 ]]; do
         case $1 in
-            -a|--action)
+            -a | --action)
                 ACTION="$2"
                 shift 2
                 ;;
-            -l|--list-env)
+            -l | --list-env)
                 ACTION="list_env"
                 shift
                 ;;
-            -h|--help)
+            -h | --help)
                 usage
                 ;;
             *)

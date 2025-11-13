@@ -10,7 +10,7 @@ THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
 LOG_PATH="$THIS_DIR/.$(basename $0).log"
 echo > "$LOG_PATH"
 
-GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
+GIT_ROOT="$(git rev-parse --show-toplevel 2> /dev/null)"
 
 # Colors
 GRAY='\033[0;90m'
@@ -87,7 +87,7 @@ show_user_details() {
     echo
 
     response=$(curl -s -H "Authorization: token $GITEA_TOKEN" \
-        "$GITEA_URL/api/v1/users/$username" 2>/dev/null)
+        "$GITEA_URL/api/v1/users/$username" 2> /dev/null)
 
     echo "$response" | python3 << 'EOF'
 import sys
@@ -154,19 +154,19 @@ main() {
     # Parse arguments
     while [[ $# -gt 0 ]]; do
         case $1 in
-            -s|--search)
+            -s | --search)
                 search_query="$2"
                 shift 2
                 ;;
-            -d|--detail)
+            -d | --detail)
                 detail_user="$2"
                 shift 2
                 ;;
-            -a|--admins)
+            -a | --admins)
                 admins_only=true
                 shift
                 ;;
-            -h|--help)
+            -h | --help)
                 usage
                 exit 0
                 ;;
@@ -190,7 +190,7 @@ main() {
 
     # Validate token
     test_response=$(curl -s -H "Authorization: token $GITEA_TOKEN" \
-        "$GITEA_URL/api/v1/user" 2>/dev/null)
+        "$GITEA_URL/api/v1/user" 2> /dev/null)
 
     if ! echo "$test_response" | grep -q '"login"'; then
         echo_error "Invalid or expired token"
@@ -211,19 +211,19 @@ main() {
     if [ -n "$search_query" ]; then
         echo_info "Searching for: $search_query"
         response=$(curl -s -H "Authorization: token $GITEA_TOKEN" \
-            "$GITEA_URL/api/v1/users/search?q=$search_query" 2>/dev/null | \
-            python3 -c "import sys, json; data = json.load(sys.stdin); print(json.dumps(data.get('data', [])))")
+            "$GITEA_URL/api/v1/users/search?q=$search_query" 2> /dev/null \
+            | python3 -c "import sys, json; data = json.load(sys.stdin); print(json.dumps(data.get('data', [])))")
     else
         # Try admin API first
         response=$(curl -s -H "Authorization: token $GITEA_TOKEN" \
-            "$GITEA_URL/api/v1/admin/users" 2>/dev/null)
+            "$GITEA_URL/api/v1/admin/users" 2> /dev/null)
 
         # Fallback to search if not admin
         if echo "$response" | grep -q "error\|message" || [ -z "$response" ]; then
             echo_info "Using search API (admin access not available)"
             response=$(curl -s -H "Authorization: token $GITEA_TOKEN" \
-                "$GITEA_URL/api/v1/users/search" 2>/dev/null | \
-                python3 -c "import sys, json; data = json.load(sys.stdin); print(json.dumps(data.get('data', [])))")
+                "$GITEA_URL/api/v1/users/search" 2> /dev/null \
+                | python3 -c "import sys, json; data = json.load(sys.stdin); print(json.dumps(data.get('data', [])))")
         fi
     fi
 

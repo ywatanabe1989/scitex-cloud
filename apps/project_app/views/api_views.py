@@ -10,11 +10,10 @@ This module contains all REST API endpoints for the project application,
 including file tree, name availability checking, project CRUD operations,
 and repository health management.
 """
+
 from __future__ import annotations
-import os
 import json
 import logging
-from pathlib import Path
 
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -31,6 +30,7 @@ logger = logging.getLogger(__name__)
 # File Tree API
 # ============================================================================
 
+
 @require_http_methods(["GET"])
 def api_file_tree(request, username, slug):
     """API endpoint to get project file tree for sidebar navigation"""
@@ -42,10 +42,10 @@ def api_file_tree(request, username, slug):
         has_access = (
             project.owner == request.user
             or project.collaborators.filter(id=request.user.id).exists()
-            or project.visibility == 'public'
+            or project.visibility == "public"
         )
     else:
-        has_access = project.visibility == 'public'
+        has_access = project.visibility == "public"
 
     if not has_access:
         return JsonResponse({"success": False, "error": "Permission denied"})
@@ -59,9 +59,7 @@ def api_file_tree(request, username, slug):
     project_path = manager.get_project_root_path(project)
 
     if not project_path or not project_path.exists():
-        return JsonResponse(
-            {"success": False, "error": "Project directory not found"}
-        )
+        return JsonResponse({"success": False, "error": "Project directory not found"})
 
     def build_tree(path, max_depth=5, current_depth=0):
         """Build file tree recursively (deeper for full navigation)"""
@@ -113,6 +111,7 @@ def api_file_tree(request, username, slug):
 # Name Availability API
 # ============================================================================
 
+
 @login_required
 @require_http_methods(["GET"])
 def api_check_name_availability(request):
@@ -125,18 +124,15 @@ def api_check_name_availability(request):
     name = request.GET.get("name", "").strip()
 
     if not name:
-        return JsonResponse(
-            {"available": False, "message": "Project name is required"}
-        )
+        return JsonResponse({"available": False, "message": "Project name is required"})
 
     # Validate name using scitex.project validator
     try:
         from scitex.project import validate_name
+
         is_valid, error = validate_name(name)
         if not is_valid:
-            return JsonResponse(
-                {"available": False, "message": error}
-            )
+            return JsonResponse({"available": False, "message": error})
     except ImportError:
         # Fallback to basic validation if scitex.project not available
         pass
@@ -154,16 +150,17 @@ def api_check_name_availability(request):
     # Check 2: Gitea repository (enforce 1:1 mapping)
     # Generate slug to check in Gitea
     from django.utils.text import slugify
+
     slug = slugify(name)
 
     try:
         from apps.gitea_app.api_client import GiteaClient, GiteaAPIError
+
         client = GiteaClient()
 
         try:
             existing_repo = client.get_repository(
-                owner=request.user.username,
-                repo=slug
+                owner=request.user.username, repo=slug
             )
             if existing_repo:
                 # Gitea repo exists - check if it's orphaned (no Django project)
@@ -187,14 +184,13 @@ def api_check_name_availability(request):
         logger.warning(f"Gitea availability check failed: {e}")
         pass  # Continue, assume available
 
-    return JsonResponse(
-        {"available": True, "message": f'"{name}" is available'}
-    )
+    return JsonResponse({"available": True, "message": f'"{name}" is available'})
 
 
 # ============================================================================
 # Project CRUD APIs
 # ============================================================================
+
 
 @login_required
 @require_http_methods(["GET"])
@@ -216,9 +212,7 @@ def api_project_create(request):
         description = data.get("description", "").strip()
 
         if not name:
-            return JsonResponse(
-                {"success": False, "error": "Project name is required"}
-            )
+            return JsonResponse({"success": False, "error": "Project name is required"})
 
         # Ensure unique name
         unique_name = Project.generate_unique_name(name, request.user)
@@ -264,6 +258,7 @@ def api_project_detail(request, pk):
 # Directory Concatenation API
 # ============================================================================
 
+
 @login_required
 def api_concatenate_directory(request, username, slug, directory_path=""):
     """
@@ -291,9 +286,7 @@ def api_concatenate_directory(request, username, slug, directory_path=""):
     project_path = manager.get_project_root_path(project)
 
     if not project_path or not project_path.exists():
-        return JsonResponse(
-            {"success": False, "error": "Project directory not found"}
-        )
+        return JsonResponse({"success": False, "error": "Project directory not found"})
 
     dir_path = project_path / directory_path
 
@@ -372,7 +365,7 @@ def api_concatenate_directory(request, username, slug, directory_path=""):
                 output.append("...")
             output.append("```")
             output.append(f"")
-        except Exception as e:
+        except Exception:
             continue
 
     concatenated_content = "\n".join(output)
@@ -390,6 +383,7 @@ def api_concatenate_directory(request, username, slug, directory_path=""):
 # Repository Health Management APIs
 # ============================================================================
 
+
 @login_required
 def api_repository_health(request, username):
     """
@@ -397,8 +391,10 @@ def api_repository_health(request, username):
 
     GET: Returns list of all repository health issues and statistics
     """
-    if request.method != 'GET':
-        return JsonResponse({"success": False, "error": "Method not allowed"}, status=405)
+    if request.method != "GET":
+        return JsonResponse(
+            {"success": False, "error": "Method not allowed"}, status=405
+        )
 
     # Only allow users to check their own repository health
     user = get_object_or_404(User, username=username)
@@ -406,22 +402,24 @@ def api_repository_health(request, username):
         return JsonResponse({"success": False, "error": "Access denied"}, status=403)
 
     try:
-        from apps.project_app.services.repository_health_service import RepositoryHealthChecker
+        from apps.project_app.services.repository_health_service import (
+            RepositoryHealthChecker,
+        )
+
         checker = RepositoryHealthChecker(user)
         issues, stats = checker.check_all_repositories()
 
-        return JsonResponse({
-            "success": True,
-            "stats": stats,
-            "issues": [issue.to_dict() for issue in issues],
-        })
+        return JsonResponse(
+            {
+                "success": True,
+                "stats": stats,
+                "issues": [issue.to_dict() for issue in issues],
+            }
+        )
 
     except Exception as e:
         logger.error(f"Error checking repository health: {e}")
-        return JsonResponse({
-            "success": False,
-            "error": str(e)
-        }, status=500)
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
 
 
 @login_required
@@ -431,8 +429,10 @@ def api_repository_cleanup(request, username):
 
     POST: Delete an orphaned repository (requires confirmation)
     """
-    if request.method != 'POST':
-        return JsonResponse({"success": False, "error": "Method not allowed"}, status=405)
+    if request.method != "POST":
+        return JsonResponse(
+            {"success": False, "error": "Method not allowed"}, status=405
+        )
 
     # Only allow users to manage their own repositories
     user = get_object_or_404(User, username=username)
@@ -441,28 +441,32 @@ def api_repository_cleanup(request, username):
 
     try:
         data = json.loads(request.body)
-        gitea_name = data.get('gitea_name', '').strip()
+        gitea_name = data.get("gitea_name", "").strip()
 
         if not gitea_name:
-            return JsonResponse({"success": False, "error": "Repository name required"}, status=400)
+            return JsonResponse(
+                {"success": False, "error": "Repository name required"}, status=400
+            )
 
-        from apps.project_app.services.repository_health_service import RepositoryHealthChecker
+        from apps.project_app.services.repository_health_service import (
+            RepositoryHealthChecker,
+        )
+
         checker = RepositoryHealthChecker(user)
         success, message = checker.delete_orphaned_repository(gitea_name)
 
-        return JsonResponse({
-            "success": success,
-            "message": message,
-        })
+        return JsonResponse(
+            {
+                "success": success,
+                "message": message,
+            }
+        )
 
     except json.JSONDecodeError:
         return JsonResponse({"success": False, "error": "Invalid JSON"}, status=400)
     except Exception as e:
         logger.error(f"Error during repository cleanup: {e}")
-        return JsonResponse({
-            "success": False,
-            "error": str(e)
-        }, status=500)
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
 
 
 @login_required
@@ -472,8 +476,10 @@ def api_repository_sync(request, username):
 
     POST: Sync project with Gitea (re-clone if needed)
     """
-    if request.method != 'POST':
-        return JsonResponse({"success": False, "error": "Method not allowed"}, status=405)
+    if request.method != "POST":
+        return JsonResponse(
+            {"success": False, "error": "Method not allowed"}, status=405
+        )
 
     # Only allow users to manage their own repositories
     user = get_object_or_404(User, username=username)
@@ -482,28 +488,32 @@ def api_repository_sync(request, username):
 
     try:
         data = json.loads(request.body)
-        project_slug = data.get('project_slug', '').strip()
+        project_slug = data.get("project_slug", "").strip()
 
         if not project_slug:
-            return JsonResponse({"success": False, "error": "Project slug required"}, status=400)
+            return JsonResponse(
+                {"success": False, "error": "Project slug required"}, status=400
+            )
 
-        from apps.project_app.services.repository_health_service import RepositoryHealthChecker
+        from apps.project_app.services.repository_health_service import (
+            RepositoryHealthChecker,
+        )
+
         checker = RepositoryHealthChecker(user)
         success, message = checker.sync_repository(project_slug)
 
-        return JsonResponse({
-            "success": success,
-            "message": message,
-        })
+        return JsonResponse(
+            {
+                "success": success,
+                "message": message,
+            }
+        )
 
     except json.JSONDecodeError:
         return JsonResponse({"success": False, "error": "Invalid JSON"}, status=400)
     except Exception as e:
         logger.error(f"Error during repository sync: {e}")
-        return JsonResponse({
-            "success": False,
-            "error": str(e)
-        }, status=500)
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
 
 
 @login_required
@@ -516,8 +526,10 @@ def api_repository_restore(request, username):
 
     POST: Restore orphaned repository as a new project
     """
-    if request.method != 'POST':
-        return JsonResponse({"success": False, "error": "Method not allowed"}, status=405)
+    if request.method != "POST":
+        return JsonResponse(
+            {"success": False, "error": "Method not allowed"}, status=405
+        )
 
     # Only allow users to manage their own repositories
     user = get_object_or_404(User, username=username)
@@ -526,34 +538,40 @@ def api_repository_restore(request, username):
 
     try:
         data = json.loads(request.body)
-        gitea_name = data.get('gitea_name', '').strip()
-        project_name = data.get('project_name', '').strip()
+        gitea_name = data.get("gitea_name", "").strip()
+        project_name = data.get("project_name", "").strip()
 
         if not gitea_name:
-            return JsonResponse({"success": False, "error": "Repository name required"}, status=400)
+            return JsonResponse(
+                {"success": False, "error": "Repository name required"}, status=400
+            )
 
         # If no project name provided, use the gitea_name
         if not project_name:
             project_name = gitea_name
 
-        from apps.project_app.services.repository_health_service import RepositoryHealthChecker
-        checker = RepositoryHealthChecker(user)
-        success, message, project_id = checker.restore_orphaned_repository(gitea_name, project_name)
+        from apps.project_app.services.repository_health_service import (
+            RepositoryHealthChecker,
+        )
 
-        return JsonResponse({
-            "success": success,
-            "message": message,
-            "project_id": project_id,  # Return project ID for redirect
-        })
+        checker = RepositoryHealthChecker(user)
+        success, message, project_id = checker.restore_orphaned_repository(
+            gitea_name, project_name
+        )
+
+        return JsonResponse(
+            {
+                "success": success,
+                "message": message,
+                "project_id": project_id,  # Return project ID for redirect
+            }
+        )
 
     except json.JSONDecodeError:
         return JsonResponse({"success": False, "error": "Invalid JSON"}, status=400)
     except Exception as e:
         logger.error(f"Error during repository restore: {e}")
-        return JsonResponse({
-            "success": False,
-            "error": str(e)
-        }, status=500)
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
 
 
 # EOF

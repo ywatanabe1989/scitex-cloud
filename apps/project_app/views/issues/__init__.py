@@ -19,26 +19,22 @@ from .api import (
 
 __all__ = [
     # List view
-    'issues_list',
-
+    "issues_list",
     # Detail view
-    'issue_detail',
-
+    "issue_detail",
     # Form views (create, edit, comment)
-    'issue_create',
-    'issue_edit',
-    'issue_comment_create',
-
+    "issue_create",
+    "issue_edit",
+    "issue_comment_create",
     # Management views (labels, milestones)
-    'issue_label_manage',
-    'issue_milestone_manage',
-
+    "issue_label_manage",
+    "issue_milestone_manage",
     # API views
-    'api_issue_comment',
-    'api_issue_close',
-    'api_issue_reopen',
-    'api_issue_assign',
-    'api_issue_label',
-    'api_issue_milestone',
-    'api_issue_search',
+    "api_issue_comment",
+    "api_issue_close",
+    "api_issue_reopen",
+    "api_issue_assign",
+    "api_issue_label",
+    "api_issue_milestone",
+    "api_issue_search",
 ]

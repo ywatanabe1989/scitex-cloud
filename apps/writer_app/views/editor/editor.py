@@ -22,14 +22,16 @@ def editor_view(request):
     current_project = get_current_project(request, user=request.user)
 
     context = {
-        'project': current_project,
+        "project": current_project,
     }
 
     if current_project:
         # Ensure bibliography structure exists (passive initialization)
         try:
             from pathlib import Path
-            from apps.project_app.services.bibliography_manager import ensure_bibliography_structure
+            from apps.project_app.services.bibliography_manager import (
+                ensure_bibliography_structure,
+            )
 
             if current_project.git_clone_path:
                 project_path = Path(current_project.git_clone_path)
@@ -42,11 +44,11 @@ def editor_view(request):
         try:
             doc_service = DocumentService(current_project.id, request.user.id)
             sections = doc_service.get_all_sections()
-            context['sections'] = sections
-            context['writer_initialized'] = True
+            context["sections"] = sections
+            context["writer_initialized"] = True
         except Exception as e:
             logger.error(f"Error loading sections: {e}")
-            context['sections'] = {}
-            context['writer_initialized'] = False
+            context["sections"] = {}
+            context["writer_initialized"] = False
 
-    return render(request, 'writer_app/editor/editor.html', context)
+    return render(request, "writer_app/editor/editor.html", context)

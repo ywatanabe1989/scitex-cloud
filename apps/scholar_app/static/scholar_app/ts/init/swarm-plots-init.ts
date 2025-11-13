@@ -8,23 +8,24 @@
  * @module init/swarm-plots-init
  */
 
-
-console.log("[DEBUG] apps/scholar_app/static/scholar_app/ts/init/swarm-plots-init.ts loaded");
+console.log(
+  "[DEBUG] apps/scholar_app/static/scholar_app/ts/init/swarm-plots-init.ts loaded",
+);
 declare global {
-    interface Window {
-        SCHOLAR_SEARCH_RESULTS?: Array<{
-            title: string;
-            year: number | null;
-            citations: number;
-            impact_factor: number | null;
-            authors: string;
-            journal: string;
-            url: string;
-        }>;
-        SwarmPlots?: {
-            init: (data: any[]) => void;
-        };
-    }
+  interface Window {
+    SCHOLAR_SEARCH_RESULTS?: Array<{
+      title: string;
+      year: number | null;
+      citations: number;
+      impact_factor: number | null;
+      authors: string;
+      journal: string;
+      url: string;
+    }>;
+    SwarmPlots?: {
+      init: (data: any[]) => void;
+    };
+  }
 }
 
 /**
@@ -33,52 +34,72 @@ declare global {
  * @param {number} maxRetries - Maximum number of retry attempts (default: 3)
  * @param {number} retryDelay - Delay between retries in milliseconds (default: 500)
  */
-function initializeSwarmPlots(maxRetries: number = 3, retryDelay: number = 500): void {
-    console.log('[Swarm Plots Init] Starting initialization...');
+function initializeSwarmPlots(
+  maxRetries: number = 3,
+  retryDelay: number = 500,
+): void {
+  console.log("[Swarm Plots Init] Starting initialization...");
 
-    // Check if search results are available
-    if (!window.SCHOLAR_SEARCH_RESULTS || window.SCHOLAR_SEARCH_RESULTS.length === 0) {
-        console.log('[Swarm Plots Init] No search results available, skipping initialization');
-        return;
+  // Check if search results are available
+  if (
+    !window.SCHOLAR_SEARCH_RESULTS ||
+    window.SCHOLAR_SEARCH_RESULTS.length === 0
+  ) {
+    console.log(
+      "[Swarm Plots Init] No search results available, skipping initialization",
+    );
+    return;
+  }
+
+  console.log(
+    "[Swarm Plots Init] Found",
+    window.SCHOLAR_SEARCH_RESULTS.length,
+    "search results",
+  );
+
+  let attempt = 0;
+
+  function attemptInit(): void {
+    attempt++;
+    console.log(`[Swarm Plots Init] Attempt ${attempt}/${maxRetries}`);
+
+    if (window.SwarmPlots && typeof window.SwarmPlots.init === "function") {
+      console.log(
+        "[Swarm Plots Init] SwarmPlots module found, initializing...",
+      );
+      try {
+        window.SwarmPlots.init(window.SCHOLAR_SEARCH_RESULTS!);
+        console.log("[Swarm Plots Init] Successfully initialized swarm plots");
+      } catch (error) {
+        console.error("[Swarm Plots Init] Error during initialization:", error);
+      }
+    } else if (attempt < maxRetries) {
+      console.log(
+        "[Swarm Plots Init] SwarmPlots module not yet available, retrying...",
+      );
+      setTimeout(attemptInit, retryDelay);
+    } else {
+      console.warn(
+        "[Swarm Plots Init] SwarmPlots module not available after",
+        maxRetries,
+        "attempts",
+      );
     }
+  }
 
-    console.log('[Swarm Plots Init] Found', window.SCHOLAR_SEARCH_RESULTS.length, 'search results');
-
-    let attempt = 0;
-
-    function attemptInit(): void {
-        attempt++;
-        console.log(`[Swarm Plots Init] Attempt ${attempt}/${maxRetries}`);
-
-        if (window.SwarmPlots && typeof window.SwarmPlots.init === 'function') {
-            console.log('[Swarm Plots Init] SwarmPlots module found, initializing...');
-            try {
-                window.SwarmPlots.init(window.SCHOLAR_SEARCH_RESULTS!);
-                console.log('[Swarm Plots Init] Successfully initialized swarm plots');
-            } catch (error) {
-                console.error('[Swarm Plots Init] Error during initialization:', error);
-            }
-        } else if (attempt < maxRetries) {
-            console.log('[Swarm Plots Init] SwarmPlots module not yet available, retrying...');
-            setTimeout(attemptInit, retryDelay);
-        } else {
-            console.warn('[Swarm Plots Init] SwarmPlots module not available after', maxRetries, 'attempts');
-        }
-    }
-
-    attemptInit();
+  attemptInit();
 }
 
 /**
  * Initialize when DOM is ready
  */
 function onDOMReady(): void {
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => initializeSwarmPlots());
-    } else {
-        // DOM already loaded
-        initializeSwarmPlots();
-    }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => initializeSwarmPlots());
+  } else {
+    // DOM already loaded
+    initializeSwarmPlots();
+  }
 }
 
 // Auto-initialize when script loads

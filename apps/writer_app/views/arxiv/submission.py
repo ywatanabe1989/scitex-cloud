@@ -1,6 +1,6 @@
 """arXiv submission views."""
 
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from ...services import ArxivService
 from apps.project_app.services import get_current_project
@@ -23,19 +23,19 @@ def submission_form(request):
     current_project = get_current_project(request, user=request.user)
 
     context = {
-        'project': current_project,
-        'categories': [],
+        "project": current_project,
+        "categories": [],
     }
 
     if current_project:
         try:
             arxiv_service = ArxivService(current_project.id, request.user.id)
             categories = arxiv_service.get_categories()
-            context['categories'] = categories
+            context["categories"] = categories
         except Exception as e:
             logger.error(f"Error loading arXiv categories: {e}")
 
-    return render(request, 'writer_app/arxiv/submission.html', context)
+    return render(request, "writer_app/arxiv/submission.html", context)
 
 
 @login_required
@@ -49,17 +49,17 @@ def submission_list(request):
     - Links to arXiv.org
     """
     context = {
-        'submissions': [],
+        "submissions": [],
     }
 
     try:
         arxiv_service = ArxivService(None, request.user.id)
         submissions = arxiv_service.get_user_submissions()
-        context['submissions'] = submissions
+        context["submissions"] = submissions
     except Exception as e:
         logger.error(f"Error loading submissions: {e}")
 
-    return render(request, 'writer_app/arxiv/submission_list.html', context)
+    return render(request, "writer_app/arxiv/submission_list.html", context)
 
 
 @login_required
@@ -74,15 +74,15 @@ def submission_detail(request, submission_id):
     - Resubmission options
     """
     context = {
-        'submission_id': submission_id,
-        'submission': None,
+        "submission_id": submission_id,
+        "submission": None,
     }
 
     try:
         arxiv_service = ArxivService(None, request.user.id)
         submission = arxiv_service.get_submission(submission_id)
-        context['submission'] = submission
+        context["submission"] = submission
     except Exception as e:
         logger.error(f"Error loading submission: {e}")
 
-    return render(request, 'writer_app/arxiv/submission_detail.html', context)
+    return render(request, "writer_app/arxiv/submission_detail.html", context)

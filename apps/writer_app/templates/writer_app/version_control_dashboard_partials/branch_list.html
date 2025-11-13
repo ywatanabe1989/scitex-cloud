@@ -1,66 +1,62 @@
-            <!-- Branches -->
-            <div class="index-section">
-                <div class="section-header">
-                    <h3 class="section-title">
-                        <i class="fas fa-code-branch"></i> Branches
-                    </h3>
-                    <button class="btn-sm btn-outline" onclick="createBranch()">
-                        New Branch
-                    </button>
-                </div>
-                <div class="section-content">
-                    {% if branches %}
-                        <ul class="branch-list" id="branch-list">
-                            {% for branch in branches %}
-                                <li class="branch-item">
-                                    <div class="branch-info">
-                                        <div class="branch-name">
-                                            {{ branch.name }}
-                                            {% if branch.name == 'main' %}
-                                                <span class="branch-badge main">main</span>
-                                            {% else %}
-                                                <span class="branch-badge">feature</span>
-                                            {% endif %}
-                                        </div>
-                                        <div class="branch-meta">
-                                            Created by {{ branch.created_by.username }} • 
-                                            {{ branch.created_at|date:"M d, Y" }}
-                                        </div>
-                                        {% if branch.description %}
-                                            <div class="branch-description">{{ branch.description }}</div>
-                                        {% endif %}
-                                        <div class="branch-stats">
-                                            <span class="stat-item">
-                                                <i class="fas fa-code-commit"></i> {{ branch.total_commits }} commits
-                                            </span>
-                                            <span class="stat-item">
-                                                <i class="fas fa-clock"></i> {{ branch.last_updated|date:"M d" }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="version-actions">
-                                        {% if branch.name != 'main' %}
-                                            <button class="btn-sm btn-outline" onclick="createMergeRequest('{{ branch.id }}')">
-                                                <i class="fas fa-code-merge"></i> Merge
-                                            </button>
-                                        {% endif %}
-                                        <button class="btn-sm btn-outline" onclick="viewBranch('{{ branch.id }}')">
-                                            <i class="fas fa-eye"></i> View
-                                        </button>
-                                    </div>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    {% else %}
-                        <div class="empty-state">
-                            <div class="empty-state-icon">
-                                <i class="fas fa-code-branch"></i>
+<!-- Branches -->
+<div class="index-section">
+    <div class="section-header">
+        <h3 class="section-title">
+            <i class="fas fa-code-branch"></i> Branches
+        </h3>
+        <button class="btn-sm btn-outline" onclick="createBranch()">New Branch</button>
+    </div>
+    <div class="section-content">
+        {% if branches %}
+            <ul class="branch-list" id="branch-list">
+                {% for branch in branches %}
+                    <li class="branch-item">
+                        <div class="branch-info">
+                            <div class="branch-name">
+                                {{ branch.name }}
+                                {% if branch.name == 'main' %}
+                                    <span class="branch-badge main">main</span>
+                                {% else %}
+                                    <span class="branch-badge">feature</span>
+                                {% endif %}
                             </div>
-                            <div class="empty-state-message">Only main branch</div>
-                            <div class="empty-state-hint">Create feature branches for parallel development</div>
+                            <div class="branch-meta">
+                                Created by {{ branch.created_by.username }} •
+                                {{ branch.created_at|date:"M d, Y" }}
+                            </div>
+                            {% if branch.description %}<div class="branch-description">{{ branch.description }}</div>{% endif %}
+                            <div class="branch-stats">
+                                <span class="stat-item">
+                                    <i class="fas fa-code-commit"></i> {{ branch.total_commits }} commits
+                                </span>
+                                <span class="stat-item">
+                                    <i class="fas fa-clock"></i> {{ branch.last_updated|date:"M d" }}
+                                </span>
+                            </div>
                         </div>
-                    {% endif %}
+                        <div class="version-actions">
+                            {% if branch.name != 'main' %}
+                                <button class="btn-sm btn-outline"
+                                        onclick="createMergeRequest('{{ branch.id }}')">
+                                    <i class="fas fa-code-merge"></i> Merge
+                                </button>
+                            {% endif %}
+                            <button class="btn-sm btn-outline" onclick="viewBranch('{{ branch.id }}')">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">
+                    <i class="fas fa-code-branch"></i>
                 </div>
+                <div class="empty-state-message">Only main branch</div>
+                <div class="empty-state-hint">Create feature branches for parallel development</div>
             </div>
-        </div>
-
+        {% endif %}
+    </div>
+</div>
+</div>

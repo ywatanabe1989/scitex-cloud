@@ -13,13 +13,12 @@ Architecture:
 """
 
 import logging
+import secrets
 from datetime import timedelta
 from typing import Optional, Tuple
 from django.utils import timezone
 from django.contrib.auth.models import User
-from django.db import transaction
 from apps.project_app.models import Project
-from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
@@ -46,9 +45,9 @@ class VisitorPool:
     DEFAULT_PROJECT_PREFIX = "default-project-"
     POOL_SIZE = 32  # Fixed pool: visitor-001 to visitor-032
     SESSION_LIFETIME_HOURS = 24
-    SESSION_KEY_PROJECT_ID = 'visitor_project_id'
-    SESSION_KEY_VISITOR_ID = 'visitor_user_id'
-    SESSION_KEY_ALLOCATION_TOKEN = 'visitor_allocation_token'
+    SESSION_KEY_PROJECT_ID = "visitor_project_id"
+    SESSION_KEY_VISITOR_ID = "visitor_user_id"
+    SESSION_KEY_ALLOCATION_TOKEN = "visitor_allocation_token"
 
     @classmethod
     def get_or_create_demo_user(cls, session) -> User:
@@ -66,11 +65,15 @@ class VisitorPool:
 
         if demo_user_id:
             try:
-                user = User.objects.get(id=demo_user_id, username__startswith=cls.DEMO_USER_PREFIX)
+                user = User.objects.get(
+                    id=demo_user_id, username__startswith=cls.DEMO_USER_PREFIX
+                )
                 logger.info(f"[DemoPool] Reusing demo user: {user.username}")
                 return user
             except User.DoesNotExist:
-                logger.warning(f"[DemoPool] Demo user {demo_user_id} not found, creating new one")
+                logger.warning(
+                    f"[DemoPool] Demo user {demo_user_id} not found, creating new one"
+                )
 
         # Create new demo user
         username = f"{cls.DEMO_USER_PREFIX}{secrets.token_hex(8)}"
@@ -110,13 +113,16 @@ class VisitorPool:
         if demo_project_id:
             try:
                 project = Project.objects.get(
-                    id=demo_project_id,
-                    slug__startswith=cls.DEMO_PROJECT_PREFIX
+                    id=demo_project_id, slug__startswith=cls.DEMO_PROJECT_PREFIX
                 )
-                logger.info(f"[DemoPool] Reusing demo project: {project.slug} (id={project.id})")
+                logger.info(
+                    f"[DemoPool] Reusing demo project: {project.slug} (id={project.id})"
+                )
                 return project, False
             except Project.DoesNotExist:
-                logger.warning(f"[DemoPool] Demo project {demo_project_id} not found, creating new one")
+                logger.warning(
+                    f"[DemoPool] Demo project {demo_project_id} not found, creating new one"
+                )
 
         # Create new demo project
         demo_user = cls.get_or_create_demo_user(session)
@@ -127,16 +133,21 @@ class VisitorPool:
             slug=project_slug,
             description="Temporary demo workspace - try out SciTeX!",
             owner=demo_user,
-            visibility='private',
+            visibility="private",
         )
 
         # Initialize project directory structure
-        from apps.project_app.services.project_filesystem import get_project_filesystem_manager
+        from apps.project_app.services.project_filesystem import (
+            get_project_filesystem_manager,
+        )
+
         manager = get_project_filesystem_manager(demo_user)
         success, project_path = manager.create_empty_project_directory(project)
 
         if not success:
-            logger.error(f"[DemoPool] Failed to create directory for demo project {project.id}")
+            logger.error(
+                f"[DemoPool] Failed to create directory for demo project {project.id}"
+            )
             project.delete()
             raise RuntimeError("Failed to create demo project directory")
 
@@ -144,7 +155,9 @@ class VisitorPool:
         session[cls.SESSION_KEY_PROJECT_ID] = project.id
         session.save()
 
-        logger.info(f"[DemoPool] Created demo project: {project_slug} (id={project.id}, user={demo_user.username})")
+        logger.info(
+            f"[DemoPool] Created demo project: {project_slug} (id={project.id}, user={demo_user.username})"
+        )
 
         return project, True
 
@@ -201,7 +214,9 @@ class VisitorPool:
         return user.username.startswith(cls.DEMO_USER_PREFIX)
 
     @classmethod
-    def cleanup_expired_projects(cls, older_than_hours: Optional[int] = None, dry_run: bool = False) -> int:
+    def cleanup_expired_projects(
+        cls, older_than_hours: Optional[int] = None, dry_run: bool = False
+    ) -> int:
         """
         Clean up expired demo projects.
 
@@ -219,8 +234,7 @@ class VisitorPool:
 
         # Find expired demo projects
         expired_projects = Project.objects.filter(
-            slug__startswith=cls.DEMO_PROJECT_PREFIX,
-            created_at__lt=expiry_date
+            slug__startswith=cls.DEMO_PROJECT_PREFIX, created_at__lt=expiry_date
         )
 
         count = expired_projects.count()
@@ -228,29 +242,39 @@ class VisitorPool:
         if dry_run:
             logger.info(f"[DemoPool] DRY RUN: Would clean up {count} expired projects")
             for project in expired_projects:
-                logger.info(f"[DemoPool] DRY RUN: Would delete: {project.slug} (created: {project.created_at})")
+                logger.info(
+                    f"[DemoPool] DRY RUN: Would delete: {project.slug} (created: {project.created_at})"
+                )
             return count
 
         deleted = 0
         for project in expired_projects:
             try:
                 # Delete project directories
-                from apps.project_app.services.project_filesystem import get_project_filesystem_manager
+                from apps.project_app.services.project_filesystem import (
+                    get_project_filesystem_manager,
+                )
+
                 manager = get_project_filesystem_manager(project.owner)
                 project_root = manager.get_project_root_path(project)
 
                 if project_root and project_root.exists():
                     import shutil
+
                     shutil.rmtree(project_root)
                     logger.info(f"[DemoPool] Deleted directory: {project_root}")
 
                 # Delete demo user if they have no other projects
                 demo_user = project.owner
                 if demo_user.username.startswith(cls.DEMO_USER_PREFIX):
-                    other_projects = Project.objects.filter(owner=demo_user).exclude(id=project.id)
+                    other_projects = Project.objects.filter(owner=demo_user).exclude(
+                        id=project.id
+                    )
                     if not other_projects.exists():
                         demo_user.delete()
-                        logger.info(f"[DemoPool] Deleted demo user: {demo_user.username}")
+                        logger.info(
+                            f"[DemoPool] Deleted demo user: {demo_user.username}"
+                        )
 
                 # Delete project (cascades to manuscripts, etc.)
                 project_slug = project.slug
@@ -286,7 +310,9 @@ class VisitorPool:
         count = len(orphaned)
 
         if dry_run:
-            logger.info(f"[DemoPool] DRY RUN: Would clean up {count} orphaned demo users")
+            logger.info(
+                f"[DemoPool] DRY RUN: Would clean up {count} orphaned demo users"
+            )
             for user in orphaned:
                 logger.info(f"[DemoPool] DRY RUN: Would delete user: {user.username}")
             return count
@@ -301,5 +327,7 @@ class VisitorPool:
             except Exception as e:
                 logger.error(f"[DemoPool] Error deleting user {user.id}: {e}")
 
-        logger.info(f"[DemoPool] Cleanup complete: {deleted}/{count} orphaned users removed")
+        logger.info(
+            f"[DemoPool] Cleanup complete: {deleted}/{count} orphaned users removed"
+        )
         return deleted
