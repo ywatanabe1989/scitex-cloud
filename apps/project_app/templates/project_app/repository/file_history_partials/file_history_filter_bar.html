@@ -7,16 +7,7 @@
                 onchange="filterByAuthor(this.value)">
             <option value="">All authors</option>
             {% for author in unique_authors %}
-                <option
-                    value="{{ author }}"
-                    {%
-                    if
-                    author=""
-                    ="author_filter"
-                    %}selected{%
-                    endif
-                    %}
-                    >{{ author }}</option>
+                <option value="{{ author }}" {% if author == author_filter %}selected{% endif %}>{{ author }}</option>
             {% endfor %}
         </select>
         {% if author_filter %}<a href="?page=1" class="btn btn-sm btn-outline-secondary">Clear filter</a>{% endif %}

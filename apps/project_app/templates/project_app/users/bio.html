@@ -1,16 +1,13 @@
 {% extends 'global_base.html' %}
 {% load static %}
-{% block title %}
-    {{
-    profile_user.get_full_name|default:profile_user.username }} - SciTeX Cloud{%
-    endblock %}
-    {% block extra_css %}
+{% block title %}{{ profile_user.get_full_name|default:profile_user.username }} - SciTeX Cloud{% endblock %}
+{% block extra_css %}
         <link rel="stylesheet"
               href="{% static 'project_app/css/project_app.css' %}" />
         <link rel="stylesheet"
               href="{% static 'project_app/css/shared/buttons.css' %}" />
-    {% endblock %}
-    {% block content %}
+{% endblock %}
+{% block content %}
         <div class="container-fluid" style="max-width: 1280px">
             {% include 'project_app/users/bio_partials/user_bio_header.html' %}
             <!-- Research Interests Section -->
@@ -20,7 +17,6 @@
                     <div style="color: var(--color-fg-default); line-height: 1.6">{{ profile.research_interests|linebreaks }}</div>
                 </div>
             {% endif %}
-            {% include 'project_app/users/bio_partials/user_bio_projects.html'
-            %}
+            {% include 'project_app/users/bio_partials/user_bio_projects.html' %}
         </div>
-    {% endblock %}
+{% endblock %}

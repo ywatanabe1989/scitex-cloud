@@ -86,36 +86,9 @@
                                border-radius: 6px;
                                background: var(--color-canvas-default);
                                color: var(--color-fg-default)">
-                    <option
-                        value="viewer"
-                        {%
-                        if
-                        membership.role=""
-                        ="viewer"
-                        %}selected{%
-                        endif
-                        %}
-                        >Read</option>
-                    <option
-                        value="collaborator"
-                        {%
-                        if
-                        membership.role=""
-                        ="collaborator"
-                        %}selected{%
-                        endif
-                        %}
-                        >Write</option>
-                    <option
-                        value="admin"
-                        {%
-                        if
-                        membership.role=""
-                        ="admin"
-                        %}selected{%
-                        endif
-                        %}
-                        >Admin</option>
+                    <option value="viewer" {% if membership.role == "viewer" %}selected{% endif %}>Read</option>
+                    <option value="collaborator" {% if membership.role == "collaborator" %}selected{% endif %}>Write</option>
+                    <option value="admin" {% if membership.role == "admin" %}selected{% endif %}>Admin</option>
                 </select>
             </div>
         {% endfor %}
