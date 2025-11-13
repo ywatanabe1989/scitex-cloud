@@ -6,6 +6,7 @@
 
 import { StorageManager } from "@/utils/storage";
 import { HistoryEntry } from "@/types";
+import { SpellChecker, injectSpellCheckStyles } from "./spell-checker.js";
 
 console.log(
   "[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/modules/monaco-editor.ts loaded",
@@ -30,6 +31,7 @@ export class EnhancedEditor {
   private onChangeCallback?: (content: string, wordCount: number) => void;
   private monacoEditor?: any;
   private currentSectionId: string = "";
+  private spellChecker?: SpellChecker;
 
   constructor(config: MonacoEditorConfig) {
     this.storage = new StorageManager("writer_editor_");
@@ -888,6 +890,19 @@ export class EnhancedEditor {
         this.editorType = "monaco";
         this.setupMonacoEditor();
 
+        // Initialize spell checker
+        injectSpellCheckStyles();
+        this.spellChecker = new SpellChecker(monaco, this.monacoEditor, {
+          enabled: true,
+          language: 'en-US',
+          skipLaTeXCommands: true,
+          skipMathMode: true,
+          skipCodeBlocks: true,
+        });
+        this.spellChecker.loadCustomDictionary();
+        this.spellChecker.enable();
+        console.log("[Editor] Spell checker initialized and enabled");
+
         // Listen for global theme changes and update editor theme
         const themeObserver = new MutationObserver(() => {
           const isDarkMode =
@@ -1177,6 +1192,16 @@ export class EnhancedEditor {
 
     if (this.editorType === "monaco") {
       this.monacoEditor.setValue(content);
+
+      // Trigger spell check on existing content after a short delay
+      // to ensure dictionary is loaded
+      if (this.spellChecker && content.length > 0) {
+        setTimeout(() => {
+          if (this.spellChecker) {
+            this.spellChecker.recheckAll();
+          }
+        }, 1500); // Wait 1.5s for dictionary to load
+      }
     } else {
       const doc = this.editor.getDoc();
       const lastLine = doc.lastLine();
@@ -1503,6 +1528,54 @@ export class EnhancedEditor {
           );
         }
       }, 50);
+    }
+  }
+
+  /**
+   * Enable spell checking
+   */
+  enableSpellCheck(): void {
+    if (this.spellChecker) {
+      this.spellChecker.enable();
+      console.log("[Editor] Spell check enabled");
+    }
+  }
+
+  /**
+   * Disable spell checking
+   */
+  disableSpellCheck(): void {
+    if (this.spellChecker) {
+      this.spellChecker.disable();
+      console.log("[Editor] Spell check disabled");
+    }
+  }
+
+  /**
+   * Re-check all content for spelling errors
+   */
+  recheckSpelling(): void {
+    if (this.spellChecker) {
+      this.spellChecker.recheckAll();
+      console.log("[Editor] Re-checking all content");
+    }
+  }
+
+  /**
+   * Add word to custom dictionary
+   */
+  addToSpellCheckDictionary(word: string): void {
+    if (this.spellChecker) {
+      this.spellChecker.addToCustomDictionary(word);
+    }
+  }
+
+  /**
+   * Clear custom spell check dictionary
+   */
+  clearSpellCheckDictionary(): void {
+    if (this.spellChecker) {
+      this.spellChecker.clearCustomDictionary();
     }
   }
 }

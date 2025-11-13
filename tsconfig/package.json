@@ -19,15 +19,17 @@
     "clean:project": "rm -rf ../apps/project_app/static/project_app/js/apps ../apps/project_app/static/project_app/js/static",
     "clean:all": "npm run clean:writer && npm run clean:project"
   },
-  "dependencies": {},
+  "dependencies": {
+    "typo-js": "^1.3.1"
+  },
   "devDependencies": {
-    "typescript": "^5.2.2",
-    "@types/node": "^20.5.0",
     "@types/codemirror": "^5.60.11",
-    "eslint": "^8.48.0",
+    "@types/node": "^20.5.0",
     "@typescript-eslint/eslint-plugin": "^6.5.0",
     "@typescript-eslint/parser": "^6.5.0",
-    "prettier": "^3.0.0"
+    "eslint": "^8.48.0",
+    "prettier": "^3.0.0",
+    "typescript": "^5.2.2"
   },
   "engines": {
     "node": ">=16.0.0"

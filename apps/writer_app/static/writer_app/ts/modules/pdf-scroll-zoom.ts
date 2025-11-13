@@ -51,14 +51,21 @@ export class PDFScrollZoomHandler {
   private maxZoom: number = 300;
   private zoomStep: number = 10;
   private isCtrlPressed: boolean = false;
+  private isSpacePressed: boolean = false;
   private isDraggingZoom: boolean = false;
+  private isPanning: boolean = false;
   private dragStartX: number = 0;
   private dragStartY: number = 0;
   private dragStartZoom: number = 125;
+  private panStartScrollTop: number = 0;
+  private panStartScrollLeft: number = 0;
   private originalOverflow: string = "";
+  private originalCursor: string = "";
   private colorMode: PDFColorMode = "light";
   private onColorModeChangeCallback?: (colorMode: PDFColorMode) => void;
   private scrollSaveTimeout: number | null = null;
+  private isWaitingForCommand: boolean = false;
+  private commandTimeout: number | null = null;
 
   constructor(options: PDFScrollZoomOptions) {
     this.container = document.getElementById(options.containerId);
@@ -415,11 +422,154 @@ export class PDFScrollZoomHandler {
   }
 
   /**
+   * Show command mode indicator
+   */
+  private showCommandModeIndicator(): void {
+    // Remove any existing indicator
+    this.hideCommandModeIndicator();
+
+    const indicator = document.createElement("div");
+    indicator.id = "pdf-command-mode-indicator";
+    indicator.innerHTML = `
+      <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+                  background: rgba(0, 0, 0, 0.8); color: white; padding: 1rem 2rem;
+                  border-radius: 8px; z-index: 10000; font-size: 1.2rem;
+                  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);">
+        🎯 Command Mode: <kbd>T</kbd> Text | <kbd>H</kbd> Hand | <kbd>Z</kbd> Zoom
+      </div>
+    `;
+    document.body.appendChild(indicator);
+  }
+
+  /**
+   * Hide command mode indicator
+   */
+  private hideCommandModeIndicator(): void {
+    const indicator = document.getElementById("pdf-command-mode-indicator");
+    if (indicator) indicator.remove();
+  }
+
+  /**
+   * Show temporary mode message
+   */
+  private showModeMessage(message: string): void {
+    // Remove any existing message
+    const existingMsg = document.getElementById("pdf-mode-message");
+    if (existingMsg) existingMsg.remove();
+
+    const msgDiv = document.createElement("div");
+    msgDiv.id = "pdf-mode-message";
+    msgDiv.innerHTML = `
+      <div style="position: fixed; top: 20px; right: 20px;
+                  background: rgba(59, 130, 246, 0.95); color: white;
+                  padding: 0.75rem 1.5rem; border-radius: 6px; z-index: 10000;
+                  font-size: 0.9rem; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+                  animation: slideInRight 0.3s ease;">
+        ${message}
+      </div>
+      <style>
+        @keyframes slideInRight {
+          from { transform: translateX(100%); opacity: 0; }
+          to { transform: translateX(0); opacity: 1; }
+        }
+      </style>
+    `;
+    document.body.appendChild(msgDiv);
+
+    // Auto-remove after 3 seconds
+    setTimeout(() => {
+      if (msgDiv.parentNode) msgDiv.remove();
+    }, 3000);
+  }
+
+  /**
    * Handle keyboard - track Ctrl key
    */
   private handleKeyDown(e: KeyboardEvent): void {
     if (e.key === "Control" || e.key === "Meta") {
       this.isCtrlPressed = true;
+    }
+
+    // Ctrl+Space: Enter command mode (prefix key)
+    if (this.isCtrlPressed && e.key === " " && !this.isWaitingForCommand) {
+      e.preventDefault();
+      this.isWaitingForCommand = true;
+      console.log("[PDFScrollZoom] 🎯 Command mode activated - Press T (text), H (hand), or Z (zoom)");
+
+      // Show visual indicator
+      this.showCommandModeIndicator();
+
+      // Auto-exit command mode after 2 seconds if no command pressed
+      if (this.commandTimeout) clearTimeout(this.commandTimeout);
+      this.commandTimeout = window.setTimeout(() => {
+        this.isWaitingForCommand = false;
+        this.hideCommandModeIndicator();
+        console.log("[PDFScrollZoom] Command mode timeout - exited");
+      }, 2000);
+
+      return;
+    }
+
+    // Handle commands when in command mode
+    if (this.isWaitingForCommand) {
+      e.preventDefault();
+      this.isWaitingForCommand = false;
+      if (this.commandTimeout) clearTimeout(this.commandTimeout);
+      this.hideCommandModeIndicator();
+
+      switch (e.key.toLowerCase()) {
+        case "t":
+          console.log("[PDFScrollZoom] 📝 Text selection mode activated");
+          // Text selection is the default - just show message
+          this.showModeMessage("Text Selection Mode");
+          break;
+        case "h":
+          console.log("[PDFScrollZoom] ✋ Hand/Pan mode activated");
+          this.isSpacePressed = true;
+          if (this.pdfViewer) {
+            this.originalCursor = this.pdfViewer.style.cursor;
+            this.pdfViewer.style.cursor = "grab";
+          }
+          this.showModeMessage("Hand/Pan Mode (click ESC to exit)");
+          break;
+        case "z":
+          console.log("[PDFScrollZoom] 🔍 Zoom mode activated - Use Ctrl+drag or Ctrl+wheel");
+          this.showModeMessage("Zoom Mode - Use Ctrl+drag or Ctrl+wheel");
+          break;
+        default:
+          console.log("[PDFScrollZoom] Unknown command:", e.key);
+          this.showModeMessage("Unknown command: " + e.key);
+      }
+      return;
+    }
+
+    // Escape: Exit hand mode or command mode
+    if (e.key === "Escape") {
+      if (this.isWaitingForCommand) {
+        this.isWaitingForCommand = false;
+        if (this.commandTimeout) clearTimeout(this.commandTimeout);
+        this.hideCommandModeIndicator();
+        console.log("[PDFScrollZoom] Command mode cancelled");
+      } else if (this.isSpacePressed) {
+        this.isSpacePressed = false;
+        if (this.pdfViewer) {
+          this.pdfViewer.style.cursor = this.originalCursor || "auto";
+        }
+        this.showModeMessage("Hand mode deactivated");
+        console.log("[PDFScrollZoom] Hand mode deactivated via Escape");
+      }
+      return;
+    }
+
+    // Spacebar: activate hand/pan tool (like PDF Studio)
+    if (e.key === " " && !this.isSpacePressed && !this.isCtrlPressed) {
+      this.isSpacePressed = true;
+      // Change cursor to grab/hand when spacebar is held
+      if (this.pdfViewer) {
+        this.originalCursor = this.pdfViewer.style.cursor;
+        this.pdfViewer.style.cursor = "grab";
+      }
+      console.log("[PDFScrollZoom] Spacebar pressed - Hand tool activated");
     }
 
     // Ctrl + Plus: zoom in
@@ -448,6 +598,16 @@ export class PDFScrollZoomHandler {
     if (e.key === "Control" || e.key === "Meta") {
       this.isCtrlPressed = false;
     }
+
+    // Spacebar released: deactivate hand/pan tool
+    if (e.key === " " && this.isSpacePressed) {
+      this.isSpacePressed = false;
+      // Restore original cursor
+      if (this.pdfViewer && !this.isPanning) {
+        this.pdfViewer.style.cursor = this.originalCursor || "auto";
+      }
+      console.log("[PDFScrollZoom] Spacebar released - Hand tool deactivated");
+    }
   }
 
   /**
@@ -467,33 +627,75 @@ export class PDFScrollZoomHandler {
   }
 
   /**
-   * Handle mouse down - start zoom drag
+   * Handle mouse down - start zoom drag or panning
    */
   private handleMouseDown(e: MouseEvent): void {
-    if (!this.container || !this.isCtrlPressed) return;
+    if (!this.container) return;
 
     const isOverPDF = this.container.contains(e.target as Node);
     if (!isOverPDF) return;
 
-    e.preventDefault();
-    this.isDraggingZoom = true;
-    this.dragStartX = e.clientX;
-    this.dragStartY = e.clientY;
-    this.dragStartZoom = this.currentZoom;
+    // Spacebar + left click OR middle mouse button for panning (like PDF Studio)
+    if ((e.button === 0 && this.isSpacePressed) || e.button === 1) {
+      e.preventDefault();
+      this.isPanning = true;
+      this.dragStartX = e.clientX;
+      this.dragStartY = e.clientY;
 
-    console.log("[PDFScrollZoom] Starting zoom drag from:", this.currentZoom);
+      // Save current scroll position
+      const textPreview = this.container.querySelector(".text-preview");
+      if (textPreview) {
+        this.panStartScrollTop = textPreview.scrollTop;
+        this.panStartScrollLeft = textPreview.scrollLeft;
+      }
 
-    // Change cursor to indicate zoom mode
-    if (this.pdfViewer) {
-      this.originalOverflow = this.pdfViewer.style.cursor;
-      this.pdfViewer.style.cursor = "grabbing";
+      // Change cursor to indicate pan mode
+      if (this.pdfViewer) {
+        this.originalCursor = this.pdfViewer.style.cursor;
+        this.pdfViewer.style.cursor = "grabbing";
+      }
+
+      console.log("[PDFScrollZoom] Starting pan mode");
+      return;
+    }
+
+    // Ctrl + left mouse button for zoom drag
+    if (e.button === 0 && this.isCtrlPressed) {
+      e.preventDefault();
+      this.isDraggingZoom = true;
+      this.dragStartX = e.clientX;
+      this.dragStartY = e.clientY;
+      this.dragStartZoom = this.currentZoom;
+
+      console.log("[PDFScrollZoom] Starting zoom drag from:", this.currentZoom);
+
+      // Change cursor to indicate zoom mode
+      if (this.pdfViewer) {
+        this.originalCursor = this.pdfViewer.style.cursor;
+        this.pdfViewer.style.cursor = "grabbing";
+      }
     }
   }
 
   /**
-   * Handle mouse move - drag zoom
+   * Handle mouse move - drag zoom or panning
    */
   private handleMouseMove(e: MouseEvent): void {
+    // Handle panning
+    if (this.isPanning && this.container) {
+      const textPreview = this.container.querySelector(".text-preview");
+      if (textPreview) {
+        const deltaX = e.clientX - this.dragStartX;
+        const deltaY = e.clientY - this.dragStartY;
+
+        // Pan by adjusting scroll position (inverted for natural feel)
+        textPreview.scrollTop = this.panStartScrollTop - deltaY;
+        textPreview.scrollLeft = this.panStartScrollLeft - deltaX;
+      }
+      return;
+    }
+
+    // Handle zoom drag
     if (!this.isDraggingZoom || !this.pdfViewer) return;
 
     // Use both X and Y delta for better zoom control (diagonal drag for better UX)
@@ -510,14 +712,24 @@ export class PDFScrollZoomHandler {
   }
 
   /**
-   * Handle mouse up - end zoom drag
+   * Handle mouse up - end zoom drag or panning
    */
   private handleMouseUp(): void {
-    if (!this.isDraggingZoom) return;
+    // End panning
+    if (this.isPanning) {
+      this.isPanning = false;
+      if (this.pdfViewer) {
+        this.pdfViewer.style.cursor = this.originalCursor || "auto";
+      }
+      console.log("[PDFScrollZoom] Ended pan mode");
+    }
 
-    this.isDraggingZoom = false;
-    if (this.pdfViewer) {
-      this.pdfViewer.style.cursor = this.originalOverflow || "auto";
+    // End zoom drag
+    if (this.isDraggingZoom) {
+      this.isDraggingZoom = false;
+      if (this.pdfViewer) {
+        this.pdfViewer.style.cursor = this.originalCursor || "auto";
+      }
     }
   }
 
