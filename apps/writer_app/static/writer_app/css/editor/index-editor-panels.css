@@ -72,7 +72,7 @@
 /* Text Preview */
 .text-preview {
   flex: 1;
-  padding: 1rem;
+  padding: 0; /* No padding - let PDF viewer fill entire space */
   overflow-y: auto;
   font-size: 14px;
   line-height: 1.6;
@@ -288,7 +288,7 @@
 
   .text-preview {
     font-size: 13px;
-    padding: 0.75rem;
+    padding: 0; /* No padding on mobile either */
   }
 
   .writer-toolbar-sticky {

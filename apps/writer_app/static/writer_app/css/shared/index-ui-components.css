@@ -218,7 +218,7 @@
 
 .text-preview {
   flex: 1;
-  padding: 1.5rem;
+  padding: 0; /* No padding - let PDF viewer fill full space */
   background: var(--color-canvas-default) !important;
   color: var(--color-fg-default) !important;
   overflow-y: auto;

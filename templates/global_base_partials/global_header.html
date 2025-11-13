@@ -289,6 +289,13 @@
             <button id="theme-toggle"
                     class="theme-toggle"
                     data-tooltip="Toggle light/dark theme">🌓</button>
+            <!-- Refresh Button (Ctrl+Shift+R alternative) -->
+            <button id="page-refresh-btn"
+                    class="theme-toggle"
+                    data-tooltip="Refresh page (Ctrl+Shift+R)"
+                    style="font-size: 18px;">
+                <i class="fas fa-sync-alt"></i>
+            </button>
             {% if not user.is_authenticated %}
                 <!-- Visitor Mode indicator -->
                 <span class="header-visitor-badge"
@@ -991,6 +998,23 @@
       });
 
       searchModalResults.innerHTML = html;
+    }
+
+    // Page refresh button handler
+    const pageRefreshBtn = document.getElementById("page-refresh-btn");
+    if (pageRefreshBtn) {
+      pageRefreshBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+
+        // Add spinning animation
+        const icon = this.querySelector("i");
+        if (icon) {
+          icon.classList.add("fa-spin");
+        }
+
+        // Hard refresh (bypass cache) like Ctrl+Shift+R
+        window.location.reload(true);
+      });
     }
   });
 </script>

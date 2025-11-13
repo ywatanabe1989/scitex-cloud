@@ -12,8 +12,7 @@
                   font-weight: 400">{{ project.slug }}</a>
         {% if breadcrumbs %}
             {% for breadcrumb in breadcrumbs %}
-                {% if
-                    breadcrumb.name != project.name %}
+                {% if breadcrumb.name != project.name %}
                     <span style="color: var(--color-fg-muted)">/</span>
                     {% if not breadcrumb.is_last %}
                         <a href="{{ breadcrumb.url }}"

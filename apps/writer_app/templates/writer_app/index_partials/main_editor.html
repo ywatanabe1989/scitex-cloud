@@ -236,6 +236,7 @@
                                         style="padding: 0.2rem 0.5rem">
                                     <i class="fas fa-cog"></i>
                                 </button>
+                                
                                 <!-- Hidden checkboxes (controlled by settings modal) -->
                                 <input type="checkbox"
                                        id="auto-preview-checkbox-panel"
@@ -246,6 +247,7 @@
                                        id="auto-fullcompile-checkbox"
                                        class="form-check-input"
                                        style="display: none" />
+                                
                                 <!-- 4. PDF Zoom Selector (Size Dropdown) -->
                                 <select id="pdf-zoom-select"
                                         class="form-select form-select-sm"
@@ -253,19 +255,22 @@
                                                font-size: 0.75rem;
                                                padding: 0.2rem 0.5rem"
                                         aria-label="PDF Zoom Level">
+                                    <option value="fit-width" selected>Fit to Width</option>
                                     <option value="50">50%</option>
                                     <option value="75">75%</option>
                                     <option value="100">100%</option>
-                                    <option value="125" selected>125%</option>
+                                    <option value="125">125%</option>
                                     <option value="150">150%</option>
                                     <option value="200">200%</option>
                                 </select>
+                                
                                 <!-- 5. PDF Theme Toggle (Light/Dark) -->
                                 <button id="pdf-color-mode-btn"
                                         class="btn btn-sm btn-outline-secondary"
                                         title="PDF Theme: Light (Click to toggle)">
                                     <span class="theme-icon" style="font-size: 1rem">☀️</span>
                                 </button>
+                                
                                 <!-- 6. Download Current PDF Button -->
                                 <button id="download-btn-toolbar"
                                         class="btn btn-sm btn-outline-secondary"
@@ -276,40 +281,46 @@
                                     <i class="fas fa-download"></i>
                                     <span class="visually-hidden">Download PDF</span>
                                 </button>
-                                <!-- Background compilation status indicator -->
-                                <div id="background-compile-status"
-                                     class="status-indicator"
-                                     style="opacity: 0;
-                                            transition: opacity 0.3s"></div>
-                                <!-- Minimized compilation status (clickable to restore) -->
-                                <button id="minimized-compilation-status"
-                                        class="minimized-compilation-status"
-                                        style="display: none"
-                                        title="Click to show compilation details">
-                                    <i class="fas fa-spinner fa-spin"></i>
-                                    <span id="minimized-compilation-text">Compiling...</span>
-                                    <span id="minimized-compilation-progress">0%</span>
-                                </button>
-                                <!-- Countdown indicator -->
-                                <div id="compile-countdown-indicator"
-                                     class="countdown-indicator"
-                                     style="opacity: 0;
-                                            transition: opacity 0.3s"></div>
+                                <!-- may not be used... -->                                
+                                <!-- <\!-- Background compilation status indicator -\->
+                                 !-- <div id="background-compile-status"
+                                 !--      class="status-indicator"
+                                 !--      style="opacity: 0;
+                                 !--             transition: opacity 0.3s">
+                                 !-- </div> -->
+                                
+                                <!-- <\!-- Minimized compilation status (clickable to restore) -\->
+                                 !-- <button id="minimized-compilation-status"
+                                 !--         class="minimized-compilation-status"
+                                 !--         style="display: none"
+                                 !--         title="Click to show compilation details">
+                                 !--     <i class="fas fa-spinner fa-spin"></i>
+                                 !--     <span id="minimized-compilation-text">Compiling...</span>
+                                 !--     <span id="minimized-compilation-progress">0%</span>
+                                 !-- </button> -->
+                                
+                                <!-- <\!-- Countdown indicator -\->
+                                 !-- <div id="compile-countdown-indicator"
+                                 !--      class="countdown-indicator"
+                                 !--      style="opacity: 0;
+                                 !--             transition: opacity 0.3s">
+                                 !-- </div> -->
                             </div>
                         </div>
-                        <!-- Slim Progress Bar (tqdm-style, hidden by default) -->
-                        <div id="compilation-slim-progress"
-                             class="compilation-slim-progress"
-                             style="display: none">
-                            <div class="slim-progress-bar">
-                                <div id="slim-progress-fill" class="slim-progress-fill" style="width: 0%"></div>
-                            </div>
-                            <div class="slim-progress-text">
-                                <span id="slim-progress-percent">0%</span>
-                                <span id="slim-progress-status">Initializing...</span>
-                                <span id="slim-progress-eta"></span>
-                            </div>
-                        </div>
+                        <!-- may not be used... -->
+                        <!-- <\!-- Slim Progress Bar (tqdm-style, hidden by default) -\->
+                         !-- <div id="compilation-slim-progress"
+                         !--      class="compilation-slim-progress"
+                         !--      style="display: none">
+                         !--     <div class="slim-progress-bar">
+                         !--         <div id="slim-progress-fill" class="slim-progress-fill" style="width: 0%"></div>
+                         !--     </div>
+                         !--     <div class="slim-progress-text">
+                         !--         <span id="slim-progress-percent">0%</span>
+                         !--         <span id="slim-progress-status">Initializing...</span>
+                         !--         <span id="slim-progress-eta"></span>
+                         !--     </div>
+                         !-- </div> -->
                         <!-- PDF Content -->
                         <div id="text-preview" class="text-preview"></div>
                     </div>

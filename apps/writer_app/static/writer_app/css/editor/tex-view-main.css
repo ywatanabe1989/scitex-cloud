@@ -637,7 +637,7 @@
 }
 
 /* Add padding for text-only preview (not PDF) */
-.text-preview:not(:has(.pdf-preview-container)) {
+.text-preview:not(:has(.pdf-preview-container, .pdfjs-viewer)) {
   padding: 1.5rem;
   white-space: pre-wrap;
 }
@@ -649,7 +649,6 @@
   height: 100%;
   background: #525659; /* Gray background like PDF viewers */
   padding: 0 !important;
-  padding-top: 36px !important; /* Space for absolute-positioned header (reduced from 48px) */
   box-sizing: border-box;
   position: absolute;
   top: 0;
@@ -668,6 +667,16 @@
   flex: 1;
   min-height: 0;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Make pdfjs-viewer fill its parent */
+.pdf-preview-viewer .pdfjs-viewer {
+  width: 100%;
+  height: 100%;
+  flex: 1;
+  min-height: 0;
 }
 
 .pdf-preview-viewer iframe {
@@ -678,9 +687,23 @@
 }
 
 /* Ensure PDF preview starts at the top, not bottom */
-.text-preview:has(.pdf-preview-container) {
+.text-preview:has(.pdf-preview-container),
+.text-preview:has(.pdfjs-viewer) {
   scroll-behavior: auto;
   scroll-padding: 0;
+  overflow: hidden !important; /* Prevent scrolling on text-preview when PDF is shown */
+}
+
+/* Add top padding to prevent PDF from being hidden under the overlay header */
+.preview-panel:has(.pdfjs-viewer) .text-preview,
+#pdf-view:has(.pdfjs-viewer) .text-preview {
+  padding-top: 0 !important; /* No padding - pdfjs-viewer will handle spacing */
+}
+
+/* Ensure pdfjs-viewer fills space without extra padding */
+.text-preview .pdfjs-viewer {
+  margin-top: 0 !important;
+  padding-top: 0 !important; /* No top padding needed - pages have their own margins */
 }
 
 /* Make preview panel position relative for overlay positioning */
@@ -690,11 +713,13 @@
 
 /* Convert panel header to overlay when displaying PDF preview */
 .preview-panel:has(.pdf-preview-container) .panel-header,
-#pdf-view:has(.pdf-preview-container) .panel-header {
+.preview-panel:has(.pdfjs-viewer) .panel-header,
+#pdf-view:has(.pdf-preview-container) .panel-header,
+#pdf-view:has(.pdfjs-viewer) .panel-header {
   position: absolute !important;
   top: 0;
   left: 0;
-  right: 0;
+  right: 12px; /* Leave space for scrollbar (12px) */
   z-index: 10;
   height: 36px !important;
   min-height: 36px;
@@ -710,7 +735,9 @@
 
 /* Enhance overlay on hover */
 .preview-panel:has(.pdf-preview-container):hover .panel-header,
-#pdf-view:has(.pdf-preview-container):hover .panel-header {
+.preview-panel:has(.pdfjs-viewer):hover .panel-header,
+#pdf-view:has(.pdf-preview-container):hover .panel-header,
+#pdf-view:has(.pdfjs-viewer):hover .panel-header {
   opacity: 1;
   box-shadow: 0 3px 16px rgba(0, 0, 0, 0.12);
 }

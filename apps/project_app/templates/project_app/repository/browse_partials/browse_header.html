@@ -9,8 +9,7 @@
            class="repo-title">{{ project.name }}</a>
         {% if breadcrumbs %}
             {% for breadcrumb in breadcrumbs %}
-                {% if
-                    breadcrumb.name != project.name %}
+                {% if breadcrumb.name != project.name %}
                     <span class="repo-header-separator">/</span>
                     {% if forloop.last %}
                         <span class="repo-breadcrumb-current">{{ breadcrumb.name }}</span>
@@ -63,8 +62,7 @@
                                         <path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z" />
                                     </svg>
                                     <strong>{{ branch }}</strong>
-                                    {% if branch == 'main' or branch ==
-                                        'develop' %}
+                                    {% if branch == 'main' or branch == 'develop' %}
                                         (default)
                                     {% endif %}
                                 {% else %}
