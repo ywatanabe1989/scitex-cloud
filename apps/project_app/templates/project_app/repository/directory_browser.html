@@ -23,19 +23,15 @@
 {% block content %}
     <div class="container-fluid browse-container">
         {% include 'project_app/repository/browse_partials/browse_header.html' %}
-        {%
-        include 'project_app/repository/browse_partials/browse_tabs.html' with
-        active_tab='code' %}
+        {% include 'project_app/repository/browse_partials/browse_tabs.html' with active_tab='code' %}
         <!-- Main Content Area with Sidebar -->
         <div class="repo-layout" id="repo-layout">
             {% include "project_app/repository/browse_partials/browse_sidebar.html" %}
             <!-- Main Content (RIGHT side) -->
             <div class="repo-main">
-                {% include
-                "project_app/repository/browse_partials/browse_file_browser.html" %}
+                {% include "project_app/repository/browse_partials/browse_file_browser.html" %}
             </div>
         </div>
     </div>
     {% include 'project_app/repository/browse_partials/browse_scripts.html' %}
-    {%
-    endblock %}
+{% endblock %}

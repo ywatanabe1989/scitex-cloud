@@ -13,12 +13,8 @@
 {% block content %}
     <div class="container-fluid" style="max-width: 1280px">
         {% include 'project_app/repository/browse_partials/browse_header.html' %}
-        {%
-        include 'project_app/repository/browse_partials/browse_tabs.html' with
-        active_tab='security' %}
-        {% include
-        'project_app/security_overview_partials/security_overview_tabs.html' with
-        active_tab='alerts' %}
+        {% include 'project_app/repository/browse_partials/browse_tabs.html' with active_tab='security' %}
+        {% include 'project_app/security_overview_partials/security_overview_tabs.html' with active_tab='alerts' %}
         <h2 class="mb-3">Security Alerts</h2>
         <!-- Filters -->
         <div class="card mb-3">
@@ -30,46 +26,10 @@
                                 id="statusFilter"
                                 class="form-select"
                                 onchange="this.form.submit()">
-                            <option
-                                value="all"
-                                {%
-                                if
-                                status_filter=""
-                                ="all"
-                                %}selected{%
-                                endif
-                                %}
-                                >All</option>
-                            <option
-                                value="open"
-                                {%
-                                if
-                                status_filter=""
-                                ="open"
-                                %}selected{%
-                                endif
-                                %}
-                                >Open</option>
-                            <option
-                                value="fixed"
-                                {%
-                                if
-                                status_filter=""
-                                ="fixed"
-                                %}selected{%
-                                endif
-                                %}
-                                >Fixed</option>
-                            <option
-                                value="dismissed"
-                                {%
-                                if
-                                status_filter=""
-                                ="dismissed"
-                                %}selected{%
-                                endif
-                                %}
-                                >Dismissed</option>
+                            <option value="all" {% if status_filter == "all" %}selected{% endif %}>All</option>
+                            <option value="open" {% if status_filter == "open" %}selected{% endif %}>Open</option>
+                            <option value="fixed" {% if status_filter == "fixed" %}selected{% endif %}>Fixed</option>
+                            <option value="dismissed" {% if status_filter == "dismissed" %}selected{% endif %}>Dismissed</option>
                         </select>
                     </div>
                     <div class="col-md-3">
@@ -78,56 +38,11 @@
                                 id="severityFilter"
                                 class="form-select"
                                 onchange="this.form.submit()">
-                            <option
-                                value="all"
-                                {%
-                                if
-                                severity_filter=""
-                                ="all"
-                                %}selected{%
-                                endif
-                                %}
-                                >All</option>
-                            <option
-                                value="critical"
-                                {%
-                                if
-                                severity_filter=""
-                                ="critical"
-                                %}selected{%
-                                endif
-                                %}
-                                >Critical</option>
-                            <option
-                                value="high"
-                                {%
-                                if
-                                severity_filter=""
-                                ="high"
-                                %}selected{%
-                                endif
-                                %}
-                                >High</option>
-                            <option
-                                value="medium"
-                                {%
-                                if
-                                severity_filter=""
-                                ="medium"
-                                %}selected{%
-                                endif
-                                %}
-                                >Medium</option>
-                            <option
-                                value="low"
-                                {%
-                                if
-                                severity_filter=""
-                                ="low"
-                                %}selected{%
-                                endif
-                                %}
-                                >Low</option>
+                            <option value="all" {% if severity_filter == "all" %}selected{% endif %}>All</option>
+                            <option value="critical" {% if severity_filter == "critical" %}selected{% endif %}>Critical</option>
+                            <option value="high" {% if severity_filter == "high" %}selected{% endif %}>High</option>
+                            <option value="medium" {% if severity_filter == "medium" %}selected{% endif %}>Medium</option>
+                            <option value="low" {% if severity_filter == "low" %}selected{% endif %}>Low</option>
                         </select>
                     </div>
                     <div class="col-md-3">
@@ -136,56 +51,11 @@
                                 id="typeFilter"
                                 class="form-select"
                                 onchange="this.form.submit()">
-                            <option
-                                value="all"
-                                {%
-                                if
-                                alert_type_filter=""
-                                ="all"
-                                %}selected{%
-                                endif
-                                %}
-                                >All</option>
-                            <option
-                                value="dependency"
-                                {%
-                                if
-                                alert_type_filter=""
-                                ="dependency"
-                                %}selected{%
-                                endif
-                                %}
-                                >Dependency</option>
-                            <option
-                                value="secret"
-                                {%
-                                if
-                                alert_type_filter=""
-                                ="secret"
-                                %}selected{%
-                                endif
-                                %}
-                                >Secret</option>
-                            <option
-                                value="code"
-                                {%
-                                if
-                                alert_type_filter=""
-                                ="code"
-                                %}selected{%
-                                endif
-                                %}
-                                >Code</option>
-                            <option
-                                value="outdated"
-                                {%
-                                if
-                                alert_type_filter=""
-                                ="outdated"
-                                %}selected{%
-                                endif
-                                %}
-                                >Outdated</option>
+                            <option value="all" {% if alert_type_filter == "all" %}selected{% endif %}>All</option>
+                            <option value="dependency" {% if alert_type_filter == "dependency" %}selected{% endif %}>Dependency</option>
+                            <option value="secret" {% if alert_type_filter == "secret" %}selected{% endif %}>Secret</option>
+                            <option value="code" {% if alert_type_filter == "code" %}selected{% endif %}>Code</option>
+                            <option value="outdated" {% if alert_type_filter == "outdated" %}selected{% endif %}>Outdated</option>
                         </select>
                     </div>
                 </form>
@@ -225,11 +95,10 @@
                                     {% endif %}
                                     <p class="small text-muted">
                                         Opened {{ alert.created_at|timesince }} ago
-                                        {% if alert.status ==
-                                            'dismissed' %}
-                                            • Dismissed by {{ alert.dismissed_by.username }} {%
-                                            endif %}
-                                        </p>
+                                        {% if alert.status == 'dismissed' %}
+                                            • Dismissed by {{ alert.dismissed_by.username }}
+                                        {% endif %}
+                                    </p>
                                     </div>
                                 </div>
                             </div>

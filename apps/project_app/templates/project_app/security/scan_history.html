@@ -13,9 +13,7 @@
 {% block content %}
     <div class="container-fluid" style="max-width: 1280px">
         {% include 'project_app/repository/browse_partials/browse_header.html' %}
-        {%
-        include 'project_app/repository/browse_partials/browse_tabs.html' with
-        active_tab='security' %}
+        {% include 'project_app/repository/browse_partials/browse_tabs.html' with active_tab='security' %}
         <h2 class="mb-3">Security Scan History</h2>
         <div class="card">
             <div class="card-body p-0">
@@ -54,12 +52,7 @@
                                     <td class="text-warning">{{ scan.medium_count }}</td>
                                     <td class="text-info">{{ scan.low_count }}</td>
                                     <td>
-                                        {% if scan.scan_duration %}
-                                            {{ scan.scan_duration|floatformat:2
-                                            }}s
-                                        {% else %}
-                                            -
-                                        {% endif %}
+                                        {% if scan.scan_duration %}{{ scan.scan_duration|floatformat:2 }}s{% else %}-{% endif %}
                                     </td>
                                     <td>{{ scan.started_at|date:"Y-m-d H:i" }}</td>
                                     <td>{{ scan.triggered_by.username|default:"-" }}</td>

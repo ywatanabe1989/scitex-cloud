@@ -13,12 +13,8 @@
 {% block content %}
     <div class="container-fluid" style="max-width: 1280px">
         {% include 'project_app/repository/browse_partials/browse_header.html' %}
-        {%
-        include 'project_app/repository/browse_partials/browse_tabs.html' with
-        active_tab='security' %}
-        {% include
-        'project_app/security_overview_partials/security_overview_tabs.html' with
-        active_tab='advisories' %}
+        {% include 'project_app/repository/browse_partials/browse_tabs.html' with active_tab='security' %}
+        {% include 'project_app/security_overview_partials/security_overview_tabs.html' with active_tab='advisories' %}
         <h2 class="mb-3">Security Advisories</h2>
         {% if page_obj %}
             {% for advisory in page_obj %}

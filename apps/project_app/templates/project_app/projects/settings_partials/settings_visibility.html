@@ -7,17 +7,7 @@
     </div>
     <div class="radio-group">
         <label class="radio-option {% if project.visibility == 'public' %}selected{% endif %}">
-            <input
-                type="radio"
-                name="visibility"
-                value="public"
-                {%
-                if
-                project.visibility=""
-                ="public"
-                %}checked{%
-                endif
-                %}
+            <input type="radio" name="visibility" value="public" {% if project.visibility == "public" %}checked{% endif %}
                 />
                 <div class="radio-label">
                     <div class="radio-title">🌐 Public</div>
@@ -28,17 +18,7 @@
                 </div>
             </label>
             <label class="radio-option {% if project.visibility == 'private' %}selected{% endif %}">
-                <input
-                    type="radio"
-                    name="visibility"
-                    value="private"
-                    {%
-                    if
-                    project.visibility=""
-                    ="private"
-                    %}checked{%
-                    endif
-                    %}
+                <input type="radio" name="visibility" value="private" {% if project.visibility == "private" %}checked{% endif %}
                     />
                     <div class="radio-label">
                         <div class="radio-title">
