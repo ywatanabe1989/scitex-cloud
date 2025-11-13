@@ -5,6 +5,7 @@
 
 import { CompilationManager, CompilationOptions } from "./compilation.js";
 import { LatexWrapper } from "./latex-wrapper.js";
+import { PDFJSViewer } from "./pdf-viewer-pdfjs.js";
 
 console.log(
   "[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/modules/pdf-preview.ts loaded",
@@ -18,6 +19,7 @@ export interface PDFPreviewOptions {
   compileDelay?: number; // ms to wait before auto-compiling
   apiBaseUrl?: string;
   docType?: string; // manuscript, supplementary, revision (default: manuscript)
+  renderQuality?: number; // PDF.js render quality (1.0-5.0, default: 2.0)
 }
 
 export class PDFPreviewManager {
@@ -33,6 +35,8 @@ export class PDFPreviewManager {
   private fontSize: number = 14; // Default editor font size
   private colorMode: "light" | "dark" = "light"; // PDF color mode
   private pdfZoom: number = 100; // PDF zoom level (default 100% = fit to page)
+  private pdfViewer: PDFJSViewer | null = null; // PDF.js canvas viewer
+  private renderQuality: number = 2.0; // Default 2x quality
 
   constructor(options: PDFPreviewOptions) {
     this.container = document.getElementById(options.containerId);
@@ -40,6 +44,7 @@ export class PDFPreviewManager {
     this.autoCompile = options.autoCompile ?? false;
     this.compileDelay = options.compileDelay ?? 3000; // 3 seconds
     this.docType = options.docType || "manuscript";
+    this.renderQuality = options.renderQuality ?? 2.0; // Default 2x quality
 
     // Load saved color mode preference from localStorage
     const savedMode = localStorage.getItem("pdf-color-mode") as
@@ -56,6 +61,7 @@ export class PDFPreviewManager {
       this.colorMode = globalTheme === "dark" ? "dark" : "light";
     }
     console.log("[PDFPreview] Initialized with color mode:", this.colorMode);
+    console.log("[PDFPreview] Render quality:", this.renderQuality + "x");
 
     this.compilationManager = new CompilationManager(options.apiBaseUrl || "");
     this.latexWrapper = new LatexWrapper({
@@ -63,7 +69,40 @@ export class PDFPreviewManager {
       author: options.author,
     });
 
+    // Initialize PDF.js viewer
+    this.initializePdfViewer();
+
     this.setupEventListeners();
+  }
+
+  /**
+   * Initialize PDF.js viewer
+   */
+  private initializePdfViewer(): void {
+    if (!this.container) {
+      console.error("[PDFPreview] No container found for PDF viewer");
+      return;
+    }
+
+    console.log("[PDFPreview] Initializing PDF.js viewer...");
+    this.pdfViewer = new PDFJSViewer({
+      containerId: this.container.id,
+      colorMode: this.colorMode,
+      fitToWidth: true,
+      renderQuality: this.renderQuality,
+    });
+
+    // Restore saved zoom level
+    const savedZoom = localStorage.getItem("pdf-zoom-level");
+    if (savedZoom) {
+      const zoom = parseInt(savedZoom, 10);
+      const scale = zoom / 100;
+      this.pdfZoom = zoom;
+      this.pdfViewer.setScale(scale);
+      console.log("[PDFPreview] ✓ Restored saved zoom:", zoom + "% (scale:", scale + ")");
+    }
+
+    console.log("[PDFPreview] ✓ PDF.js viewer initialized");
   }
 
   /**
@@ -99,12 +138,17 @@ export class PDFPreviewManager {
 
     // Setup zoom selector
     const zoomSelector = document.getElementById(
-      "pdf-zoom-selector",
+      "pdf-zoom-select",
     ) as HTMLSelectElement;
     if (zoomSelector) {
       zoomSelector.value = this.pdfZoom.toString();
       zoomSelector.addEventListener("change", () => {
-        this.setPdfZoom(parseInt(zoomSelector.value, 10));
+        const value = zoomSelector.value;
+        if (value === "fit-width") {
+          this.setFitToWidth();
+        } else {
+          this.setPdfZoom(parseInt(value, 10));
+        }
       });
     }
 
@@ -142,18 +186,40 @@ export class PDFPreviewManager {
 
     // Update zoom selector if it exists
     const zoomSelector = document.getElementById(
-      "pdf-zoom-selector",
+      "pdf-zoom-select",
     ) as HTMLSelectElement;
     if (zoomSelector) {
       zoomSelector.value = zoom.toString();
     }
 
-    // Reload current PDF with new zoom if PDF is displayed
-    if (this.currentPdfUrl) {
-      this.displayPdf(this.currentPdfUrl);
+    // Update PDF.js viewer zoom
+    if (this.pdfViewer) {
+      const scale = zoom / 100; // Convert percentage to scale (100% = 1.0)
+      this.pdfViewer.setScale(scale);
+      console.log("[PDFPreview] PDF.js zoom changed to:", zoom + "% (scale:", scale + ")");
+    }
+  }
+
+  /**
+   * Enable fit-to-width mode
+   */
+  private setFitToWidth(): void {
+    // Clear saved zoom to enable fit-to-width calculation
+    localStorage.removeItem("pdf-zoom-level");
+
+    // Update zoom selector
+    const zoomSelector = document.getElementById(
+      "pdf-zoom-select",
+    ) as HTMLSelectElement;
+    if (zoomSelector) {
+      zoomSelector.value = "fit-width";
     }
 
-    console.log("[PDFPreview] Zoom changed to:", zoom + "%");
+    // Trigger PDF.js viewer to recalculate fit-to-width
+    if (this.pdfViewer && this.currentPdfUrl) {
+      this.pdfViewer.fitWidth();
+      console.log("[PDFPreview] Fit-to-width mode enabled");
+    }
   }
 
   /**
@@ -295,6 +361,12 @@ export class PDFPreviewManager {
       colorMode,
     );
 
+    // Update PDF.js viewer color mode immediately for visual feedback
+    if (this.pdfViewer) {
+      this.pdfViewer.setColorMode(colorMode);
+      console.log("[PDFPreview] ✓ PDF.js viewer color mode updated to:", colorMode);
+    }
+
     // Force reload with new theme if we have a PDF displayed
     if (this.currentPdfUrl) {
       // Extract section name from current URL
@@ -344,24 +416,27 @@ export class PDFPreviewManager {
   }
 
   /**
-   * Display PDF in container with optimized rendering
-   * Uses requestAnimationFrame to minimize layout thrashing
+   * Display PDF using PDF.js canvas viewer (high-DPI, scroll/zoom persistence)
    */
   private displayPdf(pdfUrl: string): void {
-    if (!this.container) return;
+    if (!this.container || !this.pdfViewer) {
+      console.error("[PDFPreview] No container or PDFJSViewer available");
+      return;
+    }
 
     console.log("[PDFPreview] ========================================");
-    console.log("[PDFPreview] displayPdf() called");
+    console.log("[PDFPreview] displayPdf() called with PDF.js viewer");
     console.log("[PDFPreview] PDF URL:", pdfUrl);
 
     // Extract theme from URL
     const pdfTheme = pdfUrl.includes("-dark.pdf") ? "dark" : "light";
     console.log("[PDFPreview] PDF theme:", pdfTheme);
 
-    // Ensure color mode matches PDF being displayed
+    // Update color mode if needed
     if (pdfTheme !== this.colorMode) {
       console.log("[PDFPreview] Updating color mode to match PDF:", pdfTheme);
       this.colorMode = pdfTheme;
+      this.pdfViewer.setColorMode(pdfTheme);
 
       // Update button icon to match
       const pdfScrollZoomHandler = (window as any).pdfScrollZoomHandler;
@@ -373,55 +448,34 @@ export class PDFPreviewManager {
       }
     }
 
-    // Use requestAnimationFrame to batch DOM updates with browser repaint cycle
-    // This prevents layout thrashing and ensures minimal latency
-    requestAnimationFrame(() => {
-      console.log("[PDFPreview] In requestAnimationFrame, creating new iframe");
+    // Add timestamp to URL for cache-busting (critical for theme switching)
+    const cacheBustUrl = pdfUrl.includes("?")
+      ? pdfUrl
+      : `${pdfUrl}?t=${Date.now()}`;
 
-      // Add timestamp to URL for cache-busting (critical for theme switching)
-      const cacheBustUrl = pdfUrl.includes("?")
-        ? pdfUrl
-        : `${pdfUrl}?t=${Date.now()}`;
+    console.log("[PDFPreview] Cache-bust URL:", cacheBustUrl);
+    console.log("[PDFPreview] Loading PDF via PDF.js with", this.renderQuality + "x quality");
 
-      console.log("[PDFPreview] Cache-bust URL:", cacheBustUrl);
+    // Load PDF via PDF.js canvas viewer
+    this.pdfViewer.loadPDF(cacheBustUrl);
 
-      // Don't use iframe zoom parameter - let CSS transform handle all zooming
-      // This avoids confusion between iframe zoom and CSS transform zoom
-      console.log("[PDFPreview] Creating new iframe HTML (this will trigger mutation observer)");
-      this.container!.innerHTML = `
-                <div class="pdf-preview-container">
-                    <div class="pdf-preview-viewer" id="pdf-viewer-pane">
-                        <iframe
-                            src="${cacheBustUrl}#toolbar=0&navpanes=0&scrollbar=1"
-                            type="application/pdf"
-                            width="100%"
-                            height="100%"
-                            title="PDF Preview"
-                            frameborder="0"
-                            style="display: block; margin: 0 auto;">
-                        </iframe>
-                    </div>
-                </div>
-            `;
+    // Update current PDF URL
+    this.currentPdfUrl = pdfUrl;
 
-      // Update current PDF URL
-      this.currentPdfUrl = pdfUrl;
+    // Update download button
+    const downloadBtn = document.getElementById(
+      "download-pdf-toolbar",
+    ) as HTMLAnchorElement;
+    if (downloadBtn) {
+      downloadBtn.href = pdfUrl;
+      downloadBtn.style.display = "inline-block";
+    }
 
-      // Update download button
-      const downloadBtn = document.getElementById(
-        "download-pdf-toolbar",
-      ) as HTMLAnchorElement;
-      if (downloadBtn) {
-        downloadBtn.href = pdfUrl;
-        downloadBtn.style.display = "inline-block";
-      }
-
-      console.log("[PDFPreview] ✓ Iframe HTML injected into container");
-      console.log("[PDFPreview] ✓ Current PDF URL set to:", pdfUrl);
-      console.log("[PDFPreview] ✓ Theme:", this.colorMode);
-      console.log("[PDFPreview] >> Now waiting for mutation observer to detect iframe...");
-      console.log("[PDFPreview] ========================================");
-    });
+    console.log("[PDFPreview] ✓ PDF loaded via PDF.js canvas viewer");
+    console.log("[PDFPreview] ✓ Current PDF URL set to:", pdfUrl);
+    console.log("[PDFPreview] ✓ Theme:", this.colorMode);
+    console.log("[PDFPreview] ✓ Render quality:", this.renderQuality + "x");
+    console.log("[PDFPreview] ========================================");
   }
 
   /**
