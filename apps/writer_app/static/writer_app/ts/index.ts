@@ -1916,6 +1916,9 @@ function loadCompiledPDF(sectionId: string): void {
                     </div>
                 </div>
             `;
+
+      // Reset scroll position to top
+      textPreview.scrollTop = 0;
     })
     .catch((error) => {
       console.error("[Writer] Error checking compiled PDF:", error);
@@ -3779,10 +3782,11 @@ function updateSlimProgress(
 
   if (!slimProgress) return;
 
+  // DISABLED: Status lamp provides sufficient feedback, no need for progress bar
   // Show slim progress during compilation
-  if (progress > 0 && progress < 100) {
-    slimProgress.style.display = "block";
-  }
+  // if (progress > 0 && progress < 100) {
+  //   slimProgress.style.display = "block";
+  // }
 
   if (slimFill) {
     slimFill.style.width = `${progress}%`;
@@ -3819,11 +3823,12 @@ function toggleCompilationDetails(): void {
   const isVisible = output.style.display === "block";
 
   if (isVisible) {
-    // Hide details, show only slim progress
+    // Hide details (slim progress disabled - status lamp provides feedback)
     output.style.display = "none";
-    if (slimProgress) {
-      slimProgress.style.display = "block";
-    }
+    // DISABLED: Status lamp provides sufficient feedback
+    // if (slimProgress) {
+    //   slimProgress.style.display = "block";
+    // }
   } else {
     // Show full details
     output.style.display = "block";
