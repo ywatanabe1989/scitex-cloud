@@ -92,6 +92,9 @@ export class PDFPreviewManager {
       renderQuality: this.renderQuality,
     });
 
+    // Expose PDFJSViewer instance globally for mode synchronization
+    (window as any).pdfViewerInstance = this.pdfViewer;
+
     // Restore saved zoom level
     const savedZoom = localStorage.getItem("pdf-zoom-level");
     if (savedZoom) {

@@ -37,6 +37,9 @@ export class PDFJSViewer {
   private scrollLeft: number = 0;
   private scrollTop: number = 0;
 
+  // Mode tracking for interaction
+  public currentMode: "text" | "hand" | "zoom" = "text";
+
   constructor(options: PDFViewerOptions) {
     this.container = document.getElementById(options.containerId);
     this.colorMode = options.colorMode || "light";
@@ -527,14 +530,17 @@ export class PDFJSViewer {
     const viewer = document.getElementById("pdfjs-viewer");
     if (!viewer) return;
 
-    // Change cursor to indicate grabbable
-    viewer.style.cursor = "grab";
+    // Cursor will be managed by mode changes
+    // Default to auto for text selection
+    viewer.style.cursor = "auto";
 
-    // Mouse down - start dragging
+    // Mouse down - start dragging (only in hand mode or with middle button)
     viewer.addEventListener("mousedown", (e: MouseEvent) => {
-      // Only pan with left mouse button
-      if (e.button !== 0) return;
+      // Only pan in hand mode with left button, or with middle button in any mode
+      const canPan = (e.button === 0 && this.currentMode === "hand") || e.button === 1;
+      if (!canPan) return;
 
+      e.preventDefault(); // Prevent default for middle button
       this.isDragging = true;
       this.startX = e.pageX - viewer.offsetLeft;
       this.startY = e.pageY - viewer.offsetTop;
@@ -544,7 +550,7 @@ export class PDFJSViewer {
       viewer.style.cursor = "grabbing";
       viewer.style.userSelect = "none"; // Prevent text selection while dragging
 
-      console.log("[PDFJSViewer] Panning started");
+      console.log("[PDFJSViewer] Panning started (mode:", this.currentMode, ")");
     });
 
     // Mouse move - pan if dragging
@@ -568,7 +574,9 @@ export class PDFJSViewer {
         console.log("[PDFJSViewer] Panning stopped");
       }
       this.isDragging = false;
-      viewer.style.cursor = "grab";
+      // Restore cursor based on mode
+      viewer.style.cursor = this.currentMode === "hand" ? "grab" :
+                            this.currentMode === "zoom" ? "crosshair" : "auto";
       viewer.style.userSelect = ""; // Re-enable text selection
     };
 
