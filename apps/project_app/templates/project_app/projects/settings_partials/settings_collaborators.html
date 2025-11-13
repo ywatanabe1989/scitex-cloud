@@ -7,8 +7,7 @@
     <!-- Pending Invitations -->
     {% with
         pending_invitations=project.invitations.filter|slice:":status='pending'" %}
-        {%
-        if project.invitations.filter.count > 0 %}
+        {% if project.invitations.filter.count > 0 %}
         <div style="margin-bottom: 16px">
             <h6 style="color: var(--color-fg-muted);
                        font-size: 12px;

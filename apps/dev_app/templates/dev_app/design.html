@@ -1,10 +1,8 @@
 {% extends "global_base.html" %}
 {% block title %}
-    SciTeX Design System{%
-    endblock %}
+    SciTeX Design System{% endblock %}
     {% block meta_description %}
-        Design system for the SciTeX platform.{%
-        endblock %}
+        Design system for the SciTeX platform.{% endblock %}
         {% block extra_css %}
             {% load static %}
             <link rel="stylesheet" href="{% static 'shared/css/common.css' %}" />
@@ -15,8 +13,7 @@
                   href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/zenburn.min.css" />
         {% endblock %}
         {% block content %}
-            {% include 'dev_app/design_partial/hero.html'
-            %}
+            {%include 'dev_app/design_partial/hero.html'%}
             <div class="container py-5">
                 <div style="display: flex; gap: 2rem">
                     {% include 'dev_app/design_partial/sidebar.html' %}

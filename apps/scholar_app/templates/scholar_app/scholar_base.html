@@ -1,15 +1,8 @@
 {% extends 'global_base.html' %}
 {% load static %}
-{% block meta_description
-    %}
-    Advanced semantic search for scientific literature
-{% endblock %}
-{% block
-    title %}
-    Scholar - Scientific Literature Search
-{% endblock %}
-{% block extra_css
-    %}
+{% block meta_description %}Advanced semantic search for scientific literature{% endblock %}
+{% block title %}Scholar - Scientific Literature Search{% endblock %}
+{% block extra_css %}
     <!-- Hero gradients CSS -->
     <link rel="stylesheet" href="{% static 'shared/css/components/hero.css' %}" />
     <!-- App-specific CSS -->
@@ -18,5 +11,4 @@
 {% endblock %}
 {% block content %}
     {% block search_content %}{% endblock %}
-    {%
-    endblock %}
+{% endblock %}

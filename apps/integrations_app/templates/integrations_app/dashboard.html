@@ -1,7 +1,5 @@
 {% extends "global_base.html" %}
-{% block title %}
-    Integrations - SciTeX{%
-    endblock %}
+{% block title %}Integrations - SciTeX{% endblock %}
     {% block content %}
         <div class="container py-4">
             <h1 class="mb-4">Integrations</h1>
@@ -160,8 +158,7 @@
                                 </thead>
                                 <tbody>
                                     {% for conn in connections %}
-                                        {% for log in conn.logs.all|slice:":5"
-                                            %}
+                                        {% for log in conn.logs.all|slice:":5" %}
                                             <tr>
                                                 <td class="fw-medium">{{ conn.get_service_display }}</td>
                                                 <td class="text-muted">{{ log.get_action_display }}</td>

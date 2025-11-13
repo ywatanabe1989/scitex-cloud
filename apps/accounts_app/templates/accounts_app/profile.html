@@ -148,63 +148,27 @@
                                 <option value="">Select title</option>
                                 <option
                                     value="undergraduate"
-                                    {%
-                                    if
-                                    profile.academic_title=""
-                                    ="undergraduate"
-                                    %}selected{%
-                                    endif
-                                    %}
+                                    {% if profile.academic_title == "undergraduate" %}selected{% endif %}
                                     >Undergraduate Student</option>
                                 <option
                                     value="graduate"
-                                    {%
-                                    if
-                                    profile.academic_title=""
-                                    ="graduate"
-                                    %}selected{%
-                                    endif
-                                    %}
+                                    {% if profile.academic_title == "graduate" %}selected{% endif %}
                                     >Graduate Student</option>
                                 <option
                                     value="phd_candidate"
-                                    {%
-                                    if
-                                    profile.academic_title=""
-                                    ="phd_candidate"
-                                    %}selected{%
-                                    endif
-                                    %}
+                                    {% if profile.academic_title == "phd_candidate" %}selected{% endif %}
                                     >PhD Candidate</option>
                                 <option
                                     value="postdoc"
-                                    {%
-                                    if
-                                    profile.academic_title=""
-                                    ="postdoc"
-                                    %}selected{%
-                                    endif
-                                    %}
+                                    {% if profile.academic_title == "postdoc" %}selected{% endif %}
                                     >Postdoctoral Researcher</option>
                                 <option
                                     value="professor"
-                                    {%
-                                    if
-                                    profile.academic_title=""
-                                    ="professor"
-                                    %}selected{%
-                                    endif
-                                    %}
+                                    {% if profile.academic_title == "professor" %}selected{% endif %}
                                     >Professor</option>
                                 <option
                                     value="researcher"
-                                    {%
-                                    if
-                                    profile.academic_title=""
-                                    ="researcher"
-                                    %}selected{%
-                                    endif
-                                    %}
+                                    {% if profile.academic_title == "researcher" %}selected{% endif %}
                                     >Research Scientist</option>
                             </select>
                         </div>
@@ -299,12 +263,7 @@
                             class="form-check-input"
                             type="checkbox"
                             id="publicProfile"
-                            {%
-                            if
-                            profile.is_public
-                            %}checked{%
-                            endif
-                            %}
+                            {% if profile.is_public %}checked{% endif %}
                             />
                             <label class="form-check-label" for="publicProfile">Make profile public</label>
                         </div>
@@ -313,12 +272,7 @@
                                 class="form-check-input"
                                 type="checkbox"
                                 id="showEmail"
-                                {%
-                                if
-                                profile.show_email
-                                %}checked{%
-                                endif
-                                %}
+                                {% if profile.show_email %}checked{% endif %}
                                 />
                                 <label class="form-check-label" for="showEmail">Show email to other users</label>
                             </div>
@@ -327,12 +281,7 @@
                                     class="form-check-input"
                                     type="checkbox"
                                     id="allowMessages"
-                                    {%
-                                    if
-                                    profile.allow_messages
-                                    %}checked{%
-                                    endif
-                                    %}
+                                    {% if profile.allow_messages %}checked{% endif %}
                                     />
                                     <label class="form-check-label" for="allowMessages">Allow messages from other users</label>
                                 </div>

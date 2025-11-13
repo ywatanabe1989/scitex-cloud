@@ -140,21 +140,17 @@
                     </div>
                     <div class="stat-card">
                         <div class="stat-value">
-                            {{ jobs.object_list|length|add:"-"|add:jobs.object_list|length }} {%
-                            comment %}Count running jobs{% endcomment %}
-                            {% for job in
-                                jobs.object_list %}
+                            {{ jobs.object_list|length|add:"-"|add:jobs.object_list|length }} {% comment %}Count running jobs{% endcomment %}
+                            {% for job in jobs.object_list %}
                                 {% if job.status == 'running' %}+1{% endif %}
-                                {%
-                                endfor %}
+                            {% endfor %}
                             </div>
                             <div class="stat-label">Running</div>
                         </div>
                         <div class="stat-card">
                             <div class="stat-value">
                                 {% for job in jobs.object_list %}
-                                    {% if job.status == 'completed'
-                                        %}
+                                    {% if job.status == 'completed' %}
                                         +1
                                     {% endif %}
                                 {% endfor %}
@@ -164,8 +160,7 @@
                         <div class="stat-card">
                             <div class="stat-value">
                                 {% for job in jobs.object_list %}
-                                    {% if job.status == 'failed'
-                                        %}
+                                    {% if job.status == 'failed' %}
                                         +1
                                     {% endif %}
                                 {% endfor %}
@@ -266,13 +261,11 @@
                                         </li>
                                     {% endif %}
                                     {% for page_num in jobs.paginator.page_range %}
-                                        {% if
-                                            page_num == jobs.number %}
+                                        {% if page_num == jobs.number %}
                                             <li class="page-item active">
                                                 <span class="page-link">{{ page_num }}</span>
                                             </li>
-                                        {% elif page_num > jobs.number|add:'-3' and page_num <
-                                            jobs.number|add:'3' %}
+                                        {% elif page_num > jobs.number|add:'-3' and page_num < jobs.number|add:'3' %}
                                             <li class="page-item">
                                                 <a class="page-link"
                                                    href="?page={{ page_num }}{% if status_filter %}&status={{ status_filter }}{% endif %}">

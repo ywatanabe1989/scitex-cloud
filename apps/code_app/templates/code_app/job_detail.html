@@ -228,8 +228,9 @@
                 <div class="metric-card">
                     <div class="metric-value">
                         {% if job.execution_time %}
-                            {{ job.execution_time|floatformat:2 }}s {%
-                            else %} --
+                            {{ job.execution_time|floatformat:2 }}s
+                        {% else %}
+                            --
                         {% endif %}
                     </div>
                     <div class="metric-label">Execution Time</div>
@@ -252,8 +253,7 @@
                     <div class="metric-value">
                         {% if job.memory_peak %}
                             {{ job.memory_peak|filesizeformat }}
-                        {% else
-                            %}
+                        {% else %}
                             --
                         {% endif %}
                     </div>

@@ -1,13 +1,7 @@
 {% extends 'global_base.html' %}
 {% load static %}
-{% block meta_description
-    %}
-    Interactive data visualization for scientific insights
-{% endblock %}
-{% block
-    title %}
-    Viz - Scientific Data Visualization
-{% endblock %}
+{% block meta_description %}Interactive data visualization for scientific insights{% endblock %}
+{% block title %}Viz - Scientific Data Visualization{% endblock %}
 {% block extra_css %}
     <!-- Hero gradients CSS -->
     <link rel="stylesheet" href="{% static 'shared/css/components/hero.css' %}" />
@@ -16,5 +10,4 @@
 {% endblock %}
 {% block content %}
     {% block viz_content %}{% endblock %}
-    {%
-    endblock %}
+{% endblock %}

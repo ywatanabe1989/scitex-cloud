@@ -23,8 +23,7 @@
                 <a href="/{{ project.owner.username }}/{{ project.slug }}/"
                    class="repo-title">{{ project.name }}</a>
                 {% for breadcrumb in breadcrumbs %}
-                    {% if breadcrumb.name != project.name
-                        %}
+                    {%if breadcrumb.name != project.name%}
                         <span style="color: var(--color-fg-muted)">/</span>
                         {% if breadcrumb.url %}
                             <a href="{{ breadcrumb.url }}"
@@ -47,9 +46,7 @@
         {% if commits %}
             <div class="commit-list">
                 {% for commit in commits %}
-                    {% include
-                    'project_app/repository/file_history_partials/file_history_commit_item.html'
-                    %}
+                    {%include 'project_app/repository/file_history_partials/file_history_commit_item.html'%}
                 {% endfor %}
             </div>
             <!-- Pagination -->

@@ -16,24 +16,16 @@
 {% endblock %}
 {% block content %}
     <div class="container-fluid" style="max-width: 1280px">
-        {% include
-        "project_app/repository/file_directory_partials/file_directory_breadcrumb.html"
-        %}
+        {%include "project_app/repository/file_directory_partials/file_directory_breadcrumb.html"%}
         {% include
         "project_app/repository/file_directory_partials/file_directory_tabs.html" %}
-        {% include
-        "project_app/repository/file_directory_partials/file_directory_toolbar.html"
-        %}
+        {%include "project_app/repository/file_directory_partials/file_directory_toolbar.html"%}
         <!-- Main Content Area with Sidebar -->
         <div class="repo-layout" id="repo-layout">
-            {% include
-            "project_app/repository/file_directory_partials/file_directory_sidebar.html"
-            %}
+            {%include "project_app/repository/file_directory_partials/file_directory_sidebar.html"%}
             <!-- Main Content (RIGHT side) -->
             <div class="repo-main">
-                {% include
-                "project_app/repository/file_directory_partials/file_directory_file_list.html"
-                %}
+                {%include "project_app/repository/file_directory_partials/file_directory_file_list.html"%}
             </div>
         </div>
     </div>

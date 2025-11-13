@@ -1,7 +1,6 @@
 {% extends "scholar_app/scholar_base.html" %}
 {% load static %}
-{% block title
-    %}
+{%block title%}
     SciTeX Scholar - Literature Search
 {% endblock %}
 {% block extra_css %}
@@ -145,33 +144,21 @@
                         <select name="type" class="form-select">
                             <option
                                 value="simple"
-                                {%
-                                if
+                                {%if
                                 search_type=""
-                                ="simple"
-                                %}selected{%
-                                endif
-                                %}
+                                ="simple"%}selected{%endif%}
                                 >Simple</option>
                             <option
                                 value="semantic"
-                                {%
-                                if
+                                {%if
                                 search_type=""
-                                ="semantic"
-                                %}selected{%
-                                endif
-                                %}
+                                ="semantic"%}selected{%endif%}
                                 >Semantic</option>
                             <option
                                 value="author"
-                                {%
-                                if
+                                {%if
                                 search_type=""
-                                ="author"
-                                %}selected{%
-                                endif
-                                %}
+                                ="author"%}selected{%endif%}
                                 >Author</option>
                         </select>
                     </div>

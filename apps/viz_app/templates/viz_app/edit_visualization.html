@@ -176,13 +176,9 @@
                             {% for source in data_sources %}
                                 <option
                                     value="{{ source.pk }}"
-                                    {%
-                                    if
+                                    {%if
                                     visualization.data_source_id=""
-                                    ="source.pk"
-                                    %}selected{%
-                                    endif
-                                    %}
+                                    ="source.pk"%}selected{%endif%}
                                     >{{ source.name }}</option>
                             {% endfor %}
                         </select>
@@ -245,12 +241,8 @@
                                 class="form-check-input"
                                 type="checkbox"
                                 id="show-grid"
-                                {%
-                                if
-                                visualization.chart_config.show_grid
-                                %}checked{%
-                                endif
-                                %}
+                                {%if
+                                visualization.chart_config.show_grid%}checked{%endif%}
                                 />
                                 <label class="form-check-label" for="show-grid">Show Grid</label>
                             </div>
@@ -259,12 +251,8 @@
                                     class="form-check-input"
                                     type="checkbox"
                                     id="show-legend"
-                                    {%
-                                    if
-                                    visualization.chart_config.show_legend
-                                    %}checked{%
-                                    endif
-                                    %}
+                                    {%if
+                                    visualization.chart_config.show_legend%}checked{%endif%}
                                     />
                                     <label class="form-check-label" for="show-legend">Show Legend</label>
                                 </div>
@@ -274,43 +262,27 @@
                                 <select class="form-select form-select-sm" id="legend-position">
                                     <option
                                         value="right"
-                                        {%
-                                        if
+                                        {%if
                                         visualization.chart_config.legend_position=""
-                                        ="right"
-                                        %}selected{%
-                                        endif
-                                        %}
+                                        ="right"%}selected{%endif%}
                                         >Right</option>
                                     <option
                                         value="top"
-                                        {%
-                                        if
+                                        {%if
                                         visualization.chart_config.legend_position=""
-                                        ="top"
-                                        %}selected{%
-                                        endif
-                                        %}
+                                        ="top"%}selected{%endif%}
                                         >Top</option>
                                     <option
                                         value="bottom"
-                                        {%
-                                        if
+                                        {%if
                                         visualization.chart_config.legend_position=""
-                                        ="bottom"
-                                        %}selected{%
-                                        endif
-                                        %}
+                                        ="bottom"%}selected{%endif%}
                                         >Bottom</option>
                                     <option
                                         value="left"
-                                        {%
-                                        if
+                                        {%if
                                         visualization.chart_config.legend_position=""
-                                        ="left"
-                                        %}selected{%
-                                        endif
-                                        %}
+                                        ="left"%}selected{%endif%}
                                         >Left</option>
                                 </select>
                             </div>
@@ -327,13 +299,9 @@
                                     {% for scheme in color_schemes %}
                                         <option
                                             value="{{ scheme.pk }}"
-                                            {%
-                                            if
+                                            {%if
                                             visualization.color_scheme_id=""
-                                            ="scheme.pk"
-                                            %}selected{%
-                                            endif
-                                            %}
+                                            ="scheme.pk"%}selected{%endif%}
                                             >{{ scheme.name }}</option>
                                     {% endfor %}
                                 </select>
@@ -357,33 +325,21 @@
                                 <select class="form-select form-select-sm" id="status">
                                     <option
                                         value="draft"
-                                        {%
-                                        if
+                                        {%if
                                         visualization.status=""
-                                        ="draft"
-                                        %}selected{%
-                                        endif
-                                        %}
+                                        ="draft"%}selected{%endif%}
                                         >Draft</option>
                                     <option
                                         value="published"
-                                        {%
-                                        if
+                                        {%if
                                         visualization.status=""
-                                        ="published"
-                                        %}selected{%
-                                        endif
-                                        %}
+                                        ="published"%}selected{%endif%}
                                         >Published</option>
                                     <option
                                         value="archived"
-                                        {%
-                                        if
+                                        {%if
                                         visualization.status=""
-                                        ="archived"
-                                        %}selected{%
-                                        endif
-                                        %}
+                                        ="archived"%}selected{%endif%}
                                         >Archived</option>
                                 </select>
                             </div>
@@ -393,12 +349,8 @@
                                         class="form-check-input"
                                         type="checkbox"
                                         id="is-public"
-                                        {%
-                                        if
-                                        visualization.is_public
-                                        %}checked{%
-                                        endif
-                                        %}
+                                        {%if
+                                        visualization.is_public%}checked{%endif%}
                                         />
                                         <label class="form-check-label" for="is-public">Public Access</label>
                                     </div>
@@ -407,12 +359,8 @@
                                             class="form-check-input"
                                             type="checkbox"
                                             id="is-interactive"
-                                            {%
-                                            if
-                                            visualization.is_interactive
-                                            %}checked{%
-                                            endif
-                                            %}
+                                            {%if
+                                            visualization.is_interactive%}checked{%endif%}
                                             />
                                             <label class="form-check-label" for="is-interactive">Interactive</label>
                                         </div>
@@ -421,12 +369,8 @@
                                                 class="form-check-input"
                                                 type="checkbox"
                                                 id="allow-download"
-                                                {%
-                                                if
-                                                visualization.allow_download
-                                                %}checked{%
-                                                endif
-                                                %}
+                                                {%if
+                                                visualization.allow_download%}checked{%endif%}
                                                 />
                                                 <label class="form-check-label" for="allow-download">Allow Downloads</label>
                                             </div>

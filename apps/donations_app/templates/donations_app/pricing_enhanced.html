@@ -221,10 +221,7 @@
                     <ul class="plan-features">
                         <li>
                             <span class="feature-icon">✓</span>
-                            <span>{{ plan.max_projects }} Project
-                                {% if plan.max_projects > 1 %}
-                                    s{%
-                                endif %}</span>
+                            <span>{{ plan.max_projects }} Project{% if plan.max_projects > 1 %}s{% endif %}</span>
                             </li>
                             <li>
                                 <span class="feature-icon">✓</span>

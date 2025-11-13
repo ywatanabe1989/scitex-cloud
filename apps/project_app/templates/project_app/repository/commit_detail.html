@@ -36,9 +36,7 @@
                     <span class="deletions">-{{ total_deletions }} deletion{{ total_deletions|pluralize }}</span>
                 </div>
             </div>
-            {% include
-            'project_app/repository/commit_detail_partials/commit_detail_file_diff.html'
-            %}
+            {%include 'project_app/repository/commit_detail_partials/commit_detail_file_diff.html'%}
         {% else %}
             <div class="empty-state">
                 <p>No file changes found in this commit.</p>

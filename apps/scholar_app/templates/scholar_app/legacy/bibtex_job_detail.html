@@ -1,7 +1,6 @@
 {% extends 'scholar_app/scholar_base.html' %}
 {% load static %}
-{% block title
-    %}
+{%block title%}
     BibTeX Job #{{ job.id }} - SciTeX Scholar
 {% endblock %}
 {% block extra_css %}
@@ -68,8 +67,7 @@
                         <i class="fas fa-check-circle"></i> Completed
                     {% elif job.status ==
                         'processing' %}
-                        <i class="fas fa-spinner fa-spin"></i> Processing {%
-                        elif job.status == 'failed' %}
+                        <i class="fas fa-spinner fa-spin"></i> Processing {%elif job.status == 'failed' %}
                         <i class="fas fa-times-circle"></i> Failed
                     {% else %}
                         <i class="fas fa-clock"></i> Pending
@@ -96,9 +94,7 @@
                 <div style="margin-top: 0.5rem;
                             color: var(--color-fg-muted);
                             font-size: 0.9rem">
-                    {{ job.processed_papers }} / {{ job.total_papers }} papers processed {%
-                    if job.failed_papers > 0 %} ({{ job.failed_papers }} failed)
-                {% endif %}
+{{ job.processed_papers }} / {{ job.total_papers }} papers processed {% if job.failed_papers > 0 %} ({{ job.failed_papers }} failed) {% endif %}
             </div>
         </div>
         <!-- Job Details -->
@@ -173,8 +169,7 @@
                 <div style="color: var(--color-fg-default); font-weight: 600">
                     {% if job.started_at %}
                         {{ job.started_at|date:"M d, H:i" }}
-                    {% else
-                        %}
+                    {% else%}
                         Not started
                     {% endif %}
                 </div>
@@ -185,9 +180,7 @@
                             margin-bottom: 0.25rem">Completed</div>
                 <div style="color: var(--color-fg-default); font-weight: 600">
                     {% if job.completed_at %}
-                        {{ job.completed_at|date:"M d, H:i" }} {%
-                        else %} In progress...
-                    {% endif %}
+{{ job.completed_at|date:"M d, H:i" }} {% else %} In progress... {% endif %}
                 </div>
             </div>
         </div>

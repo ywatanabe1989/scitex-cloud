@@ -1,7 +1,5 @@
 {% extends "global_base.html" %}
-{% block title %}
-    Configure Slack - SciTeX{%
-    endblock %}
+{% block title %}Configure Slack - SciTeX{% endblock %}
     {% block content %}
         <div class="container py-4" style="max-width: 600px">
             <h1 class="mb-4">Configure Slack Notifications</h1>
@@ -47,19 +45,7 @@
                                             name="enabled_events"
                                             value="{{ value }}"
                                             id="event_{{ value }}"
-                                            {%
-                                            if
-                                            value=""
-                                            ="project_created"
-                                            or
-                                            value=""
-                                            ="manuscript_updated"
-                                            or
-                                            value=""
-                                            ="analysis_completed"
-                                            %}checked{%
-                                            endif
-                                            %}
+                                            {% if value == "project_created" or value == "manuscript_updated" or value == "analysis_completed" %}checked{% endif %}
                                             class="form-check-input"
                                             />
                                             <label class="form-check-label" for="event_{{ value }}">{{ label }}</label>

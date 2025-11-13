@@ -37,8 +37,7 @@
                         <strong>
                             {% if message.tags == 'success' %}
                                 ✓
-                            {% elif message.tags == 'error'
-                                %}
+                            {%elif message.tags == 'error'%}
                                 ✗
                             {% elif message.tags == 'warning' %}
                                 ⚠
@@ -53,8 +52,7 @@
         {% endif %}
         <div class="settings-layout">
             <!-- Left Navigation -->
-            {% include 'project_app/projects/settings_partials/settings_navigation.html'
-            %}
+            {%include 'project_app/projects/settings_partials/settings_navigation.html'%}
             <!-- Main Content -->
             <main class="settings-main">
                 <form method="post"
@@ -79,9 +77,7 @@
                     <div class="settings-section-wrapper"
                          id="section-collaborators"
                          style="display: none">
-                        {% include
-                        'project_app/projects/settings_partials/settings_collaborators.html'
-                        %}
+                        {%include 'project_app/projects/settings_partials/settings_collaborators.html'%}
                     </div>
                 </form>
                 <!-- Danger Zone -->
@@ -95,8 +91,7 @@
         </div>
     </div>
     <!-- Delete Modal -->
-    {% include 'project_app/projects/settings_partials/settings_delete_modal.html'
-    %}
+    {%include 'project_app/projects/settings_partials/settings_delete_modal.html'%}
 {% endblock %}
 {% block extra_js %}
     <script src="{% static 'project_app/js/projects/settings.js' %}?v={{ cache_buster_value }}"></script>

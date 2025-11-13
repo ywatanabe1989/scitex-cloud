@@ -154,13 +154,9 @@
                                 name="api_key"
                                 class="key-input"
                                 placeholder="Enter your NCBI API key..."
-                                {%
-                                if
-                                api_status.pubmed
-                                %}value="••••••••••••••••"
-                                {%
-                                endif
-                                %}
+                                {%if
+                                api_status.pubmed%}value="••••••••••••••••"
+                                {%endif%}
                                 />
                                 <button type="button" class="btn-test-key" onclick="testApiKey('pubmed')">Test Key</button>
                             </div>
@@ -205,13 +201,9 @@
                                     name="api_key"
                                     class="key-input"
                                     placeholder="Enter your Semantic Scholar API key..."
-                                    {%
-                                    if
-                                    api_status.semantic_scholar
-                                    %}value="••••••••••••••••"
-                                    {%
-                                    endif
-                                    %}
+                                    {%if
+                                    api_status.semantic_scholar%}value="••••••••••••••••"
+                                    {%endif%}
                                     />
                                     <button type="button"
                                             class="btn-test-key"
@@ -256,13 +248,9 @@
                                         name="api_key"
                                         class="key-input"
                                         placeholder="Enter your contact email for Crossref..."
-                                        {%
-                                        if
-                                        api_status.crossref
-                                        %}value="••••••••••••••••"
-                                        {%
-                                        endif
-                                        %}
+                                        {%if
+                                        api_status.crossref%}value="••••••••••••••••"
+                                        {%endif%}
                                         />
                                         <button type="button" class="btn-test-key" onclick="testApiKey('crossref')">Test Email</button>
                                     </div>

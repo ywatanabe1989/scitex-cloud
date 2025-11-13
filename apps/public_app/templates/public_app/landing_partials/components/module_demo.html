@@ -21,13 +21,7 @@
                         playsinline
                         controls
                         class="module-demo-video"
-                        {%
-                        if
-                        poster
-                        %}poster="{% static poster %}"
-                        {%
-                        endif
-                        %}
+                        {% if poster %}poster="{% static poster %}"{% endif %}
                         >
                         <source src="{% static video_path %}" type="video/mp4" />
                         Your browser does not support the video tag.
@@ -67,13 +61,7 @@
                         playsinline
                         controls
                         class="module-demo-video"
-                        {%
-                        if
-                        poster
-                        %}poster="{% static poster %}"
-                        {%
-                        endif
-                        %}
+                        {% if poster %}poster="{% static poster %}"{% endif %}
                         >
                         <source src="{% static video_path %}" type="video/mp4" />
                         Your browser does not support the video tag.

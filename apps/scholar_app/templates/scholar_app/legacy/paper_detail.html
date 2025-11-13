@@ -1,9 +1,6 @@
 {% extends "scholar_app/scholar_base.html" %}
 {% load static %}
-{% block title
-    %}
-    {{ paper.title }} - SciTeX Scholar
-{% endblock %}
+{% block title %}{{ paper.title }} - SciTeX Scholar{% endblock %}
 {% block extra_css %}
     <style>
   .paper-header {
@@ -308,17 +305,14 @@
                                 </div>
                                 <div class="citation-meta">
                                     {% for author in citation.cited_paper.authors.all|slice:":3" %}
-                                        {{
-                                        author.full_name }}
+                                        {{ author.full_name }}
                                         {% if not forloop.last %},{% endif %}
-                                    {% endfor
-                                    %}
+                                    {% endfor %}
                                     {% if citation.cited_paper.journal %}
                                         • {{
                                         citation.cited_paper.journal.name }}
                                     {% endif %}
-                                    {% if
-                                        citation.cited_paper.publication_date %}
+                                    {% if citation.cited_paper.publication_date %}
                                         • {{
                                         citation.cited_paper.publication_date.year }}
                                     {% endif %}
@@ -349,17 +343,14 @@
                                 </div>
                                 <div class="citation-meta">
                                     {% for author in citation.citing_paper.authors.all|slice:":3" %}
-                                        {{
-                                        author.full_name }}
+                                        {{ author.full_name }}
                                         {% if not forloop.last %},{% endif %}
-                                    {% endfor
-                                    %}
+                                    {% endfor %}
                                     {% if citation.citing_paper.journal %}
                                         • {{
                                         citation.citing_paper.journal.name }}
                                     {% endif %}
-                                    {% if
-                                        citation.citing_paper.publication_date %}
+                                    {% if citation.citing_paper.publication_date %}
                                         • {{
                                         citation.citing_paper.publication_date.year }}
                                     {% endif %}
@@ -461,11 +452,9 @@
                                     </h6>
                                     <small class="text-muted">
                                         {% for author in related.authors.all|slice:":2" %}
-                                            {{
-                                            author.last_name }}
+                                            {{ author.last_name }}
                                             {% if not forloop.last %},{% endif %}
-                                            {%
-                                            endfor %}
+                                        {% endfor %}
                                             {% if related.publication_date %}
                                                 • {{
                                                 related.publication_date.year }}

@@ -1,13 +1,8 @@
 {% extends 'global_base.html' %}
 {% load static %}
-{% block meta_description
-    %}
-    SciTeX Authentication - Secure login and registration for scientific research
-    platform
-{% endblock %}
+{% block meta_description %}SciTeX Authentication - Secure login and registration for scientific research platform{% endblock %}
 {% block title %}SciTeX Authentication{% endblock %}
-{%
-block extra_css %}
+{% block extra_css %}
 <!-- Auth-specific CSS - Layout only, styling from central CSS -->
 <link rel="stylesheet" href="{% static 'auth_app/css/auth.css' %}" />
 <style>
@@ -150,5 +145,4 @@ block extra_css %}
 {% endblock %}
 {% block extra_js %}
     {% block auth_extra_js %}{% endblock %}
-    {%
-    endblock %}
+{% endblock %}

@@ -42,56 +42,36 @@
                     onchange="handleSortChange(this.value)">
                 <option
                     value="relevance"
-                    {%
-                    if
+                    {%if
                     request.GET.sort_by=""
                     ="relevance"
                     or
                     not
-                    request.GET.sort_by
-                    %}selected{%
-                    endif
-                    %}
+                    request.GET.sort_by%}selected{%endif%}
                     >Most Relevant</option>
                 <option
                     value="date_desc"
-                    {%
-                    if
+                    {%if
                     request.GET.sort_by=""
-                    ="date_desc"
-                    %}selected{%
-                    endif
-                    %}
+                    ="date_desc"%}selected{%endif%}
                     >Publication Year (Newest)</option>
                 <option
                     value="date_asc"
-                    {%
-                    if
+                    {%if
                     request.GET.sort_by=""
-                    ="date_asc"
-                    %}selected{%
-                    endif
-                    %}
+                    ="date_asc"%}selected{%endif%}
                     >Publication Year (Oldest)</option>
                 <option
                     value="citations"
-                    {%
-                    if
+                    {%if
                     request.GET.sort_by=""
-                    ="citations"
-                    %}selected{%
-                    endif
-                    %}
+                    ="citations"%}selected{%endif%}
                     >Citation Count</option>
                 <option
                     value="impact_factor"
-                    {%
-                    if
+                    {%if
                     request.GET.sort_by=""
-                    ="impact_factor"
-                    %}selected{%
-                    endif
-                    %}
+                    ="impact_factor"%}selected{%endif%}
                     >Impact Factor</option>
             </select>
         </div>
