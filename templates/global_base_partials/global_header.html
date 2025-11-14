@@ -91,6 +91,12 @@
                     <i class="fas fa-pen-nib nav-icon-fa" style="font-size: 16px"></i>
                     <span class="nav-label">Writer</span>
                 </a>
+                <a href="/workspace/"
+                   class="header-nav-item {% if 'workspace' in request.path %}active{% endif %}"
+                   data-tooltip="Python workspace with scientific packages">
+                    <i class="fas fa-terminal nav-icon-fa" style="font-size: 16px"></i>
+                    <span class="nav-label">Workspace</span>
+                </a>
                 <a href="/tools/"
                    class="header-nav-item {% if 'tools' in request.path %}active{% endif %}"
                    data-tooltip="Research tools and bookmarklets">
