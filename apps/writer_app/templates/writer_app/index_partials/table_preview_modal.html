@@ -1,0 +1,332 @@
+<!-- Table Preview Modal with CRUD -->
+<div class="modal fade"
+     id="tablePreviewModal"
+     tabindex="-1"
+     aria-labelledby="tablePreviewModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="tablePreviewModalLabel">
+                    <i class="fas fa-table me-2"></i><span id="table-preview-title">Table Preview</span>
+                </h5>
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Toolbar -->
+                <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="btn-group" role="group">
+                            <button id="table-add-row-btn" class="btn btn-sm btn-outline-primary" title="Add row">
+                                <i class="fas fa-plus me-1"></i>Add Row
+                            </button>
+                            <button id="table-add-column-btn" class="btn btn-sm btn-outline-primary" title="Add column">
+                                <i class="fas fa-plus me-1"></i>Add Column
+                            </button>
+                        </div>
+                        <button id="table-delete-rows-btn" class="btn btn-sm btn-outline-danger" title="Delete selected rows" disabled>
+                            <i class="fas fa-trash me-1"></i>Delete Rows
+                        </button>
+                        <button id="table-save-btn" class="btn btn-sm btn-success" title="Save changes" disabled>
+                            <i class="fas fa-save me-1"></i>Save Changes
+                        </button>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span id="table-dimensions-badge" class="badge bg-info text-dark"></span>
+                        <span id="table-modified-badge" class="badge bg-warning text-dark" style="display: none">
+                            <i class="fas fa-exclamation-circle me-1"></i>Unsaved changes
+                        </span>
+                    </div>
+                </div>
+                <!-- Table container with scrolling -->
+                <div id="table-preview-container" class="table-preview-container">
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-spinner fa-spin me-2"></i>Loading table data...
+                    </div>
+                </div>
+                <!-- Error display -->
+                <div id="table-preview-error" class="alert alert-danger mt-3" style="display: none">
+                    <i class="fas fa-exclamation-triangle me-2"></i><span id="table-error-message"></span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button id="table-export-btn" class="btn btn-outline-primary">
+                    <i class="fas fa-download me-1"></i>Export CSV
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Table Preview Styles -->
+<style>
+.table-preview-container {
+    max-height: 500px;
+    overflow: auto;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    background-color: #ffffff;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.table-preview-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 14px;
+}
+
+.table-preview-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.table-preview-table thead th {
+    background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 14px 16px;
+    text-align: left;
+    font-weight: 600;
+    color: #495057;
+    border-bottom: 2px solid #dee2e6;
+    border-right: 1px solid #dee2e6;
+    white-space: nowrap;
+    position: relative;
+}
+
+.table-preview-table thead th:first-child {
+    width: 45px;
+    text-align: center;
+    border-right: 2px solid #dee2e6;
+}
+
+.table-preview-table thead th:nth-child(2) {
+    width: 60px;
+    text-align: center;
+    border-right: 2px solid #dee2e6;
+}
+
+.table-column-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.table-column-name {
+    flex: 1;
+    min-width: 0;
+}
+
+.table-column-name input {
+    width: 100%;
+    background: transparent;
+    border: 1px solid transparent;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+    color: #495057;
+}
+
+.table-column-name input:hover {
+    border-color: #ced4da;
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+.table-column-name input:focus {
+    outline: none;
+    border-color: #0d6efd;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.1);
+}
+
+.table-column-delete {
+    opacity: 0;
+    transition: opacity 0.2s;
+    cursor: pointer;
+    color: #dc3545;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.table-column-delete:hover {
+    background-color: rgba(220, 53, 69, 0.1);
+}
+
+.table-preview-table thead th:hover .table-column-delete {
+    opacity: 1;
+}
+
+.table-preview-table tbody td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #e9ecef;
+    border-right: 1px solid #e9ecef;
+    background-color: #ffffff;
+    transition: background-color 0.15s;
+}
+
+.table-preview-table tbody tr:hover td {
+    background-color: #f8f9fa;
+}
+
+.table-preview-table tbody tr.selected td {
+    background-color: #cfe2ff;
+}
+
+.table-preview-table tbody td:first-child,
+.table-preview-table tbody td:nth-child(2) {
+    border-right: 2px solid #dee2e6;
+}
+
+.table-preview-table td input[type="text"] {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    background-color: transparent;
+    color: #212529;
+    font-size: 14px;
+    transition: all 0.15s;
+}
+
+.table-preview-table td input[type="text"]:hover {
+    border-color: #ced4da;
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+.table-preview-table td input[type="text"]:focus {
+    outline: none;
+    border-color: #0d6efd;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+}
+
+.table-preview-table td.modified {
+    background-color: #fff3cd !important;
+    position: relative;
+}
+
+.table-preview-table td.modified::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background-color: #ffc107;
+}
+
+.table-row-checkbox {
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+}
+
+.table-row-number {
+    color: #6c757d;
+    font-size: 12px;
+    text-align: center;
+    font-weight: 500;
+}
+
+/* Scrollbar styling */
+.table-preview-container::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+.table-preview-container::-webkit-scrollbar-track {
+    background: #f1f3f5;
+    border-radius: 6px;
+}
+
+.table-preview-container::-webkit-scrollbar-thumb {
+    background: #adb5bd;
+    border-radius: 6px;
+    border: 3px solid #f1f3f5;
+}
+
+.table-preview-container::-webkit-scrollbar-thumb:hover {
+    background: #868e96;
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+    .table-preview-container {
+        background-color: #1a1d20;
+        border-color: #30363d;
+    }
+
+    .table-preview-table thead th {
+        background: linear-gradient(180deg, #21262d 0%, #161b22 100%);
+        color: #c9d1d9;
+        border-bottom-color: #30363d;
+        border-right-color: #30363d;
+    }
+
+    .table-column-name input {
+        color: #c9d1d9;
+    }
+
+    .table-column-name input:hover {
+        border-color: #30363d;
+        background-color: rgba(48, 54, 61, 0.3);
+    }
+
+    .table-column-name input:focus {
+        background-color: #0d1117;
+        border-color: #1f6feb;
+        box-shadow: 0 0 0 2px rgba(31, 111, 235, 0.15);
+    }
+
+    .table-preview-table tbody td {
+        background-color: #0d1117;
+        border-bottom-color: #21262d;
+        border-right-color: #21262d;
+        color: #c9d1d9;
+    }
+
+    .table-preview-table tbody tr:hover td {
+        background-color: #161b22;
+    }
+
+    .table-preview-table tbody tr.selected td {
+        background-color: #1f3040;
+    }
+
+    .table-preview-table td input[type="text"] {
+        color: #c9d1d9;
+    }
+
+    .table-preview-table td input[type="text"]:hover {
+        border-color: #30363d;
+        background-color: rgba(48, 54, 61, 0.3);
+    }
+
+    .table-preview-table td input[type="text"]:focus {
+        background-color: #0d1117;
+        border-color: #1f6feb;
+        box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.2);
+    }
+
+    .table-preview-table td.modified {
+        background-color: #3d2f00 !important;
+    }
+
+    .table-preview-container::-webkit-scrollbar-track {
+        background: #161b22;
+    }
+
+    .table-preview-container::-webkit-scrollbar-thumb {
+        background: #484f58;
+        border-color: #161b22;
+    }
+
+    .table-preview-container::-webkit-scrollbar-thumb:hover {
+        background: #6e7681;
+    }
+}
+</style>
