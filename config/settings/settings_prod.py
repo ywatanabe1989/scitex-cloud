@@ -152,6 +152,15 @@ GITEA_API_URL = os.environ.get(
 GITEA_TOKEN = os.environ.get("SCITEX_CLOUD_GITEA_TOKEN", "")
 GITEA_INTEGRATION_ENABLED = True  # Core feature, always enabled
 
+# Gitea Clone URLs (for user-facing clone button)
+SCITEX_CLOUD_GITEA_URL = os.environ.get(
+    "SCITEX_CLOUD_GITEA_URL_PROD", "https://git.scitex.ai"
+)
+SCITEX_CLOUD_GIT_DOMAIN = os.environ.get("SCITEX_CLOUD_GIT_DOMAIN", "git.scitex.ai")
+SCITEX_CLOUD_GITEA_SSH_PORT = os.environ.get(
+    "SCITEX_CLOUD_GITEA_SSH_PORT_PROD", "22"
+)
+
 # ---------------------------------------
 # Logging
 # ---------------------------------------

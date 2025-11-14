@@ -142,6 +142,15 @@ GITEA_API_URL = f"{GITEA_URL}/api/v1"
 GITEA_TOKEN = os.environ.get("SCITEX_CLOUD_GITEA_TOKEN_DEV", "")
 GITEA_INTEGRATION_ENABLED = True  # Core feature, always enabled
 
+# Gitea Clone URLs (for user-facing clone button)
+SCITEX_CLOUD_GITEA_URL = os.environ.get(
+    "SCITEX_CLOUD_GITEA_URL_DEV", "http://127.0.0.1:3000"
+)
+SCITEX_CLOUD_GIT_DOMAIN = os.environ.get("SCITEX_CLOUD_GIT_DOMAIN", "127.0.0.1")
+SCITEX_CLOUD_GITEA_SSH_PORT = os.environ.get(
+    "SCITEX_CLOUD_GITEA_SSH_PORT_DEV", "2222"
+)
+
 # Development Cache Configuration - fallback to dummy cache if Redis not available
 # Override cache configuration for development if Redis is not available
 if not test_redis_connection():
