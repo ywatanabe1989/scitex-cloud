@@ -52,8 +52,9 @@
             Settings
         </a>
     </div>
-    <!-- Right: Toolbar Actions - Grouped -->
-    <div class="repo-toolbar-buttons">
+    <!-- Right: Toolbar Actions - Grouped (Only on Code/Files tab) -->
+    {% if active_tab == 'code' %}
+        <div class="repo-toolbar-buttons">
         <!-- Go to file search -->
         <div class="goto-file-search">
             <svg width="16"
@@ -172,5 +173,6 @@
                 </a>
             </div>
         </div>
-    </div>
+        </div>
+    {% endif %}
 </div>
