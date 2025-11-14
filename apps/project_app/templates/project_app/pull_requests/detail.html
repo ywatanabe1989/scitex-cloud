@@ -1,8 +1,7 @@
 {% extends "global_base.html" %}
 {% load static %}
 {% block title %}
-    PR #{{
-    pr.number }}: {{ pr.title }} - {{ project.name }}
+    PR #{{ pr.number }}: {{ pr.title }} - {{ project.name }}
 {% endblock %}
 {% block extra_css %}
     <link rel="stylesheet"

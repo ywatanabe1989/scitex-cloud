@@ -1,8 +1,7 @@
 {% extends 'global_base.html' %}
 {% load static %}
 {% block title %}
-    Commit {{
-    commit.short_hash }} - {{ project.name }}
+    Commit {{ commit.short_hash }} - {{ project.name }}
 {% endblock %}
 {% block extra_css %}
     <link rel="stylesheet"
