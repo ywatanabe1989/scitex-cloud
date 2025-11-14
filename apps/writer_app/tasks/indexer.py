@@ -101,6 +101,23 @@ def index_project_figures(project_id):
                             skipped_count += 1
                             continue  # Skip unchanged files
 
+                        # Check for duplicate content (same hash, different path)
+                        existing = db.check_hash_exists(file_hash, table_type='figure')
+                        if existing:
+                            # Compare filenames - prefer longer, more descriptive names
+                            current_name = file_path.name
+                            existing_name = existing['file_name']
+
+                            if len(current_name) <= len(existing_name):
+                                # Current file has shorter/same length name - skip it as duplicate
+                                logger.debug(f"[Indexer] Skipping duplicate: {current_name} (keeping {existing_name})")
+                                skipped_count += 1
+                                continue
+                            else:
+                                # Current file has longer name - remove old entry and index new one
+                                logger.info(f"[Indexer] Replacing duplicate: {existing_name} -> {current_name}")
+                                db.delete_figure(existing['file_path'])
+
                         # Extract metadata
                         metadata = extract_figure_metadata(file_path, project_path)
                         db.upsert_figure(metadata)
@@ -199,6 +216,23 @@ def index_project_tables(project_id):
                         if db.check_if_indexed(relative_path, file_hash, table_type='table'):
                             skipped_count += 1
                             continue  # Skip unchanged files
+
+                        # Check for duplicate content (same hash, different path)
+                        existing = db.check_hash_exists(file_hash, table_type='table')
+                        if existing:
+                            # Compare filenames - prefer longer, more descriptive names
+                            current_name = file_path.name
+                            existing_name = existing['file_name']
+
+                            if len(current_name) <= len(existing_name):
+                                # Current file has shorter/same length name - skip it as duplicate
+                                logger.debug(f"[TableIndexer] Skipping duplicate: {current_name} (keeping {existing_name})")
+                                skipped_count += 1
+                                continue
+                            else:
+                                # Current file has longer name - remove old entry and index new one
+                                logger.info(f"[TableIndexer] Replacing duplicate: {existing_name} -> {current_name}")
+                                db.delete_table(existing['file_path'])
 
                         # Extract metadata
                         metadata = extract_table_metadata(file_path, project_path)

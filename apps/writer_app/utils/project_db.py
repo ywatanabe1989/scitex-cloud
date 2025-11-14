@@ -457,6 +457,26 @@ class ProjectDatabase:
             row = cursor.fetchone()
             return row is not None and row['file_hash'] == file_hash
 
+    def check_hash_exists(self, file_hash: str, table_type: str = 'figure') -> dict | None:
+        """
+        Check if a file hash already exists in the database (for duplicate detection).
+
+        Args:
+            file_hash: SHA256 hash of file
+            table_type: 'figure' or 'table' (default: 'figure')
+
+        Returns:
+            Dictionary with file info if hash exists, None otherwise
+        """
+        table_name = 'tables' if table_type == 'table' else 'figures'
+        with self.connection() as conn:
+            cursor = conn.execute(
+                f'SELECT file_path, file_name, file_size FROM {table_name} WHERE file_hash = ?',
+                (file_hash,)
+            )
+            row = cursor.fetchone()
+            return dict(row) if row else None
+
     def delete_figure(self, file_path: str):
         """
         Delete figure from database.
@@ -467,6 +487,17 @@ class ProjectDatabase:
         with self.connection() as conn:
             conn.execute('DELETE FROM figures WHERE file_path = ?', (file_path,))
             logger.debug(f"[ProjectDB] Deleted figure: {file_path}")
+
+    def delete_table(self, file_path: str):
+        """
+        Delete table from database.
+
+        Args:
+            file_path: Relative file path
+        """
+        with self.connection() as conn:
+            conn.execute('DELETE FROM tables WHERE file_path = ?', (file_path,))
+            logger.debug(f"[ProjectDB] Deleted table: {file_path}")
 
     def update_references(self, figure_id: int, is_referenced: bool, reference_count: int):
         """
