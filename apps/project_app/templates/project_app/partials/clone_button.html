@@ -1,0 +1,145 @@
+<!-- Git Clone Button Component -->
+<div class="git-clone-button-container">
+    <div class="btn-group">
+        <button type="button" class="btn btn-success" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-code me-2"></i>Code
+            <i class="fas fa-caret-down ms-2"></i>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end p-3" style="min-width: 400px;">
+            <!-- Clone Section Header -->
+            <li class="mb-3">
+                <h6 class="dropdown-header px-0">
+                    <i class="fas fa-clone me-2"></i>Clone
+                </h6>
+            </li>
+
+            <!-- HTTPS -->
+            <li class="mb-3">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <label class="form-label mb-0 fw-bold">HTTPS</label>
+                </div>
+                <div class="input-group input-group-sm">
+                    <input type="text"
+                           class="form-control font-monospace"
+                           value="{{ gitea_https_url }}"
+                           id="gitea-https-url"
+                           readonly>
+                    <button class="btn btn-outline-secondary"
+                            type="button"
+                            onclick="copyToClipboard('gitea-https-url')"
+                            title="Copy HTTPS URL">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+            </li>
+
+            <!-- SSH -->
+            <li class="mb-3">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <label class="form-label mb-0 fw-bold">SSH</label>
+                    <small class="text-muted">Use a password-protected SSH key</small>
+                </div>
+                <div class="input-group input-group-sm">
+                    <input type="text"
+                           class="form-control font-monospace"
+                           value="{{ gitea_ssh_url }}"
+                           id="gitea-ssh-url"
+                           readonly>
+                    <button class="btn btn-outline-secondary"
+                            type="button"
+                            onclick="copyToClipboard('gitea-ssh-url')"
+                            title="Copy SSH URL">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+            </li>
+
+            <!-- Divider -->
+            <li><hr class="dropdown-divider"></li>
+
+            <!-- GitHub CLI -->
+            <li class="mb-2">
+                <button class="dropdown-item" onclick="showGitHubCLI()">
+                    <i class="fas fa-terminal me-2"></i>Open with GitHub Desktop
+                </button>
+            </li>
+
+            <!-- Download ZIP -->
+            <li>
+                <a class="dropdown-item" href="{{ download_zip_url }}">
+                    <i class="fas fa-download me-2"></i>Download ZIP
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<script>
+function copyToClipboard(elementId) {
+    const input = document.getElementById(elementId);
+    input.select();
+    input.setSelectionRange(0, 99999); // For mobile devices
+
+    // Copy to clipboard
+    navigator.clipboard.writeText(input.value).then(function() {
+        // Show success feedback
+        const button = input.nextElementSibling;
+        const originalHTML = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-check"></i>';
+        button.classList.remove('btn-outline-secondary');
+        button.classList.add('btn-success');
+
+        setTimeout(function() {
+            button.innerHTML = originalHTML;
+            button.classList.remove('btn-success');
+            button.classList.add('btn-outline-secondary');
+        }, 2000);
+    }).catch(function(err) {
+        console.error('Failed to copy:', err);
+        alert('Failed to copy to clipboard');
+    });
+}
+
+function showGitHubCLI() {
+    alert('GitHub Desktop integration coming soon!');
+}
+</script>
+
+<style>
+.git-clone-button-container .dropdown-menu {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    border: 1px solid var(--color-border-default);
+}
+
+.git-clone-button-container .form-control {
+    font-size: 13px;
+    background-color: var(--color-canvas-subtle);
+    border-color: var(--color-border-default);
+}
+
+.git-clone-button-container .btn-success {
+    background-color: #2da44e;
+    border-color: #2da44e;
+}
+
+.git-clone-button-container .btn-success:hover {
+    background-color: #2c974b;
+    border-color: #2c974b;
+}
+
+.git-clone-button-container .dropdown-header {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-fg-default);
+    padding: 0;
+}
+
+.git-clone-button-container .dropdown-item {
+    padding: 8px 12px;
+    font-size: 14px;
+}
+
+.git-clone-button-container .dropdown-item:hover {
+    background-color: var(--color-accent-subtle);
+}
+</style>

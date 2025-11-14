@@ -64,15 +64,17 @@
             <a href="/{{ project.owner.username }}/{{ project.slug }}/blob/{{ file_path }}?mode=raw"
                class="btn btn-sm btn-outline-secondary"
                target="_blank">Raw</a>
-            <button onclick="copyToClipboard()" class="btn btn-sm btn-icon" title="Copy">
-                <i class="fas fa-copy"></i>
-            </button>
+            {% if render_type == 'code' or render_type == 'text' or render_type == 'markdown' %}
+                <button onclick="copyToClipboard()" class="btn btn-sm btn-icon" title="Copy">
+                    <i class="fas fa-copy"></i>
+                </button>
+            {% endif %}
             <a href="/{{ project.owner.username }}/{{ project.slug }}/blob/{{ file_path }}?mode=download"
                class="btn btn-sm btn-icon"
                title="Download">
                 <i class="fas fa-download"></i>
             </a>
-            {% if can_edit %}
+            {% if can_edit and render_type != 'image' and render_type != 'pdf' and render_type != 'binary' %}
                 <a href="/{{ project.owner.username }}/{{ project.slug }}/blob/{{ file_path }}?mode=edit"
                    class="btn btn-sm btn-icon"
                    title="Edit">
