@@ -33,6 +33,7 @@ playwright==1.48.0
 
 # Container management (for workspace app)
 docker==7.1.0
+paramiko==3.4.0  # SSH gateway for user workspaces
 
 # E2E Testing
 pytest>=8.4.1
