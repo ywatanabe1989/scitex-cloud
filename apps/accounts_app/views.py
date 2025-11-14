@@ -73,6 +73,10 @@ def appearance_settings(request):
 def ssh_keys(request):
     """SSH key management page."""
     from apps.project_app.services.ssh_service import SSHKeyManager
+    from apps.project_app.services.gitea_sync_service import (
+        sync_ssh_key_to_gitea,
+        remove_ssh_key_from_gitea,
+    )
 
     ssh_manager = SSHKeyManager(request.user)
     profile, _ = UserProfile.objects.get_or_create(user=request.user)
@@ -84,6 +88,18 @@ def ssh_keys(request):
             success, public_key, error = ssh_manager.get_or_create_user_key()
             if success:
                 messages.success(request, "SSH key generated successfully!")
+
+                # Sync SSH key to Gitea
+                sync_success, sync_error = sync_ssh_key_to_gitea(request.user)
+                if sync_success:
+                    messages.success(
+                        request, "SSH key synced to Gitea - you can now use SSH clone!"
+                    )
+                else:
+                    messages.warning(
+                        request,
+                        f"SSH key created but Gitea sync failed: {sync_error}. You may need to add the key manually to Gitea.",
+                    )
             else:
                 messages.error(request, f"Failed to generate SSH key: {error}")
 
@@ -91,6 +107,16 @@ def ssh_keys(request):
             success, error = ssh_manager.delete_user_key()
             if success:
                 messages.success(request, "SSH key deleted successfully!")
+
+                # Remove SSH key from Gitea
+                remove_success, remove_error = remove_ssh_key_from_gitea(request.user)
+                if remove_success:
+                    messages.success(request, "SSH key removed from Gitea")
+                else:
+                    messages.warning(
+                        request,
+                        f"SSH key deleted locally but Gitea removal failed: {remove_error}",
+                    )
             else:
                 messages.error(request, f"Failed to delete SSH key: {error}")
 
@@ -173,12 +199,23 @@ def api_keys(request):
 def api_generate_ssh_key(request):
     """API endpoint to generate SSH key."""
     from apps.project_app.services.ssh_service import SSHKeyManager
+    from apps.project_app.services.gitea_sync_service import sync_ssh_key_to_gitea
 
     ssh_manager = SSHKeyManager(request.user)
     success, public_key, error = ssh_manager.get_or_create_user_key()
 
     if success:
-        return JsonResponse({"success": True, "public_key": public_key})
+        # Sync SSH key to Gitea
+        sync_success, sync_error = sync_ssh_key_to_gitea(request.user)
+
+        return JsonResponse(
+            {
+                "success": True,
+                "public_key": public_key,
+                "gitea_synced": sync_success,
+                "gitea_error": sync_error,
+            }
+        )
     else:
         return JsonResponse({"success": False, "error": error}, status=400)
 

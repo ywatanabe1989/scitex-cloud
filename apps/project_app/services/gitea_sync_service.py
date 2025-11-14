@@ -10,7 +10,7 @@ Provides helper functions for syncing Django users and projects with Gitea.
 """
 
 import logging
-from typing import Optional
+from typing import Optional, Tuple
 from django.contrib.auth.models import User
 from django.conf import settings
 from apps.gitea_app.api_client import GiteaClient, GiteaAPIError
@@ -113,6 +113,126 @@ def ensure_gitea_user_exists(user: User) -> bool:
         logger.warning(f"Gitea user not found: {user.username}")
         logger.warning(f"User should register at: {settings.GITEA_URL}/user/sign_up")
         return False
+
+
+def sync_ssh_key_to_gitea(user: User) -> Tuple[bool, Optional[str]]:
+    """
+    Sync user's SSH key from SciTeX to Gitea.
+
+    Args:
+        user: Django User instance
+
+    Returns:
+        Tuple of (success, error_message)
+    """
+    try:
+        from apps.accounts_app.models import UserProfile
+
+        # Get user's SSH key from profile
+        try:
+            profile = UserProfile.objects.get(user=user)
+        except UserProfile.DoesNotExist:
+            return False, "User profile not found"
+
+        if not profile.ssh_public_key:
+            return False, "No SSH key found for user"
+
+        # Initialize Gitea client
+        client = GiteaClient()
+
+        # Check if key already exists in Gitea by fingerprint
+        fingerprint = profile.ssh_key_fingerprint
+        if fingerprint:
+            # Extract SHA256 hash from fingerprint (format: "2048 SHA256:xxx... comment (RSA)")
+            # We need just the hash part after SHA256:
+            parts = fingerprint.split()
+            sha256_hash = None
+            for i, part in enumerate(parts):
+                if part.startswith("SHA256:"):
+                    sha256_hash = part.replace("SHA256:", "")
+                    break
+
+            if sha256_hash:
+                existing_key = client.find_ssh_key_by_fingerprint(
+                    sha256_hash, user.username
+                )
+                if existing_key:
+                    logger.info(f"SSH key already exists in Gitea for user: {user.username}")
+                    return True, None
+
+        # Add SSH key to Gitea
+        title = f"SciTeX Cloud Key ({user.username})"
+        client.add_ssh_key(
+            title=title, key=profile.ssh_public_key, username=user.username
+        )
+
+        logger.info(f"✓ Synced SSH key to Gitea for user: {user.username}")
+        return True, None
+
+    except GiteaAPIError as e:
+        error_msg = f"Gitea API error: {str(e)}"
+        logger.error(f"Failed to sync SSH key for {user.username}: {error_msg}")
+        return False, error_msg
+    except Exception as e:
+        error_msg = str(e)
+        logger.error(f"Failed to sync SSH key for {user.username}: {error_msg}")
+        return False, error_msg
+
+
+def remove_ssh_key_from_gitea(user: User) -> Tuple[bool, Optional[str]]:
+    """
+    Remove user's SSH key from Gitea.
+
+    Args:
+        user: Django User instance
+
+    Returns:
+        Tuple of (success, error_message)
+    """
+    try:
+        from apps.accounts_app.models import UserProfile
+
+        # Get user's SSH key fingerprint from profile
+        try:
+            profile = UserProfile.objects.get(user=user)
+        except UserProfile.DoesNotExist:
+            return True, None  # No profile, nothing to remove
+
+        if not profile.ssh_key_fingerprint:
+            return True, None  # No fingerprint, nothing to remove
+
+        # Initialize Gitea client
+        client = GiteaClient()
+
+        # Extract SHA256 hash from fingerprint
+        parts = profile.ssh_key_fingerprint.split()
+        sha256_hash = None
+        for part in parts:
+            if part.startswith("SHA256:"):
+                sha256_hash = part.replace("SHA256:", "")
+                break
+
+        if not sha256_hash:
+            return True, None  # Can't find hash, assume nothing to remove
+
+        # Find and delete the key
+        existing_key = client.find_ssh_key_by_fingerprint(sha256_hash, user.username)
+        if existing_key:
+            key_id = existing_key.get("id")
+            if key_id:
+                client.delete_ssh_key(key_id, user.username)
+                logger.info(f"✓ Removed SSH key from Gitea for user: {user.username}")
+
+        return True, None
+
+    except GiteaAPIError as e:
+        error_msg = f"Gitea API error: {str(e)}"
+        logger.error(f"Failed to remove SSH key for {user.username}: {error_msg}")
+        return False, error_msg
+    except Exception as e:
+        error_msg = str(e)
+        logger.error(f"Failed to remove SSH key for {user.username}: {error_msg}")
+        return False, error_msg
 
 
 # EOF
