@@ -117,6 +117,22 @@ initialize_visitor_pool() {
 initialize_visitor_pool
 
 # ============================================
+# Start SSH Gateway (Background)
+# ============================================
+start_ssh_gateway() {
+    echo_info "Starting SSH gateway on port 2200..."
+    nohup python manage.py run_ssh_gateway \
+        --port 2200 \
+        --host 0.0.0.0 \
+        > /app/logs/ssh-gateway.log 2>&1 &
+    SSH_GATEWAY_PID=$!
+    echo_success "SSH gateway started (PID: $SSH_GATEWAY_PID)"
+    echo "   Port: 2200"
+    echo "   Log: tail -f /app/logs/ssh-gateway.log"
+}
+start_ssh_gateway
+
+# ============================================
 # Start Application
 # ============================================
 echo "🚀 Starting development server..."
