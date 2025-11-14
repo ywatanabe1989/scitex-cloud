@@ -181,6 +181,30 @@
                                         <i class="fas fa-book"></i>
                                         <span class="visually-hidden">Citations Pane</span>
                                     </button>
+                                    <button type="button"
+                                            id="show-figures-btn"
+                                            class="view-switch-btn"
+                                            onclick="switchRightPanel('figures')"
+                                            title="Toggle Figures (Ctrl+4)">
+                                        <i class="fas fa-image"></i>
+                                        <span class="visually-hidden">Figures Pane</span>
+                                    </button>
+                                    <button type="button"
+                                            id="show-tables-btn"
+                                            class="view-switch-btn"
+                                            onclick="switchRightPanel('tables')"
+                                            title="Toggle Tables (Ctrl+5)">
+                                        <i class="fas fa-table"></i>
+                                        <span class="visually-hidden">Tables Pane</span>
+                                    </button>
+                                    <button type="button"
+                                            id="show-history-btn"
+                                            class="view-switch-btn"
+                                            onclick="switchRightPanel('history')"
+                                            title="Toggle Version History (Ctrl+6)">
+                                        <i class="fas fa-history"></i>
+                                        <span class="visually-hidden">History Pane</span>
+                                    </button>
                                 </div>
                                 <!-- Compile Button (hidden, triggered from dropdown) -->
                                 <button id="compile-btn-toolbar"
@@ -191,43 +215,25 @@
                                 </button>
                             </div>
                             <div class="header-right">
-                                <!-- 1. Preview Compilation Controls -->
-                                <div class="status-indicator-group">
+                                <!-- 1. Preview Compilation Status LED -->
+                                <div class="status-indicator-group"
+                                     onclick="togglePreviewLog()"
+                                     title="Preview status (click to view log)"
+                                     style="cursor: pointer">
                                     <span class="status-indicator-label">Preview</span>
                                     <span class="status-lamp-dot"
                                           id="preview-status-lamp"
-                                          data-status="idle"
-                                          title="Preview status (click to view log)"
-                                          onclick="togglePreviewLog()"
-                                          style="cursor: pointer"></span>
-                                    <button class="btn btn-sm btn-outline-secondary"
-                                            id="preview-toggle-button"
-                                            onclick="handlePreviewClick()"
-                                            style="padding: 0.15rem 0.4rem;
-                                                   font-size: 0.7rem;
-                                                   line-height: 1"
-                                            title="Start preview compilation (Alt+Enter)">
-                                        <i class="fas fa-play"></i>
-                                    </button>
+                                          data-status="idle"></span>
                                 </div>
-                                <!-- 2. Full Compilation Controls -->
-                                <div class="status-indicator-group">
+                                <!-- 2. Full Compilation Status LED -->
+                                <div class="status-indicator-group"
+                                     onclick="toggleFullLog()"
+                                     title="Full compilation status (click to view log)"
+                                     style="cursor: pointer">
                                     <span class="status-indicator-label">Full</span>
                                     <span class="status-lamp-dot"
                                           id="fullcompile-status-lamp"
-                                          data-status="idle"
-                                          title="Full compilation status (click to view log)"
-                                          onclick="toggleFullLog()"
-                                          style="cursor: pointer"></span>
-                                    <button class="btn btn-sm btn-outline-secondary"
-                                            id="fullcompile-toggle-button"
-                                            onclick="handleFullCompileClick()"
-                                            style="padding: 0.15rem 0.4rem;
-                                                   font-size: 0.7rem;
-                                                   line-height: 1"
-                                            title="Start full compilation (Alt+Shift+Enter)">
-                                        <i class="fas fa-play"></i>
-                                    </button>
+                                          data-status="idle"></span>
                                 </div>
                                 <!-- 3. Compilation Settings Gear -->
                                 <button id="compilation-settings-btn"
@@ -291,7 +297,7 @@
                                     <i class="fas fa-download"></i>
                                     <span class="visually-hidden">Download PDF</span>
                                 </button>
-                                <!-- may not be used... -->                                
+                                <!-- may not be used... -->
                                 <!-- <\!-- Background compilation status indicator -\->
                                  !-- <div id="background-compile-status"
                                  !--      class="status-indicator"
@@ -355,6 +361,27 @@
                                         <i class="fas fa-book"></i>
                                         <span class="visually-hidden">Citations Pane</span>
                                     </button>
+                                    <button type="button"
+                                            class="view-switch-btn"
+                                            onclick="switchRightPanel('figures')"
+                                            title="Figures (Ctrl+4)">
+                                        <i class="fas fa-image"></i>
+                                        <span class="visually-hidden">Figures Pane</span>
+                                    </button>
+                                    <button type="button"
+                                            class="view-switch-btn"
+                                            onclick="switchRightPanel('tables')"
+                                            title="Tables (Ctrl+5)">
+                                        <i class="fas fa-table"></i>
+                                        <span class="visually-hidden">Tables Pane</span>
+                                    </button>
+                                    <button type="button"
+                                            class="view-switch-btn"
+                                            onclick="switchRightPanel('history')"
+                                            title="Version History (Ctrl+6)">
+                                        <i class="fas fa-history"></i>
+                                        <span class="visually-hidden">History Pane</span>
+                                    </button>
                                 </div>
                             </div>
                             <div class="header-right" style="display: flex; align-items: center; gap: 0.5rem; flex: 1">
@@ -395,6 +422,204 @@
                         <!-- Citations Content -->
                         {% include "writer_app/index_partials/citations_panel.html" %}
                     </div>
+                    <!-- Figures View (hidden by default) -->
+                    <div id="figures-view" class="right-panel-view" style="display: none">
+                        <!-- Figures Header -->
+                        <div class="panel-header" id="figures-panel-header">
+                            <div class="header-left">
+                                <!-- View Toggle -->
+                                <div class="view-switcher me-2" role="group">
+                                    <button type="button"
+                                            class="view-switch-btn"
+                                            onclick="switchRightPanel('pdf')"
+                                            title="Back to PDF Preview (Ctrl+2)">
+                                        <i class="fas fa-file-pdf"></i>
+                                        <span class="visually-hidden">PDF Pane</span>
+                                    </button>
+                                    <button type="button"
+                                            class="view-switch-btn"
+                                            onclick="switchRightPanel('citations')"
+                                            title="Citations (Ctrl+3)">
+                                        <i class="fas fa-book"></i>
+                                        <span class="visually-hidden">Citations Pane</span>
+                                    </button>
+                                    <button type="button"
+                                            class="view-switch-btn active"
+                                            onclick="switchRightPanel('figures')"
+                                            title="Figures (Ctrl+4)">
+                                        <i class="fas fa-image"></i>
+                                        <span class="visually-hidden">Figures Pane</span>
+                                    </button>
+                                    <button type="button"
+                                            class="view-switch-btn"
+                                            onclick="switchRightPanel('tables')"
+                                            title="Tables (Ctrl+5)">
+                                        <i class="fas fa-table"></i>
+                                        <span class="visually-hidden">Tables Pane</span>
+                                    </button>
+                                    <button type="button"
+                                            class="view-switch-btn"
+                                            onclick="switchRightPanel('history')"
+                                            title="Version History (Ctrl+6)">
+                                        <i class="fas fa-history"></i>
+                                        <span class="visually-hidden">History Pane</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="header-right" style="display: flex; align-items: center; gap: 0.5rem; flex: 1">
+                                <!-- 1. Figures Selection Count -->
+                                <span id="figures-selected-toolbar" style="font-size: 0.75rem; color: var(--color-fg-muted); white-space: nowrap">
+                                    <span id="figures-selected-count-toolbar">0</span>/<span id="figures-total-for-selection-toolbar">0</span> Selected
+                                </span>
+                                <!-- 2. Search Input (Compact) -->
+                                <div style="position: relative; flex: 1; max-width: 250px">
+                                    <i class="fas fa-search" style="position: absolute; left: 0.5rem; top: 50%; transform: translateY(-50%); font-size: 0.7rem; color: var(--color-fg-muted); pointer-events: none"></i>
+                                    <input type="text"
+                                           id="figures-search-toolbar"
+                                           class="form-control form-control-sm"
+                                           placeholder="Search Figures..."
+                                           style="padding-left: 1.75rem; padding-right: 2.25rem; font-size: 0.75rem; height: 28px" />
+                                    <kbd style="position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); font-size: 0.65rem; padding: 0.1rem 0.3rem; background: var(--color-canvas-subtle); border: 1px solid var(--color-border-default); border-radius: 3px; color: var(--color-fg-muted); pointer-events: none">Ctrl+Shift+F</kbd>
+                                </div>
+                                <!-- 3. Sort Select (Compact) -->
+                                <div style="position: relative; display: inline-flex; align-items: center">
+                                    <i class="fas fa-sort-amount-down" style="position: absolute; left: 0.5rem; font-size: 0.7rem; color: var(--color-fg-muted); pointer-events: none; z-index: 1"></i>
+                                    <select id="figures-sort-toolbar" class="form-select form-select-sm" style="width: auto; font-size: 0.75rem; padding: 0.2rem 1.5rem 0.2rem 1.75rem; height: 28px">
+                                        <option value="name">Name A→Z</option>
+                                        <option value="name-desc">Name Z→A</option>
+                                        <option value="size">Size ↑</option>
+                                        <option value="size-desc">Size ↓</option>
+                                        <option value="recent">Recently Added</option>
+                                    </select>
+                                </div>
+                                <!-- 4. Upload Figure Button (Far Right) -->
+                                <button class="btn btn-sm btn-outline-secondary"
+                                        id="upload-figure-btn"
+                                        title="Upload Figure"
+                                        onclick="handleUploadFigure(event)">
+                                    <i class="fas fa-upload"></i>
+                                    <span class="visually-hidden">Upload Figure</span>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Figures Content -->
+                        {% include "writer_app/index_partials/figures_panel.html" %}
+                    </div>
+                    <!-- Tables View (hidden by default) -->
+                    <div id="tables-view" class="right-panel-content" hidden>
+                        <!-- Tables Panel Header (similar to Figures/Citations) -->
+                        <div class="panel-header" style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--color-border-default);background:var(--bg-canvas-inset)">
+                            <div class="header-left" style="display: flex; align-items: center; gap: 0.5rem">
+                                <div class="view-switcher me-2" role="group">
+                                    <button type="button"
+                                            class="view-switch-btn"
+                                            onclick="switchRightPanel('pdf')"
+                                            title="Back to PDF Preview (Ctrl+2)">
+                                        <i class="fas fa-file-pdf"></i>
+                                        <span class="visually-hidden">PDF Pane</span>
+                                    </button>
+                                    <button type="button"
+                                            class="view-switch-btn"
+                                            onclick="switchRightPanel('citations')"
+                                            title="Citations (Ctrl+3)">
+                                        <i class="fas fa-book"></i>
+                                        <span class="visually-hidden">Citations Pane</span>
+                                    </button>
+                                    <button type="button"
+                                            class="view-switch-btn"
+                                            onclick="switchRightPanel('figures')"
+                                            title="Figures (Ctrl+4)">
+                                        <i class="fas fa-image"></i>
+                                        <span class="visually-hidden">Figures Pane</span>
+                                    </button>
+                                    <button type="button"
+                                            class="view-switch-btn active"
+                                            onclick="switchRightPanel('tables')"
+                                            title="Tables (Ctrl+5)">
+                                        <i class="fas fa-table"></i>
+                                        <span class="visually-hidden">Tables Pane</span>
+                                    </button>
+                                    <button type="button"
+                                            class="view-switch-btn"
+                                            onclick="switchRightPanel('history')"
+                                            title="Version History (Ctrl+6)">
+                                        <i class="fas fa-history"></i>
+                                        <span class="visually-hidden">History Pane</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="header-right" style="display: flex; align-items: center; gap: 0.5rem; flex: 1">
+                                <!-- 1. Tables Selection Count -->
+                                <span id="tables-selected-toolbar" style="font-size: 0.75rem; color: var(--color-fg-muted); white-space: nowrap">
+                                    <span id="tables-selected-count-toolbar">0</span>/<span id="tables-total-for-selection-toolbar">0</span> Selected
+                                </span>
+                            </div>
+                        </div>
+                        <!-- Tables Content -->
+                        {% include "writer_app/index_partials/tables_panel.html" %}
+                    </div>
+                    <!-- History View (hidden by default) -->
+                    <div id="history-view" class="right-panel-content" hidden>
+                        <!-- History Panel Header -->
+                        <div class="panel-header" style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--color-border-default);background:var(--bg-canvas-inset)">
+                            <div class="header-left" style="display: flex; align-items: center; gap: 0.5rem">
+                                <div class="view-switcher me-2" role="group">
+                                    <button type="button"
+                                            class="view-switch-btn"
+                                            onclick="switchRightPanel('pdf')"
+                                            title="Back to PDF Preview (Ctrl+2)">
+                                        <i class="fas fa-file-pdf"></i>
+                                        <span class="visually-hidden">PDF Pane</span>
+                                    </button>
+                                    <button type="button"
+                                            class="view-switch-btn"
+                                            onclick="switchRightPanel('citations')"
+                                            title="Citations (Ctrl+3)">
+                                        <i class="fas fa-book"></i>
+                                        <span class="visually-hidden">Citations Pane</span>
+                                    </button>
+                                    <button type="button"
+                                            class="view-switch-btn"
+                                            onclick="switchRightPanel('figures')"
+                                            title="Figures (Ctrl+4)">
+                                        <i class="fas fa-image"></i>
+                                        <span class="visually-hidden">Figures Pane</span>
+                                    </button>
+                                    <button type="button"
+                                            class="view-switch-btn"
+                                            onclick="switchRightPanel('tables')"
+                                            title="Tables (Ctrl+5)">
+                                        <i class="fas fa-table"></i>
+                                        <span class="visually-hidden">Tables Pane</span>
+                                    </button>
+                                    <button type="button"
+                                            class="view-switch-btn active"
+                                            onclick="switchRightPanel('history')"
+                                            title="Version History (Ctrl+6)">
+                                        <i class="fas fa-history"></i>
+                                        <span class="visually-hidden">History Pane</span>
+                                    </button>
+                                </div>
+                                <h6 class="mb-0" style="font-size: 0.9rem; font-weight: 600; color: var(--color-fg-default)">Version History</h6>
+                            </div>
+                            <div class="header-right" style="display: flex; align-items: center; gap: 0.5rem">
+                                <!-- Branch Selector -->
+                                <select id="gitBranchSelect" class="form-select form-select-sm" style="max-width: 150px">
+                                    <option value="main">Current Branch</option>
+                                </select>
+                                <!-- Refresh Button -->
+                                <button id="gitRefreshBtn" class="btn btn-sm btn-outline-secondary" title="Refresh history">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                                <!-- Git Status Badge -->
+                                <span id="gitStatusBadge" class="badge bg-success">
+                                    <i class="fas fa-check-circle"></i> Working directory clean
+                                </span>
+                            </div>
+                        </div>
+                        <!-- History Content -->
+                        {% include "writer_app/index_partials/history_panel.html" %}
+                    </div>
                 </div>
             </div>
         </div>
@@ -402,6 +627,39 @@
         <div id="compilation-output"
              class="compilation-output"
              style="display: none">
+            <!-- Compilation Log Toolbar -->
+            <div id="compilation-log-toolbar"
+                 style="display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        padding: 0.5rem 1rem;
+                        border-bottom: 1px solid var(--color-border-default);
+                        background: var(--color-canvas-subtle)">
+                <div style="display: flex; gap: 0.5rem">
+                    <!-- Start Button -->
+                    <button id="compilation-log-start-btn"
+                            class="btn btn-sm btn-success"
+                            onclick="handleCompilationLogStart()"
+                            title="Start compilation">
+                        <i class="fas fa-play me-1"></i>Start
+                    </button>
+                    <!-- Stop Button -->
+                    <button id="compilation-log-stop-btn"
+                            class="btn btn-sm btn-danger"
+                            onclick="handleCompilationLogStop()"
+                            style="display: none"
+                            title="Stop compilation">
+                        <i class="fas fa-stop me-1"></i>Stop
+                    </button>
+                </div>
+                <!-- Close Button -->
+                <button id="compilation-log-close-btn"
+                        class="btn btn-sm btn-outline-secondary"
+                        onclick="handleCompilationLogClose()"
+                        title="Close log panel">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
             <!-- Progress Bar -->
             <div id="compilation-progress-container"
                  style="display: none;

@@ -10,6 +10,10 @@
     <link rel="stylesheet"
           href="{% static 'writer_app/css/editor/citations-panel.css' %}?v={{ request.timestamp|default:'1' }}" />
     <link rel="stylesheet"
+          href="{% static 'writer_app/css/editor/figures-panel.css' %}?v={{ request.timestamp|default:'1' }}" />
+    <link rel="stylesheet"
+          href="{% static 'writer_app/css/editor/tables-panel.css' %}?v={{ request.timestamp|default:'1' }}" />
+    <link rel="stylesheet"
           href="{% static 'writer_app/css/components/pdfjs-viewer.css' %}?v={{ request.timestamp|default:'1' }}" />
     <link rel="stylesheet"
           href="{% static 'shared/css/components/alerts.css' %}?v={{ request.timestamp|default:'1' }}" />
@@ -117,6 +121,10 @@
         {% include "writer_app/compilation_view_partials/compilation_modal.html" %}
         {% include "writer_app/compilation_view_partials/ai2_modal.html" %}
         {% include "writer_app/index_partials/compilation_settings_modal.html" %}
+        <!-- Git History Modal -->
+        {% include "writer_app/index_partials/git_history_modal.html" %}
+        <!-- Table Preview Modal -->
+        {% include "writer_app/index_partials/table_preview_modal.html" %}
     {% endif %}
     {% if not needs_project_creation and not pool_error and not pool_exhausted %}
         <!-- Editor Loader (TypeScript-compiled) - Handles CodeMirror and Monaco initialization -->

@@ -40,6 +40,8 @@ interface EditorState {
     force?: boolean;
   };
   citationsSorting?: string; // sort key like 'author', 'year', 'title'
+  figuresSorting?: string; // sort key like 'name', 'size', 'recent'
+  selectedFigures?: string[]; // Array of selected figure keys (file_name or label)
   pdfZoom?: number; // PDF zoom level percentage (50-300)
   panelWidth?: number; // Left panel width percentage (20-80)
 }

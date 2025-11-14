@@ -19,6 +19,7 @@ import {
   EditorControls,
 } from "./modules/index.js";
 import { PDFScrollZoomHandler } from "./modules/pdf-scroll-zoom.js";
+import { GitHistoryManager } from "../modules/git-history.js";
 import { statePersistence } from "../modules/state-persistence.js";
 import { getCsrfToken } from "@/utils/csrf.js";
 import { writerStorage } from "@/utils/storage.js";

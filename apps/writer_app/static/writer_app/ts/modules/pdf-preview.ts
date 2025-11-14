@@ -19,7 +19,7 @@ export interface PDFPreviewOptions {
   compileDelay?: number; // ms to wait before auto-compiling
   apiBaseUrl?: string;
   docType?: string; // manuscript, supplementary, revision (default: manuscript)
-  renderQuality?: number; // PDF.js render quality (1.0-5.0, default: 2.0)
+  renderQuality?: number; // PDF.js render quality (1.0-5.0, default: 4.0 for 300 DPI)
 }
 
 export class PDFPreviewManager {
@@ -36,7 +36,7 @@ export class PDFPreviewManager {
   private colorMode: "light" | "dark" = "light"; // PDF color mode
   private pdfZoom: number = 100; // PDF zoom level (default 100% = fit to page)
   private pdfViewer: PDFJSViewer | null = null; // PDF.js canvas viewer
-  private renderQuality: number = 2.0; // Default 2x quality
+  private renderQuality: number = 4.0; // Default 4x quality for 300 DPI
 
   constructor(options: PDFPreviewOptions) {
     this.container = document.getElementById(options.containerId);
@@ -44,7 +44,7 @@ export class PDFPreviewManager {
     this.autoCompile = options.autoCompile ?? false;
     this.compileDelay = options.compileDelay ?? 3000; // 3 seconds
     this.docType = options.docType || "manuscript";
-    this.renderQuality = options.renderQuality ?? 2.0; // Default 2x quality
+    this.renderQuality = options.renderQuality ?? 4.0; // Default 4x quality for 300 DPI
 
     // Load saved color mode preference from localStorage
     const savedMode = localStorage.getItem("pdf-color-mode") as

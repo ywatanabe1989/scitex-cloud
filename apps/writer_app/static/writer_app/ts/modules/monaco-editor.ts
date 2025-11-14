@@ -1018,7 +1018,7 @@ export class EnhancedEditor {
       editorDomNode.parentElement?.classList.remove("drag-over");
     });
 
-    // Drop: Insert citation
+    // Drop: Insert citation or figure
     editorDomNode.addEventListener("drop", (e: DragEvent) => {
       e.preventDefault();
       e.stopPropagation(); // Prevent Monaco's default drop handling
@@ -1026,8 +1026,8 @@ export class EnhancedEditor {
 
       if (!e.dataTransfer) return;
 
-      const citationKey = e.dataTransfer.getData("text/plain");
-      if (!citationKey) return;
+      const droppedContent = e.dataTransfer.getData("text/plain");
+      if (!droppedContent) return;
 
       // Get drop position from Monaco
       const position = this.monacoEditor.getTargetAtClientPoint(
@@ -1036,8 +1036,27 @@ export class EnhancedEditor {
       );
       if (!position) return;
 
-      // Insert \cite{key} at drop position
-      const citationText = `\\cite{${citationKey}}`;
+      // Check if this is a figure (LaTeX code) or a citation key
+      const isFigure = droppedContent.trim().startsWith("\\begin{figure}");
+
+      let insertText: string;
+      let messageType: string;
+      let messageContent: string;
+
+      if (isFigure) {
+        // Insert figure LaTeX code as-is
+        insertText = droppedContent;
+        messageType = "figure";
+        messageContent = "Figure inserted";
+        console.log("[Editor] Inserting figure at drop position");
+      } else {
+        // Insert citation wrapped in \cite{}
+        insertText = `\\cite{${droppedContent}}`;
+        messageType = "citation";
+        messageContent = `Citation added: ${droppedContent}`;
+        console.log(`[Editor] Inserted citation at drop position: ${droppedContent}`);
+      }
+
       const range = {
         startLineNumber: position.position.lineNumber,
         startColumn: position.position.column,
@@ -1047,34 +1066,30 @@ export class EnhancedEditor {
 
       // Use pushEditOperations to prevent default text insertion
       this.monacoEditor.pushUndoStop();
-      this.monacoEditor.executeEdits("citation-drop", [
+      this.monacoEditor.executeEdits(`${messageType}-drop`, [
         {
           range: range,
-          text: citationText,
+          text: insertText,
           forceMoveMarkers: true,
         },
       ]);
       this.monacoEditor.pushUndoStop();
 
-      // Focus editor and move cursor after citation
+      // Focus editor and move cursor after inserted content
       this.monacoEditor.setPosition({
         lineNumber: position.position.lineNumber,
-        column: position.position.column + citationText.length,
+        column: position.position.column + insertText.length,
       });
       this.monacoEditor.focus();
-
-      console.log(
-        `[Editor] Inserted citation at drop position: ${citationKey}`,
-      );
 
       // Show toast notification
       const showToast = (window as any).showToast;
       if (showToast) {
-        showToast(`Citation added: ${citationKey}`, "success");
+        showToast(messageContent, "success");
       }
     });
 
-    console.log("[Editor] Citation drop zone configured");
+    console.log("[Editor] Citation and figure drop zone configured");
   }
 
 

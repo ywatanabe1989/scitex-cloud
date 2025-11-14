@@ -23,6 +23,9 @@ export {
   type EditorControlsOptions,
 } from "./editor-controls.js";
 export { CitationsPanel, type Citation } from "./citations-panel.js";
+export { FiguresPanel, type Figure } from "./figures-panel.js";
+export { TablesPanel, type Table } from "./tables-panel.js";
+export { TablePreviewModal } from "./table-preview-modal.js";
 export {
   StatusLampManager,
   statusLamp,

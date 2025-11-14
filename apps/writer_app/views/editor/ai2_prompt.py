@@ -126,9 +126,13 @@ def generate_ai2_prompt_view(request, project_id):
         # Get project path
         if is_visitor:
             # For visitors, use visitor pool directory
-            from apps.project_app.services.visitor_pool import get_visitor_pool_dir
-
-            visitor_dir = get_visitor_pool_dir(project.slug, user.id)
+            from apps.project_app.services.project_filesystem import get_project_filesystem_manager
+            manager = get_project_filesystem_manager(user)
+            visitor_dir = manager.get_project_root_path(project)
+            if not visitor_dir:
+                return JsonResponse(
+                    {"success": False, "error": "Project path not found"}, status=404
+                )
             project_path = visitor_dir / "scitex" / "writer"
         else:
             # For authenticated users, use git clone path
