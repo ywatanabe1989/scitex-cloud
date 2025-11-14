@@ -43,6 +43,12 @@ services:
       # scitex.writer container cache (optional but recommended)
       - ../../../.cache/containers:/app/.cache/containers
 
+      # Docker socket for user workspace management
+      - /var/run/docker.sock:/var/run/docker.sock
+
+      # User workspace data directory
+      - ../../../data/users:/app/data/users
+
       # Explicitly exclude generated files from host mount (performance)
       - /app/staticfiles
       - /app/.cache

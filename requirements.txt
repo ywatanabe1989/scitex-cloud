@@ -31,6 +31,9 @@ feedparser==6.0.10
 # Browser automation (for scholar app)
 playwright==1.48.0
 
+# Container management (for workspace app)
+docker==7.1.0
+
 # E2E Testing
 pytest>=8.4.1
 pytest-playwright>=0.7.1

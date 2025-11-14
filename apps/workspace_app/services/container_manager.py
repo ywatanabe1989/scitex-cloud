@@ -39,7 +39,7 @@ class UserContainerManager:
 
     # Configuration
     IMAGE_NAME = "scitex-user-workspace:latest"
-    NETWORK_NAME = "scitex-dev"  # Same network as web/db containers
+    NETWORK_NAME = "scitex-cloud-dev_scitex-dev"  # Same network as web/db containers
 
     # Resource limits
     DEFAULT_CPU_QUOTA = 200000  # 2 CPU cores (100000 = 1 core)
