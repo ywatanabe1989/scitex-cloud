@@ -12,11 +12,12 @@
           href="{% static 'project_app/css/shared/buttons.css' %}" />
 {% endblock %}
 {% block content %}
-    <div class="container-fluid" style="max-width: 1280px">
+    <div class="container-fluid browse-container">
         {% include 'project_app/repository/browse_partials/browse_header.html' %}
         {% include 'project_app/repository/browse_partials/browse_tabs.html' with active_tab='issues' %}
         <!-- Issues Filters and List -->
-        <div class="issues-header tab-content-spacing">
+        <div class="tab-content-spacing">
+            <div class="issues-header">
             <div style="display: flex;
                         justify-content: space-between;
                         align-items: center">
@@ -189,6 +190,7 @@
                 </a>
             </div>
         {% endif %}
+        </div>
     </div>
     {% include 'project_app/repository/browse_partials/browse_scripts.html' %}
 {% endblock %}

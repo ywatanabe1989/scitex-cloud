@@ -8,11 +8,10 @@
           href="{% static 'project_app/css/project_app.css' %}" />
 {% endblock %}
 {% block content %}
-    <div class="container-fluid" style="max-width: 1280px">
+    <div class="container-fluid browse-container">
         {% include 'project_app/repository/browse_partials/browse_header.html' %}
         {% include 'project_app/repository/browse_partials/browse_tabs.html' with active_tab='pulls' %}
-        <div class="row tab-content-spacing">
-            <div class="col-12">
+        <div class="tab-content-spacing">
                 {% include 'project_app/pull_requests/list_partials/pr_list_filters.html' %}
                 {% include 'project_app/pull_requests/list_partials/pr_list_search.html' %}
                 {% if prs %}
@@ -21,7 +20,6 @@
                 {% else %}
                     {% include 'project_app/pull_requests/list_partials/pr_list_empty.html' %}
                 {% endif %}
-            </div>
         </div>
     </div>
     {% include 'project_app/repository/browse_partials/browse_scripts.html' %}
