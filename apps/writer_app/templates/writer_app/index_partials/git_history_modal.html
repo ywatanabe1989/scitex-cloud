@@ -1,0 +1,208 @@
+<!-- Git History Modal -->
+<div class="modal fade"
+     id="gitHistoryModal"
+     tabindex="-1"
+     aria-labelledby="gitHistoryModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="gitHistoryModalLabel">
+                    <i class="fas fa-history me-2"></i>Version History
+                </h5>
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Branch selector and status -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <select id="gitBranchSelect" class="form-select form-select-sm" style="width: auto">
+                            <option value="HEAD">Current Branch</option>
+                        </select>
+                        <button id="gitRefreshBtn" class="btn btn-sm btn-outline-secondary" title="Refresh history">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                    <div id="gitStatusBadge" class="badge bg-success">
+                        <i class="fas fa-check-circle me-1"></i>Working directory clean
+                    </div>
+                </div>
+                <!-- Commit timeline -->
+                <div id="gitCommitTimeline" class="git-timeline">
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-spinner fa-spin me-2"></i>Loading commit history...
+                    </div>
+                </div>
+                <!-- Diff viewer (initially hidden) -->
+                <div id="gitDiffViewer" class="git-diff-viewer mt-4" style="display: none">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="mb-0">
+                            <i class="fas fa-code-branch me-2"></i>Changes
+                        </h6>
+                        <button id="gitCloseDiffBtn" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-times me-1"></i>Close
+                        </button>
+                    </div>
+                    <div id="gitDiffContent" class="git-diff-content border rounded p-3" style="background-color: var(--color-canvas-subtle);
+                                                                                                max-height: 500px;
+                                                                                                overflow-y: auto">
+                        <!-- Diff content will be inserted here -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button id="gitCreateBranchBtn" class="btn btn-primary">
+                    <i class="fas fa-code-branch me-1"></i>Create Branch
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Git History Styles -->
+<style>
+.git-timeline {
+    position: relative;
+    padding-left: 40px;
+}
+
+.git-timeline::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: var(--color-border-default);
+}
+
+.git-commit-item {
+    position: relative;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    background-color: var(--color-canvas-default);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.git-commit-item:hover {
+    border-color: var(--color-accent-emphasis);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.git-commit-item::before {
+    content: '';
+    position: absolute;
+    left: -32px;
+    top: 20px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: var(--color-accent-emphasis);
+    border: 2px solid var(--color-canvas-default);
+    z-index: 1;
+}
+
+.git-commit-item.active {
+    border-color: var(--color-accent-emphasis);
+    background-color: var(--color-accent-subtle);
+}
+
+.git-commit-sha {
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    color: var(--color-fg-muted);
+    padding: 2px 6px;
+    background-color: var(--color-neutral-subtle);
+    border-radius: 3px;
+}
+
+.git-commit-message {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 4px;
+    color: var(--color-fg-default);
+}
+
+.git-commit-author {
+    font-size: 12px;
+    color: var(--color-fg-muted);
+}
+
+.git-commit-stats {
+    font-size: 11px;
+    margin-top: 8px;
+    display: flex;
+    gap: 12px;
+}
+
+.git-commit-stats .stat {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.git-commit-stats .stat.additions {
+    color: #2da44e;
+}
+
+.git-commit-stats .stat.deletions {
+    color: #cf222e;
+}
+
+.git-diff-content {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.git-diff-file {
+    margin-bottom: 20px;
+}
+
+.git-diff-file-header {
+    font-weight: 600;
+    padding: 8px 12px;
+    background-color: var(--color-canvas-subtle);
+    border-left: 3px solid var(--color-accent-emphasis);
+    margin-bottom: 8px;
+}
+
+.git-diff-line {
+    padding: 2px 8px;
+    line-height: 1.5;
+}
+
+.git-diff-line.addition {
+    background-color: #d1f4e0;
+    color: #055d20;
+}
+
+.git-diff-line.deletion {
+    background-color: #ffdce0;
+    color: #82071e;
+}
+
+.git-diff-line.context {
+    color: var(--color-fg-muted);
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+    .git-diff-line.addition {
+        background-color: #0d3818;
+        color: #4ae168;
+    }
+
+    .git-diff-line.deletion {
+        background-color: #3d0911;
+        color: #ff7b89;
+    }
+}
+</style>

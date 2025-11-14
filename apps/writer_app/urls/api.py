@@ -24,6 +24,7 @@ from django.urls import path
 from ..views.editor import api as api_views
 from ..views.editor import ai2_prompt
 from ..views.index import main as index_views
+from ..views.git import api as git_api
 
 urlpatterns = [
     # Workspace initialization
@@ -90,7 +91,7 @@ urlpatterns = [
         api_views.compile_view,
         name="api-compile",
     ),
-    # Git operations
+    # Git operations - Section-specific (scitex.writer git)
     path(
         "project/<int:project_id>/section/<str:section_name>/history/",
         api_views.section_history_view,
@@ -110,6 +111,42 @@ urlpatterns = [
         "project/<int:project_id>/section/<str:section_name>/commit/",
         api_views.section_commit_view,
         name="api-section-commit",
+    ),
+    # Git operations - Workspace-level (GitPython direct access)
+    path(
+        "project/<int:project_id>/git/history/",
+        git_api.git_history_api,
+        name="api-git-history",
+    ),
+    path(
+        "project/<int:project_id>/git/diff/",
+        git_api.git_diff_api,
+        name="api-git-diff",
+    ),
+    path(
+        "project/<int:project_id>/git/status/",
+        git_api.git_status_api,
+        name="api-git-status",
+    ),
+    path(
+        "project/<int:project_id>/git/branches/",
+        git_api.git_branches_api,
+        name="api-git-branches",
+    ),
+    path(
+        "project/<int:project_id>/git/branch/create/",
+        git_api.git_create_branch_api,
+        name="api-git-create-branch",
+    ),
+    path(
+        "project/<int:project_id>/git/branch/switch/",
+        git_api.git_switch_branch_api,
+        name="api-git-switch-branch",
+    ),
+    path(
+        "project/<int:project_id>/git/commit/",
+        git_api.git_commit_api,
+        name="api-git-commit",
     ),
     # PDF and file operations (accept optional trailing slash)
     path(
@@ -165,6 +202,53 @@ urlpatterns = [
         "project/<int:project_id>/citations/",
         api_views.citations_api,
         name="api-citations",
+    ),
+    # Figures management
+    path(
+        "project/<int:project_id>/figures/",
+        api_views.figures_api,
+        name="api-figures",
+    ),
+    path(
+        "project/<int:project_id>/figures/refresh/",
+        api_views.refresh_figures_index,
+        name="api-figures-refresh",
+    ),
+    path(
+        "project/<int:project_id>/upload-figures/",
+        api_views.upload_figures,
+        name="api-upload-figures",
+    ),
+    path(
+        "project/<int:project_id>/thumbnail/<str:thumbnail_name>",
+        api_views.thumbnail_view,
+        name="api-thumbnail",
+    ),
+    # Tables management
+    path(
+        "project/<int:project_id>/tables/",
+        api_views.tables_api,
+        name="api-tables",
+    ),
+    path(
+        "project/<int:project_id>/tables/refresh/",
+        api_views.refresh_tables_index,
+        name="api-tables-refresh",
+    ),
+    path(
+        "project/<int:project_id>/upload-tables/",
+        api_views.upload_tables,
+        name="api-upload-tables",
+    ),
+    path(
+        "project/<int:project_id>/table-data/<str:file_hash>/",
+        api_views.table_data_api,
+        name="api-table-data",
+    ),
+    path(
+        "project/<int:project_id>/table-update/<str:file_hash>/",
+        api_views.table_update_api,
+        name="api-table-update",
     ),
     # Bibliography regeneration
     path(

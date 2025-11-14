@@ -10,6 +10,7 @@ from typing import Optional
 from django.conf import settings
 from scitex.writer import Writer
 from scitex import logging
+from .git_service import GitService
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +29,7 @@ class WriterService:
         self.user_id = user_id
         self._writer = None
         self._writer_dir = None
+        self._git_service = None
 
     @property
     def writer_dir(self) -> Path:
@@ -55,6 +57,35 @@ class WriterService:
                 raise RuntimeError(f"Project {self.project_id} not found")
 
         return self._writer_dir
+
+    @property
+    def git_service(self) -> GitService:
+        """Get or create GitService instance (lazy loading).
+
+        Returns:
+            GitService instance for this project's writer directory
+        """
+        if self._git_service is None:
+            from django.contrib.auth.models import User
+
+            try:
+                user = User.objects.get(id=self.user_id)
+                user_name = user.get_full_name() or user.username
+                user_email = user.email or f"{user.username}@scitex.app"
+            except User.DoesNotExist:
+                user_name = "SciTeX Writer"
+                user_email = "writer@scitex.app"
+
+            self._git_service = GitService(
+                writer_dir=self.writer_dir,
+                user_name=user_name,
+                user_email=user_email,
+            )
+            logger.info(
+                f"WriterService: Initialized GitService for project {self.project_id} with user {user_name}"
+            )
+
+        return self._git_service
 
     @property
     def writer(self) -> Writer:
@@ -302,7 +333,7 @@ class WriterService:
             return None
 
     def write_section(
-        self, section_name: str, content: str, doc_type: str = "manuscript"
+        self, section_name: str, content: str, doc_type: str = "manuscript", auto_commit: bool = True
     ) -> bool:
         """Write content to a section.
 
@@ -310,6 +341,7 @@ class WriterService:
             section_name: Section name
             content: Section content
             doc_type: 'shared', 'manuscript', 'supplementary', or 'revision'
+            auto_commit: Automatically commit changes after write (default: True)
 
         Returns:
             True if successful
@@ -397,6 +429,19 @@ class WriterService:
             logger.info(
                 f"Successfully wrote {len(content)} chars to {doc_type}/{section_name}"
             )
+
+            # Auto-commit if requested
+            if auto_commit:
+                commit_message = f"Update {doc_type}/{section_name}"
+                commit_sha = self.git_service.commit(
+                    message=commit_message,
+                    auto_stage=True
+                )
+                if commit_sha:
+                    logger.info(
+                        f"[WriterService] Auto-committed changes: {commit_sha[:8]} - {commit_message}"
+                    )
+
             return True
 
         except Exception as e:
