@@ -40,39 +40,11 @@
                     class="form-select form-select-sm d-inline-block w-auto ms-2"
                     id="sortSelect"
                     onchange="handleSortChange(this.value)">
-                <option
-                    value="relevance"
-                    {%if
-                    request.GET.sort_by=""
-                    ="relevance"
-                    or
-                    not
-                    request.GET.sort_by%}selected{%endif%}
-                    >Most Relevant</option>
-                <option
-                    value="date_desc"
-                    {%if
-                    request.GET.sort_by=""
-                    ="date_desc"%}selected{%endif%}
-                    >Publication Year (Newest)</option>
-                <option
-                    value="date_asc"
-                    {%if
-                    request.GET.sort_by=""
-                    ="date_asc"%}selected{%endif%}
-                    >Publication Year (Oldest)</option>
-                <option
-                    value="citations"
-                    {%if
-                    request.GET.sort_by=""
-                    ="citations"%}selected{%endif%}
-                    >Citation Count</option>
-                <option
-                    value="impact_factor"
-                    {%if
-                    request.GET.sort_by=""
-                    ="impact_factor"%}selected{%endif%}
-                    >Impact Factor</option>
+                <option value="relevance" {% if request.GET.sort_by == "relevance" or not request.GET.sort_by %}selected{% endif %}>Most Relevant</option>
+                <option value="date_desc" {% if request.GET.sort_by == "date_desc" %}selected{% endif %}>Publication Year (Newest)</option>
+                <option value="date_asc" {% if request.GET.sort_by == "date_asc" %}selected{% endif %}>Publication Year (Oldest)</option>
+                <option value="citations" {% if request.GET.sort_by == "citations" %}selected{% endif %}>Citation Count</option>
+                <option value="impact_factor" {% if request.GET.sort_by == "impact_factor" %}selected{% endif %}>Impact Factor</option>
             </select>
         </div>
     </div>

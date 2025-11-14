@@ -76,8 +76,7 @@
         </span>
     {% endif %}
     {% if result.source_engines %}
-        {% for engine in
-            result.source_engines %}
+        {% for engine in result.source_engines %}
             <span class="badge-chip badge-muted" title="Found by {{ engine }}">
                 <i class="fas fa-search"></i> {{ engine|upper }}
             </span>
