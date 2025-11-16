@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-11-17 00:09:00 (ywatanabe)"
+# Timestamp: "2025-11-17 00:56:38 (ywatanabe)"
 # File: /home/ywatanabe/proj/scitex-cloud/scripts/maintenance/capture_demo_screenshots.py
 
 
@@ -25,9 +25,15 @@ Examples:
 
 import asyncio
 from pathlib import Path
-from playwright.async_api import async_playwright, Page
+from playwright.async_api import async_playwright
+from playwright.async_api import Page
 from scitex.session import session
-from scitex.browser import fill_with_fallbacks_async, click_with_fallbacks_async
+from scitex.browser import fill_with_fallbacks_async
+from scitex.browser import click_with_fallbacks_async
+from scitex.logging import getLogger
+from scitex.config import CONFIG
+
+logger = getLogger(__name__)
 
 
 # ============================================================================
@@ -52,7 +58,10 @@ PAGES_TO_CAPTURE = [
     {"path": f"/{TEST_USER}/default-project/", "name": "repo-overview"},
     {"path": f"/{TEST_USER}/default-project/issues/", "name": "repo-issues"},
     {"path": f"/{TEST_USER}/default-project/pulls/", "name": "repo-pulls"},
-    {"path": f"/{TEST_USER}/default-project/settings/", "name": "repo-settings"},
+    {
+        "path": f"/{TEST_USER}/default-project/settings/",
+        "name": "repo-settings",
+    },
     # Writer
     {
         "path": f"/{TEST_USER}/default-project/scitex/writer/01_manuscript/",
@@ -62,7 +71,10 @@ PAGES_TO_CAPTURE = [
     {"path": "/accounts/settings/profile/", "name": "settings-profile"},
     {"path": "/accounts/settings/account/", "name": "settings-account"},
     {"path": "/accounts/settings/appearance/", "name": "settings-appearance"},
-    {"path": "/accounts/settings/integrations/", "name": "settings-integrations"},
+    {
+        "path": "/accounts/settings/integrations/",
+        "name": "settings-integrations",
+    },
     {"path": "/accounts/settings/ssh-keys/", "name": "settings-ssh-keys"},
     {"path": "/accounts/settings/api-keys/", "name": "settings-api-keys"},
     {
@@ -95,8 +107,6 @@ async def login_to_scitex(page: Page, username: str, password: str) -> bool:
     Returns:
         True if login successful, False otherwise
     """
-    from scitex.utils import logger
-
     logger.info(f"Attempting login as '{username}'")
 
     try:
@@ -112,7 +122,9 @@ async def login_to_scitex(page: Page, username: str, password: str) -> bool:
         )
 
         if is_authenticated:
-            logger.info("Already logged in (detected via data-user-authenticated)")
+            logger.info(
+                "Already logged in (detected via data-user-authenticated)"
+            )
             await page.goto(BASE_URL, wait_until="load")
             return True
 
@@ -163,9 +175,9 @@ async def login_to_scitex(page: Page, username: str, password: str) -> bool:
             return False
 
     except Exception as e:
-        from scitex.utils import logger
         logger.error(f"Login error: {str(e)}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -190,7 +202,6 @@ async def capture_page_screenshot(
     Returns:
         Path to saved screenshot, or None if failed
     """
-    from scitex.utils import logger
 
     page_path = page_info["path"]
     page_name = page_info["name"]
@@ -237,8 +248,6 @@ async def run_capture_async(
     Returns:
         Exit code (0 = success, 1 = failure)
     """
-    from scitex.utils import logger
-    from scitex.config import CONFIG
 
     # Use session output directory
     output_dir = Path(CONFIG["SDIR"]) / "screenshots"
@@ -269,7 +278,9 @@ async def run_capture_async(
             logger.info("✓ Browser launched")
 
             # Get page
-            page = context.pages[0] if context.pages else await context.new_page()
+            page = (
+                context.pages[0] if context.pages else await context.new_page()
+            )
 
             # Step 1: Authentication
             logger.info("\n=== Step 1: Authentication ===")
@@ -317,7 +328,9 @@ async def run_capture_async(
                     logger.warning(f"  - {name}")
 
             logger.info(f"\n📁 Output: {output_dir}")
-            logger.info(f"📊 Total files: {len(list(output_dir.glob('*.png')))}")
+            logger.info(
+                f"📊 Total files: {len(list(output_dir.glob('*.png')))}"
+            )
 
             await context.close()
             logger.info("✓ Browser session saved")
@@ -331,6 +344,7 @@ async def run_capture_async(
     except Exception as e:
         logger.error(f"Unexpected error: {str(e)}")
         import traceback
+
         traceback.print_exc()
         return 1
 
@@ -357,7 +371,6 @@ def capture_screenshots(
     Returns:
         Exit code (0 = success, 1 = failure)
     """
-    from scitex.utils import logger
 
     logger.info("Starting SciTeX demo screenshot capture")
 
