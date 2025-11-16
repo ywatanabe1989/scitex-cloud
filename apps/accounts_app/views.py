@@ -77,6 +77,8 @@ def ssh_keys(request):
         sync_ssh_key_to_gitea,
         remove_ssh_key_from_gitea,
     )
+    from apps.accounts_app.models import WorkspaceSSHKey
+    from apps.accounts_app.utils.ssh_key_validator import SSHKeyValidator
 
     ssh_manager = SSHKeyManager(request.user)
     profile, _ = UserProfile.objects.get_or_create(user=request.user)
@@ -84,6 +86,7 @@ def ssh_keys(request):
     if request.method == "POST":
         action = request.POST.get("action")
 
+        # Git SSH key actions
         if action == "generate":
             success, public_key, error = ssh_manager.get_or_create_user_key()
             if success:
@@ -120,15 +123,100 @@ def ssh_keys(request):
             else:
                 messages.error(request, f"Failed to delete SSH key: {error}")
 
+        # Workspace SSH key actions
+        elif action == "add_workspace_key":
+            title = request.POST.get("title", "").strip()
+            public_key = request.POST.get("public_key", "").strip()
+            sync_to_gitea = request.POST.get("sync_to_gitea") == "on"
+
+            if not title or not public_key:
+                messages.error(request, "Both title and public key are required")
+            else:
+                # Validate SSH key
+                result = SSHKeyValidator.validate_and_parse(public_key)
+
+                if not result["valid"]:
+                    messages.error(request, f"Invalid SSH key: {result['error']}")
+                else:
+                    # Check for duplicate fingerprint
+                    if WorkspaceSSHKey.objects.filter(
+                        user=request.user, fingerprint=result["fingerprint"]
+                    ).exists():
+                        messages.error(
+                            request, "This SSH key is already registered to your account"
+                        )
+                    else:
+                        # Create new workspace SSH key
+                        workspace_key = WorkspaceSSHKey.objects.create(
+                            user=request.user,
+                            title=title,
+                            public_key=result["formatted_key"],
+                            fingerprint=result["fingerprint"],
+                            key_type=result["key_type"],
+                        )
+                        messages.success(
+                            request,
+                            f'SSH key "{title}" added successfully! You can now use it to connect to your workspace.',
+                        )
+
+                        # Optionally sync to Gitea
+                        if sync_to_gitea:
+                            from apps.gitea_app.api_client import GiteaClient, GiteaAPIError
+
+                            try:
+                                client = GiteaClient()
+                                # Check if key already exists in Gitea by fingerprint
+                                existing_key = client.find_ssh_key_by_fingerprint(
+                                    result["fingerprint"].replace("SHA256:", ""),
+                                    request.user.username,
+                                )
+
+                                if not existing_key:
+                                    client.add_ssh_key(
+                                        title=f"{title} (Workspace Key)",
+                                        key=result["formatted_key"],
+                                        username=request.user.username,
+                                    )
+                                    messages.success(
+                                        request,
+                                        f'SSH key also synced to Gitea! You can now use it for: git clone ssh://git@127.0.0.1:2222/...',
+                                    )
+                                else:
+                                    messages.info(
+                                        request, "SSH key already exists in Gitea - no sync needed"
+                                    )
+                            except Exception as e:
+                                messages.warning(
+                                    request,
+                                    f"Workspace key added but Gitea sync failed: {str(e)}. You can add it manually in Gitea.",
+                                )
+
+        elif action == "delete_workspace_key":
+            key_id = request.POST.get("key_id")
+            try:
+                key = WorkspaceSSHKey.objects.get(id=key_id, user=request.user)
+                key_title = key.title
+                key.delete()
+                messages.success(request, f'SSH key "{key_title}" deleted successfully!')
+            except WorkspaceSSHKey.DoesNotExist:
+                messages.error(request, "SSH key not found")
+
         return redirect("accounts_app:ssh_keys")
 
     # GET request
+    workspace_ssh_keys = WorkspaceSSHKey.objects.filter(user=request.user).order_by(
+        "-created_at"
+    )
+
     context = {
+        # Git SSH keys
         "ssh_public_key": profile.ssh_public_key,
         "ssh_key_fingerprint": profile.ssh_key_fingerprint,
         "ssh_key_created_at": profile.ssh_key_created_at,
         "ssh_key_last_used_at": profile.ssh_key_last_used_at,
         "has_ssh_key": ssh_manager.has_ssh_key(),
+        # Workspace SSH keys
+        "workspace_ssh_keys": workspace_ssh_keys,
     }
     return render(request, "accounts_app/ssh_keys.html", context)
 

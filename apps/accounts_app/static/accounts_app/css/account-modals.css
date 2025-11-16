@@ -3,6 +3,22 @@
  * Styles for delete account modal and other account-related modals
  */
 
+/* Password Input Group Fixes */
+.input-group {
+  flex-wrap: nowrap !important;
+}
+
+.input-group .form-control {
+  flex: 1;
+}
+
+.input-group .toggle-password {
+  flex-shrink: 0;
+  border-left: 0;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
 /* Delete Account Modal Overlay */
 .delete-account-modal {
   display: none;
