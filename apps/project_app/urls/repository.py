@@ -24,6 +24,9 @@ from ..views.api_views import (
     api_file_tree,
     api_concatenate_directory,
 )
+from ..views.repository.api import (
+    api_git_status,
+)
 
 # Note: slug and username are passed via kwargs from parent URL pattern
 # No app_name here - namespace is provided by parent (user_projects)
@@ -33,6 +36,8 @@ urlpatterns = [
     path("", project_detail, name="detail"),
     # API endpoint for file tree (sidebar navigation)
     path("api/file-tree/", api_file_tree, name="api_file_tree"),
+    # API endpoint for git status (git gutter indicators)
+    path("api/git/status/", api_git_status, name="api_git_status"),
     # API endpoint to concatenate all files in a directory
     path("api/concatenate/", api_concatenate_directory, name="api_concatenate_root"),
     path(
