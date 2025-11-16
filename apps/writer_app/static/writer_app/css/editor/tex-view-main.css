@@ -30,7 +30,7 @@
   z-index: 50; /* Lowered to stay below Monaco widgets */
   background: var(--color-canvas-default);
   border-bottom: 1px solid var(--color-border-default);
-  padding: 0.5rem 1rem;
+  padding: 0.25rem 1rem; /* Reduced vertical padding from 0.5rem to 0.25rem */
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1323,7 +1323,7 @@
   }
 
   .writer-toolbar-sticky {
-    padding: 0.5rem;
+    padding: 0.25rem; /* Reduced from 0.5rem to match desktop */
     gap: 0.5rem;
   }
 

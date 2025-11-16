@@ -264,7 +264,7 @@
 .writer-toolbar-sticky {
   background: var(--color-canvas-default);
   border-bottom: 1px solid var(--color-border-default);
-  padding: 1rem;
+  padding: 0.25rem 1rem; /* Reduced from 1rem to 0.25rem 1rem */
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -883,7 +883,7 @@
   .writer-toolbar-sticky {
     flex-direction: column;
     align-items: flex-start;
-    padding: 0.75rem;
+    padding: 0.25rem; /* Reduced from 0.75rem to 0.25rem */
     gap: 0.75rem;
   }
 

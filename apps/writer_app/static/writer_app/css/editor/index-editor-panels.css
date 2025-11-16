@@ -206,7 +206,7 @@
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
-  padding: 0.75rem 1rem;
+  padding: 0.25rem 1rem; /* Reduced from 0.75rem to 0.25rem */
 }
 
 .toolbar-left,
@@ -294,7 +294,7 @@
   .writer-toolbar-sticky {
     flex-wrap: wrap;
     gap: 0.5rem;
-    padding: 0.5rem;
+    padding: 0.25rem; /* Reduced from 0.5rem to 0.25rem */
   }
 
   .toolbar-left,
