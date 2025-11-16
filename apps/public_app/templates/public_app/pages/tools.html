@@ -48,101 +48,251 @@
   }
 
   .tools-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 24px;
     margin-bottom: 60px;
-    max-width: 800px;
-    margin-left: auto;
-    margin-right: auto;
+  }
+
+  @media (max-width: 768px) {
+    .tools-grid {
+      grid-template-columns: 1fr;
+    }
   }
 
   .tool-card {
-    background: var(--bg-muted);
-    border-radius: 8px;
-    padding: 24px;
-    transition: all 0.2s ease;
-    border: 1px solid var(--border-muted);
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    padding: 0;
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-color);
     display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 20px;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
   }
 
   .tool-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
     border-color: var(--border-default);
-    background: var(--bg-surface);
+  }
+
+  .tool-card-header {
+    padding: 24px;
+    border-bottom: 1px solid var(--border-color);
+    position: relative;
+  }
+
+  .tool-category {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
   }
 
   .tool-icon {
-    font-size: 32px;
+    font-size: 48px;
     line-height: 1;
-    flex-shrink: 0;
-  }
-
-  .tool-card-content {
-    flex: 1;
-    min-width: 0;
+    margin-bottom: 16px;
+    display: block;
   }
 
   .tool-card-title {
-    margin: 0 0 8px 0;
-    font-size: 18px;
-    font-weight: 600;
+    margin: 0 0 12px 0;
+    font-size: 22px;
+    font-weight: 700;
     color: var(--text-primary);
   }
 
   .tool-description {
     color: var(--text-secondary);
     font-size: 14px;
-    line-height: 1.5;
+    line-height: 1.6;
     margin: 0;
   }
 
+  .tool-card-body {
+    padding: 20px 24px;
+    flex: 1;
+    background: var(--bg-primary);
+  }
+
+  .tool-features {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .tool-features li {
+    font-size: 13px;
+    color: var(--text-secondary);
+    padding: 6px 0;
+    padding-left: 20px;
+    position: relative;
+  }
+
+  .tool-features li:before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #4a9b7e;
+    font-weight: bold;
+  }
+
   .tool-card-footer {
-    flex-shrink: 0;
+    padding: 20px 24px;
+    border-top: 1px solid var(--border-color);
+    background: var(--bg-secondary);
   }
 
   .btn-tool {
-    padding: 8px 16px;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 500;
+    display: block;
+    width: 100%;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
     text-align: center;
     text-decoration: none;
     transition: all 0.2s ease;
-    display: inline-block;
-    white-space: nowrap;
   }
 
   .btn-tool-primary {
-    background: #6b8fb3;
+    background: #4a9b7e;
     color: white;
   }
 
   .btn-tool-primary:hover {
-    background: #506b7a;
+    background: #3a7c65;
     color: white;
     text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(74, 155, 126, 0.3);
+  }
+
+  .color-accent {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+  }
+
+  .category-filters {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 30px;
+    justify-content: center;
+  }
+
+  .filter-btn {
+    padding: 10px 20px;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+
+  .filter-btn:hover {
+    border-color: #4a9b7e;
+    background: var(--bg-secondary);
+  }
+
+  .filter-btn.active {
+    background: #4a9b7e;
+    color: white;
+    border-color: #4a9b7e;
+  }
+
+  .tool-count {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin-bottom: 20px;
   }
         </style>
     {% endblock %}
     {% block content %}
         <div class="tools-container">
+            <!-- Category Filters -->
+            <div class="category-filters">
+                <button class="filter-btn active" data-category="all">All Tools</button>
+                <button class="filter-btn" data-category="Research">Research</button>
+                <button class="filter-btn" data-category="Development">Development</button>
+                <button class="filter-btn" data-category="Image Processing">Image Processing</button>
+                <button class="filter-btn" data-category="PDF Tools">PDF Tools</button>
+                <button class="filter-btn" data-category="Video Tools">Video Tools</button>
+                <button class="filter-btn" data-category="Text Processing">Text Processing</button>
+                <button class="filter-btn" data-category="Utilities">Utilities</button>
+                <button class="filter-btn" data-category="Design">Design</button>
+                <button class="filter-btn" data-category="Analysis">Analysis</button>
+            </div>
+            <div class="tool-count">
+                <span id="toolCount">{{ tools_list|length }}</span> tools available
+            </div>
             <!-- Tools Grid -->
             <div class="tools-grid">
                 {% for tool in tools_list %}
                     <div class="tool-card">
-                        <span class="tool-icon">{{ tool.icon }}</span>
-                        <div class="tool-card-content">
+                        <div class="color-accent" style="background: {{ tool.color }};"></div>
+                        <div class="tool-card-header">
+                            <div class="tool-category">{{ tool.category }}</div>
+                            <span class="tool-icon">{{ tool.icon }}</span>
                             <h3 class="tool-card-title">{{ tool.name }}</h3>
                             <p class="tool-description">{{ tool.description }}</p>
                         </div>
+                        <div class="tool-card-body">
+                            <ul class="tool-features">
+                                {% for feature in tool.features %}
+                                    <li>{{ feature }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
                         <div class="tool-card-footer">
-                            <a href="{{ tool.bookmarklet_url }}" class="btn-tool btn-tool-primary">Get Tool →</a>
+                            <a href="{{ tool.bookmarklet_url }}" class="btn-tool btn-tool-primary">Open Tool →</a>
                         </div>
                     </div>
                 {% endfor %}
             </div>
         </div>
+    <script>
+  // Category filtering
+  const filterButtons = document.querySelectorAll('.filter-btn');
+  const toolCards = document.querySelectorAll('.tool-card');
+  const toolCount = document.getElementById('toolCount');
+
+  filterButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const category = btn.dataset.category;
+
+      // Update active button
+      filterButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      // Filter cards
+      let visibleCount = 0;
+      toolCards.forEach(card => {
+        const cardCategory = card.querySelector('.tool-category').textContent;
+
+        if (category === 'all' || cardCategory === category) {
+          card.style.display = 'flex';
+          visibleCount++;
+        } else {
+          card.style.display = 'none';
+        }
+      });
+
+      // Update count
+      toolCount.textContent = visibleCount;
+    });
+  });
+    </script>
     {% endblock %}

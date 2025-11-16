@@ -777,6 +777,278 @@ def tools(request):
             "icon": "🔍",
             "color": "#6b8fb3",  # SciTeX info/blue
         },
+        {
+            "name": "Image Concatenator",
+            "category": "Image Processing",
+            "description": "Combine multiple images into a single tiled image. Upload images, customize layout with adjustable columns and spacing, and download the concatenated result.",
+            "features": [
+                "Drag & drop multiple images",
+                "Customizable grid layout",
+                "Adjustable spacing and background",
+                "Reorder images by dragging",
+                "Export as PNG, JPEG, or WebP",
+                "100% private browser-based processing",
+            ],
+            "bookmarklet_url": "/tools/image-concatenator/",
+            "icon": "🖼️",
+            "color": "#9333ea",  # Purple
+        },
+        {
+            "name": "QR Code Generator",
+            "category": "Utilities",
+            "description": "Generate customizable QR codes for URLs, DOIs, contact info, and more. Perfect for posters, presentations, and publications.",
+            "features": [
+                "Quick templates (URL, DOI, Email, Phone, WiFi, vCard)",
+                "Customizable colors and size",
+                "Error correction levels",
+                "Download as PNG or SVG",
+                "Live preview",
+                "100% private browser-based",
+            ],
+            "bookmarklet_url": "/tools/qr-code-generator/",
+            "icon": "📱",
+            "color": "#ec4899",  # Pink
+        },
+        {
+            "name": "Color Picker",
+            "category": "Design",
+            "description": "Advanced color picker with HEX, RGB, HSL, CMYK conversion and palette generation. Generate color harmonies for visualizations.",
+            "features": [
+                "Multiple format support (HEX, RGB, HSL, CMYK)",
+                "Color harmonies (complementary, triadic, etc.)",
+                "One-click copy to clipboard",
+                "Live palette generation",
+                "Perfect for data visualization",
+                "100% private browser-based",
+            ],
+            "bookmarklet_url": "/tools/color-picker/",
+            "icon": "🎨",
+            "color": "#f59e0b",  # Orange
+        },
+        {
+            "name": "Markdown Renderer",
+            "category": "Text Processing",
+            "description": "Real-time Markdown preview with syntax highlighting. Write and preview Markdown documents instantly.",
+            "features": [
+                "Real-time preview",
+                "Syntax highlighting for code blocks",
+                "Table support",
+                "Copy as HTML or Markdown",
+                "Download as .md file",
+                "Split-pane editor",
+            ],
+            "bookmarklet_url": "/tools/markdown-renderer/",
+            "icon": "📝",
+            "color": "#10b981",  # Green
+        },
+        {
+            "name": "Text Diff Checker",
+            "category": "Text Processing",
+            "description": "Compare two text blocks side-by-side with highlighted differences. Perfect for tracking manuscript revisions.",
+            "features": [
+                "Side-by-side comparison",
+                "Highlighted additions and deletions",
+                "Line-by-line diff view",
+                "Ignore whitespace/case options",
+                "Statistics (added, removed, unchanged)",
+                "Swap and clear functions",
+            ],
+            "bookmarklet_url": "/tools/text-diff-checker/",
+            "icon": "🔄",
+            "color": "#3b82f6",  # Blue
+        },
+        {
+            "name": "Images to GIF",
+            "category": "Image Processing",
+            "description": "Convert multiple images into animated GIF. Customize frame duration, quality, and loop settings. Perfect for creating animations.",
+            "features": [
+                "Drag & drop multiple images",
+                "Reorder frames by dragging",
+                "Adjustable frame duration",
+                "Quality and loop controls",
+                "Resize options",
+                "Live preview before download",
+            ],
+            "bookmarklet_url": "/tools/images-to-gif/",
+            "icon": "🎬",
+            "color": "#8b5cf6",  # Violet
+        },
+        {
+            "name": "Image Converter",
+            "category": "Image Processing",
+            "description": "Convert images between PNG, JPG, WEBP formats. Batch conversion with quality control for journal submissions.",
+            "features": [
+                "Multiple format support",
+                "Batch conversion",
+                "Quality settings",
+                "Maintains image dimensions",
+                "Fast browser-based processing",
+                "Download all at once",
+            ],
+            "bookmarklet_url": "/tools/image-converter/",
+            "icon": "🔄",
+            "color": "#06b6d4",  # Cyan
+        },
+        {
+            "name": "PDF Merger",
+            "category": "PDF Tools",
+            "description": "Combine multiple PDF files into a single document. Drag to reorder pages, perfect for manuscript preparation.",
+            "features": [
+                "Merge unlimited PDFs",
+                "Drag to reorder files",
+                "Page count preview",
+                "Fast client-side processing",
+                "No file size limits",
+                "100% private",
+            ],
+            "bookmarklet_url": "/tools/pdf-merger/",
+            "icon": "📑",
+            "color": "#dc2626",  # Red
+        },
+        {
+            "name": "Statistics Calculator",
+            "category": "Analysis",
+            "description": "Quick statistical analysis for research data. Calculate descriptive stats, t-tests, and correlations.",
+            "features": [
+                "Descriptive statistics",
+                "Independent t-test",
+                "Pearson correlation",
+                "p-values and significance",
+                "Effect sizes",
+                "Copy-paste data input",
+            ],
+            "bookmarklet_url": "/tools/statistics-calculator/",
+            "icon": "📊",
+            "color": "#7c3aed",  # Purple
+        },
+        {
+            "name": "PDF Splitter",
+            "category": "PDF Tools",
+            "description": "Extract specific pages from PDF files. Select page ranges or individual pages to create new PDFs.",
+            "features": [
+                "Page range selection (e.g., 1,3,5-8)",
+                "Extract individual pages",
+                "Fast client-side processing",
+                "No file size limits",
+                "Preview page count",
+                "100% private",
+            ],
+            "bookmarklet_url": "/tools/pdf-splitter/",
+            "icon": "✂️",
+            "color": "#ef4444",  # Red
+        },
+        {
+            "name": "Image Resizer",
+            "category": "Image Processing",
+            "description": "Resize and crop images for journal submissions. Preset dimensions for common formats.",
+            "features": [
+                "Journal presets (800×600, etc.)",
+                "Custom dimensions",
+                "Maintain aspect ratio",
+                "Live preview",
+                "High-quality output",
+                "Fast browser-based",
+            ],
+            "bookmarklet_url": "/tools/image-resizer/",
+            "icon": "📐",
+            "color": "#0ea5e9",  # Sky blue
+        },
+        {
+            "name": "Repository Concatenator",
+            "category": "Development",
+            "description": "Concatenate repository files into AI-ready format. Perfect for code review with Claude or GPT.",
+            "features": [
+                "Upload repository .zip file",
+                "Filter by file extension",
+                "Configurable depth and line limits",
+                "Directory tree structure",
+                "Token/character counting",
+                "Download as Markdown",
+            ],
+            "bookmarklet_url": "/tools/repo-concatenator/",
+            "icon": "📦",
+            "color": "#06b6d4",  # Cyan
+        },
+        {
+            "name": "JSON Formatter",
+            "category": "Development",
+            "description": "Format, validate, and beautify JSON data. Syntax highlighting and error detection included.",
+            "features": [
+                "Format with indentation",
+                "Minify JSON",
+                "Syntax validation",
+                "Syntax highlighting",
+                "Copy to clipboard",
+                "Error messages",
+            ],
+            "bookmarklet_url": "/tools/json-formatter/",
+            "icon": "{ }",
+            "color": "#a855f7",  # Purple
+        },
+        {
+            "name": "Images to PDF",
+            "category": "PDF Tools",
+            "description": "Convert multiple images into a single PDF document. Choose page size, orientation, and margins.",
+            "features": [
+                "Multiple page sizes (A4, Letter, Legal)",
+                "Portrait or landscape orientation",
+                "Adjustable margins",
+                "Drag to reorder images",
+                "Fit images to page",
+                "Professional output",
+            ],
+            "bookmarklet_url": "/tools/images-to-pdf/",
+            "icon": "📄",
+            "color": "#f97316",  # Orange
+        },
+        {
+            "name": "PDF to Images",
+            "category": "PDF Tools",
+            "description": "Extract all pages from PDF as PNG or JPG images. Perfect for extracting figures from papers.",
+            "features": [
+                "Extract all pages as images",
+                "PNG or JPEG format",
+                "Adjustable DPI (72-288)",
+                "High-quality output",
+                "Download all at once",
+                "Preview before download",
+            ],
+            "bookmarklet_url": "/tools/pdf-to-images/",
+            "icon": "🖼️",
+            "color": "#14b8a6",  # Teal
+        },
+        {
+            "name": "PDF Compressor",
+            "category": "PDF Tools",
+            "description": "Reduce PDF file size while maintaining quality. Perfect for email attachments and journal uploads.",
+            "features": [
+                "Automatic compression",
+                "Before/after size comparison",
+                "Compression ratio display",
+                "Fast processing",
+                "No quality loss",
+                "100% private",
+            ],
+            "bookmarklet_url": "/tools/pdf-compressor/",
+            "icon": "🗜️",
+            "color": "#f43f5e",  # Rose
+        },
+        {
+            "name": "Video Editor",
+            "category": "Video Tools",
+            "description": "Trim videos by time window. Basic video editing in your browser.",
+            "features": [
+                "Trim start and end time",
+                "Video preview",
+                "Multiple format support",
+                "Browser-based processing",
+                "No upload required",
+                "Quick edits",
+            ],
+            "bookmarklet_url": "/tools/video-editor/",
+            "icon": "🎬",
+            "color": "#6366f1",  # Indigo
+        },
     ]
 
     context = {
@@ -794,6 +1066,91 @@ def tool_element_inspector(request):
 def tool_asta_citation_scraper(request):
     """Asta AI Citation Scraper tool detail page."""
     return render(request, "public_app/tools/asta-citation-scraper.html")
+
+
+def tool_image_concatenator(request):
+    """Image Concatenator tool detail page."""
+    return render(request, "public_app/tools/image-concatenator.html")
+
+
+def tool_qr_code_generator(request):
+    """QR Code Generator tool detail page."""
+    return render(request, "public_app/tools/qr-code-generator.html")
+
+
+def tool_color_picker(request):
+    """Color Picker tool detail page."""
+    return render(request, "public_app/tools/color-picker.html")
+
+
+def tool_markdown_renderer(request):
+    """Markdown Renderer tool detail page."""
+    return render(request, "public_app/tools/markdown-renderer.html")
+
+
+def tool_text_diff_checker(request):
+    """Text Diff Checker tool detail page."""
+    return render(request, "public_app/tools/text-diff-checker.html")
+
+
+def tool_images_to_gif(request):
+    """Images to GIF tool detail page."""
+    return render(request, "public_app/tools/images-to-gif.html")
+
+
+def tool_image_converter(request):
+    """Image Converter tool detail page."""
+    return render(request, "public_app/tools/image-converter.html")
+
+
+def tool_pdf_merger(request):
+    """PDF Merger tool detail page."""
+    return render(request, "public_app/tools/pdf-merger.html")
+
+
+def tool_statistics_calculator(request):
+    """Statistics Calculator tool detail page."""
+    return render(request, "public_app/tools/statistics-calculator.html")
+
+
+def tool_pdf_splitter(request):
+    """PDF Splitter tool detail page."""
+    return render(request, "public_app/tools/pdf-splitter.html")
+
+
+def tool_image_resizer(request):
+    """Image Resizer tool detail page."""
+    return render(request, "public_app/tools/image-resizer.html")
+
+
+def tool_repo_concatenator(request):
+    """Repository Concatenator tool detail page."""
+    return render(request, "public_app/tools/repo-concatenator.html")
+
+
+def tool_json_formatter(request):
+    """JSON Formatter tool detail page."""
+    return render(request, "public_app/tools/json-formatter.html")
+
+
+def tool_images_to_pdf(request):
+    """Images to PDF tool detail page."""
+    return render(request, "public_app/tools/images-to-pdf.html")
+
+
+def tool_pdf_to_images(request):
+    """PDF to Images tool detail page."""
+    return render(request, "public_app/tools/pdf-to-images.html")
+
+
+def tool_pdf_compressor(request):
+    """PDF Compressor tool detail page."""
+    return render(request, "public_app/tools/pdf-compressor.html")
+
+
+def tool_video_editor(request):
+    """Video Editor tool detail page."""
+    return render(request, "public_app/tools/video-editor.html")
 
 
 # EOF
