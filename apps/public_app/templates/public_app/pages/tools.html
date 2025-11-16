@@ -9,290 +9,319 @@
         {% load static %}
         <style>
   .tools-container {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 40px 20px;
   }
 
   .tools-hero {
     text-align: center;
-    padding: 60px 20px;
-    background: linear-gradient(135deg, #1a2a40 0%, #506b7a 100%);
+    padding: 48px 20px;
+    background: linear-gradient(135deg, var(--_scitex-01, #1a2a40) 0%, var(--_scitex-03, #506b7a) 100%);
     color: white;
     border-radius: 12px;
-    margin-bottom: 60px;
-  }
-
-  .tools-hero-eyebrow {
-    font-size: 14px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 16px;
-    opacity: 0.9;
+    margin-bottom: 48px;
   }
 
   .tools-hero-title {
-    font-size: 48px;
+    font-size: 42px;
     font-weight: 700;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
     line-height: 1.2;
   }
 
   .tools-hero-subtitle {
-    font-size: 20px;
+    font-size: 18px;
     opacity: 0.95;
     max-width: 700px;
-    margin: 0 auto 30px;
+    margin: 0 auto;
     line-height: 1.6;
+  }
+
+  .tools-domain-section {
+    margin-bottom: 48px;
+  }
+
+  .domain-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--border-default, #e1e4e8);
+  }
+
+  .domain-icon {
+    font-size: 32px;
+    line-height: 1;
+  }
+
+  .domain-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary, #24292e);
+    margin: 0;
+  }
+
+  .domain-count {
+    font-size: 14px;
+    color: var(--text-secondary, #586069);
+    background: var(--bg-muted, #f6f8fa);
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-left: auto;
   }
 
   .tools-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 24px;
-    margin-bottom: 60px;
-  }
-
-  @media (max-width: 768px) {
-    .tools-grid {
-      grid-template-columns: 1fr;
-    }
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
   }
 
   .tool-card {
-    background: var(--bg-secondary);
-    border-radius: 12px;
+    background: var(--bg-surface, #ffffff);
+    border-radius: 6px;
     padding: 0;
-    transition: all 0.3s ease;
-    border: 1px solid var(--border-color);
+    transition: all 0.2s ease;
+    border: 1px solid var(--border-default, #e1e4e8);
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    align-items: center;
     overflow: hidden;
     position: relative;
+    min-height: 72px;
   }
 
   .tool-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
-    border-color: var(--border-default);
+    border-color: var(--_scitex-04, #6c8ba0);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   }
 
   .tool-card-header {
-    padding: 24px;
-    border-bottom: 1px solid var(--border-color);
-    position: relative;
-  }
-
-  .tool-category {
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--text-secondary);
-    margin-bottom: 12px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border-left: 4px solid;
+    flex: 1;
+    min-width: 0;
   }
 
   .tool-icon {
-    font-size: 48px;
+    font-size: 32px;
     line-height: 1;
-    margin-bottom: 16px;
-    display: block;
+    flex-shrink: 0;
+  }
+
+  .tool-info {
+    flex: 1;
+    min-width: 0;
   }
 
   .tool-card-title {
-    margin: 0 0 12px 0;
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--text-primary);
+    margin: 0 0 4px 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary, #24292e);
+    line-height: 1.3;
   }
 
   .tool-description {
-    color: var(--text-secondary);
-    font-size: 14px;
-    line-height: 1.6;
-    margin: 0;
-  }
-
-  .tool-card-body {
-    padding: 20px 24px;
-    flex: 1;
-    background: var(--bg-primary);
-  }
-
-  .tool-features {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  .tool-features li {
+    color: var(--text-secondary, #586069);
     font-size: 13px;
-    color: var(--text-secondary);
-    padding: 6px 0;
-    padding-left: 20px;
-    position: relative;
-  }
-
-  .tool-features li:before {
-    content: "✓";
-    position: absolute;
-    left: 0;
-    color: #4a9b7e;
-    font-weight: bold;
+    line-height: 1.4;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
   }
 
   .tool-card-footer {
-    padding: 20px 24px;
-    border-top: 1px solid var(--border-color);
-    background: var(--bg-secondary);
+    padding: 16px;
+    flex-shrink: 0;
   }
 
   .btn-tool {
-    display: block;
-    width: 100%;
-    padding: 12px 20px;
-    border-radius: 8px;
-    font-size: 15px;
+    display: inline-block;
+    padding: 8px 20px;
+    border-radius: 6px;
+    font-size: 14px;
     font-weight: 600;
     text-align: center;
     text-decoration: none;
     transition: all 0.2s ease;
-  }
-
-  .btn-tool-primary {
-    background: #4a9b7e;
+    background: var(--status-success, #4a9b7e);
     color: white;
+    white-space: nowrap;
   }
 
-  .btn-tool-primary:hover {
+  .btn-tool:hover {
     background: #3a7c65;
     color: white;
     text-decoration: none;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(74, 155, 126, 0.3);
+    box-shadow: 0 2px 8px rgba(74, 155, 126, 0.3);
   }
 
-  .color-accent {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 4px;
-    height: 100%;
+  @media (max-width: 768px) {
+    .tool-card {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .tool-card-header {
+      border-left: none;
+      border-top: 4px solid;
+    }
+
+    .tool-card-footer {
+      border-top: 1px solid var(--border-muted, #e1e4e8);
+    }
+
+    .btn-tool {
+      display: block;
+      width: 100%;
+    }
   }
 
-  .category-filters {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 30px;
-    justify-content: center;
+  .search-filter-section {
+    margin-bottom: 32px;
+    text-align: center;
   }
 
-  .filter-btn {
-    padding: 10px 20px;
-    background: var(--bg-tertiary);
-    color: var(--text-primary);
-    border: 2px solid var(--border-color);
+  .search-box {
+    max-width: 600px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .search-input {
+    width: 100%;
+    padding: 12px 20px 12px 44px;
+    font-size: 16px;
+    border: 2px solid var(--border-default, #e1e4e8);
     border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 600;
+    background: var(--bg-surface, #ffffff);
+    color: var(--text-primary, #24292e);
     transition: all 0.2s;
   }
 
-  .filter-btn:hover {
-    border-color: #4a9b7e;
-    background: var(--bg-secondary);
+  .search-input:focus {
+    outline: none;
+    border-color: var(--status-info, #6b8fb3);
+    box-shadow: 0 0 0 3px rgba(107, 143, 179, 0.1);
   }
 
-  .filter-btn.active {
-    background: #4a9b7e;
-    color: white;
-    border-color: #4a9b7e;
+  .search-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary, #586069);
+    font-size: 18px;
   }
 
   .tool-count {
     text-align: center;
-    color: var(--text-secondary);
+    color: var(--text-secondary, #586069);
     font-size: 14px;
-    margin-bottom: 20px;
+    margin-top: 12px;
   }
+
+  /* Domain-specific colors */
+  .domain-research .tool-card-header { border-left-color: var(--status-success, #4a9b7e); }
+  .domain-development .tool-card-header { border-left-color: var(--status-info, #6b8fb3); }
+  .domain-pdf .tool-card-header { border-left-color: #dc2626; }
+  .domain-image .tool-card-header { border-left-color: #9333ea; }
+  .domain-text .tool-card-header { border-left-color: #10b981; }
+  .domain-design .tool-card-header { border-left-color: #f59e0b; }
+  .domain-video .tool-card-header { border-left-color: #6366f1; }
+  .domain-utilities .tool-card-header { border-left-color: var(--_scitex-04, #6c8ba0); }
         </style>
     {% endblock %}
     {% block content %}
         <div class="tools-container">
-            <!-- Category Filters -->
-            <div class="category-filters">
-                <button class="filter-btn active" data-category="all">All Tools</button>
-                <button class="filter-btn" data-category="Research">Research</button>
-                <button class="filter-btn" data-category="Development">Development</button>
-                <button class="filter-btn" data-category="Image Processing">Image Processing</button>
-                <button class="filter-btn" data-category="PDF Tools">PDF Tools</button>
-                <button class="filter-btn" data-category="Video Tools">Video Tools</button>
-                <button class="filter-btn" data-category="Text Processing">Text Processing</button>
-                <button class="filter-btn" data-category="Utilities">Utilities</button>
-                <button class="filter-btn" data-category="Design">Design</button>
-                <button class="filter-btn" data-category="Analysis">Analysis</button>
+            <!-- Hero Section -->
+            <div class="tools-hero">
+                <h1 class="tools-hero-title">Research Tools</h1>
+                <p class="tools-hero-subtitle">
+                    Free, privacy-focused browser tools for researchers. No installation, no data collection.
+                </p>
             </div>
-            <div class="tool-count">
-                <span id="toolCount">{{ tools_list|length }}</span> tools available
+            <!-- Search Filter -->
+            <div class="search-filter-section">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text"
+                           class="search-input"
+                           id="searchInput"
+                           placeholder="Search tools...">
+                </div>
+                <div class="tool-count">
+                    <span id="toolCount">{{ total_tools }}</span> tools available
+                </div>
             </div>
-            <!-- Tools Grid -->
-            <div class="tools-grid">
-                {% for tool in tools_list %}
-                    <div class="tool-card">
-                        <div class="color-accent" style="background: {{ tool.color }};"></div>
-                        <div class="tool-card-header">
-                            <div class="tool-category">{{ tool.category }}</div>
-                            <span class="tool-icon">{{ tool.icon }}</span>
-                            <h3 class="tool-card-title">{{ tool.name }}</h3>
-                            <p class="tool-description">{{ tool.description }}</p>
-                        </div>
-                        <div class="tool-card-body">
-                            <ul class="tool-features">
-                                {% for feature in tool.features %}
-                                    <li>{{ feature }}</li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                        <div class="tool-card-footer">
-                            <a href="{{ tool.bookmarklet_url }}" class="btn-tool btn-tool-primary">Open Tool →</a>
-                        </div>
+            <!-- Tools by Domain -->
+            {% for domain in domains %}
+                <div class="tools-domain-section domain-{{ domain.slug }}" id="domain-{{ domain.slug }}">
+                    <div class="domain-header">
+                        <span class="domain-icon">{{ domain.icon }}</span>
+                        <h2 class="domain-title">{{ domain.name }}</h2>
+                        <span class="domain-count">{{ domain.tools|length }} tools</span>
                     </div>
-                {% endfor %}
-            </div>
+                    <div class="tools-grid">
+                        {% for tool in domain.tools %}
+                            <div class="tool-card" data-search="{{ tool.name|lower }} {{ tool.description|lower }}">
+                                <div class="tool-card-header">
+                                    <span class="tool-icon">{{ tool.icon }}</span>
+                                    <div class="tool-info">
+                                        <h3 class="tool-card-title">{{ tool.name }}</h3>
+                                        <p class="tool-description">{{ tool.description }}</p>
+                                    </div>
+                                </div>
+                                <div class="tool-card-footer">
+                                    <a href="{{ tool.bookmarklet_url }}" class="btn-tool">Open Tool →</a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
         </div>
-    <script>
-  // Category filtering
-  const filterButtons = document.querySelectorAll('.filter-btn');
+        <script>
+  // Search functionality
+  const searchInput = document.getElementById('searchInput');
   const toolCards = document.querySelectorAll('.tool-card');
+  const domainSections = document.querySelectorAll('.tools-domain-section');
   const toolCount = document.getElementById('toolCount');
 
-  filterButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const category = btn.dataset.category;
+  searchInput.addEventListener('input', (e) => {
+    const searchTerm = e.target.value.toLowerCase().trim();
+    let visibleCount = 0;
 
-      // Update active button
-      filterButtons.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-
-      // Filter cards
-      let visibleCount = 0;
-      toolCards.forEach(card => {
-        const cardCategory = card.querySelector('.tool-category').textContent;
-
-        if (category === 'all' || cardCategory === category) {
-          card.style.display = 'flex';
-          visibleCount++;
-        } else {
-          card.style.display = 'none';
-        }
-      });
-
-      // Update count
-      toolCount.textContent = visibleCount;
+    // Reset domain sections visibility
+    domainSections.forEach(section => {
+      section.style.display = 'block';
     });
+
+    toolCards.forEach(card => {
+      const searchText = card.dataset.search;
+      const isVisible = searchTerm === '' || searchText.includes(searchTerm);
+
+      card.style.display = isVisible ? 'flex' : 'none';
+      if (isVisible) visibleCount++;
+    });
+
+    // Hide empty domain sections
+    domainSections.forEach(section => {
+      const visibleCards = section.querySelectorAll('.tool-card[style*="display: flex"], .tool-card:not([style*="display"])');
+      if (searchTerm !== '' && visibleCards.length === 0) {
+        section.style.display = 'none';
+      }
+    });
+
+    toolCount.textContent = visibleCount;
   });
-    </script>
+        </script>
     {% endblock %}

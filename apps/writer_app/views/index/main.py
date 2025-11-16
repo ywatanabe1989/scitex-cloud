@@ -63,10 +63,11 @@ def index_view(request):
             context["project"] = current_project
 
             # Get or create manuscript record
+            # Since project is OneToOneField, only use project for lookup
             manuscript, created = Manuscript.objects.get_or_create(
                 project=current_project,
-                owner=request.user,
                 defaults={
+                    "owner": current_project.owner,
                     "title": f"{current_project.name} Manuscript",
                     "description": f"Manuscript for {current_project.name}",
                 },
@@ -128,10 +129,11 @@ def index_view(request):
         context["visitor_username"] = visitor_user.username if visitor_user else None
 
         # Get or create manuscript for visitor project
+        # Since project is OneToOneField, only use project for lookup
         manuscript, manuscript_created = Manuscript.objects.get_or_create(
             project=visitor_project,
-            owner=visitor_project.owner,
             defaults={
+                "owner": visitor_project.owner,
                 "title": f"{visitor_project.name} Manuscript",
                 "description": "Try out SciTeX Writer - sign up to save!",
             },
@@ -236,10 +238,13 @@ def initialize_workspace(request):
             logger.info(f"Project directory created at {project_root}")
 
         # Get or create manuscript
+        # Since project is OneToOneField, only use project for lookup
         manuscript, created = Manuscript.objects.get_or_create(
             project=project,
-            owner=user,
-            defaults={"title": f"{project.name} Manuscript"},
+            defaults={
+                "owner": project.owner,
+                "title": f"{project.name} Manuscript"
+            },
         )
 
         # Check if Writer already initialized

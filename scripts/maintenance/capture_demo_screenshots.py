@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-11-17 00:56:38 (ywatanabe)"
+# Timestamp: "2025-11-17 01:07:32 (ywatanabe)"
 # File: /home/ywatanabe/proj/scitex-cloud/scripts/maintenance/capture_demo_screenshots.py
 
 
@@ -31,7 +31,6 @@ from scitex.session import session
 from scitex.browser import fill_with_fallbacks_async
 from scitex.browser import click_with_fallbacks_async
 from scitex.logging import getLogger
-from scitex.config import CONFIG
 
 logger = getLogger(__name__)
 
@@ -233,6 +232,7 @@ async def capture_page_screenshot(
 
 
 async def run_capture_async(
+    output_dir: str or Path,
     headless: bool,
     width: int,
     height: int,
@@ -250,7 +250,6 @@ async def run_capture_async(
     """
 
     # Use session output directory
-    output_dir = Path(CONFIG["SDIR"]) / "screenshots"
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Browser session directory
@@ -355,7 +354,7 @@ async def run_capture_async(
 
 
 @session(verbose=True, sdir_suffix="demo-screenshots")
-def capture_screenshots(
+def main(
     headless: bool = False,
     width: int = 1920,
     height: int = 1080,
@@ -374,9 +373,12 @@ def capture_screenshots(
 
     logger.info("Starting SciTeX demo screenshot capture")
 
+    output_dir = Path(CONFIG["SDIR"]) / "screenshots"
+
     # Run async workflow
     exit_code = asyncio.run(
         run_capture_async(
+            output_dir,
             headless=headless,
             width=width,
             height=height,
@@ -392,6 +394,6 @@ def capture_screenshots(
 
 
 if __name__ == "__main__":
-    capture_screenshots()
+    main()
 
 # EOF

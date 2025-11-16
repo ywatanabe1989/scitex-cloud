@@ -746,313 +746,179 @@ def scitex_api_keys(request):
 
 def tools(request):
     """Research tools page - bookmarklets and utilities for researchers."""
-    tools_list = [
+    # Define domains with organized tools
+    domains = [
         {
-            "name": "Asta AI Citation Scraper",
-            "category": "Research",
-            "description": "Automatically collect all BibTeX citations from Asta AI search results. Clicks all 'Copy BibTeX' buttons, combines citations, and downloads as a .bib file.",
-            "features": [
-                "Fast DOM scraping mode (instant!)",
-                "Live progress with counter and ETA",
-                "Auto-download as .bib file",
-                "Progress bar visualization",
-                "Clipboard backup copy",
+            "name": "Research Tools",
+            "slug": "research",
+            "icon": "🔬",
+            "tools": [
+                {
+                    "name": "Asta AI Citation Scraper",
+                    "description": "Automatically collect all BibTeX citations from Asta AI search results and download as .bib file.",
+                    "bookmarklet_url": "/tools/asta-citation-scraper/",
+                    "icon": "📚",
+                },
+                {
+                    "name": "Statistics Calculator",
+                    "description": "Quick statistical analysis for research data with descriptive stats, t-tests, and correlations.",
+                    "bookmarklet_url": "/tools/statistics-calculator/",
+                    "icon": "📊",
+                },
             ],
-            "bookmarklet_url": "/tools/asta-citation-scraper/",
-            "icon": "📚",
-            "color": "#4a9b7e",  # SciTeX success/green
         },
         {
-            "name": "Element Inspector",
-            "category": "Development",
-            "description": "Visual debugging tool for web developers. Inspect any element on any website with colored overlays, click to copy comprehensive debug info formatted for AI assistants.",
-            "features": [
-                "Alt+I keyboard shortcut to toggle",
-                "Escape to close",
-                "Click any element to copy debug info",
-                "Works on any website",
-                "AI-ready output format",
+            "name": "Development Tools",
+            "slug": "development",
+            "icon": "💻",
+            "tools": [
+                {
+                    "name": "Element Inspector",
+                    "description": "Visual debugging tool for web developers with AI-ready output format.",
+                    "bookmarklet_url": "/tools/element-inspector/",
+                    "icon": "🔍",
+                },
+                {
+                    "name": "Repository Concatenator",
+                    "description": "Concatenate repository files into AI-ready format for code review.",
+                    "bookmarklet_url": "/tools/repo-concatenator/",
+                    "icon": "📦",
+                },
+                {
+                    "name": "JSON Formatter",
+                    "description": "Format, validate, and beautify JSON data with syntax highlighting.",
+                    "bookmarklet_url": "/tools/json-formatter/",
+                    "icon": "{ }",
+                },
             ],
-            "bookmarklet_url": "/tools/element-inspector/",
-            "icon": "🔍",
-            "color": "#6b8fb3",  # SciTeX info/blue
         },
         {
-            "name": "Image Concatenator",
-            "category": "Image Processing",
-            "description": "Combine multiple images into a single tiled image. Upload images, customize layout with adjustable columns and spacing, and download the concatenated result.",
-            "features": [
-                "Drag & drop multiple images",
-                "Customizable grid layout",
-                "Adjustable spacing and background",
-                "Reorder images by dragging",
-                "Export as PNG, JPEG, or WebP",
-                "100% private browser-based processing",
-            ],
-            "bookmarklet_url": "/tools/image-concatenator/",
-            "icon": "🖼️",
-            "color": "#9333ea",  # Purple
-        },
-        {
-            "name": "QR Code Generator",
-            "category": "Utilities",
-            "description": "Generate customizable QR codes for URLs, DOIs, contact info, and more. Perfect for posters, presentations, and publications.",
-            "features": [
-                "Quick templates (URL, DOI, Email, Phone, WiFi, vCard)",
-                "Customizable colors and size",
-                "Error correction levels",
-                "Download as PNG or SVG",
-                "Live preview",
-                "100% private browser-based",
-            ],
-            "bookmarklet_url": "/tools/qr-code-generator/",
-            "icon": "📱",
-            "color": "#ec4899",  # Pink
-        },
-        {
-            "name": "Color Picker",
-            "category": "Design",
-            "description": "Advanced color picker with HEX, RGB, HSL, CMYK conversion and palette generation. Generate color harmonies for visualizations.",
-            "features": [
-                "Multiple format support (HEX, RGB, HSL, CMYK)",
-                "Color harmonies (complementary, triadic, etc.)",
-                "One-click copy to clipboard",
-                "Live palette generation",
-                "Perfect for data visualization",
-                "100% private browser-based",
-            ],
-            "bookmarklet_url": "/tools/color-picker/",
-            "icon": "🎨",
-            "color": "#f59e0b",  # Orange
-        },
-        {
-            "name": "Markdown Renderer",
-            "category": "Text Processing",
-            "description": "Real-time Markdown preview with syntax highlighting. Write and preview Markdown documents instantly.",
-            "features": [
-                "Real-time preview",
-                "Syntax highlighting for code blocks",
-                "Table support",
-                "Copy as HTML or Markdown",
-                "Download as .md file",
-                "Split-pane editor",
-            ],
-            "bookmarklet_url": "/tools/markdown-renderer/",
-            "icon": "📝",
-            "color": "#10b981",  # Green
-        },
-        {
-            "name": "Text Diff Checker",
-            "category": "Text Processing",
-            "description": "Compare two text blocks side-by-side with highlighted differences. Perfect for tracking manuscript revisions.",
-            "features": [
-                "Side-by-side comparison",
-                "Highlighted additions and deletions",
-                "Line-by-line diff view",
-                "Ignore whitespace/case options",
-                "Statistics (added, removed, unchanged)",
-                "Swap and clear functions",
-            ],
-            "bookmarklet_url": "/tools/text-diff-checker/",
-            "icon": "🔄",
-            "color": "#3b82f6",  # Blue
-        },
-        {
-            "name": "Images to GIF",
-            "category": "Image Processing",
-            "description": "Convert multiple images into animated GIF. Customize frame duration, quality, and loop settings. Perfect for creating animations.",
-            "features": [
-                "Drag & drop multiple images",
-                "Reorder frames by dragging",
-                "Adjustable frame duration",
-                "Quality and loop controls",
-                "Resize options",
-                "Live preview before download",
-            ],
-            "bookmarklet_url": "/tools/images-to-gif/",
-            "icon": "🎬",
-            "color": "#8b5cf6",  # Violet
-        },
-        {
-            "name": "Image Converter",
-            "category": "Image Processing",
-            "description": "Convert images between PNG, JPG, WEBP formats. Batch conversion with quality control for journal submissions.",
-            "features": [
-                "Multiple format support",
-                "Batch conversion",
-                "Quality settings",
-                "Maintains image dimensions",
-                "Fast browser-based processing",
-                "Download all at once",
-            ],
-            "bookmarklet_url": "/tools/image-converter/",
-            "icon": "🔄",
-            "color": "#06b6d4",  # Cyan
-        },
-        {
-            "name": "PDF Merger",
-            "category": "PDF Tools",
-            "description": "Combine multiple PDF files into a single document. Drag to reorder pages, perfect for manuscript preparation.",
-            "features": [
-                "Merge unlimited PDFs",
-                "Drag to reorder files",
-                "Page count preview",
-                "Fast client-side processing",
-                "No file size limits",
-                "100% private",
-            ],
-            "bookmarklet_url": "/tools/pdf-merger/",
-            "icon": "📑",
-            "color": "#dc2626",  # Red
-        },
-        {
-            "name": "Statistics Calculator",
-            "category": "Analysis",
-            "description": "Quick statistical analysis for research data. Calculate descriptive stats, t-tests, and correlations.",
-            "features": [
-                "Descriptive statistics",
-                "Independent t-test",
-                "Pearson correlation",
-                "p-values and significance",
-                "Effect sizes",
-                "Copy-paste data input",
-            ],
-            "bookmarklet_url": "/tools/statistics-calculator/",
-            "icon": "📊",
-            "color": "#7c3aed",  # Purple
-        },
-        {
-            "name": "PDF Splitter",
-            "category": "PDF Tools",
-            "description": "Extract specific pages from PDF files. Select page ranges or individual pages to create new PDFs.",
-            "features": [
-                "Page range selection (e.g., 1,3,5-8)",
-                "Extract individual pages",
-                "Fast client-side processing",
-                "No file size limits",
-                "Preview page count",
-                "100% private",
-            ],
-            "bookmarklet_url": "/tools/pdf-splitter/",
-            "icon": "✂️",
-            "color": "#ef4444",  # Red
-        },
-        {
-            "name": "Image Resizer",
-            "category": "Image Processing",
-            "description": "Resize and crop images for journal submissions. Preset dimensions for common formats.",
-            "features": [
-                "Journal presets (800×600, etc.)",
-                "Custom dimensions",
-                "Maintain aspect ratio",
-                "Live preview",
-                "High-quality output",
-                "Fast browser-based",
-            ],
-            "bookmarklet_url": "/tools/image-resizer/",
-            "icon": "📐",
-            "color": "#0ea5e9",  # Sky blue
-        },
-        {
-            "name": "Repository Concatenator",
-            "category": "Development",
-            "description": "Concatenate repository files into AI-ready format. Perfect for code review with Claude or GPT.",
-            "features": [
-                "Upload repository .zip file",
-                "Filter by file extension",
-                "Configurable depth and line limits",
-                "Directory tree structure",
-                "Token/character counting",
-                "Download as Markdown",
-            ],
-            "bookmarklet_url": "/tools/repo-concatenator/",
-            "icon": "📦",
-            "color": "#06b6d4",  # Cyan
-        },
-        {
-            "name": "JSON Formatter",
-            "category": "Development",
-            "description": "Format, validate, and beautify JSON data. Syntax highlighting and error detection included.",
-            "features": [
-                "Format with indentation",
-                "Minify JSON",
-                "Syntax validation",
-                "Syntax highlighting",
-                "Copy to clipboard",
-                "Error messages",
-            ],
-            "bookmarklet_url": "/tools/json-formatter/",
-            "icon": "{ }",
-            "color": "#a855f7",  # Purple
-        },
-        {
-            "name": "Images to PDF",
-            "category": "PDF Tools",
-            "description": "Convert multiple images into a single PDF document. Choose page size, orientation, and margins.",
-            "features": [
-                "Multiple page sizes (A4, Letter, Legal)",
-                "Portrait or landscape orientation",
-                "Adjustable margins",
-                "Drag to reorder images",
-                "Fit images to page",
-                "Professional output",
-            ],
-            "bookmarklet_url": "/tools/images-to-pdf/",
+            "name": "PDF Tools",
+            "slug": "pdf",
             "icon": "📄",
-            "color": "#f97316",  # Orange
+            "tools": [
+                {
+                    "name": "PDF Merger",
+                    "description": "Combine multiple PDF files into a single document with drag-to-reorder.",
+                    "bookmarklet_url": "/tools/pdf-merger/",
+                    "icon": "📑",
+                },
+                {
+                    "name": "PDF Splitter",
+                    "description": "Extract specific pages from PDF files using page ranges or individual pages.",
+                    "bookmarklet_url": "/tools/pdf-splitter/",
+                    "icon": "✂️",
+                },
+                {
+                    "name": "PDF Compressor",
+                    "description": "Reduce PDF file size while maintaining quality for email and uploads.",
+                    "bookmarklet_url": "/tools/pdf-compressor/",
+                    "icon": "🗜️",
+                },
+                {
+                    "name": "Images to PDF",
+                    "description": "Convert multiple images into a single PDF with custom page size and orientation.",
+                    "bookmarklet_url": "/tools/images-to-pdf/",
+                    "icon": "📄",
+                },
+                {
+                    "name": "PDF to Images",
+                    "description": "Extract all pages from PDF as PNG or JPG images with adjustable DPI.",
+                    "bookmarklet_url": "/tools/pdf-to-images/",
+                    "icon": "🖼️",
+                },
+            ],
         },
         {
-            "name": "PDF to Images",
-            "category": "PDF Tools",
-            "description": "Extract all pages from PDF as PNG or JPG images. Perfect for extracting figures from papers.",
-            "features": [
-                "Extract all pages as images",
-                "PNG or JPEG format",
-                "Adjustable DPI (72-288)",
-                "High-quality output",
-                "Download all at once",
-                "Preview before download",
-            ],
-            "bookmarklet_url": "/tools/pdf-to-images/",
+            "name": "Image Processing",
+            "slug": "image",
             "icon": "🖼️",
-            "color": "#14b8a6",  # Teal
+            "tools": [
+                {
+                    "name": "Image Concatenator",
+                    "description": "Combine multiple images into a single tiled image with customizable layout.",
+                    "bookmarklet_url": "/tools/image-concatenator/",
+                    "icon": "🖼️",
+                },
+                {
+                    "name": "Image Converter",
+                    "description": "Convert images between PNG, JPG, WEBP formats with batch conversion.",
+                    "bookmarklet_url": "/tools/image-converter/",
+                    "icon": "🔄",
+                },
+                {
+                    "name": "Image Resizer",
+                    "description": "Resize and crop images for journal submissions with preset dimensions.",
+                    "bookmarklet_url": "/tools/image-resizer/",
+                    "icon": "📐",
+                },
+                {
+                    "name": "Images to GIF",
+                    "description": "Convert multiple images into animated GIF with customizable duration and quality.",
+                    "bookmarklet_url": "/tools/images-to-gif/",
+                    "icon": "🎬",
+                },
+            ],
         },
         {
-            "name": "PDF Compressor",
-            "category": "PDF Tools",
-            "description": "Reduce PDF file size while maintaining quality. Perfect for email attachments and journal uploads.",
-            "features": [
-                "Automatic compression",
-                "Before/after size comparison",
-                "Compression ratio display",
-                "Fast processing",
-                "No quality loss",
-                "100% private",
+            "name": "Text Processing",
+            "slug": "text",
+            "icon": "📝",
+            "tools": [
+                {
+                    "name": "Markdown Renderer",
+                    "description": "Real-time Markdown preview with syntax highlighting and table support.",
+                    "bookmarklet_url": "/tools/markdown-renderer/",
+                    "icon": "📝",
+                },
+                {
+                    "name": "Text Diff Checker",
+                    "description": "Compare two text blocks side-by-side with highlighted differences.",
+                    "bookmarklet_url": "/tools/text-diff-checker/",
+                    "icon": "🔄",
+                },
             ],
-            "bookmarklet_url": "/tools/pdf-compressor/",
-            "icon": "🗜️",
-            "color": "#f43f5e",  # Rose
         },
         {
-            "name": "Video Editor",
-            "category": "Video Tools",
-            "description": "Trim videos by time window. Basic video editing in your browser.",
-            "features": [
-                "Trim start and end time",
-                "Video preview",
-                "Multiple format support",
-                "Browser-based processing",
-                "No upload required",
-                "Quick edits",
+            "name": "Design Tools",
+            "slug": "design",
+            "icon": "🎨",
+            "tools": [
+                {
+                    "name": "Color Picker",
+                    "description": "Advanced color picker with format conversion and palette generation.",
+                    "bookmarklet_url": "/tools/color-picker/",
+                    "icon": "🎨",
+                },
+                {
+                    "name": "QR Code Generator",
+                    "description": "Generate customizable QR codes for URLs, DOIs, contact info, and more.",
+                    "bookmarklet_url": "/tools/qr-code-generator/",
+                    "icon": "📱",
+                },
             ],
-            "bookmarklet_url": "/tools/video-editor/",
+        },
+        {
+            "name": "Video Tools",
+            "slug": "video",
             "icon": "🎬",
-            "color": "#6366f1",  # Indigo
+            "tools": [
+                {
+                    "name": "Video Editor",
+                    "description": "Trim videos by time window with browser-based processing.",
+                    "bookmarklet_url": "/tools/video-editor/",
+                    "icon": "🎬",
+                },
+            ],
         },
     ]
 
+    # Calculate total tools
+    total_tools = sum(len(domain["tools"]) for domain in domains)
+
     context = {
-        "tools_list": tools_list,
+        "domains": domains,
+        "total_tools": total_tools,
     }
 
     return render(request, "public_app/pages/tools.html", context)

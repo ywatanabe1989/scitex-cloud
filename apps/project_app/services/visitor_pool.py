@@ -533,10 +533,13 @@ def _initialize_visitor_writer_workspace(project, project_path):
             # Create manuscript record (writer_initialized is a computed property, not a field)
             from apps.writer_app.models import Manuscript
 
+            # Since project is OneToOneField, only use project for lookup
             Manuscript.objects.get_or_create(
                 project=project,
-                owner=project.owner,
-                defaults={"title": f"{project.name} Manuscript"},
+                defaults={
+                    "owner": project.owner,
+                    "title": f"{project.name} Manuscript"
+                },
             )
         else:
             logger.warning(

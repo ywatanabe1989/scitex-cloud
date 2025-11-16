@@ -9,6 +9,7 @@ import logging
 from django.shortcuts import render
 from django.http import HttpResponse
 from apps.project_app.services import get_current_project
+from apps.project_app.models import Project
 
 logger = logging.getLogger(__name__)
 
@@ -29,17 +30,23 @@ def code_workspace(request):
     if request.user.is_authenticated:
         # Get current project from header dropdown
         current_project = get_current_project(request, user=request.user)
-        
+
         if current_project:
-            # Check permissions (user must be owner or collaborator)
-            if not (
-                request.user == current_project.owner
-                or request.user in current_project.collaborators.all()
-            ):
-                return HttpResponse("Unauthorized", status=403)
-            
-            context["current_project"] = current_project
-            context["project"] = current_project
+            # Check if user can edit this project (owner or write/admin collaborator)
+            if not current_project.can_edit(request.user):
+                # User can view but not edit - fall back to their own projects
+                logger.info(
+                    f"[Code] User {request.user.username} cannot edit project {current_project.slug}, "
+                    f"falling back to user's own projects"
+                )
+                current_project = Project.objects.filter(owner=request.user).first()
+                if not current_project:
+                    # User has no projects - show creation prompt
+                    context["needs_project_creation"] = True
+
+            if current_project:
+                context["current_project"] = current_project
+                context["project"] = current_project
         else:
             # User authenticated but no project selected
             context["needs_project_creation"] = True

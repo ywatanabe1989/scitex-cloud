@@ -60,10 +60,11 @@ class Command(BaseCommand):
                 try:
                     from apps.writer_app.models import Manuscript
 
+                    # Since project is OneToOneField, only use project for lookup
                     manuscript, ms_created = Manuscript.objects.get_or_create(
                         project=demo_project,
-                        owner=guest_user,
                         defaults={
+                            "owner": demo_project.owner,
                             "title": "Demo Manuscript",
                             "slug": "demo-manuscript",
                             "is_modular": True,
