@@ -1568,11 +1568,15 @@ class CodeWorkspace {
       // Write output to terminal
       if (this.ptyTerminal) {
         if (data.stdout) {
-          this.ptyTerminal.write(data.stdout);
+          // Convert \n to \r\n for proper terminal line breaks
+          const terminalOutput = data.stdout.replace(/\n/g, '\r\n');
+          this.ptyTerminal.write(terminalOutput);
         }
 
         if (data.stderr) {
-          this.ptyTerminal.write(`\x1b[31m${data.stderr}\x1b[0m`); // Red for stderr
+          // Convert \n to \r\n for proper terminal line breaks
+          const terminalError = data.stderr.replace(/\n/g, '\r\n');
+          this.ptyTerminal.write(`\x1b[31m${terminalError}\x1b[0m`); // Red for stderr
         }
 
         if (data.success) {
