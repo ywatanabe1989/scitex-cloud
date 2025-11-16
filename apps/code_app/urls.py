@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views, api_views, default_workspace_views
+from . import views, api_views, default_workspace_views, workspace_views, workspace_api_views
 
 app_name = "code"
 
@@ -10,8 +10,24 @@ urlpatterns = [
         default_workspace_views.user_default_workspace,
         name="user_default_workspace",
     ),
+    # Main workspace - simple file editor (replaces redirect)
+    path("", workspace_views.code_workspace, name="index"),
+    # Workspace API endpoints
+    path("api/file-content/<path:file_path>", workspace_api_views.api_get_file_content, name="api_file_content"),
+    path("api/save/", workspace_api_views.api_save_file, name="api_save_file"),
+    path("api/execute/", workspace_api_views.api_execute_script, name="api_execute_script"),
+    path("api/command/", workspace_api_views.api_execute_command, name="api_execute_command"),
+    path("api/create-file/", workspace_api_views.api_create_file, name="api_create_file"),
+    path("api/delete/", workspace_api_views.api_delete_file, name="api_delete_file"),
+    # Git status and diff endpoints
+    path("api/git-status/", workspace_api_views.api_get_git_status, name="api_git_status"),
+    path("api/file-diff/<path:file_path>", workspace_api_views.api_get_file_diff, name="api_file_diff"),
+    path("api/git-commit/", workspace_api_views.api_git_commit, name="api_git_commit"),
     # Landing pages
-    path("", views.index, name="index"),
+    path("features/", views.features, name="features"),
+    path("pricing/", views.pricing, name="pricing"),
+    # Legacy index redirect (if needed)
+    # path("old/", views.index, name="old_index"),
     path("features/", views.features, name="features"),
     path("pricing/", views.pricing, name="pricing"),
     # Core functionality

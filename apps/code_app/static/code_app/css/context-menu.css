@@ -1,0 +1,54 @@
+/**
+ * Context Menu for File Tree
+ * Right-click menu for file/folder operations
+ */
+
+.context-menu {
+  position: fixed;
+  background: var(--color-canvas-overlay);
+  border: 1px solid var(--color-border-default);
+  border-radius: 6px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  padding: 4px 0;
+  z-index: 10000;
+  min-width: 180px;
+  display: none;
+}
+
+.context-menu-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  color: var(--color-fg-default);
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.15s;
+}
+
+.context-menu-item:hover {
+  background: var(--color-accent-subtle);
+  color: var(--color-accent-fg);
+}
+
+.context-menu-item i {
+  width: 16px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.context-menu-divider {
+  height: 1px;
+  background: var(--color-border-default);
+  margin: 4px 0;
+}
+
+.context-menu-item.danger:hover {
+  background: var(--color-danger-subtle);
+  color: var(--color-danger-fg);
+}
+
+[data-theme="dark"] .context-menu {
+  background: var(--color-canvas-overlay);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6);
+}

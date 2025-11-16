@@ -1,0 +1,391 @@
+{% extends "global_base.html" %}
+{% load static %}
+
+{% block title %}{% if current_project %}{{ current_project.name }} - {% endif %}Code Workspace{% endblock %}
+
+{% block extra_head %}
+  <!-- Disable caching for development -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+{% endblock %}
+
+{% block extra_css %}
+  <!-- Shared sidebar styles from project_app for consistency -->
+  <link rel="stylesheet" href="{% static 'project_app/css/shared/sidebar.css' %}" />
+  <!-- Code workspace specific styles -->
+  <link rel="stylesheet" href="{% static 'code_app/css/workspace.css' %}" />
+  <link rel="stylesheet" href="{% static 'code_app/css/context-menu.css' %}" />
+  <link rel="stylesheet" href="{% static 'code_app/css/file-modal.css' %}" />
+  <!-- Monaco Editor CSS - Use cdnjs like writer app -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/editor/editor.main.min.css" />
+  <!-- xterm.js for real PTY terminal -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.css" />
+{% endblock %}
+
+{% block extra_js %}
+  <!-- Monaco Editor - Load with proper AMD handling -->
+  <script>
+    (function() {
+      'use strict';
+
+      // Save any existing AMD loaders
+      var savedDefine = window.define;
+      var savedRequire = window.require;
+
+      // Clear AMD environment for Monaco
+      delete window.define;
+      delete window.require;
+
+      // Load Monaco loader
+      var loaderScript = document.createElement('script');
+      loaderScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js';
+      loaderScript.onload = function() {
+        console.log('[Monaco] Loader loaded, configuring...');
+
+        // Now require should be available from Monaco's loader
+        if (typeof require === 'undefined') {
+          console.error('[Monaco] require is still undefined after loader');
+          return;
+        }
+
+        // Configure Monaco paths
+        require.config({
+          paths: {
+            'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs'
+          }
+        });
+
+        // Load Monaco editor main module with timeout and error handling
+        var monacoLoadTimeout = setTimeout(function() {
+          console.error('[Monaco] Loading timeout - require might have failed');
+        }, 5000);
+
+        try {
+          require(['vs/editor/editor.main'], function() {
+            clearTimeout(monacoLoadTimeout);
+            console.log('[Monaco] Loaded successfully - window.monaco:', !!window.monaco);
+
+            if (window.monaco) {
+              window.monacoReady = true;
+              window.dispatchEvent(new Event('monaco-ready'));
+            } else {
+              console.error('[Monaco] Loaded but window.monaco is undefined');
+            }
+          }, function(err) {
+            clearTimeout(monacoLoadTimeout);
+            console.error('[Monaco] Failed to load editor.main:', err);
+          });
+        } catch (err) {
+          clearTimeout(monacoLoadTimeout);
+          console.error('[Monaco] Exception during require call:', err);
+        }
+      };
+
+      loaderScript.onerror = function() {
+        console.error('[Monaco] Failed to load loader.min.js');
+        // Restore original AMD loaders if Monaco fails
+        if (savedDefine) window.define = savedDefine;
+        if (savedRequire) window.require = savedRequire;
+      };
+
+      document.head.appendChild(loaderScript);
+    })();
+  </script>
+{% endblock %}
+
+{% block content %}
+  <!-- Config data for TypeScript -->
+  <script type="application/json" id="workspace-config">
+    {
+      "currentProject": {% if current_project %}{
+        "id": {{ current_project.id }},
+        "name": "{{ current_project.name|escapejs }}",
+        "owner": "{{ current_project.owner.username|escapejs }}",
+        "slug": "{{ current_project.slug|escapejs }}"
+      }{% else %}null{% endif %},
+      "csrfToken": "{{ csrf_token }}"
+    }
+  </script>
+
+  <div class="code-workspace">
+    <!-- Left Sidebar: File Tree -->
+    <aside class="code-sidebar repo-sidebar">
+      <div class="sidebar-header">
+        {% if current_project %}
+          <a href="/{{ current_project.owner.username }}/{{ current_project.slug }}/"
+             class="sidebar-title-link"
+             title="{{ current_project.name }}"
+             style="display: inline-flex;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
+              <path fill="currentColor" d="M1.75 1A1.75 1.75 0 0 0 0 2.75v10.5C0 14.216.784 15 1.75 15h12.5A1.75 1.75 0 0 0 16 13.25v-8.5A1.75 1.75 0 0 0 14.25 3H7.5a.25.25 0 0 1-.2-.1l-.9-1.2C6.07 1.26 5.55 1 5 1H1.75Z"></path>
+            </svg>
+            <span>{{ current_project.name }}</span>
+          </a>
+        {% else %}
+          <div class="sidebar-title-link">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
+              <path fill="currentColor" d="M1.75 1A1.75 1.75 0 0 0 0 2.75v10.5C0 14.216.784 15 1.75 15h12.5A1.75 1.75 0 0 0 16 13.25v-8.5A1.75 1.75 0 0 0 14.25 3H7.5a.25.25 0 0 1-.2-.1l-.9-1.2C6.07 1.26 5.55 1 5 1H1.75Z"></path>
+            </svg>
+            <span>No Project Selected</span>
+          </div>
+        {% endif %}
+      </div>
+      <div id="file-tree" class="file-tree-container">
+        <div class="tree-loading">
+          <i class="fas fa-spinner fa-spin"></i> Loading file tree...
+        </div>
+      </div>
+    </aside>
+
+    <!-- Center: Editor Area -->
+    <div class="code-editor-area">
+      <!-- Toolbar -->
+      <div class="code-toolbar">
+        <span id="toolbar-file-path" class="code-toolbar-file">No file selected</span>
+        <div class="code-toolbar-spacer"></div>
+        <select id="keybinding-mode" class="btn-code-action" title="Editor keybindings" style="padding: 6px 8px;">
+          <option value="vscode">VS Code</option>
+          <option value="vim">Vim</option>
+          <option value="emacs" selected>Emacs</option>
+        </select>
+        <button id="btn-editor-shortcuts" class="btn-code-action" title="Emacs Shortcuts" style="padding: 4px 8px; font-size: 12px;">
+          ⌨
+        </button>
+        <button id="btn-save" class="btn-code-action btn-code-primary" disabled title="Save (Ctrl+S)">
+          <i class="fas fa-save btn-code-icon"></i>
+          Save
+        </button>
+        <button id="btn-commit" class="btn-code-action" title="Commit changes" style="background: #238636; color: white;">
+          <i class="fas fa-code-branch btn-code-icon"></i>
+          Commit
+        </button>
+        <button id="btn-run" class="btn-code-action" disabled title="Run Python script (Ctrl+Enter)">
+          <i class="fas fa-play btn-code-icon"></i>
+          Run
+        </button>
+        <button id="btn-delete" class="btn-code-action" disabled title="Delete current file">
+          <i class="fas fa-trash btn-code-icon"></i>
+        </button>
+      </div>
+
+      <!-- File Tabs (below toolbar) -->
+      <div id="file-tabs" class="file-tabs">
+        <button id="btn-new-file-tab" class="file-tabs-plus-btn" title="New file">+</button>
+      </div>
+
+      <!-- Editor Container -->
+      <div id="editor-container" class="code-editor-container">
+        <!-- Welcome Screen (hidden by default - scratch buffer shown instead) -->
+        <div id="welcome-screen" class="code-welcome" style="display: none;">
+          <svg class="code-welcome-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z" />
+          </svg>
+          <h2 class="code-welcome-title">Welcome to Code Workspace</h2>
+          <p class="code-welcome-subtitle">A powerful editor with integrated terminal for your research projects</p>
+
+          <div style="margin-top: 32px; max-width: 600px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; text-align: left;">
+              <div style="padding: 16px; background: var(--color-canvas-subtle); border-radius: 6px;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                  <i class="fas fa-file-code" style="color: var(--scitex-color-04);"></i>
+                  <strong>Multi-Language Support</strong>
+                </div>
+                <p style="margin: 0; font-size: 13px; color: var(--color-fg-muted);">
+                  Python, JavaScript, TypeScript, HTML, CSS, JSON, Markdown, and more
+                </p>
+              </div>
+
+              <div style="padding: 16px; background: var(--color-canvas-subtle); border-radius: 6px;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                  <i class="fas fa-terminal" style="color: var(--scitex-color-04);"></i>
+                  <strong>Integrated Terminal</strong>
+                </div>
+                <p style="margin: 0; font-size: 13px; color: var(--color-fg-muted);">
+                  Run scripts, manage files, and execute commands directly
+                </p>
+              </div>
+
+              <div style="padding: 16px; background: var(--color-canvas-subtle); border-radius: 6px;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                  <i class="fas fa-keyboard" style="color: var(--scitex-color-04);"></i>
+                  <strong>Flexible Keybindings</strong>
+                </div>
+                <p style="margin: 0; font-size: 13px; color: var(--color-fg-muted);">
+                  Choose VS Code, Vim, or Emacs keybindings to match your workflow
+                </p>
+              </div>
+
+              <div style="padding: 16px; background: var(--color-canvas-subtle); border-radius: 6px;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                  <i class="fas fa-save" style="color: var(--scitex-color-04);"></i>
+                  <strong>Auto-Save</strong>
+                </div>
+                <p style="margin: 0; font-size: 13px; color: var(--color-fg-muted);">
+                  Your changes are automatically saved to your project
+                </p>
+              </div>
+            </div>
+
+            <div style="margin-top: 24px; padding: 16px; background: var(--color-accent-subtle); border-left: 3px solid var(--scitex-color-04); border-radius: 4px;">
+              <strong style="color: var(--color-fg-default);">
+                <i class="fas fa-lightbulb"></i> Quick Start
+              </strong>
+              <ul style="margin: 8px 0 0 0; padding-left: 20px; font-size: 13px; color: var(--color-fg-muted);">
+                <li>Click <strong>+ File</strong> or <strong>+ Folder</strong> to create new items</li>
+                <li>Select a file from the sidebar to start editing</li>
+                <li>Use <kbd>Ctrl+S</kbd> to save, <kbd>Ctrl+Enter</kbd> to run Python scripts</li>
+                <li>Click ⌨ button to view all keyboard shortcuts</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Monaco Editor -->
+        <div id="monaco-editor"></div>
+      </div>
+    </div>
+
+    <!-- Right: Terminal Panel (PTY with xterm.js) -->
+    <div class="code-terminal-panel">
+      <!-- Terminal Header -->
+      <div class="terminal-header">
+        <div class="terminal-title">
+          <i class="fas fa-terminal"></i>
+          Terminal
+          <button id="btn-terminal-shortcuts" class="btn-code-action" title="Terminal Shortcuts" style="margin-left: 8px; padding: 4px 8px; font-size: 12px;">
+            ⌨
+          </button>
+        </div>
+      </div>
+
+      <!-- PTY Terminal Container (xterm.js with inline image support) -->
+      <div id="pty-terminal" class="terminal-body" style="padding: 0;"></div>
+    </div>
+  </div>
+
+  <!-- Shortcuts Help Modal (Editor) -->
+  <div id="shortcuts-modal-overlay" class="file-modal-overlay">
+    <div class="file-modal" style="max-width: 800px;">
+      <div class="file-modal-header">
+        <span id="shortcuts-modal-title" class="file-modal-title"><i class="fas fa-keyboard"></i> Confirmed Shortcuts</span>
+        <button class="file-modal-close" onclick="document.getElementById('shortcuts-modal-overlay').classList.remove('active')">×</button>
+      </div>
+      <div class="file-modal-body" id="shortcuts-modal-body" style="max-height: 70vh; overflow-y: auto;">
+        <!-- Content will be dynamically populated by JavaScript based on keybinding mode -->
+      </div>
+      <div class="file-modal-footer">
+        <button class="file-modal-btn file-modal-btn-primary" onclick="document.getElementById('shortcuts-modal-overlay').classList.remove('active')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Terminal Shortcuts Modal -->
+  <div id="terminal-shortcuts-modal" class="file-modal-overlay">
+    <div class="file-modal" style="max-width: 700px;">
+      <div class="file-modal-header">
+        <span class="file-modal-title"><i class="fas fa-terminal"></i> Terminal Shortcuts</span>
+        <button class="file-modal-close" onclick="document.getElementById('terminal-shortcuts-modal').classList.remove('active')">×</button>
+      </div>
+      <div class="file-modal-body" style="max-height: 70vh; overflow-y: auto;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+          <thead>
+            <tr style="background: var(--color-canvas-subtle); border-bottom: 2px solid var(--color-border-default);">
+              <th style="padding: 8px; text-align: left; font-weight: 600;">Shortcut</th>
+              <th style="padding: 8px; text-align: left; font-weight: 600;">Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="background: var(--color-canvas-subtle);"><td colspan="2" style="padding: 6px 8px; font-weight: bold;">Navigation</td></tr>
+            <tr><td style="padding: 6px 8px;"><kbd>C-a</kbd> / <kbd>C-e</kbd></td><td style="padding: 6px 8px;">Beginning/End of line</td></tr>
+            <tr><td style="padding: 6px 8px;"><kbd>C-f</kbd> / <kbd>C-b</kbd></td><td style="padding: 6px 8px;">Forward/Backward character</td></tr>
+            <tr style="background: var(--color-canvas-subtle);"><td colspan="2" style="padding: 6px 8px; font-weight: bold;">History</td></tr>
+            <tr><td style="padding: 6px 8px;"><kbd>M-p</kbd> / <kbd>M-n</kbd></td><td style="padding: 6px 8px;">Previous/Next command</td></tr>
+            <tr><td style="padding: 6px 8px;"><kbd>↑</kbd> / <kbd>↓</kbd></td><td style="padding: 6px 8px;">Previous/Next command (alternative)</td></tr>
+            <tr style="background: var(--color-canvas-subtle);"><td colspan="2" style="padding: 6px 8px; font-weight: bold;">Editing</td></tr>
+            <tr><td style="padding: 6px 8px;"><kbd>C-d</kbd></td><td style="padding: 6px 8px;">Delete character at cursor</td></tr>
+            <tr><td style="padding: 6px 8px;"><kbd>C-k</kbd></td><td style="padding: 6px 8px;">Kill line (delete to end, copy to clipboard)</td></tr>
+            <tr><td style="padding: 6px 8px;"><kbd>C-y</kbd></td><td style="padding: 6px 8px;">Yank (paste from clipboard)</td></tr>
+            <tr><td style="padding: 6px 8px;"><kbd>Tab</kbd></td><td style="padding: 6px 8px;">File/command completion</td></tr>
+            <tr style="background: var(--color-canvas-subtle);"><td colspan="2" style="padding: 6px 8px; font-weight: bold;">Other</td></tr>
+            <tr><td style="padding: 6px 8px;"><kbd>C-l</kbd></td><td style="padding: 6px 8px;">Clear terminal screen</td></tr>
+            <tr><td style="padding: 6px 8px;"><kbd>C-m</kbd> or <kbd>Enter</kbd></td><td style="padding: 6px 8px;">Execute command</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="file-modal-footer">
+        <button class="file-modal-btn file-modal-btn-primary" onclick="document.getElementById('terminal-shortcuts-modal').classList.remove('active')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- File Modal (for smooth CRUD operations) -->
+  <div id="file-modal-overlay" class="file-modal-overlay">
+    <div class="file-modal">
+      <div class="file-modal-header">
+        <span id="file-modal-title" class="file-modal-title">New File</span>
+        <button class="file-modal-close" onclick="document.getElementById('file-modal-overlay').classList.remove('active')">×</button>
+      </div>
+      <div class="file-modal-body">
+        <div class="file-modal-input-group">
+          <label class="file-modal-label" id="file-modal-label">File name:</label>
+          <input type="text"
+                 id="file-modal-input"
+                 class="file-modal-input"
+                 placeholder="example.py"
+                 autocomplete="off" />
+        </div>
+      </div>
+      <div class="file-modal-footer">
+        <button class="file-modal-btn" onclick="document.getElementById('file-modal-overlay').classList.remove('active')">Cancel</button>
+        <button id="file-modal-submit" class="file-modal-btn file-modal-btn-primary">Create</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Commit Modal -->
+  <div id="commit-modal-overlay" class="file-modal-overlay">
+    <div class="file-modal" style="max-width: 600px;">
+      <div class="file-modal-header">
+        <span class="file-modal-title"><i class="fas fa-code-branch"></i> Commit Changes</span>
+        <button class="file-modal-close" onclick="document.getElementById('commit-modal-overlay').classList.remove('active')">×</button>
+      </div>
+      <div class="file-modal-body">
+        <div style="margin-bottom: 12px;">
+          <label for="commit-message" style="display: block; margin-bottom: 6px; font-weight: 600;">Commit message:</label>
+          <textarea id="commit-message" class="file-modal-input" rows="4" placeholder="Brief description of changes..." style="width: 100%; resize: vertical; font-family: inherit; padding: 8px; border: 1px solid var(--color-border-default); border-radius: 6px; background: var(--color-canvas-default); color: var(--color-fg-default);"></textarea>
+        </div>
+        <div style="margin-bottom: 12px;">
+          <div id="commit-files-preview" style="max-height: 200px; overflow-y: auto; border: 1px solid var(--color-border-default); border-radius: 6px; padding: 8px; background: var(--color-canvas-subtle); font-size: 12px; font-family: monospace;">
+            Loading changed files...
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+          <input type="checkbox" id="commit-and-push" checked style="cursor: pointer;">
+          <label for="commit-and-push" style="cursor: pointer; margin: 0;">Push to remote after commit</label>
+        </div>
+      </div>
+      <div class="file-modal-footer">
+        <button class="file-modal-btn" onclick="document.getElementById('commit-modal-overlay').classList.remove('active')">Cancel</button>
+        <button id="commit-modal-submit" class="file-modal-btn file-modal-btn-primary" style="background: #238636;">
+          <i class="fas fa-code-branch"></i> Commit
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- xterm.js for real PTY terminal with addons -->
+  <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xterm-addon-image@0.6.0/lib/xterm-addon-image.js"></script>
+
+  <!-- Load compiled TypeScript with cache-busting -->
+  <script>
+    // Force reload JS module by appending timestamp
+    const timestamp = new Date().getTime();
+    const script = document.createElement('script');
+    script.type = 'module';
+    script.src = '{% static "code_app/js/workspace.js" %}?v=2.1.1&t=' + timestamp;
+    document.currentScript.parentNode.insertBefore(script, document.currentScript.nextSibling);
+  </script>
+{% endblock %}
