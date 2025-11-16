@@ -6,6 +6,7 @@
         </title>
         {% include 'global_base_partials/global_head_meta.html' %}
         {% include 'global_base_partials/global_head_styles.html' %}
+        {% block head_extra %}{% endblock %}
         {% block extra_css %}{% endblock %}
     </head>
     <body data-user-authenticated="{% if user.is_authenticated %}true{% else %}false{% endif %}">

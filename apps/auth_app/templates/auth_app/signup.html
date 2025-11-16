@@ -17,8 +17,7 @@
                                     <div class="warning-banner-description">
                                         <ul class="mb-0" style="margin-left: 1rem">
                                             {% for field, errors in form.errors.items %}
-                                                {% for error in
-                                                    errors %}
+                                                {% for error in errors %}
                                                     <li>{{ error }}</li>
                                                 {% endfor %}
                                             {% endfor %}

@@ -54,7 +54,7 @@
 /* Header Container - Dark Mode with scattered dots (matches ecosystem) */
 [data-theme="dark"] .global-header {
   background-color: var(--scitex-color-01); /* Dark: #1a2332 */
-  border-bottom: 1px solid var(--scitex-color-01-light);
+  border-bottom: 1px solid var(--scitex-color-04); /* More visible border with accent color */
 }
 
 [data-theme="dark"] .global-header::before {
@@ -87,6 +87,8 @@
     70px 100px,
     150px 30px;
 }
+
+/* Icon color variables removed - no longer needed for Explore icon */
 
 /* Ensure header content stays above pattern */
 .global-header-inner {
@@ -162,9 +164,15 @@
   vertical-align: middle;
 }
 
-/* SVG icons inherit color from parent */
+/* SVG icons with currentColor inherit color from this */
 .nav-icon-svg {
-  color: var(--scitex-color-01); /* Dark in light mode */
+  color: var(--scitex-color-01); /* Dark navy in light mode */
+}
+
+/* Dark mode: Make SVG icons yellowish */
+[data-theme="dark"] .nav-icon-svg {
+  color: rgb(184, 164, 130); /* Warm yellowish to match other icons */
+  opacity: 0.9;
 }
 
 /* FontAwesome icons in light mode */
@@ -223,6 +231,8 @@
   filter: brightness(1.4) sepia(0.4) saturate(1.8) hue-rotate(180deg);
   opacity: 1;
 }
+
+/* Explore icon uses currentColor, inherits from .nav-icon-svg color */
 
 .header-logo i {
   font-size: 24px;

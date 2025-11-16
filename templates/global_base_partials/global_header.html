@@ -14,94 +14,72 @@
             </a>
             <!-- Primary Navigation -->
             <nav class="header-nav">
-                <!-- Repositories - Simple Hover Menu -->
-                <div class="header-dropdown-group">
-                    <span class="header-nav-item header-dropdown-toggle {% if 'explore' in request.path or user.username in request.path %}active{% endif %}">
+                <!-- Files - Direct link to user's repositories -->
+                {% if user.is_authenticated %}
+                    <a href="/{{ user.username }}/"
+                       class="header-nav-item {% if user.username in request.path and 'explore' not in request.path %}active{% endif %}"
+                       data-tooltip="Your repositories">
                         <i class="fas fa-book-open nav-icon-fa" style="font-size: 16px"></i>
-                        <span class="nav-label">Repositories</span>
-                    </span>
-                    <!-- Simple Hover Menu - Two Options -->
-                    <div id="explore-dropdown-menu"
-                         class="header-nav-dropdown"
-                         style="display: none">
-                        {% if user.is_authenticated %}
-                            <a href="/{{ user.username }}/" class="nav-dropdown-item">
-                                <i class="fas fa-user"
-                                   style="width: 14px;
-                                          margin-right: 8px;
-                                          text-align: center"></i>
-                                <span>Yours</span>
-                            </a>
-                        {% else %}
-                            <a href="/auth/signup/" class="nav-dropdown-item">
-                                <i class="fas fa-user"
-                                   style="width: 14px;
-                                          margin-right: 8px;
-                                          text-align: center"></i>
-                                <span>Yours</span>
-                                <span style="font-size: 10px;
-                                             color: var(--color-fg-muted);
-                                             margin-left: 4px">(Sign up)</span>
-                            </a>
-                        {% endif %}
-                        <a href="/social/explore/" class="nav-dropdown-item">
-                            <img src="{% static 'shared/images/scitex_logos/vectorstock/vectorstock_38853699-navy-inverted.svg' %}"
-                                 alt=""
-                                 style="width: 16px;
-                                        height: 16px;
-                                        margin-right: 8px;
-                                        opacity: 0.85" />
-                            <span>Others</span>
-                        </a>
-                    </div>
-                </div>
+                        <span class="nav-label">Files</span>
+                    </a>
+                {% else %}
+                    <a href="/auth/signup/"
+                       class="header-nav-item"
+                       data-tooltip="Sign up to manage your files">
+                        <i class="fas fa-book-open nav-icon-fa" style="font-size: 16px"></i>
+                        <span class="nav-label">Files</span>
+                    </a>
+                {% endif %}
                 {% comment %} Module links - All users now navigate to dedicated module
         endpoints: - /scholar/ - Scholar app with project selector - /code/ -
         Code module (project-centric via sessionStorage) - /viz/ - Viz module
         (project-centric via sessionStorage) - /writer/ - Writer module
                 (project-centric via sessionStorage) {% endcomment %}
-                <!-- Scholar Module with Dropdown -->
-                <div class="header-dropdown-group">
-                    <a href="/scholar/bibtex/"
-                       class="header-nav-item {% if 'scholar' in request.path %}active{% endif %}"
-                       data-tooltip="Citation Management">
-                        <img src="{% static 'shared/images/icons_svg/scitex-scholar-icon.svg' %}"
-                             alt=""
-                             class="nav-icon" />
-                        <span class="nav-label">Scholar</span>
-                    </a>
-                </div>
-                <span class="header-nav-item header-nav-item-disabled"
-                      data-tooltip="Code module coming soon">
+                <!-- Scholar Module -->
+                <a href="/scholar/bibtex/"
+                   class="header-nav-item {% if 'scholar' in request.path %}active{% endif %}"
+                   data-tooltip="Citation Management">
+                    <img src="{% static 'shared/images/icons_svg/scitex-scholar-icon.svg' %}"
+                         alt=""
+                         class="nav-icon" />
+                    <span class="nav-label">Scholar</span>
+                </a>
+                <a href="/code/"
+                   class="header-nav-item {% if 'code' in request.path %}active{% endif %}"
+                   data-tooltip="Code workspace">
                     <img src="{% static 'shared/images/icons_svg/scitex-code-icon.svg' %}"
                          alt=""
                          class="nav-icon" />
                     <span class="nav-label">Code</span>
-                </span>
-                <span class="header-nav-item header-nav-item-disabled"
-                      data-tooltip="Viz module coming soon">
+                </a>
+                <a href="/vis/"
+                   class="header-nav-item {% if 'vis' in request.path %}active{% endif %}"
+                   data-tooltip="Scientific Figure Editor">
                     <img src="{% static 'shared/images/icons_svg/scitex-viz-icon.svg' %}"
                          alt=""
                          class="nav-icon" />
-                    <span class="nav-label">Viz</span>
-                </span>
+                    <span class="nav-label">Vis</span>
+                </a>
                 <a href="/writer/"
                    class="header-nav-item {% if 'writer' in request.path %}active{% endif %}"
                    data-tooltip="Manuscript writing">
                     <i class="fas fa-pen-nib nav-icon-fa" style="font-size: 16px"></i>
                     <span class="nav-label">Writer</span>
                 </a>
-                <a href="/workspace/"
-                   class="header-nav-item {% if 'workspace' in request.path %}active{% endif %}"
-                   data-tooltip="Python workspace with scientific packages">
-                    <i class="fas fa-terminal nav-icon-fa" style="font-size: 16px"></i>
-                    <span class="nav-label">Workspace</span>
-                </a>
                 <a href="/tools/"
                    class="header-nav-item {% if 'tools' in request.path %}active{% endif %}"
                    data-tooltip="Research tools and bookmarklets">
                     <i class="fas fa-toolbox nav-icon-fa" style="font-size: 16px"></i>
                     <span class="nav-label">Tools</span>
+                </a>
+                <!-- Explore - Browse other users' work -->
+                <a href="/social/explore/"
+                   class="header-nav-item {% if 'explore' in request.path %}active{% endif %}"
+                   data-tooltip="Explore other users' work">
+                    <img src="{% static 'shared/images/icons_svg/scitex-explore-icon-v2.svg' %}"
+                         alt=""
+                         class="nav-icon-svg" />
+                    <span class="nav-label">Explore</span>
                 </a>
             </nav>
         </div>
@@ -110,7 +88,7 @@
             <!-- Project Dropdown Button -->
             <button id="project-selector-toggle"
                     class="project-selector-btn"
-                    title="{% if user.is_authenticated %}Switch projects (Alt+P){% else %}Current project{% endif %}">
+                    title="{% if user.is_authenticated %}Switch projects{% else %}Current project{% endif %}">
                 <span id="project-selector-text" class="project-selector-text">
                     {% if user.is_authenticated %}
                         {% if user.profile.last_active_repository %}
@@ -778,13 +756,8 @@
         }
       });
 
-      // Keyboard navigation: Alt+P to toggle project selector
-      document.addEventListener("keydown", function (e) {
-        if ((e.altKey || e.metaKey) && e.key === "p") {
-          e.preventDefault();
-          projectToggle.click();
-        }
-      });
+      // Keyboard navigation: Alt+P removed to avoid conflict with Emacs C-p/M-p
+      // Users can click the project selector button directly
 
       // Initialize current project info
       const selectedItem = document.querySelector(
