@@ -133,6 +133,22 @@ start_ssh_gateway() {
 start_ssh_gateway
 
 # ============================================
+# Start Gitea Auto-Sync Daemon (Background)
+# ============================================
+start_gitea_auto_sync() {
+    echo_info "Starting Gitea auto-sync daemon (interval: 15 min)..."
+    nohup python manage.py auto_sync_workspaces \
+        --daemon \
+        --interval 900 \
+        > /app/logs/auto-sync.log 2>&1 &
+    AUTO_SYNC_PID=$!
+    echo_success "Auto-sync daemon started (PID: $AUTO_SYNC_PID)"
+    echo "   Interval: 15 minutes (900s)"
+    echo "   Log: tail -f /app/logs/auto-sync.log"
+}
+start_gitea_auto_sync
+
+# ============================================
 # Start Application
 # ============================================
 echo "🚀 Starting development server..."

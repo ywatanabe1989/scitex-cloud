@@ -1,0 +1,13 @@
+# Cron job for automatic workspace backups
+# Runs every 5 minutes
+# Purpose: Disaster recovery - simple file-level snapshots (not Git)
+#
+# Install:
+#   sudo cp deployment/docker/common/cron/workspace-backups /etc/cron.d/
+#   sudo systemctl restart cron
+
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+# Run backup every 5 minutes
+*/5 * * * * root /app/scripts/backup_workspaces.sh >> /app/logs/workspace-backups.log 2>&1

@@ -10,7 +10,10 @@ Manages Docker containers for user computational workspaces.
 Handles container lifecycle: creation, starting, stopping, cleanup.
 """
 
-import docker
+try:
+    import docker
+except ImportError:
+    docker = None  # Optional dependency for container management
 import logging
 from typing import Optional, Tuple
 from django.contrib.auth.models import User
@@ -66,7 +69,7 @@ class UserContainerManager:
         # This matches the existing project data structure
         return f"/app/data/users/{user.username}"
 
-    def get_or_create_container(self, user: User) -> docker.models.containers.Container:
+    def get_or_create_container(self, user: User) -> "docker.models.containers.Container":
         """
         Get existing container or create new one
 
@@ -101,7 +104,7 @@ class UserContainerManager:
             logger.info(f"Creating new container for {user.username}")
             return self._create_container(user)
 
-    def _create_container(self, user: User) -> docker.models.containers.Container:
+    def _create_container(self, user: User) -> "docker.models.containers.Container":
         """
         Create new container for user
 
@@ -343,7 +346,7 @@ class UserContainerManager:
     def _update_workspace_state(
         self,
         user: User,
-        container: docker.models.containers.Container,
+        container: "docker.models.containers.Container",
         started: bool
     ):
         """Update UserWorkspace model with container state"""

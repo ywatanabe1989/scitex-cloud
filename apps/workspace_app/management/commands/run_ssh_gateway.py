@@ -56,19 +56,98 @@ class SSHGateway(paramiko.ServerInterface):
         Returns:
             paramiko.AUTH_SUCCESSFUL if authenticated, paramiko.AUTH_FAILED otherwise
         """
-        logger.info(f"Authentication attempt for user: {username}")
+        logger.info(f"Password authentication attempt for user: {username}")
         try:
             user = authenticate(username=username, password=password)
             if user and user.is_active:
                 self.user = user
                 self.username = username
-                logger.info(f"Authentication successful for user: {username}")
+                logger.info(f"Password authentication successful for user: {username}")
                 return paramiko.AUTH_SUCCESSFUL
         except Exception as e:
-            logger.error(f"Authentication error for user {username}: {e}")
+            logger.error(f"Password authentication error for user {username}: {e}")
 
-        logger.warning(f"Authentication failed for user: {username}")
+        logger.warning(f"Password authentication failed for user: {username}")
         return paramiko.AUTH_FAILED
+
+    def check_auth_publickey(self, username: str, key: paramiko.PKey) -> int:
+        """
+        Authenticate user against registered SSH public keys.
+
+        Args:
+            username: Username to authenticate
+            key: Public key provided by client
+
+        Returns:
+            paramiko.AUTH_SUCCESSFUL if authenticated, paramiko.AUTH_FAILED otherwise
+        """
+        logger.info(f"Public key authentication attempt for user: {username}")
+        try:
+            from django.contrib.auth import get_user_model
+            from apps.accounts_app.models import WorkspaceSSHKey
+            from apps.accounts_app.utils.ssh_key_validator import SSHKeyValidator
+            import base64
+
+            User = get_user_model()
+
+            # Find user by username
+            try:
+                user = User.objects.get(username=username, is_active=True)
+            except User.DoesNotExist:
+                logger.warning(f"User not found: {username}")
+                return paramiko.AUTH_FAILED
+
+            # Get the public key fingerprint from the provided key
+            # Convert paramiko key to OpenSSH format for fingerprint calculation
+            key_type = key.get_name()
+            key_data = key.get_base64()
+            provided_key_str = f"{key_type} {key_data}"
+
+            # Calculate fingerprint of provided key
+            provided_fingerprint = SSHKeyValidator.calculate_fingerprint(provided_key_str)
+
+            logger.debug(f"Provided key fingerprint: {provided_fingerprint}")
+
+            # Check if user has a matching public key
+            workspace_keys = WorkspaceSSHKey.objects.filter(
+                user=user, fingerprint=provided_fingerprint
+            )
+
+            if workspace_keys.exists():
+                # Update last used timestamp
+                workspace_key = workspace_keys.first()
+                from django.utils import timezone
+
+                workspace_key.last_used_at = timezone.now()
+                workspace_key.save(update_fields=["last_used_at"])
+
+                self.user = user
+                self.username = username
+                logger.info(
+                    f"Public key authentication successful for user: {username} (key: {workspace_key.title})"
+                )
+                return paramiko.AUTH_SUCCESSFUL
+
+            logger.warning(
+                f"Public key authentication failed for user: {username} (no matching key found)"
+            )
+            return paramiko.AUTH_FAILED
+
+        except Exception as e:
+            logger.error(f"Public key authentication error for user {username}: {e}", exc_info=True)
+            return paramiko.AUTH_FAILED
+
+    def get_allowed_auths(self, username: str) -> str:
+        """
+        Return allowed authentication methods.
+
+        Args:
+            username: Username requesting authentication
+
+        Returns:
+            Comma-separated list of allowed auth methods
+        """
+        return "publickey,password"
 
     def check_channel_request(self, kind: str, chanid: int) -> int:
         """

@@ -6,7 +6,14 @@
 from django.contrib import admin
 from django.contrib import messages
 from .models import UserWorkspace
-from .services import UserContainerManager
+
+# Temporarily disabled due to missing docker dependency
+try:
+    from .services import UserContainerManager
+    DOCKER_AVAILABLE = True
+except ImportError:
+    DOCKER_AVAILABLE = False
+    UserContainerManager = None
 
 
 @admin.register(UserWorkspace)
@@ -50,6 +57,10 @@ class UserWorkspaceAdmin(admin.ModelAdmin):
     @admin.action(description="Start selected user containers")
     def start_containers(self, request, queryset):
         """Start containers for selected users"""
+        if not DOCKER_AVAILABLE:
+            messages.error(request, "Docker support not available")
+            return
+
         manager = UserContainerManager()
         started = 0
         for workspace in queryset:
@@ -68,6 +79,10 @@ class UserWorkspaceAdmin(admin.ModelAdmin):
     @admin.action(description="Stop selected user containers")
     def stop_containers(self, request, queryset):
         """Stop containers for selected users"""
+        if not DOCKER_AVAILABLE:
+            messages.error(request, "Docker support not available")
+            return
+
         manager = UserContainerManager()
         stopped = 0
         for workspace in queryset.filter(is_running=True):
@@ -86,6 +101,10 @@ class UserWorkspaceAdmin(admin.ModelAdmin):
     @admin.action(description="Remove selected user containers")
     def remove_containers(self, request, queryset):
         """Remove containers for selected users (WARNING: Data persists but container removed)"""
+        if not DOCKER_AVAILABLE:
+            messages.error(request, "Docker support not available")
+            return
+
         manager = UserContainerManager()
         removed = 0
         for workspace in queryset:
@@ -104,6 +123,10 @@ class UserWorkspaceAdmin(admin.ModelAdmin):
     @admin.action(description="Cleanup idle containers (30+ min)")
     def cleanup_idle(self, request, queryset):
         """Stop containers idle for 30+ minutes"""
+        if not DOCKER_AVAILABLE:
+            messages.error(request, "Docker support not available")
+            return
+
         manager = UserContainerManager()
         stopped = manager.cleanup_idle_containers(idle_minutes=30)
         messages.success(request, f"Stopped {stopped} idle container(s)")
