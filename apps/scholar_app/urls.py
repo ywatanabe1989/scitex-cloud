@@ -1,15 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-10-22 19:15:37 (ywatanabe)"
+# Timestamp: "2025-11-16 18:41:37 (ywatanabe)"
 # File: /home/ywatanabe/proj/scitex-cloud/apps/scholar_app/urls.py
-# ----------------------------------------
-from __future__ import annotations
-import os
 
-__FILE__ = "./apps/scholar_app/urls.py"
-__DIR__ = os.path.dirname(__FILE__)
-# ----------------------------------------
-from django.urls import path, include
+
+from django.urls import path
+from django.urls import include
 from rest_framework.routers import DefaultRouter
 from .views.search import views as search_views
 from .views.bibtex import views as bibtex_views
@@ -27,12 +23,18 @@ app_name = "scholar_app"
 # Repository API Router
 router = DefaultRouter()
 router.register(
-    r"repositories", repository_views.RepositoryViewSet, basename="repositories"
+    r"repositories",
+    repository_views.RepositoryViewSet,
+    basename="repositories",
 )
 router.register(
-    r"connections", repository_views.RepositoryConnectionViewSet, basename="connections"
+    r"connections",
+    repository_views.RepositoryConnectionViewSet,
+    basename="connections",
 )
-router.register(r"datasets", repository_views.DatasetViewSet, basename="datasets")
+router.register(
+    r"datasets", repository_views.DatasetViewSet, basename="datasets"
+)
 
 urlpatterns = [
     # Default workspace for logged-in users without project
@@ -57,7 +59,9 @@ urlpatterns = [
         "api/papers/save/", search_views.save_paper, name="papers_save"
     ),  # RESTful endpoint
     path(
-        "api/papers/save-bulk/", search_views.save_papers_bulk, name="papers_save_bulk"
+        "api/papers/save-bulk/",
+        search_views.save_papers_bulk,
+        name="papers_save_bulk",
     ),  # Bulk save endpoint
     path("api/upload-file/", search_views.upload_file, name="upload_file"),
     path("api/get-citation/", search_views.get_citation, name="get_citation"),
@@ -80,7 +84,11 @@ urlpatterns = [
     # API Key Management endpoints
     path("api-keys/", api_key_views.api_key_management, name="api_keys"),
     path("api/test-api-key/", api_key_views.test_api_key, name="test_api_key"),
-    path("api/usage-stats/", api_key_views.api_usage_stats, name="api_usage_stats"),
+    path(
+        "api/usage-stats/",
+        api_key_views.api_usage_stats,
+        name="api_usage_stats",
+    ),
     # Saved Search API endpoints
     path("api/save-search/", search_views.save_search, name="save_search"),
     path(
@@ -99,26 +107,44 @@ urlpatterns = [
         name="run_saved_search",
     ),
     # Progressive search API endpoints
-    path("api/search/arxiv/", search_views.api_search_arxiv, name="api_search_arxiv"),
     path(
-        "api/search/pubmed/", search_views.api_search_pubmed, name="api_search_pubmed"
+        "api/search/arxiv/",
+        search_views.api_search_arxiv,
+        name="api_search_arxiv",
+    ),
+    path(
+        "api/search/pubmed/",
+        search_views.api_search_pubmed,
+        name="api_search_pubmed",
     ),
     path(
         "api/search/semantic/",
         search_views.api_search_semantic,
         name="api_search_semantic",
     ),
-    path("api/search/pmc/", search_views.api_search_pmc, name="api_search_pmc"),
-    path("api/search/doaj/", search_views.api_search_doaj, name="api_search_doaj"),
+    path(
+        "api/search/pmc/", search_views.api_search_pmc, name="api_search_pmc"
+    ),
+    path(
+        "api/search/doaj/",
+        search_views.api_search_doaj,
+        name="api_search_doaj",
+    ),
     path(
         "api/search/biorxiv/",
         search_views.api_search_biorxiv,
         name="api_search_biorxiv",
     ),
-    path("api/search/plos/", search_views.api_search_plos, name="api_search_plos"),
+    path(
+        "api/search/plos/",
+        search_views.api_search_plos,
+        name="api_search_plos",
+    ),
     # SciTeX integrated search endpoints
     path(
-        "api/search/scitex/", scitex_search.api_scitex_search, name="api_scitex_search"
+        "api/search/scitex/",
+        scitex_search.api_scitex_search,
+        name="api_scitex_search",
     ),
     path(
         "api/search/scitex/single/",
@@ -131,9 +157,15 @@ urlpatterns = [
         name="api_scitex_capabilities",
     ),
     # Citation Export endpoints
-    path("api/export/bibtex/", export_views.export_bibtex, name="export_bibtex"),
+    path(
+        "api/export/bibtex/", export_views.export_bibtex, name="export_bibtex"
+    ),
     path("api/export/ris/", export_views.export_ris, name="export_ris"),
-    path("api/export/endnote/", export_views.export_endnote, name="export_endnote"),
+    path(
+        "api/export/endnote/",
+        export_views.export_endnote,
+        name="export_endnote",
+    ),
     path("api/export/csv/", export_views.export_csv, name="export_csv"),
     path(
         "api/export/bulk/",
@@ -242,13 +274,19 @@ urlpatterns = [
     ),
     # BibTeX Enrichment
     path(
-        "bibtex/enrichment/", bibtex_views.bibtex_enrichment, name="bibtex_enrichment"
+        "bibtex/enrichment/",
+        bibtex_views.bibtex_enrichment,
+        name="bibtex_enrichment",
     ),
-    path("bibtex/preview/", bibtex_views.bibtex_preview, name="bibtex_preview"),
+    path(
+        "bibtex/preview/", bibtex_views.bibtex_preview, name="bibtex_preview"
+    ),
     path("bibtex/upload/", bibtex_views.bibtex_upload, name="bibtex_upload"),
     # Simple synchronous API endpoint
     path(
-        "api/bibtex/enrich/", bibtex_views.bibtex_enrich_sync, name="bibtex_enrich_sync"
+        "api/bibtex/enrich/",
+        bibtex_views.bibtex_enrich_sync,
+        name="bibtex_enrich_sync",
     ),
     path(
         "bibtex/job/<uuid:job_id>/",
@@ -307,7 +345,11 @@ urlpatterns = [
         name="bibtex_resource_status",
     ),
     # Legacy mock endpoints
-    path("api/mock/save-paper/", search_views.mock_save_paper, name="mock_save_paper"),
+    path(
+        "api/mock/save-paper/",
+        search_views.mock_save_paper,
+        name="mock_save_paper",
+    ),
     path(
         "api/mock/get-citation/",
         search_views.mock_get_citation,

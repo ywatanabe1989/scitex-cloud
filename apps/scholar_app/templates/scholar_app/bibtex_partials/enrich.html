@@ -97,6 +97,7 @@
                   action="{% url 'scholar_app:bibtex_upload' %}"
                   enctype="multipart/form-data">
                 {% csrf_token %}
+                {% include "scholar_app/search_partials/asta_tooltip.html" %}
                 <!-- File Upload with instructions inside -->
                 <div class="u-mb-1_5">
                     <div id="dropZone" class="u-upload-zone">
@@ -127,7 +128,6 @@
                                class="u-upload-input">
                     </div>
                 </div>
-                {% include "scholar_app/search_partials/asta_tooltip.html" %}
                 <!-- Download and Save Actions -->
                 <div id="downloadArea"
                      style="display: flex;
