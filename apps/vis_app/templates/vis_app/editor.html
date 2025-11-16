@@ -184,11 +184,46 @@
                             </svg>
                         </button>
                     </div>
+                    <!-- Alignment tools -->
+                    <div class="header-control-group">
+                        <label class="header-label">Align:</label>
+                        <button class="btn-icon" id="align-left-btn" title="Align Left">
+                            <i class="fas fa-align-left"></i>
+                        </button>
+                        <button class="btn-icon" id="align-center-btn" title="Align Center">
+                            <i class="fas fa-align-center"></i>
+                        </button>
+                        <button class="btn-icon" id="align-right-btn" title="Align Right">
+                            <i class="fas fa-align-right"></i>
+                        </button>
+                        <button class="btn-icon" id="align-top-btn" title="Align Top">
+                            <i class="fas fa-long-arrow-alt-up"></i>
+                        </button>
+                        <button class="btn-icon" id="align-middle-btn" title="Align Middle">
+                            <i class="fas fa-arrows-alt-v"></i>
+                        </button>
+                        <button class="btn-icon" id="align-bottom-btn" title="Align Bottom">
+                            <i class="fas fa-long-arrow-alt-down"></i>
+                        </button>
+                    </div>
+                    <!-- Distribute tools -->
+                    <div class="header-control-group">
+                        <label class="header-label">Distribute:</label>
+                        <button class="btn-icon" id="distribute-h-btn" title="Distribute Horizontally">
+                            <i class="fas fa-arrows-alt-h"></i>
+                        </button>
+                        <button class="btn-icon" id="distribute-v-btn" title="Distribute Vertically">
+                            <i class="fas fa-arrows-alt-v"></i>
+                        </button>
+                    </div>
                     <!-- Zoom controls -->
                     <div class="header-control-group">
                         <span id="zoom-level" class="zoom-display" title="Zoom level (Ctrl+Scroll to zoom)">100%</span>
                         <button class="btn-icon" id="zoom-fit" title="Fit to Window (0)">
                             <i class="fas fa-compress-arrows-alt"></i>
+                        </button>
+                        <button class="btn-icon" id="shortcuts-btn" title="Keyboard Shortcuts (?)">
+                            <i class="fas fa-keyboard"></i>
                         </button>
                     </div>
                     <!-- Journal preset moved to top bar -->
@@ -277,6 +312,14 @@
                 <span class="hint-item">
                     <kbd>Ctrl+D</kbd> Duplicate
                 </span>
+                <span class="hint-separator">|</span>
+                <span class="hint-item">
+                    <kbd>Ctrl+G</kbd> Group
+                </span>
+                <span class="hint-separator">|</span>
+                <span class="hint-item">
+                    <kbd>Ctrl+Shift+G</kbd> Ungroup
+                </span>
             </div>
             <span id="canvas-zoom">100%</span>
         </div>
@@ -363,6 +406,110 @@
             </div>
             <div id="versions-list" class="versions-list">
                 <p class="text-muted">Loading versions...</p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary modal-close">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- Keyboard Shortcuts Modal -->
+<div id="keyboard-shortcuts-modal" class="modal" style="display: none;">
+    <div class="modal-content" style="max-width: 700px;">
+        <div class="modal-header">
+            <h2>Keyboard Shortcuts</h2>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="shortcuts-grid">
+                <div class="shortcuts-section">
+                    <h3>Selection</h3>
+                    <div class="shortcut-row">
+                        <kbd>Alt+Click</kbd>
+                        <span>Select from overlapping objects</span>
+                    </div>
+                    <div class="shortcut-row">
+                        <kbd>Shift+Click</kbd>
+                        <span>Multi-select</span>
+                    </div>
+                </div>
+
+                <div class="shortcuts-section">
+                    <h3>Editing</h3>
+                    <div class="shortcut-row">
+                        <kbd>Ctrl+D</kbd>
+                        <span>Duplicate</span>
+                    </div>
+                    <div class="shortcut-row">
+                        <kbd>Del</kbd> / <kbd>Backspace</kbd>
+                        <span>Delete</span>
+                    </div>
+                    <div class="shortcut-row">
+                        <kbd>Ctrl+Z</kbd>
+                        <span>Undo</span>
+                    </div>
+                    <div class="shortcut-row">
+                        <kbd>Ctrl+Y</kbd>
+                        <span>Redo</span>
+                    </div>
+                </div>
+
+                <div class="shortcuts-section">
+                    <h3>Grouping</h3>
+                    <div class="shortcut-row">
+                        <kbd>Ctrl+G</kbd>
+                        <span>Group objects</span>
+                    </div>
+                    <div class="shortcut-row">
+                        <kbd>Ctrl+Shift+G</kbd>
+                        <span>Ungroup</span>
+                    </div>
+                    <div class="shortcut-row">
+                        <kbd>Enter</kbd>
+                        <span>Enter group (edit contents)</span>
+                    </div>
+                </div>
+
+                <div class="shortcuts-section">
+                    <h3>Layer Order</h3>
+                    <div class="shortcut-row">
+                        <kbd>Ctrl+]</kbd>
+                        <span>Bring forward</span>
+                    </div>
+                    <div class="shortcut-row">
+                        <kbd>Ctrl+[</kbd>
+                        <span>Send backward</span>
+                    </div>
+                </div>
+
+                <div class="shortcuts-section">
+                    <h3>View</h3>
+                    <div class="shortcut-row">
+                        <kbd>+</kbd> / <kbd>=</kbd>
+                        <span>Zoom in</span>
+                    </div>
+                    <div class="shortcut-row">
+                        <kbd>-</kbd>
+                        <span>Zoom out</span>
+                    </div>
+                    <div class="shortcut-row">
+                        <kbd>0</kbd>
+                        <span>Fit to window</span>
+                    </div>
+                    <div class="shortcut-row">
+                        <kbd>Ctrl+Scroll</kbd>
+                        <span>Zoom in/out</span>
+                    </div>
+                </div>
+
+                <div class="shortcuts-section">
+                    <h3>Save & Export</h3>
+                    <div class="shortcut-row">
+                        <kbd>Ctrl+S</kbd>
+                        <span>Save figure</span>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="modal-footer">

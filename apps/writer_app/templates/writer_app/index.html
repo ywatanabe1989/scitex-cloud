@@ -27,6 +27,8 @@
           href="{% static 'writer_app/css/components/status-lamp.css' %}?v={{ request.timestamp|default:'1' }}" />
     <link rel="stylesheet"
           href="{% static 'writer_app/css/components/shortcuts-modal.css' %}?v={{ request.timestamp|default:'1' }}" />
+    <link rel="stylesheet"
+          href="{% static 'shared/css/collaboration/collaboration.css' %}?v={{ request.timestamp|default:'1' }}" />
     {% include "writer_app/index_partials/codemirror_css.html" %}
 {% endblock %}
 {% block writer_content %}
