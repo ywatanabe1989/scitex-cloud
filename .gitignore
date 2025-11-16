@@ -26,6 +26,13 @@ tmp/*.sh
 rename_without_duplication.sh
 SCITEX_CLOUD_DJANGO_SETTINGS_MODULE
 
+# Code workspace temporary files
+.scratch_temp.py
+*scratch_temp*
+
+# SSH keys directory (user-specific)
+ssh_keys/
+
 # old directories as trash bin
 *old*
 **/*old*
