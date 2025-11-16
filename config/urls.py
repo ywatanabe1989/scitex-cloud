@@ -111,7 +111,7 @@ urlpatterns = [
     # Main Modules
     path("scholar/", include(("apps.scholar_app.urls", "scholar_app"))),
     path("code/", include(("apps.code_app.urls", "code_app"))),
-    path("viz/", include(("apps.viz_app.urls", "viz_app"))),
+    path("vis/", include(("apps.vis_app.urls", "vis"))),
     path("writer/", include(("apps.writer_app.urls", "writer_app"))),
     path("workspace/", include(("apps.workspace_app.urls", "workspace_app"))),
     # Deveopment

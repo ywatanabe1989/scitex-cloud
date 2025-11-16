@@ -1,0 +1,319 @@
+{% extends 'global_base.html' %}
+{% load static %}
+
+{% block title %}Vis - Scientific Figure Editor | SciTeX{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'vis_app/css/vis.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="vis-container">
+    <!-- Left Toolbar - Compact (Tools Only) -->
+    <div class="vis-toolbar">
+        <div class="toolbar-section">
+            <h3 class="toolbar-title">Annotate</h3>
+            <button class="tool-btn-compact" data-tool="text" title="Text (T)">
+                <i class="fas fa-font"></i>
+                <span class="toolbar-label">Text</span>
+            </button>
+            <button class="tool-btn-compact" data-tool="significance" title="Significance (***)">
+                <i class="fas fa-asterisk"></i>
+                <span class="toolbar-label">***</span>
+            </button>
+            <button class="tool-btn-compact" data-tool="scalebar" title="Scale Bar (S)">
+                <i class="fas fa-ruler-horizontal"></i>
+                <span class="toolbar-label">Scale</span>
+            </button>
+            <button class="tool-btn-compact" data-tool="arrow" title="Arrow (A)">
+                <i class="fas fa-arrow-right"></i>
+                <span class="toolbar-label">Arrow</span>
+            </button>
+        </div>
+
+        <div class="toolbar-section">
+            <h3 class="toolbar-title">Shapes</h3>
+            <button class="tool-btn-compact" data-tool="rect-white" title="White Rect (W)">
+                <i class="fas fa-square"></i>
+                <span class="toolbar-label">White</span>
+            </button>
+            <button class="tool-btn-compact" data-tool="rect-black" title="Black Rect">
+                <i class="fas fa-square" style="color: #000;"></i>
+                <span class="toolbar-label">Black</span>
+            </button>
+            <button class="tool-btn-compact" data-tool="line" title="Line (L)">
+                <i class="fas fa-minus"></i>
+                <span class="toolbar-label">Line</span>
+            </button>
+        </div>
+
+        <div class="toolbar-section">
+            <h3 class="toolbar-title">Colors</h3>
+            <div class="color-palette">
+                <button class="color-swatch" data-color="rgb(0,128,192)" style="background: rgb(0,128,192);" title="Blue"></button>
+                <button class="color-swatch" data-color="rgb(255,70,50)" style="background: rgb(255,70,50);" title="Red"></button>
+                <button class="color-swatch" data-color="rgb(255,150,200)" style="background: rgb(255,150,200);" title="Pink"></button>
+                <button class="color-swatch" data-color="rgb(20,180,20)" style="background: rgb(20,180,20);" title="Green"></button>
+                <button class="color-swatch" data-color="rgb(230,160,20)" style="background: rgb(230,160,20);" title="Yellow"></button>
+                <button class="color-swatch" data-color="rgb(128,128,128)" style="background: rgb(128,128,128);" title="Gray"></button>
+                <button class="color-swatch" data-color="rgb(200,50,255)" style="background: rgb(200,50,255);" title="Purple"></button>
+                <button class="color-swatch" data-color="rgb(20,200,200)" style="background: rgb(20,200,200);" title="Cyan"></button>
+                <button class="color-swatch" data-color="rgb(128,0,0)" style="background: rgb(128,0,0);" title="Brown"></button>
+                <button class="color-swatch" data-color="rgb(0,0,100)" style="background: rgb(0,0,100);" title="Navy"></button>
+                <button class="color-swatch" data-color="rgb(228,94,50)" style="background: rgb(228,94,50);" title="Orange"></button>
+                <button class="color-swatch" data-color="rgb(0,0,0)" style="background: rgb(0,0,0);" title="Black"></button>
+                <button class="color-swatch" data-color="rgb(255,255,255)" style="background: rgb(255,255,255); border: 1px solid #ccc;" title="White"></button>
+            </div>
+        </div>
+
+        <div class="toolbar-section">
+            <h3 class="toolbar-title">Reference</h3>
+            <button class="tool-btn-compact" data-tool="ref-small" title="Small Size Reference">
+                <i class="fas fa-square"></i>
+                <span class="toolbar-label">Small</span>
+            </button>
+            <button class="tool-btn-compact" data-tool="ref-medium" title="Medium Size Reference">
+                <i class="fas fa-square"></i>
+                <span class="toolbar-label">Medium</span>
+            </button>
+            <button class="tool-btn-compact" data-tool="ref-large" title="Large Size Reference">
+                <i class="fas fa-square"></i>
+                <span class="toolbar-label">Large</span>
+            </button>
+            <button class="tool-btn-compact" data-tool="ref-col-single" title="Single Column (Blue Level 1)" style="color: rgb(0,128,192);">
+                <i class="fas fa-rectangle-wide"></i>
+                <span class="toolbar-label">1 Col</span>
+            </button>
+            <button class="tool-btn-compact" data-tool="ref-col-1.5" title="1.5 Column (Blue Level 2)" style="color: rgba(0,128,192,0.7);">
+                <i class="fas fa-rectangle-wide"></i>
+                <span class="toolbar-label">1.5 Col</span>
+            </button>
+            <button class="tool-btn-compact" data-tool="ref-col-double" title="Double Column (Blue Level 3)" style="color: rgba(0,128,192,0.5);">
+                <i class="fas fa-rectangle-wide"></i>
+                <span class="toolbar-label">2 Col</span>
+            </button>
+            <button class="tool-btn-compact" data-tool="ref-col-full" title="Full Page (Blue Level 4)" style="color: rgba(0,128,192,0.3);">
+                <i class="fas fa-rectangle-wide"></i>
+                <span class="toolbar-label">Full</span>
+            </button>
+        </div>
+
+        <div class="toolbar-section">
+            <h3 class="toolbar-title">Labels</h3>
+            <select id="label-style" class="toolbar-select" title="Label case">
+                <option value="uppercase">A, B, C</option>
+                <option value="lowercase">a, b, c</option>
+                <option value="numbers">1, 2, 3</option>
+            </select>
+            <select id="label-order" class="toolbar-select" title="Label order">
+                <option value="horizontal">Horizontal</option>
+                <option value="vertical">Vertical</option>
+                <option value="original">Original</option>
+                <option value="custom">Custom</option>
+            </select>
+        </div>
+
+        <div class="toolbar-section">
+            <h3 class="toolbar-title">View</h3>
+            <label class="toolbar-checkbox">
+                <input type="checkbox" id="ruler-toggle" checked>
+                <span>Ruler</span>
+            </label>
+            <select id="ruler-unit" class="toolbar-select-sm">
+                <option value="mm">mm</option>
+                <option value="inches">in</option>
+            </select>
+            <label class="toolbar-checkbox">
+                <input type="checkbox" id="grid-toggle" checked>
+                <span>Grid</span>
+            </label>
+            <label class="toolbar-checkbox">
+                <input type="checkbox" id="snap-toggle" checked>
+                <span>Snap</span>
+            </label>
+            <label class="toolbar-checkbox">
+                <input type="checkbox" id="crosshair-toggle">
+                <span>Crosshair</span>
+            </label>
+            <label class="toolbar-checkbox">
+                <input type="checkbox" id="dark-canvas-toggle">
+                <span>Dark</span>
+            </label>
+        </div>
+
+    </div>
+
+    <!-- Main Canvas Area -->
+    <div class="vis-main">
+        <div class="vis-header">
+            <div class="vis-header-info">
+                <h1 class="vis-title">Figure Editor</h1>
+                <div class="vis-header-controls">
+                    <!-- Panel Controls (Emacs-style) -->
+                    <div class="header-control-group">
+                        <label class="header-label">Panels:</label>
+                        <button class="btn-icon" id="split-horizontal" title="Split Horizontal (Ctrl+X 3)">
+                            <i class="fas fa-grip-horizontal"></i>
+                        </button>
+                        <button class="btn-icon" id="split-vertical" title="Split Vertical (Ctrl+X 2)">
+                            <i class="fas fa-grip-vertical"></i>
+                        </button>
+                        <button class="btn-icon" id="remove-panel" title="Remove Panel (Ctrl+X 0)">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <button class="btn-icon" id="reset-layout" title="Reset to Single Panel">
+                            <i class="fas fa-th-large"></i>
+                        </button>
+                    </div>
+                    <!-- Quick Layout Presets -->
+                    <div class="header-control-group">
+                        <label class="header-label">Quick:</label>
+                        <button class="layout-icon-btn-header" data-layout="2x2" title="2×2">
+                            <svg viewBox="0 0 16 16" width="14" height="14">
+                                <rect x="1" y="1" width="6" height="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                                <rect x="9" y="1" width="6" height="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                                <rect x="1" y="9" width="6" height="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                                <rect x="9" y="9" width="6" height="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                            </svg>
+                        </button>
+                        <button class="layout-icon-btn-header" data-layout="1x3" title="1×3">
+                            <svg viewBox="0 0 16 16" width="14" height="14">
+                                <rect x="1" y="1" width="4" height="14" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                                <rect x="6" y="1" width="4" height="14" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                                <rect x="11" y="1" width="4" height="14" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <!-- Zoom controls -->
+                    <div class="header-control-group">
+                        <span id="zoom-level" class="zoom-display" title="Zoom level (Ctrl+Scroll to zoom)">100%</span>
+                        <button class="btn-icon" id="zoom-fit" title="Fit to Window (0)">
+                            <i class="fas fa-compress-arrows-alt"></i>
+                        </button>
+                    </div>
+                    <!-- Journal preset moved to top bar -->
+                    <div class="header-control-group">
+                        <label class="header-label">Journal:</label>
+                        <select id="journal-preset-header" class="header-select">
+                            <option value="">Custom</option>
+                            {% for preset in journal_presets %}
+                            <option value="{{ preset.id }}">{{ preset.name }} {{ preset.get_column_type_display }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <!-- Canvas info -->
+                    <div class="header-control-group">
+                        <span class="vis-meta-item">
+                            <i class="fas fa-ruler"></i>
+                            <span id="canvas-size">89mm × 60mm</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="vis-header-actions">
+                <button class="btn btn-secondary btn-sm" id="undo-btn" title="Undo (Ctrl+Z)" disabled>
+                    <i class="fas fa-undo"></i>
+                </button>
+                <button class="btn btn-secondary btn-sm" id="redo-btn" title="Redo (Ctrl+Y)" disabled>
+                    <i class="fas fa-redo"></i>
+                </button>
+                <button class="btn btn-secondary" id="save-btn" title="Auto-save enabled">
+                    <i class="fas fa-save"></i>
+                    Save
+                </button>
+                <button class="btn btn-primary btn-export" id="export-png" title="Export as PNG (300 DPI, white background)">
+                    <i class="fas fa-download"></i>
+                    Export PNG
+                </button>
+                <button class="btn btn-primary btn-export" id="export-tiff" title="Export as TIFF (300 DPI, publication quality)" style="background: #238636;">
+                    <i class="fas fa-file-image"></i>
+                    Export TIFF
+                </button>
+            </div>
+        </div>
+
+        <div class="vis-canvas-wrapper">
+            <!-- Rulers -->
+            <div class="vis-rulers-area">
+                <div class="ruler-corner"></div>
+                <svg class="ruler ruler-horizontal" id="ruler-horizontal"></svg>
+                <svg class="ruler ruler-vertical" id="ruler-vertical"></svg>
+                <div class="vis-canvas-container">
+                    <canvas id="vis-canvas"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="vis-status-bar">
+            <span id="status-message">Ready</span>
+            <div id="dark-canvas-warning" class="dark-canvas-warning" style="display: none;">
+                <i class="fas fa-eye"></i>
+                <span>Dark canvas for viewing comfort - Export will be WHITE background</span>
+            </div>
+            <div class="keyboard-hints">
+                <span class="hint-item" title="Alt+Click to select from overlapping objects">
+                    <kbd>Alt+Click</kbd> Select overlapping
+                </span>
+                <span class="hint-separator">|</span>
+                <span class="hint-item">
+                    <kbd>Ctrl+Z</kbd> Undo
+                </span>
+                <span class="hint-separator">|</span>
+                <span class="hint-item">
+                    <kbd>Ctrl+D</kbd> Duplicate
+                </span>
+            </div>
+            <span id="canvas-zoom">100%</span>
+        </div>
+    </div>
+
+    <!-- Right Properties Panel -->
+    <div class="vis-properties">
+        <h3 class="properties-title">Properties</h3>
+        <div id="properties-content" class="properties-content">
+            <p class="properties-empty">Select an object to edit properties</p>
+        </div>
+    </div>
+</div>
+
+<!-- New Figure Modal -->
+<div id="new-figure-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Create New Figure</h2>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="new-figure-form" method="post" action="{% url 'vis:create_figure' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="figure-title">Title</label>
+                    <input type="text" id="figure-title" name="title" class="form-control" placeholder="Untitled Figure" required>
+                </div>
+                <div class="form-group">
+                    <label for="figure-layout">Initial Layout</label>
+                    <select id="figure-layout" name="layout" class="form-control">
+                        <option value="1x1">Single Panel (1×1)</option>
+                        <option value="2x1">Two Horizontal (2×1)</option>
+                        <option value="1x2">Two Vertical (1×2)</option>
+                        <option value="2x2" selected>Four Panels (2×2)</option>
+                        <option value="1x3">Three Horizontal (1×3)</option>
+                        <option value="3x1">Three Vertical (3×1)</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary modal-close">Cancel</button>
+            <button type="submit" form="new-figure-form" class="btn btn-primary">Create Figure</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Load Fabric.js from CDN first -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
+<!-- Load our editor (no module type needed, uses global fabric) -->
+<script src="{% static 'vis_app/js/editor.js' %}"></script>
+{% endblock %}
