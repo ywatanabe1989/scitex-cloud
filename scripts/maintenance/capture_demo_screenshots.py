@@ -35,8 +35,8 @@ from scitex.browser import fill_with_fallbacks_async, click_with_fallbacks_async
 # ============================================================================
 
 BASE_URL = "http://127.0.0.1:8000"
-TEST_USER = "ywatanabe"
-TEST_PASSWORD = "REDACTED"
+TEST_USER = "test-user"
+TEST_PASSWORD = "Password1234!"
 
 # Pages to capture after login
 PAGES_TO_CAPTURE = [
