@@ -69,10 +69,10 @@ class ProjectFilesystemManager:
         """
         Get the base directory path for the user.
 
-        Structure: ./data/users/{username}/
-        All projects go directly under this directory.
+        Structure: ./data/users/{username}/proj/
+        All projects go under the proj subdirectory.
         """
-        return Path(settings.BASE_DIR) / "data" / "users" / self.user.username
+        return Path(settings.BASE_DIR) / "data" / "users" / self.user.username / "proj"
 
     def _ensure_directory(self, path: Path) -> bool:
         """Ensure a directory exists, create if it doesn't."""

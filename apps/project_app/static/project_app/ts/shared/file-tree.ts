@@ -1,6 +1,6 @@
 /**
  * Shared File Tree Module
- * Provides reusable file tree building and interaction functionality
+ * Provides reusable file tree building and interaction functionality with colorful icons
  * Corresponds to: Used across multiple pages with file tree sidebars
  */
 
@@ -15,6 +15,102 @@ export interface TreeItem {
   children?: TreeItem[];
   is_symlink?: boolean;
   symlink_target?: string;
+}
+
+/**
+ * Get colorful file icon based on extension (VS Code style)
+ */
+function getColorfulFileIcon(fileName: string): string {
+  const ext = fileName.substring(fileName.lastIndexOf('.')).toLowerCase();
+  const name = fileName.toLowerCase();
+
+  // Comprehensive icon map (Gitea-inspired)
+  const iconMap: { [key: string]: { icon: string, color: string } } = {
+    // Programming languages
+    '.py': { icon: 'fab fa-python', color: '#3776ab' },
+    '.js': { icon: 'fab fa-js', color: '#f7df1e' },
+    '.ts': { icon: 'fab fa-js', color: '#3178c6' },
+    '.jsx': { icon: 'fab fa-react', color: '#61dafb' },
+    '.tsx': { icon: 'fab fa-react', color: '#61dafb' },
+    '.java': { icon: 'fab fa-java', color: '#007396' },
+    '.go': { icon: 'fas fa-code', color: '#00add8' },
+    '.rs': { icon: 'fas fa-gear', color: '#ce422b' },
+    '.c': { icon: 'fas fa-file-code', color: '#555555' },
+    '.cpp': { icon: 'fas fa-file-code', color: '#f34b7d' },
+
+    // Web
+    '.html': { icon: 'fab fa-html5', color: '#e34c26' },
+    '.css': { icon: 'fab fa-css3-alt', color: '#264de4' },
+    '.scss': { icon: 'fab fa-sass', color: '#cc6699' },
+
+    // Data & Config
+    '.json': { icon: 'fas fa-brackets-curly', color: '#ffa500' },
+    '.yaml': { icon: 'fas fa-file-code', color: '#cb171e' },
+    '.yml': { icon: 'fas fa-file-code', color: '#cb171e' },
+    '.toml': { icon: 'fas fa-file-code', color: '#9c4121' },
+    '.xml': { icon: 'fas fa-file-code', color: '#e37933' },
+    '.csv': { icon: 'fas fa-table', color: '#217346' },
+
+    // Documentation
+    '.md': { icon: 'fab fa-markdown', color: '#000000' },
+    '.txt': { icon: 'fas fa-file-alt', color: '#777777' },
+    '.pdf': { icon: 'fas fa-file-pdf', color: '#ff0000' },
+
+    // Scripts & Shell
+    '.sh': { icon: 'fas fa-terminal', color: '#89e051' },
+    '.bash': { icon: 'fas fa-terminal', color: '#89e051' },
+
+    // Data Science
+    '.r': { icon: 'fab fa-r-project', color: '#276dc3' },
+    '.ipynb': { icon: 'fas fa-book', color: '#ff6f00' },
+    '.sql': { icon: 'fas fa-database', color: '#e38c00' },
+
+    // Images
+    '.jpg': { icon: 'fas fa-image', color: '#00bfa5' },
+    '.jpeg': { icon: 'fas fa-image', color: '#00bfa5' },
+    '.png': { icon: 'fas fa-image', color: '#00bfa5' },
+    '.gif': { icon: 'fas fa-image', color: '#00bfa5' },
+    '.svg': { icon: 'fas fa-image', color: '#ffb300' },
+    '.webp': { icon: 'fas fa-image', color: '#00bfa5' },
+
+    // Archives
+    '.zip': { icon: 'fas fa-file-archive', color: '#8b8b8b' },
+    '.tar': { icon: 'fas fa-file-archive', color: '#8b8b8b' },
+    '.gz': { icon: 'fas fa-file-archive', color: '#8b8b8b' },
+
+    // Others
+    '.tex': { icon: 'fas fa-file-alt', color: '#3d6117' },
+    '.log': { icon: 'fas fa-file-lines', color: '#777777' },
+    '.env': { icon: 'fas fa-cog', color: '#edb92e' },
+  };
+
+  // Special file names (like Gitea)
+  const specialFiles: { [key: string]: { icon: string, color: string } } = {
+    'readme.md': { icon: 'fas fa-book', color: '#00b0ff' },
+    'readme': { icon: 'fas fa-book', color: '#00b0ff' },
+    'license': { icon: 'fas fa-scroll', color: '#ffab00' },
+    'dockerfile': { icon: 'fab fa-docker', color: '#2496ed' },
+    'makefile': { icon: 'fas fa-cog', color: '#6d6d6d' },
+    '.gitignore': { icon: 'fab fa-git-alt', color: '#f05032' },
+    '.gitattributes': { icon: 'fab fa-git-alt', color: '#f05032' },
+    'package.json': { icon: 'fab fa-npm', color: '#cb3837' },
+    'tsconfig.json': { icon: 'fab fa-js', color: '#3178c6' },
+    'requirements.txt': { icon: 'fab fa-python', color: '#3776ab' },
+    'setup.py': { icon: 'fab fa-python', color: '#3776ab' },
+  };
+
+  if (specialFiles[name]) {
+    const { icon, color } = specialFiles[name];
+    return `<i class="${icon}" style="color: ${color}; width: 16px; text-align: center;"></i>`;
+  }
+
+  if (iconMap[ext]) {
+    const { icon, color } = iconMap[ext];
+    return `<i class="${icon}" style="color: ${color}; width: 16px; text-align: center;"></i>`;
+  }
+
+  // Default file icon
+  return '<i class="fas fa-file" style="color: #777; width: 16px; text-align: center;"></i>';
 }
 
 /**
@@ -66,18 +162,15 @@ export function buildTreeHTML(
       );
     }
 
-    // Symlink icon
-    const symlinkIcon =
-      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" style="fill: var(--color-accent-fg);"><path d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z"></path></svg>';
-
-    const icon =
-      item.type === "directory"
-        ? item.is_symlink
-          ? symlinkIcon
-          : '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" class="icon-folder"><path fill="currentColor" d="M1.75 1A1.75 1.75 0 0 0 0 2.75v10.5C0 14.216.784 15 1.75 15h12.5A1.75 1.75 0 0 0 16 13.25v-8.5A1.75 1.75 0 0 0 14.25 3H7.5a.25.25 0 0 1-.2-.1l-.9-1.2C6.07 1.26 5.55 1 5 1H1.75Z"></path></svg>'
-        : item.is_symlink
-          ? symlinkIcon
-          : '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" class="icon-file"><path fill="currentColor" d="M2 1.75C2 .784 2.784 0 3.75 0h6.586c.464 0 .909.184 1.237.513l2.914 2.914c.329.328.513.773.513 1.237v9.586A1.75 1.75 0 0 1 13.25 16h-9.5A1.75 1.75 0 0 1 2 14.25Zm1.75-.25a.25.25 0 0 0-.25.25v12.5c0 .138.112.25.25.25h9.5a.25.25 0 0 0 .25-.25V6h-2.75A1.75 1.75 0 0 1 9 4.25V1.5Zm6.75.062V4.25c0 .138.112.25.25.25h2.688l-.011-.013-2.914-2.914-.013-.011Z"></path></svg>';
+    // Get colorful icons
+    let icon: string;
+    if (item.type === "directory") {
+      // Folder icon (yellow-ish like VS Code)
+      icon = '<i class="fas fa-folder" style="color: #dcb67a; width: 16px; text-align: center;"></i>';
+    } else {
+      // Colorful file icon based on extension
+      icon = getColorfulFileIcon(item.name);
+    }
 
     const hasChildren = item.children && item.children.length > 0;
     const itemId = `tree-${item.path.replace(/\//g, "-")}`;

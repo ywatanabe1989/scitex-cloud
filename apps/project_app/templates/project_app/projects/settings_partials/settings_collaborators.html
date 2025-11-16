@@ -5,16 +5,13 @@
         <p class="settings-description">Control who has access to this repository</p>
     </div>
     <!-- Pending Invitations -->
-    {% with
-        pending_invitations=project.invitations.filter|slice:":status='pending'" %}
-        {% if project.invitations.filter.count > 0 %}
+    {% if project.invitations.all %}
         <div style="margin-bottom: 16px">
             <h6 style="color: var(--color-fg-muted);
                        font-size: 12px;
-                       margin-bottom: 8px">PENDING INVITATIONS ({{ project.invitations.filter.count }})</h6>
+                       margin-bottom: 8px">PENDING INVITATIONS</h6>
             {% for invitation in project.invitations.all %}
-                {% if invitation.status ==
-                    'pending' %}
+                {% if invitation.status == 'pending' %}
                     <div style="display: flex;
                                 justify-content: space-between;
                                 align-items: center;
@@ -49,7 +46,6 @@
             {% endfor %}
         </div>
     {% endif %}
-{% endwith %}
 <!-- Current Collaborators -->
 {% if project.memberships.count > 0 %}
     <div style="margin-bottom: 16px">

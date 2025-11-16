@@ -159,6 +159,57 @@ def create_gitea_repository(sender, instance, created, **kwargs):
         logger.exception("Full traceback:")
 
 
+def _setup_project_venv(project, project_dir):
+    """
+    Create lightweight Python virtual environment for project-specific dependencies.
+
+    Strategy:
+    - Create .venv with --system-site-packages to access shared scitex installation
+    - This avoids reinstalling heavy dependencies (PyTorch, etc.) in every project
+    - Users can install project-specific packages in .venv/bin/pip
+    """
+    import subprocess
+    from pathlib import Path
+
+    try:
+        venv_path = Path(project_dir) / ".venv"
+
+        # Skip if .venv already exists
+        if venv_path.exists():
+            logger.info(f"Virtual environment already exists for {project.slug}")
+            return
+
+        logger.info(f"Creating virtual environment for {project.slug}")
+
+        # Create venv with --system-site-packages to access shared scitex
+        result = subprocess.run(
+            ["python3", "-m", "venv", "--system-site-packages", str(venv_path)],
+            cwd=project_dir,
+            capture_output=True,
+            text=True,
+            timeout=60
+        )
+
+        if result.returncode != 0:
+            logger.error(f"Failed to create venv: {result.stderr}")
+            return
+
+        # Create requirements.txt template
+        requirements_file = Path(project_dir) / "requirements.txt"
+        if not requirements_file.exists():
+            requirements_file.write_text("""# Project-specific dependencies
+# scitex is available via --system-site-packages (shared installation)
+# Add your project-specific packages here
+""")
+
+        logger.info(f"✓ Virtual environment created for {project.slug} (with system packages)")
+
+    except subprocess.TimeoutExpired:
+        logger.error(f"Timeout creating venv for {project.slug}")
+    except Exception as e:
+        logger.error(f"Failed to setup venv for {project.slug}: {e}")
+
+
 def _initialize_writer_structure(project, project_dir):
     """
     Initialize scitex writer structure using Writer() with parent git strategy.
@@ -339,6 +390,9 @@ def _clone_gitea_repo_to_data_dir(project):
             project.git_clone_path = str(project_dir)
             project.directory_created = True
             project.save(update_fields=["git_clone_path", "directory_created"])
+
+            # Setup Python virtual environment with scitex (DISABLED - use shared scitex)
+            # _setup_project_venv(project, project_dir)
 
             # Initialize scitex writer structure in scitex/writer subdirectory
             _initialize_writer_structure(project, project_dir)

@@ -26,33 +26,41 @@
         {% if messages %}
             <div id="messages-container" style="margin-bottom: 24px">
                 {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }}"
-                         role="alert"
-                         style="padding: 12px 16px;
-                                margin-bottom: 8px;
-                                border-radius: 6px;
-                                border-left: 4px solid {% if message.tags == 'success' %}#10b981{% elif message.tags == 'error' %}#ef4444{% elif message.tags == 'warning' %}#f59e0b{% else %}#3b82f6{% endif %};
-                                background: {% if message.tags == 'success' %}#d1fae5{% elif message.tags == 'error' %}#fee2e2{% elif message.tags == 'warning' %}#fef3c7{% else %}#dbeafe{% endif %};
-                                color: var(--color-fg-default)">
-                        <strong>
-                            {% if message.tags == 'success' %}
-                                ✓
-                            {%elif message.tags == 'error'%}
-                                ✗
-                            {% elif message.tags == 'warning' %}
-                                ⚠
-                            {% else %}
-                                ℹ
-                            {% endif %}
-                        </strong>
-                        {{ message }}
-                    </div>
+                    {% if message.tags == 'success' %}
+                        <div class="alert alert-success"
+                             role="alert"
+                             style="padding: 12px 16px; margin-bottom: 8px; border-radius: 6px; border-left: 4px solid #10b981; background: #d1fae5; color: var(--color-fg-default)">
+                            <strong>✓</strong>
+                            {{ message }}
+                        </div>
+                    {% elif message.tags == 'error' %}
+                        <div class="alert alert-error"
+                             role="alert"
+                             style="padding: 12px 16px; margin-bottom: 8px; border-radius: 6px; border-left: 4px solid #ef4444; background: #fee2e2; color: var(--color-fg-default)">
+                            <strong>✗</strong>
+                            {{ message }}
+                        </div>
+                    {% elif message.tags == 'warning' %}
+                        <div class="alert alert-warning"
+                             role="alert"
+                             style="padding: 12px 16px; margin-bottom: 8px; border-radius: 6px; border-left: 4px solid #f59e0b; background: #fef3c7; color: var(--color-fg-default)">
+                            <strong>⚠</strong>
+                            {{ message }}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info"
+                             role="alert"
+                             style="padding: 12px 16px; margin-bottom: 8px; border-radius: 6px; border-left: 4px solid #3b82f6; background: #dbeafe; color: var(--color-fg-default)">
+                            <strong>ℹ</strong>
+                            {{ message }}
+                        </div>
+                    {% endif %}
                 {% endfor %}
             </div>
         {% endif %}
         <div class="settings-layout">
             <!-- Left Navigation -->
-            {%include 'project_app/projects/settings_partials/settings_navigation.html'%}
+            {% include 'project_app/projects/settings_partials/settings_navigation.html' %}
             <!-- Main Content -->
             <main class="settings-main">
                 <form method="post"
@@ -63,35 +71,32 @@
                     <div class="settings-section-wrapper"
                          id="section-general"
                          style="display: block">
-                        {% include
-                        'project_app/projects/settings_partials/settings_general.html' %}
+                        {% include 'project_app/projects/settings_partials/settings_general.html' %}
                     </div>
                     <!-- Access & Visibility -->
                     <div class="settings-section-wrapper"
                          id="section-access"
                          style="display: none">
-                        {% include
-                        'project_app/projects/settings_partials/settings_visibility.html' %}
+                        {% include 'project_app/projects/settings_partials/settings_visibility.html' %}
                     </div>
                     <!-- Collaborators -->
                     <div class="settings-section-wrapper"
                          id="section-collaborators"
                          style="display: none">
-                        {%include 'project_app/projects/settings_partials/settings_collaborators.html'%}
+                        {% include 'project_app/projects/settings_partials/settings_collaborators.html' %}
                     </div>
                 </form>
                 <!-- Danger Zone -->
                 <div class="settings-section-wrapper"
                      id="section-danger"
                      style="display: none">
-                    {% include
-                    'project_app/projects/settings_partials/settings_danger_zone.html' %}
+                    {% include 'project_app/projects/settings_partials/settings_danger_zone.html' %}
                 </div>
             </main>
         </div>
     </div>
     <!-- Delete Modal -->
-    {%include 'project_app/projects/settings_partials/settings_delete_modal.html'%}
+    {% include 'project_app/projects/settings_partials/settings_delete_modal.html' %}
 {% endblock %}
 {% block extra_js %}
     <script src="{% static 'project_app/js/projects/settings.js' %}?v={{ cache_buster_value }}"></script>
