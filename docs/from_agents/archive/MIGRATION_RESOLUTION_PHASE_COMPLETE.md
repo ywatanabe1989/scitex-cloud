@@ -94,7 +94,7 @@ This phase completed the final critical tasks required to make SciTeX-Cloud prod
 
 ### 4. Authentication Verification ✅
 
-**Test Scenario:** Login with user ywatanabe / Yusuke8939
+**Test Scenario:** Login with user ywatanabe / REDACTED
 
 **Results:**
 - ✅ Login page accessible at `/auth/login/`
@@ -108,7 +108,7 @@ This phase completed the final critical tasks required to make SciTeX-Cloud prod
 
 **User Flow Verified:**
 1. Anonymous user visits `/auth/login/`
-2. Enters credentials: ywatanabe / Yusuke8939
+2. Enters credentials: ywatanabe / REDACTED
 3. Form submits to auth_app.login_view
 4. Django authenticate() validates password
 5. Login session created with user object

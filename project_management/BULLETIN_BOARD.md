@@ -118,7 +118,7 @@
 
 4. **✅ Verified Authentication & User Functionality**
    - Login page accessible at `/auth/login/`
-   - User authentication working (ywatanabe / Yusuke8939)
+   - User authentication working (ywatanabe / REDACTED)
    - User profile page rendering at `/ywatanabe/`
    - Welcome message displayed: "Welcome back, @ywatanabe!"
    - User stats visible: 9 repositories, 0 projects, 0 stars
