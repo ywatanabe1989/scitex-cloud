@@ -296,18 +296,16 @@
                 <img src="{% static 'shared/images/icons_svg/scitex-code-icon.svg' %}"
                      alt="Code" />
                 <h3>Code</h3>
-                <p>Data analysis</p>
-                <span class="coming-soon-badge">Coming Soon</span>
+                <p>Interactive development workspace</p>
             </div>
-            <!-- Viz -->
+            <!-- Vis -->
             <div class="module-nav-card bg-pattern bg-pattern-dots-radial bg-pattern-subtle"
                  data-module="3"
                  onclick="demosCarousel.goTo(3)">
                 <img src="{% static 'shared/images/icons_svg/scitex-viz-icon.svg' %}"
-                     alt="Viz" />
-                <h3>Viz</h3>
-                <p>Publication-quality graphs</p>
-                <span class="coming-soon-badge">Coming Soon</span>
+                     alt="Vis" />
+                <h3>Vis</h3>
+                <p>Scientific figure editor</p>
             </div>
             <!-- Local -->
             <div class="module-nav-card bg-pattern bg-pattern-dots-radial bg-pattern-subtle"
@@ -384,16 +382,16 @@
                         features_partial='public_app/landing_partials/features/code_features.html'
                         %}
                     </div>
-                    <!-- Viz Demo -->
+                    <!-- Vis Demo -->
                     <div class="demos-carousel-slide">
                         {% include 'public_app/landing_partials/components/module_demo.html'
-                        with module_name='Viz'
+                        with module_name='Vis'
                         icon_path='shared/images/icons_svg/scitex-viz-icon.svg'
-                        video_path='public_app/videos/landing/viz-demo.mp4'
-                        docs_url='docs:viz'
-                        github_url='https://github.com/ywatanabe1989/SciTeX-Viz'
+                        video_path='public_app/videos/landing/vis-demo.mp4'
+                        docs_url='docs:vis'
+                        github_url='https://github.com/ywatanabe1989/SciTeX-Vis'
                         video_position='1.5fr 1fr' video_first=True margin='0 auto'
-                        features_partial='public_app/landing_partials/features/viz_features.html'
+                        features_partial='public_app/landing_partials/features/vis_features.html'
                         %}
                     </div>
                     <!-- Local Demo -->
