@@ -180,6 +180,7 @@ HEALTHCHECK --interval=10s --timeout=3s --start-period=60s --retries=3 \
 EXPOSE 8000
 
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000", "from_docker"]
+# Use Daphne (ASGI server) for WebSocket support (PTY terminal, collaborative editing, etc.)
+CMD ["daphne", "-b", "0.0.0.0", "-p", "8000", "config.asgi:application"]
 
 # EOF

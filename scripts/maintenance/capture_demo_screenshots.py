@@ -1,15 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-11-08 05:53:56 (ywatanabe)"
+# Timestamp: "2025-11-16 18:59:48 (ywatanabe)"
 # File: /home/ywatanabe/proj/scitex-cloud/scripts/maintenance/capture_demo_screenshots.py
-# ----------------------------------------
-from __future__ import annotations
+
+
 import os
-__FILE__ = (
-    "./scripts/maintenance/capture_demo_screenshots.py"
-)
-__DIR__ = os.path.dirname(__FILE__)
-# ----------------------------------------
 
 """
 SciTeX Demo Screenshot Capture Script
@@ -21,7 +16,7 @@ Usage:
 
 Options:
     --headless              Run browser in headless mode
-    --output-dir PATH       Output directory (default: ~/.scitex/screenshots/demo)
+    --output-dir PATH       Output directory (default: ./demo)
     --width INT             Viewport width (default: 1920)
     --height INT            Viewport height (default: 1080)
 
@@ -43,11 +38,9 @@ from pathlib import Path
 from datetime import datetime
 from playwright.async_api import async_playwright
 from playwright.async_api import Page
-from playwright.async_api import Browser
 from playwright.async_api import BrowserContext
 from scitex.browser import fill_with_fallbacks_async
 from scitex.browser import click_with_fallbacks_async
-from scitex.browser import PopupHandler
 
 
 # ============================================================================
@@ -55,22 +48,9 @@ from scitex.browser import PopupHandler
 # ============================================================================
 
 BASE_URL = "http://127.0.0.1:8000"
-TEST_USER = "test-user"
-TEST_PASSWORD = "Test-user!"
-
-# Get git root directory
-try:
-    import subprocess
-
-    _git_root = subprocess.check_output(
-        ["git", "rev-parse", "--show-toplevel"],
-        stderr=subprocess.DEVNULL,
-        text=True,
-    ).strip()
-    DEFAULT_OUTPUT_DIR = Path(_git_root) / "docs" / "screenshots"
-except:
-    # Fallback if not in git repo
-    DEFAULT_OUTPUT_DIR = Path.home() / ".scitex" / "screenshots" / "demo"
+TEST_USER = "ywatanabe"
+TEST_PASSWORD = "REDACTED"
+DEFAULT_OUTPUT_DIR = "./demo"
 
 # Persistent browser session directory (keeps authentication)
 SCITEX_DIR = Path(os.getenv("SCITEX_DIR", Path.home() / ".scitex"))
@@ -86,21 +66,21 @@ PAGES_TO_CAPTURE = [
     # {"path": "/auth/signout/", "name": "auth-signout"},
     # Repository Operations
     {"path": "/new/", "name": "new-repository"},
-    {"path": "/test-user/", "name": "user-profile"},
+    {"path": f"/{TEST_USER}/", "name": "user-profile"},
     # Social/Explore
     {"path": "/social/explore/", "name": "explore-repos"},
     {"path": "/social/explore/?tab=users", "name": "explore-users"},
     # Specific Repository
-    {"path": "/test-user/default-project/", "name": "repo-overview"},
-    {"path": "/test-user/default-project/issues/", "name": "repo-issues"},
-    {"path": "/test-user/default-project/pulls/", "name": "repo-pulls"},
+    {"path": f"/{TEST_USER}/default-project/", "name": "repo-overview"},
+    {"path": f"/{TEST_USER}/default-project/issues/", "name": "repo-issues"},
+    {"path": f"/{TEST_USER}/default-project/pulls/", "name": "repo-pulls"},
     {
-        "path": "/test-user/default-project/settings/",
+        "path": f"/{TEST_USER}/default-project/settings/",
         "name": "repo-settings",
     },
     # Writer
     {
-        "path": "/test-user/default-project/scitex/writer/01_manuscript/",
+        "path": f"/{TEST_USER}/default-project/scitex/writer/01_manuscript/",
         "name": "writer-manuscript",
     },
     # Account Settings
@@ -117,14 +97,19 @@ PAGES_TO_CAPTURE = [
     {"path": "/accounts/settings/ssh-keys/", "name": "settings-ssh-keys"},
     {"path": "/accounts/settings/api-keys/", "name": "settings-api-keys"},
     {
-        "path": "/test-user/settings/repositories/",
+        "path": f"/{TEST_USER}/settings/repositories/",
         "name": "user-settings-repositories",
     },
     # Scholar
-    {"path": "/scholar/", "name": "scholar-home"},
-    {"path": "/scholar/bibtex/", "name": "scholar-bibtex"},
-    # {"path": "/scholar/search/", "name": "23-scholar-search"},
+    {"path": "/scholar/bibtex/", "name": "scholar"},
+    # Code
+    {"path": "/code/", "name": "code"},
+    # Vis
+    {"path": "/vis/", "name": "vis"},
+    # Writer
     {"path": "/writer/", "name": "writer"},
+    # Tools
+    {"path": "/tools/", "name": "tools"},
 ]
 
 
@@ -206,7 +191,7 @@ async def login_to_scitex(page: Page, username: str, password: str) -> bool:
         # Navigate to login page
         login_url = f"{BASE_URL}/auth/signin/"
         log_info(f"Navigating to {login_url}")
-        await page.goto(login_url, wait_until="load", timeout=30000)
+        await page.goto(login_url, wait_until="load", timeout=30_000)
 
         # Wait for page to settle
         await asyncio.sleep(2)
@@ -236,7 +221,7 @@ async def login_to_scitex(page: Page, username: str, password: str) -> bool:
 
         # Wait for form to be ready
         log_info("Waiting for login form")
-        await page.wait_for_selector("form#login-form", timeout=5000)
+        await page.wait_for_selector("form#login-form", timeout=5_000)
 
         # Fill login form
         log_info("Entering credentials")
@@ -262,7 +247,7 @@ async def login_to_scitex(page: Page, username: str, password: str) -> bool:
         # Wait for navigation
         try:
             await page.wait_for_url(
-                lambda url: "/auth/signin" not in url, timeout=10000
+                lambda url: "/auth/signin" not in url, timeout=10_000
             )
             log_info("Navigation detected after login")
         except:
@@ -324,9 +309,10 @@ async def capture_page_screenshot(
     page_path = page_info["path"]
     page_name = page_info["name"]
     url = f"{BASE_URL}{page_path}"
+    wait_sec = 10.0 if page_path in ["code", "writer"] else 1.0
 
     # Create filename with session timestamp
-    screenshot_filename = f"{session_timestamp}_{index:02d}_{page_name}.png"
+    screenshot_filename = f"{session_timestamp}/{index:02d}_{page_name}.png"
     screenshot_path = output_dir / screenshot_filename
 
     log_progress(index, total, f"Capturing {page_name}")
@@ -337,14 +323,14 @@ async def capture_page_screenshot(
         await page.goto(url, wait_until="load", timeout=30000)
 
         # Wait for page to settle (but don't wait for networkidle)
-        await asyncio.sleep(1.0)
+        await asyncio.sleep(wait_sec)
 
         # Take full-page screenshot
         await page.screenshot(
             path=str(screenshot_path), full_page=True, type="png"
         )
 
-        log_success(f"  → Saved: {screenshot_filename}")
+        log_success(f"  → Saved: {DEFAULT_OUTPUT_DIR}/{screenshot_filename}")
         return screenshot_path
 
     except Exception as e:

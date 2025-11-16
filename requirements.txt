@@ -14,6 +14,7 @@ psycopg2-binary==2.9.9
 
 # Server
 gunicorn==21.2.0
+daphne==4.1.2  # ASGI server for WebSocket support (PTY terminal)
 # uwsgi==2.0.25  # Install separately with system packages
 
 # Security

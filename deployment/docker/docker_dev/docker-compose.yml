@@ -46,7 +46,7 @@ services:
       # Docker socket for user workspace management
       - /var/run/docker.sock:/var/run/docker.sock
 
-      # User workspace data directory
+      # User workspace data directory (also serves as user home via symlink)
       - ../../../data/users:/app/data/users
 
       # Explicitly exclude generated files from host mount (performance)
@@ -76,9 +76,13 @@ services:
       redis:
         condition: service_started
     
+    # Override CMD to use Daphne (ASGI) instead of runserver (WSGI)
+    # This enables WebSocket support for PTY terminal
+    command: ["daphne", "-b", "0.0.0.0", "-p", "8000", "config.asgi:application"]
+
     # Restart policy
     restart: unless-stopped
-    
+
     # Health check (faster intervals for dev)
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/"]
