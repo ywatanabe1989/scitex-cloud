@@ -75,7 +75,6 @@ export function getFileIcon(fileName: string): string {
     '.gz': { icon: 'fas fa-file-archive', color: '#8b8b8b' },
 
     // Others
-    '.tex': { icon: 'fas fa-file-alt', color: '#3d6117' },
     '.log': { icon: 'fas fa-file-lines', color: '#777777' },
     '.env': { icon: 'fas fa-cog', color: '#edb92e' },
   };

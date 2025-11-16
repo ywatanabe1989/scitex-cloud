@@ -9,14 +9,14 @@
  * @version 1.0.0
  */
 
-import { showConfirm } from "../../../shared/ts/components/confirm-modal.js";
+import { showConfirm } from "../../../../../../static/shared/ts/components/confirm-modal.js";
 
 // Global state
 
 console.log(
   "[DEBUG] apps/scholar_app/static/scholar_app/ts/bibtex/bibtex-enrichment.ts loaded",
 );
-let jobStatusInterval: number | null = null;
+let jobStatusInterval: number | null = null; // eslint-disable-line @typescript-eslint/no-unused-vars
 
 // Window interface extensions
 declare global {
