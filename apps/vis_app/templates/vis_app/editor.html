@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="vis-container">
+<div class="vis-container" data-figure-id="{% if figure %}{{ figure.id }}{% endif %}">
     <!-- Left Toolbar - Compact (Tools Only) -->
     <div class="vis-toolbar">
         <div class="toolbar-section">
@@ -208,6 +208,21 @@
                             <span id="canvas-size">89mm × 60mm</span>
                         </span>
                     </div>
+                    <!-- Version comparison controls -->
+                    <div class="header-control-group">
+                        <label class="header-label">View:</label>
+                        <select id="comparison-mode" class="header-select">
+                            <option value="edited">Edited</option>
+                            <option value="original">Original</option>
+                            <option value="split">Split (Original | Edited)</option>
+                        </select>
+                        <button class="btn-icon" id="save-as-original-btn" title="Save current state as Original">
+                            <i class="fas fa-bookmark"></i>
+                        </button>
+                        <button class="btn-icon" id="versions-btn" title="Version History">
+                            <i class="fas fa-history"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
             <div class="vis-header-actions">
@@ -269,9 +284,31 @@
 
     <!-- Right Properties Panel -->
     <div class="vis-properties">
-        <h3 class="properties-title">Properties</h3>
-        <div id="properties-content" class="properties-content">
-            <p class="properties-empty">Select an object to edit properties</p>
+        <!-- Tabs for Properties and Layers -->
+        <div class="properties-tabs">
+            <button class="properties-tab active" data-tab="properties">
+                <i class="fas fa-sliders-h"></i> Properties
+            </button>
+            <button class="properties-tab" data-tab="layers">
+                <i class="fas fa-layer-group"></i> Layers
+            </button>
+        </div>
+
+        <!-- Properties Tab Content -->
+        <div id="properties-tab-content" class="tab-content active">
+            <div id="properties-content" class="properties-content">
+                <p class="properties-empty">Select an object to edit properties</p>
+            </div>
+        </div>
+
+        <!-- Layers Tab Content -->
+        <div id="layers-tab-content" class="tab-content" style="display: none;">
+            <div class="layers-header">
+                <input type="text" id="layer-search" class="layer-search" placeholder="Search layers..." />
+            </div>
+            <div id="layers-list" class="layers-list">
+                <p class="layers-empty">No objects on canvas</p>
+            </div>
         </div>
     </div>
 </div>
@@ -306,6 +343,30 @@
         <div class="modal-footer">
             <button type="button" class="btn btn-secondary modal-close">Cancel</button>
             <button type="submit" form="new-figure-form" class="btn btn-primary">Create Figure</button>
+        </div>
+    </div>
+</div>
+
+<!-- Version History Modal -->
+<div id="version-history-modal" class="modal" style="display: none;">
+    <div class="modal-content" style="max-width: 800px;">
+        <div class="modal-header">
+            <h2>Version History</h2>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div style="margin-bottom: 16px;">
+                <button id="create-snapshot-btn" class="btn btn-primary btn-sm">
+                    <i class="fas fa-camera"></i>
+                    Create Snapshot
+                </button>
+            </div>
+            <div id="versions-list" class="versions-list">
+                <p class="text-muted">Loading versions...</p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary modal-close">Close</button>
         </div>
     </div>
 </div>

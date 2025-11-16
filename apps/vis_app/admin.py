@@ -5,6 +5,7 @@ from .models import (
     FigurePanel,
     Annotation,
     FigureExport,
+    FigureVersion,
 )
 
 
@@ -42,6 +43,14 @@ class AnnotationAdmin(admin.ModelAdmin):
     list_display = ["annotation_type", "panel", "content", "z_index", "created_at"]
     list_filter = ["annotation_type"]
     search_fields = ["content", "panel__figure__title"]
+
+
+@admin.register(FigureVersion)
+class FigureVersionAdmin(admin.ModelAdmin):
+    list_display = ["figure", "version_type", "version_number", "label", "created_by", "created_at"]
+    list_filter = ["version_type", "created_at"]
+    search_fields = ["figure__title", "label"]
+    readonly_fields = ["id", "created_at"]
 
 
 @admin.register(FigureExport)

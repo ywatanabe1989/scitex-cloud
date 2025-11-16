@@ -1059,3 +1059,215 @@
         border-top: 1px solid var(--vis-border);
     }
 }
+
+/* ========================================================================
+   Properties/Layers Tabs
+   ======================================================================== */
+
+.properties-tabs {
+    display: flex;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 12px;
+}
+
+.properties-tab {
+    flex: 1;
+    padding: 10px 8px;
+    background: #f5f5f5;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    font-size: 13px;
+    color: #666;
+    transition: all 0.2s;
+}
+
+.properties-tab:hover {
+    background: #e8e8e8;
+    color: #333;
+}
+
+.properties-tab.active {
+    background: white;
+    color: #0066cc;
+    border-bottom-color: #0066cc;
+    font-weight: 600;
+}
+
+.properties-tab i {
+    margin-right: 4px;
+}
+
+.tab-content {
+    display: block;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* ========================================================================
+   Layers Panel
+   ======================================================================== */
+
+.layers-header {
+    padding: 8px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.layer-search {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+.layers-list {
+    max-height: calc(100vh - 300px);
+    overflow-y: auto;
+}
+
+.layers-empty {
+    padding: 20px;
+    text-align: center;
+    color: #999;
+    font-size: 13px;
+}
+
+.layer-item {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.layer-item:hover {
+    background: #f8f8f8;
+}
+
+.layer-visibility-btn,
+.layer-lock-btn {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: #999;
+    cursor: pointer;
+    font-size: 14px;
+    transition: color 0.2s;
+}
+
+.layer-visibility-btn:hover,
+.layer-lock-btn:hover {
+    color: #333;
+}
+
+.layer-visibility-btn.hidden {
+    color: #ccc;
+}
+
+.layer-lock-btn.locked {
+    color: #e63946;
+}
+
+.layer-info {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 8px;
+    font-size: 13px;
+}
+
+.layer-icon {
+    color: #666;
+    font-size: 14px;
+}
+
+.layer-name {
+    color: #333;
+    font-weight: 500;
+}
+
+.layer-actions {
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.layer-item:hover .layer-actions {
+    opacity: 1;
+}
+
+.layer-action-btn {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: #999;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s;
+}
+
+.layer-action-btn:hover {
+    color: #0066cc;
+    background: #f0f0f0;
+    border-radius: 3px;
+}
+
+.layer-action-btn[data-action="delete"]:hover {
+    color: #e63946;
+}
+
+/* ========================================================================
+   Version History Modal
+   ======================================================================== */
+
+.versions-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.version-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.15s;
+}
+
+.version-item:hover {
+    background: #f8f8f8;
+}
+
+.version-info {
+    flex: 1;
+}
+
+.version-info strong {
+    display: block;
+    color: #333;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.version-meta {
+    display: inline-block;
+    margin-right: 12px;
+    color: #999;
+    font-size: 12px;
+}
+
+.version-actions {
+    display: flex;
+    gap: 8px;
+}
+

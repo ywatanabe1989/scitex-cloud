@@ -232,6 +232,53 @@ class Annotation(models.Model):
         return f"{self.get_annotation_type_display()} on {self.panel}"
 
 
+class FigureVersion(models.Model):
+    """Version snapshots for Original | Edited comparison"""
+
+    VERSION_TYPE_CHOICES = [
+        ("original", "Original"),
+        ("snapshot", "Snapshot"),
+        ("auto", "Auto-save"),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    figure = models.ForeignKey(
+        ScientificFigure, on_delete=models.CASCADE, related_name="versions"
+    )
+
+    version_type = models.CharField(
+        max_length=20, choices=VERSION_TYPE_CHOICES, default="snapshot"
+    )
+    version_number = models.IntegerField(default=1)
+    label = models.CharField(
+        max_length=100, blank=True, help_text="User-defined label for this version"
+    )
+
+    # Complete canvas state at this version
+    canvas_state = models.JSONField(
+        default=dict, help_text="Complete Fabric.js canvas state at this version"
+    )
+
+    # Preview image for quick comparison
+    preview_image = models.ImageField(
+        upload_to="vis/previews/%Y/%m/", null=True, blank=True
+    )
+
+    # Metadata
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["figure", "version_type"]),
+        ]
+
+    def __str__(self):
+        label = self.label or f"v{self.version_number}"
+        return f"{self.figure.title} - {label} ({self.get_version_type_display()})"
+
+
 class FigureExport(models.Model):
     """Export jobs for scientific figures"""
 

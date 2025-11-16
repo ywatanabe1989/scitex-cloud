@@ -55,6 +55,13 @@ class VisEditor {
     private zoomLevel: number = 1.0;  // 100% = 1.0
     private rulerEnabled: boolean = true;
 
+    // Version comparison (Original | Edited Cards)
+    private comparisonMode: 'edited' | 'original' | 'split' = 'edited';
+    private originalCanvasState: any = null;
+    private editedCanvasState: any = null;
+    private originalCanvas: fabric.Canvas | null = null;  // For split view
+    private figureId: string | null = null;
+
     // Undo/Redo system
     private history: string[] = [];
     private historyIndex: number = -1;
@@ -121,6 +128,13 @@ class VisEditor {
 
     private init() {
         console.log("[VisEditor] Initializing...");
+
+        // Get figure ID from page context
+        const container = document.querySelector('.vis-container') as HTMLElement;
+        if (container && container.dataset.figureId) {
+            this.figureId = container.dataset.figureId;
+            console.log(`[VisEditor] Figure ID: ${this.figureId}`);
+        }
 
         // Initialize canvas
         this.initCanvas();
@@ -346,6 +360,14 @@ class VisEditor {
     }
 
     private setupEventListeners() {
+        // Properties/Layers tab switching
+        document.querySelectorAll('.properties-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                const tabName = (e.currentTarget as HTMLElement).dataset.tab;
+                this.switchPropertiesTab(tabName || 'properties');
+            });
+        });
+
         // Layout buttons
         document.querySelectorAll('[data-layout]').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -543,6 +565,25 @@ class VisEditor {
         }
         if (redoBtn) {
             redoBtn.addEventListener('click', () => this.redo());
+        }
+
+        // Version comparison controls
+        const comparisonModeSelect = document.getElementById('comparison-mode') as HTMLSelectElement;
+        if (comparisonModeSelect) {
+            comparisonModeSelect.addEventListener('change', (e) => {
+                this.comparisonMode = (e.target as HTMLSelectElement).value as any;
+                this.switchComparisonMode();
+            });
+        }
+
+        const saveAsOriginalBtn = document.getElementById('save-as-original-btn');
+        if (saveAsOriginalBtn) {
+            saveAsOriginalBtn.addEventListener('click', () => this.saveAsOriginal());
+        }
+
+        const versionsBtn = document.getElementById('versions-btn');
+        if (versionsBtn) {
+            versionsBtn.addEventListener('click', () => this.showVersionHistory());
         }
 
         // Keyboard shortcuts
@@ -1568,7 +1609,7 @@ class VisEditor {
                 }
             });
             this.canvas?.renderAll();
-            this.saveHistory();
+            this.saveToHistory();
         }
 
         console.log(`[Color] Set to ${color}`);
@@ -2357,6 +2398,582 @@ class VisEditor {
                 statusEl.textContent = 'Ready';
             }, 3000);
         }
+    }
+
+    // ========================================================================
+    // Layer Management Panel (Figma/Inkscape style)
+    // ========================================================================
+
+    private switchPropertiesTab(tabName: string) {
+        // Update tab buttons
+        document.querySelectorAll('.properties-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        const activeTab = document.querySelector(`[data-tab="${tabName}"]`);
+        if (activeTab) {
+            activeTab.classList.add('active');
+        }
+
+        // Update tab content
+        const propertiesTab = document.getElementById('properties-tab-content');
+        const layersTab = document.getElementById('layers-tab-content');
+
+        if (tabName === 'properties') {
+            if (propertiesTab) propertiesTab.style.display = 'block';
+            if (layersTab) layersTab.style.display = 'none';
+        } else if (tabName === 'layers') {
+            if (propertiesTab) propertiesTab.style.display = 'none';
+            if (layersTab) layersTab.style.display = 'block';
+            this.updateLayersPanel();
+        }
+    }
+
+    private updateLayersPanel() {
+        if (!this.canvas) return;
+
+        const layersList = document.getElementById('layers-list');
+        if (!layersList) return;
+
+        const objects = this.canvas.getObjects().filter((obj: any) => {
+            // Filter out grid lines and panel groups
+            return !obj.id || (!obj.id.includes('grid') && !obj.id.startsWith('panel-group'));
+        });
+
+        if (objects.length === 0) {
+            layersList.innerHTML = '<p class="layers-empty">No objects on canvas</p>';
+            return;
+        }
+
+        // Build layers list (reverse order to show top layer first)
+        layersList.innerHTML = objects.reverse().map((obj: any, index: number) => {
+            const actualIndex = objects.length - 1 - index;
+            const objType = obj.type || 'object';
+            const objName = this.getLayerName(obj);
+            const isVisible = obj.visible !== false;
+            const isLocked = obj.selectable === false;
+
+            return `
+                <div class="layer-item" data-index="${actualIndex}">
+                    <button class="layer-visibility-btn ${isVisible ? 'visible' : 'hidden'}"
+                            data-index="${actualIndex}" title="${isVisible ? 'Hide' : 'Show'}">
+                        <i class="fas fa-eye${isVisible ? '' : '-slash'}"></i>
+                    </button>
+                    <button class="layer-lock-btn ${isLocked ? 'locked' : 'unlocked'}"
+                            data-index="${actualIndex}" title="${isLocked ? 'Unlock' : 'Lock'}">
+                        <i class="fas fa-${isLocked ? 'lock' : 'lock-open'}"></i>
+                    </button>
+                    <div class="layer-info" data-index="${actualIndex}">
+                        <span class="layer-icon">${this.getLayerIcon(objType)}</span>
+                        <span class="layer-name">${objName}</span>
+                    </div>
+                    <div class="layer-actions">
+                        <button class="layer-action-btn" data-action="duplicate" data-index="${actualIndex}" title="Duplicate">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                        <button class="layer-action-btn" data-action="delete" data-index="${actualIndex}" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        // Add event listeners
+        layersList.querySelectorAll('.layer-visibility-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const index = parseInt((e.currentTarget as HTMLElement).dataset.index || '0');
+                this.toggleLayerVisibility(index);
+            });
+        });
+
+        layersList.querySelectorAll('.layer-lock-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const index = parseInt((e.currentTarget as HTMLElement).dataset.index || '0');
+                this.toggleLayerLock(index);
+            });
+        });
+
+        layersList.querySelectorAll('.layer-info').forEach(item => {
+            item.addEventListener('click', () => {
+                const index = parseInt((item as HTMLElement).dataset.index || '0');
+                this.selectLayer(index);
+            });
+        });
+
+        layersList.querySelectorAll('[data-action="duplicate"]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const index = parseInt((e.currentTarget as HTMLElement).dataset.index || '0');
+                this.duplicateLayer(index);
+            });
+        });
+
+        layersList.querySelectorAll('[data-action="delete"]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const index = parseInt((e.currentTarget as HTMLElement).dataset.index || '0');
+                this.deleteLayer(index);
+            });
+        });
+    }
+
+    private getLayerName(obj: any): string {
+        if (obj.layerName) return obj.layerName;
+        if (obj.text) return `"${obj.text.substring(0, 20)}${obj.text.length > 20 ? '...' : ''}"`;
+        if (obj.type === 'image' && obj.filename) return obj.filename;
+        if (obj.type === 'group') return 'Group';
+        return obj.type || 'Object';
+    }
+
+    private getLayerIcon(type: string): string {
+        switch (type) {
+            case 'text':
+            case 'i-text': return '<i class="fas fa-font"></i>';
+            case 'image': return '<i class="fas fa-image"></i>';
+            case 'line': return '<i class="fas fa-minus"></i>';
+            case 'group': return '<i class="fas fa-object-group"></i>';
+            case 'rect': return '<i class="fas fa-square"></i>';
+            case 'circle': return '<i class="fas fa-circle"></i>';
+            case 'triangle': return '<i class="fas fa-play" style="transform: rotate(-30deg);"></i>';
+            default: return '<i class="fas fa-shapes"></i>';
+        }
+    }
+
+    private toggleLayerVisibility(index: number) {
+        if (!this.canvas) return;
+
+        const objects = this.canvas.getObjects().filter((obj: any) => {
+            return !obj.id || (!obj.id.includes('grid') && !obj.id.startsWith('panel-group'));
+        });
+
+        const obj = objects[index];
+        if (obj) {
+            obj.set('visible', !obj.visible);
+            this.canvas.renderAll();
+            this.updateLayersPanel();
+            this.updateStatus(`Layer ${obj.visible ? 'shown' : 'hidden'}`);
+        }
+    }
+
+    private toggleLayerLock(index: number) {
+        if (!this.canvas) return;
+
+        const objects = this.canvas.getObjects().filter((obj: any) => {
+            return !obj.id || (!obj.id.includes('grid') && !obj.id.startsWith('panel-group'));
+        });
+
+        const obj = objects[index];
+        if (obj) {
+            const newLockState = !obj.selectable;
+            obj.set({
+                selectable: newLockState,
+                evented: newLockState,
+            });
+            this.canvas.renderAll();
+            this.updateLayersPanel();
+            this.updateStatus(`Layer ${newLockState ? 'unlocked' : 'locked'}`);
+        }
+    }
+
+    private selectLayer(index: number) {
+        if (!this.canvas) return;
+
+        const objects = this.canvas.getObjects().filter((obj: any) => {
+            return !obj.id || (!obj.id.includes('grid') && !obj.id.startsWith('panel-group'));
+        });
+
+        const obj = objects[index];
+        if (obj && obj.selectable !== false) {
+            this.canvas.setActiveObject(obj);
+            this.canvas.renderAll();
+            this.updatePropertiesPanel();
+        }
+    }
+
+    private duplicateLayer(index: number) {
+        if (!this.canvas) return;
+
+        const objects = this.canvas.getObjects().filter((obj: any) => {
+            return !obj.id || (!obj.id.includes('grid') && !obj.id.startsWith('panel-group'));
+        });
+
+        const obj = objects[index];
+        if (obj) {
+            obj.clone((cloned: any) => {
+                cloned.set({
+                    left: (obj.left || 0) + 20,
+                    top: (obj.top || 0) + 20,
+                });
+                this.canvas!.add(cloned);
+                this.canvas!.setActiveObject(cloned);
+                this.canvas!.renderAll();
+                this.updateLayersPanel();
+                this.updateStatus('Layer duplicated');
+            });
+        }
+    }
+
+    private deleteLayer(index: number) {
+        if (!this.canvas) return;
+
+        const objects = this.canvas.getObjects().filter((obj: any) => {
+            return !obj.id || (!obj.id.includes('grid') && !obj.id.startsWith('panel-group'));
+        });
+
+        const obj = objects[index];
+        if (obj) {
+            this.canvas.remove(obj);
+            this.canvas.renderAll();
+            this.updateLayersPanel();
+            this.clearPropertiesPanel();
+            this.updateStatus('Layer deleted');
+        }
+    }
+
+    // ========================================================================
+    // Version Comparison (Original | Edited Cards)
+    // ========================================================================
+
+    private async switchComparisonMode() {
+        if (!this.canvas) return;
+
+        console.log(`[VisEditor] Switching to ${this.comparisonMode} mode`);
+
+        switch (this.comparisonMode) {
+            case 'edited':
+                await this.showEditedView();
+                break;
+            case 'original':
+                await this.showOriginalView();
+                break;
+            case 'split':
+                await this.showSplitView();
+                break;
+        }
+    }
+
+    private async showEditedView() {
+        // Save current state as edited
+        if (this.canvas) {
+            this.editedCanvasState = this.canvas.toJSON(['id', 'panelId', 'filename']);
+        }
+
+        // Show single canvas with edited version
+        const canvasContainer = document.querySelector('.vis-canvas-container') as HTMLElement;
+        if (canvasContainer) {
+            canvasContainer.style.display = 'block';
+            canvasContainer.style.width = '100%';
+        }
+
+        // Hide original canvas if it exists
+        const originalContainer = document.getElementById('original-canvas-container');
+        if (originalContainer) {
+            originalContainer.style.display = 'none';
+        }
+
+        // Restore edited state
+        if (this.editedCanvasState && this.canvas) {
+            this.canvas.loadFromJSON(this.editedCanvasState, () => {
+                this.canvas!.renderAll();
+            });
+        }
+
+        this.updateStatus('Showing edited version');
+    }
+
+    private async showOriginalView() {
+        if (!this.canvas) return;
+
+        // Load original version from server
+        if (!this.originalCanvasState) {
+            await this.loadOriginalVersion();
+        }
+
+        if (!this.originalCanvasState) {
+            this.updateStatus('No original version found. Save one first.');
+            return;
+        }
+
+        // Show single canvas with original version
+        const canvasContainer = document.querySelector('.vis-canvas-container') as HTMLElement;
+        if (canvasContainer) {
+            canvasContainer.style.display = 'block';
+            canvasContainer.style.width = '100%';
+        }
+
+        // Load original state
+        this.canvas.loadFromJSON(this.originalCanvasState, () => {
+            this.canvas!.renderAll();
+            this.updateStatus('Showing original version (read-only)');
+        });
+    }
+
+    private async showSplitView() {
+        if (!this.canvas) return;
+
+        // Load original version if not loaded
+        if (!this.originalCanvasState) {
+            await this.loadOriginalVersion();
+        }
+
+        if (!this.originalCanvasState) {
+            this.updateStatus('No original version found. Save one first.');
+            return;
+        }
+
+        // Save current edited state
+        this.editedCanvasState = this.canvas.toJSON(['id', 'panelId', 'filename']);
+
+        // Create split view layout
+        const canvasWrapper = document.querySelector('.vis-canvas-wrapper') as HTMLElement;
+        if (!canvasWrapper) return;
+
+        // Resize main canvas container for split view (50% width)
+        const canvasContainer = document.querySelector('.vis-canvas-container') as HTMLElement;
+        if (canvasContainer) {
+            canvasContainer.style.width = '49%';
+            canvasContainer.style.display = 'inline-block';
+        }
+
+        // Create or show original canvas container
+        let originalContainer = document.getElementById('original-canvas-container') as HTMLElement;
+        if (!originalContainer) {
+            originalContainer = document.createElement('div');
+            originalContainer.id = 'original-canvas-container';
+            originalContainer.style.width = '49%';
+            originalContainer.style.display = 'inline-block';
+            originalContainer.style.verticalAlign = 'top';
+            originalContainer.style.marginLeft = '2%';
+            originalContainer.style.position = 'relative';
+            originalContainer.innerHTML = `
+                <div style="text-align: center; margin-bottom: 8px; font-weight: bold; color: #666;">
+                    Original
+                </div>
+                <canvas id="original-canvas"></canvas>
+            `;
+            canvasWrapper.appendChild(originalContainer);
+        } else {
+            originalContainer.style.display = 'inline-block';
+        }
+
+        // Add label to edited canvas
+        let editedLabel = canvasContainer.querySelector('.canvas-label') as HTMLElement;
+        if (!editedLabel) {
+            editedLabel = document.createElement('div');
+            editedLabel.className = 'canvas-label';
+            editedLabel.style.textAlign = 'center';
+            editedLabel.style.marginBottom = '8px';
+            editedLabel.style.fontWeight = 'bold';
+            editedLabel.style.color = '#666';
+            editedLabel.textContent = 'Edited';
+            canvasContainer.insertBefore(editedLabel, canvasContainer.firstChild);
+        }
+
+        // Create original canvas if doesn't exist
+        if (!this.originalCanvas) {
+            const originalCanvasEl = document.getElementById('original-canvas') as HTMLCanvasElement;
+            if (originalCanvasEl) {
+                this.originalCanvas = new fabric.Canvas('original-canvas', {
+                    width: this.canvas.getWidth(),
+                    height: this.canvas.getHeight(),
+                    backgroundColor: '#ffffff',
+                    selection: false,  // Read-only
+                });
+
+                // Disable all interactions on original canvas
+                this.originalCanvas.selection = false;
+                this.originalCanvas.forEachObject((obj: any) => {
+                    obj.selectable = false;
+                    obj.evented = false;
+                });
+            }
+        }
+
+        // Load states into both canvases
+        if (this.originalCanvas) {
+            this.originalCanvas.loadFromJSON(this.originalCanvasState, () => {
+                this.originalCanvas!.renderAll();
+            });
+        }
+
+        this.canvas.loadFromJSON(this.editedCanvasState, () => {
+            this.canvas!.renderAll();
+        });
+
+        this.updateStatus('Split view: Original | Edited');
+    }
+
+    private async saveAsOriginal() {
+        if (!this.canvas) return;
+
+        const canvasState = this.canvas.toJSON(['id', 'panelId', 'filename']);
+
+        try {
+            // TODO: Get figure ID from page context
+            // For now, create a snapshot
+            const response = await fetch(`/vis/api/figures/${this.figureId}/versions/create/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': this.getCSRFToken(),
+                },
+                body: JSON.stringify({
+                    version_type: 'original',
+                    label: 'Original',
+                    canvas_state: canvasState,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                this.originalCanvasState = canvasState;
+                this.updateStatus('Saved as original version');
+                console.log('[VisEditor] Original version saved:', data.version_id);
+            } else {
+                this.updateStatus('Failed to save original version');
+            }
+        } catch (error) {
+            console.error('[VisEditor] Save original failed:', error);
+            this.updateStatus('Error saving original version');
+        }
+    }
+
+    private async loadOriginalVersion() {
+        try {
+            // TODO: Get figure ID from page context
+            const response = await fetch(`/vis/api/figures/${this.figureId}/versions/original/`);
+            const data = await response.json();
+
+            if (data.success) {
+                this.originalCanvasState = data.canvas_state;
+                console.log('[VisEditor] Original version loaded');
+            } else {
+                console.log('[VisEditor] No original version found');
+                this.originalCanvasState = null;
+            }
+        } catch (error) {
+            console.error('[VisEditor] Load original failed:', error);
+            this.originalCanvasState = null;
+        }
+    }
+
+    private async showVersionHistory() {
+        const modal = document.getElementById('version-history-modal');
+        if (!modal) return;
+
+        modal.style.display = 'flex';
+
+        // Load versions
+        await this.loadVersionsList();
+    }
+
+    private async loadVersionsList() {
+        const versionsList = document.getElementById('versions-list');
+        if (!versionsList) return;
+
+        versionsList.innerHTML = '<p>Loading versions...</p>';
+
+        try {
+            // TODO: Get figure ID from page context
+            const response = await fetch(`/vis/api/figures/${this.figureId}/versions/`);
+            const data = await response.json();
+
+            if (data.success && data.versions.length > 0) {
+                versionsList.innerHTML = data.versions.map((v: any) => `
+                    <div class="version-item" data-version-id="${v.id}">
+                        <div class="version-info">
+                            <strong>${v.label}</strong>
+                            <span class="version-meta">${new Date(v.created_at).toLocaleString()}</span>
+                            <span class="version-meta">by ${v.created_by}</span>
+                        </div>
+                        <div class="version-actions">
+                            <button class="btn btn-sm load-version-btn" data-version-id="${v.id}">
+                                <i class="fas fa-upload"></i> Load
+                            </button>
+                            <button class="btn btn-sm set-original-btn" data-version-id="${v.id}">
+                                <i class="fas fa-bookmark"></i> Set as Original
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+
+                // Add event listeners
+                versionsList.querySelectorAll('.load-version-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const versionId = (e.currentTarget as HTMLElement).dataset.versionId;
+                        if (versionId) this.loadVersion(versionId);
+                    });
+                });
+
+                versionsList.querySelectorAll('.set-original-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const versionId = (e.currentTarget as HTMLElement).dataset.versionId;
+                        if (versionId) this.setAsOriginal(versionId);
+                    });
+                });
+            } else {
+                versionsList.innerHTML = '<p class="text-muted">No versions found</p>';
+            }
+        } catch (error) {
+            console.error('[VisEditor] Load versions failed:', error);
+            versionsList.innerHTML = '<p class="text-error">Failed to load versions</p>';
+        }
+    }
+
+    private async loadVersion(versionId: string) {
+        if (!this.canvas) return;
+
+        try {
+            const response = await fetch(`/vis/api/figures/${this.figureId}/versions/${versionId}/`);
+            const data = await response.json();
+
+            if (data.success) {
+                this.canvas.loadFromJSON(data.canvas_state, () => {
+                    this.canvas!.renderAll();
+                    this.updateStatus(`Loaded version: ${data.label}`);
+                    console.log('[VisEditor] Version loaded:', versionId);
+                });
+
+                // Close modal
+                const modal = document.getElementById('version-history-modal');
+                if (modal) modal.style.display = 'none';
+            }
+        } catch (error) {
+            console.error('[VisEditor] Load version failed:', error);
+            this.updateStatus('Error loading version');
+        }
+    }
+
+    private async setAsOriginal(versionId: string) {
+        try {
+            const response = await fetch(`/vis/api/figures/${this.figureId}/versions/original/set/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': this.getCSRFToken(),
+                },
+                body: JSON.stringify({ version_id: versionId }),
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                this.updateStatus('Original version updated');
+                await this.loadVersionsList();  // Refresh list
+                await this.loadOriginalVersion();  // Reload original state
+            }
+        } catch (error) {
+            console.error('[VisEditor] Set original failed:', error);
+            this.updateStatus('Error setting original version');
+        }
+    }
+
+    private getCSRFToken(): string {
+        const token = document.querySelector('[name=csrfmiddlewaretoken]') as HTMLInputElement;
+        return token ? token.value : '';
     }
 }
 

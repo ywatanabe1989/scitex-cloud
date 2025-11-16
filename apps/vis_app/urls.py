@@ -57,4 +57,30 @@ urlpatterns = [
         api_views.update_figure_config,
         name="api_update_config",
     ),
+    # Version management endpoints (Original | Edited Cards)
+    path(
+        "api/figures/<uuid:figure_id>/versions/",
+        api_views.get_figure_versions,
+        name="api_get_versions",
+    ),
+    path(
+        "api/figures/<uuid:figure_id>/versions/create/",
+        api_views.create_version_snapshot,
+        name="api_create_version",
+    ),
+    path(
+        "api/figures/<uuid:figure_id>/versions/<uuid:version_id>/",
+        api_views.load_version_state,
+        name="api_load_version",
+    ),
+    path(
+        "api/figures/<uuid:figure_id>/versions/original/set/",
+        api_views.set_original_version,
+        name="api_set_original",
+    ),
+    path(
+        "api/figures/<uuid:figure_id>/versions/original/",
+        api_views.get_original_version,
+        name="api_get_original",
+    ),
 ]

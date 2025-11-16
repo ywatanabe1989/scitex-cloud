@@ -49,10 +49,11 @@ def figure_detail(request, figure_id):
 
     context = {
         "figure": figure,
+        "figures": ScientificFigure.objects.filter(owner=request.user).order_by("-updated_at"),
         "journal_presets": JournalPreset.objects.filter(is_active=True),
     }
 
-    return render(request, "vis_app/figure_detail.html", context)
+    return render(request, "vis_app/editor.html", context)
 
 
 @login_required
