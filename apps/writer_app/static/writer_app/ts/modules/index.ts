@@ -30,7 +30,6 @@ export {
   StatusLampManager,
   statusLamp,
   type CompileStatus,
-  type SaveStatus,
 } from "./status-lamp.js";
 export {
   CompilationSettingsManager,

@@ -35,7 +35,7 @@ declare global {
     define: any;
     require: any;
     MonacoEnvironment: MonacoEnvironment;
-    monaco: any;
+    monaco?: any;
     monacoLoaded: boolean;
     CodeMirror: any;
   }

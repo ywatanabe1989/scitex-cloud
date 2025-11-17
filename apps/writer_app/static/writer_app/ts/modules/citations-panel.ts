@@ -13,6 +13,8 @@ export interface Citation {
   authors?: string[];
   year?: string;
   journal?: string;
+  url?: string;
+  publisher?: string;
   citation_count?: number;
   impact_factor?: number;
   abstract?: string;

@@ -7,9 +7,7 @@ console.log(
   "[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/version_control/index.ts loaded",
 );
 class VersionControlIndexPage {
-  // @ts-expect-error - Placeholder for future version list functionality
   private _versionList: HTMLElement | null;
-  // @ts-expect-error - Placeholder for future branch list functionality
   private _branchList: HTMLElement | null;
 
   constructor() {

@@ -9,6 +9,7 @@ export class PTYTerminal {
   private term: any;
   private ws: WebSocket | null = null;
   private projectId: number;
+  private imageContainer: HTMLElement | null = null;
 
   constructor(containerEl: HTMLElement, projectId: number) {
     this.projectId = projectId;
@@ -71,9 +72,15 @@ export class PTYTerminal {
 
     // Image addon for inline images (matplotlib, PIL, etc.)
     if (ImageAddon) {
-      const imageAddon = new ImageAddon();
-      this.term.loadAddon(imageAddon);
-      console.log('[PTY] Image addon loaded - inline images supported');
+      try {
+        const imageAddon = new ImageAddon();
+        this.term.loadAddon(imageAddon);
+        console.log('[PTY] ✓ ImageAddon loaded successfully - inline images enabled');
+      } catch (err) {
+        console.error('[PTY] ✗ Failed to load ImageAddon:', err);
+      }
+    } else {
+      console.warn('[PTY] ⚠ ImageAddon not available - window.ImageAddon is undefined');
     }
 
     // Handle user input
@@ -81,6 +88,31 @@ export class PTYTerminal {
       if (this.ws && this.ws.readyState === WebSocket.OPEN) {
         this.ws.send(data);
       }
+    });
+
+    // Add clipboard support (Ctrl+Shift+C to copy, Ctrl+Shift+V to paste)
+    this.term.attachCustomKeyEventHandler((event: KeyboardEvent) => {
+      // Ctrl+Shift+C: Copy selected text
+      if (event.ctrlKey && event.shiftKey && event.key === 'C') {
+        const selection = this.term.getSelection();
+        if (selection) {
+          navigator.clipboard.writeText(selection);
+          console.log('[PTY] Copied to clipboard:', selection.substring(0, 50) + '...');
+        }
+        return false; // Prevent default
+      }
+
+      // Ctrl+Shift+V: Paste from clipboard
+      if (event.ctrlKey && event.shiftKey && event.key === 'V') {
+        navigator.clipboard.readText().then(text => {
+          if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+            this.ws.send(text);
+          }
+        });
+        return false; // Prevent default
+      }
+
+      return true; // Allow other keys
     });
 
     console.log('[PTY] xterm.js initialized');
@@ -101,6 +133,7 @@ export class PTYTerminal {
     };
 
     this.ws.onmessage = (event) => {
+      // Simply write all data to terminal - no inline image rendering
       this.term.write(event.data);
     };
 
@@ -142,6 +175,27 @@ export class PTYTerminal {
     if (this.term) {
       this.term.clear();
       console.log('[PTY] Terminal cleared');
+    }
+
+    // Also clear inline images and hide panel
+    if (this.imageContainer) {
+      this.imageContainer.innerHTML = '';
+      this.imageContainer.style.display = 'none';
+      console.log('[PTY] Inline images cleared');
+    }
+  }
+
+  public executeCommand(command: string): void {
+    /**
+     * Execute a command in the PTY terminal
+     * This sends the command as if the user typed it and pressed Enter
+     */
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+      // Send command followed by Enter (\r)
+      this.ws.send(command + '\r');
+      console.log('[PTY] Executing command:', command);
+    } else {
+      console.error('[PTY] Cannot execute command - WebSocket not connected');
     }
   }
 

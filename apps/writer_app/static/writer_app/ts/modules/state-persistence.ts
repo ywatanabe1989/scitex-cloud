@@ -41,6 +41,7 @@ interface EditorState {
   };
   citationsSorting?: string; // sort key like 'author', 'year', 'title'
   figuresSorting?: string; // sort key like 'name', 'size', 'recent'
+  tablesSorting?: string; // sort key like 'name', 'size', 'recent'
   selectedFigures?: string[]; // Array of selected figure keys (file_name or label)
   pdfZoom?: number; // PDF zoom level percentage (50-300)
   panelWidth?: number; // Left panel width percentage (20-80)
@@ -235,6 +236,34 @@ export class StatePersistenceManager {
    */
   public getSavedCitationsSorting(): string | undefined {
     return this.loadState().citationsSorting;
+  }
+
+  /**
+   * Save figures sorting
+   */
+  public saveFiguresSorting(sorting: string): void {
+    this.saveState({ figuresSorting: sorting });
+  }
+
+  /**
+   * Get saved figures sorting
+   */
+  public getSavedFiguresSorting(): string | undefined {
+    return this.loadState().figuresSorting;
+  }
+
+  /**
+   * Save tables sorting
+   */
+  public saveTablesSorting(sorting: string): void {
+    this.saveState({ tablesSorting: sorting });
+  }
+
+  /**
+   * Get saved tables sorting
+   */
+  public getSavedTablesSorting(): string | undefined {
+    return this.loadState().tablesSorting;
   }
 
   /**

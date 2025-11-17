@@ -4,6 +4,18 @@
  */
 
 // Fabric.js is loaded via CDN in the template
+declare namespace fabric {
+  type Canvas = any;
+  type Object = any;
+  type Rect = any;
+  type Text = any;
+  type Image = any;
+  type Line = any;
+  type Circle = any;
+  type Polygon = any;
+  type Path = any;
+  type Group = any;
+}
 declare const fabric: any;
 
 console.log("[DEBUG] vis_app/static/vis_app/ts/editor.ts loaded");
@@ -67,6 +79,24 @@ class VisEditor {
     private historyIndex: number = -1;
     private maxHistory: number = 50;  // Keep last 50 states
 
+    // Clipboard for copy/paste
+    private clipboard: any = null;
+
+    // Ctrl+Drag duplication tracking
+    private isDuplicatingWithDrag: boolean = false;
+    private dragStartPosition: { x: number, y: number } | null = null;
+
+    // Click cycling through layered objects
+    private lastClickPosition: { x: number, y: number } | null = null;
+    private lastClickTime: number = 0;
+    private clickCycleIndex: number = 0;
+    private clickCycleObjects: fabric.Object[] = [];
+
+    // Panning - pan the entire rulers area
+    private isPanning: boolean = false;
+    private panStartPoint: { x: number, y: number } | null = null;
+    private panOffset: { x: number, y: number } = { x: 0, y: 0 };
+
     // Auto-save
     private autoSaveKey: string = 'scitex_vis_autosave';
     private autoSaveTimer: any = null;
@@ -117,6 +147,8 @@ class VisEditor {
     private crosshairV: HTMLElement | null = null;
     private alignmentGuidesEnabled: boolean = true;
     private currentColor: string = 'rgb(0,0,0)';  // Default black
+    private currentStroke: string = 'rgb(0,0,0)';  // Default black outline
+    private currentStrokeStyle: 'solid' | 'dashed' | 'dotted' = 'solid';
 
     // Label ordering modes
     private labelOrdering: 'horizontal' | 'vertical' | 'custom' | 'original' = 'horizontal';
@@ -157,6 +189,9 @@ class VisEditor {
         // Draw rulers
         this.drawRulers();
 
+        // Setup ruler dragging for panning
+        this.setupRulerDragging();
+
         console.log("[VisEditor] Ready - Auto-save enabled");
     }
 
@@ -181,6 +216,7 @@ class VisEditor {
             height: defaultHeight,
             backgroundColor: '#ffffff',  // NEVER change - scientific integrity
             selection: true,
+            selectionKey: 'ctrlKey',  // PowerPoint-style: Ctrl+Click for multi-selection
         });
 
         // Draw initial grid
@@ -284,34 +320,130 @@ class VisEditor {
     private setupCanvasEvents() {
         if (!this.canvas) return;
 
-        // Object moving - snap to grid and show alignment guides
+        // Mouse down - Check for panning (Space key) or Ctrl+Drag duplication
+        this.canvas.on('mouse:down', (e) => {
+            const evt = e.e as MouseEvent;
+            const activeObject = this.canvas?.getActiveObject();
+
+            // Middle mouse button or Space+Click = Pan mode
+            if (evt.button === 1 || ((evt as any).spaceKey || (window.event as any)?.keyCode === 32)) {
+                this.isPanning = true;
+                this.panStartPoint = { x: evt.clientX, y: evt.clientY };
+                this.canvas!.selection = false;  // Disable selection while panning
+                const canvasEl = document.getElementById('vis-canvas');
+                if (canvasEl) canvasEl.style.cursor = 'grabbing';
+                return;
+            }
+
+            // If Ctrl is held and an object is selected, prepare for duplication
+            if ((evt.ctrlKey || evt.metaKey) && activeObject && activeObject.type !== 'activeSelection') {
+                this.isDuplicatingWithDrag = true;
+                this.dragStartPosition = { x: evt.clientX, y: evt.clientY };
+            }
+        });
+
+        // Mouse move - Handle panning (pan rulers + canvas together)
+        this.canvas.on('mouse:move', (e) => {
+            if (this.isPanning && this.panStartPoint) {
+                const evt = e.e as MouseEvent;
+                let deltaX = evt.clientX - this.panStartPoint.x;
+                let deltaY = evt.clientY - this.panStartPoint.y;
+
+                // Alt key = Fine-tuned panning (10% speed)
+                if (evt.altKey) {
+                    deltaX *= 0.1;
+                    deltaY *= 0.1;
+                }
+
+                this.panOffset.x += deltaX;
+                this.panOffset.y += deltaY;
+                this.updateTransform();
+
+                this.panStartPoint = { x: evt.clientX, y: evt.clientY };
+            }
+        });
+
+        // Object moving - Handle Ctrl+Drag duplication, Alt for fine movement, snap to grid, and show alignment guides
         this.canvas.on('object:moving', (e) => {
             if (!e.target) return;
 
             const obj = e.target;
+            const evt = e.e as MouseEvent;
+
+            // Check for Ctrl+Drag duplication (PowerPoint-style)
+            if (this.isDuplicatingWithDrag && this.dragStartPosition) {
+                const dx = Math.abs(evt.clientX - this.dragStartPosition.x);
+                const dy = Math.abs(evt.clientY - this.dragStartPosition.y);
+
+                // If moved more than 5 pixels, duplicate the object
+                if (dx > 5 || dy > 5) {
+                    this.isDuplicatingWithDrag = false;
+                    this.dragStartPosition = null;
+
+                    // Clone the object at original position
+                    obj.clone((cloned: any) => {
+                        cloned.set({
+                            left: obj.left,
+                            top: obj.top,
+                        });
+                        this.canvas!.add(cloned);
+                        this.canvas!.setActiveObject(cloned);
+                        this.canvas!.renderAll();
+                    });
+
+                    this.updateStatus('Duplicating with Ctrl+Drag');
+                    return;
+                }
+            }
+
             let left = obj.left || 0;
             let top = obj.top || 0;
 
-            // Grid snapping
-            if (this.snapEnabled) {
-                const snapThreshold = this.gridSize;
-                left = Math.round(left / snapThreshold) * snapThreshold;
-                top = Math.round(top / snapThreshold) * snapThreshold;
-            }
+            // Alt key = Fine-tuned movement (disable snapping, slower movement)
+            const isFineTuning = evt.altKey;
 
-            // Smart alignment guides (align with other objects)
-            if (this.alignmentGuidesEnabled) {
-                const alignResult = this.findAlignmentTargets(obj, left, top);
-                if (alignResult) {
-                    left = alignResult.left;
-                    top = alignResult.top;
-                    this.showAlignmentGuides(alignResult.guides);
-                } else {
-                    this.hideAlignmentGuides();
+            if (isFineTuning) {
+                // Fine movement - no snapping, no alignment guides
+                // Movement is already slowed by the reduced mouse movement
+                this.hideAlignmentGuides();
+            } else {
+                // Normal movement - apply snapping and alignment
+
+                // Grid snapping
+                if (this.snapEnabled) {
+                    const snapThreshold = this.gridSize;
+                    left = Math.round(left / snapThreshold) * snapThreshold;
+                    top = Math.round(top / snapThreshold) * snapThreshold;
+                }
+
+                // Smart alignment guides (align with other objects)
+                if (this.alignmentGuidesEnabled) {
+                    const alignResult = this.findAlignmentTargets(obj, left, top);
+                    if (alignResult) {
+                        left = alignResult.left;
+                        top = alignResult.top;
+                        this.showAlignmentGuides(alignResult.guides);
+                    } else {
+                        this.hideAlignmentGuides();
+                    }
                 }
             }
 
             obj.set({ left, top });
+        });
+
+        // Mouse up - Reset duplication and panning flags
+        this.canvas.on('mouse:up', () => {
+            this.isDuplicatingWithDrag = false;
+            this.dragStartPosition = null;
+
+            if (this.isPanning) {
+                this.isPanning = false;
+                this.panStartPoint = null;
+                this.canvas!.selection = true;  // Re-enable selection
+                const canvasEl = document.getElementById('vis-canvas');
+                if (canvasEl) canvasEl.style.cursor = 'default';
+            }
         });
 
         // Clear alignment guides when movement stops
@@ -320,7 +452,11 @@ class VisEditor {
         });
 
         // Selection changed
-        this.canvas.on('selection:created', () => this.updatePropertiesPanel());
+        this.canvas.on('selection:created', (e) => {
+            this.updatePropertiesPanel();
+            // Handle click cycling through layered objects
+            this.handleClickCycling(e);
+        });
         this.canvas.on('selection:updated', () => this.updatePropertiesPanel());
         this.canvas.on('selection:cleared', () => this.clearPropertiesPanel());
 
@@ -357,6 +493,25 @@ class VisEditor {
                 this.showObjectsUnderPointer(pointer);
             }
         });
+
+        // Right-click context menu
+        this.canvas.on('mouse:down', (e) => {
+            if (e.button === 3 || (e.e as MouseEvent).button === 2) {
+                e.e.preventDefault();
+                const obj = this.canvas?.getActiveObject();
+                if (obj) {
+                    this.showContextMenu(e.e as MouseEvent, obj);
+                }
+            }
+        });
+
+        // Disable browser context menu on canvas
+        const canvasElement = this.canvas.getElement();
+        if (canvasElement) {
+            canvasElement.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+            });
+        }
     }
 
     private setupEventListeners() {
@@ -468,27 +623,58 @@ class VisEditor {
             });
         }
 
+        // Panel toggle buttons
+        const toggleToolbar = document.getElementById('toggle-toolbar');
+        if (toggleToolbar) {
+            toggleToolbar.addEventListener('click', () => this.toggleToolbarPanel());
+        }
+
+        const toggleProperties = document.getElementById('toggle-properties');
+        if (toggleProperties) {
+            toggleProperties.addEventListener('click', () => this.togglePropertiesPanel());
+        }
+
         // Zoom controls
         const zoomFitBtn = document.getElementById('zoom-fit');
         if (zoomFitBtn) {
             zoomFitBtn.addEventListener('click', () => this.zoomToFit());
         }
 
-        // Ctrl + Mouse scroll to zoom
-        const canvasWrapper = document.querySelector('.vis-canvas-wrapper');
-        if (canvasWrapper) {
-            canvasWrapper.addEventListener('wheel', (e: WheelEvent) => {
-                if (e.ctrlKey || e.metaKey) {
-                    e.preventDefault();
-                    // Scroll up = zoom in, scroll down = zoom out
-                    if (e.deltaY < 0) {
-                        this.zoomIn();
-                    } else {
-                        this.zoomOut();
-                    }
-                }
-            }, { passive: false });
-        }
+        // Mouse wheel handling - Zoom with Ctrl, Pan without
+        this.canvas.on('mouse:wheel', (opt: any) => {
+            const e = opt.e;
+            e.preventDefault();
+            e.stopPropagation();
+
+            if (e.ctrlKey || e.metaKey) {
+                // Ctrl+Wheel = Zoom centered on cursor
+                const delta = e.deltaY;
+                const oldZoom = this.zoomLevel;
+                let newZoom = oldZoom * (0.999 ** delta);
+
+                // Limit zoom range
+                if (newZoom > 5) newZoom = 5;  // Max 500%
+                if (newZoom < 0.1) newZoom = 0.1;  // Min 10%
+
+                this.zoomLevel = newZoom;
+
+                // Adjust pan offset to keep cursor position stable
+                const pointer = opt.pointer;
+                const zoomRatio = newZoom / oldZoom;
+                this.panOffset.x = pointer.x - (pointer.x - this.panOffset.x) * zoomRatio;
+                this.panOffset.y = pointer.y - (pointer.y - this.panOffset.y) * zoomRatio;
+
+                this.updateTransform();
+                this.updateZoomDisplay();
+            } else {
+                // Regular wheel = Pan canvas (rulers + canvas together)
+                this.panOffset.x -= e.deltaX;
+                this.panOffset.y -= e.deltaY;
+                this.updateTransform();
+            }
+
+            return false;
+        });
 
         // Export buttons
         const exportPngBtn = document.getElementById('export-png');
@@ -524,18 +710,49 @@ class VisEditor {
         });
 
         // Color palette
-        document.querySelectorAll('.color-swatch').forEach(btn => {
+        // Fill color swatches
+        document.querySelectorAll('.color-swatch:not(.outline-swatch)').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const color = (e.currentTarget as HTMLElement).dataset.color;
                 if (color) {
                     this.setCurrentColor(color);
 
                     // Update active state
-                    document.querySelectorAll('.color-swatch').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.color-swatch:not(.outline-swatch)').forEach(b => b.classList.remove('active'));
                     (e.currentTarget as HTMLElement).classList.add('active');
                 }
             });
         });
+
+        // Outline color swatches
+        document.querySelectorAll('.outline-swatch').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const outline = (e.currentTarget as HTMLElement).dataset.outline;
+                if (outline) {
+                    this.setCurrentStroke(outline);
+
+                    // Update active state
+                    document.querySelectorAll('.outline-swatch').forEach(b => b.classList.remove('active'));
+                    (e.currentTarget as HTMLElement).classList.add('active');
+                }
+            });
+        });
+
+        // Line style buttons
+        const lineSolid = document.getElementById('line-solid');
+        if (lineSolid) {
+            lineSolid.addEventListener('click', () => this.setStrokeStyle('solid'));
+        }
+
+        const lineDashed = document.getElementById('line-dashed');
+        if (lineDashed) {
+            lineDashed.addEventListener('click', () => this.setStrokeStyle('dashed'));
+        }
+
+        const lineDotted = document.getElementById('line-dotted');
+        if (lineDotted) {
+            lineDotted.addEventListener('click', () => this.setStrokeStyle('dotted'));
+        }
 
         // Crosshair toggle
         const crosshairToggle = document.getElementById('crosshair-toggle') as HTMLInputElement;
@@ -587,7 +804,54 @@ class VisEditor {
         }
 
         // Keyboard shortcuts
+
+        // Alignment tool buttons
+        const alignLeftBtn = document.getElementById('align-left-btn');
+        if (alignLeftBtn) alignLeftBtn.addEventListener('click', () => this.alignLeft());
+
+        const alignCenterBtn = document.getElementById('align-center-btn');
+        if (alignCenterBtn) alignCenterBtn.addEventListener('click', () => this.alignCenter());
+
+        const alignRightBtn = document.getElementById('align-right-btn');
+        if (alignRightBtn) alignRightBtn.addEventListener('click', () => this.alignRight());
+
+        const alignTopBtn = document.getElementById('align-top-btn');
+        if (alignTopBtn) alignTopBtn.addEventListener('click', () => this.alignTop());
+
+        const alignMiddleBtn = document.getElementById('align-middle-btn');
+        if (alignMiddleBtn) alignMiddleBtn.addEventListener('click', () => this.alignMiddle());
+
+        const alignBottomBtn = document.getElementById('align-bottom-btn');
+        if (alignBottomBtn) alignBottomBtn.addEventListener('click', () => this.alignBottom());
+
+        // Distribution tool buttons
+        const distributeHBtn = document.getElementById('distribute-h-btn');
+        if (distributeHBtn) distributeHBtn.addEventListener('click', () => this.distributeHorizontally());
+
+        const distributeVBtn = document.getElementById('distribute-v-btn');
+        if (distributeVBtn) distributeVBtn.addEventListener('click', () => this.distributeVertically());
+
+        // Keyboard shortcuts button
+        const shortcutsBtn = document.getElementById('shortcuts-btn');
+        if (shortcutsBtn) shortcutsBtn.addEventListener('click', () => this.showKeyboardShortcuts());
         document.addEventListener('keydown', (e) => {
+            // Ctrl+C - Copy
+            if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
+                const activeObject = this.canvas?.getActiveObject();
+                if (activeObject && document.activeElement?.tagName !== 'INPUT') {
+                    e.preventDefault();
+                    this.copyObject();
+                }
+            }
+
+            // Ctrl+V - Paste
+            if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
+                if (document.activeElement?.tagName !== 'INPUT') {
+                    e.preventDefault();
+                    this.pasteObject();
+                }
+            }
+
             // Ctrl+D or Cmd+D - Duplicate
             if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
                 e.preventDefault();
@@ -659,6 +923,43 @@ class VisEditor {
                 ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'z')) {
                 e.preventDefault();
                 this.redo();
+            }
+
+            // Ctrl+G - Group selected objects
+            if ((e.ctrlKey || e.metaKey) && (e.key === 'g' || e.key === 'G') && !e.shiftKey) {
+                e.preventDefault();
+                this.groupObjects();
+            }
+
+            // Ctrl+Shift+G - Ungroup selected group
+            if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'g' || e.key === 'G')) {
+                e.preventDefault();
+                this.ungroupObjects();
+            }
+
+            // Enter - Enter group to edit contents
+            if (e.key === 'Enter' && !e.ctrlKey && !e.metaKey && document.activeElement?.tagName !== 'INPUT') {
+                e.preventDefault();
+                this.enterGroup();
+            }
+
+            // Space - Enable pan mode (visual feedback)
+            if (e.key === ' ' && !e.ctrlKey && !e.metaKey && document.activeElement?.tagName !== 'INPUT') {
+                e.preventDefault();
+                const canvasEl = document.getElementById('vis-canvas');
+                if (canvasEl && !this.isPanning) {
+                    canvasEl.style.cursor = 'grab';
+                }
+            }
+        });
+
+        // Space key release - Disable pan mode cursor
+        document.addEventListener('keyup', (e) => {
+            if (e.key === ' ') {
+                const canvasEl = document.getElementById('vis-canvas');
+                if (canvasEl) {
+                    canvasEl.style.cursor = 'default';
+                }
             }
         });
     }
@@ -768,23 +1069,29 @@ class VisEditor {
                     strokeDashArray: [5, 5],
                 } as any);
 
-                // Create panel label (dark in white canvas, light in dark canvas)
+                // Create panel border group (without label for flexibility)
+                border.set('id', `panel-border-${baseLabel}`);
+                border.set('panelId', baseLabel);
+                border.set('selectable', false);  // Border not selectable
+                border.set('evented', false);
+                border.set('left', x);
+                border.set('top', y);
+
+                this.canvas.add(border);
+                this.canvas.sendToBack(border);
+                this.panelBorders.push(border);
+
+                // Create panel label as separate, independently movable object
                 const fontFamily = this.currentPreset?.font_family || 'Arial';
                 const labelColor = this.darkCanvasMode ? '#ffffff' : '#000000';
 
                 const text = new fabric.Text(displayLabel, {
-                    left: 10,
-                    top: 10,
+                    left: x + 10,  // Position relative to panel
+                    top: y + 10,
                     fontSize: this.fontSizes.panelLabel,  // 10pt for panel labels
                     fontFamily: fontFamily,
                     fontWeight: 'bold',
                     fill: labelColor,
-                } as any);
-
-                // Group border and label together as a draggable panel
-                const panelGroup = new fabric.Group([border, text], {
-                    left: x,
-                    top: y,
                     selectable: true,
                     hasControls: false,  // No resize handles
                     lockScalingX: true,
@@ -792,11 +1099,11 @@ class VisEditor {
                     lockRotation: true,
                     hoverCursor: 'move',
                 } as any);
-                panelGroup.set('id', `panel-group-${baseLabel}`);
-                panelGroup.set('panelId', baseLabel);
+                text.set('id', `panel-label-${baseLabel}`);
+                text.set('panelId', baseLabel);
 
-                this.canvas.add(panelGroup);
-                this.canvas.sendToBack(panelGroup);
+                this.canvas.add(text);
+                this.panelLabels.push(text);
 
                 // Store metadata
                 this.panelMetadata.push({
@@ -838,15 +1145,11 @@ class VisEditor {
 
         // Update all panel label text based on current style
         this.canvas.getObjects().forEach((obj: any) => {
-            if (obj.id && obj.id.startsWith('panel-group-')) {
+            if (obj.id && obj.id.startsWith('panel-label-')) {
                 const panelId = obj.panelId;
                 if (panelId) {
                     const newLabel = this.formatPanelLabel(panelId);
-                    // Update the label text within the group
-                    const items = obj.getObjects();
-                    if (items && items.length > 1) {
-                        items[1].set('text', newLabel);  // Second item is the label
-                    }
+                    obj.set('text', newLabel);
                 }
             }
         });
@@ -859,6 +1162,198 @@ class VisEditor {
         // This is now handled by draggable panels
         // Users can drag panels to swap positions
         this.updateStatus('Drag panels to rearrange them');
+    }
+
+    // PowerPoint-style alignment methods
+    private alignLeft() {
+        const selected = this.getSelectedObjects();
+        if (selected.length < 2) {
+            this.updateStatus('Select at least 2 objects to align');
+            return;
+        }
+
+        const minLeft = Math.min(...selected.map((obj: any) => obj.left));
+        selected.forEach((obj: any) => {
+            obj.set('left', minLeft);
+            obj.setCoords();
+        });
+
+        this.canvas?.renderAll();
+        this.saveToHistory();
+        this.updateStatus(`${selected.length} objects aligned left`);
+    }
+
+    private alignCenter() {
+        const selected = this.getSelectedObjects();
+        if (selected.length < 2) {
+            this.updateStatus('Select at least 2 objects to align');
+            return;
+        }
+
+        const centers = selected.map((obj: any) => obj.left + (obj.getBoundingRect().width / 2));
+        const avgCenter = centers.reduce((a, b) => a + b, 0) / centers.length;
+
+        selected.forEach((obj: any) => {
+            const newLeft = avgCenter - (obj.getBoundingRect().width / 2);
+            obj.set('left', newLeft);
+            obj.setCoords();
+        });
+
+        this.canvas?.renderAll();
+        this.saveToHistory();
+        this.updateStatus(`${selected.length} objects aligned center`);
+    }
+
+    private alignRight() {
+        const selected = this.getSelectedObjects();
+        if (selected.length < 2) {
+            this.updateStatus('Select at least 2 objects to align');
+            return;
+        }
+
+        const maxRight = Math.max(...selected.map((obj: any) => obj.left + obj.getBoundingRect().width));
+        selected.forEach((obj: any) => {
+            obj.set('left', maxRight - obj.getBoundingRect().width);
+            obj.setCoords();
+        });
+
+        this.canvas?.renderAll();
+        this.saveToHistory();
+        this.updateStatus(`${selected.length} objects aligned right`);
+    }
+
+    private alignTop() {
+        const selected = this.getSelectedObjects();
+        if (selected.length < 2) {
+            this.updateStatus('Select at least 2 objects to align');
+            return;
+        }
+
+        const minTop = Math.min(...selected.map((obj: any) => obj.top));
+        selected.forEach((obj: any) => {
+            obj.set('top', minTop);
+            obj.setCoords();
+        });
+
+        this.canvas?.renderAll();
+        this.saveToHistory();
+        this.updateStatus(`${selected.length} objects aligned top`);
+    }
+
+    private alignMiddle() {
+        const selected = this.getSelectedObjects();
+        if (selected.length < 2) {
+            this.updateStatus('Select at least 2 objects to align');
+            return;
+        }
+
+        const middles = selected.map((obj: any) => obj.top + (obj.getBoundingRect().height / 2));
+        const avgMiddle = middles.reduce((a, b) => a + b, 0) / middles.length;
+
+        selected.forEach((obj: any) => {
+            const newTop = avgMiddle - (obj.getBoundingRect().height / 2);
+            obj.set('top', newTop);
+            obj.setCoords();
+        });
+
+        this.canvas?.renderAll();
+        this.saveToHistory();
+        this.updateStatus(`${selected.length} objects aligned middle`);
+    }
+
+    private alignBottom() {
+        const selected = this.getSelectedObjects();
+        if (selected.length < 2) {
+            this.updateStatus('Select at least 2 objects to align');
+            return;
+        }
+
+        const maxBottom = Math.max(...selected.map((obj: any) => obj.top + obj.getBoundingRect().height));
+        selected.forEach((obj: any) => {
+            obj.set('top', maxBottom - obj.getBoundingRect().height);
+            obj.setCoords();
+        });
+
+        this.canvas?.renderAll();
+        this.saveToHistory();
+        this.updateStatus(`${selected.length} objects aligned bottom`);
+    }
+
+    private distributeHorizontally() {
+        const selected = this.getSelectedObjects();
+        if (selected.length < 3) {
+            this.updateStatus('Select at least 3 objects to distribute');
+            return;
+        }
+
+        // Sort by left position
+        const sorted = selected.sort((a: any, b: any) => a.left - b.left);
+        const leftMost = sorted[0].left;
+        const rightMost = sorted[sorted.length - 1].left + sorted[sorted.length - 1].getBoundingRect().width;
+        const totalSpace = rightMost - leftMost;
+
+        // Calculate total width of all objects
+        const totalObjWidth = sorted.reduce((sum: number, obj: any) => sum + obj.getBoundingRect().width, 0);
+        const gap = (totalSpace - totalObjWidth) / (sorted.length - 1);
+
+        let currentLeft = leftMost;
+        sorted.forEach((obj: any, index: number) => {
+            if (index !== 0 && index !== sorted.length - 1) {
+                obj.set('left', currentLeft);
+                obj.setCoords();
+            }
+            currentLeft += obj.getBoundingRect().width + gap;
+        });
+
+        this.canvas?.renderAll();
+        this.saveToHistory();
+        this.updateStatus(`${selected.length} objects distributed horizontally`);
+    }
+
+    private distributeVertically() {
+        const selected = this.getSelectedObjects();
+        if (selected.length < 3) {
+            this.updateStatus('Select at least 3 objects to distribute');
+            return;
+        }
+
+        // Sort by top position
+        const sorted = selected.sort((a: any, b: any) => a.top - b.top);
+        const topMost = sorted[0].top;
+        const bottomMost = sorted[sorted.length - 1].top + sorted[sorted.length - 1].getBoundingRect().height;
+        const totalSpace = bottomMost - topMost;
+
+        // Calculate total height of all objects
+        const totalObjHeight = sorted.reduce((sum: number, obj: any) => sum + obj.getBoundingRect().height, 0);
+        const gap = (totalSpace - totalObjHeight) / (sorted.length - 1);
+
+        let currentTop = topMost;
+        sorted.forEach((obj: any, index: number) => {
+            if (index !== 0 && index !== sorted.length - 1) {
+                obj.set('top', currentTop);
+                obj.setCoords();
+            }
+            currentTop += obj.getBoundingRect().height + gap;
+        });
+
+        this.canvas?.renderAll();
+        this.saveToHistory();
+        this.updateStatus(`${selected.length} objects distributed vertically`);
+    }
+
+    private getSelectedObjects(): fabric.Object[] {
+        if (!this.canvas) return [];
+
+        const activeObject = this.canvas.getActiveObject();
+        if (!activeObject) return [];
+
+        // If it's a selection group, get all objects
+        if (activeObject.type === 'activeSelection') {
+            return (activeObject as any).getObjects();
+        }
+
+        // Single object
+        return [activeObject];
     }
 
     private getLayoutConfig(layout: string): PanelLayout | null {
@@ -880,10 +1375,10 @@ class VisEditor {
     private clearPanelBorders() {
         if (!this.canvas) return;
 
-        // Remove existing panel groups
+        // Remove existing panel borders and labels
         const objects = this.canvas.getObjects();
         objects.forEach((obj: any) => {
-            if (obj.id && obj.id.startsWith('panel-group-')) {
+            if (obj.id && (obj.id.startsWith('panel-border-') || obj.id.startsWith('panel-label-'))) {
                 this.canvas!.remove(obj);
             }
         });
@@ -912,10 +1407,16 @@ class VisEditor {
                 this.addArrow();
                 break;
             case 'rect-white':
-                this.addRectangle('#ffffff', 'White Rectangle (hides elements)');
+                this.addRectangle(this.currentColor, 'Rectangle');
                 break;
-            case 'rect-black':
-                this.addRectangle('#000000', 'Black Rectangle');
+            case 'circle':
+                this.addCircle();
+                break;
+            case 'triangle':
+                this.addTriangle();
+                break;
+            case 'diamond':
+                this.addDiamond();
                 break;
             case 'line':
                 this.addLine();
@@ -1111,7 +1612,7 @@ class VisEditor {
         const lineWidth = this.currentPreset?.line_width_pt || 0.5;
 
         const line = new fabric.Line([50, 50, 200, 50], {
-            stroke: '#000000',
+            stroke: this.currentColor,
             strokeWidth: lineWidth * 4,
             selectable: true,
             evented: true,
@@ -1122,6 +1623,67 @@ class VisEditor {
         this.canvas.setActiveObject(line);
         this.canvas.renderAll();
         this.updateStatus('Line added');
+    }
+
+    private addCircle() {
+        if (!this.canvas) return;
+
+        const circle = new fabric.Circle({
+            radius: 50,
+            fill: this.currentColor,
+            left: 100,
+            top: 100,
+            selectable: true,
+            evented: true,
+        } as any);
+
+        this.canvas.add(circle);
+        this.canvas.bringToFront(circle);
+        this.canvas.setActiveObject(circle);
+        this.canvas.renderAll();
+        this.updateStatus('Circle added');
+    }
+
+    private addTriangle() {
+        if (!this.canvas) return;
+
+        const triangle = new fabric.Triangle({
+            width: 100,
+            height: 100,
+            fill: this.currentColor,
+            left: 100,
+            top: 100,
+            selectable: true,
+            evented: true,
+        } as any);
+
+        this.canvas.add(triangle);
+        this.canvas.bringToFront(triangle);
+        this.canvas.setActiveObject(triangle);
+        this.canvas.renderAll();
+        this.updateStatus('Triangle added');
+    }
+
+    private addDiamond() {
+        if (!this.canvas) return;
+
+        // Create diamond as rotated square
+        const diamond = new fabric.Rect({
+            width: 80,
+            height: 80,
+            fill: this.currentColor,
+            left: 100,
+            top: 100,
+            angle: 45,
+            selectable: true,
+            evented: true,
+        } as any);
+
+        this.canvas.add(diamond);
+        this.canvas.bringToFront(diamond);
+        this.canvas.setActiveObject(diamond);
+        this.canvas.renderAll();
+        this.updateStatus('Diamond added');
     }
 
     // Reference Rectangles for Size Comparison
@@ -1229,6 +1791,131 @@ class VisEditor {
         this.updateStatus(`${type} column reference added (${widthMm}mm)`);
     }
 
+    private groupObjects() {
+        if (!this.canvas) return;
+
+        const activeSelection = this.canvas.getActiveObject();
+        if (!activeSelection || activeSelection.type !== 'activeSelection') {
+            this.updateStatus('Select multiple objects to group (Ctrl+Click)');
+            return;
+        }
+
+        const selectedObjects = (activeSelection as any).getObjects();
+        if (selectedObjects.length < 2) {
+            this.updateStatus('Select at least 2 objects to group');
+            return;
+        }
+
+        // Create group from selected objects
+        activeSelection.toGroup();
+        this.canvas.requestRenderAll();
+        this.saveToHistory();
+        this.updateStatus(`${selectedObjects.length} objects grouped`);
+    }
+
+    private ungroupObjects() {
+        if (!this.canvas) return;
+
+        const activeObject = this.canvas.getActiveObject();
+        if (!activeObject) {
+            this.updateStatus('No object selected to ungroup');
+            return;
+        }
+
+        if (activeObject.type !== 'group') {
+            this.updateStatus('Selected object is not a group');
+            return;
+        }
+
+        // Ungroup the selected group
+        const group = activeObject as fabric.Group;
+        const items = (group as any).getObjects();
+
+        (group as any).toActiveSelection();
+        this.canvas.requestRenderAll();
+        this.saveToHistory();
+        this.updateStatus(`Group ungrouped (${items.length} objects)`);
+    }
+
+    private enterGroup() {
+        if (!this.canvas) return;
+
+        const activeObject = this.canvas.getActiveObject();
+        if (!activeObject) {
+            this.updateStatus('No object selected');
+            return;
+        }
+
+        if (activeObject.type !== 'group') {
+            this.updateStatus('Selected object is not a group (select a group and press Enter to edit)');
+            return;
+        }
+
+        // Convert group to active selection to edit individual objects
+        const group = activeObject as fabric.Group;
+        const items = (group as any).getObjects();
+
+        (group as any).toActiveSelection();
+        this.canvas.requestRenderAll();
+        this.updateStatus(`Editing group (${items.length} objects) - Ctrl+G to regroup`);
+    }
+
+    private copyObject() {
+        if (!this.canvas) return;
+
+        const activeObject = this.canvas.getActiveObject();
+        if (!activeObject) {
+            this.updateStatus('No object selected to copy');
+            return;
+        }
+
+        // Clone to clipboard
+        activeObject.clone((cloned: any) => {
+            this.clipboard = cloned;
+            this.updateStatus('Object copied to clipboard');
+        });
+    }
+
+    private pasteObject() {
+        if (!this.canvas) return;
+
+        if (!this.clipboard) {
+            this.updateStatus('Clipboard is empty (copy an object first)');
+            return;
+        }
+
+        // Clone from clipboard
+        this.clipboard.clone((cloned: any) => {
+            // Offset the pasted object
+            cloned.set({
+                left: (cloned.left || 0) + 20,
+                top: (cloned.top || 0) + 20,
+                evented: true,
+            });
+
+            // Handle groups properly
+            if (cloned.type === 'activeSelection') {
+                this.canvas!.discardActiveObject();
+                cloned.canvas = this.canvas;
+                cloned.forEachObject((obj: any) => {
+                    this.canvas!.add(obj);
+                });
+                cloned.setCoords();
+            } else {
+                this.canvas!.add(cloned);
+            }
+
+            // Update clipboard reference for continuous pasting
+            this.clipboard.set('top', cloned.top);
+            this.clipboard.set('left', cloned.left);
+
+            this.canvas!.setActiveObject(cloned);
+            this.canvas!.requestRenderAll();
+            this.saveToHistory();
+            this.updateStatus('Object pasted');
+        });
+    }
+
     private duplicateObject() {
         if (!this.canvas) return;
 
@@ -1316,8 +2003,12 @@ class VisEditor {
                 strokeWidth: i % 5 === 0 ? 1 : 0.5,  // Major/minor lines
                 selectable: false,
                 evented: false,
+                hoverCursor: 'default',
+                excludeFromExport: true,
             } as any);
             line.set('id', 'grid-line');
+            line.set('selectable', false);
+            line.set('evented', false);
             this.canvas.add(line);
             this.canvas.sendToBack(line);
         }
@@ -1330,8 +2021,12 @@ class VisEditor {
                 strokeWidth: i % 5 === 0 ? 1 : 0.5,  // Major/minor lines
                 selectable: false,
                 evented: false,
+                hoverCursor: 'default',
+                excludeFromExport: true,
             } as any);
             line.set('id', 'grid-line');
+            line.set('selectable', false);
+            line.set('evented', false);
             this.canvas.add(line);
             this.canvas.sendToBack(line);
         }
@@ -1594,7 +2289,7 @@ class VisEditor {
 
     // Scientific Color Palette
     private setCurrentColor(color: string) {
-        this.currentColor = color;
+        this.currentColor = color === 'none' ? 'transparent' : color;
 
         // Apply to selected objects
         const activeObjects = this.canvas?.getActiveObjects();
@@ -1615,39 +2310,100 @@ class VisEditor {
         console.log(`[Color] Set to ${color}`);
     }
 
-    // Crosshair Alignment Guides
+    private setCurrentStroke(color: string) {
+        this.currentStroke = color === 'none' ? 'transparent' : color;
+
+        // Apply to selected objects
+        const activeObjects = this.canvas?.getActiveObjects();
+        if (activeObjects && activeObjects.length > 0) {
+            activeObjects.forEach((obj: any) => {
+                obj.set('stroke', color);
+            });
+            this.canvas?.renderAll();
+            this.saveToHistory();
+        }
+
+        console.log(`[Stroke] Set to ${color}`);
+    }
+
+    private setStrokeStyle(style: 'solid' | 'dashed' | 'dotted') {
+        this.currentStrokeStyle = style;
+
+        // Apply to selected objects
+        const activeObjects = this.canvas?.getActiveObjects();
+        if (activeObjects && activeObjects.length > 0) {
+            const strokeDashArray = style === 'solid' ? [] : style === 'dashed' ? [10, 5] : [2, 2];
+            activeObjects.forEach((obj: any) => {
+                obj.set('strokeDashArray', strokeDashArray);
+            });
+            this.canvas?.renderAll();
+            this.saveToHistory();
+        }
+
+        console.log(`[Stroke Style] Set to ${style}`);
+    }
+
+    private showContextMenu(event: MouseEvent, obj: any) {
+        // TODO: Implement context menu
+        console.log('[ContextMenu] Right-click on object:', obj);
+    }
+
+    private showKeyboardShortcuts() {
+        // TODO: Implement keyboard shortcuts modal
+        console.log('[Shortcuts] Show keyboard shortcuts modal');
+    }
+
+    // Crosshair Alignment Guides - Fixed positioning for pixel-perfect cursor tracking
     private initCrosshair() {
+        const body = document.body;
         const canvasWrapper = document.querySelector('.vis-canvas-wrapper') as HTMLElement;
         if (!canvasWrapper) return;
 
-        // Create crosshair elements if they don't exist
+        // Create crosshair elements with fixed positioning
         if (!this.crosshairH) {
             this.crosshairH = document.createElement('div');
             this.crosshairH.className = 'crosshair-horizontal';
-            canvasWrapper.appendChild(this.crosshairH);
+            body.appendChild(this.crosshairH);
         }
 
         if (!this.crosshairV) {
             this.crosshairV = document.createElement('div');
             this.crosshairV.className = 'crosshair-vertical';
-            canvasWrapper.appendChild(this.crosshairV);
+            body.appendChild(this.crosshairV);
         }
 
-        // Mouse move handler
+        // Mouse move handler - Use viewport coordinates directly
         const handleMouseMove = (e: MouseEvent) => {
             if (!this.crosshairH || !this.crosshairV) return;
 
-            const rect = canvasWrapper.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-
-            // Update crosshair positions
-            this.crosshairH.style.top = `${y}px`;
-            this.crosshairV.style.left = `${x}px`;
+            // Use clientX/clientY directly - viewport coordinates
+            this.crosshairH.style.top = `${e.clientY}px`;
+            this.crosshairV.style.left = `${e.clientX}px`;
 
             // Show crosshairs
             this.crosshairH.classList.add('visible');
             this.crosshairV.classList.add('visible');
+        };
+
+        // Click handler - Add guide lines at crosshair position
+        const handleClick = (e: MouseEvent) => {
+            if (!this.canvas || !this.crosshairEnabled) return;
+
+            const pointer = this.canvas.getPointer(e);
+
+            // Ctrl+Click = Add vertical guide line
+            if (e.ctrlKey || e.metaKey) {
+                e.preventDefault();
+                this.addGuideLine('vertical', pointer.x);
+                return;
+            }
+
+            // Shift+Click = Add horizontal guide line
+            if (e.shiftKey) {
+                e.preventDefault();
+                this.addGuideLine('horizontal', pointer.y);
+                return;
+            }
         };
 
         const handleMouseLeave = () => {
@@ -1657,8 +2413,52 @@ class VisEditor {
 
         canvasWrapper.addEventListener('mousemove', handleMouseMove);
         canvasWrapper.addEventListener('mouseleave', handleMouseLeave);
+        canvasWrapper.addEventListener('click', handleClick);
 
-        console.log('[Crosshair] Enabled');
+        console.log('[Crosshair] Enabled - Ctrl+Click for V-line, Shift+Click for H-line');
+    }
+
+    private addGuideLine(orientation: 'horizontal' | 'vertical', position: number) {
+        if (!this.canvas) return;
+
+        const canvasWidth = this.canvas.getWidth();
+        const canvasHeight = this.canvas.getHeight();
+
+        let line: fabric.Line;
+        if (orientation === 'horizontal') {
+            // Horizontal guide line at Y position
+            line = new fabric.Line([0, position, canvasWidth, position], {
+                stroke: 'rgba(59, 130, 246, 0.8)',
+                strokeWidth: 1,
+                strokeDashArray: [5, 5],
+                selectable: true,
+                evented: true,
+                lockRotation: true,
+                lockScalingX: true,
+                lockScalingY: true,
+            } as any);
+            line.set('id', 'guide-line-h');
+            this.updateStatus('Horizontal guide line added - Drag to reposition');
+        } else {
+            // Vertical guide line at X position
+            line = new fabric.Line([position, 0, position, canvasHeight], {
+                stroke: 'rgba(59, 130, 246, 0.8)',
+                strokeWidth: 1,
+                strokeDashArray: [5, 5],
+                selectable: true,
+                evented: true,
+                lockRotation: true,
+                lockScalingX: true,
+                lockScalingY: true,
+            } as any);
+            line.set('id', 'guide-line-v');
+            this.updateStatus('Vertical guide line added - Drag to reposition');
+        }
+
+        this.canvas.add(line);
+        this.canvas.setActiveObject(line);
+        this.canvas.renderAll();
+        this.saveToHistory();
     }
 
     private removeCrosshair() {
@@ -1838,6 +2638,75 @@ class VisEditor {
         }
     }
 
+    private handleClickCycling(e: any) {
+        if (!this.canvas) return;
+
+        const currentTime = Date.now();
+        const clickTimeout = 1000; // 1 second window for consecutive clicks
+        const positionThreshold = 10; // pixels
+
+        // Get pointer position
+        const pointer = this.canvas.getPointer(e.e);
+
+        // Check if this is a consecutive click in the same area
+        const isSamePosition = this.lastClickPosition &&
+            Math.abs(pointer.x - this.lastClickPosition.x) < positionThreshold &&
+            Math.abs(pointer.y - this.lastClickPosition.y) < positionThreshold;
+
+        const isWithinTimeout = (currentTime - this.lastClickTime) < clickTimeout;
+
+        if (isSamePosition && isWithinTimeout) {
+            // Consecutive click - cycle to next object
+            if (this.clickCycleObjects.length > 1) {
+                this.clickCycleIndex = (this.clickCycleIndex + 1) % this.clickCycleObjects.length;
+                const nextObject = this.clickCycleObjects[this.clickCycleIndex];
+
+                this.canvas.discardActiveObject();
+                this.canvas.setActiveObject(nextObject);
+                this.canvas.requestRenderAll();
+
+                this.updateStatus(`Cycling through ${this.clickCycleObjects.length} layered objects (${this.clickCycleIndex + 1}/${this.clickCycleObjects.length})`);
+            }
+        } else {
+            // New click location - find all objects at this position
+            this.clickCycleObjects = this.getObjectsAtPoint(pointer);
+            this.clickCycleIndex = 0;
+
+            if (this.clickCycleObjects.length > 1) {
+                this.updateStatus(`${this.clickCycleObjects.length} objects at this location - click again to cycle`);
+            }
+        }
+
+        // Update tracking variables
+        this.lastClickPosition = pointer;
+        this.lastClickTime = currentTime;
+    }
+
+    private getObjectsAtPoint(pointer: {x: number, y: number}): fabric.Object[] {
+        if (!this.canvas) return [];
+
+        const tolerance = 5;
+        const objects: fabric.Object[] = [];
+
+        // Get all selectable objects (front to back)
+        this.canvas.forEachObject((obj: any) => {
+            if (!obj.selectable) return;
+            if (obj.id && (obj.id === 'grid-line' || obj.id.startsWith('panel-border'))) return;
+
+            const bound = obj.getBoundingRect();
+
+            if (pointer.x >= bound.left - tolerance &&
+                pointer.x <= bound.left + bound.width + tolerance &&
+                pointer.y >= bound.top - tolerance &&
+                pointer.y <= bound.top + bound.height + tolerance) {
+                objects.push(obj);
+            }
+        });
+
+        // Reverse to get front-to-back order
+        return objects.reverse();
+    }
+
     private showObjectsUnderPointer(pointer: {x: number, y: number}) {
         if (!this.canvas) return;
 
@@ -2002,6 +2871,22 @@ class VisEditor {
         return obj.type || 'Object';
     }
 
+    private updateZoomDisplay() {
+        // Update zoom display in header
+        const zoomDisplay = document.getElementById('zoom-level');
+        if (zoomDisplay) {
+            zoomDisplay.textContent = `${Math.round(this.zoomLevel * 100)}%`;
+        }
+
+        // Update status bar zoom
+        const canvasZoom = document.getElementById('canvas-zoom');
+        if (canvasZoom) {
+            canvasZoom.textContent = `${Math.round(this.zoomLevel * 100)}%`;
+        }
+
+        this.updateStatus(`Zoom: ${Math.round(this.zoomLevel * 100)}%`);
+    }
+
     private zoomIn() {
         this.zoomLevel = Math.min(this.zoomLevel * 1.2, 5.0);  // Max 500%
         this.applyZoom();
@@ -2010,6 +2895,44 @@ class VisEditor {
     private zoomOut() {
         this.zoomLevel = Math.max(this.zoomLevel / 1.2, 0.1);  // Min 10%
         this.applyZoom();
+    }
+
+    private toggleToolbarPanel() {
+        const toolbar = document.querySelector('.vis-toolbar');
+        const toggleBtn = document.getElementById('toggle-toolbar');
+
+        if (toolbar && toggleBtn) {
+            toolbar.classList.toggle('minimized');
+            const isMinimized = toolbar.classList.contains('minimized');
+
+            // Update button icon
+            const icon = toggleBtn.querySelector('i');
+            if (icon) {
+                icon.className = isMinimized ? 'fas fa-chevron-right' : 'fas fa-chevron-left';
+            }
+
+            // Redraw rulers after panel size change
+            setTimeout(() => this.drawRulers(), 300);
+        }
+    }
+
+    private togglePropertiesPanel() {
+        const properties = document.querySelector('.vis-properties');
+        const toggleBtn = document.getElementById('toggle-properties');
+
+        if (properties && toggleBtn) {
+            properties.classList.toggle('minimized');
+            const isMinimized = properties.classList.contains('minimized');
+
+            // Update button icon
+            const icon = toggleBtn.querySelector('i');
+            if (icon) {
+                icon.className = isMinimized ? 'fas fa-chevron-left' : 'fas fa-chevron-right';
+            }
+
+            // Redraw rulers after panel size change
+            setTimeout(() => this.drawRulers(), 300);
+        }
     }
 
     private zoomToFit() {
@@ -2031,28 +2954,85 @@ class VisEditor {
         this.applyZoom();
     }
 
+    private setupRulerDragging() {
+        const rulerHorizontal = document.getElementById('ruler-horizontal');
+        const rulerVertical = document.getElementById('ruler-vertical');
+        const rulerHorizontalBottom = document.getElementById('ruler-horizontal-bottom');
+        const rulerVerticalRight = document.getElementById('ruler-vertical-right');
+        const rulerCorners = document.querySelectorAll('.ruler-corner');
+
+        const rulers = [rulerHorizontal, rulerVertical, rulerHorizontalBottom, rulerVerticalRight, ...Array.from(rulerCorners)].filter(r => r) as HTMLElement[];
+
+        rulers.forEach(ruler => {
+            // Set cursor style
+            ruler.style.cursor = 'grab';
+
+            // Mouse down on ruler
+            ruler.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                this.isPanning = true;
+                this.panStartPoint = { x: e.clientX, y: e.clientY };
+                ruler.style.cursor = 'grabbing';
+            });
+
+            // Mouse enter/leave for cursor feedback
+            ruler.addEventListener('mouseenter', () => {
+                if (!this.isPanning) ruler.style.cursor = 'grab';
+            });
+
+            ruler.addEventListener('mouseleave', () => {
+                if (!this.isPanning) ruler.style.cursor = 'default';
+            });
+        });
+
+        // Global mouse move and up for ruler dragging
+        document.addEventListener('mousemove', (e) => {
+            if (this.isPanning && this.panStartPoint) {
+                let deltaX = e.clientX - this.panStartPoint.x;
+                let deltaY = e.clientY - this.panStartPoint.y;
+
+                // Alt key = Fine-tuned panning (10% speed)
+                if (e.altKey) {
+                    deltaX *= 0.1;
+                    deltaY *= 0.1;
+                }
+
+                this.panOffset.x += deltaX;
+                this.panOffset.y += deltaY;
+                this.updateTransform();
+
+                this.panStartPoint = { x: e.clientX, y: e.clientY };
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (this.isPanning) {
+                this.isPanning = false;
+                this.panStartPoint = null;
+
+                // Reset all ruler cursors
+                rulers.forEach(ruler => {
+                    ruler.style.cursor = 'grab';
+                });
+            }
+        });
+    }
+
+    private updateTransform() {
+        const rulersArea = document.querySelector('.vis-rulers-area') as HTMLElement;
+        if (rulersArea) {
+            // Apply both zoom and pan to the entire rulers area (rulers + canvas together)
+            rulersArea.style.transform = `translate(${this.panOffset.x}px, ${this.panOffset.y}px) scale(${this.zoomLevel})`;
+            rulersArea.style.transformOrigin = 'top left';
+        }
+    }
+
     private applyZoom() {
         if (!this.canvas) return;
 
-        const container = document.querySelector('.vis-canvas-container') as HTMLElement;
-        if (container) {
-            container.style.transform = `scale(${this.zoomLevel})`;
-            container.style.transformOrigin = 'center center';
-        }
-
-        // Update zoom display
-        const zoomDisplay = document.getElementById('zoom-level');
-        if (zoomDisplay) {
-            zoomDisplay.textContent = `${Math.round(this.zoomLevel * 100)}%`;
-        }
-
-        // Update status bar zoom
-        const canvasZoom = document.getElementById('canvas-zoom');
-        if (canvasZoom) {
-            canvasZoom.textContent = `${Math.round(this.zoomLevel * 100)}%`;
-        }
-
-        this.updateStatus(`Zoom: ${Math.round(this.zoomLevel * 100)}%`);
+        // Apply transform to rulers area (rulers + canvas stay together)
+        this.updateTransform();
+        this.updateZoomDisplay();
     }
 
     private saveToHistory() {
@@ -2259,6 +3239,8 @@ class VisEditor {
 
         this.drawHorizontalRuler(canvasWidth, dpi);
         this.drawVerticalRuler(canvasHeight, dpi);
+        this.drawHorizontalBottomRuler(canvasWidth, dpi);
+        this.drawVerticalRightRuler(canvasHeight, dpi);
     }
 
     private drawHorizontalRuler(width: number, dpi: number) {
@@ -2266,9 +3248,12 @@ class VisEditor {
         if (!svg) return;
 
         svg.innerHTML = '';
+        // Set exact dimensions to match canvas width
         svg.setAttribute('width', width.toString());
         svg.setAttribute('height', '25');
         svg.setAttribute('viewBox', `0 0 ${width} 25`);
+        svg.style.width = `${width}px`;
+        svg.style.height = '25px';
 
         const maxValue = this.pxToUnit(width, dpi, this.rulerUnit);
         const majorInterval = this.rulerUnit === 'mm' ? 10 : 1;
@@ -2303,25 +3288,16 @@ class VisEditor {
             line.setAttribute('stroke-width', '1');
             svg.appendChild(line);
 
-            // Label
+            // Label with unit
             const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
             text.setAttribute('x', x.toString());
             text.setAttribute('y', '10');
             text.setAttribute('text-anchor', 'middle');
             text.setAttribute('font-size', '9');
             text.setAttribute('fill', '#666');
-            text.textContent = i.toString();
+            text.textContent = `${i} ${this.rulerUnit}`;
             svg.appendChild(text);
         }
-
-        // Unit label at end
-        const unitText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        unitText.setAttribute('x', (width - 15).toString());
-        unitText.setAttribute('y', '10');
-        unitText.setAttribute('font-size', '8');
-        unitText.setAttribute('fill', '#999');
-        unitText.textContent = this.rulerUnit;
-        svg.appendChild(unitText);
     }
 
     private drawVerticalRuler(height: number, dpi: number) {
@@ -2329,9 +3305,12 @@ class VisEditor {
         if (!svg) return;
 
         svg.innerHTML = '';
+        // Set exact dimensions to match canvas height
         svg.setAttribute('width', '25');
         svg.setAttribute('height', height.toString());
         svg.setAttribute('viewBox', `0 0 25 ${height}`);
+        svg.style.width = '25px';
+        svg.style.height = `${height}px`;
 
         const maxValue = this.pxToUnit(height, dpi, this.rulerUnit);
         const majorInterval = this.rulerUnit === 'mm' ? 10 : 1;
@@ -2366,14 +3345,129 @@ class VisEditor {
             line.setAttribute('stroke-width', '1');
             svg.appendChild(line);
 
-            // Label
+            // Label with unit
             const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
             text.setAttribute('x', '10');
             text.setAttribute('y', (y + 3).toString());
             text.setAttribute('text-anchor', 'middle');
             text.setAttribute('font-size', '9');
             text.setAttribute('fill', '#666');
-            text.textContent = i.toString();
+            text.textContent = `${i} ${this.rulerUnit}`;
+            svg.appendChild(text);
+        }
+    }
+
+    private drawHorizontalBottomRuler(width: number, dpi: number) {
+        const svg = document.getElementById('ruler-horizontal-bottom');
+        if (!svg) return;
+
+        svg.innerHTML = '';
+        // Set exact dimensions to match canvas width
+        svg.setAttribute('width', width.toString());
+        svg.setAttribute('height', '25');
+        svg.setAttribute('viewBox', `0 0 ${width} 25`);
+        svg.style.width = `${width}px`;
+        svg.style.height = '25px';
+
+        const maxValue = this.pxToUnit(width, dpi, this.rulerUnit);
+        const majorInterval = this.rulerUnit === 'mm' ? 10 : 1;
+        const minorInterval = this.rulerUnit === 'mm' ? 5 : 0.5;
+
+        // Draw minor ticks
+        for (let i = minorInterval; i <= maxValue; i += minorInterval) {
+            if (i % majorInterval === 0) continue;
+
+            const x = this.unitToPx(i, dpi, this.rulerUnit);
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', x.toString());
+            line.setAttribute('y1', '0');
+            line.setAttribute('x2', x.toString());
+            line.setAttribute('y2', '7');
+            line.setAttribute('stroke', '#ccc');
+            line.setAttribute('stroke-width', '0.5');
+            svg.appendChild(line);
+        }
+
+        // Draw major ticks with labels
+        for (let i = 0; i <= maxValue; i += majorInterval) {
+            const x = this.unitToPx(i, dpi, this.rulerUnit);
+
+            // Tick line
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', x.toString());
+            line.setAttribute('y1', '0');
+            line.setAttribute('x2', x.toString());
+            line.setAttribute('y2', '13');
+            line.setAttribute('stroke', '#999');
+            line.setAttribute('stroke-width', '1');
+            svg.appendChild(line);
+
+            // Label with unit
+            const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            text.setAttribute('x', x.toString());
+            text.setAttribute('y', '22');
+            text.setAttribute('text-anchor', 'middle');
+            text.setAttribute('font-size', '9');
+            text.setAttribute('fill', '#666');
+            text.textContent = `${i} ${this.rulerUnit}`;
+            svg.appendChild(text);
+        }
+    }
+
+    private drawVerticalRightRuler(height: number, dpi: number) {
+        const svg = document.getElementById('ruler-vertical-right');
+        if (!svg) return;
+
+        svg.innerHTML = '';
+        // Set exact dimensions to match canvas height
+        svg.setAttribute('width', '25');
+        svg.setAttribute('height', height.toString());
+        svg.setAttribute('viewBox', `0 0 25 ${height}`);
+        svg.style.width = '25px';
+        svg.style.height = `${height}px`;
+
+        const maxValue = this.pxToUnit(height, dpi, this.rulerUnit);
+        const majorInterval = this.rulerUnit === 'mm' ? 10 : 1;
+        const minorInterval = this.rulerUnit === 'mm' ? 5 : 0.5;
+
+        // Draw minor ticks
+        for (let i = minorInterval; i <= maxValue; i += minorInterval) {
+            if (i % majorInterval === 0) continue;
+
+            const y = this.unitToPx(i, dpi, this.rulerUnit);
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', '0');
+            line.setAttribute('y1', y.toString());
+            line.setAttribute('x2', '7');
+            line.setAttribute('y2', y.toString());
+            line.setAttribute('stroke', '#ccc');
+            line.setAttribute('stroke-width', '0.5');
+            svg.appendChild(line);
+        }
+
+        // Draw major ticks with labels
+        for (let i = 0; i <= maxValue; i += majorInterval) {
+            const y = this.unitToPx(i, dpi, this.rulerUnit);
+
+            // Tick line
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', '0');
+            line.setAttribute('y1', y.toString());
+            line.setAttribute('x2', '13');
+            line.setAttribute('y2', y.toString());
+            line.setAttribute('stroke', '#999');
+            line.setAttribute('stroke-width', '1');
+            svg.appendChild(line);
+
+            // Label with unit (rotated for vertical ruler)
+            const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            text.setAttribute('x', '18');
+            text.setAttribute('y', (y + 3).toString());
+            text.setAttribute('text-anchor', 'middle');
+            text.setAttribute('font-size', '9');
+            text.setAttribute('fill', '#666');
+            text.setAttribute('transform', `rotate(90, 18, ${y})`);
+            text.textContent = `${i} ${this.rulerUnit}`;
             svg.appendChild(text);
         }
     }

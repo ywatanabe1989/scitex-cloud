@@ -17,8 +17,9 @@ import {
   PDFPreviewManager,
   PanelResizer,
   EditorControls,
-} from "./modules/index.js";
-import { PDFScrollZoomHandler } from "./modules/pdf-scroll-zoom.js";
+  statusLamp,
+} from "../modules/index.js";
+import { PDFScrollZoomHandler } from "../modules/pdf-scroll-zoom.js";
 import { GitHistoryManager } from "../modules/git-history.js";
 import { statePersistence } from "../modules/state-persistence.js";
 import { getCsrfToken } from "@/utils/csrf.js";
@@ -938,7 +939,7 @@ async function initializeEditor(config: any): Promise<void> {
     } else {
       // Start compilation
       console.log("[Writer] Full compilation button clicked");
-      handleCompileFull(compilationManager, state, "manuscript", true);
+      handleCompileFull(compilationManager, state, "manuscript");
     }
   };
 

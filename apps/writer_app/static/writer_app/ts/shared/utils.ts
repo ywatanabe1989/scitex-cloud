@@ -86,7 +86,7 @@ export function debounce<T extends (...args: any[]) => any>(
  */
 export function showToast(
   message: string,
-  type: "success" | "error" | "info" = "info",
+  type: "success" | "error" | "info" | "warning" = "info",
 ): void {
   console.log(`[Toast ${type}] ${message}`);
   // TODO: Implement actual toast UI

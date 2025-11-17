@@ -15,7 +15,6 @@ interface CompilationLog {
 class CompilationViewPage {
   private logViewer: HTMLElement | null;
   private progressBar: HTMLElement | null;
-  // @ts-expect-error - Placeholder for future PDF viewer integration
   private _pdfViewer: HTMLElement | null;
 
   constructor() {
