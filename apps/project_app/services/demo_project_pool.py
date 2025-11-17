@@ -5,11 +5,13 @@ Manages pre-allocated visitor accounts and default projects for anonymous users.
 This is a shared infrastructure service used by Writer, Scholar, Code, etc.
 
 Architecture:
-- Pre-create visitor-001 to visitor-032 (fixed pool)
-- Each visitor gets default-project-XXX
-- Session-based allocation with locking
+- Pre-create visitor-001 to visitor-004 (fixed pool, rotated automatically)
+- Each visitor gets default-project
+- Session-based allocation with locking (24h expiration)
 - On signup: transfer project ownership (visitor → real user)
 - Reset visitor slots after deallocation
+
+With proper rotation, 4 slots are sufficient for development.
 """
 
 import logging
@@ -28,22 +30,24 @@ class VisitorPool:
     Manages a pool of pre-allocated visitor accounts for anonymous users.
 
     Features:
-    - Fixed pool size (visitor-001 to visitor-032)
-    - Session-based allocation with locking
+    - Fixed pool size (visitor-001 to visitor-004, rotated automatically)
+    - Session-based allocation with locking (24h expiration)
     - Project transfer on signup (visitor → user)
     - Automatic slot reset after session expires
     - Reusable across Writer, Scholar, Code apps
 
     Architecture:
-    - Pre-allocated: 32 visitor accounts + default projects
+    - Pre-allocated: 4 visitor accounts + default projects
     - Allocation: Session gets free visitor slot
     - Deallocation: Reset workspace, free slot
     - Signup: Transfer ownership, free visitor slot
+
+    With proper rotation and 24h expiration, 4 slots suffice for development.
     """
 
     VISITOR_USER_PREFIX = "visitor-"
     DEFAULT_PROJECT_PREFIX = "default-project-"
-    POOL_SIZE = 32  # Fixed pool: visitor-001 to visitor-032
+    POOL_SIZE = 4  # Fixed pool: visitor-001 to visitor-004
     SESSION_LIFETIME_HOURS = 24
     SESSION_KEY_PROJECT_ID = "visitor_project_id"
     SESSION_KEY_VISITOR_ID = "visitor_user_id"

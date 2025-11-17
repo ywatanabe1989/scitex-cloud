@@ -2,24 +2,26 @@
 
 ## Overview
 
-The visitor pool allows anonymous users to try SciTeX Writer without signing up. It pre-allocates 32 visitor accounts that rotate automatically.
+The visitor pool allows anonymous users to try SciTeX Writer without signing up. It pre-allocates 4 visitor accounts that rotate automatically with 24-hour session expiration.
 
 ## Initial Setup (Run Once)
 
 ### 1. Create Visitor Pool
 
 ```bash
-# Create 32 visitor accounts (visitor-001 to visitor-032)
+# Create 4 visitor accounts (visitor-001 to visitor-004)
 python manage.py create_visitor_pool
 
 # Or create a custom size
-python manage.py create_visitor_pool --size 16
+python manage.py create_visitor_pool --size 8
 ```
 
 This creates:
-- **Users**: visitor-001, visitor-002, ..., visitor-032
+- **Users**: visitor-001, visitor-002, visitor-003, visitor-004
 - **Projects**: One "default-project" per visitor user
 - **Filesystem**: Project directories at `/data/visitor-XXX/default-project/`
+
+**Note**: With proper rotation and 24h session expiration, 4 slots are sufficient for development.
 
 ### 2. Verify Pool Status
 
@@ -74,7 +76,7 @@ python manage.py reset_visitor_pool
 
 ### Issue: "Pool Exhausted" message
 
-**Symptom**: All 32 slots occupied
+**Symptom**: All 4 slots occupied
 **Solution**:
 1. Wait for sessions to expire (24 hours)
 2. Or increase pool size: `python manage.py create_visitor_pool --size 64`
@@ -94,9 +96,12 @@ python manage.py reset_visitor_pool
 
 ### Pool Size
 
-- **32 slots**: Good for 100-500 visitors/day
-- **64 slots**: For 500-1000 visitors/day
-- **128 slots**: For 1000+ visitors/day
+- **4 slots** (default): Good for development and testing
+- **8 slots**: For light production usage (100-200 visitors/day)
+- **16 slots**: For moderate usage (200-500 visitors/day)
+- **32+ slots**: For heavy usage (500+ visitors/day)
+
+**Note**: With 24h session expiration, each slot can serve ~24 visitors per day.
 
 Calculate based on:
 - Average session duration
@@ -122,7 +127,7 @@ Expired sessions auto-cleanup after 24 hours. No manual intervention needed.
 
 ```python
 VisitorAllocation:
-    visitor_number: int         # 1-32
+    visitor_number: int         # 1-4 (default, configurable)
     session_key: str            # Django session key
     allocation_token: str       # Security token
     allocated_at: datetime
@@ -140,8 +145,10 @@ VisitorAllocation:
 ├── visitor-002/
 │   └── default-project/
 │       └── scitex/writer/...
-...
-└── visitor-032/
+├── visitor-003/
+│   └── default-project/
+│       └── scitex/writer/...
+└── visitor-004/
     └── default-project/
         └── scitex/writer/...
 ```

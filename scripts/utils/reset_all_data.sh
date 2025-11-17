@@ -39,6 +39,12 @@ ${BOLD}Reset All Data - SciTeX Cloud${NC}
 
 Delete all users and projects for a fresh start with v2.0.0-beta.
 
+${BOLD}⚠️  RECOMMENDATION:${NC}
+    For complete fresh start including database and Gitea volumes, use:
+    ${BLUE}make ENV=dev fresh-start${NC}
+
+    This script only resets Django data. For full reset, use the Makefile command above.
+
 ${BOLD}Usage:${NC}
     $0 [OPTIONS]
 
@@ -134,7 +140,7 @@ recreate_visitor_pool() {
     echo ""
 
     if docker exec "$container_name" python manage.py create_visitor_pool; then
-        echo_success "✓ Visitor pool recreated (32 visitor accounts with workspaces)"
+        echo_success "✓ Visitor pool recreated (4 visitor accounts with workspaces)"
         return 0
     else
         echo_error "Failed to recreate visitor pool"

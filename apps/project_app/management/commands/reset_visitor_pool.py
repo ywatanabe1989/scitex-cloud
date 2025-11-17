@@ -18,7 +18,7 @@ class Command(BaseCommand):
         parser.add_argument(
             "--visitor",
             type=int,
-            help="Reset specific visitor number (1-32)",
+            help="Reset specific visitor number (1-4 default, depends on pool size)",
         )
         parser.add_argument(
             "--free-expired",

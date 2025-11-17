@@ -50,8 +50,8 @@
                                 <strong>For Administrators:</strong>
                                 <pre class="mt-2 mb-0"><code>python manage.py create_visitor_pool</code></pre>
                                 <p class="mt-2 mb-0 small">
-                                    This will create 32 pre-allocated visitor accounts for anonymous
-                                    users.
+                                    This will create 4 pre-allocated visitor accounts that rotate
+                                    automatically.
                                 </p>
                             </div>
                             <p class="mb-3">Already have an account?</p>
@@ -150,6 +150,7 @@
       projectName: {% if project %}'{{ project.name|escapejs }}'{% else %}'Demo Project'{% endif %},
       projectSlug: {% if project %}'{{ project.slug|escapejs }}'{% else %}'demo-project'{% endif %},
       projectOwner: {% if project %}'{{ project.owner.username|escapejs }}'{% else %}null{% endif %},
+      manuscriptId: {% if manuscript %}{{ manuscript.id }}{% else %}null{% endif %},  // Manuscript ID for WebSocket
       manuscriptTitle: {% if manuscript %}'{{ manuscript.title|escapejs }}'{% else %}'Untitled'{% endif %},
       userId: {% if user.is_authenticated %}{{ user.id }}{% else %}null{% endif %},
       username: {% if user.is_authenticated %}'{{ user.username|escapejs }}'{% else %}null{% endif %},

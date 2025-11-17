@@ -45,11 +45,11 @@ class VisitorAllocation(models.Model):
     Tracks visitor pool slot allocations.
 
     Prevents race conditions when allocating visitor accounts to sessions.
-    Used by VisitorPool service for managing visitor-001 to visitor-032.
+    Used by VisitorPool service for managing visitor-001 to visitor-004 (default pool size).
     """
 
     visitor_number = models.IntegerField(
-        unique=True, help_text="Visitor slot number (1-32)"
+        unique=True, help_text="Visitor slot number (1-4 default, configurable)"
     )
     session_key = models.CharField(
         max_length=255, blank=True, help_text="Django session key"

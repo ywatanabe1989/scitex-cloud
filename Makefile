@@ -52,6 +52,8 @@
 	db-shell \
 	db-backup \
 	db-reset \
+	fresh-start \
+	fresh-start-confirm \
 	logs-web \
 	logs-db \
 	logs-gitea \
@@ -167,6 +169,10 @@ help:
 	@echo "  make ENV=<env> shell              # Django shell"
 	@echo "  make ENV=<env> build-ts           # Compile TypeScript to JavaScript"
 	@echo "  make ENV=<env> collectstatic      # Collect static files (auto-builds TS)"
+	@echo ""
+	@echo "$(CYAN)🔄 Reset & Fresh Start:$(NC)"
+	@echo "  make ENV=dev fresh-start          # Complete reset: DB + Gitea + Files (dev only)"
+	@echo "  make ENV=dev fresh-start-confirm  # Skip confirmation (use with caution)"
 	@echo ""
 	@echo "$(CYAN)📊 Monitoring:$(NC)"
 	@echo "  make ENV=<env> logs               # View logs"
@@ -340,7 +346,8 @@ rebuild: validate-docker
 		echo "$(RED)⚠️  WARNING: Production rebuild!$(NC)"; \
 		echo "$(YELLOW)   This will cause downtime.$(NC)"; \
 		echo ""; \
-		read -p "Type 'yes' to confirm: " confirm; \
+		printf "Type 'yes' to confirm: "; \
+		read confirm; \
 		if [ "$$confirm" != "yes" ]; then \
 			echo "$(YELLOW)❌ Rebuild cancelled$(NC)"; \
 			exit 1; \
@@ -429,6 +436,141 @@ db-reset: validate
 	fi
 	@echo "$(YELLOW)⚠️  Resetting database (dev only)...$(NC)"
 	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile db-reset
+
+# ============================================
+# Fresh Start (Complete Reset)
+# ============================================
+fresh-start: validate
+	@if [ "$(ENV)" != "dev" ]; then \
+		echo "$(RED)❌ fresh-start only available in dev environment$(NC)"; \
+		echo "$(YELLOW)   This is a destructive operation meant for development$(NC)"; \
+		exit 1; \
+	fi
+	@echo ""
+	@echo "$(RED)╔═══════════════════════════════════════════════════════╗$(NC)"
+	@echo "$(RED)║           ⚠️  COMPLETE FRESH START ⚠️                 ║$(NC)"
+	@echo "$(RED)╚═══════════════════════════════════════════════════════╝$(NC)"
+	@echo ""
+	@echo "$(CYAN)📊 Current System State:$(NC)"
+	@echo ""
+	@# Show database info
+	@USERS=$$(docker exec scitex-cloud-dev-web-1 python manage.py shell -c "from django.contrib.auth.models import User; print(User.objects.count())" 2>/dev/null | tail -1); \
+	PROJECTS=$$(docker exec scitex-cloud-dev-web-1 python manage.py shell -c "from apps.project_app.models import Project; print(Project.objects.count())" 2>/dev/null | tail -1); \
+	MANUSCRIPTS=$$(docker exec scitex-cloud-dev-web-1 python manage.py shell -c "from apps.writer_app.models import Manuscript; print(Manuscript.objects.count())" 2>/dev/null | tail -1); \
+	REPOS=$$(docker exec scitex-cloud-dev-db-1 psql -U scitex_dev -d scitex_cloud_dev -t -c "SELECT COUNT(*) FROM repository;" 2>/dev/null | xargs); \
+	DB_SIZE=$$(docker exec scitex-cloud-dev-db-1 du -sh /var/lib/postgresql/data 2>/dev/null | cut -f1); \
+	GITEA_SIZE=$$(docker exec scitex-cloud-dev-gitea-1 du -sh /data 2>/dev/null | cut -f1); \
+	USER_SIZE=$$(du -sh ./data/users/ 2>/dev/null | cut -f1); \
+	echo "  $(YELLOW)Database:$(NC)"; \
+	echo "    • Users: $$USERS"; \
+	echo "    • Projects: $$PROJECTS"; \
+	echo "    • Manuscripts: $$MANUSCRIPTS"; \
+	echo "    • Size: $$DB_SIZE"; \
+	echo ""; \
+	echo "  $(YELLOW)Gitea:$(NC)"; \
+	echo "    • Repositories: $$REPOS"; \
+	echo "    • Size: $$GITEA_SIZE"; \
+	echo ""; \
+	echo "  $(YELLOW)User Files:$(NC)"; \
+	echo "    • Total Size: $$USER_SIZE"; \
+	echo "    • Directories: $$(ls -1 ./data/users/ 2>/dev/null | wc -l)"; \
+	echo ""
+	@echo "$(RED)⚠️  THIS WILL DELETE:$(NC)"
+	@echo "  • All database tables (Django + Gitea)"
+	@echo "  • All user directories (./data/users/*)"
+	@echo "  • All Gitea repositories"
+	@echo "  • All Docker volumes"
+	@echo ""
+	@echo "$(GREEN)✓ What's PRESERVED:$(NC)"
+	@echo "  • Source code (apps/, config/, scripts/)"
+	@echo "  • Docker images (no rebuild needed)"
+	@echo "  • Configuration files (.env, settings)"
+	@echo "  • Static files (CSS, JS, templates)"
+	@echo "  • Python packages (.venv in project root)"
+	@echo ""
+	@echo "$(GREEN)Then it will:$(NC)"
+	@echo "  • Recreate database with migrations"
+	@echo "  • Initialize visitor pool (4 accounts)"
+	@echo "  • Create fresh Gitea instance"
+	@echo ""
+	@echo "$(YELLOW)⚠️  Note: Will ask for sudo password to delete Docker-created files$(NC)"
+	@echo ""
+	@printf "$(YELLOW)Type 'DELETE EVERYTHING' to confirm: $(NC)"; \
+	read confirm; \
+	if [ "$$confirm" != "DELETE EVERYTHING" ]; then \
+		echo "$(GREEN)✅ Cancelled - no changes made$(NC)"; \
+		exit 0; \
+	fi
+	@echo ""
+	@echo "$(CYAN)🔄 Starting complete fresh start...$(NC)"
+	@echo ""
+	@# Step 1: Stop all containers
+	@echo "$(CYAN)Step 1/6: Stopping all containers...$(NC)"
+	@$(MAKE) --no-print-directory stop-all
+	@echo ""
+	@# Step 2: Remove volumes
+	@echo "$(CYAN)Step 2/6: Removing Docker volumes...$(NC)"
+	@docker volume rm -f scitex-cloud-dev_postgres_data scitex-cloud-dev_gitea_data 2>/dev/null || true
+	@echo "$(GREEN)✓ Volumes removed$(NC)"
+	@echo ""
+	@# Step 3: Clean data directories
+	@echo "$(CYAN)Step 3/6: Cleaning data directories...$(NC)"
+	@echo "  Removing ./data/users/* (requires sudo for Docker-created files)..."
+	@if [ -d ./data/users ] && [ "$$(ls -A ./data/users 2>/dev/null)" ]; then \
+		sudo rm -rf ./data/users/* || { \
+			echo "$(RED)❌ Failed to remove user directories. Try: sudo rm -rf ./data/users/*$(NC)"; \
+			exit 1; \
+		}; \
+	fi
+	@echo "  Removing ./logs/*..."
+	@rm -rf ./logs/*.log 2>/dev/null || true
+	@echo "$(GREEN)✓ Directories cleaned$(NC)"
+	@echo ""
+	@# Step 4: Start containers
+	@echo "$(CYAN)Step 4/6: Starting fresh containers...$(NC)"
+	@$(MAKE) --no-print-directory ENV=dev start
+	@echo ""
+	@# Step 5: Wait for services
+	@echo "$(CYAN)Step 5/6: Waiting for services to be ready...$(NC)"
+	@echo "  Waiting 15 seconds for database and Gitea..."
+	@sleep 15
+	@echo "$(GREEN)✓ Services ready$(NC)"
+	@echo ""
+	@# Step 6: Initialize visitor pool
+	@echo "$(CYAN)Step 6/6: Initializing visitor pool...$(NC)"
+	@docker exec scitex-cloud-dev-web-1 python manage.py create_visitor_pool
+	@echo ""
+	@echo "$(GREEN)╔═══════════════════════════════════════════════════════╗$(NC)"
+	@echo "$(GREEN)║            ✨ FRESH START COMPLETE! ✨                ║$(NC)"
+	@echo "$(GREEN)╚═══════════════════════════════════════════════════════╝$(NC)"
+	@echo ""
+	@echo "$(CYAN)🎉 Your development environment is now clean:$(NC)"
+	@echo "  • Database: Fresh with migrations applied"
+	@echo "  • Visitor pool: 4 accounts ready (rotated automatically)"
+	@echo "  • Gitea: Fresh instance"
+	@echo "  • Files: Clean slate"
+	@echo ""
+	@echo "$(CYAN)📝 Next steps:$(NC)"
+	@echo "  1. Create superuser: make ENV=dev createsuperuser"
+	@echo "  2. Access dev server: http://localhost:8000"
+	@echo "  3. Access Gitea: http://localhost:3001"
+	@echo ""
+
+# Quick fresh start without confirmation (for scripts/automation)
+fresh-start-confirm: validate
+	@if [ "$(ENV)" != "dev" ]; then \
+		echo "$(RED)❌ fresh-start-confirm only available in dev environment$(NC)"; \
+		exit 1; \
+	fi
+	@echo "$(YELLOW)⚠️  Running fresh start without confirmation...$(NC)"
+	@$(MAKE) --no-print-directory stop-all
+	@docker volume rm -f scitex-cloud-dev_postgres_data scitex-cloud-dev_gitea_data 2>/dev/null || true
+	@rm -rf ./data/users/*
+	@rm -rf ./logs/*.log
+	@$(MAKE) --no-print-directory ENV=dev start
+	@sleep 15
+	@docker exec scitex-cloud-dev-web-1 python manage.py create_visitor_pool
+	@echo "$(GREEN)✅ Fresh start complete$(NC)"
 
 # ============================================
 # Logs & Monitoring

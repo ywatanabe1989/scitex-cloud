@@ -1,14 +1,16 @@
 """
 Visitor Pool Manager
 
-Pre-allocated visitor accounts (visitor-001 to visitor-032) for anonymous users.
+Pre-allocated visitor accounts (visitor-001 to visitor-004) for anonymous users.
 Each visitor gets a default project that can be claimed on signup.
 
 Architecture:
-- Fixed pool: 32 visitor accounts with default projects
-- Allocation: Session-based with security token
+- Fixed pool: 4 visitor accounts with default projects (rotated automatically)
+- Allocation: Session-based with security token (24h lifetime)
 - Signup: Transfer project ownership (visitor → real user)
 - Reset: Clear workspace, free slot back to pool
+
+With proper rotation and expiration, 4 slots are sufficient for development.
 """
 
 import logging
@@ -27,13 +29,16 @@ class VisitorPool:
     """
     Manages fixed pool of visitor accounts and default projects.
 
-    Pool Size: 32 concurrent visitors
-    Naming: visitor-001 to visitor-032, default-project-001 to default-project-032
+    Pool Size: 4 concurrent visitors (rotated with 24h session lifetime)
+    Naming: visitor-001 to visitor-004
+
+    With proper rotation and 24h expiration, 4 slots are sufficient for development.
+    Slots are automatically freed and reused when sessions expire.
     """
 
     VISITOR_USER_PREFIX = "visitor-"
     DEFAULT_PROJECT_PREFIX = "default-project-"
-    POOL_SIZE = 32
+    POOL_SIZE = 4
     SESSION_LIFETIME_HOURS = 24
     SESSION_KEY_PROJECT_ID = "visitor_project_id"
     SESSION_KEY_VISITOR_ID = "visitor_user_id"
@@ -42,7 +47,7 @@ class VisitorPool:
     @classmethod
     def initialize_pool(cls, pool_size: int = None) -> int:
         """
-        Create visitor pool (visitor-001 to visitor-032).
+        Create visitor pool (visitor-001 to visitor-004 by default).
 
         Run once during deployment: python manage.py create_visitor_pool
 
@@ -130,9 +135,23 @@ class VisitorPool:
                 )
                 _initialize_visitor_writer_workspace(project, project_root)
 
-        logger.info(
-            f"[VisitorPool] Pool initialization complete: {created_count} new projects"
-        )
+        # Get actual pool status
+        existing_users = 0
+        for i in range(1, pool_size + 1):
+            visitor_num = f"{i:03d}"
+            username = f"{cls.VISITOR_USER_PREFIX}{visitor_num}"
+            if User.objects.filter(username=username).exists():
+                existing_users += 1
+
+        if created_count > 0:
+            logger.info(
+                f"[VisitorPool] Pool initialization complete: {created_count} new projects created"
+            )
+        else:
+            logger.info(
+                f"[VisitorPool] Pool already initialized: {existing_users}/{pool_size} visitor accounts ready"
+            )
+
         return created_count
 
     @classmethod

@@ -2,8 +2,8 @@
 Management command to create visitor pool.
 
 Usage:
-    python manage.py create_visitor_pool                # Create 32 visitors (default)
-    python manage.py create_visitor_pool --size 16      # Create 16 visitors
+    python manage.py create_visitor_pool                # Create 4 visitors (default)
+    python manage.py create_visitor_pool --size 8       # Create 8 visitors
     python manage.py create_visitor_pool --status       # Show pool status
 """
 
@@ -12,14 +12,14 @@ from apps.project_app.services.visitor_pool import VisitorPool
 
 
 class Command(BaseCommand):
-    help = "Create and manage visitor pool (visitor-001 to visitor-032)"
+    help = "Create and manage visitor pool (visitor-001 to visitor-004)"
 
     def add_arguments(self, parser):
         parser.add_argument(
             "--size",
             type=int,
             default=None,
-            help="Pool size (default: 32)",
+            help="Pool size (default: 4)",
         )
         parser.add_argument(
             "--status",
@@ -51,9 +51,23 @@ class Command(BaseCommand):
 
         created = VisitorPool.initialize_pool(pool_size=pool_size)
 
-        self.stdout.write(
-            self.style.SUCCESS(f"\n✓ Created {created} visitor accounts with projects")
-        )
+        # Get pool status to show comprehensive feedback
+        status = VisitorPool.get_pool_status()
+
+        if created > 0:
+            self.stdout.write(
+                self.style.SUCCESS(f"\n✓ Created {created} new visitor accounts with projects")
+            )
+        else:
+            self.stdout.write(
+                self.style.SUCCESS(f"\n✓ Visitor pool already initialized (0 new accounts created)")
+            )
+
+        self.stdout.write(f"\n📊 Pool Status:")
+        self.stdout.write(f"  Total slots: {status['total']}")
+        self.stdout.write(f"  Available: {status['free']}")
+        self.stdout.write(f"  In use: {status['allocated']}")
+
         self.stdout.write("\nPool ready for visitors!")
         self.stdout.write(
             f"\nTo check status: python manage.py create_visitor_pool --status"
