@@ -298,16 +298,16 @@ def _clone_gitea_repo_to_data_dir(project):
     """
     Clone Gitea repository to Django's data directory.
 
-    Creates a working tree at: /data/users/{username}/{project_slug}/
+    Creates a working tree at: /data/users/{username}/proj/{project_slug}/
     """
     import subprocess
     from pathlib import Path
     from django.conf import settings
 
     try:
-        # Get user data directory
+        # Get user data directory - must match ProjectFilesystemManager structure
         user_data_dir = (
-            Path(settings.BASE_DIR) / "data" / "users" / project.owner.username
+            Path(settings.BASE_DIR) / "data" / "users" / project.owner.username / "proj"
         )
         user_data_dir.mkdir(parents=True, exist_ok=True)
 

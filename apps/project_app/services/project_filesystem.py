@@ -591,7 +591,7 @@ This is an empty project directory. You can:
 
 ## Hypotheses
 
-{project.hypotheses or "No hypotheses defined."}
+{getattr(project, "hypotheses", "No hypotheses defined.") or "No hypotheses defined."}
 
 ## Directory Structure
 
@@ -814,7 +814,7 @@ This project directory is managed by SciTeX Cloud. You can:
                 "cache_enabled": True,
             },
             "research": {
-                "hypotheses": project.hypotheses or "",
+                "hypotheses": getattr(project, "hypotheses", "") or "",
                 "keywords": [],
                 "collaborators": [],
             },
