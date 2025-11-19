@@ -77,6 +77,7 @@ ALLOWED_HOSTS = os.getenv(
 # Hot reload settings
 INTERNAL_IPS = [
     "127.0.0.1",
+    "172.20.0.1",  # Docker network gateway (for browser requests from host)
 ]
 
 # ---------------------------------------

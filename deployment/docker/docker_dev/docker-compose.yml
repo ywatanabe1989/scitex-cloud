@@ -78,7 +78,8 @@ services:
     
     # Override CMD to use Daphne (ASGI) instead of runserver (WSGI)
     # This enables WebSocket support for PTY terminal
-    command: ["daphne", "-b", "0.0.0.0", "-p", "8000", "config.asgi:application"]
+    # Hot reload via watchfiles wrapper script - monitors Python files and templates
+    command: ["/app/deployment/docker/docker_dev/start-with-reload.sh"]
 
     # Restart policy
     restart: unless-stopped
