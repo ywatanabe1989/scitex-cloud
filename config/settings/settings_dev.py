@@ -80,15 +80,38 @@ INTERNAL_IPS = [
     "172.20.0.1",  # Docker network gateway (for browser requests from host)
 ]
 
+# django-browser-reload configuration
+# Note: Templates, CSS, and JS files are watched to trigger browser reload
+# Visitor pool initialization is now optimized with fast-path check
+def _get_extra_watch_files():
+    """Dynamically get files to watch for browser reload."""
+    import glob
+    files = []
+    # Watch templates for browser reload (visitor pool init is now fast)
+    files.extend(glob.glob(str(BASE_DIR / "apps/*/templates/**/*.html"), recursive=True))
+    files.extend(glob.glob(str(BASE_DIR / "templates/**/*.html"), recursive=True))
+    # Watch compiled CSS/JS from TypeScript
+    files.extend(glob.glob(str(BASE_DIR / "static/**/*.css"), recursive=True))
+    files.extend(glob.glob(str(BASE_DIR / "apps/*/static/**/*.css"), recursive=True))
+    files.extend(glob.glob(str(BASE_DIR / "static/**/*.js"), recursive=True))
+    files.extend(glob.glob(str(BASE_DIR / "apps/*/static/**/*.js"), recursive=True))
+    return files
+
+DJANGO_BROWSER_RELOAD_EXTRA_FILES = _get_extra_watch_files()
+
 # ---------------------------------------
 # Applications
 # ---------------------------------------
 DEVELOPMENT_APPS = [
+    "daphne",  # Must be first for runserver integration
     "django_browser_reload",
     "django_extensions",
 ]
 
-INSTALLED_APPS += DEVELOPMENT_APPS
+INSTALLED_APPS = DEVELOPMENT_APPS + INSTALLED_APPS  # Daphne must be before django.contrib.staticfiles
+
+# ASGI Application
+ASGI_APPLICATION = "config.asgi.application"
 MIDDLEWARE += [
     "django_browser_reload.middleware.BrowserReloadMiddleware",
 ]

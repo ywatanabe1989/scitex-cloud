@@ -12,11 +12,12 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         presets = [
-            # Nature
+            # Simplified standard sizes: 90mm (single) / 180mm (double)
+            # Works for Nature, Science, Cell, PNAS, and most major journals
             {
-                "name": "Nature",
+                "name": "Standard",
                 "column_type": "single",
-                "width_mm": 89,
+                "width_mm": 90,
                 "height_mm": None,  # Auto
                 "dpi": 300,
                 "font_family": "Arial",
@@ -24,76 +25,13 @@ class Command(BaseCommand):
                 "line_width_pt": 0.5,
             },
             {
-                "name": "Nature",
-                "column_type": "double",
-                "width_mm": 183,
-                "height_mm": None,
-                "dpi": 300,
-                "font_family": "Arial",
-                "font_size_pt": 7,
-                "line_width_pt": 0.5,
-            },
-            # Science
-            {
-                "name": "Science",
-                "column_type": "single",
-                "width_mm": 87,
-                "height_mm": None,
-                "dpi": 300,
-                "font_family": "Arial",
-                "font_size_pt": 8,
-                "line_width_pt": 0.5,
-            },
-            {
-                "name": "Science",
+                "name": "Standard",
                 "column_type": "double",
                 "width_mm": 180,
                 "height_mm": None,
                 "dpi": 300,
                 "font_family": "Arial",
-                "font_size_pt": 8,
-                "line_width_pt": 0.5,
-            },
-            # Cell
-            {
-                "name": "Cell",
-                "column_type": "single",
-                "width_mm": 85,
-                "height_mm": None,
-                "dpi": 300,
-                "font_family": "Helvetica",
                 "font_size_pt": 7,
-                "line_width_pt": 0.5,
-            },
-            {
-                "name": "Cell",
-                "column_type": "double",
-                "width_mm": 180,
-                "height_mm": None,
-                "dpi": 300,
-                "font_family": "Helvetica",
-                "font_size_pt": 7,
-                "line_width_pt": 0.5,
-            },
-            # PNAS
-            {
-                "name": "PNAS",
-                "column_type": "single",
-                "width_mm": 87,
-                "height_mm": None,
-                "dpi": 300,
-                "font_family": "Arial",
-                "font_size_pt": 6,
-                "line_width_pt": 0.5,
-            },
-            {
-                "name": "PNAS",
-                "column_type": "double",
-                "width_mm": 180,
-                "height_mm": None,
-                "dpi": 300,
-                "font_family": "Arial",
-                "font_size_pt": 6,
                 "line_width_pt": 0.5,
             },
         ]

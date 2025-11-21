@@ -57,6 +57,38 @@ class VisitorPool:
         if pool_size is None:
             pool_size = cls.POOL_SIZE
 
+        # Fast-path: Check if pool is already fully initialized
+        # This avoids expensive writer workspace checks on every restart
+        all_ready = True
+        for i in range(1, pool_size + 1):
+            visitor_num = f"{i:03d}"
+            username = f"{cls.VISITOR_USER_PREFIX}{visitor_num}"
+            project_slug = "default-project"
+
+            try:
+                user = User.objects.get(username=username)
+                project = Project.objects.get(slug=project_slug, owner=user)
+
+                # Check directory exists
+                from apps.project_app.services.project_filesystem import (
+                    get_project_filesystem_manager,
+                )
+                manager = get_project_filesystem_manager(user)
+                project_root = manager.get_project_root_path(project)
+
+                if not (project_root and project_root.exists()):
+                    all_ready = False
+                    break
+            except (User.DoesNotExist, Project.DoesNotExist):
+                all_ready = False
+                break
+
+        if all_ready:
+            logger.info(
+                f"[VisitorPool] Pool already initialized: {pool_size}/{pool_size} visitor accounts ready"
+            )
+            return 0
+
         created_count = 0
 
         for i in range(1, pool_size + 1):

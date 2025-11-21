@@ -52,6 +52,9 @@ declare global {
   }
 }
 
+// Export to make this an ES module
+export {};
+
 /**
  * ScholarSeekbarIntegration class
  */

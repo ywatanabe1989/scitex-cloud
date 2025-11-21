@@ -1,0 +1,43 @@
+# .recentignore - Files to exclude from Recent tab
+# Similar to .gitignore, patterns to filter out noise from recent files view
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# Virtual environments
+.venv/
+venv/
+.env/
+
+# Node
+node_modules/
+
+# Git
+.git/
+
+# Cache and temp
+.cache/
+.pytest_cache/
+.mypy_cache/
+.tox/
+*.tmp
+*.log
+
+# Editor files
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Add your custom patterns below:

@@ -32,8 +32,7 @@ def project_create(request):
         init_type = request.POST.get("init_type", "empty")
         template_type = request.POST.get("template_type", "research")
         git_url = request.POST.get("git_url", "").strip()
-        init_scitex_writer = request.POST.get("init_scitex_writer") == "true"
-        init_scitex_scholar = request.POST.get("init_scitex_scholar") == "true"
+        init_scitex = request.POST.get("init_scitex") == "true"
 
         # Initialize directory manager for all init types
         from apps.project_app.services.project_filesystem import (
@@ -171,11 +170,13 @@ def project_create(request):
                 project.refresh_from_db()
 
                 # Check if clone already succeeded (done by signal)
+                # Path must match signal handler: /data/users/{username}/proj/{slug}/
                 project_dir = (
                     Path(settings.BASE_DIR)
                     / "data"
                     / "users"
                     / project.owner.username
+                    / "proj"
                     / project.slug
                 )
 
@@ -315,49 +316,41 @@ def project_create(request):
                 project.delete()
                 return redirect("project_app:list")
 
-        # Initialize SciTeX templates if requested
-        writer_initialized = False
-        scholar_initialized = False
-
-        if init_scitex_writer:
-            success, writer_path = manager.initialize_scitex_writer_template(project)
-            if success:
-                writer_initialized = True
-            else:
-                messages.warning(
-                    request, f"SciTeX Writer template initialization failed"
-                )
-
-        if init_scitex_scholar:
-            # Initialize Scholar structure
-            from apps.project_app.services.bibliography_manager import (
-                ensure_bibliography_structure,
-            )
-
+        # Initialize SciTeX ecosystem if requested
+        if init_scitex:
             try:
+                from scitex.template import clone_research
+
                 project_path = manager.get_project_root_path(project)
                 if project_path:
-                    ensure_bibliography_structure(project_path)
-                    scholar_initialized = True
+                    # Clone research template into the project directory
+                    # This creates the complete structure: scitex/writer/, scitex/scholar/, etc.
+                    success = clone_research(
+                        str(project_path / "scitex"),
+                        git_strategy=None  # Don't initialize git inside scitex/ (project already has .git)
+                    )
+
+                    if success:
+                        messages.success(
+                            request,
+                            f'Project "{project.name}" created successfully with SciTeX ecosystem initialized!',
+                        )
+                    else:
+                        messages.warning(
+                            request,
+                            f'Project "{project.name}" created but SciTeX initialization failed. The research template could not be cloned.'
+                        )
+                else:
+                    messages.warning(
+                        request,
+                        f'Project "{project.name}" created but could not find project directory for SciTeX initialization.'
+                    )
             except Exception as e:
-                logger.error(f"Failed to initialize Scholar structure: {e}")
+                logger.error(f"Failed to initialize SciTeX ecosystem: {e}")
                 messages.warning(
-                    request, f"SciTeX Scholar template initialization failed"
+                    request,
+                    f'Project "{project.name}" created but SciTeX initialization failed: {str(e)}'
                 )
-
-        # Show consolidated success message
-        templates_msg = []
-        if writer_initialized:
-            templates_msg.append("Writer")
-        if scholar_initialized:
-            templates_msg.append("Scholar")
-
-        if templates_msg:
-            templates_str = " and ".join(templates_msg)
-            messages.success(
-                request,
-                f'Project "{project.name}" created successfully with SciTeX {templates_str} initialized!',
-            )
         else:
             messages.success(request, f'Project "{project.name}" created successfully!')
 

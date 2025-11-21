@@ -121,7 +121,7 @@ function handleDragEnd(this: HTMLElement, e: DragEvent): void {
 /**
  * Drag over handler
  */
-function handleDragOver(this: HTMLElement, e: DragEvent): void {
+function handleDragOver(this: HTMLElement, e: DragEvent): boolean {
   if (e.preventDefault) e.preventDefault();
 
   if (e.dataTransfer) {
@@ -164,14 +164,14 @@ function handleDragLeave(this: HTMLElement, e: DragEvent): void {
 /**
  * Drop handler
  */
-function handleDrop(this: HTMLElement, e: DragEvent): void {
+function handleDrop(this: HTMLElement, e: DragEvent): boolean {
   if (e.stopPropagation) e.stopPropagation();
   if (e.preventDefault) e.preventDefault();
 
-  if (!draggedItem || draggedItem === this) return;
+  if (!draggedItem || draggedItem === this) return false;
 
   const container = this.parentElement;
-  if (!container) return;
+  if (!container) return false;
 
   // Determine drop position
   const rect = this.getBoundingClientRect();

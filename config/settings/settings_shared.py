@@ -1,15 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-11-04 20:19:17 (ywatanabe)"
+# Timestamp: "2025-11-20 15:42:53 (ywatanabe)"
 # File: /home/ywatanabe/proj/scitex-cloud/config/settings/settings_shared.py
-# ----------------------------------------
-from __future__ import annotations
+
+
 import os
-__FILE__ = (
-    "./config/settings/settings_shared.py"
-)
-__DIR__ = os.path.dirname(__FILE__)
-# ----------------------------------------
 
 """
 Django settings for SciTeX Cloud project.
@@ -135,7 +130,7 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",  # Serve static files without DB access
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",

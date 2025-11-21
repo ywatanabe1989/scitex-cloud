@@ -130,6 +130,7 @@ def create_gitea_repository(sender, instance, created, **kwargs):
         instance.gitea_ssh_url = repo.get("ssh_url", "")
         instance.gitea_repo_id = repo.get("id")
         instance.gitea_repo_name = repo.get("name", repo_name)
+        instance.git_url = repo.get("clone_url", "")  # HTTPS URL for cloning
         instance.gitea_enabled = True
         instance.save(
             update_fields=[
@@ -138,6 +139,7 @@ def create_gitea_repository(sender, instance, created, **kwargs):
                 "gitea_ssh_url",
                 "gitea_repo_id",
                 "gitea_repo_name",
+                "git_url",
                 "gitea_enabled",
             ]
         )

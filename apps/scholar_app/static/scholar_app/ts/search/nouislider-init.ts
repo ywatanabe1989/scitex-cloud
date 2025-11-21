@@ -34,6 +34,9 @@ declare global {
   }
 }
 
+// Export to make this an ES module
+export {};
+
 // Guard against multiple initializations
 if (window.__nouisliderInitialized) {
   console.log("[noUiSlider] Already initialized, skipping");

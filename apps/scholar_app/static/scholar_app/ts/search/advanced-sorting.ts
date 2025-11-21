@@ -412,9 +412,15 @@ function exportSelectedPapers(): void {
 }
 
 /**
- * Helper function to get cookie
+ * Helper function to get cookie - use global version if available
  */
 function getCookie(name: string): string | null {
+  // Use global getCookie if available (from scholar-index-main.ts)
+  if ((window as any).getCookie) {
+    return (window as any).getCookie(name);
+  }
+
+  // Fallback implementation
   let cookieValue: string | null = null;
   if (document.cookie && document.cookie !== "") {
     const cookies = document.cookie.split(";");

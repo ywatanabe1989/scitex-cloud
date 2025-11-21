@@ -151,7 +151,18 @@ urlpatterns = [
         decline_invitation,
         name="decline_invitation",
     ),
-    # GitHub-style username/project URLs (MUST be last to avoid conflicts)
+]
+
+# Add development tools BEFORE catch-all username pattern
+if settings.DEBUG:
+    # Add django-browser-reload URLs for hot reload
+    if "django_browser_reload" in settings.INSTALLED_APPS:
+        urlpatterns += [
+            path("__reload__/", include("django_browser_reload.urls")),
+        ]
+
+# GitHub-style username/project URLs (MUST be last to avoid conflicts)
+urlpatterns += [
     path("<str:username>/", include("apps.project_app.urls")),
 ]
 
@@ -167,11 +178,5 @@ if settings.DEBUG:
     urlpatterns += static(
         settings.MEDIA_URL, document_root=settings.MEDIA_ROOT
     )
-
-    # Add django-browser-reload URLs for hot reload
-    if "django_browser_reload" in settings.INSTALLED_APPS:
-        urlpatterns += [
-            path("__reload__/", include("django_browser_reload.urls")),
-        ]
 
 # EOF

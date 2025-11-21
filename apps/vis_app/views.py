@@ -25,6 +25,22 @@ def figure_editor(request):
     return render(request, "vis_app/editor.html", context)
 
 
+def sigma_editor(request):
+    """SigmaPlot-inspired editor (experimental)"""
+    # Allow visitor access with limited functionality
+    if request.user.is_authenticated:
+        figures = ScientificFigure.objects.filter(owner=request.user).order_by("-updated_at")
+    else:
+        figures = []
+
+    context = {
+        "figures": figures,
+        "journal_presets": JournalPreset.objects.filter(is_active=True),
+    }
+
+    return render(request, "vis_app/sigma_editor.html", context)
+
+
 @login_required
 @require_http_methods(["POST"])
 def create_figure(request):

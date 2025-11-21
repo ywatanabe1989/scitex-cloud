@@ -1,0 +1,241 @@
+/**
+ * Git Gutter Indicators for File Tree
+ * Visual indicators showing git status (modified, added, deleted, untracked)
+ */
+
+.git-gutter-indicator {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+    flex-shrink: 0;
+    position: relative;
+    top: 0;
+}
+
+/* Modified files - Green */
+.git-gutter-modified {
+    background-color: #28a745;
+    box-shadow: 0 0 3px rgba(40, 167, 69, 0.5);
+}
+
+/* Added files - Blue */
+.git-gutter-added {
+    background-color: #17a2b8;
+    box-shadow: 0 0 3px rgba(23, 162, 184, 0.5);
+}
+
+/* Deleted files - Red */
+.git-gutter-deleted {
+    background-color: #dc3545;
+    box-shadow: 0 0 3px rgba(220, 53, 69, 0.5);
+}
+
+/* Untracked files - Gray */
+.git-gutter-untracked {
+    background-color: #6c757d;
+    box-shadow: 0 0 3px rgba(108, 117, 125, 0.3);
+}
+
+/* Renamed files - Purple */
+.git-gutter-renamed {
+    background-color: #6f42c1;
+    box-shadow: 0 0 3px rgba(111, 66, 193, 0.5);
+}
+
+/* Copied files - Cyan */
+.git-gutter-copied {
+    background-color: #20c997;
+    box-shadow: 0 0 3px rgba(32, 201, 151, 0.5);
+}
+
+/* Staged indicator - Add a border ring */
+.git-gutter-staged {
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1), 0 0 4px rgba(0, 123, 255, 0.5);
+}
+
+/* Animation for new status */
+@keyframes gutter-pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.2);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.git-gutter-indicator.git-gutter-new {
+    animation: gutter-pulse 0.5s ease-in-out;
+}
+
+/* Hover effect */
+.file-tree-item:hover .git-gutter-indicator {
+    transform: scale(1.15);
+    transition: transform 0.2s ease;
+}
+
+/* Git branch info badge */
+#git-branch-info {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    background: rgba(var(--color-accent-fg-rgb, 0, 123, 255), 0.1);
+    color: var(--color-accent-fg, #007bff);
+    font-family: monospace;
+}
+
+/* Git stats summary (optional widget) */
+.git-stats-summary {
+    display: flex;
+    gap: 12px;
+    padding: 8px;
+    font-size: 12px;
+    border-bottom: 1px solid var(--color-border-default, #d1d5da);
+}
+
+.git-stat-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.git-stat-item .git-gutter-indicator {
+    margin-right: 2px;
+}
+
+.git-stat-count {
+    font-weight: 600;
+    color: var(--color-fg-default, #24292f);
+}
+
+/* Git Gutter Signs with + and - symbols */
+.git-gutter-sign-with-symbol {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    margin-right: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.git-gutter-sign-with-symbol.added::before {
+    content: "+";
+    color: #ffffff;
+    background-color: #2ea043;
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    line-height: 16px;
+    border-radius: 3px;
+}
+
+.git-gutter-sign-with-symbol.deleted::before {
+    content: "−";
+    color: #ffffff;
+    background-color: #d1242f;
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    line-height: 16px;
+    border-radius: 3px;
+}
+
+.git-gutter-sign-with-symbol.modified::before {
+    content: "~";
+    color: #ffffff;
+    background-color: #bf8700;
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    line-height: 16px;
+    border-radius: 3px;
+}
+
+/* Line number gutter signs in file view */
+.line-gutter-sign {
+    position: absolute;
+    left: -3px;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+}
+
+.line-gutter-sign.added {
+    background-color: #2ea043;
+}
+
+.line-gutter-sign.deleted {
+    background-color: #d1242f;
+}
+
+.line-gutter-sign.modified {
+    background-color: #bf8700;
+}
+
+/* Directory item with gutter sign */
+.directory-item {
+    position: relative;
+}
+
+.directory-item .git-gutter-sign-with-symbol {
+    margin-left: 4px;
+    margin-right: 8px;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .git-gutter-modified {
+        background-color: #3fb950;
+    }
+
+    .git-gutter-added {
+        background-color: #58a6ff;
+    }
+
+    .git-gutter-deleted {
+        background-color: #f85149;
+    }
+
+    .git-gutter-untracked {
+        background-color: #8b949e;
+    }
+
+    .git-gutter-renamed {
+        background-color: #bc8cff;
+    }
+
+    .git-gutter-copied {
+        background-color: #56d4dd;
+    }
+
+    .git-gutter-sign-with-symbol.added::before {
+        background-color: #3fb950;
+    }
+
+    .git-gutter-sign-with-symbol.deleted::before {
+        background-color: #f85149;
+    }
+
+    .git-gutter-sign-with-symbol.modified::before {
+        background-color: #e3b341;
+    }
+}

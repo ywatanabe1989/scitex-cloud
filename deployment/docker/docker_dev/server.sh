@@ -629,7 +629,7 @@ recreate_test_user() {
 
     local USERNAME="test-user"
     local EMAIL="test@example.com"
-    local PASSWORD="${SCITEX_CLOUD_TEST_USER_PASSWORD:-Test-user!}"
+    local PASSWORD="${SCITEX_CLOUD_TEST_USER_PASSWORD:-Password123!}"
     local GITEA_URL="${SCITEX_CLOUD_GITEA_URL_IN_HOST_DEV:-http://127.0.0.1:3000}"
     local GITEA_TOKEN="${SCITEX_CLOUD_GITEA_TOKEN_DEV}"
 
@@ -661,25 +661,12 @@ EOH
     fi
 
     # Step 3: Create user via Django (will trigger signal to create in Gitea)
-    echo_info "Creating test user via Django User.objects.create_user()..."
+    echo_info "Creating test user via Django management command..."
     docker compose -f docker-compose.yml exec -T web \
-        python manage.py shell << EOH
-import os
-from django.contrib.auth import get_user_model
-
-User = get_user_model()
-
-user = User.objects.create_user(
-    username='${USERNAME}',
-    email='${EMAIL}',
-    password='${PASSWORD}',
-    is_active=True
-)
-print('✓ Created ${USERNAME} via Django')
-print(f'  - Username: {user.username}')
-print(f'  - Email: {user.email}')
-print(f'  - Active: {user.is_active}')
-EOH
+        python manage.py init_test_user \
+            --username="${USERNAME}" \
+            --email="${EMAIL}" \
+            --password="${PASSWORD}"
 
     # Step 4: Wait for signal to propagate
     echo_info "Waiting for Django signal to create Gitea user..."

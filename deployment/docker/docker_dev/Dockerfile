@@ -34,6 +34,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     wget \
     curl \
+    unzip \
     netcat-openbsd \
     openssh-client \
     jq \
@@ -110,6 +111,9 @@ RUN YQ_VERSION=v4.44.3 && \
     wget https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/${YQ_BINARY} -O /usr/local/bin/yq && \
     chmod +x /usr/local/bin/yq
 
+# Install inotify-tools (lightweight file watcher for template hot reload)
+RUN apt-get update && apt-get install -y --no-install-recommends inotify-tools && rm -rf /var/lib/apt/lists/*
+
 # Install Node.js and Mermaid CLI
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs && \
@@ -150,9 +154,10 @@ RUN python -m playwright install chromium
 # Copy application code
 COPY . .
 
-# Copy dev-specific entrypoint
+# Copy dev-specific entrypoint and helper scripts
 COPY deployment/docker/docker_dev/entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+RUN chmod +x /entrypoint.sh && \
+    chmod +x /app/deployment/docker/docker_dev/watch_templates.sh 2>/dev/null || true
 
 # Create directories
 RUN mkdir -p staticfiles media logs run .cache/containers

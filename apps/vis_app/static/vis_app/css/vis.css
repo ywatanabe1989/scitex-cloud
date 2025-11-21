@@ -60,47 +60,41 @@
     overflow: hidden;
 }
 
-/* Left Toolbar - Auto-expanding on hover */
+/* Left Toolbar - Always expanded */
 .vis-toolbar {
-    width: var(--vis-toolbar-width-min);
+    width: var(--vis-toolbar-width-max);
     background-color: var(--vis-toolbar-bg);
     border-right: 1px solid var(--vis-border);
     overflow-y: auto;
     overflow-x: hidden;
-    padding: 16px 8px;
-    transition: width var(--vis-transition-speed) ease-out,
-                padding var(--vis-transition-speed) ease-out;
+    padding: 16px 12px;
     position: relative;
 }
 
-/* Expand on hover */
-.vis-toolbar:hover {
-    width: var(--vis-toolbar-width-max);
-    padding: 16px 12px;
-}
-
-/* Show labels only when expanded */
+/* Labels always visible */
 .vis-toolbar .toolbar-label {
-    opacity: 0;
-    max-width: 0;
-    overflow: hidden;
-    transition: opacity var(--vis-transition-speed) ease-out,
-                max-width var(--vis-transition-speed) ease-out;
-}
-
-.vis-toolbar:hover .toolbar-label {
     opacity: 1;
     max-width: 200px;
+    overflow: hidden;
 }
 
 .toolbar-section {
-    margin-bottom: 24px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--vis-border);
+    margin-bottom: 12px;
+    padding: 12px;
+    border: 1px solid var(--vis-border);
+    border-radius: 6px;
+    background: var(--vis-surface);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+}
+
+.toolbar-section:hover {
+    border-color: var(--vis-border-hover);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
 .toolbar-section:last-child {
-    border-bottom: none;
+    margin-bottom: 0;
 }
 
 .toolbar-title {
@@ -113,6 +107,55 @@
     text-align: center;
 }
 
+/* Collapsible sections */
+.collapsible-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    padding: 8px;
+    margin: -12px -12px 12px -12px;
+    user-select: none;
+    border-radius: 6px 6px 0 0;
+    background: var(--vis-bg);
+    transition: background 0.2s ease;
+}
+
+.collapsible-header:hover {
+    color: var(--vis-text-primary);
+    background: var(--vis-hover-bg);
+}
+
+.toolbar-section.collapsed .collapsible-header {
+    margin-bottom: -12px;
+    border-radius: 6px;
+}
+
+.collapse-icon {
+    font-size: 10px;
+    transition: transform 0.2s ease-out;
+}
+
+.toolbar-section:not(.collapsed) .collapse-icon {
+    transform: rotate(90deg);
+}
+
+.toolbar-content {
+    max-height: 1000px;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out, opacity 0.2s ease-out;
+    opacity: 1;
+    visibility: visible;
+}
+
+.toolbar-section.collapsed .toolbar-content {
+    max-height: 0 !important;
+    opacity: 0 !important;
+    margin-top: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
 /* Compact Tool Buttons (Icon with expandable label) */
 .tool-btn-compact {
     width: 100%;
@@ -120,12 +163,12 @@
     padding: 10px 8px;
     margin-bottom: 4px;
     background-color: transparent;
-    border: 1px solid transparent;
+    border: 1.5px solid var(--vis-border);
     border-radius: 6px;
     font-size: 18px;
     color: var(--vis-text-primary);
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.2s ease-out;
     display: flex;
     align-items: center;
     justify-content: flex-start;
@@ -145,14 +188,21 @@
 
 .tool-btn-compact:hover {
     background-color: var(--vis-hover-bg);
-    border-color: var(--vis-border);
+    border-color: var(--vis-active-border);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.tool-btn-compact:active,
+.tool-btn-compact:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
 .tool-btn-compact.active {
     background-color: var(--vis-active-bg);
     border-color: var(--vis-active-border);
     color: var(--vis-active-border);
+    box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.1);
 }
 
 /* Scientific Color Palette */
@@ -164,25 +214,79 @@
 }
 
 .color-swatch {
-    width: 100%;
+    width: 32px;
     height: 32px;
-    border: 2px solid var(--vis-border);
-    border-radius: 4px;
+    border: none;
+    border-radius: 8px;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.2s ease-out;
     position: relative;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .color-swatch:hover {
-    border-color: var(--vis-active-border);
+    transform: scale(1.15) translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.color-swatch:active {
     transform: scale(1.05);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 .color-swatch.active {
-    border-color: var(--vis-active-border);
-    border-width: 3px;
-    box-shadow: 0 0 0 2px rgba(31, 111, 235, 0.2);
+    box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2);
+    transform: scale(1.1);
+}
+
+/* Color Picker */
+.color-picker-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+}
+
+.color-picker-input {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+.color-picker-button {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg,
+        #ff0000 0%, #ff7f00 14%, #ffff00 28%,
+        #00ff00 42%, #0000ff 57%, #4b0082 71%,
+        #9400d3 85%, #ff0000 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease-out;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.color-picker-button i {
+    color: #ffffff;
+    font-size: 14px;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
+    pointer-events: none;
+}
+
+.color-picker-wrapper:hover .color-picker-button {
+    transform: scale(1.15) translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.color-picker-wrapper:active .color-picker-button {
+    transform: scale(1.05);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 .toolbar-btn {
@@ -193,23 +297,31 @@
     padding: 8px 12px;
     margin-bottom: 4px;
     background-color: transparent;
-    border: 1px solid var(--vis-border);
+    border: 1.5px solid var(--vis-border);
     border-radius: 6px;
     font-size: 14px;
     color: var(--vis-text-primary);
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.2s ease-out;
 }
 
 .toolbar-btn:hover {
     background-color: var(--vis-hover-bg);
     border-color: var(--vis-active-border);
+    transform: translateX(2px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.toolbar-btn:active {
+    transform: translateX(0);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .toolbar-btn.active {
     background-color: var(--vis-active-bg);
     border-color: var(--vis-active-border);
     color: var(--vis-active-border);
+    box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.1);
 }
 
 .toolbar-btn i {
@@ -231,26 +343,77 @@
 
 .toolbar-select {
     width: 100%;
-    padding: 8px;
+    padding: 8px 32px 8px 10px;
     border: 1px solid var(--vis-border);
     border-radius: 6px;
     font-size: 13px;
     background-color: var(--vis-toolbar-bg);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238fa4b0' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 12px;
     color: var(--vis-text-primary);
     cursor: pointer;
     margin-bottom: 4px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    transition: all 0.2s ease;
+}
+
+.toolbar-select:hover {
+    border-color: var(--vis-active-border);
+    background-color: var(--vis-hover-bg);
+}
+
+.toolbar-select:focus {
+    outline: none;
+    border-color: var(--vis-active-border);
+    box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.1);
 }
 
 .toolbar-select-sm {
     width: 100%;
-    padding: 4px 6px;
+    padding: 5px 28px 5px 8px;
     border: 1px solid var(--vis-border);
     border-radius: 4px;
     font-size: 11px;
     background-color: var(--vis-toolbar-bg);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%238fa4b0' d='M5 7.5L1 3.5h8z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 6px center;
+    background-size: 10px;
     color: var(--vis-text-primary);
     cursor: pointer;
     margin-top: 4px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    transition: all 0.2s ease;
+}
+
+.toolbar-select-sm:hover {
+    border-color: var(--vis-active-border);
+    background-color: var(--vis-hover-bg);
+}
+
+.toolbar-select-sm:focus {
+    outline: none;
+    border-color: var(--vis-active-border);
+    box-shadow: 0 0 0 2px rgba(31, 111, 235, 0.1);
+}
+
+/* Style placeholder option (empty value, selected) to look like placeholder text */
+.toolbar-select-sm option[value=""][selected] {
+    color: var(--vis-text-secondary);
+    font-style: italic;
+}
+
+/* Style the select element when showing placeholder */
+.toolbar-select-sm:has(option[value=""]:checked) {
+    color: var(--vis-text-secondary);
+    font-style: italic;
+    opacity: 0.85;
 }
 
 .toolbar-checkbox {
@@ -265,6 +428,89 @@
 
 .toolbar-checkbox input[type="checkbox"] {
     cursor: pointer;
+}
+
+/* Toolbar labels (for select dropdowns, etc.) */
+.toolbar-content > .toolbar-label {
+    display: block;
+    margin-top: 12px;
+    margin-bottom: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--vis-text-secondary);
+}
+
+/* Toolbar info display */
+.toolbar-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 0;
+    font-size: 12px;
+    color: var(--vis-text-secondary);
+}
+
+.toolbar-info i {
+    font-size: 11px;
+    opacity: 0.7;
+}
+
+/* Tips Section */
+.tips-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 4px 0;
+}
+
+.tip-item {
+    padding: 10px 12px;
+    background: rgba(107, 143, 179, 0.08);
+    border-left: 3px solid var(--vis-active-border);
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.tip-item:hover {
+    background: rgba(107, 143, 179, 0.12);
+    border-left-color: var(--vis-active-bg);
+}
+
+.tip-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--vis-text-primary);
+}
+
+.tip-title i {
+    font-size: 11px;
+    color: var(--vis-active-border);
+    opacity: 0.9;
+}
+
+.tip-desc {
+    margin: 0;
+    font-size: 11px;
+    line-height: 1.5;
+    color: var(--vis-text-secondary);
+}
+
+.tip-desc kbd {
+    display: inline-block;
+    padding: 2px 6px;
+    margin: 0 2px;
+    font-size: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 /* Layout Icons Inline in Title */
@@ -283,10 +529,10 @@
 .layout-icon-btn {
     padding: 2px;
     background-color: transparent;
-    border: 1px solid transparent;
-    border-radius: 3px;
+    border: 1.5px solid transparent;
+    border-radius: 4px;
     cursor: pointer;
-    transition: all 0.15s;
+    transition: all 0.2s ease-out;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -296,18 +542,26 @@
 .layout-icon-btn:hover {
     opacity: 1;
     background-color: var(--vis-hover-bg);
-    border-color: var(--vis-border);
+    border-color: var(--vis-active-border);
+    transform: scale(1.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.layout-icon-btn:active {
+    transform: scale(1.0);
 }
 
 .layout-icon-btn.active {
     opacity: 1;
     background-color: var(--vis-active-bg);
     border-color: var(--vis-active-border);
+    box-shadow: 0 0 0 2px rgba(31, 111, 235, 0.15);
 }
 
 .layout-icon-btn svg {
     display: block;
     color: var(--vis-text-primary);
+    transition: color 0.2s;
 }
 
 .layout-icon-btn.active svg {
@@ -320,6 +574,7 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    min-width: 0; /* Prevent flex item from overflowing */
 }
 
 .vis-header {
@@ -391,10 +646,10 @@
 .layout-icon-btn-header {
     padding: 4px;
     background-color: transparent;
-    border: 1px solid transparent;
-    border-radius: 4px;
+    border: 1.5px solid transparent;
+    border-radius: 5px;
     cursor: pointer;
-    transition: all 0.15s;
+    transition: all 0.2s ease-out;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -402,16 +657,24 @@
 
 .layout-icon-btn-header:hover {
     background-color: var(--vis-hover-bg);
-    border-color: var(--vis-border);
+    border-color: var(--vis-active-border);
+    transform: scale(1.08);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.layout-icon-btn-header:active {
+    transform: scale(1.0);
 }
 
 .layout-icon-btn-header.active {
     background-color: var(--vis-active-bg);
     border-color: var(--vis-active-border);
+    box-shadow: 0 0 0 2px rgba(31, 111, 235, 0.15);
 }
 
 .layout-icon-btn-header svg {
     color: var(--vis-text-primary);
+    transition: color 0.2s;
 }
 
 .layout-icon-btn-header.active svg {
@@ -419,22 +682,41 @@
 }
 
 .header-select {
-    padding: 4px 8px;
+    padding: 5px 28px 5px 8px;
     border: 1px solid var(--vis-border);
     border-radius: 4px;
     font-size: 12px;
     background-color: var(--vis-toolbar-bg);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%238fa4b0' d='M5 7.5L1 3.5h8z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 6px center;
+    background-size: 10px;
     color: var(--vis-text-primary);
     cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    transition: all 0.2s ease;
+}
+
+.header-select:hover {
+    border-color: var(--vis-active-border);
+    background-color: var(--vis-hover-bg);
+}
+
+.header-select:focus {
+    outline: none;
+    border-color: var(--vis-active-border);
+    box-shadow: 0 0 0 2px rgba(31, 111, 235, 0.1);
 }
 
 .btn-icon {
     padding: 4px 6px;
     background-color: transparent;
-    border: 1px solid var(--vis-border);
-    border-radius: 4px;
+    border: 1.5px solid var(--vis-border);
+    border-radius: 5px;
     cursor: pointer;
-    transition: all 0.15s;
+    transition: all 0.2s ease-out;
     color: var(--vis-text-primary);
     font-size: 11px;
     display: flex;
@@ -445,6 +727,13 @@
 .btn-icon:hover {
     background-color: var(--vis-hover-bg);
     border-color: var(--vis-active-border);
+    transform: scale(1.05);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-icon:active {
+    transform: scale(0.98);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .zoom-display {
@@ -467,54 +756,101 @@
     align-items: center;
     justify-content: center;
     padding: 20px;
-    overflow: auto;
+}
+
+.backend-renderer-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto; /* Enable vertical scrolling */
+    overflow-x: hidden;
+    padding: 20px;
     background-color: var(--vis-bg);
-    transition: background-color 0.2s;
 }
 
 /* Rulers Area */
 .vis-rulers-area {
     display: grid;
     grid-template-areas:
-        "corner ruler-h"
-        "ruler-v canvas";
-    grid-template-rows: 25px 1fr;
-    grid-template-columns: 25px 1fr;
+        "corner-tl ruler-h corner-tr"
+        "ruler-v canvas ruler-r"
+        "corner-bl ruler-b corner-br";
+    grid-template-rows: 60px 1fr 60px;
+    grid-template-columns: 60px 1fr 60px;
     gap: 0;
 }
 
+/* Ruler corners */
 .ruler-corner {
-    grid-area: corner;
     background-color: var(--vis-toolbar-bg);
-    border-right: 1px solid var(--vis-border);
-    border-bottom: 1px solid var(--vis-border);
+    border: none;  /* No border - clean corners */
+    z-index: 1;  /* Behind rulers and canvas */
 }
 
+.ruler-corner-tl {
+    grid-area: corner-tl;
+}
+
+.ruler-corner-tr {
+    grid-area: corner-tr;
+}
+
+.ruler-corner-bl {
+    grid-area: corner-bl;
+}
+
+.ruler-corner-br {
+    grid-area: corner-br;
+}
+
+/* Ruler base styles */
 .ruler {
     background-color: var(--vis-toolbar-bg);
-    border: 1px solid var(--vis-border);
+    border: none;  /* No border - rulers must align perfectly with canvas edges */
+    z-index: 2;  /* Above corner elements */
 }
 
+/* Horizontal rulers */
 .ruler-horizontal {
-    grid-area: ruler-h;
     width: 100%;
-    height: 25px;
+    height: 60px;
+    grid-area: ruler-h; /* Backward compatibility */
 }
 
+.ruler-top {
+    grid-area: ruler-h;
+}
+
+.ruler-bottom {
+    grid-area: ruler-b;
+}
+
+/* Vertical rulers */
 .ruler-vertical {
-    grid-area: ruler-v;
-    width: 25px;
+    width: 60px;
     height: 100%;
+    grid-area: ruler-v; /* Backward compatibility */
+}
+
+.ruler-left {
+    grid-area: ruler-v;
+}
+
+.ruler-right {
+    grid-area: ruler-r;
 }
 
 .vis-rulers-area .vis-canvas-container {
     grid-area: canvas;
+    justify-self: start;  /* Align to left side of grid cell */
+    align-self: start;    /* Align to top side of grid cell */
 }
 
 /* Hide rulers when disabled */
 .vis-rulers-area.rulers-hidden {
-    grid-template-areas: "canvas canvas"
-                         "canvas canvas";
+    grid-template-areas: "canvas canvas canvas"
+                         "canvas canvas canvas"
+                         "canvas canvas canvas";
     grid-template-rows: 1fr;
     grid-template-columns: 1fr;
 }
@@ -535,10 +871,25 @@
     background-color: rgba(31, 111, 235, 0.1);
 }
 
+/* Footer for plot type buttons */
+.vis-footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 8px 20px;
+    background-color: var(--vis-toolbar-bg);
+    border-top: 2px solid var(--vis-border);
+    min-height: 56px;
+}
+
 /* Dark mode: More visible borders for vis-header */
 [data-theme="dark"] .vis-header {
     border-top-color: var(--scitex-color-04);
     border-bottom-color: var(--scitex-color-04);
+}
+
+[data-theme="dark"] .vis-footer {
+    border-top-color: var(--scitex-color-04);
 }
 
 /* Dark mode: More visible borders for sidebars */
@@ -550,15 +901,24 @@
     border-left-color: var(--scitex-color-04);
 }
 
+[data-theme="dark"] .properties-header {
+    background: var(--scitex-color-01);
+    border-bottom-color: var(--scitex-color-04);
+    color: var(--scitex-text-primary);
+}
+
 .vis-canvas-container {
     /* Canvas container ALWAYS white background for scientific integrity */
     background-color: #ffffff;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     border-radius: 0;  /* No border radius to align with rulers */
-    padding: 20px;
+    padding: 0;  /* No padding - rulers need to align perfectly with canvas edges */
     display: flex;
     align-items: flex-start;
     justify-content: flex-start;
+    width: fit-content;  /* Shrink to canvas size, not grid cell size */
+    max-width: 2126px;  /* Enforce maximum width of 180mm @ 300dpi */
+    max-height: 2539px;  /* Enforce maximum height of 215mm @ 300dpi */
 }
 
 /* Dark theme: Add stronger shadow for contrast */
@@ -567,9 +927,11 @@
 }
 
 #vis-canvas {
-    border: 1px solid #d0d7de;
+    border: none;  /* No border - rulers must align perfectly with canvas edges */
     cursor: crosshair;
     display: block;
+    max-width: 2126px;  /* Enforce maximum width of 180mm @ 300dpi */
+    max-height: 2539px;  /* Enforce maximum height of 215mm @ 300dpi */
     /* Canvas itself is ALWAYS white - set in Fabric.js backgroundColor */
 }
 
@@ -583,20 +945,24 @@
     border-top: 1px solid var(--vis-border);
     font-size: 12px;
     color: var(--vis-text-secondary);
+    margin-top: auto; /* Push to bottom of flex container */
+    flex-shrink: 0; /* Don't shrink */
+    min-width: 0; /* Allow text to wrap if needed */
 }
 
-/* Dark Canvas Warning */
+/* Dark Canvas Warning - Compact style */
 .dark-canvas-warning {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 4px 12px;
-    background-color: rgba(251, 191, 36, 0.15);
-    border: 1px solid rgba(251, 191, 36, 0.4);
-    border-radius: 4px;
-    font-size: 11px;
+    gap: 6px;
+    padding: 2px 8px;
+    background-color: rgba(251, 191, 36, 0.1);
+    border: 1px solid rgba(251, 191, 36, 0.3);
+    border-radius: 3px;
+    font-size: 10px;
     color: #d97706;
-    font-weight: 500;
+    font-weight: 400;
+    max-width: 300px;
 }
 
 .dark-canvas-warning i {
@@ -639,31 +1005,18 @@
     color: var(--vis-text-primary);
 }
 
-/* Right Properties Panel - Auto-expanding on hover */
+/* Right Properties Panel - Always expanded */
 .vis-properties {
-    width: var(--vis-properties-width-min);
+    width: var(--vis-properties-width-max);
     background-color: var(--vis-toolbar-bg);
     border-left: 1px solid var(--vis-border);
     overflow-y: auto;
     overflow-x: hidden;
-    padding: 16px 8px;
-    transition: width var(--vis-transition-speed) ease-out,
-                padding var(--vis-transition-speed) ease-out;
-}
-
-/* Expand on hover */
-.vis-properties:hover {
-    width: var(--vis-properties-width-max);
     padding: 16px;
 }
 
-/* Minimize content when collapsed */
+/* Content always visible */
 .vis-properties .properties-content {
-    opacity: 0.3;
-    transition: opacity var(--vis-transition-speed) ease-out;
-}
-
-.vis-properties:hover .properties-content {
     opacity: 1;
 }
 
@@ -845,8 +1198,8 @@
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.2s;
-    border: 1px solid transparent;
+    transition: all 0.2s ease-out;
+    border: 1.5px solid transparent;
     display: inline-flex;
     align-items: center;
     gap: 6px;
@@ -860,6 +1213,14 @@
 
 .btn-primary:hover {
     background-color: #1a5dc9;
+    border-color: #1a5dc9;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(31, 111, 235, 0.3);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(31, 111, 235, 0.2);
 }
 
 .btn-secondary {
@@ -871,6 +1232,13 @@
 .btn-secondary:hover {
     background-color: var(--vis-active-bg);
     border-color: var(--vis-active-border);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-secondary:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 /* Skewer Selection Popup - Revolutionary Alt+Click feature */
@@ -1061,169 +1429,252 @@
 }
 
 /* ========================================================================
-   Properties/Layers Tabs
+   Properties Header
    ======================================================================== */
 
-.properties-tabs {
-    display: flex;
+.properties-header {
+    padding: 12px 16px;
     border-bottom: 1px solid #ddd;
     margin-bottom: 12px;
-}
-
-.properties-tab {
-    flex: 1;
-    padding: 10px 8px;
-    background: #f5f5f5;
-    border: none;
-    border-bottom: 2px solid transparent;
-    cursor: pointer;
-    font-size: 13px;
-    color: #666;
-    transition: all 0.2s;
-}
-
-.properties-tab:hover {
-    background: #e8e8e8;
-    color: #333;
-}
-
-.properties-tab.active {
-    background: white;
-    color: #0066cc;
-    border-bottom-color: #0066cc;
+    font-size: 14px;
     font-weight: 600;
-}
-
-.properties-tab i {
-    margin-right: 4px;
-}
-
-.tab-content {
-    display: block;
-}
-
-.tab-content.active {
-    display: block;
-}
-
-/* ========================================================================
-   Layers Panel
-   ======================================================================== */
-
-.layers-header {
-    padding: 8px;
-    border-bottom: 1px solid #e0e0e0;
-}
-
-.layer-search {
-    width: 100%;
-    padding: 6px 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 13px;
-}
-
-.layers-list {
-    max-height: calc(100vh - 300px);
-    overflow-y: auto;
-}
-
-.layers-empty {
-    padding: 20px;
-    text-align: center;
-    color: #999;
-    font-size: 13px;
-}
-
-.layer-item {
-    display: flex;
-    align-items: center;
-    padding: 8px;
-    border-bottom: 1px solid #f0f0f0;
-    cursor: pointer;
-    transition: background 0.15s;
-}
-
-.layer-item:hover {
+    color: #333;
     background: #f8f8f8;
 }
 
-.layer-visibility-btn,
-.layer-lock-btn {
-    width: 24px;
-    height: 24px;
-    padding: 0;
-    border: none;
-    background: transparent;
-    color: #999;
-    cursor: pointer;
-    font-size: 14px;
-    transition: color 0.2s;
+.properties-header i {
+    margin-right: 8px;
+    color: #0066cc;
 }
 
-.layer-visibility-btn:hover,
-.layer-lock-btn:hover {
-    color: #333;
+/* ========================================================================
+   Skewer Selection Modal
+   ======================================================================== */
+
+.skewer-list {
+    max-height: 400px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
-.layer-visibility-btn.hidden {
-    color: #ccc;
-}
-
-.layer-lock-btn.locked {
-    color: #e63946;
-}
-
-.layer-info {
-    flex: 1;
+.skewer-item {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin: 0 8px;
-    font-size: 13px;
+    padding: 12px;
+    background: #f8f8f8;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    cursor: grab;
+    transition: all 0.2s ease;
+    user-select: none;
 }
 
-.layer-icon {
+.skewer-item:hover {
+    background: #f0f0f0;
+    border-color: #0066cc;
+    box-shadow: 0 2px 4px rgba(0, 102, 204, 0.1);
+}
+
+.skewer-item.dragging {
+    opacity: 0.5;
+    cursor: grabbing;
+}
+
+.skewer-item.drag-over {
+    border-style: dashed;
+    border-color: #0066cc;
+    background: #e8f4fd;
+}
+
+.skewer-item.selected {
+    background: #e8f4fd;
+    border-color: #0066cc;
+    border-width: 2px;
+}
+
+.skewer-handle {
+    font-size: 16px;
+    color: #999;
+    margin-right: 12px;
+    cursor: grab;
+}
+
+.skewer-icon {
+    font-size: 16px;
     color: #666;
+    margin-right: 10px;
+    min-width: 20px;
+    text-align: center;
+}
+
+.skewer-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.skewer-name {
+    font-weight: 500;
+    color: #333;
     font-size: 14px;
 }
 
-.layer-name {
-    color: #333;
-    font-weight: 500;
-}
-
-.layer-actions {
-    display: flex;
-    gap: 4px;
-    opacity: 0;
-    transition: opacity 0.2s;
-}
-
-.layer-item:hover .layer-actions {
-    opacity: 1;
-}
-
-.layer-action-btn {
-    width: 24px;
-    height: 24px;
-    padding: 0;
-    border: none;
-    background: transparent;
-    color: #999;
-    cursor: pointer;
+.skewer-type {
     font-size: 12px;
+    color: #999;
+}
+
+.skewer-position {
+    font-size: 11px;
+    color: #bbb;
+    margin-left: auto;
+    padding-left: 12px;
+}
+
+/* Dark theme support */
+[data-theme="dark"] .skewer-item {
+    background: var(--scitex-color-02);
+    border-color: var(--scitex-color-04);
+}
+
+[data-theme="dark"] .skewer-item:hover {
+    background: var(--scitex-color-03);
+    border-color: #0088ff;
+}
+
+[data-theme="dark"] .skewer-item.selected,
+[data-theme="dark"] .skewer-item.drag-over {
+    background: rgba(0, 136, 255, 0.15);
+    border-color: #0088ff;
+}
+
+[data-theme="dark"] .skewer-name {
+    color: var(--scitex-text-primary);
+}
+
+[data-theme="dark"] .skewer-type {
+    color: var(--scitex-text-secondary);
+}
+
+[data-theme="dark"] .skewer-icon {
+    color: var(--scitex-text-secondary);
+}
+
+/* ========================================================================
+   Plot Data Upload Area
+   ======================================================================== */
+
+.plot-drop-area {
+    border: 2px dashed var(--vis-border);
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    background-color: var(--vis-surface);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.plot-drop-area:hover {
+    border-color: var(--status-success);
+    background-color: rgba(74, 155, 126, 0.05);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(74, 155, 126, 0.15);
+}
+
+.plot-drop-area.drag-over {
+    border-color: var(--status-success);
+    border-style: solid;
+    background-color: rgba(74, 155, 126, 0.1);
+    transform: scale(1.01);
+}
+
+.plot-drop-content {
+    pointer-events: none;
+    user-select: none;
+}
+
+.plot-uploaded-files {
+    margin-top: 1rem;
+    text-align: left;
+    padding-top: 1rem;
+    border-top: 1px solid var(--vis-border);
+}
+
+.plot-file-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 0.5rem;
+    background: var(--vis-hover);
+    border-radius: 6px;
+    font-size: 0.875rem;
+}
+
+.plot-file-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1;
+    min-width: 0;
+}
+
+.plot-file-icon {
+    color: #0066cc;
+    font-size: 1rem;
+}
+
+.plot-file-name {
+    font-weight: 500;
+    color: var(--vis-text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.plot-file-size {
+    color: var(--vis-text-secondary);
+    font-size: 0.75rem;
+    margin-left: 0.5rem;
+}
+
+.plot-file-remove {
+    background: none;
+    border: none;
+    color: var(--vis-text-secondary);
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
     transition: all 0.2s;
 }
 
-.layer-action-btn:hover {
-    color: #0066cc;
-    background: #f0f0f0;
-    border-radius: 3px;
+.plot-file-remove:hover {
+    color: #e63946;
+    background: rgba(230, 57, 70, 0.1);
 }
 
-.layer-action-btn[data-action="delete"]:hover {
-    color: #e63946;
+/* Dark theme support */
+[data-theme="dark"] .plot-drop-area {
+    border-color: var(--scitex-color-04);
+    background-color: var(--scitex-color-01);
+}
+
+[data-theme="dark"] .plot-drop-area:hover {
+    border-color: var(--status-success);
+    background-color: rgba(74, 155, 126, 0.1);
+}
+
+[data-theme="dark"] .plot-drop-area.drag-over {
+    border-color: var(--status-success);
+    background-color: rgba(74, 155, 126, 0.15);
+}
+
+[data-theme="dark"] .plot-file-item {
+    background: var(--scitex-color-02);
 }
 
 /* ========================================================================
@@ -1271,3 +1722,845 @@
     gap: 8px;
 }
 
+/* ===================================
+ * View Switcher (Canvas/Plot Backend)
+ * iOS-style Segmented Control
+ * =================================== */
+
+.view-switcher {
+    display: inline-flex;
+    background: var(--color-canvas-subtle, var(--vis-hover-bg));
+    border: 1px solid var(--color-border-default, var(--vis-border));
+    border-radius: 6px;
+    padding: 0.2rem;
+    gap: 0.15rem;
+}
+
+.view-switch-btn {
+    padding: 0.4rem 0.75rem;
+    border: none;
+    background: transparent;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    font-size: 0.8rem;
+    color: var(--color-fg-default, var(--vis-text-primary));
+    cursor: pointer;
+    white-space: nowrap;
+    font-weight: 400;
+}
+
+.view-switch-btn:hover:not(.active) {
+    background: var(--color-canvas-default, var(--vis-hover-bg));
+}
+
+.view-switch-btn.active {
+    background: rgba(107, 143, 179, 0.25);
+    color: var(--color-fg-default, var(--vis-text-primary));
+    font-weight: 600;
+    box-shadow: 0 0 0 1px rgba(107, 143, 179, 0.3) inset;
+}
+
+.view-switch-btn i {
+    font-size: 0.75rem;
+}
+
+/* ===================================
+ * Plot Type Wizard Buttons (SigmaPlot-style)
+ * =================================== */
+
+.plot-type-buttons {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px;
+    border-left: 1px solid var(--vis-border);
+    border-right: 1px solid var(--vis-border);
+    margin: 0 12px;
+}
+
+.plot-type-group {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.plot-type-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: 6px 10px;
+    background-color: transparent;
+    border: 1.5px solid var(--vis-border);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease-out;
+    color: var(--vis-text-primary);
+    font-size: 11px;
+    min-width: 60px;
+}
+
+.plot-type-btn i {
+    font-size: 18px;
+    margin-bottom: 2px;
+    color: var(--vis-text-secondary);
+    transition: color 0.2s;
+}
+
+.plot-type-btn span {
+    font-size: 10px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.plot-type-btn:hover {
+    background-color: var(--vis-hover-bg);
+    border-color: var(--vis-active-border);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.plot-type-btn:hover i {
+    color: var(--vis-active-border);
+}
+
+.plot-type-btn:active {
+    transform: translateY(0);
+}
+
+.plot-type-btn.active {
+    background-color: var(--vis-active-bg);
+    border-color: var(--vis-active-border);
+    box-shadow: 0 0 0 2px rgba(31, 111, 235, 0.15);
+}
+
+.plot-type-btn.active i {
+    color: var(--vis-active-border);
+}
+
+/* ===================================
+ * Backend Settings Table (Plot JSON Controls)
+ * =================================== */
+
+.backend-settings-section {
+    margin-bottom: 24px;
+}
+
+.backend-settings-section h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--vis-text-primary);
+    margin: 0 0 12px 0;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--vis-border);
+}
+
+.backend-settings-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.backend-settings-table tr {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.backend-settings-table tr:last-child {
+    border-bottom: none;
+}
+
+.setting-label {
+    padding: 10px 8px 10px 0;
+    color: var(--vis-text-secondary);
+    font-weight: 500;
+    width: 40%;
+    vertical-align: middle;
+}
+
+.setting-control {
+    padding: 10px 8px;
+    width: 45%;
+    vertical-align: middle;
+}
+
+.setting-value {
+    padding: 10px 0 10px 8px;
+    color: var(--vis-text-primary);
+    font-weight: 600;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    text-align: right;
+    width: 15%;
+    vertical-align: middle;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+/* Reset button for settings */
+.setting-reset-btn {
+    padding: 2px 6px;
+    background: transparent;
+    border: 1px solid var(--vis-border);
+    border-radius: 4px;
+    color: var(--vis-text-secondary);
+    cursor: pointer;
+    font-size: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.6;
+    transition: all 0.2s ease;
+}
+
+.setting-reset-btn:hover {
+    opacity: 1;
+    background: var(--vis-hover-bg);
+    color: var(--vis-text-primary);
+    border-color: var(--vis-active-border);
+}
+
+.setting-reset-btn i {
+    font-size: 10px;
+}
+
+/* Style preview container */
+.style-preview-container {
+    position: relative;
+}
+
+.style-preview-container svg {
+    display: block;
+}
+
+/* Range slider styling */
+.setting-control input[type="range"] {
+    width: 100%;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--vis-border);
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.setting-control input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--vis-active-border);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.setting-control input[type="range"]::-webkit-slider-thumb:hover {
+    background: #0969da;
+    transform: scale(1.1);
+}
+
+.setting-control input[type="range"]::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--vis-active-border);
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.setting-control input[type="range"]::-moz-range-thumb:hover {
+    background: #0969da;
+    transform: scale(1.1);
+}
+
+/* Text input and select styling */
+.setting-control input[type="text"],
+.setting-control select {
+    width: 100%;
+    padding: 4px 8px;
+    border: 1px solid var(--vis-border);
+    border-radius: 3px;
+    background: var(--vis-canvas-bg);
+    color: var(--vis-text-primary);
+    font-size: 12px;
+    font-family: 'Courier New', monospace;
+}
+
+.setting-control select {
+    padding: 5px 28px 5px 8px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%238fa4b0' d='M5 7.5L1 3.5h8z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 6px center;
+    background-size: 10px;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    transition: all 0.2s ease;
+}
+
+.setting-control select:hover {
+    border-color: var(--vis-active-border);
+    background-color: var(--vis-hover-bg);
+}
+
+.setting-control input[type="text"]:focus,
+.setting-control select:focus {
+    outline: none;
+    border-color: var(--vis-active-border);
+    box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.1);
+}
+
+/* Show JSON button */
+#backend-show-json-btn {
+    padding: 4px 12px;
+    border: 1px solid var(--vis-border);
+    border-radius: 4px;
+    background: var(--vis-toolbar-bg);
+    color: var(--vis-text-primary);
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+#backend-show-json-btn:hover {
+    background: var(--vis-hover-bg);
+    border-color: var(--vis-active-border);
+}
+
+#backend-show-json-btn.active {
+    background: var(--vis-active-bg);
+    border-color: var(--vis-active-border);
+    color: var(--vis-active-border);
+}
+
+/* ========================================
+   Plot Gallery Styles
+   ======================================== */
+
+/* Plot Gallery Dropdown (integrated into toolbar) */
+.plot-gallery-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--vis-toolbar-bg);
+    border: 2px solid var(--vis-active-border);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    z-index: 1000;
+    margin-top: 8px;
+    max-height: 600px;
+    overflow: hidden;
+}
+
+.gallery-dropdown-content {
+    padding: 16px;
+}
+
+/* Make plot-type-buttons container relative for dropdown positioning */
+.plot-type-buttons {
+    position: relative;
+}
+
+/* Highlight Gallery button when dropdown is open */
+#plot-gallery-toggle.active {
+    background: var(--vis-active-bg);
+    border-color: var(--vis-active-border);
+    box-shadow: 0 0 0 2px rgba(31, 111, 235, 0.15);
+}
+
+#plot-gallery-toggle.active i {
+    color: var(--vis-active-border);
+}
+
+/* Gallery tabs */
+.gallery-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.gallery-tab {
+    flex: 1;
+    min-width: 50px;
+    padding: 6px 4px;
+    font-size: 10px;
+    border: 1px solid var(--vis-border);
+    border-radius: 4px;
+    background: var(--vis-toolbar-bg);
+    color: var(--vis-text-secondary);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-align: center;
+}
+
+.gallery-tab:hover {
+    background: var(--vis-hover-bg);
+    color: var(--vis-text-primary);
+}
+
+.gallery-tab.active {
+    background: var(--vis-active-bg);
+    border-color: var(--vis-active-border);
+    color: var(--vis-active-border);
+    font-weight: 600;
+}
+
+/* Gallery thumbnails grid - button-like style */
+.gallery-thumbnails {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 12px;
+    max-height: 450px;
+    overflow-y: auto;
+    padding: 4px;
+}
+
+.gallery-thumbnail {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 12px 8px;
+    background-color: transparent;
+    border: 1.5px solid var(--vis-border);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease-out;
+    color: var(--vis-text-primary);
+    min-height: 100px;
+}
+
+.gallery-thumbnail:hover {
+    background-color: var(--vis-hover-bg);
+    border-color: var(--vis-active-border);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.gallery-thumbnail.selected {
+    background-color: var(--vis-active-bg);
+    border-color: var(--vis-active-border);
+    box-shadow: 0 0 0 2px rgba(31, 111, 235, 0.15);
+}
+
+.gallery-thumbnail img {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    border-radius: 4px;
+}
+
+.gallery-thumbnail-label {
+    font-size: 10px;
+    font-weight: 500;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    color: var(--vis-text-primary);
+}
+
+/* Gallery info panel */
+.gallery-info {
+    padding: 12px;
+    background: var(--vis-hover-bg);
+    border: 1px solid var(--vis-border);
+    border-radius: 4px;
+    margin-top: 12px;
+}
+
+.gallery-info-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.gallery-info-header h4 {
+    margin: 0;
+    font-size: 13px;
+    color: var(--vis-text-primary);
+}
+
+.gallery-info-close {
+    background: none;
+    border: none;
+    color: var(--vis-text-secondary);
+    font-size: 18px;
+    cursor: pointer;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    line-height: 1;
+    transition: color 0.15s ease;
+}
+
+.gallery-info-close:hover {
+    color: var(--vis-text-primary);
+}
+
+.gallery-plot-desc {
+    font-size: 11px;
+    color: var(--vis-text-secondary);
+    margin-bottom: 12px;
+    line-height: 1.4;
+}
+
+.gallery-plot-details {
+    margin-bottom: 12px;
+}
+
+.gallery-detail-section {
+    font-size: 11px;
+    margin-bottom: 6px;
+    color: var(--vis-text-primary);
+}
+
+.gallery-detail-section strong {
+    color: var(--vis-text-secondary);
+    margin-right: 4px;
+}
+
+.gallery-detail-section span {
+    color: var(--vis-active-border);
+    font-family: 'Courier New', monospace;
+}
+
+.gallery-use-btn {
+    width: 100%;
+    padding: 8px;
+    font-size: 12px;
+}
+
+/* Scrollbar styling for gallery thumbnails */
+.gallery-thumbnails::-webkit-scrollbar {
+    width: 6px;
+}
+
+.gallery-thumbnails::-webkit-scrollbar-track {
+    background: var(--vis-toolbar-bg);
+    border-radius: 3px;
+}
+
+.gallery-thumbnails::-webkit-scrollbar-thumb {
+    background: var(--vis-border);
+    border-radius: 3px;
+}
+
+.gallery-thumbnails::-webkit-scrollbar-thumb:hover {
+    background: var(--vis-text-secondary);
+}
+
+/* ========================================
+   Plot Type Button Gallery Dropdowns
+   ======================================== */
+
+/* Dropdown container */
+.plot-type-dropdown {
+    position: absolute;
+    z-index: 10000;
+    display: none;
+    min-width: 320px;
+    max-width: 480px;
+    background: var(--vis-toolbar-bg);
+    border: 2px solid var(--vis-active-border);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    padding: 12px;
+    margin-top: 8px;
+}
+
+.plot-type-dropdown.show {
+    display: block;
+}
+
+/* Dropdown header */
+.plot-type-dropdown-header {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--vis-text-primary);
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid var(--vis-border);
+}
+
+/* Gallery grid inside dropdown */
+.plot-type-dropdown-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* Individual plot item in dropdown */
+.plot-type-dropdown-item {
+    position: relative;
+    cursor: pointer;
+    border: 2px solid var(--vis-border);
+    border-radius: 6px;
+    overflow: hidden;
+    background: var(--vis-canvas-bg);
+    transition: all 0.2s ease;
+}
+
+.plot-type-dropdown-item:hover {
+    border-color: var(--vis-active-border);
+    transform: scale(1.03);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.plot-type-dropdown-item.selected {
+    border-color: var(--vis-active-border);
+    box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.2);
+}
+
+/* Thumbnail area */
+.plot-type-dropdown-item-img {
+    width: 100%;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    padding: 8px;
+}
+
+.plot-type-dropdown-item-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* Label */
+.plot-type-dropdown-item-label {
+    padding: 6px 8px;
+    background: var(--vis-toolbar-bg);
+    border-top: 1px solid var(--vis-border);
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--vis-text-primary);
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Category badge */
+.plot-type-dropdown-item-category {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    padding: 2px 6px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    font-size: 8px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+/* Scrollbar for dropdown grid */
+.plot-type-dropdown-grid::-webkit-scrollbar {
+    width: 6px;
+}
+
+.plot-type-dropdown-grid::-webkit-scrollbar-track {
+    background: var(--vis-toolbar-bg);
+    border-radius: 3px;
+}
+
+.plot-type-dropdown-grid::-webkit-scrollbar-thumb {
+    background: var(--vis-border);
+    border-radius: 3px;
+}
+
+.plot-type-dropdown-grid::-webkit-scrollbar-thumb:hover {
+    background: var(--vis-text-secondary);
+}
+
+/* Active button state */
+.plot-type-btn.has-dropdown-open {
+    background: var(--vis-active-bg);
+    color: var(--vis-active-border);
+}
+
+
+/* =================================================================
+   Tab Switcher & Demo Gallery Styles
+   ================================================================= */
+
+/* Tab Switcher Container (profile-nav style) - Full Width */
+.plot-data-tabs,
+.plot-data-nav {
+    display: flex;
+    gap: 16px;
+    border-bottom: 1px solid var(--border-muted);
+    margin-bottom: 16px;
+    width: 100%;
+}
+
+/* Tab Switcher Buttons (profile-nav style with underline) */
+.data-tab-btn {
+    padding: 12px 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-muted);
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 400;
+}
+
+.data-tab-btn:hover {
+    color: var(--text-primary);
+    background: transparent !important;
+    border-bottom-color: var(--border-default);
+}
+
+.data-tab-btn.active {
+    color: var(--text-primary);
+    background: transparent !important;
+    border-bottom-color: var(--primary-color);
+    font-weight: 500;
+}
+
+/* Demo Gallery */
+.demo-gallery-item {
+    transition: all 0.2s ease;
+}
+
+.demo-gallery-item:hover {
+    border-color: var(--status-success) !important;
+    box-shadow: 0 4px 12px rgba(74, 155, 126, 0.15) !important;
+    transform: translateY(-2px);
+}
+
+.demo-gallery-item:active {
+    transform: translateY(0);
+}
+
+/* Gallery scrollbar styling */
+.demo-gallery-item::-webkit-scrollbar {
+    width: 8px;
+}
+
+.demo-gallery-item::-webkit-scrollbar-track {
+    background: var(--bg-muted);
+    border-radius: 4px;
+}
+
+.demo-gallery-item::-webkit-scrollbar-thumb {
+    background: var(--status-success);
+    border-radius: 4px;
+}
+
+.demo-gallery-item::-webkit-scrollbar-thumb:hover {
+    background: var(--status-success);
+    opacity: 0.8;
+}
+
+/* Collapsible Style Cards */
+.style-card {
+    transition: all 0.2s ease;
+}
+
+.style-card-header {
+    user-select: none;
+    transition: all 0.2s ease;
+}
+
+.style-card-header:hover {
+    opacity: 0.8;
+}
+
+.style-card-header .fa-chevron-right {
+    transition: transform 0.2s ease;
+}
+
+.style-card-content {
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+
+/* ========================================
+   DARK MODE ENHANCEMENTS
+   ======================================== */
+
+/* Data tables - darker backgrounds in dark mode */
+[data-theme="dark"] #data-table-container,
+[data-theme="dark"] #demo-data-table-container,
+[data-theme="dark"] .handsontable,
+[data-theme="dark"] .handsontable .ht_master .wtHolder {
+    background: var(--bg-muted) !important;
+}
+
+[data-theme="dark"] .handsontable td,
+[data-theme="dark"] .handsontable th {
+    background: var(--bg-muted) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--vis-border) !important;
+}
+
+[data-theme="dark"] .handsontable td.current,
+[data-theme="dark"] .handsontable th.current {
+    background: var(--vis-hover-bg) !important;
+}
+
+/* Visual Style Editor - darker card backgrounds in dark mode */
+[data-theme="dark"] .style-card {
+    background: var(--bg-muted) !important;
+    border-color: var(--vis-border) !important;
+}
+
+[data-theme="dark"] .visual-style-editor > div:last-child {
+    background: var(--bg-page) !important;
+}
+
+/* Input fields - darker in dark mode */
+[data-theme="dark"] input[type="text"],
+[data-theme="dark"] input[type="number"],
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+    background: var(--bg-muted) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--vis-border) !important;
+}
+
+[data-theme="dark"] input[type="text"]:focus,
+[data-theme="dark"] input[type="number"]:focus,
+[data-theme="dark"] select:focus,
+[data-theme="dark"] textarea:focus {
+    background: var(--vis-hover-bg) !important;
+    border-color: var(--vis-active-border) !important;
+}
+
+/* Plot preview containers - darker in dark mode */
+[data-theme="dark"] #backend-result-container,
+[data-theme="dark"] #demo-result-container {
+    background: var(--bg-muted) !important;
+}
+
+/* Demo gallery item backgrounds */
+[data-theme="dark"] .demo-gallery-item {
+    background: var(--bg-muted) !important;
+}
+
+[data-theme="dark"] .demo-gallery-item:hover {
+    background: var(--vis-hover-bg) !important;
+}

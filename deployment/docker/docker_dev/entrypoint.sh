@@ -35,7 +35,13 @@ source /app/deployment/docker/common/lib/database.src
 source /app/deployment/docker/common/lib/django.src
 source /app/deployment/docker/common/lib/scitex.src
 
-echo "🔧 Development Environment"
+MIGRATION_SENTINEL="/app/logs/.migrations_done"
+
+if [ -f "$MIGRATION_SENTINEL" ]; then
+    echo "🔄 Hot-Reload Restart (fast path)"
+else
+    echo "🔧 Development Environment (first start)"
+fi
 
 # ============================================
 # Install SciTeX in Editable Mode (Optional)
@@ -71,82 +77,113 @@ add_insufficient_python_packages() {
 add_insufficient_python_packages
 
 # ============================================
-# TypeScript Watch Mode (Hot-Reload)
+# TypeScript Watch Mode (First Start Only)
 # ============================================
-start_typescript_build_watcher() {
-    if [ -d "/app/tsconfig" ] && [ -f "/app/tsconfig/package.json" ]; then
-        echo_info "Starting TypeScript watch mode for ALL apps..."
-        cd /app/tsconfig || return 0
+# TypeScript watcher persists across hot-reload restarts
+if [ ! -f "$MIGRATION_SENTINEL" ]; then
+    start_typescript_build_watcher() {
+        if [ -d "/app/tsconfig" ] && [ -f "/app/tsconfig/package.json" ]; then
+            echo_info "Starting TypeScript watch mode for ALL apps..."
+            cd /app/tsconfig || return 0
 
-        # Check if node_modules exists
-        if [ ! -d "node_modules" ]; then
-            echo_warning "Installing Node dependencies..."
-            npm install --silent 2>&1 | grep -v "npm WARN" || true
+            # Check if node_modules exists
+            if [ ! -d "node_modules" ]; then
+                echo_warning "Installing Node dependencies..."
+                npm install --silent 2>&1 | grep -v "npm WARN" || true
+            fi
+
+            # Start unified TypeScript compiler in watch mode for ALL apps (background)
+            nohup npm run build:all:watch \
+                > /app/logs/tsc-watch-all.log 2>&1 &
+            TSC_ALL_PID=$!
+            echo_success "TypeScript watch (ALL apps) started (PID: $TSC_ALL_PID)"
+            echo "   Watching: static/ts/**, apps/*/static/*/ts/**"
+            echo "   Log: tail -f /app/logs/tsc-watch-all.log"
+
+            cd /app || return 0
+        else
+            echo_warning "/app/tsconfig not found - skipping TypeScript watch mode"
         fi
-
-        # Start unified TypeScript compiler in watch mode for ALL apps (background)
-        nohup npm run build:all:watch \
-            > /app/logs/tsc-watch-all.log 2>&1 &
-        TSC_ALL_PID=$!
-        echo_success "TypeScript watch (ALL apps) started (PID: $TSC_ALL_PID)"
-        echo "   Watching: static/ts/**, apps/*/static/*/ts/**"
-        echo "   Log: tail -f /app/logs/tsc-watch-all.log"
-
-        cd /app || return 0
-    else
-        echo_warning "/app/tsconfig not found - skipping TypeScript watch mode"
-    fi
-}
-start_typescript_build_watcher
+    }
+    start_typescript_build_watcher
+else
+    echo_info "Hot-reload restart - TypeScript watcher already running"
+fi
 
 # ============================================
 # Database & Django Setup
 # ============================================
-wait_for_database
-run_migrations
-collect_static_files
+# Skip migrations on hot-reload restarts (only run on first container start)
+if [ ! -f "$MIGRATION_SENTINEL" ]; then
+    # First container start - run full setup
+    wait_for_database
+    run_migrations
+    # collect_static_files  # Not needed in development - Django serves static files from app directories
+
+    # Mark migrations as done (persists in /app/logs volume)
+    touch "$MIGRATION_SENTINEL"
+else
+    # Hot-reload restart - skip migrations
+    echo_info "Hot-reload restart detected - skipping migrations"
+    wait_for_database  # Still wait for DB to be ready
+fi
 
 # ============================================
 # Initialize Visitor Pool
 # ============================================
-initialize_visitor_pool() {
-    echo_info "Initializing visitor pool..."
-    python manage.py create_visitor_pool --verbosity 0 2>&1 | grep -v "ERRO\|WARN" || true
-    echo_success "Visitor pool ready"
-}
-initialize_visitor_pool
+# Only run on first start (fast-path check handles restarts gracefully)
+if [ ! -f "$MIGRATION_SENTINEL" ]; then
+    initialize_visitor_pool() {
+        echo_info "Initializing visitor pool..."
+        python manage.py create_visitor_pool --verbosity 0 2>&1 | grep -v "ERRO\|WARN" || true
+        echo_success "Visitor pool ready"
+    }
+    initialize_visitor_pool
+else
+    echo_info "Hot-reload restart - visitor pool already initialized"
+fi
 
 # ============================================
-# Start SSH Gateway (Background)
+# Template Hot Reload
 # ============================================
-start_ssh_gateway() {
-    echo_info "Starting SSH gateway on port 2200..."
-    nohup python manage.py run_ssh_gateway \
-        --port 2200 \
-        --host 0.0.0.0 \
-        > /app/logs/ssh-gateway.log 2>&1 &
-    SSH_GATEWAY_PID=$!
-    echo_success "SSH gateway started (PID: $SSH_GATEWAY_PID)"
-    echo "   Port: 2200"
-    echo "   Log: tail -f /app/logs/ssh-gateway.log"
-}
-start_ssh_gateway
+# Note: Template hot reload is handled by django-browser-reload via Django's autoreload
+# No separate watcher needed - visitor pool init is now optimized with fast-path
 
 # ============================================
-# Start Gitea Auto-Sync Daemon (Background)
+# Start Background Services (First Start Only)
 # ============================================
-start_gitea_auto_sync() {
-    echo_info "Starting Gitea auto-sync daemon (interval: 15 min)..."
-    nohup python manage.py auto_sync_workspaces \
-        --daemon \
-        --interval 900 \
-        > /app/logs/auto-sync.log 2>&1 &
-    AUTO_SYNC_PID=$!
-    echo_success "Auto-sync daemon started (PID: $AUTO_SYNC_PID)"
-    echo "   Interval: 15 minutes (900s)"
-    echo "   Log: tail -f /app/logs/auto-sync.log"
-}
-start_gitea_auto_sync
+# Background services persist across hot-reload restarts
+if [ ! -f "$MIGRATION_SENTINEL" ]; then
+    # Start SSH Gateway (Background)
+    start_ssh_gateway() {
+        echo_info "Starting SSH gateway on port 2200..."
+        nohup python manage.py run_ssh_gateway \
+            --port 2200 \
+            --host 0.0.0.0 \
+            > /app/logs/ssh-gateway.log 2>&1 &
+        SSH_GATEWAY_PID=$!
+        echo_success "SSH gateway started (PID: $SSH_GATEWAY_PID)"
+        echo "   Port: 2200"
+        echo "   Log: tail -f /app/logs/ssh-gateway.log"
+    }
+    start_ssh_gateway
+
+    # Start Gitea Auto-Sync Daemon (Background)
+    start_gitea_auto_sync() {
+        echo_info "Starting Gitea auto-sync daemon (interval: 15 min)..."
+        nohup python manage.py auto_sync_workspaces \
+            --daemon \
+            --interval 900 \
+            > /app/logs/auto-sync.log 2>&1 &
+        AUTO_SYNC_PID=$!
+        echo_success "Auto-sync daemon started (PID: $AUTO_SYNC_PID)"
+        echo "   Interval: 15 minutes (900s)"
+        echo "   Log: tail -f /app/logs/auto-sync.log"
+    }
+    start_gitea_auto_sync
+else
+    echo_info "Hot-reload restart - background services already running"
+fi
 
 # ============================================
 # Start Application

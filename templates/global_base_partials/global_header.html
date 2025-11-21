@@ -52,14 +52,22 @@
                          class="nav-icon" />
                     <span class="nav-label">Code</span>
                 </a>
-                <a href="/vis/"
+                <!-- <a href="/vis/"
+                 !--    class="header-nav-item {% if 'vis' in request.path %}active{% endif %}"
+                 !--    data-tooltip="Scientific Figure Editor">
+                 !--     <img src="{% static 'shared/images/icons_svg/scitex-viz-icon.svg' %}"
+                 !--          alt=""
+                 !--          class="nav-icon" />
+                 !--     <span class="nav-label">Vis</span>
+                 !-- </a> -->
+                <a href="/vis/sigma/"
                    class="header-nav-item {% if 'vis' in request.path %}active{% endif %}"
                    data-tooltip="Scientific Figure Editor">
                     <img src="{% static 'shared/images/icons_svg/scitex-viz-icon.svg' %}"
                          alt=""
                          class="nav-icon" />
                     <span class="nav-label">Vis</span>
-                </a>
+                </a>                
                 <a href="/writer/"
                    class="header-nav-item {% if 'writer' in request.path %}active{% endif %}"
                    data-tooltip="Manuscript writing">
@@ -997,3 +1005,4 @@
     }
   });
 </script>
+<!-- test change 1763619732 -->

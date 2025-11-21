@@ -13,7 +13,7 @@ __DIR__ = os.path.dirname(__FILE__)
 from django.shortcuts import redirect
 from django.urls import path
 
-from . import views
+from . import api_views, views
 
 app_name = "public_app"
 
@@ -136,6 +136,32 @@ urlpatterns = [
         "tools/video-editor/",
         views.tool_video_editor,
         name="tool_video_editor",
+    ),
+    path(
+        "tools/plot-viewer/",
+        views.tool_plot_viewer,
+        name="tool_plot_viewer",
+    ),
+    path(
+        "tools/plot-backend-test/",
+        views.tool_plot_backend_test,
+        name="tool_plot_backend_test",
+    ),
+    path(
+        "tools/image-viewer/",
+        views.tool_image_viewer,
+        name="tool_image_viewer",
+    ),
+    path(
+        "tools/mermaid-renderer/",
+        views.tool_mermaid_renderer,
+        name="tool_mermaid_renderer",
+    ),
+    # API endpoints
+    path(
+        "api/read-image-metadata/",
+        api_views.read_image_metadata,
+        name="api_read_image_metadata",
     ),
 ]
 

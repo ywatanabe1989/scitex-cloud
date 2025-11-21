@@ -409,7 +409,15 @@ class ProjectFilesystemManager:
         self, project_path: Path, project, template_type: str = "research"
     ) -> bool:
         """
-        Copy structure from template using scitex package.
+        Clone full template structure from GitHub repository using scitex package.
+
+        This method clones the complete template repository structure including:
+        - scripts/ directory for analysis and preprocessing
+        - data/ directory for raw and processed data
+        - docs/ directory for manuscripts and notes
+        - results/ directory for analysis outputs
+        - config/ directory for project configuration
+        - And all other template-specific files and directories
 
         Args:
             project_path: Path where project will be created
@@ -417,41 +425,46 @@ class ProjectFilesystemManager:
             template_type: Type of template ('research', 'pip_project', or 'singularity')
         """
         try:
-            # Import appropriate template creator based on type
+            # Import appropriate template cloner based on type
             if template_type == "research":
-                from scitex.template.create_research import (
-                    create_research as create_template,
-                )
+                from scitex.template import clone_research as clone_template
             elif template_type == "pip_project":
-                from scitex.template.create_pip_project import (
-                    create_pip_project as create_template,
-                )
+                from scitex.template import clone_pip_project as clone_template
             elif template_type == "singularity":
-                from scitex.template.create_singularity import (
-                    create_singularity as create_template,
-                )
+                from scitex.template import clone_singularity as clone_template
             else:
                 print(f"Unknown template type: {template_type}, defaulting to research")
-                from scitex.template.create_research import (
-                    create_research as create_template,
-                )
+                from scitex.template import clone_research as clone_template
 
-            # Create the project using scitex template function
-            # Note: template functions expect project_name and target_dir
-            # They create: target_dir/project_name/
-            # So we need to pass parent as target_dir and project_slug as name
+            # Check if project_path already exists (should not for new projects)
+            if project_path.exists():
+                print(f"Project path already exists: {project_path}, skipping template clone")
+                return False
+
+            # Ensure parent directory exists
             if not project_path.parent.exists():
                 project_path.parent.mkdir(parents=True, exist_ok=True)
 
-            # Call scitex to create the project from template
-            # Template functions create target_dir/project_name, so pass parent and name
-            create_template(project_path.name, str(project_path.parent))
+            # Clone the template repository to the project path
+            # clone_template expects: project_dir, git_strategy, branch, tag
+            # It will clone the entire template repository structure from GitHub
+            print(f"Cloning {template_type} template from GitHub to {project_path}...")
+            success = clone_template(
+                str(project_path),
+                git_strategy=None,  # Don't initialize git (will be handled by Django/Gitea)
+                branch=None,
+                tag=None
+            )
+
+            if not success:
+                print(f"Failed to clone {template_type} template to {project_path}")
+                return False
 
             # Customize copied template for this project
             self._customize_template_for_project(project_path, project, template_type)
 
             print(
-                f"Successfully created {template_type} project using scitex at {project_path}"
+                f"Successfully cloned {template_type} template from GitHub to {project_path}"
             )
             return True
 

@@ -25,10 +25,14 @@ declare global {
       urls?: {
         bibtexUpload?: string;
         resourceStatus?: string;
+        search?: string;
       };
     };
   }
 }
+
+// Export to make this an ES module
+export {};
 
 /**
  * Reset BibTeX form to initial state
@@ -758,5 +762,7 @@ function getCookie(name: string): string | null {
   return cookieValue;
 }
 
-// Export getCookie globally for use in other modules
-(window as any).getCookie = getCookie;
+// Export getCookie globally for use in other modules if not already defined
+if (!(window as any).getCookie) {
+  (window as any).getCookie = getCookie;
+}

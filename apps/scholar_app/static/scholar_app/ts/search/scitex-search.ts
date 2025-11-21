@@ -21,8 +21,12 @@ declare global {
         search?: string;
       };
     };
+    saveSourcePreferences?: () => void;
   }
 }
+
+// Export to make this an ES module
+export {};
 
 /**
  * Search result interface
@@ -83,9 +87,9 @@ document.addEventListener("DOMContentLoaded", function () {
     e.preventDefault();
     const query = searchInput.value.trim();
 
-    // Save current source preferences
-    if (typeof saveSourcePreferences === "function") {
-      saveSourcePreferences();
+    // Save current source preferences (defined in scholar-index-main.ts)
+    if (typeof (window as any).saveSourcePreferences === "function") {
+      (window as any).saveSourcePreferences();
     }
 
     // Hide regular results

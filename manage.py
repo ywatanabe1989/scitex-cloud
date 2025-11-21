@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-11-12 20:50:11 (ywatanabe)"
+# Timestamp: "2025-11-20 19:32:25 (ywatanabe)"
+# File: /home/ywatanabe/proj/scitex-cloud/manage.py
+
 
 import os
 
@@ -12,7 +14,7 @@ import sys
 def main():
     """Run administrative tasks. Prevent direct call of this file (manage.py) and guide to use docker."""
 
-    # print(f"Initial Args for manage.py: {sys.argv}")
+    print(f"Initial Args for manage.py: {sys.argv}")
 
     if (
         len(sys.argv) > 1
@@ -73,7 +75,7 @@ def main():
     final_args = sys.argv.copy()
     if "from_docker" in final_args:
         final_args.remove("from_docker")
-    # print(f"Final Args for manage.py: {final_args}")
+    print(f"Final Args for manage.py: {final_args}")
 
     execute_from_command_line(final_args)
 

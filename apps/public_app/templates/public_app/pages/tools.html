@@ -84,17 +84,20 @@
     padding: 0;
     transition: all 0.2s ease;
     border: 1px solid var(--border-default, #e1e4e8);
-    display: flex;
-    flex-direction: row;
-    align-items: center;
+    display: block;
     overflow: hidden;
     position: relative;
     min-height: 72px;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
   }
 
   .tool-card:hover {
     border-color: var(--_scitex-04, #6c8ba0);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    text-decoration: none;
+    transform: translateY(-1px);
   }
 
   .tool-card-header {
@@ -103,8 +106,6 @@
     align-items: center;
     gap: 14px;
     border-left: 4px solid;
-    flex: 1;
-    min-width: 0;
   }
 
   .tool-icon {
@@ -130,7 +131,7 @@
     color: var(--text-secondary, #586069);
     font-size: 13px;
     line-height: 1.4;
-    margin: 0;
+    margin: 0 0 4px 0;
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
@@ -138,50 +139,33 @@
     -webkit-box-orient: vertical;
   }
 
-  .tool-card-footer {
-    padding: 16px;
-    flex-shrink: 0;
-  }
-
-  .btn-tool {
-    display: inline-block;
-    padding: 8px 20px;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 600;
-    text-align: center;
-    text-decoration: none;
-    transition: all 0.2s ease;
-    background: var(--status-success, #4a9b7e);
-    color: white;
+  .tool-use-case {
+    color: var(--status-success, #4a9b7e);
+    font-size: 12px;
+    line-height: 1.3;
+    margin: 0;
+    font-style: italic;
+    overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
   }
 
-  .btn-tool:hover {
-    background: #3a7c65;
-    color: white;
-    text-decoration: none;
-    box-shadow: 0 2px 8px rgba(74, 155, 126, 0.3);
+  .tool-use-case::before {
+    content: "→ ";
+    font-weight: 600;
+  }
+
+  .domain-description {
+    color: var(--text-secondary, #586069);
+    font-size: 14px;
+    margin-bottom: 16px;
+    font-style: italic;
   }
 
   @media (max-width: 768px) {
-    .tool-card {
-      flex-direction: column;
-      align-items: stretch;
-    }
-
     .tool-card-header {
       border-left: none;
       border-top: 4px solid;
-    }
-
-    .tool-card-footer {
-      border-top: 1px solid var(--border-muted, #e1e4e8);
-    }
-
-    .btn-tool {
-      display: block;
-      width: 100%;
     }
   }
 
@@ -270,20 +254,19 @@
                         <h2 class="domain-title">{{ domain.name }}</h2>
                         <span class="domain-count">{{ domain.tools|length }} tools</span>
                     </div>
+                    <p class="domain-description">{{ domain.description }}</p>
                     <div class="tools-grid">
                         {% for tool in domain.tools %}
-                            <div class="tool-card" data-search="{{ tool.name|lower }} {{ tool.description|lower }}">
+                            <a href="{{ tool.bookmarklet_url }}" class="tool-card" data-search="{{ tool.name|lower }} {{ tool.description|lower }} {{ tool.use_case|lower }}">
                                 <div class="tool-card-header">
                                     <span class="tool-icon">{{ tool.icon }}</span>
                                     <div class="tool-info">
                                         <h3 class="tool-card-title">{{ tool.name }}</h3>
                                         <p class="tool-description">{{ tool.description }}</p>
+                                        <p class="tool-use-case">{{ tool.use_case }}</p>
                                     </div>
                                 </div>
-                                <div class="tool-card-footer">
-                                    <a href="{{ tool.bookmarklet_url }}" class="btn-tool">Open Tool →</a>
-                                </div>
-                            </div>
+                            </a>
                         {% endfor %}
                     </div>
                 </div>
@@ -309,13 +292,13 @@
       const searchText = card.dataset.search;
       const isVisible = searchTerm === '' || searchText.includes(searchTerm);
 
-      card.style.display = isVisible ? 'flex' : 'none';
+      card.style.display = isVisible ? 'block' : 'none';
       if (isVisible) visibleCount++;
     });
 
     // Hide empty domain sections
     domainSections.forEach(section => {
-      const visibleCards = section.querySelectorAll('.tool-card[style*="display: flex"], .tool-card:not([style*="display"])');
+      const visibleCards = section.querySelectorAll('.tool-card[style*="display: block"], .tool-card:not([style*="display"])');
       if (searchTerm !== '' && visibleCards.length === 0) {
         section.style.display = 'none';
       }

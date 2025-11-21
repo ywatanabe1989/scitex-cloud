@@ -10,6 +10,12 @@ urlpatterns = [
         views.figure_editor,
         name="figure_editor",
     ),
+    # SigmaPlot-inspired editor (experimental)
+    path(
+        "sigma/",
+        views.sigma_editor,
+        name="sigma_editor",
+    ),
     # Figure management
     path(
         "figures/",
@@ -82,5 +88,22 @@ urlpatterns = [
         "api/figures/<uuid:figure_id>/versions/original/",
         api_views.get_original_version,
         name="api_get_original",
+    ),
+    # Image conversion
+    path(
+        "api/convert/png-to-tiff/",
+        api_views.convert_png_to_tiff,
+        name="api_convert_png_to_tiff",
+    ),
+    # Backend plot renderer (matplotlib/scitex.plt)
+    path(
+        "api/plot/",
+        api_views.render_plot,
+        name="api_render_plot",
+    ),
+    path(
+        "api/upload-plot-data/",
+        api_views.upload_plot_data,
+        name="api_upload_plot_data",
     ),
 ]

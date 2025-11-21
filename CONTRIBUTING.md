@@ -87,7 +87,7 @@ python manage.py runserver
 
 For testing purposes, use:
 - Username: `test-user`
-- Password: `Test-user!`
+- Password: `Password123!`
 
 ## Project Structure
 
