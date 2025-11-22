@@ -5,6 +5,30 @@ All notable changes to SciTeX Cloud will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.2-alpha] - 2025-11-22
+
+### Assets & Media
+- **Static Assets**: Added comprehensive branding assets (74 files)
+  - SciTeX logos in multiple formats (PNG, SVG, PDF)
+  - Module-specific icons (Scholar, Writer, Code, Vis, Cloud, Explore)
+  - Alignment tool icons (align, distribute)
+  - Hero background, favicons, and design assets
+- **Landing Page Videos**: Added demo videos for public landing page (~24MB total)
+  - Scholar module demonstration (16MB)
+  - Writer module demonstration (4.8MB)
+  - Code module demonstration (1.4MB)
+  - Cloud platform demonstration (1.4MB)
+  - Visualization module demonstration (267KB)
+
+### Infrastructure
+- Updated .gitignore to track landing page demo videos while excluding user media
+- Properly configured TypeScript build artifact exclusion
+
+### Production Deployment
+- CI/CD improvements for TypeScript builds
+- Production infrastructure fixes
+- User management commands and utilities
+
 ## [0.3.1-alpha] - 2025-11-22
 
 ### UI/UX Improvements
