@@ -212,7 +212,7 @@ createsuperuser: docker-check-health
 
 build-ts:
 	@echo "$(CYAN)🔨 Building TypeScript...$(NC)"
-	@cd ../../.. && cd frontend && npm run build:writer
+	@cd ../../.. && cd tsconfig && npm install --silent && npm run build:all
 	@echo "$(GREEN)✅ TypeScript compiled$(NC)"
 
 collectstatic: docker-check-health

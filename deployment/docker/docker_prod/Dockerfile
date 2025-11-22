@@ -34,12 +34,12 @@ COPY requirements.txt .
 # Install Python dependencies
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv pip install --system -r requirements.txt && \
-    uv pip install --system gunicorn==21.2.0 psycopg2-binary
+    uv pip install --system daphne==4.1.2 psycopg2-binary
 
 # Install scitex from PyPI (production uses stable releases)
 # Version pinned for stability - Complete toolkit with all features
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv pip install --system "scitex[dl,ml,jupyter,neuro,web,scholar,writer,dev]==2.1.2"
+    uv pip install --system "scitex[dl,ml,jupyter,neuro,web,scholar,writer,dev]==2.3.0"
 
 # Install Playwright browsers
 RUN --mount=type=cache,target=/root/.cache/ms-playwright \
@@ -188,13 +188,12 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
 EXPOSE 8000
 
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["gunicorn", "config.wsgi:application", \
-     "--bind", "0.0.0.0:8000", \
-     "--workers", "4", \
-     "--threads", "2", \
-     "--timeout", "120", \
-     "--access-logfile", "-", \
-     "--error-logfile", "-", \
-     "--log-level", "info"]
+# Use Daphne (ASGI) for WebSocket support (PTY terminal, collaborative editing)
+CMD ["daphne", \
+     "-b", "0.0.0.0", \
+     "-p", "8000", \
+     "--access-log", "-", \
+     "--proxy-headers", \
+     "config.asgi:application"]
 
 # EOF
