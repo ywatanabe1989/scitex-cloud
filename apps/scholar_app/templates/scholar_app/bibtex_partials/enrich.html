@@ -90,7 +90,8 @@
             <form id="bibtexEnrichmentForm"
                   method="post"
                   action="{% url 'scholar_app:bibtex_upload' %}"
-                  enctype="multipart/form-data">
+                  enctype="multipart/form-data"
+                  style="max-width: 1400px; margin: 0 auto;">
                 {% csrf_token %}
                 {% include "scholar_app/search_partials/asta_tooltip.html" %}
                 <!-- File Upload with instructions inside -->
@@ -132,7 +133,6 @@
                     <!-- Action Buttons Row (always visible, disabled until ready) -->
                     <div style="display: flex;
                                 gap: 1rem;
-                                justify-content: center;
                                 flex-wrap: wrap">
                         <!-- Save to Project - Single yellow button -->
                         <button type="button"
