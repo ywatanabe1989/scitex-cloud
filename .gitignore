@@ -92,6 +92,7 @@ data/ssh_keys/
 **/*.csv
 **/*.mat
 **/*.mp4
+!apps/public_app/static/public_app/videos/landing/*.mp4
 **/*.npy
 **/*.pdf
 **/*.pkl
