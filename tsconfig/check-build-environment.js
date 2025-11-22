@@ -20,7 +20,10 @@ const isInAppDir = process.cwd().startsWith('/app');
 // Method 3: Check if running as root (container usually runs as root)
 const isRoot = process.getuid && process.getuid() === 0;
 
-const inContainer = isInDocker || isInAppDir || isRoot;
+// Method 4: Allow CI/CD environments (GitHub Actions, etc.)
+const isCI = process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
+
+const inContainer = isInDocker || isInAppDir || isRoot || isCI;
 
 if (!inContainer) {
   console.error(`
@@ -52,10 +55,11 @@ If you REALLY need to build on host (not recommended):
   process.exit(1);
 }
 
-// In container - allow build and show helpful info
+// In container or CI - allow build and show helpful info
+const environment = isCI ? 'CI/CD' : 'Docker container';
 console.log(`
 ╔═══════════════════════════════════════════════════════════════════════╗
-║  ✓ Running in Docker container - TypeScript build allowed            ║
+║  ✓ Running in ${environment.padEnd(21)} - TypeScript build allowed            ║
 ╚═══════════════════════════════════════════════════════════════════════╝
 
 📋 AUTO BUILD INFO:

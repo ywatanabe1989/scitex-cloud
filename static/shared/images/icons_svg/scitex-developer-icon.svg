@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Terminal window background -->
+  <rect x="8" y="12" width="48" height="40" rx="4" stroke="#4a6baf" stroke-width="3" fill="#f0f5ff" fill-opacity="0.8"/>
+
+  <!-- Terminal header bar -->
+  <rect x="8" y="12" width="48" height="8" rx="4" fill="#4a6baf" fill-opacity="0.9"/>
+
+  <!-- Window control dots -->
+  <circle cx="14" cy="16" r="1.5" fill="white"/>
+  <circle cx="19" cy="16" r="1.5" fill="white"/>
+  <circle cx="24" cy="16" r="1.5" fill="white"/>
+
+  <!-- Terminal prompt symbol (>) -->
+  <path d="M14 28L20 32L14 36" stroke="#4a6baf" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Command line cursor (blinking effect) -->
+  <rect x="24" y="30" width="2" height="4" fill="#4a6baf">
+    <animate attributeName="opacity" values="1;0.3;1" dur="1.5s" repeatCount="indefinite"/>
+  </rect>
+
+  <!-- Terminal command text lines -->
+  <rect x="14" y="42" width="24" height="1.5" rx="0.75" fill="#90b1e2" fill-opacity="0.7"/>
+  <rect x="14" y="46" width="32" height="1.5" rx="0.75" fill="#90b1e2" fill-opacity="0.7"/>
+
+  <!-- Code symbols in corner -->
+  <text x="42" y="48" font-family="monospace" font-size="12" fill="#4a6baf" opacity="0.5">{}</text>
+</svg>
