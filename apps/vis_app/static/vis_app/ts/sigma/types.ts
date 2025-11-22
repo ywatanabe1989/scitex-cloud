@@ -101,6 +101,6 @@ export const TABLE_CONSTANTS = {
     COL_WIDTH: 80,            // Approximate column width in pixels
     MAX_ROWS: 32767,          // Maximum rows (int16 max)
     MAX_COLS: 32767,          // Maximum columns (int16 max)
-    DEFAULT_ROWS: 20,         // Minimum rows
-    DEFAULT_COLS: 32,         // Minimum columns
+    DEFAULT_ROWS: 1000,       // Default rows (virtual scrolling handles performance)
+    DEFAULT_COLS: 32,         // Default columns (A-AF)
 } as const;

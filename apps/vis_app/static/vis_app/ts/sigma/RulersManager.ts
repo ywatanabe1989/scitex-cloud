@@ -17,6 +17,7 @@ export class RulersManager {
     private canvasPanOffset: { x: number, y: number } = { x: 0, y: 0 };
     private canvasIsPanning: boolean = false;
     private canvasPanStartPoint: { x: number, y: number } | null = null;
+    private isDarkTheme: boolean = false;  // Track current theme for rulers
 
     constructor(
         private canvas: any, // Fabric.js canvas instance
@@ -67,19 +68,24 @@ export class RulersManager {
 
     /**
      * Draw all rulers based on canvas dimensions
+     * PERFORMANCE: Pre-rendered SVG instead of 840+ DOM elements
      */
     public drawRulers(): void {
         if (!this.canvas) return;
 
+        const startTime = performance.now();
         const canvasWidth = this.canvas.getWidth();
         const canvasHeight = this.canvas.getHeight();
         const dpi = CANVAS_CONSTANTS.DPI;
 
-        // Render all four rulers
+        // Render all four rulers with pre-generated SVG
         this.renderHorizontalRuler(canvasWidth, dpi, 'ruler-h');  // Top
         this.renderHorizontalRuler(canvasWidth, dpi, 'ruler-b');  // Bottom
         this.renderVerticalRuler(canvasHeight, dpi, 'ruler-v');   // Left
         this.renderVerticalRuler(canvasHeight, dpi, 'ruler-r');   // Right
+
+        const endTime = performance.now();
+        console.log(`[RulersManager] ✅ All 4 rulers rendered in ${(endTime - startTime).toFixed(2)}ms (pre-rendered SVG)`);
     }
 
     /**
@@ -104,13 +110,22 @@ export class RulersManager {
     }
 
     /**
-     * Render horizontal ruler with mm or inch markings
+     * Update ruler theme (light/dark)
+     */
+    public updateRulerTheme(isDark: boolean): void {
+        this.isDarkTheme = isDark;
+        this.drawRulers();  // Redraw with new theme colors
+        console.log(`[RulersManager] Theme updated to ${isDark ? 'dark' : 'light'}`);
+    }
+
+    /**
+     * Render horizontal ruler as pre-generated SVG (mm or inch)
+     * PERFORMANCE: Generates complete SVG string instead of DOM manipulation
      */
     private renderHorizontalRuler(width: number, dpi: number, rulerId: string = 'ruler-h'): void {
         const svg = document.getElementById(rulerId);
         if (!svg) return;
 
-        svg.innerHTML = '';
         const rulerHeight = 60;
         svg.setAttribute('width', width.toString());
         svg.setAttribute('height', rulerHeight.toString());
@@ -118,69 +133,53 @@ export class RulersManager {
         svg.style.width = `${width}px`;
         svg.style.height = `${rulerHeight}px`;
 
+        // Generate complete SVG content as string
         if (this.rulerUnit === 'mm') {
-            this.renderHorizontalRulerMm(svg, width, dpi, rulerHeight);
+            svg.innerHTML = this.generateHorizontalRulerMm(width, dpi, rulerHeight);
         } else {
-            this.renderHorizontalRulerInch(svg, width, dpi, rulerHeight);
+            svg.innerHTML = this.generateHorizontalRulerInch(width, dpi, rulerHeight);
         }
     }
 
     /**
-     * Render horizontal ruler with mm markings
+     * Generate horizontal ruler SVG with mm markings (pre-rendered)
+     * PERFORMANCE: Returns complete SVG string instead of DOM manipulation
+     * THEME-AWARE: Adapts colors based on isDarkTheme
      */
-    private renderHorizontalRulerMm(svg: HTMLElement, width: number, dpi: number, rulerHeight: number): void {
-        // Convert pixels to mm (using DPI)
+    private generateHorizontalRulerMm(width: number, dpi: number, rulerHeight: number): string {
         const pxToMm = (px: number) => (px / dpi) * 25.4;
         const mmToPx = (mm: number) => (mm * dpi) / 25.4;
+
+        // Theme-aware colors
+        const majorColor = this.isDarkTheme ? '#ccc' : '#999';
+        const textColor = this.isDarkTheme ? '#aaa' : '#666';
+        const minorColor = this.isDarkTheme ? '#666' : '#ccc';
 
         const maxMm = pxToMm(width);
         const majorInterval = 10;  // 10mm
         const middleInterval = 5;   // 5mm
         const minorInterval = 1;    // 1mm
 
-        // Draw all ticks
+        let svgContent = '';
+
+        // Generate all tick marks
         for (let mm = minorInterval; mm <= maxMm; mm += minorInterval) {
             const x = mmToPx(mm);
-            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            line.setAttribute('x1', x.toString());
-            line.setAttribute('x2', x.toString());
 
             if (mm % majorInterval === 0) {
                 // Major tick (10mm)
-                line.setAttribute('y1', '40');
-                line.setAttribute('y2', rulerHeight.toString());
-                line.setAttribute('stroke', '#999');
-                line.setAttribute('stroke-width', '1.5');
-                svg.appendChild(line);
-
-                // Label
-                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                text.setAttribute('x', x.toString());
-                text.setAttribute('y', '35');
-                text.setAttribute('text-anchor', 'middle');
-                text.setAttribute('font-size', '11');
-                text.setAttribute('fill', '#666');
-                text.textContent = `${mm}mm`;
-                svg.appendChild(text);
+                svgContent += `<line x1="${x}" y1="40" x2="${x}" y2="${rulerHeight}" stroke="${majorColor}" stroke-width="1.5"/>`;
+                svgContent += `<text x="${x}" y="35" text-anchor="middle" font-size="11" fill="${textColor}">${mm}mm</text>`;
             } else if (mm % middleInterval === 0) {
                 // Middle tick (5mm)
-                line.setAttribute('y1', '48');
-                line.setAttribute('y2', rulerHeight.toString());
-                line.setAttribute('stroke', '#999');
-                line.setAttribute('stroke-width', '1');
-                svg.appendChild(line);
+                svgContent += `<line x1="${x}" y1="48" x2="${x}" y2="${rulerHeight}" stroke="${majorColor}" stroke-width="1"/>`;
             } else {
                 // Minor tick (1mm)
-                line.setAttribute('y1', '54');
-                line.setAttribute('y2', rulerHeight.toString());
-                line.setAttribute('stroke', '#ccc');
-                line.setAttribute('stroke-width', '0.5');
-                svg.appendChild(line);
+                svgContent += `<line x1="${x}" y1="54" x2="${x}" y2="${rulerHeight}" stroke="${minorColor}" stroke-width="0.5"/>`;
             }
         }
 
         // Add column width markers (0.5, 1.0, 1.5 columns)
-        // Column widths: 0.5=45mm, 1.0=90mm, 1.5=135mm
         const columnMarkers = [
             { mm: 45, label: '0.5 col' },
             { mm: 90, label: '1.0 col' },
@@ -190,63 +189,48 @@ export class RulersManager {
         columnMarkers.forEach(marker => {
             const x = mmToPx(marker.mm);
             if (x <= width) {
-                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                text.setAttribute('x', x.toString());
-                text.setAttribute('y', '10');
-                text.setAttribute('text-anchor', 'middle');
-                text.setAttribute('font-size', '9');
-                text.setAttribute('fill', '#0080c0');
-                text.setAttribute('font-weight', '600');
-                text.textContent = marker.label;
-                svg.appendChild(text);
+                svgContent += `<text x="${x}" y="10" text-anchor="middle" font-size="9" fill="#0080c0" font-weight="600">${marker.label}</text>`;
             }
         });
+
+        return svgContent;
     }
 
     /**
-     * Render horizontal ruler with inch markings
+     * Generate horizontal ruler SVG with inch markings (pre-rendered)
+     * PERFORMANCE: Returns complete SVG string instead of DOM manipulation
+     * THEME-AWARE: Adapts colors based on isDarkTheme
      */
-    private renderHorizontalRulerInch(svg: HTMLElement, width: number, dpi: number, rulerHeight: number): void {
+    private generateHorizontalRulerInch(width: number, dpi: number, rulerHeight: number): string {
         const pxToInch = (px: number) => px / dpi;
         const inchToPx = (inch: number) => inch * dpi;
 
-        const maxInch = pxToInch(width);
+        // Theme-aware colors
+        const majorColor = this.isDarkTheme ? '#ccc' : '#999';
+        const textColor = this.isDarkTheme ? '#aaa' : '#666';
+        const minorColor = this.isDarkTheme ? '#666' : '#ccc';
 
-        // Draw full inch markers
+        const maxInch = pxToInch(width);
+        let svgContent = '';
+
+        // Full inch markers
         for (let inch = 0; inch <= maxInch; inch++) {
             const x = inchToPx(inch);
-            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            line.setAttribute('x1', x.toString());
-            line.setAttribute('x2', x.toString());
-            line.setAttribute('y1', '40');
-            line.setAttribute('y2', rulerHeight.toString());
-            line.setAttribute('stroke', '#999');
-            line.setAttribute('stroke-width', '1.5');
-            svg.appendChild(line);
-
-            // Label
-            const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            text.setAttribute('x', x.toString());
-            text.setAttribute('y', '35');
-            text.setAttribute('text-anchor', 'middle');
-            text.setAttribute('font-size', '11');
-            text.setAttribute('fill', '#666');
-            text.textContent = `${inch}"`;
-            svg.appendChild(text);
+            svgContent += `<line x1="${x}" y1="40" x2="${x}" y2="${rulerHeight}" stroke="${majorColor}" stroke-width="1.5"/>`;
+            svgContent += `<text x="${x}" y="35" text-anchor="middle" font-size="11" fill="${textColor}">${inch}"</text>`;
         }
 
-        // Draw fractional inch markers (1/2, 1/4, 1/8, 1/16)
+        // Fractional inch markers (1/2, 1/4, 1/8, 1/16)
         const fractions = [
-            { divisor: 2, y: 48, stroke: '#999', width: '1' },      // 1/2"
-            { divisor: 4, y: 51, stroke: '#999', width: '0.8' },    // 1/4"
-            { divisor: 8, y: 54, stroke: '#ccc', width: '0.6' },    // 1/8"
-            { divisor: 16, y: 56, stroke: '#ccc', width: '0.4' }    // 1/16"
+            { divisor: 2, y: 48, stroke: majorColor, width: '1' },
+            { divisor: 4, y: 51, stroke: majorColor, width: '0.8' },
+            { divisor: 8, y: 54, stroke: minorColor, width: '0.6' },
+            { divisor: 16, y: 56, stroke: minorColor, width: '0.4' }
         ];
 
         fractions.forEach(frac => {
             for (let inch = 0; inch <= maxInch; inch++) {
                 for (let i = 1; i < frac.divisor; i++) {
-                    // Skip if this fraction is already covered by a larger one
                     if (i % 2 === 0 && frac.divisor > 2) continue;
                     if (i % 4 === 0 && frac.divisor > 4) continue;
                     if (i % 8 === 0 && frac.divisor > 8) continue;
@@ -255,21 +239,13 @@ export class RulersManager {
                     const x = inchToPx(position);
 
                     if (x <= width) {
-                        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                        line.setAttribute('x1', x.toString());
-                        line.setAttribute('x2', x.toString());
-                        line.setAttribute('y1', frac.y.toString());
-                        line.setAttribute('y2', rulerHeight.toString());
-                        line.setAttribute('stroke', frac.stroke);
-                        line.setAttribute('stroke-width', frac.width);
-                        svg.appendChild(line);
+                        svgContent += `<line x1="${x}" y1="${frac.y}" x2="${x}" y2="${rulerHeight}" stroke="${frac.stroke}" stroke-width="${frac.width}"/>`;
                     }
                 }
             }
         });
 
-        // Add column width markers (convert from mm to inch)
-        // Column widths: 0.5=45mm≈1.77", 1.0=90mm≈3.54", 1.5=135mm≈5.31"
+        // Column width markers (convert from mm to inch)
         const columnMarkersInch = [
             { inch: 45 / 25.4, label: '0.5 col' },
             { inch: 90 / 25.4, label: '1.0 col' },
@@ -279,27 +255,21 @@ export class RulersManager {
         columnMarkersInch.forEach(marker => {
             const x = inchToPx(marker.inch);
             if (x <= width) {
-                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                text.setAttribute('x', x.toString());
-                text.setAttribute('y', '10');
-                text.setAttribute('text-anchor', 'middle');
-                text.setAttribute('font-size', '9');
-                text.setAttribute('fill', '#0080c0');
-                text.setAttribute('font-weight', '600');
-                text.textContent = marker.label;
-                svg.appendChild(text);
+                svgContent += `<text x="${x}" y="10" text-anchor="middle" font-size="9" fill="#0080c0" font-weight="600">${marker.label}</text>`;
             }
         });
+
+        return svgContent;
     }
 
     /**
-     * Render vertical ruler with mm or inch markings
+     * Render vertical ruler as pre-generated SVG (mm or inch)
+     * PERFORMANCE: Generates complete SVG string instead of DOM manipulation
      */
     private renderVerticalRuler(height: number, dpi: number, rulerId: string = 'ruler-v'): void {
         const svg = document.getElementById(rulerId);
         if (!svg) return;
 
-        svg.innerHTML = '';
         const rulerWidth = 60;
         svg.setAttribute('width', rulerWidth.toString());
         svg.setAttribute('height', height.toString());
@@ -307,108 +277,84 @@ export class RulersManager {
         svg.style.width = `${rulerWidth}px`;
         svg.style.height = `${height}px`;
 
+        // Generate complete SVG content as string
         if (this.rulerUnit === 'mm') {
-            this.renderVerticalRulerMm(svg, height, dpi, rulerWidth);
+            svg.innerHTML = this.generateVerticalRulerMm(height, dpi, rulerWidth);
         } else {
-            this.renderVerticalRulerInch(svg, height, dpi, rulerWidth);
+            svg.innerHTML = this.generateVerticalRulerInch(height, dpi, rulerWidth);
         }
     }
 
     /**
-     * Render vertical ruler with mm markings
+     * Generate vertical ruler SVG with mm markings (pre-rendered)
+     * PERFORMANCE: Returns complete SVG string instead of DOM manipulation
+     * THEME-AWARE: Adapts colors based on isDarkTheme
      */
-    private renderVerticalRulerMm(svg: HTMLElement, height: number, dpi: number, rulerWidth: number): void {
+    private generateVerticalRulerMm(height: number, dpi: number, rulerWidth: number): string {
         const pxToMm = (px: number) => (px / dpi) * 25.4;
         const mmToPx = (mm: number) => (mm * dpi) / 25.4;
+
+        // Theme-aware colors
+        const majorColor = this.isDarkTheme ? '#ccc' : '#999';
+        const textColor = this.isDarkTheme ? '#aaa' : '#666';
+        const minorColor = this.isDarkTheme ? '#666' : '#ccc';
 
         const maxMm = pxToMm(height);
         const majorInterval = 10;  // 10mm
         const middleInterval = 5;   // 5mm
         const minorInterval = 1;    // 1mm
 
+        let svgContent = '';
+
         for (let mm = minorInterval; mm <= maxMm; mm += minorInterval) {
             const y = mmToPx(mm);
-            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            line.setAttribute('y1', y.toString());
-            line.setAttribute('y2', y.toString());
 
             if (mm % majorInterval === 0) {
                 // Major tick
-                line.setAttribute('x1', '40');
-                line.setAttribute('x2', rulerWidth.toString());
-                line.setAttribute('stroke', '#999');
-                line.setAttribute('stroke-width', '1.5');
-                svg.appendChild(line);
-
-                // Label (rotated)
-                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                text.setAttribute('x', '30');
-                text.setAttribute('y', y.toString());
-                text.setAttribute('text-anchor', 'middle');
-                text.setAttribute('dominant-baseline', 'middle');
-                text.setAttribute('font-size', '11');
-                text.setAttribute('fill', '#666');
-                text.setAttribute('transform', `rotate(-90, 30, ${y})`);
-                text.textContent = `${mm}mm`;
-                svg.appendChild(text);
+                svgContent += `<line x1="40" y1="${y}" x2="${rulerWidth}" y2="${y}" stroke="${majorColor}" stroke-width="1.5"/>`;
+                svgContent += `<text x="30" y="${y}" text-anchor="middle" dominant-baseline="middle" font-size="11" fill="${textColor}" transform="rotate(-90, 30, ${y})">${mm}mm</text>`;
             } else if (mm % middleInterval === 0) {
                 // Middle tick
-                line.setAttribute('x1', '48');
-                line.setAttribute('x2', rulerWidth.toString());
-                line.setAttribute('stroke', '#999');
-                line.setAttribute('stroke-width', '1');
-                svg.appendChild(line);
+                svgContent += `<line x1="48" y1="${y}" x2="${rulerWidth}" y2="${y}" stroke="${majorColor}" stroke-width="1"/>`;
             } else {
                 // Minor tick
-                line.setAttribute('x1', '54');
-                line.setAttribute('x2', rulerWidth.toString());
-                line.setAttribute('stroke', '#ccc');
-                line.setAttribute('stroke-width', '0.5');
-                svg.appendChild(line);
+                svgContent += `<line x1="54" y1="${y}" x2="${rulerWidth}" y2="${y}" stroke="${minorColor}" stroke-width="0.5"/>`;
             }
         }
+
+        return svgContent;
     }
 
     /**
-     * Render vertical ruler with inch markings
+     * Generate vertical ruler SVG with inch markings (pre-rendered)
+     * PERFORMANCE: Returns complete SVG string instead of DOM manipulation
+     * THEME-AWARE: Adapts colors based on isDarkTheme
      */
-    private renderVerticalRulerInch(svg: HTMLElement, height: number, dpi: number, rulerWidth: number): void {
+    private generateVerticalRulerInch(height: number, dpi: number, rulerWidth: number): string {
         const pxToInch = (px: number) => px / dpi;
         const inchToPx = (inch: number) => inch * dpi;
 
-        const maxInch = pxToInch(height);
+        // Theme-aware colors
+        const majorColor = this.isDarkTheme ? '#ccc' : '#999';
+        const textColor = this.isDarkTheme ? '#aaa' : '#666';
+        const minorColor = this.isDarkTheme ? '#666' : '#ccc';
 
-        // Draw full inch markers
+        const maxInch = pxToInch(height);
+        let svgContent = '';
+
+        // Full inch markers
         for (let inch = 0; inch <= maxInch; inch++) {
             const y = inchToPx(inch);
-            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            line.setAttribute('y1', y.toString());
-            line.setAttribute('y2', y.toString());
-            line.setAttribute('x1', '40');
-            line.setAttribute('x2', rulerWidth.toString());
-            line.setAttribute('stroke', '#999');
-            line.setAttribute('stroke-width', '1.5');
-            svg.appendChild(line);
-
-            // Label (rotated)
-            const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            text.setAttribute('x', '30');
-            text.setAttribute('y', y.toString());
-            text.setAttribute('text-anchor', 'middle');
-            text.setAttribute('dominant-baseline', 'middle');
-            text.setAttribute('font-size', '11');
-            text.setAttribute('fill', '#666');
-            text.setAttribute('transform', `rotate(-90, 30, ${y})`);
-            text.textContent = `${inch}"`;
-            svg.appendChild(text);
+            svgContent += `<line x1="40" y1="${y}" x2="${rulerWidth}" y2="${y}" stroke="${majorColor}" stroke-width="1.5"/>`;
+            svgContent += `<text x="30" y="${y}" text-anchor="middle" dominant-baseline="middle" font-size="11" fill="${textColor}" transform="rotate(-90, 30, ${y})">${inch}"</text>`;
         }
 
-        // Draw fractional inch markers
+        // Fractional inch markers
         const fractions = [
-            { divisor: 2, x: 48, stroke: '#999', width: '1' },
-            { divisor: 4, x: 51, stroke: '#999', width: '0.8' },
-            { divisor: 8, x: 54, stroke: '#ccc', width: '0.6' },
-            { divisor: 16, x: 56, stroke: '#ccc', width: '0.4' }
+            { divisor: 2, x: 48, stroke: majorColor, width: '1' },
+            { divisor: 4, x: 51, stroke: majorColor, width: '0.8' },
+            { divisor: 8, x: 54, stroke: minorColor, width: '0.6' },
+            { divisor: 16, x: 56, stroke: minorColor, width: '0.4' }
         ];
 
         fractions.forEach(frac => {
@@ -422,18 +368,13 @@ export class RulersManager {
                     const y = inchToPx(position);
 
                     if (y <= height) {
-                        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                        line.setAttribute('y1', y.toString());
-                        line.setAttribute('y2', y.toString());
-                        line.setAttribute('x1', frac.x.toString());
-                        line.setAttribute('x2', rulerWidth.toString());
-                        line.setAttribute('stroke', frac.stroke);
-                        line.setAttribute('stroke-width', frac.width);
-                        svg.appendChild(line);
+                        svgContent += `<line x1="${frac.x}" y1="${y}" x2="${rulerWidth}" y2="${y}" stroke="${frac.stroke}" stroke-width="${frac.width}"/>`;
                     }
                 }
             }
         });
+
+        return svgContent;
     }
 
     /**

@@ -11,22 +11,8 @@ from django.contrib import messages
 from .models import ScientificFigure, JournalPreset
 
 
-@login_required
 def figure_editor(request):
-    """Main figure editor view"""
-    # Get user's figures
-    figures = ScientificFigure.objects.filter(owner=request.user).order_by("-updated_at")
-
-    context = {
-        "figures": figures,
-        "journal_presets": JournalPreset.objects.filter(is_active=True),
-    }
-
-    return render(request, "vis_app/editor.html", context)
-
-
-def sigma_editor(request):
-    """SigmaPlot-inspired editor (experimental)"""
+    """Main figure editor view - Sigma (SigmaPlot-inspired)"""
     # Allow visitor access with limited functionality
     if request.user.is_authenticated:
         figures = ScientificFigure.objects.filter(owner=request.user).order_by("-updated_at")
@@ -38,7 +24,21 @@ def sigma_editor(request):
         "journal_presets": JournalPreset.objects.filter(is_active=True),
     }
 
-    return render(request, "vis_app/sigma_editor.html", context)
+    return render(request, "vis_app/editor.html", context)
+
+
+@login_required
+def figure_editor_legacy(request):
+    """Legacy canvas-based figure editor (deprecated)"""
+    # Get user's figures
+    figures = ScientificFigure.objects.filter(owner=request.user).order_by("-updated_at")
+
+    context = {
+        "figures": figures,
+        "journal_presets": JournalPreset.objects.filter(is_active=True),
+    }
+
+    return render(request, "vis_app/legacy/editor.html", context)
 
 
 @login_required

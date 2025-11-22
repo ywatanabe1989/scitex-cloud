@@ -2,16 +2,25 @@
    SciTeX Sigma Editor - SigmaPlot-Inspired Layout
    ======================================================================== */
 
-/* Color Variables for Rulers - Theme-aware distinct colors */
+/* Color Variables - Professional black-based theme matching vis.css */
 :root,
 [data-theme="light"] {
     --sigma-ruler-bg: #f0f4f8;  /* Light blue-gray for rulers */
     --sigma-ruler-border: #d0d7de;
+
+    /* Semantic aliases for sigma editor */
+    --sigma-bg-primary: var(--bg-surface, #fafbfc);
+    --sigma-bg-secondary: var(--bg-muted, #f6f8fa);
+    --sigma-bg-hover: var(--bg-muted, #f6f8fa);
 }
 
 [data-theme="dark"] {
-    --sigma-ruler-bg: #0f0f0f;  /* Darker monochrome gray for rulers */
-    --sigma-ruler-border: #1f1f1f;  /* Slightly lighter gray for borders */
+    /* Use global workspace colors for consistency across Code/Writer/Vis */
+    --sigma-ruler-bg: var(--workspace-ruler-bg);
+    --sigma-ruler-border: var(--workspace-ruler-border);
+    --sigma-bg-primary: var(--workspace-bg-primary);
+    --sigma-bg-secondary: var(--workspace-bg-secondary);
+    --sigma-bg-hover: var(--workspace-bg-tertiary);
 }
 
 /* Main Container - Grid Layout */
@@ -30,7 +39,7 @@
 
 .sigma-ribbon {
     grid-row: 1;
-    background: var(--bg-primary);
+    background: var(--sigma-bg-primary);
     border-bottom: 2px solid var(--border-default);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     z-index: 100;
@@ -43,7 +52,7 @@
     display: flex;
     flex-direction: row;
     gap: 0;
-    background: var(--bg-secondary);
+    background: var(--sigma-bg-secondary);
     padding: 0 16px;
     border-right: 1px solid var(--border-muted);
 }
@@ -66,13 +75,13 @@
 
 .ribbon-tab:hover {
     color: var(--text-primary);
-    background: var(--bg-hover);
+    background: var(--sigma-bg-hover);
     border-bottom-color: var(--border-default);
 }
 
 .ribbon-tab.active {
     color: var(--status-success);
-    background: var(--bg-primary);
+    background: var(--sigma-bg-primary);
     border-bottom-color: var(--status-success);
     font-weight: 600;
 }
@@ -83,7 +92,7 @@
 
 /* Ribbon Content Panels */
 .ribbon-content {
-    background: var(--bg-primary);
+    background: var(--sigma-bg-primary);
     padding: 12px 20px;
     flex: 1;
     display: flex;
@@ -131,7 +140,7 @@
     justify-content: center;
     gap: 4px;
     padding: 8px 12px;
-    background: var(--bg-secondary);
+    background: var(--sigma-bg-secondary);
     border: 1px solid var(--border-muted);
     border-radius: 6px;
     color: var(--text-primary);
@@ -143,7 +152,7 @@
 }
 
 .ribbon-btn:hover {
-    background: var(--bg-hover);
+    background: var(--sigma-bg-hover);
     border-color: var(--status-success);
     transform: translateY(-1px);
     box-shadow: 0 2px 6px rgba(74, 155, 126, 0.15);
@@ -223,7 +232,7 @@
    ======================================================================== */
 
 .sigma-sidebar {
-    background: var(--bg-secondary);
+    background: var(--sigma-bg-secondary);
     border-right: 1px solid var(--border-default);
     display: flex;
     flex-direction: column;
@@ -239,12 +248,13 @@
     align-items: center;
     justify-content: space-between;
     padding: 16px;
-    background: var(--bg-primary);
+    background: var(--sigma-bg-primary);
     border-bottom: 1px solid var(--border-default);
 }
 
 .sidebar-header h4 {
     margin: 0;
+    margin-right: 12px;
     font-size: 14px;
     font-weight: 600;
     color: var(--text-primary);
@@ -264,7 +274,7 @@
 }
 
 .sidebar-toggle-btn:hover {
-    background: var(--bg-hover);
+    background: var(--sigma-bg-hover);
     color: var(--text-primary);
 }
 
@@ -298,7 +308,7 @@
 }
 
 .tree-section-header:hover {
-    background: var(--bg-hover);
+    background: var(--sigma-bg-hover);
 }
 
 .tree-section-content {
@@ -315,7 +325,7 @@
 /* Hover removed from .tree-item - now on .tree-item-header */
 
 .tree-item.active {
-    background: var(--bg-hover);
+    background: var(--sigma-bg-hover);
     font-weight: 600;
 }
 
@@ -349,7 +359,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 12px 20px;
-    background: var(--bg-primary);
+    background: var(--sigma-bg-primary);
     border-bottom: 1px solid var(--border-default);
 }
 
@@ -364,7 +374,7 @@
     align-items: center;
     gap: 6px;
     padding: 8px 16px;
-    background: var(--bg-secondary);
+    background: var(--sigma-bg-secondary);
     border: 1px solid var(--border-muted);
     border-radius: 6px;
     color: var(--text-primary);
@@ -375,7 +385,7 @@
 }
 
 .mode-btn:hover {
-    background: var(--bg-hover);
+    background: var(--sigma-bg-hover);
     border-color: var(--status-success);
 }
 
@@ -398,7 +408,7 @@
 
 .tool-btn {
     padding: 8px 12px;
-    background: var(--bg-secondary);
+    background: var(--sigma-bg-secondary);
     border: 1px solid var(--border-muted);
     border-radius: 6px;
     color: var(--text-primary);
@@ -407,7 +417,7 @@
 }
 
 .tool-btn:hover {
-    background: var(--bg-hover);
+    background: var(--sigma-bg-hover);
     border-color: var(--status-success);
 }
 
@@ -427,16 +437,102 @@
 .data-table-container {
     flex: 1;
     padding: 12px;
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: auto;
     position: relative;  /* Required for absolute positioning of selection overlay */
-    display: flex;
-    flex-direction: column;
     height: 100%; /* Ensure full height usage */
 }
 
-/* Make table fill container height */
-.data-table-container table {
-    height: 100%;
+/* Editable Data Table Styles - Performance optimized with CSS classes */
+.editable-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    user-select: none;
+}
+
+.editable-table thead {
+    background: var(--bg-secondary);
+}
+
+.editable-table thead th {
+    background: var(--bg-secondary);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+/* Sticky row numbers (first column) */
+.editable-table td.row-number,
+.editable-table th.row-number-header {
+    position: sticky;
+    left: 0;
+    z-index: 50;
+    background: var(--bg-secondary);
+}
+
+/* Corner cell (top-left) should be above both sticky header and sticky column */
+.editable-table th.row-number-header {
+    z-index: 150;
+}
+
+.editable-table .row-number-header {
+    padding: 8px;
+    text-align: center;
+    border: 1px solid var(--border-default);
+    font-weight: 600;
+    min-width: 50px;
+    max-width: 50px;
+    width: 50px;
+}
+
+.editable-table th {
+    padding: 8px;
+    text-align: center;
+    border: 1px solid var(--border-default);
+    font-weight: 600;
+    cursor: default;
+    position: relative;
+}
+
+.editable-table .column-resize-handle {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 8px;
+    cursor: col-resize;
+    z-index: 10;
+}
+
+.editable-table .row-number {
+    padding: 8px;
+    text-align: center;
+    border: 1px solid var(--border-default);
+    font-weight: 600;
+    cursor: default;
+    min-width: 50px;
+    max-width: 50px;
+    width: 50px;
+}
+
+.editable-table td {
+    padding: 6px 8px;
+    border: 1px solid var(--border-muted);
+    cursor: cell;
+    text-align: center;
+}
+
+.editable-table tr.row-even {
+    background: var(--bg-primary);
+}
+
+.editable-table tr.row-odd {
+    background: var(--bg-secondary);
+}
+
+.editable-table td.index-col {
+    font-weight: 600;
 }
 
 /* Canvas Container */
@@ -487,7 +583,7 @@
 
 /* Mini Data Table */
 .mini-data-table {
-    background: var(--bg-secondary);
+    background: var(--sigma-bg-secondary);
     border-top: 1px solid var(--border-default);
     max-height: 200px;
     display: flex;
@@ -504,7 +600,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 12px 16px;
-    background: var(--bg-primary);
+    background: var(--sigma-bg-primary);
     border-bottom: 1px solid var(--border-default);
     font-size: 12px;
     font-weight: 600;
@@ -539,7 +635,7 @@
    ======================================================================== */
 
 .sigma-properties {
-    background: var(--bg-secondary);
+    background: var(--sigma-bg-secondary);
     border-left: 1px solid var(--border-default);
     display: flex;
     flex-direction: column;
@@ -555,12 +651,13 @@
     align-items: center;
     justify-content: space-between;
     padding: 16px;
-    background: var(--bg-primary);
+    background: var(--sigma-bg-primary);
     border-bottom: 1px solid var(--border-default);
 }
 
 .properties-header h4 {
     margin: 0;
+    margin-right: 12px;
     font-size: 14px;
     font-weight: 600;
     color: var(--text-primary);
@@ -580,7 +677,7 @@
 }
 
 .properties-toggle-btn:hover {
-    background: var(--bg-hover);
+    background: var(--sigma-bg-hover);
     color: var(--text-primary);
 }
 
@@ -608,7 +705,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 6px 16px;
-    background: var(--bg-primary);
+    background: var(--sigma-bg-primary);
     border-top: 1px solid var(--border-default);
     font-size: 12px;
     color: var(--text-muted);
@@ -641,7 +738,7 @@
 }
 
 [data-theme="dark"] .ribbon-tab.active {
-    background: var(--bg-secondary);
+    background: var(--sigma-bg-secondary);
 }
 
 [data-theme="dark"] .ribbon-btn {
@@ -650,7 +747,7 @@
 }
 
 [data-theme="dark"] .ribbon-btn:hover {
-    background: var(--bg-hover);
+    background: var(--sigma-bg-hover);
     border-color: var(--status-success);
 }
 
@@ -741,7 +838,7 @@
     align-items: center;
     gap: 6px;
     padding: 10px 16px;
-    background: var(--bg-primary);
+    background: var(--sigma-bg-primary);
     border-bottom: 1px solid var(--border-default);
     flex-wrap: wrap;
 }
@@ -759,7 +856,7 @@
     align-items: center;
     gap: 4px;
     padding: 8px 14px;
-    background: var(--bg-secondary);
+    background: var(--sigma-bg-secondary);
     border: 2px solid var(--border-muted);
     border-radius: 6px;
     color: var(--text-primary);
@@ -770,7 +867,7 @@
 }
 
 .plot-type-btn:hover {
-    background: var(--bg-hover);
+    background: var(--sigma-bg-hover);
     border-color: var(--status-success);
     transform: translateY(-1px);
 }
@@ -811,13 +908,13 @@
     width: 400px;
     flex-shrink: 0;
     min-width: 10px;
-    background: var(--bg-secondary);
+    background: var(--sigma-bg-secondary);
     border-right: 1px solid var(--border-default);
 }
 
 .split-pane-right {
     flex: 1;
-    background: var(--bg-primary);  /* Keep dark mode */
+    background: var(--sigma-bg-primary);  /* Keep dark mode */
     position: relative;
     min-width: 10px;
 }
@@ -827,12 +924,13 @@
     align-items: center;
     justify-content: space-between;
     padding: 16px;
-    background: var(--bg-primary);
+    background: var(--sigma-bg-primary);
     border-bottom: 1px solid var(--border-default);
 }
 
 .pane-header h5 {
     margin: 0;
+    margin-right: 12px;
     font-size: 14px;
     font-weight: 600;
     color: var(--text-primary);
@@ -855,7 +953,7 @@
     justify-content: center;
     gap: 4px;
     padding: 6px 10px;
-    background: var(--bg-secondary);
+    background: var(--sigma-bg-secondary);
     border: 1px solid var(--border-muted);
     border-radius: 4px;
     color: var(--text-primary);
@@ -868,7 +966,7 @@
 }
 
 .pane-header-btn:hover {
-    background: var(--bg-hover);
+    background: var(--sigma-bg-hover);
     border-color: var(--status-success);
     transform: translateY(-1px);
     box-shadow: 0 2px 6px rgba(74, 155, 126, 0.15);
@@ -929,7 +1027,7 @@
 
 /* Canvas Content */
 .canvas-content {
-    background: var(--bg-primary);
+    background: var(--sigma-bg-primary);
     display: flex;
     flex-direction: column;
     flex: 1;
@@ -1090,43 +1188,12 @@
 }
 
 /* Resizers */
-.split-resizer,
-.panel-resizer {
-    width: 4px;
-    background: var(--border-muted);
-    cursor: col-resize;
-    transition: background 0.2s ease;
-    user-select: none;
-    flex-shrink: 0;
-    position: relative;
-}
-
-/* Expanded hit area using pseudo-element */
-.split-resizer::before,
-.panel-resizer::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: -12px;
-    right: -12px;
-    cursor: col-resize;
-    z-index: 1;
-}
-
-.split-resizer:hover,
-.panel-resizer:hover {
-    background: var(--status-success);
-}
-
-.split-resizer:active,
-.panel-resizer:active {
-    background: var(--status-success);
-}
+/* Panel resizer now uses standard workspace resizer from shared/css/components/panel-resizer.css */
+/* No custom overrides needed - standard grayish theme works perfectly */
 
 /* Selected Item Info Header */
 .selected-item-info {
-    background: var(--bg-secondary);
+    background: var(--sigma-bg-secondary);
     border-bottom: 1px solid var(--border-default);
     padding: 12px 16px;
 }
@@ -1186,7 +1253,7 @@
 .property-input {
     width: 100%;
     padding: 8px;
-    background: var(--bg-primary);
+    background: var(--sigma-bg-primary);
     border: 1px solid var(--border-muted);
     border-radius: 4px;
     color: var(--text-primary);
@@ -1203,7 +1270,7 @@
     width: 100%;
     height: 36px;
     padding: 4px;
-    background: var(--bg-primary);
+    background: var(--sigma-bg-primary);
     border: 1px solid var(--border-muted);
     border-radius: 4px;
     cursor: pointer;
@@ -1266,7 +1333,7 @@
 
 .editable-table td:hover,
 .editable-table th:hover {
-    background-color: var(--bg-hover) !important;
+    background-color: var(--sigma-bg-hover) !important;
 }
 
 /* Selected cells (not editing) */
@@ -1320,7 +1387,7 @@
 
 /* Cell in edit mode */
 .editable-table [contenteditable="true"] {
-    background-color: var(--bg-primary) !important;
+    background-color: var(--sigma-bg-primary) !important;
     color: var(--text-primary) !important;
     box-shadow: inset 0 0 0 1px rgba(74, 155, 126, 0.5);
     z-index: 2;
@@ -1333,7 +1400,7 @@
 /* Header cells in editable table */
 .editable-table th[contenteditable="true"] {
     font-weight: 600;
-    background: var(--bg-secondary);
+    background: var(--sigma-bg-secondary);
 }
 
 .editable-table th[contenteditable="true"]:focus {
@@ -1358,7 +1425,7 @@
 }
 
 .editable-table .row-number:hover {
-    background: var(--bg-hover) !important;
+    background: var(--sigma-bg-hover) !important;
 }
 
 .editable-table th[data-col] {
@@ -1372,7 +1439,7 @@
 .btn-delete-row {
     padding: 4px 8px;
     border: 1px solid var(--border-default);
-    background: var(--bg-primary);
+    background: var(--sigma-bg-primary);
     color: var(--text-primary);
     border-radius: 4px;
     cursor: pointer;
@@ -1472,7 +1539,7 @@ body.resizing-column {
 }
 
 .tree-item-header:hover {
-    background: var(--bg-hover);
+    background: var(--sigma-bg-hover);
 }
 
 .tree-item-header:hover .tree-item-actions {
@@ -1613,7 +1680,7 @@ body.resizing-column {
 }
 
 .tree-group-header:hover {
-    background: var(--bg-hover);
+    background: var(--sigma-bg-hover);
 }
 
 .tree-group-children {

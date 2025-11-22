@@ -46,20 +46,19 @@ export class CanvasManager {
      * Initialize Fabric.js canvas
      */
     public initCanvas(): void {
-        console.log('[CanvasManager] initCanvas() called');
+        const startTime = performance.now();
+        console.log('[CanvasManager] Starting canvas initialization...');
 
         const canvasElement = document.getElementById('sigma-canvas') as HTMLCanvasElement;
         if (!canvasElement) {
             console.error('[CanvasManager] Canvas element #sigma-canvas not found in DOM');
             return;
         }
-        console.log('[CanvasManager] Canvas element found:', canvasElement);
 
         if (typeof fabric === 'undefined') {
             console.error('[CanvasManager] Fabric.js is not loaded!');
             return;
         }
-        console.log('[CanvasManager] Fabric.js is loaded');
 
         const defaultWidth = CANVAS_CONSTANTS.MAX_CANVAS_WIDTH;   // 180mm @ 300dpi
         const defaultHeight = CANVAS_CONSTANTS.MAX_CANVAS_HEIGHT; // 240mm @ 300dpi
@@ -74,10 +73,16 @@ export class CanvasManager {
                 selectionKey: 'ctrlKey',  // PowerPoint-style multi-select
             });
 
-            console.log(`[CanvasManager] Canvas initialized: ${defaultWidth}×${defaultHeight}px`);
+            const canvasCreateTime = performance.now();
+            console.log(`[CanvasManager] Fabric.js canvas created in ${(canvasCreateTime - startTime).toFixed(2)}ms (${defaultWidth}×${defaultHeight}px)`);
 
             if (this.gridEnabled) {
                 this.drawGrid();
+                const gridTime = performance.now();
+                console.log(`[CanvasManager] Grid drawn in ${(gridTime - canvasCreateTime).toFixed(2)}ms`);
+                console.log(`[CanvasManager] ✅ Total canvas init: ${(gridTime - startTime).toFixed(2)}ms`);
+            } else {
+                console.log(`[CanvasManager] ✅ Total canvas init: ${(canvasCreateTime - startTime).toFixed(2)}ms`);
             }
         } catch (error) {
             console.error('[CanvasManager] Error initializing canvas:', error);
@@ -85,83 +90,86 @@ export class CanvasManager {
     }
 
     /**
-     * Draw grid lines on canvas
+     * Draw grid as optimized SVG background (mm-precision maintained)
+     * PERFORMANCE: Single SVG pattern instead of 420+ Fabric objects
      */
     public drawGrid(isDark: boolean = false): void {
         if (!this.canvas) return;
 
+        const startTime = performance.now();
         const width = this.canvas.getWidth();
         const height = this.canvas.getHeight();
-        this.clearGrid();
 
-        // Grid color adapts to theme: light gray for light mode, darker gray for dark mode
-        const gridColor = isDark ? '#404040' : '#e5e5e5';
+        // Grid colors adapt to theme
+        const minorGridColor = isDark ? '#404040' : '#e5e5e5';
+        const majorGridColor = isDark ? '#606060' : '#999999';
+        const columnLineColor = '#0080c0';
 
-        // Column guide positions: 0.5, 1.0, 1.5 columns (45mm, 90mm, 135mm)
-        const columnGuides = [45, 90, 135];
-        const columnLineColor = '#0080c0'; // Blue color (same as /vis/)
+        // PRECISION: Use exact MM_TO_PX constant (11.811 px = 1mm @ 300dpi)
+        const gridSize = CANVAS_CONSTANTS.GRID_SIZE;  // 1mm in pixels
+        const majorInterval = 10;  // 10mm = major grid lines
 
-        // Draw vertical grid lines (1mm spacing)
-        for (let i = 0; i <= width / CANVAS_CONSTANTS.GRID_SIZE; i++) {
-            const x = i * CANVAS_CONSTANTS.GRID_SIZE;
-            const line = new fabric.Line([x, 0, x, height], {
-                stroke: gridColor,
-                strokeWidth: i % 10 === 0 ? 1 : 0.5,  // Major lines every 10mm
-                selectable: false,
-                evented: false,
-                hoverCursor: 'default',
-                excludeFromExport: true,  // CRITICAL: not in exports
-            } as any);
-            line.set('id', 'grid-line');
-            this.canvas.add(line);
-            this.canvas.sendToBack(line);
-        }
+        // Create SVG pattern with mm-precision
+        const svg = `
+<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
+  <defs>
+    <!-- 1mm minor grid pattern -->
+    <pattern id="minor-grid" width="${gridSize}" height="${gridSize}" patternUnits="userSpaceOnUse">
+      <line x1="0" y1="0" x2="0" y2="${gridSize}" stroke="${minorGridColor}" stroke-width="0.5"/>
+      <line x1="0" y1="0" x2="${gridSize}" y2="0" stroke="${minorGridColor}" stroke-width="0.5"/>
+    </pattern>
 
-        // Draw horizontal grid lines (1mm spacing)
-        for (let i = 0; i <= height / CANVAS_CONSTANTS.GRID_SIZE; i++) {
-            const y = i * CANVAS_CONSTANTS.GRID_SIZE;
-            const line = new fabric.Line([0, y, width, y], {
-                stroke: gridColor,
-                strokeWidth: i % 10 === 0 ? 1 : 0.5,  // Major lines every 10mm
-                selectable: false,
-                evented: false,
-                hoverCursor: 'default',
-                excludeFromExport: true,  // CRITICAL: not in exports
-            } as any);
-            line.set('id', 'grid-line');
-            this.canvas.add(line);
-            this.canvas.sendToBack(line);
-        }
+    <!-- 10mm major grid pattern -->
+    <pattern id="major-grid" width="${gridSize * majorInterval}" height="${gridSize * majorInterval}" patternUnits="userSpaceOnUse">
+      <line x1="0" y1="0" x2="0" y2="${gridSize * majorInterval}" stroke="${majorGridColor}" stroke-width="1"/>
+      <line x1="0" y1="0" x2="${gridSize * majorInterval}" y2="0" stroke="${majorGridColor}" stroke-width="1"/>
+    </pattern>
+  </defs>
 
-        // Draw column guide lines at 45mm, 90mm, 135mm (0.5, 1.0, 1.5 columns)
-        columnGuides.forEach((columnMm) => {
-            const x = columnMm * CANVAS_CONSTANTS.MM_TO_PX;
-            if (x <= width) {
-                const guideLine = new fabric.Line([x, 0, x, height], {
-                    stroke: columnLineColor,
-                    strokeWidth: 1.5,
-                    strokeDashArray: [10, 5],
-                    selectable: false,
-                    evented: false,
-                    hoverCursor: 'default',
-                    excludeFromExport: true,
-                } as any);
-                guideLine.set('id', 'column-guide');
-                this.canvas.add(guideLine);
-                this.canvas.sendToBack(guideLine);
+  <!-- Apply patterns -->
+  <rect width="${width}" height="${height}" fill="url(#minor-grid)"/>
+  <rect width="${width}" height="${height}" fill="url(#major-grid)"/>
+
+  <!-- Column guide lines at 45mm, 90mm, 135mm (0.5, 1.0, 1.5 columns) -->
+  <line x1="${45 * CANVAS_CONSTANTS.MM_TO_PX}" y1="0" x2="${45 * CANVAS_CONSTANTS.MM_TO_PX}" y2="${height}"
+        stroke="${columnLineColor}" stroke-width="1.5" stroke-dasharray="10,5"/>
+  <line x1="${90 * CANVAS_CONSTANTS.MM_TO_PX}" y1="0" x2="${90 * CANVAS_CONSTANTS.MM_TO_PX}" y2="${height}"
+        stroke="${columnLineColor}" stroke-width="1.5" stroke-dasharray="10,5"/>
+  <line x1="${135 * CANVAS_CONSTANTS.MM_TO_PX}" y1="0" x2="${135 * CANVAS_CONSTANTS.MM_TO_PX}" y2="${height}"
+        stroke="${columnLineColor}" stroke-width="1.5" stroke-dasharray="10,5"/>
+</svg>`.trim();
+
+        // Convert SVG to data URL
+        const svgDataUrl = 'data:image/svg+xml;base64,' + btoa(svg);
+
+        // Load as Fabric.js background image
+        fabric.Image.fromURL(svgDataUrl, (img: any) => {
+            this.canvas!.setBackgroundImage(img, this.canvas!.renderAll.bind(this.canvas), {
+                scaleX: 1,
+                scaleY: 1,
+                originX: 'left',
+                originY: 'top',
+            });
+
+            const endTime = performance.now();
+            console.log(`[CanvasManager] ✅ Grid drawn as SVG background in ${(endTime - startTime).toFixed(2)}ms (mm-precision maintained)`);
+
+            if (this.statusBarCallback) {
+                this.statusBarCallback('Grid enabled (SVG optimized)');
             }
-        });
-
-        this.canvas.renderAll();
-        console.log('[CanvasManager] Grid drawn');
+        }, { crossOrigin: 'anonymous' });
     }
 
     /**
-     * Clear grid lines from canvas
+     * Clear grid background from canvas
      */
     public clearGrid(): void {
         if (!this.canvas) return;
 
+        // Clear background image (SVG grid)
+        this.canvas.setBackgroundImage(null, this.canvas.renderAll.bind(this.canvas));
+
+        // Legacy cleanup: Remove any old Fabric.js grid objects (for backwards compatibility)
         const objects = this.canvas.getObjects();
         objects.forEach((obj: any) => {
             if (obj.id === 'grid-line' || obj.id === 'column-guide') {
@@ -175,17 +183,11 @@ export class CanvasManager {
      */
     public toggleGrid(): void {
         this.gridEnabled = !this.gridEnabled;
-        const canvasContainer = document.getElementById('canvas-container');
 
-        if (canvasContainer) {
-            if (this.gridEnabled) {
-                canvasContainer.style.backgroundImage =
-                    'linear-gradient(rgba(128, 128, 128, 0.1) 1px, transparent 1px), ' +
-                    'linear-gradient(90deg, rgba(128, 128, 128, 0.1) 1px, transparent 1px)';
-                canvasContainer.style.backgroundSize = '20px 20px';
-            } else {
-                canvasContainer.style.backgroundImage = 'none';
-            }
+        if (this.gridEnabled) {
+            this.drawGrid();
+        } else {
+            this.clearGrid();
         }
 
         if (this.statusBarCallback) {

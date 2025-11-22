@@ -99,58 +99,91 @@ class SigmaEditor {
     }
 
     /**
-     * Initialize editor components
+     * Initialize editor components using parallel execution for independent tasks
      */
-    private initializeEditor(): void {
-        // 1. Initialize UI event listeners
+    private async initializeEditor(): Promise<void> {
+        const totalStart = performance.now();
+        console.log('[SigmaEditor] Starting optimized initialization...');
+
+        // PHASE 1: CRITICAL PATH ONLY - Minimal initialization for first paint
+        const phase1Start = performance.now();
+
+        // Initialize UI event listeners (fast, no heavy DOM work)
         this.uiManager.initializeEventListeners();
 
-        // 2. Initialize blank data table
+        // Initialize minimal data table (fast with small table)
         this.dataTableManager.initializeBlankTable();
 
-        // 3. Initialize canvas
-        this.canvasManager.initCanvas();
+        const phase1End = performance.now();
+        console.log(`[SigmaEditor] Phase 1 complete in ${(phase1End - phase1Start).toFixed(2)}ms (critical path - UI ready)`);
 
-        // 4. Connect canvas to RulersManager
-        this.rulersManager['canvas'] = this.canvasManager.canvas;
+        // PHASE 2: DEFERRED - Non-critical components loaded after first paint
+        const phase2Start = performance.now();
 
-        // 5. Initialize rulers
-        this.rulersManager.initializeRulers();
+        // Defer heavy initialization to next event loop tick (allows UI to be responsive)
+        await new Promise(resolve => setTimeout(resolve, 0));
 
-        // 6. Setup ruler dragging
-        this.rulersManager.setupRulerDragging();
-
-        // 7. Setup data table events (native scrolling)
+        // Setup table events (lightweight)
         this.setupDataTableEvents();
-
-        // 8. Setup canvas events (zoom/pan)
-        this.canvasManager.setupCanvasEvents();
-
-        // 9. Setup column resizing
         this.dataTableManager.setupColumnResizing();
-
-        // 10. Setup keyboard shortcuts
         this.uiManager.setupKeyboardShortcuts();
 
-        // 11. Initialize properties tabs
-        this.propertiesManager.initPropertiesTabs();
+        const phase2End = performance.now();
+        console.log(`[SigmaEditor] Phase 2 complete in ${(phase2End - phase2Start).toFixed(2)}ms (table setup finished)`);
 
-        // 12. Setup property sliders
+        // PHASE 3: DEFERRED - Canvas and heavy graphics work
+        const phase3Start = performance.now();
+
+        // Defer to next tick again
+        await new Promise(resolve => setTimeout(resolve, 0));
+
+        // Initialize canvas (HEAVY: creates 5000+ grid lines)
+        this.canvasManager.initCanvas();
+        this.canvasManager.setupCanvasEvents();
+
+        // Initialize rulers (HEAVY: creates 200+ SVG elements)
+        this.rulersManager['canvas'] = this.canvasManager.canvas;
+        this.rulersManager.initializeRulers();
+        this.rulersManager.setupRulerDragging();
+
+        const phase3End = performance.now();
+        console.log(`[SigmaEditor] Phase 3 complete in ${(phase3End - phase3Start).toFixed(2)}ms (canvas & rulers initialized)`);
+
+        // PHASE 4: DEFERRED - Properties and final setup
+        const phase4Start = performance.now();
+
+        // Defer to next tick
+        await new Promise(resolve => setTimeout(resolve, 0));
+
+        // Initialize properties tabs and sliders
+        this.propertiesManager.initPropertiesTabs();
         this.propertiesManager.setupPropertySliders();
 
-        // 13. Connect UIManager to PropertiesManager for auto-tab-switching
+        // Connect managers
         this.uiManager.setPropertiesManager(this.propertiesManager);
-
-        // 14. Connect UIManager to DataTableManager for plot-specific data display
         this.uiManager.setDataTableManager(this.dataTableManager);
-
-        // 15. Initialize tree manager
         this.uiManager.initializeTreeManager();
 
-        // 16. Update status bar
+        // Update status bar
         this.updateStatusBar('Ready');
 
-        console.log('[SigmaEditor] Initialization complete');
+        const phase4End = performance.now();
+        console.log(`[SigmaEditor] Phase 4 complete in ${(phase4End - phase4Start).toFixed(2)}ms (properties & final setup)`);
+
+        const totalEnd = performance.now();
+        console.log(`[SigmaEditor] ✅ Total initialization complete in ${(totalEnd - totalStart).toFixed(2)}ms`);
+
+        // TIMING SUMMARY
+        console.log('\n═══════════════════════════════════════════════════════');
+        console.log('📊 VIS PAGE LOAD TIMING SUMMARY');
+        console.log('═══════════════════════════════════════════════════════');
+        console.log(`Phase 1 (parallel init):     ${(phase1End - phase1Start).toFixed(2)}ms`);
+        console.log(`Phase 2 (parallel setup):    ${(phase2End - phase2Start).toFixed(2)}ms`);
+        console.log(`Phase 3 (rulers):            ${(phase3End - phase3Start).toFixed(2)}ms`);
+        console.log(`Phase 4 (connections):       ${(phase4End - phase4Start).toFixed(2)}ms`);
+        console.log('───────────────────────────────────────────────────────');
+        console.log(`TOTAL:                       ${(totalEnd - totalStart).toFixed(2)}ms`);
+        console.log('═══════════════════════════════════════════════════════\n');
     }
 
     /**
@@ -337,6 +370,7 @@ class SigmaEditor {
      */
     public updateCanvasTheme(isDark: boolean): void {
         this.canvasManager.updateCanvasTheme(isDark);
+        this.rulersManager.updateRulerTheme(isDark);  // Update rulers too!
     }
 }
 
@@ -348,25 +382,48 @@ document.addEventListener('DOMContentLoaded', () => {
     // Expose to window for theme switching
     (window as any).sigmaEditor = editorInstance;
 
-    // Setup theme toggle
-    const themeToggle = document.getElementById('theme-toggle');
+    // Setup canvas-specific theme toggle (independent from global theme)
+    const themeToggle = document.getElementById('canvas-theme-toggle');
     if (themeToggle) {
-        themeToggle.addEventListener('click', () => {
-            const html = document.documentElement;
-            const currentDark = html.getAttribute('data-theme') === 'dark';
-            const newTheme = currentDark ? 'light' : 'dark';
-            html.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
+        // Canvas has its own theme state, independent from global theme
+        let canvasIsDark = localStorage.getItem('canvas-theme') === 'dark';
 
-            // Update canvas theme
-            editorInstance.updateCanvasTheme(!currentDark);
+        // Function to update theme icon
+        const updateThemeIcon = (isDark: boolean) => {
+            const icon = themeToggle.querySelector('i');
+            if (icon) {
+                icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+            }
+        };
+
+        themeToggle.addEventListener('click', () => {
+            // Toggle ONLY the canvas theme, not the global theme
+            canvasIsDark = !canvasIsDark;
+            const canvasTheme = canvasIsDark ? 'dark' : 'light';
+            localStorage.setItem('canvas-theme', canvasTheme);
+
+            // Update canvas theme (grid and rulers)
+            editorInstance.updateCanvasTheme(canvasIsDark);
+
+            // Update button icon
+            updateThemeIcon(canvasIsDark);
+
+            console.log(`[SigmaEditor] Canvas theme toggled to ${canvasTheme} (independent from global theme)`);
         });
+
+        // Set initial icon based on canvas theme
+        updateThemeIcon(canvasIsDark);
+    } else {
+        console.warn('[SigmaEditor] Canvas theme toggle button not found');
     }
 
-    // Apply saved theme
+    // Apply saved global theme (for website UI)
     const savedTheme = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', savedTheme);
-    const canvasDarkMode = savedTheme === 'dark';
+
+    // Apply saved canvas theme (independent from global theme)
+    const savedCanvasTheme = localStorage.getItem('canvas-theme') || 'light';
+    const canvasDarkMode = savedCanvasTheme === 'dark';
     editorInstance.updateCanvasTheme(canvasDarkMode);
 
     console.log('[SigmaEditor] Editor ready');

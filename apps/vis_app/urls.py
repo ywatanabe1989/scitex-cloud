@@ -4,17 +4,17 @@ from . import views, api_views
 app_name = "vis"
 
 urlpatterns = [
-    # Main editor
+    # Main editor - Sigma (SigmaPlot-inspired, now default)
     path(
         "",
         views.figure_editor,
         name="figure_editor",
     ),
-    # SigmaPlot-inspired editor (experimental)
+    # Legacy canvas-based editor
     path(
-        "sigma/",
-        views.sigma_editor,
-        name="sigma_editor",
+        "legacy/",
+        views.figure_editor_legacy,
+        name="figure_editor_legacy",
     ),
     # Figure management
     path(
