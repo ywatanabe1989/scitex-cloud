@@ -162,7 +162,7 @@ shell: docker-check-health
 
 build-ts:
 	@echo "$(CYAN)🔨 Building TypeScript...$(NC)"
-	@cd ../../.. && cd frontend && npm run build:writer
+	@cd ../../.. && cd tsconfig && npm install --silent && npm run build:all
 	@echo "$(GREEN)✅ TypeScript compiled$(NC)"
 
 collectstatic: docker-check-health build-ts
@@ -247,7 +247,7 @@ ssl-check:
 	@echo "$(CYAN)🔍 Checking SSL certificates...$(NC)"
 	@bash -c 'if [ -f ".env" ]; then source .env; fi; \
 	DOMAIN=$${SCITEX_CLOUD_DOMAIN:-scitex.ai}; \
-	if docker exec scitex-cloud-nginx test -f /etc/nginx/ssl/live/$$DOMAIN/fullchain.pem 2>/dev/null; then \
+	if docker exec scitex-cloud-prod-nginx test -f /etc/nginx/ssl/live/$$DOMAIN/fullchain.pem 2>/dev/null; then \
 		echo "✅ Certificates exist for $$DOMAIN"; \
 		$(COMPOSE) run --rm --entrypoint "certbot" certbot certificates 2>/dev/null | grep -E "Certificate Name|Expiry Date" || true; \
 	else \
@@ -274,13 +274,13 @@ ssl-enable:
 	@bash nginx/enable_https.sh
 	@echo "$(CYAN)⏳ Waiting for nginx to be ready...$(NC)"
 	@for i in 1 2 3 4 5; do \
-		if docker ps --filter "name=scitex-cloud-nginx" --filter "status=running" | grep -q scitex-cloud-nginx; then \
+		if docker ps --filter "name=scitex-cloud-prod-nginx" --filter "status=running" | grep -q scitex-cloud-prod-nginx; then \
 			break; \
 		fi; \
 		echo "  Waiting... ($$i/5)"; \
 		sleep 2; \
 	done
-	@if docker ps --filter "name=scitex-cloud-nginx" --filter "status=running" | grep -q scitex-cloud-nginx; then \
+	@if docker ps --filter "name=scitex-cloud-prod-nginx" --filter "status=running" | grep -q scitex-cloud-prod-nginx; then \
 		$(COMPOSE) exec nginx nginx -t && \
 		$(COMPOSE) exec nginx nginx -s reload && \
 		echo "$(GREEN)✅ HTTPS enabled$(NC)"; \
@@ -330,7 +330,7 @@ ssl-auto:
 	@echo "$(CYAN)🤖 Automatic SSL management...$(NC)"
 	@bash -c 'if [ -f ".env" ]; then source .env; fi; \
 	MAIN_DOMAIN=$${SCITEX_CLOUD_DOMAIN:-scitex.ai}; \
-	if ! docker exec scitex-cloud-nginx test -f /etc/nginx/ssl/live/$$MAIN_DOMAIN/fullchain.pem 2>/dev/null; then \
+	if ! docker exec scitex-cloud-prod-nginx test -f /etc/nginx/ssl/live/$$MAIN_DOMAIN/fullchain.pem 2>/dev/null; then \
 		echo "⚠️  No certificates found - creating..."; \
 		$(MAKE) ssl-create && $(MAKE) ssl-enable; \
 	else \

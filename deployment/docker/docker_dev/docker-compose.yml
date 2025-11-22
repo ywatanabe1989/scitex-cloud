@@ -117,9 +117,10 @@ services:
       - .env
 
     environment:
-      - SCITEX_CLOUD_POSTGRES_DB=${SCITEX_CLOUD_POSTGRES_DB:-scitex_cloud_dev}
-      - SCITEX_CLOUD_POSTGRES_USER=${SCITEX_CLOUD_POSTGRES_USER:-scitex_dev}
-      - SCITEX_CLOUD_POSTGRES_PASSWORD=${SCITEX_CLOUD_POSTGRES_PASSWORD:-scitex_dev_2025}
+      # PostgreSQL expects POSTGRES_* variables (not SCITEX_CLOUD_POSTGRES_*)
+      - POSTGRES_DB=${SCITEX_CLOUD_POSTGRES_DB:-scitex_cloud_dev}
+      - POSTGRES_USER=${SCITEX_CLOUD_POSTGRES_USER:-scitex_dev}
+      - POSTGRES_PASSWORD=${SCITEX_CLOUD_POSTGRES_PASSWORD:-scitex_dev_2025}
 
     restart: unless-stopped
     

@@ -29,7 +29,9 @@ except Exception as e:
 # ---------------------------------------
 # Security
 # ---------------------------------------
-DEBUG = False  # Always False in production for security
+# Allow DEBUG override via environment variable for troubleshooting
+# WARNING: Set DEBUG=False in production after debugging!
+DEBUG = os.getenv("DEBUG", "False").lower() in ("true", "1", "yes")
 
 # ---------------------------------------
 # SciTeX Settings
