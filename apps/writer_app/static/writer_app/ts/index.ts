@@ -30,6 +30,7 @@ import { getCsrfToken } from "@/utils/csrf.js";
 import { writerStorage } from "@/utils/storage.js";
 import { getWriterConfig, createDefaultEditorState } from "./helpers.js";
 import { GitHistoryManager } from "./modules/git-history.js";
+import { initializeCollaboratorsPanel } from "./collaboration-panel.js";
 import {
   SaveSectionsResponse,
   SectionReadResponse,
@@ -749,10 +750,42 @@ function setupPDFScrollPriority(): void {
  * Initialize editor and its components
  */
 async function initializeEditor(config: any): Promise<void> {
-  console.log("[Writer] Setting up editor components");
+  const totalStart = performance.now();
+  console.log("[Writer] Starting parallel initialization...");
 
-  // Wait for Monaco to load if attempting to use it
-  const monacoReady = await waitForMonaco();
+  // PHASE 1: Initialize independent UI components in parallel with Monaco loading
+  const phase1Start = performance.now();
+  const [monacoReady, panelResizer, citationsPanel, figuresPanel, tablesPanel, tablePreviewModal, sectionsManager, compilationManager] = await Promise.all([
+    // Wait for Monaco to load
+    waitForMonaco(),
+
+    // Initialize independent UI panels
+    Promise.resolve(new PanelResizer()),
+    Promise.resolve(new CitationsPanel()),
+    Promise.resolve(new FiguresPanel()),
+    Promise.resolve(new TablesPanel()),
+    Promise.resolve(new TablePreviewModal()),
+
+    // Initialize independent core components
+    Promise.resolve(new SectionsManager()),
+    Promise.resolve(new CompilationManager("")),
+  ]);
+
+  // Make panels available globally
+  (window as any).citationsPanel = citationsPanel;
+  (window as any).figuresPanel = figuresPanel;
+  (window as any).tablesPanel = tablesPanel;
+  (window as any).tablePreviewModal = tablePreviewModal;
+
+  if (!panelResizer.isInitialized()) {
+    console.warn("[Writer] Panel resizer could not be initialized");
+  }
+
+  const phase1End = performance.now();
+  console.log(`[Writer] Phase 1 complete in ${(phase1End - phase1Start).toFixed(2)}ms (UI panels + core components initialized)`);
+
+  // PHASE 2: Initialize editor and dependent components
+  const phase2Start = performance.now();
 
   // Initialize editor (try Monaco first if ready, fallback to CodeMirror)
   let editor: any = null;
@@ -781,12 +814,6 @@ async function initializeEditor(config: any): Promise<void> {
     }
   }
 
-  // Initialize sections manager
-  const sectionsManager = new SectionsManager();
-
-  // Initialize compilation manager
-  const compilationManager = new CompilationManager("");
-
   // Initialize AI2 prompt generator (disabled until generate_ai2_prompt.py is implemented)
   // const { initializeAI2Prompt } = await import('./modules/ai2-prompt.js');
   // initializeAI2Prompt(config.projectId);
@@ -794,31 +821,37 @@ async function initializeEditor(config: any): Promise<void> {
   // Setup state management
   const state = createDefaultEditorState(config);
 
-  // Initialize PDF preview manager
-  const pdfPreviewManager = new PDFPreviewManager({
-    containerId: "text-preview",
-    projectId: config.projectId || 0,
-    manuscriptTitle: config.manuscriptTitle || "Untitled",
-    author: config.username || "",
-    autoCompile: false, // Disabled - preview shows full manuscript PDF only
-    compileDelay: 2000, // 2 seconds delay for live preview
-    apiBaseUrl: "",
-    docType: state.currentDocType || "manuscript",
-  });
+  // Initialize PDF components in parallel
+  const [pdfPreviewManager, pdfScrollZoomHandler] = await Promise.all([
+    Promise.resolve(new PDFPreviewManager({
+      containerId: "text-preview",
+      projectId: config.projectId || 0,
+      manuscriptTitle: config.manuscriptTitle || "Untitled",
+      author: config.username || "",
+      autoCompile: false, // Disabled - preview shows full manuscript PDF only
+      compileDelay: 2000, // 2 seconds delay for live preview
+      apiBaseUrl: "",
+      docType: state.currentDocType || "manuscript",
+    })),
+    Promise.resolve(new PDFScrollZoomHandler({
+      containerId: "text-preview",
+      minZoom: 50,
+      maxZoom: 300,
+      zoomStep: 10,
+    })),
+  ]);
 
   // Set module-level reference for access from other functions
   modulePdfPreviewManager = pdfPreviewManager;
 
-  // Initialize PDF scroll and zoom handler
-  const pdfScrollZoomHandler = new PDFScrollZoomHandler({
-    containerId: "text-preview",
-    minZoom: 50,
-    maxZoom: 300,
-    zoomStep: 10,
-  });
-
   // Observe for PDF viewer changes and reinitialize zoom handler
   pdfScrollZoomHandler.observePDFViewer();
+
+  const phase2End = performance.now();
+  console.log(`[Writer] Phase 2 complete in ${(phase2End - phase2Start).toFixed(2)}ms (editor + PDF components initialized)`);
+
+  // PHASE 3: Setup event handlers and connections
+  const phase3Start = performance.now();
 
   // Setup PDF color mode toggle button - SIMPLE direct approach with debounce
   const colorModeBtn = document.getElementById("pdf-color-mode-btn");
@@ -854,30 +887,12 @@ async function initializeEditor(config: any): Promise<void> {
     });
   }
 
-  // Initialize panel resizer for draggable split view
-  const panelResizer = new PanelResizer();
-  if (!panelResizer.isInitialized()) {
-    console.warn("[Writer] Panel resizer could not be initialized");
-  }
+  const phase3End = performance.now();
+  console.log(`[Writer] Phase 3 complete in ${(phase3End - phase3Start).toFixed(2)}ms (event handlers setup)`);
 
-  // Initialize citations panel
-  const citationsPanel = new CitationsPanel();
-  (window as any).citationsPanel = citationsPanel; // Make available globally
   console.log("[Writer] Citations panel initialized");
-
-  // Initialize figures panel
-  const figuresPanel = new FiguresPanel();
-  (window as any).figuresPanel = figuresPanel; // Make available globally
   console.log("[Writer] Figures panel initialized");
-
-  // Initialize tables panel
-  const tablesPanel = new TablesPanel();
-  (window as any).tablesPanel = tablesPanel; // Make available globally
   console.log("[Writer] Tables panel initialized");
-
-  // Initialize table preview modal
-  const tablePreviewModal = new TablePreviewModal();
-  (window as any).tablePreviewModal = tablePreviewModal; // Make available globally
   console.log("[Writer] Table preview modal initialized");
 
   // Initialize Git History Manager lazily (will be created when history panel is first accessed)
@@ -1198,6 +1213,19 @@ async function initializeEditor(config: any): Promise<void> {
     view.classList.add("active");
   });
 
+  const totalEnd = performance.now();
+
+  // TIMING SUMMARY
+  console.log('\n═══════════════════════════════════════════════════════');
+  console.log('📊 WRITER PAGE LOAD TIMING SUMMARY');
+  console.log('═══════════════════════════════════════════════════════');
+  console.log(`Phase 1 (parallel UI + core):   ${(phase1End - phase1Start).toFixed(2)}ms`);
+  console.log(`Phase 2 (editor + PDF):          ${(phase2End - phase2Start).toFixed(2)}ms`);
+  console.log(`Phase 3 (event handlers):        ${(phase3End - phase3Start).toFixed(2)}ms`);
+  console.log('───────────────────────────────────────────────────────');
+  console.log(`TOTAL:                           ${(totalEnd - totalStart).toFixed(2)}ms`);
+  console.log('═══════════════════════════════════════════════════════\n');
+
   console.log("[Writer] Editor initialized successfully");
   console.log(
     "[Writer] Using editor type:",
@@ -1207,27 +1235,70 @@ async function initializeEditor(config: any): Promise<void> {
   // Restore saved pane state with increased delay to ensure all DOM elements are ready
   setTimeout(() => {
     try {
-      const savedPane = statePersistence.getSavedActivePane();
-      console.log("[Writer] === PANE RESTORATION START ===");
-      console.log("[Writer] Saved pane value:", savedPane);
-      console.log("[Writer] Saved pane type:", typeof savedPane);
+      // Check URL parameters first (highest priority)
+      const urlParams = new URLSearchParams(window.location.search);
+      let targetPane: string | null = null;
 
-      if (savedPane === "citations") {
+      // Check for panel parameter (?panel=citations, ?panel=pdf, etc.)
+      if (urlParams.has('panel')) {
+        targetPane = urlParams.get('panel');
+        console.log("[Writer] URL parameter 'panel' found:", targetPane);
+      }
+      // Also support shorthand parameters (?pdf, ?citations, ?figures, ?tables, ?history)
+      else if (urlParams.has('pdf')) {
+        targetPane = 'pdf';
+        console.log("[Writer] URL shorthand parameter 'pdf' found");
+      } else if (urlParams.has('citations')) {
+        targetPane = 'citations';
+        console.log("[Writer] URL shorthand parameter 'citations' found");
+      } else if (urlParams.has('figures')) {
+        targetPane = 'figures';
+        console.log("[Writer] URL shorthand parameter 'figures' found");
+      } else if (urlParams.has('tables')) {
+        targetPane = 'tables';
+        console.log("[Writer] URL shorthand parameter 'tables' found");
+      } else if (urlParams.has('history')) {
+        targetPane = 'history';
+        console.log("[Writer] URL shorthand parameter 'history' found");
+      } else if (urlParams.has('collaboration')) {
+        targetPane = 'collaboration';
+        console.log("[Writer] URL shorthand parameter 'collaboration' found");
+      }
+
+      // Fallback to saved state if no URL parameter
+      if (!targetPane) {
+        targetPane = statePersistence.getSavedActivePane();
+        console.log("[Writer] No URL parameter, using saved pane:", targetPane);
+      }
+
+      console.log("[Writer] === PANE RESTORATION START ===");
+      console.log("[Writer] Target pane value:", targetPane);
+      console.log("[Writer] Target pane type:", typeof targetPane);
+
+      if (targetPane === "citations") {
         console.log("[Writer] Switching to citations pane...");
         switchRightPanel("citations");
-        console.log("[Writer] ✓ Restored citations pane from saved state");
-      } else if (savedPane === "figures") {
+        console.log("[Writer] ✓ Restored citations pane");
+      } else if (targetPane === "figures") {
         console.log("[Writer] Switching to figures pane...");
         switchRightPanel("figures");
-        console.log("[Writer] ✓ Restored figures pane from saved state");
-      } else if (savedPane === "tables") {
+        console.log("[Writer] ✓ Restored figures pane");
+      } else if (targetPane === "tables") {
         console.log("[Writer] Switching to tables pane...");
         switchRightPanel("tables");
-        console.log("[Writer] ✓ Restored tables pane from saved state");
-      } else if (savedPane === "pdf") {
+        console.log("[Writer] ✓ Restored tables pane");
+      } else if (targetPane === "history") {
+        console.log("[Writer] Switching to history pane...");
+        switchRightPanel("history");
+        console.log("[Writer] ✓ Restored history pane");
+      } else if (targetPane === "collaboration") {
+        console.log("[Writer] Switching to collaboration pane...");
+        switchRightPanel("collaboration");
+        console.log("[Writer] ✓ Restored collaboration pane");
+      } else if (targetPane === "pdf") {
         console.log("[Writer] Switching to PDF pane...");
         switchRightPanel("pdf");
-        console.log("[Writer] ✓ Restored PDF pane from saved state");
+        console.log("[Writer] ✓ Restored PDF pane");
       } else {
         console.log("[Writer] No saved pane state found, using default (PDF)");
       }
@@ -2306,8 +2377,12 @@ function showCompilationOptionsModal(
       return;
     }
 
+    // Get modal, modalBody, and descriptionText from modalElement
+    const modal = modalElement;
+    const modalBody = modalElement.querySelector(".scitex-modal-body");
+    const descriptionText = modalElement.querySelector(".text-muted.small.mb-3");
+
     // Update modal description for full compilation options
-    const optionsDescription = modalElement.querySelector(".text-muted.small.mb-3");
     if (descriptionText) {
       const docTypeLabels: Record<string, string> = {
         manuscript: "manuscript",
@@ -2859,7 +2934,7 @@ function setupSectionManagementButtons(
           await populateSectionDropdownDirect(
             docType,
             null,
-            compilationManager,
+            undefined, // compilationManager not accessible in nested closure
             state,
           );
 
@@ -2965,7 +3040,7 @@ function setupSectionManagementButtons(
           await populateSectionDropdownDirect(
             docType,
             null,
-            compilationManager,
+            undefined, // compilationManager not accessible in nested closure
             state,
           );
 
@@ -3074,7 +3149,7 @@ function setupSectionManagementButtons(
           await populateSectionDropdownDirect(
             docType,
             null,
-            compilationManager,
+            undefined, // compilationManager not accessible in nested closure
             state,
           );
         } else {
@@ -3121,7 +3196,7 @@ function setupSectionManagementButtons(
           await populateSectionDropdownDirect(
             docType,
             null,
-            compilationManager,
+            undefined, // compilationManager not accessible in nested closure
             state,
           );
         } else {
@@ -3216,14 +3291,92 @@ function openPDF(url: string): void {
 }
 
 /**
- * Switch right panel between PDF, Citations, Figures, Tables, and History views
+ * Lazy load CSS for a specific panel
+ * Returns a promise that resolves when CSS is loaded or immediately if already loaded
  */
-function switchRightPanel(view: "pdf" | "citations" | "figures" | "tables" | "history"): void {
+function loadPanelCSS(panel: string): Promise<void> {
+  return new Promise((resolve) => {
+    // Track loaded CSS to avoid duplicates
+    if (!(window as any).loadedPanelCSS) {
+      (window as any).loadedPanelCSS = new Set<string>();
+    }
+    const loadedCSS = (window as any).loadedPanelCSS;
+
+    // If already loaded in this session, resolve immediately
+    if (loadedCSS.has(panel)) {
+      console.log(`[Writer] CSS for ${panel} panel already loaded, skipping`);
+      resolve();
+      return;
+    }
+
+    const cssFiles: Record<string, string> = {
+      "citations": "/static/writer_app/css/editor/citations-panel.css",
+      "figures": "/static/writer_app/css/editor/figures-panel.css",
+      "tables": "/static/writer_app/css/editor/tables-panel.css",
+      "collaboration": "/static/shared/css/collaboration/collaboration.css",
+      "history": "/static/writer_app/css/shared/history-timeline.css"
+    };
+
+    const cssUrl = cssFiles[panel];
+    if (!cssUrl) {
+      console.warn(`[Writer] No CSS file defined for ${panel} panel`);
+      resolve();
+      return;
+    }
+
+    // Check if link with exact href already exists (from previous page loads)
+    const exactMatchSelector = `link[href^="${cssUrl}"]`;
+    const existingLink = document.querySelector(exactMatchSelector);
+    if (existingLink) {
+      console.log(`[Writer] CSS link for ${panel} panel already exists in DOM, marking as loaded`);
+      loadedCSS.add(panel);
+      resolve();
+      return;
+    }
+
+    // Create and append link element
+    console.log(`[Writer] Loading CSS for ${panel} panel: ${cssUrl}`);
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = `${cssUrl}?v=${Date.now()}`;
+    link.setAttribute('data-panel', panel);
+
+    link.onload = () => {
+      loadedCSS.add(panel);
+      console.log(`[Writer] ✓ Successfully loaded CSS for ${panel} panel`);
+      resolve();
+    };
+
+    link.onerror = (error) => {
+      console.error(`[Writer] ✗ Failed to load CSS for ${panel} panel:`, error);
+      console.error(`[Writer] Attempted URL: ${cssUrl}`);
+      // Still resolve to not block panel display
+      resolve();
+    };
+
+    document.head.appendChild(link);
+  });
+}
+
+/**
+ * Switch right panel between PDF, Citations, Figures, Tables, History, and Collaboration views
+ */
+function switchRightPanel(view: "pdf" | "citations" | "figures" | "tables" | "history" | "collaboration"): void {
   const pdfView = document.getElementById("pdf-view");
   const citationsView = document.getElementById("citations-view");
   const figuresView = document.getElementById("figures-view");
   const tablesView = document.getElementById("tables-view");
   const historyView = document.getElementById("history-view");
+  const collaborationView = document.getElementById("collaboration-view");
+
+  // Get shared header and template headers
+  const sharedHeader = document.getElementById("right-panel-header");
+  const pdfHeader = document.getElementById("pdf-panel-header");
+  const citationsHeader = document.getElementById("citations-panel-header");
+  const figuresHeader = document.getElementById("figures-panel-header");
+  const tablesHeader = document.getElementById("tables-panel-header");
+  const historyHeader = document.getElementById("history-panel-header");
+  const collaborationHeader = document.getElementById("collaboration-panel-header");
   // Get all view switch buttons in all panel headers
   const allPdfBtns = document.querySelectorAll(
     '#show-pdf-btn, .view-switch-btn[onclick*="pdf"]',
@@ -3240,6 +3393,9 @@ function switchRightPanel(view: "pdf" | "citations" | "figures" | "tables" | "hi
   const allHistoryBtns = document.querySelectorAll(
     '#show-history-btn, .view-switch-btn[onclick*="history"]',
   );
+  const allCollaborationBtns = document.querySelectorAll(
+    '#show-collaboration-btn, .view-switch-btn[onclick*="collaboration"]',
+  );
   const previewPanel = document.querySelector(".preview-panel") as HTMLElement;
 
   if (!pdfView || !citationsView || !figuresView || !tablesView || !historyView) {
@@ -3255,6 +3411,10 @@ function switchRightPanel(view: "pdf" | "citations" | "figures" | "tables" | "hi
   tablesView.setAttribute("hidden", "");
   historyView.style.display = "none";
   historyView.setAttribute("hidden", "");
+  if (collaborationView) {
+    collaborationView.style.display = "none";
+    collaborationView.setAttribute("hidden", "");
+  }
 
   // Remove all active states
   allPdfBtns.forEach((btn) => btn.classList.remove("active"));
@@ -3262,78 +3422,143 @@ function switchRightPanel(view: "pdf" | "citations" | "figures" | "tables" | "hi
   allFiguresBtns.forEach((btn) => btn.classList.remove("active"));
   allTablesBtns.forEach((btn) => btn.classList.remove("active"));
   allHistoryBtns.forEach((btn) => btn.classList.remove("active"));
+  allCollaborationBtns.forEach((btn) => btn.classList.remove("active"));
 
   // Remove all preview-panel classes
   if (previewPanel) {
-    previewPanel.classList.remove("showing-pdf", "showing-citations", "showing-figures", "showing-tables", "showing-history");
+    previewPanel.classList.remove("showing-pdf", "showing-citations", "showing-figures", "showing-tables", "showing-history", "showing-collaboration");
+  }
+
+  // Update shared header content based on active view
+  if (sharedHeader) {
+    let templateHeader: HTMLElement | null = null;
+    if (view === "pdf") templateHeader = pdfHeader;
+    else if (view === "citations") templateHeader = citationsHeader;
+    else if (view === "figures") templateHeader = figuresHeader;
+    else if (view === "tables") templateHeader = tablesHeader;
+    else if (view === "history") templateHeader = historyHeader;
+    else if (view === "collaboration") templateHeader = collaborationHeader;
+
+    if (templateHeader) {
+      sharedHeader.innerHTML = templateHeader.innerHTML;
+      console.log(`[Writer] Updated shared header for ${view} view`);
+
+      // Update active state on buttons in the SHARED header (after innerHTML copy)
+      const sharedHeaderBtns = sharedHeader.querySelectorAll('.view-switch-btn');
+      sharedHeaderBtns.forEach((btn) => {
+        const btnElement = btn as HTMLElement;
+        // Check which panel this button switches to
+        const onclickAttr = btnElement.getAttribute('onclick');
+        if (onclickAttr) {
+          // Add active class if this button matches the current view
+          if (onclickAttr.includes(`'${view}'`)) {
+            btnElement.classList.add('active');
+          } else {
+            btnElement.classList.remove('active');
+          }
+        }
+      });
+      console.log(`[Writer] Updated active button state in shared header for ${view} view`);
+    }
   }
 
   // Show selected view and update states
   if (view === "citations") {
-    citationsView.style.display = "flex";
-    if (previewPanel) {
-      previewPanel.classList.add("showing-citations");
-    }
-    allCitationsBtns.forEach((btn) => btn.classList.add("active"));
-    statePersistence.saveActivePane("citations");
-    console.log("[Writer] Switched to Citations view");
-
-    // Load citations if not already loaded
-    const citationsPanel = (window as any).citationsPanel;
-    if (citationsPanel && typeof citationsPanel.loadCitations === "function") {
-      citationsPanel.loadCitations();
-    }
-  } else if (view === "figures") {
-    figuresView.style.display = "flex";
-    if (previewPanel) {
-      previewPanel.classList.add("showing-figures");
-    }
-    allFiguresBtns.forEach((btn) => btn.classList.add("active"));
-    statePersistence.saveActivePane("figures");
-    console.log("[Writer] Switched to Figures view");
-
-    // Load figures if not already loaded
-    const figuresPanel = (window as any).figuresPanel;
-    if (figuresPanel && typeof figuresPanel.loadFigures === "function") {
-      figuresPanel.loadFigures();
-    }
-  } else if (view === "tables") {
-    tablesView.removeAttribute("hidden");
-    tablesView.style.display = "flex";
-    if (previewPanel) {
-      previewPanel.classList.add("showing-tables");
-    }
-    allTablesBtns.forEach((btn) => btn.classList.add("active"));
-    statePersistence.saveActivePane("tables");
-    console.log("[Writer] Switched to Tables view");
-
-    // Load tables if not already loaded
-    const tablesPanel = (window as any).tablesPanel;
-    if (tablesPanel && typeof tablesPanel.loadTables === "function") {
-      tablesPanel.loadTables();
-    }
-  } else if (view === "history") {
-    historyView.removeAttribute("hidden");
-    historyView.style.display = "flex";
-    if (previewPanel) {
-      previewPanel.classList.add("showing-history");
-    }
-    allHistoryBtns.forEach((btn) => btn.classList.add("active"));
-    statePersistence.saveActivePane("history");
-    console.log("[Writer] Switched to History view");
-
-    // Initialize and load Git history
-    const initGitHistoryManager = (window as any).initGitHistoryManager;
-    if (initGitHistoryManager) {
-      const gitHistoryManager = initGitHistoryManager();
-      if (gitHistoryManager && typeof gitHistoryManager.loadHistory === "function") {
-        gitHistoryManager.loadBranches();
-        gitHistoryManager.loadStatus();
-        gitHistoryManager.loadHistory();
+    // Lazy load CSS first, then show panel
+    loadPanelCSS("citations").then(() => {
+      citationsView.style.display = "flex";
+      if (previewPanel) {
+        previewPanel.classList.add("showing-citations");
       }
-    } else {
-      console.error("[Writer] initGitHistoryManager function not found");
-    }
+      allCitationsBtns.forEach((btn) => btn.classList.add("active"));
+      statePersistence.saveActivePane("citations");
+      console.log("[Writer] Switched to Citations view");
+
+      // Load citations if not already loaded
+      const citationsPanel = (window as any).citationsPanel;
+      if (citationsPanel && typeof citationsPanel.loadCitations === "function") {
+        citationsPanel.loadCitations();
+      }
+    });
+  } else if (view === "figures") {
+    // Lazy load CSS first, then show panel
+    loadPanelCSS("figures").then(() => {
+      figuresView.style.display = "flex";
+      if (previewPanel) {
+        previewPanel.classList.add("showing-figures");
+      }
+      allFiguresBtns.forEach((btn) => btn.classList.add("active"));
+      statePersistence.saveActivePane("figures");
+      console.log("[Writer] Switched to Figures view");
+
+      // Load figures if not already loaded
+      const figuresPanel = (window as any).figuresPanel;
+      if (figuresPanel && typeof figuresPanel.loadFigures === "function") {
+        figuresPanel.loadFigures();
+      }
+    });
+  } else if (view === "tables") {
+    // Lazy load CSS first, then show panel
+    loadPanelCSS("tables").then(() => {
+      tablesView.removeAttribute("hidden");
+      tablesView.style.display = "flex";
+      if (previewPanel) {
+        previewPanel.classList.add("showing-tables");
+      }
+      allTablesBtns.forEach((btn) => btn.classList.add("active"));
+      statePersistence.saveActivePane("tables");
+      console.log("[Writer] Switched to Tables view");
+
+      // Load tables if not already loaded
+      const tablesPanel = (window as any).tablesPanel;
+      if (tablesPanel && typeof tablesPanel.loadTables === "function") {
+        tablesPanel.loadTables();
+      }
+    });
+  } else if (view === "history") {
+    // Lazy load CSS first, then show panel
+    loadPanelCSS("history").then(() => {
+      historyView.removeAttribute("hidden");
+      historyView.style.display = "flex";
+      if (previewPanel) {
+        previewPanel.classList.add("showing-history");
+      }
+      allHistoryBtns.forEach((btn) => btn.classList.add("active"));
+      statePersistence.saveActivePane("history");
+      console.log("[Writer] Switched to History view");
+
+      // Initialize and load Git history
+      const initGitHistoryManager = (window as any).initGitHistoryManager;
+      if (initGitHistoryManager) {
+        const gitHistoryManager = initGitHistoryManager();
+        if (gitHistoryManager && typeof gitHistoryManager.loadHistory === "function") {
+          gitHistoryManager.loadBranches();
+          gitHistoryManager.loadStatus();
+          gitHistoryManager.loadHistory();
+        }
+      } else {
+        console.error("[Writer] initGitHistoryManager function not found");
+      }
+    });
+  } else if (view === "collaboration") {
+    // Lazy load CSS first, then show panel
+    loadPanelCSS("collaboration").then(() => {
+      if (collaborationView) {
+        collaborationView.removeAttribute("hidden");
+        collaborationView.style.display = "flex";
+        if (previewPanel) {
+          previewPanel.classList.add("showing-collaboration");
+        }
+        allCollaborationBtns.forEach((btn) => btn.classList.add("active"));
+        statePersistence.saveActivePane("collaboration");
+        console.log("[Writer] Switched to Collaboration view");
+
+        // Initialize the collaborators panel
+        initializeCollaboratorsPanel();
+      } else {
+        console.warn("[Writer] Collaboration view not found");
+      }
+    });
   } else {
     // Default to PDF view
     pdfView.style.display = "flex";
