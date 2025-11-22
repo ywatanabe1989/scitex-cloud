@@ -10,7 +10,7 @@
 /* Upload zone styling */
 .u-upload-zone {
   position: relative;
-  border: 2px dotted var(--color-border-default);
+  border: 2px dashed var(--color-border-default);
   border-radius: 12px;
   padding: 3rem 2rem;
   text-align: center;
