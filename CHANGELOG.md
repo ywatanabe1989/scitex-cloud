@@ -5,6 +5,21 @@ All notable changes to SciTeX Cloud will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.1-alpha] - 2025-11-22
+
+### UI/UX Improvements
+- **Header Logo**: Fixed logo visibility in header, now using standard scitex-logo.png
+- **Icon Consistency**: Standardized all navigation icon colors with consistent warm yellowish tone
+- **Layout Reorganization**: Moved project selector to prominent position after logo (GitHub-style)
+- **Navigation Spacing**: Fixed spacing issues for Scholar, Code, and Vis navigation items
+- **Icon Sizing**: Added min-width and flex-shrink properties to prevent icon shrinking
+- **Explore Icon**: Changed from SVG to FontAwesome compass icon for better color consistency
+
+### Bug Fixes
+- Fixed cramped spacing allocation for IMG-based navigation icons
+- Improved icon-to-text gap from 6px to 8px for better readability
+- Ensured consistent min-width for all navigation items
+
 ## [0.3.0-alpha] - 2025-11-22
 
 ### Major Features
