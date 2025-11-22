@@ -74,4 +74,21 @@ step() {
     echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 }
 
+# Simple echo functions with colors
+echo_info() {
+    echo -e "${CYAN}$1${NC}"
+}
+
+echo_success() {
+    echo -e "${GREEN}$1${NC}"
+}
+
+echo_warning() {
+    echo -e "${YELLOW}$1${NC}"
+}
+
+echo_error() {
+    echo -e "${RED}$1${NC}"
+}
+
 # EOF

@@ -13,7 +13,8 @@ services:
         BUILDKIT_INLINE_CACHE: 1
     image: scitex-cloud-prod-web:latest
     entrypoint: ["/entrypoint.sh"]
-    command: ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "6", "--threads", "2", "--timeout", "120", "--access-logfile", "-", "--error-logfile", "-", "--log-level", "warning"]
+    # Use Daphne (ASGI) for WebSocket support (PTY terminal, collaborative editing)
+    command: ["daphne", "-b", "0.0.0.0", "-p", "8000", "--access-log", "-", "--proxy-headers", "config.asgi:application"]
     volumes:
       - static_volume:/app/staticfiles
       - media_volume:/app/media
@@ -46,10 +47,13 @@ services:
     # Shared memory for Postgres performance
     shm_size: 256mb
 
+    env_file:
+      - .env
     environment:
-      - SCITEX_CLOUD_POSTGRES_DB=${SCITEX_CLOUD_POSTGRES_DB}
-      - SCITEX_CLOUD_POSTGRES_USER=${SCITEX_CLOUD_POSTGRES_USER}
-      - SCITEX_CLOUD_POSTGRES_PASSWORD=${SCITEX_CLOUD_POSTGRES_PASSWORD}
+      # PostgreSQL expects POSTGRES_* variables (not SCITEX_CLOUD_POSTGRES_*)
+      - POSTGRES_DB=${SCITEX_CLOUD_POSTGRES_DB}
+      - POSTGRES_USER=${SCITEX_CLOUD_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${SCITEX_CLOUD_POSTGRES_PASSWORD}
     restart: always
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${SCITEX_CLOUD_POSTGRES_USER}"]
@@ -104,7 +108,7 @@ services:
   # Setup: Run ./nginx/setup_nginx.sh to obtain SSL certificates
   nginx:
     image: nginx:alpine
-    container_name: scitex-cloud-nginx
+    container_name: scitex-cloud-prod-nginx
     volumes:
       # System nginx config
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
@@ -140,7 +144,7 @@ services:
   # Auto-renews certificates every 12 hours
   certbot:
     image: certbot/certbot:latest
-    container_name: scitex-cloud-certbot
+    container_name: scitex-cloud-prod-certbot
     volumes:
       - ../../ssl:/etc/letsencrypt
       - certbot_www:/var/www/certbot
