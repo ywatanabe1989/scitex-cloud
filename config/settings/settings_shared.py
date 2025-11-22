@@ -64,7 +64,7 @@ def discover_local_apps():
 # ---------------------------------------
 # Metadata
 # ---------------------------------------
-SCITEX_CLOUD_VERSION = "0.3.2-alpha"
+SCITEX_CLOUD_VERSION = "0.3.3-alpha"
 
 # ---------------------------------------
 # Paths

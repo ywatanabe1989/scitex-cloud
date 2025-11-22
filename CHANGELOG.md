@@ -5,6 +5,73 @@ All notable changes to SciTeX Cloud will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.3-alpha] - 2025-11-23
+
+### Performance
+- **Parallel Initialization**: Implemented parallel loading for Code and Writer apps
+  - Code app: File tree, Monaco, and PTY terminal load in parallel (30-50% faster)
+  - Writer app: 3-phase parallel initialization with 8+ components loading simultaneously
+  - Significant improvement in page load times
+
+### Code Quality & Enforcement
+- **Inline Styles Enforcement**: Zero-tolerance policy for inline styles
+  - Added ESLint v9 configuration with TypeScript support
+  - Automated detection of `style="..."` in string and template literals
+  - Fixed critical performance issue: DataTableManager (95% HTML size reduction, ~80% faster)
+  - Fixed 4 inline style violations in scholar_app bibtex enrichment
+  - See: `GITIGNORED/RULES/00_DJANGO_ORGANIZATION_FULLSTACK.md:34`
+
+- **File Size Monitoring**: Systematic tracking of file sizes
+  - New 300-line threshold for Python, TypeScript, CSS, HTML files
+  - Automated warnings on `make status` command
+  - Detailed reports with `make check-file-sizes`
+  - Currently 264 files exceed threshold (3 CRITICAL >3000 lines)
+  - See: `GITIGNORED/RULES/06_FILE_SIZE_LIMITS.md`
+
+- **Makefile Safety Features**: Enhanced developer safety
+  - New safe commands: `make lint`, `make lint-web` (read-only checking)
+  - `make format-web` now requires explicit confirmation
+  - Clear indicators: "SAFE - read-only" vs "⚠️ MODIFIES FILES"
+  - Prevents accidental destructive changes
+
+### Refactoring
+- **Global CSS Organization**: Comprehensive CSS restructuring
+  - Better component organization (header, footer, buttons, panels)
+  - Improved utility classes and layouts
+  - Added panel-resizer component CSS
+  - 42 files updated for better maintainability
+
+- **Template Cleanup**: Improved template structure
+  - Better separation of concerns in partials
+  - Cleaner code_app, writer_app, scholar_app templates
+  - Enhanced global base templates
+
+### Bug Fixes
+- **vis_app DataTableManager**: Critical performance fix
+  - Before: 17KB HTML for 10x10 table with inline styles
+  - After: ~850B HTML with CSS classes
+  - 95% reduction in HTML size
+  - ~80% faster rendering
+  - Dynamic column widths via `<style>` tag pattern
+
+### Developer Experience
+- **ESLint Integration**: Modern linting setup
+  - ESLint v9 flat config format
+  - TypeScript parser and plugin
+  - Custom rules for project standards
+  - Helpful error messages with pattern references
+
+- **Systematic Reminders**: Memory-friendly workflows
+  - Automatic warnings on common commands
+  - File size monitoring integrated into status checks
+  - Safety confirmations for destructive operations
+  - Perfect for developers who prefer systematic approaches
+
+### Documentation
+- Created comprehensive rules documentation
+- Enhanced inline styles policy with performance metrics
+- Added file size limits guidelines with refactoring strategies
+
 ## [0.3.2-alpha] - 2025-11-22
 
 ### Assets & Media
