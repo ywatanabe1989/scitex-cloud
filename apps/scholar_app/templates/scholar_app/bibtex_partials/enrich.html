@@ -11,7 +11,10 @@
     <div id="bibtexPanel"
          style="flex: 1 1 auto;
                 overflow: visible;
-                min-width: 0">
+                min-width: 0;
+                max-width: 1400px;
+                margin: 0 auto;
+                width: 100%">
         <div id="bibtexFormArea">
             <!-- Running Indicator (shown when processing) -->
             <div id="enrichmentRunningIndicator"
@@ -90,8 +93,7 @@
             <form id="bibtexEnrichmentForm"
                   method="post"
                   action="{% url 'scholar_app:bibtex_upload' %}"
-                  enctype="multipart/form-data"
-                  style="max-width: 1400px; margin: 0 auto;">
+                  enctype="multipart/form-data">
                 {% csrf_token %}
                 {% include "scholar_app/search_partials/asta_tooltip.html" %}
                 <!-- File Upload with instructions inside -->
@@ -327,7 +329,7 @@
     </div>
 </div>
 <!-- Fixed Sidebar -->
-<aside style="flex: 0 0 320px; display: block !important;">
+<aside style="flex: 0 0 320px; display: block !important; max-width: 1400px; margin: 0 auto; width: 100%;">
     <div style="position: sticky; top: 1rem; display: block !important;">
         <!-- Unified Progress Panel (includes Progress and Processing Log) -->
         <div class="collapsible-panel"
