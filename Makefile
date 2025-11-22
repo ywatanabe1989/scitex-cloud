@@ -69,6 +69,9 @@
 	format-python \
 	format-web \
 	format-shell \
+	lint \
+	lint-web \
+	check-file-sizes \
 	info
 
 .DEFAULT_GOAL := help
@@ -104,7 +107,7 @@ ifdef ENV
 else
   # ENV not specified - only allow non-operational commands
   ifneq ($(MAKECMDGOALS),)
-    ifneq ($(filter-out help status validate-docker stop-all force-stop-all format format-python format-web format-shell,$(MAKECMDGOALS)),)
+    ifneq ($(filter-out help status validate-docker stop-all force-stop-all format format-python format-web format-shell lint lint-web check-file-sizes,$(MAKECMDGOALS)),)
       $(error ❌ ENV not specified! Use: make ENV=<dev|prod|nas> <command>)
     endif
   endif
@@ -191,10 +194,13 @@ help:
 	@echo "  make ENV=<env> list-envs          # List environment variables"
 	@echo ""
 	@echo "$(CYAN)✨ Code Quality:$(NC)"
-	@echo "  make format                       # Format & lint all code (Python + Web + Shell)"
+	@echo "  make lint                         # Check code without changes (SAFE - read-only)"
+	@echo "  make lint-web                     # Check web files without changes (SAFE)"
+	@echo "  make check-file-sizes             # Check for files >300 lines (detailed report)"
+	@echo "  make format                       # Format & lint all code (⚠️  MODIFIES FILES)"
 	@echo "  make format-python                # Format & lint Python with Ruff"
-	@echo "  make format-web                   # Format & lint web (djLint + Prettier + ESLint)"
-	@echo "  make format-shell                 # Format & lint shell scripts (shfmt + shellcheck)"
+	@echo "  make format-web                   # Format & lint web (⚠️  MODIFIES FILES)"
+	@echo "  make format-shell                 # Format & lint shell scripts"
 	@echo ""
 	@echo "$(CYAN)🔒 SSL/HTTPS (prod only):$(NC)"
 	@echo "  make ENV=prod ssl-verify          # Verify HTTPS is working"
@@ -225,6 +231,7 @@ status:
 	@docker ps --format "table {{.Names}}\t{{.Status}}" 2>/dev/null | \
 		grep -E "scitex-cloud-(dev|prod|nas)-" | xargs -I{} echo "  "{} || \
 		echo "  $(YELLOW)No scitex-cloud containers running$(NC)"
+	@./scripts/check_file_sizes.sh
 
 # ============================================
 # Stop All Environments
@@ -713,6 +720,21 @@ format-python:
 	fi
 
 format-web:
+	@echo ""
+	@echo "$(RED)⚠️  WARNING: This command will MODIFY your files!$(NC)"
+	@echo "$(YELLOW)   • djLint will reformat Django templates$(NC)"
+	@echo "$(YELLOW)   • Prettier will reformat JS/TS/CSS$(NC)"
+	@echo "$(YELLOW)   • ESLint --fix will auto-fix code violations$(NC)"
+	@echo ""
+	@echo "$(CYAN)💡 For read-only checking (SAFE): make lint-web$(NC)"
+	@echo ""
+	@printf "$(YELLOW)Type 'yes' to continue with formatting: $(NC)"; \
+	read confirm; \
+	if [ "$$confirm" != "yes" ]; then \
+		echo "$(GREEN)✅ Cancelled - no changes made$(NC)"; \
+		exit 0; \
+	fi
+	@echo ""
 	@echo "$(CYAN)✨ Formatting and linting web files...$(NC)"
 	@echo "$(CYAN)📝 Formatting Django templates with djLint...$(NC)"
 	@if command -v djlint >/dev/null 2>&1; then \
@@ -737,7 +759,7 @@ format-web:
 		echo "$(RED)❌ Prettier not found. Install with: npm install -g prettier$(NC)"; \
 		exit 1; \
 	fi
-	@echo "$(CYAN)🔍 Linting TS/JS with ESLint...$(NC)"
+	@echo "$(CYAN)🔍 Linting TS/JS with ESLint --fix...$(NC)"
 	@if command -v eslint >/dev/null 2>&1; then \
 		eslint --fix \
 			"apps/**/*.{ts,js}" \
@@ -777,6 +799,52 @@ format-shell:
 		echo "$(YELLOW)⚠️  shellcheck not found. Install with: sudo apt-get install shellcheck$(NC)"; \
 		echo "$(YELLOW)   Skipping shell linting...$(NC)"; \
 	fi
+
+# ============================================
+# Linting (Read-Only - SAFE)
+# ============================================
+lint: lint-web
+	@echo ""
+	@echo "$(GREEN)✅ All linting checks complete (no files modified)!$(NC)"
+
+lint-web:
+	@echo "$(GREEN)✅ SAFE MODE: Checking files without making changes$(NC)"
+	@echo ""
+	@echo "$(CYAN)🔍 Checking TS/JS with ESLint (read-only)...$(NC)"
+	@if command -v eslint >/dev/null 2>&1; then \
+		npx eslint \
+			"apps/**/*.{ts,js}" \
+			"static/**/*.{ts,js}" \
+			2>&1 | head -100 || true; \
+		echo ""; \
+		echo "$(GREEN)✅ ESLint check complete!$(NC)"; \
+		echo "$(CYAN)💡 To auto-fix issues: make format-web$(NC)"; \
+	else \
+		echo "$(RED)❌ ESLint not found. Install with: npm install -g eslint$(NC)"; \
+		exit 1; \
+	fi
+	@echo ""
+	@echo "$(CYAN)💅 Checking JS/TS/CSS with Prettier (read-only)...$(NC)"
+	@if command -v prettier >/dev/null 2>&1; then \
+		prettier --check \
+			"apps/**/*.{ts,js,css}" \
+			"static/**/*.{ts,js,css}" \
+			--ignore-path .gitignore \
+			--log-level warn \
+			2>&1 | head -50 || true; \
+		echo ""; \
+		echo "$(GREEN)✅ Prettier check complete!$(NC)"; \
+	else \
+		echo "$(RED)❌ Prettier not found. Install with: npm install -g prettier$(NC)"; \
+		exit 1; \
+	fi
+
+# ============================================
+# File Size Checks
+# ============================================
+check-file-sizes:
+	@echo "$(CYAN)📏 Checking file sizes (>300 line threshold)...$(NC)"
+	@./scripts/check_file_sizes.sh --verbose
 
 # ============================================
 # Info
