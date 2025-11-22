@@ -481,7 +481,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem 1.25rem;
-  background-color: var(--color-canvas-subtle);
+  background-color: var(--workspace-bg-secondary);
   border-bottom: 1px solid var(--color-border-default);
   font-size: 0.8rem;
   font-weight: 600;
@@ -496,7 +496,7 @@
   align-items: center;
   gap: 0.4rem;
   padding: 0.3rem 0.6rem;
-  background: var(--color-canvas-subtle);
+  background: var(--workspace-bg-tertiary);
   border: 1px solid var(--color-border-default);
   border-radius: 4px;
   cursor: pointer;
@@ -574,7 +574,7 @@
 
 /* Slim Progress Bar (tqdm-style) */
 .compilation-slim-progress {
-  background: var(--color-canvas-subtle);
+  background: var(--workspace-bg-secondary);
   border-bottom: 1px solid var(--color-border-default);
   padding: 0.4rem 1rem;
   font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
@@ -627,7 +627,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.4rem 0.75rem;
-  background: var(--color-canvas-subtle);
+  background: var(--workspace-bg-tertiary);
   border: 1px solid var(--color-border-default);
   border-radius: 4px;
   color: var(--color-fg-default);
@@ -733,34 +733,8 @@
    PANEL RESIZER
    ========================================= */
 
-.panel-resizer {
-  width: 6px !important;
-  height: 100% !important;
-  background: var(--color-border-default) !important;
-  cursor: col-resize;
-  user-select: none;
-  position: relative;
-  flex: 0 0 4px !important; /* Fixed 4px width */
-  margin: 0;
-  padding: 0;
-  z-index: 1000;
-  pointer-events: all;
-  align-self: stretch;
-  transition: background 0.2s ease;
-}
-
-.panel-resizer::before {
-  display: none; /* Remove decorative elements */
-}
-
-.panel-resizer::after {
-  display: none; /* Remove decorative elements */
-}
-
-.panel-resizer:hover,
-.panel-resizer.active {
-  background: var(--color-accent-emphasis) !important;
-}
+/* Panel resizer now uses standard workspace resizer from shared/css/components/panel-resizer.css */
+/* No custom overrides needed - standard grayish theme works perfectly */
 
 /* Ensure writer-editor has proper background */
 .writer-editor {
@@ -781,7 +755,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0.75rem;
-  background: var(--color-canvas-subtle);
+  background: var(--workspace-bg-tertiary);
   border: 1px solid var(--color-border-default);
   border-radius: 4px;
   font-size: 0.85rem;
@@ -839,7 +813,7 @@
    ========================================= */
 
 [data-theme="dark"] .panel-header {
-  background-color: var(--color-canvas-subtle);
+  background-color: var(--workspace-bg-secondary);
   border-bottom-color: var(--color-border-muted);
 }
 
@@ -851,6 +825,18 @@
 
 [data-theme="dark"] .split-view {
   background: var(--color-canvas-default);
+}
+
+[data-theme="dark"] .horizontal-selector-group:hover {
+  background: var(--workspace-bg-tertiary);
+}
+
+[data-theme="dark"] .horizontal-selector-group:focus-within {
+  background: var(--workspace-bg-tertiary);
+}
+
+[data-theme="dark"] .horizontal-selector .form-select:hover {
+  background: var(--workspace-bg-tertiary);
 }
 
 /* =========================================

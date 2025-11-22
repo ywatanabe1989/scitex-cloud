@@ -7,22 +7,31 @@
 
 /* Figures view - hidden by default, JS will toggle */
 #figures-view {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+#figures-view[hidden] {
   display: none;
 }
 
 .figures-panel-container {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  flex: 1; /* Take remaining space after header */
   width: 100%;
   max-width: 100%;
   padding: 1rem;
-  padding-top: calc(36px + 1rem); /* Account for 36px fixed header + spacing */
   background: var(--color-canvas-default);
   overflow: hidden;
   position: relative;
   z-index: 0;
   box-sizing: border-box;
+  min-height: 0; /* Allow flex shrinking */
 }
 
 /* Drop Zone for File Upload */

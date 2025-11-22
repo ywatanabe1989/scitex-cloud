@@ -272,7 +272,7 @@ body {
 }
 
 .progress-overview {
-  background: linear-gradient(135deg, #1a2332 0%, #34495e 100%);
+  background: linear-gradient(135deg, var(--workspace-bg-primary) 0%, var(--workspace-bg-secondary) 100%);
   color: white;
   border-radius: 8px;
   padding: 1.5rem;

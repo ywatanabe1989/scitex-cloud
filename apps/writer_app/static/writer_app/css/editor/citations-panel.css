@@ -13,6 +13,7 @@
 
 /* Panel container - ensure they take full space when visible */
 .right-panel-view {
+  display: flex; /* Ensure flexbox layout */
   flex-direction: column;
   width: 100%;
   height: 100%;
@@ -28,22 +29,45 @@
 
 /* Citations view - hidden by default, JS will toggle */
 #citations-view {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+#citations-view[hidden] {
+  display: none;
+}
+
+/* History view - same layout as other panels */
+#history-view {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+#history-view[hidden] {
   display: none;
 }
 
 .citations-panel-container {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  flex: 1; /* Take remaining space after header */
   width: 100%;
   max-width: 100%;
   padding: 1rem;
-  padding-top: calc(36px + 1rem); /* Account for 36px fixed header + spacing */
   background: var(--color-canvas-default);
   overflow: hidden;
   position: relative;
   z-index: 0;
   box-sizing: border-box;
+  min-height: 0; /* Allow flex shrinking */
 }
 
 /* Search Bar */
@@ -269,19 +293,19 @@
 }
 
 .citation-checkbox:hover:not(:disabled) {
-  border-color: var(--_scitex-02);
-  box-shadow: 0 0 0 3px rgba(52, 73, 94, 0.1);
+  border-color: var(--workspace-border-hover);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--workspace-border-hover) 10%, transparent);
 }
 
 .citation-checkbox:focus {
   outline: 0;
-  border-color: var(--_scitex-02);
-  box-shadow: 0 0 0 3px rgba(52, 73, 94, 0.15);
+  border-color: var(--workspace-border-active);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--workspace-border-active) 15%, transparent);
 }
 
 .citation-checkbox:checked {
-  background-color: var(--_scitex-02);
-  border-color: var(--_scitex-02);
+  background-color: var(--workspace-border-active);
+  border-color: var(--workspace-border-active);
   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="white"><path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/></svg>');
   background-repeat: no-repeat;
   background-position: center;
@@ -307,9 +331,9 @@
 
 .citation-card.selected {
   background: var(--color-canvas-inset);
-  border-color: var(--_scitex-02);
+  border-color: var(--workspace-border-active);
   border-width: 2px;
-  box-shadow: 0 0 0 1px rgba(107, 143, 179, 0.3);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--workspace-border-active) 30%, transparent);
 }
 
 /* Compact 2-Line Citation Card */
@@ -487,4 +511,25 @@
   outline-offset: -4px;
   background: var(--color-accent-subtle);
   transition: all 0.2s;
+}
+
+/* Dark theme - workspace colors */
+[data-theme="dark"] .citations-summary {
+  background: var(--workspace-bg-tertiary);
+}
+
+[data-theme="dark"] .citation-card {
+  background: var(--workspace-bg-secondary);
+}
+
+[data-theme="dark"] .citation-card:hover {
+  background: var(--workspace-bg-tertiary);
+}
+
+[data-theme="dark"] .citation-card.selected {
+  background: var(--workspace-bg-tertiary);
+}
+
+[data-theme="dark"] .citations-list::-webkit-scrollbar-track {
+  background: var(--workspace-bg-tertiary);
 }

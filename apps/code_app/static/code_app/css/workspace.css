@@ -1,11 +1,45 @@
 /**
  * Code Workspace Styles
+ * Professional black-based theme matching vis.css design system
  * Corresponds to: templates/code_app/workspace.html
- * Uses shared sidebar styles from project_app for consistency
  * Layout: Sidebar (left) + Monaco Editor (center) + Terminal (right)
+ *
+ * DESIGN PRINCIPLE:
+ * - Light mode: Clean, professional light surfaces with readable text
+ * - Dark mode: Deep blacks (#0f1419) with subtle elevated surfaces (#1a2a40)
+ * - Both themes use semantic color tokens for consistency
  */
 
-/* Main workspace layout - 3 columns */
+/* Theme-aware color tokens - matching vis.css pattern */
+:root,
+[data-theme="light"] {
+  --code-bg: var(--bg-muted, #f6f8fa);
+  --code-border: var(--border-default, #8fa4b0);
+  --code-toolbar-bg: var(--bg-surface, #fafbfc);
+  --code-text-primary: var(--text-primary, #1a2a40);
+  --code-text-secondary: var(--text-secondary, #34495e);
+  --code-text-muted: var(--text-muted, #6c8ba0);
+  --code-hover-bg: var(--bg-muted, #f6f8fa);
+  --code-active-bg: #ddf4ff;
+  --code-active-border: #1f6feb;
+  --code-surface: var(--bg-surface, #fafbfc);
+}
+
+[data-theme="dark"] {
+  /* Use global workspace colors for consistency with Vis/Writer */
+  --code-bg: var(--workspace-bg-primary);
+  --code-border: var(--workspace-border-default);
+  --code-toolbar-bg: var(--workspace-bg-secondary);
+  --code-text-primary: var(--text-primary);
+  --code-text-secondary: var(--text-secondary);
+  --code-text-muted: var(--text-muted);
+  --code-hover-bg: var(--workspace-bg-tertiary);
+  --code-active-bg: rgba(31, 111, 235, 0.2);
+  --code-active-border: #1f6feb;
+  --code-surface: var(--workspace-bg-secondary);
+}
+
+/* Main workspace layout - 3 columns with resizers */
 .code-workspace {
   display: flex;
   height: calc(100vh - 120px);
@@ -13,16 +47,36 @@
   margin: 0;
   padding: 0;
   gap: 0;
+  background-color: var(--code-bg);
+  overflow: hidden;
 }
 
-/* Left Sidebar - reuses .repo-sidebar class for consistency */
+[data-theme="dark"] .code-workspace {
+  background-color: var(--workspace-bg-primary) !important;
+}
+
+/* Panel Resizers - sleek draggable dividers */
+/* Panel resizer now uses standard workspace resizer from shared/css/components/panel-resizer.css */
+/* No custom overrides needed - standard grayish theme works perfectly */
+
+/* Left Sidebar - professional dark theme */
 .code-sidebar {
   width: 280px;
   flex-shrink: 0;
-  border-right: 1px solid var(--color-border-default);
-  border-radius: 0 !important; /* Remove rounded corners - override .repo-sidebar */
-  border-left: none; /* Remove left border */
-  border-top: none; /* Remove top border */
+  background-color: var(--code-toolbar-bg) !important;
+  border-right: 1px solid var(--code-border);
+  border-radius: 0 !important;
+  border-left: none;
+  border-top: none;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Dark mode: more visible borders and force background override */
+[data-theme="dark"] .code-sidebar,
+[data-theme="dark"] .code-sidebar.repo-sidebar {
+  background-color: var(--workspace-bg-secondary) !important;
+  border-right-color: var(--workspace-border-default);
 }
 
 /* Center: Editor area */
@@ -31,36 +85,50 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border-right: 1px solid var(--color-border-default);
+  background-color: var(--code-bg);
+  border-right: 1px solid var(--code-border);
 }
 
-/* File tabs (VS Code style) - always visible */
+[data-theme="dark"] .code-editor-area {
+  background-color: var(--workspace-bg-primary) !important;
+  border-right-color: var(--workspace-border-default);
+}
+
+/* File tabs (VS Code style) - sleek design */
 .file-tabs {
   display: flex;
   align-items: center;
-  background: var(--color-canvas-default);
-  border-bottom: 1px solid var(--color-border-default);
+  background: var(--code-toolbar-bg);
+  border-bottom: 1px solid var(--code-border);
   overflow-x: auto;
   overflow-y: hidden;
   min-height: 36px;
   max-height: 36px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="dark"] .file-tabs {
+  background: var(--workspace-bg-secondary) !important;
+  border-bottom-color: var(--workspace-border-default);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 .file-tabs-plus-btn {
   padding: 8px 12px;
   background: transparent;
   border: none;
-  color: var(--color-fg-muted);
+  color: var(--code-text-muted);
   cursor: pointer;
   font-size: 16px;
-  transition: all 0.2s;
+  transition: all 0.2s ease-out;
   flex-shrink: 0;
-  /* Appears right after tabs, not at far right */
+  border-radius: 4px;
 }
 
 .file-tabs-plus-btn:hover {
-  color: var(--color-fg-default);
-  background: var(--color-neutral-subtle);
+  color: var(--code-text-primary);
+  background: var(--code-hover-bg);
+  transform: scale(1.05);
 }
 
 .file-tab {
@@ -68,26 +136,30 @@
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
-  background: var(--color-canvas-subtle);
-  border-right: 1px solid var(--color-border-default);
+  background: transparent;
+  border-right: 1px solid var(--code-border);
   cursor: pointer;
   font-size: 13px;
-  color: var(--color-fg-muted);
-  transition: all 0.2s;
+  color: var(--code-text-secondary);
+  transition: all 0.2s ease-out;
   white-space: nowrap;
   user-select: none;
+  position: relative;
 }
 
 .file-tab:hover {
-  background: var(--color-neutral-muted);
+  background: var(--code-hover-bg);
+  color: var(--code-text-primary);
+  transform: translateY(-1px);
 }
 
 .file-tab.active {
-  background: var(--color-canvas-default);
-  color: var(--color-fg-default);
+  background: var(--code-active-bg);
+  color: var(--code-active-border);
   font-weight: 500;
-  border-bottom: 2px solid var(--color-accent-fg);
+  border-bottom: 2px solid var(--code-active-border);
   margin-bottom: -1px;
+  box-shadow: 0 0 0 1px rgba(31, 111, 235, 0.1);
 }
 
 .file-tab-icon {
@@ -105,64 +177,99 @@
   border-radius: 3px;
   font-size: 10px;
   opacity: 0.5;
-  transition: all 0.2s;
+  transition: all 0.2s ease-out;
 }
 
 .file-tab-close:hover {
   opacity: 1;
-  background: var(--color-danger-subtle);
-  color: var(--color-danger-fg);
+  background: rgba(241, 76, 76, 0.15);
+  color: #f85149;
+  transform: scale(1.15);
 }
 
-/* Right: Terminal panel */
+/* Right: Terminal panel - professional styling */
 .code-terminal-panel {
   width: 400px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  background: var(--color-canvas-default);
-  border-left: 1px solid var(--color-border-default);
+  background: var(--code-toolbar-bg);
+  border-left: 1px solid var(--code-border);
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.05);
 }
 
-/* Sidebar header - align height with toolbars */
+[data-theme="dark"] .code-terminal-panel {
+  background: var(--workspace-bg-secondary) !important;
+  border-left-color: var(--workspace-border-default);
+  box-shadow: -2px 0 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Sidebar header - sleek professional design */
 .sidebar-header {
-  padding: 12px 16px;
-  border-top: 1px solid var(--color-border-default);
-  border-bottom: 1px solid var(--color-border-default);
-  min-height: 48px;
+  padding: 0 16px;
+  background: var(--code-bg);
+  border-top: 1px solid var(--code-border);
+  border-bottom: 2px solid var(--code-border);
+  height: 48px;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-/* Toolbar - consistent height across all panels */
+[data-theme="dark"] .sidebar-header {
+  border-top-color: #506b7a;
+  border-bottom-color: #506b7a;
+  background: #0f1419 !important;
+}
+
+/* Toolbar - sleek professional design */
 .code-toolbar {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 16px;
-  background: var(--color-canvas-subtle);
-  border-top: 1px solid var(--color-border-default);
-  border-bottom: 1px solid var(--color-border-default);
-  min-height: 48px;
+  padding: 0 16px;
+  background: var(--code-toolbar-bg);
+  border-top: 1px solid var(--code-border);
+  border-bottom: 2px solid var(--code-border);
+  height: 48px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-/* Terminal header - match toolbar height */
+[data-theme="dark"] .code-toolbar {
+  background: var(--workspace-bg-secondary) !important;
+  border-top-color: var(--workspace-border-default);
+  border-bottom-color: var(--workspace-border-default);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Terminal header - match toolbar height and style */
 .terminal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 16px;
-  background: var(--color-canvas-subtle);
-  border-top: 1px solid var(--color-border-default);
-  border-bottom: 1px solid var(--color-border-default);
-  min-height: 48px;
+  padding: 0 16px;
+  background: var(--code-toolbar-bg);
+  border-top: 1px solid var(--code-border);
+  border-bottom: 2px solid var(--code-border);
+  height: 48px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="dark"] .terminal-header {
+  background: var(--workspace-bg-secondary) !important;
+  border-top-color: var(--workspace-border-default);
+  border-bottom-color: var(--workspace-border-default);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 .code-toolbar-file {
   font-weight: 600;
-  color: var(--color-fg-default);
+  color: var(--code-text-primary);
   font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .code-toolbar-spacer {
@@ -185,16 +292,19 @@
 .terminal-title {
   font-weight: 600;
   font-size: 14px;
-  color: var(--color-fg-default);
+  color: var(--code-text-primary);
   display: flex;
   align-items: center;
   gap: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 12px;
 }
 
 .terminal-body {
   flex: 1;
-  background: #1e1e1e;
-  color: #d4d4d4;
+  background: #1a1e25;
+  color: #c5cdd6;
   font-family: 'JetBrains Mono', 'Monaco', 'Menlo', monospace;
   font-size: 13px;
   padding: 12px;
@@ -208,7 +318,7 @@
   margin-bottom: 4px;
   white-space: pre-wrap;
   word-break: break-all;
-  color: #d4d4d4; /* Default terminal color */
+  color: #c5cdd6; /* Default terminal color - softer than pure white */
 }
 
 .terminal-image {
@@ -229,19 +339,19 @@
 }
 
 .terminal-success {
-  color: #3fb950;
+  color: #6ba89a; /* Softer green - less vivid */
 }
 
 .terminal-error {
-  color: #f85149;
+  color: #c08888; /* Softer red - less vivid */
 }
 
 .terminal-info {
-  color: #58a6ff;
+  color: #8fa9cc; /* Softer blue - less vivid */
 }
 
 .terminal-warning {
-  color: #d29922;
+  color: #d4a87a; /* Softer orange - less vivid */
 }
 
 /* Terminal prompt line (inline) */
@@ -253,7 +363,7 @@
 }
 
 .terminal-prompt {
-  color: #3fb950;
+  color: #6ba89a; /* Softer green - matches terminal-success */
   font-weight: 600;
   flex-shrink: 0;
   user-select: text;  /* Allow selecting prompt for copy */
@@ -276,7 +386,7 @@
   color: #6e7681;
 }
 
-/* Welcome screen */
+/* Welcome screen - elegant dark theme */
 .code-welcome {
   flex: 1;
   display: flex;
@@ -285,39 +395,48 @@
   justify-content: center;
   padding: 48px;
   text-align: center;
+  background: var(--code-bg);
 }
 
 .code-welcome-icon {
   width: 80px;
   height: 80px;
   margin-bottom: 24px;
-  opacity: 0.6;
-  color: var(--color-fg-muted);
+  opacity: 0.4;
+  color: var(--code-text-muted);
+  transition: all 0.3s ease;
+}
+
+.code-welcome:hover .code-welcome-icon {
+  opacity: 0.7;
+  transform: scale(1.05);
 }
 
 .code-welcome-title {
   font-size: 24px;
   font-weight: 600;
   margin-bottom: 12px;
-  color: var(--color-fg-default);
+  color: var(--code-text-primary);
+  letter-spacing: -0.5px;
 }
 
 .code-welcome-subtitle {
   font-size: 16px;
-  color: var(--color-fg-muted);
+  color: var(--code-text-secondary);
   margin-bottom: 24px;
+  line-height: 1.5;
 }
 
-/* Buttons */
+/* Buttons - professional sleek design matching vis.css */
 .btn-code-action {
   padding: 6px 12px;
   font-size: 13px;
   border-radius: 6px;
-  border: 1px solid var(--color-border-default);
-  background: var(--color-btn-bg);
-  color: var(--color-fg-default);
+  border: 1.5px solid var(--code-border);
+  background: transparent;
+  color: var(--code-text-primary);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease-out;
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -325,8 +444,15 @@
 }
 
 .btn-code-action:hover:not(:disabled) {
-  background: var(--color-btn-hover-bg);
-  border-color: var(--color-border-muted);
+  background: var(--code-hover-bg);
+  border-color: var(--code-active-border);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-code-action:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .btn-code-action:disabled {
@@ -335,20 +461,28 @@
 }
 
 .btn-code-primary {
-  background: var(--color-btn-primary-bg);
-  color: var(--color-btn-primary-text);
-  border-color: transparent;
+  background: var(--code-active-border);
+  color: white;
+  border-color: var(--code-active-border);
 }
 
 .btn-code-primary:hover:not(:disabled) {
-  background: var(--color-btn-primary-hover-bg);
+  background: #1a5dc9;
+  border-color: #1a5dc9;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(31, 111, 235, 0.3);
+}
+
+.btn-code-primary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(31, 111, 235, 0.2);
 }
 
 .btn-code-icon {
   font-size: 12px;
 }
 
-/* Folder action buttons (always visible) */
+/* Folder action buttons - sleek hover effects */
 .folder-actions {
   display: flex;
   gap: 2px;
@@ -365,56 +499,43 @@
 .folder-action-btn {
   padding: 4px 6px;
   background: transparent;
-  border: none;
-  color: var(--color-fg-muted);
+  border: 1px solid transparent;
+  color: var(--code-text-muted);
   cursor: pointer;
   border-radius: 4px;
   font-size: 11px;
-  transition: all 0.15s ease;
+  transition: all 0.2s ease-out;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .folder-action-btn:hover {
-  background: var(--color-accent-subtle);
-  color: var(--color-accent-fg);
-  transform: scale(1.1);
+  background: var(--code-hover-bg);
+  border-color: var(--code-active-border);
+  color: var(--code-active-border);
+  transform: scale(1.15);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .folder-action-btn:active {
-  transform: scale(0.95);
-}
-
-/* Dark theme */
-[data-theme="dark"] .folder-action-btn {
-  color: var(--color-fg-muted);
+  transform: scale(1.0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 [data-theme="dark"] .folder-action-btn:hover {
-  background: var(--color-accent-subtle);
-  color: var(--color-accent-fg);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
 /* Dark theme support */
 [data-theme="dark"] .terminal-body {
-  background: #0d1117;
-  color: #e6edf3;
-}
-
-[data-theme="dark"] .terminal-header {
-  background: var(--color-canvas-subtle);
-  border-top-color: var(--scitex-color-04);
-  border-bottom-color: var(--scitex-color-04);
-}
-
-[data-theme="dark"] .code-toolbar {
-  border-top-color: var(--scitex-color-04); /* More visible border with accent color */
-  border-bottom-color: var(--scitex-color-04); /* More visible border with accent color */
+  background: var(--workspace-bg-primary) !important; /* Match workspace black theme */
+  color: var(--text-primary);
 }
 
 [data-theme="dark"] .code-sidebar {
-  border-right-color: var(--scitex-color-04); /* More visible border with accent color */
+  background-color: var(--workspace-bg-secondary) !important;
+  border-right-color: var(--workspace-border-default);
 }
 
 [data-theme="dark"] .code-terminal-panel {
@@ -451,35 +572,45 @@
   margin-left: 2px;
 }
 
-/* Terminal path links - clickable file paths in terminal output */
+/* Terminal path links - sleek interactive design */
 .terminal-path-link {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: #58a6ff;
+  color: var(--code-active-border);
   text-decoration: underline;
   text-decoration-style: dotted;
   text-underline-offset: 2px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.2s ease-out;
   font-weight: 500;
-  padding: 1px 3px;
-  border-radius: 3px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid transparent;
 }
 
 .terminal-path-link:hover {
   color: #79c0ff;
   text-decoration-style: solid;
-  background: rgba(88, 166, 255, 0.15);
+  background: var(--code-active-bg);
+  border-color: var(--code-active-border);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(31, 111, 235, 0.2);
+}
+
+.terminal-path-link:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(31, 111, 235, 0.1);
 }
 
 .terminal-path-link .path-icon {
   font-size: 14px;
   flex-shrink: 0;
+  transition: transform 0.2s ease;
 }
 
-.terminal-path-link .path-text {
-  /* Text styling inherits from parent link */
+.terminal-path-link:hover .path-icon {
+  transform: scale(1.1);
 }
 
 /* Dark theme path links */
@@ -490,6 +621,7 @@
 [data-theme="dark"] .terminal-path-link:hover {
   color: #79c0ff;
   background: rgba(88, 166, 255, 0.2);
+  box-shadow: 0 2px 6px rgba(88, 166, 255, 0.3);
 }
 
 /* Light theme path links */
@@ -499,7 +631,8 @@
 
 [data-theme="light"] .terminal-path-link:hover {
   color: #0550ae;
-  background: rgba(9, 105, 218, 0.1);
+  background: rgba(9, 105, 218, 0.15);
+  box-shadow: 0 2px 4px rgba(9, 105, 218, 0.2);
 }
 
 /* Responsive adjustments */

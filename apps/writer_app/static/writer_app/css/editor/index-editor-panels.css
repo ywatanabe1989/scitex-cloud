@@ -21,6 +21,9 @@
 
 /* Panel Headers */
 .panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: 0.5rem 1rem;
   border-bottom: 1px solid var(--color-border-default);
   background: var(--color-canvas-subtle);
@@ -28,6 +31,12 @@
   font-weight: 500;
   color: var(--color-fg-default);
   user-select: none;
+  height: 36px;
+  min-height: 36px;
+  max-height: 36px;
+  box-sizing: border-box;
+  flex-shrink: 0; /* Don't shrink in flexbox */
+  position: relative; /* Normal flow */
 }
 
 /* CodeMirror Enhancements */
@@ -302,6 +311,23 @@
   .toolbar-right {
     gap: 0.35rem;
   }
+}
+
+/* Dark theme - workspace colors */
+[data-theme="dark"] .panel-header {
+  background: var(--workspace-bg-secondary);
+}
+
+[data-theme="dark"] .compilation-output-header {
+  background: var(--workspace-bg-secondary);
+}
+
+[data-theme="dark"] .preview-panel {
+  background: var(--workspace-bg-primary);
+}
+
+[data-theme="dark"] .CodeMirror-linenumber {
+  background: var(--workspace-bg-primary);
 }
 
 /* Print Styles */

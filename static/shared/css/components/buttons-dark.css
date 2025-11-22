@@ -22,6 +22,10 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
+[data-theme="dark"] .btn.active {
+  box-shadow: none; /* Remove shadow for selected/active buttons */
+}
+
 /* =========================================
    DEFAULT VARIANTS - DARK MODE
    ========================================= */
@@ -152,17 +156,17 @@
   color: white;
 }
 
-/* Outline Secondary Button - Dark Mode */
+/* Outline Secondary Button - Dark Mode - Brand blue hover */
 [data-theme="dark"] .btn-outline-secondary {
-  color: var(--scitex-color-03);
+  color: var(--scitex-color-06); /* Lighter text for better visibility */
   border: var(--border-width) solid var(--scitex-color-03);
   background-color: transparent;
 }
 
 [data-theme="dark"] .btn-outline-secondary:hover,
 [data-theme="dark"] .btn-outline-secondary:focus {
-  background-color: var(--scitex-color-03);
-  border: var(--border-width) solid var(--scitex-color-03);
+  background-color: var(--scitex-color-04); /* Brand blue background */
+  border: var(--border-width) solid var(--scitex-color-04); /* Brand blue border */
   color: white;
 }
 
@@ -234,6 +238,7 @@
 
 [data-theme="dark"] .btn-nav.active {
   background: var(--scitex-color-01-light);
+  box-shadow: none; /* Remove shadow for selected state */
 }
 
 /* =========================================

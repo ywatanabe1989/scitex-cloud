@@ -743,14 +743,14 @@
   color: var(--secondary-color) !important;
 }
 
-/* Dark mode text links */
+/* Dark mode text links - Use white for maximum visibility */
 [data-theme="dark"] .text-link {
-  color: var(--scitex-color-06) !important;
+  color: #ffffff !important; /* Pure white for repository names and important links */
 }
 
 [data-theme="dark"] .text-link:hover,
 [data-theme="dark"] .text-link:focus {
-  color: var(--scitex-color-07) !important;
+  color: var(--scitex-color-06) !important; /* Slightly muted on hover */
   text-decoration: underline !important;
 }
 

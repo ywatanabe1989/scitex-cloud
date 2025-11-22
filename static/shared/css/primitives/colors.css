@@ -135,6 +135,20 @@
   --border-default: var(--_scitex-03);
   --border-muted: var(--_scitex-02);
 
+  /* Workspace-specific colors - professional blackish theme for Code/Writer/Vis */
+  --workspace-bg-primary: #0d0d0d;    /* Almost pure black - main panels */
+  --workspace-bg-secondary: #151515;  /* Very dark gray - secondary panels */
+  --workspace-bg-tertiary: #1a1a1a;   /* Subtle lighter - hover states */
+  --workspace-bg-elevated: #1f1f1f;   /* Slightly elevated surfaces */
+  --workspace-border-subtle: #1a1a1a; /* Subtle borders between panels */
+  --workspace-border-default: #252525; /* Default borders - resizer/slider base */
+  --workspace-border-hover: #3a3a3a;  /* Hover state - slightly lighter gray */
+  --workspace-border-active: #4a4a4a; /* Active/dragging - even lighter */
+  --workspace-slider-hover: #5a5a5a;  /* Slider handle hover */
+  --workspace-slider-active: #6a6a6a; /* Slider handle active */
+  --workspace-ruler-bg: #0a0a0a;      /* Rulers and guides background */
+  --workspace-ruler-border: #1a1a1a;  /* Ruler borders */
+
   /* Status colors - adjust for dark mode readability */
   --status-success: #6ba89a;
   --status-warning: #d4a87a;

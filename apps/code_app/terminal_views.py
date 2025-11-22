@@ -183,10 +183,11 @@ alias gp='git push'
 # Custom prompt with project info
 PS1='\\[\\033[01;32m\\]\\u@\\h\\[\\033[00m\\]:\\[\\033[01;34m\\]\\w\\[\\033[00m\\]\\$ '
 
-# Welcome message
-echo "[SciTeX Cloud Code] Connected to terminal"
-echo "Project: $(basename $(pwd))"
-echo ""
+# IPython configuration - suppress startup messages
+export IPYTHONDIR=~/.ipython
+alias ipython='ipython --no-banner'
+
+# Welcome message (removed - shown by client-side JavaScript instead)
 ''')
 
             # Default .bash_profile if it doesn't exist
@@ -212,6 +213,24 @@ set tabstop=4
 set shiftwidth=4
 set autoindent
 set smartindent
+''')
+
+            # Default IPython configuration - suppress startup banners
+            ipython_dir = home_dir / '.ipython' / 'profile_default'
+            ipython_dir.mkdir(parents=True, exist_ok=True)
+            ipython_config = ipython_dir / 'ipython_config.py'
+            if not ipython_config.exists():
+                ipython_config.write_text('''# SciTeX Cloud - IPython Configuration
+# Suppress startup banners for clean terminal output
+
+c = get_config()
+
+# Disable startup banners
+c.TerminalInteractiveShell.banner1 = ''
+c.TerminalInteractiveShell.banner2 = ''
+
+# Keep IPython clean and minimal
+c.TerminalInteractiveShell.confirm_exit = False
 ''')
 
             # Default .gitconfig if it doesn't exist

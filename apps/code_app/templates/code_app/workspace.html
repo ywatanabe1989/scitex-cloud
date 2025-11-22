@@ -1,7 +1,7 @@
 {% extends "global_base.html" %}
 {% load static %}
 
-{% block title %}{% if current_project %}{{ current_project.name }} - {% endif %}Code Workspace{% endblock %}
+{% block title %}SciTeX Code{% if current_project %} - {{ current_project.name }}{% endif %}{% endblock %}
 
 {% block extra_head %}
   <!-- Disable caching for development -->
@@ -108,35 +108,68 @@
     }
   </script>
 
-  <div class="code-workspace">
-    <!-- Left Sidebar: File Tree -->
-    <aside class="code-sidebar repo-sidebar">
-      <div class="sidebar-header">
-        {% if current_project %}
-          <a href="/{{ current_project.owner.username }}/{{ current_project.slug }}/"
-             class="sidebar-title-link"
-             title="{{ current_project.name }}"
-             style="display: inline-flex;">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
-              <path fill="currentColor" d="M1.75 1A1.75 1.75 0 0 0 0 2.75v10.5C0 14.216.784 15 1.75 15h12.5A1.75 1.75 0 0 0 16 13.25v-8.5A1.75 1.75 0 0 0 14.25 3H7.5a.25.25 0 0 1-.2-.1l-.9-1.2C6.07 1.26 5.55 1 5 1H1.75Z"></path>
-            </svg>
-            <span>{{ current_project.name }}</span>
-          </a>
-        {% else %}
-          <div class="sidebar-title-link">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
-              <path fill="currentColor" d="M1.75 1A1.75 1.75 0 0 0 0 2.75v10.5C0 14.216.784 15 1.75 15h12.5A1.75 1.75 0 0 0 16 13.25v-8.5A1.75 1.75 0 0 0 14.25 3H7.5a.25.25 0 0 1-.2-.1l-.9-1.2C6.07 1.26 5.55 1 5 1H1.75Z"></path>
-            </svg>
-            <span>No Project Selected</span>
-          </div>
-        {% endif %}
+  {% if pool_exhausted %}
+    <!-- Visitor pool exhausted message -->
+    <div class="code-workspace" style="padding: 2rem;">
+      <div style="max-width: 600px; margin: 0 auto; text-align: center;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 64px; height: 64px; margin: 0 auto; color: var(--text-muted);">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+        </svg>
+        <h2 style="margin-top: 1rem; color: var(--text-default);">Visitor Slots Full</h2>
+        <p style="color: var(--text-muted); margin-top: 0.5rem;">
+          All visitor demo slots are currently in use. Please try again in a few minutes, or <a href="/accounts/signup/" style="color: var(--workspace-border-active);">sign up for a free account</a> to get full access.
+        </p>
       </div>
+    </div>
+  {% elif pool_error %}
+    <!-- Visitor pool error message -->
+    <div class="code-workspace" style="padding: 2rem;">
+      <div style="max-width: 600px; margin: 0 auto; text-align: center;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 64px; height: 64px; margin: 0 auto; color: var(--text-muted);">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+        </svg>
+        <h2 style="margin-top: 1rem; color: var(--text-default);">Service Temporarily Unavailable</h2>
+        <p style="color: var(--text-muted); margin-top: 0.5rem;">
+          {{ pool_error_message }}
+        </p>
+        <p style="color: var(--text-muted); margin-top: 0.5rem;">
+          Please <a href="/accounts/signup/" style="color: var(--workspace-border-active);">sign up for a free account</a> to access the code workspace.
+        </p>
+      </div>
+    </div>
+  {% else %}
+    <div class="code-workspace">
+      <!-- Left Sidebar: File Tree -->
+      <aside class="code-sidebar repo-sidebar">
+        <div class="sidebar-header">
+          {% if current_project %}
+            <a href="/{{ current_project.owner.username }}/{{ current_project.slug }}/"
+               class="sidebar-title-link"
+               title="{{ current_project.name }}"
+               style="display: inline-flex;">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
+                <path fill="currentColor" d="M1.75 1A1.75 1.75 0 0 0 0 2.75v10.5C0 14.216.784 15 1.75 15h12.5A1.75 1.75 0 0 0 16 13.25v-8.5A1.75 1.75 0 0 0 14.25 3H7.5a.25.25 0 0 1-.2-.1l-.9-1.2C6.07 1.26 5.55 1 5 1H1.75Z"></path>
+              </svg>
+              <span>{{ current_project.name }}</span>
+            </a>
+          {% else %}
+            <div class="sidebar-title-link">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
+                <path fill="currentColor" d="M1.75 1A1.75 1.75 0 0 0 0 2.75v10.5C0 14.216.784 15 1.75 15h12.5A1.75 1.75 0 0 0 16 13.25v-8.5A1.75 1.75 0 0 0 14.25 3H7.5a.25.25 0 0 1-.2-.1l-.9-1.2C6.07 1.26 5.55 1 5 1H1.75Z"></path>
+              </svg>
+              <span>No Project Selected</span>
+            </div>
+          {% endif %}
+        </div>
       <div id="file-tree" class="file-tree-container">
         <div class="tree-loading">
           <i class="fas fa-spinner fa-spin"></i> Loading file tree...
         </div>
       </div>
     </aside>
+
+    <!-- Resizer between sidebar and editor -->
+    <div class="panel-resizer" id="sidebar-resizer"></div>
 
     <!-- Center: Editor Area -->
     <div class="code-editor-area">
@@ -246,6 +279,9 @@
       </div>
     </div>
 
+    <!-- Resizer between editor and terminal -->
+    <div class="panel-resizer" id="editor-resizer"></div>
+
     <!-- Right: Terminal Panel (PTY with xterm.js) -->
     <div class="code-terminal-panel">
       <!-- Terminal Header -->
@@ -263,6 +299,7 @@
       <div id="pty-terminal" class="terminal-body" style="padding: 0;"></div>
     </div>
   </div>
+  {% endif %}
 
   <!-- Shortcuts Help Modal (Editor) -->
   <div id="shortcuts-modal-overlay" class="file-modal-overlay">
@@ -378,6 +415,9 @@
   <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xterm-addon-image@0.6.0/lib/xterm-addon-image.js"></script>
+
+  <!-- Panel Resizer for sidebar/editor/terminal -->
+  <script src="{% static 'code_app/js/resizer-manager.js' %}"></script>
 
   <!-- Load compiled TypeScript with cache-busting -->
   <script>

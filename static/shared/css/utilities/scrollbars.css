@@ -37,17 +37,21 @@
 
 /* Dark mode */
 [data-theme="dark"] *::-webkit-scrollbar-track {
-  background: #1c2128;
+  background: var(--bg-page, #0f1419);
 }
 
 [data-theme="dark"] *::-webkit-scrollbar-thumb {
-  background: #3d4451;
+  background: var(--bg-muted, #34495e);
 }
 
 [data-theme="dark"] *::-webkit-scrollbar-thumb:hover {
+  background: var(--border-default, #506b7a);
+}
+
+[data-theme="dark"] *::-webkit-scrollbar-thumb:active {
   background: var(--scitex-color-03, #f9c74f);
 }
 
 [data-theme="dark"] * {
-  scrollbar-color: #3d4451 #1c2128;
+  scrollbar-color: var(--bg-muted, #34495e) var(--bg-page, #0f1419);
 }

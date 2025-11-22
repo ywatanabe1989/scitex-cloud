@@ -1,0 +1,78 @@
+/* ============================================================================
+ * Standard Panel Resizer Component
+ * ============================================================================
+ * Clean grayish resizer for workspace panels (Code, Writer, Vis)
+ * Easy to grab with subtle visual feedback
+ * ========================================================================== */
+
+.panel-resizer,
+.split-resizer {
+  /* Size and layout */
+  width: 4px;
+  height: 100%;
+  flex-shrink: 0;
+  position: relative;
+
+  /* Visual style - clean grayish tone */
+  background: var(--workspace-border-default);
+
+  /* Interaction */
+  cursor: col-resize;
+  user-select: none;
+  pointer-events: all;
+
+  /* Smooth transitions */
+  transition: background 0.2s ease;
+
+  /* Stacking */
+  z-index: 10;
+
+  /* Remove default margins/padding */
+  margin: 0;
+  padding: 0;
+}
+
+/* Expanded hit area for easier grabbing */
+.panel-resizer::before,
+.split-resizer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -12px;
+  right: -12px;
+  cursor: col-resize;
+  z-index: 1;
+}
+
+/* Hover state - slightly lighter gray (no blue/green) */
+.panel-resizer:hover,
+.split-resizer:hover {
+  background: var(--workspace-border-hover, #3a3a3a);
+}
+
+/* Active/dragging state - even lighter for feedback */
+.panel-resizer:active,
+.split-resizer:active,
+.panel-resizer.active,
+.split-resizer.active {
+  background: var(--workspace-border-active, #4a4a4a);
+}
+
+/* Dark theme adjustments */
+[data-theme="dark"] .panel-resizer,
+[data-theme="dark"] .split-resizer {
+  background: var(--workspace-border-default);
+}
+
+[data-theme="dark"] .panel-resizer:hover,
+[data-theme="dark"] .split-resizer:hover {
+  background: var(--workspace-border-hover, #3a3a3a);
+}
+
+[data-theme="dark"] .panel-resizer:active,
+[data-theme="dark"] .split-resizer:active,
+[data-theme="dark"] .panel-resizer.active,
+[data-theme="dark"] .split-resizer.active {
+  background: var(--workspace-border-active, #4a4a4a);
+}

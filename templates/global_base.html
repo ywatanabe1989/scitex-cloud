@@ -10,7 +10,8 @@
         {% block head_extra %}{% endblock %}
         {% block extra_css %}{% endblock %}
     </head>
-    <body data-user-authenticated="{% if user.is_authenticated %}true{% else %}false{% endif %}">
+    <body data-user-authenticated="{% if user.is_authenticated %}true{% else %}false{% endif %}"
+          class="{% if request.path == '/' %}workspace-page landing-page{% elif '/code/' in request.path %}workspace-page code-workspace{% elif '/vis/' in request.path %}workspace-page vis-workspace{% elif '/writer/' in request.path %}workspace-page writer-workspace{% endif %}">
         {% include 'global_base_partials/global_header.html' %}
         <!-- Django Messages -->
         {% if messages %}

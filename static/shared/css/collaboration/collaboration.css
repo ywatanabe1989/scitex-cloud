@@ -288,6 +288,593 @@
 }
 
 /* ============================================================================
+ * Collaboration Pane Layout (Writer App)
+ * ========================================================================== */
+
+/* Main collaboration view container */
+#collaboration-view {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* Hide collaboration view when hidden attribute is set */
+#collaboration-view[hidden] {
+    display: none;
+}
+
+/* Collaboration panel header */
+.collab-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--workspace-border-default);
+    background: var(--workspace-bg-secondary);
+}
+
+.collab-panel-header .header-left {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.collab-panel-header .header-right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.collab-header-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--workspace-text-primary);
+}
+
+.collaboration-content-modern {
+    padding: 0;
+    background: var(--workspace-bg-primary);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    flex: 1;
+    min-height: 0;
+}
+
+/* Invite Bar */
+.invite-bar {
+    padding: 12px 16px;
+    background: var(--workspace-bg-secondary);
+    border-bottom: 1px solid var(--workspace-border-default);
+    flex-shrink: 0;
+}
+
+.invite-input,
+.invite-role-select,
+.invite-send-btn {
+    font-size: 12px;
+}
+
+/* Dark theme overrides for invite bar inputs */
+.invite-bar .invite-input,
+.invite-bar .invite-role-select {
+    background: var(--workspace-bg-primary) !important;
+    color: var(--workspace-text-primary) !important;
+    border-color: var(--workspace-border-default) !important;
+}
+
+.invite-bar .invite-input:focus,
+.invite-bar .invite-role-select:focus {
+    background: var(--workspace-bg-primary) !important;
+    color: var(--workspace-text-primary) !important;
+    border-color: var(--workspace-border-active) !important;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--workspace-border-active) 15%, transparent) !important;
+}
+
+.invite-bar .input-group-text {
+    background: var(--workspace-bg-secondary) !important;
+    color: var(--workspace-text-secondary) !important;
+    border-color: var(--workspace-border-default) !important;
+}
+
+.invite-role-select {
+    max-width: 90px;
+}
+
+.status-icon-tiny {
+    font-size: 8px;
+}
+
+.pending-invites-compact {
+    margin-top: 8px;
+}
+
+/* Custom Collaboration Buttons */
+.collab-invite-send-btn {
+    background: var(--workspace-bg-tertiary);
+    border: 1px solid var(--workspace-border-default);
+    color: var(--workspace-text-primary);
+    padding: 6px 12px;
+    font-size: 13px;
+    transition: all 0.2s ease;
+}
+
+.collab-invite-send-btn:hover {
+    background: var(--workspace-bg-quaternary);
+    border-color: var(--workspace-border-hover);
+    color: var(--workspace-text-primary);
+}
+
+.collab-connect-btn {
+    background: var(--workspace-bg-tertiary);
+    border: 1px solid var(--workspace-border-default);
+    color: var(--workspace-text-primary);
+    transition: all 0.2s ease;
+}
+
+.collab-connect-btn:hover {
+    background: var(--workspace-bg-quaternary);
+    border-color: var(--workspace-border-hover);
+    color: var(--workspace-text-primary);
+}
+
+/* Two Column Layout */
+.collab-two-column {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 1px;
+    background: var(--workspace-border-default);
+    flex: 1;
+    overflow: hidden;
+    min-height: 0;
+}
+
+.collab-column {
+    background: var(--workspace-bg-primary);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+}
+
+/* Modern Sections */
+.collab-section-modern {
+    background: var(--workspace-bg-primary);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    flex: 1;
+    min-height: 0;
+}
+
+.chat-modern {
+    display: flex;
+    flex-direction: column;
+    height: 60%;
+    border-bottom: 1px solid var(--workspace-border-default);
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    min-height: 200px;
+}
+
+.activity-modern {
+    display: flex;
+    flex-direction: column;
+    height: 40%;
+    min-height: 150px;
+}
+
+.section-title-modern {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--workspace-bg-secondary);
+    border-bottom: 1px solid var(--workspace-border-default);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--workspace-text-secondary);
+    user-select: none;
+    flex-shrink: 0;
+}
+
+.section-title-modern span {
+    flex: 1;
+}
+
+.section-title-modern i {
+    font-size: 10px;
+}
+
+.badge-count {
+    background: var(--workspace-border-active);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.btn-icon-sm {
+    background: none;
+    border: none;
+    color: var(--workspace-text-secondary);
+    padding: 2px 6px;
+    cursor: pointer;
+    font-size: 10px;
+    border-radius: 3px;
+    transition: all 0.2s ease;
+}
+
+.btn-icon-sm:hover {
+    background: var(--workspace-bg-tertiary);
+    color: var(--workspace-text-primary);
+}
+
+/* Collaborators Grid */
+.collaborators-grid {
+    padding: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+    align-content: flex-start;
+}
+
+/* Modern Chat */
+.chat-messages-modern {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+    background: var(--workspace-bg-primary);
+    min-height: 0;
+}
+
+.chat-input-modern {
+    display: flex;
+    gap: 8px;
+    padding: 12px;
+    background: var(--workspace-bg-secondary);
+    border-top: 1px solid var(--workspace-border-default);
+    flex-shrink: 0;
+}
+
+.chat-input-modern textarea {
+    flex: 1;
+    border: 1px solid var(--workspace-border-default);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 13px;
+    resize: none;
+    background: var(--workspace-bg-primary);
+    color: var(--workspace-text-primary);
+    font-family: inherit;
+    min-height: 36px;
+    max-height: 120px;
+}
+
+.chat-input-modern textarea:focus {
+    outline: none;
+    border-color: var(--workspace-border-active);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--workspace-border-active) 15%, transparent);
+}
+
+.btn-send-modern {
+    background: var(--workspace-bg-tertiary);
+    color: var(--workspace-text-primary);
+    border: 1px solid var(--workspace-border-default);
+    border-radius: 6px;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-send-modern:hover {
+    background: var(--workspace-bg-quaternary);
+    border-color: var(--workspace-border-hover);
+}
+
+/* Workspace theme overrides for Bootstrap buttons in collaboration panel */
+#collaboration-view .btn-primary,
+#collaboration-view .invite-send-btn,
+#collaboration-panel-header .btn-primary,
+.collab-panel-header .btn-primary {
+    background: var(--workspace-border-active) !important;
+    border-color: var(--workspace-border-active) !important;
+    color: white !important;
+}
+
+#collaboration-view .btn-primary:hover,
+#collaboration-view .invite-send-btn:hover,
+#collaboration-panel-header .btn-primary:hover,
+.collab-panel-header .btn-primary:hover {
+    background: var(--workspace-border-hover) !important;
+    border-color: var(--workspace-border-hover) !important;
+}
+
+#collaboration-view .btn-primary:focus,
+#collaboration-view .invite-send-btn:focus,
+#collaboration-panel-header .btn-primary:focus,
+.collab-panel-header .btn-primary:focus {
+    background: var(--workspace-border-active) !important;
+    border-color: var(--workspace-border-active) !important;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--workspace-border-active) 15%, transparent) !important;
+}
+
+/* Modern Activity Feed */
+.activity-feed-modern {
+    overflow-y: auto;
+    padding: 12px;
+    font-size: 12px;
+    flex: 1;
+    min-height: 0;
+    background: var(--workspace-bg-primary);
+}
+
+/* Connection Status Badge */
+.connection-status-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background: var(--workspace-bg-secondary);
+    border-radius: 12px;
+    font-size: 12px;
+    border: 1px solid var(--workspace-border-default);
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.status-dot.online {
+    background: #28a745;
+    animation: pulse-green 2s infinite;
+}
+
+.status-dot.offline {
+    background: #6c757d;
+}
+
+.status-dot.connecting {
+    background: #ffa500;
+    animation: pulse-orange 1s infinite;
+}
+
+@keyframes pulse-green {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.1); }
+}
+
+@keyframes pulse-orange {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.status-text {
+    color: var(--workspace-text-primary);
+    font-weight: 500;
+}
+
+/* Chat Messages */
+.chat-message {
+    margin-bottom: 12px;
+    padding: 10px 12px;
+    background: var(--workspace-bg-secondary);
+    border-radius: 6px;
+    border-left: 3px solid var(--workspace-border-active);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.chat-message:hover {
+    background: var(--workspace-bg-tertiary);
+}
+
+.chat-message.own-message {
+    border-left-color: #28a745;
+    background: rgba(40, 167, 69, 0.05);
+}
+
+.chat-message.own-message:hover {
+    background: rgba(40, 167, 69, 0.1);
+}
+
+.chat-message-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.chat-message-author {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--workspace-text-primary);
+}
+
+.chat-message-time {
+    font-size: 11px;
+    color: var(--workspace-text-secondary);
+}
+
+.chat-message-content {
+    font-size: 13px;
+    color: var(--workspace-text-primary);
+    line-height: 1.5;
+    word-wrap: break-word;
+    user-select: text;
+}
+
+/* Activity Items */
+.activity-item {
+    padding: 8px 12px;
+    border-left: 2px solid var(--workspace-border-default);
+    margin-bottom: 8px;
+    background: var(--workspace-bg-secondary);
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.activity-item.user-joined {
+    border-left-color: #28a745;
+}
+
+.activity-item.user-left {
+    border-left-color: #d73a49;
+}
+
+.activity-item.text-changed {
+    border-left-color: var(--color-accent-emphasis);
+}
+
+.activity-item.section-locked {
+    border-left-color: #ffa500;
+}
+
+.activity-item-icon {
+    margin-right: 6px;
+    color: var(--workspace-text-secondary);
+}
+
+.activity-item-text {
+    color: var(--workspace-text-primary);
+}
+
+.activity-item-time {
+    font-size: 10px;
+    color: var(--workspace-text-secondary);
+    margin-left: 6px;
+}
+
+/* Invitation Items */
+.invitation-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: var(--workspace-bg-secondary);
+    border-radius: 4px;
+    margin-bottom: 6px;
+    border-left: 3px solid var(--workspace-border-active);
+    border: 1px solid var(--workspace-border-default);
+}
+
+.invitation-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+}
+
+.invitation-info strong {
+    font-size: 13px;
+    color: var(--workspace-text-primary);
+}
+
+/* Empty States */
+.empty-state,
+.chat-empty-state,
+.activity-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--workspace-text-secondary);
+}
+
+.empty-state i,
+.chat-empty-state i {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.3;
+}
+
+/* ============================================================================
+ * Dark Mode Support
+ * ========================================================================== */
+
+[data-theme="dark"] .collab-status {
+    background-color: rgba(76, 175, 80, 0.15);
+    color: #81c784;
+}
+
+[data-theme="dark"] .collaborator-item {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .collaborator-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .collaborator-name {
+    color: var(--text-primary, #e8e8e8);
+}
+
+[data-theme="dark"] .section-lock-badge {
+    background-color: rgba(255, 193, 7, 0.15);
+    border-color: rgba(255, 193, 7, 0.3);
+    color: #ffd54f;
+}
+
+[data-theme="dark"] #collaboration-toggle {
+    border-color: rgba(255, 255, 255, 0.12);
+    background-color: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary, #e8e8e8);
+}
+
+[data-theme="dark"] #collaboration-toggle:hover {
+    border-color: #4caf50;
+    color: #81c784;
+}
+
+[data-theme="dark"] #collaboration-toggle.active {
+    border-color: #4caf50;
+    background-color: #4caf50;
+    color: #fff;
+}
+
+[data-theme="dark"] #collaboration-info {
+    background-color: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+[data-theme="dark"] #collaboration-info h4 {
+    color: var(--text-primary, #e8e8e8);
+}
+
+[data-theme="dark"] .connection-status {
+    color: var(--text-secondary, #b0b0b0);
+}
+
+[data-theme="dark"] .collaboration-badge.active {
+    background-color: rgba(25, 118, 210, 0.2);
+    color: #64b5f6;
+}
+
+[data-theme="dark"] .collaboration-badge.editing {
+    background-color: rgba(76, 175, 80, 0.2);
+    color: #81c784;
+}
+
+/* ============================================================================
  * Responsive Design
  * ========================================================================== */
 

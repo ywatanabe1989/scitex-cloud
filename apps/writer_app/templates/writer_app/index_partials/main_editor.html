@@ -158,54 +158,18 @@
                      id="panel-resizer"
                      title="Drag to resize panels"></div>
                 <div class="preview-panel">
+                    <!-- Shared Right Panel Header (changes content based on active panel) -->
+                    <div class="panel-header" id="right-panel-header">
+                        <!-- Header content will be dynamically updated by switchRightPanel() -->
+                    </div>
+
                     <!-- PDF View (default visible) -->
                     <div id="pdf-view" class="right-panel-view">
-                        <!-- PDF Header -->
-                        <div class="panel-header" id="pdf-panel-header">
+                        <!-- PDF Header (hidden template - content copied to shared header) -->
+                        <div class="panel-header panel-header-template" id="pdf-panel-header" style="display: none">
                             <div class="header-left">
                                 <!-- View Toggle -->
-                                <div class="view-switcher me-2" role="group">
-                                    <button type="button"
-                                            id="show-pdf-btn"
-                                            class="view-switch-btn active"
-                                            onclick="switchRightPanel('pdf')"
-                                            title="Toggle PDF Preview (Ctrl+2)">
-                                        <i class="fas fa-file-pdf"></i>
-                                        <span class="visually-hidden">PDF Pane</span>
-                                    </button>
-                                    <button type="button"
-                                            id="show-citations-btn"
-                                            class="view-switch-btn"
-                                            onclick="switchRightPanel('citations')"
-                                            title="Toggle Citations (Ctrl+3)">
-                                        <i class="fas fa-book"></i>
-                                        <span class="visually-hidden">Citations Pane</span>
-                                    </button>
-                                    <button type="button"
-                                            id="show-figures-btn"
-                                            class="view-switch-btn"
-                                            onclick="switchRightPanel('figures')"
-                                            title="Toggle Figures (Ctrl+4)">
-                                        <i class="fas fa-image"></i>
-                                        <span class="visually-hidden">Figures Pane</span>
-                                    </button>
-                                    <button type="button"
-                                            id="show-tables-btn"
-                                            class="view-switch-btn"
-                                            onclick="switchRightPanel('tables')"
-                                            title="Toggle Tables (Ctrl+5)">
-                                        <i class="fas fa-table"></i>
-                                        <span class="visually-hidden">Tables Pane</span>
-                                    </button>
-                                    <button type="button"
-                                            id="show-history-btn"
-                                            class="view-switch-btn"
-                                            onclick="switchRightPanel('history')"
-                                            title="Toggle Version History (Ctrl+6)">
-                                        <i class="fas fa-history"></i>
-                                        <span class="visually-hidden">History Pane</span>
-                                    </button>
-                                </div>
+                                {% include "writer_app/index_partials/panel_view_switcher.html" with active_view="pdf" %}
                                 <!-- Compile Button (hidden, triggered from dropdown) -->
                                 <button id="compile-btn-toolbar"
                                         class="btn btn-sm btn-primary"
@@ -342,47 +306,11 @@
                     </div>
                     <!-- Citations View (hidden by default) -->
                     <div id="citations-view" class="right-panel-view" style="display: none">
-                        <!-- Citations Header -->
-                        <div class="panel-header" id="citations-panel-header">
+                        <!-- Citations Header (hidden template - content copied to shared header) -->
+                        <div class="panel-header panel-header-template" id="citations-panel-header" style="display: none">
                             <div class="header-left">
                                 <!-- View Toggle -->
-                                <div class="view-switcher me-2" role="group">
-                                    <button type="button"
-                                            class="view-switch-btn"
-                                            onclick="switchRightPanel('pdf')"
-                                            title="Back to PDF Preview (Ctrl+2)">
-                                        <i class="fas fa-file-pdf"></i>
-                                        <span class="visually-hidden">PDF Pane</span>
-                                    </button>
-                                    <button type="button"
-                                            class="view-switch-btn active"
-                                            onclick="switchRightPanel('citations')"
-                                            title="Citations (Ctrl+3)">
-                                        <i class="fas fa-book"></i>
-                                        <span class="visually-hidden">Citations Pane</span>
-                                    </button>
-                                    <button type="button"
-                                            class="view-switch-btn"
-                                            onclick="switchRightPanel('figures')"
-                                            title="Figures (Ctrl+4)">
-                                        <i class="fas fa-image"></i>
-                                        <span class="visually-hidden">Figures Pane</span>
-                                    </button>
-                                    <button type="button"
-                                            class="view-switch-btn"
-                                            onclick="switchRightPanel('tables')"
-                                            title="Tables (Ctrl+5)">
-                                        <i class="fas fa-table"></i>
-                                        <span class="visually-hidden">Tables Pane</span>
-                                    </button>
-                                    <button type="button"
-                                            class="view-switch-btn"
-                                            onclick="switchRightPanel('history')"
-                                            title="Version History (Ctrl+6)">
-                                        <i class="fas fa-history"></i>
-                                        <span class="visually-hidden">History Pane</span>
-                                    </button>
-                                </div>
+                                {% include "writer_app/index_partials/panel_view_switcher.html" with active_view="citations" %}
                             </div>
                             <div class="header-right" style="display: flex; align-items: center; gap: 0.5rem; flex: 1">
                                 <!-- 1. Citations Selection Count -->
@@ -424,47 +352,11 @@
                     </div>
                     <!-- Figures View (hidden by default) -->
                     <div id="figures-view" class="right-panel-view" style="display: none">
-                        <!-- Figures Header -->
-                        <div class="panel-header" id="figures-panel-header">
+                        <!-- Figures Header (hidden template - content copied to shared header) -->
+                        <div class="panel-header panel-header-template" id="figures-panel-header" style="display: none">
                             <div class="header-left">
                                 <!-- View Toggle -->
-                                <div class="view-switcher me-2" role="group">
-                                    <button type="button"
-                                            class="view-switch-btn"
-                                            onclick="switchRightPanel('pdf')"
-                                            title="Back to PDF Preview (Ctrl+2)">
-                                        <i class="fas fa-file-pdf"></i>
-                                        <span class="visually-hidden">PDF Pane</span>
-                                    </button>
-                                    <button type="button"
-                                            class="view-switch-btn"
-                                            onclick="switchRightPanel('citations')"
-                                            title="Citations (Ctrl+3)">
-                                        <i class="fas fa-book"></i>
-                                        <span class="visually-hidden">Citations Pane</span>
-                                    </button>
-                                    <button type="button"
-                                            class="view-switch-btn active"
-                                            onclick="switchRightPanel('figures')"
-                                            title="Figures (Ctrl+4)">
-                                        <i class="fas fa-image"></i>
-                                        <span class="visually-hidden">Figures Pane</span>
-                                    </button>
-                                    <button type="button"
-                                            class="view-switch-btn"
-                                            onclick="switchRightPanel('tables')"
-                                            title="Tables (Ctrl+5)">
-                                        <i class="fas fa-table"></i>
-                                        <span class="visually-hidden">Tables Pane</span>
-                                    </button>
-                                    <button type="button"
-                                            class="view-switch-btn"
-                                            onclick="switchRightPanel('history')"
-                                            title="Version History (Ctrl+6)">
-                                        <i class="fas fa-history"></i>
-                                        <span class="visually-hidden">History Pane</span>
-                                    </button>
-                                </div>
+                                {% include "writer_app/index_partials/panel_view_switcher.html" with active_view="figures" %}
                             </div>
                             <div class="header-right" style="display: flex; align-items: center; gap: 0.5rem; flex: 1">
                                 <!-- 1. Figures Selection Count -->
@@ -507,48 +399,12 @@
                     </div>
                     <!-- Tables View (hidden by default) -->
                     <div id="tables-view" class="right-panel-content" hidden>
-                        <!-- Tables Panel Header (similar to Figures/Citations) -->
-                        <div class="panel-header" style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--color-border-default);background:var(--bg-canvas-inset)">
-                            <div class="header-left" style="display: flex; align-items: center; gap: 0.5rem">
-                                <div class="view-switcher me-2" role="group">
-                                    <button type="button"
-                                            class="view-switch-btn"
-                                            onclick="switchRightPanel('pdf')"
-                                            title="Back to PDF Preview (Ctrl+2)">
-                                        <i class="fas fa-file-pdf"></i>
-                                        <span class="visually-hidden">PDF Pane</span>
-                                    </button>
-                                    <button type="button"
-                                            class="view-switch-btn"
-                                            onclick="switchRightPanel('citations')"
-                                            title="Citations (Ctrl+3)">
-                                        <i class="fas fa-book"></i>
-                                        <span class="visually-hidden">Citations Pane</span>
-                                    </button>
-                                    <button type="button"
-                                            class="view-switch-btn"
-                                            onclick="switchRightPanel('figures')"
-                                            title="Figures (Ctrl+4)">
-                                        <i class="fas fa-image"></i>
-                                        <span class="visually-hidden">Figures Pane</span>
-                                    </button>
-                                    <button type="button"
-                                            class="view-switch-btn active"
-                                            onclick="switchRightPanel('tables')"
-                                            title="Tables (Ctrl+5)">
-                                        <i class="fas fa-table"></i>
-                                        <span class="visually-hidden">Tables Pane</span>
-                                    </button>
-                                    <button type="button"
-                                            class="view-switch-btn"
-                                            onclick="switchRightPanel('history')"
-                                            title="Version History (Ctrl+6)">
-                                        <i class="fas fa-history"></i>
-                                        <span class="visually-hidden">History Pane</span>
-                                    </button>
-                                </div>
+                        <!-- Tables Panel Header (hidden template - content copied to shared header) -->
+                        <div class="panel-header panel-header-template" id="tables-panel-header" style="display: none">
+                            <div class="header-left">
+                                {% include "writer_app/index_partials/panel_view_switcher.html" with active_view="tables" %}
                             </div>
-                            <div class="header-right" style="display: flex; align-items: center; gap: 0.5rem; flex: 1">
+                            <div class="header-right">
                                 <!-- 1. Tables Selection Count -->
                                 <span id="tables-selected-toolbar" style="font-size: 0.75rem; color: var(--color-fg-muted); white-space: nowrap">
                                     <span id="tables-selected-count-toolbar">0</span>/<span id="tables-total-for-selection-toolbar">0</span> Selected
@@ -560,49 +416,12 @@
                     </div>
                     <!-- History View (hidden by default) -->
                     <div id="history-view" class="right-panel-content" hidden>
-                        <!-- History Panel Header -->
-                        <div class="panel-header" style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--color-border-default);background:var(--bg-canvas-inset)">
-                            <div class="header-left" style="display: flex; align-items: center; gap: 0.5rem">
-                                <div class="view-switcher me-2" role="group">
-                                    <button type="button"
-                                            class="view-switch-btn"
-                                            onclick="switchRightPanel('pdf')"
-                                            title="Back to PDF Preview (Ctrl+2)">
-                                        <i class="fas fa-file-pdf"></i>
-                                        <span class="visually-hidden">PDF Pane</span>
-                                    </button>
-                                    <button type="button"
-                                            class="view-switch-btn"
-                                            onclick="switchRightPanel('citations')"
-                                            title="Citations (Ctrl+3)">
-                                        <i class="fas fa-book"></i>
-                                        <span class="visually-hidden">Citations Pane</span>
-                                    </button>
-                                    <button type="button"
-                                            class="view-switch-btn"
-                                            onclick="switchRightPanel('figures')"
-                                            title="Figures (Ctrl+4)">
-                                        <i class="fas fa-image"></i>
-                                        <span class="visually-hidden">Figures Pane</span>
-                                    </button>
-                                    <button type="button"
-                                            class="view-switch-btn"
-                                            onclick="switchRightPanel('tables')"
-                                            title="Tables (Ctrl+5)">
-                                        <i class="fas fa-table"></i>
-                                        <span class="visually-hidden">Tables Pane</span>
-                                    </button>
-                                    <button type="button"
-                                            class="view-switch-btn active"
-                                            onclick="switchRightPanel('history')"
-                                            title="Version History (Ctrl+6)">
-                                        <i class="fas fa-history"></i>
-                                        <span class="visually-hidden">History Pane</span>
-                                    </button>
-                                </div>
-                                <h6 class="mb-0" style="font-size: 0.9rem; font-weight: 600; color: var(--color-fg-default)">Version History</h6>
+                        <!-- History Panel Header (hidden template - content copied to shared header) -->
+                        <div class="panel-header panel-header-template" id="history-panel-header" style="display: none">
+                            <div class="header-left">
+                                {% include "writer_app/index_partials/panel_view_switcher.html" with active_view="history" %}
                             </div>
-                            <div class="header-right" style="display: flex; align-items: center; gap: 0.5rem">
+                            <div class="header-right">
                                 <!-- Branch Selector -->
                                 <select id="gitBranchSelect" class="form-select form-select-sm" style="max-width: 150px">
                                     <option value="main">Current Branch</option>
@@ -620,6 +439,9 @@
                         <!-- History Content -->
                         {% include "writer_app/index_partials/history_panel.html" %}
                     </div>
+
+                    <!-- Collaboration View (hidden by default) -->
+                    {% include "writer_app/index_partials/collaboration_pane.html" %}
                 </div>
             </div>
         </div>

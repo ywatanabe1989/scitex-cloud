@@ -55,6 +55,7 @@
 [data-theme="dark"] .global-header {
   background-color: var(--scitex-color-01); /* Dark: #1a2332 */
   border-bottom: 1px solid var(--scitex-color-04); /* More visible border with accent color */
+  box-shadow: none; /* Remove shadow in dark mode - border provides separation */
 }
 
 [data-theme="dark"] .global-header::before {
@@ -529,6 +530,7 @@
 
 .header-nav-item.active {
   background: var(--scitex-color-07);
+  box-shadow: none; /* Remove any shadow effect */
 }
 
 [data-theme="dark"] .header-nav-item {
@@ -541,6 +543,8 @@
 
 [data-theme="dark"] .header-nav-item.active {
   background: var(--scitex-color-01-light);
+  font-weight: 500; /* Slightly bolder text */
+  box-shadow: none; /* Remove any shadow effect */
 }
 
 .header-nav-item i {
